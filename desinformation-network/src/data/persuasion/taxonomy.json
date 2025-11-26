@@ -1,0 +1,12 @@
+{
+  "nodes": [],
+  "phaseInteractions": [],
+  "counterMeasurePhaseMappings": {
+    "metaData": {
+      "version": "1.0.0",
+      "lastUpdated": "2025-01-01",
+      "description": "Minimal taxonomy for initial game launch"
+    },
+    "mappings": []
+  }
+}

@@ -1,0 +1,240 @@
+[
+  {
+    "id": "public_scandal",
+    "name": "Public Scandal",
+    "description": "A major scandal breaks, shaking public trust in media.",
+    "triggerType": "random",
+    "probability": 0.08,
+    "effects": [
+      {
+        "type": "trust_delta",
+        "target": "category",
+        "targetCategory": "media",
+        "value": -0.15
+      },
+      {
+        "type": "emotional_delta",
+        "target": "all",
+        "value": 0.1
+      }
+    ],
+    "newsTickerText": "BREAKING: Major scandal rocks prominent media outlet!",
+    "iconType": "alert"
+  },
+  {
+    "id": "viral_misinformation",
+    "name": "Viral Misinformation",
+    "description": "Misleading content spreads rapidly across platforms.",
+    "triggerType": "random",
+    "probability": 0.12,
+    "effects": [
+      {
+        "type": "emotional_delta",
+        "target": "all",
+        "value": 0.12
+      },
+      {
+        "type": "trust_delta",
+        "target": "random",
+        "value": -0.1
+      }
+    ],
+    "newsTickerText": "Viral claim spreads across social media before fact-checkers can respond",
+    "iconType": "trending"
+  },
+  {
+    "id": "fact_check_viral",
+    "name": "Fact Check Goes Viral",
+    "description": "A thorough fact-check reaches millions, temporarily boosting trust.",
+    "triggerType": "random",
+    "probability": 0.08,
+    "effects": [
+      {
+        "type": "trust_delta",
+        "target": "all",
+        "value": 0.05
+      }
+    ],
+    "newsTickerText": "Comprehensive fact-check goes viral, millions engaged with accurate information",
+    "iconType": "check"
+  },
+  {
+    "id": "expert_vindicated",
+    "name": "Expert Vindicated",
+    "description": "Previously attacked expert is proven correct, restoring some trust.",
+    "triggerType": "random",
+    "probability": 0.06,
+    "effects": [
+      {
+        "type": "trust_delta",
+        "target": "category",
+        "targetCategory": "expert",
+        "value": 0.08
+      }
+    ],
+    "newsTickerText": "New evidence vindicates expert predictions from months ago",
+    "iconType": "award"
+  },
+  {
+    "id": "political_crisis",
+    "name": "Political Crisis",
+    "description": "A political crisis erupts, straining institutional trust.",
+    "triggerType": "random",
+    "probability": 0.07,
+    "effects": [
+      {
+        "type": "trust_delta",
+        "target": "category",
+        "targetCategory": "organization",
+        "value": -0.12
+      },
+      {
+        "type": "emotional_delta",
+        "target": "all",
+        "value": 0.15
+      }
+    ],
+    "newsTickerText": "Political tensions escalate as institutional crisis deepens",
+    "iconType": "warning"
+  },
+  {
+    "id": "whistleblower",
+    "name": "Whistleblower Revelation",
+    "description": "Internal documents reveal manipulation, affecting trust unpredictably.",
+    "triggerType": "random",
+    "probability": 0.05,
+    "effects": [
+      {
+        "type": "trust_delta",
+        "target": "category",
+        "targetCategory": "lobby",
+        "value": -0.20
+      },
+      {
+        "type": "trust_delta",
+        "target": "category",
+        "targetCategory": "media",
+        "value": 0.05
+      }
+    ],
+    "newsTickerText": "Leaked documents expose coordinated influence campaign",
+    "iconType": "document"
+  },
+  {
+    "id": "economic_anxiety",
+    "name": "Economic Anxiety Spike",
+    "description": "Economic concerns make people more susceptible to manipulation.",
+    "triggerType": "random",
+    "probability": 0.09,
+    "effects": [
+      {
+        "type": "emotional_delta",
+        "target": "all",
+        "value": 0.18
+      },
+      {
+        "type": "resilience_delta",
+        "target": "all",
+        "value": -0.05
+      }
+    ],
+    "newsTickerText": "Economic indicators trigger widespread anxiety about future",
+    "iconType": "chart-down"
+  },
+  {
+    "id": "media_literacy_campaign",
+    "name": "Media Literacy Campaign",
+    "description": "Public education campaign temporarily increases critical thinking.",
+    "triggerType": "random",
+    "probability": 0.06,
+    "effects": [
+      {
+        "type": "resilience_delta",
+        "target": "all",
+        "value": 0.05
+      },
+      {
+        "type": "emotional_delta",
+        "target": "all",
+        "value": -0.05
+      }
+    ],
+    "newsTickerText": "New media literacy initiative reaches millions of citizens",
+    "iconType": "book"
+  },
+  {
+    "id": "trust_crisis",
+    "name": "Trust Crisis",
+    "description": "Network-wide trust drops below critical threshold, triggering defensive response.",
+    "triggerType": "conditional",
+    "condition": "averageTrust < 0.35",
+    "effects": [
+      {
+        "type": "spawn_defensive",
+        "target": "network",
+        "value": "regulatory"
+      }
+    ],
+    "newsTickerText": "EMERGENCY: Government announces new anti-disinformation measures",
+    "iconType": "shield"
+  },
+  {
+    "id": "polarization_peak",
+    "name": "Polarization Peak",
+    "description": "Society becomes too divided for effective dialogue.",
+    "triggerType": "conditional",
+    "condition": "polarizationIndex > 0.75",
+    "effects": [
+      {
+        "type": "emotional_delta",
+        "target": "all",
+        "value": 0.1
+      },
+      {
+        "type": "trust_delta",
+        "target": "all",
+        "value": -0.05
+      }
+    ],
+    "newsTickerText": "Social divisions reach critical levels as dialogue breaks down",
+    "iconType": "users-x"
+  },
+  {
+    "id": "international_incident",
+    "name": "International Incident",
+    "description": "External events create opportunity for manipulation.",
+    "triggerType": "random",
+    "probability": 0.05,
+    "effects": [
+      {
+        "type": "emotional_delta",
+        "target": "all",
+        "value": 0.2
+      },
+      {
+        "type": "resource_bonus",
+        "target": "player",
+        "value": 15
+      }
+    ],
+    "newsTickerText": "International crisis dominates headlines, creating information chaos",
+    "iconType": "globe"
+  },
+  {
+    "id": "algorithm_change",
+    "name": "Algorithm Change",
+    "description": "Social media algorithms change, affecting information spread.",
+    "triggerType": "random",
+    "probability": 0.07,
+    "effects": [
+      {
+        "type": "trust_delta",
+        "target": "category",
+        "targetCategory": "media",
+        "value": -0.08
+      }
+    ],
+    "newsTickerText": "Major platform updates algorithm, reshuffling information landscape",
+    "iconType": "settings"
+  }
+]
