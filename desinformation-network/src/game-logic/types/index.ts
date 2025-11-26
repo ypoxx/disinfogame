@@ -372,3 +372,6 @@ export type Clamp = (value: number, min: number, max: number) => number;
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
+
+// Re-export narrative types
+export * from './narrative';
