@@ -1,7 +1,6 @@
-import { useCallback } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { cn } from '@/utils/cn';
-import { formatPercent, formatRound } from '@/utils';
+import { formatPercent } from '@/utils';
 import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
 
 // ============================================
