@@ -5,7 +5,8 @@ import { formatPercent } from '@/utils';
 import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
 import { NetworkVisualization } from '@/components/NetworkVisualization';
 import { RoundSummary } from '@/components/RoundSummary';
-import type { RoundSummary as RoundSummaryType, ImpactVisualization } from '@/game-logic/types/narrative';
+import { VictoryProgressBar } from '@/components/VictoryProgressBar';
+import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 
 // ============================================
@@ -305,6 +306,17 @@ function App() {
 
         {/* Side Panel */}
         <div className="w-80 bg-white border-l border-gray-200 p-6 overflow-y-auto">
+          {/* Victory Progress */}
+          <div className="mb-6">
+            <VictoryProgressBar
+              metrics={networkMetrics}
+              round={gameState.round}
+              maxRounds={gameState.maxRounds}
+              victoryThreshold={0.75}
+              trustThreshold={0.40}
+            />
+          </div>
+
           {selectedActor ? (
             <>
               {/* Actor Details */}
