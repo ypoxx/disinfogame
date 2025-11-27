@@ -77,7 +77,7 @@ export function TrustEvolutionChart({
         }
         return null;
       })
-      .filter(Boolean);
+      .filter((m): m is NonNullable<typeof m> => m !== null);
   }, [history, maxRounds, chartWidth]);
 
   return (
