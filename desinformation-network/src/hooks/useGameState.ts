@@ -136,91 +136,23 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
   }, [gameManager, syncState]);
   
   // ============================================
-  // ACTOR SELECTION
-  // ============================================
-  
-  const selectActor = useCallback((actorId: string | null) => {
-    if (uiState.targetingMode && actorId) {
-      // In targeting mode - check if valid target
-      if (uiState.validTargets.includes(actorId)) {
-        // Apply ability to this target
-        applyAbility([actorId]);
-      }
-      return;
-    }
-    
-    // Normal selection
-    setUIState(prev => ({
-      ...prev,
-      selectedActor: actorId
-        ? { actorId, selectedAt: Date.now() }
-        : null,
-      selectedAbility: null,
-      targetingMode: false,
-      validTargets: [],
-    }));
-  }, [uiState.targetingMode, uiState.validTargets]);
-  
-  const hoverActor = useCallback((actorId: string | null) => {
-    setUIState(prev => ({
-      ...prev,
-      hoveredActor: actorId,
-    }));
-  }, []);
-  
-  const getActor = useCallback((actorId: string): Actor | undefined => {
-    return gameManager.getActor(actorId);
-  }, [gameManager]);
-  
-  // ============================================
   // ABILITY ACTIONS
   // ============================================
-  
-  const selectAbility = useCallback((abilityId: string) => {
-    const selectedActorId = uiState.selectedActor?.actorId;
-    if (!selectedActorId) return;
-    
-    if (!gameManager.canUseAbility(abilityId, selectedActorId)) {
-      addNotification('warning', 'Cannot use this ability right now');
-      return;
-    }
-    
-    const validTargets = gameManager.getValidTargets(abilityId, selectedActorId);
-    
-    setUIState(prev => ({
-      ...prev,
-      selectedAbility: {
-        abilityId,
-        sourceActorId: selectedActorId,
-      },
-      targetingMode: validTargets.length > 0,
-      validTargets: validTargets.map(a => a.id),
-    }));
-  }, [uiState.selectedActor, gameManager]);
-  
-  const cancelAbility = useCallback(() => {
-    setUIState(prev => ({
-      ...prev,
-      selectedAbility: null,
-      targetingMode: false,
-      validTargets: [],
-    }));
-  }, []);
-  
+
   const applyAbility = useCallback((targetActorIds: string[]): boolean => {
     const ability = uiState.selectedAbility;
     if (!ability) return false;
-    
+
     const success = gameManager.applyAbility(
       ability.abilityId,
       ability.sourceActorId,
       targetActorIds
     );
-    
+
     if (success) {
       syncState();
       addNotification('success', 'Ability applied successfully');
-      
+
       // Clear selection
       setUIState(prev => ({
         ...prev,
@@ -231,9 +163,77 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     } else {
       addNotification('error', 'Failed to apply ability');
     }
-    
+
     return success;
   }, [uiState.selectedAbility, gameManager, syncState]);
+
+  const selectAbility = useCallback((abilityId: string) => {
+    const selectedActorId = uiState.selectedActor?.actorId;
+    if (!selectedActorId) return;
+
+    if (!gameManager.canUseAbility(abilityId, selectedActorId)) {
+      addNotification('warning', 'Cannot use this ability right now');
+      return;
+    }
+
+    const validTargets = gameManager.getValidTargets(abilityId, selectedActorId);
+
+    setUIState(prev => ({
+      ...prev,
+      selectedAbility: {
+        abilityId,
+        sourceActorId: selectedActorId,
+      },
+      targetingMode: validTargets.length > 0,
+      validTargets: validTargets.map(a => a.id),
+    }));
+  }, [uiState.selectedActor, gameManager]);
+
+  const cancelAbility = useCallback(() => {
+    setUIState(prev => ({
+      ...prev,
+      selectedAbility: null,
+      targetingMode: false,
+      validTargets: [],
+    }));
+  }, []);
+
+  // ============================================
+  // ACTOR SELECTION
+  // ============================================
+
+  const selectActor = useCallback((actorId: string | null) => {
+    if (uiState.targetingMode && actorId) {
+      // In targeting mode - check if valid target
+      if (uiState.validTargets.includes(actorId)) {
+        // Apply ability to this target
+        applyAbility([actorId]);
+      }
+      return;
+    }
+
+    // Normal selection
+    setUIState(prev => ({
+      ...prev,
+      selectedActor: actorId
+        ? { actorId, selectedAt: Date.now() }
+        : null,
+      selectedAbility: null,
+      targetingMode: false,
+      validTargets: [],
+    }));
+  }, [uiState.targetingMode, uiState.validTargets, applyAbility]);
+
+  const hoverActor = useCallback((actorId: string | null) => {
+    setUIState(prev => ({
+      ...prev,
+      hoveredActor: actorId,
+    }));
+  }, []);
+
+  const getActor = useCallback((actorId: string): Actor | undefined => {
+    return gameManager.getActor(actorId);
+  }, [gameManager]);
   
   const canUseAbility = useCallback((abilityId: string): boolean => {
     const selectedActorId = uiState.selectedActor?.actorId;

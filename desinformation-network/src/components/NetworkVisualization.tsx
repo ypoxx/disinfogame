@@ -20,11 +20,11 @@ type NetworkVisualizationProps = {
 };
 
 const CATEGORY_POSITIONS: Record<string, { x: number; y: number }> = {
-  media: { x: 200, y: 150 },
-  expert: { x: 600, y: 150 },
-  lobby: { x: 200, y: 400 },
-  organization: { x: 600, y: 400 },
-  defensive: { x: 400, y: 275 }, // Center
+  media: { x: 180, y: 180 },
+  expert: { x: 600, y: 180 },
+  lobby: { x: 180, y: 420 },
+  organization: { x: 600, y: 420 },
+  defensive: { x: 390, y: 300 }, // Center
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -48,6 +48,8 @@ export function NetworkVisualization({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number>(0);
+  const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
+  const [hoveredActor, setHoveredActor] = useState<Actor | null>(null);
 
   // Group actors by category
   const actorsByCategory = actors.reduce((groups, actor) => {
@@ -68,8 +70,8 @@ export function NetworkVisualization({
     }
 
     // Arrange in circle around category center
-    const radius = 80;
-    const angle = (index / count) * Math.PI * 2;
+    const radius = 85;
+    const angle = (index / count) * Math.PI * 2 - Math.PI / 2; // Start from top
     return {
       x: basePos.x + Math.cos(angle) * radius,
       y: basePos.y + Math.sin(angle) * radius,
@@ -92,7 +94,7 @@ export function NetworkVisualization({
 
       // Category background
       ctx.beginPath();
-      ctx.arc(pos.x, pos.y, 120, 0, Math.PI * 2);
+      ctx.arc(pos.x, pos.y, 125, 0, Math.PI * 2);
       ctx.fillStyle = `${getCategoryColor(category as any)}08`;
       ctx.fill();
       ctx.strokeStyle = `${getCategoryColor(category as any)}30`;
@@ -101,12 +103,39 @@ export function NetworkVisualization({
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Category label
-      ctx.font = 'bold 14px Inter, sans-serif';
+      // Category label background for better readability
+      const label = CATEGORY_LABELS[category] || category;
+      ctx.font = 'bold 13px Inter, sans-serif';
+      const labelMetrics = ctx.measureText(label);
+      const labelWidth = labelMetrics.width;
+      const labelX = pos.x;
+      const labelY = pos.y - 115;
+
+      // Label background
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.fillRect(
+        labelX - labelWidth / 2 - 6,
+        labelY - 10,
+        labelWidth + 12,
+        20
+      );
+
+      // Label border
+      ctx.strokeStyle = `${getCategoryColor(category as any)}50`;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([]);
+      ctx.strokeRect(
+        labelX - labelWidth / 2 - 6,
+        labelY - 10,
+        labelWidth + 12,
+        20
+      );
+
+      // Category label text
       ctx.fillStyle = getCategoryColor(category as any);
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(CATEGORY_LABELS[category] || category, pos.x, pos.y - 100);
+      ctx.fillText(label, labelX, labelY);
     });
 
     // Draw connections (edges)
@@ -211,18 +240,45 @@ export function NetworkVisualization({
         ctx.lineWidth = 3;
         ctx.stroke();
 
-        // Actor name (always show in Democracy 4 style)
+        // Actor name with text wrapping for long names
+        const maxNameWidth = 100;
         ctx.font = `${isSelected || isHovered ? 'bold ' : ''}11px Inter, sans-serif`;
         ctx.fillStyle = '#1F2937';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
-        ctx.fillText(actor.name, pos.x, pos.y + 38);
+
+        // Truncate name if too long
+        let displayName = actor.name;
+        const nameMetrics = ctx.measureText(displayName);
+        if (nameMetrics.width > maxNameWidth) {
+          // Shorten the name
+          while (ctx.measureText(displayName + '...').width > maxNameWidth && displayName.length > 0) {
+            displayName = displayName.slice(0, -1);
+          }
+          displayName = displayName + '...';
+        }
+
+        // Name background for better readability
+        const textWidth = ctx.measureText(displayName).width;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.fillRect(pos.x - textWidth / 2 - 4, pos.y + 36, textWidth + 8, 16);
+
+        ctx.fillStyle = '#1F2937';
+        ctx.fillText(displayName, pos.x, pos.y + 38);
 
         // Trust percentage below name
         if (isSelected || isHovered) {
           ctx.font = '10px Inter, sans-serif';
           ctx.fillStyle = trustToHex(actor.trust);
-          ctx.fillText(`${Math.round(actor.trust * 100)}%`, pos.x, pos.y + 52);
+          const trustText = `${Math.round(actor.trust * 100)}%`;
+          const trustWidth = ctx.measureText(trustText).width;
+
+          // Background for trust percentage
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+          ctx.fillRect(pos.x - trustWidth / 2 - 3, pos.y + 53, trustWidth + 6, 14);
+
+          ctx.fillStyle = trustToHex(actor.trust);
+          ctx.fillText(trustText, pos.x, pos.y + 55);
         }
       });
     });
@@ -270,6 +326,15 @@ export function NetworkVisualization({
 
     const actor = findActorAtPosition(x, y);
     onActorHover(actor?.id || null);
+
+    // Update tooltip
+    if (actor) {
+      setHoveredActor(actor);
+      setTooltipPosition({ x: e.clientX, y: e.clientY });
+    } else {
+      setHoveredActor(null);
+      setTooltipPosition(null);
+    }
   }, [findActorAtPosition, onActorHover]);
 
   // Resize canvas
@@ -311,47 +376,74 @@ export function NetworkVisualization({
         className="absolute inset-0 cursor-pointer"
         onClick={handleClick}
         onMouseMove={handleMouseMove}
-        onMouseLeave={() => onActorHover(null)}
+        onMouseLeave={() => {
+          onActorHover(null);
+          setHoveredActor(null);
+          setTooltipPosition(null);
+        }}
       />
 
-      {/* Legend */}
-      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 text-xs">
-        <h4 className="font-bold text-gray-900 mb-2">Network Map</h4>
-        <div className="space-y-1">
+      {/* Legend - moved to top right to avoid network overlap */}
+      <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 text-xs max-w-[180px]">
+        <h4 className="font-bold text-gray-900 mb-2">Legend</h4>
+        <div className="space-y-1.5">
+          <div className="font-semibold text-gray-700 text-[10px] uppercase tracking-wide mb-1">Categories</div>
           {Object.entries(CATEGORY_LABELS).map(([cat, label]) => {
             const count = actorsByCategory[cat]?.length || 0;
             if (count === 0 && cat !== 'defensive') return null;
             return (
               <div key={cat} className="flex items-center gap-2">
                 <div
-                  className="w-3 h-3 rounded-full"
+                  className="w-3 h-3 rounded-full flex-shrink-0"
                   style={{ backgroundColor: getCategoryColor(cat as any) }}
                 />
-                <span className="text-gray-700">{label} ({count})</span>
+                <span className="text-gray-700 text-[11px] leading-tight">{label} ({count})</span>
               </div>
             );
           })}
+          <div className="font-semibold text-gray-700 text-[10px] uppercase tracking-wide mt-2 mb-1">Trust</div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#EF4444' }} />
+            <span className="text-gray-700 text-[11px]">Low (&lt; 40%)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#EAB308' }} />
+            <span className="text-gray-700 text-[11px]">Med (40-70%)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#22C55E' }} />
+            <span className="text-gray-700 text-[11px]">High (&gt; 70%)</span>
+          </div>
         </div>
       </div>
 
-      {/* Trust Legend */}
-      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 text-xs">
-        <h4 className="font-bold text-gray-900 mb-2">Trust Levels</h4>
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#EF4444' }} />
-            <span className="text-gray-700">Low (&lt; 40%)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#EAB308' }} />
-            <span className="text-gray-700">Medium (40-70%)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#22C55E' }} />
-            <span className="text-gray-700">High (&gt; 70%)</span>
+      {/* Actor Tooltip */}
+      {hoveredActor && tooltipPosition && (
+        <div
+          className="fixed z-50 pointer-events-none"
+          style={{
+            left: tooltipPosition.x + 15,
+            top: tooltipPosition.y + 15,
+          }}
+        >
+          <div className="bg-gray-900 text-white text-xs rounded-lg py-2 px-3 shadow-xl max-w-[250px]">
+            <div className="font-bold mb-1">{hoveredActor.name}</div>
+            <div className="text-gray-300 capitalize mb-1">{hoveredActor.category}</div>
+            <div className="space-y-0.5 text-[11px]">
+              <div>Trust: <span className="font-semibold">{Math.round(hoveredActor.trust * 100)}%</span></div>
+              <div>Resilience: <span className="font-semibold">{Math.round(hoveredActor.resilience * 100)}%</span></div>
+              <div>Emotional: <span className="font-semibold">{Math.round(hoveredActor.emotionalState * 100)}%</span></div>
+            </div>
+            {hoveredActor.vulnerabilities.length > 0 && (
+              <div className="mt-1 pt-1 border-t border-gray-700">
+                <div className="text-red-400 text-[10px]">
+                  Vulnerable to: {hoveredActor.vulnerabilities.join(', ').replace(/_/g, ' ')}
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

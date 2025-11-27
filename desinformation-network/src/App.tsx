@@ -6,8 +6,11 @@ import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
 import { NetworkVisualization } from '@/components/NetworkVisualization';
 import { RoundSummary } from '@/components/RoundSummary';
 import { VictoryProgressBar } from '@/components/VictoryProgressBar';
+import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
+import { createInitialTutorialState } from '@/game-logic/types/tutorial';
+import type { TutorialState } from '@/game-logic/types/tutorial';
 
 // ============================================
 // MAIN APP COMPONENT
@@ -36,6 +39,10 @@ function App() {
   const [currentRoundSummary, setCurrentRoundSummary] = useState<RoundSummaryType | null>(null);
   const [previousRound, setPreviousRound] = useState(0);
   const [networkBefore, setNetworkBefore] = useState(networkMetrics);
+
+  // Tutorial state
+  const [tutorialState, setTutorialState] = useState<TutorialState>(createInitialTutorialState());
+  const [showTutorial, setShowTutorial] = useState(false);
 
   // Track round changes and generate summaries
   useEffect(() => {
@@ -84,6 +91,40 @@ function App() {
   const handleContinue = () => {
     setShowRoundSummary(false);
   };
+
+  // Tutorial handlers
+  const handleTutorialNext = () => {
+    setTutorialState(prev => {
+      const nextStep = prev.currentStep + 1;
+      if (nextStep >= prev.steps.length) {
+        return { ...prev, active: false, completed: true };
+      }
+      return {
+        ...prev,
+        currentStep: nextStep,
+        steps: prev.steps.map((step, i) =>
+          i === prev.currentStep ? { ...step, completed: true } : step
+        )
+      };
+    });
+  };
+
+  const handleTutorialSkip = () => {
+    setTutorialState(prev => ({
+      ...prev,
+      active: false,
+      skipped: true,
+      completed: false
+    }));
+    setShowTutorial(false);
+  };
+
+  // Show tutorial when game starts
+  useEffect(() => {
+    if (gameState.phase === 'playing' && gameState.round === 1 && !tutorialState.skipped && !tutorialState.completed) {
+      setShowTutorial(true);
+    }
+  }, [gameState.phase, gameState.round, tutorialState.skipped, tutorialState.completed]);
 
   // ============================================
   // SCREENS
@@ -390,38 +431,76 @@ function App() {
                     const cooldown = selectedActor.cooldowns[ability.id] || 0;
                     const canUse = canUseAbility(ability.id);
                     const isSelected = uiState.selectedAbility?.abilityId === ability.id;
-                    
+
+                    // Build effect description
+                    const effects: string[] = [];
+                    if (ability.effects.trustDelta) {
+                      const sign = ability.effects.trustDelta < 0 ? '' : '+';
+                      effects.push(`${sign}${Math.round(ability.effects.trustDelta * 100)}% trust`);
+                    }
+                    if (ability.effects.emotionalDelta) {
+                      effects.push(`+${Math.round(ability.effects.emotionalDelta * 100)}% emotional`);
+                    }
+                    if (ability.effects.resilienceDelta) {
+                      effects.push(`${ability.effects.resilienceDelta < 0 ? '' : '+'}${Math.round(ability.effects.resilienceDelta * 100)}% resilience`);
+                    }
+                    if (ability.effects.propagates) {
+                      effects.push('propagates to connected actors');
+                    }
+
                     return (
-                      <button
-                        key={ability.id}
-                        onClick={() => canUse && selectAbility(ability.id)}
-                        disabled={!canUse}
-                        className={cn(
-                          "w-full p-3 rounded-lg border text-left transition-all",
-                          isSelected
-                            ? "border-blue-500 bg-blue-50"
-                            : canUse
-                              ? "border-gray-200 bg-white hover:border-gray-300"
-                              : "border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed"
-                        )}
-                      >
-                        <div className="flex justify-between items-start mb-1">
-                          <span className="font-medium text-gray-900 text-sm">
-                            {ability.name}
-                          </span>
-                          <span className="text-xs text-blue-600 font-medium">
-                            {ability.resourceCost} pts
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-500 mb-2">
-                          {ability.description}
-                        </p>
-                        {cooldown > 0 && (
-                          <p className="text-xs text-orange-600">
-                            Cooldown: {cooldown} rounds
+                      <div key={ability.id} className="group relative">
+                        <button
+                          onClick={() => canUse && selectAbility(ability.id)}
+                          disabled={!canUse}
+                          className={cn(
+                            "w-full p-3 rounded-lg border text-left transition-all",
+                            isSelected
+                              ? "border-blue-500 bg-blue-50"
+                              : canUse
+                                ? "border-gray-200 bg-white hover:border-gray-300"
+                                : "border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed"
+                          )}
+                        >
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="font-medium text-gray-900 text-sm">
+                              {ability.name}
+                            </span>
+                            <span className="text-xs text-blue-600 font-medium">
+                              {ability.resourceCost} pts
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 mb-2">
+                            {ability.description}
                           </p>
+                          {effects.length > 0 && (
+                            <p className="text-xs text-gray-400 mb-1">
+                              Effects: {effects.join(', ')}
+                            </p>
+                          )}
+                          {cooldown > 0 && (
+                            <p className="text-xs text-orange-600">
+                              Cooldown: {cooldown} rounds
+                            </p>
+                          )}
+                        </button>
+
+                        {/* Hover tooltip for additional info */}
+                        {canUse && (
+                          <div className="invisible group-hover:visible absolute left-full ml-2 top-0 z-50 w-64 bg-gray-900 text-white text-xs rounded-lg py-2 px-3 shadow-xl pointer-events-none">
+                            <div className="font-bold mb-1">{ability.name}</div>
+                            <div className="text-gray-300 mb-2">{ability.description}</div>
+                            <div className="space-y-1 text-[11px]">
+                              <div className="text-blue-300">Target: {ability.targetType}</div>
+                              {ability.targetCategory && (
+                                <div className="text-blue-300">Category: {ability.targetCategory}</div>
+                              )}
+                              <div className="text-yellow-300">Cost: {ability.resourceCost} resources</div>
+                              <div className="text-purple-300">Cooldown: {ability.cooldown} rounds</div>
+                            </div>
+                          </div>
                         )}
-                      </button>
+                      </div>
                     );
                   })}
                 </div>
@@ -464,6 +543,22 @@ function App() {
           impactVisualizations={[]}
           onContinue={handleContinue}
         />
+      )}
+
+      {/* Tutorial Overlay */}
+      {tutorialState.active && showTutorial && (
+        <>
+          <TutorialProgress
+            currentStep={tutorialState.currentStep}
+            totalSteps={tutorialState.steps.length}
+            round={gameState.round}
+          />
+          <TutorialOverlay
+            step={tutorialState.steps[tutorialState.currentStep]}
+            onNext={handleTutorialNext}
+            onSkip={handleTutorialSkip}
+          />
+        </>
       )}
     </div>
   );
