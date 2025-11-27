@@ -1,7 +1,12 @@
+import { useState, useEffect } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { cn } from '@/utils/cn';
 import { formatPercent } from '@/utils';
 import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
+import { NetworkVisualization } from '@/components/NetworkVisualization';
+import { RoundSummary } from '@/components/RoundSummary';
+import type { RoundSummary as RoundSummaryType, ImpactVisualization } from '@/game-logic/types/narrative';
+import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 
 // ============================================
 // MAIN APP COMPONENT
@@ -24,6 +29,60 @@ function App() {
     getActorAbilities,
     toggleEncyclopedia,
   } = useGameState();
+
+  // Round summary state
+  const [showRoundSummary, setShowRoundSummary] = useState(false);
+  const [currentRoundSummary, setCurrentRoundSummary] = useState<RoundSummaryType | null>(null);
+  const [previousRound, setPreviousRound] = useState(0);
+  const [networkBefore, setNetworkBefore] = useState(networkMetrics);
+
+  // Track round changes and generate summaries
+  useEffect(() => {
+    if (gameState.phase === 'playing' && gameState.round > previousRound && previousRound > 0) {
+      // Round just advanced - generate summary
+      const summary: RoundSummaryType = {
+        round: previousRound,
+        playerActions: [],
+        automaticEvents: [],
+        networkBefore: {
+          averageTrust: networkBefore.averageTrust,
+          lowTrustCount: networkBefore.lowTrustCount,
+          highTrustCount: networkBefore.highTrustCount,
+          polarization: networkBefore.polarizationIndex,
+        },
+        networkAfter: {
+          averageTrust: networkMetrics.averageTrust,
+          lowTrustCount: networkMetrics.lowTrustCount,
+          highTrustCount: networkMetrics.highTrustCount,
+          polarization: networkMetrics.polarizationIndex,
+        },
+        totalTrustChange: networkBefore.averageTrust - networkMetrics.averageTrust,
+        actorsAffected: Math.abs(networkMetrics.lowTrustCount - networkBefore.lowTrustCount),
+        propagationDepth: 1,
+        roundNarrative: NarrativeGenerator.generateRoundNarrative(
+          [],
+          { averageTrust: networkBefore.averageTrust, polarization: networkBefore.polarizationIndex },
+          { averageTrust: networkMetrics.averageTrust, polarization: networkMetrics.polarizationIndex }
+        ),
+        keyMoments: [],
+        consequences: NarrativeGenerator.generateConsequences(
+          { averageTrust: networkBefore.averageTrust, lowTrustCount: networkBefore.lowTrustCount },
+          { averageTrust: networkMetrics.averageTrust, lowTrustCount: networkMetrics.lowTrustCount, polarization: networkMetrics.polarizationIndex },
+          []
+        ),
+      };
+
+      setCurrentRoundSummary(summary);
+      setShowRoundSummary(true);
+    }
+
+    setPreviousRound(gameState.round);
+    setNetworkBefore(networkMetrics);
+  }, [gameState.round, gameState.phase]);
+
+  const handleContinue = () => {
+    setShowRoundSummary(false);
+  };
 
   // ============================================
   // SCREENS
@@ -228,63 +287,19 @@ function App() {
 
       {/* Main Content */}
       <div className="flex-1 flex">
-        {/* Canvas Area (Placeholder) */}
+        {/* Network Visualization */}
         <div className="flex-1 p-6">
-          <div className="bg-white rounded-2xl shadow-soft h-full p-6">
-            <div className="text-center text-gray-400 h-full flex flex-col items-center justify-center">
-              <p className="text-lg mb-4">Network Canvas</p>
-              <p className="text-sm mb-8">(GameCanvas component will render here)</p>
-              
-              {/* Temporary Actor List */}
-              <div className="grid grid-cols-4 gap-4 w-full max-w-2xl">
-                {gameState.network.actors.map(actor => (
-                  <button
-                    key={actor.id}
-                    onClick={() => selectActor(actor.id)}
-                    onMouseEnter={() => hoverActor(actor.id)}
-                    onMouseLeave={() => hoverActor(null)}
-                    className={cn(
-                      "p-4 rounded-xl border-2 transition-all text-left",
-                      uiState.selectedActor?.actorId === actor.id
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 bg-white hover:border-gray-300",
-                      uiState.targetingMode && uiState.validTargets.includes(actor.id)
-                        && "ring-2 ring-red-400 ring-offset-2"
-                    )}
-                  >
-                    <div 
-                      className="w-3 h-3 rounded-full mb-2"
-                      style={{ backgroundColor: getCategoryColor(actor.category) }}
-                    />
-                    <p className="font-medium text-gray-900 text-sm truncate">
-                      {actor.name}
-                    </p>
-                    <p className="text-xs text-gray-500 capitalize">
-                      {actor.category}
-                    </p>
-                    <div className="mt-2 flex items-center gap-2">
-                      <div 
-                        className="h-2 rounded-full flex-1"
-                        style={{ 
-                          backgroundColor: '#e5e7eb',
-                        }}
-                      >
-                        <div 
-                          className="h-2 rounded-full transition-all"
-                          style={{ 
-                            width: `${actor.trust * 100}%`,
-                            backgroundColor: trustToHex(actor.trust),
-                          }}
-                        />
-                      </div>
-                      <span className="text-xs font-medium" style={{ color: trustToHex(actor.trust) }}>
-                        {formatPercent(actor.trust)}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
+          <div className="bg-white rounded-2xl shadow-soft h-full overflow-hidden">
+            <NetworkVisualization
+              actors={gameState.network.actors}
+              connections={gameState.network.connections}
+              selectedActorId={uiState.selectedActor?.actorId || null}
+              hoveredActorId={uiState.hoveredActor}
+              targetingMode={uiState.targetingMode}
+              validTargets={uiState.validTargets}
+              onActorClick={selectActor}
+              onActorHover={hoverActor}
+            />
           </div>
         </div>
 
@@ -428,6 +443,15 @@ function App() {
               .find(a => a.id === uiState.selectedAbility?.abilityId)?.name}
           </span>
         </div>
+      )}
+
+      {/* Round Summary Modal */}
+      {showRoundSummary && currentRoundSummary && (
+        <RoundSummary
+          summary={currentRoundSummary}
+          impactVisualizations={[]}
+          onContinue={handleContinue}
+        />
       )}
     </div>
   );
