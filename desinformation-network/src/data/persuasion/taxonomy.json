@@ -1,11 +1,390 @@
 {
-  "nodes": [],
+  "nodes": [
+    {
+      "id": "framing",
+      "name": "Framing",
+      "category": "Cognitive Techniques",
+      "description": "Presenting information in a way that influences perception",
+      "longDescription": "Framing refers to how information is presented to influence interpretation. The same facts can be framed differently to produce different reactions. For example, '90% survival rate' sounds more positive than '10% mortality rate', though they mean the same thing.",
+      "example": "Calling tax cuts 'relief' vs. 'giveaways to the rich'",
+      "extendedExample": "Political framing: 'death tax' vs. 'estate tax', 'climate change' vs. 'global warming'. Media framing: focusing on individual crime stories creates fear, while statistical context shows declining crime rates.",
+      "wikipediaQuery": "Framing_(social_sciences)",
+      "taxonomyGroups": ["cognitive_bias", "content_manipulation"],
+      "applications": ["politics", "marketing", "media"],
+      "manipulationPotential": 0.75,
+      "uncertainty": {
+        "confidenceInterval": [0.7, 0.8],
+        "confidenceLevel": "high",
+        "basis": "Extensive experimental research (Kahneman & Tversky)"
+      },
+      "empiricalEvidence": [
+        "Asian disease problem (Tversky & Kahneman, 1981)",
+        "News framing effects on public opinion (Iyengar, 1991)"
+      ],
+      "counterStrategies": [
+        "Reframe the issue from multiple perspectives",
+        "Look for absolute numbers behind percentages",
+        "Ask 'How else could this be described?'"
+      ]
+    },
+    {
+      "id": "emotional_appeal",
+      "name": "Emotional Appeal",
+      "category": "Emotional Techniques",
+      "description": "Triggering emotions to bypass rational analysis",
+      "longDescription": "Emotional appeals exploit our tendency to make decisions based on feelings rather than facts. Fear, anger, hope, and disgust can overwhelm logical thinking and critical evaluation.",
+      "example": "Using fear of terrorism to justify surveillance",
+      "extendedExample": "Political ads showing suffering children, disaster footage, or patriotic imagery. Marketing using happiness, sex appeal, or FOMO (fear of missing out). Propaganda using outrage and moral disgust.",
+      "wikipediaQuery": "Appeal_to_emotion",
+      "taxonomyGroups": ["emotional_manipulation"],
+      "applications": ["advertising", "politics", "propaganda"],
+      "manipulationPotential": 0.8,
+      "uncertainty": {
+        "confidenceInterval": [0.75, 0.85],
+        "confidenceLevel": "very high",
+        "basis": "Neuroscience and psychology research"
+      },
+      "empiricalEvidence": [
+        "Amygdala hijack in decision-making (LeDoux, 1996)",
+        "Affect heuristic research (Slovic et al., 2007)"
+      ],
+      "counterStrategies": [
+        "Notice when you feel strong emotions",
+        "Pause and ask 'What facts support this claim?'",
+        "Separate the emotional content from the argument"
+      ]
+    },
+    {
+      "id": "authority",
+      "name": "Appeal to Authority",
+      "category": "Social Techniques",
+      "description": "Using perceived expertise or status to make claims credible",
+      "longDescription": "We tend to trust experts and authorities, which can be exploited. Fake experts, credentials, or simply authoritative presentation can lend undeserved credibility to claims.",
+      "example": "9 out of 10 doctors recommend...",
+      "extendedExample": "Celebrity endorsements, white lab coats in ads, made-up credentials, selective expert quotation, citing authorities outside their field of expertise.",
+      "wikipediaQuery": "Argument_from_authority",
+      "taxonomyGroups": ["social_proof"],
+      "applications": ["advertising", "pseudoscience", "politics"],
+      "manipulationPotential": 0.65,
+      "uncertainty": {
+        "confidenceInterval": [0.6, 0.7],
+        "confidenceLevel": "high",
+        "basis": "Milgram's obedience studies and related research"
+      },
+      "empiricalEvidence": [
+        "Milgram obedience experiments (1963)",
+        "Expert influence on jury decisions (Cooper et al., 1996)"
+      ],
+      "counterStrategies": [
+        "Check credentials and expertise area",
+        "Look for consensus among experts",
+        "Evaluate arguments independent of who makes them"
+      ]
+    },
+    {
+      "id": "ad_hominem",
+      "name": "Ad Hominem",
+      "category": "Rhetorical Techniques",
+      "description": "Attacking the person instead of their argument",
+      "longDescription": "Rather than addressing an argument's merits, ad hominem attacks focus on the character, motives, or circumstances of the person making it. This deflects from substantive discussion.",
+      "example": "You're just saying that because you're paid by them",
+      "extendedExample": "Dismissing climate science because scientists receive funding, attacking political opponents' personal lives, questioning someone's patriotism instead of their policy proposal.",
+      "wikipediaQuery": "Ad_hominem",
+      "taxonomyGroups": ["logical_fallacy"],
+      "applications": ["politics", "debate", "media"],
+      "manipulationPotential": 0.55,
+      "uncertainty": {
+        "confidenceInterval": [0.5, 0.6],
+        "confidenceLevel": "medium",
+        "basis": "Argumentation theory research"
+      },
+      "empiricalEvidence": [
+        "Effect on jury deliberations (Kassin & Wrightsman, 1988)",
+        "Political attack ad effectiveness (Lau et al., 1999)"
+      ],
+      "counterStrategies": [
+        "Separate the argument from the arguer",
+        "Ask 'Does this address the actual claim?'",
+        "Steel-man the argument: present it in its best form"
+      ]
+    },
+    {
+      "id": "straw_man",
+      "name": "Straw Man",
+      "category": "Rhetorical Techniques",
+      "description": "Misrepresenting an opponent's position to make it easier to attack",
+      "longDescription": "The straw man fallacy involves distorting or oversimplifying someone's position, then attacking this weaker version instead of their actual argument. This creates the illusion of winning a debate.",
+      "example": "They want to defund police means they want total lawlessness",
+      "extendedExample": "Reducing nuanced policy proposals to extreme caricatures, taking quotes out of context, conflating different positions, or attributing extreme views to moderate opponents.",
+      "wikipediaQuery": "Straw_man",
+      "taxonomyGroups": ["logical_fallacy"],
+      "applications": ["politics", "media", "debate"],
+      "manipulationPotential": 0.7,
+      "uncertainty": {
+        "confidenceInterval": [0.65, 0.75],
+        "confidenceLevel": "high",
+        "basis": "Argumentation and communication research"
+      },
+      "empiricalEvidence": [
+        "Misrepresentation in political discourse (Jamieson & Cappella, 2008)",
+        "Effects on opinion polarization (Levendusky, 2013)"
+      ],
+      "counterStrategies": [
+        "Seek out the original source",
+        "Ask 'Is this what they actually said?'",
+        "Look for the strongest version of opposing views"
+      ]
+    },
+    {
+      "id": "false_dichotomy",
+      "name": "False Dichotomy",
+      "category": "Rhetorical Techniques",
+      "description": "Presenting only two options when more exist",
+      "longDescription": "False dichotomy (or false dilemma) presents a situation as if only two choices exist, when in reality there are multiple options or middle grounds. This simplification can manipulate by excluding reasonable alternatives.",
+      "example": "You're either with us or against us",
+      "extendedExample": "Framing debates as liberty vs. security, economic growth vs. environment, tradition vs. progress - ignoring nuanced positions that balance multiple values.",
+      "wikipediaQuery": "False_dilemma",
+      "taxonomyGroups": ["logical_fallacy"],
+      "applications": ["politics", "marketing", "ideology"],
+      "manipulationPotential": 0.65,
+      "uncertainty": {
+        "confidenceInterval": [0.6, 0.7],
+        "confidenceLevel": "high",
+        "basis": "Critical thinking and logic research"
+      },
+      "empiricalEvidence": [
+        "Binary framing in political messaging (Lakoff, 2004)",
+        "Either-or thinking in propaganda (Jowett & O'Donnell, 2015)"
+      ],
+      "counterStrategies": [
+        "Ask 'What other options exist?'",
+        "Look for middle ground and hybrid solutions",
+        "Recognize that most issues are multi-dimensional"
+      ]
+    },
+    {
+      "id": "social_proof",
+      "name": "Social Proof",
+      "category": "Social Techniques",
+      "description": "Using others' behavior to validate actions or beliefs",
+      "longDescription": "We tend to do what we see others doing, especially in uncertain situations. This can be manipulated through fake testimonials, manufactured consensus, or highlighting selected examples of behavior.",
+      "example": "1 million people can't be wrong!",
+      "extendedExample": "Canned laughter in TV shows, manipulated like counts, astroturfing campaigns, selective polling presentation, bandwagon appeals in politics.",
+      "wikipediaQuery": "Social_proof",
+      "taxonomyGroups": ["social_influence"],
+      "applications": ["marketing", "politics", "social_media"],
+      "manipulationPotential": 0.7,
+      "uncertainty": {
+        "confidenceInterval": [0.65, 0.75],
+        "confidenceLevel": "very high",
+        "basis": "Extensive social psychology research"
+      },
+      "empiricalEvidence": [
+        "Asch conformity experiments (1951)",
+        "Social influence in consumer behavior (Cialdini, 1984)"
+      ],
+      "counterStrategies": [
+        "Ask 'Are these people credible sources?'",
+        "Consider that popular ≠ correct",
+        "Evaluate evidence independently of crowd behavior"
+      ]
+    },
+    {
+      "id": "scarcity",
+      "name": "Scarcity",
+      "category": "Psychological Techniques",
+      "description": "Creating urgency through limited availability",
+      "longDescription": "We value things more when they're scarce or in limited supply. Artificial scarcity - limited time offers, exclusive access, countdown timers - can pressure decisions without rational evaluation.",
+      "example": "Only 3 left in stock! Order now!",
+      "extendedExample": "Flash sales, limited editions, exclusive memberships, early bird specials. In politics: framing resources as scarce to justify competition over cooperation.",
+      "wikipediaQuery": "Scarcity_(social_psychology)",
+      "taxonomyGroups": ["cognitive_bias"],
+      "applications": ["marketing", "sales", "e-commerce"],
+      "manipulationPotential": 0.6,
+      "uncertainty": {
+        "confidenceInterval": [0.55, 0.65],
+        "confidenceLevel": "high",
+        "basis": "Consumer psychology research"
+      },
+      "empiricalEvidence": [
+        "Scarcity and perceived value (Lynn, 1991)",
+        "Reactance theory and limited availability (Brehm, 1966)"
+      ],
+      "counterStrategies": [
+        "Take time before urgent decisions",
+        "Ask 'Will this still be worthwhile tomorrow?'",
+        "Recognize artificial scarcity tactics"
+      ]
+    },
+    {
+      "id": "priming",
+      "name": "Priming",
+      "category": "Psychological Techniques",
+      "description": "Exposure to stimuli influencing subsequent responses",
+      "longDescription": "Priming occurs when exposure to one stimulus influences response to another. Subtle cues - words, images, music - can unconsciously affect judgments and behavior that follow.",
+      "example": "Playing patriotic music before a political message",
+      "extendedExample": "Grocery stores playing slow music to increase browsing time, news using dramatic music before stories, websites using specific color schemes to influence mood and decisions.",
+      "wikipediaQuery": "Priming_(psychology)",
+      "taxonomyGroups": ["cognitive_bias", "subliminal"],
+      "applications": ["marketing", "media", "environment_design"],
+      "manipulationPotential": 0.5,
+      "uncertainty": {
+        "confidenceInterval": [0.4, 0.6],
+        "confidenceLevel": "medium",
+        "basis": "Mixed replication results in recent years"
+      },
+      "empiricalEvidence": [
+        "Semantic priming effects (Meyer & Schvaneveldt, 1971)",
+        "Behavioral priming controversies (Cesario, 2014)"
+      ],
+      "counterStrategies": [
+        "Be aware of context and environmental cues",
+        "Take breaks to reset mental state",
+        "Make important decisions in neutral environments"
+      ]
+    },
+    {
+      "id": "equivocation",
+      "name": "Equivocation",
+      "category": "Rhetorical Techniques",
+      "description": "Using ambiguous language to mislead",
+      "longDescription": "Equivocation exploits ambiguity by using words with multiple meanings or vague terms that can be interpreted differently. This allows making claims that sound definitive but are actually evasive.",
+      "example": "Our product is 'clinically tested' (not 'proven effective')",
+      "extendedExample": "Political promises using vague terms like 'soon', 'significant', or 'looking into it'. Marketing claims that sound impressive but are technically meaningless.",
+      "wikipediaQuery": "Equivocation",
+      "taxonomyGroups": ["logical_fallacy", "language_manipulation"],
+      "applications": ["politics", "marketing", "legal"],
+      "manipulationPotential": 0.55,
+      "uncertainty": {
+        "confidenceInterval": [0.5, 0.6],
+        "confidenceLevel": "medium",
+        "basis": "Argumentation and semantics research"
+      },
+      "empiricalEvidence": [
+        "Ambiguity in political speech (Fenno, 1978)",
+        "Weasel words in advertising (Lutz, 1989)"
+      ],
+      "counterStrategies": [
+        "Ask for specific definitions",
+        "Look for concrete claims vs. vague promises",
+        "Request quantifiable metrics"
+      ]
+    },
+    {
+      "id": "narrative_persuasion",
+      "name": "Narrative Persuasion",
+      "category": "Psychological Techniques",
+      "description": "Using stories to bypass critical evaluation",
+      "longDescription": "Narratives are powerful persuasion tools because they engage us emotionally and reduce critical thinking. Well-crafted stories can make us accept premises we might reject in abstract argument form.",
+      "example": "Personal anecdotes presented as evidence for general claims",
+      "extendedExample": "Political campaigns using individual stories instead of statistics, brands creating brand narratives, conspiracy theories structured as compelling stories with heroes and villains.",
+      "wikipediaQuery": "Narrative_paradigm",
+      "taxonomyGroups": ["content_manipulation"],
+      "applications": ["politics", "marketing", "ideology"],
+      "manipulationPotential": 0.75,
+      "uncertainty": {
+        "confidenceInterval": [0.7, 0.8],
+        "confidenceLevel": "high",
+        "basis": "Extensive communication research"
+      },
+      "empiricalEvidence": [
+        "Narrative transportation theory (Green & Brock, 2000)",
+        "Story-based persuasion effects (Dahlstrom, 2014)"
+      ],
+      "counterStrategies": [
+        "Distinguish anecdotes from data",
+        "Ask 'Is this representative or exceptional?'",
+        "Look for systematic evidence beyond stories"
+      ]
+    },
+    {
+      "id": "reactance_theory",
+      "name": "Reactance",
+      "category": "Psychological Techniques",
+      "description": "Triggering opposition to perceived freedom restrictions",
+      "longDescription": "When people feel their freedom is threatened, they often react by wanting the forbidden thing more and resisting influence attempts. This can be exploited by framing requests as threats to freedom.",
+      "example": "They don't want you to know this!",
+      "extendedExample": "Conspiracy theories framing mainstream views as censorship, marketing using 'banned' or 'they tried to stop us' messaging, political rhetoric about threats to liberty.",
+      "wikipediaQuery": "Reactance_(psychology)",
+      "taxonomyGroups": ["psychological_manipulation"],
+      "applications": ["conspiracy_theories", "marketing", "politics"],
+      "manipulationPotential": 0.65,
+      "uncertainty": {
+        "confidenceInterval": [0.6, 0.7],
+        "confidenceLevel": "high",
+        "basis": "Psychological reactance theory research"
+      },
+      "empiricalEvidence": [
+        "Psychological reactance (Brehm, 1966)",
+        "Forbidden fruit effect (Bushman & Stack, 1996)"
+      ],
+      "counterStrategies": [
+        "Notice when freedom rhetoric is being used",
+        "Ask 'Who benefits from my reactance?'",
+        "Evaluate claims on merits, not forbidden status"
+      ]
+    },
+    {
+      "id": "social_hierarchy",
+      "name": "Social Hierarchy",
+      "category": "Social Techniques",
+      "description": "Exploiting status and dominance hierarchies",
+      "longDescription": "Humans are sensitive to social hierarchies and status. This can be exploited by associating products/ideas with high status, or by manipulating perceptions of social standing.",
+      "example": "Luxury brands, exclusive memberships, VIP access",
+      "extendedExample": "Marketing products as status symbols, political appeals to group identity and hierarchy, social media influencer culture based on follower counts as status metric.",
+      "wikipediaQuery": "Social_stratification",
+      "taxonomyGroups": ["social_influence"],
+      "applications": ["marketing", "politics", "social_media"],
+      "manipulationPotential": 0.6,
+      "uncertainty": {
+        "confidenceInterval": [0.55, 0.65],
+        "confidenceLevel": "medium",
+        "basis": "Sociological and evolutionary psychology research"
+      },
+      "empiricalEvidence": [
+        "Status consumption (Eastman et al., 1999)",
+        "Social dominance orientation (Pratto et al., 1994)"
+      ],
+      "counterStrategies": [
+        "Question why status matters for this decision",
+        "Evaluate intrinsic value separately from status",
+        "Recognize status appeals as manipulation"
+      ]
+    },
+    {
+      "id": "collective_orientation",
+      "name": "Collective Orientation",
+      "category": "Social Techniques",
+      "description": "Emphasizing group identity over individual judgment",
+      "longDescription": "Collective orientation exploits our tendency to identify with groups. By emphasizing in-group/out-group distinctions, manipulators can bypass individual critical thinking and create 'us vs. them' mentalities.",
+      "example": "Real Americans believe...",
+      "extendedExample": "Political tribalism, brand communities, sports team loyalty transferred to products, nationalism and xenophobia in politics, cancel culture dynamics.",
+      "wikipediaQuery": "Collectivism",
+      "taxonomyGroups": ["social_influence"],
+      "applications": ["politics", "marketing", "ideology"],
+      "manipulationPotential": 0.7,
+      "uncertainty": {
+        "confidenceInterval": [0.65, 0.75],
+        "confidenceLevel": "high",
+        "basis": "Social identity theory research"
+      },
+      "empiricalEvidence": [
+        "Social identity theory (Tajfel & Turner, 1979)",
+        "Minimal group paradigm (Tajfel et al., 1971)"
+      ],
+      "counterStrategies": [
+        "Notice when group identity is being invoked",
+        "Evaluate claims based on evidence, not tribal loyalty",
+        "Recognize that disagreement ≠ disloyalty"
+      ]
+    }
+  ],
   "phaseInteractions": [],
   "counterMeasurePhaseMappings": {
     "metaData": {
-      "version": "1.0.0",
-      "lastUpdated": "2025-01-01",
-      "description": "Minimal taxonomy for initial game launch"
+      "version": "2.0.0",
+      "lastUpdated": "2025-11-26",
+      "description": "Scientific taxonomy of persuasion and manipulation techniques"
     },
     "mappings": []
   }
