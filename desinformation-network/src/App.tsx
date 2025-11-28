@@ -32,6 +32,7 @@ function App() {
     canUseAbility,
     getActorAbilities,
     toggleEncyclopedia,
+    addNotification,
   } = useGameState();
 
   // Round summary state
@@ -460,18 +461,40 @@ function App() {
                       effects.push('propagates to connected actors');
                     }
 
+                    // Detailed usability check
+                    const hasEnoughResources = gameState.resources >= ability.resourceCost;
+                    const notOnCooldown = cooldown === 0;
+                    const canActuallyUse = canUse;
+
+                    // Determine why ability can't be used
+                    let disabledReason = '';
+                    if (!canActuallyUse) {
+                      if (!hasEnoughResources) {
+                        disabledReason = `Need ${ability.resourceCost} resources (have ${gameState.resources})`;
+                      } else if (!notOnCooldown) {
+                        disabledReason = `On cooldown: ${cooldown} rounds`;
+                      } else {
+                        disabledReason = 'Cannot use this ability right now';
+                      }
+                    }
+
                     return (
                       <div key={ability.id} className="group relative">
                         <button
-                          onClick={() => canUse && selectAbility(ability.id)}
-                          disabled={!canUse}
+                          onClick={() => {
+                            if (canActuallyUse) {
+                              selectAbility(ability.id);
+                            } else {
+                              addNotification('warning', disabledReason);
+                            }
+                          }}
                           className={cn(
                             "w-full p-3 rounded-lg border text-left transition-all",
                             isSelected
                               ? "border-blue-500 bg-blue-50"
-                              : canUse
+                              : canActuallyUse
                                 ? "border-gray-200 bg-white hover:border-gray-300"
-                                : "border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed"
+                                : "border-orange-200 bg-orange-50 hover:border-orange-300 cursor-pointer"
                           )}
                         >
                           <div className="flex justify-between items-start mb-1">
@@ -491,8 +514,18 @@ function App() {
                             </p>
                           )}
                           {cooldown > 0 && (
-                            <p className="text-xs text-orange-600">
-                              Cooldown: {cooldown} rounds
+                            <p className="text-xs text-orange-600 font-semibold">
+                              ⏱ Cooldown: {cooldown} rounds
+                            </p>
+                          )}
+                          {!hasEnoughResources && (
+                            <p className="text-xs text-red-600 font-semibold">
+                              💰 Need {ability.resourceCost} resources (have {gameState.resources})
+                            </p>
+                          )}
+                          {!canActuallyUse && (
+                            <p className="text-xs text-orange-700 font-semibold mt-1">
+                              ⚠️ Click to see why unavailable
                             </p>
                           )}
                         </button>
