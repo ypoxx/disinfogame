@@ -7,6 +7,7 @@ import { NetworkVisualization } from '@/components/NetworkVisualization';
 import { RoundSummary } from '@/components/RoundSummary';
 import { VictoryProgressBar } from '@/components/VictoryProgressBar';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
+import { BottomSheet } from '@/components/BottomSheet';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
@@ -281,332 +282,90 @@ function App() {
     : null;
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* Left: Game Info */}
-          <div className="flex items-center gap-6">
-            <h1 className="text-xl font-bold text-gray-900">
-              Desinformation Network
-            </h1>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="px-3 py-1 bg-gray-100 rounded-lg">
-                <span className="text-gray-500">Round:</span>{' '}
-                <span className="font-semibold">{gameState.round}/{gameState.maxRounds}</span>
-              </div>
-              <div className="px-3 py-1 bg-blue-50 rounded-lg">
-                <span className="text-blue-600">Resources:</span>{' '}
-                <span className="font-semibold text-blue-700">{gameState.resources}</span>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col relative">
+      {/* Floating HUD - Top Left */}
+      <div className="fixed top-6 left-6 z-40 flex flex-col gap-3">
+        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl">
+          <h1 className="text-lg font-bold text-white mb-2">
+            Desinformation Network
+          </h1>
+          <div className="flex flex-col gap-2 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-gray-400">Round:</span>
+              <span className="font-semibold text-white">{gameState.round}/{gameState.maxRounds}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-blue-400">Resources:</span>
+              <span className="font-semibold text-blue-300">{gameState.resources}</span>
             </div>
           </div>
-          
-          {/* Right: Metrics & Actions */}
-          <div className="flex items-center gap-4">
-            <div className="text-sm">
-              <span className="text-gray-500">Avg Trust:</span>{' '}
-              <span 
+        </div>
+      </div>
+
+      {/* Floating HUD - Top Right */}
+      <div className="fixed top-6 right-6 z-40 flex flex-col gap-3">
+        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl min-w-[200px]">
+          <VictoryProgressBar
+            metrics={networkMetrics}
+            round={gameState.round}
+            maxRounds={gameState.maxRounds}
+            victoryThreshold={0.75}
+            trustThreshold={0.40}
+          />
+        </div>
+        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl">
+          <div className="flex flex-col gap-2 text-sm">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-400">Avg Trust:</span>
+              <span
                 className="font-semibold"
                 style={{ color: trustToHex(networkMetrics.averageTrust) }}
               >
                 {formatPercent(networkMetrics.averageTrust)}
               </span>
             </div>
-            <div className="text-sm">
-              <span className="text-gray-500">Low Trust:</span>{' '}
-              <span className="font-semibold text-red-600">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-400">Low Trust:</span>
+              <span className="font-semibold text-red-400">
                 {networkMetrics.lowTrustCount}/{gameState.network.actors.length}
               </span>
             </div>
-            
-            <button
-              onClick={advanceRound}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
-            >
-              End Round →
-            </button>
           </div>
         </div>
-      </header>
-
-      {/* Main Content */}
-      <div className="flex-1 flex">
-        {/* Network Visualization */}
-        <div className="flex-1 p-6">
-          <div className="bg-white rounded-2xl shadow-soft h-full overflow-hidden">
-            <NetworkVisualization
-              actors={gameState.network.actors}
-              connections={gameState.network.connections}
-              selectedActorId={uiState.selectedActor?.actorId || null}
-              hoveredActorId={uiState.hoveredActor}
-              targetingMode={uiState.targetingMode}
-              validTargets={uiState.validTargets}
-              onActorClick={selectActor}
-              onActorHover={hoverActor}
-            />
-          </div>
-        </div>
-
-        {/* Side Panel */}
-        <div className="w-80 bg-white border-l border-gray-200 p-6 overflow-y-auto">
-          {/* Victory Progress */}
-          <div className="mb-6">
-            <VictoryProgressBar
-              metrics={networkMetrics}
-              round={gameState.round}
-              maxRounds={gameState.maxRounds}
-              victoryThreshold={0.75}
-              trustThreshold={0.40}
-            />
-          </div>
-
-          {selectedActor ? (
-            <>
-              {/* Actor Details */}
-              <div className="mb-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div 
-                    className="w-12 h-12 rounded-xl flex items-center justify-center"
-                    style={{ backgroundColor: getCategoryColor(selectedActor.category) + '20' }}
-                  >
-                    <div 
-                      className="w-6 h-6 rounded-full"
-                      style={{ backgroundColor: getCategoryColor(selectedActor.category) }}
-                    />
-                  </div>
-                  <div>
-                    <h2 className="font-semibold text-gray-900">
-                      {selectedActor.name}
-                    </h2>
-                    <p className="text-sm text-gray-500 capitalize">
-                      {selectedActor.category}
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Stats */}
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-gray-600">Trust</span>
-                      <span 
-                        className="font-medium"
-                        style={{ color: trustToHex(selectedActor.trust) }}
-                      >
-                        {formatPercent(selectedActor.trust)} ({getTrustLabel(selectedActor.trust)})
-                      </span>
-                    </div>
-                    <div className="h-2 bg-gray-100 rounded-full">
-                      <div 
-                        className="h-2 rounded-full transition-all"
-                        style={{ 
-                          width: `${selectedActor.trust * 100}%`,
-                          backgroundColor: trustToHex(selectedActor.trust),
-                        }}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Resilience</span>
-                    <span className="font-medium text-gray-900">
-                      {formatPercent(selectedActor.resilience)}
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Emotional State</span>
-                    <span className="font-medium text-gray-900">
-                      {formatPercent(selectedActor.emotionalState)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Abilities */}
-              <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">
-                  Abilities
-                </h3>
-                {getActorAbilities(selectedActor.id).length === 0 ? (
-                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <p className="text-sm text-gray-600 text-center mb-2">
-                      No abilities available
-                    </p>
-                    <p className="text-xs text-gray-500 text-center">
-                      This actor is a defensive/neutral entity and cannot be used to spread disinformation.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {getActorAbilities(selectedActor.id).map(ability => {
-                    const cooldown = selectedActor.cooldowns[ability.id] || 0;
-                    const canUse = canUseAbility(ability.id);
-                    const isSelected = uiState.selectedAbility?.abilityId === ability.id;
-
-                    // Build effect description
-                    const effects: string[] = [];
-                    if (ability.effects.trustDelta) {
-                      const sign = ability.effects.trustDelta < 0 ? '' : '+';
-                      effects.push(`${sign}${Math.round(ability.effects.trustDelta * 100)}% trust`);
-                    }
-                    if (ability.effects.emotionalDelta) {
-                      effects.push(`+${Math.round(ability.effects.emotionalDelta * 100)}% emotional`);
-                    }
-                    if (ability.effects.resilienceDelta) {
-                      effects.push(`${ability.effects.resilienceDelta < 0 ? '' : '+'}${Math.round(ability.effects.resilienceDelta * 100)}% resilience`);
-                    }
-                    if (ability.effects.propagates) {
-                      effects.push('propagates to connected actors');
-                    }
-
-                    // Detailed usability check
-                    const hasEnoughResources = gameState.resources >= ability.resourceCost;
-                    const notOnCooldown = cooldown === 0;
-                    const canActuallyUse = canUse;
-
-                    // Determine why ability can't be used
-                    let disabledReason = '';
-                    if (!canActuallyUse) {
-                      if (!hasEnoughResources) {
-                        disabledReason = `Need ${ability.resourceCost} resources (have ${gameState.resources})`;
-                      } else if (!notOnCooldown) {
-                        disabledReason = `On cooldown: ${cooldown} rounds`;
-                      } else {
-                        disabledReason = 'Cannot use this ability right now';
-                      }
-                    }
-
-                    return (
-                      <div key={ability.id} className="group relative">
-                        <button
-                          onClick={() => {
-                            if (canActuallyUse) {
-                              selectAbility(ability.id);
-                            } else {
-                              addNotification('warning', disabledReason);
-                            }
-                          }}
-                          className={cn(
-                            "w-full p-3 rounded-lg border text-left transition-all",
-                            isSelected
-                              ? "border-blue-500 bg-blue-50"
-                              : canActuallyUse
-                                ? "border-gray-200 bg-white hover:border-gray-300"
-                                : "border-orange-200 bg-orange-50 hover:border-orange-300 cursor-pointer"
-                          )}
-                        >
-                          <div className="flex justify-between items-start mb-1">
-                            <span className="font-medium text-gray-900 text-sm">
-                              {ability.name}
-                            </span>
-                            <span className="text-xs text-blue-600 font-medium">
-                              {ability.resourceCost} pts
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-500 mb-2">
-                            {ability.description}
-                          </p>
-                          {effects.length > 0 && (
-                            <p className="text-xs text-gray-400 mb-1">
-                              Effects: {effects.join(', ')}
-                            </p>
-                          )}
-                          {cooldown > 0 && (
-                            <p className="text-xs text-orange-600 font-semibold">
-                              ⏱ Cooldown: {cooldown} rounds
-                            </p>
-                          )}
-                          {!hasEnoughResources && (
-                            <p className="text-xs text-red-600 font-semibold">
-                              💰 Need {ability.resourceCost} resources (have {gameState.resources})
-                            </p>
-                          )}
-                          {!canActuallyUse && (
-                            <p className="text-xs text-orange-700 font-semibold mt-1">
-                              ⚠️ Click to see why unavailable
-                            </p>
-                          )}
-                        </button>
-
-                        {/* Hover tooltip for additional info */}
-                        {canUse && (
-                          <div className="invisible group-hover:visible absolute left-full ml-2 top-0 z-50 w-64 bg-gray-900 text-white text-xs rounded-lg py-2 px-3 shadow-xl pointer-events-none">
-                            <div className="font-bold mb-1">{ability.name}</div>
-                            <div className="text-gray-300 mb-2">{ability.description}</div>
-                            <div className="space-y-1 text-[11px]">
-                              <div className="text-blue-300">Target: {ability.targetType}</div>
-                              {ability.targetCategory && (
-                                <div className="text-blue-300">Category: {ability.targetCategory}</div>
-                              )}
-                              <div className="text-yellow-300">Cost: {ability.resourceCost} resources</div>
-                              <div className="text-purple-300">Cooldown: {ability.cooldown} rounds</div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                  </div>
-                )}
-              </div>
-
-              {/* Targeting Mode Panel */}
-              {uiState.targetingMode && uiState.selectedAbility && (
-                <div className="mt-4 p-4 bg-red-50 border-2 border-red-300 rounded-lg animate-pulse">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-2xl">🎯</span>
-                    <h4 className="font-bold text-red-900">Select a Target!</h4>
-                  </div>
-                  <p className="text-sm text-red-800 mb-3">
-                    Click on any highlighted actor in the network to apply{' '}
-                    <span className="font-semibold">
-                      {getActorAbilities(uiState.selectedAbility.sourceActorId)
-                        .find(a => a.id === uiState.selectedAbility?.abilityId)?.name}
-                    </span>
-                  </p>
-                  <div className="text-xs text-red-700 mb-3">
-                    Valid targets are marked with a red pulsing ring
-                  </div>
-                  <button
-                    onClick={cancelAbility}
-                    className="w-full px-4 py-2 bg-red-100 hover:bg-red-200 text-red-900 font-medium rounded-lg transition-colors border border-red-300"
-                  >
-                    Cancel Targeting
-                  </button>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="text-center text-gray-400 py-12">
-              <p className="mb-2">No actor selected</p>
-              <p className="text-sm">Click on an actor to see details</p>
-            </div>
-          )}
-        </div>
+        <button
+          onClick={advanceRound}
+          className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-green-600/20"
+        >
+          End Round →
+        </button>
       </div>
 
-      {/* Targeting Mode Indicator - Large Central Banner */}
-      {uiState.targetingMode && uiState.selectedAbility && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-8 py-4 bg-red-600 text-white rounded-xl shadow-2xl animate-pulse z-50 max-w-2xl">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">🎯</span>
-            <div>
-              <div className="font-bold text-lg mb-1">
-                SELECT A TARGET NOW
-              </div>
-              <div className="text-sm text-red-100">
-                Click on any highlighted actor to apply{' '}
-                <span className="font-semibold">
-                  {uiState.selectedAbility && getActorAbilities(uiState.selectedAbility.sourceActorId)
-                    .find(a => a.id === uiState.selectedAbility?.abilityId)?.name}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Fullscreen Network Visualization */}
+      <div className="flex-1 w-full h-full">
+        <NetworkVisualization
+          actors={gameState.network.actors}
+          connections={gameState.network.connections}
+          selectedActorId={uiState.selectedActor?.actorId || null}
+          hoveredActorId={uiState.hoveredActor}
+          targetingMode={uiState.targetingMode}
+          validTargets={uiState.validTargets}
+          onActorClick={selectActor}
+          onActorHover={hoverActor}
+        />
+      </div>
+
+      {/* Bottom Sheet */}
+      <BottomSheet
+        actor={selectedActor}
+        abilities={selectedActor ? getActorAbilities(selectedActor.id) : []}
+        resources={gameState.resources}
+        canUseAbility={canUseAbility}
+        onSelectAbility={selectAbility}
+        onCancel={cancelAbility}
+        selectedAbilityId={uiState.selectedAbility?.abilityId || null}
+        targetingMode={uiState.targetingMode}
+        addNotification={addNotification}
+      />
 
       {/* Round Summary Modal */}
       {showRoundSummary && currentRoundSummary && (
