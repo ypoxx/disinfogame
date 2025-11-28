@@ -48,27 +48,32 @@ export function VictoryProgressBar({
     'behind': 'Behind schedule'
   }[paceStatus];
 
+  const darkPaceColor = {
+    'ahead': 'text-green-400',
+    'on-track': 'text-blue-400',
+    'behind': 'text-orange-400'
+  }[paceStatus];
+
   return (
-    <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+    <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-gray-900">Victory Progress</h3>
-        <div className={`text-sm font-semibold ${paceColor} flex items-center gap-1`}>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-bold text-white">Victory Progress</h3>
+        <div className={`text-xs font-semibold ${darkPaceColor} flex items-center gap-1`}>
           <span>{paceIcon}</span>
-          <span>{paceText}</span>
         </div>
       </div>
 
       {/* Main Progress Bar */}
-      <div className="mb-4">
-        <div className="flex justify-between text-sm text-gray-600 mb-2">
-          <span>Actors Compromised</span>
-          <span className="font-semibold text-gray-900">
+      <div className="mb-2">
+        <div className="flex justify-between text-xs text-gray-400 mb-2">
+          <span>Compromised</span>
+          <span className="font-semibold text-white">
             {currentActors} / {targetActors}
           </span>
         </div>
 
-        <div className="h-8 bg-gray-200 rounded-full overflow-hidden relative">
+        <div className="h-6 bg-gray-800 rounded-full overflow-hidden relative">
           {/* Progress fill */}
           <div
             className={`h-full transition-all duration-1000 ease-out ${
@@ -79,22 +84,16 @@ export function VictoryProgressBar({
             style={{ width: `${Math.min(progress * 100, 100)}%` }}
           />
 
-          {/* Target line */}
-          <div
-            className="absolute top-0 bottom-0 w-1 bg-white/50"
-            style={{ left: '100%' }}
-          />
-
           {/* Percentage text */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-sm font-bold text-white drop-shadow-md">
+            <span className="text-xs font-bold text-white drop-shadow-md">
               {Math.round(progress * 100)}%
             </span>
           </div>
         </div>
 
         <p className="text-xs text-gray-500 mt-2">
-          Target: Reduce {formatPercent(victoryThreshold)} of actors below {formatPercent(trustThreshold)} trust
+          Target: {formatPercent(victoryThreshold)} below {formatPercent(trustThreshold)}
         </p>
       </div>
 
