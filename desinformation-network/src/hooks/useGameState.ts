@@ -134,7 +134,42 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     }
     return success;
   }, [gameManager, syncState]);
-  
+
+  // ============================================
+  // UI ACTIONS (defined early for use in other callbacks)
+  // ============================================
+
+  const dismissNotification = useCallback((id: string) => {
+    setUIState(prev => ({
+      ...prev,
+      notifications: prev.notifications.filter(n => n.id !== id),
+    }));
+  }, []);
+
+  const addNotification = useCallback((
+    type: 'info' | 'warning' | 'success' | 'error',
+    message: string
+  ) => {
+    const id = `notification_${Date.now()}`;
+    const notification = {
+      id,
+      type,
+      message,
+      duration: 3000,
+      createdAt: Date.now(),
+    };
+
+    setUIState(prev => ({
+      ...prev,
+      notifications: [...prev.notifications, notification],
+    }));
+
+    // Auto-dismiss after duration
+    setTimeout(() => {
+      dismissNotification(id);
+    }, notification.duration);
+  }, [dismissNotification]);
+
   // ============================================
   // ABILITY ACTIONS
   // ============================================
@@ -165,7 +200,7 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     }
 
     return success;
-  }, [uiState.selectedAbility, gameManager, syncState]);
+  }, [uiState.selectedAbility, gameManager, syncState, addNotification]);
 
   const selectAbility = useCallback((abilityId: string) => {
     const selectedActorId = uiState.selectedActor?.actorId;
@@ -187,7 +222,7 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
       targetingMode: validTargets.length > 0,
       validTargets: validTargets.map(a => a.id),
     }));
-  }, [uiState.selectedActor, gameManager]);
+  }, [uiState.selectedActor, gameManager, addNotification]);
 
   const cancelAbility = useCallback(() => {
     setUIState(prev => ({
@@ -244,60 +279,29 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
   const getActorAbilities = useCallback((actorId: string): Ability[] => {
     return gameManager.getActorAbilities(actorId);
   }, [gameManager]);
-  
+
   // ============================================
-  // UI ACTIONS
+  // UI ACTIONS (remaining)
   // ============================================
-  
+
   const toggleEncyclopedia = useCallback(() => {
     setUIState(prev => ({
       ...prev,
       showEncyclopedia: !prev.showEncyclopedia,
     }));
   }, []);
-  
+
   const toggleTutorial = useCallback(() => {
     setUIState(prev => ({
       ...prev,
       showTutorial: !prev.showTutorial,
     }));
   }, []);
-  
+
   const toggleSettings = useCallback(() => {
     setUIState(prev => ({
       ...prev,
       showSettings: !prev.showSettings,
-    }));
-  }, []);
-  
-  const addNotification = useCallback((
-    type: 'info' | 'warning' | 'success' | 'error',
-    message: string
-  ) => {
-    const id = `notification_${Date.now()}`;
-    const notification = {
-      id,
-      type,
-      message,
-      duration: 3000,
-      createdAt: Date.now(),
-    };
-    
-    setUIState(prev => ({
-      ...prev,
-      notifications: [...prev.notifications, notification],
-    }));
-    
-    // Auto-dismiss after duration
-    setTimeout(() => {
-      dismissNotification(id);
-    }, notification.duration);
-  }, []);
-  
-  const dismissNotification = useCallback((id: string) => {
-    setUIState(prev => ({
-      ...prev,
-      notifications: prev.notifications.filter(n => n.id !== id),
     }));
   }, []);
   

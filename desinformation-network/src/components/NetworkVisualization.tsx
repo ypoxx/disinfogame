@@ -105,11 +105,11 @@ export function NetworkVisualization({
 
       // Category label background for better readability
       const label = CATEGORY_LABELS[category] || category;
-      ctx.font = 'bold 13px Inter, sans-serif';
+      ctx.font = 'bold 12px Inter, sans-serif';
       const labelMetrics = ctx.measureText(label);
       const labelWidth = labelMetrics.width;
       const labelX = pos.x;
-      const labelY = pos.y - 115;
+      const labelY = pos.y - 140; // Moved higher to avoid overlap
 
       // Label background
       ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
@@ -383,36 +383,37 @@ export function NetworkVisualization({
         }}
       />
 
-      {/* Legend - moved to top right to avoid network overlap */}
-      <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 text-xs max-w-[180px]">
-        <h4 className="font-bold text-gray-900 mb-2">Legend</h4>
-        <div className="space-y-1.5">
-          <div className="font-semibold text-gray-700 text-[10px] uppercase tracking-wide mb-1">Categories</div>
+      {/* Legend - positioned at bottom left to avoid network overlap */}
+      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2.5 text-xs max-w-[160px]">
+        <h4 className="font-bold text-gray-900 mb-1.5 text-[11px]">Legend</h4>
+        <div className="space-y-1">
           {Object.entries(CATEGORY_LABELS).map(([cat, label]) => {
             const count = actorsByCategory[cat]?.length || 0;
             if (count === 0 && cat !== 'defensive') return null;
             return (
-              <div key={cat} className="flex items-center gap-2">
+              <div key={cat} className="flex items-center gap-1.5">
                 <div
-                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                   style={{ backgroundColor: getCategoryColor(cat as any) }}
                 />
-                <span className="text-gray-700 text-[11px] leading-tight">{label} ({count})</span>
+                <span className="text-gray-700 text-[10px] leading-tight truncate">
+                  {label.replace('Community', '').replace('Outlets', '').trim()} ({count})
+                </span>
               </div>
             );
           })}
-          <div className="font-semibold text-gray-700 text-[10px] uppercase tracking-wide mt-2 mb-1">Trust</div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#EF4444' }} />
-            <span className="text-gray-700 text-[11px]">Low (&lt; 40%)</span>
+          <div className="border-t border-gray-200 my-1"></div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#EF4444' }} />
+            <span className="text-gray-700 text-[10px]">Low trust</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#EAB308' }} />
-            <span className="text-gray-700 text-[11px]">Med (40-70%)</span>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#EAB308' }} />
+            <span className="text-gray-700 text-[10px]">Med trust</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#22C55E' }} />
-            <span className="text-gray-700 text-[11px]">High (&gt; 70%)</span>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#22C55E' }} />
+            <span className="text-gray-700 text-[10px]">High trust</span>
           </div>
         </div>
       </div>

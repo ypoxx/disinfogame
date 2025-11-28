@@ -426,8 +426,18 @@ function App() {
                 <h3 className="text-sm font-semibold text-gray-900 mb-3">
                   Abilities
                 </h3>
-                <div className="space-y-2">
-                  {getActorAbilities(selectedActor.id).map(ability => {
+                {getActorAbilities(selectedActor.id).length === 0 ? (
+                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-sm text-gray-600 text-center mb-2">
+                      No abilities available
+                    </p>
+                    <p className="text-xs text-gray-500 text-center">
+                      This actor is a defensive/neutral entity and cannot be used to spread disinformation.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {getActorAbilities(selectedActor.id).map(ability => {
                     const cooldown = selectedActor.cooldowns[ability.id] || 0;
                     const canUse = canUseAbility(ability.id);
                     const isSelected = uiState.selectedAbility?.abilityId === ability.id;
@@ -503,7 +513,8 @@ function App() {
                       </div>
                     );
                   })}
-                </div>
+                  </div>
+                )}
               </div>
 
               {/* Cancel Button */}
