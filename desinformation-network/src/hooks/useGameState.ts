@@ -211,8 +211,28 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
       return;
     }
 
+    const ability = gameManager.getAbility(abilityId);
+    if (!ability) return;
+
     const validTargets = gameManager.getValidTargets(abilityId, selectedActorId);
 
+    // Auto-apply abilities that don't need user targeting
+    const autoApplyTargets = ['self', 'platform', 'network'];
+    if (autoApplyTargets.includes(ability.targetType)) {
+      // For 'self' type, pass the source actor as target
+      const targetIds = ability.targetType === 'self' ? [selectedActorId] : [];
+      const success = gameManager.applyAbility(abilityId, selectedActorId, targetIds);
+
+      if (success) {
+        syncState();
+        addNotification('success', `${ability.name} activated!`);
+      } else {
+        addNotification('error', 'Failed to apply ability');
+      }
+      return;
+    }
+
+    // For abilities that need targeting, enter targeting mode
     setUIState(prev => ({
       ...prev,
       selectedAbility: {
@@ -222,7 +242,11 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
       targetingMode: validTargets.length > 0,
       validTargets: validTargets.map(a => a.id),
     }));
-  }, [uiState.selectedActor, gameManager, addNotification]);
+
+    if (validTargets.length === 0) {
+      addNotification('warning', 'No valid targets available for this ability');
+    }
+  }, [uiState.selectedActor, gameManager, addNotification, syncState]);
 
   const cancelAbility = useCallback(() => {
     setUIState(prev => ({

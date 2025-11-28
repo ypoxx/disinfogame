@@ -206,30 +206,43 @@ export class GameStateManager {
   getValidTargets(abilityId: string, sourceActorId: string): Actor[] {
     const ability = this.getAbility(abilityId);
     if (!ability) return [];
-    
+
     const { actors, connections } = this.state.network;
-    
+    const sourceActor = actors.find(a => a.id === sourceActorId);
+    if (!sourceActor) return [];
+
     switch (ability.targetType) {
       case 'single':
         // Can target any actor except self
         return actors.filter(a => a.id !== sourceActorId);
-        
+
       case 'adjacent':
         // Can only target connected actors
         return getConnectedActors(sourceActorId, actors, connections);
-        
+
       case 'category':
         // Target all actors of a specific category
-        return actors.filter(a => 
-          a.category === ability.targetCategory && 
+        return actors.filter(a =>
+          a.category === ability.targetCategory &&
           a.id !== sourceActorId
         );
-        
+
+      case 'self':
+        // Targets self - return source actor for auto-application
+        return [sourceActor];
+
+      case 'any_actor':
+        // Can target any actor including self
+        return actors;
+
+      case 'platform':
       case 'network':
-        // Affects entire network (no targeting needed)
+        // Affects platform/network (no specific targeting needed)
+        // Return empty array - ability should be auto-applied
         return [];
-        
+
       default:
+        console.warn(`Unknown target type: ${ability.targetType}`);
         return [];
     }
   }

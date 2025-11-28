@@ -72,11 +72,14 @@ export type ActorDefinition = {
 // ABILITY TYPES
 // ============================================
 
-export type TargetType = 
+export type TargetType =
   | 'single'      // One actor
   | 'adjacent'    // Connected actors
   | 'category'    // All actors of a category
-  | 'network';    // Entire network
+  | 'network'     // Entire network
+  | 'self'        // The actor itself
+  | 'any_actor'   // Any actor in the network
+  | 'platform';   // Platform-level effect
 
 export type EffectType = 
   | 'direct'       // Immediate effect
