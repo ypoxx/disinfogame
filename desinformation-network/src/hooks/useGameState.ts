@@ -134,142 +134,18 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     }
     return success;
   }, [gameManager, syncState]);
-  
+
   // ============================================
-  // ACTOR SELECTION
+  // UI ACTIONS (defined early for use in other callbacks)
   // ============================================
-  
-  const selectActor = useCallback((actorId: string | null) => {
-    if (uiState.targetingMode && actorId) {
-      // In targeting mode - check if valid target
-      if (uiState.validTargets.includes(actorId)) {
-        // Apply ability to this target
-        applyAbility([actorId]);
-      }
-      return;
-    }
-    
-    // Normal selection
+
+  const dismissNotification = useCallback((id: string) => {
     setUIState(prev => ({
       ...prev,
-      selectedActor: actorId
-        ? { actorId, selectedAt: Date.now() }
-        : null,
-      selectedAbility: null,
-      targetingMode: false,
-      validTargets: [],
-    }));
-  }, [uiState.targetingMode, uiState.validTargets]);
-  
-  const hoverActor = useCallback((actorId: string | null) => {
-    setUIState(prev => ({
-      ...prev,
-      hoveredActor: actorId,
+      notifications: prev.notifications.filter(n => n.id !== id),
     }));
   }, []);
-  
-  const getActor = useCallback((actorId: string): Actor | undefined => {
-    return gameManager.getActor(actorId);
-  }, [gameManager]);
-  
-  // ============================================
-  // ABILITY ACTIONS
-  // ============================================
-  
-  const selectAbility = useCallback((abilityId: string) => {
-    const selectedActorId = uiState.selectedActor?.actorId;
-    if (!selectedActorId) return;
-    
-    if (!gameManager.canUseAbility(abilityId, selectedActorId)) {
-      addNotification('warning', 'Cannot use this ability right now');
-      return;
-    }
-    
-    const validTargets = gameManager.getValidTargets(abilityId, selectedActorId);
-    
-    setUIState(prev => ({
-      ...prev,
-      selectedAbility: {
-        abilityId,
-        sourceActorId: selectedActorId,
-      },
-      targetingMode: validTargets.length > 0,
-      validTargets: validTargets.map(a => a.id),
-    }));
-  }, [uiState.selectedActor, gameManager]);
-  
-  const cancelAbility = useCallback(() => {
-    setUIState(prev => ({
-      ...prev,
-      selectedAbility: null,
-      targetingMode: false,
-      validTargets: [],
-    }));
-  }, []);
-  
-  const applyAbility = useCallback((targetActorIds: string[]): boolean => {
-    const ability = uiState.selectedAbility;
-    if (!ability) return false;
-    
-    const success = gameManager.applyAbility(
-      ability.abilityId,
-      ability.sourceActorId,
-      targetActorIds
-    );
-    
-    if (success) {
-      syncState();
-      addNotification('success', 'Ability applied successfully');
-      
-      // Clear selection
-      setUIState(prev => ({
-        ...prev,
-        selectedAbility: null,
-        targetingMode: false,
-        validTargets: [],
-      }));
-    } else {
-      addNotification('error', 'Failed to apply ability');
-    }
-    
-    return success;
-  }, [uiState.selectedAbility, gameManager, syncState]);
-  
-  const canUseAbility = useCallback((abilityId: string): boolean => {
-    const selectedActorId = uiState.selectedActor?.actorId;
-    if (!selectedActorId) return false;
-    return gameManager.canUseAbility(abilityId, selectedActorId);
-  }, [uiState.selectedActor, gameManager]);
-  
-  const getActorAbilities = useCallback((actorId: string): Ability[] => {
-    return gameManager.getActorAbilities(actorId);
-  }, [gameManager]);
-  
-  // ============================================
-  // UI ACTIONS
-  // ============================================
-  
-  const toggleEncyclopedia = useCallback(() => {
-    setUIState(prev => ({
-      ...prev,
-      showEncyclopedia: !prev.showEncyclopedia,
-    }));
-  }, []);
-  
-  const toggleTutorial = useCallback(() => {
-    setUIState(prev => ({
-      ...prev,
-      showTutorial: !prev.showTutorial,
-    }));
-  }, []);
-  
-  const toggleSettings = useCallback(() => {
-    setUIState(prev => ({
-      ...prev,
-      showSettings: !prev.showSettings,
-    }));
-  }, []);
-  
+
   const addNotification = useCallback((
     type: 'info' | 'warning' | 'success' | 'error',
     message: string
@@ -282,22 +158,150 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
       duration: 3000,
       createdAt: Date.now(),
     };
-    
+
     setUIState(prev => ({
       ...prev,
       notifications: [...prev.notifications, notification],
     }));
-    
+
     // Auto-dismiss after duration
     setTimeout(() => {
       dismissNotification(id);
     }, notification.duration);
-  }, []);
-  
-  const dismissNotification = useCallback((id: string) => {
+  }, [dismissNotification]);
+
+  // ============================================
+  // ABILITY ACTIONS
+  // ============================================
+
+  const applyAbility = useCallback((targetActorIds: string[]): boolean => {
+    const ability = uiState.selectedAbility;
+    if (!ability) return false;
+
+    const success = gameManager.applyAbility(
+      ability.abilityId,
+      ability.sourceActorId,
+      targetActorIds
+    );
+
+    if (success) {
+      syncState();
+      addNotification('success', 'Ability applied successfully');
+
+      // Clear selection
+      setUIState(prev => ({
+        ...prev,
+        selectedAbility: null,
+        targetingMode: false,
+        validTargets: [],
+      }));
+    } else {
+      addNotification('error', 'Failed to apply ability');
+    }
+
+    return success;
+  }, [uiState.selectedAbility, gameManager, syncState, addNotification]);
+
+  const selectAbility = useCallback((abilityId: string) => {
+    const selectedActorId = uiState.selectedActor?.actorId;
+    if (!selectedActorId) return;
+
+    if (!gameManager.canUseAbility(abilityId, selectedActorId)) {
+      addNotification('warning', 'Cannot use this ability right now');
+      return;
+    }
+
+    const validTargets = gameManager.getValidTargets(abilityId, selectedActorId);
+
     setUIState(prev => ({
       ...prev,
-      notifications: prev.notifications.filter(n => n.id !== id),
+      selectedAbility: {
+        abilityId,
+        sourceActorId: selectedActorId,
+      },
+      targetingMode: validTargets.length > 0,
+      validTargets: validTargets.map(a => a.id),
+    }));
+  }, [uiState.selectedActor, gameManager, addNotification]);
+
+  const cancelAbility = useCallback(() => {
+    setUIState(prev => ({
+      ...prev,
+      selectedAbility: null,
+      targetingMode: false,
+      validTargets: [],
+    }));
+  }, []);
+
+  // ============================================
+  // ACTOR SELECTION
+  // ============================================
+
+  const selectActor = useCallback((actorId: string | null) => {
+    if (uiState.targetingMode && actorId) {
+      // In targeting mode - check if valid target
+      if (uiState.validTargets.includes(actorId)) {
+        // Apply ability to this target
+        applyAbility([actorId]);
+      }
+      return;
+    }
+
+    // Normal selection
+    setUIState(prev => ({
+      ...prev,
+      selectedActor: actorId
+        ? { actorId, selectedAt: Date.now() }
+        : null,
+      selectedAbility: null,
+      targetingMode: false,
+      validTargets: [],
+    }));
+  }, [uiState.targetingMode, uiState.validTargets, applyAbility]);
+
+  const hoverActor = useCallback((actorId: string | null) => {
+    setUIState(prev => ({
+      ...prev,
+      hoveredActor: actorId,
+    }));
+  }, []);
+
+  const getActor = useCallback((actorId: string): Actor | undefined => {
+    return gameManager.getActor(actorId);
+  }, [gameManager]);
+  
+  const canUseAbility = useCallback((abilityId: string): boolean => {
+    const selectedActorId = uiState.selectedActor?.actorId;
+    if (!selectedActorId) return false;
+    return gameManager.canUseAbility(abilityId, selectedActorId);
+  }, [uiState.selectedActor, gameManager]);
+  
+  const getActorAbilities = useCallback((actorId: string): Ability[] => {
+    return gameManager.getActorAbilities(actorId);
+  }, [gameManager]);
+
+  // ============================================
+  // UI ACTIONS (remaining)
+  // ============================================
+
+  const toggleEncyclopedia = useCallback(() => {
+    setUIState(prev => ({
+      ...prev,
+      showEncyclopedia: !prev.showEncyclopedia,
+    }));
+  }, []);
+
+  const toggleTutorial = useCallback(() => {
+    setUIState(prev => ({
+      ...prev,
+      showTutorial: !prev.showTutorial,
+    }));
+  }, []);
+
+  const toggleSettings = useCallback(() => {
+    setUIState(prev => ({
+      ...prev,
+      showSettings: !prev.showSettings,
     }));
   }, []);
   

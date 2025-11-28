@@ -6,8 +6,11 @@ import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
 import { NetworkVisualization } from '@/components/NetworkVisualization';
 import { RoundSummary } from '@/components/RoundSummary';
 import { VictoryProgressBar } from '@/components/VictoryProgressBar';
+import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
+import { createInitialTutorialState } from '@/game-logic/types/tutorial';
+import type { TutorialState } from '@/game-logic/types/tutorial';
 
 // ============================================
 // MAIN APP COMPONENT
@@ -29,6 +32,7 @@ function App() {
     canUseAbility,
     getActorAbilities,
     toggleEncyclopedia,
+    addNotification,
   } = useGameState();
 
   // Round summary state
@@ -36,6 +40,10 @@ function App() {
   const [currentRoundSummary, setCurrentRoundSummary] = useState<RoundSummaryType | null>(null);
   const [previousRound, setPreviousRound] = useState(0);
   const [networkBefore, setNetworkBefore] = useState(networkMetrics);
+
+  // Tutorial state
+  const [tutorialState, setTutorialState] = useState<TutorialState>(createInitialTutorialState());
+  const [showTutorial, setShowTutorial] = useState(false);
 
   // Track round changes and generate summaries
   useEffect(() => {
@@ -84,6 +92,42 @@ function App() {
   const handleContinue = () => {
     setShowRoundSummary(false);
   };
+
+  // Tutorial handlers
+  const handleTutorialNext = () => {
+    setTutorialState(prev => {
+      const nextStep = prev.currentStep + 1;
+      if (nextStep >= prev.steps.length) {
+        return { ...prev, active: false, completed: true };
+      }
+      return {
+        ...prev,
+        currentStep: nextStep,
+        steps: prev.steps.map((step, i) =>
+          i === prev.currentStep ? { ...step, completed: true } : step
+        )
+      };
+    });
+  };
+
+  const handleTutorialSkip = () => {
+    setTutorialState(prev => ({
+      ...prev,
+      active: false,
+      skipped: true,
+      completed: false
+    }));
+    setShowTutorial(false);
+  };
+
+  // Show tutorial when game starts
+  useEffect(() => {
+    if (gameState.phase === 'playing' && gameState.round === 1 && !tutorialState.skipped && !tutorialState.completed) {
+      setShowTutorial(true);
+    }
+  }, [gameState.phase, gameState.round, tutorialState.skipped, tutorialState.completed]);
+
+  // Tutorial is now fully manual - all steps use Continue button
 
   // ============================================
   // SCREENS
@@ -385,56 +429,153 @@ function App() {
                 <h3 className="text-sm font-semibold text-gray-900 mb-3">
                   Abilities
                 </h3>
-                <div className="space-y-2">
-                  {getActorAbilities(selectedActor.id).map(ability => {
+                {getActorAbilities(selectedActor.id).length === 0 ? (
+                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-sm text-gray-600 text-center mb-2">
+                      No abilities available
+                    </p>
+                    <p className="text-xs text-gray-500 text-center">
+                      This actor is a defensive/neutral entity and cannot be used to spread disinformation.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {getActorAbilities(selectedActor.id).map(ability => {
                     const cooldown = selectedActor.cooldowns[ability.id] || 0;
                     const canUse = canUseAbility(ability.id);
                     const isSelected = uiState.selectedAbility?.abilityId === ability.id;
-                    
+
+                    // Build effect description
+                    const effects: string[] = [];
+                    if (ability.effects.trustDelta) {
+                      const sign = ability.effects.trustDelta < 0 ? '' : '+';
+                      effects.push(`${sign}${Math.round(ability.effects.trustDelta * 100)}% trust`);
+                    }
+                    if (ability.effects.emotionalDelta) {
+                      effects.push(`+${Math.round(ability.effects.emotionalDelta * 100)}% emotional`);
+                    }
+                    if (ability.effects.resilienceDelta) {
+                      effects.push(`${ability.effects.resilienceDelta < 0 ? '' : '+'}${Math.round(ability.effects.resilienceDelta * 100)}% resilience`);
+                    }
+                    if (ability.effects.propagates) {
+                      effects.push('propagates to connected actors');
+                    }
+
+                    // Detailed usability check
+                    const hasEnoughResources = gameState.resources >= ability.resourceCost;
+                    const notOnCooldown = cooldown === 0;
+                    const canActuallyUse = canUse;
+
+                    // Determine why ability can't be used
+                    let disabledReason = '';
+                    if (!canActuallyUse) {
+                      if (!hasEnoughResources) {
+                        disabledReason = `Need ${ability.resourceCost} resources (have ${gameState.resources})`;
+                      } else if (!notOnCooldown) {
+                        disabledReason = `On cooldown: ${cooldown} rounds`;
+                      } else {
+                        disabledReason = 'Cannot use this ability right now';
+                      }
+                    }
+
                     return (
-                      <button
-                        key={ability.id}
-                        onClick={() => canUse && selectAbility(ability.id)}
-                        disabled={!canUse}
-                        className={cn(
-                          "w-full p-3 rounded-lg border text-left transition-all",
-                          isSelected
-                            ? "border-blue-500 bg-blue-50"
-                            : canUse
-                              ? "border-gray-200 bg-white hover:border-gray-300"
-                              : "border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed"
-                        )}
-                      >
-                        <div className="flex justify-between items-start mb-1">
-                          <span className="font-medium text-gray-900 text-sm">
-                            {ability.name}
-                          </span>
-                          <span className="text-xs text-blue-600 font-medium">
-                            {ability.resourceCost} pts
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-500 mb-2">
-                          {ability.description}
-                        </p>
-                        {cooldown > 0 && (
-                          <p className="text-xs text-orange-600">
-                            Cooldown: {cooldown} rounds
+                      <div key={ability.id} className="group relative">
+                        <button
+                          onClick={() => {
+                            if (canActuallyUse) {
+                              selectAbility(ability.id);
+                            } else {
+                              addNotification('warning', disabledReason);
+                            }
+                          }}
+                          className={cn(
+                            "w-full p-3 rounded-lg border text-left transition-all",
+                            isSelected
+                              ? "border-blue-500 bg-blue-50"
+                              : canActuallyUse
+                                ? "border-gray-200 bg-white hover:border-gray-300"
+                                : "border-orange-200 bg-orange-50 hover:border-orange-300 cursor-pointer"
+                          )}
+                        >
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="font-medium text-gray-900 text-sm">
+                              {ability.name}
+                            </span>
+                            <span className="text-xs text-blue-600 font-medium">
+                              {ability.resourceCost} pts
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 mb-2">
+                            {ability.description}
                           </p>
+                          {effects.length > 0 && (
+                            <p className="text-xs text-gray-400 mb-1">
+                              Effects: {effects.join(', ')}
+                            </p>
+                          )}
+                          {cooldown > 0 && (
+                            <p className="text-xs text-orange-600 font-semibold">
+                              ⏱ Cooldown: {cooldown} rounds
+                            </p>
+                          )}
+                          {!hasEnoughResources && (
+                            <p className="text-xs text-red-600 font-semibold">
+                              💰 Need {ability.resourceCost} resources (have {gameState.resources})
+                            </p>
+                          )}
+                          {!canActuallyUse && (
+                            <p className="text-xs text-orange-700 font-semibold mt-1">
+                              ⚠️ Click to see why unavailable
+                            </p>
+                          )}
+                        </button>
+
+                        {/* Hover tooltip for additional info */}
+                        {canUse && (
+                          <div className="invisible group-hover:visible absolute left-full ml-2 top-0 z-50 w-64 bg-gray-900 text-white text-xs rounded-lg py-2 px-3 shadow-xl pointer-events-none">
+                            <div className="font-bold mb-1">{ability.name}</div>
+                            <div className="text-gray-300 mb-2">{ability.description}</div>
+                            <div className="space-y-1 text-[11px]">
+                              <div className="text-blue-300">Target: {ability.targetType}</div>
+                              {ability.targetCategory && (
+                                <div className="text-blue-300">Category: {ability.targetCategory}</div>
+                              )}
+                              <div className="text-yellow-300">Cost: {ability.resourceCost} resources</div>
+                              <div className="text-purple-300">Cooldown: {ability.cooldown} rounds</div>
+                            </div>
+                          </div>
                         )}
-                      </button>
+                      </div>
                     );
                   })}
-                </div>
+                  </div>
+                )}
               </div>
 
-              {/* Cancel Button */}
-              {uiState.targetingMode && (
-                <button
-                  onClick={cancelAbility}
-                  className="w-full mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
+              {/* Targeting Mode Panel */}
+              {uiState.targetingMode && uiState.selectedAbility && (
+                <div className="mt-4 p-4 bg-red-50 border-2 border-red-300 rounded-lg animate-pulse">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-2xl">🎯</span>
+                    <h4 className="font-bold text-red-900">Select a Target!</h4>
+                  </div>
+                  <p className="text-sm text-red-800 mb-3">
+                    Click on any highlighted actor in the network to apply{' '}
+                    <span className="font-semibold">
+                      {getActorAbilities(uiState.selectedAbility.sourceActorId)
+                        .find(a => a.id === uiState.selectedAbility?.abilityId)?.name}
+                    </span>
+                  </p>
+                  <div className="text-xs text-red-700 mb-3">
+                    Valid targets are marked with a red pulsing ring
+                  </div>
+                  <button
+                    onClick={cancelAbility}
+                    className="w-full px-4 py-2 bg-red-100 hover:bg-red-200 text-red-900 font-medium rounded-lg transition-colors border border-red-300"
+                  >
+                    Cancel Targeting
+                  </button>
+                </div>
               )}
             </>
           ) : (
@@ -446,14 +587,24 @@ function App() {
         </div>
       </div>
 
-      {/* Targeting Mode Indicator */}
-      {uiState.targetingMode && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 bg-red-600 text-white rounded-full shadow-lg">
-          Select a target for{' '}
-          <span className="font-semibold">
-            {getActorAbilities(uiState.selectedAbility?.sourceActorId || '')
-              .find(a => a.id === uiState.selectedAbility?.abilityId)?.name}
-          </span>
+      {/* Targeting Mode Indicator - Large Central Banner */}
+      {uiState.targetingMode && uiState.selectedAbility && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-8 py-4 bg-red-600 text-white rounded-xl shadow-2xl animate-pulse z-50 max-w-2xl">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">🎯</span>
+            <div>
+              <div className="font-bold text-lg mb-1">
+                SELECT A TARGET NOW
+              </div>
+              <div className="text-sm text-red-100">
+                Click on any highlighted actor to apply{' '}
+                <span className="font-semibold">
+                  {uiState.selectedAbility && getActorAbilities(uiState.selectedAbility.sourceActorId)
+                    .find(a => a.id === uiState.selectedAbility?.abilityId)?.name}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -464,6 +615,22 @@ function App() {
           impactVisualizations={[]}
           onContinue={handleContinue}
         />
+      )}
+
+      {/* Tutorial Overlay */}
+      {tutorialState.active && showTutorial && (
+        <>
+          <TutorialProgress
+            currentStep={tutorialState.currentStep}
+            totalSteps={tutorialState.steps.length}
+            round={gameState.round}
+          />
+          <TutorialOverlay
+            step={tutorialState.steps[tutorialState.currentStep]}
+            onNext={handleTutorialNext}
+            onSkip={handleTutorialSkip}
+          />
+        </>
       )}
     </div>
   );
