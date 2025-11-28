@@ -126,6 +126,74 @@ function App() {
     }
   }, [gameState.phase, gameState.round, tutorialState.skipped, tutorialState.completed]);
 
+  // Auto-advance tutorial based on user actions
+  useEffect(() => {
+    if (!tutorialState.active || tutorialState.skipped || tutorialState.completed) return;
+
+    const currentStep = tutorialState.steps[tutorialState.currentStep];
+    if (!currentStep || currentStep.completed) return;
+
+    let shouldAdvance = false;
+
+    // Check if the required action was performed
+    switch (currentStep.action) {
+      case 'click_actor':
+        // Actor was selected
+        if (uiState.selectedActor) {
+          shouldAdvance = true;
+        }
+        break;
+
+      case 'select_ability':
+        // Ability was selected (targeting mode activated)
+        if (uiState.selectedAbility && uiState.targetingMode) {
+          shouldAdvance = true;
+        }
+        break;
+
+      case 'select_target':
+        // Target was selected (ability was applied)
+        if (!uiState.targetingMode && !uiState.selectedAbility) {
+          shouldAdvance = true;
+        }
+        break;
+
+      default:
+        // No automatic advancement for this step
+        break;
+    }
+
+    if (shouldAdvance) {
+      // Small delay to let user see the result before advancing
+      const timeoutId = setTimeout(() => {
+        setTutorialState(prev => {
+          const nextStep = prev.currentStep + 1;
+          if (nextStep >= prev.steps.length) {
+            return { ...prev, active: false, completed: true };
+          }
+          return {
+            ...prev,
+            currentStep: nextStep,
+            steps: prev.steps.map((step, i) =>
+              i === prev.currentStep ? { ...step, completed: true } : step
+            )
+          };
+        });
+      }, 500);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [
+    tutorialState.active,
+    tutorialState.skipped,
+    tutorialState.completed,
+    tutorialState.currentStep,
+    tutorialState.steps,
+    uiState.selectedActor,
+    uiState.selectedAbility,
+    uiState.targetingMode,
+  ]);
+
   // ============================================
   // SCREENS
   // ============================================
