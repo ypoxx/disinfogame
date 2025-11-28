@@ -282,10 +282,10 @@ function App() {
     : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col relative">
+    <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col">
       {/* Floating HUD - Top Left */}
-      <div className="fixed top-6 left-6 z-40 flex flex-col gap-3">
-        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl">
+      <div className="fixed top-6 left-6 z-40 flex flex-col gap-3 animate-fade-in">
+        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl transition-all hover:shadow-2xl hover:shadow-blue-500/10">
           <h1 className="text-lg font-bold text-white mb-2">
             Desinformation Network
           </h1>
@@ -303,8 +303,8 @@ function App() {
       </div>
 
       {/* Floating HUD - Top Right */}
-      <div className="fixed top-6 right-6 z-40 flex flex-col gap-3">
-        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl min-w-[200px]">
+      <div className="fixed top-6 right-6 z-40 flex flex-col gap-3 animate-fade-in">
+        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl min-w-[200px] transition-all hover:shadow-2xl hover:shadow-purple-500/10">
           <VictoryProgressBar
             metrics={networkMetrics}
             round={gameState.round}
@@ -313,12 +313,12 @@ function App() {
             trustThreshold={0.40}
           />
         </div>
-        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl">
+        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl transition-all hover:shadow-2xl hover:shadow-blue-500/10">
           <div className="flex flex-col gap-2 text-sm">
             <div className="flex justify-between items-center">
               <span className="text-gray-400">Avg Trust:</span>
               <span
-                className="font-semibold"
+                className="font-semibold transition-colors"
                 style={{ color: trustToHex(networkMetrics.averageTrust) }}
               >
                 {formatPercent(networkMetrics.averageTrust)}
@@ -326,7 +326,7 @@ function App() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-400">Low Trust:</span>
-              <span className="font-semibold text-red-400">
+              <span className="font-semibold text-red-400 transition-all">
                 {networkMetrics.lowTrustCount}/{gameState.network.actors.length}
               </span>
             </div>
@@ -334,14 +334,14 @@ function App() {
         </div>
         <button
           onClick={advanceRound}
-          className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-green-600/20"
+          className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-green-600/30 hover:scale-105 active:scale-95"
         >
           End Round →
         </button>
       </div>
 
       {/* Fullscreen Network Visualization */}
-      <div className="flex-1 w-full h-full">
+      <div className="absolute inset-0 w-full h-full">
         <NetworkVisualization
           actors={gameState.network.actors}
           connections={gameState.network.connections}

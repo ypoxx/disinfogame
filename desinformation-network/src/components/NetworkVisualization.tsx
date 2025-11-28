@@ -176,23 +176,56 @@ export function NetworkVisualization({
         source.id === hoveredActorId ||
         target.id === hoveredActorId;
 
-      // Connection line
-      ctx.beginPath();
-      ctx.moveTo(sourcPos.x, sourcPos.y);
-      ctx.lineTo(targetPos.x, targetPos.y);
-      ctx.strokeStyle = isHighlighted
-        ? `rgba(59, 130, 246, ${conn.strength})`
-        : `rgba(156, 163, 175, ${conn.strength * 0.4})`;
-      ctx.lineWidth = isHighlighted ? 3 : 1;
-      ctx.stroke();
+      // Connection line with gradient for depth
+      if (isHighlighted) {
+        const gradient = ctx.createLinearGradient(sourcPos.x, sourcPos.y, targetPos.x, targetPos.y);
+        gradient.addColorStop(0, `rgba(59, 130, 246, ${conn.strength})`);
+        gradient.addColorStop(0.5, `rgba(139, 92, 246, ${conn.strength})`);
+        gradient.addColorStop(1, `rgba(59, 130, 246, ${conn.strength})`);
 
-      // Connection strength indicator (dot in middle)
-      if (conn.strength > 0.5) {
+        ctx.beginPath();
+        ctx.moveTo(sourcPos.x, sourcPos.y);
+        ctx.lineTo(targetPos.x, targetPos.y);
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Add glow effect to highlighted connections
+        ctx.beginPath();
+        ctx.moveTo(sourcPos.x, sourcPos.y);
+        ctx.lineTo(targetPos.x, targetPos.y);
+        ctx.strokeStyle = `rgba(59, 130, 246, ${conn.strength * 0.3})`;
+        ctx.lineWidth = 8;
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(sourcPos.x, sourcPos.y);
+        ctx.lineTo(targetPos.x, targetPos.y);
+        ctx.strokeStyle = `rgba(156, 163, 175, ${conn.strength * 0.4})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // Connection strength indicator (dot in middle) - enhanced
+      if (conn.strength > 0.5 && isHighlighted) {
         const midX = (sourcPos.x + targetPos.x) / 2;
         const midY = (sourcPos.y + targetPos.y) / 2;
+
+        // Glow for connection point
+        const dotGradient = ctx.createRadialGradient(midX, midY, 0, midX, midY, 6);
+        dotGradient.addColorStop(0, '#3B82F6');
+        dotGradient.addColorStop(0.5, '#3B82F680');
+        dotGradient.addColorStop(1, '#3B82F600');
+
+        ctx.beginPath();
+        ctx.arc(midX, midY, 6, 0, Math.PI * 2);
+        ctx.fillStyle = dotGradient;
+        ctx.fill();
+
+        // Solid center
         ctx.beginPath();
         ctx.arc(midX, midY, 3, 0, Math.PI * 2);
-        ctx.fillStyle = isHighlighted ? '#3B82F6' : '#9CA3AF';
+        ctx.fillStyle = '#3B82F6';
         ctx.fill();
       }
     });
@@ -234,20 +267,59 @@ export function NetworkVisualization({
           ctx.stroke();
         }
 
-        // Actor outer circle (category color)
+        // Glow effect for selected/hovered actors
+        if (isSelected || isHovered) {
+          const glowRadius = NODE_RADIUS * 1.5;
+          const gradient = ctx.createRadialGradient(pos.x, pos.y, NODE_RADIUS, pos.x, pos.y, glowRadius);
+          const glowColor = isSelected ? '#3B82F6' : '#9CA3AF';
+          gradient.addColorStop(0, `${glowColor}40`);
+          gradient.addColorStop(0.5, `${glowColor}20`);
+          gradient.addColorStop(1, `${glowColor}00`);
+
+          ctx.beginPath();
+          ctx.arc(pos.x, pos.y, glowRadius, 0, Math.PI * 2);
+          ctx.fillStyle = gradient;
+          ctx.fill();
+        }
+
+        // Actor outer circle (category color) with subtle gradient
+        const outerGradient = ctx.createRadialGradient(
+          pos.x - NODE_RADIUS * 0.3,
+          pos.y - NODE_RADIUS * 0.3,
+          0,
+          pos.x,
+          pos.y,
+          NODE_RADIUS
+        );
+        const categoryColor = getCategoryColor(actor.category);
+        outerGradient.addColorStop(0, categoryColor);
+        outerGradient.addColorStop(1, categoryColor + 'CC');
+
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, NODE_RADIUS, 0, Math.PI * 2);
-        ctx.fillStyle = getCategoryColor(actor.category);
+        ctx.fillStyle = outerGradient;
         ctx.fill();
         ctx.strokeStyle = '#FFFFFF';
         ctx.lineWidth = 4;
         ctx.stroke();
 
-        // Actor inner circle (trust color)
+        // Actor inner circle (trust color) with gradient
         const innerRadius = NODE_RADIUS * 0.7;
+        const innerGradient = ctx.createRadialGradient(
+          pos.x - innerRadius * 0.3,
+          pos.y - innerRadius * 0.3,
+          0,
+          pos.x,
+          pos.y,
+          innerRadius
+        );
+        const trustColor = trustToHex(actor.trust);
+        innerGradient.addColorStop(0, trustColor);
+        innerGradient.addColorStop(1, trustColor + 'DD');
+
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, innerRadius, 0, Math.PI * 2);
-        ctx.fillStyle = trustToHex(actor.trust);
+        ctx.fillStyle = innerGradient;
         ctx.fill();
 
         // Trust percentage arc

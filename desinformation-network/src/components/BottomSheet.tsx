@@ -31,7 +31,7 @@ export function BottomSheet({
 
   if (!actor) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900/95 to-gray-900/90 backdrop-blur-sm text-white px-8 py-4 text-center border-t border-gray-700">
+      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900/95 to-gray-900/90 backdrop-blur-sm text-white px-8 py-4 text-center border-t border-gray-700 z-50 animate-fade-in">
         <p className="text-gray-400">Select an actor from the network to view details and abilities</p>
       </div>
     );
@@ -40,8 +40,9 @@ export function BottomSheet({
   return (
     <div
       className={cn(
-        "fixed bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 to-gray-800 backdrop-blur-sm text-white transition-all duration-300 border-t border-gray-700 shadow-2xl",
-        isExpanded ? "h-[60vh]" : "h-auto"
+        "fixed bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 to-gray-800 backdrop-blur-sm text-white transition-all duration-500 ease-out border-t border-gray-700 shadow-2xl z-50",
+        isExpanded ? "h-[60vh]" : "h-auto",
+        "animate-slide-up"
       )}
     >
       {/* Drag Handle */}
