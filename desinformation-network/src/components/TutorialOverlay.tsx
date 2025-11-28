@@ -103,7 +103,7 @@ export function TutorialOverlay({ step, onNext, onSkip, highlightElement }: Tuto
             {step.action && (
               <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-800 flex items-center gap-2">
-                  <span className="text-lg">👉</span>
+                  <span className="text-lg">💡</span>
                   <span className="font-medium">
                     {getActionHint(step.action)}
                   </span>
@@ -111,15 +111,13 @@ export function TutorialOverlay({ step, onNext, onSkip, highlightElement }: Tuto
               </div>
             )}
 
-            {/* Next button (only if no specific action required) */}
-            {!step.action && (
-              <button
-                onClick={onNext}
-                className="mt-4 w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md"
-              >
-                Continue →
-              </button>
-            )}
+            {/* Next button (always shown for manual progression) */}
+            <button
+              onClick={onNext}
+              className="mt-4 w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md"
+            >
+              Continue →
+            </button>
           </div>
         </div>
 

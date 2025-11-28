@@ -126,73 +126,7 @@ function App() {
     }
   }, [gameState.phase, gameState.round, tutorialState.skipped, tutorialState.completed]);
 
-  // Auto-advance tutorial based on user actions
-  useEffect(() => {
-    if (!tutorialState.active || tutorialState.skipped || tutorialState.completed) return;
-
-    const currentStep = tutorialState.steps[tutorialState.currentStep];
-    if (!currentStep || currentStep.completed) return;
-
-    let shouldAdvance = false;
-
-    // Check if the required action was performed
-    switch (currentStep.action) {
-      case 'click_actor':
-        // Actor was selected
-        if (uiState.selectedActor) {
-          shouldAdvance = true;
-        }
-        break;
-
-      case 'select_ability':
-        // Ability was selected (targeting mode activated)
-        if (uiState.selectedAbility && uiState.targetingMode) {
-          shouldAdvance = true;
-        }
-        break;
-
-      case 'select_target':
-        // Target was selected (ability was applied)
-        if (!uiState.targetingMode && !uiState.selectedAbility) {
-          shouldAdvance = true;
-        }
-        break;
-
-      default:
-        // No automatic advancement for this step
-        break;
-    }
-
-    if (shouldAdvance) {
-      // Small delay to let user see the result before advancing
-      const timeoutId = setTimeout(() => {
-        setTutorialState(prev => {
-          const nextStep = prev.currentStep + 1;
-          if (nextStep >= prev.steps.length) {
-            return { ...prev, active: false, completed: true };
-          }
-          return {
-            ...prev,
-            currentStep: nextStep,
-            steps: prev.steps.map((step, i) =>
-              i === prev.currentStep ? { ...step, completed: true } : step
-            )
-          };
-        });
-      }, 500);
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [
-    tutorialState.active,
-    tutorialState.skipped,
-    tutorialState.completed,
-    tutorialState.currentStep,
-    tutorialState.steps,
-    uiState.selectedActor,
-    uiState.selectedAbility,
-    uiState.targetingMode,
-  ]);
+  // Tutorial is now fully manual - all steps use Continue button
 
   // ============================================
   // SCREENS
@@ -585,14 +519,30 @@ function App() {
                 )}
               </div>
 
-              {/* Cancel Button */}
-              {uiState.targetingMode && (
-                <button
-                  onClick={cancelAbility}
-                  className="w-full mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
+              {/* Targeting Mode Panel */}
+              {uiState.targetingMode && uiState.selectedAbility && (
+                <div className="mt-4 p-4 bg-red-50 border-2 border-red-300 rounded-lg animate-pulse">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-2xl">🎯</span>
+                    <h4 className="font-bold text-red-900">Select a Target!</h4>
+                  </div>
+                  <p className="text-sm text-red-800 mb-3">
+                    Click on any highlighted actor in the network to apply{' '}
+                    <span className="font-semibold">
+                      {getActorAbilities(uiState.selectedAbility.sourceActorId)
+                        .find(a => a.id === uiState.selectedAbility?.abilityId)?.name}
+                    </span>
+                  </p>
+                  <div className="text-xs text-red-700 mb-3">
+                    Valid targets are marked with a red pulsing ring
+                  </div>
+                  <button
+                    onClick={cancelAbility}
+                    className="w-full px-4 py-2 bg-red-100 hover:bg-red-200 text-red-900 font-medium rounded-lg transition-colors border border-red-300"
+                  >
+                    Cancel Targeting
+                  </button>
+                </div>
               )}
             </>
           ) : (
@@ -604,14 +554,24 @@ function App() {
         </div>
       </div>
 
-      {/* Targeting Mode Indicator */}
-      {uiState.targetingMode && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 bg-red-600 text-white rounded-full shadow-lg">
-          Select a target for{' '}
-          <span className="font-semibold">
-            {getActorAbilities(uiState.selectedAbility?.sourceActorId || '')
-              .find(a => a.id === uiState.selectedAbility?.abilityId)?.name}
-          </span>
+      {/* Targeting Mode Indicator - Large Central Banner */}
+      {uiState.targetingMode && uiState.selectedAbility && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-8 py-4 bg-red-600 text-white rounded-xl shadow-2xl animate-pulse z-50 max-w-2xl">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">🎯</span>
+            <div>
+              <div className="font-bold text-lg mb-1">
+                SELECT A TARGET NOW
+              </div>
+              <div className="text-sm text-red-100">
+                Click on any highlighted actor to apply{' '}
+                <span className="font-semibold">
+                  {uiState.selectedAbility && getActorAbilities(uiState.selectedAbility.sourceActorId)
+                    .find(a => a.id === uiState.selectedAbility?.abilityId)?.name}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
