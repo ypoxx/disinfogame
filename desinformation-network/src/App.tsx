@@ -8,6 +8,7 @@ import { RoundSummary } from '@/components/RoundSummary';
 import { VictoryProgressBar } from '@/components/VictoryProgressBar';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
 import { BottomSheet } from '@/components/BottomSheet';
+import { GameStatistics } from '@/components/GameStatistics';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
@@ -22,6 +23,7 @@ function App() {
     gameState,
     uiState,
     networkMetrics,
+    statistics,
     startGame,
     advanceRound,
     resetGame,
@@ -32,6 +34,7 @@ function App() {
     cancelAbility,
     canUseAbility,
     getActorAbilities,
+    getValidTargets,
     toggleEncyclopedia,
     addNotification,
   } = useGameState();
@@ -45,6 +48,9 @@ function App() {
   // Tutorial state
   const [tutorialState, setTutorialState] = useState<TutorialState>(createInitialTutorialState());
   const [showTutorial, setShowTutorial] = useState(false);
+
+  // Statistics state
+  const [showStatistics, setShowStatistics] = useState(false);
 
   // Track round changes and generate summaries
   useEffect(() => {
@@ -222,6 +228,12 @@ function App() {
               Play Again
             </button>
             <button
+              onClick={() => setShowStatistics(true)}
+              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors"
+            >
+              📊 View Statistics
+            </button>
+            <button
               onClick={toggleEncyclopedia}
               className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
             >
@@ -229,6 +241,14 @@ function App() {
             </button>
           </div>
         </div>
+
+        {/* Statistics Modal */}
+        {showStatistics && (
+          <GameStatistics
+            statistics={statistics}
+            onClose={() => setShowStatistics(false)}
+          />
+        )}
       </div>
     );
   }
@@ -262,13 +282,29 @@ function App() {
             </div>
           </div>
           
-          <button
-            onClick={resetGame}
-            className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-xl transition-colors"
-          >
-            Try Again
-          </button>
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={resetGame}
+              className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-xl transition-colors"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => setShowStatistics(true)}
+              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors"
+            >
+              📊 View Statistics
+            </button>
+          </div>
         </div>
+
+        {/* Statistics Modal */}
+        {showStatistics && (
+          <GameStatistics
+            statistics={statistics}
+            onClose={() => setShowStatistics(false)}
+          />
+        )}
       </div>
     );
   }
@@ -373,6 +409,7 @@ function App() {
         selectedAbilityId={uiState.selectedAbility?.abilityId || null}
         targetingMode={uiState.targetingMode}
         addNotification={addNotification}
+        getValidTargets={getValidTargets}
       />
 
       {/* Round Summary Modal */}

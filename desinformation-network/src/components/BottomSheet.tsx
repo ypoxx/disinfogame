@@ -3,6 +3,7 @@ import type { Actor, Ability, Resources, ResourceCost } from '@/game-logic/types
 import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
 import { formatPercent } from '@/utils';
 import { cn } from '@/utils/cn';
+import { AbilityPreview } from './AbilityPreview';
 
 type BottomSheetProps = {
   actor: Actor | null;
@@ -14,6 +15,7 @@ type BottomSheetProps = {
   selectedAbilityId: string | null;
   targetingMode: boolean;
   addNotification: (type: 'info' | 'warning' | 'success' | 'error', message: string) => void;
+  getValidTargets: (abilityId: string) => Actor[];
 };
 
 export function BottomSheet({
@@ -26,8 +28,11 @@ export function BottomSheet({
   selectedAbilityId,
   targetingMode,
   addNotification,
+  getValidTargets,
 }: BottomSheetProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [previewAbility, setPreviewAbility] = useState<Ability | null>(null);
+  const [previewTargets, setPreviewTargets] = useState<Actor[]>([]);
 
   if (!actor) {
     return (
@@ -211,24 +216,24 @@ export function BottomSheet({
                 }
 
                 return (
-                  <button
-                    key={ability.id}
-                    onClick={() => {
-                      if (canUse) {
-                        onSelectAbility(ability.id);
-                      } else {
-                        addNotification('warning', disabledReason);
-                      }
-                    }}
-                    className={cn(
-                      "relative p-4 rounded-lg border text-left transition-all group",
-                      isSelected
-                        ? "border-blue-500 bg-blue-600/20 shadow-lg shadow-blue-500/20"
-                        : canUse
-                          ? "border-gray-700 bg-gray-800/50 hover:border-gray-600 hover:bg-gray-800"
-                          : "border-orange-700/50 bg-orange-900/10 hover:border-orange-600/50 cursor-pointer"
-                    )}
-                  >
+                  <div key={ability.id} className="relative">
+                    <button
+                      onClick={() => {
+                        if (canUse) {
+                          onSelectAbility(ability.id);
+                        } else {
+                          addNotification('warning', disabledReason);
+                        }
+                      }}
+                      className={cn(
+                        "relative p-4 rounded-lg border text-left transition-all group w-full",
+                        isSelected
+                          ? "border-blue-500 bg-blue-600/20 shadow-lg shadow-blue-500/20"
+                          : canUse
+                            ? "border-gray-700 bg-gray-800/50 hover:border-gray-600 hover:bg-gray-800"
+                            : "border-orange-700/50 bg-orange-900/10 hover:border-orange-600/50 cursor-pointer"
+                      )}
+                    >
                     {/* Ability Name & Cost */}
                     <div className="flex justify-between items-start mb-2">
                       <span className="font-semibold text-white pr-2">{ability.name}</span>
@@ -295,12 +300,42 @@ export function BottomSheet({
                       </div>
                     )}
                   </button>
+
+                  {/* Preview Button */}
+                  {canUse && actor && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const targets = getValidTargets(ability.id);
+                        setPreviewAbility(ability);
+                        setPreviewTargets(targets);
+                      }}
+                      className="absolute top-2 right-2 px-2 py-1 bg-purple-600/80 hover:bg-purple-700 text-white text-xs rounded transition-colors z-10"
+                      title="Preview impact"
+                    >
+                      👁️ Preview
+                    </button>
+                  )}
+                </div>
                 );
               })}
             </div>
           )}
         </div>
       </div>
+
+      {/* Ability Preview Modal */}
+      {previewAbility && actor && (
+        <AbilityPreview
+          ability={previewAbility}
+          sourceActor={actor}
+          validTargets={previewTargets}
+          onClose={() => {
+            setPreviewAbility(null);
+            setPreviewTargets([]);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -8,6 +8,7 @@ import type {
   UIState,
   SelectedActor,
   SelectedAbility,
+  GameStatistics,
 } from '@/game-logic/types';
 
 // Import definitions (will be loaded from JSON)
@@ -41,7 +42,8 @@ type UseGameStateReturn = {
   gameState: GameState;
   uiState: UIState;
   networkMetrics: NetworkMetrics;
-  
+  statistics: GameStatistics;
+
   // Game actions
   startGame: () => void;
   advanceRound: () => void;
@@ -59,7 +61,8 @@ type UseGameStateReturn = {
   applyAbility: (targetActorIds: string[]) => boolean;
   canUseAbility: (abilityId: string) => boolean;
   getActorAbilities: (actorId: string) => Ability[];
-  
+  getValidTargets: (abilityId: string) => Actor[];
+
   // UI actions
   toggleEncyclopedia: () => void;
   toggleTutorial: () => void;
@@ -288,6 +291,12 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     return gameManager.getActorAbilities(actorId);
   }, [gameManager]);
 
+  const getValidTargets = useCallback((abilityId: string): Actor[] => {
+    const selectedActorId = uiState.selectedActor?.actorId;
+    if (!selectedActorId) return [];
+    return gameManager.getValidTargets(abilityId, selectedActorId);
+  }, [uiState.selectedActor, gameManager]);
+
   // ============================================
   // UI ACTIONS (remaining)
   // ============================================
@@ -316,18 +325,20 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
   // ============================================
   // COMPUTED VALUES
   // ============================================
-  
+
   const networkMetrics = gameManager.getNetworkMetrics();
-  
+  const statistics = gameManager.getStatistics();
+
   // ============================================
   // RETURN
   // ============================================
-  
+
   return {
     gameState,
     uiState,
     networkMetrics,
-    
+    statistics,
+
     startGame,
     advanceRound,
     resetGame,
@@ -342,7 +353,8 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     applyAbility,
     canUseAbility,
     getActorAbilities,
-    
+    getValidTargets,
+
     toggleEncyclopedia,
     toggleTutorial,
     toggleSettings,

@@ -11,6 +11,8 @@ import type {
   NetworkMetrics,
   Position,
   ActorDefinition,
+  GameStatistics,
+  RoundStatistics,
 } from './types';
 import { SeededRandom, generateSeedString } from './seed/SeededRandom';
 import {
@@ -88,8 +90,31 @@ export class GameStateManager {
       abilityUsage: {},
       eventsTriggered: [],
       defensiveActorsSpawned: 0,
+      statistics: this.createInitialStatistics(),
       history: [],
       seed,
+    };
+  }
+
+  /**
+   * Create initial statistics object
+   */
+  private createInitialStatistics(): GameStatistics {
+    return {
+      totalRounds: 0,
+      victory: false,
+      finalTrust: 0,
+      totalMoneySpent: 0,
+      totalAttentionGenerated: 0,
+      infrastructureBuilt: 0,
+      peakDetectionRisk: 0,
+      totalAbilitiesUsed: 0,
+      mostUsedAbility: null,
+      mostEffectiveAbility: null,
+      mostTargetedActor: null,
+      roundHistory: [],
+      trustEvolution: [],
+      achievements: [],
     };
   }
   
@@ -264,7 +289,14 @@ export class GameStateManager {
   getNetworkMetrics(): NetworkMetrics {
     return calculateNetworkMetrics(this.state.network);
   }
-  
+
+  /**
+   * Get game statistics
+   */
+  getStatistics(): GameStatistics {
+    return this.state.statistics;
+  }
+
   // ============================================
   // ABILITY SYSTEM
   // ============================================
@@ -343,11 +375,14 @@ export class GameStateManager {
 
     // Spend resources (multi-resource)
     this.spendResources(ability.resourceCost);
-    
+
+    // Track statistics
+    this.trackAbilityUsage(ability, targetActorIds);
+
     // Track usage for diminishing returns
-    this.state.abilityUsage[abilityId] = 
+    this.state.abilityUsage[abilityId] =
       (this.state.abilityUsage[abilityId] || 0) + 1;
-    
+
     // Set cooldown
     this.updateActorCooldown(sourceActorId, abilityId, ability.cooldown);
     
@@ -531,13 +566,164 @@ export class GameStateManager {
     // 9. Update network metrics
     this.updateNetworkMetrics();
     
-    // 10. Increment round
+    // 10. Track round statistics
+    this.trackRoundStatistics();
+
+    // 11. Increment round
     this.state.round++;
-    
-    // 11. Check win/lose conditions
+
+    // 12. Check win/lose conditions
     this.checkGameEnd();
   }
-  
+
+  /**
+   * Track statistics for the current round
+   */
+  private trackRoundStatistics(): void {
+    const metrics = this.getNetworkMetrics();
+    const roundStats: RoundStatistics = {
+      round: this.state.round,
+      averageTrust: metrics.averageTrust,
+      lowTrustCount: metrics.lowTrustCount,
+      resources: { ...this.state.resources },
+      detectionRisk: this.state.detectionRisk,
+      actionsPerformed: 0, // Will be tracked when abilities are used
+      resourcesSpent: 0, // Will be tracked when abilities are used
+    };
+
+    // Add to round history
+    this.state.statistics.roundHistory.push(roundStats);
+
+    // Track trust evolution
+    this.state.statistics.trustEvolution.push({
+      round: this.state.round,
+      trust: metrics.averageTrust,
+    });
+
+    // Update peak detection risk
+    if (this.state.detectionRisk > this.state.statistics.peakDetectionRisk) {
+      this.state.statistics.peakDetectionRisk = this.state.detectionRisk;
+    }
+
+    // Update total rounds
+    this.state.statistics.totalRounds = this.state.round;
+  }
+
+  /**
+   * Track ability usage statistics
+   */
+  private trackAbilityUsage(ability: Ability, targetIds: string[]): void {
+    const stats = this.state.statistics;
+
+    // Track total abilities used
+    stats.totalAbilitiesUsed++;
+
+    // Track resource spending
+    const cost = ability.resourceCost;
+    stats.totalMoneySpent += cost.money || 0;
+    stats.totalAttentionGenerated += cost.attention || 0;
+    stats.infrastructureBuilt += cost.infrastructure || 0;
+
+    // Track most used ability
+    const usageCount = (this.state.abilityUsage[ability.id] || 0) + 1;
+    if (!stats.mostUsedAbility || usageCount > stats.mostUsedAbility.timesUsed) {
+      stats.mostUsedAbility = {
+        id: ability.id,
+        name: ability.name,
+        timesUsed: usageCount,
+      };
+    }
+
+    // Update current round stats
+    if (stats.roundHistory.length > 0) {
+      const currentRound = stats.roundHistory[stats.roundHistory.length - 1];
+      if (currentRound.round === this.state.round) {
+        currentRound.actionsPerformed++;
+        currentRound.resourcesSpent += cost.money || 0;
+      }
+    }
+  }
+
+  /**
+   * Calculate achievements based on game statistics
+   */
+  private calculateAchievements(): string[] {
+    const achievements: string[] = [];
+    const stats = this.state.statistics;
+    const metrics = this.getNetworkMetrics();
+
+    // Speed achievements
+    if (stats.totalRounds <= 10 && stats.victory) {
+      achievements.push('Lightning Fast: Won in under 10 rounds');
+    } else if (stats.totalRounds <= 15 && stats.victory) {
+      achievements.push('Quick Campaign: Won in under 15 rounds');
+    }
+
+    // Efficiency achievements
+    if (stats.totalMoneySpent < 500 && stats.victory) {
+      achievements.push('Budget Master: Won spending less than 500 money');
+    }
+
+    // Stealth achievements
+    if (stats.peakDetectionRisk < 0.5 && stats.victory) {
+      achievements.push('Shadow Operator: Kept detection risk below 50%');
+    }
+
+    // Domination achievements
+    if (metrics.lowTrustCount >= this.state.network.actors.length * 0.9) {
+      achievements.push('Total Collapse: Reduced 90% of actors to low trust');
+    }
+
+    // Resource achievements
+    if (stats.infrastructureBuilt >= 50) {
+      achievements.push('Infrastructure King: Built 50+ infrastructure');
+    }
+
+    // Ability achievements
+    if (stats.totalAbilitiesUsed >= 100) {
+      achievements.push('Power User: Used 100+ abilities');
+    }
+
+    return achievements;
+  }
+
+  /**
+   * Finalize statistics at game end
+   */
+  private finalizeStatistics(victory: boolean): void {
+    const stats = this.state.statistics;
+    const metrics = this.getNetworkMetrics();
+    stats.victory = victory;
+    stats.finalTrust = metrics.averageTrust;
+    stats.achievements = this.calculateAchievements();
+
+    // Calculate most effective ability
+    let mostEffective: { id: string; name: string; avgDelta: number } | null = null;
+    for (const [abilityId, timesUsed] of Object.entries(this.state.abilityUsage)) {
+      if (timesUsed > 0) {
+        const ability = this.getAbility(abilityId);
+        if (ability && ability.effects.trustDelta) {
+          const avgDelta = Math.abs(ability.effects.trustDelta);
+          if (!mostEffective || avgDelta > mostEffective.avgDelta) {
+            mostEffective = {
+              id: abilityId,
+              name: ability.name,
+              avgDelta,
+            };
+          }
+        }
+      }
+    }
+
+    if (mostEffective) {
+      stats.mostEffectiveAbility = {
+        id: mostEffective.id,
+        name: mostEffective.name,
+        avgTrustDelta: mostEffective.avgDelta,
+      };
+    }
+  }
+
   /**
    * Calculate resource bonus from controlled actors
    */
@@ -812,14 +998,16 @@ export class GameStateManager {
     // Check victory
     if (this.checkVictory()) {
       this.state.phase = 'victory';
+      this.finalizeStatistics(true);
       return;
     }
-    
+
     // Check defeat
     const defeatReason = this.checkDefeat();
     if (defeatReason) {
       this.state.phase = 'defeat';
       this.state.defeatReason = defeatReason;
+      this.finalizeStatistics(false);
     }
   }
   

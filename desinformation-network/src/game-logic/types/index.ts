@@ -256,13 +256,16 @@ export type GameState = {
   abilityUsage: Record<string, number>;  // Ability ID → times used
   eventsTriggered: string[];             // Event IDs
   defensiveActorsSpawned: number;
-  
+
+  // Statistics
+  statistics: GameStatistics;
+
   // History (for undo/replay)
   history: GameStateSnapshot[];
-  
+
   // Seed
   seed: string;
-  
+
   // Result
   defeatReason?: DefeatReason;
 };
@@ -282,9 +285,11 @@ export type GameStateSnapshot = {
 export type RoundStatistics = {
   round: number;
   averageTrust: number;
+  lowTrustCount: number;
   resources: Resources;
   detectionRisk: number;
   actionsPerformed: number;
+  resourcesSpent: number;
   mostAffectedActor?: {
     id: string;
     name: string;
