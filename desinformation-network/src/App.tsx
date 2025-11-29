@@ -295,8 +295,16 @@ function App() {
               <span className="font-semibold text-white">{gameState.round}/{gameState.maxRounds}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-blue-400">Resources:</span>
-              <span className="font-semibold text-blue-300">{gameState.resources}</span>
+              <span className="text-yellow-400">💰</span>
+              <span className="font-semibold text-yellow-300">{gameState.resources.money}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-red-400">👁️</span>
+              <span className="font-semibold text-red-300">{Math.round(gameState.resources.attention)}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-purple-400">🔧</span>
+              <span className="font-semibold text-purple-300">{gameState.resources.infrastructure}</span>
             </div>
           </div>
         </div>

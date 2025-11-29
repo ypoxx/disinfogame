@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Actor, Ability } from '@/game-logic/types';
+import type { Actor, Ability, Resources, ResourceCost } from '@/game-logic/types';
 import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
 import { formatPercent } from '@/utils';
 import { cn } from '@/utils/cn';
@@ -7,7 +7,7 @@ import { cn } from '@/utils/cn';
 type BottomSheetProps = {
   actor: Actor | null;
   abilities: Ability[];
-  resources: number;
+  resources: Resources;
   canUseAbility: (abilityId: string) => boolean;
   onSelectAbility: (abilityId: string) => void;
   onCancel: () => void;
@@ -190,13 +190,19 @@ export function BottomSheet({
                   effects.push('propagates');
                 }
 
-                const hasEnoughResources = resources >= ability.resourceCost;
+                const cost = ability.resourceCost;
+                const hasEnoughResources =
+                  resources.money >= (cost.money || 0) &&
+                  resources.infrastructure >= (cost.infrastructure || 0);
                 const notOnCooldown = cooldown === 0;
 
                 let disabledReason = '';
                 if (!canUse) {
                   if (!hasEnoughResources) {
-                    disabledReason = `Need ${ability.resourceCost} resources (have ${resources})`;
+                    const missing: string[] = [];
+                    if (resources.money < (cost.money || 0)) missing.push(`💰${cost.money}`);
+                    if (resources.infrastructure < (cost.infrastructure || 0)) missing.push(`🔧${cost.infrastructure}`);
+                    disabledReason = `Need ${missing.join(', ')}`;
                   } else if (!notOnCooldown) {
                     disabledReason = `On cooldown: ${cooldown} rounds`;
                   } else {
@@ -226,9 +232,17 @@ export function BottomSheet({
                     {/* Ability Name & Cost */}
                     <div className="flex justify-between items-start mb-2">
                       <span className="font-semibold text-white pr-2">{ability.name}</span>
-                      <span className="text-blue-400 font-bold text-sm flex-shrink-0">
-                        {ability.resourceCost} pts
-                      </span>
+                      <div className="flex gap-2 text-xs flex-shrink-0">
+                        {cost.money && cost.money > 0 && (
+                          <span className="text-yellow-400 font-bold">💰{cost.money}</span>
+                        )}
+                        {cost.attention && cost.attention > 0 && (
+                          <span className="text-red-400 font-bold">👁️+{cost.attention}</span>
+                        )}
+                        {cost.infrastructure && cost.infrastructure > 0 && (
+                          <span className="text-purple-400 font-bold">🔧{cost.infrastructure}</span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Description */}
@@ -258,7 +272,7 @@ export function BottomSheet({
                     )}
                     {!hasEnoughResources && (
                       <div className="mt-2 text-xs text-red-400 font-semibold">
-                        💰 Need {ability.resourceCost} (have {resources})
+                        ❌ {disabledReason}
                       </div>
                     )}
                     {!canUse && (

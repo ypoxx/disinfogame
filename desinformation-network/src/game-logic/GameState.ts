@@ -26,8 +26,16 @@ import {
 // CONSTANTS
 // ============================================
 
-const INITIAL_RESOURCES = 100;
-const RESOURCES_PER_ROUND = 20;
+// Multi-Resource Economy
+const INITIAL_MONEY = 150;
+const INITIAL_ATTENTION = 0;
+const INITIAL_INFRASTRUCTURE = 0;
+const MONEY_PER_ROUND = 30;
+const ATTENTION_DECAY_RATE = 0.15;  // 15% per round
+const DETECTION_THRESHOLD = 0.8;    // 80% attention = high risk
+const INFRASTRUCTURE_BONUS_MULTIPLIER = 0.1;  // 10% bonus per infrastructure
+
+// Game Flow
 const MAX_ROUNDS = 32;
 const VICTORY_THRESHOLD = 0.75;  // 75% of actors
 const VICTORY_TRUST_LEVEL = 0.4; // Below 40% trust
@@ -65,7 +73,12 @@ export class GameStateManager {
       phase: 'start',
       round: 0,
       maxRounds: MAX_ROUNDS,
-      resources: INITIAL_RESOURCES,
+      resources: {
+        money: INITIAL_MONEY,
+        attention: INITIAL_ATTENTION,
+        infrastructure: INITIAL_INFRASTRUCTURE,
+      },
+      detectionRisk: 0,
       network: {
         actors: [],
         connections: [],
@@ -146,6 +159,84 @@ export class GameStateManager {
   }
   
   // ============================================
+  // RESOURCE MANAGEMENT (Multi-Resource Economy)
+  // ============================================
+
+  /**
+   * Check if player has enough resources for an ability
+   */
+  private hasEnoughResources(cost: import('./types').ResourceCost): boolean {
+    const { money = 0, attention = 0, infrastructure = 0 } = cost;
+    return (
+      this.state.resources.money >= money &&
+      this.state.resources.attention <= 100 && // Can always generate attention
+      this.state.resources.infrastructure >= infrastructure
+    );
+  }
+
+  /**
+   * Spend resources for an ability
+   */
+  private spendResources(cost: import('./types').ResourceCost): void {
+    const { money = 0, attention = 0, infrastructure = 0 } = cost;
+    this.state.resources.money -= money;
+    this.state.resources.attention += attention; // Attention increases!
+    this.state.resources.infrastructure -= infrastructure;
+
+    // Update detection risk based on attention
+    this.state.detectionRisk = Math.min(
+      this.state.resources.attention / 100,
+      1
+    );
+  }
+
+  /**
+   * Generate resources each round
+   */
+  private generateRoundResources(): void {
+    // Base money income
+    let moneyGain = MONEY_PER_ROUND;
+
+    // Bonus from infrastructure
+    const infraBonus = Math.floor(
+      this.state.resources.infrastructure * INFRASTRUCTURE_BONUS_MULTIPLIER
+    );
+    moneyGain += infraBonus;
+
+    // Bonus from controlled actors (low trust)
+    const controlledActors = this.state.network.actors.filter(
+      a => a.trust < 0.3 && a.category !== 'defensive'
+    );
+    controlledActors.forEach(actor => {
+      switch (actor.category) {
+        case 'media':
+          moneyGain += 5;
+          break;
+        case 'expert':
+          moneyGain += 3;
+          break;
+        case 'lobby':
+          moneyGain += 4;
+          break;
+        case 'organization':
+          moneyGain += 2;
+          break;
+      }
+    });
+
+    this.state.resources.money += moneyGain;
+
+    // Attention decays naturally
+    this.state.resources.attention = Math.max(
+      0,
+      this.state.resources.attention * (1 - ATTENTION_DECAY_RATE)
+    );
+
+    // Update detection risk
+    this.state.detectionRisk = this.state.resources.attention / 100;
+  }
+
+  // ============================================
   // GETTERS
   // ============================================
   
@@ -193,10 +284,10 @@ export class GameStateManager {
     // Check cooldown
     const cooldown = actor.cooldowns[abilityId] || 0;
     if (cooldown > 0) return false;
-    
-    // Check resources
-    if (this.state.resources < ability.resourceCost) return false;
-    
+
+    // Check resources (multi-resource)
+    if (!this.hasEnoughResources(ability.resourceCost)) return false;
+
     return true;
   }
   
@@ -249,9 +340,9 @@ export class GameStateManager {
     const ability = this.getAbility(abilityId);
     const sourceActor = this.getActor(sourceActorId);
     if (!ability || !sourceActor) return false;
-    
-    // Spend resources
-    this.state.resources -= ability.resourceCost;
+
+    // Spend resources (multi-resource)
+    this.spendResources(ability.resourceCost);
     
     // Track usage for diminishing returns
     this.state.abilityUsage[abilityId] = 
@@ -429,9 +520,8 @@ export class GameStateManager {
     // 6. Check conditional events
     this.checkConditionalEvents();
     
-    // 7. Add resources
-    const resourceBonus = this.calculateResourceBonus();
-    this.state.resources += RESOURCES_PER_ROUND + resourceBonus;
+    // 7. Generate resources (multi-resource economy)
+    this.generateRoundResources();
     
     // 8. Check for defensive spawns
     if (this.state.round % DEFENSIVE_SPAWN_INTERVAL === 0) {
@@ -591,7 +681,7 @@ export class GameStateManager {
           this.spawnDefensiveActor(effect.value as string);
           break;
         case 'resource_bonus':
-          this.state.resources += effect.value as number;
+          this.state.resources.money += effect.value as number;
           break;
       }
     }
@@ -825,7 +915,8 @@ export class GameStateManager {
     this.state.history.push({
       round: this.state.round,
       network: JSON.parse(JSON.stringify(this.state.network)),
-      resources: this.state.resources,
+      resources: { ...this.state.resources },
+      detectionRisk: this.state.detectionRisk,
       timestamp: Date.now(),
     });
     
@@ -841,11 +932,12 @@ export class GameStateManager {
   undo(): boolean {
     const snapshot = this.state.history.pop();
     if (!snapshot) return false;
-    
+
     this.state.round = snapshot.round;
     this.state.network = snapshot.network;
-    this.state.resources = snapshot.resources;
-    
+    this.state.resources = { ...snapshot.resources };
+    this.state.detectionRisk = snapshot.detectionRisk;
+
     return true;
   }
   

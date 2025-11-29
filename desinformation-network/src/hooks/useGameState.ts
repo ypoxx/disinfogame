@@ -79,11 +79,19 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
   // Initialize game manager
   if (!gameManagerRef.current) {
     gameManagerRef.current = createGameState(initialSeed);
-    
+
+    // Convert old ability definitions to new ResourceCost format
+    const convertedAbilities = (abilityDefinitions as any[]).map(ability => ({
+      ...ability,
+      resourceCost: typeof ability.resourceCost === 'number'
+        ? { money: ability.resourceCost, attention: Math.floor(ability.resourceCost * 0.3), infrastructure: 0 }
+        : ability.resourceCost
+    }));
+
     // Load definitions
     gameManagerRef.current.loadDefinitions(
       actorDefinitions as any,
-      abilityDefinitions as any,
+      convertedAbilities as any,
       eventDefinitions as any
     );
   }
