@@ -239,16 +239,32 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
 
     const validTargets = gameManager.getValidTargets(abilityId, selectedActorId);
 
+    // If no targets needed (network-wide effect), apply immediately
+    if (validTargets.length === 0) {
+      const success = gameManager.applyAbility(abilityId, selectedActorId, []);
+      syncState();
+
+      if (success) {
+        addNotification('success', 'Ability applied to entire network');
+      } else {
+        addNotification('error', 'Failed to apply ability');
+      }
+      return;
+    }
+
+    // Otherwise enter targeting mode
     setUIState(prev => ({
       ...prev,
       selectedAbility: {
         abilityId,
         sourceActorId: selectedActorId,
       },
-      targetingMode: validTargets.length > 0,
+      targetingMode: true,
       validTargets: validTargets.map(a => a.id),
     }));
-  }, [uiState.selectedActor, gameManager, addNotification]);
+
+    addNotification('info', `Select a target actor (${validTargets.length} available)`);
+  }, [uiState.selectedActor, gameManager, addNotification, syncState]);
 
   const cancelAbility = useCallback(() => {
     setUIState(prev => ({

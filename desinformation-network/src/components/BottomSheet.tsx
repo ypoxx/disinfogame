@@ -45,16 +45,26 @@ export function BottomSheet({
   return (
     <div
       className={cn(
-        "fixed bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 to-gray-800 backdrop-blur-sm text-white transition-all duration-500 ease-out border-t border-gray-700 shadow-2xl z-50",
-        isExpanded ? "h-[60vh]" : "h-auto",
+        "fixed bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900/90 to-gray-800/85 backdrop-blur-md text-white transition-all duration-500 ease-out border-t border-gray-700/50 shadow-2xl z-50",
+        isExpanded ? "h-[70vh]" : "h-auto max-h-[45vh]",
         "animate-slide-up"
       )}
     >
-      {/* Drag Handle */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-gray-600 rounded-full hover:bg-gray-500 transition-colors"
-      />
+      {/* Drag Handle & Close Button */}
+      <div className="relative">
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-gray-600 rounded-full hover:bg-gray-500 transition-colors"
+          aria-label={isExpanded ? "Collapse" : "Expand"}
+        />
+        <button
+          onClick={onCancel}
+          className="absolute top-2 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-700 hover:bg-gray-600 transition-colors text-gray-300 hover:text-white"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+      </div>
 
       {/* Targeting Mode Banner */}
       {targetingMode && (
@@ -77,8 +87,8 @@ export function BottomSheet({
 
       {/* Content */}
       <div className={cn(
-        "overflow-y-auto px-8 py-6",
-        isExpanded ? "h-full" : "max-h-[40vh]"
+        "overflow-y-auto px-8 pb-6",
+        isExpanded ? "h-full pt-12" : "max-h-[40vh] pt-8"
       )}>
         {/* Actor Header */}
         <div className="flex items-center gap-6 mb-6">
@@ -173,7 +183,7 @@ export function BottomSheet({
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
               {abilities.map(ability => {
                 const cooldown = actor.cooldowns[ability.id] || 0;
                 const canUse = canUseAbility(ability.id);

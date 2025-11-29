@@ -323,11 +323,11 @@ function App() {
     <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col">
       {/* Floating HUD - Top Left */}
       <div className="fixed top-6 left-6 z-40 flex flex-col gap-3 animate-fade-in">
-        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl transition-all hover:shadow-2xl hover:shadow-blue-500/10">
-          <h1 className="text-lg font-bold text-white mb-2">
+        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl transition-all hover:bg-gray-900/80 hover:shadow-2xl hover:shadow-blue-500/10">
+          <h1 className="text-base font-bold text-white mb-2">
             Desinformation Network
           </h1>
-          <div className="flex flex-col gap-2 text-sm">
+          <div className="flex flex-col gap-1.5 text-sm">
             <div className="flex items-center gap-2">
               <span className="text-gray-400">Round:</span>
               <span className="font-semibold text-white">{gameState.round}/{gameState.maxRounds}</span>
@@ -350,7 +350,7 @@ function App() {
 
       {/* Floating HUD - Top Right */}
       <div className="fixed top-6 right-6 z-40 flex flex-col gap-3 animate-fade-in">
-        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl min-w-[200px] transition-all hover:shadow-2xl hover:shadow-purple-500/10">
+        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl min-w-[200px] transition-all hover:bg-gray-900/80 hover:shadow-2xl hover:shadow-purple-500/10">
           <VictoryProgressBar
             metrics={networkMetrics}
             round={gameState.round}
@@ -359,8 +359,8 @@ function App() {
             trustThreshold={0.40}
           />
         </div>
-        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl transition-all hover:shadow-2xl hover:shadow-blue-500/10">
-          <div className="flex flex-col gap-2 text-sm">
+        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl transition-all hover:bg-gray-900/80 hover:shadow-2xl hover:shadow-blue-500/10">
+          <div className="flex flex-col gap-1.5 text-sm">
             <div className="flex justify-between items-center">
               <span className="text-gray-400">Avg Trust:</span>
               <span

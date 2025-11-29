@@ -53,6 +53,12 @@ export function NetworkVisualization({
   const [hoveredActor, setHoveredActor] = useState<Actor | null>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
 
+  // Zoom and Pan state
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+
   // Constants scaled by canvas size
   const NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.04; // 4% of smaller dimension
   const CATEGORY_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.15; // 15% of smaller dimension
@@ -102,6 +108,11 @@ export function NetworkVisualization({
     // Clear
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Save context and apply zoom/pan transform
+    ctx.save();
+    ctx.translate(pan.x, pan.y);
+    ctx.scale(zoom, zoom);
+
     // Draw category regions
     Object.keys(CATEGORY_POSITIONS_RELATIVE).forEach((category) => {
       const actors = actorsByCategory[category] || [];
@@ -122,7 +133,7 @@ export function NetworkVisualization({
 
       // Category label background for better readability
       const label = CATEGORY_LABELS[category] || category;
-      const fontSize = Math.max(12, NODE_RADIUS * 0.3);
+      const fontSize = Math.max(14, NODE_RADIUS * 0.4);
       ctx.font = `bold ${fontSize}px Inter, sans-serif`;
       const labelMetrics = ctx.measureText(label);
       const labelWidth = labelMetrics.width;
@@ -334,7 +345,7 @@ export function NetworkVisualization({
 
         // Actor name with text wrapping for long names
         const maxNameWidth = NODE_RADIUS * 4;
-        const nameFontSize = Math.max(11, NODE_RADIUS * 0.3);
+        const nameFontSize = Math.max(12, NODE_RADIUS * 0.35);
         ctx.font = `${isSelected || isHovered ? 'bold ' : ''}${nameFontSize}px Inter, sans-serif`;
         ctx.fillStyle = '#1F2937';
         ctx.textAlign = 'center';
@@ -362,7 +373,7 @@ export function NetworkVisualization({
 
         // Trust percentage below name
         if (isSelected || isHovered) {
-          const trustFontSize = Math.max(10, NODE_RADIUS * 0.25);
+          const trustFontSize = Math.max(11, NODE_RADIUS * 0.3);
           ctx.font = `${trustFontSize}px Inter, sans-serif`;
           ctx.fillStyle = trustToHex(actor.trust);
           const trustText = `${Math.round(actor.trust * 100)}%`;
@@ -379,11 +390,24 @@ export function NetworkVisualization({
       });
     });
 
+    // Restore context after zoom/pan transform
+    ctx.restore();
+
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan]);
+
+  // Transform screen coordinates to canvas coordinates (accounting for zoom/pan)
+  const screenToCanvas = useCallback((screenX: number, screenY: number) => {
+    return {
+      x: (screenX - pan.x) / zoom,
+      y: (screenY - pan.y) / zoom,
+    };
+  }, [zoom, pan]);
 
   // Find actor at click position
-  const findActorAtPosition = useCallback((x: number, y: number): Actor | null => {
+  const findActorAtPosition = useCallback((screenX: number, screenY: number): Actor | null => {
+    const { x, y } = screenToCanvas(screenX, screenY);
+
     for (const [category, categoryActors] of Object.entries(actorsByCategory)) {
       for (let i = 0; i < categoryActors.length; i++) {
         const actor = categoryActors[i];
@@ -395,7 +419,7 @@ export function NetworkVisualization({
       }
     }
     return null;
-  }, [actorsByCategory, getActorPosition, NODE_RADIUS]);
+  }, [actorsByCategory, getActorPosition, NODE_RADIUS, screenToCanvas]);
 
   // Event handlers
   const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -416,6 +440,18 @@ export function NetworkVisualization({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Handle panning
+    if (isPanning) {
+      const dx = e.clientX - panStart.x;
+      const dy = e.clientY - panStart.y;
+      setPan(prevPan => ({
+        x: prevPan.x + dx,
+        y: prevPan.y + dy,
+      }));
+      setPanStart({ x: e.clientX, y: e.clientY });
+      return; // Don't update tooltip while panning
+    }
+
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -431,7 +467,26 @@ export function NetworkVisualization({
       setHoveredActor(null);
       setTooltipPosition(null);
     }
-  }, [findActorAtPosition, onActorHover]);
+  }, [findActorAtPosition, onActorHover, isPanning, panStart]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    // Start panning on middle mouse or ctrl+left mouse
+    if (e.button === 1 || (e.button === 0 && (e.ctrlKey || e.metaKey))) {
+      setIsPanning(true);
+      setPanStart({ x: e.clientX, y: e.clientY });
+      e.preventDefault();
+    }
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    setIsPanning(false);
+  }, []);
+
+  const handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+    setZoom(prevZoom => Math.max(0.5, Math.min(3, prevZoom * zoomFactor)));
+  }, []);
 
   // Resize canvas
   useEffect(() => {
@@ -472,15 +527,51 @@ export function NetworkVisualization({
     <div ref={containerRef} className="w-full h-full relative">
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 cursor-pointer"
+        className={isPanning ? "absolute inset-0 cursor-grab" : "absolute inset-0 cursor-pointer"}
         onClick={handleClick}
         onMouseMove={handleMouseMove}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onWheel={handleWheel}
         onMouseLeave={() => {
           onActorHover(null);
           setHoveredActor(null);
           setTooltipPosition(null);
+          setIsPanning(false);
         }}
       />
+
+      {/* Zoom Controls */}
+      <div className="absolute top-4 right-4 flex flex-col gap-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2">
+        <button
+          onClick={() => setZoom(prev => Math.min(3, prev * 1.2))}
+          className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 font-bold text-lg transition-colors"
+          title="Zoom In (Scroll Up)"
+        >
+          +
+        </button>
+        <button
+          onClick={() => setZoom(1)}
+          className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs font-semibold transition-colors"
+          title="Reset Zoom"
+        >
+          {Math.round(zoom * 100)}%
+        </button>
+        <button
+          onClick={() => setZoom(prev => Math.max(0.5, prev / 1.2))}
+          className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 font-bold text-lg transition-colors"
+          title="Zoom Out (Scroll Down)"
+        >
+          −
+        </button>
+        <button
+          onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
+          className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs transition-colors"
+          title="Reset View"
+        >
+          ⟲
+        </button>
+      </div>
 
       {/* Legend - positioned at bottom left to avoid network overlap */}
       <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2.5 text-xs max-w-[160px]">
