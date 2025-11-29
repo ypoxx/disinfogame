@@ -94,13 +94,13 @@ export type Ability = {
   id: string;
   name: string;
   description: string;
-  
+
   // Costs
-  resourceCost: number;
-  cooldown: number;           // Rounds
-  
+  resourceCost: ResourceCost;  // Multi-resource costs
+  cooldown: number;            // Rounds
+
   // Taxonomy links
-  basedOn: string[];          // Persuasion technique IDs
+  basedOn: string[];           // Persuasion technique IDs
   
   // Mechanics
   effectType: EffectType;
@@ -225,13 +225,30 @@ export type DefeatReason =
   | 'defensive_victory'  // Defensive actors restored trust
   | 'exposure';          // Got caught (future)
 
+// ============================================
+// MULTI-RESOURCE ECONOMY (Plague Inc-Style)
+// ============================================
+
+export type Resources = {
+  money: number;           // Buy bot farms, fake experts, etc.
+  attention: number;       // Public awareness - too high = detection risk
+  infrastructure: number;  // Bot farms, telegram channels, etc. (persistent)
+};
+
+export type ResourceCost = {
+  money?: number;
+  attention?: number;
+  infrastructure?: number;
+};
+
 export type GameState = {
   // Core state
   phase: GamePhase;
   round: number;
   maxRounds: number;
-  resources: number;
-  
+  resources: Resources;    // Multi-resource economy
+  detectionRisk: number;   // 0-1, based on attention
+
   // Network
   network: Network;
   
@@ -239,13 +256,16 @@ export type GameState = {
   abilityUsage: Record<string, number>;  // Ability ID → times used
   eventsTriggered: string[];             // Event IDs
   defensiveActorsSpawned: number;
-  
+
+  // Statistics
+  statistics: GameStatistics;
+
   // History (for undo/replay)
   history: GameStateSnapshot[];
-  
+
   // Seed
   seed: string;
-  
+
   // Result
   defeatReason?: DefeatReason;
 };
@@ -253,8 +273,68 @@ export type GameState = {
 export type GameStateSnapshot = {
   round: number;
   network: Network;
-  resources: number;
+  resources: Resources;
+  detectionRisk: number;
   timestamp: number;
+};
+
+// ============================================
+// GAME STATISTICS & ANALYTICS
+// ============================================
+
+export type RoundStatistics = {
+  round: number;
+  averageTrust: number;
+  lowTrustCount: number;
+  resources: Resources;
+  detectionRisk: number;
+  actionsPerformed: number;
+  resourcesSpent: number;
+  mostAffectedActor?: {
+    id: string;
+    name: string;
+    trustChange: number;
+  };
+};
+
+export type GameStatistics = {
+  // Overview
+  totalRounds: number;
+  victory: boolean;
+  finalTrust: number;
+
+  // Resource usage
+  totalMoneySpent: number;
+  totalAttentionGenerated: number;
+  infrastructureBuilt: number;
+  peakDetectionRisk: number;
+
+  // Actions
+  totalAbilitiesUsed: number;
+  mostUsedAbility: {
+    id: string;
+    name: string;
+    timesUsed: number;
+  } | null;
+  mostEffectiveAbility: {
+    id: string;
+    name: string;
+    avgTrustDelta: number;
+  } | null;
+
+  // Targets
+  mostTargetedActor: {
+    id: string;
+    name: string;
+    timesTargeted: number;
+  } | null;
+
+  // Timeline
+  roundHistory: RoundStatistics[];
+  trustEvolution: Array<{ round: number; trust: number }>;
+
+  // Achievements
+  achievements: string[];
 };
 
 // ============================================

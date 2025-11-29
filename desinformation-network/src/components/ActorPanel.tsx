@@ -114,11 +114,13 @@ function AbilityCard({
         </span>
         <span className={cn(
           "text-xs font-medium px-2 py-0.5 rounded",
-          canUse 
-            ? "bg-blue-100 text-blue-700" 
+          canUse
+            ? "bg-blue-100 text-blue-700"
             : "bg-gray-100 text-gray-500"
         )}>
-          {ability.resourceCost} pts
+          {typeof ability.resourceCost === 'object'
+            ? `💰${ability.resourceCost.money || 0}${ability.resourceCost.attention ? ` 👁️+${ability.resourceCost.attention}` : ''}`
+            : `${ability.resourceCost} pts`}
         </span>
       </div>
       

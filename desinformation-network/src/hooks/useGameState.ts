@@ -8,6 +8,7 @@ import type {
   UIState,
   SelectedActor,
   SelectedAbility,
+  GameStatistics,
 } from '@/game-logic/types';
 
 // Import definitions (will be loaded from JSON)
@@ -41,7 +42,8 @@ type UseGameStateReturn = {
   gameState: GameState;
   uiState: UIState;
   networkMetrics: NetworkMetrics;
-  
+  statistics: GameStatistics;
+
   // Game actions
   startGame: () => void;
   advanceRound: () => void;
@@ -59,13 +61,17 @@ type UseGameStateReturn = {
   applyAbility: (targetActorIds: string[]) => boolean;
   canUseAbility: (abilityId: string) => boolean;
   getActorAbilities: (actorId: string) => Ability[];
-  
+  getValidTargets: (abilityId: string) => Actor[];
+
   // UI actions
   toggleEncyclopedia: () => void;
   toggleTutorial: () => void;
   toggleSettings: () => void;
   addNotification: (type: 'info' | 'warning' | 'success' | 'error', message: string) => void;
   dismissNotification: (id: string) => void;
+
+  // Event system
+  dismissCurrentEvent: () => void;
 };
 
 // ============================================
@@ -79,11 +85,19 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
   // Initialize game manager
   if (!gameManagerRef.current) {
     gameManagerRef.current = createGameState(initialSeed);
-    
+
+    // Convert old ability definitions to new ResourceCost format
+    const convertedAbilities = (abilityDefinitions as any[]).map(ability => ({
+      ...ability,
+      resourceCost: typeof ability.resourceCost === 'number'
+        ? { money: ability.resourceCost, attention: Math.floor(ability.resourceCost * 0.3), infrastructure: 0 }
+        : ability.resourceCost
+    }));
+
     // Load definitions
     gameManagerRef.current.loadDefinitions(
       actorDefinitions as any,
-      abilityDefinitions as any,
+      convertedAbilities as any,
       eventDefinitions as any
     );
   }
@@ -111,14 +125,26 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
   const advanceRound = useCallback(() => {
     gameManager.advanceRound();
     syncState();
-    
-    // Clear ability selection
-    setUIState(prev => ({
-      ...prev,
-      selectedAbility: null,
-      targetingMode: false,
-      validTargets: [],
-    }));
+
+    // Check for triggered events
+    const event = gameManager.getLastTriggeredEvent();
+    if (event) {
+      setUIState(prev => ({
+        ...prev,
+        currentEvent: event,
+        selectedAbility: null,
+        targetingMode: false,
+        validTargets: [],
+      }));
+    } else {
+      // Clear ability selection
+      setUIState(prev => ({
+        ...prev,
+        selectedAbility: null,
+        targetingMode: false,
+        validTargets: [],
+      }));
+    }
   }, [gameManager, syncState]);
   
   const resetGame = useCallback(() => {
@@ -213,16 +239,32 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
 
     const validTargets = gameManager.getValidTargets(abilityId, selectedActorId);
 
+    // If no targets needed (network-wide effect), apply immediately
+    if (validTargets.length === 0) {
+      const success = gameManager.applyAbility(abilityId, selectedActorId, []);
+      syncState();
+
+      if (success) {
+        addNotification('success', 'Ability applied to entire network');
+      } else {
+        addNotification('error', 'Failed to apply ability');
+      }
+      return;
+    }
+
+    // Otherwise enter targeting mode
     setUIState(prev => ({
       ...prev,
       selectedAbility: {
         abilityId,
         sourceActorId: selectedActorId,
       },
-      targetingMode: validTargets.length > 0,
+      targetingMode: true,
       validTargets: validTargets.map(a => a.id),
     }));
-  }, [uiState.selectedActor, gameManager, addNotification]);
+
+    addNotification('info', `Select a target actor (${validTargets.length} available)`);
+  }, [uiState.selectedActor, gameManager, addNotification, syncState]);
 
   const cancelAbility = useCallback(() => {
     setUIState(prev => ({
@@ -280,6 +322,12 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     return gameManager.getActorAbilities(actorId);
   }, [gameManager]);
 
+  const getValidTargets = useCallback((abilityId: string): Actor[] => {
+    const selectedActorId = uiState.selectedActor?.actorId;
+    if (!selectedActorId) return [];
+    return gameManager.getValidTargets(abilityId, selectedActorId);
+  }, [uiState.selectedActor, gameManager]);
+
   // ============================================
   // UI ACTIONS (remaining)
   // ============================================
@@ -304,22 +352,32 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
       showSettings: !prev.showSettings,
     }));
   }, []);
-  
+
+  const dismissCurrentEvent = useCallback(() => {
+    setUIState(prev => ({
+      ...prev,
+      currentEvent: null,
+    }));
+    gameManager.clearLastTriggeredEvent();
+  }, [gameManager]);
+
   // ============================================
   // COMPUTED VALUES
   // ============================================
-  
+
   const networkMetrics = gameManager.getNetworkMetrics();
-  
+  const statistics = gameManager.getStatistics();
+
   // ============================================
   // RETURN
   // ============================================
-  
+
   return {
     gameState,
     uiState,
     networkMetrics,
-    
+    statistics,
+
     startGame,
     advanceRound,
     resetGame,
@@ -334,12 +392,15 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     applyAbility,
     canUseAbility,
     getActorAbilities,
-    
+    getValidTargets,
+
     toggleEncyclopedia,
     toggleTutorial,
     toggleSettings,
     addNotification,
     dismissNotification,
+
+    dismissCurrentEvent,
   };
 }
 

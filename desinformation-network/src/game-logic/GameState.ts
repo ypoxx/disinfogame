@@ -11,6 +11,8 @@ import type {
   NetworkMetrics,
   Position,
   ActorDefinition,
+  GameStatistics,
+  RoundStatistics,
 } from './types';
 import { SeededRandom, generateSeedString } from './seed/SeededRandom';
 import {
@@ -26,8 +28,16 @@ import {
 // CONSTANTS
 // ============================================
 
-const INITIAL_RESOURCES = 100;
-const RESOURCES_PER_ROUND = 20;
+// Multi-Resource Economy
+const INITIAL_MONEY = 150;
+const INITIAL_ATTENTION = 0;
+const INITIAL_INFRASTRUCTURE = 0;
+const MONEY_PER_ROUND = 30;
+const ATTENTION_DECAY_RATE = 0.15;  // 15% per round
+const DETECTION_THRESHOLD = 0.8;    // 80% attention = high risk
+const INFRASTRUCTURE_BONUS_MULTIPLIER = 0.1;  // 10% bonus per infrastructure
+
+// Game Flow
 const MAX_ROUNDS = 32;
 const VICTORY_THRESHOLD = 0.75;  // 75% of actors
 const VICTORY_TRUST_LEVEL = 0.4; // Below 40% trust
@@ -46,7 +56,8 @@ export class GameStateManager {
   private actorDefinitions: ActorDefinition[] = [];
   private abilityDefinitions: Ability[] = [];
   private eventDefinitions: GameEvent[] = [];
-  
+  private lastTriggeredEvent: GameEvent | null = null;
+
   constructor(seed?: string) {
     const gameSeed = seed || generateSeedString();
     this.rng = new SeededRandom(gameSeed);
@@ -65,7 +76,12 @@ export class GameStateManager {
       phase: 'start',
       round: 0,
       maxRounds: MAX_ROUNDS,
-      resources: INITIAL_RESOURCES,
+      resources: {
+        money: INITIAL_MONEY,
+        attention: INITIAL_ATTENTION,
+        infrastructure: INITIAL_INFRASTRUCTURE,
+      },
+      detectionRisk: 0,
       network: {
         actors: [],
         connections: [],
@@ -75,8 +91,31 @@ export class GameStateManager {
       abilityUsage: {},
       eventsTriggered: [],
       defensiveActorsSpawned: 0,
+      statistics: this.createInitialStatistics(),
       history: [],
       seed,
+    };
+  }
+
+  /**
+   * Create initial statistics object
+   */
+  private createInitialStatistics(): GameStatistics {
+    return {
+      totalRounds: 0,
+      victory: false,
+      finalTrust: 0,
+      totalMoneySpent: 0,
+      totalAttentionGenerated: 0,
+      infrastructureBuilt: 0,
+      peakDetectionRisk: 0,
+      totalAbilitiesUsed: 0,
+      mostUsedAbility: null,
+      mostEffectiveAbility: null,
+      mostTargetedActor: null,
+      roundHistory: [],
+      trustEvolution: [],
+      achievements: [],
     };
   }
   
@@ -146,6 +185,84 @@ export class GameStateManager {
   }
   
   // ============================================
+  // RESOURCE MANAGEMENT (Multi-Resource Economy)
+  // ============================================
+
+  /**
+   * Check if player has enough resources for an ability
+   */
+  private hasEnoughResources(cost: import('./types').ResourceCost): boolean {
+    const { money = 0, attention = 0, infrastructure = 0 } = cost;
+    return (
+      this.state.resources.money >= money &&
+      this.state.resources.attention <= 100 && // Can always generate attention
+      this.state.resources.infrastructure >= infrastructure
+    );
+  }
+
+  /**
+   * Spend resources for an ability
+   */
+  private spendResources(cost: import('./types').ResourceCost): void {
+    const { money = 0, attention = 0, infrastructure = 0 } = cost;
+    this.state.resources.money -= money;
+    this.state.resources.attention += attention; // Attention increases!
+    this.state.resources.infrastructure -= infrastructure;
+
+    // Update detection risk based on attention
+    this.state.detectionRisk = Math.min(
+      this.state.resources.attention / 100,
+      1
+    );
+  }
+
+  /**
+   * Generate resources each round
+   */
+  private generateRoundResources(): void {
+    // Base money income
+    let moneyGain = MONEY_PER_ROUND;
+
+    // Bonus from infrastructure
+    const infraBonus = Math.floor(
+      this.state.resources.infrastructure * INFRASTRUCTURE_BONUS_MULTIPLIER
+    );
+    moneyGain += infraBonus;
+
+    // Bonus from controlled actors (low trust)
+    const controlledActors = this.state.network.actors.filter(
+      a => a.trust < 0.3 && a.category !== 'defensive'
+    );
+    controlledActors.forEach(actor => {
+      switch (actor.category) {
+        case 'media':
+          moneyGain += 5;
+          break;
+        case 'expert':
+          moneyGain += 3;
+          break;
+        case 'lobby':
+          moneyGain += 4;
+          break;
+        case 'organization':
+          moneyGain += 2;
+          break;
+      }
+    });
+
+    this.state.resources.money += moneyGain;
+
+    // Attention decays naturally
+    this.state.resources.attention = Math.max(
+      0,
+      this.state.resources.attention * (1 - ATTENTION_DECAY_RATE)
+    );
+
+    // Update detection risk
+    this.state.detectionRisk = this.state.resources.attention / 100;
+  }
+
+  // ============================================
   // GETTERS
   // ============================================
   
@@ -173,7 +290,28 @@ export class GameStateManager {
   getNetworkMetrics(): NetworkMetrics {
     return calculateNetworkMetrics(this.state.network);
   }
-  
+
+  /**
+   * Get game statistics
+   */
+  getStatistics(): GameStatistics {
+    return this.state.statistics;
+  }
+
+  /**
+   * Get last triggered event
+   */
+  getLastTriggeredEvent(): GameEvent | null {
+    return this.lastTriggeredEvent;
+  }
+
+  /**
+   * Clear last triggered event (after UI has shown it)
+   */
+  clearLastTriggeredEvent(): void {
+    this.lastTriggeredEvent = null;
+  }
+
   // ============================================
   // ABILITY SYSTEM
   // ============================================
@@ -193,10 +331,10 @@ export class GameStateManager {
     // Check cooldown
     const cooldown = actor.cooldowns[abilityId] || 0;
     if (cooldown > 0) return false;
-    
-    // Check resources
-    if (this.state.resources < ability.resourceCost) return false;
-    
+
+    // Check resources (multi-resource)
+    if (!this.hasEnoughResources(ability.resourceCost)) return false;
+
     return true;
   }
   
@@ -249,14 +387,17 @@ export class GameStateManager {
     const ability = this.getAbility(abilityId);
     const sourceActor = this.getActor(sourceActorId);
     if (!ability || !sourceActor) return false;
-    
-    // Spend resources
-    this.state.resources -= ability.resourceCost;
-    
+
+    // Spend resources (multi-resource)
+    this.spendResources(ability.resourceCost);
+
+    // Track statistics
+    this.trackAbilityUsage(ability, targetActorIds);
+
     // Track usage for diminishing returns
-    this.state.abilityUsage[abilityId] = 
+    this.state.abilityUsage[abilityId] =
       (this.state.abilityUsage[abilityId] || 0) + 1;
-    
+
     // Set cooldown
     this.updateActorCooldown(sourceActorId, abilityId, ability.cooldown);
     
@@ -429,25 +570,178 @@ export class GameStateManager {
     // 6. Check conditional events
     this.checkConditionalEvents();
     
-    // 7. Add resources
-    const resourceBonus = this.calculateResourceBonus();
-    this.state.resources += RESOURCES_PER_ROUND + resourceBonus;
+    // 7. Generate resources (multi-resource economy)
+    this.generateRoundResources();
     
     // 8. Check for defensive spawns
     if (this.state.round % DEFENSIVE_SPAWN_INTERVAL === 0) {
       this.checkDefensiveSpawn();
     }
-    
+
+    // 8.5. Defensive AI actions
+    this.executeDefensiveAI();
+
     // 9. Update network metrics
     this.updateNetworkMetrics();
     
-    // 10. Increment round
+    // 10. Track round statistics
+    this.trackRoundStatistics();
+
+    // 11. Increment round
     this.state.round++;
-    
-    // 11. Check win/lose conditions
+
+    // 12. Check win/lose conditions
     this.checkGameEnd();
   }
-  
+
+  /**
+   * Track statistics for the current round
+   */
+  private trackRoundStatistics(): void {
+    const metrics = this.getNetworkMetrics();
+    const roundStats: RoundStatistics = {
+      round: this.state.round,
+      averageTrust: metrics.averageTrust,
+      lowTrustCount: metrics.lowTrustCount,
+      resources: { ...this.state.resources },
+      detectionRisk: this.state.detectionRisk,
+      actionsPerformed: 0, // Will be tracked when abilities are used
+      resourcesSpent: 0, // Will be tracked when abilities are used
+    };
+
+    // Add to round history
+    this.state.statistics.roundHistory.push(roundStats);
+
+    // Track trust evolution
+    this.state.statistics.trustEvolution.push({
+      round: this.state.round,
+      trust: metrics.averageTrust,
+    });
+
+    // Update peak detection risk
+    if (this.state.detectionRisk > this.state.statistics.peakDetectionRisk) {
+      this.state.statistics.peakDetectionRisk = this.state.detectionRisk;
+    }
+
+    // Update total rounds
+    this.state.statistics.totalRounds = this.state.round;
+  }
+
+  /**
+   * Track ability usage statistics
+   */
+  private trackAbilityUsage(ability: Ability, targetIds: string[]): void {
+    const stats = this.state.statistics;
+
+    // Track total abilities used
+    stats.totalAbilitiesUsed++;
+
+    // Track resource spending
+    const cost = ability.resourceCost;
+    stats.totalMoneySpent += cost.money || 0;
+    stats.totalAttentionGenerated += cost.attention || 0;
+    stats.infrastructureBuilt += cost.infrastructure || 0;
+
+    // Track most used ability
+    const usageCount = (this.state.abilityUsage[ability.id] || 0) + 1;
+    if (!stats.mostUsedAbility || usageCount > stats.mostUsedAbility.timesUsed) {
+      stats.mostUsedAbility = {
+        id: ability.id,
+        name: ability.name,
+        timesUsed: usageCount,
+      };
+    }
+
+    // Update current round stats
+    if (stats.roundHistory.length > 0) {
+      const currentRound = stats.roundHistory[stats.roundHistory.length - 1];
+      if (currentRound.round === this.state.round) {
+        currentRound.actionsPerformed++;
+        currentRound.resourcesSpent += cost.money || 0;
+      }
+    }
+  }
+
+  /**
+   * Calculate achievements based on game statistics
+   */
+  private calculateAchievements(): string[] {
+    const achievements: string[] = [];
+    const stats = this.state.statistics;
+    const metrics = this.getNetworkMetrics();
+
+    // Speed achievements
+    if (stats.totalRounds <= 10 && stats.victory) {
+      achievements.push('Lightning Fast: Won in under 10 rounds');
+    } else if (stats.totalRounds <= 15 && stats.victory) {
+      achievements.push('Quick Campaign: Won in under 15 rounds');
+    }
+
+    // Efficiency achievements
+    if (stats.totalMoneySpent < 500 && stats.victory) {
+      achievements.push('Budget Master: Won spending less than 500 money');
+    }
+
+    // Stealth achievements
+    if (stats.peakDetectionRisk < 0.5 && stats.victory) {
+      achievements.push('Shadow Operator: Kept detection risk below 50%');
+    }
+
+    // Domination achievements
+    if (metrics.lowTrustCount >= this.state.network.actors.length * 0.9) {
+      achievements.push('Total Collapse: Reduced 90% of actors to low trust');
+    }
+
+    // Resource achievements
+    if (stats.infrastructureBuilt >= 50) {
+      achievements.push('Infrastructure King: Built 50+ infrastructure');
+    }
+
+    // Ability achievements
+    if (stats.totalAbilitiesUsed >= 100) {
+      achievements.push('Power User: Used 100+ abilities');
+    }
+
+    return achievements;
+  }
+
+  /**
+   * Finalize statistics at game end
+   */
+  private finalizeStatistics(victory: boolean): void {
+    const stats = this.state.statistics;
+    const metrics = this.getNetworkMetrics();
+    stats.victory = victory;
+    stats.finalTrust = metrics.averageTrust;
+    stats.achievements = this.calculateAchievements();
+
+    // Calculate most effective ability
+    let mostEffective: { id: string; name: string; avgDelta: number } | null = null;
+    for (const [abilityId, timesUsed] of Object.entries(this.state.abilityUsage)) {
+      if (timesUsed > 0) {
+        const ability = this.getAbility(abilityId);
+        if (ability && ability.effects.trustDelta) {
+          const avgDelta = Math.abs(ability.effects.trustDelta);
+          if (!mostEffective || avgDelta > mostEffective.avgDelta) {
+            mostEffective = {
+              id: abilityId,
+              name: ability.name,
+              avgDelta,
+            };
+          }
+        }
+      }
+    }
+
+    if (mostEffective) {
+      stats.mostEffectiveAbility = {
+        id: mostEffective.id,
+        name: mostEffective.name,
+        avgTrustDelta: mostEffective.avgDelta,
+      };
+    }
+  }
+
   /**
    * Calculate resource bonus from controlled actors
    */
@@ -578,7 +872,8 @@ export class GameStateManager {
    */
   private applyEvent(event: GameEvent): void {
     this.state.eventsTriggered.push(event.id);
-    
+    this.lastTriggeredEvent = event; // Store for UI
+
     for (const effect of event.effects) {
       switch (effect.type) {
         case 'trust_delta':
@@ -591,7 +886,7 @@ export class GameStateManager {
           this.spawnDefensiveActor(effect.value as string);
           break;
         case 'resource_bonus':
-          this.state.resources += effect.value as number;
+          this.state.resources.money += effect.value as number;
           break;
       }
     }
@@ -710,7 +1005,62 @@ export class GameStateManager {
     this.state.network.connections = calculateConnections(this.state.network.actors);
     this.state.defensiveActorsSpawned++;
   }
-  
+
+  /**
+   * Execute defensive AI actions
+   */
+  private executeDefensiveAI(): void {
+    const defensiveActors = this.state.network.actors.filter(a => a.category === 'defensive');
+
+    for (const defender of defensiveActors) {
+      // Find most vulnerable actors (low trust non-defensive actors)
+      const vulnerableActors = this.state.network.actors
+        .filter(a => a.category !== 'defensive' && a.trust < 0.5)
+        .sort((a, b) => a.trust - b.trust); // Lowest trust first
+
+      if (vulnerableActors.length === 0) continue;
+
+      // Target the most vulnerable actor
+      const target = vulnerableActors[0];
+
+      // Calculate restoration strength based on defender type
+      const restorationStrength = this.getDefensiveRestorationStrength(defender.name);
+
+      // Apply trust restoration
+      const trustIncrease = restorationStrength * (1 - target.resilience * 0.3);
+
+      this.updateActor(target.id, {
+        trust: clamp(target.trust + trustIncrease, 0, 1),
+        resilience: clamp(target.resilience + 0.02, 0, 1), // Slightly increase resilience
+      });
+
+      // Add small trust boost to connected actors (ripple effect)
+      const connections = this.state.network.connections.filter(
+        c => c.sourceId === target.id || c.targetId === target.id
+      );
+
+      for (const conn of connections) {
+        const connectedId = conn.sourceId === target.id ? conn.targetId : conn.sourceId;
+        const connectedActor = this.getActor(connectedId);
+        if (connectedActor && connectedActor.category !== 'defensive') {
+          this.updateActor(connectedId, {
+            trust: clamp(connectedActor.trust + trustIncrease * 0.15, 0, 1),
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * Get restoration strength for defensive actor type
+   */
+  private getDefensiveRestorationStrength(name: string): number {
+    if (name.includes('Fact Checker')) return 0.08; // 8% trust restoration
+    if (name.includes('Media Literacy')) return 0.06; // 6% + resilience focus
+    if (name.includes('Regulatory')) return 0.10; // 10% strong restoration
+    return 0.05; // Default
+  }
+
   // ============================================
   // WIN/LOSE CONDITIONS
   // ============================================
@@ -722,14 +1072,16 @@ export class GameStateManager {
     // Check victory
     if (this.checkVictory()) {
       this.state.phase = 'victory';
+      this.finalizeStatistics(true);
       return;
     }
-    
+
     // Check defeat
     const defeatReason = this.checkDefeat();
     if (defeatReason) {
       this.state.phase = 'defeat';
       this.state.defeatReason = defeatReason;
+      this.finalizeStatistics(false);
     }
   }
   
@@ -825,7 +1177,8 @@ export class GameStateManager {
     this.state.history.push({
       round: this.state.round,
       network: JSON.parse(JSON.stringify(this.state.network)),
-      resources: this.state.resources,
+      resources: { ...this.state.resources },
+      detectionRisk: this.state.detectionRisk,
       timestamp: Date.now(),
     });
     
@@ -841,11 +1194,12 @@ export class GameStateManager {
   undo(): boolean {
     const snapshot = this.state.history.pop();
     if (!snapshot) return false;
-    
+
     this.state.round = snapshot.round;
     this.state.network = snapshot.network;
-    this.state.resources = snapshot.resources;
-    
+    this.state.resources = { ...snapshot.resources };
+    this.state.detectionRisk = snapshot.detectionRisk;
+
     return true;
   }
   

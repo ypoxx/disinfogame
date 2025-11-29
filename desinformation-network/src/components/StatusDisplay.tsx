@@ -120,8 +120,12 @@ export function StatusDisplay({
           <span className="font-semibold">{gameState.round}/{gameState.maxRounds}</span>
         </div>
         <div className="px-3 py-1 bg-blue-50 rounded-lg">
-          <span className="text-blue-600">Resources:</span>{' '}
-          <span className="font-semibold text-blue-700">{gameState.resources}</span>
+          <span className="text-blue-600">💰</span>{' '}
+          <span className="font-semibold text-blue-700">{gameState.resources.money}</span>
+        </div>
+        <div className="px-3 py-1 bg-red-50 rounded-lg">
+          <span className="text-red-600">👁️</span>{' '}
+          <span className="font-semibold text-red-700">{Math.round(gameState.resources.attention)}</span>
         </div>
         <div className="px-3 py-1 rounded-lg" style={{ backgroundColor: `${trustColor}20` }}>
           <span style={{ color: trustColor }}>Avg Trust:</span>{' '}
