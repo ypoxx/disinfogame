@@ -90,63 +90,62 @@ export function BottomSheet({
         "overflow-y-auto px-8 pb-6",
         isExpanded ? "h-full pt-12" : "max-h-[40vh] pt-8"
       )}>
-        {/* Actor Header */}
-        <div className="flex items-center gap-6 mb-6">
+        {/* Actor Header - Compact */}
+        <div className="flex items-center gap-4 mb-4">
           <div
-            className="w-20 h-20 rounded-2xl flex items-center justify-center flex-shrink-0"
+            className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{ backgroundColor: getCategoryColor(actor.category) + '20' }}
           >
             <div
-              className="w-12 h-12 rounded-full border-4 border-white"
+              className="w-9 h-9 rounded-full border-3 border-white"
               style={{ backgroundColor: trustToHex(actor.trust) }}
             />
           </div>
 
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-white mb-1">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl font-bold text-white mb-0.5 truncate">
               {actor.name}
             </h2>
-            <p className="text-gray-400 capitalize text-lg">
+            <p className="text-gray-400 capitalize text-sm">
               {actor.category}
             </p>
           </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-6 text-center">
+          {/* Quick Stats - Compact */}
+          <div className="flex gap-4 text-center flex-shrink-0">
             <div>
-              <p className="text-gray-400 text-sm mb-1">Trust</p>
+              <p className="text-gray-400 text-xs mb-0.5">Trust</p>
               <p
-                className="text-3xl font-bold"
+                className="text-xl font-bold"
                 style={{ color: trustToHex(actor.trust) }}
               >
                 {formatPercent(actor.trust)}
               </p>
-              <p className="text-xs text-gray-500">{getTrustLabel(actor.trust)}</p>
             </div>
             <div>
-              <p className="text-gray-400 text-sm mb-1">Resilience</p>
-              <p className="text-3xl font-bold text-blue-400">
+              <p className="text-gray-400 text-xs mb-0.5">Resilience</p>
+              <p className="text-xl font-bold text-blue-400">
                 {formatPercent(actor.resilience)}
               </p>
             </div>
             <div>
-              <p className="text-gray-400 text-sm mb-1">Emotional</p>
-              <p className="text-3xl font-bold text-orange-400">
+              <p className="text-gray-400 text-xs mb-0.5">Emotional</p>
+              <p className="text-xl font-bold text-orange-400">
                 {formatPercent(actor.emotionalState)}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Vulnerabilities & Resistances */}
+        {/* Vulnerabilities & Resistances - Compact */}
         {(actor.vulnerabilities.length > 0 || actor.resistances.length > 0) && (
-          <div className="flex gap-4 mb-6">
+          <div className="flex gap-3 mb-4">
             {actor.vulnerabilities.length > 0 && (
-              <div className="flex-1 bg-red-900/20 border border-red-800/30 rounded-lg p-3">
-                <p className="text-red-400 text-xs font-semibold mb-1.5">Vulnerable to:</p>
-                <div className="flex flex-wrap gap-1.5">
+              <div className="flex-1 bg-red-900/20 border border-red-800/30 rounded-lg p-2">
+                <p className="text-red-400 text-xs font-semibold mb-1">Vulnerable to:</p>
+                <div className="flex flex-wrap gap-1">
                   {actor.vulnerabilities.map(v => (
-                    <span key={v} className="text-xs bg-red-800/40 px-2 py-1 rounded">
+                    <span key={v} className="text-xs bg-red-800/40 px-1.5 py-0.5 rounded">
                       {v.replace(/_/g, ' ')}
                     </span>
                   ))}
@@ -154,11 +153,11 @@ export function BottomSheet({
               </div>
             )}
             {actor.resistances.length > 0 && (
-              <div className="flex-1 bg-green-900/20 border border-green-800/30 rounded-lg p-3">
-                <p className="text-green-400 text-xs font-semibold mb-1.5">Resistant to:</p>
-                <div className="flex flex-wrap gap-1.5">
+              <div className="flex-1 bg-green-900/20 border border-green-800/30 rounded-lg p-2">
+                <p className="text-green-400 text-xs font-semibold mb-1">Resistant to:</p>
+                <div className="flex flex-wrap gap-1">
                   {actor.resistances.map(r => (
-                    <span key={r} className="text-xs bg-green-800/40 px-2 py-1 rounded">
+                    <span key={r} className="text-xs bg-green-800/40 px-1.5 py-0.5 rounded">
                       {r.replace(/_/g, ' ')}
                     </span>
                   ))}
@@ -170,7 +169,7 @@ export function BottomSheet({
 
         {/* Abilities */}
         <div>
-          <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+          <h3 className="text-base font-semibold text-white mb-2 flex items-center gap-2">
             <span>Available Abilities</span>
             <span className="text-sm text-gray-400">({abilities.length})</span>
           </h3>
@@ -236,7 +235,7 @@ export function BottomSheet({
                         }
                       }}
                       className={cn(
-                        "relative p-4 rounded-lg border text-left transition-all group w-full",
+                        "relative p-3 rounded-lg border text-left transition-all group w-full",
                         isSelected
                           ? "border-blue-500 bg-blue-600/20 shadow-lg shadow-blue-500/20"
                           : canUse
@@ -245,9 +244,9 @@ export function BottomSheet({
                       )}
                     >
                     {/* Ability Name & Cost */}
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="font-semibold text-white pr-2">{ability.name}</span>
-                      <div className="flex gap-2 text-xs flex-shrink-0">
+                    <div className="flex justify-between items-start mb-1.5">
+                      <span className="font-semibold text-white text-sm pr-2 flex-1">{ability.name}</span>
+                      <div className="flex gap-1.5 text-xs flex-shrink-0">
                         {cost.money && cost.money > 0 && (
                           <span className="text-yellow-400 font-bold">💰{cost.money}</span>
                         )}
@@ -261,17 +260,17 @@ export function BottomSheet({
                     </div>
 
                     {/* Description */}
-                    <p className="text-sm text-gray-400 mb-3 line-clamp-2">
+                    <p className="text-xs text-gray-400 mb-2 line-clamp-2">
                       {ability.description}
                     </p>
 
                     {/* Effects */}
                     {effects.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-2">
+                      <div className="flex flex-wrap gap-1 mb-1.5">
                         {effects.map((effect, i) => (
                           <span
                             key={i}
-                            className="text-xs bg-gray-700/50 px-2 py-0.5 rounded text-gray-300"
+                            className="text-xs bg-gray-700/50 px-1.5 py-0.5 rounded text-gray-300"
                           >
                             {effect}
                           </span>
@@ -279,22 +278,42 @@ export function BottomSheet({
                       </div>
                     )}
 
-                    {/* Status Indicators */}
-                    {cooldown > 0 && (
-                      <div className="mt-2 text-xs text-orange-400 font-semibold">
-                        ⏱ Cooldown: {cooldown} rounds
+                    {/* Status Indicators & Preview Button */}
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="flex-1">
+                        {cooldown > 0 && (
+                          <div className="text-xs text-orange-400 font-semibold">
+                            ⏱ Cooldown: {cooldown} rounds
+                          </div>
+                        )}
+                        {!hasEnoughResources && (
+                          <div className="text-xs text-red-400 font-semibold">
+                            ❌ {disabledReason}
+                          </div>
+                        )}
+                        {!canUse && cooldown === 0 && hasEnoughResources && (
+                          <div className="text-xs text-orange-300 font-semibold">
+                            ⚠️ Click to see why unavailable
+                          </div>
+                        )}
                       </div>
-                    )}
-                    {!hasEnoughResources && (
-                      <div className="mt-2 text-xs text-red-400 font-semibold">
-                        ❌ {disabledReason}
-                      </div>
-                    )}
-                    {!canUse && (
-                      <div className="mt-2 text-xs text-orange-300 font-semibold">
-                        ⚠️ Click to see why unavailable
-                      </div>
-                    )}
+
+                      {/* Preview Button - now inline at bottom */}
+                      {canUse && actor && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const targets = getValidTargets(ability.id);
+                            setPreviewAbility(ability);
+                            setPreviewTargets(targets);
+                          }}
+                          className="px-2 py-1 bg-purple-600/80 hover:bg-purple-700 text-white text-xs rounded transition-colors flex-shrink-0"
+                          title="Preview impact"
+                        >
+                          👁️ Preview
+                        </button>
+                      )}
+                    </div>
 
                     {/* Hover Tooltip */}
                     {canUse && (
@@ -310,22 +329,6 @@ export function BottomSheet({
                       </div>
                     )}
                   </button>
-
-                  {/* Preview Button */}
-                  {canUse && actor && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const targets = getValidTargets(ability.id);
-                        setPreviewAbility(ability);
-                        setPreviewTargets(targets);
-                      }}
-                      className="absolute top-2 right-2 px-2 py-1 bg-purple-600/80 hover:bg-purple-700 text-white text-xs rounded transition-colors z-10"
-                      title="Preview impact"
-                    >
-                      👁️ Preview
-                    </button>
-                  )}
                 </div>
                 );
               })}

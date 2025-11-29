@@ -54,6 +54,12 @@ function App() {
   // Statistics state
   const [showStatistics, setShowStatistics] = useState(false);
 
+  // Handler to close actor panel completely
+  const handleCloseActorPanel = () => {
+    cancelAbility(); // Cancel any selected ability
+    selectActor(null); // Deselect actor
+  };
+
   // Track round changes and generate summaries
   useEffect(() => {
     if (gameState.phase === 'playing' && gameState.round > previousRound && previousRound > 0) {
@@ -407,7 +413,7 @@ function App() {
         resources={gameState.resources}
         canUseAbility={canUseAbility}
         onSelectAbility={selectAbility}
-        onCancel={cancelAbility}
+        onCancel={handleCloseActorPanel}
         selectedAbilityId={uiState.selectedAbility?.abilityId || null}
         targetingMode={uiState.targetingMode}
         addNotification={addNotification}

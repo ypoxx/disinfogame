@@ -470,8 +470,8 @@ export function NetworkVisualization({
   }, [findActorAtPosition, onActorHover, isPanning, panStart]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    // Start panning on middle mouse or ctrl+left mouse
-    if (e.button === 1 || (e.button === 0 && (e.ctrlKey || e.metaKey))) {
+    // Start panning on right-click (button 2), middle mouse (button 1), or space+left click
+    if (e.button === 2 || e.button === 1) {
       setIsPanning(true);
       setPanStart({ x: e.clientX, y: e.clientY });
       e.preventDefault();
@@ -484,8 +484,96 @@ export function NetworkVisualization({
 
   const handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
     e.preventDefault();
-    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+    // Smooth zoom factor based on best practices
+    const zoomFactor = e.deltaY > 0 ? 0.95 : 1.05;
     setZoom(prevZoom => Math.max(0.5, Math.min(3, prevZoom * zoomFactor)));
+  }, []);
+
+  // Touch support for pinch-to-zoom
+  const [touchStart, setTouchStart] = useState<{ dist: number; zoom: number } | null>(null);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length === 2) {
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const dist = Math.hypot(
+        touch1.clientX - touch2.clientX,
+        touch1.clientY - touch2.clientY
+      );
+      setTouchStart({ dist, zoom });
+    } else if (e.touches.length === 1) {
+      // Single touch for panning
+      const touch = e.touches[0];
+      setIsPanning(true);
+      setPanStart({ x: touch.clientX, y: touch.clientY });
+    }
+  }, [zoom]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+
+    if (e.touches.length === 2 && touchStart) {
+      // Pinch-to-zoom
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const dist = Math.hypot(
+        touch1.clientX - touch2.clientX,
+        touch1.clientY - touch2.clientY
+      );
+      const scale = dist / touchStart.dist;
+      const newZoom = touchStart.zoom * scale;
+      setZoom(Math.max(0.5, Math.min(3, newZoom)));
+    } else if (e.touches.length === 1 && isPanning) {
+      // Pan with single touch
+      const touch = e.touches[0];
+      const dx = touch.clientX - panStart.x;
+      const dy = touch.clientY - panStart.y;
+      setPan(prevPan => ({
+        x: prevPan.x + dx,
+        y: prevPan.y + dy,
+      }));
+      setPanStart({ x: touch.clientX, y: touch.clientY });
+    }
+  }, [touchStart, isPanning, panStart]);
+
+  const handleTouchEnd = useCallback(() => {
+    setTouchStart(null);
+    setIsPanning(false);
+  }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return; // Don't interfere with input fields
+      }
+
+      switch (e.key) {
+        case '+':
+        case '=':
+          e.preventDefault();
+          setZoom(prev => Math.min(3, prev * 1.2));
+          break;
+        case '-':
+        case '_':
+          e.preventDefault();
+          setZoom(prev => Math.max(0.5, prev / 1.2));
+          break;
+        case '0':
+          e.preventDefault();
+          setZoom(1);
+          break;
+        case 'r':
+        case 'R':
+          e.preventDefault();
+          setZoom(1);
+          setPan({ x: 0, y: 0 });
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // Resize canvas
@@ -527,12 +615,16 @@ export function NetworkVisualization({
     <div ref={containerRef} className="w-full h-full relative">
       <canvas
         ref={canvasRef}
-        className={isPanning ? "absolute inset-0 cursor-grab" : "absolute inset-0 cursor-pointer"}
+        className={isPanning ? "absolute inset-0 cursor-grabbing" : "absolute inset-0 cursor-pointer"}
         onClick={handleClick}
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onWheel={handleWheel}
+        onContextMenu={(e) => e.preventDefault()} // Prevent context menu on right-click
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         onMouseLeave={() => {
           onActorHover(null);
           setHoveredActor(null);
@@ -541,40 +633,40 @@ export function NetworkVisualization({
         }}
       />
 
-      {/* Zoom Controls */}
-      <div className="absolute top-4 right-4 flex flex-col gap-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2">
+      {/* Zoom Controls - positioned on left side to avoid HUD overlap */}
+      <div className="absolute bottom-20 left-4 flex flex-col gap-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2">
         <button
           onClick={() => setZoom(prev => Math.min(3, prev * 1.2))}
           className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 font-bold text-lg transition-colors"
-          title="Zoom In (Scroll Up)"
+          title="Zoom In (+, Scroll Up)"
         >
           +
         </button>
         <button
           onClick={() => setZoom(1)}
           className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs font-semibold transition-colors"
-          title="Reset Zoom"
+          title="Reset Zoom (0)"
         >
           {Math.round(zoom * 100)}%
         </button>
         <button
           onClick={() => setZoom(prev => Math.max(0.5, prev / 1.2))}
           className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 font-bold text-lg transition-colors"
-          title="Zoom Out (Scroll Down)"
+          title="Zoom Out (-, Scroll Down)"
         >
           −
         </button>
         <button
           onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
           className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs transition-colors"
-          title="Reset View"
+          title="Reset View (R)"
         >
           ⟲
         </button>
       </div>
 
-      {/* Legend - positioned at bottom left to avoid network overlap */}
-      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2.5 text-xs max-w-[160px]">
+      {/* Legend - positioned at bottom right */}
+      <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2.5 text-xs max-w-[160px]">
         <h4 className="font-bold text-gray-900 mb-1.5 text-[11px]">Legend</h4>
         <div className="space-y-1">
           {Object.entries(CATEGORY_LABELS).map(([cat, label]) => {
