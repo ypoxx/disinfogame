@@ -9,6 +9,7 @@ import { VictoryProgressBar } from '@/components/VictoryProgressBar';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
 import { BottomSheet } from '@/components/BottomSheet';
 import { GameStatistics } from '@/components/GameStatistics';
+import { EventNotification } from '@/components/EventNotification';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
@@ -37,6 +38,7 @@ function App() {
     getValidTargets,
     toggleEncyclopedia,
     addNotification,
+    dismissCurrentEvent,
   } = useGameState();
 
   // Round summary state
@@ -435,6 +437,14 @@ function App() {
             onSkip={handleTutorialSkip}
           />
         </>
+      )}
+
+      {/* Event Notification */}
+      {uiState.currentEvent && (
+        <EventNotification
+          event={uiState.currentEvent}
+          onClose={dismissCurrentEvent}
+        />
       )}
     </div>
   );

@@ -69,6 +69,9 @@ type UseGameStateReturn = {
   toggleSettings: () => void;
   addNotification: (type: 'info' | 'warning' | 'success' | 'error', message: string) => void;
   dismissNotification: (id: string) => void;
+
+  // Event system
+  dismissCurrentEvent: () => void;
 };
 
 // ============================================
@@ -122,14 +125,26 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
   const advanceRound = useCallback(() => {
     gameManager.advanceRound();
     syncState();
-    
-    // Clear ability selection
-    setUIState(prev => ({
-      ...prev,
-      selectedAbility: null,
-      targetingMode: false,
-      validTargets: [],
-    }));
+
+    // Check for triggered events
+    const event = gameManager.getLastTriggeredEvent();
+    if (event) {
+      setUIState(prev => ({
+        ...prev,
+        currentEvent: event,
+        selectedAbility: null,
+        targetingMode: false,
+        validTargets: [],
+      }));
+    } else {
+      // Clear ability selection
+      setUIState(prev => ({
+        ...prev,
+        selectedAbility: null,
+        targetingMode: false,
+        validTargets: [],
+      }));
+    }
   }, [gameManager, syncState]);
   
   const resetGame = useCallback(() => {
@@ -321,7 +336,15 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
       showSettings: !prev.showSettings,
     }));
   }, []);
-  
+
+  const dismissCurrentEvent = useCallback(() => {
+    setUIState(prev => ({
+      ...prev,
+      currentEvent: null,
+    }));
+    gameManager.clearLastTriggeredEvent();
+  }, [gameManager]);
+
   // ============================================
   // COMPUTED VALUES
   // ============================================
@@ -360,6 +383,8 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     toggleSettings,
     addNotification,
     dismissNotification,
+
+    dismissCurrentEvent,
   };
 }
 

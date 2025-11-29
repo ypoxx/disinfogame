@@ -56,7 +56,8 @@ export class GameStateManager {
   private actorDefinitions: ActorDefinition[] = [];
   private abilityDefinitions: Ability[] = [];
   private eventDefinitions: GameEvent[] = [];
-  
+  private lastTriggeredEvent: GameEvent | null = null;
+
   constructor(seed?: string) {
     const gameSeed = seed || generateSeedString();
     this.rng = new SeededRandom(gameSeed);
@@ -295,6 +296,20 @@ export class GameStateManager {
    */
   getStatistics(): GameStatistics {
     return this.state.statistics;
+  }
+
+  /**
+   * Get last triggered event
+   */
+  getLastTriggeredEvent(): GameEvent | null {
+    return this.lastTriggeredEvent;
+  }
+
+  /**
+   * Clear last triggered event (after UI has shown it)
+   */
+  clearLastTriggeredEvent(): void {
+    this.lastTriggeredEvent = null;
   }
 
   // ============================================
@@ -854,7 +869,8 @@ export class GameStateManager {
    */
   private applyEvent(event: GameEvent): void {
     this.state.eventsTriggered.push(event.id);
-    
+    this.lastTriggeredEvent = event; // Store for UI
+
     for (const effect of event.effects) {
       switch (effect.type) {
         case 'trust_delta':
