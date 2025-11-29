@@ -577,7 +577,10 @@ export class GameStateManager {
     if (this.state.round % DEFENSIVE_SPAWN_INTERVAL === 0) {
       this.checkDefensiveSpawn();
     }
-    
+
+    // 8.5. Defensive AI actions
+    this.executeDefensiveAI();
+
     // 9. Update network metrics
     this.updateNetworkMetrics();
     
@@ -1002,7 +1005,62 @@ export class GameStateManager {
     this.state.network.connections = calculateConnections(this.state.network.actors);
     this.state.defensiveActorsSpawned++;
   }
-  
+
+  /**
+   * Execute defensive AI actions
+   */
+  private executeDefensiveAI(): void {
+    const defensiveActors = this.state.network.actors.filter(a => a.category === 'defensive');
+
+    for (const defender of defensiveActors) {
+      // Find most vulnerable actors (low trust non-defensive actors)
+      const vulnerableActors = this.state.network.actors
+        .filter(a => a.category !== 'defensive' && a.trust < 0.5)
+        .sort((a, b) => a.trust - b.trust); // Lowest trust first
+
+      if (vulnerableActors.length === 0) continue;
+
+      // Target the most vulnerable actor
+      const target = vulnerableActors[0];
+
+      // Calculate restoration strength based on defender type
+      const restorationStrength = this.getDefensiveRestorationStrength(defender.name);
+
+      // Apply trust restoration
+      const trustIncrease = restorationStrength * (1 - target.resilience * 0.3);
+
+      this.updateActor(target.id, {
+        trust: clamp(target.trust + trustIncrease, 0, 1),
+        resilience: clamp(target.resilience + 0.02, 0, 1), // Slightly increase resilience
+      });
+
+      // Add small trust boost to connected actors (ripple effect)
+      const connections = this.state.network.connections.filter(
+        c => c.sourceId === target.id || c.targetId === target.id
+      );
+
+      for (const conn of connections) {
+        const connectedId = conn.sourceId === target.id ? conn.targetId : conn.sourceId;
+        const connectedActor = this.getActor(connectedId);
+        if (connectedActor && connectedActor.category !== 'defensive') {
+          this.updateActor(connectedId, {
+            trust: clamp(connectedActor.trust + trustIncrease * 0.15, 0, 1),
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * Get restoration strength for defensive actor type
+   */
+  private getDefensiveRestorationStrength(name: string): number {
+    if (name.includes('Fact Checker')) return 0.08; // 8% trust restoration
+    if (name.includes('Media Literacy')) return 0.06; // 6% + resilience focus
+    if (name.includes('Regulatory')) return 0.10; // 10% strong restoration
+    return 0.05; // Default
+  }
+
   // ============================================
   // WIN/LOSE CONDITIONS
   // ============================================
