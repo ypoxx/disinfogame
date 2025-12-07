@@ -518,13 +518,16 @@ export class GameStateManager {
       this.checkDefensiveSpawn();
     }
 
-    // 10. Update network metrics
+    // 10. Process defensive actor auto-abilities
+    this.processDefensiveActions();
+
+    // 11. Update network metrics
     this.updateNetworkMetrics();
 
-    // 11. Increment round
+    // 12. Increment round
     this.state.round++;
 
-    // 12. Check win/lose conditions
+    // 13. Check win/lose conditions
     this.checkGameEnd();
   }
   
@@ -746,6 +749,133 @@ export class GameStateManager {
     }
   }
   
+  /**
+   * Process defensive actor auto-actions
+   */
+  private processDefensiveActions(): void {
+    const defensiveActors = this.state.network.actors.filter(a => a.category === 'defensive');
+    if (defensiveActors.length === 0) return;
+
+    const metrics = this.getNetworkMetrics();
+
+    for (const defender of defensiveActors) {
+      // Get available abilities (not on cooldown)
+      const availableAbilities = defender.abilities
+        .map(id => this.getAbility(id))
+        .filter((a): a is Ability => a !== undefined && (defender.cooldowns[a.id] || 0) === 0);
+
+      for (const ability of availableAbilities) {
+        // Check auto-trigger conditions
+        const autoTrigger = (ability as any).autoTrigger;
+        if (!autoTrigger) continue;
+
+        const shouldTrigger = this.checkAutoTriggerCondition(autoTrigger.condition, defender);
+        if (!shouldTrigger) continue;
+
+        // Probability check
+        if (!this.rng.nextBool(autoTrigger.probability || 0.5)) continue;
+
+        // Apply the defensive ability
+        this.applyDefensiveAbility(ability, defender);
+
+        // Only one ability per defender per round
+        break;
+      }
+    }
+  }
+
+  /**
+   * Check if auto-trigger condition is met
+   */
+  private checkAutoTriggerCondition(condition: string, defender: Actor): boolean {
+    const metrics = this.getNetworkMetrics();
+    const connectedActors = getConnectedActors(defender.id, this.state.network.actors, this.state.network.connections);
+
+    switch (condition) {
+      case 'connected_actor_trust_below_40':
+        return connectedActors.some(a => a.trust < 0.4);
+
+      case 'network_trust_below_50':
+        return metrics.averageTrust < 0.5;
+
+      case 'escalation_level_above_2':
+        return this.state.escalation.level > 2;
+
+      case 'escalation_level_above_3':
+        return this.state.escalation.level > 3;
+
+      case 'escalation_level_above_4':
+        return this.state.escalation.level > 4;
+
+      case 'high_emotional_state':
+        return this.state.network.actors.some(a => a.emotionalState > 0.6);
+
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Apply a defensive ability (positive trust effects)
+   */
+  private applyDefensiveAbility(ability: Ability, defender: Actor): void {
+    // Set cooldown
+    this.updateActorCooldown(defender.id, ability.id, ability.cooldown);
+
+    const trustDelta = ability.effects.trustDelta ?? 0;
+    const resilienceDelta = ability.effects.resilienceDelta ?? 0;
+    const emotionalDelta = ability.effects.emotionalDelta ?? 0;
+
+    switch (ability.targetType) {
+      case 'single':
+      case 'adjacent':
+        // Target connected low-trust actors
+        const targets = getConnectedActors(defender.id, this.state.network.actors, this.state.network.connections)
+          .filter(a => a.trust < 0.5)
+          .slice(0, ability.targetType === 'single' ? 1 : 5);
+
+        for (const target of targets) {
+          this.updateActor(target.id, {
+            trust: clamp(target.trust + trustDelta, 0, 1),
+            resilience: clamp(target.resilience + resilienceDelta, 0, 1),
+            emotionalState: clamp(target.emotionalState + emotionalDelta, 0, 1),
+          });
+        }
+        break;
+
+      case 'network':
+        // Apply to all actors
+        for (const actor of this.state.network.actors) {
+          if (actor.category !== 'defensive') {
+            this.updateActor(actor.id, {
+              trust: clamp(actor.trust + trustDelta * 0.5, 0, 1), // Reduced for network
+              resilience: clamp(actor.resilience + resilienceDelta, 0, 1),
+              emotionalState: clamp(actor.emotionalState + emotionalDelta, 0, 1),
+            });
+          }
+        }
+        break;
+
+      case 'category':
+        // Apply to specific category
+        const categoryActors = this.state.network.actors.filter(
+          a => a.category === ability.targetCategory
+        );
+        for (const actor of categoryActors) {
+          this.updateActor(actor.id, {
+            trust: clamp(actor.trust + trustDelta, 0, 1),
+            resilience: clamp(actor.resilience + resilienceDelta, 0, 1),
+          });
+        }
+        break;
+    }
+
+    // Reduce escalation slightly when defensive actions occur
+    this.state.escalation.publicAwareness = Math.max(0, this.state.escalation.publicAwareness - 0.02);
+    this.state.escalation.mediaAttention = Math.max(0, this.state.escalation.mediaAttention - 0.02);
+    this.calculateEscalationLevel();
+  }
+
   /**
    * Spawn a defensive actor
    */

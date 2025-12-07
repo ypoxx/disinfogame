@@ -464,5 +464,202 @@
     "animationType": "wave",
     "animationColor": "#3B82F6",
     "icon": "🎯📋"
+  },
+
+  {
+    "id": "fact_check",
+    "name": "Fact-Check Publication",
+    "category": "defensive",
+    "description": "Publish thorough fact-check that restores trust",
+    "longDescription": "Research and publish a detailed fact-check that debunks false claims. Effective at restoring trust in targeted actors.",
+    "resourceCost": 0,
+    "cooldown": 2,
+    "basedOn": ["verification", "transparency"],
+    "effectType": "defensive",
+    "targetType": "single",
+    "effects": {
+      "trustDelta": 0.15,
+      "emotionalDelta": -0.10,
+      "propagates": true
+    },
+    "countersTechniques": ["emotional_appeal", "misinformation"],
+    "realExample": "Snopes/PolitiFact debunking viral claims",
+    "tactics": [
+      "Source verification",
+      "Evidence presentation",
+      "Clear corrections"
+    ],
+    "diminishingFactor": 0.85,
+    "animationType": "shield",
+    "animationColor": "#22C55E",
+    "icon": "✓📋",
+    "autoTrigger": {
+      "condition": "connected_actor_trust_below_40",
+      "probability": 0.5
+    }
+  },
+  {
+    "id": "debunk",
+    "name": "Viral Debunking",
+    "category": "defensive",
+    "description": "Create viral debunking content that spreads through network",
+    "longDescription": "Produce shareable, engaging fact-checks that can go viral and counter misinformation spread.",
+    "resourceCost": 0,
+    "cooldown": 3,
+    "basedOn": ["prebunking", "inoculation"],
+    "effectType": "defensive",
+    "targetType": "adjacent",
+    "effects": {
+      "trustDelta": 0.12,
+      "resilienceDelta": 0.05,
+      "propagates": true,
+      "propagationStrength": 0.8
+    },
+    "countersTechniques": ["viral_spread", "emotional_manipulation"],
+    "realExample": "John Oliver segments that go viral",
+    "tactics": [
+      "Engaging format",
+      "Shareable content",
+      "Humor and clarity"
+    ],
+    "diminishingFactor": 0.80,
+    "animationType": "wave",
+    "animationColor": "#10B981",
+    "icon": "🛡️🌊",
+    "autoTrigger": {
+      "condition": "network_trust_below_50",
+      "probability": 0.4
+    }
+  },
+  {
+    "id": "educate",
+    "name": "Media Literacy Workshop",
+    "category": "defensive",
+    "description": "Run workshop that increases resilience across network",
+    "longDescription": "Conduct media literacy training that helps people recognize manipulation tactics. Increases long-term resilience.",
+    "resourceCost": 0,
+    "cooldown": 4,
+    "basedOn": ["critical_thinking", "media_literacy"],
+    "effectType": "defensive",
+    "targetType": "network",
+    "effects": {
+      "resilienceDelta": 0.08,
+      "emotionalDelta": -0.05,
+      "propagates": false
+    },
+    "countersTechniques": ["emotional_appeal", "framing", "social_proof"],
+    "realExample": "Finnish media literacy education model",
+    "tactics": [
+      "Critical thinking training",
+      "Source evaluation",
+      "Emotional awareness"
+    ],
+    "diminishingFactor": 0.90,
+    "animationType": "expand",
+    "animationColor": "#06B6D4",
+    "icon": "📚🧠",
+    "autoTrigger": {
+      "condition": "escalation_level_above_2",
+      "probability": 0.6
+    }
+  },
+  {
+    "id": "inoculate",
+    "name": "Prebunking Campaign",
+    "category": "defensive",
+    "description": "Warn about upcoming manipulation tactics before they're used",
+    "longDescription": "Psychological inoculation - expose people to weakened forms of manipulation so they're resistant when encountering it.",
+    "resourceCost": 0,
+    "cooldown": 5,
+    "basedOn": ["inoculation_theory", "prebunking"],
+    "effectType": "defensive",
+    "targetType": "category",
+    "targetCategory": "media",
+    "effects": {
+      "resilienceDelta": 0.12,
+      "trustDelta": 0.05,
+      "propagates": true,
+      "duration": 4
+    },
+    "countersTechniques": ["all"],
+    "realExample": "Cambridge prebunking experiments showing 72% effectiveness",
+    "reference": "https://www.sciencedirect.com/science/article/pii/S0022103123000318",
+    "tactics": [
+      "Technique exposure",
+      "Resistance building",
+      "Preventive action"
+    ],
+    "diminishingFactor": 0.85,
+    "animationType": "shield",
+    "animationColor": "#8B5CF6",
+    "icon": "🛡️💉",
+    "autoTrigger": {
+      "condition": "high_emotional_state",
+      "probability": 0.5
+    }
+  },
+  {
+    "id": "regulate",
+    "name": "Platform Regulation",
+    "category": "defensive",
+    "description": "Implement regulations that limit disinformation spread",
+    "longDescription": "Push for and enforce platform regulations that slow the spread of disinformation and require transparency.",
+    "resourceCost": 0,
+    "cooldown": 6,
+    "basedOn": ["policy", "enforcement"],
+    "effectType": "defensive",
+    "targetType": "network",
+    "effects": {
+      "trustDelta": 0.08,
+      "propagationReduction": 0.30,
+      "duration": 5
+    },
+    "countersTechniques": ["bot_networks", "coordinated_inauthentic_behavior"],
+    "realExample": "EU Digital Services Act requirements",
+    "tactics": [
+      "Policy enforcement",
+      "Transparency requirements",
+      "Accountability measures"
+    ],
+    "diminishingFactor": 0.95,
+    "animationType": "barrier",
+    "animationColor": "#F59E0B",
+    "icon": "⚖️🚫",
+    "autoTrigger": {
+      "condition": "escalation_level_above_3",
+      "probability": 0.7
+    }
+  },
+  {
+    "id": "expose",
+    "name": "Expose Operation",
+    "category": "defensive",
+    "description": "Investigate and expose disinformation operation publicly",
+    "longDescription": "Conduct investigation to unmask the actors behind disinformation campaigns. Significantly damages trust in exposed sources.",
+    "resourceCost": 0,
+    "cooldown": 8,
+    "basedOn": ["investigation", "transparency"],
+    "effectType": "defensive",
+    "targetType": "single",
+    "effects": {
+      "trustDelta": 0.25,
+      "escalationIncrease": 0.15,
+      "propagates": true
+    },
+    "countersTechniques": ["coordinated_inauthentic_behavior", "astroturfing"],
+    "realExample": "Atlantic Council DFRLab exposing Russian troll farms",
+    "tactics": [
+      "Deep investigation",
+      "Public exposure",
+      "Accountability"
+    ],
+    "diminishingFactor": 0.75,
+    "animationType": "spotlight",
+    "animationColor": "#EF4444",
+    "icon": "🔦👁️",
+    "autoTrigger": {
+      "condition": "escalation_level_above_4",
+      "probability": 0.8
+    }
   }
 ]
