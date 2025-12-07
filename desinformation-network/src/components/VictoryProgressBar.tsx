@@ -97,41 +97,36 @@ export function VictoryProgressBar({
         </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+      {/* Stats Grid - compact for dark theme HUD */}
+      <div className="grid grid-cols-3 gap-2 pt-3 border-t border-gray-700 text-center">
         <div>
-          <p className="text-xs text-gray-500 mb-1">Current Round</p>
-          <p className="text-lg font-bold text-gray-900">{round}</p>
-          <p className="text-xs text-gray-400">of {maxRounds}</p>
+          <p className="text-[10px] text-gray-500 uppercase">Round</p>
+          <p className="text-sm font-bold text-white">{round}<span className="text-gray-500 font-normal">/{maxRounds}</span></p>
         </div>
 
         <div>
-          <p className="text-xs text-gray-500 mb-1">Avg Network Trust</p>
-          <p className="text-lg font-bold text-red-600">{formatPercent(metrics.averageTrust)}</p>
-          <p className="text-xs text-gray-400">
-            {metrics.averageTrust < 0.5 ? 'Compromised' : 'Stable'}
-          </p>
+          <p className="text-[10px] text-gray-500 uppercase">Avg Trust</p>
+          <p className="text-sm font-bold text-red-400">{formatPercent(metrics.averageTrust)}</p>
         </div>
 
         <div>
-          <p className="text-xs text-gray-500 mb-1">Est. Victory</p>
-          <p className="text-lg font-bold text-blue-600">
-            {roundsToVictory < maxRounds ? `~Round ${round + roundsToVictory}` : 'Uncertain'}
+          <p className="text-[10px] text-gray-500 uppercase">Est. Win</p>
+          <p className="text-sm font-bold text-blue-400">
+            {roundsToVictory < maxRounds ? `R${round + roundsToVictory}` : '?'}
           </p>
-          <p className="text-xs text-gray-400">At current pace</p>
         </div>
       </div>
 
-      {/* Milestone indicators */}
+      {/* Milestone indicators - dark theme */}
       {round % 8 === 0 && round > 0 && (
-        <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <p className="text-sm font-semibold text-blue-900 mb-1">
-            🎯 Round {round} Checkpoint
+        <div className="mt-3 p-2 bg-blue-900/30 rounded-lg border border-blue-700/50">
+          <p className="text-xs font-semibold text-blue-300 mb-1">
+            Checkpoint {round}
           </p>
-          <p className="text-xs text-blue-700">
-            {paceStatus === 'ahead' && `Excellent! You're ahead of 73% of players.`}
-            {paceStatus === 'on-track' && `Good progress! Keep up the strategy.`}
-            {paceStatus === 'behind' && `Try focusing on high-trust actors for bigger impact.`}
+          <p className="text-[10px] text-blue-400">
+            {paceStatus === 'ahead' && `Excellent progress!`}
+            {paceStatus === 'on-track' && `On track to win.`}
+            {paceStatus === 'behind' && `Focus on high-trust actors.`}
           </p>
         </div>
       )}

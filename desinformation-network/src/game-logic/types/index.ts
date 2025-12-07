@@ -72,11 +72,19 @@ export type ActorDefinition = {
 // ABILITY TYPES
 // ============================================
 
-export type TargetType = 
-  | 'single'      // One actor
-  | 'adjacent'    // Connected actors
-  | 'category'    // All actors of a category
-  | 'network';    // Entire network
+export type TargetType =
+  | 'single'           // One actor
+  | 'any'              // Any actor (same as single)
+  | 'any_actor'        // Any actor (same as single)
+  | 'adjacent'         // Connected actors
+  | 'category'         // All actors of a category
+  | 'media'            // Media actors only
+  | 'multi_actor'      // Multiple actors
+  | 'network'          // Entire network
+  | 'self'             // Self only
+  | 'self_and_media'   // Self + media actors
+  | 'platform'         // Platform-wide effect
+  | 'creates_new_actor'; // Creates a new actor
 
 export type EffectType = 
   | 'direct'       // Immediate effect
@@ -183,8 +191,8 @@ export type NetworkMetrics = {
 export type EventTriggerType = 'random' | 'conditional' | 'timed';
 
 export type EventEffect = {
-  type: 'trust_delta' | 'emotional_delta' | 'resilience_delta' | 'spawn_defensive' | 'resource_bonus';
-  target: 'all' | 'random' | 'category' | string;  // Actor ID or filter
+  type: 'trust_delta' | 'emotional_delta' | 'resilience_delta' | 'spawn_defensive' | 'resource_bonus' | 'resource_penalty' | 'escalation_increase';
+  target: 'all' | 'random' | 'category' | 'game' | 'player' | string;  // Actor ID or filter
   targetCategory?: ActorCategory;
   value: number | string;
 };
@@ -210,17 +218,54 @@ export type GameEvent = {
 };
 
 // ============================================
+// ESCALATION TYPES
+// ============================================
+
+export type EscalationLevel = 0 | 1 | 2 | 3 | 4 | 5;
+
+export type EscalationState = {
+  level: EscalationLevel;          // 0-5 escalation level
+  publicAwareness: number;         // 0-1: How aware is the public of manipulation
+  mediaAttention: number;          // 0-1: How much media coverage
+  counterMeasures: number;         // Number of active countermeasures
+  lastEscalationRound: number;     // Round when level last increased
+};
+
+// ============================================
+// VICTORY TYPES
+// ============================================
+
+export type VictoryType =
+  | 'complete_victory'    // 100% unter 40%
+  | 'strategic_victory'   // 75% unter 40%, <24 Runden
+  | 'tactical_victory'    // 75% unter 40%, normal
+  | 'pyrrhic_victory'     // 75% unter 40%, aber hohe Eskalation
+  | 'partial_success'     // 50-74% unter 40%
+  | 'stalemate'           // Timeout ohne klaren Sieger
+  | 'defeat';             // Defensive Victory
+
+export type VictoryDetails = {
+  type: VictoryType;
+  roundsPlayed: number;
+  finalTrust: number;
+  actorsCompromised: number;
+  totalActors: number;
+  escalationLevel: EscalationLevel;
+  score: number;
+};
+
+// ============================================
 // GAME STATE TYPES
 // ============================================
 
-export type GamePhase = 
+export type GamePhase =
   | 'start'       // Title screen
   | 'playing'     // Main game
   | 'paused'      // Game paused
   | 'victory'     // Player won
   | 'defeat';     // Player lost
 
-export type DefeatReason = 
+export type DefeatReason =
   | 'time_out'           // Ran out of rounds
   | 'defensive_victory'  // Defensive actors restored trust
   | 'exposure';          // Got caught (future)
@@ -231,23 +276,27 @@ export type GameState = {
   round: number;
   maxRounds: number;
   resources: number;
-  
+
   // Network
   network: Network;
-  
+
+  // Escalation
+  escalation: EscalationState;
+
   // Tracking
   abilityUsage: Record<string, number>;  // Ability ID → times used
   eventsTriggered: string[];             // Event IDs
   defensiveActorsSpawned: number;
-  
+
   // History (for undo/replay)
   history: GameStateSnapshot[];
-  
+
   // Seed
   seed: string;
-  
+
   // Result
   defeatReason?: DefeatReason;
+  victoryDetails?: VictoryDetails;
 };
 
 export type GameStateSnapshot = {
@@ -375,3 +424,6 @@ export type DeepPartial<T> = {
 
 // Re-export narrative types
 export * from './narrative';
+
+// Re-export analysis types
+export * from './analysis';

@@ -236,5 +236,250 @@
     ],
     "newsTickerText": "Major platform updates algorithm, reshuffling information landscape",
     "iconType": "settings"
+  },
+  {
+    "id": "escalation_media_attention",
+    "name": "Media Investigation",
+    "description": "Journalists begin investigating suspicious online patterns.",
+    "triggerType": "conditional",
+    "condition": "escalation_level >= 2",
+    "effects": [
+      {
+        "type": "escalation_increase",
+        "target": "game",
+        "value": 0.05
+      },
+      {
+        "type": "trust_delta",
+        "target": "all",
+        "value": 0.03
+      }
+    ],
+    "newsTickerText": "INVESTIGATION: Journalists probe suspicious coordinated online activity",
+    "iconType": "search"
+  },
+  {
+    "id": "escalation_public_awareness",
+    "name": "Public Awareness Campaign",
+    "description": "Increased awareness of disinformation tactics among citizens.",
+    "triggerType": "conditional",
+    "condition": "escalation_level >= 3",
+    "effects": [
+      {
+        "type": "resilience_delta",
+        "target": "all",
+        "value": 0.06
+      },
+      {
+        "type": "emotional_delta",
+        "target": "all",
+        "value": -0.08
+      }
+    ],
+    "newsTickerText": "Citizens share tips on recognizing online manipulation",
+    "iconType": "users"
+  },
+  {
+    "id": "escalation_platform_crackdown",
+    "name": "Platform Crackdown",
+    "description": "Social media platforms start removing suspicious accounts.",
+    "triggerType": "conditional",
+    "condition": "escalation_level >= 4",
+    "effects": [
+      {
+        "type": "resource_penalty",
+        "target": "player",
+        "value": -20
+      },
+      {
+        "type": "trust_delta",
+        "target": "all",
+        "value": 0.05
+      }
+    ],
+    "newsTickerText": "BREAKING: Platform suspends thousands of accounts for coordinated inauthentic behavior",
+    "iconType": "shield"
+  },
+  {
+    "id": "escalation_government_response",
+    "name": "Government Response",
+    "description": "Government announces emergency measures against disinformation.",
+    "triggerType": "conditional",
+    "condition": "escalation_level >= 5",
+    "effects": [
+      {
+        "type": "spawn_defensive",
+        "target": "network",
+        "value": "regulatory"
+      },
+      {
+        "type": "trust_delta",
+        "target": "category",
+        "targetCategory": "organization",
+        "value": 0.10
+      },
+      {
+        "type": "resource_penalty",
+        "target": "player",
+        "value": -30
+      }
+    ],
+    "newsTickerText": "URGENT: Government establishes task force to combat information warfare",
+    "iconType": "alert"
+  },
+  {
+    "id": "bot_detection",
+    "name": "Bot Network Detected",
+    "description": "Researchers identify and expose bot network operation.",
+    "triggerType": "conditional",
+    "condition": "ability_used_count >= 10",
+    "effects": [
+      {
+        "type": "escalation_increase",
+        "target": "game",
+        "value": 0.10
+      },
+      {
+        "type": "trust_delta",
+        "target": "all",
+        "value": 0.04
+      }
+    ],
+    "newsTickerText": "EXPOSED: Research team publishes analysis of coordinated bot activity",
+    "iconType": "robot"
+  },
+  {
+    "id": "viral_counter_narrative",
+    "name": "Counter-Narrative Goes Viral",
+    "description": "A compelling counter-narrative emerges and spreads rapidly.",
+    "triggerType": "random",
+    "probability": 0.05,
+    "effects": [
+      {
+        "type": "trust_delta",
+        "target": "all",
+        "value": 0.08
+      },
+      {
+        "type": "emotional_delta",
+        "target": "all",
+        "value": -0.10
+      }
+    ],
+    "newsTickerText": "Inspiring story of community resilience spreads across social media",
+    "iconType": "trending-up"
+  },
+  {
+    "id": "election_season",
+    "name": "Election Season",
+    "description": "Election campaigns intensify, creating fertile ground for manipulation.",
+    "triggerType": "timed",
+    "triggerRound": 16,
+    "effects": [
+      {
+        "type": "emotional_delta",
+        "target": "all",
+        "value": 0.15
+      },
+      {
+        "type": "resource_bonus",
+        "target": "player",
+        "value": 25
+      }
+    ],
+    "newsTickerText": "Election campaign enters crucial phase, public attention intensifies",
+    "iconType": "vote"
+  },
+  {
+    "id": "tech_company_testimony",
+    "name": "Tech Exec Testimony",
+    "description": "Tech executives testify about disinformation on their platforms.",
+    "triggerType": "conditional",
+    "condition": "round >= 20 && escalation_level >= 3",
+    "effects": [
+      {
+        "type": "resilience_delta",
+        "target": "all",
+        "value": 0.04
+      },
+      {
+        "type": "escalation_increase",
+        "target": "game",
+        "value": 0.08
+      }
+    ],
+    "newsTickerText": "LIVE: Tech CEOs face tough questions about platform manipulation",
+    "iconType": "microphone"
+  },
+  {
+    "id": "deepfake_scandal",
+    "name": "Deepfake Scandal",
+    "description": "AI-generated content creates massive confusion and distrust.",
+    "triggerType": "random",
+    "probability": 0.04,
+    "effects": [
+      {
+        "type": "trust_delta",
+        "target": "category",
+        "targetCategory": "media",
+        "value": -0.12
+      },
+      {
+        "type": "emotional_delta",
+        "target": "all",
+        "value": 0.20
+      },
+      {
+        "type": "escalation_increase",
+        "target": "game",
+        "value": 0.07
+      }
+    ],
+    "newsTickerText": "CHAOS: Viral deepfake video sparks confusion before being debunked",
+    "iconType": "video"
+  },
+  {
+    "id": "academic_study",
+    "name": "Academic Study Published",
+    "description": "Researchers publish study on manipulation techniques, boosting resilience.",
+    "triggerType": "random",
+    "probability": 0.06,
+    "effects": [
+      {
+        "type": "resilience_delta",
+        "target": "category",
+        "targetCategory": "expert",
+        "value": 0.08
+      },
+      {
+        "type": "resilience_delta",
+        "target": "category",
+        "targetCategory": "media",
+        "value": 0.04
+      }
+    ],
+    "newsTickerText": "New research reveals key patterns in online manipulation campaigns",
+    "iconType": "book"
+  },
+  {
+    "id": "celebrity_endorsement",
+    "name": "Celebrity Misinformation",
+    "description": "A celebrity shares misinformation with millions of followers.",
+    "triggerType": "random",
+    "probability": 0.07,
+    "effects": [
+      {
+        "type": "trust_delta",
+        "target": "all",
+        "value": -0.06
+      },
+      {
+        "type": "emotional_delta",
+        "target": "all",
+        "value": 0.12
+      }
+    ],
+    "newsTickerText": "Famous influencer's controversial post reaches 10 million before deletion",
+    "iconType": "star"
   }
 ]

@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useGameState } from '@/hooks/useGameState';
-import { cn } from '@/utils/cn';
 import { formatPercent } from '@/utils';
-import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
-import { NetworkVisualization } from '@/components/NetworkVisualization';
+import { trustToHex } from '@/utils/colors';
+import { Button } from '@/components/ui/Button';
+import { NetworkVisualization, type TrustChange } from '@/components/NetworkVisualization';
 import { RoundSummary } from '@/components/RoundSummary';
 import { VictoryProgressBar } from '@/components/VictoryProgressBar';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
 import { BottomSheet } from '@/components/BottomSheet';
+import { PostGameAnalysis } from '@/components/PostGameAnalysis';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
+import type { PostGameAnalysis as PostGameAnalysisType } from '@/game-logic/types';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
 import type { TutorialState } from '@/game-logic/types/tutorial';
@@ -25,6 +27,8 @@ function App() {
     startGame,
     advanceRound,
     resetGame,
+    undoAction,
+    generatePostGameAnalysis,
     selectActor,
     hoverActor,
     getActor,
@@ -36,14 +40,145 @@ function App() {
     addNotification,
   } = useGameState();
 
+  // Post-game analysis state
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  const [analysisData, setAnalysisData] = useState<PostGameAnalysisType | null>(null);
+
+  const handleShowAnalysis = useCallback(() => {
+    const analysis = generatePostGameAnalysis();
+    setAnalysisData(analysis);
+    setShowAnalysis(true);
+  }, [generatePostGameAnalysis]);
+
+  const handleCloseAnalysis = useCallback(() => {
+    setShowAnalysis(false);
+  }, []);
+
+  const handlePlayAgain = useCallback(() => {
+    setShowAnalysis(false);
+    setAnalysisData(null);
+    resetGame();
+  }, [resetGame]);
+
+  // Pause state
+  const [isPaused, setIsPaused] = useState(false);
+
+  const togglePause = useCallback(() => {
+    setIsPaused(prev => !prev);
+  }, []);
+
+  // Trust change tracking for floating numbers
+  const [trustChanges, setTrustChanges] = useState<TrustChange[]>([]);
+  const previousTrustValues = useRef<Map<string, number>>(new Map());
+
+  // Track trust changes when actors update
+  useEffect(() => {
+    const currentTrust = new Map<string, number>();
+    const changes: TrustChange[] = [];
+    const now = Date.now();
+
+    gameState.network.actors.forEach(actor => {
+      currentTrust.set(actor.id, actor.trust);
+
+      const prevTrust = previousTrustValues.current.get(actor.id);
+      if (prevTrust !== undefined && prevTrust !== actor.trust) {
+        const delta = actor.trust - prevTrust;
+        // Only show significant changes (> 0.5%)
+        if (Math.abs(delta) > 0.005) {
+          changes.push({
+            actorId: actor.id,
+            delta,
+            timestamp: now,
+          });
+        }
+      }
+    });
+
+    if (changes.length > 0) {
+      setTrustChanges(prev => [...prev, ...changes]);
+    }
+
+    previousTrustValues.current = currentTrust;
+  }, [gameState.network.actors]);
+
+  // Clean up old trust changes (older than 3 seconds)
+  useEffect(() => {
+    const cleanup = setInterval(() => {
+      const now = Date.now();
+      setTrustChanges(prev => prev.filter(c => now - c.timestamp < 3000));
+    }, 1000);
+    return () => clearInterval(cleanup);
+  }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if typing in input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Only handle during playing phase
+      if (gameState.phase !== 'playing') return;
+
+      switch (e.key) {
+        case 'Escape':
+          if (isPaused) {
+            setIsPaused(false);
+          } else if (uiState.targetingMode) {
+            cancelAbility();
+          } else if (uiState.selectedActor) {
+            selectActor(null);
+          }
+          break;
+        case 'Enter':
+          if (!uiState.targetingMode && !isPaused) {
+            advanceRound();
+          }
+          break;
+        case ' ':
+          e.preventDefault();
+          togglePause();
+          break;
+        case 'z':
+          if ((e.ctrlKey || e.metaKey) && !isPaused) {
+            undoAction();
+            addNotification('info', 'Action undone');
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [gameState.phase, isPaused, uiState.targetingMode, uiState.selectedActor, cancelAbility, selectActor, advanceRound, togglePause, undoAction, addNotification]);
+
   // Round summary state
   const [showRoundSummary, setShowRoundSummary] = useState(false);
   const [currentRoundSummary, setCurrentRoundSummary] = useState<RoundSummaryType | null>(null);
   const [previousRound, setPreviousRound] = useState(0);
   const [networkBefore, setNetworkBefore] = useState(networkMetrics);
 
-  // Tutorial state
-  const [tutorialState, setTutorialState] = useState<TutorialState>(createInitialTutorialState());
+  // Tutorial state - load from localStorage if previously skipped/completed
+  const [tutorialState, setTutorialState] = useState<TutorialState>(() => {
+    const saved = localStorage.getItem('tutorial-state');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.skipped || parsed.completed) {
+          return {
+            ...createInitialTutorialState(),
+            skipped: parsed.skipped || false,
+            completed: parsed.completed || false,
+            active: false
+          };
+        }
+      } catch (e) {
+        // Ignore parse errors, use default state
+      }
+    }
+    return createInitialTutorialState();
+  });
   const [showTutorial, setShowTutorial] = useState(false);
 
   // Track round changes and generate summaries
@@ -94,11 +229,13 @@ function App() {
     setShowRoundSummary(false);
   };
 
-  // Tutorial handlers
+  // Tutorial handlers - persist state to localStorage
   const handleTutorialNext = () => {
     setTutorialState(prev => {
       const nextStep = prev.currentStep + 1;
       if (nextStep >= prev.steps.length) {
+        // Tutorial completed - save to localStorage
+        localStorage.setItem('tutorial-state', JSON.stringify({ skipped: false, completed: true }));
         return { ...prev, active: false, completed: true };
       }
       return {
@@ -112,6 +249,8 @@ function App() {
   };
 
   const handleTutorialSkip = () => {
+    // Save skip status to localStorage
+    localStorage.setItem('tutorial-state', JSON.stringify({ skipped: true, completed: false }));
     setTutorialState(prev => ({
       ...prev,
       active: false,
@@ -163,12 +302,14 @@ function App() {
             </ul>
           </div>
           
-          <button
+          <Button
             onClick={startGame}
-            className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-xl font-semibold rounded-xl transition-colors shadow-lg"
+            variant="primary"
+            size="xl"
+            className="shadow-lg font-semibold"
           >
             Start Game
-          </button>
+          </Button>
           
           <p className="mt-6 text-gray-500 text-sm">
             Seed: {gameState.seed}
@@ -180,95 +321,215 @@ function App() {
 
   // Victory Screen
   if (gameState.phase === 'victory') {
+    const victory = gameState.victoryDetails;
+    const victoryLabels: Record<string, { title: string; description: string; emoji: string; color: string }> = {
+      complete_victory: {
+        title: 'Complete Victory',
+        description: 'Total information dominance achieved. All actors compromised.',
+        emoji: '👑',
+        color: 'text-purple-400'
+      },
+      strategic_victory: {
+        title: 'Strategic Victory',
+        description: 'Swift and efficient campaign. Completed ahead of schedule.',
+        emoji: '⚡',
+        color: 'text-blue-400'
+      },
+      tactical_victory: {
+        title: 'Tactical Victory',
+        description: 'Mission accomplished through careful manipulation.',
+        emoji: '🎯',
+        color: 'text-green-400'
+      },
+      pyrrhic_victory: {
+        title: 'Pyrrhic Victory',
+        description: 'You won, but at what cost? Your campaign drew significant attention.',
+        emoji: '⚠️',
+        color: 'text-yellow-400'
+      },
+      partial_success: {
+        title: 'Partial Success',
+        description: 'Progress made, but the campaign remains incomplete.',
+        emoji: '📊',
+        color: 'text-orange-400'
+      }
+    };
+
+    const victoryInfo = victory ? victoryLabels[victory.type] : victoryLabels.tactical_victory;
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-900 via-gray-900 to-gray-900 flex items-center justify-center p-8">
         <div className="max-w-2xl text-center">
-          <div className="text-6xl mb-6">🎭</div>
-          <h1 className="text-5xl font-bold text-red-400 mb-4">
-            Victory (?)
+          <div className="text-6xl mb-6">{victoryInfo?.emoji || '🎭'}</div>
+          <h1 className={`text-5xl font-bold mb-2 ${victoryInfo?.color || 'text-red-400'}`}>
+            {victoryInfo?.title || 'Victory'}
           </h1>
           <p className="text-xl text-gray-300 mb-8">
-            You've successfully undermined public trust in {gameState.round} rounds.
-            But at what cost to society?
+            {victoryInfo?.description}
           </p>
-          
+
+          {victory && (
+            <div className="bg-gray-800/50 rounded-2xl p-6 mb-6">
+              <div className="flex justify-center items-center gap-2 mb-4">
+                <span className="text-4xl font-bold text-yellow-400">{victory.score.toLocaleString()}</span>
+                <span className="text-gray-400">points</span>
+              </div>
+            </div>
+          )}
+
           <div className="bg-gray-800/50 rounded-2xl p-6 mb-8">
-            <h2 className="text-lg font-semibold text-white mb-4">Final Statistics</h2>
-            <div className="grid grid-cols-2 gap-4 text-left">
+            <h2 className="text-lg font-semibold text-white mb-4">Campaign Statistics</h2>
+            <div className="grid grid-cols-3 gap-4 text-left">
               <div>
-                <p className="text-gray-400">Rounds Played</p>
-                <p className="text-2xl text-white">{gameState.round}</p>
+                <p className="text-gray-400 text-sm">Rounds</p>
+                <p className="text-2xl text-white">{victory?.roundsPlayed || gameState.round}</p>
               </div>
               <div>
-                <p className="text-gray-400">Average Trust</p>
-                <p className="text-2xl text-red-400">{formatPercent(networkMetrics.averageTrust)}</p>
+                <p className="text-gray-400 text-sm">Avg Trust</p>
+                <p className="text-2xl text-red-400">{formatPercent(victory?.finalTrust || networkMetrics.averageTrust)}</p>
               </div>
               <div>
-                <p className="text-gray-400">Actors Compromised</p>
-                <p className="text-2xl text-white">{networkMetrics.lowTrustCount}</p>
+                <p className="text-gray-400 text-sm">Compromised</p>
+                <p className="text-2xl text-white">
+                  {victory?.actorsCompromised || networkMetrics.lowTrustCount}/{victory?.totalActors || gameState.network.actors.length}
+                </p>
               </div>
               <div>
-                <p className="text-gray-400">Polarization</p>
+                <p className="text-gray-400 text-sm">Escalation</p>
+                <p className={`text-2xl ${
+                  (victory?.escalationLevel || 0) <= 2 ? 'text-green-400' :
+                  (victory?.escalationLevel || 0) <= 4 ? 'text-yellow-400' : 'text-red-400'
+                }`}>
+                  Level {victory?.escalationLevel || gameState.escalation.level}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">Polarization</p>
                 <p className="text-2xl text-yellow-400">{formatPercent(networkMetrics.polarizationIndex)}</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">Defenders</p>
+                <p className="text-2xl text-cyan-400">{gameState.defensiveActorsSpawned}</p>
               </div>
             </div>
           </div>
-          
+
           <div className="flex gap-4 justify-center">
-            <button
+            <Button
+              onClick={handleShowAnalysis}
+              variant="primary"
+              size="lg"
+              className="font-semibold"
+            >
+              Kampagnen-Analyse
+            </Button>
+            <Button
               onClick={resetGame}
-              className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-xl transition-colors"
+              variant="secondary"
+              size="lg"
+              className="font-semibold"
             >
-              Play Again
-            </button>
-            <button
-              onClick={toggleEncyclopedia}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
-            >
-              Learn About Techniques
-            </button>
+              Nochmal spielen
+            </Button>
           </div>
         </div>
+
+        {/* Post-Game Analysis Modal */}
+        {showAnalysis && analysisData && (
+          <PostGameAnalysis
+            analysis={analysisData}
+            onClose={handleCloseAnalysis}
+            onPlayAgain={handlePlayAgain}
+          />
+        )}
       </div>
     );
   }
 
   // Defeat Screen
   if (gameState.phase === 'defeat') {
+    const defeatMessages: Record<string, { title: string; description: string; emoji: string }> = {
+      time_out: {
+        title: 'Time Expired',
+        description: 'Time ran out before you could complete your campaign.',
+        emoji: '⏰'
+      },
+      defensive_victory: {
+        title: 'Society Prevailed',
+        description: 'Defensive mechanisms restored public trust.',
+        emoji: '🛡️'
+      },
+      exposure: {
+        title: 'Campaign Exposed',
+        description: 'Your disinformation campaign was uncovered! High escalation led to investigation.',
+        emoji: '🔍'
+      }
+    };
+
+    const defeatInfo = defeatMessages[gameState.defeatReason || 'time_out'];
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-900 via-gray-900 to-gray-900 flex items-center justify-center p-8">
         <div className="max-w-2xl text-center">
-          <div className="text-6xl mb-6">✨</div>
+          <div className="text-6xl mb-6">{defeatInfo.emoji}</div>
           <h1 className="text-5xl font-bold text-green-400 mb-4">
-            Society Prevailed
+            {defeatInfo.title}
           </h1>
           <p className="text-xl text-gray-300 mb-8">
-            {gameState.defeatReason === 'time_out'
-              ? "Time ran out before you could complete your campaign."
-              : "Defensive mechanisms restored public trust."}
+            {defeatInfo.description}
           </p>
-          
+
           <div className="bg-gray-800/50 rounded-2xl p-6 mb-8">
             <h2 className="text-lg font-semibold text-white mb-4">Final Statistics</h2>
-            <div className="grid grid-cols-2 gap-4 text-left">
+            <div className="grid grid-cols-3 gap-4 text-left">
               <div>
-                <p className="text-gray-400">Rounds Played</p>
+                <p className="text-gray-400 text-sm">Rounds Played</p>
                 <p className="text-2xl text-white">{gameState.round}</p>
               </div>
               <div>
-                <p className="text-gray-400">Average Trust</p>
+                <p className="text-gray-400 text-sm">Average Trust</p>
                 <p className="text-2xl text-green-400">{formatPercent(networkMetrics.averageTrust)}</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">Escalation</p>
+                <p className={`text-2xl ${
+                  gameState.escalation.level <= 2 ? 'text-green-400' :
+                  gameState.escalation.level <= 4 ? 'text-yellow-400' : 'text-red-400'
+                }`}>
+                  Level {gameState.escalation.level}
+                </p>
               </div>
             </div>
           </div>
-          
-          <button
-            onClick={resetGame}
-            className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-xl transition-colors"
-          >
-            Try Again
-          </button>
+
+          <div className="flex gap-4 justify-center">
+            <Button
+              onClick={handleShowAnalysis}
+              variant="primary"
+              size="lg"
+              className="font-semibold"
+            >
+              Kampagnen-Analyse
+            </Button>
+            <Button
+              onClick={resetGame}
+              variant="secondary"
+              size="lg"
+              className="font-semibold"
+            >
+              Nochmal versuchen
+            </Button>
+          </div>
         </div>
+
+        {/* Post-Game Analysis Modal */}
+        {showAnalysis && analysisData && (
+          <PostGameAnalysis
+            analysis={analysisData}
+            onClose={handleCloseAnalysis}
+            onPlayAgain={handlePlayAgain}
+          />
+        )}
       </div>
     );
   }
@@ -278,11 +539,11 @@ function App() {
   // ============================================
 
   const selectedActor = uiState.selectedActor
-    ? getActor(uiState.selectedActor.actorId)
+    ? getActor(uiState.selectedActor.actorId) ?? null
     : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col relative">
+    <div className="h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col relative overflow-hidden">
       {/* Floating HUD - Top Left */}
       <div className="fixed top-6 left-6 z-40 flex flex-col gap-3">
         <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl">
@@ -299,6 +560,52 @@ function App() {
               <span className="font-semibold text-blue-300">{gameState.resources}</span>
             </div>
           </div>
+        </div>
+
+        {/* Escalation Indicator */}
+        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-gray-400 uppercase tracking-wider">Escalation</span>
+            <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+              gameState.escalation.level === 0 ? 'bg-green-900/50 text-green-400' :
+              gameState.escalation.level <= 2 ? 'bg-yellow-900/50 text-yellow-400' :
+              gameState.escalation.level <= 4 ? 'bg-orange-900/50 text-orange-400' :
+              'bg-red-900/50 text-red-400'
+            }`}>
+              Level {gameState.escalation.level}
+            </span>
+          </div>
+          <div className="space-y-1.5">
+            <div>
+              <div className="flex justify-between text-[10px] mb-0.5">
+                <span className="text-gray-500">Public Awareness</span>
+                <span className="text-gray-400">{formatPercent(gameState.escalation.publicAwareness)}</span>
+              </div>
+              <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-yellow-500 transition-all duration-300"
+                  style={{ width: `${gameState.escalation.publicAwareness * 100}%` }}
+                />
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between text-[10px] mb-0.5">
+                <span className="text-gray-500">Media Attention</span>
+                <span className="text-gray-400">{formatPercent(gameState.escalation.mediaAttention)}</span>
+              </div>
+              <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-orange-500 transition-all duration-300"
+                  style={{ width: `${gameState.escalation.mediaAttention * 100}%` }}
+                />
+              </div>
+            </div>
+          </div>
+          {gameState.escalation.level >= 3 && (
+            <p className="text-[9px] text-orange-400 mt-2">
+              ⚠️ High escalation increases defensive spawns
+            </p>
+          )}
         </div>
       </div>
 
@@ -332,12 +639,38 @@ function App() {
             </div>
           </div>
         </div>
-        <button
+        <div className="flex gap-2">
+          <Button
+            onClick={togglePause}
+            variant="secondary"
+            size="md"
+            className="font-semibold"
+            title="Pause (Space)"
+          >
+            {isPaused ? '▶' : '⏸'}
+          </Button>
+          <Button
+            onClick={() => {
+              undoAction();
+              addNotification('info', 'Action undone');
+            }}
+            variant="secondary"
+            size="md"
+            className="font-semibold"
+            title="Undo (Ctrl+Z)"
+          >
+            ↶
+          </Button>
+        </div>
+        <Button
           onClick={advanceRound}
-          className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-green-600/20"
+          variant="success"
+          size="md"
+          className="font-semibold"
+          disabled={isPaused}
         >
           End Round →
-        </button>
+        </Button>
       </div>
 
       {/* Fullscreen Network Visualization */}
@@ -349,6 +682,7 @@ function App() {
           hoveredActorId={uiState.hoveredActor}
           targetingMode={uiState.targetingMode}
           validTargets={uiState.validTargets}
+          trustChanges={trustChanges}
           onActorClick={selectActor}
           onActorHover={hoverActor}
         />
@@ -362,6 +696,7 @@ function App() {
         canUseAbility={canUseAbility}
         onSelectAbility={selectAbility}
         onCancel={cancelAbility}
+        onClose={() => selectActor(null)}
         selectedAbilityId={uiState.selectedAbility?.abilityId || null}
         targetingMode={uiState.targetingMode}
         addNotification={addNotification}
@@ -390,6 +725,39 @@ function App() {
             onSkip={handleTutorialSkip}
           />
         </>
+      )}
+
+      {/* Pause Overlay */}
+      {isPaused && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="text-center">
+            <div className="text-6xl mb-4">⏸</div>
+            <h2 className="text-4xl font-bold text-white mb-4">Paused</h2>
+            <p className="text-gray-400 mb-6">Press Space or click to continue</p>
+            <div className="flex gap-4 justify-center">
+              <Button
+                onClick={togglePause}
+                variant="primary"
+                size="lg"
+                className="font-semibold"
+              >
+                Resume Game
+              </Button>
+              <Button
+                onClick={resetGame}
+                variant="secondary"
+                size="lg"
+                className="font-semibold"
+              >
+                Reset Game
+              </Button>
+            </div>
+            <div className="mt-8 text-sm text-gray-500">
+              <p>Keyboard Shortcuts:</p>
+              <p className="mt-2">Space - Pause/Resume | Escape - Cancel | Ctrl+Z - Undo | Enter - End Round</p>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

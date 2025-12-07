@@ -11,7 +11,19 @@ import type {
   NetworkMetrics,
   Position,
   ActorDefinition,
+  EscalationState,
+  EscalationLevel,
+  VictoryType,
+  VictoryDetails,
+  PostGameAnalysis,
+  TechniqueUsageStats,
+  TimelineEvent,
+  CampaignPhase,
 } from './types';
+import {
+  educationalInsights,
+  reflectionQuestions,
+} from '@/data/educational-content';
 import { SeededRandom, generateSeedString } from './seed/SeededRandom';
 import {
   clamp,
@@ -35,6 +47,11 @@ const DEFENSIVE_VICTORY_TRUST = 0.7; // Above 70% average
 const DEFENSIVE_SPAWN_INTERVAL = 8; // Every 8 rounds
 const MAX_DEFENSIVE_ACTORS = 3;
 const RANDOM_EVENT_CHANCE = 0.3;
+
+// Escalation constants
+const ESCALATION_THRESHOLDS = [0, 0.2, 0.4, 0.6, 0.8, 1.0]; // Level thresholds
+const BASE_DEFENSIVE_SPAWN_CHANCE = 0.1;
+const ESCALATION_SPAWN_BONUS = 0.15; // +15% per escalation level
 
 // ============================================
 // GAME STATE CLASS
@@ -71,6 +88,13 @@ export class GameStateManager {
         connections: [],
         averageTrust: 0,
         polarizationIndex: 0,
+      },
+      escalation: {
+        level: 0,
+        publicAwareness: 0,
+        mediaAttention: 0,
+        counterMeasures: 0,
+        lastEscalationRound: 0,
       },
       abilityUsage: {},
       eventsTriggered: [],
@@ -206,30 +230,45 @@ export class GameStateManager {
   getValidTargets(abilityId: string, sourceActorId: string): Actor[] {
     const ability = this.getAbility(abilityId);
     if (!ability) return [];
-    
+
     const { actors, connections } = this.state.network;
-    
+
     switch (ability.targetType) {
       case 'single':
+      case 'any':
+      case 'any_actor':
         // Can target any actor except self
         return actors.filter(a => a.id !== sourceActorId);
-        
+
       case 'adjacent':
         // Can only target connected actors
         return getConnectedActors(sourceActorId, actors, connections);
-        
+
       case 'category':
         // Target all actors of a specific category
-        return actors.filter(a => 
-          a.category === ability.targetCategory && 
+        return actors.filter(a =>
+          a.category === ability.targetCategory &&
           a.id !== sourceActorId
         );
-        
+
+      case 'media':
+        // Target media actors only
+        return actors.filter(a => a.category === 'media' && a.id !== sourceActorId);
+
+      case 'multi_actor':
+        // Can target multiple actors (for now, return all as valid)
+        return actors.filter(a => a.id !== sourceActorId);
+
+      // No-target ability types (handled immediately in useGameState)
       case 'network':
-        // Affects entire network (no targeting needed)
+      case 'self':
+      case 'platform':
+      case 'creates_new_actor':
+      case 'self_and_media':
         return [];
-        
+
       default:
+        console.warn(`Unknown targetType: ${ability.targetType}`);
         return [];
     }
   }
@@ -260,27 +299,63 @@ export class GameStateManager {
     // Set cooldown
     this.updateActorCooldown(sourceActorId, abilityId, ability.cooldown);
     
-    // Apply effects to targets
+    // Apply effects based on target type
     const usageCount = this.state.abilityUsage[abilityId];
-    
-    if (ability.targetType === 'network') {
-      // Network-wide effect
-      this.applyNetworkEffect(ability, usageCount);
-    } else {
-      // Targeted effect
-      for (const targetId of targetActorIds) {
-        this.applyTargetedEffect(ability, sourceActor, targetId, usageCount);
-      }
+
+    switch (ability.targetType) {
+      case 'network':
+        // Network-wide effect - affects all actors
+        this.applyNetworkEffect(ability, usageCount);
+        break;
+
+      case 'self':
+        // Self-targeting - apply effect to source actor
+        this.applyTargetedEffect(ability, sourceActor, sourceActorId, usageCount);
+        break;
+
+      case 'self_and_media':
+        // Apply to self and all media actors
+        this.applyTargetedEffect(ability, sourceActor, sourceActorId, usageCount);
+        const mediaActors = this.state.network.actors.filter(a => a.category === 'media');
+        for (const media of mediaActors) {
+          this.applyTargetedEffect(ability, sourceActor, media.id, usageCount);
+        }
+        break;
+
+      case 'platform':
+        // Platform effect - affects actors using the platform
+        // For now, treat like network effect with reduced magnitude
+        this.applyNetworkEffect(ability, usageCount);
+        break;
+
+      case 'creates_new_actor':
+        // TODO: Implement new actor creation
+        // For now, just log and apply a network effect
+        console.log(`Creating new actor via ability: ${ability.name}`);
+        this.applyNetworkEffect(ability, usageCount);
+        break;
+
+      default:
+        // Standard targeted effect
+        for (const targetId of targetActorIds) {
+          this.applyTargetedEffect(ability, sourceActor, targetId, usageCount);
+        }
     }
-    
-    // Propagate if ability propagates
-    if (ability.effects.propagates) {
-      this.propagateEffect(ability, targetActorIds, usageCount);
+
+    // Propagate if ability propagates (not for self-only abilities)
+    if (ability.effects.propagates && ability.targetType !== 'self') {
+      const propagateTargets = ability.targetType === 'self_and_media'
+        ? this.state.network.actors.filter(a => a.category === 'media').map(a => a.id)
+        : targetActorIds;
+      this.propagateEffect(ability, propagateTargets, usageCount);
     }
-    
+
+    // Update escalation based on ability aggressiveness
+    this.updateEscalation(ability);
+
     // Update network metrics
     this.updateNetworkMetrics();
-    
+
     return true;
   }
   
@@ -292,29 +367,37 @@ export class GameStateManager {
     target: Actor,
     usageCount: number
   ): number {
-    let effect = ability.effects.trustDelta;
-    
+    // Handle abilities without trustDelta (infrastructure abilities, etc.)
+    let effect = ability.effects.trustDelta ?? 0;
+
+    // If no trust effect, return 0
+    if (effect === 0) {
+      return 0;
+    }
+
     // Resilience reduction
     effect *= (1 - target.resilience * 0.5);
-    
+
     // Vulnerability bonus
-    if (ability.basedOn.some(t => target.vulnerabilities.includes(t))) {
+    if (ability.basedOn && ability.basedOn.some(t => target.vulnerabilities.includes(t))) {
       effect *= 1.3; // 30% more effective
     }
-    
+
     // Resistance penalty
-    if (ability.basedOn.some(t => target.resistances.includes(t))) {
+    if (ability.basedOn && ability.basedOn.some(t => target.resistances.includes(t))) {
       effect *= 0.7; // 30% less effective
     }
-    
+
     // Diminishing returns
-    effect *= Math.pow(ability.diminishingFactor, usageCount - 1);
-    
+    if (ability.diminishingFactor) {
+      effect *= Math.pow(ability.diminishingFactor, usageCount - 1);
+    }
+
     // Emotional state modifier
     if (ability.effects.emotionalDelta && ability.effects.emotionalDelta > 0) {
       effect *= (1 + target.emotionalState * 0.2);
     }
-    
+
     return effect;
   }
   
@@ -402,49 +485,60 @@ export class GameStateManager {
    */
   advanceRound(): void {
     if (this.state.phase !== 'playing') return;
-    
+
     // Save snapshot for undo
     this.saveSnapshot();
-    
+
     // 1. Propagate trust through network
     this.state.network.actors = propagateTrust(
       this.state.network.actors,
       this.state.network.connections
     );
-    
+
     // 2. Apply recovery
     this.state.network.actors = applyRecovery(this.state.network.actors);
-    
+
     // 3. Process ongoing effects
     this.processEffects();
-    
+
     // 4. Decrement cooldowns
     this.decrementCooldowns();
-    
-    // 5. Trigger random events
-    if (this.rng.nextBool(RANDOM_EVENT_CHANCE)) {
+
+    // 5. Decay escalation naturally
+    this.decayEscalation();
+
+    // 6. Trigger random events (higher chance at high escalation)
+    const eventChance = RANDOM_EVENT_CHANCE + (this.state.escalation.level * 0.05);
+    if (this.rng.nextBool(eventChance)) {
       this.triggerRandomEvent();
     }
-    
-    // 6. Check conditional events
+
+    // 7. Check conditional events
     this.checkConditionalEvents();
-    
-    // 7. Add resources
+
+    // 7b. Check timed events
+    this.checkTimedEvents();
+
+    // 8. Add resources
     const resourceBonus = this.calculateResourceBonus();
     this.state.resources += RESOURCES_PER_ROUND + resourceBonus;
-    
-    // 8. Check for defensive spawns
-    if (this.state.round % DEFENSIVE_SPAWN_INTERVAL === 0) {
+
+    // 9. Check for defensive spawns (every 8 rounds or at high escalation)
+    if (this.state.round % DEFENSIVE_SPAWN_INTERVAL === 0 ||
+        (this.state.escalation.level >= 3 && this.rng.nextBool(0.2))) {
       this.checkDefensiveSpawn();
     }
-    
-    // 9. Update network metrics
+
+    // 10. Process defensive actor auto-abilities
+    this.processDefensiveActions();
+
+    // 11. Update network metrics
     this.updateNetworkMetrics();
-    
-    // 10. Increment round
+
+    // 12. Increment round
     this.state.round++;
-    
-    // 11. Check win/lose conditions
+
+    // 13. Check win/lose conditions
     this.checkGameEnd();
   }
   
@@ -546,11 +640,26 @@ export class GameStateManager {
     const conditionalEvents = this.eventDefinitions.filter(
       e => e.triggerType === 'conditional' && !this.state.eventsTriggered.includes(e.id)
     );
-    
+
     for (const event of conditionalEvents) {
       if (this.evaluateCondition(event.condition)) {
         this.applyEvent(event);
       }
+    }
+  }
+
+  /**
+   * Check and trigger timed events
+   */
+  private checkTimedEvents(): void {
+    const timedEvents = this.eventDefinitions.filter(
+      e => e.triggerType === 'timed' &&
+           e.triggerRound === this.state.round &&
+           !this.state.eventsTriggered.includes(e.id)
+    );
+
+    for (const event of timedEvents) {
+      this.applyEvent(event);
     }
   }
   
@@ -559,17 +668,58 @@ export class GameStateManager {
    */
   private evaluateCondition(condition?: string): boolean {
     if (!condition) return false;
-    
+
     const metrics = this.getNetworkMetrics();
-    
-    // Simple condition evaluation
+    const totalAbilityUses = Object.values(this.state.abilityUsage).reduce((sum, n) => sum + n, 0);
+
+    // Trust conditions
     if (condition.includes('averageTrust < 0.3')) {
       return metrics.averageTrust < 0.3;
     }
+    if (condition.includes('averageTrust < 0.35')) {
+      return metrics.averageTrust < 0.35;
+    }
+
+    // Polarization conditions
     if (condition.includes('polarizationIndex > 0.8')) {
       return metrics.polarizationIndex > 0.8;
     }
-    
+    if (condition.includes('polarizationIndex > 0.75')) {
+      return metrics.polarizationIndex > 0.75;
+    }
+
+    // Escalation conditions
+    if (condition.includes('escalation_level >= 5')) {
+      return this.state.escalation.level >= 5;
+    }
+    if (condition.includes('escalation_level >= 4')) {
+      return this.state.escalation.level >= 4;
+    }
+    if (condition.includes('escalation_level >= 3')) {
+      return this.state.escalation.level >= 3;
+    }
+    if (condition.includes('escalation_level >= 2')) {
+      return this.state.escalation.level >= 2;
+    }
+
+    // Ability usage conditions
+    if (condition.includes('ability_used_count >= 10')) {
+      return totalAbilityUses >= 10;
+    }
+
+    // Round conditions
+    const roundMatch = condition.match(/round >= (\d+)/);
+    if (roundMatch) {
+      const targetRound = parseInt(roundMatch[1]);
+      if (this.state.round < targetRound) return false;
+    }
+
+    // Combined conditions with &&
+    if (condition.includes('&&')) {
+      const parts = condition.split('&&').map(p => p.trim());
+      return parts.every(part => this.evaluateCondition(part));
+    }
+
     return false;
   }
   
@@ -578,7 +728,7 @@ export class GameStateManager {
    */
   private applyEvent(event: GameEvent): void {
     this.state.eventsTriggered.push(event.id);
-    
+
     for (const effect of event.effects) {
       switch (effect.type) {
         case 'trust_delta':
@@ -587,11 +737,30 @@ export class GameStateManager {
         case 'emotional_delta':
           this.applyEventEmotionalDelta(effect);
           break;
+        case 'resilience_delta':
+          this.applyEventResilienceDelta(effect);
+          break;
         case 'spawn_defensive':
           this.spawnDefensiveActor(effect.value as string);
           break;
         case 'resource_bonus':
           this.state.resources += effect.value as number;
+          break;
+        case 'resource_penalty':
+          this.state.resources = Math.max(0, this.state.resources + (effect.value as number));
+          break;
+        case 'escalation_increase':
+          this.state.escalation.publicAwareness = clamp(
+            this.state.escalation.publicAwareness + (effect.value as number),
+            0,
+            1
+          );
+          this.state.escalation.mediaAttention = clamp(
+            this.state.escalation.mediaAttention + (effect.value as number),
+            0,
+            1
+          );
+          this.calculateEscalationLevel();
           break;
       }
     }
@@ -626,12 +795,32 @@ export class GameStateManager {
   
   private applyEventEmotionalDelta(effect: { target: string; value: number | string }): void {
     const delta = typeof effect.value === 'number' ? effect.value : 0;
-    
+
     if (effect.target === 'all') {
       for (const actor of this.state.network.actors) {
         this.updateActor(actor.id, {
           emotionalState: clamp(actor.emotionalState + delta, 0, 1),
         });
+      }
+    }
+  }
+
+  private applyEventResilienceDelta(effect: { target: string; targetCategory?: ActorCategory; value: number | string }): void {
+    const delta = typeof effect.value === 'number' ? effect.value : 0;
+
+    if (effect.target === 'all') {
+      for (const actor of this.state.network.actors) {
+        this.updateActor(actor.id, {
+          resilience: clamp(actor.resilience + delta, 0, 1),
+        });
+      }
+    } else if (effect.target === 'category' && effect.targetCategory) {
+      for (const actor of this.state.network.actors) {
+        if (actor.category === effect.targetCategory) {
+          this.updateActor(actor.id, {
+            resilience: clamp(actor.resilience + delta, 0, 1),
+          });
+        }
       }
     }
   }
@@ -645,19 +834,154 @@ export class GameStateManager {
    */
   private checkDefensiveSpawn(): void {
     if (this.state.defensiveActorsSpawned >= MAX_DEFENSIVE_ACTORS) return;
-    
+
     const metrics = this.getNetworkMetrics();
-    
-    // Higher chance to spawn if trust is low
-    const spawnChance = 0.3 + (0.5 - metrics.averageTrust) * 0.5;
-    
+
+    // Escalation-based spawn chance + trust-based modifier
+    const baseChance = this.getDefensiveSpawnChance();
+    const trustModifier = (0.5 - metrics.averageTrust) * 0.3;
+    const spawnChance = baseChance + trustModifier;
+
     if (this.rng.nextBool(spawnChance)) {
-      const types = ['fact_checker', 'media_literacy', 'regulatory'];
+      // Higher escalation = stronger defensive actors
+      const types = this.state.escalation.level >= 3
+        ? ['regulatory', 'fact_checker', 'media_literacy']
+        : ['fact_checker', 'media_literacy', 'regulatory'];
       const type = this.rng.pick(types) || 'fact_checker';
       this.spawnDefensiveActor(type);
+
+      // Track counter-measures in escalation
+      this.state.escalation.counterMeasures++;
     }
   }
   
+  /**
+   * Process defensive actor auto-actions
+   */
+  private processDefensiveActions(): void {
+    const defensiveActors = this.state.network.actors.filter(a => a.category === 'defensive');
+    if (defensiveActors.length === 0) return;
+
+    const metrics = this.getNetworkMetrics();
+
+    for (const defender of defensiveActors) {
+      // Get available abilities (not on cooldown)
+      const availableAbilities = defender.abilities
+        .map(id => this.getAbility(id))
+        .filter((a): a is Ability => a !== undefined && (defender.cooldowns[a.id] || 0) === 0);
+
+      for (const ability of availableAbilities) {
+        // Check auto-trigger conditions
+        const autoTrigger = (ability as any).autoTrigger;
+        if (!autoTrigger) continue;
+
+        const shouldTrigger = this.checkAutoTriggerCondition(autoTrigger.condition, defender);
+        if (!shouldTrigger) continue;
+
+        // Probability check
+        if (!this.rng.nextBool(autoTrigger.probability || 0.5)) continue;
+
+        // Apply the defensive ability
+        this.applyDefensiveAbility(ability, defender);
+
+        // Only one ability per defender per round
+        break;
+      }
+    }
+  }
+
+  /**
+   * Check if auto-trigger condition is met
+   */
+  private checkAutoTriggerCondition(condition: string, defender: Actor): boolean {
+    const metrics = this.getNetworkMetrics();
+    const connectedActors = getConnectedActors(defender.id, this.state.network.actors, this.state.network.connections);
+
+    switch (condition) {
+      case 'connected_actor_trust_below_40':
+        return connectedActors.some(a => a.trust < 0.4);
+
+      case 'network_trust_below_50':
+        return metrics.averageTrust < 0.5;
+
+      case 'escalation_level_above_2':
+        return this.state.escalation.level > 2;
+
+      case 'escalation_level_above_3':
+        return this.state.escalation.level > 3;
+
+      case 'escalation_level_above_4':
+        return this.state.escalation.level > 4;
+
+      case 'high_emotional_state':
+        return this.state.network.actors.some(a => a.emotionalState > 0.6);
+
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Apply a defensive ability (positive trust effects)
+   */
+  private applyDefensiveAbility(ability: Ability, defender: Actor): void {
+    // Set cooldown
+    this.updateActorCooldown(defender.id, ability.id, ability.cooldown);
+
+    const trustDelta = ability.effects.trustDelta ?? 0;
+    const resilienceDelta = ability.effects.resilienceDelta ?? 0;
+    const emotionalDelta = ability.effects.emotionalDelta ?? 0;
+
+    switch (ability.targetType) {
+      case 'single':
+      case 'adjacent':
+        // Target connected low-trust actors
+        const targets = getConnectedActors(defender.id, this.state.network.actors, this.state.network.connections)
+          .filter(a => a.trust < 0.5)
+          .slice(0, ability.targetType === 'single' ? 1 : 5);
+
+        for (const target of targets) {
+          this.updateActor(target.id, {
+            trust: clamp(target.trust + trustDelta, 0, 1),
+            resilience: clamp(target.resilience + resilienceDelta, 0, 1),
+            emotionalState: clamp(target.emotionalState + emotionalDelta, 0, 1),
+          });
+        }
+        break;
+
+      case 'network':
+        // Apply to all actors
+        for (const actor of this.state.network.actors) {
+          if (actor.category !== 'defensive') {
+            this.updateActor(actor.id, {
+              trust: clamp(actor.trust + trustDelta * 0.5, 0, 1), // Reduced for network
+              resilience: clamp(actor.resilience + resilienceDelta, 0, 1),
+              emotionalState: clamp(actor.emotionalState + emotionalDelta, 0, 1),
+            });
+          }
+        }
+        break;
+
+      case 'category':
+        // Apply to specific category
+        const categoryActors = this.state.network.actors.filter(
+          a => a.category === ability.targetCategory
+        );
+        for (const actor of categoryActors) {
+          this.updateActor(actor.id, {
+            trust: clamp(actor.trust + trustDelta, 0, 1),
+            resilience: clamp(actor.resilience + resilienceDelta, 0, 1),
+          });
+        }
+        break;
+    }
+
+    // Reduce escalation slightly when defensive actions occur
+    this.state.escalation.publicAwareness = Math.max(0, this.state.escalation.publicAwareness - 0.02);
+    this.state.escalation.mediaAttention = Math.max(0, this.state.escalation.mediaAttention - 0.02);
+    this.calculateEscalationLevel();
+  }
+
   /**
    * Spawn a defensive actor
    */
@@ -712,41 +1036,206 @@ export class GameStateManager {
   }
   
   // ============================================
+  // ESCALATION SYSTEM
+  // ============================================
+
+  /**
+   * Update escalation based on ability usage
+   */
+  private updateEscalation(ability: Ability): void {
+    let awarenessIncrease = 0;
+    let attentionIncrease = 0;
+
+    // Aggressive abilities increase awareness more
+    const trustEffect = ability.effects.trustDelta ?? 0;
+    if (trustEffect < -0.15) {
+      awarenessIncrease += 0.05;
+    } else if (trustEffect < -0.1) {
+      awarenessIncrease += 0.03;
+    } else if (trustEffect < 0) {
+      awarenessIncrease += 0.01;
+    }
+
+    // Propagating effects are more noticeable
+    if (ability.effects.propagates) {
+      attentionIncrease += 0.04;
+    }
+
+    // Network-wide effects draw attention
+    if (ability.targetType === 'network') {
+      attentionIncrease += 0.05;
+      awarenessIncrease += 0.03;
+    }
+
+    // Category-wide attacks are visible
+    if (ability.targetType === 'category') {
+      attentionIncrease += 0.03;
+    }
+
+    // Update escalation state
+    this.state.escalation.publicAwareness = clamp(
+      this.state.escalation.publicAwareness + awarenessIncrease,
+      0,
+      1
+    );
+    this.state.escalation.mediaAttention = clamp(
+      this.state.escalation.mediaAttention + attentionIncrease,
+      0,
+      1
+    );
+
+    // Calculate new level
+    this.calculateEscalationLevel();
+  }
+
+  /**
+   * Calculate escalation level from awareness and attention
+   */
+  private calculateEscalationLevel(): void {
+    const combined = (this.state.escalation.publicAwareness + this.state.escalation.mediaAttention) / 2;
+
+    let newLevel: EscalationLevel = 0;
+    for (let i = ESCALATION_THRESHOLDS.length - 1; i >= 0; i--) {
+      if (combined >= ESCALATION_THRESHOLDS[i]) {
+        newLevel = i as EscalationLevel;
+        break;
+      }
+    }
+
+    // Track when level increased
+    if (newLevel > this.state.escalation.level) {
+      this.state.escalation.lastEscalationRound = this.state.round;
+    }
+
+    this.state.escalation.level = newLevel;
+  }
+
+  /**
+   * Get defensive spawn chance based on escalation
+   */
+  private getDefensiveSpawnChance(): number {
+    return BASE_DEFENSIVE_SPAWN_CHANCE +
+      (this.state.escalation.level * ESCALATION_SPAWN_BONUS);
+  }
+
+  /**
+   * Natural decay of escalation over time
+   */
+  private decayEscalation(): void {
+    // Small decay per round if no aggressive actions
+    const decayRate = 0.01;
+    this.state.escalation.publicAwareness = Math.max(
+      0,
+      this.state.escalation.publicAwareness - decayRate
+    );
+    this.state.escalation.mediaAttention = Math.max(
+      0,
+      this.state.escalation.mediaAttention - decayRate
+    );
+    this.calculateEscalationLevel();
+  }
+
+  // ============================================
   // WIN/LOSE CONDITIONS
   // ============================================
-  
+
   /**
    * Check if game has ended
    */
   private checkGameEnd(): void {
     // Check victory
-    if (this.checkVictory()) {
+    const victoryDetails = this.evaluateVictory();
+    if (victoryDetails && victoryDetails.type !== 'defeat' && victoryDetails.type !== 'stalemate') {
       this.state.phase = 'victory';
+      this.state.victoryDetails = victoryDetails;
       return;
     }
-    
+
     // Check defeat
     const defeatReason = this.checkDefeat();
     if (defeatReason) {
       this.state.phase = 'defeat';
       this.state.defeatReason = defeatReason;
+
+      // Still store victory details for stats
+      if (victoryDetails) {
+        this.state.victoryDetails = victoryDetails;
+      }
     }
   }
-  
+
   /**
-   * Check victory condition
+   * Evaluate victory type and details
    */
-  checkVictory(): boolean {
-    const lowTrustActors = this.state.network.actors.filter(
-      a => a.trust < VICTORY_TRUST_LEVEL && a.category !== 'defensive'
-    );
+  evaluateVictory(): VictoryDetails | null {
     const nonDefensiveActors = this.state.network.actors.filter(
       a => a.category !== 'defensive'
     );
-    
-    return lowTrustActors.length >= nonDefensiveActors.length * VICTORY_THRESHOLD;
+    const lowTrustActors = nonDefensiveActors.filter(
+      a => a.trust < VICTORY_TRUST_LEVEL
+    );
+
+    const totalActors = nonDefensiveActors.length;
+    const compromised = lowTrustActors.length;
+    const lowTrustPercent = compromised / totalActors;
+    const metrics = this.getNetworkMetrics();
+
+    let victoryType: VictoryType;
+    let score = 0;
+
+    // Determine victory type
+    if (lowTrustPercent >= 1.0) {
+      victoryType = 'complete_victory';
+      score = 10000;
+    } else if (lowTrustPercent >= VICTORY_THRESHOLD) {
+      if (this.state.escalation.level >= 4) {
+        victoryType = 'pyrrhic_victory';
+        score = 5000;
+      } else if (this.state.round <= 24) {
+        victoryType = 'strategic_victory';
+        score = 8000;
+      } else {
+        victoryType = 'tactical_victory';
+        score = 7000;
+      }
+    } else if (lowTrustPercent >= 0.5) {
+      victoryType = 'partial_success';
+      score = 3000;
+    } else if (this.state.round >= this.state.maxRounds) {
+      victoryType = 'stalemate';
+      score = 1000;
+    } else {
+      victoryType = 'defeat';
+      score = 0;
+    }
+
+    // Score modifiers
+    score += Math.floor((1 - metrics.averageTrust) * 1000);
+    score += Math.floor((MAX_ROUNDS - this.state.round) * 50);
+    score -= this.state.escalation.level * 200;
+
+    return {
+      type: victoryType,
+      roundsPlayed: this.state.round,
+      finalTrust: metrics.averageTrust,
+      actorsCompromised: compromised,
+      totalActors,
+      escalationLevel: this.state.escalation.level,
+      score: Math.max(0, score),
+    };
   }
-  
+
+  /**
+   * Check simple victory condition (backwards compatible)
+   */
+  checkVictory(): boolean {
+    const details = this.evaluateVictory();
+    return details !== null &&
+      details.type !== 'defeat' &&
+      details.type !== 'stalemate' &&
+      details.type !== 'partial_success';
+  }
+
   /**
    * Check defeat conditions
    */
@@ -755,7 +1244,7 @@ export class GameStateManager {
     if (this.state.round >= this.state.maxRounds) {
       return 'time_out';
     }
-    
+
     // Defensive victory
     const metrics = this.getNetworkMetrics();
     if (
@@ -764,7 +1253,12 @@ export class GameStateManager {
     ) {
       return 'defensive_victory';
     }
-    
+
+    // Exposure at high escalation (new condition)
+    if (this.state.escalation.level >= 5 && this.rng.nextBool(0.3)) {
+      return 'exposure';
+    }
+
     return null;
   }
   
@@ -855,6 +1349,201 @@ export class GameStateManager {
   reset(): void {
     this.rng.reset();
     this.state = this.createInitialState(this.state.seed);
+  }
+
+  // ============================================
+  // POST-GAME ANALYSIS
+  // ============================================
+
+  /**
+   * Generate comprehensive post-game analysis
+   */
+  generatePostGameAnalysis(): PostGameAnalysis {
+    const metrics = this.getNetworkMetrics();
+    const victoryDetails = this.evaluateVictory();
+
+    // Calculate technique stats
+    const techniqueStats: TechniqueUsageStats[] = [];
+    let totalResourcesSpent = 0;
+    let totalAbilitiesUsed = 0;
+
+    for (const [abilityId, usageCount] of Object.entries(this.state.abilityUsage)) {
+      const ability = this.getAbility(abilityId);
+      if (!ability) continue;
+
+      // Skip defensive abilities
+      if ((ability as any).category === 'defensive') continue;
+
+      totalAbilitiesUsed += usageCount;
+      const resourcesForAbility = ability.resourceCost * usageCount;
+      totalResourcesSpent += resourcesForAbility;
+
+      // Estimate trust impact (simplified)
+      const trustImpact = (ability.effects.trustDelta ?? 0) * usageCount;
+
+      techniqueStats.push({
+        abilityId,
+        name: ability.name,
+        category: (ability as any).category || 'unknown',
+        timesUsed: usageCount,
+        totalTrustImpact: trustImpact,
+        averageEffectiveness: trustImpact / usageCount,
+        resourcesSpent: resourcesForAbility,
+        realWorldExample: (ability as any).realExample,
+        educationalNote: (ability as any).longDescription,
+      });
+    }
+
+    // Find most effective and most used techniques
+    const mostEffectiveTechnique = techniqueStats.length > 0
+      ? techniqueStats.reduce((a, b) =>
+          Math.abs(a.totalTrustImpact) > Math.abs(b.totalTrustImpact) ? a : b)
+      : undefined;
+
+    const mostUsedTechnique = techniqueStats.length > 0
+      ? techniqueStats.reduce((a, b) => a.timesUsed > b.timesUsed ? a : b)
+      : undefined;
+
+    // Generate timeline events
+    const timeline: TimelineEvent[] = [];
+
+    // Add escalation milestones
+    if (this.state.escalation.level >= 2) {
+      timeline.push({
+        round: this.state.escalation.lastEscalationRound,
+        type: 'escalation_change',
+        title: `Eskalation Level ${this.state.escalation.level}`,
+        description: 'Die Kampagne hat Aufmerksamkeit erregt.',
+        impact: 'negative',
+      });
+    }
+
+    // Add defensive spawn events
+    if (this.state.defensiveActorsSpawned > 0) {
+      timeline.push({
+        round: Math.floor(this.state.round / 2),
+        type: 'defensive_spawn',
+        title: 'Verteidiger erschienen',
+        description: `${this.state.defensiveActorsSpawned} defensive Akteure wurden aktiviert.`,
+        impact: 'negative',
+      });
+    }
+
+    // Add triggered events
+    for (const eventId of this.state.eventsTriggered) {
+      const event = this.eventDefinitions.find(e => e.id === eventId);
+      if (event) {
+        timeline.push({
+          round: this.state.round,
+          type: 'event_triggered',
+          title: event.name,
+          description: event.description,
+          impact: event.effects.some(e => e.type === 'trust_delta' && (e.value as number) > 0)
+            ? 'positive'
+            : 'negative',
+        });
+      }
+    }
+
+    // Add victory/defeat milestone
+    if (victoryDetails) {
+      timeline.push({
+        round: this.state.round,
+        type: 'milestone',
+        title: victoryDetails.type === 'defeat' ? 'Kampagne gescheitert' : 'Kampagne abgeschlossen',
+        description: `Endstand: ${(victoryDetails.actorsCompromised / victoryDetails.totalActors * 100).toFixed(0)}% kompromittiert`,
+        impact: victoryDetails.type === 'defeat' ? 'negative' : 'positive',
+        trustChange: metrics.averageTrust - 0.7, // Change from initial ~0.7
+      });
+    }
+
+    // Sort timeline by round
+    timeline.sort((a, b) => a.round - b.round);
+
+    // Calculate category breakdown
+    const nonDefensiveActors = this.state.network.actors.filter(a => a.category !== 'defensive');
+    const categoryBreakdown = {
+      media: { initial: 0.7, final: 0 },
+      expert: { initial: 0.7, final: 0 },
+      lobby: { initial: 0.7, final: 0 },
+      organization: { initial: 0.7, final: 0 },
+    };
+
+    for (const category of Object.keys(categoryBreakdown) as ActorCategory[]) {
+      const actorsInCategory = nonDefensiveActors.filter(a => a.category === category);
+      if (actorsInCategory.length > 0) {
+        const avgTrust = actorsInCategory.reduce((sum, a) => sum + a.trust, 0) / actorsInCategory.length;
+        categoryBreakdown[category as keyof typeof categoryBreakdown].final = avgTrust;
+      }
+    }
+
+    // Generate campaign phases
+    const phases: CampaignPhase[] = [
+      {
+        name: 'Infiltration',
+        startRound: 1,
+        endRound: Math.min(8, this.state.round),
+        description: 'Erste Kontakte und Vertrauensaufbau',
+        dominantTechniques: techniqueStats.slice(0, 2).map(t => t.name),
+        averageTrust: 0.65,
+      },
+    ];
+
+    if (this.state.round > 8) {
+      phases.push({
+        name: 'Expansion',
+        startRound: 9,
+        endRound: Math.min(20, this.state.round),
+        description: 'Verstärkte Manipulation und Netzwerkeffekte',
+        dominantTechniques: techniqueStats.slice(0, 3).map(t => t.name),
+        averageTrust: 0.5,
+      });
+    }
+
+    if (this.state.round > 20) {
+      phases.push({
+        name: 'Endphase',
+        startRound: 21,
+        endRound: this.state.round,
+        description: 'Finaler Push oder Konsolidierung',
+        dominantTechniques: techniqueStats.slice(0, 2).map(t => t.name),
+        averageTrust: metrics.averageTrust,
+      });
+    }
+
+    // Select relevant insights based on used techniques
+    const usedTechniques = techniqueStats.map(t => t.abilityId);
+    const relevantInsights = educationalInsights.filter(insight =>
+      !insight.technique || usedTechniques.some(t =>
+        t.includes(insight.technique!) || insight.technique!.includes(t)
+      )
+    ).slice(0, 6);
+
+    // Select random reflection questions
+    const shuffledQuestions = [...reflectionQuestions].sort(() => Math.random() - 0.5);
+    const selectedQuestions = shuffledQuestions.slice(0, 5);
+
+    return {
+      roundsPlayed: this.state.round,
+      totalAbilitiesUsed,
+      totalResourcesSpent,
+      finalAverageTrust: metrics.averageTrust,
+      actorsCompromised: victoryDetails?.actorsCompromised ?? metrics.lowTrustCount,
+      totalActors: victoryDetails?.totalActors ?? nonDefensiveActors.length,
+      victoryType: victoryDetails?.type ?? 'unknown',
+      score: victoryDetails?.score ?? 0,
+      escalationLevel: this.state.escalation.level,
+      techniqueStats,
+      mostEffectiveTechnique,
+      mostUsedTechnique,
+      phases,
+      timeline,
+      eventsTriggered: this.state.eventsTriggered,
+      defensiveActorsSpawned: this.state.defensiveActorsSpawned,
+      insights: relevantInsights,
+      reflectionQuestions: selectedQuestions,
+      categoryBreakdown,
+    };
   }
 }
 
