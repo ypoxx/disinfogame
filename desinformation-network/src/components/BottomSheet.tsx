@@ -13,7 +13,7 @@ type BottomSheetProps = {
   onCancel: () => void;
   selectedAbilityId: string | null;
   targetingMode: boolean;
-  addNotification: (type: string, message: string) => void;
+  addNotification: (type: 'info' | 'warning' | 'success' | 'error', message: string) => void;
 };
 
 export function BottomSheet({

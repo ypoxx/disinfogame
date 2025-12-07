@@ -22,6 +22,7 @@ function App() {
     gameState,
     uiState,
     networkMetrics,
+    visualEffects,
     startGame,
     advanceRound,
     resetGame,
@@ -278,7 +279,7 @@ function App() {
   // ============================================
 
   const selectedActor = uiState.selectedActor
-    ? getActor(uiState.selectedActor.actorId)
+    ? getActor(uiState.selectedActor.actorId) ?? null
     : null;
 
   return (
@@ -349,6 +350,7 @@ function App() {
           hoveredActorId={uiState.hoveredActor}
           targetingMode={uiState.targetingMode}
           validTargets={uiState.validTargets}
+          visualEffects={visualEffects}
           onActorClick={selectActor}
           onActorHover={hoverActor}
         />

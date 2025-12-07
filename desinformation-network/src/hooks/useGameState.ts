@@ -8,6 +8,8 @@ import type {
   UIState,
   SelectedActor,
   SelectedAbility,
+  VisualEffect,
+  AbilityResult,
 } from '@/game-logic/types';
 
 // Import definitions (will be loaded from JSON)
@@ -41,25 +43,29 @@ type UseGameStateReturn = {
   gameState: GameState;
   uiState: UIState;
   networkMetrics: NetworkMetrics;
-  
+
+  // Visual effects (Sprint 1.1)
+  visualEffects: VisualEffect[];
+  lastAbilityResult: AbilityResult | null;
+
   // Game actions
   startGame: () => void;
   advanceRound: () => void;
   resetGame: () => void;
   undoAction: () => void;
-  
+
   // Actor selection
   selectActor: (actorId: string | null) => void;
   hoverActor: (actorId: string | null) => void;
   getActor: (actorId: string) => Actor | undefined;
-  
+
   // Ability actions
   selectAbility: (abilityId: string) => void;
   cancelAbility: () => void;
   applyAbility: (targetActorIds: string[]) => boolean;
   canUseAbility: (abilityId: string) => boolean;
   getActorAbilities: (actorId: string) => Ability[];
-  
+
   // UI actions
   toggleEncyclopedia: () => void;
   toggleTutorial: () => void;
@@ -75,11 +81,11 @@ type UseGameStateReturn = {
 export function useGameState(initialSeed?: string): UseGameStateReturn {
   // Game state manager ref (persists across renders)
   const gameManagerRef = useRef<GameStateManager | null>(null);
-  
+
   // Initialize game manager
   if (!gameManagerRef.current) {
     gameManagerRef.current = createGameState(initialSeed);
-    
+
     // Load definitions
     gameManagerRef.current.loadDefinitions(
       actorDefinitions as any,
@@ -87,12 +93,30 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
       eventDefinitions as any
     );
   }
-  
+
   const gameManager = gameManagerRef.current;
-  
+
   // React state for triggering re-renders
   const [gameState, setGameState] = useState<GameState>(gameManager.getState());
   const [uiState, setUIState] = useState<UIState>(initialUIState);
+
+  // Visual effects state (Sprint 1.1)
+  const [visualEffects, setVisualEffects] = useState<VisualEffect[]>([]);
+  const [lastAbilityResult, setLastAbilityResult] = useState<AbilityResult | null>(null);
+
+  // Cleanup expired visual effects
+  useEffect(() => {
+    if (visualEffects.length === 0) return;
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      setVisualEffects((prev) =>
+        prev.filter((effect) => now - effect.startTime < effect.duration)
+      );
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [visualEffects.length]);
   
   // Sync game state
   const syncState = useCallback(() => {
@@ -178,28 +202,48 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     const ability = uiState.selectedAbility;
     if (!ability) return false;
 
-    const success = gameManager.applyAbility(
+    const result = gameManager.applyAbility(
       ability.abilityId,
       ability.sourceActorId,
       targetActorIds
     );
 
-    if (success) {
+    if (result) {
       syncState();
-      addNotification('success', 'Ability applied successfully');
+
+      // Store result and add visual effects (Sprint 1.1)
+      setLastAbilityResult(result);
+      setVisualEffects((prev) => [...prev, ...result.visualEffects]);
+
+      // Generate success message with impact summary
+      const totalDelta = result.effects.reduce((sum, e) => sum + e.trustDelta, 0);
+      const impactText = totalDelta < 0
+        ? `Trust reduced by ${Math.abs(Math.round(totalDelta * 100))}%`
+        : `Trust changed by ${Math.round(totalDelta * 100)}%`;
+
+      // Check for controlled actors
+      const newlyControlled = result.effects.filter(
+        (e) => e.trustBefore >= 0.4 && e.trustAfter < 0.4
+      );
+      if (newlyControlled.length > 0) {
+        addNotification('success', `🎯 ${newlyControlled.length} actor(s) now controlled!`);
+      } else {
+        addNotification('success', impactText);
+      }
 
       // Clear selection
-      setUIState(prev => ({
+      setUIState((prev) => ({
         ...prev,
         selectedAbility: null,
         targetingMode: false,
         validTargets: [],
       }));
+
+      return true;
     } else {
       addNotification('error', 'Failed to apply ability');
+      return false;
     }
-
-    return success;
   }, [uiState.selectedAbility, gameManager, syncState, addNotification]);
 
   const selectAbility = useCallback((abilityId: string) => {
@@ -319,22 +363,26 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     gameState,
     uiState,
     networkMetrics,
-    
+
+    // Visual effects (Sprint 1.1)
+    visualEffects,
+    lastAbilityResult,
+
     startGame,
     advanceRound,
     resetGame,
     undoAction,
-    
+
     selectActor,
     hoverActor,
     getActor,
-    
+
     selectAbility,
     cancelAbility,
     applyAbility,
     canUseAbility,
     getActorAbilities,
-    
+
     toggleEncyclopedia,
     toggleTutorial,
     toggleSettings,

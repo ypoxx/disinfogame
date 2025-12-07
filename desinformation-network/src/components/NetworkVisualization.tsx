@@ -1,11 +1,12 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
-import type { Actor, Connection } from '@/game-logic/types';
+import type { Actor, Connection, VisualEffect } from '@/game-logic/types';
 import { trustToHex, getCategoryColor } from '@/utils/colors';
 import { euclideanDistance } from '@/utils';
 
 // ============================================
 // FULLSCREEN RESPONSIVE NETWORK VISUALIZATION
 // Modern, scalable design with grouped nodes
+// Enhanced with visual effects (Sprint 1.1)
 // ============================================
 
 type NetworkVisualizationProps = {
@@ -15,6 +16,7 @@ type NetworkVisualizationProps = {
   hoveredActorId: string | null;
   targetingMode: boolean;
   validTargets: string[];
+  visualEffects?: VisualEffect[];
   onActorClick: (actorId: string) => void;
   onActorHover: (actorId: string | null) => void;
 };
@@ -43,6 +45,7 @@ export function NetworkVisualization({
   hoveredActorId,
   targetingMode,
   validTargets,
+  visualEffects = [],
   onActorClick,
   onActorHover,
 }: NetworkVisualizationProps) {
@@ -307,8 +310,177 @@ export function NetworkVisualization({
       });
     });
 
+    // ============================================
+    // VISUAL EFFECTS RENDERING (Sprint 1.1)
+    // ============================================
+    const now = Date.now();
+
+    for (const effect of visualEffects) {
+      const elapsed = now - effect.startTime;
+      const progress = Math.min(elapsed / effect.duration, 1);
+
+      // Find target actor position
+      const targetActor = actors.find((a) => a.id === effect.targetActorId);
+      if (!targetActor) continue;
+
+      const targetCategoryActors = actorsByCategory[targetActor.category] || [];
+      const targetIndex = targetCategoryActors.indexOf(targetActor);
+      const targetPos = getActorPosition(targetActor, targetIndex, targetCategoryActors);
+
+      switch (effect.type) {
+        case 'impact_number': {
+          // Floating number that rises and fades
+          const floatY = targetPos.y - NODE_RADIUS - 20 - progress * 40;
+          const opacity = 1 - progress * 0.7;
+          const scale = 1 + progress * 0.3;
+
+          ctx.save();
+          ctx.globalAlpha = opacity;
+          ctx.font = `bold ${Math.round(18 * scale)}px Inter, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          // Shadow for better visibility
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+          ctx.shadowBlur = 4;
+          ctx.shadowOffsetX = 1;
+          ctx.shadowOffsetY = 1;
+
+          ctx.fillStyle = effect.color;
+          ctx.fillText(effect.label || '', targetPos.x, floatY);
+          ctx.restore();
+          break;
+        }
+
+        case 'trust_pulse': {
+          // Expanding pulse ring
+          const pulseRadius = NODE_RADIUS * (1 + progress * 0.8);
+          const opacity = 1 - progress;
+
+          ctx.save();
+          ctx.globalAlpha = opacity;
+          ctx.beginPath();
+          ctx.arc(targetPos.x, targetPos.y, pulseRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = effect.color;
+          ctx.lineWidth = 4 * (1 - progress * 0.5);
+          ctx.stroke();
+          ctx.restore();
+          break;
+        }
+
+        case 'ability_beam': {
+          // Beam from source to target
+          if (!effect.sourceActorId) break;
+
+          const sourceActor = actors.find((a) => a.id === effect.sourceActorId);
+          if (!sourceActor) break;
+
+          const sourceCategoryActors = actorsByCategory[sourceActor.category] || [];
+          const sourceIndex = sourceCategoryActors.indexOf(sourceActor);
+          const sourcePos = getActorPosition(sourceActor, sourceIndex, sourceCategoryActors);
+
+          // Animated beam with head
+          const beamProgress = Math.min(progress * 2, 1);
+          const fadeProgress = Math.max(0, (progress - 0.5) * 2);
+
+          const currentX = sourcePos.x + (targetPos.x - sourcePos.x) * beamProgress;
+          const currentY = sourcePos.y + (targetPos.y - sourcePos.y) * beamProgress;
+
+          ctx.save();
+          ctx.globalAlpha = 1 - fadeProgress;
+
+          // Beam line
+          ctx.beginPath();
+          ctx.moveTo(sourcePos.x, sourcePos.y);
+          ctx.lineTo(currentX, currentY);
+          ctx.strokeStyle = effect.color;
+          ctx.lineWidth = 3;
+          ctx.stroke();
+
+          // Beam head glow
+          ctx.beginPath();
+          ctx.arc(currentX, currentY, 8, 0, Math.PI * 2);
+          ctx.fillStyle = effect.color;
+          ctx.fill();
+
+          ctx.restore();
+          break;
+        }
+
+        case 'propagation_wave': {
+          // Expanding wave effect
+          const waveRadius = NODE_RADIUS * (1 + progress * 3);
+          const opacity = 0.6 * (1 - progress);
+
+          ctx.save();
+          ctx.globalAlpha = opacity;
+          ctx.beginPath();
+          ctx.arc(targetPos.x, targetPos.y, waveRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = effect.color;
+          ctx.lineWidth = 2;
+          ctx.setLineDash([8, 8]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.restore();
+          break;
+        }
+
+        case 'controlled': {
+          // "CONTROLLED!" celebration effect
+          const bounceY = targetPos.y - NODE_RADIUS - 50 - Math.sin(progress * Math.PI * 3) * 10;
+          const scaleEffect = 1 + Math.sin(progress * Math.PI) * 0.3;
+          const opacity = progress < 0.8 ? 1 : (1 - progress) * 5;
+
+          ctx.save();
+          ctx.globalAlpha = Math.min(opacity, 1);
+          ctx.font = `bold ${Math.round(16 * scaleEffect)}px Inter, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          // Glow effect
+          ctx.shadowColor = effect.color;
+          ctx.shadowBlur = 15;
+
+          // Background pill
+          const labelWidth = ctx.measureText(effect.label || '').width + 16;
+          ctx.fillStyle = effect.color;
+          ctx.beginPath();
+          ctx.roundRect(targetPos.x - labelWidth / 2, bounceY - 12, labelWidth, 24, 12);
+          ctx.fill();
+
+          // Text
+          ctx.fillStyle = '#FFFFFF';
+          ctx.shadowBlur = 0;
+          ctx.fillText(effect.label || '', targetPos.x, bounceY);
+          ctx.restore();
+          break;
+        }
+
+        case 'celebration': {
+          // Generic celebration particles (could be expanded)
+          const particleCount = 8;
+          for (let i = 0; i < particleCount; i++) {
+            const angle = (i / particleCount) * Math.PI * 2;
+            const distance = progress * 60;
+            const px = targetPos.x + Math.cos(angle) * distance;
+            const py = targetPos.y + Math.sin(angle) * distance;
+            const opacity = 1 - progress;
+
+            ctx.save();
+            ctx.globalAlpha = opacity;
+            ctx.beginPath();
+            ctx.arc(px, py, 4, 0, Math.PI * 2);
+            ctx.fillStyle = effect.color;
+            ctx.fill();
+            ctx.restore();
+          }
+          break;
+        }
+      }
+    }
+
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, visualEffects]);
 
   // Find actor at click position
   const findActorAtPosition = useCallback((x: number, y: number): Actor | null => {

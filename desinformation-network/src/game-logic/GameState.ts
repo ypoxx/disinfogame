@@ -11,6 +11,8 @@ import type {
   NetworkMetrics,
   Position,
   ActorDefinition,
+  AbilityResult,
+  VisualEffect,
 } from './types';
 import { SeededRandom, generateSeedString } from './seed/SeededRandom';
 import {
@@ -235,53 +237,157 @@ export class GameStateManager {
   }
   
   /**
-   * Apply an ability
+   * Apply an ability and return detailed result with visual effects
    */
   applyAbility(
     abilityId: string,
     sourceActorId: string,
     targetActorIds: string[]
-  ): boolean {
+  ): AbilityResult | null {
     if (!this.canUseAbility(abilityId, sourceActorId)) {
-      return false;
+      return null;
     }
-    
+
     const ability = this.getAbility(abilityId);
     const sourceActor = this.getActor(sourceActorId);
-    if (!ability || !sourceActor) return false;
-    
+    if (!ability || !sourceActor) return null;
+
+    // Store trust values BEFORE applying effects
+    const trustBefore: Record<string, number> = {};
+    for (const actor of this.state.network.actors) {
+      trustBefore[actor.id] = actor.trust;
+    }
+
     // Spend resources
     this.state.resources -= ability.resourceCost;
-    
+
     // Track usage for diminishing returns
-    this.state.abilityUsage[abilityId] = 
+    this.state.abilityUsage[abilityId] =
       (this.state.abilityUsage[abilityId] || 0) + 1;
-    
+
     // Set cooldown
     this.updateActorCooldown(sourceActorId, abilityId, ability.cooldown);
-    
+
     // Apply effects to targets
     const usageCount = this.state.abilityUsage[abilityId];
-    
+    const affectedActorIds: string[] = [];
+
     if (ability.targetType === 'network') {
       // Network-wide effect
       this.applyNetworkEffect(ability, usageCount);
+      affectedActorIds.push(...this.state.network.actors.map(a => a.id));
     } else {
       // Targeted effect
       for (const targetId of targetActorIds) {
         this.applyTargetedEffect(ability, sourceActor, targetId, usageCount);
+        affectedActorIds.push(targetId);
       }
     }
-    
+
     // Propagate if ability propagates
     if (ability.effects.propagates) {
-      this.propagateEffect(ability, targetActorIds, usageCount);
+      const propagatedIds = this.propagateEffectAndTrack(ability, targetActorIds, usageCount);
+      affectedActorIds.push(...propagatedIds);
     }
-    
+
     // Update network metrics
     this.updateNetworkMetrics();
-    
-    return true;
+
+    // Calculate effects and generate visual effects
+    const effects: AbilityResult['effects'] = [];
+    const visualEffects: VisualEffect[] = [];
+    const now = Date.now();
+
+    for (const actorId of [...new Set(affectedActorIds)]) {
+      const actor = this.getActor(actorId);
+      if (!actor) continue;
+
+      const before = trustBefore[actorId];
+      const after = actor.trust;
+      const delta = after - before;
+
+      if (Math.abs(delta) > 0.001) {
+        effects.push({
+          actorId,
+          trustBefore: before,
+          trustAfter: after,
+          trustDelta: delta,
+        });
+
+        // Generate impact number visual effect
+        visualEffects.push({
+          id: `impact_${actorId}_${now}`,
+          type: 'impact_number',
+          targetActorId: actorId,
+          sourceActorId,
+          value: delta,
+          color: delta < 0 ? '#EF4444' : '#22C55E',
+          startTime: now,
+          duration: 1500,
+          label: `${delta > 0 ? '+' : ''}${Math.round(delta * 100)}%`,
+        });
+
+        // Generate pulse effect
+        visualEffects.push({
+          id: `pulse_${actorId}_${now}`,
+          type: 'trust_pulse',
+          targetActorId: actorId,
+          color: ability.animationColor || '#3B82F6',
+          startTime: now,
+          duration: 800,
+        });
+
+        // Check if actor just became "controlled" (below 40%)
+        if (before >= 0.4 && after < 0.4) {
+          visualEffects.push({
+            id: `controlled_${actorId}_${now}`,
+            type: 'controlled',
+            targetActorId: actorId,
+            color: '#EF4444',
+            startTime: now,
+            duration: 2000,
+            label: 'CONTROLLED!',
+          });
+        }
+      }
+    }
+
+    // Add beam effect from source to primary targets
+    for (const targetId of targetActorIds) {
+      visualEffects.push({
+        id: `beam_${sourceActorId}_${targetId}_${now}`,
+        type: 'ability_beam',
+        targetActorId: targetId,
+        sourceActorId,
+        color: ability.animationColor || '#3B82F6',
+        startTime: now,
+        duration: 600,
+      });
+    }
+
+    // Add propagation wave if ability propagates
+    if (ability.effects.propagates) {
+      for (const targetId of targetActorIds) {
+        visualEffects.push({
+          id: `wave_${targetId}_${now}`,
+          type: 'propagation_wave',
+          targetActorId: targetId,
+          color: ability.animationColor || '#3B82F6',
+          startTime: now + 300, // Delayed start after beam
+          duration: 1000,
+        });
+      }
+    }
+
+    return {
+      success: true,
+      abilityId,
+      sourceActorId,
+      targetActorIds,
+      effects,
+      resourcesSpent: ability.resourceCost,
+      visualEffects,
+    };
   }
   
   /**
@@ -378,19 +484,34 @@ export class GameStateManager {
     sourceActorIds: string[],
     usageCount: number
   ): void {
+    this.propagateEffectAndTrack(ability, sourceActorIds, usageCount);
+  }
+
+  /**
+   * Propagate effect to connected actors and return affected IDs
+   */
+  private propagateEffectAndTrack(
+    ability: Ability,
+    sourceActorIds: string[],
+    usageCount: number
+  ): string[] {
     const { actors, connections } = this.state.network;
-    
+    const affectedIds: string[] = [];
+
     for (const sourceId of sourceActorIds) {
       const connected = getConnectedActors(sourceId, actors, connections);
-      
+
       for (const target of connected) {
         // Reduced effect for propagation
         const trustDelta = this.calculateEffectMagnitude(ability, target, usageCount) * 0.5;
         this.updateActor(target.id, {
           trust: clamp(target.trust + trustDelta, 0, 1),
         });
+        affectedIds.push(target.id);
       }
     }
+
+    return affectedIds;
   }
   
   // ============================================

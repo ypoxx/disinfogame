@@ -364,6 +364,47 @@ export type PersuasionTaxonomy = {
 };
 
 // ============================================
+// VISUAL EFFECTS TYPES (Sprint 1.1)
+// ============================================
+
+export type VisualEffectType =
+  | 'impact_number'      // Floating number showing trust change
+  | 'trust_pulse'        // Pulsing ring on trust change
+  | 'ability_beam'       // Beam connecting source to target
+  | 'propagation_wave'   // Expanding wave for propagation
+  | 'celebration'        // Celebration effect for milestones
+  | 'controlled';        // Actor controlled indicator
+
+export type VisualEffect = {
+  id: string;
+  type: VisualEffectType;
+  targetActorId: string;
+  sourceActorId?: string;
+  value?: number;                    // For impact_number
+  color: string;
+  startTime: number;
+  duration: number;                  // ms
+  label?: string;                    // Optional label text
+};
+
+export type AbilityResult = {
+  success: boolean;
+  abilityId: string;
+  sourceActorId: string;
+  targetActorIds: string[];
+  effects: Array<{
+    actorId: string;
+    trustBefore: number;
+    trustAfter: number;
+    trustDelta: number;
+    emotionalDelta?: number;
+    resilienceDelta?: number;
+  }>;
+  resourcesSpent: number;
+  visualEffects: VisualEffect[];
+};
+
+// ============================================
 // UTILITY TYPES
 // ============================================
 
