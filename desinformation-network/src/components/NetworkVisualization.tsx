@@ -208,12 +208,42 @@ export function NetworkVisualization({
         const isSelected = actor.id === selectedActorId;
         const isHovered = actor.id === hoveredActorId;
         const isValidTarget = validTargets.includes(actor.id);
+        const isControlled = actor.trust < 0.4;
+        const isInDangerZone = actor.trust < 0.5 && actor.trust >= 0.4;
+
+        // Dynamic node size based on trust (Sprint 1.2)
+        // Lower trust = slightly smaller, controlled = even smaller
+        const trustSizeMultiplier = 0.85 + actor.trust * 0.15;
+        const dynamicNodeRadius = NODE_RADIUS * trustSizeMultiplier;
+
+        // Danger zone pulsing for actors between 40-50% trust
+        if (isInDangerZone) {
+          const dangerPulse = (Math.sin(Date.now() * 0.004) + 1) / 2;
+          ctx.beginPath();
+          ctx.arc(pos.x, pos.y, dynamicNodeRadius * (1.2 + dangerPulse * 0.2), 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(234, 179, 8, ${0.3 + dangerPulse * 0.3})`;
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 4]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        // Controlled indicator - red glow for actors below 40%
+        if (isControlled) {
+          const controlledPulse = (Math.sin(Date.now() * 0.003) + 1) / 2;
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(pos.x, pos.y, dynamicNodeRadius * 1.4, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(239, 68, 68, ${0.1 + controlledPulse * 0.15})`;
+          ctx.fill();
+          ctx.restore();
+        }
 
         // Glow for targeting mode
         if (targetingMode && isValidTarget) {
           const pulse = (Date.now() % 1000) / 1000;
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, NODE_RADIUS * 1.3 + pulse * 15, 0, Math.PI * 2);
+          ctx.arc(pos.x, pos.y, dynamicNodeRadius * 1.3 + pulse * 15, 0, Math.PI * 2);
           ctx.strokeStyle = `rgba(239, 68, 68, ${1 - pulse})`;
           ctx.lineWidth = 4;
           ctx.stroke();
@@ -222,7 +252,7 @@ export function NetworkVisualization({
         // Selection ring
         if (isSelected) {
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, NODE_RADIUS * 1.3, 0, Math.PI * 2);
+          ctx.arc(pos.x, pos.y, dynamicNodeRadius * 1.3, 0, Math.PI * 2);
           ctx.strokeStyle = '#3B82F6';
           ctx.lineWidth = 5;
           ctx.stroke();
@@ -231,7 +261,7 @@ export function NetworkVisualization({
         // Hover ring
         if (isHovered && !isSelected) {
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, NODE_RADIUS * 1.2, 0, Math.PI * 2);
+          ctx.arc(pos.x, pos.y, dynamicNodeRadius * 1.2, 0, Math.PI * 2);
           ctx.strokeStyle = '#9CA3AF';
           ctx.lineWidth = 3;
           ctx.stroke();
@@ -239,7 +269,7 @@ export function NetworkVisualization({
 
         // Actor outer circle (category color)
         ctx.beginPath();
-        ctx.arc(pos.x, pos.y, NODE_RADIUS, 0, Math.PI * 2);
+        ctx.arc(pos.x, pos.y, dynamicNodeRadius, 0, Math.PI * 2);
         ctx.fillStyle = getCategoryColor(actor.category);
         ctx.fill();
         ctx.strokeStyle = '#FFFFFF';
@@ -247,14 +277,14 @@ export function NetworkVisualization({
         ctx.stroke();
 
         // Actor inner circle (trust color)
-        const innerRadius = NODE_RADIUS * 0.7;
+        const innerRadius = dynamicNodeRadius * 0.7;
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, innerRadius, 0, Math.PI * 2);
         ctx.fillStyle = trustToHex(actor.trust);
         ctx.fill();
 
         // Trust percentage arc
-        const arcRadius = NODE_RADIUS * 0.85;
+        const arcRadius = dynamicNodeRadius * 0.85;
         const startAngle = -Math.PI / 2;
         const endAngle = startAngle + actor.trust * Math.PI * 2;
         ctx.beginPath();

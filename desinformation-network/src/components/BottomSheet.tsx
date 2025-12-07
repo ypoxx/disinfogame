@@ -266,19 +266,57 @@ export function BottomSheet({
                       </div>
                     )}
 
-                    {/* Hover Tooltip */}
-                    {canUse && (
-                      <div className="invisible group-hover:visible absolute left-0 right-0 bottom-full mb-2 bg-gray-900 text-white text-xs rounded-lg py-2 px-3 shadow-xl z-50 pointer-events-none">
-                        <div className="font-bold mb-1">{ability.name}</div>
-                        <div className="space-y-1">
-                          <div className="text-blue-300">Target: {ability.targetType}</div>
-                          {ability.targetCategory && (
-                            <div className="text-blue-300">Category: {ability.targetCategory}</div>
+                    {/* Enhanced Hover Tooltip with Impact Preview (Sprint 1.3) */}
+                    <div className="invisible group-hover:visible absolute left-0 right-0 bottom-full mb-2 bg-gray-900 text-white text-xs rounded-lg py-3 px-4 shadow-xl z-50 pointer-events-none border border-gray-700">
+                      <div className="font-bold mb-2 text-sm">{ability.name}</div>
+
+                      {/* Expected Impact Preview */}
+                      <div className="bg-gray-800 rounded p-2 mb-2">
+                        <div className="text-gray-400 text-[10px] uppercase tracking-wide mb-1">Expected Impact</div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-red-400 font-bold text-lg">
+                            {ability.effects.trustDelta < 0 ? '' : '+'}{Math.round(ability.effects.trustDelta * 100)}%
+                          </span>
+                          <span className="text-gray-500">trust</span>
+                          {ability.effects.propagates && (
+                            <span className="text-blue-400 text-[10px] bg-blue-900/50 px-1.5 py-0.5 rounded">
+                              + propagation
+                            </span>
                           )}
-                          <div className="text-yellow-300">Cooldown: {ability.cooldown} rounds</div>
+                        </div>
+                        <div className="text-gray-500 text-[10px] mt-1">
+                          Actual effect varies by target resilience
                         </div>
                       </div>
-                    )}
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Target:</span>
+                          <span className="text-blue-300 capitalize">{ability.targetType}</span>
+                        </div>
+                        {ability.targetCategory && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Category:</span>
+                            <span className="text-purple-300 capitalize">{ability.targetCategory}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Cooldown:</span>
+                          <span className="text-yellow-300">{ability.cooldown} rounds</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Cost:</span>
+                          <span className="text-blue-300">{ability.resourceCost} pts</span>
+                        </div>
+                      </div>
+
+                      {/* Tip */}
+                      {canUse && (
+                        <div className="mt-2 pt-2 border-t border-gray-700 text-green-400 text-[10px]">
+                          ✓ Click to select, then choose a target
+                        </div>
+                      )}
+                    </div>
                   </button>
                 );
               })}
