@@ -211,8 +211,45 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
       return;
     }
 
+    const ability = gameManager.getAbility(abilityId);
     const validTargets = gameManager.getValidTargets(abilityId, selectedActorId);
 
+    // Check if this is a no-target ability (network, self, platform, etc.)
+    const noTargetTypes = ['network', 'self', 'platform', 'creates_new_actor', 'self_and_media'];
+    const isNoTargetAbility = ability && noTargetTypes.includes(ability.targetType);
+
+    if (isNoTargetAbility) {
+      // Immediately apply the ability for no-target types
+      const success = gameManager.applyAbility(abilityId, selectedActorId, []);
+
+      if (success) {
+        syncState();
+
+        // Show detailed feedback based on ability type
+        let message = `${ability.name} activated!`;
+        if (ability.targetType === 'network') {
+          message = `${ability.name} applied to entire network!`;
+        } else if (ability.targetType === 'self') {
+          message = `${ability.name} applied to self!`;
+        } else if (ability.targetType === 'creates_new_actor') {
+          message = `${ability.name} - New actor created!`;
+        }
+        addNotification('success', message);
+
+        // Clear selection state
+        setUIState(prev => ({
+          ...prev,
+          selectedAbility: null,
+          targetingMode: false,
+          validTargets: [],
+        }));
+      } else {
+        addNotification('error', 'Failed to apply ability');
+      }
+      return;
+    }
+
+    // Standard targeting mode for abilities that need targets
     setUIState(prev => ({
       ...prev,
       selectedAbility: {
@@ -222,7 +259,7 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
       targetingMode: validTargets.length > 0,
       validTargets: validTargets.map(a => a.id),
     }));
-  }, [uiState.selectedActor, gameManager, addNotification]);
+  }, [uiState.selectedActor, gameManager, addNotification, syncState]);
 
   const cancelAbility = useCallback(() => {
     setUIState(prev => ({

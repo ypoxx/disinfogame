@@ -724,6 +724,14 @@ export function NetworkVisualization({
             <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#22C55E' }} />
             <span className="text-gray-300 text-[10px]">High trust</span>
           </div>
+          <div className="border-t border-gray-700 my-1"></div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-6 h-0.5 bg-gray-500 flex-shrink-0" />
+            <span className="text-gray-400 text-[9px]">Influence path</span>
+          </div>
+          <p className="text-gray-500 text-[8px] mt-1 leading-tight">
+            Lines show how effects spread between actors
+          </p>
         </div>
       </div>
 

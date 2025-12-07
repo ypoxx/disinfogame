@@ -206,30 +206,45 @@ export class GameStateManager {
   getValidTargets(abilityId: string, sourceActorId: string): Actor[] {
     const ability = this.getAbility(abilityId);
     if (!ability) return [];
-    
+
     const { actors, connections } = this.state.network;
-    
+
     switch (ability.targetType) {
       case 'single':
+      case 'any':
+      case 'any_actor':
         // Can target any actor except self
         return actors.filter(a => a.id !== sourceActorId);
-        
+
       case 'adjacent':
         // Can only target connected actors
         return getConnectedActors(sourceActorId, actors, connections);
-        
+
       case 'category':
         // Target all actors of a specific category
-        return actors.filter(a => 
-          a.category === ability.targetCategory && 
+        return actors.filter(a =>
+          a.category === ability.targetCategory &&
           a.id !== sourceActorId
         );
-        
+
+      case 'media':
+        // Target media actors only
+        return actors.filter(a => a.category === 'media' && a.id !== sourceActorId);
+
+      case 'multi_actor':
+        // Can target multiple actors (for now, return all as valid)
+        return actors.filter(a => a.id !== sourceActorId);
+
+      // No-target ability types (handled immediately in useGameState)
       case 'network':
-        // Affects entire network (no targeting needed)
+      case 'self':
+      case 'platform':
+      case 'creates_new_actor':
+      case 'self_and_media':
         return [];
-        
+
       default:
+        console.warn(`Unknown targetType: ${ability.targetType}`);
         return [];
     }
   }
@@ -260,22 +275,55 @@ export class GameStateManager {
     // Set cooldown
     this.updateActorCooldown(sourceActorId, abilityId, ability.cooldown);
     
-    // Apply effects to targets
+    // Apply effects based on target type
     const usageCount = this.state.abilityUsage[abilityId];
-    
-    if (ability.targetType === 'network') {
-      // Network-wide effect
-      this.applyNetworkEffect(ability, usageCount);
-    } else {
-      // Targeted effect
-      for (const targetId of targetActorIds) {
-        this.applyTargetedEffect(ability, sourceActor, targetId, usageCount);
-      }
+
+    switch (ability.targetType) {
+      case 'network':
+        // Network-wide effect - affects all actors
+        this.applyNetworkEffect(ability, usageCount);
+        break;
+
+      case 'self':
+        // Self-targeting - apply effect to source actor
+        this.applyTargetedEffect(ability, sourceActor, sourceActorId, usageCount);
+        break;
+
+      case 'self_and_media':
+        // Apply to self and all media actors
+        this.applyTargetedEffect(ability, sourceActor, sourceActorId, usageCount);
+        const mediaActors = this.state.network.actors.filter(a => a.category === 'media');
+        for (const media of mediaActors) {
+          this.applyTargetedEffect(ability, sourceActor, media.id, usageCount);
+        }
+        break;
+
+      case 'platform':
+        // Platform effect - affects actors using the platform
+        // For now, treat like network effect with reduced magnitude
+        this.applyNetworkEffect(ability, usageCount);
+        break;
+
+      case 'creates_new_actor':
+        // TODO: Implement new actor creation
+        // For now, just log and apply a network effect
+        console.log(`Creating new actor via ability: ${ability.name}`);
+        this.applyNetworkEffect(ability, usageCount);
+        break;
+
+      default:
+        // Standard targeted effect
+        for (const targetId of targetActorIds) {
+          this.applyTargetedEffect(ability, sourceActor, targetId, usageCount);
+        }
     }
-    
-    // Propagate if ability propagates
-    if (ability.effects.propagates) {
-      this.propagateEffect(ability, targetActorIds, usageCount);
+
+    // Propagate if ability propagates (not for self-only abilities)
+    if (ability.effects.propagates && ability.targetType !== 'self') {
+      const propagateTargets = ability.targetType === 'self_and_media'
+        ? this.state.network.actors.filter(a => a.category === 'media').map(a => a.id)
+        : targetActorIds;
+      this.propagateEffect(ability, propagateTargets, usageCount);
     }
     
     // Update network metrics

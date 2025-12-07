@@ -236,6 +236,22 @@ export function BottomSheet({
                       )}
                     </div>
 
+                    {/* Target Type Indicator */}
+                    <div className="text-[9px] text-gray-500">
+                      {ability.targetType === 'network' && (
+                        <span className="text-yellow-500">⚡ Network-wide</span>
+                      )}
+                      {ability.targetType === 'self' && (
+                        <span className="text-cyan-500">↻ Self-buff</span>
+                      )}
+                      {ability.targetType === 'adjacent' && (
+                        <span className="text-blue-500">◎ Adjacent only</span>
+                      )}
+                      {ability.targetType === 'creates_new_actor' && (
+                        <span className="text-green-500">+ Creates actor</span>
+                      )}
+                    </div>
+
                     {/* Status */}
                     {cooldown > 0 && (
                       <div className="text-[10px] text-orange-400">
