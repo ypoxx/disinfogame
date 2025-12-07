@@ -15,7 +15,15 @@ import type {
   EscalationLevel,
   VictoryType,
   VictoryDetails,
+  PostGameAnalysis,
+  TechniqueUsageStats,
+  TimelineEvent,
+  CampaignPhase,
 } from './types';
+import {
+  educationalInsights,
+  reflectionQuestions,
+} from '@/data/educational-content';
 import { SeededRandom, generateSeedString } from './seed/SeededRandom';
 import {
   clamp,
@@ -1341,6 +1349,201 @@ export class GameStateManager {
   reset(): void {
     this.rng.reset();
     this.state = this.createInitialState(this.state.seed);
+  }
+
+  // ============================================
+  // POST-GAME ANALYSIS
+  // ============================================
+
+  /**
+   * Generate comprehensive post-game analysis
+   */
+  generatePostGameAnalysis(): PostGameAnalysis {
+    const metrics = this.getNetworkMetrics();
+    const victoryDetails = this.evaluateVictory();
+
+    // Calculate technique stats
+    const techniqueStats: TechniqueUsageStats[] = [];
+    let totalResourcesSpent = 0;
+    let totalAbilitiesUsed = 0;
+
+    for (const [abilityId, usageCount] of Object.entries(this.state.abilityUsage)) {
+      const ability = this.getAbility(abilityId);
+      if (!ability) continue;
+
+      // Skip defensive abilities
+      if ((ability as any).category === 'defensive') continue;
+
+      totalAbilitiesUsed += usageCount;
+      const resourcesForAbility = ability.resourceCost * usageCount;
+      totalResourcesSpent += resourcesForAbility;
+
+      // Estimate trust impact (simplified)
+      const trustImpact = (ability.effects.trustDelta ?? 0) * usageCount;
+
+      techniqueStats.push({
+        abilityId,
+        name: ability.name,
+        category: (ability as any).category || 'unknown',
+        timesUsed: usageCount,
+        totalTrustImpact: trustImpact,
+        averageEffectiveness: trustImpact / usageCount,
+        resourcesSpent: resourcesForAbility,
+        realWorldExample: (ability as any).realExample,
+        educationalNote: (ability as any).longDescription,
+      });
+    }
+
+    // Find most effective and most used techniques
+    const mostEffectiveTechnique = techniqueStats.length > 0
+      ? techniqueStats.reduce((a, b) =>
+          Math.abs(a.totalTrustImpact) > Math.abs(b.totalTrustImpact) ? a : b)
+      : undefined;
+
+    const mostUsedTechnique = techniqueStats.length > 0
+      ? techniqueStats.reduce((a, b) => a.timesUsed > b.timesUsed ? a : b)
+      : undefined;
+
+    // Generate timeline events
+    const timeline: TimelineEvent[] = [];
+
+    // Add escalation milestones
+    if (this.state.escalation.level >= 2) {
+      timeline.push({
+        round: this.state.escalation.lastEscalationRound,
+        type: 'escalation_change',
+        title: `Eskalation Level ${this.state.escalation.level}`,
+        description: 'Die Kampagne hat Aufmerksamkeit erregt.',
+        impact: 'negative',
+      });
+    }
+
+    // Add defensive spawn events
+    if (this.state.defensiveActorsSpawned > 0) {
+      timeline.push({
+        round: Math.floor(this.state.round / 2),
+        type: 'defensive_spawn',
+        title: 'Verteidiger erschienen',
+        description: `${this.state.defensiveActorsSpawned} defensive Akteure wurden aktiviert.`,
+        impact: 'negative',
+      });
+    }
+
+    // Add triggered events
+    for (const eventId of this.state.eventsTriggered) {
+      const event = this.eventDefinitions.find(e => e.id === eventId);
+      if (event) {
+        timeline.push({
+          round: this.state.round,
+          type: 'event_triggered',
+          title: event.name,
+          description: event.description,
+          impact: event.effects.some(e => e.type === 'trust_delta' && (e.value as number) > 0)
+            ? 'positive'
+            : 'negative',
+        });
+      }
+    }
+
+    // Add victory/defeat milestone
+    if (victoryDetails) {
+      timeline.push({
+        round: this.state.round,
+        type: 'milestone',
+        title: victoryDetails.type === 'defeat' ? 'Kampagne gescheitert' : 'Kampagne abgeschlossen',
+        description: `Endstand: ${(victoryDetails.actorsCompromised / victoryDetails.totalActors * 100).toFixed(0)}% kompromittiert`,
+        impact: victoryDetails.type === 'defeat' ? 'negative' : 'positive',
+        trustChange: metrics.averageTrust - 0.7, // Change from initial ~0.7
+      });
+    }
+
+    // Sort timeline by round
+    timeline.sort((a, b) => a.round - b.round);
+
+    // Calculate category breakdown
+    const nonDefensiveActors = this.state.network.actors.filter(a => a.category !== 'defensive');
+    const categoryBreakdown = {
+      media: { initial: 0.7, final: 0 },
+      expert: { initial: 0.7, final: 0 },
+      lobby: { initial: 0.7, final: 0 },
+      organization: { initial: 0.7, final: 0 },
+    };
+
+    for (const category of Object.keys(categoryBreakdown) as ActorCategory[]) {
+      const actorsInCategory = nonDefensiveActors.filter(a => a.category === category);
+      if (actorsInCategory.length > 0) {
+        const avgTrust = actorsInCategory.reduce((sum, a) => sum + a.trust, 0) / actorsInCategory.length;
+        categoryBreakdown[category as keyof typeof categoryBreakdown].final = avgTrust;
+      }
+    }
+
+    // Generate campaign phases
+    const phases: CampaignPhase[] = [
+      {
+        name: 'Infiltration',
+        startRound: 1,
+        endRound: Math.min(8, this.state.round),
+        description: 'Erste Kontakte und Vertrauensaufbau',
+        dominantTechniques: techniqueStats.slice(0, 2).map(t => t.name),
+        averageTrust: 0.65,
+      },
+    ];
+
+    if (this.state.round > 8) {
+      phases.push({
+        name: 'Expansion',
+        startRound: 9,
+        endRound: Math.min(20, this.state.round),
+        description: 'Verstärkte Manipulation und Netzwerkeffekte',
+        dominantTechniques: techniqueStats.slice(0, 3).map(t => t.name),
+        averageTrust: 0.5,
+      });
+    }
+
+    if (this.state.round > 20) {
+      phases.push({
+        name: 'Endphase',
+        startRound: 21,
+        endRound: this.state.round,
+        description: 'Finaler Push oder Konsolidierung',
+        dominantTechniques: techniqueStats.slice(0, 2).map(t => t.name),
+        averageTrust: metrics.averageTrust,
+      });
+    }
+
+    // Select relevant insights based on used techniques
+    const usedTechniques = techniqueStats.map(t => t.abilityId);
+    const relevantInsights = educationalInsights.filter(insight =>
+      !insight.technique || usedTechniques.some(t =>
+        t.includes(insight.technique!) || insight.technique!.includes(t)
+      )
+    ).slice(0, 6);
+
+    // Select random reflection questions
+    const shuffledQuestions = [...reflectionQuestions].sort(() => Math.random() - 0.5);
+    const selectedQuestions = shuffledQuestions.slice(0, 5);
+
+    return {
+      roundsPlayed: this.state.round,
+      totalAbilitiesUsed,
+      totalResourcesSpent,
+      finalAverageTrust: metrics.averageTrust,
+      actorsCompromised: victoryDetails?.actorsCompromised ?? metrics.lowTrustCount,
+      totalActors: victoryDetails?.totalActors ?? nonDefensiveActors.length,
+      victoryType: victoryDetails?.type ?? 'unknown',
+      score: victoryDetails?.score ?? 0,
+      escalationLevel: this.state.escalation.level,
+      techniqueStats,
+      mostEffectiveTechnique,
+      mostUsedTechnique,
+      phases,
+      timeline,
+      eventsTriggered: this.state.eventsTriggered,
+      defensiveActorsSpawned: this.state.defensiveActorsSpawned,
+      insights: relevantInsights,
+      reflectionQuestions: selectedQuestions,
+      categoryBreakdown,
+    };
   }
 }
 

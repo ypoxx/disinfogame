@@ -8,6 +8,7 @@ import type {
   UIState,
   SelectedActor,
   SelectedAbility,
+  PostGameAnalysis,
 } from '@/game-logic/types';
 
 // Import definitions (will be loaded from JSON)
@@ -41,12 +42,13 @@ type UseGameStateReturn = {
   gameState: GameState;
   uiState: UIState;
   networkMetrics: NetworkMetrics;
-  
+
   // Game actions
   startGame: () => void;
   advanceRound: () => void;
   resetGame: () => void;
   undoAction: () => void;
+  generatePostGameAnalysis: () => PostGameAnalysis;
   
   // Actor selection
   selectActor: (actorId: string | null) => void;
@@ -134,6 +136,10 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     }
     return success;
   }, [gameManager, syncState]);
+
+  const generatePostGameAnalysis = useCallback((): PostGameAnalysis => {
+    return gameManager.generatePostGameAnalysis();
+  }, [gameManager]);
 
   // ============================================
   // UI ACTIONS (defined early for use in other callbacks)
@@ -356,22 +362,23 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     gameState,
     uiState,
     networkMetrics,
-    
+
     startGame,
     advanceRound,
     resetGame,
     undoAction,
-    
+    generatePostGameAnalysis,
+
     selectActor,
     hoverActor,
     getActor,
-    
+
     selectAbility,
     cancelAbility,
     applyAbility,
     canUseAbility,
     getActorAbilities,
-    
+
     toggleEncyclopedia,
     toggleTutorial,
     toggleSettings,

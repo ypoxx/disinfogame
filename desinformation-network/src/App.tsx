@@ -8,7 +8,9 @@ import { RoundSummary } from '@/components/RoundSummary';
 import { VictoryProgressBar } from '@/components/VictoryProgressBar';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
 import { BottomSheet } from '@/components/BottomSheet';
+import { PostGameAnalysis } from '@/components/PostGameAnalysis';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
+import type { PostGameAnalysis as PostGameAnalysisType } from '@/game-logic/types';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
 import type { TutorialState } from '@/game-logic/types/tutorial';
@@ -26,6 +28,7 @@ function App() {
     advanceRound,
     resetGame,
     undoAction,
+    generatePostGameAnalysis,
     selectActor,
     hoverActor,
     getActor,
@@ -36,6 +39,26 @@ function App() {
     toggleEncyclopedia,
     addNotification,
   } = useGameState();
+
+  // Post-game analysis state
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  const [analysisData, setAnalysisData] = useState<PostGameAnalysisType | null>(null);
+
+  const handleShowAnalysis = useCallback(() => {
+    const analysis = generatePostGameAnalysis();
+    setAnalysisData(analysis);
+    setShowAnalysis(true);
+  }, [generatePostGameAnalysis]);
+
+  const handleCloseAnalysis = useCallback(() => {
+    setShowAnalysis(false);
+  }, []);
+
+  const handlePlayAgain = useCallback(() => {
+    setShowAnalysis(false);
+    setAnalysisData(null);
+    resetGame();
+  }, [resetGame]);
 
   // Pause state
   const [isPaused, setIsPaused] = useState(false);
@@ -393,23 +416,32 @@ function App() {
 
           <div className="flex gap-4 justify-center">
             <Button
+              onClick={handleShowAnalysis}
+              variant="primary"
+              size="lg"
+              className="font-semibold"
+            >
+              Kampagnen-Analyse
+            </Button>
+            <Button
               onClick={resetGame}
               variant="secondary"
               size="lg"
               className="font-semibold"
             >
-              Play Again
-            </Button>
-            <Button
-              onClick={toggleEncyclopedia}
-              variant="primary"
-              size="lg"
-              className="font-semibold"
-            >
-              Learn About Techniques
+              Nochmal spielen
             </Button>
           </div>
         </div>
+
+        {/* Post-Game Analysis Modal */}
+        {showAnalysis && analysisData && (
+          <PostGameAnalysis
+            analysis={analysisData}
+            onClose={handleCloseAnalysis}
+            onPlayAgain={handlePlayAgain}
+          />
+        )}
       </div>
     );
   }
@@ -470,15 +502,34 @@ function App() {
             </div>
           </div>
 
-          <Button
-            onClick={resetGame}
-            variant="secondary"
-            size="lg"
-            className="font-semibold"
-          >
-            Try Again
-          </Button>
+          <div className="flex gap-4 justify-center">
+            <Button
+              onClick={handleShowAnalysis}
+              variant="primary"
+              size="lg"
+              className="font-semibold"
+            >
+              Kampagnen-Analyse
+            </Button>
+            <Button
+              onClick={resetGame}
+              variant="secondary"
+              size="lg"
+              className="font-semibold"
+            >
+              Nochmal versuchen
+            </Button>
+          </div>
         </div>
+
+        {/* Post-Game Analysis Modal */}
+        {showAnalysis && analysisData && (
+          <PostGameAnalysis
+            analysis={analysisData}
+            onClose={handleCloseAnalysis}
+            onPlayAgain={handlePlayAgain}
+          />
+        )}
       </div>
     );
   }
