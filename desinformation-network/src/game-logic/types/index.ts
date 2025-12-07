@@ -191,8 +191,8 @@ export type NetworkMetrics = {
 export type EventTriggerType = 'random' | 'conditional' | 'timed';
 
 export type EventEffect = {
-  type: 'trust_delta' | 'emotional_delta' | 'resilience_delta' | 'spawn_defensive' | 'resource_bonus';
-  target: 'all' | 'random' | 'category' | string;  // Actor ID or filter
+  type: 'trust_delta' | 'emotional_delta' | 'resilience_delta' | 'spawn_defensive' | 'resource_bonus' | 'resource_penalty' | 'escalation_increase';
+  target: 'all' | 'random' | 'category' | 'game' | 'player' | string;  // Actor ID or filter
   targetCategory?: ActorCategory;
   value: number | string;
 };

@@ -508,6 +508,9 @@ export class GameStateManager {
     // 7. Check conditional events
     this.checkConditionalEvents();
 
+    // 7b. Check timed events
+    this.checkTimedEvents();
+
     // 8. Add resources
     const resourceBonus = this.calculateResourceBonus();
     this.state.resources += RESOURCES_PER_ROUND + resourceBonus;
@@ -629,11 +632,26 @@ export class GameStateManager {
     const conditionalEvents = this.eventDefinitions.filter(
       e => e.triggerType === 'conditional' && !this.state.eventsTriggered.includes(e.id)
     );
-    
+
     for (const event of conditionalEvents) {
       if (this.evaluateCondition(event.condition)) {
         this.applyEvent(event);
       }
+    }
+  }
+
+  /**
+   * Check and trigger timed events
+   */
+  private checkTimedEvents(): void {
+    const timedEvents = this.eventDefinitions.filter(
+      e => e.triggerType === 'timed' &&
+           e.triggerRound === this.state.round &&
+           !this.state.eventsTriggered.includes(e.id)
+    );
+
+    for (const event of timedEvents) {
+      this.applyEvent(event);
     }
   }
   
@@ -642,17 +660,58 @@ export class GameStateManager {
    */
   private evaluateCondition(condition?: string): boolean {
     if (!condition) return false;
-    
+
     const metrics = this.getNetworkMetrics();
-    
-    // Simple condition evaluation
+    const totalAbilityUses = Object.values(this.state.abilityUsage).reduce((sum, n) => sum + n, 0);
+
+    // Trust conditions
     if (condition.includes('averageTrust < 0.3')) {
       return metrics.averageTrust < 0.3;
     }
+    if (condition.includes('averageTrust < 0.35')) {
+      return metrics.averageTrust < 0.35;
+    }
+
+    // Polarization conditions
     if (condition.includes('polarizationIndex > 0.8')) {
       return metrics.polarizationIndex > 0.8;
     }
-    
+    if (condition.includes('polarizationIndex > 0.75')) {
+      return metrics.polarizationIndex > 0.75;
+    }
+
+    // Escalation conditions
+    if (condition.includes('escalation_level >= 5')) {
+      return this.state.escalation.level >= 5;
+    }
+    if (condition.includes('escalation_level >= 4')) {
+      return this.state.escalation.level >= 4;
+    }
+    if (condition.includes('escalation_level >= 3')) {
+      return this.state.escalation.level >= 3;
+    }
+    if (condition.includes('escalation_level >= 2')) {
+      return this.state.escalation.level >= 2;
+    }
+
+    // Ability usage conditions
+    if (condition.includes('ability_used_count >= 10')) {
+      return totalAbilityUses >= 10;
+    }
+
+    // Round conditions
+    const roundMatch = condition.match(/round >= (\d+)/);
+    if (roundMatch) {
+      const targetRound = parseInt(roundMatch[1]);
+      if (this.state.round < targetRound) return false;
+    }
+
+    // Combined conditions with &&
+    if (condition.includes('&&')) {
+      const parts = condition.split('&&').map(p => p.trim());
+      return parts.every(part => this.evaluateCondition(part));
+    }
+
     return false;
   }
   
@@ -661,7 +720,7 @@ export class GameStateManager {
    */
   private applyEvent(event: GameEvent): void {
     this.state.eventsTriggered.push(event.id);
-    
+
     for (const effect of event.effects) {
       switch (effect.type) {
         case 'trust_delta':
@@ -670,11 +729,30 @@ export class GameStateManager {
         case 'emotional_delta':
           this.applyEventEmotionalDelta(effect);
           break;
+        case 'resilience_delta':
+          this.applyEventResilienceDelta(effect);
+          break;
         case 'spawn_defensive':
           this.spawnDefensiveActor(effect.value as string);
           break;
         case 'resource_bonus':
           this.state.resources += effect.value as number;
+          break;
+        case 'resource_penalty':
+          this.state.resources = Math.max(0, this.state.resources + (effect.value as number));
+          break;
+        case 'escalation_increase':
+          this.state.escalation.publicAwareness = clamp(
+            this.state.escalation.publicAwareness + (effect.value as number),
+            0,
+            1
+          );
+          this.state.escalation.mediaAttention = clamp(
+            this.state.escalation.mediaAttention + (effect.value as number),
+            0,
+            1
+          );
+          this.calculateEscalationLevel();
           break;
       }
     }
@@ -709,12 +787,32 @@ export class GameStateManager {
   
   private applyEventEmotionalDelta(effect: { target: string; value: number | string }): void {
     const delta = typeof effect.value === 'number' ? effect.value : 0;
-    
+
     if (effect.target === 'all') {
       for (const actor of this.state.network.actors) {
         this.updateActor(actor.id, {
           emotionalState: clamp(actor.emotionalState + delta, 0, 1),
         });
+      }
+    }
+  }
+
+  private applyEventResilienceDelta(effect: { target: string; targetCategory?: ActorCategory; value: number | string }): void {
+    const delta = typeof effect.value === 'number' ? effect.value : 0;
+
+    if (effect.target === 'all') {
+      for (const actor of this.state.network.actors) {
+        this.updateActor(actor.id, {
+          resilience: clamp(actor.resilience + delta, 0, 1),
+        });
+      }
+    } else if (effect.target === 'category' && effect.targetCategory) {
+      for (const actor of this.state.network.actors) {
+        if (actor.category === effect.targetCategory) {
+          this.updateActor(actor.id, {
+            resilience: clamp(actor.resilience + delta, 0, 1),
+          });
+        }
       }
     }
   }
