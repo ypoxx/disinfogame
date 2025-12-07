@@ -340,29 +340,37 @@ export class GameStateManager {
     target: Actor,
     usageCount: number
   ): number {
-    let effect = ability.effects.trustDelta;
-    
+    // Handle abilities without trustDelta (infrastructure abilities, etc.)
+    let effect = ability.effects.trustDelta ?? 0;
+
+    // If no trust effect, return 0
+    if (effect === 0) {
+      return 0;
+    }
+
     // Resilience reduction
     effect *= (1 - target.resilience * 0.5);
-    
+
     // Vulnerability bonus
-    if (ability.basedOn.some(t => target.vulnerabilities.includes(t))) {
+    if (ability.basedOn && ability.basedOn.some(t => target.vulnerabilities.includes(t))) {
       effect *= 1.3; // 30% more effective
     }
-    
+
     // Resistance penalty
-    if (ability.basedOn.some(t => target.resistances.includes(t))) {
+    if (ability.basedOn && ability.basedOn.some(t => target.resistances.includes(t))) {
       effect *= 0.7; // 30% less effective
     }
-    
+
     // Diminishing returns
-    effect *= Math.pow(ability.diminishingFactor, usageCount - 1);
-    
+    if (ability.diminishingFactor) {
+      effect *= Math.pow(ability.diminishingFactor, usageCount - 1);
+    }
+
     // Emotional state modifier
     if (ability.effects.emotionalDelta && ability.effects.emotionalDelta > 0) {
       effect *= (1 + target.emotionalState * 0.2);
     }
-    
+
     return effect;
   }
   

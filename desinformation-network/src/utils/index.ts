@@ -177,27 +177,39 @@ export function getConnectedActors(
 export function calculateNetworkMetrics(network: Network): NetworkMetrics {
   const { actors, connections } = network;
   const trusts = actors.map(a => a.trust);
-  
+
+  // Handle empty network case
+  if (trusts.length === 0) {
+    return {
+      averageTrust: 0,
+      trustVariance: 0,
+      polarizationIndex: 0,
+      connectionDensity: 0,
+      lowTrustCount: 0,
+      highTrustCount: 0,
+    };
+  }
+
   // Average trust
   const averageTrust = trusts.reduce((a, b) => a + b, 0) / trusts.length;
-  
+
   // Trust variance
   const variance = trusts.reduce(
     (sum, t) => sum + Math.pow(t - averageTrust, 2),
     0
   ) / trusts.length;
-  
+
   // Polarization: high variance with clusters at extremes
   const lowTrustCount = trusts.filter(t => t < 0.4).length;
   const highTrustCount = trusts.filter(t => t > 0.7).length;
   const polarizationIndex = (lowTrustCount + highTrustCount) / trusts.length;
-  
+
   // Connection density
   const maxConnections = (actors.length * (actors.length - 1)) / 2;
-  const connectionDensity = maxConnections > 0 
-    ? connections.length / maxConnections 
+  const connectionDensity = maxConnections > 0
+    ? connections.length / maxConnections
     : 0;
-  
+
   return {
     averageTrust,
     trustVariance: variance,
@@ -254,6 +266,9 @@ export function groupBy<T>(array: T[], key: keyof T): Record<string, T[]> {
  * Format number as percentage
  */
 export function formatPercent(value: number, decimals: number = 0): string {
+  if (value === undefined || value === null || isNaN(value)) {
+    return '0%';
+  }
   return `${(value * 100).toFixed(decimals)}%`;
 }
 
