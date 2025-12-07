@@ -35,7 +35,7 @@ export function BottomSheet({
 
   if (!actor) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-sm text-white px-6 py-3 text-center border-t border-gray-700 z-30">
+      <div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white px-6 py-3 text-center border-t border-gray-700 z-30">
         <p className="text-gray-400 text-sm">Select an actor from the network to view details and abilities</p>
       </div>
     );
@@ -44,18 +44,21 @@ export function BottomSheet({
   return (
     <div
       className={cn(
-        "fixed bottom-0 left-0 right-0 bg-gray-900/98 backdrop-blur-sm text-white transition-all duration-300 border-t border-gray-700 shadow-2xl z-30",
+        "fixed bottom-0 left-0 right-0 bg-gray-900 text-white transition-all duration-300 border-t border-gray-600 shadow-2xl z-30",
         isExpanded ? "max-h-[50vh]" : "max-h-[280px]"
       )}
     >
-      {/* Header Bar with Drag Handle and Close Button */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700/50">
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="flex-1 flex justify-center"
-        >
-          <div className="w-10 h-1 bg-gray-600 rounded-full hover:bg-gray-500 transition-colors" />
-        </button>
+      {/* Header Bar with Close Button */}
+      <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-500 uppercase tracking-wider">Actor Panel</span>
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="text-xs text-gray-400 hover:text-white px-2 py-0.5 rounded border border-gray-700 hover:border-gray-500 transition-colors"
+          >
+            {isExpanded ? '▼ Collapse' : '▲ Expand'}
+          </button>
+        </div>
         <button
           onClick={onClose}
           className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors text-gray-400 hover:text-white"

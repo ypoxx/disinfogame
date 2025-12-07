@@ -22,8 +22,8 @@ type NetworkVisualizationProps = {
 // Zoom/Pan configuration
 const MIN_SCALE = 0.5;
 const MAX_SCALE = 3.0;
-const ZOOM_SPEED = 0.1;
-const KEYBOARD_ZOOM_STEP = 0.2;
+const ZOOM_SPEED = 0.05;
+const KEYBOARD_ZOOM_STEP = 0.1;
 
 // Relative positions (0-1 range) for responsive layout
 const CATEGORY_POSITIONS_RELATIVE: Record<string, { x: number; y: number }> = {
@@ -692,9 +692,9 @@ export function NetworkVisualization({
         onTouchEnd={handleTouchEnd}
       />
 
-      {/* Legend - positioned at bottom left to avoid network overlap */}
-      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2.5 text-xs max-w-[160px]">
-        <h4 className="font-bold text-gray-900 mb-1.5 text-[11px]">Legend</h4>
+      {/* Legend - positioned above bottom sheet area */}
+      <div className="absolute bottom-[300px] left-4 bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-lg p-2.5 text-xs border border-gray-700">
+        <h4 className="font-bold text-white mb-1.5 text-[11px]">Legend</h4>
         <div className="space-y-1">
           {Object.entries(CATEGORY_LABELS).map(([cat, label]) => {
             const count = actorsByCategory[cat]?.length || 0;
@@ -705,24 +705,24 @@ export function NetworkVisualization({
                   className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                   style={{ backgroundColor: getCategoryColor(cat as any) }}
                 />
-                <span className="text-gray-700 text-[10px] leading-tight truncate">
-                  {label.replace('Community', '').replace('Outlets', '').trim()} ({count})
+                <span className="text-gray-300 text-[10px] leading-tight">
+                  {label.replace(' Community', '').replace(' Outlets', '').replace(' Groups', '').trim()} ({count})
                 </span>
               </div>
             );
           })}
-          <div className="border-t border-gray-200 my-1"></div>
+          <div className="border-t border-gray-700 my-1"></div>
           <div className="flex items-center gap-1.5">
             <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#EF4444' }} />
-            <span className="text-gray-700 text-[10px]">Low trust</span>
+            <span className="text-gray-300 text-[10px]">Low trust</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#EAB308' }} />
-            <span className="text-gray-700 text-[10px]">Med trust</span>
+            <span className="text-gray-300 text-[10px]">Med trust</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#22C55E' }} />
-            <span className="text-gray-700 text-[10px]">High trust</span>
+            <span className="text-gray-300 text-[10px]">High trust</span>
           </div>
         </div>
       </div>
