@@ -1510,11 +1510,11 @@ const defenderDefeatConditions = [
 - [x] Pause-Funktion
 - [x] Zoom & Pan (vorgezogen)
 
-#### Sprint 3: Gameplay-Vertiefung
-- [ ] Eskalationssystem
-- [ ] Mehrstufige Victory-Conditions
-- [ ] Counter-Abilities für Defensive
-- [ ] Event-System erweitern
+#### Sprint 3: Gameplay-Vertiefung ✅ ABGESCHLOSSEN
+- [x] Eskalationssystem (Level 0-5, Public Awareness, Media Attention)
+- [x] Mehrstufige Victory-Conditions (Complete/Strategic/Tactical/Pyrrhic/Partial)
+- [x] Counter-Abilities für Defensive (6 Abilities mit Auto-Trigger)
+- [x] Event-System erweitern (12 neue Events, Escalation-basiert)
 
 #### Sprint 4: Lern-Features
 - [ ] Post-Game Analyse
