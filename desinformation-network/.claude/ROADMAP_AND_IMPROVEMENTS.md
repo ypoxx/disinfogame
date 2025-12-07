@@ -100,7 +100,7 @@ const handleTouchMove = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => 
 
 **Priorität:** 🔴 KRITISCH
 **Aufwand:** Klein (1-2 Stunden)
-**Status:** [ ] Offen
+**Status:** [x] Erledigt (2025-12-07)
 
 ---
 
@@ -163,7 +163,7 @@ const handleTutorialNext = () => {
 
 **Priorität:** 🔴 KRITISCH
 **Aufwand:** Klein (30 Minuten)
-**Status:** [ ] Offen
+**Status:** [x] Erledigt (2025-12-07)
 
 ---
 
@@ -203,7 +203,7 @@ import { Button } from '@/components/ui/Button';
 
 **Priorität:** 🟠 WICHTIG
 **Aufwand:** Klein (1 Stunde)
-**Status:** [ ] Offen
+**Status:** [x] Erledigt (2025-12-07)
 
 ---
 
@@ -236,7 +236,7 @@ const undoAction = useCallback(() => {
 
 **Priorität:** 🟠 WICHTIG
 **Aufwand:** Mittel (2-3 Stunden)
-**Status:** [ ] Offen
+**Status:** [x] Erledigt (2025-12-07)
 
 ---
 
@@ -267,7 +267,7 @@ const undoAction = useCallback(() => {
 
 **Priorität:** 🟡 NICE-TO-HAVE
 **Aufwand:** Klein (1 Stunde)
-**Status:** [ ] Offen
+**Status:** [x] Erledigt (2025-12-07)
 
 ---
 
@@ -304,7 +304,7 @@ useEffect(() => {
 
 **Priorität:** 🟠 WICHTIG
 **Aufwand:** Mittel (2 Stunden)
-**Status:** [ ] Offen
+**Status:** [x] Erledigt (2025-12-07)
 
 ---
 
@@ -362,7 +362,7 @@ floatingNumbers.forEach(fn => {
 
 **Priorität:** 🟠 WICHTIG
 **Aufwand:** Mittel (3-4 Stunden)
-**Status:** [ ] Offen
+**Status:** [x] Erledigt (2025-12-07)
 
 ---
 
@@ -437,7 +437,7 @@ ctx.restore();
 
 **Priorität:** 🟡 NICE-TO-HAVE
 **Aufwand:** Groß (4-6 Stunden)
-**Status:** [ ] Offen
+**Status:** [x] Erledigt (2025-12-07) - Inkl. Pinch-to-Zoom für Touch
 
 ---
 
@@ -1498,17 +1498,17 @@ const defenderDefeatConditions = [
 
 ### 10.2 Sprint-Planung
 
-#### Sprint 1: Kritische Fixes
-- [ ] Touch-Support implementieren
-- [ ] Tutorial-Persistenz
-- [ ] Button-Komponente durchgängig nutzen
-- [ ] Undo-Button hinzufügen
+#### Sprint 1: Kritische Fixes ✅ ABGESCHLOSSEN
+- [x] Touch-Support implementieren
+- [x] Tutorial-Persistenz
+- [x] Button-Komponente durchgängig nutzen
+- [x] Undo-Button hinzufügen
 
-#### Sprint 2: UX-Polish
-- [ ] Tastatursteuerung
-- [ ] Trust-Animationen
-- [ ] Pause-Funktion
-- [ ] Animation-Loop Optimierung
+#### Sprint 2: UX-Polish ✅ ABGESCHLOSSEN
+- [x] Tastatursteuerung
+- [x] Trust-Animationen
+- [x] Pause-Funktion
+- [x] Zoom & Pan (vorgezogen)
 
 #### Sprint 3: Gameplay-Vertiefung
 - [ ] Eskalationssystem

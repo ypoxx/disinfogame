@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { formatPercent } from '@/utils';
 import { trustToHex } from '@/utils/colors';
 import { Button } from '@/components/ui/Button';
-import { NetworkVisualization } from '@/components/NetworkVisualization';
+import { NetworkVisualization, type TrustChange } from '@/components/NetworkVisualization';
 import { RoundSummary } from '@/components/RoundSummary';
 import { VictoryProgressBar } from '@/components/VictoryProgressBar';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
@@ -25,6 +25,7 @@ function App() {
     startGame,
     advanceRound,
     resetGame,
+    undoAction,
     selectActor,
     hoverActor,
     getActor,
@@ -35,6 +36,99 @@ function App() {
     toggleEncyclopedia,
     addNotification,
   } = useGameState();
+
+  // Pause state
+  const [isPaused, setIsPaused] = useState(false);
+
+  const togglePause = useCallback(() => {
+    setIsPaused(prev => !prev);
+  }, []);
+
+  // Trust change tracking for floating numbers
+  const [trustChanges, setTrustChanges] = useState<TrustChange[]>([]);
+  const previousTrustValues = useRef<Map<string, number>>(new Map());
+
+  // Track trust changes when actors update
+  useEffect(() => {
+    const currentTrust = new Map<string, number>();
+    const changes: TrustChange[] = [];
+    const now = Date.now();
+
+    gameState.network.actors.forEach(actor => {
+      currentTrust.set(actor.id, actor.trust);
+
+      const prevTrust = previousTrustValues.current.get(actor.id);
+      if (prevTrust !== undefined && prevTrust !== actor.trust) {
+        const delta = actor.trust - prevTrust;
+        // Only show significant changes (> 0.5%)
+        if (Math.abs(delta) > 0.005) {
+          changes.push({
+            actorId: actor.id,
+            delta,
+            timestamp: now,
+          });
+        }
+      }
+    });
+
+    if (changes.length > 0) {
+      setTrustChanges(prev => [...prev, ...changes]);
+    }
+
+    previousTrustValues.current = currentTrust;
+  }, [gameState.network.actors]);
+
+  // Clean up old trust changes (older than 3 seconds)
+  useEffect(() => {
+    const cleanup = setInterval(() => {
+      const now = Date.now();
+      setTrustChanges(prev => prev.filter(c => now - c.timestamp < 3000));
+    }, 1000);
+    return () => clearInterval(cleanup);
+  }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if typing in input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Only handle during playing phase
+      if (gameState.phase !== 'playing') return;
+
+      switch (e.key) {
+        case 'Escape':
+          if (isPaused) {
+            setIsPaused(false);
+          } else if (uiState.targetingMode) {
+            cancelAbility();
+          } else if (uiState.selectedActor) {
+            selectActor(null);
+          }
+          break;
+        case 'Enter':
+          if (!uiState.targetingMode && !isPaused) {
+            advanceRound();
+          }
+          break;
+        case ' ':
+          e.preventDefault();
+          togglePause();
+          break;
+        case 'z':
+          if ((e.ctrlKey || e.metaKey) && !isPaused) {
+            undoAction();
+            addNotification('info', 'Action undone');
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [gameState.phase, isPaused, uiState.targetingMode, uiState.selectedActor, cancelAbility, selectActor, advanceRound, togglePause, undoAction, addNotification]);
 
   // Round summary state
   const [showRoundSummary, setShowRoundSummary] = useState(false);
@@ -362,11 +456,35 @@ function App() {
             </div>
           </div>
         </div>
+        <div className="flex gap-2">
+          <Button
+            onClick={togglePause}
+            variant="secondary"
+            size="md"
+            className="font-semibold"
+            title="Pause (Space)"
+          >
+            {isPaused ? '▶' : '⏸'}
+          </Button>
+          <Button
+            onClick={() => {
+              undoAction();
+              addNotification('info', 'Action undone');
+            }}
+            variant="secondary"
+            size="md"
+            className="font-semibold"
+            title="Undo (Ctrl+Z)"
+          >
+            ↶
+          </Button>
+        </div>
         <Button
           onClick={advanceRound}
           variant="success"
           size="md"
           className="font-semibold"
+          disabled={isPaused}
         >
           End Round →
         </Button>
@@ -381,6 +499,7 @@ function App() {
           hoveredActorId={uiState.hoveredActor}
           targetingMode={uiState.targetingMode}
           validTargets={uiState.validTargets}
+          trustChanges={trustChanges}
           onActorClick={selectActor}
           onActorHover={hoverActor}
         />
@@ -423,6 +542,39 @@ function App() {
             onSkip={handleTutorialSkip}
           />
         </>
+      )}
+
+      {/* Pause Overlay */}
+      {isPaused && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="text-center">
+            <div className="text-6xl mb-4">⏸</div>
+            <h2 className="text-4xl font-bold text-white mb-4">Paused</h2>
+            <p className="text-gray-400 mb-6">Press Space or click to continue</p>
+            <div className="flex gap-4 justify-center">
+              <Button
+                onClick={togglePause}
+                variant="primary"
+                size="lg"
+                className="font-semibold"
+              >
+                Resume Game
+              </Button>
+              <Button
+                onClick={resetGame}
+                variant="secondary"
+                size="lg"
+                className="font-semibold"
+              >
+                Reset Game
+              </Button>
+            </div>
+            <div className="mt-8 text-sm text-gray-500">
+              <p>Keyboard Shortcuts:</p>
+              <p className="mt-2">Space - Pause/Resume | Escape - Cancel | Ctrl+Z - Undo | Enter - End Round</p>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

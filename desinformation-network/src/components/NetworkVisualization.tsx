@@ -8,6 +8,12 @@ import { trustToHex, getCategoryColor } from '@/utils/colors';
 // Supports zoom/pan via mouse, touch, and keyboard
 // ============================================
 
+export type TrustChange = {
+  actorId: string;
+  delta: number;
+  timestamp: number;
+};
+
 type NetworkVisualizationProps = {
   actors: Actor[];
   connections: Connection[];
@@ -15,6 +21,7 @@ type NetworkVisualizationProps = {
   hoveredActorId: string | null;
   targetingMode: boolean;
   validTargets: string[];
+  trustChanges?: TrustChange[];
   onActorClick: (actorId: string) => void;
   onActorHover: (actorId: string | null) => void;
 };
@@ -42,6 +49,9 @@ const CATEGORY_LABELS: Record<string, string> = {
   defensive: 'Defensive Actors',
 };
 
+// Duration for floating number animation (ms)
+const FLOATING_NUMBER_DURATION = 2000;
+
 export function NetworkVisualization({
   actors,
   connections,
@@ -49,6 +59,7 @@ export function NetworkVisualization({
   hoveredActorId,
   targetingMode,
   validTargets,
+  trustChanges = [],
   onActorClick,
   onActorHover,
 }: NetworkVisualizationProps) {
@@ -345,11 +356,60 @@ export function NetworkVisualization({
       });
     });
 
+    // Draw floating trust change numbers
+    const now = Date.now();
+    trustChanges.forEach((change) => {
+      const elapsed = now - change.timestamp;
+      if (elapsed > FLOATING_NUMBER_DURATION) return;
+
+      const actor = actors.find(a => a.id === change.actorId);
+      if (!actor) return;
+
+      const categoryActors = actorsByCategory[actor.category] || [];
+      const actorIndex = categoryActors.indexOf(actor);
+      const pos = getActorPosition(actor, actorIndex, categoryActors);
+
+      // Animation progress (0 to 1)
+      const progress = elapsed / FLOATING_NUMBER_DURATION;
+
+      // Float upward animation
+      const floatY = pos.y - NODE_RADIUS - 30 - (progress * 50);
+
+      // Fade out animation
+      const opacity = 1 - progress;
+
+      // Scale animation (slight bounce)
+      const animScale = 1 + Math.sin(progress * Math.PI) * 0.3;
+
+      // Draw the floating number
+      const isPositive = change.delta > 0;
+      const text = `${isPositive ? '+' : ''}${Math.round(change.delta * 100)}%`;
+      const fontSize = Math.max(16, NODE_RADIUS * 0.5) * animScale;
+
+      ctx.save();
+      ctx.globalAlpha = opacity;
+      ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // Shadow for better visibility
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetX = 1;
+      ctx.shadowOffsetY = 1;
+
+      // Color based on positive/negative
+      ctx.fillStyle = isPositive ? '#22C55E' : '#EF4444';
+      ctx.fillText(text, pos.x, floatY);
+
+      ctx.restore();
+    });
+
     // Restore transform
     ctx.restore();
 
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, scale, offset]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, scale, offset, trustChanges]);
 
   // Find actor at click position (screen coordinates input, converts to world)
   const findActorAtPosition = useCallback((screenX: number, screenY: number): Actor | null => {
