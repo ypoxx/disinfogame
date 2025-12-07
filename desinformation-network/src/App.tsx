@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useGameState } from '@/hooks/useGameState';
-import { cn } from '@/utils/cn';
 import { formatPercent } from '@/utils';
-import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
+import { trustToHex } from '@/utils/colors';
+import { Button } from '@/components/ui/Button';
 import { NetworkVisualization } from '@/components/NetworkVisualization';
 import { RoundSummary } from '@/components/RoundSummary';
 import { VictoryProgressBar } from '@/components/VictoryProgressBar';
@@ -42,8 +42,26 @@ function App() {
   const [previousRound, setPreviousRound] = useState(0);
   const [networkBefore, setNetworkBefore] = useState(networkMetrics);
 
-  // Tutorial state
-  const [tutorialState, setTutorialState] = useState<TutorialState>(createInitialTutorialState());
+  // Tutorial state - load from localStorage if previously skipped/completed
+  const [tutorialState, setTutorialState] = useState<TutorialState>(() => {
+    const saved = localStorage.getItem('tutorial-state');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.skipped || parsed.completed) {
+          return {
+            ...createInitialTutorialState(),
+            skipped: parsed.skipped || false,
+            completed: parsed.completed || false,
+            active: false
+          };
+        }
+      } catch (e) {
+        // Ignore parse errors, use default state
+      }
+    }
+    return createInitialTutorialState();
+  });
   const [showTutorial, setShowTutorial] = useState(false);
 
   // Track round changes and generate summaries
@@ -94,11 +112,13 @@ function App() {
     setShowRoundSummary(false);
   };
 
-  // Tutorial handlers
+  // Tutorial handlers - persist state to localStorage
   const handleTutorialNext = () => {
     setTutorialState(prev => {
       const nextStep = prev.currentStep + 1;
       if (nextStep >= prev.steps.length) {
+        // Tutorial completed - save to localStorage
+        localStorage.setItem('tutorial-state', JSON.stringify({ skipped: false, completed: true }));
         return { ...prev, active: false, completed: true };
       }
       return {
@@ -112,6 +132,8 @@ function App() {
   };
 
   const handleTutorialSkip = () => {
+    // Save skip status to localStorage
+    localStorage.setItem('tutorial-state', JSON.stringify({ skipped: true, completed: false }));
     setTutorialState(prev => ({
       ...prev,
       active: false,
@@ -163,12 +185,14 @@ function App() {
             </ul>
           </div>
           
-          <button
+          <Button
             onClick={startGame}
-            className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-xl font-semibold rounded-xl transition-colors shadow-lg"
+            variant="primary"
+            size="xl"
+            className="shadow-lg font-semibold"
           >
             Start Game
-          </button>
+          </Button>
           
           <p className="mt-6 text-gray-500 text-sm">
             Seed: {gameState.seed}
@@ -215,18 +239,22 @@ function App() {
           </div>
           
           <div className="flex gap-4 justify-center">
-            <button
+            <Button
               onClick={resetGame}
-              className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-xl transition-colors"
+              variant="secondary"
+              size="lg"
+              className="font-semibold"
             >
               Play Again
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={toggleEncyclopedia}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
+              variant="primary"
+              size="lg"
+              className="font-semibold"
             >
               Learn About Techniques
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -262,12 +290,14 @@ function App() {
             </div>
           </div>
           
-          <button
+          <Button
             onClick={resetGame}
-            className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-xl transition-colors"
+            variant="secondary"
+            size="lg"
+            className="font-semibold"
           >
             Try Again
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -278,7 +308,7 @@ function App() {
   // ============================================
 
   const selectedActor = uiState.selectedActor
-    ? getActor(uiState.selectedActor.actorId)
+    ? getActor(uiState.selectedActor.actorId) ?? null
     : null;
 
   return (
@@ -332,12 +362,14 @@ function App() {
             </div>
           </div>
         </div>
-        <button
+        <Button
           onClick={advanceRound}
-          className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-green-600/20"
+          variant="success"
+          size="md"
+          className="font-semibold"
         >
           End Round →
-        </button>
+        </Button>
       </div>
 
       {/* Fullscreen Network Visualization */}

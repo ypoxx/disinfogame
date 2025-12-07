@@ -4,6 +4,8 @@ import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
 import { formatPercent } from '@/utils';
 import { cn } from '@/utils/cn';
 
+type NotificationType = 'info' | 'warning' | 'success' | 'error';
+
 type BottomSheetProps = {
   actor: Actor | null;
   abilities: Ability[];
@@ -13,7 +15,7 @@ type BottomSheetProps = {
   onCancel: () => void;
   selectedAbilityId: string | null;
   targetingMode: boolean;
-  addNotification: (type: string, message: string) => void;
+  addNotification: (type: NotificationType, message: string) => void;
 };
 
 export function BottomSheet({

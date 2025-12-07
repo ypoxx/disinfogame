@@ -5,13 +5,14 @@ import { cn } from '@/utils/cn';
 // BUTTON VARIANTS
 // ============================================
 
-type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline';
-type ButtonSize = 'sm' | 'md' | 'lg';
+type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' | 'success';
+type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm',
-  secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-900',
+  secondary: 'bg-gray-700 hover:bg-gray-600 text-white shadow-sm',
   danger: 'bg-red-600 hover:bg-red-700 text-white shadow-sm',
+  success: 'bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow-lg hover:shadow-green-600/20',
   ghost: 'hover:bg-gray-100 text-gray-700',
   outline: 'border border-gray-300 hover:bg-gray-50 text-gray-700',
 };
@@ -20,6 +21,7 @@ const sizeStyles: Record<ButtonSize, string> = {
   sm: 'px-3 py-1.5 text-sm rounded-lg',
   md: 'px-4 py-2 text-sm rounded-lg',
   lg: 'px-6 py-3 text-base rounded-xl',
+  xl: 'px-8 py-4 text-xl rounded-xl',
 };
 
 // ============================================

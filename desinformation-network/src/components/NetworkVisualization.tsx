@@ -361,6 +361,56 @@ export function NetworkVisualization({
     }
   }, [findActorAtPosition, onActorHover]);
 
+  // Touch event handlers for tablet/mobile support
+  const handleTouchStart = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const canvas = canvasRef.current;
+    if (!canvas || !touch) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    const actor = findActorAtPosition(x, y);
+    if (actor) {
+      onActorClick(actor.id);
+      // Show tooltip on touch
+      setHoveredActor(actor);
+      setTooltipPosition({ x: touch.clientX, y: touch.clientY });
+    }
+  }, [findActorAtPosition, onActorClick]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
+    const touch = e.touches[0];
+    const canvas = canvasRef.current;
+    if (!canvas || !touch) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    const actor = findActorAtPosition(x, y);
+    onActorHover(actor?.id || null);
+
+    if (actor) {
+      setHoveredActor(actor);
+      setTooltipPosition({ x: touch.clientX, y: touch.clientY });
+    } else {
+      setHoveredActor(null);
+      setTooltipPosition(null);
+    }
+  }, [findActorAtPosition, onActorHover]);
+
+  const handleTouchEnd = useCallback(() => {
+    // Keep tooltip visible briefly after touch ends, then clear
+    setTimeout(() => {
+      onActorHover(null);
+      setHoveredActor(null);
+      setTooltipPosition(null);
+    }, 1500);
+  }, [onActorHover]);
+
   // Resize canvas
   useEffect(() => {
     const handleResize = () => {
@@ -400,7 +450,7 @@ export function NetworkVisualization({
     <div ref={containerRef} className="w-full h-full relative">
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 cursor-pointer"
+        className="absolute inset-0 cursor-pointer touch-none"
         onClick={handleClick}
         onMouseMove={handleMouseMove}
         onMouseLeave={() => {
@@ -408,6 +458,9 @@ export function NetworkVisualization({
           setHoveredActor(null);
           setTooltipPosition(null);
         }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       />
 
       {/* Legend - positioned at bottom left to avoid network overlap */}
