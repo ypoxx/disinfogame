@@ -11,6 +11,10 @@ import type {
   NetworkMetrics,
   Position,
   ActorDefinition,
+  EscalationState,
+  EscalationLevel,
+  VictoryType,
+  VictoryDetails,
 } from './types';
 import { SeededRandom, generateSeedString } from './seed/SeededRandom';
 import {
@@ -35,6 +39,11 @@ const DEFENSIVE_VICTORY_TRUST = 0.7; // Above 70% average
 const DEFENSIVE_SPAWN_INTERVAL = 8; // Every 8 rounds
 const MAX_DEFENSIVE_ACTORS = 3;
 const RANDOM_EVENT_CHANCE = 0.3;
+
+// Escalation constants
+const ESCALATION_THRESHOLDS = [0, 0.2, 0.4, 0.6, 0.8, 1.0]; // Level thresholds
+const BASE_DEFENSIVE_SPAWN_CHANCE = 0.1;
+const ESCALATION_SPAWN_BONUS = 0.15; // +15% per escalation level
 
 // ============================================
 // GAME STATE CLASS
@@ -71,6 +80,13 @@ export class GameStateManager {
         connections: [],
         averageTrust: 0,
         polarizationIndex: 0,
+      },
+      escalation: {
+        level: 0,
+        publicAwareness: 0,
+        mediaAttention: 0,
+        counterMeasures: 0,
+        lastEscalationRound: 0,
       },
       abilityUsage: {},
       eventsTriggered: [],
@@ -325,10 +341,13 @@ export class GameStateManager {
         : targetActorIds;
       this.propagateEffect(ability, propagateTargets, usageCount);
     }
-    
+
+    // Update escalation based on ability aggressiveness
+    this.updateEscalation(ability);
+
     // Update network metrics
     this.updateNetworkMetrics();
-    
+
     return true;
   }
   
@@ -458,49 +477,54 @@ export class GameStateManager {
    */
   advanceRound(): void {
     if (this.state.phase !== 'playing') return;
-    
+
     // Save snapshot for undo
     this.saveSnapshot();
-    
+
     // 1. Propagate trust through network
     this.state.network.actors = propagateTrust(
       this.state.network.actors,
       this.state.network.connections
     );
-    
+
     // 2. Apply recovery
     this.state.network.actors = applyRecovery(this.state.network.actors);
-    
+
     // 3. Process ongoing effects
     this.processEffects();
-    
+
     // 4. Decrement cooldowns
     this.decrementCooldowns();
-    
-    // 5. Trigger random events
-    if (this.rng.nextBool(RANDOM_EVENT_CHANCE)) {
+
+    // 5. Decay escalation naturally
+    this.decayEscalation();
+
+    // 6. Trigger random events (higher chance at high escalation)
+    const eventChance = RANDOM_EVENT_CHANCE + (this.state.escalation.level * 0.05);
+    if (this.rng.nextBool(eventChance)) {
       this.triggerRandomEvent();
     }
-    
-    // 6. Check conditional events
+
+    // 7. Check conditional events
     this.checkConditionalEvents();
-    
-    // 7. Add resources
+
+    // 8. Add resources
     const resourceBonus = this.calculateResourceBonus();
     this.state.resources += RESOURCES_PER_ROUND + resourceBonus;
-    
-    // 8. Check for defensive spawns
-    if (this.state.round % DEFENSIVE_SPAWN_INTERVAL === 0) {
+
+    // 9. Check for defensive spawns (every 8 rounds or at high escalation)
+    if (this.state.round % DEFENSIVE_SPAWN_INTERVAL === 0 ||
+        (this.state.escalation.level >= 3 && this.rng.nextBool(0.2))) {
       this.checkDefensiveSpawn();
     }
-    
-    // 9. Update network metrics
+
+    // 10. Update network metrics
     this.updateNetworkMetrics();
-    
-    // 10. Increment round
+
+    // 11. Increment round
     this.state.round++;
-    
-    // 11. Check win/lose conditions
+
+    // 12. Check win/lose conditions
     this.checkGameEnd();
   }
   
@@ -701,16 +725,24 @@ export class GameStateManager {
    */
   private checkDefensiveSpawn(): void {
     if (this.state.defensiveActorsSpawned >= MAX_DEFENSIVE_ACTORS) return;
-    
+
     const metrics = this.getNetworkMetrics();
-    
-    // Higher chance to spawn if trust is low
-    const spawnChance = 0.3 + (0.5 - metrics.averageTrust) * 0.5;
-    
+
+    // Escalation-based spawn chance + trust-based modifier
+    const baseChance = this.getDefensiveSpawnChance();
+    const trustModifier = (0.5 - metrics.averageTrust) * 0.3;
+    const spawnChance = baseChance + trustModifier;
+
     if (this.rng.nextBool(spawnChance)) {
-      const types = ['fact_checker', 'media_literacy', 'regulatory'];
+      // Higher escalation = stronger defensive actors
+      const types = this.state.escalation.level >= 3
+        ? ['regulatory', 'fact_checker', 'media_literacy']
+        : ['fact_checker', 'media_literacy', 'regulatory'];
       const type = this.rng.pick(types) || 'fact_checker';
       this.spawnDefensiveActor(type);
+
+      // Track counter-measures in escalation
+      this.state.escalation.counterMeasures++;
     }
   }
   
@@ -768,41 +800,206 @@ export class GameStateManager {
   }
   
   // ============================================
+  // ESCALATION SYSTEM
+  // ============================================
+
+  /**
+   * Update escalation based on ability usage
+   */
+  private updateEscalation(ability: Ability): void {
+    let awarenessIncrease = 0;
+    let attentionIncrease = 0;
+
+    // Aggressive abilities increase awareness more
+    const trustEffect = ability.effects.trustDelta ?? 0;
+    if (trustEffect < -0.15) {
+      awarenessIncrease += 0.05;
+    } else if (trustEffect < -0.1) {
+      awarenessIncrease += 0.03;
+    } else if (trustEffect < 0) {
+      awarenessIncrease += 0.01;
+    }
+
+    // Propagating effects are more noticeable
+    if (ability.effects.propagates) {
+      attentionIncrease += 0.04;
+    }
+
+    // Network-wide effects draw attention
+    if (ability.targetType === 'network') {
+      attentionIncrease += 0.05;
+      awarenessIncrease += 0.03;
+    }
+
+    // Category-wide attacks are visible
+    if (ability.targetType === 'category') {
+      attentionIncrease += 0.03;
+    }
+
+    // Update escalation state
+    this.state.escalation.publicAwareness = clamp(
+      this.state.escalation.publicAwareness + awarenessIncrease,
+      0,
+      1
+    );
+    this.state.escalation.mediaAttention = clamp(
+      this.state.escalation.mediaAttention + attentionIncrease,
+      0,
+      1
+    );
+
+    // Calculate new level
+    this.calculateEscalationLevel();
+  }
+
+  /**
+   * Calculate escalation level from awareness and attention
+   */
+  private calculateEscalationLevel(): void {
+    const combined = (this.state.escalation.publicAwareness + this.state.escalation.mediaAttention) / 2;
+
+    let newLevel: EscalationLevel = 0;
+    for (let i = ESCALATION_THRESHOLDS.length - 1; i >= 0; i--) {
+      if (combined >= ESCALATION_THRESHOLDS[i]) {
+        newLevel = i as EscalationLevel;
+        break;
+      }
+    }
+
+    // Track when level increased
+    if (newLevel > this.state.escalation.level) {
+      this.state.escalation.lastEscalationRound = this.state.round;
+    }
+
+    this.state.escalation.level = newLevel;
+  }
+
+  /**
+   * Get defensive spawn chance based on escalation
+   */
+  private getDefensiveSpawnChance(): number {
+    return BASE_DEFENSIVE_SPAWN_CHANCE +
+      (this.state.escalation.level * ESCALATION_SPAWN_BONUS);
+  }
+
+  /**
+   * Natural decay of escalation over time
+   */
+  private decayEscalation(): void {
+    // Small decay per round if no aggressive actions
+    const decayRate = 0.01;
+    this.state.escalation.publicAwareness = Math.max(
+      0,
+      this.state.escalation.publicAwareness - decayRate
+    );
+    this.state.escalation.mediaAttention = Math.max(
+      0,
+      this.state.escalation.mediaAttention - decayRate
+    );
+    this.calculateEscalationLevel();
+  }
+
+  // ============================================
   // WIN/LOSE CONDITIONS
   // ============================================
-  
+
   /**
    * Check if game has ended
    */
   private checkGameEnd(): void {
     // Check victory
-    if (this.checkVictory()) {
+    const victoryDetails = this.evaluateVictory();
+    if (victoryDetails && victoryDetails.type !== 'defeat' && victoryDetails.type !== 'stalemate') {
       this.state.phase = 'victory';
+      this.state.victoryDetails = victoryDetails;
       return;
     }
-    
+
     // Check defeat
     const defeatReason = this.checkDefeat();
     if (defeatReason) {
       this.state.phase = 'defeat';
       this.state.defeatReason = defeatReason;
+
+      // Still store victory details for stats
+      if (victoryDetails) {
+        this.state.victoryDetails = victoryDetails;
+      }
     }
   }
-  
+
   /**
-   * Check victory condition
+   * Evaluate victory type and details
    */
-  checkVictory(): boolean {
-    const lowTrustActors = this.state.network.actors.filter(
-      a => a.trust < VICTORY_TRUST_LEVEL && a.category !== 'defensive'
-    );
+  evaluateVictory(): VictoryDetails | null {
     const nonDefensiveActors = this.state.network.actors.filter(
       a => a.category !== 'defensive'
     );
-    
-    return lowTrustActors.length >= nonDefensiveActors.length * VICTORY_THRESHOLD;
+    const lowTrustActors = nonDefensiveActors.filter(
+      a => a.trust < VICTORY_TRUST_LEVEL
+    );
+
+    const totalActors = nonDefensiveActors.length;
+    const compromised = lowTrustActors.length;
+    const lowTrustPercent = compromised / totalActors;
+    const metrics = this.getNetworkMetrics();
+
+    let victoryType: VictoryType;
+    let score = 0;
+
+    // Determine victory type
+    if (lowTrustPercent >= 1.0) {
+      victoryType = 'complete_victory';
+      score = 10000;
+    } else if (lowTrustPercent >= VICTORY_THRESHOLD) {
+      if (this.state.escalation.level >= 4) {
+        victoryType = 'pyrrhic_victory';
+        score = 5000;
+      } else if (this.state.round <= 24) {
+        victoryType = 'strategic_victory';
+        score = 8000;
+      } else {
+        victoryType = 'tactical_victory';
+        score = 7000;
+      }
+    } else if (lowTrustPercent >= 0.5) {
+      victoryType = 'partial_success';
+      score = 3000;
+    } else if (this.state.round >= this.state.maxRounds) {
+      victoryType = 'stalemate';
+      score = 1000;
+    } else {
+      victoryType = 'defeat';
+      score = 0;
+    }
+
+    // Score modifiers
+    score += Math.floor((1 - metrics.averageTrust) * 1000);
+    score += Math.floor((MAX_ROUNDS - this.state.round) * 50);
+    score -= this.state.escalation.level * 200;
+
+    return {
+      type: victoryType,
+      roundsPlayed: this.state.round,
+      finalTrust: metrics.averageTrust,
+      actorsCompromised: compromised,
+      totalActors,
+      escalationLevel: this.state.escalation.level,
+      score: Math.max(0, score),
+    };
   }
-  
+
+  /**
+   * Check simple victory condition (backwards compatible)
+   */
+  checkVictory(): boolean {
+    const details = this.evaluateVictory();
+    return details !== null &&
+      details.type !== 'defeat' &&
+      details.type !== 'stalemate' &&
+      details.type !== 'partial_success';
+  }
+
   /**
    * Check defeat conditions
    */
@@ -811,7 +1008,7 @@ export class GameStateManager {
     if (this.state.round >= this.state.maxRounds) {
       return 'time_out';
     }
-    
+
     // Defensive victory
     const metrics = this.getNetworkMetrics();
     if (
@@ -820,7 +1017,12 @@ export class GameStateManager {
     ) {
       return 'defensive_victory';
     }
-    
+
+    // Exposure at high escalation (new condition)
+    if (this.state.escalation.level >= 5 && this.rng.nextBool(0.3)) {
+      return 'exposure';
+    }
+
     return null;
   }
   

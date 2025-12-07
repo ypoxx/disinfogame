@@ -298,40 +298,99 @@ function App() {
 
   // Victory Screen
   if (gameState.phase === 'victory') {
+    const victory = gameState.victoryDetails;
+    const victoryLabels: Record<string, { title: string; description: string; emoji: string; color: string }> = {
+      complete_victory: {
+        title: 'Complete Victory',
+        description: 'Total information dominance achieved. All actors compromised.',
+        emoji: '👑',
+        color: 'text-purple-400'
+      },
+      strategic_victory: {
+        title: 'Strategic Victory',
+        description: 'Swift and efficient campaign. Completed ahead of schedule.',
+        emoji: '⚡',
+        color: 'text-blue-400'
+      },
+      tactical_victory: {
+        title: 'Tactical Victory',
+        description: 'Mission accomplished through careful manipulation.',
+        emoji: '🎯',
+        color: 'text-green-400'
+      },
+      pyrrhic_victory: {
+        title: 'Pyrrhic Victory',
+        description: 'You won, but at what cost? Your campaign drew significant attention.',
+        emoji: '⚠️',
+        color: 'text-yellow-400'
+      },
+      partial_success: {
+        title: 'Partial Success',
+        description: 'Progress made, but the campaign remains incomplete.',
+        emoji: '📊',
+        color: 'text-orange-400'
+      }
+    };
+
+    const victoryInfo = victory ? victoryLabels[victory.type] : victoryLabels.tactical_victory;
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-900 via-gray-900 to-gray-900 flex items-center justify-center p-8">
         <div className="max-w-2xl text-center">
-          <div className="text-6xl mb-6">🎭</div>
-          <h1 className="text-5xl font-bold text-red-400 mb-4">
-            Victory (?)
+          <div className="text-6xl mb-6">{victoryInfo?.emoji || '🎭'}</div>
+          <h1 className={`text-5xl font-bold mb-2 ${victoryInfo?.color || 'text-red-400'}`}>
+            {victoryInfo?.title || 'Victory'}
           </h1>
           <p className="text-xl text-gray-300 mb-8">
-            You've successfully undermined public trust in {gameState.round} rounds.
-            But at what cost to society?
+            {victoryInfo?.description}
           </p>
-          
+
+          {victory && (
+            <div className="bg-gray-800/50 rounded-2xl p-6 mb-6">
+              <div className="flex justify-center items-center gap-2 mb-4">
+                <span className="text-4xl font-bold text-yellow-400">{victory.score.toLocaleString()}</span>
+                <span className="text-gray-400">points</span>
+              </div>
+            </div>
+          )}
+
           <div className="bg-gray-800/50 rounded-2xl p-6 mb-8">
-            <h2 className="text-lg font-semibold text-white mb-4">Final Statistics</h2>
-            <div className="grid grid-cols-2 gap-4 text-left">
+            <h2 className="text-lg font-semibold text-white mb-4">Campaign Statistics</h2>
+            <div className="grid grid-cols-3 gap-4 text-left">
               <div>
-                <p className="text-gray-400">Rounds Played</p>
-                <p className="text-2xl text-white">{gameState.round}</p>
+                <p className="text-gray-400 text-sm">Rounds</p>
+                <p className="text-2xl text-white">{victory?.roundsPlayed || gameState.round}</p>
               </div>
               <div>
-                <p className="text-gray-400">Average Trust</p>
-                <p className="text-2xl text-red-400">{formatPercent(networkMetrics.averageTrust)}</p>
+                <p className="text-gray-400 text-sm">Avg Trust</p>
+                <p className="text-2xl text-red-400">{formatPercent(victory?.finalTrust || networkMetrics.averageTrust)}</p>
               </div>
               <div>
-                <p className="text-gray-400">Actors Compromised</p>
-                <p className="text-2xl text-white">{networkMetrics.lowTrustCount}</p>
+                <p className="text-gray-400 text-sm">Compromised</p>
+                <p className="text-2xl text-white">
+                  {victory?.actorsCompromised || networkMetrics.lowTrustCount}/{victory?.totalActors || gameState.network.actors.length}
+                </p>
               </div>
               <div>
-                <p className="text-gray-400">Polarization</p>
+                <p className="text-gray-400 text-sm">Escalation</p>
+                <p className={`text-2xl ${
+                  (victory?.escalationLevel || 0) <= 2 ? 'text-green-400' :
+                  (victory?.escalationLevel || 0) <= 4 ? 'text-yellow-400' : 'text-red-400'
+                }`}>
+                  Level {victory?.escalationLevel || gameState.escalation.level}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">Polarization</p>
                 <p className="text-2xl text-yellow-400">{formatPercent(networkMetrics.polarizationIndex)}</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">Defenders</p>
+                <p className="text-2xl text-cyan-400">{gameState.defensiveActorsSpawned}</p>
               </div>
             </div>
           </div>
-          
+
           <div className="flex gap-4 justify-center">
             <Button
               onClick={resetGame}
@@ -357,33 +416,60 @@ function App() {
 
   // Defeat Screen
   if (gameState.phase === 'defeat') {
+    const defeatMessages: Record<string, { title: string; description: string; emoji: string }> = {
+      time_out: {
+        title: 'Time Expired',
+        description: 'Time ran out before you could complete your campaign.',
+        emoji: '⏰'
+      },
+      defensive_victory: {
+        title: 'Society Prevailed',
+        description: 'Defensive mechanisms restored public trust.',
+        emoji: '🛡️'
+      },
+      exposure: {
+        title: 'Campaign Exposed',
+        description: 'Your disinformation campaign was uncovered! High escalation led to investigation.',
+        emoji: '🔍'
+      }
+    };
+
+    const defeatInfo = defeatMessages[gameState.defeatReason || 'time_out'];
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-900 via-gray-900 to-gray-900 flex items-center justify-center p-8">
         <div className="max-w-2xl text-center">
-          <div className="text-6xl mb-6">✨</div>
+          <div className="text-6xl mb-6">{defeatInfo.emoji}</div>
           <h1 className="text-5xl font-bold text-green-400 mb-4">
-            Society Prevailed
+            {defeatInfo.title}
           </h1>
           <p className="text-xl text-gray-300 mb-8">
-            {gameState.defeatReason === 'time_out'
-              ? "Time ran out before you could complete your campaign."
-              : "Defensive mechanisms restored public trust."}
+            {defeatInfo.description}
           </p>
-          
+
           <div className="bg-gray-800/50 rounded-2xl p-6 mb-8">
             <h2 className="text-lg font-semibold text-white mb-4">Final Statistics</h2>
-            <div className="grid grid-cols-2 gap-4 text-left">
+            <div className="grid grid-cols-3 gap-4 text-left">
               <div>
-                <p className="text-gray-400">Rounds Played</p>
+                <p className="text-gray-400 text-sm">Rounds Played</p>
                 <p className="text-2xl text-white">{gameState.round}</p>
               </div>
               <div>
-                <p className="text-gray-400">Average Trust</p>
+                <p className="text-gray-400 text-sm">Average Trust</p>
                 <p className="text-2xl text-green-400">{formatPercent(networkMetrics.averageTrust)}</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">Escalation</p>
+                <p className={`text-2xl ${
+                  gameState.escalation.level <= 2 ? 'text-green-400' :
+                  gameState.escalation.level <= 4 ? 'text-yellow-400' : 'text-red-400'
+                }`}>
+                  Level {gameState.escalation.level}
+                </p>
               </div>
             </div>
           </div>
-          
+
           <Button
             onClick={resetGame}
             variant="secondary"
@@ -423,6 +509,52 @@ function App() {
               <span className="font-semibold text-blue-300">{gameState.resources}</span>
             </div>
           </div>
+        </div>
+
+        {/* Escalation Indicator */}
+        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-gray-400 uppercase tracking-wider">Escalation</span>
+            <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+              gameState.escalation.level === 0 ? 'bg-green-900/50 text-green-400' :
+              gameState.escalation.level <= 2 ? 'bg-yellow-900/50 text-yellow-400' :
+              gameState.escalation.level <= 4 ? 'bg-orange-900/50 text-orange-400' :
+              'bg-red-900/50 text-red-400'
+            }`}>
+              Level {gameState.escalation.level}
+            </span>
+          </div>
+          <div className="space-y-1.5">
+            <div>
+              <div className="flex justify-between text-[10px] mb-0.5">
+                <span className="text-gray-500">Public Awareness</span>
+                <span className="text-gray-400">{formatPercent(gameState.escalation.publicAwareness)}</span>
+              </div>
+              <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-yellow-500 transition-all duration-300"
+                  style={{ width: `${gameState.escalation.publicAwareness * 100}%` }}
+                />
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between text-[10px] mb-0.5">
+                <span className="text-gray-500">Media Attention</span>
+                <span className="text-gray-400">{formatPercent(gameState.escalation.mediaAttention)}</span>
+              </div>
+              <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-orange-500 transition-all duration-300"
+                  style={{ width: `${gameState.escalation.mediaAttention * 100}%` }}
+                />
+              </div>
+            </div>
+          </div>
+          {gameState.escalation.level >= 3 && (
+            <p className="text-[9px] text-orange-400 mt-2">
+              ⚠️ High escalation increases defensive spawns
+            </p>
+          )}
         </div>
       </div>
 

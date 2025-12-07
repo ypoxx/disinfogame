@@ -218,17 +218,54 @@ export type GameEvent = {
 };
 
 // ============================================
+// ESCALATION TYPES
+// ============================================
+
+export type EscalationLevel = 0 | 1 | 2 | 3 | 4 | 5;
+
+export type EscalationState = {
+  level: EscalationLevel;          // 0-5 escalation level
+  publicAwareness: number;         // 0-1: How aware is the public of manipulation
+  mediaAttention: number;          // 0-1: How much media coverage
+  counterMeasures: number;         // Number of active countermeasures
+  lastEscalationRound: number;     // Round when level last increased
+};
+
+// ============================================
+// VICTORY TYPES
+// ============================================
+
+export type VictoryType =
+  | 'complete_victory'    // 100% unter 40%
+  | 'strategic_victory'   // 75% unter 40%, <24 Runden
+  | 'tactical_victory'    // 75% unter 40%, normal
+  | 'pyrrhic_victory'     // 75% unter 40%, aber hohe Eskalation
+  | 'partial_success'     // 50-74% unter 40%
+  | 'stalemate'           // Timeout ohne klaren Sieger
+  | 'defeat';             // Defensive Victory
+
+export type VictoryDetails = {
+  type: VictoryType;
+  roundsPlayed: number;
+  finalTrust: number;
+  actorsCompromised: number;
+  totalActors: number;
+  escalationLevel: EscalationLevel;
+  score: number;
+};
+
+// ============================================
 // GAME STATE TYPES
 // ============================================
 
-export type GamePhase = 
+export type GamePhase =
   | 'start'       // Title screen
   | 'playing'     // Main game
   | 'paused'      // Game paused
   | 'victory'     // Player won
   | 'defeat';     // Player lost
 
-export type DefeatReason = 
+export type DefeatReason =
   | 'time_out'           // Ran out of rounds
   | 'defensive_victory'  // Defensive actors restored trust
   | 'exposure';          // Got caught (future)
@@ -239,23 +276,27 @@ export type GameState = {
   round: number;
   maxRounds: number;
   resources: number;
-  
+
   // Network
   network: Network;
-  
+
+  // Escalation
+  escalation: EscalationState;
+
   // Tracking
   abilityUsage: Record<string, number>;  // Ability ID → times used
   eventsTriggered: string[];             // Event IDs
   defensiveActorsSpawned: number;
-  
+
   // History (for undo/replay)
   history: GameStateSnapshot[];
-  
+
   // Seed
   seed: string;
-  
+
   // Result
   defeatReason?: DefeatReason;
+  victoryDetails?: VictoryDetails;
 };
 
 export type GameStateSnapshot = {
