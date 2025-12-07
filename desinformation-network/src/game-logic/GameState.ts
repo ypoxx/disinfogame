@@ -13,6 +13,9 @@ import type {
   ActorDefinition,
   AbilityResult,
   VisualEffect,
+  RiskState,
+  DetectionEvent,
+  ExposureLevel,
 } from './types';
 import { SeededRandom, generateSeedString } from './seed/SeededRandom';
 import {
@@ -37,6 +40,23 @@ const DEFENSIVE_VICTORY_TRUST = 0.7; // Above 70% average
 const DEFENSIVE_SPAWN_INTERVAL = 8; // Every 8 rounds
 const MAX_DEFENSIVE_ACTORS = 3;
 const RANDOM_EVENT_CHANCE = 0.3;
+
+// Sprint 2: Risk system constants
+const BASE_DETECTION_CHANCE = 0.08;    // 8% base detection per ability
+const EXPOSURE_GROWTH_PER_USE = 0.02;  // +2% detection per same ability use
+const BACKLASH_TRUST_RESTORE = 0.05;   // 5% trust restored on detection
+const EXPOSURE_DECAY_PER_ROUND = 0.01; // 1% exposure decay per round
+
+// Ability-specific risk modifiers
+const ABILITY_RISK_MODIFIERS: Record<string, number> = {
+  'astroturfing': 0.15,        // High risk - easily detected
+  'create_bot_army': 0.20,     // Very high risk
+  'scandalize': 0.10,          // Medium-high risk
+  'conspiracy_framing': 0.12,  // Medium-high risk
+  'sow_doubt': 0.03,           // Low risk - subtle
+  'agenda_setting': 0.05,      // Low risk - common tactic
+  'emotional_appeal': 0.04,    // Low risk
+};
 
 // ============================================
 // GAME STATE CLASS
@@ -77,6 +97,13 @@ export class GameStateManager {
       abilityUsage: {},
       eventsTriggered: [],
       defensiveActorsSpawned: 0,
+      // Sprint 2: Risk system
+      riskState: {
+        exposure: 0,
+        exposureLevel: 'hidden',
+        detectionHistory: [],
+        abilityRiskModifiers: {},
+      },
       history: [],
       seed,
     };
@@ -379,6 +406,52 @@ export class GameStateManager {
       }
     }
 
+    // Sprint 2: Calculate detection risk
+    const detectionResult = this.calculateDetection(abilityId, usageCount);
+    let backlashApplied = false;
+
+    if (detectionResult.detected) {
+      // Apply backlash - restore some trust to all actors
+      backlashApplied = true;
+      for (const actor of this.state.network.actors) {
+        this.updateActor(actor.id, {
+          trust: clamp(actor.trust + BACKLASH_TRUST_RESTORE, 0, 1),
+        });
+      }
+
+      // Add detection visual effect
+      visualEffects.push({
+        id: `detection_${now}`,
+        type: 'celebration', // Reuse celebration for detection alert
+        targetActorId: targetActorIds[0] || sourceActorId,
+        color: '#F59E0B', // Warning orange
+        startTime: now,
+        duration: 2000,
+        label: '⚠️ DETECTED!',
+      });
+
+      // Record detection event
+      this.state.riskState.detectionHistory.push({
+        round: this.state.round,
+        abilityId,
+        wasDetected: true,
+        exposureGained: detectionResult.exposureGained,
+        backlashTrust: BACKLASH_TRUST_RESTORE * this.state.network.actors.length,
+      });
+    }
+
+    // Update exposure
+    this.state.riskState.exposure = clamp(
+      this.state.riskState.exposure + detectionResult.exposureGained,
+      0,
+      1
+    );
+    this.updateExposureLevel();
+
+    // Track ability-specific risk modifier increase
+    this.state.riskState.abilityRiskModifiers[abilityId] =
+      (this.state.riskState.abilityRiskModifiers[abilityId] || 0) + EXPOSURE_GROWTH_PER_USE;
+
     return {
       success: true,
       abilityId,
@@ -387,7 +460,67 @@ export class GameStateManager {
       effects,
       resourcesSpent: ability.resourceCost,
       visualEffects,
+      detected: detectionResult.detected,
+      exposureGained: detectionResult.exposureGained,
+      backlashApplied,
     };
+  }
+
+  /**
+   * Sprint 2: Calculate detection probability and result
+   */
+  private calculateDetection(abilityId: string, usageCount: number): {
+    detected: boolean;
+    exposureGained: number;
+  } {
+    // Base detection chance
+    let detectionChance = BASE_DETECTION_CHANCE;
+
+    // Add ability-specific modifier
+    detectionChance += ABILITY_RISK_MODIFIERS[abilityId] || 0;
+
+    // Add accumulated risk from previous uses
+    detectionChance += this.state.riskState.abilityRiskModifiers[abilityId] || 0;
+
+    // Add exposure-based modifier (higher exposure = higher detection)
+    detectionChance += this.state.riskState.exposure * 0.1;
+
+    // Roll for detection
+    const detected = this.rng.nextBool(clamp(detectionChance, 0, 0.5)); // Cap at 50%
+
+    // Calculate exposure gain
+    const exposureGained = detected
+      ? EXPOSURE_GROWTH_PER_USE * 2 // Double exposure on detection
+      : EXPOSURE_GROWTH_PER_USE * 0.5; // Small exposure even when not detected
+
+    return { detected, exposureGained };
+  }
+
+  /**
+   * Sprint 2: Update exposure level based on current exposure
+   */
+  private updateExposureLevel(): void {
+    const exposure = this.state.riskState.exposure;
+    let level: ExposureLevel;
+
+    if (exposure < 0.15) {
+      level = 'hidden';
+    } else if (exposure < 0.35) {
+      level = 'suspected';
+    } else if (exposure < 0.6) {
+      level = 'known';
+    } else {
+      level = 'exposed';
+    }
+
+    this.state.riskState.exposureLevel = level;
+  }
+
+  /**
+   * Sprint 2: Get current risk state
+   */
+  getRiskState(): RiskState {
+    return this.state.riskState;
   }
   
   /**
@@ -558,14 +691,22 @@ export class GameStateManager {
     if (this.state.round % DEFENSIVE_SPAWN_INTERVAL === 0) {
       this.checkDefensiveSpawn();
     }
-    
-    // 9. Update network metrics
+
+    // 9. Sprint 2: Decay exposure over time
+    this.state.riskState.exposure = clamp(
+      this.state.riskState.exposure - EXPOSURE_DECAY_PER_ROUND,
+      0,
+      1
+    );
+    this.updateExposureLevel();
+
+    // 10. Update network metrics
     this.updateNetworkMetrics();
-    
-    // 10. Increment round
+
+    // 11. Increment round
     this.state.round++;
-    
-    // 11. Check win/lose conditions
+
+    // 12. Check win/lose conditions
     this.checkGameEnd();
   }
   

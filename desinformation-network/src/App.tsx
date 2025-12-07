@@ -9,6 +9,7 @@ import { VictoryProgressBar } from '@/components/VictoryProgressBar';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
 import { BottomSheet } from '@/components/BottomSheet';
 import { MilestoneToast } from '@/components/MilestoneToast';
+import { RiskMeter } from '@/components/RiskMeter';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
@@ -24,6 +25,7 @@ function App() {
     uiState,
     networkMetrics,
     visualEffects,
+    riskState,
     startGame,
     advanceRound,
     resetGame,
@@ -302,6 +304,9 @@ function App() {
             </div>
           </div>
         </div>
+
+        {/* Sprint 2: Risk Meter */}
+        <RiskMeter riskState={riskState} />
       </div>
 
       {/* Floating HUD - Top Right */}

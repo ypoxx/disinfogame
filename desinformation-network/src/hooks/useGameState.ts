@@ -10,6 +10,7 @@ import type {
   SelectedAbility,
   VisualEffect,
   AbilityResult,
+  RiskState,
 } from '@/game-logic/types';
 
 // Import definitions (will be loaded from JSON)
@@ -47,6 +48,9 @@ type UseGameStateReturn = {
   // Visual effects (Sprint 1.1)
   visualEffects: VisualEffect[];
   lastAbilityResult: AbilityResult | null;
+
+  // Risk state (Sprint 2)
+  riskState: RiskState;
 
   // Game actions
   startGame: () => void;
@@ -359,6 +363,9 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
   // RETURN
   // ============================================
   
+  // Sprint 2: Get risk state
+  const riskState = gameManager.getRiskState();
+
   return {
     gameState,
     uiState,
@@ -367,6 +374,9 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     // Visual effects (Sprint 1.1)
     visualEffects,
     lastAbilityResult,
+
+    // Risk state (Sprint 2)
+    riskState,
 
     startGame,
     advanceRound,

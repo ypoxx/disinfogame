@@ -231,21 +231,24 @@ export type GameState = {
   round: number;
   maxRounds: number;
   resources: number;
-  
+
   // Network
   network: Network;
-  
+
   // Tracking
   abilityUsage: Record<string, number>;  // Ability ID → times used
   eventsTriggered: string[];             // Event IDs
   defensiveActorsSpawned: number;
-  
+
+  // Sprint 2: Risk system
+  riskState: RiskState;
+
   // History (for undo/replay)
   history: GameStateSnapshot[];
-  
+
   // Seed
   seed: string;
-  
+
   // Result
   defeatReason?: DefeatReason;
 };
@@ -402,6 +405,55 @@ export type AbilityResult = {
   }>;
   resourcesSpent: number;
   visualEffects: VisualEffect[];
+
+  // Sprint 2: Risk system
+  detected: boolean;
+  exposureGained: number;
+  backlashApplied: boolean;
+};
+
+// ============================================
+// SPRINT 2: RISK & TRADE-OFF SYSTEM
+// ============================================
+
+export type ExposureLevel = 'hidden' | 'suspected' | 'known' | 'exposed';
+
+export type RiskState = {
+  exposure: number;                    // 0-1: Overall exposure level
+  exposureLevel: ExposureLevel;        // Human-readable level
+  detectionHistory: DetectionEvent[];  // Record of past detections
+  abilityRiskModifiers: Record<string, number>; // Ability-specific risk increases
+};
+
+export type DetectionEvent = {
+  round: number;
+  abilityId: string;
+  wasDetected: boolean;
+  exposureGained: number;
+  backlashTrust: number;               // How much trust was restored
+};
+
+export type AbilityRisk = {
+  baseDetectionChance: number;         // 0-1: Base chance of detection
+  exposureGrowth: number;              // How much exposure increases per use
+  backlashMultiplier: number;          // How severe the backlash is
+};
+
+// ============================================
+// SPRINT 2: ACTOR RELATIONSHIPS
+// ============================================
+
+export type RelationshipType = 'ally' | 'rival' | 'neutral';
+
+export type ActorRelationship = {
+  targetActorId: string;
+  type: RelationshipType;
+  strength: number;                    // -1 to +1 (negative = rivalry)
+  reason?: string;                     // Why this relationship exists
+};
+
+export type ActorWithRelations = Actor & {
+  relationships: ActorRelationship[];
 };
 
 // ============================================
