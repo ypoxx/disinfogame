@@ -394,6 +394,7 @@ function App() {
         canUseAbility={canUseAbility}
         onSelectAbility={selectAbility}
         onCancel={cancelAbility}
+        onClose={() => selectActor(null)}
         selectedAbilityId={uiState.selectedAbility?.abilityId || null}
         targetingMode={uiState.targetingMode}
         addNotification={addNotification}

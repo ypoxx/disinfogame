@@ -1,11 +1,11 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import type { Actor, Connection } from '@/game-logic/types';
 import { trustToHex, getCategoryColor } from '@/utils/colors';
-import { euclideanDistance } from '@/utils';
 
 // ============================================
 // FULLSCREEN RESPONSIVE NETWORK VISUALIZATION
 // Modern, scalable design with grouped nodes
+// Supports zoom/pan via mouse, touch, and keyboard
 // ============================================
 
 type NetworkVisualizationProps = {
@@ -18,6 +18,12 @@ type NetworkVisualizationProps = {
   onActorClick: (actorId: string) => void;
   onActorHover: (actorId: string | null) => void;
 };
+
+// Zoom/Pan configuration
+const MIN_SCALE = 0.5;
+const MAX_SCALE = 3.0;
+const ZOOM_SPEED = 0.1;
+const KEYBOARD_ZOOM_STEP = 0.2;
 
 // Relative positions (0-1 range) for responsive layout
 const CATEGORY_POSITIONS_RELATIVE: Record<string, { x: number; y: number }> = {
@@ -52,6 +58,14 @@ export function NetworkVisualization({
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
   const [hoveredActor, setHoveredActor] = useState<Actor | null>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
+
+  // Zoom and Pan state
+  const [scale, setScale] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const lastPanPosition = useRef({ x: 0, y: 0 });
+  const lastTouchDistance = useRef<number | null>(null);
+  const lastTouchCenter = useRef<{ x: number; y: number } | null>(null);
 
   // Constants scaled by canvas size
   const NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.04; // 4% of smaller dimension
@@ -93,14 +107,38 @@ export function NetworkVisualization({
     };
   }, [getCategoryPosition, ACTOR_SPREAD_RADIUS]);
 
+  // Convert screen coordinates to world coordinates (accounting for zoom/pan)
+  const screenToWorld = useCallback((screenX: number, screenY: number) => {
+    return {
+      x: (screenX - offset.x) / scale,
+      y: (screenY - offset.y) / scale,
+    };
+  }, [scale, offset]);
+
+  // Convert world coordinates to screen coordinates
+  const worldToScreen = useCallback((worldX: number, worldY: number) => {
+    return {
+      x: worldX * scale + offset.x,
+      y: worldY * scale + offset.y,
+    };
+  }, [scale, offset]);
+
   // Drawing function
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
 
-    // Clear
+    // Clear entire canvas (before transform)
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+
+    // Apply zoom and pan transform
+    ctx.save();
+    ctx.translate(offset.x, offset.y);
+    ctx.scale(scale, scale);
 
     // Draw category regions
     Object.keys(CATEGORY_POSITIONS_RELATIVE).forEach((category) => {
@@ -307,26 +345,54 @@ export function NetworkVisualization({
       });
     });
 
-    animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition]);
+    // Restore transform
+    ctx.restore();
 
-  // Find actor at click position
-  const findActorAtPosition = useCallback((x: number, y: number): Actor | null => {
+    animationFrameRef.current = requestAnimationFrame(draw);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, scale, offset]);
+
+  // Find actor at click position (screen coordinates input, converts to world)
+  const findActorAtPosition = useCallback((screenX: number, screenY: number): Actor | null => {
+    // Convert screen coordinates to world coordinates
+    const world = screenToWorld(screenX, screenY);
+
     for (const [category, categoryActors] of Object.entries(actorsByCategory)) {
       for (let i = 0; i < categoryActors.length; i++) {
         const actor = categoryActors[i];
         const pos = getActorPosition(actor, i, categoryActors);
-        const distance = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
+        const distance = Math.sqrt(Math.pow(world.x - pos.x, 2) + Math.pow(world.y - pos.y, 2));
         if (distance <= NODE_RADIUS * 1.5) {
           return actor;
         }
       }
     }
     return null;
-  }, [actorsByCategory, getActorPosition, NODE_RADIUS]);
+  }, [actorsByCategory, getActorPosition, NODE_RADIUS, screenToWorld]);
+
+  // Zoom helper - zoom towards a point
+  const zoomToPoint = useCallback((newScale: number, pointX: number, pointY: number) => {
+    const clampedScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
+    const scaleRatio = clampedScale / scale;
+
+    // Adjust offset to zoom towards the point
+    setOffset(prev => ({
+      x: pointX - (pointX - prev.x) * scaleRatio,
+      y: pointY - (pointY - prev.y) * scaleRatio,
+    }));
+    setScale(clampedScale);
+  }, [scale]);
+
+  // Reset zoom/pan to default
+  const resetView = useCallback(() => {
+    setScale(1);
+    setOffset({ x: 0, y: 0 });
+  }, []);
 
   // Event handlers
   const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    // Don't process click if we just finished panning
+    if (isPanning) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -338,9 +404,74 @@ export function NetworkVisualization({
     if (actor) {
       onActorClick(actor.id);
     }
-  }, [findActorAtPosition, onActorClick]);
+  }, [findActorAtPosition, onActorClick, isPanning]);
+
+  // Mouse wheel zoom handler (supports trackpad pinch via ctrlKey)
+  const handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    // Determine zoom direction and amount
+    // ctrlKey is typically set for trackpad pinch gestures
+    const delta = e.ctrlKey ? -e.deltaY * 0.01 : -e.deltaY * ZOOM_SPEED * 0.01;
+    const newScale = scale * (1 + delta);
+
+    zoomToPoint(newScale, mouseX, mouseY);
+  }, [scale, zoomToPoint]);
+
+  // Mouse pan handlers
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    // Middle mouse button or left mouse button with space key (checked elsewhere)
+    // For now, just use any mouse button for panning (except if clicking on an actor)
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // Check if clicking on an actor - if so, don't start pan
+    const actor = findActorAtPosition(x, y);
+    if (actor) return;
+
+    setIsPanning(true);
+    lastPanPosition.current = { x: e.clientX, y: e.clientY };
+    canvas.style.cursor = 'grabbing';
+  }, [findActorAtPosition]);
+
+  const handleMouseMoveForPan = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isPanning) return;
+
+    const dx = e.clientX - lastPanPosition.current.x;
+    const dy = e.clientY - lastPanPosition.current.y;
+
+    setOffset(prev => ({
+      x: prev.x + dx,
+      y: prev.y + dy,
+    }));
+
+    lastPanPosition.current = { x: e.clientX, y: e.clientY };
+  }, [isPanning]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsPanning(false);
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.style.cursor = 'pointer';
+    }
+  }, []);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    // Handle pan movement if panning
+    handleMouseMoveForPan(e);
+    if (isPanning) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -351,7 +482,8 @@ export function NetworkVisualization({
     const actor = findActorAtPosition(x, y);
     onActorHover(actor?.id || null);
 
-    // Update tooltip
+    // Update cursor and tooltip
+    canvas.style.cursor = actor ? 'pointer' : 'grab';
     if (actor) {
       setHoveredActor(actor);
       setTooltipPosition({ x: e.clientX, y: e.clientY });
@@ -359,50 +491,112 @@ export function NetworkVisualization({
       setHoveredActor(null);
       setTooltipPosition(null);
     }
-  }, [findActorAtPosition, onActorHover]);
+  }, [findActorAtPosition, onActorHover, handleMouseMoveForPan, isPanning]);
 
-  // Touch event handlers for tablet/mobile support
+  // Touch event handlers for tablet/mobile support with pinch-to-zoom
   const handleTouchStart = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
     e.preventDefault();
-    const touch = e.touches[0];
     const canvas = canvasRef.current;
-    if (!canvas || !touch) return;
+    if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
+    if (e.touches.length === 1) {
+      // Single touch - check for actor click or start pan
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
 
-    const actor = findActorAtPosition(x, y);
-    if (actor) {
-      onActorClick(actor.id);
-      // Show tooltip on touch
-      setHoveredActor(actor);
-      setTooltipPosition({ x: touch.clientX, y: touch.clientY });
+      const actor = findActorAtPosition(x, y);
+      if (actor) {
+        onActorClick(actor.id);
+        setHoveredActor(actor);
+        setTooltipPosition({ x: touch.clientX, y: touch.clientY });
+      } else {
+        // Start panning
+        setIsPanning(true);
+        lastPanPosition.current = { x: touch.clientX, y: touch.clientY };
+      }
+    } else if (e.touches.length === 2) {
+      // Two finger touch - start pinch-to-zoom
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const distance = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      );
+      lastTouchDistance.current = distance;
+      lastTouchCenter.current = {
+        x: (touch1.clientX + touch2.clientX) / 2,
+        y: (touch1.clientY + touch2.clientY) / 2,
+      };
     }
   }, [findActorAtPosition, onActorClick]);
 
   const handleTouchMove = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
-    const touch = e.touches[0];
+    e.preventDefault();
     const canvas = canvasRef.current;
-    if (!canvas || !touch) return;
+    if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
 
-    const actor = findActorAtPosition(x, y);
-    onActorHover(actor?.id || null);
+    if (e.touches.length === 1 && isPanning) {
+      // Single finger pan
+      const touch = e.touches[0];
+      const dx = touch.clientX - lastPanPosition.current.x;
+      const dy = touch.clientY - lastPanPosition.current.y;
 
-    if (actor) {
-      setHoveredActor(actor);
-      setTooltipPosition({ x: touch.clientX, y: touch.clientY });
-    } else {
-      setHoveredActor(null);
-      setTooltipPosition(null);
+      setOffset(prev => ({
+        x: prev.x + dx,
+        y: prev.y + dy,
+      }));
+
+      lastPanPosition.current = { x: touch.clientX, y: touch.clientY };
+    } else if (e.touches.length === 2 && lastTouchDistance.current !== null) {
+      // Pinch-to-zoom
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const newDistance = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      );
+
+      const center = {
+        x: (touch1.clientX + touch2.clientX) / 2 - rect.left,
+        y: (touch1.clientY + touch2.clientY) / 2 - rect.top,
+      };
+
+      // Calculate scale change
+      const scaleChange = newDistance / lastTouchDistance.current;
+      const newScale = scale * scaleChange;
+
+      zoomToPoint(newScale, center.x, center.y);
+
+      lastTouchDistance.current = newDistance;
+      lastTouchCenter.current = center;
+    } else if (e.touches.length === 1 && !isPanning) {
+      // Single touch hover (not panning)
+      const touch = e.touches[0];
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+
+      const actor = findActorAtPosition(x, y);
+      onActorHover(actor?.id || null);
+
+      if (actor) {
+        setHoveredActor(actor);
+        setTooltipPosition({ x: touch.clientX, y: touch.clientY });
+      } else {
+        setHoveredActor(null);
+        setTooltipPosition(null);
+      }
     }
-  }, [findActorAtPosition, onActorHover]);
+  }, [findActorAtPosition, onActorHover, isPanning, scale, zoomToPoint]);
 
   const handleTouchEnd = useCallback(() => {
+    setIsPanning(false);
+    lastTouchDistance.current = null;
+    lastTouchCenter.current = null;
+
     // Keep tooltip visible briefly after touch ends, then clear
     setTimeout(() => {
       onActorHover(null);
@@ -410,6 +604,37 @@ export function NetworkVisualization({
       setTooltipPosition(null);
     }, 1500);
   }, [onActorHover]);
+
+  // Keyboard zoom handler (+/- keys)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check if focus is in an input or textarea
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      // Center of canvas for keyboard zoom
+      const centerX = canvasSize.width / 2;
+      const centerY = canvasSize.height / 2;
+
+      if (e.key === '+' || e.key === '=' || (e.key === '=' && e.shiftKey)) {
+        e.preventDefault();
+        zoomToPoint(scale + KEYBOARD_ZOOM_STEP, centerX, centerY);
+      } else if (e.key === '-' || e.key === '_') {
+        e.preventDefault();
+        zoomToPoint(scale - KEYBOARD_ZOOM_STEP, centerX, centerY);
+      } else if (e.key === '0' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        resetView();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [scale, canvasSize, zoomToPoint, resetView]);
 
   // Resize canvas
   useEffect(() => {
@@ -450,14 +675,18 @@ export function NetworkVisualization({
     <div ref={containerRef} className="w-full h-full relative">
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 cursor-pointer touch-none"
+        className="absolute inset-0 cursor-grab touch-none"
         onClick={handleClick}
+        onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
         onMouseLeave={() => {
+          handleMouseUp();
           onActorHover(null);
           setHoveredActor(null);
           setTooltipPosition(null);
         }}
+        onWheel={handleWheel}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -496,6 +725,36 @@ export function NetworkVisualization({
             <span className="text-gray-700 text-[10px]">High trust</span>
           </div>
         </div>
+      </div>
+
+      {/* Zoom Controls - bottom right, above bottom sheet area */}
+      <div className="absolute bottom-[300px] right-4 flex flex-col gap-1 z-20">
+        <button
+          onClick={() => zoomToPoint(scale + KEYBOARD_ZOOM_STEP, canvasSize.width / 2, canvasSize.height / 2)}
+          className="w-9 h-9 bg-gray-900/90 hover:bg-gray-800 text-white rounded-lg flex items-center justify-center shadow-lg transition-colors"
+          title="Zoom in (+)"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+        <button
+          onClick={resetView}
+          className="w-9 h-9 bg-gray-900/90 hover:bg-gray-800 text-white rounded-lg flex items-center justify-center shadow-lg transition-colors text-xs font-bold"
+          title="Reset view (Ctrl+0)"
+        >
+          {Math.round(scale * 100)}%
+        </button>
+        <button
+          onClick={() => zoomToPoint(scale - KEYBOARD_ZOOM_STEP, canvasSize.width / 2, canvasSize.height / 2)}
+          className="w-9 h-9 bg-gray-900/90 hover:bg-gray-800 text-white rounded-lg flex items-center justify-center shadow-lg transition-colors"
+          title="Zoom out (-)"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
       </div>
 
       {/* Actor Tooltip */}
