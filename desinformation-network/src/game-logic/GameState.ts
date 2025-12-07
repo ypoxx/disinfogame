@@ -16,6 +16,9 @@ import type {
   RiskState,
   DetectionEvent,
   ExposureLevel,
+  ActorAction,
+  ActorMemory,
+  PersonalityTrait,
 } from './types';
 import { SeededRandom, generateSeedString } from './seed/SeededRandom';
 import {
@@ -58,6 +61,43 @@ const ABILITY_RISK_MODIFIERS: Record<string, number> = {
   'emotional_appeal': 0.04,    // Low risk
 };
 
+// Sprint 3: Personality traits by category
+const CATEGORY_PERSONALITIES: Record<ActorCategory, {
+  trait: PersonalityTrait;
+  retaliationChance: number;
+  allianceSeekChance: number;
+  grudgeDecay: number;
+}> = {
+  media: { trait: 'aggressive', retaliationChance: 0.4, allianceSeekChance: 0.2, grudgeDecay: 0.15 },
+  expert: { trait: 'defensive', retaliationChance: 0.2, allianceSeekChance: 0.5, grudgeDecay: 0.1 },
+  lobby: { trait: 'vindictive', retaliationChance: 0.5, allianceSeekChance: 0.3, grudgeDecay: 0.05 },
+  organization: { trait: 'influential', retaliationChance: 0.15, allianceSeekChance: 0.4, grudgeDecay: 0.2 },
+  defensive: { trait: 'defensive', retaliationChance: 0.3, allianceSeekChance: 0.6, grudgeDecay: 0.25 },
+};
+
+// Sprint 3: Actor action narratives
+const ACTION_NARRATIVES: Record<string, string[]> = {
+  retaliate: [
+    '{source} publishes a counter-investigation targeting the attacker.',
+    '{source} releases damaging information in response.',
+    '{source} strikes back with a public statement.',
+  ],
+  seek_ally: [
+    '{source} reaches out to {target} for support.',
+    '{source} forms an alliance with {target}.',
+    '{source} and {target} issue a joint statement of solidarity.',
+  ],
+  defend: [
+    '{source} increases security measures.',
+    '{source} publishes a fact-check defending their reputation.',
+    '{source} strengthens their position with evidence.',
+  ],
+  influence: [
+    '{source} extends influence over {target}.',
+    '{source} convinces {target} to support their narrative.',
+  ],
+};
+
 // ============================================
 // GAME STATE CLASS
 // ============================================
@@ -68,7 +108,11 @@ export class GameStateManager {
   private actorDefinitions: ActorDefinition[] = [];
   private abilityDefinitions: Ability[] = [];
   private eventDefinitions: GameEvent[] = [];
-  
+
+  // Sprint 3: Actor memory and actions
+  private actorMemory: Map<string, ActorMemory[]> = new Map();
+  private lastRoundActions: ActorAction[] = [];
+
   constructor(seed?: string) {
     const gameSeed = seed || generateSeedString();
     this.rng = new SeededRandom(gameSeed);
@@ -452,6 +496,13 @@ export class GameStateManager {
     this.state.riskState.abilityRiskModifiers[abilityId] =
       (this.state.riskState.abilityRiskModifiers[abilityId] || 0) + EXPOSURE_GROWTH_PER_USE;
 
+    // Sprint 3: Record attacks in actor memory
+    for (const effect of effects) {
+      if (effect.trustDelta < 0) {
+        this.recordAttack(effect.actorId, sourceActorId, Math.abs(effect.trustDelta));
+      }
+    }
+
     return {
       success: true,
       abilityId,
@@ -464,6 +515,20 @@ export class GameStateManager {
       exposureGained: detectionResult.exposureGained,
       backlashApplied,
     };
+  }
+
+  /**
+   * Sprint 3: Record an attack in actor's memory
+   */
+  private recordAttack(victimId: string, attackerId: string, magnitude: number): void {
+    const memory = this.actorMemory.get(victimId) || [];
+    memory.push({
+      actorId: attackerId,
+      action: 'attacked',
+      round: this.state.round,
+      magnitude,
+    });
+    this.actorMemory.set(victimId, memory);
   }
 
   /**
@@ -700,14 +765,174 @@ export class GameStateManager {
     );
     this.updateExposureLevel();
 
-    // 10. Update network metrics
+    // 10. Sprint 3: Process actor autonomous actions
+    this.processActorActions();
+
+    // 11. Sprint 3: Decay actor memory (grudges fade)
+    this.decayActorMemory();
+
+    // 12. Update network metrics
     this.updateNetworkMetrics();
 
-    // 11. Increment round
+    // 13. Increment round
     this.state.round++;
 
-    // 12. Check win/lose conditions
+    // 14. Check win/lose conditions
     this.checkGameEnd();
+  }
+
+  /**
+   * Sprint 3: Process autonomous actor actions
+   */
+  private processActorActions(): void {
+    this.lastRoundActions = [];
+
+    for (const actor of this.state.network.actors) {
+      const memory = this.actorMemory.get(actor.id) || [];
+      const recentAttacks = memory.filter(m => m.action === 'attacked' && m.round >= this.state.round - 2);
+
+      if (recentAttacks.length === 0) continue;
+
+      const personality = CATEGORY_PERSONALITIES[actor.category];
+      const totalGrudge = recentAttacks.reduce((sum, m) => sum + m.magnitude, 0);
+
+      // Check for retaliation
+      if (this.rng.nextBool(personality.retaliationChance * Math.min(totalGrudge * 2, 1))) {
+        const action = this.createRetaliationAction(actor, recentAttacks);
+        if (action) {
+          this.executeActorAction(action);
+          this.lastRoundActions.push(action);
+        }
+      }
+      // Check for alliance seeking
+      else if (this.rng.nextBool(personality.allianceSeekChance * Math.min(totalGrudge, 1))) {
+        const action = this.createAllianceAction(actor);
+        if (action) {
+          this.executeActorAction(action);
+          this.lastRoundActions.push(action);
+        }
+      }
+      // Check for defensive action
+      else if (totalGrudge > 0.2 && this.rng.nextBool(0.3)) {
+        const action = this.createDefenseAction(actor);
+        this.executeActorAction(action);
+        this.lastRoundActions.push(action);
+      }
+    }
+  }
+
+  /**
+   * Sprint 3: Create retaliation action
+   */
+  private createRetaliationAction(actor: Actor, attacks: ActorMemory[]): ActorAction | null {
+    // For now, retaliation affects the network positively (actors fight back)
+    const narratives = ACTION_NARRATIVES.retaliate;
+    const narrative = this.rng.pick(narratives)?.replace('{source}', actor.name) || '';
+
+    return {
+      type: 'retaliate',
+      sourceActorId: actor.id,
+      effect: {
+        trustDelta: 0.03, // Small trust recovery from fighting back
+      },
+      narrative,
+    };
+  }
+
+  /**
+   * Sprint 3: Create alliance action
+   */
+  private createAllianceAction(actor: Actor): ActorAction | null {
+    // Find a potential ally (same category, high trust)
+    const potentialAllies = this.state.network.actors.filter(
+      a => a.id !== actor.id && a.category === actor.category && a.trust > 0.5
+    );
+
+    if (potentialAllies.length === 0) return null;
+
+    const ally = this.rng.pick(potentialAllies);
+    if (!ally) return null;
+
+    const narratives = ACTION_NARRATIVES.seek_ally;
+    const narrative = this.rng.pick(narratives)
+      ?.replace('{source}', actor.name)
+      .replace('{target}', ally.name) || '';
+
+    return {
+      type: 'seek_ally',
+      sourceActorId: actor.id,
+      targetActorId: ally.id,
+      effect: {
+        trustDelta: 0.02, // Both gain trust
+      },
+      narrative,
+    };
+  }
+
+  /**
+   * Sprint 3: Create defense action
+   */
+  private createDefenseAction(actor: Actor): ActorAction {
+    const narratives = ACTION_NARRATIVES.defend;
+    const narrative = this.rng.pick(narratives)?.replace('{source}', actor.name) || '';
+
+    return {
+      type: 'defend',
+      sourceActorId: actor.id,
+      effect: {
+        trustDelta: 0.02,
+      },
+      narrative,
+    };
+  }
+
+  /**
+   * Sprint 3: Execute an actor action
+   */
+  private executeActorAction(action: ActorAction): void {
+    const actor = this.getActor(action.sourceActorId);
+    if (!actor) return;
+
+    // Apply trust change to source
+    if (action.effect.trustDelta) {
+      this.updateActor(actor.id, {
+        trust: clamp(actor.trust + action.effect.trustDelta, 0, 1),
+      });
+    }
+
+    // Apply to target if exists
+    if (action.targetActorId && action.effect.trustDelta) {
+      const target = this.getActor(action.targetActorId);
+      if (target) {
+        this.updateActor(target.id, {
+          trust: clamp(target.trust + action.effect.trustDelta, 0, 1),
+        });
+      }
+    }
+  }
+
+  /**
+   * Sprint 3: Decay actor memory over time
+   */
+  private decayActorMemory(): void {
+    for (const [actorId, memory] of this.actorMemory.entries()) {
+      const actor = this.getActor(actorId);
+      if (!actor) continue;
+
+      const personality = CATEGORY_PERSONALITIES[actor.category];
+      const decayedMemory = memory
+        .map(m => ({ ...m, magnitude: m.magnitude * (1 - personality.grudgeDecay) }))
+        .filter(m => m.magnitude > 0.05); // Remove memories that are too faint
+
+      this.actorMemory.set(actorId, decayedMemory);
+    }
+  }
+
+  /**
+   * Sprint 3: Get last round's actor actions
+   */
+  getLastRoundActions(): ActorAction[] {
+    return this.lastRoundActions;
   }
   
   /**

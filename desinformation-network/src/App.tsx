@@ -10,6 +10,7 @@ import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay'
 import { BottomSheet } from '@/components/BottomSheet';
 import { MilestoneToast } from '@/components/MilestoneToast';
 import { RiskMeter } from '@/components/RiskMeter';
+import { ActorActionsLog } from '@/components/ActorActionsLog';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
@@ -26,6 +27,7 @@ function App() {
     networkMetrics,
     visualEffects,
     riskState,
+    actorActions,
     startGame,
     advanceRound,
     resetGame,
@@ -307,6 +309,9 @@ function App() {
 
         {/* Sprint 2: Risk Meter */}
         <RiskMeter riskState={riskState} />
+
+        {/* Sprint 3: Actor Actions Log */}
+        <ActorActionsLog actions={actorActions} />
       </div>
 
       {/* Floating HUD - Top Right */}

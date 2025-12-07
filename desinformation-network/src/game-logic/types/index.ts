@@ -69,6 +69,44 @@ export type ActorDefinition = {
 };
 
 // ============================================
+// SPRINT 3: ACTOR PERSONALITY SYSTEM
+// ============================================
+
+export type PersonalityTrait =
+  | 'aggressive'     // Retaliates when attacked
+  | 'defensive'      // Seeks allies when attacked
+  | 'passive'        // Ignores attacks
+  | 'vindictive'     // Remembers attackers, grudges
+  | 'forgiving'      // Quickly forgets grudges
+  | 'influential';   // Actively tries to influence others
+
+export type ActorMemory = {
+  actorId: string;               // Who did this
+  action: 'attacked' | 'helped';
+  round: number;
+  magnitude: number;             // How significant (0-1)
+};
+
+export type ActorPersonality = {
+  trait: PersonalityTrait;
+  retaliationChance: number;     // 0-1: Chance to retaliate
+  allianceSeekChance: number;    // 0-1: Chance to seek allies
+  grudgeDecay: number;           // How fast grudges fade per round
+  memory: ActorMemory[];         // Past interactions
+};
+
+export type ActorAction = {
+  type: 'retaliate' | 'seek_ally' | 'defend' | 'influence' | 'statement';
+  sourceActorId: string;
+  targetActorId?: string;
+  effect: {
+    trustDelta?: number;
+    emotionalDelta?: number;
+  };
+  narrative: string;             // Description of what happened
+};
+
+// ============================================
 // ABILITY TYPES
 // ============================================
 
