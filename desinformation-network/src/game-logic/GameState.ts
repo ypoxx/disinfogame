@@ -11,6 +11,14 @@ import type {
   NetworkMetrics,
   Position,
   ActorDefinition,
+  AbilityResult,
+  VisualEffect,
+  RiskState,
+  DetectionEvent,
+  ExposureLevel,
+  ActorAction,
+  ActorMemory,
+  PersonalityTrait,
 } from './types';
 import { SeededRandom, generateSeedString } from './seed/SeededRandom';
 import {
@@ -36,6 +44,60 @@ const DEFENSIVE_SPAWN_INTERVAL = 8; // Every 8 rounds
 const MAX_DEFENSIVE_ACTORS = 3;
 const RANDOM_EVENT_CHANCE = 0.3;
 
+// Sprint 2: Risk system constants
+const BASE_DETECTION_CHANCE = 0.08;    // 8% base detection per ability
+const EXPOSURE_GROWTH_PER_USE = 0.02;  // +2% detection per same ability use
+const BACKLASH_TRUST_RESTORE = 0.05;   // 5% trust restored on detection
+const EXPOSURE_DECAY_PER_ROUND = 0.01; // 1% exposure decay per round
+
+// Ability-specific risk modifiers
+const ABILITY_RISK_MODIFIERS: Record<string, number> = {
+  'astroturfing': 0.15,        // High risk - easily detected
+  'create_bot_army': 0.20,     // Very high risk
+  'scandalize': 0.10,          // Medium-high risk
+  'conspiracy_framing': 0.12,  // Medium-high risk
+  'sow_doubt': 0.03,           // Low risk - subtle
+  'agenda_setting': 0.05,      // Low risk - common tactic
+  'emotional_appeal': 0.04,    // Low risk
+};
+
+// Sprint 3: Personality traits by category
+const CATEGORY_PERSONALITIES: Record<ActorCategory, {
+  trait: PersonalityTrait;
+  retaliationChance: number;
+  allianceSeekChance: number;
+  grudgeDecay: number;
+}> = {
+  media: { trait: 'aggressive', retaliationChance: 0.4, allianceSeekChance: 0.2, grudgeDecay: 0.15 },
+  expert: { trait: 'defensive', retaliationChance: 0.2, allianceSeekChance: 0.5, grudgeDecay: 0.1 },
+  lobby: { trait: 'vindictive', retaliationChance: 0.5, allianceSeekChance: 0.3, grudgeDecay: 0.05 },
+  organization: { trait: 'influential', retaliationChance: 0.15, allianceSeekChance: 0.4, grudgeDecay: 0.2 },
+  defensive: { trait: 'defensive', retaliationChance: 0.3, allianceSeekChance: 0.6, grudgeDecay: 0.25 },
+};
+
+// Sprint 3: Actor action narratives
+const ACTION_NARRATIVES: Record<string, string[]> = {
+  retaliate: [
+    '{source} publishes a counter-investigation targeting the attacker.',
+    '{source} releases damaging information in response.',
+    '{source} strikes back with a public statement.',
+  ],
+  seek_ally: [
+    '{source} reaches out to {target} for support.',
+    '{source} forms an alliance with {target}.',
+    '{source} and {target} issue a joint statement of solidarity.',
+  ],
+  defend: [
+    '{source} increases security measures.',
+    '{source} publishes a fact-check defending their reputation.',
+    '{source} strengthens their position with evidence.',
+  ],
+  influence: [
+    '{source} extends influence over {target}.',
+    '{source} convinces {target} to support their narrative.',
+  ],
+};
+
 // ============================================
 // GAME STATE CLASS
 // ============================================
@@ -46,7 +108,11 @@ export class GameStateManager {
   private actorDefinitions: ActorDefinition[] = [];
   private abilityDefinitions: Ability[] = [];
   private eventDefinitions: GameEvent[] = [];
-  
+
+  // Sprint 3: Actor memory and actions
+  private actorMemory: Map<string, ActorMemory[]> = new Map();
+  private lastRoundActions: ActorAction[] = [];
+
   constructor(seed?: string) {
     const gameSeed = seed || generateSeedString();
     this.rng = new SeededRandom(gameSeed);
@@ -75,6 +141,13 @@ export class GameStateManager {
       abilityUsage: {},
       eventsTriggered: [],
       defensiveActorsSpawned: 0,
+      // Sprint 2: Risk system
+      riskState: {
+        exposure: 0,
+        exposureLevel: 'hidden',
+        detectionHistory: [],
+        abilityRiskModifiers: {},
+      },
       history: [],
       seed,
     };
@@ -235,53 +308,284 @@ export class GameStateManager {
   }
   
   /**
-   * Apply an ability
+   * Apply an ability and return detailed result with visual effects
    */
   applyAbility(
     abilityId: string,
     sourceActorId: string,
     targetActorIds: string[]
-  ): boolean {
+  ): AbilityResult | null {
     if (!this.canUseAbility(abilityId, sourceActorId)) {
-      return false;
+      return null;
     }
-    
+
     const ability = this.getAbility(abilityId);
     const sourceActor = this.getActor(sourceActorId);
-    if (!ability || !sourceActor) return false;
-    
+    if (!ability || !sourceActor) return null;
+
+    // Store trust values BEFORE applying effects
+    const trustBefore: Record<string, number> = {};
+    for (const actor of this.state.network.actors) {
+      trustBefore[actor.id] = actor.trust;
+    }
+
     // Spend resources
     this.state.resources -= ability.resourceCost;
-    
+
     // Track usage for diminishing returns
-    this.state.abilityUsage[abilityId] = 
+    this.state.abilityUsage[abilityId] =
       (this.state.abilityUsage[abilityId] || 0) + 1;
-    
+
     // Set cooldown
     this.updateActorCooldown(sourceActorId, abilityId, ability.cooldown);
-    
+
     // Apply effects to targets
     const usageCount = this.state.abilityUsage[abilityId];
-    
+    const affectedActorIds: string[] = [];
+
     if (ability.targetType === 'network') {
       // Network-wide effect
       this.applyNetworkEffect(ability, usageCount);
+      affectedActorIds.push(...this.state.network.actors.map(a => a.id));
     } else {
       // Targeted effect
       for (const targetId of targetActorIds) {
         this.applyTargetedEffect(ability, sourceActor, targetId, usageCount);
+        affectedActorIds.push(targetId);
       }
     }
-    
+
     // Propagate if ability propagates
     if (ability.effects.propagates) {
-      this.propagateEffect(ability, targetActorIds, usageCount);
+      const propagatedIds = this.propagateEffectAndTrack(ability, targetActorIds, usageCount);
+      affectedActorIds.push(...propagatedIds);
     }
-    
+
     // Update network metrics
     this.updateNetworkMetrics();
-    
-    return true;
+
+    // Calculate effects and generate visual effects
+    const effects: AbilityResult['effects'] = [];
+    const visualEffects: VisualEffect[] = [];
+    const now = Date.now();
+
+    for (const actorId of [...new Set(affectedActorIds)]) {
+      const actor = this.getActor(actorId);
+      if (!actor) continue;
+
+      const before = trustBefore[actorId];
+      const after = actor.trust;
+      const delta = after - before;
+
+      if (Math.abs(delta) > 0.001) {
+        effects.push({
+          actorId,
+          trustBefore: before,
+          trustAfter: after,
+          trustDelta: delta,
+        });
+
+        // Generate impact number visual effect
+        visualEffects.push({
+          id: `impact_${actorId}_${now}`,
+          type: 'impact_number',
+          targetActorId: actorId,
+          sourceActorId,
+          value: delta,
+          color: delta < 0 ? '#EF4444' : '#22C55E',
+          startTime: now,
+          duration: 1500,
+          label: `${delta > 0 ? '+' : ''}${Math.round(delta * 100)}%`,
+        });
+
+        // Generate pulse effect
+        visualEffects.push({
+          id: `pulse_${actorId}_${now}`,
+          type: 'trust_pulse',
+          targetActorId: actorId,
+          color: ability.animationColor || '#3B82F6',
+          startTime: now,
+          duration: 800,
+        });
+
+        // Check if actor just became "controlled" (below 40%)
+        if (before >= 0.4 && after < 0.4) {
+          visualEffects.push({
+            id: `controlled_${actorId}_${now}`,
+            type: 'controlled',
+            targetActorId: actorId,
+            color: '#EF4444',
+            startTime: now,
+            duration: 2000,
+            label: 'CONTROLLED!',
+          });
+        }
+      }
+    }
+
+    // Add beam effect from source to primary targets
+    for (const targetId of targetActorIds) {
+      visualEffects.push({
+        id: `beam_${sourceActorId}_${targetId}_${now}`,
+        type: 'ability_beam',
+        targetActorId: targetId,
+        sourceActorId,
+        color: ability.animationColor || '#3B82F6',
+        startTime: now,
+        duration: 600,
+      });
+    }
+
+    // Add propagation wave if ability propagates
+    if (ability.effects.propagates) {
+      for (const targetId of targetActorIds) {
+        visualEffects.push({
+          id: `wave_${targetId}_${now}`,
+          type: 'propagation_wave',
+          targetActorId: targetId,
+          color: ability.animationColor || '#3B82F6',
+          startTime: now + 300, // Delayed start after beam
+          duration: 1000,
+        });
+      }
+    }
+
+    // Sprint 2: Calculate detection risk
+    const detectionResult = this.calculateDetection(abilityId, usageCount);
+    let backlashApplied = false;
+
+    if (detectionResult.detected) {
+      // Apply backlash - restore some trust to all actors
+      backlashApplied = true;
+      for (const actor of this.state.network.actors) {
+        this.updateActor(actor.id, {
+          trust: clamp(actor.trust + BACKLASH_TRUST_RESTORE, 0, 1),
+        });
+      }
+
+      // Add detection visual effect
+      visualEffects.push({
+        id: `detection_${now}`,
+        type: 'celebration', // Reuse celebration for detection alert
+        targetActorId: targetActorIds[0] || sourceActorId,
+        color: '#F59E0B', // Warning orange
+        startTime: now,
+        duration: 2000,
+        label: '⚠️ DETECTED!',
+      });
+
+      // Record detection event
+      this.state.riskState.detectionHistory.push({
+        round: this.state.round,
+        abilityId,
+        wasDetected: true,
+        exposureGained: detectionResult.exposureGained,
+        backlashTrust: BACKLASH_TRUST_RESTORE * this.state.network.actors.length,
+      });
+    }
+
+    // Update exposure
+    this.state.riskState.exposure = clamp(
+      this.state.riskState.exposure + detectionResult.exposureGained,
+      0,
+      1
+    );
+    this.updateExposureLevel();
+
+    // Track ability-specific risk modifier increase
+    this.state.riskState.abilityRiskModifiers[abilityId] =
+      (this.state.riskState.abilityRiskModifiers[abilityId] || 0) + EXPOSURE_GROWTH_PER_USE;
+
+    // Sprint 3: Record attacks in actor memory
+    for (const effect of effects) {
+      if (effect.trustDelta < 0) {
+        this.recordAttack(effect.actorId, sourceActorId, Math.abs(effect.trustDelta));
+      }
+    }
+
+    return {
+      success: true,
+      abilityId,
+      sourceActorId,
+      targetActorIds,
+      effects,
+      resourcesSpent: ability.resourceCost,
+      visualEffects,
+      detected: detectionResult.detected,
+      exposureGained: detectionResult.exposureGained,
+      backlashApplied,
+    };
+  }
+
+  /**
+   * Sprint 3: Record an attack in actor's memory
+   */
+  private recordAttack(victimId: string, attackerId: string, magnitude: number): void {
+    const memory = this.actorMemory.get(victimId) || [];
+    memory.push({
+      actorId: attackerId,
+      action: 'attacked',
+      round: this.state.round,
+      magnitude,
+    });
+    this.actorMemory.set(victimId, memory);
+  }
+
+  /**
+   * Sprint 2: Calculate detection probability and result
+   */
+  private calculateDetection(abilityId: string, usageCount: number): {
+    detected: boolean;
+    exposureGained: number;
+  } {
+    // Base detection chance
+    let detectionChance = BASE_DETECTION_CHANCE;
+
+    // Add ability-specific modifier
+    detectionChance += ABILITY_RISK_MODIFIERS[abilityId] || 0;
+
+    // Add accumulated risk from previous uses
+    detectionChance += this.state.riskState.abilityRiskModifiers[abilityId] || 0;
+
+    // Add exposure-based modifier (higher exposure = higher detection)
+    detectionChance += this.state.riskState.exposure * 0.1;
+
+    // Roll for detection
+    const detected = this.rng.nextBool(clamp(detectionChance, 0, 0.5)); // Cap at 50%
+
+    // Calculate exposure gain
+    const exposureGained = detected
+      ? EXPOSURE_GROWTH_PER_USE * 2 // Double exposure on detection
+      : EXPOSURE_GROWTH_PER_USE * 0.5; // Small exposure even when not detected
+
+    return { detected, exposureGained };
+  }
+
+  /**
+   * Sprint 2: Update exposure level based on current exposure
+   */
+  private updateExposureLevel(): void {
+    const exposure = this.state.riskState.exposure;
+    let level: ExposureLevel;
+
+    if (exposure < 0.15) {
+      level = 'hidden';
+    } else if (exposure < 0.35) {
+      level = 'suspected';
+    } else if (exposure < 0.6) {
+      level = 'known';
+    } else {
+      level = 'exposed';
+    }
+
+    this.state.riskState.exposureLevel = level;
+  }
+
+  /**
+   * Sprint 2: Get current risk state
+   */
+  getRiskState(): RiskState {
+    return this.state.riskState;
   }
   
   /**
@@ -378,19 +682,34 @@ export class GameStateManager {
     sourceActorIds: string[],
     usageCount: number
   ): void {
+    this.propagateEffectAndTrack(ability, sourceActorIds, usageCount);
+  }
+
+  /**
+   * Propagate effect to connected actors and return affected IDs
+   */
+  private propagateEffectAndTrack(
+    ability: Ability,
+    sourceActorIds: string[],
+    usageCount: number
+  ): string[] {
     const { actors, connections } = this.state.network;
-    
+    const affectedIds: string[] = [];
+
     for (const sourceId of sourceActorIds) {
       const connected = getConnectedActors(sourceId, actors, connections);
-      
+
       for (const target of connected) {
         // Reduced effect for propagation
         const trustDelta = this.calculateEffectMagnitude(ability, target, usageCount) * 0.5;
         this.updateActor(target.id, {
           trust: clamp(target.trust + trustDelta, 0, 1),
         });
+        affectedIds.push(target.id);
       }
     }
+
+    return affectedIds;
   }
   
   // ============================================
@@ -437,15 +756,183 @@ export class GameStateManager {
     if (this.state.round % DEFENSIVE_SPAWN_INTERVAL === 0) {
       this.checkDefensiveSpawn();
     }
-    
-    // 9. Update network metrics
+
+    // 9. Sprint 2: Decay exposure over time
+    this.state.riskState.exposure = clamp(
+      this.state.riskState.exposure - EXPOSURE_DECAY_PER_ROUND,
+      0,
+      1
+    );
+    this.updateExposureLevel();
+
+    // 10. Sprint 3: Process actor autonomous actions
+    this.processActorActions();
+
+    // 11. Sprint 3: Decay actor memory (grudges fade)
+    this.decayActorMemory();
+
+    // 12. Update network metrics
     this.updateNetworkMetrics();
-    
-    // 10. Increment round
+
+    // 13. Increment round
     this.state.round++;
-    
-    // 11. Check win/lose conditions
+
+    // 14. Check win/lose conditions
     this.checkGameEnd();
+  }
+
+  /**
+   * Sprint 3: Process autonomous actor actions
+   */
+  private processActorActions(): void {
+    this.lastRoundActions = [];
+
+    for (const actor of this.state.network.actors) {
+      const memory = this.actorMemory.get(actor.id) || [];
+      const recentAttacks = memory.filter(m => m.action === 'attacked' && m.round >= this.state.round - 2);
+
+      if (recentAttacks.length === 0) continue;
+
+      const personality = CATEGORY_PERSONALITIES[actor.category];
+      const totalGrudge = recentAttacks.reduce((sum, m) => sum + m.magnitude, 0);
+
+      // Check for retaliation
+      if (this.rng.nextBool(personality.retaliationChance * Math.min(totalGrudge * 2, 1))) {
+        const action = this.createRetaliationAction(actor, recentAttacks);
+        if (action) {
+          this.executeActorAction(action);
+          this.lastRoundActions.push(action);
+        }
+      }
+      // Check for alliance seeking
+      else if (this.rng.nextBool(personality.allianceSeekChance * Math.min(totalGrudge, 1))) {
+        const action = this.createAllianceAction(actor);
+        if (action) {
+          this.executeActorAction(action);
+          this.lastRoundActions.push(action);
+        }
+      }
+      // Check for defensive action
+      else if (totalGrudge > 0.2 && this.rng.nextBool(0.3)) {
+        const action = this.createDefenseAction(actor);
+        this.executeActorAction(action);
+        this.lastRoundActions.push(action);
+      }
+    }
+  }
+
+  /**
+   * Sprint 3: Create retaliation action
+   */
+  private createRetaliationAction(actor: Actor, attacks: ActorMemory[]): ActorAction | null {
+    // For now, retaliation affects the network positively (actors fight back)
+    const narratives = ACTION_NARRATIVES.retaliate;
+    const narrative = this.rng.pick(narratives)?.replace('{source}', actor.name) || '';
+
+    return {
+      type: 'retaliate',
+      sourceActorId: actor.id,
+      effect: {
+        trustDelta: 0.03, // Small trust recovery from fighting back
+      },
+      narrative,
+    };
+  }
+
+  /**
+   * Sprint 3: Create alliance action
+   */
+  private createAllianceAction(actor: Actor): ActorAction | null {
+    // Find a potential ally (same category, high trust)
+    const potentialAllies = this.state.network.actors.filter(
+      a => a.id !== actor.id && a.category === actor.category && a.trust > 0.5
+    );
+
+    if (potentialAllies.length === 0) return null;
+
+    const ally = this.rng.pick(potentialAllies);
+    if (!ally) return null;
+
+    const narratives = ACTION_NARRATIVES.seek_ally;
+    const narrative = this.rng.pick(narratives)
+      ?.replace('{source}', actor.name)
+      .replace('{target}', ally.name) || '';
+
+    return {
+      type: 'seek_ally',
+      sourceActorId: actor.id,
+      targetActorId: ally.id,
+      effect: {
+        trustDelta: 0.02, // Both gain trust
+      },
+      narrative,
+    };
+  }
+
+  /**
+   * Sprint 3: Create defense action
+   */
+  private createDefenseAction(actor: Actor): ActorAction {
+    const narratives = ACTION_NARRATIVES.defend;
+    const narrative = this.rng.pick(narratives)?.replace('{source}', actor.name) || '';
+
+    return {
+      type: 'defend',
+      sourceActorId: actor.id,
+      effect: {
+        trustDelta: 0.02,
+      },
+      narrative,
+    };
+  }
+
+  /**
+   * Sprint 3: Execute an actor action
+   */
+  private executeActorAction(action: ActorAction): void {
+    const actor = this.getActor(action.sourceActorId);
+    if (!actor) return;
+
+    // Apply trust change to source
+    if (action.effect.trustDelta) {
+      this.updateActor(actor.id, {
+        trust: clamp(actor.trust + action.effect.trustDelta, 0, 1),
+      });
+    }
+
+    // Apply to target if exists
+    if (action.targetActorId && action.effect.trustDelta) {
+      const target = this.getActor(action.targetActorId);
+      if (target) {
+        this.updateActor(target.id, {
+          trust: clamp(target.trust + action.effect.trustDelta, 0, 1),
+        });
+      }
+    }
+  }
+
+  /**
+   * Sprint 3: Decay actor memory over time
+   */
+  private decayActorMemory(): void {
+    for (const [actorId, memory] of this.actorMemory.entries()) {
+      const actor = this.getActor(actorId);
+      if (!actor) continue;
+
+      const personality = CATEGORY_PERSONALITIES[actor.category];
+      const decayedMemory = memory
+        .map(m => ({ ...m, magnitude: m.magnitude * (1 - personality.grudgeDecay) }))
+        .filter(m => m.magnitude > 0.05); // Remove memories that are too faint
+
+      this.actorMemory.set(actorId, decayedMemory);
+    }
+  }
+
+  /**
+   * Sprint 3: Get last round's actor actions
+   */
+  getLastRoundActions(): ActorAction[] {
+    return this.lastRoundActions;
   }
   
   /**

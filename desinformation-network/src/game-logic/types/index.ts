@@ -69,6 +69,44 @@ export type ActorDefinition = {
 };
 
 // ============================================
+// SPRINT 3: ACTOR PERSONALITY SYSTEM
+// ============================================
+
+export type PersonalityTrait =
+  | 'aggressive'     // Retaliates when attacked
+  | 'defensive'      // Seeks allies when attacked
+  | 'passive'        // Ignores attacks
+  | 'vindictive'     // Remembers attackers, grudges
+  | 'forgiving'      // Quickly forgets grudges
+  | 'influential';   // Actively tries to influence others
+
+export type ActorMemory = {
+  actorId: string;               // Who did this
+  action: 'attacked' | 'helped';
+  round: number;
+  magnitude: number;             // How significant (0-1)
+};
+
+export type ActorPersonality = {
+  trait: PersonalityTrait;
+  retaliationChance: number;     // 0-1: Chance to retaliate
+  allianceSeekChance: number;    // 0-1: Chance to seek allies
+  grudgeDecay: number;           // How fast grudges fade per round
+  memory: ActorMemory[];         // Past interactions
+};
+
+export type ActorAction = {
+  type: 'retaliate' | 'seek_ally' | 'defend' | 'influence' | 'statement';
+  sourceActorId: string;
+  targetActorId?: string;
+  effect: {
+    trustDelta?: number;
+    emotionalDelta?: number;
+  };
+  narrative: string;             // Description of what happened
+};
+
+// ============================================
 // ABILITY TYPES
 // ============================================
 
@@ -231,21 +269,24 @@ export type GameState = {
   round: number;
   maxRounds: number;
   resources: number;
-  
+
   // Network
   network: Network;
-  
+
   // Tracking
   abilityUsage: Record<string, number>;  // Ability ID → times used
   eventsTriggered: string[];             // Event IDs
   defensiveActorsSpawned: number;
-  
+
+  // Sprint 2: Risk system
+  riskState: RiskState;
+
   // History (for undo/replay)
   history: GameStateSnapshot[];
-  
+
   // Seed
   seed: string;
-  
+
   // Result
   defeatReason?: DefeatReason;
 };
@@ -361,6 +402,96 @@ export type PersuasionTaxonomy = {
   phases: any[];
   countermeasureInteractions: any[];
   populationDifferences: any;
+};
+
+// ============================================
+// VISUAL EFFECTS TYPES (Sprint 1.1)
+// ============================================
+
+export type VisualEffectType =
+  | 'impact_number'      // Floating number showing trust change
+  | 'trust_pulse'        // Pulsing ring on trust change
+  | 'ability_beam'       // Beam connecting source to target
+  | 'propagation_wave'   // Expanding wave for propagation
+  | 'celebration'        // Celebration effect for milestones
+  | 'controlled';        // Actor controlled indicator
+
+export type VisualEffect = {
+  id: string;
+  type: VisualEffectType;
+  targetActorId: string;
+  sourceActorId?: string;
+  value?: number;                    // For impact_number
+  color: string;
+  startTime: number;
+  duration: number;                  // ms
+  label?: string;                    // Optional label text
+};
+
+export type AbilityResult = {
+  success: boolean;
+  abilityId: string;
+  sourceActorId: string;
+  targetActorIds: string[];
+  effects: Array<{
+    actorId: string;
+    trustBefore: number;
+    trustAfter: number;
+    trustDelta: number;
+    emotionalDelta?: number;
+    resilienceDelta?: number;
+  }>;
+  resourcesSpent: number;
+  visualEffects: VisualEffect[];
+
+  // Sprint 2: Risk system
+  detected: boolean;
+  exposureGained: number;
+  backlashApplied: boolean;
+};
+
+// ============================================
+// SPRINT 2: RISK & TRADE-OFF SYSTEM
+// ============================================
+
+export type ExposureLevel = 'hidden' | 'suspected' | 'known' | 'exposed';
+
+export type RiskState = {
+  exposure: number;                    // 0-1: Overall exposure level
+  exposureLevel: ExposureLevel;        // Human-readable level
+  detectionHistory: DetectionEvent[];  // Record of past detections
+  abilityRiskModifiers: Record<string, number>; // Ability-specific risk increases
+};
+
+export type DetectionEvent = {
+  round: number;
+  abilityId: string;
+  wasDetected: boolean;
+  exposureGained: number;
+  backlashTrust: number;               // How much trust was restored
+};
+
+export type AbilityRisk = {
+  baseDetectionChance: number;         // 0-1: Base chance of detection
+  exposureGrowth: number;              // How much exposure increases per use
+  backlashMultiplier: number;          // How severe the backlash is
+};
+
+// ============================================
+// SPRINT 2: ACTOR RELATIONSHIPS
+// ============================================
+
+export type RelationshipType = 'ally' | 'rival' | 'neutral';
+
+export type ActorRelationship = {
+  targetActorId: string;
+  type: RelationshipType;
+  strength: number;                    // -1 to +1 (negative = rivalry)
+  reason?: string;                     // Why this relationship exists
+};
+
+export type ActorWithRelations = Actor & {
+  relationships: ActorRelationship[];
 };
 
 // ============================================

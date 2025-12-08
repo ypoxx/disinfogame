@@ -1,13 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useGameState } from '@/hooks/useGameState';
-import { cn } from '@/utils/cn';
 import { formatPercent } from '@/utils';
-import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
+import { trustToHex } from '@/utils/colors';
 import { NetworkVisualization } from '@/components/NetworkVisualization';
 import { RoundSummary } from '@/components/RoundSummary';
 import { VictoryProgressBar } from '@/components/VictoryProgressBar';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
 import { BottomSheet } from '@/components/BottomSheet';
+import { MilestoneToast } from '@/components/MilestoneToast';
+import { RiskMeter } from '@/components/RiskMeter';
+import { ActorActionsLog } from '@/components/ActorActionsLog';
+// Sprint 4 imports
+import { ConsequenceToast } from '@/components/ConsequenceToast';
+import { ImpactDashboard } from '@/components/ImpactDashboard';
+import { EpilogScreen } from '@/components/EpilogScreen';
+import type { EpilogData } from '@/game-logic/EpilogGenerator';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
@@ -22,6 +29,15 @@ function App() {
     gameState,
     uiState,
     networkMetrics,
+    visualEffects,
+    riskState,
+    actorActions,
+    // Sprint 4
+    lastConsequence,
+    societalImpact,
+    generateEpilog,
+    dismissConsequence,
+    // Actions
     startGame,
     advanceRound,
     resetGame,
@@ -32,7 +48,8 @@ function App() {
     cancelAbility,
     canUseAbility,
     getActorAbilities,
-    toggleEncyclopedia,
+    getValidTargets,
+    deselectActor,
     addNotification,
   } = useGameState();
 
@@ -45,6 +62,11 @@ function App() {
   // Tutorial state
   const [tutorialState, setTutorialState] = useState<TutorialState>(createInitialTutorialState());
   const [showTutorial, setShowTutorial] = useState(false);
+
+  // Sprint 4: Epilog and Impact Dashboard state
+  const [showEpilog, setShowEpilog] = useState(false);
+  const [epilogData, setEpilogData] = useState<EpilogData | null>(null);
+  const [showImpactDashboard, setShowImpactDashboard] = useState(false);
 
   // Track round changes and generate summaries
   useEffect(() => {
@@ -178,54 +200,83 @@ function App() {
     );
   }
 
-  // Victory Screen
+  // Victory Screen with Epilog
   if (gameState.phase === 'victory') {
+    // Show epilog if triggered
+    if (showEpilog && epilogData) {
+      return (
+        <EpilogScreen
+          epilog={epilogData}
+          onClose={() => {
+            setShowEpilog(false);
+            setEpilogData(null);
+          }}
+          onPlayAgain={() => {
+            setShowEpilog(false);
+            setEpilogData(null);
+            resetGame();
+          }}
+        />
+      );
+    }
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-900 via-gray-900 to-gray-900 flex items-center justify-center p-8">
         <div className="max-w-2xl text-center">
           <div className="text-6xl mb-6">🎭</div>
           <h1 className="text-5xl font-bold text-red-400 mb-4">
-            Victory (?)
+            Du hast gewonnen.
           </h1>
           <p className="text-xl text-gray-300 mb-8">
-            You've successfully undermined public trust in {gameState.round} rounds.
-            But at what cost to society?
+            In {gameState.round} Runden hast du das Vertrauen der Gesellschaft untergraben.
+            Aber zu welchem Preis?
           </p>
-          
-          <div className="bg-gray-800/50 rounded-2xl p-6 mb-8">
-            <h2 className="text-lg font-semibold text-white mb-4">Final Statistics</h2>
+
+          {/* Sprint 4: Impact Summary */}
+          <div className="bg-gray-800/50 rounded-2xl p-6 mb-6">
+            <h2 className="text-lg font-semibold text-white mb-4">Der Schaden</h2>
             <div className="grid grid-cols-2 gap-4 text-left">
               <div>
-                <p className="text-gray-400">Rounds Played</p>
-                <p className="text-2xl text-white">{gameState.round}</p>
+                <p className="text-gray-400">Menschen beeinflusst</p>
+                <p className="text-2xl text-red-400">
+                  {(societalImpact.livesAffected / 1000).toFixed(0)}k
+                </p>
               </div>
               <div>
-                <p className="text-gray-400">Average Trust</p>
-                <p className="text-2xl text-red-400">{formatPercent(networkMetrics.averageTrust)}</p>
+                <p className="text-gray-400">Stimmen verstummt</p>
+                <p className="text-2xl text-orange-400">{societalImpact.silencedVoices}</p>
               </div>
               <div>
-                <p className="text-gray-400">Actors Compromised</p>
-                <p className="text-2xl text-white">{networkMetrics.lowTrustCount}</p>
+                <p className="text-gray-400">Vertrauen in Institutionen</p>
+                <p className="text-2xl text-yellow-400">
+                  {Math.round(societalImpact.trustInInstitutions * 100)}%
+                </p>
               </div>
               <div>
-                <p className="text-gray-400">Polarization</p>
-                <p className="text-2xl text-yellow-400">{formatPercent(networkMetrics.polarizationIndex)}</p>
+                <p className="text-gray-400">Polarisierung</p>
+                <p className="text-2xl text-purple-400">
+                  {Math.round(societalImpact.polarizationLevel * 100)}%
+                </p>
               </div>
             </div>
           </div>
-          
-          <div className="flex gap-4 justify-center">
+
+          <div className="flex gap-4 justify-center flex-wrap">
+            <button
+              onClick={() => {
+                const data = generateEpilog();
+                setEpilogData(data);
+                setShowEpilog(true);
+              }}
+              className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition-colors"
+            >
+              Was passiert danach? →
+            </button>
             <button
               onClick={resetGame}
               className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-xl transition-colors"
             >
-              Play Again
-            </button>
-            <button
-              onClick={toggleEncyclopedia}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
-            >
-              Learn About Techniques
+              Nochmal spielen
             </button>
           </div>
         </div>
@@ -278,11 +329,11 @@ function App() {
   // ============================================
 
   const selectedActor = uiState.selectedActor
-    ? getActor(uiState.selectedActor.actorId)
+    ? getActor(uiState.selectedActor.actorId) ?? null
     : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col relative">
+    <div className="h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col overflow-hidden">
       {/* Floating HUD - Top Left */}
       <div className="fixed top-6 left-6 z-40 flex flex-col gap-3">
         <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl">
@@ -300,6 +351,12 @@ function App() {
             </div>
           </div>
         </div>
+
+        {/* Sprint 2: Risk Meter */}
+        <RiskMeter riskState={riskState} />
+
+        {/* Sprint 3: Actor Actions Log */}
+        <ActorActionsLog actions={actorActions} />
       </div>
 
       {/* Floating HUD - Top Right */}
@@ -341,7 +398,7 @@ function App() {
       </div>
 
       {/* Fullscreen Network Visualization */}
-      <div className="flex-1 w-full h-full">
+      <div className="flex-1 w-full min-h-0">
         <NetworkVisualization
           actors={gameState.network.actors}
           connections={gameState.network.connections}
@@ -349,6 +406,7 @@ function App() {
           hoveredActorId={uiState.hoveredActor}
           targetingMode={uiState.targetingMode}
           validTargets={uiState.validTargets}
+          visualEffects={visualEffects}
           onActorClick={selectActor}
           onActorHover={hoverActor}
         />
@@ -362,9 +420,11 @@ function App() {
         canUseAbility={canUseAbility}
         onSelectAbility={selectAbility}
         onCancel={cancelAbility}
+        onClose={deselectActor}
         selectedAbilityId={uiState.selectedAbility?.abilityId || null}
         targetingMode={uiState.targetingMode}
         addNotification={addNotification}
+        getValidTargets={getValidTargets}
       />
 
       {/* Round Summary Modal */}
@@ -391,6 +451,31 @@ function App() {
           />
         </>
       )}
+
+      {/* Milestone Celebrations (Sprint 1.4) */}
+      {gameState.phase === 'playing' && (
+        <MilestoneToast
+          metrics={networkMetrics}
+          totalActors={gameState.network.actors.filter(a => a.category !== 'defensive').length}
+          victoryThreshold={0.75}
+          gameRound={gameState.round}
+        />
+      )}
+
+      {/* Sprint 4: Consequence Toast */}
+      <ConsequenceToast
+        consequence={lastConsequence}
+        onDismiss={dismissConsequence}
+      />
+
+      {/* Sprint 4: Impact Dashboard (Bottom Left, above BottomSheet) */}
+      <div className="fixed bottom-24 left-6 z-30 w-72">
+        <ImpactDashboard
+          impact={societalImpact}
+          isExpanded={showImpactDashboard}
+          onToggle={() => setShowImpactDashboard(!showImpactDashboard)}
+        />
+      </div>
     </div>
   );
 }

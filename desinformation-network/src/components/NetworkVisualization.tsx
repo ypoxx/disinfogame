@@ -1,11 +1,12 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
-import type { Actor, Connection } from '@/game-logic/types';
+import type { Actor, Connection, VisualEffect } from '@/game-logic/types';
 import { trustToHex, getCategoryColor } from '@/utils/colors';
 import { euclideanDistance } from '@/utils';
 
 // ============================================
 // FULLSCREEN RESPONSIVE NETWORK VISUALIZATION
 // Modern, scalable design with grouped nodes
+// Enhanced with visual effects (Sprint 1.1)
 // ============================================
 
 type NetworkVisualizationProps = {
@@ -15,6 +16,7 @@ type NetworkVisualizationProps = {
   hoveredActorId: string | null;
   targetingMode: boolean;
   validTargets: string[];
+  visualEffects?: VisualEffect[];
   onActorClick: (actorId: string) => void;
   onActorHover: (actorId: string | null) => void;
 };
@@ -43,6 +45,7 @@ export function NetworkVisualization({
   hoveredActorId,
   targetingMode,
   validTargets,
+  visualEffects = [],
   onActorClick,
   onActorHover,
 }: NetworkVisualizationProps) {
@@ -205,12 +208,42 @@ export function NetworkVisualization({
         const isSelected = actor.id === selectedActorId;
         const isHovered = actor.id === hoveredActorId;
         const isValidTarget = validTargets.includes(actor.id);
+        const isControlled = actor.trust < 0.4;
+        const isInDangerZone = actor.trust < 0.5 && actor.trust >= 0.4;
+
+        // Dynamic node size based on trust (Sprint 1.2)
+        // Lower trust = slightly smaller, controlled = even smaller
+        const trustSizeMultiplier = 0.85 + actor.trust * 0.15;
+        const dynamicNodeRadius = NODE_RADIUS * trustSizeMultiplier;
+
+        // Danger zone pulsing for actors between 40-50% trust
+        if (isInDangerZone) {
+          const dangerPulse = (Math.sin(Date.now() * 0.004) + 1) / 2;
+          ctx.beginPath();
+          ctx.arc(pos.x, pos.y, dynamicNodeRadius * (1.2 + dangerPulse * 0.2), 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(234, 179, 8, ${0.3 + dangerPulse * 0.3})`;
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 4]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        // Controlled indicator - red glow for actors below 40%
+        if (isControlled) {
+          const controlledPulse = (Math.sin(Date.now() * 0.003) + 1) / 2;
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(pos.x, pos.y, dynamicNodeRadius * 1.4, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(239, 68, 68, ${0.1 + controlledPulse * 0.15})`;
+          ctx.fill();
+          ctx.restore();
+        }
 
         // Glow for targeting mode
         if (targetingMode && isValidTarget) {
           const pulse = (Date.now() % 1000) / 1000;
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, NODE_RADIUS * 1.3 + pulse * 15, 0, Math.PI * 2);
+          ctx.arc(pos.x, pos.y, dynamicNodeRadius * 1.3 + pulse * 15, 0, Math.PI * 2);
           ctx.strokeStyle = `rgba(239, 68, 68, ${1 - pulse})`;
           ctx.lineWidth = 4;
           ctx.stroke();
@@ -219,7 +252,7 @@ export function NetworkVisualization({
         // Selection ring
         if (isSelected) {
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, NODE_RADIUS * 1.3, 0, Math.PI * 2);
+          ctx.arc(pos.x, pos.y, dynamicNodeRadius * 1.3, 0, Math.PI * 2);
           ctx.strokeStyle = '#3B82F6';
           ctx.lineWidth = 5;
           ctx.stroke();
@@ -228,7 +261,7 @@ export function NetworkVisualization({
         // Hover ring
         if (isHovered && !isSelected) {
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, NODE_RADIUS * 1.2, 0, Math.PI * 2);
+          ctx.arc(pos.x, pos.y, dynamicNodeRadius * 1.2, 0, Math.PI * 2);
           ctx.strokeStyle = '#9CA3AF';
           ctx.lineWidth = 3;
           ctx.stroke();
@@ -236,7 +269,7 @@ export function NetworkVisualization({
 
         // Actor outer circle (category color)
         ctx.beginPath();
-        ctx.arc(pos.x, pos.y, NODE_RADIUS, 0, Math.PI * 2);
+        ctx.arc(pos.x, pos.y, dynamicNodeRadius, 0, Math.PI * 2);
         ctx.fillStyle = getCategoryColor(actor.category);
         ctx.fill();
         ctx.strokeStyle = '#FFFFFF';
@@ -244,14 +277,14 @@ export function NetworkVisualization({
         ctx.stroke();
 
         // Actor inner circle (trust color)
-        const innerRadius = NODE_RADIUS * 0.7;
+        const innerRadius = dynamicNodeRadius * 0.7;
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, innerRadius, 0, Math.PI * 2);
         ctx.fillStyle = trustToHex(actor.trust);
         ctx.fill();
 
         // Trust percentage arc
-        const arcRadius = NODE_RADIUS * 0.85;
+        const arcRadius = dynamicNodeRadius * 0.85;
         const startAngle = -Math.PI / 2;
         const endAngle = startAngle + actor.trust * Math.PI * 2;
         ctx.beginPath();
@@ -307,8 +340,177 @@ export function NetworkVisualization({
       });
     });
 
+    // ============================================
+    // VISUAL EFFECTS RENDERING (Sprint 1.1)
+    // ============================================
+    const now = Date.now();
+
+    for (const effect of visualEffects) {
+      const elapsed = now - effect.startTime;
+      const progress = Math.min(elapsed / effect.duration, 1);
+
+      // Find target actor position
+      const targetActor = actors.find((a) => a.id === effect.targetActorId);
+      if (!targetActor) continue;
+
+      const targetCategoryActors = actorsByCategory[targetActor.category] || [];
+      const targetIndex = targetCategoryActors.indexOf(targetActor);
+      const targetPos = getActorPosition(targetActor, targetIndex, targetCategoryActors);
+
+      switch (effect.type) {
+        case 'impact_number': {
+          // Floating number that rises and fades
+          const floatY = targetPos.y - NODE_RADIUS - 20 - progress * 40;
+          const opacity = 1 - progress * 0.7;
+          const scale = 1 + progress * 0.3;
+
+          ctx.save();
+          ctx.globalAlpha = opacity;
+          ctx.font = `bold ${Math.round(18 * scale)}px Inter, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          // Shadow for better visibility
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+          ctx.shadowBlur = 4;
+          ctx.shadowOffsetX = 1;
+          ctx.shadowOffsetY = 1;
+
+          ctx.fillStyle = effect.color;
+          ctx.fillText(effect.label || '', targetPos.x, floatY);
+          ctx.restore();
+          break;
+        }
+
+        case 'trust_pulse': {
+          // Expanding pulse ring
+          const pulseRadius = NODE_RADIUS * (1 + progress * 0.8);
+          const opacity = 1 - progress;
+
+          ctx.save();
+          ctx.globalAlpha = opacity;
+          ctx.beginPath();
+          ctx.arc(targetPos.x, targetPos.y, pulseRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = effect.color;
+          ctx.lineWidth = 4 * (1 - progress * 0.5);
+          ctx.stroke();
+          ctx.restore();
+          break;
+        }
+
+        case 'ability_beam': {
+          // Beam from source to target
+          if (!effect.sourceActorId) break;
+
+          const sourceActor = actors.find((a) => a.id === effect.sourceActorId);
+          if (!sourceActor) break;
+
+          const sourceCategoryActors = actorsByCategory[sourceActor.category] || [];
+          const sourceIndex = sourceCategoryActors.indexOf(sourceActor);
+          const sourcePos = getActorPosition(sourceActor, sourceIndex, sourceCategoryActors);
+
+          // Animated beam with head
+          const beamProgress = Math.min(progress * 2, 1);
+          const fadeProgress = Math.max(0, (progress - 0.5) * 2);
+
+          const currentX = sourcePos.x + (targetPos.x - sourcePos.x) * beamProgress;
+          const currentY = sourcePos.y + (targetPos.y - sourcePos.y) * beamProgress;
+
+          ctx.save();
+          ctx.globalAlpha = 1 - fadeProgress;
+
+          // Beam line
+          ctx.beginPath();
+          ctx.moveTo(sourcePos.x, sourcePos.y);
+          ctx.lineTo(currentX, currentY);
+          ctx.strokeStyle = effect.color;
+          ctx.lineWidth = 3;
+          ctx.stroke();
+
+          // Beam head glow
+          ctx.beginPath();
+          ctx.arc(currentX, currentY, 8, 0, Math.PI * 2);
+          ctx.fillStyle = effect.color;
+          ctx.fill();
+
+          ctx.restore();
+          break;
+        }
+
+        case 'propagation_wave': {
+          // Expanding wave effect
+          const waveRadius = NODE_RADIUS * (1 + progress * 3);
+          const opacity = 0.6 * (1 - progress);
+
+          ctx.save();
+          ctx.globalAlpha = opacity;
+          ctx.beginPath();
+          ctx.arc(targetPos.x, targetPos.y, waveRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = effect.color;
+          ctx.lineWidth = 2;
+          ctx.setLineDash([8, 8]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.restore();
+          break;
+        }
+
+        case 'controlled': {
+          // "CONTROLLED!" celebration effect
+          const bounceY = targetPos.y - NODE_RADIUS - 50 - Math.sin(progress * Math.PI * 3) * 10;
+          const scaleEffect = 1 + Math.sin(progress * Math.PI) * 0.3;
+          const opacity = progress < 0.8 ? 1 : (1 - progress) * 5;
+
+          ctx.save();
+          ctx.globalAlpha = Math.min(opacity, 1);
+          ctx.font = `bold ${Math.round(16 * scaleEffect)}px Inter, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          // Glow effect
+          ctx.shadowColor = effect.color;
+          ctx.shadowBlur = 15;
+
+          // Background pill
+          const labelWidth = ctx.measureText(effect.label || '').width + 16;
+          ctx.fillStyle = effect.color;
+          ctx.beginPath();
+          ctx.roundRect(targetPos.x - labelWidth / 2, bounceY - 12, labelWidth, 24, 12);
+          ctx.fill();
+
+          // Text
+          ctx.fillStyle = '#FFFFFF';
+          ctx.shadowBlur = 0;
+          ctx.fillText(effect.label || '', targetPos.x, bounceY);
+          ctx.restore();
+          break;
+        }
+
+        case 'celebration': {
+          // Generic celebration particles (could be expanded)
+          const particleCount = 8;
+          for (let i = 0; i < particleCount; i++) {
+            const angle = (i / particleCount) * Math.PI * 2;
+            const distance = progress * 60;
+            const px = targetPos.x + Math.cos(angle) * distance;
+            const py = targetPos.y + Math.sin(angle) * distance;
+            const opacity = 1 - progress;
+
+            ctx.save();
+            ctx.globalAlpha = opacity;
+            ctx.beginPath();
+            ctx.arc(px, py, 4, 0, Math.PI * 2);
+            ctx.fillStyle = effect.color;
+            ctx.fill();
+            ctx.restore();
+          }
+          break;
+        }
+      }
+    }
+
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, visualEffects]);
 
   // Find actor at click position
   const findActorAtPosition = useCallback((x: number, y: number): Actor | null => {
@@ -369,6 +571,10 @@ export function NetworkVisualization({
       if (!canvas || !container) return;
 
       const { width, height } = container.getBoundingClientRect();
+
+      // Skip if container has no dimensions yet
+      if (width === 0 || height === 0) return;
+
       const dpr = window.devicePixelRatio || 1;
 
       canvas.width = width * dpr;
@@ -385,9 +591,24 @@ export function NetworkVisualization({
       }
     };
 
-    handleResize();
+    // Initial resize with a small delay to ensure container has dimensions
+    const timeoutId = setTimeout(handleResize, 50);
+
+    // Also use ResizeObserver for better handling
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(timeoutId);
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   // Animation loop
@@ -397,7 +618,7 @@ export function NetworkVisualization({
   }, [draw]);
 
   return (
-    <div ref={containerRef} className="w-full h-full relative">
+    <div ref={containerRef} className="w-full h-full relative" style={{ minHeight: '100%' }}>
       <canvas
         ref={canvasRef}
         className="absolute inset-0 cursor-pointer"

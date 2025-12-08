@@ -8,7 +8,17 @@ import type {
   UIState,
   SelectedActor,
   SelectedAbility,
+  VisualEffect,
+  AbilityResult,
+  RiskState,
+  ActorAction,
 } from '@/game-logic/types';
+import {
+  ConsequenceGenerator,
+  type Consequence,
+  type SocietalImpact,
+} from '@/game-logic/ConsequenceGenerator';
+import { EpilogGenerator, type EpilogData } from '@/game-logic/EpilogGenerator';
 
 // Import definitions (will be loaded from JSON)
 import actorDefinitions from '@/data/game/actor-definitions-v2.json';
@@ -41,25 +51,44 @@ type UseGameStateReturn = {
   gameState: GameState;
   uiState: UIState;
   networkMetrics: NetworkMetrics;
-  
+
+  // Visual effects (Sprint 1.1)
+  visualEffects: VisualEffect[];
+  lastAbilityResult: AbilityResult | null;
+
+  // Risk state (Sprint 2)
+  riskState: RiskState;
+
+  // Actor actions (Sprint 3)
+  actorActions: ActorAction[];
+
+  // Sprint 4: Consequences & Impact
+  lastConsequence: Consequence | null;
+  societalImpact: SocietalImpact;
+  allConsequences: Consequence[];
+  generateEpilog: () => EpilogData;
+  dismissConsequence: () => void;
+
   // Game actions
   startGame: () => void;
   advanceRound: () => void;
   resetGame: () => void;
   undoAction: () => void;
-  
+
   // Actor selection
   selectActor: (actorId: string | null) => void;
   hoverActor: (actorId: string | null) => void;
   getActor: (actorId: string) => Actor | undefined;
-  
+
   // Ability actions
   selectAbility: (abilityId: string) => void;
   cancelAbility: () => void;
   applyAbility: (targetActorIds: string[]) => boolean;
   canUseAbility: (abilityId: string) => boolean;
   getActorAbilities: (actorId: string) => Ability[];
-  
+  getValidTargets: (abilityId: string, actorId: string) => Actor[];
+  deselectActor: () => void;
+
   // UI actions
   toggleEncyclopedia: () => void;
   toggleTutorial: () => void;
@@ -75,11 +104,11 @@ type UseGameStateReturn = {
 export function useGameState(initialSeed?: string): UseGameStateReturn {
   // Game state manager ref (persists across renders)
   const gameManagerRef = useRef<GameStateManager | null>(null);
-  
+
   // Initialize game manager
   if (!gameManagerRef.current) {
     gameManagerRef.current = createGameState(initialSeed);
-    
+
     // Load definitions
     gameManagerRef.current.loadDefinitions(
       actorDefinitions as any,
@@ -87,12 +116,56 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
       eventDefinitions as any
     );
   }
-  
+
   const gameManager = gameManagerRef.current;
-  
+
   // React state for triggering re-renders
   const [gameState, setGameState] = useState<GameState>(gameManager.getState());
   const [uiState, setUIState] = useState<UIState>(initialUIState);
+
+  // Visual effects state (Sprint 1.1)
+  const [visualEffects, setVisualEffects] = useState<VisualEffect[]>([]);
+  const [lastAbilityResult, setLastAbilityResult] = useState<AbilityResult | null>(null);
+
+  // Sprint 4: Consequence generator refs
+  const consequenceGeneratorRef = useRef<ConsequenceGenerator | null>(null);
+  const epilogGeneratorRef = useRef<EpilogGenerator | null>(null);
+
+  if (!consequenceGeneratorRef.current) {
+    consequenceGeneratorRef.current = new ConsequenceGenerator();
+  }
+  if (!epilogGeneratorRef.current) {
+    epilogGeneratorRef.current = new EpilogGenerator();
+  }
+
+  const consequenceGenerator = consequenceGeneratorRef.current;
+  const epilogGenerator = epilogGeneratorRef.current;
+
+  // Sprint 4: Consequence state - use lazy initialization to avoid issues
+  const [lastConsequence, setLastConsequence] = useState<Consequence | null>(null);
+  const [societalImpact, setSocietalImpact] = useState<SocietalImpact>(() => ({
+    livesAffected: 0,
+    trustInInstitutions: 0.65,
+    polarizationLevel: 0.3,
+    misinformationSpread: 0.1,
+    silencedVoices: 0,
+    radicalizedGroups: 0,
+    economicCost: 0,
+  }));
+
+  // Cleanup expired visual effects
+  useEffect(() => {
+    if (visualEffects.length === 0) return;
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      setVisualEffects((prev) =>
+        prev.filter((effect) => now - effect.startTime < effect.duration)
+      );
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [visualEffects.length]);
   
   // Sync game state
   const syncState = useCallback(() => {
@@ -123,9 +196,12 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
   
   const resetGame = useCallback(() => {
     gameManager.reset();
+    consequenceGenerator.reset();
     syncState();
     setUIState(initialUIState);
-  }, [gameManager, syncState]);
+    setLastConsequence(null);
+    setSocietalImpact(consequenceGenerator.getSocietalImpact());
+  }, [gameManager, syncState, consequenceGenerator]);
   
   const undoAction = useCallback(() => {
     const success = gameManager.undo();
@@ -178,29 +254,68 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     const ability = uiState.selectedAbility;
     if (!ability) return false;
 
-    const success = gameManager.applyAbility(
+    const result = gameManager.applyAbility(
       ability.abilityId,
       ability.sourceActorId,
       targetActorIds
     );
 
-    if (success) {
+    if (result) {
       syncState();
-      addNotification('success', 'Ability applied successfully');
+
+      // Store result and add visual effects (Sprint 1.1)
+      setLastAbilityResult(result);
+      setVisualEffects((prev) => [...prev, ...result.visualEffects]);
+
+      // Sprint 4: Generate consequence for primary target
+      const abilityDef = gameManager.getAbility(ability.abilityId);
+      if (abilityDef && targetActorIds.length > 0) {
+        const primaryTargetId = targetActorIds[0];
+        const targetActor = gameManager.getActor(primaryTargetId);
+        if (targetActor) {
+          const consequence = consequenceGenerator.generateConsequence(
+            result,
+            abilityDef,
+            targetActor,
+            gameManager.getState().round
+          );
+          if (consequence) {
+            setLastConsequence(consequence);
+            setSocietalImpact(consequenceGenerator.getSocietalImpact());
+          }
+        }
+      }
+
+      // Generate success message with impact summary
+      const totalDelta = result.effects.reduce((sum, e) => sum + e.trustDelta, 0);
+      const impactText = totalDelta < 0
+        ? `Trust reduced by ${Math.abs(Math.round(totalDelta * 100))}%`
+        : `Trust changed by ${Math.round(totalDelta * 100)}%`;
+
+      // Check for controlled actors
+      const newlyControlled = result.effects.filter(
+        (e) => e.trustBefore >= 0.4 && e.trustAfter < 0.4
+      );
+      if (newlyControlled.length > 0) {
+        addNotification('success', `🎯 ${newlyControlled.length} actor(s) now controlled!`);
+      } else {
+        addNotification('success', impactText);
+      }
 
       // Clear selection
-      setUIState(prev => ({
+      setUIState((prev) => ({
         ...prev,
         selectedAbility: null,
         targetingMode: false,
         validTargets: [],
       }));
+
+      return true;
     } else {
       addNotification('error', 'Failed to apply ability');
+      return false;
     }
-
-    return success;
-  }, [uiState.selectedAbility, gameManager, syncState, addNotification]);
+  }, [uiState.selectedAbility, gameManager, syncState, addNotification, consequenceGenerator]);
 
   const selectAbility = useCallback((abilityId: string) => {
     const selectedActorId = uiState.selectedActor?.actorId;
@@ -280,6 +395,20 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     return gameManager.getActorAbilities(actorId);
   }, [gameManager]);
 
+  const getValidTargets = useCallback((abilityId: string, actorId: string): Actor[] => {
+    return gameManager.getValidTargets(abilityId, actorId);
+  }, [gameManager]);
+
+  const deselectActor = useCallback(() => {
+    setUIState(prev => ({
+      ...prev,
+      selectedActor: null,
+      selectedAbility: null,
+      targetingMode: false,
+      validTargets: [],
+    }));
+  }, []);
+
   // ============================================
   // UI ACTIONS (remaining)
   // ============================================
@@ -315,26 +444,68 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
   // RETURN
   // ============================================
   
+  // Sprint 2: Get risk state
+  const riskState = gameManager.getRiskState();
+
+  // Sprint 3: Get actor actions
+  const actorActions = gameManager.getLastRoundActions();
+
+  // Sprint 4: Consequence dismissal and epilog generation
+  const dismissConsequence = useCallback(() => {
+    setLastConsequence(null);
+  }, []);
+
+  const generateEpilog = useCallback((): EpilogData => {
+    const controlledActors = gameState.network.actors.filter(a => a.trust < 0.4);
+    return epilogGenerator.generateEpilog(
+      gameState.phase === 'victory' ? 'victory' : 'defeat',
+      gameState.round,
+      networkMetrics,
+      societalImpact,
+      controlledActors,
+      consequenceGenerator.getConsequences()
+    );
+  }, [gameState, networkMetrics, societalImpact, epilogGenerator, consequenceGenerator]);
+
   return {
     gameState,
     uiState,
     networkMetrics,
-    
+
+    // Visual effects (Sprint 1.1)
+    visualEffects,
+    lastAbilityResult,
+
+    // Risk state (Sprint 2)
+    riskState,
+
+    // Actor actions (Sprint 3)
+    actorActions,
+
+    // Sprint 4: Consequences & Impact
+    lastConsequence,
+    societalImpact,
+    allConsequences: consequenceGenerator.getConsequences(),
+    generateEpilog,
+    dismissConsequence,
+
     startGame,
     advanceRound,
     resetGame,
     undoAction,
-    
+
     selectActor,
     hoverActor,
     getActor,
-    
+
     selectAbility,
     cancelAbility,
     applyAbility,
     canUseAbility,
     getActorAbilities,
-    
+    getValidTargets,
+    deselectActor,
+
     toggleEncyclopedia,
     toggleTutorial,
     toggleSettings,

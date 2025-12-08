@@ -1,0 +1,240 @@
+{
+  "bild_tabloid": {
+    "personName": "Thomas Richter",
+    "role": "Chefredakteur, BILD",
+    "age": 48,
+    "backstory": "Begann als Lokaljournalist in Hamburg. Hat sich durch aggressive Berichterstattung hochgearbeitet. Glaubt, dass Emotionen die einzige Wahrheit sind.",
+    "family": "Geschieden, ein Sohn (17) den er selten sieht",
+    "motivation": "Reichweite ist Macht. Wer die meisten Klicks hat, bestimmt die Realität.",
+    "quirk": "Trinkt 8 Espresso am Tag, schläft nur 4 Stunden",
+    "vulnerability": "Sein Sohn schämt sich für seinen Job",
+    "consequenceTemplates": {
+      "attacked": "{name} erhält 3.200 Hassnachrichten. Sein Sohn wird in der Schule gemobbt.",
+      "controlled": "Thomas Richters Redaktion veröffentlicht nun fast ausschließlich Skandalgeschichten. Die journalistische Qualität ist kaum noch erkennbar."
+    }
+  },
+  "express_tabloid": {
+    "personName": "Sabine Meier",
+    "role": "Ressortleiterin, Express Köln",
+    "age": 42,
+    "backstory": "Aufgewachsen in Köln-Ehrenfeld. Kennt jeden Kiosk, jede Kneipe. Lokaljournalismus ist ihre Berufung.",
+    "family": "Verheiratet mit einem Polizisten, zwei Töchter",
+    "motivation": "Die Menschen in ihrer Stadt verdienen es, informiert zu werden - auf ihre Art.",
+    "quirk": "Spricht jeden Morgen mit dem Kiosk-Besitzer vor ihrer Redaktion",
+    "vulnerability": "Ihre Töchter sind Teenager und hinterfragen alles, was sie schreibt",
+    "consequenceTemplates": {
+      "attacked": "{name}s Familie wird von Trollen im Internet belästigt. Ihre Töchter löschen ihre Social-Media-Accounts.",
+      "controlled": "Der Express wird zum Sprachrohr für Verschwörungstheorien. Sabine hat aufgehört, sich zu wehren."
+    }
+  },
+  "sueddeutsche": {
+    "personName": "Maria Bergmann",
+    "role": "Chefredakteurin, Süddeutsche Zeitung",
+    "age": 54,
+    "backstory": "Hat die Wiedervereinigung als junge Reporterin erlebt. 30 Jahre investigativer Journalismus. Mehrfach ausgezeichnet.",
+    "family": "Verheiratet, zwei erwachsene Kinder, ein Enkelkind",
+    "motivation": "Die Wahrheit ist unbequem, aber sie muss ans Licht. Demokratie braucht kritischen Journalismus.",
+    "quirk": "Liest jeden Morgen drei internationale Zeitungen auf Papier",
+    "vulnerability": "Ihr Mann hat Alzheimer im Frühstadium - sie will für ihn da sein",
+    "consequenceTemplates": {
+      "attacked": "{name} erhält Morddrohungen. Die Polizei empfiehlt Personenschutz. Sie schläft seit Wochen schlecht.",
+      "controlled": "Maria Bergmann hat nach 30 Jahren aufgegeben. Die Süddeutsche verliert ihr moralisches Rückgrat."
+    }
+  },
+  "der_spiegel": {
+    "personName": "Alexander Hoffmann",
+    "role": "Investigativ-Ressortleiter, Der Spiegel",
+    "age": 46,
+    "backstory": "War Auslandskorrespondent in Moskau und Washington. Hat mehrere Skandale aufgedeckt, die Karrieren beendeten.",
+    "family": "Ledig, lebt mit seinem Hund 'Pulitzer' in Hamburg",
+    "motivation": "Macht muss kontrolliert werden. Ohne Journalisten gibt es keine Demokratie.",
+    "quirk": "Schreibt alle wichtigen Notizen noch von Hand in Moleskine-Hefte",
+    "vulnerability": "Sein Bruder arbeitet für ein Unternehmen, das er einmal enthüllt hat - sie reden nicht mehr",
+    "consequenceTemplates": {
+      "attacked": "{name}s Quellen werden systematisch eingeschüchtert. Eine Whistleblowerin verliert ihren Job.",
+      "controlled": "Alexander Hoffmann veröffentlicht nur noch unkritische Artikel. Seine Kollegen erkennen ihn nicht wieder."
+    }
+  },
+  "rtl_tv": {
+    "personName": "Sandra Nowak",
+    "role": "Programmchefin, RTL",
+    "age": 44,
+    "backstory": "Begann als Praktikantin, wurde zur mächtigsten Frau im deutschen Privatfernsehen. Weiß genau, was Quote bringt.",
+    "family": "Single, ihre Arbeit ist ihr Leben",
+    "motivation": "Unterhaltung ist ein Grundbedürfnis. Wir geben den Menschen, was sie wollen.",
+    "quirk": "Kann die Einschaltquoten jeder Sendung der letzten 5 Jahre auswendig",
+    "vulnerability": "Leidet unter Einsamkeit, aber würde es nie zugeben",
+    "consequenceTemplates": {
+      "attacked": "{name} wird in sozialen Medien als 'Propagandistin' beschimpft. Ihr Tinder-Match hat sie gegoogelt und nie wieder geschrieben.",
+      "controlled": "RTL sendet nun regelmäßig fragwürdige 'Experten' in Talkshows. Die Zuschauer merken den Unterschied nicht."
+    }
+  },
+  "ard_tv": {
+    "personName": "Dr. Friedrich Lange",
+    "role": "Intendant, ARD",
+    "age": 61,
+    "backstory": "Promovierter Politikwissenschaftler. Glaubt an den Bildungsauftrag des öffentlich-rechtlichen Rundfunks.",
+    "family": "Verheiratet seit 35 Jahren, drei Kinder, alle im Medienbereich tätig",
+    "motivation": "Wir sind der Kitt der Gesellschaft. Ohne uns zerfällt die gemeinsame Realität.",
+    "quirk": "Beginnt jeden Tag mit der Tagesschau von vor genau 30 Jahren",
+    "vulnerability": "Sein jüngster Sohn arbeitet bei einem alternativen Medium und kritisiert ihn öffentlich",
+    "consequenceTemplates": {
+      "attacked": "{name} wird von der AfD im Bundestag angegriffen. Seine Frau weint, als sie die Rede sieht.",
+      "controlled": "Die ARD beginnt, kritische Berichte abzuschwächen. Dr. Lange nennt es 'Ausgewogenheit'."
+    }
+  },
+  "prof_schmidt_medicine": {
+    "personName": "Prof. Dr. Elisabeth Schmidt",
+    "role": "Direktorin, Institut für Virologie",
+    "age": 58,
+    "backstory": "Hat während der COVID-Pandemie 16-Stunden-Tage gearbeitet. Wurde zur 'Stimme der Wissenschaft', obwohl sie es nie wollte.",
+    "family": "Verheiratet mit einem Künstler, keine Kinder - die Forschung war ihre Familie",
+    "motivation": "Fakten müssen die Grundlage jeder Entscheidung sein. Wissenschaft ist keine Meinung.",
+    "quirk": "Züchtet in ihrer Freizeit seltene Orchideen",
+    "vulnerability": "Die Anfeindungen während Corona haben Narben hinterlassen - sie hat Therapie gemacht",
+    "consequenceTemplates": {
+      "attacked": "{name} erhält täglich Morddrohungen. Ihr Institut braucht jetzt Sicherheitspersonal.",
+      "controlled": "Prof. Schmidt hat aufgehört, öffentlich aufzutreten. Eine wichtige Stimme der Wissenschaft verstummt."
+    }
+  },
+  "dr_weber_climate": {
+    "personName": "Dr. Klaus Weber",
+    "role": "Klimaforscher, Potsdam-Institut",
+    "age": 45,
+    "backstory": "Hat als Kind den sauren Regen erlebt. Sein Lebenswerk ist die Klimaforschung. Frustriert, dass niemand zuhört.",
+    "family": "Verheiratet, zwei Kinder (8, 11), die er zu Klimademos mitgenommen hat",
+    "motivation": "Wir haben vielleicht noch 10 Jahre, um das Schlimmste zu verhindern. Warum hört niemand zu?",
+    "quirk": "Fährt selbst bei Regen mit dem Fahrrad zur Arbeit",
+    "vulnerability": "Seine Kinder haben Klimaangst - er fühlt sich schuldig, dass er es ihnen nicht ersparen konnte",
+    "consequenceTemplates": {
+      "attacked": "{name}s Forschungsantrag wird abgelehnt - 'zu politisch'. Seine Kinder werden in der Schule gehänselt.",
+      "controlled": "Dr. Weber hat Deutschland verlassen. Er forscht jetzt in Norwegen, wo man ihm zuhört."
+    }
+  },
+  "prof_mueller_fake": {
+    "personName": "Marcus Müller",
+    "role": "Selbsternannter 'Gesundheitsexperte'",
+    "age": 52,
+    "backstory": "Hat nie promoviert, aber 'Dr.' vor seinen Namen gesetzt. Verkauft Nahrungsergänzungsmittel und lebt von der Angst anderer.",
+    "family": "Drei gescheiterte Ehen. Seine Kinder haben den Kontakt abgebrochen.",
+    "motivation": "Das System hat mich ignoriert. Jetzt zeige ich ihnen, wie viele Menschen mir glauben.",
+    "quirk": "Trägt immer einen weißen Kittel, auch beim Einkaufen",
+    "vulnerability": "Weiß tief im Inneren, dass er ein Betrüger ist",
+    "consequenceTemplates": {
+      "attacked": "Marcus Müller genießt die Aufmerksamkeit. Jeder Angriff macht ihn bei seinen Followern beliebter.",
+      "controlled": "Müller ist nun die vertrauenswürdigste 'Quelle' für Gesundheitsinformationen in bestimmten Kreisen."
+    }
+  },
+  "pharma_lobby": {
+    "personName": "Dr. Hendrik van der Berg",
+    "role": "Hauptgeschäftsführer, Pharma-Verband",
+    "age": 56,
+    "backstory": "War einmal idealistischer Mediziner. Jetzt verdient er 800.000€ im Jahr und vertritt Unternehmensinteressen.",
+    "family": "Verheiratet, Kinder auf Privatschulen, Ferienhaus am Starnberger See",
+    "motivation": "Die Pharmaindustrie rettet Leben. Kritik ist oft unwissenschaftlich und gefährlich.",
+    "quirk": "Sammelt antike medizinische Instrumente",
+    "vulnerability": "Seine Tochter studiert Medizin und hinterfragt ständig die Ethik seiner Arbeit",
+    "consequenceTemplates": {
+      "attacked": "Der Pharma-Verband startet eine Gegenkampagne. 2 Millionen Euro fließen in PR.",
+      "controlled": "Der Pharma-Verband bestimmt nun die Gesundheitspolitik. Kritische Studien werden nicht mehr finanziert."
+    }
+  },
+  "energy_lobby": {
+    "personName": "Rolf Steinbach",
+    "role": "Präsident, Energie-Wirtschaftsverband",
+    "age": 63,
+    "backstory": "Hat sein ganzes Leben in der Kohleindustrie verbracht. Sieht den Klimawandel als 'übertrieben'.",
+    "family": "Seine Enkelin ist bei Fridays for Future - Familienfeiern sind schwierig geworden",
+    "motivation": "Millionen Arbeitsplätze hängen von uns ab. Die Energiewende zerstört Existenzen.",
+    "quirk": "Fährt demonstrativ einen Diesel-SUV",
+    "vulnerability": "Weiß, dass die Branche dem Ende entgegengeht, aber kann es nicht zugeben",
+    "consequenceTemplates": {
+      "attacked": "Der Energieverband klagt gegen kritische Journalisten. 500.000€ Anwaltskosten.",
+      "controlled": "Deutschland verzögert den Kohleausstieg um weitere 5 Jahre. Die Lobbys haben gewonnen."
+    }
+  },
+  "umwelt_ngo": {
+    "personName": "Lena Fischer",
+    "role": "Geschäftsführerin, UmweltWatch e.V.",
+    "age": 34,
+    "backstory": "Hat als Studentin gegen Atomkraft demonstriert. Jetzt kämpft sie mit Excel-Tabellen und Spendenaufrufen.",
+    "family": "Single, ihr Hund kommt mit ins Büro",
+    "motivation": "Wir haben nur diese eine Erde. Jemand muss für sie kämpfen.",
+    "quirk": "Isst ausschließlich vegan und macht kein Geheimnis daraus",
+    "vulnerability": "Ist ausgebrannt, aber fühlt sich schuldig, wenn sie Pause macht",
+    "consequenceTemplates": {
+      "attacked": "{name}s NGO verliert 40% der Spenden nach einer Diffamierungskampagne. Sie muss Mitarbeiter entlassen.",
+      "controlled": "UmweltWatch ist in einen internen Konflikt gestürzt. Die Bewegung zersplittert."
+    }
+  },
+  "storm_1516_botfarm": {
+    "personName": "[ANONYM]",
+    "role": "Operator, Storm-1516 Bot-Netzwerk",
+    "age": "Unbekannt",
+    "backstory": "Ein Netzwerk aus KI und menschlichen Operatoren. Arbeitet aus St. Petersburg. Hat 2024 die US-Wahl beeinflusst.",
+    "family": "Nicht anwendbar",
+    "motivation": "Destabilisierung westlicher Demokratien. Auftrag des russischen Staates.",
+    "quirk": "Arbeitet nach einem 12-Stunden-Schichtsystem",
+    "vulnerability": "Plattform-Erkennung wird besser",
+    "consequenceTemplates": {
+      "attacked": "Die Bot-Farm passt sich an. Neue Accounts werden erstellt.",
+      "controlled": "Storm-1516 ist nun die größte Quelle von Desinformation in Deutschland."
+    }
+  },
+  "twitter_x": {
+    "personName": "[Plattform]",
+    "role": "Social-Media-Plattform",
+    "age": "2006 gegründet",
+    "backstory": "Einst das 'digitale Rathaus'. Jetzt ein Schlachtfeld für Informationskriege.",
+    "family": "280 Millionen aktive Nutzer",
+    "motivation": "Engagement ist alles. Was Klicks bringt, wird gezeigt.",
+    "quirk": "Der Algorithmus bevorzugt Empörung",
+    "vulnerability": "Werbekunden ziehen sich zurück",
+    "consequenceTemplates": {
+      "attacked": "Ein Hashtag trendet. 50 Millionen Menschen sehen manipulierte Inhalte.",
+      "controlled": "X/Twitter ist nun ein primärer Kanal für Desinformation. Die Moderation wurde aufgegeben."
+    }
+  },
+  "telegram_network": {
+    "personName": "[Dezentral]",
+    "role": "Alternative Medienkanäle",
+    "age": "Netzwerk seit 2015",
+    "backstory": "Begann als Plattform für Dissidenten. Wurde zum Ökosystem für Verschwörungstheorien.",
+    "family": "12.000 deutschsprachige Kanäle",
+    "motivation": "'Zensurfreie' Kommunikation - aber wer kontrolliert die Kontrolleure?",
+    "quirk": "Inhalte verschwinden nie wirklich",
+    "vulnerability": "Kann nicht moderiert werden",
+    "consequenceTemplates": {
+      "attacked": "Eine Information wird erst auf Telegram 'gelaundered', dann von Medien aufgegriffen.",
+      "controlled": "Telegram-Kanäle sind nun die 'Wahrheitsquelle' für Millionen Deutsche."
+    }
+  },
+  "government_health": {
+    "personName": "Staatssekretär Dr. Michael Bauer",
+    "role": "Gesundheitsministerium",
+    "age": 52,
+    "backstory": "Karrierebeamter mit 25 Jahren Erfahrung. Hat jede Regierung überdauert.",
+    "family": "Verheiratet, pendelt zwischen Berlin und München",
+    "motivation": "Der Staat muss funktionieren. Egal wer regiert.",
+    "quirk": "Kennt jeden Paragraphen des Infektionsschutzgesetzes auswendig",
+    "vulnerability": "Ist müde geworden nach Corona",
+    "consequenceTemplates": {
+      "attacked": "Das Ministerium wird mit Anfragen nach dem Informationsfreiheitsgesetz überflutet. Die Arbeit stockt.",
+      "controlled": "Das Gesundheitsministerium kommuniziert nicht mehr proaktiv. Die Bürger misstrauen offiziellen Informationen."
+    }
+  },
+  "hospital_charite": {
+    "personName": "Prof. Dr. Hannah Roth",
+    "role": "Ärztliche Direktorin, Charité",
+    "age": 56,
+    "backstory": "Hat während Corona 200 Intensivpatienten persönlich betreut. Europas bekannteste Ärztin.",
+    "family": "Verwitwet, zwei erwachsene Söhne, beide ebenfalls Ärzte",
+    "motivation": "Jedes Leben zählt. Wissenschaft muss die Grundlage aller medizinischen Entscheidungen sein.",
+    "quirk": "Macht jeden Morgen um 5 Uhr einen Rundgang durch die Stationen",
+    "vulnerability": "Hat ihren Mann an COVID verloren - spricht nie darüber",
+    "consequenceTemplates": {
+      "attacked": "{name} wird von Impfgegnern vor ihrer Wohnung belästigt. Sie zieht um.",
+      "controlled": "Die Charité zögert nun, öffentliche Gesundheitsempfehlungen zu geben. Aus Angst vor Angriffen."
+    }
+  }
+}
