@@ -53,6 +53,12 @@ export function NetworkVisualization({
   const [hoveredActor, setHoveredActor] = useState<Actor | null>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
 
+  // Zoom and Pan state
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+
   // Constants scaled by canvas size
   const NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.04; // 4% of smaller dimension
   const CATEGORY_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.15; // 15% of smaller dimension
@@ -102,6 +108,11 @@ export function NetworkVisualization({
     // Clear
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Save context and apply zoom/pan transform
+    ctx.save();
+    ctx.translate(pan.x, pan.y);
+    ctx.scale(zoom, zoom);
+
     // Draw category regions
     Object.keys(CATEGORY_POSITIONS_RELATIVE).forEach((category) => {
       const actors = actorsByCategory[category] || [];
@@ -122,7 +133,7 @@ export function NetworkVisualization({
 
       // Category label background for better readability
       const label = CATEGORY_LABELS[category] || category;
-      const fontSize = Math.max(12, NODE_RADIUS * 0.3);
+      const fontSize = Math.max(14, NODE_RADIUS * 0.4);
       ctx.font = `bold ${fontSize}px Inter, sans-serif`;
       const labelMetrics = ctx.measureText(label);
       const labelWidth = labelMetrics.width;
@@ -176,23 +187,56 @@ export function NetworkVisualization({
         source.id === hoveredActorId ||
         target.id === hoveredActorId;
 
-      // Connection line
-      ctx.beginPath();
-      ctx.moveTo(sourcPos.x, sourcPos.y);
-      ctx.lineTo(targetPos.x, targetPos.y);
-      ctx.strokeStyle = isHighlighted
-        ? `rgba(59, 130, 246, ${conn.strength})`
-        : `rgba(156, 163, 175, ${conn.strength * 0.4})`;
-      ctx.lineWidth = isHighlighted ? 3 : 1;
-      ctx.stroke();
+      // Connection line with gradient for depth
+      if (isHighlighted) {
+        const gradient = ctx.createLinearGradient(sourcPos.x, sourcPos.y, targetPos.x, targetPos.y);
+        gradient.addColorStop(0, `rgba(59, 130, 246, ${conn.strength})`);
+        gradient.addColorStop(0.5, `rgba(139, 92, 246, ${conn.strength})`);
+        gradient.addColorStop(1, `rgba(59, 130, 246, ${conn.strength})`);
 
-      // Connection strength indicator (dot in middle)
-      if (conn.strength > 0.5) {
+        ctx.beginPath();
+        ctx.moveTo(sourcPos.x, sourcPos.y);
+        ctx.lineTo(targetPos.x, targetPos.y);
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Add glow effect to highlighted connections
+        ctx.beginPath();
+        ctx.moveTo(sourcPos.x, sourcPos.y);
+        ctx.lineTo(targetPos.x, targetPos.y);
+        ctx.strokeStyle = `rgba(59, 130, 246, ${conn.strength * 0.3})`;
+        ctx.lineWidth = 8;
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(sourcPos.x, sourcPos.y);
+        ctx.lineTo(targetPos.x, targetPos.y);
+        ctx.strokeStyle = `rgba(156, 163, 175, ${conn.strength * 0.4})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // Connection strength indicator (dot in middle) - enhanced
+      if (conn.strength > 0.5 && isHighlighted) {
         const midX = (sourcPos.x + targetPos.x) / 2;
         const midY = (sourcPos.y + targetPos.y) / 2;
+
+        // Glow for connection point
+        const dotGradient = ctx.createRadialGradient(midX, midY, 0, midX, midY, 6);
+        dotGradient.addColorStop(0, '#3B82F6');
+        dotGradient.addColorStop(0.5, '#3B82F680');
+        dotGradient.addColorStop(1, '#3B82F600');
+
+        ctx.beginPath();
+        ctx.arc(midX, midY, 6, 0, Math.PI * 2);
+        ctx.fillStyle = dotGradient;
+        ctx.fill();
+
+        // Solid center
         ctx.beginPath();
         ctx.arc(midX, midY, 3, 0, Math.PI * 2);
-        ctx.fillStyle = isHighlighted ? '#3B82F6' : '#9CA3AF';
+        ctx.fillStyle = '#3B82F6';
         ctx.fill();
       }
     });
@@ -234,20 +278,59 @@ export function NetworkVisualization({
           ctx.stroke();
         }
 
-        // Actor outer circle (category color)
+        // Glow effect for selected/hovered actors
+        if (isSelected || isHovered) {
+          const glowRadius = NODE_RADIUS * 1.5;
+          const gradient = ctx.createRadialGradient(pos.x, pos.y, NODE_RADIUS, pos.x, pos.y, glowRadius);
+          const glowColor = isSelected ? '#3B82F6' : '#9CA3AF';
+          gradient.addColorStop(0, `${glowColor}40`);
+          gradient.addColorStop(0.5, `${glowColor}20`);
+          gradient.addColorStop(1, `${glowColor}00`);
+
+          ctx.beginPath();
+          ctx.arc(pos.x, pos.y, glowRadius, 0, Math.PI * 2);
+          ctx.fillStyle = gradient;
+          ctx.fill();
+        }
+
+        // Actor outer circle (category color) with subtle gradient
+        const outerGradient = ctx.createRadialGradient(
+          pos.x - NODE_RADIUS * 0.3,
+          pos.y - NODE_RADIUS * 0.3,
+          0,
+          pos.x,
+          pos.y,
+          NODE_RADIUS
+        );
+        const categoryColor = getCategoryColor(actor.category);
+        outerGradient.addColorStop(0, categoryColor);
+        outerGradient.addColorStop(1, categoryColor + 'CC');
+
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, NODE_RADIUS, 0, Math.PI * 2);
-        ctx.fillStyle = getCategoryColor(actor.category);
+        ctx.fillStyle = outerGradient;
         ctx.fill();
         ctx.strokeStyle = '#FFFFFF';
         ctx.lineWidth = 4;
         ctx.stroke();
 
-        // Actor inner circle (trust color)
+        // Actor inner circle (trust color) with gradient
         const innerRadius = NODE_RADIUS * 0.7;
+        const innerGradient = ctx.createRadialGradient(
+          pos.x - innerRadius * 0.3,
+          pos.y - innerRadius * 0.3,
+          0,
+          pos.x,
+          pos.y,
+          innerRadius
+        );
+        const trustColor = trustToHex(actor.trust);
+        innerGradient.addColorStop(0, trustColor);
+        innerGradient.addColorStop(1, trustColor + 'DD');
+
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, innerRadius, 0, Math.PI * 2);
-        ctx.fillStyle = trustToHex(actor.trust);
+        ctx.fillStyle = innerGradient;
         ctx.fill();
 
         // Trust percentage arc
@@ -262,7 +345,7 @@ export function NetworkVisualization({
 
         // Actor name with text wrapping for long names
         const maxNameWidth = NODE_RADIUS * 4;
-        const nameFontSize = Math.max(11, NODE_RADIUS * 0.3);
+        const nameFontSize = Math.max(12, NODE_RADIUS * 0.35);
         ctx.font = `${isSelected || isHovered ? 'bold ' : ''}${nameFontSize}px Inter, sans-serif`;
         ctx.fillStyle = '#1F2937';
         ctx.textAlign = 'center';
@@ -290,7 +373,7 @@ export function NetworkVisualization({
 
         // Trust percentage below name
         if (isSelected || isHovered) {
-          const trustFontSize = Math.max(10, NODE_RADIUS * 0.25);
+          const trustFontSize = Math.max(11, NODE_RADIUS * 0.3);
           ctx.font = `${trustFontSize}px Inter, sans-serif`;
           ctx.fillStyle = trustToHex(actor.trust);
           const trustText = `${Math.round(actor.trust * 100)}%`;
@@ -307,11 +390,24 @@ export function NetworkVisualization({
       });
     });
 
+    // Restore context after zoom/pan transform
+    ctx.restore();
+
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan]);
+
+  // Transform screen coordinates to canvas coordinates (accounting for zoom/pan)
+  const screenToCanvas = useCallback((screenX: number, screenY: number) => {
+    return {
+      x: (screenX - pan.x) / zoom,
+      y: (screenY - pan.y) / zoom,
+    };
+  }, [zoom, pan]);
 
   // Find actor at click position
-  const findActorAtPosition = useCallback((x: number, y: number): Actor | null => {
+  const findActorAtPosition = useCallback((screenX: number, screenY: number): Actor | null => {
+    const { x, y } = screenToCanvas(screenX, screenY);
+
     for (const [category, categoryActors] of Object.entries(actorsByCategory)) {
       for (let i = 0; i < categoryActors.length; i++) {
         const actor = categoryActors[i];
@@ -323,7 +419,7 @@ export function NetworkVisualization({
       }
     }
     return null;
-  }, [actorsByCategory, getActorPosition, NODE_RADIUS]);
+  }, [actorsByCategory, getActorPosition, NODE_RADIUS, screenToCanvas]);
 
   // Event handlers
   const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -344,6 +440,18 @@ export function NetworkVisualization({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Handle panning
+    if (isPanning) {
+      const dx = e.clientX - panStart.x;
+      const dy = e.clientY - panStart.y;
+      setPan(prevPan => ({
+        x: prevPan.x + dx,
+        y: prevPan.y + dy,
+      }));
+      setPanStart({ x: e.clientX, y: e.clientY });
+      return; // Don't update tooltip while panning
+    }
+
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -359,7 +467,114 @@ export function NetworkVisualization({
       setHoveredActor(null);
       setTooltipPosition(null);
     }
-  }, [findActorAtPosition, onActorHover]);
+  }, [findActorAtPosition, onActorHover, isPanning, panStart]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    // Start panning on right-click (button 2), middle mouse (button 1), or space+left click
+    if (e.button === 2 || e.button === 1) {
+      setIsPanning(true);
+      setPanStart({ x: e.clientX, y: e.clientY });
+      e.preventDefault();
+    }
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    setIsPanning(false);
+  }, []);
+
+  const handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    // Smooth zoom factor based on best practices
+    const zoomFactor = e.deltaY > 0 ? 0.95 : 1.05;
+    setZoom(prevZoom => Math.max(0.5, Math.min(3, prevZoom * zoomFactor)));
+  }, []);
+
+  // Touch support for pinch-to-zoom
+  const [touchStart, setTouchStart] = useState<{ dist: number; zoom: number } | null>(null);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length === 2) {
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const dist = Math.hypot(
+        touch1.clientX - touch2.clientX,
+        touch1.clientY - touch2.clientY
+      );
+      setTouchStart({ dist, zoom });
+    } else if (e.touches.length === 1) {
+      // Single touch for panning
+      const touch = e.touches[0];
+      setIsPanning(true);
+      setPanStart({ x: touch.clientX, y: touch.clientY });
+    }
+  }, [zoom]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+
+    if (e.touches.length === 2 && touchStart) {
+      // Pinch-to-zoom
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const dist = Math.hypot(
+        touch1.clientX - touch2.clientX,
+        touch1.clientY - touch2.clientY
+      );
+      const scale = dist / touchStart.dist;
+      const newZoom = touchStart.zoom * scale;
+      setZoom(Math.max(0.5, Math.min(3, newZoom)));
+    } else if (e.touches.length === 1 && isPanning) {
+      // Pan with single touch
+      const touch = e.touches[0];
+      const dx = touch.clientX - panStart.x;
+      const dy = touch.clientY - panStart.y;
+      setPan(prevPan => ({
+        x: prevPan.x + dx,
+        y: prevPan.y + dy,
+      }));
+      setPanStart({ x: touch.clientX, y: touch.clientY });
+    }
+  }, [touchStart, isPanning, panStart]);
+
+  const handleTouchEnd = useCallback(() => {
+    setTouchStart(null);
+    setIsPanning(false);
+  }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return; // Don't interfere with input fields
+      }
+
+      switch (e.key) {
+        case '+':
+        case '=':
+          e.preventDefault();
+          setZoom(prev => Math.min(3, prev * 1.2));
+          break;
+        case '-':
+        case '_':
+          e.preventDefault();
+          setZoom(prev => Math.max(0.5, prev / 1.2));
+          break;
+        case '0':
+          e.preventDefault();
+          setZoom(1);
+          break;
+        case 'r':
+        case 'R':
+          e.preventDefault();
+          setZoom(1);
+          setPan({ x: 0, y: 0 });
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Resize canvas
   useEffect(() => {
@@ -400,18 +615,58 @@ export function NetworkVisualization({
     <div ref={containerRef} className="w-full h-full relative">
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 cursor-pointer"
+        className={isPanning ? "absolute inset-0 cursor-grabbing" : "absolute inset-0 cursor-pointer"}
         onClick={handleClick}
         onMouseMove={handleMouseMove}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onWheel={handleWheel}
+        onContextMenu={(e) => e.preventDefault()} // Prevent context menu on right-click
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         onMouseLeave={() => {
           onActorHover(null);
           setHoveredActor(null);
           setTooltipPosition(null);
+          setIsPanning(false);
         }}
       />
 
-      {/* Legend - positioned at bottom left to avoid network overlap */}
-      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2.5 text-xs max-w-[160px]">
+      {/* Zoom Controls - positioned on left side to avoid HUD overlap */}
+      <div className="absolute bottom-20 left-4 flex flex-col gap-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2">
+        <button
+          onClick={() => setZoom(prev => Math.min(3, prev * 1.2))}
+          className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 font-bold text-lg transition-colors"
+          title="Zoom In (+, Scroll Up)"
+        >
+          +
+        </button>
+        <button
+          onClick={() => setZoom(1)}
+          className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs font-semibold transition-colors"
+          title="Reset Zoom (0)"
+        >
+          {Math.round(zoom * 100)}%
+        </button>
+        <button
+          onClick={() => setZoom(prev => Math.max(0.5, prev / 1.2))}
+          className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 font-bold text-lg transition-colors"
+          title="Zoom Out (-, Scroll Down)"
+        >
+          −
+        </button>
+        <button
+          onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
+          className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs transition-colors"
+          title="Reset View (R)"
+        >
+          ⟲
+        </button>
+      </div>
+
+      {/* Legend - positioned at bottom right */}
+      <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2.5 text-xs max-w-[160px]">
         <h4 className="font-bold text-gray-900 mb-1.5 text-[11px]">Legend</h4>
         <div className="space-y-1">
           {Object.entries(CATEGORY_LABELS).map(([cat, label]) => {
