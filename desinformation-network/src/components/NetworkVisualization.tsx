@@ -618,7 +618,7 @@ export function NetworkVisualization({
   }, [draw]);
 
   return (
-    <div ref={containerRef} className="w-full h-full relative">
+    <div ref={containerRef} className="w-full h-full relative" style={{ minHeight: '100%' }}>
       <canvas
         ref={canvasRef}
         className="absolute inset-0 cursor-pointer"

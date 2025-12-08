@@ -10,6 +10,7 @@ type MilestoneToastProps = {
   metrics: NetworkMetrics;
   totalActors: number;
   victoryThreshold: number; // 0.75
+  gameRound: number; // Only show milestones after round 1 (tutorial)
 };
 
 type Milestone = {
@@ -48,14 +49,27 @@ const MILESTONES: Milestone[] = [
   },
 ];
 
-export function MilestoneToast({ metrics, totalActors, victoryThreshold }: MilestoneToastProps) {
+export function MilestoneToast({ metrics, totalActors, victoryThreshold, gameRound }: MilestoneToastProps) {
   const [activeMilestone, setActiveMilestone] = useState<Milestone | null>(null);
   const [achievedMilestones, setAchievedMilestones] = useState<Set<string>>(new Set());
+  const [lastResetRound, setLastResetRound] = useState(gameRound);
 
   // Calculate current progress
   const currentProgress = metrics.lowTrustCount / totalActors;
 
+  // Reset achieved milestones when game restarts (round goes back to 1)
   useEffect(() => {
+    if (gameRound === 1 && lastResetRound !== 1) {
+      setAchievedMilestones(new Set());
+      setActiveMilestone(null);
+    }
+    setLastResetRound(gameRound);
+  }, [gameRound, lastResetRound]);
+
+  useEffect(() => {
+    // Only show milestones after round 1 (so player has completed the tutorial)
+    if (gameRound <= 1) return;
+
     // Check for newly achieved milestones
     for (const milestone of MILESTONES) {
       if (currentProgress >= milestone.percentage && !achievedMilestones.has(milestone.id)) {
@@ -71,7 +85,7 @@ export function MilestoneToast({ metrics, totalActors, victoryThreshold }: Miles
         break; // Only show one milestone at a time
       }
     }
-  }, [currentProgress, achievedMilestones]);
+  }, [currentProgress, achievedMilestones, gameRound]);
 
   if (!activeMilestone) return null;
 

@@ -333,7 +333,7 @@ function App() {
     : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col relative">
+    <div className="h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col overflow-hidden">
       {/* Floating HUD - Top Left */}
       <div className="fixed top-6 left-6 z-40 flex flex-col gap-3">
         <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl">
@@ -398,7 +398,7 @@ function App() {
       </div>
 
       {/* Fullscreen Network Visualization */}
-      <div className="flex-1 w-full h-full">
+      <div className="flex-1 w-full min-h-0">
         <NetworkVisualization
           actors={gameState.network.actors}
           connections={gameState.network.connections}
@@ -456,6 +456,7 @@ function App() {
           metrics={networkMetrics}
           totalActors={gameState.network.actors.filter(a => a.category !== 'defensive').length}
           victoryThreshold={0.75}
+          gameRound={gameState.round}
         />
       )}
 
