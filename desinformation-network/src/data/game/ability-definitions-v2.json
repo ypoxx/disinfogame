@@ -56,6 +56,32 @@
     "icon": "🌊📱"
   },
   {
+    "id": "emotional_manipulation",
+    "name": "Emotionale Manipulation",
+    "category": "media_manipulation",
+    "description": "Use strong emotions to bypass rational thinking",
+    "longDescription": "Deploy fear, anger, or outrage to make audiences react emotionally rather than critically evaluating information.",
+    "resourceCost": 25,
+    "cooldown": 2,
+    "basedOn": ["emotional_appeal", "fear_mongering"],
+    "effectType": "direct",
+    "targetType": "single",
+    "effects": {
+      "trustDelta": -0.20,
+      "emotionalDelta": 0.40,
+      "propagates": true
+    },
+    "tactics": [
+      "Fear headlines",
+      "Outrage bait",
+      "Emotional language"
+    ],
+    "diminishingFactor": 0.78,
+    "animationType": "pulse",
+    "animationColor": "#DC2626",
+    "icon": "😱💢"
+  },
+  {
     "id": "lokale_empoerung",
     "name": "Lokale Empörung",
     "category": "media_manipulation",
@@ -63,6 +89,7 @@
     "longDescription": "Focus on local issues to create concentrated outrage in specific communities. More effective on regionally-connected actors.",
     "resourceCost": 25,
     "cooldown": 2,
+    "basedOn": ["emotional_appeal", "local_focus"],
     "effectType": "regional",
     "targetType": "single",
     "effects": {
@@ -80,6 +107,196 @@
     "animationType": "ripple",
     "animationColor": "#FB923C",
     "icon": "🏘️📣"
+  },
+  {
+    "id": "scandalize",
+    "name": "Skandalisieren",
+    "category": "media_manipulation",
+    "description": "Turn normal events into shocking scandals",
+    "longDescription": "Take everyday occurrences and frame them as shocking scandals through selective emphasis and dramatic presentation.",
+    "resourceCost": 20,
+    "cooldown": 2,
+    "basedOn": ["framing", "sensationalism"],
+    "effectType": "direct",
+    "targetType": "single",
+    "effects": {
+      "trustDelta": -0.15,
+      "emotionalDelta": 0.25,
+      "propagates": true
+    },
+    "tactics": [
+      "Dramatic framing",
+      "Selective emphasis",
+      "Moral panic"
+    ],
+    "diminishingFactor": 0.80,
+    "animationType": "pulse",
+    "animationColor": "#F59E0B",
+    "icon": "⚡📰"
+  },
+  {
+    "id": "investigativ_framing",
+    "name": "Investigativ-Framing",
+    "category": "narrative_control",
+    "description": "Present biased narrative as investigative journalism",
+    "longDescription": "Package propaganda as serious investigative journalism. Use the credibility of the format to legitimize predetermined conclusions.",
+    "resourceCost": 45,
+    "cooldown": 4,
+    "basedOn": ["framing", "authority"],
+    "effectType": "direct",
+    "targetType": "single",
+    "effects": {
+      "trustDelta": -0.22,
+      "emotionalDelta": 0.15,
+      "propagates": true
+    },
+    "realExample": "Biased investigations that reach predetermined conclusions",
+    "tactics": [
+      "Investigative format",
+      "Selective evidence",
+      "Authority appearance"
+    ],
+    "diminishingFactor": 0.85,
+    "animationType": "glow",
+    "animationColor": "#3B82F6",
+    "icon": "🔍📋"
+  },
+  {
+    "id": "cover_story",
+    "name": "Titelgeschichte",
+    "category": "narrative_control",
+    "description": "Create high-impact cover story narrative",
+    "longDescription": "Produce a major cover story that sets the narrative agenda. High visibility and lasting impact on public discourse.",
+    "resourceCost": 50,
+    "cooldown": 5,
+    "basedOn": ["agenda_setting", "framing"],
+    "effectType": "network",
+    "targetType": "adjacent",
+    "effects": {
+      "trustDelta": -0.25,
+      "emotionalDelta": 0.20,
+      "propagates": true,
+      "duration": 3
+    },
+    "realExample": "Major magazine exposés that dominate news cycles",
+    "tactics": [
+      "High visibility",
+      "Narrative framing",
+      "Lasting impact"
+    ],
+    "diminishingFactor": 0.88,
+    "animationType": "wave",
+    "animationColor": "#2563EB",
+    "icon": "📕🎯"
+  },
+  {
+    "id": "expert_booking",
+    "name": "Experten-Buchung",
+    "category": "media_manipulation",
+    "description": "Book biased experts on TV programs",
+    "longDescription": "Arrange for friendly experts to appear on TV programs. Creates appearance of balanced debate while pushing your narrative.",
+    "resourceCost": 30,
+    "cooldown": 3,
+    "basedOn": ["authority", "false_balance"],
+    "effectType": "visibility",
+    "targetType": "single",
+    "effects": {
+      "trustDelta": -0.18,
+      "visibilityBoost": 2.5,
+      "propagates": true
+    },
+    "realExample": "Pseudo-experts appearing on talk shows",
+    "tactics": [
+      "Expert placement",
+      "False balance",
+      "Authority display"
+    ],
+    "diminishingFactor": 0.82,
+    "animationType": "broadcast",
+    "animationColor": "#06B6D4",
+    "icon": "👨‍🔬📺"
+  },
+  {
+    "id": "talk_show_manipulation",
+    "name": "Talkshow-Manipulation",
+    "category": "media_manipulation",
+    "description": "Manipulate talk show discussions",
+    "longDescription": "Influence talk show content through guest selection, topic framing, and moderation bias. Controls public discourse.",
+    "resourceCost": 35,
+    "cooldown": 3,
+    "basedOn": ["framing", "agenda_setting"],
+    "effectType": "visibility",
+    "targetType": "adjacent",
+    "effects": {
+      "trustDelta": -0.20,
+      "emotionalDelta": 0.25,
+      "visibilityBoost": 3.0,
+      "propagates": true
+    },
+    "tactics": [
+      "Guest selection",
+      "Topic control",
+      "Moderation bias"
+    ],
+    "diminishingFactor": 0.80,
+    "animationType": "broadcast",
+    "animationColor": "#0891B2",
+    "icon": "🎙️🎭"
+  },
+  {
+    "id": "documentary_framing",
+    "name": "Dokumentar-Framing",
+    "category": "narrative_control",
+    "description": "Create biased documentary content",
+    "longDescription": "Produce documentary-style content that appears objective but pushes a specific narrative through selective editing and framing.",
+    "resourceCost": 55,
+    "cooldown": 5,
+    "basedOn": ["framing", "authority"],
+    "effectType": "network",
+    "targetType": "adjacent",
+    "effects": {
+      "trustDelta": -0.22,
+      "emotionalDelta": 0.20,
+      "duration": 4,
+      "propagates": true
+    },
+    "realExample": "Documentaries that appear neutral but have hidden agendas",
+    "tactics": [
+      "Selective editing",
+      "Expert selection",
+      "Narrative structure"
+    ],
+    "diminishingFactor": 0.90,
+    "animationType": "glow",
+    "animationColor": "#0891B2",
+    "icon": "🎬📋"
+  },
+  {
+    "id": "narrative_control",
+    "name": "Narrativ-Kontrolle",
+    "category": "narrative_control",
+    "description": "Control the dominant narrative in media",
+    "longDescription": "Shape public discourse by controlling which narratives get attention. Emphasize some stories while suppressing others.",
+    "resourceCost": 40,
+    "cooldown": 4,
+    "basedOn": ["agenda_setting", "framing"],
+    "effectType": "network",
+    "targetType": "network",
+    "effects": {
+      "trustDelta": -0.18,
+      "narrativeDominance": 0.75,
+      "propagates": true,
+      "duration": 3
+    },
+    "tactics": [
+      "Story selection",
+      "Emphasis control",
+      "Narrative shaping"
+    ],
+    "diminishingFactor": 0.85,
+    "animationType": "wave",
+    "animationColor": "#14B8A6",
+    "icon": "📡🎯"
   },
   {
     "id": "create_bot_army",
@@ -118,9 +335,9 @@
     "longDescription": "Use bot army to artificially boost engagement. Makes content appear popular and credible through fake likes, shares, and comments.",
     "resourceCost": 35,
     "cooldown": 3,
-    "requires": "active_bot_army",
+    "basedOn": ["social_proof", "bandwagon"],
     "effectType": "amplification",
-    "targetType": "any_actor",
+    "targetType": "single",
     "effects": {
       "trustDelta": -0.20,
       "propagationMultiplier": 3.0,
@@ -136,6 +353,32 @@
     "animationType": "amplify",
     "animationColor": "#9CA3AF",
     "icon": "📈🔊"
+  },
+  {
+    "id": "amplification",
+    "name": "Verstärkung",
+    "category": "social_media",
+    "description": "Amplify content through platform algorithms",
+    "longDescription": "Use platform mechanics to boost content visibility. Gaming algorithms to increase reach and engagement artificially.",
+    "resourceCost": 30,
+    "cooldown": 2,
+    "basedOn": ["social_proof", "algorithmic_manipulation"],
+    "effectType": "amplification",
+    "targetType": "single",
+    "effects": {
+      "trustDelta": -0.15,
+      "visibilityBoost": 2.5,
+      "propagates": true
+    },
+    "tactics": [
+      "Algorithm gaming",
+      "Engagement boosting",
+      "Visibility manipulation"
+    ],
+    "diminishingFactor": 0.82,
+    "animationType": "surge",
+    "animationColor": "#1DA1F2",
+    "icon": "📢⬆️"
   },
   {
     "id": "astroturf_campaign",
@@ -166,6 +409,33 @@
     "icon": "👥🎭"
   },
   {
+    "id": "astroturfing",
+    "name": "Astroturfing",
+    "category": "infrastructure",
+    "description": "Create fake grassroots support",
+    "longDescription": "Generate the appearance of organic public support through coordinated fake accounts and manufactured testimonials.",
+    "resourceCost": 40,
+    "cooldown": 4,
+    "basedOn": ["astroturfing", "false_consensus"],
+    "effectType": "network",
+    "targetType": "adjacent",
+    "effects": {
+      "trustDelta": -0.20,
+      "emotionalDelta": 0.25,
+      "propagates": true
+    },
+    "realExample": "Industry-funded fake patient groups",
+    "tactics": [
+      "Fake testimonials",
+      "Coordinated support",
+      "Manufactured consensus"
+    ],
+    "diminishingFactor": 0.80,
+    "animationType": "network_pulse",
+    "animationColor": "#F472B6",
+    "icon": "🌱🎭"
+  },
+  {
     "id": "hashtag_hijacking",
     "name": "Hashtag Hijacking",
     "category": "infrastructure",
@@ -173,8 +443,9 @@
     "longDescription": "Flood trending hashtags with your narrative. Drowns out organic discourse and redirects public conversation.",
     "resourceCost": 30,
     "cooldown": 2,
+    "basedOn": ["trend_manipulation", "flooding"],
     "effectType": "social_media",
-    "targetType": "platform",
+    "targetType": "single",
     "effects": {
       "trustDelta": -0.15,
       "visibilityBoost": 2.5,
@@ -198,11 +469,12 @@
     "longDescription": "Ghost-write or influence a book by the expert. Slow to produce but creates lasting authority and citeable source.",
     "resourceCost": 60,
     "cooldown": 6,
+    "basedOn": ["authority", "citation_building"],
     "effectType": "authority_building",
     "targetType": "self",
     "effects": {
       "trustDelta": -0.30,
-      "duration": "permanent",
+      "duration": 6,
       "citeableSource": true,
       "propagates": false
     },
@@ -218,6 +490,61 @@
     "icon": "📚🎓"
   },
   {
+    "id": "publish_research",
+    "name": "Forschung Veröffentlichen",
+    "category": "expert_manipulation",
+    "description": "Publish biased research findings",
+    "longDescription": "Publish research with predetermined conclusions. Creates citeable academic sources for your narrative.",
+    "resourceCost": 50,
+    "cooldown": 5,
+    "basedOn": ["authority", "scientific_veneer"],
+    "effectType": "authority_building",
+    "targetType": "self",
+    "effects": {
+      "trustDelta": -0.25,
+      "citeableSource": true,
+      "scientificVeneer": true,
+      "propagates": true
+    },
+    "realExample": "Industry-funded studies with biased conclusions",
+    "tactics": [
+      "Biased methodology",
+      "Selective publication",
+      "Citation building"
+    ],
+    "diminishingFactor": 0.88,
+    "animationType": "glow",
+    "animationColor": "#A78BFA",
+    "icon": "📊🔬"
+  },
+  {
+    "id": "conference_circuit",
+    "name": "Konferenz-Netzwerk",
+    "category": "expert_manipulation",
+    "description": "Spread narrative through academic conferences",
+    "longDescription": "Use conference appearances to build credibility and spread narrative. Creates academic legitimacy for claims.",
+    "resourceCost": 35,
+    "cooldown": 4,
+    "basedOn": ["authority", "network_effects"],
+    "effectType": "visibility",
+    "targetType": "category",
+    "targetCategory": "expert",
+    "effects": {
+      "trustDelta": -0.18,
+      "visibilityBoost": 2.0,
+      "propagates": true
+    },
+    "tactics": [
+      "Conference speaking",
+      "Peer networking",
+      "Academic legitimacy"
+    ],
+    "diminishingFactor": 0.85,
+    "animationType": "network_pulse",
+    "animationColor": "#8B5CF6",
+    "icon": "🎤👨‍🔬"
+  },
+  {
     "id": "tv_appearance",
     "name": "TV Talk Show Appearance",
     "category": "expert_manipulation",
@@ -225,8 +552,9 @@
     "longDescription": "Place expert on popular talk show to spread narrative. Quick visibility but effect fades unless reinforced.",
     "resourceCost": 35,
     "cooldown": 3,
+    "basedOn": ["authority", "visibility"],
     "effectType": "visibility",
-    "targetType": "self_and_media",
+    "targetType": "single",
     "effects": {
       "trustDelta": -0.20,
       "visibilityBoost": 3.0,
@@ -245,6 +573,34 @@
     "icon": "📺👨‍🏫"
   },
   {
+    "id": "media_appearance",
+    "name": "Medien-Auftritt",
+    "category": "expert_manipulation",
+    "description": "Appear in media with fake credentials",
+    "longDescription": "Use fake or inflated credentials to appear as expert in media. Quick credibility boost with risk of exposure.",
+    "resourceCost": 25,
+    "cooldown": 2,
+    "basedOn": ["authority", "credential_manipulation"],
+    "effectType": "visibility",
+    "targetType": "single",
+    "effects": {
+      "trustDelta": -0.15,
+      "visibilityBoost": 2.0,
+      "vulnerableToVerification": true,
+      "propagates": true
+    },
+    "realExample": "Fake doctors appearing on news programs",
+    "tactics": [
+      "Credential display",
+      "Expert positioning",
+      "Media access"
+    ],
+    "diminishingFactor": 0.75,
+    "animationType": "broadcast",
+    "animationColor": "#C084FC",
+    "icon": "🎭📺"
+  },
+  {
     "id": "leak_study",
     "name": "Leak Unverified Study",
     "category": "expert_manipulation",
@@ -252,8 +608,9 @@
     "longDescription": "Leak preliminary research findings before peer review. Creates citations and headlines before scientific scrutiny.",
     "resourceCost": 40,
     "cooldown": 4,
+    "basedOn": ["information_laundering", "scientific_veneer"],
     "effectType": "information_laundering",
-    "targetType": "media",
+    "targetType": "single",
     "effects": {
       "trustDelta": -0.25,
       "emotionalDelta": 0.20,
@@ -279,12 +636,13 @@
     "longDescription": "Create official-looking research organization to publish biased reports. Classic authority laundering tactic.",
     "resourceCost": 70,
     "cooldown": 8,
+    "basedOn": ["authority_laundering", "institutional_capture"],
     "effectType": "infrastructure",
-    "targetType": "creates_new_actor",
+    "targetType": "self",
     "effects": {
       "spawnsActor": "fake_think_tank",
       "citeableSource": true,
-      "duration": "permanent",
+      "duration": 6,
       "trustBonus": 0.15
     },
     "realExample": "Fossil fuel industry creates 'climate research' institutes",
@@ -308,6 +666,7 @@
     "longDescription": "Fund research with predetermined conclusions. Provides citeable 'evidence' for your narrative.",
     "resourceCost": 55,
     "cooldown": 5,
+    "basedOn": ["authority", "scientific_veneer"],
     "effectType": "evidence_creation",
     "targetType": "self",
     "effects": {
@@ -328,6 +687,34 @@
     "icon": "📊💰"
   },
   {
+    "id": "commission_fake_study",
+    "name": "Gefälschte Studie",
+    "category": "authority_laundering",
+    "description": "Commission completely fabricated research",
+    "longDescription": "Create fake studies with fabricated data to support your narrative. High risk of exposure but powerful if undetected.",
+    "resourceCost": 45,
+    "cooldown": 5,
+    "basedOn": ["scientific_veneer", "fabrication"],
+    "effectType": "evidence_creation",
+    "targetType": "single",
+    "effects": {
+      "trustDelta": -0.22,
+      "citeableSource": true,
+      "vulnerableToFactCheck": true,
+      "propagates": true
+    },
+    "realExample": "Fabricated industry studies on product safety",
+    "tactics": [
+      "Data fabrication",
+      "Fake methodology",
+      "Scientific appearance"
+    ],
+    "diminishingFactor": 0.75,
+    "animationType": "document",
+    "animationColor": "#EF4444",
+    "icon": "📝❌"
+  },
+  {
     "id": "information_laundering",
     "name": "Information Laundering Chain",
     "category": "narrative_manipulation",
@@ -335,13 +722,11 @@
     "longDescription": "Classic laundering: (1) Publish in blog/Telegram, (2) Tabloid reports 'claims circulating online', (3) Story gains legitimacy.",
     "resourceCost": 45,
     "cooldown": 4,
+    "basedOn": ["information_laundering", "citation_building"],
     "effectType": "chain",
-    "targetType": "multi_actor",
-    "requires": ["alternative_media", "tabloid"],
+    "targetType": "single",
     "effects": {
-      "phase1_trustDelta": 0,
-      "phase2_trustDelta": -0.15,
-      "phase3_trustDelta": -0.25,
+      "trustDelta": -0.25,
       "legitimacyGain": 0.30,
       "propagates": true
     },
@@ -359,6 +744,34 @@
     "icon": "🔄📰"
   },
   {
+    "id": "leak_operation",
+    "name": "Leak-Operation",
+    "category": "leak_operation",
+    "description": "Strategic leak of documents or information",
+    "longDescription": "Strategically leak documents to media. Can be real, edited, or fabricated. Creates news cycle and perceived authenticity.",
+    "resourceCost": 45,
+    "cooldown": 4,
+    "basedOn": ["information_laundering", "scandal"],
+    "effectType": "scandal",
+    "targetType": "single",
+    "effects": {
+      "trustDelta": -0.28,
+      "emotionalDelta": 0.35,
+      "mediaAttention": 3.5,
+      "propagates": true
+    },
+    "realExample": "Strategic document leaks to shape narratives",
+    "tactics": [
+      "Document leaking",
+      "Timed release",
+      "Media coordination"
+    ],
+    "diminishingFactor": 0.80,
+    "animationType": "explosion",
+    "animationColor": "#0088CC",
+    "icon": "📂🔓"
+  },
+  {
     "id": "anonymous_leak",
     "name": "Anonymous Leak Operation",
     "category": "leak_operation",
@@ -366,8 +779,9 @@
     "longDescription": "Leak documents to media - can be authentic, selectively edited, or completely fabricated. Creates news cycle.",
     "resourceCost": 50,
     "cooldown": 5,
+    "basedOn": ["information_laundering", "scandal"],
     "effectType": "scandal",
-    "targetType": "any",
+    "targetType": "single",
     "effects": {
       "trustDelta": -0.30,
       "emotionalDelta": 0.40,
@@ -393,6 +807,7 @@
     "longDescription": "Deploy pseudo-experts with fake PhDs or inflated credentials. Appears legitimate in media appearances.",
     "resourceCost": 30,
     "cooldown": 3,
+    "basedOn": ["authority", "credential_manipulation"],
     "effectType": "authority_fake",
     "targetType": "self",
     "effects": {
@@ -412,6 +827,58 @@
     "icon": "🎓❌"
   },
   {
+    "id": "social_mobilization",
+    "name": "Soziale Mobilisierung",
+    "category": "grassroots",
+    "description": "Mobilize supporters for your cause",
+    "longDescription": "Organize genuine supporters to amplify your message. Creates authentic-appearing grassroots momentum.",
+    "resourceCost": 30,
+    "cooldown": 3,
+    "basedOn": ["social_proof", "mobilization"],
+    "effectType": "network",
+    "targetType": "adjacent",
+    "effects": {
+      "trustDelta": -0.15,
+      "emotionalDelta": 0.30,
+      "propagates": true
+    },
+    "tactics": [
+      "Community organizing",
+      "Supporter activation",
+      "Grassroots appearance"
+    ],
+    "diminishingFactor": 0.85,
+    "animationType": "network_pulse",
+    "animationColor": "#10B981",
+    "icon": "👥✊"
+  },
+  {
+    "id": "emotional_appeal",
+    "name": "Emotionaler Appell",
+    "category": "grassroots",
+    "description": "Use emotional stories to build support",
+    "longDescription": "Share emotional stories and testimonials to build connection and support. Appeals to feelings over facts.",
+    "resourceCost": 20,
+    "cooldown": 2,
+    "basedOn": ["emotional_appeal", "storytelling"],
+    "effectType": "direct",
+    "targetType": "single",
+    "effects": {
+      "trustDelta": -0.12,
+      "emotionalDelta": 0.35,
+      "propagates": true
+    },
+    "tactics": [
+      "Personal stories",
+      "Emotional testimonials",
+      "Human interest"
+    ],
+    "diminishingFactor": 0.80,
+    "animationType": "pulse",
+    "animationColor": "#10B981",
+    "icon": "💚🎭"
+  },
+  {
     "id": "trending_topic",
     "name": "Create Trending Topic",
     "category": "social_media",
@@ -419,8 +886,9 @@
     "longDescription": "Coordinate posts to artificially trend a hashtag. Creates appearance of widespread public interest.",
     "resourceCost": 35,
     "cooldown": 3,
+    "basedOn": ["trend_manipulation", "algorithmic_manipulation"],
     "effectType": "visibility",
-    "targetType": "platform",
+    "targetType": "single",
     "effects": {
       "visibilityMultiplier": 5.0,
       "trustDelta": -0.12,
@@ -464,5 +932,114 @@
     "animationType": "wave",
     "animationColor": "#3B82F6",
     "icon": "🎯📋"
+  },
+  {
+    "id": "official_statement",
+    "name": "Offizielle Stellungnahme",
+    "category": "institutional",
+    "description": "Issue official government statement",
+    "longDescription": "Release official statement that shapes public narrative. Carries institutional authority but can be subverted.",
+    "resourceCost": 35,
+    "cooldown": 3,
+    "basedOn": ["authority", "institutional"],
+    "effectType": "direct",
+    "targetType": "single",
+    "effects": {
+      "trustDelta": -0.18,
+      "emotionalDelta": 0.15,
+      "propagates": true
+    },
+    "tactics": [
+      "Official channels",
+      "Institutional authority",
+      "Press release"
+    ],
+    "diminishingFactor": 0.85,
+    "animationType": "broadcast",
+    "animationColor": "#14B8A6",
+    "icon": "🏛️📢"
+  },
+  {
+    "id": "bureaucracy_attack",
+    "name": "Bürokratie-Angriff",
+    "category": "institutional",
+    "description": "Undermine trust in bureaucratic processes",
+    "longDescription": "Attack the credibility of government processes and bureaucracy. Creates distrust in official institutions.",
+    "resourceCost": 30,
+    "cooldown": 3,
+    "basedOn": ["distrust_narrative", "anti_establishment"],
+    "effectType": "direct",
+    "targetType": "single",
+    "effects": {
+      "trustDelta": -0.20,
+      "emotionalDelta": 0.25,
+      "propagates": true
+    },
+    "realExample": "Attacks on health authority credibility",
+    "tactics": [
+      "Process criticism",
+      "Corruption allegations",
+      "Inefficiency claims"
+    ],
+    "diminishingFactor": 0.82,
+    "animationType": "pulse",
+    "animationColor": "#EF4444",
+    "icon": "🏛️💢"
+  },
+  {
+    "id": "medical_statement",
+    "name": "Medizinische Stellungnahme",
+    "category": "institutional",
+    "description": "Issue authoritative medical statement",
+    "longDescription": "Release medical statement with institutional authority. Can be used to spread or counter health misinformation.",
+    "resourceCost": 40,
+    "cooldown": 4,
+    "basedOn": ["authority", "medical_expertise"],
+    "effectType": "direct",
+    "targetType": "single",
+    "effects": {
+      "trustDelta": -0.20,
+      "emotionalDelta": 0.15,
+      "scientificVeneer": true,
+      "propagates": true
+    },
+    "tactics": [
+      "Medical authority",
+      "Expert endorsement",
+      "Institutional backing"
+    ],
+    "diminishingFactor": 0.88,
+    "animationType": "glow",
+    "animationColor": "#2DD4BF",
+    "icon": "🏥📋"
+  },
+  {
+    "id": "research_publication",
+    "name": "Forschungspublikation",
+    "category": "institutional",
+    "description": "Publish research through institutional channels",
+    "longDescription": "Release research through official institutional channels. High credibility but can be manipulated.",
+    "resourceCost": 50,
+    "cooldown": 5,
+    "basedOn": ["authority", "scientific_veneer"],
+    "effectType": "authority_building",
+    "targetType": "adjacent",
+    "effects": {
+      "trustDelta": -0.22,
+      "citeableSource": true,
+      "scientificVeneer": true,
+      "duration": 4,
+      "propagates": true
+    },
+    "realExample": "Institutional research used to support specific narratives",
+    "tactics": [
+      "Institutional publication",
+      "Peer review appearance",
+      "Citation building"
+    ],
+    "diminishingFactor": 0.90,
+    "animationType": "glow",
+    "animationColor": "#2DD4BF",
+    "icon": "📚🔬"
   }
 ]
