@@ -139,11 +139,17 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
   const consequenceGenerator = consequenceGeneratorRef.current;
   const epilogGenerator = epilogGeneratorRef.current;
 
-  // Sprint 4: Consequence state
+  // Sprint 4: Consequence state - use lazy initialization to avoid issues
   const [lastConsequence, setLastConsequence] = useState<Consequence | null>(null);
-  const [societalImpact, setSocietalImpact] = useState<SocietalImpact>(
-    consequenceGenerator.getSocietalImpact()
-  );
+  const [societalImpact, setSocietalImpact] = useState<SocietalImpact>(() => ({
+    livesAffected: 0,
+    trustInInstitutions: 0.65,
+    polarizationLevel: 0.3,
+    misinformationSpread: 0.1,
+    silencedVoices: 0,
+    radicalizedGroups: 0,
+    economicCost: 0,
+  }));
 
   // Cleanup expired visual effects
   useEffect(() => {
