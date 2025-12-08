@@ -571,6 +571,10 @@ export function NetworkVisualization({
       if (!canvas || !container) return;
 
       const { width, height } = container.getBoundingClientRect();
+
+      // Skip if container has no dimensions yet
+      if (width === 0 || height === 0) return;
+
       const dpr = window.devicePixelRatio || 1;
 
       canvas.width = width * dpr;
@@ -587,9 +591,24 @@ export function NetworkVisualization({
       }
     };
 
-    handleResize();
+    // Initial resize with a small delay to ensure container has dimensions
+    const timeoutId = setTimeout(handleResize, 50);
+
+    // Also use ResizeObserver for better handling
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(timeoutId);
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   // Animation loop
