@@ -293,8 +293,12 @@ export class GameStateManager {
         
       case 'category':
         // Target all actors of a specific category
-        return actors.filter(a => 
-          a.category === ability.targetCategory && 
+        if (!ability.targetCategory) {
+          console.warn(`Ability ${abilityId} has targetType 'category' but no targetCategory defined`);
+          return [];
+        }
+        return actors.filter(a =>
+          a.category === ability.targetCategory &&
           a.id !== sourceActorId
         );
         
@@ -940,7 +944,7 @@ export class GameStateManager {
    */
   private calculateResourceBonus(): number {
     return this.state.network.actors
-      .filter(a => a.trust < 0.3) // "Controlled" actors
+      .filter(a => a.trust < VICTORY_TRUST_LEVEL) // Controlled actors (same threshold as victory)
       .reduce((sum, a) => {
         switch (a.category) {
           case 'media': return sum + 5;
