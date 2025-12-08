@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useGameState } from '@/hooks/useGameState';
-import { cn } from '@/utils/cn';
 import { formatPercent } from '@/utils';
-import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
+import { trustToHex } from '@/utils/colors';
 import { NetworkVisualization } from '@/components/NetworkVisualization';
 import { RoundSummary } from '@/components/RoundSummary';
 import { VictoryProgressBar } from '@/components/VictoryProgressBar';
@@ -466,8 +465,8 @@ function App() {
         onDismiss={dismissConsequence}
       />
 
-      {/* Sprint 4: Impact Dashboard (Bottom Right, above End Round) */}
-      <div className="fixed bottom-6 right-6 z-30 w-72">
+      {/* Sprint 4: Impact Dashboard (Bottom Left, above BottomSheet) */}
+      <div className="fixed bottom-24 left-6 z-30 w-72">
         <ImpactDashboard
           impact={societalImpact}
           isExpanded={showImpactDashboard}
