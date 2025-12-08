@@ -86,6 +86,8 @@ type UseGameStateReturn = {
   applyAbility: (targetActorIds: string[]) => boolean;
   canUseAbility: (abilityId: string) => boolean;
   getActorAbilities: (actorId: string) => Ability[];
+  getValidTargets: (abilityId: string, actorId: string) => Actor[];
+  deselectActor: () => void;
 
   // UI actions
   toggleEncyclopedia: () => void;
@@ -393,6 +395,20 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     return gameManager.getActorAbilities(actorId);
   }, [gameManager]);
 
+  const getValidTargets = useCallback((abilityId: string, actorId: string): Actor[] => {
+    return gameManager.getValidTargets(abilityId, actorId);
+  }, [gameManager]);
+
+  const deselectActor = useCallback(() => {
+    setUIState(prev => ({
+      ...prev,
+      selectedActor: null,
+      selectedAbility: null,
+      targetingMode: false,
+      validTargets: [],
+    }));
+  }, []);
+
   // ============================================
   // UI ACTIONS (remaining)
   // ============================================
@@ -487,6 +503,8 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     applyAbility,
     canUseAbility,
     getActorAbilities,
+    getValidTargets,
+    deselectActor,
 
     toggleEncyclopedia,
     toggleTutorial,

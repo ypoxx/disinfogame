@@ -48,7 +48,8 @@ function App() {
     cancelAbility,
     canUseAbility,
     getActorAbilities,
-    toggleEncyclopedia,
+    getValidTargets,
+    deselectActor,
     addNotification,
   } = useGameState();
 
@@ -419,9 +420,11 @@ function App() {
         canUseAbility={canUseAbility}
         onSelectAbility={selectAbility}
         onCancel={cancelAbility}
+        onClose={deselectActor}
         selectedAbilityId={uiState.selectedAbility?.abilityId || null}
         targetingMode={uiState.targetingMode}
         addNotification={addNotification}
+        getValidTargets={getValidTargets}
       />
 
       {/* Round Summary Modal */}
