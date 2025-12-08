@@ -35,6 +35,7 @@ const INITIAL_INFRASTRUCTURE = 0;
 const MONEY_PER_ROUND = 30;
 const ATTENTION_DECAY_RATE = 0.15;  // 15% per round
 const DETECTION_THRESHOLD = 0.8;    // 80% attention = high risk
+const EXPOSURE_THRESHOLD = 0.85;    // 85% detection risk = exposed and caught
 const INFRASTRUCTURE_BONUS_MULTIPLIER = 0.1;  // 10% bonus per infrastructure
 
 // Game Flow
@@ -416,7 +417,13 @@ export class GameStateManager {
     
     // Propagate if ability propagates
     if (ability.effects.propagates) {
-      this.propagateEffect(ability, targetActorIds, usageCount);
+      // For network-type abilities, propagate from all actors
+      // For targeted abilities, propagate from the specific targets
+      const propagationSources = ability.targetType === 'network'
+        ? this.state.network.actors.map(a => a.id)
+        : targetActorIds;
+
+      this.propagateEffect(ability, propagationSources, usageCount);
     }
     
     // Update network metrics
@@ -1103,11 +1110,16 @@ export class GameStateManager {
    * Check defeat conditions
    */
   checkDefeat(): DefeatReason | null {
+    // Exposure - caught due to excessive attention/detection risk
+    if (this.state.detectionRisk >= EXPOSURE_THRESHOLD) {
+      return 'exposure';
+    }
+
     // Time out
     if (this.state.round >= this.state.maxRounds) {
       return 'time_out';
     }
-    
+
     // Defensive victory
     const metrics = this.getNetworkMetrics();
     if (
@@ -1116,7 +1128,7 @@ export class GameStateManager {
     ) {
       return 'defensive_victory';
     }
-    
+
     return null;
   }
   

@@ -273,6 +273,8 @@ function App() {
           <p className="text-xl text-gray-300 mb-8">
             {gameState.defeatReason === 'time_out'
               ? "Time ran out before you could complete your campaign."
+              : gameState.defeatReason === 'exposure'
+              ? "You were exposed! Too much attention drew investigation and your campaign was shut down."
               : "Defensive mechanisms restored public trust."}
           </p>
           
