@@ -8,6 +8,8 @@ import { RoundSummary } from '@/components/RoundSummary';
 import { VictoryProgressBar } from '@/components/VictoryProgressBar';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
 import { BottomSheet } from '@/components/BottomSheet';
+import { GameStatistics } from '@/components/GameStatistics';
+import { EventNotification } from '@/components/EventNotification';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
@@ -22,6 +24,7 @@ function App() {
     gameState,
     uiState,
     networkMetrics,
+    statistics,
     startGame,
     advanceRound,
     resetGame,
@@ -32,8 +35,10 @@ function App() {
     cancelAbility,
     canUseAbility,
     getActorAbilities,
+    getValidTargets,
     toggleEncyclopedia,
     addNotification,
+    dismissCurrentEvent,
   } = useGameState();
 
   // Round summary state
@@ -45,6 +50,15 @@ function App() {
   // Tutorial state
   const [tutorialState, setTutorialState] = useState<TutorialState>(createInitialTutorialState());
   const [showTutorial, setShowTutorial] = useState(false);
+
+  // Statistics state
+  const [showStatistics, setShowStatistics] = useState(false);
+
+  // Handler to close actor panel completely
+  const handleCloseActorPanel = () => {
+    cancelAbility(); // Cancel any selected ability
+    selectActor(null); // Deselect actor
+  };
 
   // Track round changes and generate summaries
   useEffect(() => {
@@ -222,6 +236,12 @@ function App() {
               Play Again
             </button>
             <button
+              onClick={() => setShowStatistics(true)}
+              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors"
+            >
+              📊 View Statistics
+            </button>
+            <button
               onClick={toggleEncyclopedia}
               className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
             >
@@ -229,6 +249,14 @@ function App() {
             </button>
           </div>
         </div>
+
+        {/* Statistics Modal */}
+        {showStatistics && (
+          <GameStatistics
+            statistics={statistics}
+            onClose={() => setShowStatistics(false)}
+          />
+        )}
       </div>
     );
   }
@@ -245,6 +273,8 @@ function App() {
           <p className="text-xl text-gray-300 mb-8">
             {gameState.defeatReason === 'time_out'
               ? "Time ran out before you could complete your campaign."
+              : gameState.defeatReason === 'exposure'
+              ? "You were exposed! Too much attention drew investigation and your campaign was shut down."
               : "Defensive mechanisms restored public trust."}
           </p>
           
@@ -262,13 +292,29 @@ function App() {
             </div>
           </div>
           
-          <button
-            onClick={resetGame}
-            className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-xl transition-colors"
-          >
-            Try Again
-          </button>
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={resetGame}
+              className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-xl transition-colors"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => setShowStatistics(true)}
+              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors"
+            >
+              📊 View Statistics
+            </button>
+          </div>
         </div>
+
+        {/* Statistics Modal */}
+        {showStatistics && (
+          <GameStatistics
+            statistics={statistics}
+            onClose={() => setShowStatistics(false)}
+          />
+        )}
       </div>
     );
   }
@@ -278,33 +324,41 @@ function App() {
   // ============================================
 
   const selectedActor = uiState.selectedActor
-    ? getActor(uiState.selectedActor.actorId)
+    ? getActor(uiState.selectedActor.actorId) ?? null
     : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col relative">
+    <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col">
       {/* Floating HUD - Top Left */}
-      <div className="fixed top-6 left-6 z-40 flex flex-col gap-3">
-        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl">
-          <h1 className="text-lg font-bold text-white mb-2">
+      <div className="fixed top-6 left-6 z-40 flex flex-col gap-3 animate-fade-in">
+        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl transition-all hover:bg-gray-900/80 hover:shadow-2xl hover:shadow-blue-500/10">
+          <h1 className="text-base font-bold text-white mb-2">
             Desinformation Network
           </h1>
-          <div className="flex flex-col gap-2 text-sm">
+          <div className="flex flex-col gap-1.5 text-sm">
             <div className="flex items-center gap-2">
               <span className="text-gray-400">Round:</span>
               <span className="font-semibold text-white">{gameState.round}/{gameState.maxRounds}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-blue-400">Resources:</span>
-              <span className="font-semibold text-blue-300">{gameState.resources}</span>
+              <span className="text-yellow-400">💰</span>
+              <span className="font-semibold text-yellow-300">{gameState.resources.money}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-red-400">👁️</span>
+              <span className="font-semibold text-red-300">{Math.round(gameState.resources.attention)}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-purple-400">🔧</span>
+              <span className="font-semibold text-purple-300">{gameState.resources.infrastructure}</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Floating HUD - Top Right */}
-      <div className="fixed top-6 right-6 z-40 flex flex-col gap-3">
-        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl min-w-[200px]">
+      <div className="fixed top-6 right-6 z-40 flex flex-col gap-3 animate-fade-in">
+        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl min-w-[200px] transition-all hover:bg-gray-900/80 hover:shadow-2xl hover:shadow-purple-500/10">
           <VictoryProgressBar
             metrics={networkMetrics}
             round={gameState.round}
@@ -313,12 +367,12 @@ function App() {
             trustThreshold={0.40}
           />
         </div>
-        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-xl px-4 py-3 shadow-xl">
-          <div className="flex flex-col gap-2 text-sm">
+        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl transition-all hover:bg-gray-900/80 hover:shadow-2xl hover:shadow-blue-500/10">
+          <div className="flex flex-col gap-1.5 text-sm">
             <div className="flex justify-between items-center">
               <span className="text-gray-400">Avg Trust:</span>
               <span
-                className="font-semibold"
+                className="font-semibold transition-colors"
                 style={{ color: trustToHex(networkMetrics.averageTrust) }}
               >
                 {formatPercent(networkMetrics.averageTrust)}
@@ -326,7 +380,7 @@ function App() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-400">Low Trust:</span>
-              <span className="font-semibold text-red-400">
+              <span className="font-semibold text-red-400 transition-all">
                 {networkMetrics.lowTrustCount}/{gameState.network.actors.length}
               </span>
             </div>
@@ -334,14 +388,14 @@ function App() {
         </div>
         <button
           onClick={advanceRound}
-          className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-green-600/20"
+          className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-green-600/30 hover:scale-105 active:scale-95"
         >
           End Round →
         </button>
       </div>
 
       {/* Fullscreen Network Visualization */}
-      <div className="flex-1 w-full h-full">
+      <div className="absolute inset-0 w-full h-full">
         <NetworkVisualization
           actors={gameState.network.actors}
           connections={gameState.network.connections}
@@ -361,10 +415,11 @@ function App() {
         resources={gameState.resources}
         canUseAbility={canUseAbility}
         onSelectAbility={selectAbility}
-        onCancel={cancelAbility}
+        onCancel={handleCloseActorPanel}
         selectedAbilityId={uiState.selectedAbility?.abilityId || null}
         targetingMode={uiState.targetingMode}
         addNotification={addNotification}
+        getValidTargets={getValidTargets}
       />
 
       {/* Round Summary Modal */}
@@ -390,6 +445,14 @@ function App() {
             onSkip={handleTutorialSkip}
           />
         </>
+      )}
+
+      {/* Event Notification */}
+      {uiState.currentEvent && (
+        <EventNotification
+          event={uiState.currentEvent}
+          onClose={dismissCurrentEvent}
+        />
       )}
     </div>
   );
