@@ -19,6 +19,7 @@ const CATEGORY_COLORS: Record<ActorCategory, string> = {
   lobby: '#EC4899',       // Pink
   organization: '#14B8A6', // Teal
   defensive: '#22C55E',   // Green
+  infrastructure: '#F59E0B', // Amber/Orange
 };
 
 /**
@@ -80,6 +81,7 @@ export function getCategoryColorLight(category: ActorCategory): string {
     lobby: '#FCE7F3',       // Pink-100
     organization: '#CCFBF1', // Teal-100
     defensive: '#DCFCE7',   // Green-100
+    infrastructure: '#FEF3C7', // Amber-100
   };
   return lightColors[category] || '#F3F4F6';
 }

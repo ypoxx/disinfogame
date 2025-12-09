@@ -246,6 +246,8 @@ export type ActorCluster = {
   id: string;
   name: string;                // Auto-generated name based on composition
   actors: string[];            // Actor IDs in this cluster
+  actorIds?: string[];         // Alias for actors (for backward compatibility)
+  category: ActorCategory;     // Dominant category in this cluster
   averageTrust: number;
   center: Position;            // Visual center point
   radius: number;              // Visual radius
@@ -253,8 +255,11 @@ export type ActorCluster = {
 
 export type Community = {
   id: string;
-  type: 'media_ecosystem' | 'expert_network' | 'lobby_coalition' | 'mixed';
-  members: string[];           // Actor IDs
+  type?: 'media_ecosystem' | 'expert_network' | 'lobby_coalition' | 'mixed';
+  members?: string[];          // Actor IDs
+  memberIds?: string[];        // Actor IDs (alias for members)
+  averageTrust?: number;       // Average trust of members
+  dominantCategory?: string;   // Most common actor category
   cohesion: number;            // 0-1, density of internal connections
 };
 
@@ -299,7 +304,8 @@ export type ComboProgress = {
   comboId: string;
   targetActorId: string;
   startRound: number;
-  usedAbilities: string[]; // Ability IDs in sequence
+  lastUsedRound?: number;      // Round when last ability in sequence was used
+  usedAbilities: string[];     // Ability IDs in sequence
 };
 
 export type ComboDetection = {
