@@ -17,6 +17,7 @@ import {
   applyFilters
 } from '@/components/FilterControls';
 import { ComboTracker } from '@/components/ComboTracker';
+import { TopologyOverlay } from '@/components/TopologyOverlay';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
@@ -65,6 +66,9 @@ function App() {
   // Filter state (Phase 2: UX Layer)
   const [actorFilters, setActorFilters] = useState<ActorFilters>(createDefaultFilters());
   const [filterCollapsed, setFilterCollapsed] = useState(false);
+
+  // Topology state (Phase 4.2: Network Topology Analysis)
+  const [topologyCollapsed, setTopologyCollapsed] = useState(false);
 
   // Apply filters to actors
   const filteredActors = useMemo(
@@ -453,6 +457,21 @@ function App() {
             comboDefinitions={comboDefinitions}
             actors={gameState.network.actors}
             currentRound={gameState.round}
+          />
+        </div>
+      )}
+
+      {/* Topology Overlay (Phase 4.2: Network Topology Analysis) */}
+      {gameState.topology && (
+        <div className={cn(
+          "absolute left-4 z-20",
+          gameState.activeCombos.length > 0 ? "top-96" : "top-20"
+        )}>
+          <TopologyOverlay
+            topology={gameState.topology}
+            actors={gameState.network.actors}
+            collapsed={topologyCollapsed}
+            onToggleCollapse={() => setTopologyCollapsed(!topologyCollapsed)}
           />
         </div>
       )}

@@ -25,6 +25,7 @@ import {
 } from '@/utils';
 import { calculateSmartConnections } from '@/utils/network/connections';
 import { calculateForceLayout, getPresetConfig } from '@/utils/network/force-layout';
+import { analyzeNetworkTopology } from '@/utils/network/topology-analysis';
 import {
   type BalanceConfig,
   type DifficultyLevel,
@@ -239,8 +240,42 @@ export class GameStateManager {
     };
 
     console.log(`✅ Network initialized: ${actors.length} actors, ${connections.length} connections`);
+
+    // PHASE 4.2: Analyze network topology
+    this.updateNetworkTopology();
   }
-  
+
+  /**
+   * Update network topology analysis (PHASE 4.2)
+   * Calculates centrality scores and detects bottlenecks
+   */
+  private updateNetworkTopology(): void {
+    console.log('🔍 Analyzing network topology...');
+
+    const topology = analyzeNetworkTopology(
+      this.state.network.actors,
+      this.state.network.connections
+    );
+
+    this.state.topology = topology;
+
+    // Update actor centrality scores
+    this.state.network.actors.forEach(actor => {
+      const centrality = topology.centralities.get(actor.id);
+      if (centrality) {
+        actor.centrality = (centrality.degree + centrality.betweenness + centrality.closeness) / 3;
+      }
+    });
+
+    // Mark bottleneck actors
+    const bottleneckIds = new Set(topology.bottlenecks.map(b => b.actorId));
+    this.state.network.actors.forEach(actor => {
+      actor.isBottleneck = bottleneckIds.has(actor.id);
+    });
+
+    console.log(`✅ Topology analyzed: ${topology.bottlenecks.length} bottlenecks detected`);
+  }
+
   /**
    * Start the game
    */
@@ -710,7 +745,12 @@ export class GameStateManager {
 
     // 9. Update network metrics
     this.updateNetworkMetrics();
-    
+
+    // 9.5. PHASE 4.2: Update network topology (every 4 rounds)
+    if (this.state.round % 4 === 0) {
+      this.updateNetworkTopology();
+    }
+
     // 10. Track round statistics
     this.trackRoundStatistics();
 
