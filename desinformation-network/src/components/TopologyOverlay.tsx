@@ -5,7 +5,7 @@
  * network fragility. Helps players identify strategic targets.
  */
 
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import type { Actor, NetworkTopology } from '@/game-logic/types';
 import { getTopCentralActors, getCriticalBottlenecks, calculateNetworkFragility } from '@/utils/network/topology-analysis';
 import { cn } from '@/utils/cn';
@@ -25,7 +25,7 @@ export interface TopologyOverlayProps {
 // COMPONENT
 // ============================================
 
-export function TopologyOverlay({
+function TopologyOverlayComponent({
   topology,
   actors,
   collapsed = false,
@@ -233,3 +233,7 @@ export function TopologyOverlay({
     </div>
   );
 }
+
+
+// PHASE 5: Performance - Wrap with React.memo
+export const TopologyOverlay = memo(TopologyOverlayComponent);

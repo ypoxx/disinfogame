@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
+import { useRef, useEffect, useCallback, useState, useMemo, memo } from 'react';
 import type { Actor, Connection } from '@/game-logic/types';
 import { trustToHex, getCategoryColor } from '@/utils/colors';
 import { euclideanDistance, cn } from '@/utils';
@@ -81,6 +81,13 @@ export function NetworkVisualization({
     return groups;
   }, {} as Record<string, Actor[]>);
 
+  // PHASE 5: Performance - Create actor map for O(1) lookups
+  const actorMap = useMemo(() => {
+    const map = new Map<string, Actor>();
+    actors.forEach(actor => map.set(actor.id, actor));
+    return map;
+  }, [actors]);
+
   // Detect spatial clusters (Phase 2: UX Layer)
   const spatialClusters = useMemo(() => {
     if (!showClusters || actors.length < 3) return [];
@@ -102,6 +109,21 @@ export function NetworkVisualization({
     // Actors now have positions set by force-directed layout in GameState
     return actor.position;
   }, []);
+
+  // PHASE 5: Performance - Viewport culling helper
+  const isInViewport = useCallback((pos: { x: number; y: number }, padding: number = NODE_RADIUS * 2) => {
+    const viewX = -pan.x / zoom;
+    const viewY = -pan.y / zoom;
+    const viewWidth = canvasSize.width / zoom;
+    const viewHeight = canvasSize.height / zoom;
+
+    return (
+      pos.x >= viewX - padding &&
+      pos.x <= viewX + viewWidth + padding &&
+      pos.y >= viewY - padding &&
+      pos.y <= viewY + viewHeight + padding
+    );
+  }, [pan, zoom, canvasSize, NODE_RADIUS]);
 
   // Drawing function
   const draw = useCallback(() => {
@@ -196,10 +218,10 @@ export function NetworkVisualization({
       ctx.fillText(label, labelX, labelY);
     });
 
-    // Draw connections (edges)
+    // Draw connections (edges) - PHASE 5: Use actorMap for O(1) lookups
     connections.forEach(conn => {
-      const source = actors.find(a => a.id === conn.sourceId);
-      const target = actors.find(a => a.id === conn.targetId);
+      const source = actorMap.get(conn.sourceId);
+      const target = actorMap.get(conn.targetId);
       if (!source || !target) return;
 
       const sourcPos = getActorPosition(source);
@@ -265,13 +287,18 @@ export function NetworkVisualization({
       }
     });
 
-    // Draw actors (nodes)
+    // Draw actors (nodes) - PHASE 5: Apply viewport culling
     actors.forEach((actor) => {
       const pos = getActorPosition(actor);
 
-        const isSelected = actor.id === selectedActorId;
-        const isHovered = actor.id === hoveredActorId;
-        const isValidTarget = validTargets.includes(actor.id);
+      // Skip actors outside viewport (with padding for smooth entry/exit)
+      if (!isInViewport(pos, NODE_RADIUS * 3)) {
+        return;
+      }
+
+      const isSelected = actor.id === selectedActorId;
+      const isHovered = actor.id === hoveredActorId;
+      const isValidTarget = validTargets.includes(actor.id);
 
         // Glow for targeting mode
         if (targetingMode && isValidTarget) {
@@ -763,4 +790,15 @@ export function NetworkVisualization({
   );
 }
 
-export default NetworkVisualization;
+// PHASE 5: Performance - Wrap with React.memo to prevent unnecessary re-renders
+export default memo(NetworkVisualization, (prevProps, nextProps) => {
+  // Custom comparison function for performance
+  return (
+    prevProps.actors === nextProps.actors &&
+    prevProps.connections === nextProps.connections &&
+    prevProps.selectedActorId === nextProps.selectedActorId &&
+    prevProps.hoveredActorId === nextProps.hoveredActorId &&
+    prevProps.targetingMode === nextProps.targetingMode &&
+    prevProps.validTargets === nextProps.validTargets
+  );
+});

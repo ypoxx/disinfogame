@@ -5,7 +5,7 @@
  * Shows players which ability combinations are in progress.
  */
 
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import type { ComboProgress, Actor } from '@/game-logic/types';
 import type { ComboDefinition } from '@/game-logic/combo-system';
 import { cn } from '@/utils/cn';
@@ -25,7 +25,7 @@ export interface ComboTrackerProps {
 // COMPONENT
 // ============================================
 
-export function ComboTracker({
+function ComboTrackerComponent({
   activeCombos,
   comboDefinitions,
   actors,
@@ -177,6 +177,9 @@ export function ComboTracker({
     </div>
   );
 }
+
+// PHASE 5: Performance - Wrap with React.memo
+export const ComboTracker = memo(ComboTrackerComponent);
 
 // ============================================
 // COMBO NOTIFICATION (Flash when completed)

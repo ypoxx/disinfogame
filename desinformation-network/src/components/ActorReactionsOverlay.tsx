@@ -6,7 +6,7 @@
  * are fighting back against manipulation.
  */
 
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import type { Actor, ActorReaction } from '@/game-logic/types';
 import { cn } from '@/utils/cn';
 
@@ -26,7 +26,7 @@ export interface ActorReactionsOverlayProps {
 // COMPONENT
 // ============================================
 
-export function ActorReactionsOverlay({
+function ActorReactionsOverlayComponent({
   reactions,
   actors,
   currentRound,
@@ -252,3 +252,7 @@ function getReactionBarColor(type: ActorReaction['type']): string {
       return 'bg-gray-500';
   }
 }
+
+
+// PHASE 5: Performance - Wrap with React.memo
+export const ActorReactionsOverlay = memo(ActorReactionsOverlayComponent);
