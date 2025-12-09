@@ -1,0 +1,250 @@
+[
+  {
+    "id": "bildungsministerium",
+    "name": "Bildungsministerium",
+    "tier": 2,
+    "category": "organization",
+    "subcategory": "government_education",
+    "baseTrust": 0.68,
+    "resilience": 0.56,
+    "influenceRadius": 140,
+    "emotionalState": 0.24,
+    "recoveryRate": 0.024,
+    "abilities": ["official_statement", "policy_implementation", "educational_program"],
+    "vulnerabilities": ["bureaucracy_attack", "ideological_framing"],
+    "resistances": ["ad_hominem"],
+    "color": "#14B8A6",
+    "size": 64,
+    "icon": "📚",
+    "renderPriority": 7,
+    "connections": {
+      "categories": ["organization.government", "expert.education", "media"],
+      "strength": 0.75
+    },
+    "behavior": {
+      "type": "defensive",
+      "triggerThreshold": 0.52,
+      "reactionProbability": 0.25
+    }
+  },
+  {
+    "id": "eu_commission",
+    "name": "EU-Kommission",
+    "tier": 2,
+    "category": "organization",
+    "subcategory": "international_government",
+    "baseTrust": 0.62,
+    "resilience": 0.58,
+    "influenceRadius": 155,
+    "emotionalState": 0.20,
+    "recoveryRate": 0.022,
+    "abilities": ["regulatory_action", "official_statement", "international_cooperation"],
+    "vulnerabilities": ["sovereignty_framing", "bureaucracy_attack"],
+    "resistances": [],
+    "color": "#0EA5E9",
+    "size": 66,
+    "icon": "🇪🇺",
+    "renderPriority": 7,
+    "connections": {
+      "categories": ["organization.government", "organization.international", "expert", "media.quality"],
+      "strength": 0.72
+    },
+    "behavior": {
+      "type": "defensive",
+      "triggerThreshold": 0.55,
+      "reactionProbability": 0.28
+    }
+  },
+  {
+    "id": "university_network",
+    "name": "Universitäts-Netzwerk",
+    "tier": 2,
+    "category": "organization",
+    "subcategory": "education_institution",
+    "representsCount": 15,
+    "baseTrust": 0.76,
+    "resilience": 0.62,
+    "influenceRadius": 125,
+    "emotionalState": 0.18,
+    "recoveryRate": 0.029,
+    "abilities": ["research_publication", "expert_training", "fact_check"],
+    "vulnerabilities": ["funding_cuts", "ideological_framing"],
+    "resistances": ["emotional_appeal", "scarcity"],
+    "color": "#6366F1",
+    "size": 62,
+    "icon": "🎓",
+    "renderPriority": 8,
+    "connections": {
+      "categories": ["organization.education", "expert", "media.quality"],
+      "strength": 0.8
+    },
+    "behavior": {
+      "type": "defensive",
+      "triggerThreshold": 0.48,
+      "counterAbilities": ["fact_check", "peer_review"],
+      "reactionProbability": 0.35
+    }
+  },
+  {
+    "id": "research_institutes",
+    "name": "Forschungsinstitute",
+    "tier": 2,
+    "category": "organization",
+    "subcategory": "research_institution",
+    "representsCount": 10,
+    "baseTrust": 0.74,
+    "resilience": 0.60,
+    "influenceRadius": 118,
+    "emotionalState": 0.16,
+    "recoveryRate": 0.028,
+    "abilities": ["research_publication", "expert_statement"],
+    "vulnerabilities": ["funding_exposure"],
+    "resistances": ["emotional_appeal"],
+    "color": "#818CF8",
+    "size": 60,
+    "icon": "🔬",
+    "renderPriority": 7,
+    "connections": {
+      "categories": ["organization.research", "expert", "media.quality", "organization.government"],
+      "strength": 0.75
+    },
+    "behavior": {
+      "type": "defensive",
+      "triggerThreshold": 0.50,
+      "reactionProbability": 0.30
+    }
+  },
+  {
+    "id": "medical_associations",
+    "name": "Ärztekammern",
+    "tier": 3,
+    "category": "organization",
+    "subcategory": "professional_association",
+    "representsCount": 5,
+    "baseTrust": 0.78,
+    "resilience": 0.64,
+    "influenceRadius": 112,
+    "emotionalState": 0.20,
+    "recoveryRate": 0.030,
+    "abilities": ["professional_statement", "guideline_setting"],
+    "vulnerabilities": ["scandal_exposure"],
+    "resistances": ["emotional_appeal", "scarcity"],
+    "color": "#0891B2",
+    "size": 58,
+    "icon": "⚕️",
+    "renderPriority": 6,
+    "connections": {
+      "categories": ["organization.professional", "expert.medicine", "media", "organization.healthcare"],
+      "specific": ["hospital_charite"],
+      "strength": 0.82
+    },
+    "behavior": {
+      "type": "defensive",
+      "triggerThreshold": 0.46,
+      "reactionProbability": 0.32
+    }
+  },
+  {
+    "id": "regulatory_bodies",
+    "name": "Regulierungsbehörden",
+    "tier": 3,
+    "category": "organization",
+    "subcategory": "regulatory",
+    "representsCount": 8,
+    "baseTrust": 0.64,
+    "resilience": 0.68,
+    "influenceRadius": 135,
+    "emotionalState": 0.18,
+    "recoveryRate": 0.025,
+    "abilities": ["regulatory_action", "investigation", "enforcement"],
+    "vulnerabilities": ["corruption_framing", "bureaucracy_attack"],
+    "resistances": ["emotional_appeal"],
+    "color": "#059669",
+    "size": 62,
+    "icon": "⚖️",
+    "renderPriority": 6,
+    "connections": {
+      "categories": ["organization.regulatory", "organization.government", "media"],
+      "strength": 0.7
+    },
+    "behavior": {
+      "type": "aggressive",
+      "triggerThreshold": 0.65,
+      "counterAbilities": ["investigation", "enforcement"],
+      "reactionProbability": 0.4
+    }
+  },
+  {
+    "id": "reddit_forums",
+    "name": "Reddit & Foren-Netzwerke",
+    "tier": 3,
+    "category": "infrastructure",
+    "subcategory": "forum",
+    "representsCount": 20,
+    "baseTrust": 0.44,
+    "resilience": 0.28,
+    "influenceRadius": 165,
+    "emotionalState": 0.55,
+    "recoveryRate": 0.012,
+    "abilities": ["community_narrative", "information_laundering"],
+    "vulnerabilities": ["moderation"],
+    "resistances": [],
+    "color": "#FF4500",
+    "size": 64,
+    "icon": "💬",
+    "renderPriority": 5,
+    "connections": {
+      "categories": ["infrastructure.social", "media.alternative", "expert"],
+      "strength": 0.68
+    }
+  },
+  {
+    "id": "messenger_networks",
+    "name": "Messenger-Dienste",
+    "tier": 3,
+    "category": "infrastructure",
+    "subcategory": "messaging",
+    "representsCount": 8,
+    "baseTrust": 0.48,
+    "resilience": 0.30,
+    "influenceRadius": 175,
+    "emotionalState": 0.42,
+    "recoveryRate": 0.010,
+    "abilities": ["viral_spread", "echo_chamber"],
+    "vulnerabilities": ["encryption_debate"],
+    "resistances": ["fact_check", "moderation"],
+    "color": "#25D366",
+    "size": 66,
+    "icon": "💬",
+    "renderPriority": 6,
+    "connections": {
+      "categories": ["infrastructure.messaging", "media", "lobby"],
+      "specific": ["telegram_network"],
+      "strength": 0.75
+    }
+  },
+  {
+    "id": "tiktok_network",
+    "name": "TikTok Creator-Netzwerk",
+    "tier": 3,
+    "category": "infrastructure",
+    "subcategory": "social_platform",
+    "representsCount": 40,
+    "baseTrust": 0.36,
+    "resilience": 0.20,
+    "influenceRadius": 195,
+    "emotionalState": 0.78,
+    "recoveryRate": 0.007,
+    "abilities": ["viral_content", "emotional_manipulation", "algorithmic_amplification"],
+    "vulnerabilities": ["platform_ban", "age_verification"],
+    "resistances": [],
+    "color": "#FE2C55",
+    "size": 72,
+    "icon": "🎵",
+    "renderPriority": 7,
+    "connections": {
+      "categories": ["infrastructure.social", "media.influencer", "media.video"],
+      "strength": 0.85
+    }
+  }
+]

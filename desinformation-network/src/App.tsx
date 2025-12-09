@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { cn } from '@/utils/cn';
 import { formatPercent } from '@/utils';
@@ -10,6 +10,16 @@ import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay'
 import { BottomSheet } from '@/components/BottomSheet';
 import { GameStatistics } from '@/components/GameStatistics';
 import { EventNotification } from '@/components/EventNotification';
+import { EventChoiceModal } from '@/components/EventChoiceModal';
+import {
+  FilterControls,
+  type ActorFilters,
+  createDefaultFilters,
+  applyFilters
+} from '@/components/FilterControls';
+import { ComboTracker } from '@/components/ComboTracker';
+import { TopologyOverlay } from '@/components/TopologyOverlay';
+import { ActorReactionsOverlay } from '@/components/ActorReactionsOverlay';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
@@ -25,6 +35,7 @@ function App() {
     uiState,
     networkMetrics,
     statistics,
+    comboDefinitions,
     startGame,
     advanceRound,
     resetGame,
@@ -39,6 +50,7 @@ function App() {
     toggleEncyclopedia,
     addNotification,
     dismissCurrentEvent,
+    makeEventChoice,
   } = useGameState();
 
   // Round summary state
@@ -53,6 +65,30 @@ function App() {
 
   // Statistics state
   const [showStatistics, setShowStatistics] = useState(false);
+
+  // Filter state (Phase 2: UX Layer)
+  const [actorFilters, setActorFilters] = useState<ActorFilters>(createDefaultFilters());
+  const [filterCollapsed, setFilterCollapsed] = useState(false);
+
+  // Topology state (Phase 4.2: Network Topology Analysis)
+  const [topologyCollapsed, setTopologyCollapsed] = useState(false);
+
+  // Actor Reactions state (Phase 4.3: Actor AI & Reactions)
+  const [reactionsCollapsed, setReactionsCollapsed] = useState(false);
+
+  // Apply filters to actors
+  const filteredActors = useMemo(
+    () => applyFilters(gameState.network.actors, actorFilters),
+    [gameState.network.actors, actorFilters]
+  );
+
+  // Filter connections to only show connections between visible actors
+  const filteredConnections = useMemo(() => {
+    const visibleActorIds = new Set(filteredActors.map(a => a.id));
+    return gameState.network.connections.filter(
+      conn => visibleActorIds.has(conn.sourceId) && visibleActorIds.has(conn.targetId)
+    );
+  }, [filteredActors, gameState.network.connections]);
 
   // Handler to close actor panel completely
   const handleCloseActorPanel = () => {
@@ -397,8 +433,8 @@ function App() {
       {/* Fullscreen Network Visualization */}
       <div className="absolute inset-0 w-full h-full">
         <NetworkVisualization
-          actors={gameState.network.actors}
-          connections={gameState.network.connections}
+          actors={filteredActors}
+          connections={filteredConnections}
           selectedActorId={uiState.selectedActor?.actorId || null}
           hoveredActorId={uiState.hoveredActor}
           targetingMode={uiState.targetingMode}
@@ -407,6 +443,57 @@ function App() {
           onActorHover={hoverActor}
         />
       </div>
+
+      {/* Filter Controls (Phase 2: UX Layer) */}
+      <div className="absolute top-20 right-4 z-20">
+        <FilterControls
+          actors={gameState.network.actors}
+          filters={actorFilters}
+          onFiltersChange={setActorFilters}
+          collapsed={filterCollapsed}
+          onToggleCollapse={() => setFilterCollapsed(!filterCollapsed)}
+        />
+      </div>
+
+      {/* Combo Tracker (Phase 4: Combo System) */}
+      {gameState.activeCombos.length > 0 && (
+        <div className="absolute top-20 left-4 z-20">
+          <ComboTracker
+            activeCombos={gameState.activeCombos}
+            comboDefinitions={comboDefinitions}
+            actors={gameState.network.actors}
+            currentRound={gameState.round}
+          />
+        </div>
+      )}
+
+      {/* Topology Overlay (Phase 4.2: Network Topology Analysis) */}
+      {gameState.topology && (
+        <div className={cn(
+          "absolute left-4 z-20",
+          gameState.activeCombos.length > 0 ? "top-96" : "top-20"
+        )}>
+          <TopologyOverlay
+            topology={gameState.topology}
+            actors={gameState.network.actors}
+            collapsed={topologyCollapsed}
+            onToggleCollapse={() => setTopologyCollapsed(!topologyCollapsed)}
+          />
+        </div>
+      )}
+
+      {/* Actor Reactions Overlay (Phase 4.3: Actor AI & Reactions) */}
+      {gameState.actorReactions && gameState.actorReactions.length > 0 && (
+        <div className="absolute top-20 right-4 z-20">
+          <ActorReactionsOverlay
+            reactions={gameState.actorReactions}
+            actors={gameState.network.actors}
+            currentRound={gameState.round}
+            collapsed={reactionsCollapsed}
+            onToggleCollapse={() => setReactionsCollapsed(!reactionsCollapsed)}
+          />
+        </div>
+      )}
 
       {/* Bottom Sheet */}
       <BottomSheet
@@ -445,6 +532,15 @@ function App() {
             onSkip={handleTutorialSkip}
           />
         </>
+      )}
+
+      {/* Event Choice Modal (Phase 4.4) */}
+      {gameState.pendingEventChoice && (
+        <EventChoiceModal
+          event={gameState.pendingEventChoice.event}
+          resources={gameState.resources}
+          onChoose={makeEventChoice}
+        />
       )}
 
       {/* Event Notification */}

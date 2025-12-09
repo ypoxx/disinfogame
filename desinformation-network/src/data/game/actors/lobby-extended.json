@@ -1,0 +1,168 @@
+[
+  {
+    "id": "tech_lobby",
+    "name": "Tech-Industrie Verband",
+    "tier": 2,
+    "category": "lobby",
+    "subcategory": "industry_tech",
+    "baseTrust": 0.42,
+    "resilience": 0.42,
+    "influenceRadius": 135,
+    "emotionalState": 0.30,
+    "recoveryRate": 0.018,
+    "abilities": ["astroturfing", "commission_report", "lobbying"],
+    "vulnerabilities": ["monopoly_exposure", "data_scandal"],
+    "resistances": ["social_proof"],
+    "color": "#10B981",
+    "size": 58,
+    "icon": "💻",
+    "renderPriority": 7,
+    "connections": {
+      "categories": ["lobby.industry", "expert.technology", "media", "infrastructure.social"],
+      "strength": 0.75
+    }
+  },
+  {
+    "id": "auto_industry_lobby",
+    "name": "Automobilindustrie-Verband",
+    "tier": 2,
+    "category": "lobby",
+    "subcategory": "industry_auto",
+    "baseTrust": 0.40,
+    "resilience": 0.40,
+    "influenceRadius": 130,
+    "emotionalState": 0.35,
+    "recoveryRate": 0.017,
+    "abilities": ["commission_report", "astroturfing", "think_tank_front"],
+    "vulnerabilities": ["emission_scandal", "environmental_evidence"],
+    "resistances": [],
+    "color": "#059669",
+    "size": 57,
+    "icon": "🚗",
+    "renderPriority": 6,
+    "connections": {
+      "categories": ["lobby.industry", "expert.technology", "media.quality", "organization.government"],
+      "strength": 0.72
+    }
+  },
+  {
+    "id": "banking_lobby",
+    "name": "Bankenverband",
+    "tier": 2,
+    "category": "lobby",
+    "subcategory": "industry_finance",
+    "baseTrust": 0.38,
+    "resilience": 0.45,
+    "influenceRadius": 128,
+    "emotionalState": 0.32,
+    "recoveryRate": 0.019,
+    "abilities": ["lobbying", "commission_report", "financial_influence"],
+    "vulnerabilities": ["financial_scandal", "crisis_exposure"],
+    "resistances": ["social_proof"],
+    "color": "#14B8A6",
+    "size": 56,
+    "icon": "🏦",
+    "renderPriority": 6,
+    "connections": {
+      "categories": ["lobby.industry", "expert.economist", "media.quality", "organization.government"],
+      "strength": 0.8
+    }
+  },
+  {
+    "id": "consumer_protection_ngo",
+    "name": "Verbraucherschutz-NGO",
+    "tier": 2,
+    "category": "lobby",
+    "subcategory": "ngo_consumer",
+    "baseTrust": 0.72,
+    "resilience": 0.52,
+    "influenceRadius": 115,
+    "emotionalState": 0.42,
+    "recoveryRate": 0.026,
+    "abilities": ["social_mobilization", "investigative_report"],
+    "vulnerabilities": ["funding_scandal_exposure", "ideological_framing"],
+    "resistances": ["authority"],
+    "color": "#34D399",
+    "size": 54,
+    "icon": "🛡️",
+    "renderPriority": 7,
+    "connections": {
+      "categories": ["lobby.ngo", "media", "expert", "organization"],
+      "strength": 0.7
+    },
+    "behavior": {
+      "type": "defensive",
+      "triggerThreshold": 0.5,
+      "reactionProbability": 0.3
+    }
+  },
+  {
+    "id": "human_rights_ngo",
+    "name": "Menschenrechts-NGO",
+    "tier": 3,
+    "category": "lobby",
+    "subcategory": "ngo_human_rights",
+    "baseTrust": 0.70,
+    "resilience": 0.50,
+    "influenceRadius": 110,
+    "emotionalState": 0.48,
+    "recoveryRate": 0.025,
+    "abilities": ["social_mobilization", "emotional_appeal"],
+    "vulnerabilities": ["radical_framing", "foreign_funding_attack"],
+    "resistances": ["authority"],
+    "color": "#6EE7B7",
+    "size": 52,
+    "icon": "✊",
+    "renderPriority": 6,
+    "connections": {
+      "categories": ["lobby.ngo", "media.progressive", "expert.political", "organization.international"],
+      "strength": 0.68
+    }
+  },
+  {
+    "id": "digital_rights_ngo",
+    "name": "Digitale Rechte NGO",
+    "tier": 3,
+    "category": "lobby",
+    "subcategory": "ngo_digital_rights",
+    "baseTrust": 0.66,
+    "resilience": 0.46,
+    "influenceRadius": 105,
+    "emotionalState": 0.38,
+    "recoveryRate": 0.023,
+    "abilities": ["technical_analysis", "policy_advocacy"],
+    "vulnerabilities": ["tech_complexity", "radical_framing"],
+    "resistances": [],
+    "color": "#10B981",
+    "size": 50,
+    "icon": "🔐",
+    "renderPriority": 5,
+    "connections": {
+      "categories": ["lobby.ngo", "expert.technology", "infrastructure.social"],
+      "strength": 0.72
+    }
+  },
+  {
+    "id": "agriculture_lobby",
+    "name": "Agrar-Lobby",
+    "tier": 3,
+    "category": "lobby",
+    "subcategory": "industry_agriculture",
+    "baseTrust": 0.45,
+    "resilience": 0.38,
+    "influenceRadius": 118,
+    "emotionalState": 0.40,
+    "recoveryRate": 0.016,
+    "abilities": ["astroturfing", "regional_mobilization"],
+    "vulnerabilities": ["environmental_evidence", "subsidy_exposure"],
+    "resistances": [],
+    "color": "#84CC16",
+    "size": 54,
+    "icon": "🌾",
+    "renderPriority": 5,
+    "connections": {
+      "categories": ["lobby.industry", "media.regional", "organization.government"],
+      "strength": 0.65
+    }
+  }
+]

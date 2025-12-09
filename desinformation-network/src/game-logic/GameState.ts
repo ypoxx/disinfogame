@@ -8,6 +8,7 @@ import type {
   GamePhase,
   DefeatReason,
   GameEvent,
+  EventEffect,
   NetworkMetrics,
   Position,
   ActorDefinition,
@@ -23,29 +24,75 @@ import {
   calculateNetworkMetrics,
   getConnectedActors,
 } from '@/utils';
+import { calculateSmartConnections } from '@/utils/network/connections';
+import { calculateForceLayout, getPresetConfig } from '@/utils/network/force-layout';
+import { analyzeNetworkTopology } from '@/utils/network/topology-analysis';
+import {
+  type BalanceConfig,
+  type DifficultyLevel,
+  DEFAULT_BALANCE_CONFIG,
+  getBalanceConfig,
+  filterActorsByTiers,
+  adjustAbilityCost,
+  calculateVictoryConditions,
+} from './balance-config';
+import {
+  type ComboDefinition,
+  type ComboActivation,
+  updateComboProgress,
+  cleanExpiredCombos,
+  applyComboBonus,
+  getComboStatistics,
+} from './combo-system';
+import {
+  type ReactionTrigger,
+  ACTOR_BEHAVIORS,
+  updateAwareness,
+  generateReaction,
+  processActorAI,
+  applyReactionEffects,
+  shouldSupportAlly,
+  supportAlly,
+} from './actor-ai';
+import {
+  startEventChain,
+  processEventChains,
+  requiresPlayerChoice,
+  applyPlayerChoice,
+  cleanupExpiredChains,
+} from './event-chain-system';
 
 // ============================================
-// CONSTANTS
+// CONSTANTS (Now using balance config)
 // ============================================
 
-// Multi-Resource Economy
+// Default to Normal difficulty (58 actors)
+const DEFAULT_DIFFICULTY: DifficultyLevel = 'normal';
+
+// Legacy constants for backwards compatibility
+// These are now overridden by balance config
 const INITIAL_MONEY = 150;
 const INITIAL_ATTENTION = 0;
 const INITIAL_INFRASTRUCTURE = 0;
 const MONEY_PER_ROUND = 30;
-const ATTENTION_DECAY_RATE = 0.15;  // 15% per round
-const DETECTION_THRESHOLD = 0.8;    // 80% attention = high risk
-const EXPOSURE_THRESHOLD = 0.85;    // 85% detection risk = exposed and caught
-const INFRASTRUCTURE_BONUS_MULTIPLIER = 0.1;  // 10% bonus per infrastructure
-
-// Game Flow
+const ATTENTION_DECAY_RATE = 0.15;
+const DETECTION_THRESHOLD = 0.8;
+const EXPOSURE_THRESHOLD = 0.85;
+const INFRASTRUCTURE_BONUS_MULTIPLIER = 0.1;
 const MAX_ROUNDS = 32;
-const VICTORY_THRESHOLD = 0.75;  // 75% of actors
-const VICTORY_TRUST_LEVEL = 0.4; // Below 40% trust
-const DEFENSIVE_VICTORY_TRUST = 0.7; // Above 70% average
-const DEFENSIVE_SPAWN_INTERVAL = 8; // Every 8 rounds
+const VICTORY_THRESHOLD = 0.75;
+const VICTORY_TRUST_LEVEL = 0.4;
+const DEFENSIVE_VICTORY_TRUST = 0.7;
+const DEFENSIVE_SPAWN_INTERVAL = 8;
 const MAX_DEFENSIVE_ACTORS = 3;
 const RANDOM_EVENT_CHANCE = 0.3;
+
+// ============================================
+// RE-EXPORTS
+// ============================================
+
+// Re-export for convenience
+export type { DifficultyLevel, BalanceConfig } from './balance-config';
 
 // ============================================
 // GAME STATE CLASS
@@ -57,11 +104,14 @@ export class GameStateManager {
   private actorDefinitions: ActorDefinition[] = [];
   private abilityDefinitions: Ability[] = [];
   private eventDefinitions: GameEvent[] = [];
+  private comboDefinitions: ComboDefinition[] = [];
   private lastTriggeredEvent: GameEvent | null = null;
+  private balanceConfig: BalanceConfig;
 
-  constructor(seed?: string) {
+  constructor(seed?: string, difficulty: DifficultyLevel = DEFAULT_DIFFICULTY) {
     const gameSeed = seed || generateSeedString();
     this.rng = new SeededRandom(gameSeed);
+    this.balanceConfig = getBalanceConfig(difficulty);
     this.state = this.createInitialState(gameSeed);
   }
   
@@ -73,12 +123,14 @@ export class GameStateManager {
    * Create initial game state
    */
   private createInitialState(seed: string): GameState {
+    const config = this.balanceConfig;
+
     return {
       phase: 'start',
       round: 0,
-      maxRounds: MAX_ROUNDS,
+      maxRounds: config.maxRounds,
       resources: {
-        money: INITIAL_MONEY,
+        money: config.initialMoney,
         attention: INITIAL_ATTENTION,
         infrastructure: INITIAL_INFRASTRUCTURE,
       },
@@ -89,9 +141,13 @@ export class GameStateManager {
         averageTrust: 0,
         polarizationIndex: 0,
       },
+      topology: undefined, // NEW: Computed on demand
       abilityUsage: {},
       eventsTriggered: [],
       defensiveActorsSpawned: 0,
+      activeCombos: [], // NEW: Combo system
+      completedCombos: [], // NEW: Combo system
+      actorReactions: [], // NEW: Actor AI
       statistics: this.createInitialStatistics(),
       history: [],
       seed,
@@ -122,57 +178,122 @@ export class GameStateManager {
   
   /**
    * Load game definitions from JSON
+   * Filters actors based on balance config tier settings
    */
   loadDefinitions(
     actors: ActorDefinition[],
     abilities: Ability[],
-    events: GameEvent[]
+    events: GameEvent[],
+    combos: ComboDefinition[] = []
   ): void {
-    this.actorDefinitions = actors;
+    // Filter actors by tier based on difficulty
+    this.actorDefinitions = filterActorsByTiers(actors, this.balanceConfig);
     this.abilityDefinitions = abilities;
     this.eventDefinitions = events;
+    this.comboDefinitions = combos;
+
+    console.log(`✅ Loaded ${this.actorDefinitions.length} actors for difficulty: ${this.balanceConfig.actorCount} target`);
+    console.log(`✅ Loaded ${this.comboDefinitions.length} combo definitions`);
   }
   
   /**
    * Create initial network from definitions
+   * Uses smart connections and force-directed layout for positioning
    */
   createInitialNetwork(): void {
     if (this.actorDefinitions.length === 0) {
       console.warn('No actor definitions loaded');
       return;
     }
-    
-    const actors: Actor[] = this.actorDefinitions.map(def => {
-      // Generate position with some randomness
+
+    console.log(`🎮 Creating network with ${this.actorDefinitions.length} actors...`);
+
+    // Step 1: Create actors with temporary random positions
+    let actors: Actor[] = this.actorDefinitions.map(def => {
+      // Temporary position (will be replaced by force layout)
       const position = this.rng.nextPosition(100, 700, 100, 500);
-      
+
       // Vary initial trust slightly
       const trust = clamp(
         def.baseTrust + this.rng.vary(0, 0.05),
         0,
         1
       );
-      
+
       return {
         ...def,
         trust,
         position,
         activeEffects: [],
         cooldowns: {},
+        // NEW: Initialize new fields
+        awareness: 0,
+        renderPriority: def.renderPriority || (def.tier === 1 ? 10 : def.tier === 2 ? 6 : 3),
+        velocity: { x: 0, y: 0 }, // For force layout
       };
     });
-    
-    const connections = calculateConnections(actors);
+
+    // Step 2: Calculate smart connections based on actor relationships
+    console.log('🔗 Calculating smart connections...');
+    const connections = calculateSmartConnections(actors);
+    console.log(`✅ Created ${connections.length} connections`);
+
+    // Step 3: Apply force-directed layout for better positioning
+    console.log('📐 Applying force-directed layout...');
+    const layoutConfig = getPresetConfig(actors.length);
+    const layoutResult = calculateForceLayout(actors, connections, layoutConfig);
+
+    // Update actor positions from layout
+    actors = layoutResult.actors;
+    console.log(`✅ Layout converged in ${layoutResult.iterations} iterations`);
+
+    // Step 4: Calculate network metrics
     const metrics = calculateNetworkMetrics({ actors, connections, averageTrust: 0, polarizationIndex: 0 });
-    
+
     this.state.network = {
       actors,
       connections,
       averageTrust: metrics.averageTrust,
       polarizationIndex: metrics.polarizationIndex,
     };
+
+    console.log(`✅ Network initialized: ${actors.length} actors, ${connections.length} connections`);
+
+    // PHASE 4.2: Analyze network topology
+    this.updateNetworkTopology();
   }
-  
+
+  /**
+   * Update network topology analysis (PHASE 4.2)
+   * Calculates centrality scores and detects bottlenecks
+   */
+  private updateNetworkTopology(): void {
+    console.log('🔍 Analyzing network topology...');
+
+    const topology = analyzeNetworkTopology(
+      this.state.network.actors,
+      this.state.network.connections
+    );
+
+    this.state.topology = topology;
+
+    // Update actor centrality scores
+    this.state.network.actors.forEach(actor => {
+      const centrality = topology.centralities.get(actor.id);
+      if (centrality) {
+        actor.centrality = (centrality.degree + centrality.betweenness + centrality.closeness) / 3;
+      }
+    });
+
+    // Mark bottleneck actors
+    const bottleneckIds = new Set(topology.bottlenecks.map(b => b.actorId));
+    this.state.network.actors.forEach(actor => {
+      actor.isBottleneck = bottleneckIds.has(actor.id);
+    });
+
+    console.log(`✅ Topology analyzed: ${topology.bottlenecks.length} bottlenecks detected`);
+  }
+
   /**
    * Start the game
    */
@@ -221,12 +342,12 @@ export class GameStateManager {
    * Generate resources each round
    */
   private generateRoundResources(): void {
-    // Base money income
-    let moneyGain = MONEY_PER_ROUND;
+    // Base money income (from balance config)
+    let moneyGain = this.balanceConfig.moneyPerRound;
 
-    // Bonus from infrastructure
+    // Bonus from infrastructure (from balance config)
     const infraBonus = Math.floor(
-      this.state.resources.infrastructure * INFRASTRUCTURE_BONUS_MULTIPLIER
+      this.state.resources.infrastructure * this.balanceConfig.infrastructureBonusMultiplier
     );
     moneyGain += infraBonus;
 
@@ -253,13 +374,13 @@ export class GameStateManager {
 
     this.state.resources.money += moneyGain;
 
-    // Attention decays naturally
+    // Attention decays naturally (from balance config)
     this.state.resources.attention = Math.max(
       0,
-      this.state.resources.attention * (1 - ATTENTION_DECAY_RATE)
+      this.state.resources.attention * (1 - this.balanceConfig.attentionDecayRate)
     );
 
-    // Update detection risk
+    // Update detection risk (from balance config)
     this.state.detectionRisk = this.state.resources.attention / 100;
   }
 
@@ -290,6 +411,20 @@ export class GameStateManager {
   
   getNetworkMetrics(): NetworkMetrics {
     return calculateNetworkMetrics(this.state.network);
+  }
+
+  /**
+   * Get current balance configuration
+   */
+  getBalanceConfig(): BalanceConfig {
+    return this.balanceConfig;
+  }
+
+  /**
+   * Get combo definitions
+   */
+  getComboDefinitions(): ComboDefinition[] {
+    return this.comboDefinitions;
   }
 
   /**
@@ -428,7 +563,40 @@ export class GameStateManager {
     
     // Update network metrics
     this.updateNetworkMetrics();
-    
+
+    // PHASE 4: Combo System - Track ability sequences
+    if (this.comboDefinitions.length > 0) {
+      // Check combo progress for each target
+      const comboNotifications: ComboActivation[] = [];
+
+      for (const targetId of targetActorIds) {
+        const { newProgress, completedCombos } = updateComboProgress(
+          this.state,
+          abilityId,
+          targetId,
+          this.comboDefinitions
+        );
+
+        // Update active combos
+        this.state.activeCombos = this.state.activeCombos.filter(
+          cp => cp.targetActorId !== targetId || newProgress.some(np => np.comboId === cp.comboId)
+        );
+        this.state.activeCombos.push(...newProgress);
+
+        // Apply completed combo effects
+        for (const activation of completedCombos) {
+          const comboDef = this.comboDefinitions.find(c => c.id === activation.comboId);
+          if (comboDef) {
+            applyComboBonus(this.state, activation, comboDef);
+            this.state.completedCombos.push(activation.comboId);
+            comboNotifications.push(activation);
+
+            console.log(`🎯 COMBO ACTIVATED: ${comboDef.name} on ${this.getActor(targetId)?.name}`);
+          }
+        }
+      }
+    }
+
     return true;
   }
   
@@ -477,9 +645,16 @@ export class GameStateManager {
   ): void {
     const target = this.getActor(targetId);
     if (!target) return;
-    
+
     const trustDelta = this.calculateEffectMagnitude(ability, target, usageCount);
-    
+
+    // PHASE 4.3: Mark last attacked & update awareness
+    const manipulationStrength = Math.abs(trustDelta);
+    target.lastAttacked = this.state.round;
+
+    const behavior = target.behavior || ACTOR_BEHAVIORS.passive;
+    target.awareness = updateAwareness(target, manipulationStrength, behavior);
+
     // Update actor
     this.updateActor(targetId, {
       trust: clamp(target.trust + trustDelta, 0, 1),
@@ -490,7 +665,30 @@ export class GameStateManager {
         ? clamp(target.resilience + ability.effects.resilienceDelta, 0, 1)
         : target.resilience,
     });
-    
+
+    // PHASE 4.3: Check for actor reactions
+    if (manipulationStrength > 0.1) {
+      const trigger: ReactionTrigger = {
+        type: 'trust_drop',
+        severity: manipulationStrength,
+      };
+
+      const reaction = generateReaction(target, trigger, this.state);
+      if (reaction) {
+        this.state.actorReactions.push(reaction);
+      }
+
+      // Check for ally support
+      const connectedActors = getConnectedActors(this.state, targetId, 1);
+      connectedActors.forEach(ally => {
+        const allyBehavior = ally.behavior || ACTOR_BEHAVIORS.passive;
+        if (shouldSupportAlly(ally, target, allyBehavior)) {
+          const supportReaction = supportAlly(ally, target, this.state);
+          this.state.actorReactions.push(supportReaction);
+        }
+      });
+    }
+
     // Add effect if it has duration
     if (ability.effects.duration && ability.effects.duration > 0) {
       this.addEffect({
@@ -568,20 +766,34 @@ export class GameStateManager {
     
     // 4. Decrement cooldowns
     this.decrementCooldowns();
-    
-    // 5. Trigger random events
-    if (this.rng.nextBool(RANDOM_EVENT_CHANCE)) {
+
+    // 4.5. PHASE 4: Clean up expired combos
+    if (this.comboDefinitions.length > 0) {
+      this.state.activeCombos = cleanExpiredCombos(this.state, this.comboDefinitions);
+    }
+
+    // 5. Trigger random events (from balance config)
+    if (this.rng.nextBool(this.balanceConfig.randomEventChance)) {
       this.triggerRandomEvent();
     }
-    
+
     // 6. Check conditional events
     this.checkConditionalEvents();
-    
+
+    // 6.5. PHASE 4.4: Process event chains
+    const chainedEvent = processEventChains(this.state, this.eventDefinitions);
+    if (chainedEvent) {
+      this.applyEvent(chainedEvent);
+    }
+
+    // 6.6. PHASE 4.4: Clean up expired event chains
+    cleanupExpiredChains(this.state);
+
     // 7. Generate resources (multi-resource economy)
     this.generateRoundResources();
-    
-    // 8. Check for defensive spawns
-    if (this.state.round % DEFENSIVE_SPAWN_INTERVAL === 0) {
+
+    // 8. Check for defensive spawns (from balance config)
+    if (this.state.round % this.balanceConfig.defensiveSpawnInterval === 0) {
       this.checkDefensiveSpawn();
     }
 
@@ -590,7 +802,21 @@ export class GameStateManager {
 
     // 9. Update network metrics
     this.updateNetworkMetrics();
-    
+
+    // 9.5. PHASE 4.2: Update network topology (every 4 rounds)
+    if (this.state.round % 4 === 0) {
+      this.updateNetworkTopology();
+    }
+
+    // 9.6. PHASE 4.3: Process actor AI and reactions
+    const aiReactions = processActorAI(this.state);
+    this.state.actorReactions.push(...aiReactions);
+
+    // Apply all accumulated reactions
+    applyReactionEffects(this.state.actorReactions, this.state);
+
+    console.log(`🤖 AI Processing: ${aiReactions.length} spontaneous reactions generated`);
+
     // 10. Track round statistics
     this.trackRoundStatistics();
 
@@ -860,18 +1086,36 @@ export class GameStateManager {
    */
   private evaluateCondition(condition?: string): boolean {
     if (!condition) return false;
-    
+
     const metrics = this.getNetworkMetrics();
-    
-    // Simple condition evaluation
-    if (condition.includes('averageTrust < 0.3')) {
-      return metrics.averageTrust < 0.3;
+    const round = this.state.round;
+    const detectionRisk = this.state.detectionRisk;
+    const lowTrustCount = metrics.lowTrustCount;
+
+    try {
+      // Create evaluation context
+      const context = {
+        averageTrust: metrics.averageTrust,
+        polarizationIndex: metrics.polarizationIndex,
+        detectionRisk,
+        round,
+        lowTrustCount,
+      };
+
+      // Replace context variables in condition string
+      let evalString = condition;
+      for (const [key, value] of Object.entries(context)) {
+        evalString = evalString.replace(new RegExp(key, 'g'), String(value));
+      }
+
+      // Evaluate using Function constructor (safe for known conditions)
+      // eslint-disable-next-line no-new-func
+      const result = new Function(`return ${evalString}`)();
+      return Boolean(result);
+    } catch (error) {
+      console.warn(`Failed to evaluate condition: ${condition}`, error);
+      return false;
     }
-    if (condition.includes('polarizationIndex > 0.8')) {
-      return metrics.polarizationIndex > 0.8;
-    }
-    
-    return false;
   }
   
   /**
@@ -881,7 +1125,29 @@ export class GameStateManager {
     this.state.eventsTriggered.push(event.id);
     this.lastTriggeredEvent = event; // Store for UI
 
-    for (const effect of event.effects) {
+    // PHASE 4.4: Check if event requires player choice
+    if (requiresPlayerChoice(event)) {
+      console.log(`❓ Event requires player choice: ${event.name}`);
+      this.state.pendingEventChoice = {
+        event,
+        round: this.state.round,
+      };
+      // Don't apply effects yet - wait for player choice
+      return;
+    }
+
+    // Apply effects immediately
+    this.applyEventEffects(event.effects);
+
+    // PHASE 4.4: Start event chain if applicable
+    startEventChain(this.state, event);
+  }
+
+  /**
+   * Apply event effects (extracted for reuse with player choices)
+   */
+  private applyEventEffects(effects: EventEffect[]): void {
+    for (const effect of effects) {
       switch (effect.type) {
         case 'trust_delta':
           this.applyEventTrustDelta(effect);
@@ -897,6 +1163,30 @@ export class GameStateManager {
           break;
       }
     }
+  }
+
+  /**
+   * Handle player choice for an event (PHASE 4.4)
+   */
+  public makeEventChoice(choiceIndex: number): void {
+    if (!this.state.pendingEventChoice) {
+      console.error('❌ No pending event choice');
+      return;
+    }
+
+    const { event } = this.state.pendingEventChoice;
+
+    // Apply player's chosen effects
+    const effects = applyPlayerChoice(this.state, event, choiceIndex);
+    this.applyEventEffects(effects);
+
+    // Start chain if applicable
+    startEventChain(this.state, event);
+
+    // Clear pending choice
+    this.state.pendingEventChoice = undefined;
+
+    console.log(`✅ Event choice made for: ${event.name}`);
   }
   
   private applyEventTrustDelta(effect: { target: string; targetCategory?: ActorCategory; value: number | string }): void {
@@ -946,13 +1236,14 @@ export class GameStateManager {
    * Check if defensive actor should spawn
    */
   private checkDefensiveSpawn(): void {
-    if (this.state.defensiveActorsSpawned >= MAX_DEFENSIVE_ACTORS) return;
-    
+    // From balance config
+    if (this.state.defensiveActorsSpawned >= this.balanceConfig.maxDefensiveActors) return;
+
     const metrics = this.getNetworkMetrics();
-    
+
     // Higher chance to spawn if trust is low
     const spawnChance = 0.3 + (0.5 - metrics.averageTrust) * 0.5;
-    
+
     if (this.rng.nextBool(spawnChance)) {
       const types = ['fact_checker', 'media_literacy', 'regulatory'];
       const type = this.rng.pick(types) || 'fact_checker';
@@ -1094,24 +1385,26 @@ export class GameStateManager {
   
   /**
    * Check victory condition
+   * Uses balance config for thresholds
    */
   checkVictory(): boolean {
     const lowTrustActors = this.state.network.actors.filter(
-      a => a.trust < VICTORY_TRUST_LEVEL && a.category !== 'defensive'
+      a => a.trust < this.balanceConfig.victoryTrustLevel && a.category !== 'defensive'
     );
     const nonDefensiveActors = this.state.network.actors.filter(
       a => a.category !== 'defensive'
     );
-    
-    return lowTrustActors.length >= nonDefensiveActors.length * VICTORY_THRESHOLD;
+
+    return lowTrustActors.length >= nonDefensiveActors.length * this.balanceConfig.victoryThreshold;
   }
-  
+
   /**
    * Check defeat conditions
+   * Uses balance config for thresholds
    */
   checkDefeat(): DefeatReason | null {
     // Exposure - caught due to excessive attention/detection risk
-    if (this.state.detectionRisk >= EXPOSURE_THRESHOLD) {
+    if (this.state.detectionRisk >= this.balanceConfig.exposureThreshold) {
       return 'exposure';
     }
 
@@ -1123,7 +1416,7 @@ export class GameStateManager {
     // Defensive victory
     const metrics = this.getNetworkMetrics();
     if (
-      metrics.averageTrust > DEFENSIVE_VICTORY_TRUST &&
+      metrics.averageTrust > this.balanceConfig.defensiveVictoryTrust &&
       this.state.defensiveActorsSpawned > 0
     ) {
       return 'defensive_victory';
@@ -1228,6 +1521,14 @@ export class GameStateManager {
 // FACTORY FUNCTION
 // ============================================
 
-export function createGameState(seed?: string): GameStateManager {
-  return new GameStateManager(seed);
+/**
+ * Create a new game state manager
+ * @param seed - Optional seed for deterministic randomness
+ * @param difficulty - Difficulty level (affects balance, actor count, etc.)
+ */
+export function createGameState(
+  seed?: string,
+  difficulty: DifficultyLevel = DEFAULT_DIFFICULTY
+): GameStateManager {
+  return new GameStateManager(seed, difficulty);
 }

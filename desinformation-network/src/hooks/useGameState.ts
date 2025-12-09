@@ -12,9 +12,14 @@ import type {
 } from '@/game-logic/types';
 
 // Import definitions (will be loaded from JSON)
-import actorDefinitions from '@/data/game/actor-definitions-v2.json';
+import actorDefinitions from '@/data/game/actors'; // NEW: 58 actors from modular system
 import abilityDefinitions from '@/data/game/ability-definitions-v2.json';
-import eventDefinitions from '@/data/game/event-definitions.json';
+import baseEventDefinitions from '@/data/game/event-definitions.json';
+import eventChainDefinitions from '@/data/game/event-chains.json';
+import comboDefinitions from '@/data/game/combo-definitions.json';
+
+// Merge event definitions
+const eventDefinitions = [...baseEventDefinitions, ...eventChainDefinitions];
 
 // ============================================
 // INITIAL UI STATE
@@ -43,6 +48,7 @@ type UseGameStateReturn = {
   uiState: UIState;
   networkMetrics: NetworkMetrics;
   statistics: GameStatistics;
+  comboDefinitions: any[]; // ComboDefinition[] from combo-system
 
   // Game actions
   startGame: () => void;
@@ -72,6 +78,7 @@ type UseGameStateReturn = {
 
   // Event system
   dismissCurrentEvent: () => void;
+  makeEventChoice: (choiceIndex: number) => void;
 };
 
 // ============================================
@@ -98,7 +105,8 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     gameManagerRef.current.loadDefinitions(
       actorDefinitions as any,
       convertedAbilities as any,
-      eventDefinitions as any
+      eventDefinitions as any,
+      comboDefinitions as any
     );
   }
   
@@ -361,12 +369,18 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     gameManager.clearLastTriggeredEvent();
   }, [gameManager]);
 
+  const makeEventChoice = useCallback((choiceIndex: number) => {
+    gameManager.makeEventChoice(choiceIndex);
+    syncState();
+  }, [gameManager, syncState]);
+
   // ============================================
   // COMPUTED VALUES
   // ============================================
 
   const networkMetrics = gameManager.getNetworkMetrics();
   const statistics = gameManager.getStatistics();
+  const comboDefinitions = gameManager.getComboDefinitions();
 
   // ============================================
   // RETURN
@@ -377,6 +391,7 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     uiState,
     networkMetrics,
     statistics,
+    comboDefinitions,
 
     startGame,
     advanceRound,
@@ -401,6 +416,7 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     dismissNotification,
 
     dismissCurrentEvent,
+    makeEventChoice,
   };
 }
 
