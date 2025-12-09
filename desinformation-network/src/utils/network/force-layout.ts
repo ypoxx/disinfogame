@@ -80,7 +80,7 @@ export function calculateForceLayout(
     const progress = i / iterations;
 
     // Gradually reduce force strength (simulated annealing)
-    const temperatur = 1 - progress;
+    const temperature = 1 - progress;
 
     // Apply all forces
     applyRepulsionForce(nodes, repulsionStrength * temperature);

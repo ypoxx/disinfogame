@@ -5,8 +5,7 @@
  * Uses multiple algorithms for robustness.
  */
 
-import type { Actor, Connection } from '@/game-logic/types';
-import type { ActorCluster, Community } from '@/game-logic/types';
+import type { Actor, Connection, ActorCategory, ActorCluster, Community } from '@/game-logic/types';
 
 // ============================================
 // TYPES
@@ -133,13 +132,13 @@ function calculateCohesion(memberIds: string[], connections: Connection[]): numb
 /**
  * Find the most common category in a group of actors
  */
-function findDominantCategory(actors: Actor[]): string {
-  const counts = new Map<string, number>();
+function findDominantCategory(actors: Actor[]): ActorCategory {
+  const counts = new Map<ActorCategory, number>();
   actors.forEach(a => {
     counts.set(a.category, (counts.get(a.category) || 0) + 1);
   });
 
-  let maxCategory = actors[0]?.category || 'media';
+  let maxCategory: ActorCategory = actors[0]?.category || 'media';
   let maxCount = 0;
   counts.forEach((count, category) => {
     if (count > maxCount) {
@@ -241,13 +240,16 @@ function createCluster(actors: Actor[]): ActorCluster {
     })
   );
 
+  const category = findDominantCategory(actors);
   return {
     id: `cluster_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    name: `${category.charAt(0).toUpperCase() + category.slice(1)} Cluster`,
+    actors: actors.map(a => a.id),
     actorIds: actors.map(a => a.id),
     center: { x: centerX, y: centerY },
     radius: radius + 30, // Add padding
     averageTrust: avgTrust,
-    category: findDominantCategory(actors),
+    category,
   };
 }
 
@@ -302,7 +304,8 @@ function calculateModularity(
   // Build community membership map
   const membership = new Map<string, string>();
   communities.forEach(community => {
-    community.memberIds.forEach(id => {
+    const members = community.memberIds || community.members || [];
+    members.forEach(id => {
       membership.set(id, community.id);
     });
   });

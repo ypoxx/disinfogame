@@ -254,9 +254,10 @@ export function applyComboBonus(
 
   // Connection weakening
   if (bonus.connectionWeakening) {
+    const weakening = bonus.connectionWeakening; // Cache for type safety
     gameState.network.connections.forEach((conn) => {
       if (conn.sourceId === target.id || conn.targetId === target.id) {
-        conn.strength = Math.max(0, conn.strength - bonus.connectionWeakening);
+        conn.strength = Math.max(0, conn.strength - weakening);
       }
     });
   }

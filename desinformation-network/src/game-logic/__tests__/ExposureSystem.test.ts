@@ -8,13 +8,14 @@ const testActorDefinitions: ActorDefinition[] = [
     id: 'media_1',
     name: 'Test Media',
     category: 'media',
-    
+    tier: 1,
+
     baseTrust: 0.7,
     resilience: 0.3,
     influenceRadius: 150,
     emotionalState: 0.5,
     recoveryRate: 0.02,
-    
+
     abilities: ['high_attention_ability'],
     vulnerabilities: [],
     resistances: [],
@@ -25,13 +26,14 @@ const testActorDefinitions: ActorDefinition[] = [
     id: 'expert_1',
     name: 'Test Expert',
     category: 'expert',
-    
+    tier: 1,
+
     baseTrust: 0.8,
     resilience: 0.6,
     influenceRadius: 100,
     emotionalState: 0.2,
     recoveryRate: 0.03,
-    
+
     abilities: [],
     vulnerabilities: [],
     resistances: [],

@@ -380,7 +380,7 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
 
   const networkMetrics = gameManager.getNetworkMetrics();
   const statistics = gameManager.getStatistics();
-  const comboDefinitions = gameManager.getComboDefinitions();
+  const comboDefs = gameManager.getComboDefinitions();
 
   // ============================================
   // RETURN
@@ -391,7 +391,7 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     uiState,
     networkMetrics,
     statistics,
-    comboDefinitions,
+    comboDefinitions: comboDefs,
 
     startGame,
     advanceRound,
