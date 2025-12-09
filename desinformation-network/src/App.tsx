@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { cn } from '@/utils/cn';
 import { formatPercent } from '@/utils';
@@ -10,6 +10,12 @@ import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay'
 import { BottomSheet } from '@/components/BottomSheet';
 import { GameStatistics } from '@/components/GameStatistics';
 import { EventNotification } from '@/components/EventNotification';
+import {
+  FilterControls,
+  type ActorFilters,
+  createDefaultFilters,
+  applyFilters
+} from '@/components/FilterControls';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
@@ -53,6 +59,24 @@ function App() {
 
   // Statistics state
   const [showStatistics, setShowStatistics] = useState(false);
+
+  // Filter state (Phase 2: UX Layer)
+  const [actorFilters, setActorFilters] = useState<ActorFilters>(createDefaultFilters());
+  const [filterCollapsed, setFilterCollapsed] = useState(false);
+
+  // Apply filters to actors
+  const filteredActors = useMemo(
+    () => applyFilters(gameState.network.actors, actorFilters),
+    [gameState.network.actors, actorFilters]
+  );
+
+  // Filter connections to only show connections between visible actors
+  const filteredConnections = useMemo(() => {
+    const visibleActorIds = new Set(filteredActors.map(a => a.id));
+    return gameState.network.connections.filter(
+      conn => visibleActorIds.has(conn.sourceId) && visibleActorIds.has(conn.targetId)
+    );
+  }, [filteredActors, gameState.network.connections]);
 
   // Handler to close actor panel completely
   const handleCloseActorPanel = () => {
@@ -397,14 +421,25 @@ function App() {
       {/* Fullscreen Network Visualization */}
       <div className="absolute inset-0 w-full h-full">
         <NetworkVisualization
-          actors={gameState.network.actors}
-          connections={gameState.network.connections}
+          actors={filteredActors}
+          connections={filteredConnections}
           selectedActorId={uiState.selectedActor?.actorId || null}
           hoveredActorId={uiState.hoveredActor}
           targetingMode={uiState.targetingMode}
           validTargets={uiState.validTargets}
           onActorClick={selectActor}
           onActorHover={hoverActor}
+        />
+      </div>
+
+      {/* Filter Controls (Phase 2: UX Layer) */}
+      <div className="absolute top-20 right-4 z-20">
+        <FilterControls
+          actors={gameState.network.actors}
+          filters={actorFilters}
+          onFiltersChange={setActorFilters}
+          collapsed={filterCollapsed}
+          onToggleCollapse={() => setFilterCollapsed(!filterCollapsed)}
         />
       </div>
 
