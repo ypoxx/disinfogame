@@ -1,0 +1,272 @@
+[
+  {
+    "id": "prof_meyer_economics",
+    "name": "Prof. Dr. Meyer",
+    "tier": 2,
+    "category": "expert",
+    "subcategory": "economist",
+    "baseTrust": 0.74,
+    "resilience": 0.60,
+    "influenceRadius": 108,
+    "emotionalState": 0.20,
+    "recoveryRate": 0.027,
+    "abilities": ["publish_research", "tv_appearance", "commission_report"],
+    "vulnerabilities": ["ad_hominem", "credential_attack"],
+    "resistances": ["emotional_appeal"],
+    "color": "#8B5CF6",
+    "size": 53,
+    "icon": "💼",
+    "renderPriority": 7,
+    "connections": {
+      "categories": ["expert.economist", "media.quality", "lobby.industry", "organization.government"],
+      "strength": 0.7
+    },
+    "behavior": {
+      "type": "defensive",
+      "triggerThreshold": 0.5,
+      "reactionProbability": 0.25
+    }
+  },
+  {
+    "id": "prof_hoffmann_technology",
+    "name": "Prof. Dr. Hoffmann",
+    "tier": 2,
+    "category": "expert",
+    "subcategory": "technology",
+    "baseTrust": 0.70,
+    "resilience": 0.55,
+    "influenceRadius": 110,
+    "emotionalState": 0.22,
+    "recoveryRate": 0.025,
+    "abilities": ["publish_research", "tv_appearance", "tech_prediction"],
+    "vulnerabilities": ["credential_attack", "complexity_dismissal"],
+    "resistances": ["emotional_appeal"],
+    "color": "#A78BFA",
+    "size": 52,
+    "icon": "👨‍💻",
+    "renderPriority": 6,
+    "connections": {
+      "categories": ["expert.technology", "media.quality", "lobby.tech", "infrastructure.social"],
+      "strength": 0.65
+    }
+  },
+  {
+    "id": "dr_fischer_sociology",
+    "name": "Dr. Fischer",
+    "tier": 2,
+    "category": "expert",
+    "subcategory": "sociologist",
+    "baseTrust": 0.68,
+    "resilience": 0.52,
+    "influenceRadius": 102,
+    "emotionalState": 0.28,
+    "recoveryRate": 0.023,
+    "abilities": ["publish_research", "media_commentary"],
+    "vulnerabilities": ["ad_hominem", "ideological_framing"],
+    "resistances": ["scarcity"],
+    "color": "#C084FC",
+    "size": 50,
+    "icon": "👥",
+    "renderPriority": 6,
+    "connections": {
+      "categories": ["expert.sociologist", "media.progressive", "lobby.ngo"],
+      "strength": 0.68
+    }
+  },
+  {
+    "id": "prof_schulz_psychology",
+    "name": "Prof. Dr. Schulz",
+    "tier": 2,
+    "category": "expert",
+    "subcategory": "psychologist",
+    "baseTrust": 0.72,
+    "resilience": 0.58,
+    "influenceRadius": 105,
+    "emotionalState": 0.24,
+    "recoveryRate": 0.026,
+    "abilities": ["publish_research", "media_appearance", "behavioral_study"],
+    "vulnerabilities": ["ad_hominem"],
+    "resistances": ["emotional_appeal", "social_proof"],
+    "color": "#DDD6FE",
+    "size": 51,
+    "icon": "🧠",
+    "renderPriority": 6,
+    "connections": {
+      "categories": ["expert", "media.quality", "organization"],
+      "strength": 0.66
+    },
+    "behavior": {
+      "type": "defensive",
+      "triggerThreshold": 0.52,
+      "reactionProbability": 0.28
+    }
+  },
+  {
+    "id": "dr_bauer_political",
+    "name": "Dr. Bauer",
+    "tier": 2,
+    "category": "expert",
+    "subcategory": "political_scientist",
+    "baseTrust": 0.69,
+    "resilience": 0.54,
+    "influenceRadius": 107,
+    "emotionalState": 0.32,
+    "recoveryRate": 0.024,
+    "abilities": ["political_analysis", "tv_appearance"],
+    "vulnerabilities": ["bias_framing", "ideological_attack"],
+    "resistances": [],
+    "color": "#A78BFA",
+    "size": 50,
+    "icon": "🏛️",
+    "renderPriority": 6,
+    "connections": {
+      "categories": ["expert.political", "media", "organization.government"],
+      "strength": 0.7
+    }
+  },
+  {
+    "id": "prof_richter_law",
+    "name": "Prof. Dr. Richter",
+    "tier": 3,
+    "category": "expert",
+    "subcategory": "legal_expert",
+    "baseTrust": 0.75,
+    "resilience": 0.62,
+    "influenceRadius": 100,
+    "emotionalState": 0.18,
+    "recoveryRate": 0.028,
+    "abilities": ["legal_opinion", "tv_appearance"],
+    "vulnerabilities": ["ad_hominem"],
+    "resistances": ["emotional_appeal", "scarcity"],
+    "color": "#818CF8",
+    "size": 49,
+    "icon": "⚖️",
+    "renderPriority": 5,
+    "connections": {
+      "categories": ["expert.legal", "media.quality", "organization.government"],
+      "strength": 0.72
+    },
+    "behavior": {
+      "type": "defensive",
+      "triggerThreshold": 0.48,
+      "reactionProbability": 0.32
+    }
+  },
+  {
+    "id": "dr_klein_education",
+    "name": "Dr. Klein",
+    "tier": 3,
+    "category": "expert",
+    "subcategory": "education",
+    "baseTrust": 0.71,
+    "resilience": 0.56,
+    "influenceRadius": 98,
+    "emotionalState": 0.25,
+    "recoveryRate": 0.026,
+    "abilities": ["educational_content", "media_commentary"],
+    "vulnerabilities": ["ideological_framing"],
+    "resistances": ["emotional_appeal"],
+    "color": "#A5B4FC",
+    "size": 48,
+    "icon": "🎓",
+    "renderPriority": 5,
+    "connections": {
+      "categories": ["expert.education", "media", "organization.education"],
+      "strength": 0.65
+    }
+  },
+  {
+    "id": "dr_zimmermann_fake",
+    "name": "\"Dr.\" Zimmermann",
+    "tier": 3,
+    "category": "expert",
+    "subcategory": "fake_credentials",
+    "baseTrust": 0.32,
+    "resilience": 0.18,
+    "influenceRadius": 88,
+    "emotionalState": 0.52,
+    "recoveryRate": 0.009,
+    "abilities": ["credential_manipulation", "media_appearance"],
+    "vulnerabilities": ["fact_check", "credential_verification"],
+    "resistances": [],
+    "color": "#C4B5FD",
+    "size": 46,
+    "icon": "🎭",
+    "renderPriority": 4,
+    "connections": {
+      "categories": ["media.tabloid", "lobby"],
+      "strength": 0.55
+    }
+  },
+  {
+    "id": "dr_braun_conspiracy",
+    "name": "\"Dr.\" Braun",
+    "tier": 3,
+    "category": "expert",
+    "subcategory": "conspiracy_theorist",
+    "baseTrust": 0.25,
+    "resilience": 0.12,
+    "influenceRadius": 125,
+    "emotionalState": 0.82,
+    "recoveryRate": 0.005,
+    "abilities": ["conspiracy_narrative", "emotional_manipulation"],
+    "vulnerabilities": ["fact_check"],
+    "resistances": ["authority", "fact_check"],
+    "color": "#4C1D95",
+    "size": 52,
+    "icon": "🎪",
+    "renderPriority": 5,
+    "connections": {
+      "categories": ["media.alternative", "infrastructure.alternative"],
+      "strength": 0.75
+    }
+  },
+  {
+    "id": "think_tank_experts",
+    "name": "Think Tank Experten",
+    "tier": 3,
+    "category": "expert",
+    "subcategory": "think_tank",
+    "representsCount": 8,
+    "baseTrust": 0.58,
+    "resilience": 0.45,
+    "influenceRadius": 115,
+    "emotionalState": 0.28,
+    "recoveryRate": 0.020,
+    "abilities": ["commission_report", "policy_influence"],
+    "vulnerabilities": ["funding_exposure", "bias_framing"],
+    "resistances": [],
+    "color": "#7C3AED",
+    "size": 54,
+    "icon": "🏢",
+    "renderPriority": 5,
+    "connections": {
+      "categories": ["expert", "lobby", "organization.government"],
+      "strength": 0.7
+    }
+  },
+  {
+    "id": "science_communicators",
+    "name": "Wissenschaftskommunikatoren",
+    "tier": 3,
+    "category": "expert",
+    "subcategory": "science_comm",
+    "representsCount": 12,
+    "baseTrust": 0.65,
+    "resilience": 0.48,
+    "influenceRadius": 122,
+    "emotionalState": 0.30,
+    "recoveryRate": 0.022,
+    "abilities": ["educational_content", "media_appearance"],
+    "vulnerabilities": ["simplification_attack"],
+    "resistances": ["emotional_appeal"],
+    "color": "#A78BFA",
+    "size": 55,
+    "icon": "🔬",
+    "renderPriority": 5,
+    "connections": {
+      "categories": ["expert", "media", "infrastructure.social"],
+      "strength": 0.68
+    }
+  }
+]
