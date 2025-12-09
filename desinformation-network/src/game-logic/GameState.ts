@@ -89,9 +89,13 @@ export class GameStateManager {
         averageTrust: 0,
         polarizationIndex: 0,
       },
+      topology: undefined, // NEW: Computed on demand
       abilityUsage: {},
       eventsTriggered: [],
       defensiveActorsSpawned: 0,
+      activeCombos: [], // NEW: Combo system
+      completedCombos: [], // NEW: Combo system
+      actorReactions: [], // NEW: Actor AI
       statistics: this.createInitialStatistics(),
       history: [],
       seed,
@@ -141,30 +145,34 @@ export class GameStateManager {
       console.warn('No actor definitions loaded');
       return;
     }
-    
+
     const actors: Actor[] = this.actorDefinitions.map(def => {
       // Generate position with some randomness
       const position = this.rng.nextPosition(100, 700, 100, 500);
-      
+
       // Vary initial trust slightly
       const trust = clamp(
         def.baseTrust + this.rng.vary(0, 0.05),
         0,
         1
       );
-      
+
       return {
         ...def,
         trust,
         position,
         activeEffects: [],
         cooldowns: {},
+        // NEW: Initialize new fields
+        awareness: 0,
+        renderPriority: def.renderPriority || (def.tier === 1 ? 10 : def.tier === 2 ? 6 : 3),
+        velocity: { x: 0, y: 0 }, // For force layout
       };
     });
-    
+
     const connections = calculateConnections(actors);
     const metrics = calculateNetworkMetrics({ actors, connections, averageTrust: 0, polarizationIndex: 0 });
-    
+
     this.state.network = {
       actors,
       connections,

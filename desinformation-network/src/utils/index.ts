@@ -47,18 +47,19 @@ export function normalize(
 
 /**
  * Calculate connections between actors based on influence radius
+ * TODO: Replace with smart connection algorithm from roadmap
  */
 export function calculateConnections(actors: Actor[]): Connection[] {
   const connections: Connection[] = [];
-  
+
   for (let i = 0; i < actors.length; i++) {
     for (let j = i + 1; j < actors.length; j++) {
       const a1 = actors[i];
       const a2 = actors[j];
-      
+
       const distance = euclideanDistance(a1.position, a2.position);
       const avgRadius = (a1.influenceRadius + a2.influenceRadius) / 2;
-      
+
       if (distance < avgRadius) {
         const strength = 1 - (distance / avgRadius);
         connections.push({
@@ -67,11 +68,15 @@ export function calculateConnections(actors: Actor[]): Connection[] {
           targetId: a2.id,
           strength: clamp(strength, 0, 1),
           trustFlow: strength * 0.1,  // 10% of trust difference flows
+          // NEW fields with default values
+          type: 'structural',  // Default to structural connections
+          visible: strength > 0.3,  // Only show strong connections
+          bidirectional: true,  // Trust flows both ways by default
         });
       }
     }
   }
-  
+
   return connections;
 }
 

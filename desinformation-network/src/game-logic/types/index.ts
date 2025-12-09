@@ -3,12 +3,23 @@
 // ============================================
 
 // Actor Categories
-export type ActorCategory = 
-  | 'media' 
-  | 'expert' 
-  | 'lobby' 
-  | 'organization' 
+export type ActorCategory =
+  | 'media'
+  | 'expert'
+  | 'lobby'
+  | 'organization'
+  | 'infrastructure'
   | 'defensive';
+
+// Actor Tiers (importance/visibility)
+export type ActorTier = 1 | 2 | 3;  // 1=Core, 2=Secondary, 3=Background
+
+// Connection Types (for advanced network topology)
+export type ConnectionType =
+  | 'structural'   // Basic network structure
+  | 'ideological'  // Shared beliefs/values
+  | 'financial'    // Money/funding relationships
+  | 'social';      // Social/professional ties
 
 // Position in 2D space
 export type Position = {
@@ -25,7 +36,8 @@ export type Actor = {
   id: string;
   name: string;
   category: ActorCategory;
-  
+  subcategory?: string;       // NEW: Detailed classification (e.g., "quality", "tabloid")
+
   // Core properties (0-1 normalized)
   trust: number;              // Current trust level
   baseTrust: number;          // Starting value (for recovery)
@@ -33,22 +45,51 @@ export type Actor = {
   influenceRadius: number;    // Pixel radius for connections
   emotionalState: number;     // 0=rational, 1=emotional
   recoveryRate: number;       // How fast trust recovers per round
-  
+
+  // NEW: Tier & Visibility System
+  tier: ActorTier;            // Importance level (1=Core, 2=Secondary, 3=Background)
+  renderPriority: number;     // 1-10, for sorting when culling needed
+  minZoomLevel?: number;      // Only render when zoomed past this level
+
+  // NEW: Grouping & Clustering
+  groupId?: string;           // Visual/logical group identifier
+  representsCount?: number;   // For aggregate actors (e.g., "represents 50 influencers")
+
+  // NEW: AI & Behavior
+  behavior?: ActorBehavior;   // How this actor reacts to player actions
+  awareness: number;          // 0-1, tracks if actor is aware of manipulation
+  lastAttacked?: number;      // Round number of last attack
+
+  // NEW: Network Topology (computed)
+  centrality?: number;        // Betweenness centrality (0-1)
+  isBottleneck?: boolean;     // True if high centrality actor
+  communityId?: string;       // Which community this actor belongs to
+
   // Spatial
   position: Position;
-  
+  velocity?: Position;        // NEW: For force-directed layout animation
+
   // Visual
   color: string;
   size: number;
-  
+  icon?: string;              // NEW: Emoji/icon for actor
+
   // Gameplay
   abilities: string[];        // Ability IDs this actor can use
   activeEffects: Effect[];    // Currently active effects on this actor
   cooldowns: Record<string, number>;  // Ability ID → rounds remaining
-  
+
   // Taxonomy links
   vulnerabilities: string[];  // Technique IDs from taxonomy
   resistances: string[];      // Technique IDs from taxonomy
+};
+
+// NEW: Actor Behavior Definition
+export type ActorBehavior = {
+  type: 'passive' | 'defensive' | 'aggressive';
+  triggerThreshold: number;           // Trust level that triggers behavior
+  counterAbilities?: string[];        // Abilities actor can use to counter player
+  reactionProbability?: number;       // 0-1, chance to react each round
 };
 
 // Actor definition from JSON (for factory)
@@ -56,6 +97,7 @@ export type ActorDefinition = {
   id: string;
   name: string;
   category: ActorCategory;
+  subcategory?: string;
   baseTrust: number;
   resilience: number;
   influenceRadius: number;
@@ -66,6 +108,26 @@ export type ActorDefinition = {
   resistances: string[];
   color: string;
   size: number;
+  icon?: string;
+
+  // NEW: Tier & visibility
+  tier: ActorTier;
+  renderPriority?: number;      // Default: derived from tier
+  minZoomLevel?: number;
+
+  // NEW: Grouping
+  groupId?: string;
+  representsCount?: number;
+
+  // NEW: AI Behavior
+  behavior?: ActorBehavior;
+
+  // NEW: Auto-connection rules
+  connections?: {
+    categories?: string[];      // Connect to these actor categories
+    specific?: string[];        // Connect to these specific actor IDs
+    strength?: number;          // Connection strength (0-1)
+  };
 };
 
 // ============================================
@@ -154,8 +216,11 @@ export type Connection = {
   id: string;
   sourceId: string;
   targetId: string;
-  strength: number;           // 0-1, based on distance/radius
+  strength: number;           // 0-1, connection strength
   trustFlow: number;          // How much trust propagates per round
+  type: ConnectionType;       // NEW: Type of connection
+  visible: boolean;           // NEW: Should be rendered (false for weak connections)
+  bidirectional: boolean;     // NEW: Trust flows both ways
 };
 
 export type Network = {
@@ -176,6 +241,61 @@ export type NetworkMetrics = {
   highTrustCount: number;     // Actors with trust > 0.7
 };
 
+// NEW: Network Topology Analysis
+export type ActorCluster = {
+  id: string;
+  name: string;                // Auto-generated name based on composition
+  actors: string[];            // Actor IDs in this cluster
+  averageTrust: number;
+  center: Position;            // Visual center point
+  radius: number;              // Visual radius
+};
+
+export type Community = {
+  id: string;
+  type: 'media_ecosystem' | 'expert_network' | 'lobby_coalition' | 'mixed';
+  members: string[];           // Actor IDs
+  cohesion: number;            // 0-1, density of internal connections
+};
+
+export type NetworkTopology = {
+  clusters: ActorCluster[];
+  bottlenecks: string[];       // Actor IDs with high centrality
+  communities: Community[];
+  centralActors: string[];     // Actor IDs with high betweenness centrality
+};
+
+// ============================================
+// COMBO SYSTEM
+// ============================================
+
+export type AbilityCombo = {
+  id: string;
+  name: string;
+  description: string;
+  sequence: string[];          // Array of ability IDs in order
+  timeWindow: number;          // Rounds to complete combo
+  bonusEffect: number;         // Multiplier (e.g., 2.0 = double effect)
+  category?: string;           // For organization
+  unlockAt?: number;           // Min round to unlock
+  realExample?: string;        // Real-world example for education
+};
+
+export type ComboProgress = {
+  comboId: string;
+  startRound: number;
+  completedSteps: Array<{
+    abilityId: string;
+    targetId: string;
+    round: number;
+  }>;
+};
+
+export type ComboDetection = {
+  inProgress: ComboProgress[];
+  triggered: AbilityCombo[];
+};
+
 // ============================================
 // EVENT TYPES
 // ============================================
@@ -193,20 +313,32 @@ export type GameEvent = {
   id: string;
   name: string;
   description: string;
-  
+
   // Trigger
   triggerType: EventTriggerType;
   probability?: number;       // For random events (0-1)
   condition?: string;         // For conditional (evaluated)
   triggerRound?: number;      // For timed
-  
+
   // Effects
   effects: EventEffect[];
-  
+
   // Presentation
   newsTickerText: string;
   iconType: string;
   duration?: number;          // How long to show in ticker
+
+  // NEW: Advanced features
+  chainTo?: string;           // ID of next event in chain
+  playerChoice?: EventChoice[];  // Player can choose response
+};
+
+// NEW: Player choice in events
+export type EventChoice = {
+  text: string;               // Choice text shown to player
+  cost?: ResourceCost;        // Cost to select this choice
+  effects: EventEffect[];     // Effects if chosen
+  consequence?: string;       // Description of outcome
 };
 
 // ============================================
@@ -251,11 +383,21 @@ export type GameState = {
 
   // Network
   network: Network;
-  
+
+  // NEW: Network Topology (computed each round)
+  topology?: NetworkTopology;
+
   // Tracking
   abilityUsage: Record<string, number>;  // Ability ID → times used
   eventsTriggered: string[];             // Event IDs
   defensiveActorsSpawned: number;
+
+  // NEW: Combo System
+  activeCombos: ComboProgress[];         // Currently in-progress combos
+  completedCombos: string[];             // Combo IDs that were completed
+
+  // NEW: Actor AI tracking
+  actorReactions: ActorReaction[];       // Recent actor reactions
 
   // Statistics
   statistics: GameStatistics;
@@ -268,6 +410,17 @@ export type GameState = {
 
   // Result
   defeatReason?: DefeatReason;
+};
+
+// NEW: Actor Reaction (for AI system)
+export type ActorReaction = {
+  actorId: string;
+  round: number;
+  type: 'defensive' | 'aggressive' | 'passive';
+  action: string;
+  targetTactic?: string;       // If countering specific ability
+  effects: any[];
+  message: string;
 };
 
 export type GameStateSnapshot = {
