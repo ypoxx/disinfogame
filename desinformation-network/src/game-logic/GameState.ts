@@ -368,6 +368,13 @@ export class GameStateManager {
   }
 
   /**
+   * Get combo definitions
+   */
+  getComboDefinitions(): ComboDefinition[] {
+    return this.comboDefinitions;
+  }
+
+  /**
    * Get game statistics
    */
   getStatistics(): GameStatistics {

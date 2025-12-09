@@ -44,6 +44,7 @@ type UseGameStateReturn = {
   uiState: UIState;
   networkMetrics: NetworkMetrics;
   statistics: GameStatistics;
+  comboDefinitions: any[]; // ComboDefinition[] from combo-system
 
   // Game actions
   startGame: () => void;
@@ -369,6 +370,7 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
 
   const networkMetrics = gameManager.getNetworkMetrics();
   const statistics = gameManager.getStatistics();
+  const comboDefinitions = gameManager.getComboDefinitions();
 
   // ============================================
   // RETURN
@@ -379,6 +381,7 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     uiState,
     networkMetrics,
     statistics,
+    comboDefinitions,
 
     startGame,
     advanceRound,

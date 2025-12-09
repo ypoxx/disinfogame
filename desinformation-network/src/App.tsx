@@ -16,6 +16,7 @@ import {
   createDefaultFilters,
   applyFilters
 } from '@/components/FilterControls';
+import { ComboTracker } from '@/components/ComboTracker';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
@@ -31,6 +32,7 @@ function App() {
     uiState,
     networkMetrics,
     statistics,
+    comboDefinitions,
     startGame,
     advanceRound,
     resetGame,
@@ -442,6 +444,18 @@ function App() {
           onToggleCollapse={() => setFilterCollapsed(!filterCollapsed)}
         />
       </div>
+
+      {/* Combo Tracker (Phase 4: Combo System) */}
+      {gameState.activeCombos.length > 0 && (
+        <div className="absolute top-20 left-4 z-20">
+          <ComboTracker
+            activeCombos={gameState.activeCombos}
+            comboDefinitions={comboDefinitions}
+            actors={gameState.network.actors}
+            currentRound={gameState.round}
+          />
+        </div>
+      )}
 
       {/* Bottom Sheet */}
       <BottomSheet
