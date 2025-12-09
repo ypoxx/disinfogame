@@ -23,27 +23,38 @@ import {
   calculateNetworkMetrics,
   getConnectedActors,
 } from '@/utils';
+import {
+  type BalanceConfig,
+  type DifficultyLevel,
+  DEFAULT_BALANCE_CONFIG,
+  getBalanceConfig,
+  filterActorsByTiers,
+  adjustAbilityCost,
+  calculateVictoryConditions,
+} from './balance-config';
 
 // ============================================
-// CONSTANTS
+// CONSTANTS (Now using balance config)
 // ============================================
 
-// Multi-Resource Economy
+// Default to Normal difficulty (58 actors)
+const DEFAULT_DIFFICULTY: DifficultyLevel = 'normal';
+
+// Legacy constants for backwards compatibility
+// These are now overridden by balance config
 const INITIAL_MONEY = 150;
 const INITIAL_ATTENTION = 0;
 const INITIAL_INFRASTRUCTURE = 0;
 const MONEY_PER_ROUND = 30;
-const ATTENTION_DECAY_RATE = 0.15;  // 15% per round
-const DETECTION_THRESHOLD = 0.8;    // 80% attention = high risk
-const EXPOSURE_THRESHOLD = 0.85;    // 85% detection risk = exposed and caught
-const INFRASTRUCTURE_BONUS_MULTIPLIER = 0.1;  // 10% bonus per infrastructure
-
-// Game Flow
+const ATTENTION_DECAY_RATE = 0.15;
+const DETECTION_THRESHOLD = 0.8;
+const EXPOSURE_THRESHOLD = 0.85;
+const INFRASTRUCTURE_BONUS_MULTIPLIER = 0.1;
 const MAX_ROUNDS = 32;
-const VICTORY_THRESHOLD = 0.75;  // 75% of actors
-const VICTORY_TRUST_LEVEL = 0.4; // Below 40% trust
-const DEFENSIVE_VICTORY_TRUST = 0.7; // Above 70% average
-const DEFENSIVE_SPAWN_INTERVAL = 8; // Every 8 rounds
+const VICTORY_THRESHOLD = 0.75;
+const VICTORY_TRUST_LEVEL = 0.4;
+const DEFENSIVE_VICTORY_TRUST = 0.7;
+const DEFENSIVE_SPAWN_INTERVAL = 8;
 const MAX_DEFENSIVE_ACTORS = 3;
 const RANDOM_EVENT_CHANCE = 0.3;
 
@@ -58,10 +69,12 @@ export class GameStateManager {
   private abilityDefinitions: Ability[] = [];
   private eventDefinitions: GameEvent[] = [];
   private lastTriggeredEvent: GameEvent | null = null;
+  private balanceConfig: BalanceConfig;
 
-  constructor(seed?: string) {
+  constructor(seed?: string, difficulty: DifficultyLevel = DEFAULT_DIFFICULTY) {
     const gameSeed = seed || generateSeedString();
     this.rng = new SeededRandom(gameSeed);
+    this.balanceConfig = getBalanceConfig(difficulty);
     this.state = this.createInitialState(gameSeed);
   }
   
@@ -73,12 +86,14 @@ export class GameStateManager {
    * Create initial game state
    */
   private createInitialState(seed: string): GameState {
+    const config = this.balanceConfig;
+
     return {
       phase: 'start',
       round: 0,
-      maxRounds: MAX_ROUNDS,
+      maxRounds: config.maxRounds,
       resources: {
-        money: INITIAL_MONEY,
+        money: config.initialMoney,
         attention: INITIAL_ATTENTION,
         infrastructure: INITIAL_INFRASTRUCTURE,
       },
@@ -126,15 +141,19 @@ export class GameStateManager {
   
   /**
    * Load game definitions from JSON
+   * Filters actors based on balance config tier settings
    */
   loadDefinitions(
     actors: ActorDefinition[],
     abilities: Ability[],
     events: GameEvent[]
   ): void {
-    this.actorDefinitions = actors;
+    // Filter actors by tier based on difficulty
+    this.actorDefinitions = filterActorsByTiers(actors, this.balanceConfig);
     this.abilityDefinitions = abilities;
     this.eventDefinitions = events;
+
+    console.log(`✅ Loaded ${this.actorDefinitions.length} actors for difficulty: ${this.balanceConfig.actorCount} target`);
   }
   
   /**
@@ -229,12 +248,12 @@ export class GameStateManager {
    * Generate resources each round
    */
   private generateRoundResources(): void {
-    // Base money income
-    let moneyGain = MONEY_PER_ROUND;
+    // Base money income (from balance config)
+    let moneyGain = this.balanceConfig.moneyPerRound;
 
-    // Bonus from infrastructure
+    // Bonus from infrastructure (from balance config)
     const infraBonus = Math.floor(
-      this.state.resources.infrastructure * INFRASTRUCTURE_BONUS_MULTIPLIER
+      this.state.resources.infrastructure * this.balanceConfig.infrastructureBonusMultiplier
     );
     moneyGain += infraBonus;
 
@@ -261,13 +280,13 @@ export class GameStateManager {
 
     this.state.resources.money += moneyGain;
 
-    // Attention decays naturally
+    // Attention decays naturally (from balance config)
     this.state.resources.attention = Math.max(
       0,
-      this.state.resources.attention * (1 - ATTENTION_DECAY_RATE)
+      this.state.resources.attention * (1 - this.balanceConfig.attentionDecayRate)
     );
 
-    // Update detection risk
+    // Update detection risk (from balance config)
     this.state.detectionRisk = this.state.resources.attention / 100;
   }
 
@@ -298,6 +317,13 @@ export class GameStateManager {
   
   getNetworkMetrics(): NetworkMetrics {
     return calculateNetworkMetrics(this.state.network);
+  }
+
+  /**
+   * Get current balance configuration
+   */
+  getBalanceConfig(): BalanceConfig {
+    return this.balanceConfig;
   }
 
   /**
@@ -576,20 +602,20 @@ export class GameStateManager {
     
     // 4. Decrement cooldowns
     this.decrementCooldowns();
-    
-    // 5. Trigger random events
-    if (this.rng.nextBool(RANDOM_EVENT_CHANCE)) {
+
+    // 5. Trigger random events (from balance config)
+    if (this.rng.nextBool(this.balanceConfig.randomEventChance)) {
       this.triggerRandomEvent();
     }
-    
+
     // 6. Check conditional events
     this.checkConditionalEvents();
-    
+
     // 7. Generate resources (multi-resource economy)
     this.generateRoundResources();
-    
-    // 8. Check for defensive spawns
-    if (this.state.round % DEFENSIVE_SPAWN_INTERVAL === 0) {
+
+    // 8. Check for defensive spawns (from balance config)
+    if (this.state.round % this.balanceConfig.defensiveSpawnInterval === 0) {
       this.checkDefensiveSpawn();
     }
 
@@ -954,13 +980,14 @@ export class GameStateManager {
    * Check if defensive actor should spawn
    */
   private checkDefensiveSpawn(): void {
-    if (this.state.defensiveActorsSpawned >= MAX_DEFENSIVE_ACTORS) return;
-    
+    // From balance config
+    if (this.state.defensiveActorsSpawned >= this.balanceConfig.maxDefensiveActors) return;
+
     const metrics = this.getNetworkMetrics();
-    
+
     // Higher chance to spawn if trust is low
     const spawnChance = 0.3 + (0.5 - metrics.averageTrust) * 0.5;
-    
+
     if (this.rng.nextBool(spawnChance)) {
       const types = ['fact_checker', 'media_literacy', 'regulatory'];
       const type = this.rng.pick(types) || 'fact_checker';
@@ -1102,24 +1129,26 @@ export class GameStateManager {
   
   /**
    * Check victory condition
+   * Uses balance config for thresholds
    */
   checkVictory(): boolean {
     const lowTrustActors = this.state.network.actors.filter(
-      a => a.trust < VICTORY_TRUST_LEVEL && a.category !== 'defensive'
+      a => a.trust < this.balanceConfig.victoryTrustLevel && a.category !== 'defensive'
     );
     const nonDefensiveActors = this.state.network.actors.filter(
       a => a.category !== 'defensive'
     );
-    
-    return lowTrustActors.length >= nonDefensiveActors.length * VICTORY_THRESHOLD;
+
+    return lowTrustActors.length >= nonDefensiveActors.length * this.balanceConfig.victoryThreshold;
   }
-  
+
   /**
    * Check defeat conditions
+   * Uses balance config for thresholds
    */
   checkDefeat(): DefeatReason | null {
     // Exposure - caught due to excessive attention/detection risk
-    if (this.state.detectionRisk >= EXPOSURE_THRESHOLD) {
+    if (this.state.detectionRisk >= this.balanceConfig.exposureThreshold) {
       return 'exposure';
     }
 
@@ -1131,7 +1160,7 @@ export class GameStateManager {
     // Defensive victory
     const metrics = this.getNetworkMetrics();
     if (
-      metrics.averageTrust > DEFENSIVE_VICTORY_TRUST &&
+      metrics.averageTrust > this.balanceConfig.defensiveVictoryTrust &&
       this.state.defensiveActorsSpawned > 0
     ) {
       return 'defensive_victory';
@@ -1236,6 +1265,14 @@ export class GameStateManager {
 // FACTORY FUNCTION
 // ============================================
 
-export function createGameState(seed?: string): GameStateManager {
-  return new GameStateManager(seed);
+/**
+ * Create a new game state manager
+ * @param seed - Optional seed for deterministic randomness
+ * @param difficulty - Difficulty level (affects balance, actor count, etc.)
+ */
+export function createGameState(
+  seed?: string,
+  difficulty: DifficultyLevel = DEFAULT_DIFFICULTY
+): GameStateManager {
+  return new GameStateManager(seed, difficulty);
 }

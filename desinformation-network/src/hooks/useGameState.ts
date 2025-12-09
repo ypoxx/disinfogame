@@ -12,7 +12,7 @@ import type {
 } from '@/game-logic/types';
 
 // Import definitions (will be loaded from JSON)
-import actorDefinitions from '@/data/game/actor-definitions-v2.json';
+import actorDefinitions from '@/data/game/actors'; // NEW: 58 actors from modular system
 import abilityDefinitions from '@/data/game/ability-definitions-v2.json';
 import eventDefinitions from '@/data/game/event-definitions.json';
 
