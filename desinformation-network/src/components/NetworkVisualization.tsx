@@ -1,7 +1,12 @@
-import { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import type { Actor, Connection } from '@/game-logic/types';
 import { trustToHex, getCategoryColor } from '@/utils/colors';
-import { euclideanDistance } from '@/utils';
+import { euclideanDistance, cn } from '@/utils';
+import {
+  detectSpatialClusters,
+  getClusterColor,
+  getClusterBorderColor,
+} from '@/utils/network/cluster-detection';
 
 // ============================================
 // FULLSCREEN RESPONSIVE NETWORK VISUALIZATION
@@ -59,6 +64,9 @@ export function NetworkVisualization({
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
 
+  // Cluster visualization (Phase 2: UX Layer)
+  const [showClusters, setShowClusters] = useState(true);
+
   // Constants scaled by canvas size
   const NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.04; // 4% of smaller dimension
   const CATEGORY_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.15; // 15% of smaller dimension
@@ -73,6 +81,12 @@ export function NetworkVisualization({
     return groups;
   }, {} as Record<string, Actor[]>);
 
+  // Detect spatial clusters (Phase 2: UX Layer)
+  const spatialClusters = useMemo(() => {
+    if (!showClusters || actors.length < 3) return [];
+    return detectSpatialClusters(actors, 180, 3); // epsilon=180px, minPoints=3
+  }, [actors, showClusters]);
+
   // Convert relative position to absolute based on canvas size
   const getCategoryPosition = useCallback((category: string) => {
     const relPos = CATEGORY_POSITIONS_RELATIVE[category] || { x: 0.5, y: 0.5 };
@@ -82,22 +96,12 @@ export function NetworkVisualization({
     };
   }, [canvasSize]);
 
-  // Calculate positions in grouped layout (responsive)
-  const getActorPosition = useCallback((actor: Actor, index: number, categoryActors: Actor[]) => {
-    const basePos = getCategoryPosition(actor.category);
-    const count = categoryActors.length;
-
-    if (count === 1) {
-      return basePos;
-    }
-
-    // Arrange in circle around category center
-    const angle = (index / count) * Math.PI * 2 - Math.PI / 2; // Start from top
-    return {
-      x: basePos.x + Math.cos(angle) * ACTOR_SPREAD_RADIUS,
-      y: basePos.y + Math.sin(angle) * ACTOR_SPREAD_RADIUS,
-    };
-  }, [getCategoryPosition, ACTOR_SPREAD_RADIUS]);
+  // Use actor's own position (from force-directed layout)
+  // Phase 3: Actors now have positions calculated by force-directed layout
+  const getActorPosition = useCallback((actor: Actor) => {
+    // Actors now have positions set by force-directed layout in GameState
+    return actor.position;
+  }, []);
 
   // Drawing function
   const draw = useCallback(() => {
@@ -112,6 +116,31 @@ export function NetworkVisualization({
     ctx.save();
     ctx.translate(pan.x, pan.y);
     ctx.scale(zoom, zoom);
+
+    // Draw spatial clusters (Phase 2: UX Layer)
+    if (showClusters && spatialClusters.length > 0) {
+      spatialClusters.forEach(cluster => {
+        ctx.beginPath();
+        ctx.arc(cluster.center.x, cluster.center.y, cluster.radius, 0, Math.PI * 2);
+
+        // Fill with semi-transparent color based on category
+        ctx.fillStyle = getClusterColor(cluster.category, 0.12);
+        ctx.fill();
+
+        // Border based on trust level
+        ctx.strokeStyle = getClusterBorderColor(cluster.averageTrust);
+        ctx.lineWidth = 2;
+        ctx.setLineDash([8, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Cluster label (optional, for debugging)
+        // ctx.font = '12px Inter, sans-serif';
+        // ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        // ctx.textAlign = 'center';
+        // ctx.fillText(`Cluster (${cluster.actorIds.length})`, cluster.center.x, cluster.center.y);
+      });
+    }
 
     // Draw category regions
     Object.keys(CATEGORY_POSITIONS_RELATIVE).forEach((category) => {
@@ -173,13 +202,8 @@ export function NetworkVisualization({
       const target = actors.find(a => a.id === conn.targetId);
       if (!source || !target) return;
 
-      const categoryActors = actorsByCategory[source.category] || [];
-      const sourceIndex = categoryActors.indexOf(source);
-      const sourcPos = getActorPosition(source, sourceIndex, categoryActors);
-
-      const targetCategoryActors = actorsByCategory[target.category] || [];
-      const targetIndex = targetCategoryActors.indexOf(target);
-      const targetPos = getActorPosition(target, targetIndex, targetCategoryActors);
+      const sourcPos = getActorPosition(source);
+      const targetPos = getActorPosition(target);
 
       const isHighlighted =
         source.id === selectedActorId ||
@@ -242,9 +266,8 @@ export function NetworkVisualization({
     });
 
     // Draw actors (nodes)
-    Object.entries(actorsByCategory).forEach(([category, categoryActors]) => {
-      categoryActors.forEach((actor, index) => {
-        const pos = getActorPosition(actor, index, categoryActors);
+    actors.forEach((actor) => {
+      const pos = getActorPosition(actor);
 
         const isSelected = actor.id === selectedActorId;
         const isHovered = actor.id === hoveredActorId;
@@ -387,14 +410,13 @@ export function NetworkVisualization({
           ctx.fillStyle = trustToHex(actor.trust);
           ctx.fillText(trustText, pos.x, trustY + 2);
         }
-      });
     });
 
     // Restore context after zoom/pan transform
     ctx.restore();
 
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan]);
 
   // Transform screen coordinates to canvas coordinates (accounting for zoom/pan)
   const screenToCanvas = useCallback((screenX: number, screenY: number) => {
@@ -408,18 +430,15 @@ export function NetworkVisualization({
   const findActorAtPosition = useCallback((screenX: number, screenY: number): Actor | null => {
     const { x, y } = screenToCanvas(screenX, screenY);
 
-    for (const [category, categoryActors] of Object.entries(actorsByCategory)) {
-      for (let i = 0; i < categoryActors.length; i++) {
-        const actor = categoryActors[i];
-        const pos = getActorPosition(actor, i, categoryActors);
-        const distance = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
-        if (distance <= NODE_RADIUS * 1.5) {
-          return actor;
-        }
+    for (const actor of actors) {
+      const pos = getActorPosition(actor);
+      const distance = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
+      if (distance <= NODE_RADIUS * 1.5) {
+        return actor;
       }
     }
     return null;
-  }, [actorsByCategory, getActorPosition, NODE_RADIUS, screenToCanvas]);
+  }, [actors, getActorPosition, NODE_RADIUS, screenToCanvas]);
 
   // Event handlers
   const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -662,6 +681,19 @@ export function NetworkVisualization({
           title="Reset View (R)"
         >
           ⟲
+        </button>
+        <div className="h-6 w-px bg-gray-300"></div>
+        <button
+          onClick={() => setShowClusters(!showClusters)}
+          className={cn(
+            "w-8 h-8 flex items-center justify-center rounded text-xs transition-colors",
+            showClusters
+              ? "bg-blue-500 hover:bg-blue-600 text-white"
+              : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+          )}
+          title={showClusters ? "Hide Clusters (C)" : "Show Clusters (C)"}
+        >
+          ◉
         </button>
       </div>
 
