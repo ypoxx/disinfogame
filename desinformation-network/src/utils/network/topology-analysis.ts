@@ -5,25 +5,7 @@
  * critical paths. Used for strategic gameplay and AI decision-making.
  */
 
-import type { Actor, Connection, NetworkTopology } from '@/game-logic/types';
-
-// ============================================
-// TYPES
-// ============================================
-
-export interface CentralityScores {
-  degree: number;
-  betweenness: number;
-  closeness: number;
-  eigenvector: number;
-}
-
-export interface BottleneckAnalysis {
-  actorId: string;
-  importance: number; // 0-1, higher = more critical
-  connectsComponents: boolean;
-  bridgeConnections: number;
-}
+import type { Actor, Connection, NetworkTopology, CentralityScores, BottleneckAnalysis } from '@/game-logic/types';
 
 // ============================================
 // CENTRALITY CALCULATIONS

@@ -131,7 +131,7 @@ export function updateComboProgress(
   for (const progress of gameState.activeCombos) {
     // Skip if we already processed this combo for this target
     if (progress.targetActorId === targetActorId) {
-      const combo = comboDefinitions.find((c) => c.comboId === progress.comboId);
+      const combo = comboDefinitions.find((c) => c.id === progress.comboId);
       if (combo && currentRound - progress.startRound > combo.windowRounds) {
         continue; // Expired
       }

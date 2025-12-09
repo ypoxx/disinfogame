@@ -84,12 +84,12 @@ export type Actor = {
   resistances: string[];      // Technique IDs from taxonomy
 };
 
-// NEW: Actor Behavior Definition
+// Actor Behavior Definition (Phase 4.3: Actor AI & Reactions)
 export type ActorBehavior = {
-  type: 'passive' | 'defensive' | 'aggressive';
-  triggerThreshold: number;           // Trust level that triggers behavior
-  counterAbilities?: string[];        // Abilities actor can use to counter player
-  reactionProbability?: number;       // 0-1, chance to react each round
+  awarenessGrowth: number;      // How quickly actor becomes aware of manipulation
+  resistanceBonus: number;      // Bonus to resilience
+  counterAttackChance: number;  // Probability of reacting to manipulation
+  allySupport: boolean;         // Whether this behavior supports allies
 };
 
 // Actor definition from JSON (for factory)
@@ -258,11 +258,25 @@ export type Community = {
   cohesion: number;            // 0-1, density of internal connections
 };
 
+// Network topology analysis (Phase 4.2)
+export type CentralityScores = {
+  degree: number;
+  betweenness: number;
+  closeness: number;
+  eigenvector: number;
+};
+
+export type BottleneckAnalysis = {
+  actorId: string;
+  importance: number; // 0-1, higher = more critical
+  connectsComponents: boolean;
+  bridgeConnections: number;
+};
+
 export type NetworkTopology = {
-  clusters: ActorCluster[];
-  bottlenecks: string[];       // Actor IDs with high centrality
-  communities: Community[];
-  centralActors: string[];     // Actor IDs with high betweenness centrality
+  centralities: Map<string, CentralityScores>;
+  bottlenecks: BottleneckAnalysis[];
+  analyzedAt: number;
 };
 
 // ============================================
@@ -283,12 +297,9 @@ export type AbilityCombo = {
 
 export type ComboProgress = {
   comboId: string;
+  targetActorId: string;
   startRound: number;
-  completedSteps: Array<{
-    abilityId: string;
-    targetId: string;
-    round: number;
-  }>;
+  usedAbilities: string[]; // Ability IDs in sequence
 };
 
 export type ComboDetection = {
@@ -412,15 +423,13 @@ export type GameState = {
   defeatReason?: DefeatReason;
 };
 
-// NEW: Actor Reaction (for AI system)
+// Actor Reaction (Phase 4.3: Actor AI & Reactions)
 export type ActorReaction = {
   actorId: string;
+  type: 'resist' | 'expose' | 'defend_ally' | 'counter_campaign';
+  targetActorId?: string;
+  strength: number;
   round: number;
-  type: 'defensive' | 'aggressive' | 'passive';
-  action: string;
-  targetTactic?: string;       // If countering specific ability
-  effects: any[];
-  message: string;
 };
 
 export type GameStateSnapshot = {

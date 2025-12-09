@@ -18,6 +18,7 @@ import {
 } from '@/components/FilterControls';
 import { ComboTracker } from '@/components/ComboTracker';
 import { TopologyOverlay } from '@/components/TopologyOverlay';
+import { ActorReactionsOverlay } from '@/components/ActorReactionsOverlay';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
@@ -69,6 +70,9 @@ function App() {
 
   // Topology state (Phase 4.2: Network Topology Analysis)
   const [topologyCollapsed, setTopologyCollapsed] = useState(false);
+
+  // Actor Reactions state (Phase 4.3: Actor AI & Reactions)
+  const [reactionsCollapsed, setReactionsCollapsed] = useState(false);
 
   // Apply filters to actors
   const filteredActors = useMemo(
@@ -472,6 +476,19 @@ function App() {
             actors={gameState.network.actors}
             collapsed={topologyCollapsed}
             onToggleCollapse={() => setTopologyCollapsed(!topologyCollapsed)}
+          />
+        </div>
+      )}
+
+      {/* Actor Reactions Overlay (Phase 4.3: Actor AI & Reactions) */}
+      {gameState.actorReactions && gameState.actorReactions.length > 0 && (
+        <div className="absolute top-20 right-4 z-20">
+          <ActorReactionsOverlay
+            reactions={gameState.actorReactions}
+            actors={gameState.network.actors}
+            currentRound={gameState.round}
+            collapsed={reactionsCollapsed}
+            onToggleCollapse={() => setReactionsCollapsed(!reactionsCollapsed)}
           />
         </div>
       )}

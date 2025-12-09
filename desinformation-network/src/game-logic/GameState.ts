@@ -43,6 +43,16 @@ import {
   applyComboBonus,
   getComboStatistics,
 } from './combo-system';
+import {
+  type ReactionTrigger,
+  ACTOR_BEHAVIORS,
+  updateAwareness,
+  generateReaction,
+  processActorAI,
+  applyReactionEffects,
+  shouldSupportAlly,
+  supportAlly,
+} from './actor-ai';
 
 // ============================================
 // CONSTANTS (Now using balance config)
@@ -627,9 +637,16 @@ export class GameStateManager {
   ): void {
     const target = this.getActor(targetId);
     if (!target) return;
-    
+
     const trustDelta = this.calculateEffectMagnitude(ability, target, usageCount);
-    
+
+    // PHASE 4.3: Mark last attacked & update awareness
+    const manipulationStrength = Math.abs(trustDelta);
+    target.lastAttacked = this.state.round;
+
+    const behavior = target.behavior || ACTOR_BEHAVIORS.passive;
+    target.awareness = updateAwareness(target, manipulationStrength, behavior);
+
     // Update actor
     this.updateActor(targetId, {
       trust: clamp(target.trust + trustDelta, 0, 1),
@@ -640,7 +657,30 @@ export class GameStateManager {
         ? clamp(target.resilience + ability.effects.resilienceDelta, 0, 1)
         : target.resilience,
     });
-    
+
+    // PHASE 4.3: Check for actor reactions
+    if (manipulationStrength > 0.1) {
+      const trigger: ReactionTrigger = {
+        type: 'trust_drop',
+        severity: manipulationStrength,
+      };
+
+      const reaction = generateReaction(target, trigger, this.state);
+      if (reaction) {
+        this.state.actorReactions.push(reaction);
+      }
+
+      // Check for ally support
+      const connectedActors = getConnectedActors(this.state, targetId, 1);
+      connectedActors.forEach(ally => {
+        const allyBehavior = ally.behavior || ACTOR_BEHAVIORS.passive;
+        if (shouldSupportAlly(ally, target, allyBehavior)) {
+          const supportReaction = supportAlly(ally, target, this.state);
+          this.state.actorReactions.push(supportReaction);
+        }
+      });
+    }
+
     // Add effect if it has duration
     if (ability.effects.duration && ability.effects.duration > 0) {
       this.addEffect({
@@ -750,6 +790,15 @@ export class GameStateManager {
     if (this.state.round % 4 === 0) {
       this.updateNetworkTopology();
     }
+
+    // 9.6. PHASE 4.3: Process actor AI and reactions
+    const aiReactions = processActorAI(this.state);
+    this.state.actorReactions.push(...aiReactions);
+
+    // Apply all accumulated reactions
+    applyReactionEffects(this.state.actorReactions, this.state);
+
+    console.log(`🤖 AI Processing: ${aiReactions.length} spontaneous reactions generated`);
 
     // 10. Track round statistics
     this.trackRoundStatistics();
