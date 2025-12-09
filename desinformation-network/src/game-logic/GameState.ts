@@ -34,6 +34,14 @@ import {
   adjustAbilityCost,
   calculateVictoryConditions,
 } from './balance-config';
+import {
+  type ComboDefinition,
+  type ComboActivation,
+  updateComboProgress,
+  cleanExpiredCombos,
+  applyComboBonus,
+  getComboStatistics,
+} from './combo-system';
 
 // ============================================
 // CONSTANTS (Now using balance config)
@@ -77,6 +85,7 @@ export class GameStateManager {
   private actorDefinitions: ActorDefinition[] = [];
   private abilityDefinitions: Ability[] = [];
   private eventDefinitions: GameEvent[] = [];
+  private comboDefinitions: ComboDefinition[] = [];
   private lastTriggeredEvent: GameEvent | null = null;
   private balanceConfig: BalanceConfig;
 
@@ -155,14 +164,17 @@ export class GameStateManager {
   loadDefinitions(
     actors: ActorDefinition[],
     abilities: Ability[],
-    events: GameEvent[]
+    events: GameEvent[],
+    combos: ComboDefinition[] = []
   ): void {
     // Filter actors by tier based on difficulty
     this.actorDefinitions = filterActorsByTiers(actors, this.balanceConfig);
     this.abilityDefinitions = abilities;
     this.eventDefinitions = events;
+    this.comboDefinitions = combos;
 
     console.log(`✅ Loaded ${this.actorDefinitions.length} actors for difficulty: ${this.balanceConfig.actorCount} target`);
+    console.log(`✅ Loaded ${this.comboDefinitions.length} combo definitions`);
   }
   
   /**
@@ -491,7 +503,40 @@ export class GameStateManager {
     
     // Update network metrics
     this.updateNetworkMetrics();
-    
+
+    // PHASE 4: Combo System - Track ability sequences
+    if (this.comboDefinitions.length > 0) {
+      // Check combo progress for each target
+      const comboNotifications: ComboActivation[] = [];
+
+      for (const targetId of targetActorIds) {
+        const { newProgress, completedCombos } = updateComboProgress(
+          this.state,
+          abilityId,
+          targetId,
+          this.comboDefinitions
+        );
+
+        // Update active combos
+        this.state.activeCombos = this.state.activeCombos.filter(
+          cp => cp.targetActorId !== targetId || newProgress.some(np => np.comboId === cp.comboId)
+        );
+        this.state.activeCombos.push(...newProgress);
+
+        // Apply completed combo effects
+        for (const activation of completedCombos) {
+          const comboDef = this.comboDefinitions.find(c => c.id === activation.comboId);
+          if (comboDef) {
+            applyComboBonus(this.state, activation, comboDef);
+            this.state.completedCombos.push(activation.comboId);
+            comboNotifications.push(activation);
+
+            console.log(`🎯 COMBO ACTIVATED: ${comboDef.name} on ${this.getActor(targetId)?.name}`);
+          }
+        }
+      }
+    }
+
     return true;
   }
   
@@ -631,6 +676,11 @@ export class GameStateManager {
     
     // 4. Decrement cooldowns
     this.decrementCooldowns();
+
+    // 4.5. PHASE 4: Clean up expired combos
+    if (this.comboDefinitions.length > 0) {
+      this.state.activeCombos = cleanExpiredCombos(this.state, this.comboDefinitions);
+    }
 
     // 5. Trigger random events (from balance config)
     if (this.rng.nextBool(this.balanceConfig.randomEventChance)) {

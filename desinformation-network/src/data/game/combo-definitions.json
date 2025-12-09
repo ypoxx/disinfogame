@@ -1,0 +1,193 @@
+[
+  {
+    "id": "propaganda_blitz",
+    "name": "Propaganda Blitz",
+    "description": "Overwhelm a target with rapid-fire disinformation from multiple sources",
+    "requiredAbilities": ["spread_fake_news", "amplify_disinformation"],
+    "windowRounds": 2,
+    "bonusEffect": {
+      "trustReduction": 0.15,
+      "attentionCost": -10
+    },
+    "category": "aggressive"
+  },
+  {
+    "id": "credibility_erosion",
+    "name": "Credibility Erosion",
+    "description": "Systematically undermine an actor's reputation through multiple angles",
+    "requiredAbilities": ["sow_doubt", "character_assassination"],
+    "windowRounds": 3,
+    "bonusEffect": {
+      "trustReduction": 0.12,
+      "propagationBonus": 0.3
+    },
+    "category": "strategic"
+  },
+  {
+    "id": "emotional_manipulation",
+    "name": "Emotional Manipulation",
+    "description": "Exploit emotional vulnerabilities with targeted fear tactics",
+    "requiredAbilities": ["fearmongering", "exploit_emotion"],
+    "windowRounds": 2,
+    "bonusEffect": {
+      "emotionalDamage": 0.20,
+      "resilienceDamage": 0.15
+    },
+    "category": "psychological"
+  },
+  {
+    "id": "infrastructure_takeover",
+    "name": "Infrastructure Takeover",
+    "description": "Control information infrastructure to dominate narrative",
+    "requiredAbilities": ["build_bot_network", "algorithmic_manipulation"],
+    "windowRounds": 4,
+    "bonusEffect": {
+      "infrastructureGain": 2,
+      "propagationBonus": 0.5
+    },
+    "category": "infrastructure"
+  },
+  {
+    "id": "authority_impersonation",
+    "name": "Authority Impersonation",
+    "description": "Pose as trusted experts to spread misleading information",
+    "requiredAbilities": ["fake_credentials", "spread_fake_news"],
+    "windowRounds": 3,
+    "bonusEffect": {
+      "trustReduction": 0.18,
+      "moneyRefund": 15
+    },
+    "category": "deception"
+  },
+  {
+    "id": "conspiracy_network",
+    "name": "Conspiracy Network",
+    "description": "Build interconnected conspiracy theories that reinforce each other",
+    "requiredAbilities": ["conspiracy_theory", "echo_chamber"],
+    "windowRounds": 3,
+    "bonusEffect": {
+      "trustReduction": 0.10,
+      "spreadToConnected": true,
+      "polarizationBonus": 0.15
+    },
+    "category": "narrative"
+  },
+  {
+    "id": "media_saturation",
+    "name": "Media Saturation",
+    "description": "Flood all channels with the same message for maximum impact",
+    "requiredAbilities": ["amplify_disinformation", "astroturfing"],
+    "windowRounds": 2,
+    "bonusEffect": {
+      "trustReduction": 0.08,
+      "attentionReduction": 5,
+      "spreadRadius": 2
+    },
+    "category": "volume"
+  },
+  {
+    "id": "trust_cascade",
+    "name": "Trust Cascade",
+    "description": "Trigger a chain reaction of trust loss across connected actors",
+    "requiredAbilities": ["sow_doubt", "amplify_disinformation", "exploit_emotion"],
+    "windowRounds": 4,
+    "bonusEffect": {
+      "trustReduction": 0.25,
+      "cascadeDepth": 3,
+      "moneyRefund": 20
+    },
+    "category": "advanced"
+  },
+  {
+    "id": "algorithmic_echo",
+    "name": "Algorithmic Echo",
+    "description": "Manipulate algorithms to create self-reinforcing echo chambers",
+    "requiredAbilities": ["algorithmic_manipulation", "echo_chamber", "astroturfing"],
+    "windowRounds": 5,
+    "bonusEffect": {
+      "trustReduction": 0.20,
+      "infrastructureGain": 3,
+      "permanentPolarization": 0.10
+    },
+    "category": "advanced"
+  },
+  {
+    "id": "coordinated_assault",
+    "name": "Coordinated Assault",
+    "description": "Execute a perfectly timed multi-vector attack on a high-value target",
+    "requiredAbilities": ["spread_fake_news", "character_assassination", "fearmongering", "amplify_disinformation"],
+    "windowRounds": 3,
+    "bonusEffect": {
+      "trustReduction": 0.35,
+      "resilienceDamage": 0.25,
+      "bonusAttention": -15,
+      "achievementUnlock": "master_manipulator"
+    },
+    "category": "ultimate"
+  },
+  {
+    "id": "stealth_operation",
+    "name": "Stealth Operation",
+    "description": "Execute manipulation while minimizing detection risk",
+    "requiredAbilities": ["astroturfing", "sockpuppet_account"],
+    "windowRounds": 2,
+    "bonusEffect": {
+      "trustReduction": 0.08,
+      "attentionCost": -20,
+      "detectionReduction": 0.15
+    },
+    "category": "covert"
+  },
+  {
+    "id": "network_disruption",
+    "name": "Network Disruption",
+    "description": "Sever trust connections across the network to isolate actors",
+    "requiredAbilities": ["sow_doubt", "divide_conquer"],
+    "windowRounds": 3,
+    "bonusEffect": {
+      "connectionWeakening": 0.30,
+      "isolationBonus": true,
+      "polarizationBonus": 0.20
+    },
+    "category": "structural"
+  },
+  {
+    "id": "emotional_contagion",
+    "name": "Emotional Contagion",
+    "description": "Spread fear and anxiety virally through the network",
+    "requiredAbilities": ["fearmongering", "exploit_emotion", "amplify_disinformation"],
+    "windowRounds": 3,
+    "bonusEffect": {
+      "emotionalDamage": 0.25,
+      "spreadToConnected": true,
+      "resilienceDamage": 0.20
+    },
+    "category": "advanced"
+  },
+  {
+    "id": "manufactured_consensus",
+    "name": "Manufactured Consensus",
+    "description": "Create the illusion of widespread agreement through fake accounts",
+    "requiredAbilities": ["astroturfing", "sockpuppet_account", "build_bot_network"],
+    "windowRounds": 4,
+    "bonusEffect": {
+      "trustReduction": 0.18,
+      "infrastructureGain": 2,
+      "groupEffect": 0.15
+    },
+    "category": "advanced"
+  },
+  {
+    "id": "crisis_exploitation",
+    "name": "Crisis Exploitation",
+    "description": "Exploit moments of high emotion and low resilience for maximum damage",
+    "requiredAbilities": ["fearmongering", "spread_fake_news"],
+    "windowRounds": 2,
+    "bonusEffect": {
+      "trustReduction": 0.20,
+      "emotionalMultiplier": 1.5,
+      "timedBonus": "when_resilience_low"
+    },
+    "category": "opportunistic"
+  }
+]

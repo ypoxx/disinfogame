@@ -15,6 +15,7 @@ import type {
 import actorDefinitions from '@/data/game/actors'; // NEW: 58 actors from modular system
 import abilityDefinitions from '@/data/game/ability-definitions-v2.json';
 import eventDefinitions from '@/data/game/event-definitions.json';
+import comboDefinitions from '@/data/game/combo-definitions.json';
 
 // ============================================
 // INITIAL UI STATE
@@ -98,7 +99,8 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     gameManagerRef.current.loadDefinitions(
       actorDefinitions as any,
       convertedAbilities as any,
-      eventDefinitions as any
+      eventDefinitions as any,
+      comboDefinitions as any
     );
   }
   
