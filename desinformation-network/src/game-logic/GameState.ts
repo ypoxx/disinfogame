@@ -53,6 +53,13 @@ import {
   shouldSupportAlly,
   supportAlly,
 } from './actor-ai';
+import {
+  startEventChain,
+  processEventChains,
+  requiresPlayerChoice,
+  applyPlayerChoice,
+  cleanupExpiredChains,
+} from './event-chain-system';
 
 // ============================================
 // CONSTANTS (Now using balance config)
@@ -772,6 +779,15 @@ export class GameStateManager {
     // 6. Check conditional events
     this.checkConditionalEvents();
 
+    // 6.5. PHASE 4.4: Process event chains
+    const chainedEvent = processEventChains(this.state, this.eventDefinitions);
+    if (chainedEvent) {
+      this.applyEvent(chainedEvent);
+    }
+
+    // 6.6. PHASE 4.4: Clean up expired event chains
+    cleanupExpiredChains(this.state);
+
     // 7. Generate resources (multi-resource economy)
     this.generateRoundResources();
 
@@ -1069,18 +1085,36 @@ export class GameStateManager {
    */
   private evaluateCondition(condition?: string): boolean {
     if (!condition) return false;
-    
+
     const metrics = this.getNetworkMetrics();
-    
-    // Simple condition evaluation
-    if (condition.includes('averageTrust < 0.3')) {
-      return metrics.averageTrust < 0.3;
+    const round = this.state.round;
+    const detectionRisk = this.state.detectionRisk;
+    const lowTrustCount = metrics.lowTrustCount;
+
+    try {
+      // Create evaluation context
+      const context = {
+        averageTrust: metrics.averageTrust,
+        polarizationIndex: metrics.polarizationIndex,
+        detectionRisk,
+        round,
+        lowTrustCount,
+      };
+
+      // Replace context variables in condition string
+      let evalString = condition;
+      for (const [key, value] of Object.entries(context)) {
+        evalString = evalString.replace(new RegExp(key, 'g'), String(value));
+      }
+
+      // Evaluate using Function constructor (safe for known conditions)
+      // eslint-disable-next-line no-new-func
+      const result = new Function(`return ${evalString}`)();
+      return Boolean(result);
+    } catch (error) {
+      console.warn(`Failed to evaluate condition: ${condition}`, error);
+      return false;
     }
-    if (condition.includes('polarizationIndex > 0.8')) {
-      return metrics.polarizationIndex > 0.8;
-    }
-    
-    return false;
   }
   
   /**
@@ -1090,7 +1124,29 @@ export class GameStateManager {
     this.state.eventsTriggered.push(event.id);
     this.lastTriggeredEvent = event; // Store for UI
 
-    for (const effect of event.effects) {
+    // PHASE 4.4: Check if event requires player choice
+    if (requiresPlayerChoice(event)) {
+      console.log(`❓ Event requires player choice: ${event.name}`);
+      this.state.pendingEventChoice = {
+        event,
+        round: this.state.round,
+      };
+      // Don't apply effects yet - wait for player choice
+      return;
+    }
+
+    // Apply effects immediately
+    this.applyEventEffects(event.effects);
+
+    // PHASE 4.4: Start event chain if applicable
+    startEventChain(this.state, event);
+  }
+
+  /**
+   * Apply event effects (extracted for reuse with player choices)
+   */
+  private applyEventEffects(effects: EventEffect[]): void {
+    for (const effect of effects) {
       switch (effect.type) {
         case 'trust_delta':
           this.applyEventTrustDelta(effect);
@@ -1106,6 +1162,30 @@ export class GameStateManager {
           break;
       }
     }
+  }
+
+  /**
+   * Handle player choice for an event (PHASE 4.4)
+   */
+  public makeEventChoice(choiceIndex: number): void {
+    if (!this.state.pendingEventChoice) {
+      console.error('❌ No pending event choice');
+      return;
+    }
+
+    const { event } = this.state.pendingEventChoice;
+
+    // Apply player's chosen effects
+    const effects = applyPlayerChoice(this.state, event, choiceIndex);
+    this.applyEventEffects(effects);
+
+    // Start chain if applicable
+    startEventChain(this.state, event);
+
+    // Clear pending choice
+    this.state.pendingEventChoice = undefined;
+
+    console.log(`✅ Event choice made for: ${event.name}`);
   }
   
   private applyEventTrustDelta(effect: { target: string; targetCategory?: ActorCategory; value: number | string }): void {

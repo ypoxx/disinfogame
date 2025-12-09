@@ -1,0 +1,446 @@
+[
+  {
+    "id": "whistleblower_investigation_start",
+    "name": "Anonymous Tip",
+    "description": "A whistleblower has contacted a journalist about suspicious online activity. They claim to have evidence of a coordinated disinformation campaign.",
+    "triggerType": "conditional",
+    "condition": "detectionRisk > 0.6 && round > 8",
+    "probability": 0.3,
+    "effects": [],
+    "newsTickerText": "🔍 Anonymous tip received by investigative journalist",
+    "iconType": "investigation",
+    "playerChoice": [
+      {
+        "text": "Accelerate campaign - Strike before investigation gains traction",
+        "cost": { "attention": 20 },
+        "effects": [
+          {
+            "type": "resource_bonus",
+            "target": "player",
+            "value": 50
+          }
+        ],
+        "consequence": "Gain resources but risk exposure"
+      },
+      {
+        "text": "Lay low - Pause operations and reduce detection",
+        "cost": {},
+        "effects": [
+          {
+            "type": "trust_delta",
+            "target": "all",
+            "value": 0.05
+          }
+        ],
+        "consequence": "Network recovers slightly but buys time"
+      },
+      {
+        "text": "Discredit whistleblower - Launch counter-narrative",
+        "cost": { "money": 150, "attention": 30 },
+        "effects": [
+          {
+            "type": "emotional_delta",
+            "target": "category",
+            "targetCategory": "media",
+            "value": -0.1
+          }
+        ],
+        "consequence": "Confuse media but increase attention"
+      }
+    ],
+    "chainTo": "whistleblower_investigation_result"
+  },
+  {
+    "id": "whistleblower_investigation_result",
+    "name": "Investigation Results",
+    "description": "The investigation has concluded. Your earlier choices now determine the outcome.",
+    "triggerType": "timed",
+    "triggerRound": 3,
+    "effects": [
+      {
+        "type": "spawn_defensive",
+        "target": "defensive",
+        "value": "fact_checker"
+      }
+    ],
+    "newsTickerText": "📰 Investigation report published - Fact-checkers mobilizing",
+    "iconType": "exposure"
+  },
+  {
+    "id": "viral_moment_start",
+    "name": "Content Goes Viral",
+    "description": "One of your disinformation pieces has unexpectedly gone viral, reaching millions. This is a critical moment - how do you capitalize on it?",
+    "triggerType": "conditional",
+    "condition": "round > 5 && lowTrustCount > 15",
+    "probability": 0.25,
+    "effects": [],
+    "newsTickerText": "🔥 Controversial content trending #1",
+    "iconType": "viral",
+    "playerChoice": [
+      {
+        "text": "Double down - Amplify with coordinated bot network",
+        "cost": { "money": 200, "attention": 50 },
+        "effects": [
+          {
+            "type": "trust_delta",
+            "target": "all",
+            "value": -0.15
+          }
+        ],
+        "consequence": "Massive trust damage but huge detection risk"
+      },
+      {
+        "text": "Ride the wave - Let it spread organically",
+        "cost": { "attention": 20 },
+        "effects": [
+          {
+            "type": "trust_delta",
+            "target": "all",
+            "value": -0.08
+          }
+        ],
+        "consequence": "Moderate impact with controlled risk"
+      },
+      {
+        "text": "Distance yourself - Claim it was 'satire'",
+        "cost": {},
+        "effects": [
+          {
+            "type": "trust_delta",
+            "target": "all",
+            "value": -0.03
+          }
+        ],
+        "consequence": "Minimal impact but reduces detection"
+      }
+    ]
+  },
+  {
+    "id": "platform_policy_change",
+    "name": "Platform Policy Update",
+    "description": "A major social media platform announces new content moderation policies targeting coordinated inauthentic behavior.",
+    "triggerType": "random",
+    "probability": 0.2,
+    "effects": [],
+    "newsTickerText": "🛡️ Tech platforms tighten content policies",
+    "iconType": "policy",
+    "playerChoice": [
+      {
+        "text": "Adapt tactics - Invest in more sophisticated methods",
+        "cost": { "money": 250 },
+        "effects": [
+          {
+            "type": "resource_bonus",
+            "target": "player",
+            "value": -50
+          }
+        ],
+        "consequence": "Expensive but maintains operational capacity"
+      },
+      {
+        "text": "Shift platforms - Move operations to alternative networks",
+        "cost": { "attention": 40 },
+        "effects": [
+          {
+            "type": "trust_delta",
+            "target": "random",
+            "value": -0.05
+          }
+        ],
+        "consequence": "Lose some reach but evade enforcement"
+      },
+      {
+        "text": "Legal challenge - Sue platform claiming censorship",
+        "cost": { "money": 300 },
+        "effects": [
+          {
+            "type": "emotional_delta",
+            "target": "category",
+            "targetCategory": "lobby",
+            "value": -0.15
+          }
+        ],
+        "consequence": "Draw sympathetic attention but expensive"
+      }
+    ],
+    "chainTo": "platform_enforcement_wave"
+  },
+  {
+    "id": "platform_enforcement_wave",
+    "name": "Mass Account Suspensions",
+    "description": "The platform begins enforcing its new policies. Hundreds of accounts are suspended.",
+    "triggerType": "timed",
+    "triggerRound": 2,
+    "effects": [
+      {
+        "type": "trust_delta",
+        "target": "all",
+        "value": 0.08
+      },
+      {
+        "type": "spawn_defensive",
+        "target": "defensive",
+        "value": "content_moderator"
+      }
+    ],
+    "newsTickerText": "🚫 Wave of account suspensions - Network disrupted",
+    "iconType": "enforcement"
+  },
+  {
+    "id": "foreign_interference_narrative",
+    "name": "Foreign Influence Allegations",
+    "description": "Government officials claim your campaign may have foreign backing. This narrative is spreading through legitimate news channels.",
+    "triggerType": "conditional",
+    "condition": "detectionRisk > 0.7 && round > 12",
+    "probability": 0.35,
+    "effects": [],
+    "newsTickerText": "🌍 Foreign interference suspected by authorities",
+    "iconType": "geopolitical",
+    "playerChoice": [
+      {
+        "text": "Deny everything - Claim it's a witch hunt",
+        "cost": { "attention": 30 },
+        "effects": [
+          {
+            "type": "emotional_delta",
+            "target": "all",
+            "value": -0.08
+          }
+        ],
+        "consequence": "Polarizes the narrative further"
+      },
+      {
+        "text": "Provide 'evidence' - Create fake documentation of domestic origin",
+        "cost": { "money": 200, "attention": 20 },
+        "effects": [
+          {
+            "type": "trust_delta",
+            "target": "category",
+            "targetCategory": "expert",
+            "value": 0.05
+          }
+        ],
+        "consequence": "May convince experts but risky"
+      },
+      {
+        "text": "Go dark - Completely shut down operations",
+        "cost": {},
+        "effects": [
+          {
+            "type": "trust_delta",
+            "target": "all",
+            "value": 0.15
+          }
+        ],
+        "consequence": "Major setback but avoids investigation"
+      }
+    ]
+  },
+  {
+    "id": "academic_study_published",
+    "name": "Academic Research Exposes Tactics",
+    "description": "Researchers publish a comprehensive study identifying the exact manipulation techniques you've been using.",
+    "triggerType": "conditional",
+    "condition": "round > 10 && lowTrustCount > 20",
+    "probability": 0.3,
+    "effects": [
+      {
+        "type": "spawn_defensive",
+        "target": "defensive",
+        "value": "disinformation_researcher"
+      }
+    ],
+    "newsTickerText": "📚 Academic study exposes disinformation playbook",
+    "iconType": "research",
+    "playerChoice": [
+      {
+        "text": "Attack the researchers - Discredit their methodology",
+        "cost": { "money": 100, "attention": 40 },
+        "effects": [
+          {
+            "type": "emotional_delta",
+            "target": "category",
+            "targetCategory": "expert",
+            "value": -0.12
+          }
+        ],
+        "consequence": "Undermines academic credibility"
+      },
+      {
+        "text": "Adapt and evolve - Develop new techniques",
+        "cost": { "money": 300 },
+        "effects": [
+          {
+            "type": "resource_bonus",
+            "target": "player",
+            "value": 100
+          }
+        ],
+        "consequence": "Expensive but stays ahead of defenders"
+      },
+      {
+        "text": "Embrace transparency - Claim you're conducting research too",
+        "cost": { "attention": 25 },
+        "effects": [
+          {
+            "type": "trust_delta",
+            "target": "category",
+            "targetCategory": "expert",
+            "value": 0.03
+          }
+        ],
+        "consequence": "Confuses the narrative"
+      }
+    ]
+  },
+  {
+    "id": "celebrity_endorsement_opportunity",
+    "name": "Influencer Approaches",
+    "description": "A controversial influencer with millions of followers is willing to amplify your narratives. They have credibility with your target audience.",
+    "triggerType": "random",
+    "probability": 0.15,
+    "effects": [],
+    "newsTickerText": "⭐ High-profile figure joins conversation",
+    "iconType": "influence",
+    "playerChoice": [
+      {
+        "text": "Full partnership - Pay for consistent amplification",
+        "cost": { "money": 400 },
+        "effects": [
+          {
+            "type": "trust_delta",
+            "target": "all",
+            "value": -0.12
+          },
+          {
+            "type": "resource_bonus",
+            "target": "player",
+            "value": 100
+          }
+        ],
+        "consequence": "Massive reach but expensive and risky"
+      },
+      {
+        "text": "Subtle coordination - Light collaboration",
+        "cost": { "money": 150 },
+        "effects": [
+          {
+            "type": "trust_delta",
+            "target": "all",
+            "value": -0.06
+          }
+        ],
+        "consequence": "Good impact with less exposure"
+      },
+      {
+        "text": "Decline - Too risky to involve public figures",
+        "cost": {},
+        "effects": [],
+        "consequence": "Missed opportunity but safer"
+      }
+    ]
+  },
+  {
+    "id": "grassroots_counter_movement",
+    "name": "Citizen Fact-Checkers Mobilize",
+    "description": "Ordinary citizens have started organizing to counter your disinformation. They're creating crowdsourced fact-checking networks.",
+    "triggerType": "conditional",
+    "condition": "detectionRisk > 0.5 && round > 7",
+    "probability": 0.4,
+    "effects": [
+      {
+        "type": "spawn_defensive",
+        "target": "defensive",
+        "value": "citizen_journalist"
+      }
+    ],
+    "newsTickerText": "👥 Grassroots fact-checking movement gains momentum",
+    "iconType": "grassroots",
+    "playerChoice": [
+      {
+        "text": "Infiltrate - Plant agents in their groups",
+        "cost": { "money": 180, "attention": 35 },
+        "effects": [
+          {
+            "type": "emotional_delta",
+            "target": "all",
+            "value": -0.10
+          }
+        ],
+        "consequence": "Disrupt from within but high risk"
+      },
+      {
+        "text": "Overwhelm - Flood with contradictory 'evidence'",
+        "cost": { "money": 100, "attention": 50 },
+        "effects": [
+          {
+            "type": "emotional_delta",
+            "target": "all",
+            "value": -0.08
+          }
+        ],
+        "consequence": "Confusion strategy but draws attention"
+      },
+      {
+        "text": "Ignore - Focus elsewhere",
+        "cost": {},
+        "effects": [
+          {
+            "type": "trust_delta",
+            "target": "random",
+            "value": 0.05
+          }
+        ],
+        "consequence": "They gain ground but you avoid escalation"
+      }
+    ]
+  },
+  {
+    "id": "algorithm_change",
+    "name": "Social Media Algorithm Update",
+    "description": "A major platform updates its recommendation algorithm to demote sensational content. Your reach is affected.",
+    "triggerType": "random",
+    "probability": 0.25,
+    "effects": [
+      {
+        "type": "trust_delta",
+        "target": "all",
+        "value": 0.05
+      }
+    ],
+    "newsTickerText": "🔄 Algorithm changes reduce viral misinformation",
+    "iconType": "tech",
+    "playerChoice": [
+      {
+        "text": "Game the algorithm - Hire experts to find exploits",
+        "cost": { "money": 350 },
+        "effects": [
+          {
+            "type": "resource_bonus",
+            "target": "player",
+            "value": 150
+          }
+        ],
+        "consequence": "Expensive but restores reach"
+      },
+      {
+        "text": "Shift content strategy - Make it look more legitimate",
+        "cost": { "money": 150 },
+        "effects": [
+          {
+            "type": "trust_delta",
+            "target": "all",
+            "value": -0.03
+          }
+        ],
+        "consequence": "Moderate effectiveness"
+      },
+      {
+        "text": "Accept the hit - Wait for next opportunity",
+        "cost": {},
+        "effects": [],
+        "consequence": "Temporary setback"
+      }
+    ]
+  }
+]

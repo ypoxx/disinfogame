@@ -10,6 +10,7 @@ import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay'
 import { BottomSheet } from '@/components/BottomSheet';
 import { GameStatistics } from '@/components/GameStatistics';
 import { EventNotification } from '@/components/EventNotification';
+import { EventChoiceModal } from '@/components/EventChoiceModal';
 import {
   FilterControls,
   type ActorFilters,
@@ -49,6 +50,7 @@ function App() {
     toggleEncyclopedia,
     addNotification,
     dismissCurrentEvent,
+    makeEventChoice,
   } = useGameState();
 
   // Round summary state
@@ -530,6 +532,15 @@ function App() {
             onSkip={handleTutorialSkip}
           />
         </>
+      )}
+
+      {/* Event Choice Modal (Phase 4.4) */}
+      {gameState.pendingEventChoice && (
+        <EventChoiceModal
+          event={gameState.pendingEventChoice.event}
+          resources={gameState.resources}
+          onChoose={makeEventChoice}
+        />
       )}
 
       {/* Event Notification */}

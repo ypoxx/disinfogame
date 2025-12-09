@@ -407,8 +407,26 @@ export type GameState = {
   activeCombos: ComboProgress[];         // Currently in-progress combos
   completedCombos: string[];             // Combo IDs that were completed
 
-  // NEW: Actor AI tracking
+  // Actor AI tracking (Phase 4.3)
   actorReactions: ActorReaction[];       // Recent actor reactions
+
+  // Event Chain System (Phase 4.4)
+  activeEventChains?: Array<{
+    chainId: string;
+    startRound: number;
+    nextEventId?: string;
+    nextEventDelay?: number;
+  }>;
+  eventChoicesMade?: Array<{
+    eventId: string;
+    choiceIndex: number;
+    round: number;
+    choiceText: string;
+  }>;
+  pendingEventChoice?: {
+    event: GameEvent;
+    round: number;
+  };
 
   // Statistics
   statistics: GameStatistics;
