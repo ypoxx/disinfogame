@@ -23,6 +23,8 @@ import {
   calculateNetworkMetrics,
   getConnectedActors,
 } from '@/utils';
+import { calculateSmartConnections } from '@/utils/network/connections';
+import { calculateForceLayout, getPresetConfig } from '@/utils/network/force-layout';
 import {
   type BalanceConfig,
   type DifficultyLevel,
@@ -57,6 +59,13 @@ const DEFENSIVE_VICTORY_TRUST = 0.7;
 const DEFENSIVE_SPAWN_INTERVAL = 8;
 const MAX_DEFENSIVE_ACTORS = 3;
 const RANDOM_EVENT_CHANCE = 0.3;
+
+// ============================================
+// RE-EXPORTS
+// ============================================
+
+// Re-export for convenience
+export type { DifficultyLevel, BalanceConfig } from './balance-config';
 
 // ============================================
 // GAME STATE CLASS
@@ -158,6 +167,7 @@ export class GameStateManager {
   
   /**
    * Create initial network from definitions
+   * Uses smart connections and force-directed layout for positioning
    */
   createInitialNetwork(): void {
     if (this.actorDefinitions.length === 0) {
@@ -165,8 +175,11 @@ export class GameStateManager {
       return;
     }
 
-    const actors: Actor[] = this.actorDefinitions.map(def => {
-      // Generate position with some randomness
+    console.log(`🎮 Creating network with ${this.actorDefinitions.length} actors...`);
+
+    // Step 1: Create actors with temporary random positions
+    let actors: Actor[] = this.actorDefinitions.map(def => {
+      // Temporary position (will be replaced by force layout)
       const position = this.rng.nextPosition(100, 700, 100, 500);
 
       // Vary initial trust slightly
@@ -189,7 +202,21 @@ export class GameStateManager {
       };
     });
 
-    const connections = calculateConnections(actors);
+    // Step 2: Calculate smart connections based on actor relationships
+    console.log('🔗 Calculating smart connections...');
+    const connections = calculateSmartConnections(actors);
+    console.log(`✅ Created ${connections.length} connections`);
+
+    // Step 3: Apply force-directed layout for better positioning
+    console.log('📐 Applying force-directed layout...');
+    const layoutConfig = getPresetConfig(actors.length);
+    const layoutResult = calculateForceLayout(actors, connections, layoutConfig);
+
+    // Update actor positions from layout
+    actors = layoutResult.actors;
+    console.log(`✅ Layout converged in ${layoutResult.iterations} iterations`);
+
+    // Step 4: Calculate network metrics
     const metrics = calculateNetworkMetrics({ actors, connections, averageTrust: 0, polarizationIndex: 0 });
 
     this.state.network = {
@@ -198,6 +225,8 @@ export class GameStateManager {
       averageTrust: metrics.averageTrust,
       polarizationIndex: metrics.polarizationIndex,
     };
+
+    console.log(`✅ Network initialized: ${actors.length} actors, ${connections.length} connections`);
   }
   
   /**
