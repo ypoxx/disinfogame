@@ -371,8 +371,8 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
 
   const makeEventChoice = useCallback((choiceIndex: number) => {
     gameManager.makeEventChoice(choiceIndex);
-    forceUpdate();
-  }, [gameManager, forceUpdate]);
+    syncState();
+  }, [gameManager, syncState]);
 
   // ============================================
   // COMPUTED VALUES

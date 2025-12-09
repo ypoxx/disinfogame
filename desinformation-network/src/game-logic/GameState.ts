@@ -8,6 +8,7 @@ import type {
   GamePhase,
   DefeatReason,
   GameEvent,
+  EventEffect,
   NetworkMetrics,
   Position,
   ActorDefinition,
