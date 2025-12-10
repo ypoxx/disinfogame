@@ -19,7 +19,7 @@ import {
 } from '@/components/FilterControls';
 import { ComboTracker } from '@/components/ComboTracker';
 import { TopologyOverlay } from '@/components/TopologyOverlay';
-import { ActorReactionsOverlay } from '@/components/ActorReactionsOverlay';
+import { NotificationToast, useToastNotifications, actorReactionToToast } from '@/components/NotificationToast';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
@@ -73,8 +73,8 @@ function App() {
   // Topology state (Phase 4.2: Network Topology Analysis)
   const [topologyCollapsed, setTopologyCollapsed] = useState(false);
 
-  // Actor Reactions state (Phase 4.3: Actor AI & Reactions)
-  const [reactionsCollapsed, setReactionsCollapsed] = useState(false);
+  // Toast notification system (Phase 0: Fix position conflicts)
+  const { notifications, addNotification: addToast, dismissNotification } = useToastNotifications();
 
   // Apply filters to actors
   const filteredActors = useMemo(
@@ -179,6 +179,22 @@ function App() {
   }, [gameState.phase, gameState.round, tutorialState.skipped, tutorialState.completed]);
 
   // Tutorial is now fully manual - all steps use Continue button
+
+  // Convert actor reactions to toast notifications (Phase 0: Fix position conflicts)
+  useEffect(() => {
+    if (gameState.actorReactions && gameState.actorReactions.length > 0) {
+      // Get new reactions (not already shown)
+      const newReactions = gameState.actorReactions.slice(-3); // Last 3 reactions
+
+      newReactions.forEach(reaction => {
+        const actor = gameState.network.actors.find(a => a.id === reaction.actorId);
+        if (actor) {
+          const toast = actorReactionToToast(reaction, actor);
+          addToast(toast);
+        }
+      });
+    }
+  }, [gameState.actorReactions, addToast]); // Only trigger when reactions change
 
   // ============================================
   // SCREENS
@@ -482,18 +498,12 @@ function App() {
         </div>
       )}
 
-      {/* Actor Reactions Overlay (Phase 4.3: Actor AI & Reactions) */}
-      {gameState.actorReactions && gameState.actorReactions.length > 0 && (
-        <div className="absolute top-20 right-4 z-20">
-          <ActorReactionsOverlay
-            reactions={gameState.actorReactions}
-            actors={gameState.network.actors}
-            currentRound={gameState.round}
-            collapsed={reactionsCollapsed}
-            onToggleCollapse={() => setReactionsCollapsed(!reactionsCollapsed)}
-          />
-        </div>
-      )}
+      {/* Toast Notifications (Phase 0: Replaces ActorReactionsOverlay to fix position conflicts) */}
+      <NotificationToast
+        notifications={notifications}
+        onDismiss={dismissNotification}
+        maxVisible={3}
+      />
 
       {/* Bottom Sheet */}
       <BottomSheet
