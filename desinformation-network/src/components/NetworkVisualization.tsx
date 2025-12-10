@@ -82,6 +82,10 @@ export function NetworkVisualization({
   }
   const [ripples, setRipples] = useState<Ripple[]>([]);
 
+  // PHASE 1.4: Connection Explorer - Hovered connection
+  const [hoveredConnection, setHoveredConnection] = useState<Connection | null>(null);
+  const [connectionTooltipPos, setConnectionTooltipPos] = useState<{ x: number; y: number } | null>(null);
+
   // Constants scaled by canvas size
   const BASE_NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.04; // 4% of smaller dimension (base size)
   const CATEGORY_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.15; // 15% of smaller dimension
@@ -284,7 +288,13 @@ export function NetworkVisualization({
       const sourcPos = getActorPosition(source);
       const targetPos = getActorPosition(target);
 
+      // PHASE 1.4: Include hovered connection in highlighting
+      const isConnectionHovered = hoveredConnection &&
+        conn.sourceId === hoveredConnection.sourceId &&
+        conn.targetId === hoveredConnection.targetId;
+
       const isHighlighted =
+        isConnectionHovered ||
         source.id === selectedActorId ||
         target.id === selectedActorId ||
         source.id === hoveredActorId ||
@@ -532,7 +542,7 @@ export function NetworkVisualization({
     ctx.restore();
 
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, getNodeRadius, getActorColor, BASE_NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan, ripples, graphMode]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, getNodeRadius, getActorColor, BASE_NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan, ripples, graphMode, hoveredConnection]);
 
   // Transform screen coordinates to canvas coordinates (accounting for zoom/pan)
   const screenToCanvas = useCallback((screenX: number, screenY: number) => {
@@ -556,6 +566,46 @@ export function NetworkVisualization({
     }
     return null;
   }, [actors, getActorPosition, getNodeRadius, screenToCanvas]);
+
+  // PHASE 1.4: Find connection near mouse position
+  const findConnectionAtPosition = useCallback((screenX: number, screenY: number): Connection | null => {
+    const { x, y } = screenToCanvas(screenX, screenY);
+    const threshold = 10; // pixels
+
+    for (const conn of connections) {
+      const source = actorMap.get(conn.sourceId);
+      const target = actorMap.get(conn.targetId);
+      if (!source || !target) continue;
+
+      const sourcePos = getActorPosition(source);
+      const targetPos = getActorPosition(target);
+
+      // Calculate distance from point to line segment
+      const lineLength = Math.sqrt(
+        Math.pow(targetPos.x - sourcePos.x, 2) + Math.pow(targetPos.y - sourcePos.y, 2)
+      );
+
+      if (lineLength === 0) continue;
+
+      // Calculate the perpendicular distance from the point to the line
+      const t = Math.max(0, Math.min(1,
+        ((x - sourcePos.x) * (targetPos.x - sourcePos.x) + (y - sourcePos.y) * (targetPos.y - sourcePos.y)) / (lineLength * lineLength)
+      ));
+
+      const projectionX = sourcePos.x + t * (targetPos.x - sourcePos.x);
+      const projectionY = sourcePos.y + t * (targetPos.y - sourcePos.y);
+
+      const distance = Math.sqrt(
+        Math.pow(x - projectionX, 2) + Math.pow(y - projectionY, 2)
+      );
+
+      if (distance <= threshold) {
+        return conn;
+      }
+    }
+
+    return null;
+  }, [connections, actorMap, getActorPosition, screenToCanvas]);
 
   // Event handlers
   const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -602,6 +652,23 @@ export function NetworkVisualization({
     const actor = findActorAtPosition(x, y);
     onActorHover(actor?.id || null);
 
+    // PHASE 1.4: Check for connection hover if no actor found
+    if (!actor) {
+      const connection = findConnectionAtPosition(x, y);
+      if (connection) {
+        setHoveredConnection(connection);
+        setConnectionTooltipPos({ x: e.clientX, y: e.clientY });
+        canvas.style.cursor = 'pointer';
+      } else {
+        setHoveredConnection(null);
+        setConnectionTooltipPos(null);
+        canvas.style.cursor = 'default';
+      }
+    } else {
+      setHoveredConnection(null);
+      setConnectionTooltipPos(null);
+    }
+
     // Update tooltip
     if (actor) {
       setHoveredActor(actor);
@@ -610,7 +677,7 @@ export function NetworkVisualization({
       setHoveredActor(null);
       setTooltipPosition(null);
     }
-  }, [findActorAtPosition, onActorHover, isPanning, panStart]);
+  }, [findActorAtPosition, findConnectionAtPosition, onActorHover, isPanning, panStart]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     // Start panning on right-click (button 2), middle mouse (button 1), or space+left click
@@ -880,6 +947,38 @@ export function NetworkVisualization({
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* PHASE 1.4: Connection Tooltip */}
+      {hoveredConnection && connectionTooltipPos && (
+        <div
+          className="fixed z-50 pointer-events-none"
+          style={{
+            left: connectionTooltipPos.x + 15,
+            top: connectionTooltipPos.y + 15,
+          }}
+        >
+          <div className="bg-gray-900 text-white text-xs rounded-lg py-2 px-3 shadow-xl max-w-[250px]">
+            <div className="font-bold mb-1.5">Connection Details</div>
+            <div className="space-y-0.5 text-[11px]">
+              <div className="text-gray-300">
+                <span className="font-semibold text-blue-400">{actorMap.get(hoveredConnection.sourceId)?.name}</span>
+                {' → '}
+                <span className="font-semibold text-purple-400">{actorMap.get(hoveredConnection.targetId)?.name}</span>
+              </div>
+              <div className="mt-1.5 pt-1.5 border-t border-gray-700">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Strength:</span>
+                  <span className="font-semibold text-green-400">{Math.round(hoveredConnection.strength * 100)}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Type:</span>
+                  <span className="font-semibold capitalize">{hoveredConnection.type}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
