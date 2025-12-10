@@ -2,24 +2,28 @@ import { useState, useEffect, useMemo } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { cn } from '@/utils/cn';
 import { formatPercent } from '@/utils';
-import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
+import { trustToHex } from '@/utils/colors';
+
+// NEW: Layout Components
+import { TopBar, LeftSidebar, RightSidebar, ResizableBottomPanel } from '@/components/layout';
+import { LAYOUT } from '@/utils/layout-constants';
+
+// Network & UI Components
 import { NetworkVisualization } from '@/components/NetworkVisualization';
 import { RoundSummary } from '@/components/RoundSummary';
-import { VictoryProgressBar } from '@/components/VictoryProgressBar';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
-import { BottomSheet } from '@/components/BottomSheet';
 import { GameStatistics } from '@/components/GameStatistics';
 import { EventNotification } from '@/components/EventNotification';
 import { EventChoiceModal } from '@/components/EventChoiceModal';
+
+// Filters
 import {
-  FilterControls,
   type ActorFilters,
   createDefaultFilters,
   applyFilters
 } from '@/components/FilterControls';
-import { ComboTracker } from '@/components/ComboTracker';
-import { TopologyOverlay } from '@/components/TopologyOverlay';
-import { ActorReactionsOverlay } from '@/components/ActorReactionsOverlay';
+
+// Types
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
@@ -66,15 +70,12 @@ function App() {
   // Statistics state
   const [showStatistics, setShowStatistics] = useState(false);
 
-  // Filter state (Phase 2: UX Layer)
+  // Filter state
   const [actorFilters, setActorFilters] = useState<ActorFilters>(createDefaultFilters());
-  const [filterCollapsed, setFilterCollapsed] = useState(false);
 
-  // Topology state (Phase 4.2: Network Topology Analysis)
-  const [topologyCollapsed, setTopologyCollapsed] = useState(false);
-
-  // Actor Reactions state (Phase 4.3: Actor AI & Reactions)
-  const [reactionsCollapsed, setReactionsCollapsed] = useState(false);
+  // Sidebar state
+  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
+  const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
 
   // Apply filters to actors
   const filteredActors = useMemo(
@@ -356,82 +357,65 @@ function App() {
   }
 
   // ============================================
-  // MAIN GAME VIEW
+  // MAIN GAME VIEW (NEW LAYOUT)
   // ============================================
 
   const selectedActor = uiState.selectedActor
     ? getActor(uiState.selectedActor.actorId) ?? null
     : null;
 
+  // Calculate network visualization bounds (accounting for sidebars)
+  const leftSidebarWidth = leftSidebarCollapsed ? LAYOUT.sidebar.widthCollapsed : LAYOUT.sidebar.widthExpanded;
+  const rightSidebarWidth = rightSidebarCollapsed ? LAYOUT.sidebar.widthCollapsed : LAYOUT.sidebar.widthExpanded;
+
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col">
-      {/* Floating HUD - Top Left */}
-      <div className="fixed top-6 left-6 z-40 flex flex-col gap-3 animate-fade-in">
-        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl transition-all hover:bg-gray-900/80 hover:shadow-2xl hover:shadow-blue-500/10">
-          <h1 className="text-base font-bold text-white mb-2">
-            Desinformation Network
-          </h1>
-          <div className="flex flex-col gap-1.5 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="text-gray-400">Round:</span>
-              <span className="font-semibold text-white">{gameState.round}/{gameState.maxRounds}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-yellow-400">💰</span>
-              <span className="font-semibold text-yellow-300">{gameState.resources.money}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-red-400">👁️</span>
-              <span className="font-semibold text-red-300">{Math.round(gameState.resources.attention)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-purple-400">🔧</span>
-              <span className="font-semibold text-purple-300">{gameState.resources.infrastructure}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col overflow-hidden">
+      {/* Top Bar */}
+      <TopBar
+        round={gameState.round}
+        maxRounds={gameState.maxRounds}
+        resources={gameState.resources}
+        detectionRisk={gameState.detectionRisk}
+        networkMetrics={networkMetrics}
+        victoryThreshold={0.75}
+        trustThreshold={0.40}
+        onAdvanceRound={advanceRound}
+        onOpenSettings={undefined}
+        onOpenEncyclopedia={toggleEncyclopedia}
+      />
 
-      {/* Floating HUD - Top Right */}
-      <div className="fixed top-6 right-6 z-40 flex flex-col gap-3 animate-fade-in">
-        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl min-w-[200px] transition-all hover:bg-gray-900/80 hover:shadow-2xl hover:shadow-purple-500/10">
-          <VictoryProgressBar
-            metrics={networkMetrics}
-            round={gameState.round}
-            maxRounds={gameState.maxRounds}
-            victoryThreshold={0.75}
-            trustThreshold={0.40}
-          />
-        </div>
-        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl transition-all hover:bg-gray-900/80 hover:shadow-2xl hover:shadow-blue-500/10">
-          <div className="flex flex-col gap-1.5 text-sm">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-400">Avg Trust:</span>
-              <span
-                className="font-semibold transition-colors"
-                style={{ color: trustToHex(networkMetrics.averageTrust) }}
-              >
-                {formatPercent(networkMetrics.averageTrust)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-400">Low Trust:</span>
-              <span className="font-semibold text-red-400 transition-all">
-                {networkMetrics.lowTrustCount}/{gameState.network.actors.length}
-              </span>
-            </div>
-          </div>
-        </div>
-        <button
-          onClick={advanceRound}
-          className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-green-600/30 hover:scale-105 active:scale-95"
-        >
-          End Round →
-        </button>
-      </div>
+      {/* Left Sidebar */}
+      <LeftSidebar
+        topology={gameState.topology}
+        actors={gameState.network.actors}
+        activeCombos={gameState.activeCombos}
+        comboDefinitions={comboDefinitions}
+        currentRound={gameState.round}
+        filters={actorFilters}
+        onFiltersChange={setActorFilters}
+        defaultCollapsed={leftSidebarCollapsed}
+      />
 
-      {/* Fullscreen Network Visualization */}
-      <div className="absolute inset-0 w-full h-full">
+      {/* Right Sidebar */}
+      <RightSidebar
+        reactions={gameState.actorReactions || []}
+        actors={gameState.network.actors}
+        currentRound={gameState.round}
+        statistics={statistics}
+        onOpenEncyclopedia={toggleEncyclopedia}
+        defaultCollapsed={rightSidebarCollapsed}
+      />
+
+      {/* Network Visualization (Main Content) */}
+      <div
+        className="absolute bg-gray-900"
+        style={{
+          top: LAYOUT.topBar.height,
+          left: leftSidebarWidth,
+          right: rightSidebarWidth,
+          bottom: 0,
+        }}
+      >
         <NetworkVisualization
           actors={filteredActors}
           connections={filteredConnections}
@@ -444,67 +428,16 @@ function App() {
         />
       </div>
 
-      {/* Filter Controls (Phase 2: UX Layer) */}
-      <div className="absolute top-20 right-4 z-20">
-        <FilterControls
-          actors={gameState.network.actors}
-          filters={actorFilters}
-          onFiltersChange={setActorFilters}
-          collapsed={filterCollapsed}
-          onToggleCollapse={() => setFilterCollapsed(!filterCollapsed)}
-        />
-      </div>
-
-      {/* Combo Tracker (Phase 4: Combo System) */}
-      {gameState.activeCombos.length > 0 && (
-        <div className="absolute top-20 left-4 z-20">
-          <ComboTracker
-            activeCombos={gameState.activeCombos}
-            comboDefinitions={comboDefinitions}
-            actors={gameState.network.actors}
-            currentRound={gameState.round}
-          />
-        </div>
-      )}
-
-      {/* Topology Overlay (Phase 4.2: Network Topology Analysis) */}
-      {gameState.topology && (
-        <div className={cn(
-          "absolute left-4 z-20",
-          gameState.activeCombos.length > 0 ? "top-96" : "top-20"
-        )}>
-          <TopologyOverlay
-            topology={gameState.topology}
-            actors={gameState.network.actors}
-            collapsed={topologyCollapsed}
-            onToggleCollapse={() => setTopologyCollapsed(!topologyCollapsed)}
-          />
-        </div>
-      )}
-
-      {/* Actor Reactions Overlay (Phase 4.3: Actor AI & Reactions) */}
-      {gameState.actorReactions && gameState.actorReactions.length > 0 && (
-        <div className="absolute top-20 right-4 z-20">
-          <ActorReactionsOverlay
-            reactions={gameState.actorReactions}
-            actors={gameState.network.actors}
-            currentRound={gameState.round}
-            collapsed={reactionsCollapsed}
-            onToggleCollapse={() => setReactionsCollapsed(!reactionsCollapsed)}
-          />
-        </div>
-      )}
-
-      {/* Bottom Sheet */}
-      <BottomSheet
+      {/* Bottom Panel (Actor Details) */}
+      <ResizableBottomPanel
         actor={selectedActor}
         abilities={selectedActor ? getActorAbilities(selectedActor.id) : []}
         resources={gameState.resources}
         canUseAbility={canUseAbility}
         onSelectAbility={selectAbility}
-        onCancel={handleCloseActorPanel}
         selectedAbilityId={uiState.selectedAbility?.abilityId || null}
         targetingMode={uiState.targetingMode}
+        onCancel={handleCloseActorPanel}
         addNotification={addNotification}
         getValidTargets={getValidTargets}
       />
@@ -534,7 +467,7 @@ function App() {
         </>
       )}
 
-      {/* Event Choice Modal (Phase 4.4) */}
+      {/* Event Choice Modal */}
       {gameState.pendingEventChoice && (
         <EventChoiceModal
           event={gameState.pendingEventChoice.event}

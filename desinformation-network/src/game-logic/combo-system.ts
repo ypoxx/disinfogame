@@ -241,7 +241,7 @@ export function applyComboBonus(
 
   // Spread to connected actors
   if (bonus.spreadToConnected) {
-    const connected = getConnectedActors(gameState, target.id, bonus.spreadRadius || 1);
+    const connected = getConnectedActorsWithDepth(gameState, target.id, bonus.spreadRadius || 1);
     connected.forEach((actor) => {
       if (bonus.trustReduction) {
         actor.trust = Math.max(0, actor.trust - bonus.trustReduction * 0.5); // 50% effect on connected
@@ -276,9 +276,11 @@ export function applyComboBonus(
 }
 
 /**
- * Get actors connected to a target within a certain depth
+ * Get actors connected to a target within a certain depth (BFS traversal)
+ *
+ * @export - Used by combo system and actor AI for spreading effects
  */
-function getConnectedActors(
+export function getConnectedActorsWithDepth(
   gameState: GameState,
   actorId: string,
   maxDepth: number

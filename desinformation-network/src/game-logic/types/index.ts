@@ -299,7 +299,8 @@ export type ComboProgress = {
   comboId: string;
   targetActorId: string;
   startRound: number;
-  usedAbilities: string[]; // Ability IDs in sequence
+  lastUsedRound: number;     // Round when last ability in sequence was used
+  usedAbilities: string[];   // Ability IDs in sequence
 };
 
 export type ComboDetection = {
