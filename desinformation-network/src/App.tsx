@@ -7,7 +7,7 @@ import { NetworkVisualization } from '@/components/NetworkVisualization';
 import { UnifiedRoundModal } from '@/components/UnifiedRoundModal';
 import { VictoryProgressBar } from '@/components/VictoryProgressBar';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
-import { BottomSheet } from '@/components/BottomSheet';
+import { CompactSidePanel } from '@/components/CompactSidePanel';
 import { GameStatistics } from '@/components/GameStatistics';
 import { EventNotification } from '@/components/EventNotification';
 import {
@@ -445,8 +445,8 @@ function App() {
         </button>
       </div>
 
-      {/* Fullscreen Network Visualization */}
-      <div className="absolute inset-0 w-full h-full">
+      {/* Network Visualization (left side, minus 300px for side panel) */}
+      <div className="absolute inset-y-0 left-0 right-[300px] w-auto h-full">
         <NetworkVisualization
           actors={filteredActors}
           connections={filteredConnections}
@@ -459,8 +459,8 @@ function App() {
         />
       </div>
 
-      {/* Filter Controls (Phase 2: UX Layer) */}
-      <div className="absolute top-20 right-4 z-20">
+      {/* Filter Controls (Phase 2: UX Layer) - adjusted for side panel */}
+      <div className="absolute top-20 right-[320px] z-20">
         <FilterControls
           actors={gameState.network.actors}
           filters={actorFilters}
@@ -504,8 +504,8 @@ function App() {
         maxVisible={3}
       />
 
-      {/* Bottom Sheet */}
-      <BottomSheet
+      {/* Compact Side Panel (Phase 0.3: Replaces Bottom Sheet) */}
+      <CompactSidePanel
         actor={selectedActor}
         abilities={selectedActor ? getActorAbilities(selectedActor.id) : []}
         resources={gameState.resources}
