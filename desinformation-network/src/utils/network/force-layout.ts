@@ -80,7 +80,7 @@ export function calculateForceLayout(
     const progress = i / iterations;
 
     // Gradually reduce force strength (simulated annealing)
-    const temperatur = 1 - progress;
+    const temperature = 1 - progress;
 
     // Apply all forces
     applyRepulsionForce(nodes, repulsionStrength * temperature);
@@ -404,6 +404,14 @@ export function getRecommendedConfig(
     height,
     ...base,
   } as ForceSimulationConfig;
+}
+
+/**
+ * Get preset config based on actor count (legacy compatibility)
+ * Uses default canvas dimensions
+ */
+export function getPresetConfig(actorCount: number): ForceSimulationConfig {
+  return getRecommendedConfig(actorCount, 1200, 800);
 }
 
 /**

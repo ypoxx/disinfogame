@@ -679,7 +679,7 @@ export class GameStateManager {
       }
 
       // Check for ally support
-      const connectedActors = getConnectedActors(this.state, targetId, 1);
+      const connectedActors = getConnectedActors(targetId, this.state.network.actors, this.state.network.connections);
       connectedActors.forEach(ally => {
         const allyBehavior = ally.behavior || ACTOR_BEHAVIORS.passive;
         if (shouldSupportAlly(ally, target, allyBehavior)) {
@@ -1283,13 +1283,17 @@ export class GameStateManager {
       id: `defensive_${type}_${Date.now()}`,
       name: template.name || 'Defensive Actor',
       category: 'defensive',
+      tier: 2, // Secondary tier for defensive actors
       trust: template.baseTrust || 0.8,
       baseTrust: template.baseTrust || 0.8,
       resilience: template.resilience || 0.7,
       influenceRadius: 120,
       emotionalState: 0.1,
       recoveryRate: 0.04,
+      awareness: 0,
+      renderPriority: 6,
       position: this.rng.nextPosition(150, 650, 150, 450),
+      velocity: { x: 0, y: 0 },
       color: '#22C55E',
       size: 50,
       abilities: template.abilities || [],

@@ -246,6 +246,7 @@ export type ActorCluster = {
   id: string;
   name: string;                // Auto-generated name based on composition
   actors: string[];            // Actor IDs in this cluster
+  category: ActorCategory;     // Dominant category in this cluster
   averageTrust: number;
   center: Position;            // Visual center point
   radius: number;              // Visual radius

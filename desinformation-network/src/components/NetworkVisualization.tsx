@@ -145,7 +145,7 @@ export function NetworkVisualization({
         ctx.beginPath();
         ctx.arc(cluster.center.x, cluster.center.y, cluster.radius, 0, Math.PI * 2);
 
-        // Fill with semi-transparent color based on category
+        // Fill with semi-transparent color based on cluster's dominant category
         ctx.fillStyle = getClusterColor(cluster.category, 0.12);
         ctx.fill();
 
@@ -160,7 +160,7 @@ export function NetworkVisualization({
         // ctx.font = '12px Inter, sans-serif';
         // ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
         // ctx.textAlign = 'center';
-        // ctx.fillText(`Cluster (${cluster.actorIds.length})`, cluster.center.x, cluster.center.y);
+        // ctx.fillText(`${cluster.name}`, cluster.center.x, cluster.center.y);
       });
     }
 
