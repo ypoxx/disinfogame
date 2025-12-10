@@ -24,6 +24,7 @@ import {
   calculateNetworkMetrics,
   getConnectedActors,
 } from '@/utils';
+import { getConnectedActorsWithDepth } from './combo-system';
 import { calculateSmartConnections } from '@/utils/network/connections';
 import { calculateForceLayout, getPresetConfig } from '@/utils/network/force-layout';
 import { analyzeNetworkTopology } from '@/utils/network/topology-analysis';
@@ -351,23 +352,23 @@ export class GameStateManager {
     );
     moneyGain += infraBonus;
 
-    // Bonus from controlled actors (low trust)
+    // Bonus from controlled actors (low trust) - BALANCED: reduced to prevent exponential growth
     const controlledActors = this.state.network.actors.filter(
       a => a.trust < 0.3 && a.category !== 'defensive'
     );
     controlledActors.forEach(actor => {
       switch (actor.category) {
         case 'media':
-          moneyGain += 5;
+          moneyGain += 2;  // Reduced from 5
           break;
         case 'expert':
-          moneyGain += 3;
+          moneyGain += 1;  // Reduced from 3
           break;
         case 'lobby':
-          moneyGain += 4;
+          moneyGain += 2;  // Reduced from 4
           break;
         case 'organization':
-          moneyGain += 2;
+          moneyGain += 1;  // Reduced from 2
           break;
       }
     });
@@ -380,8 +381,10 @@ export class GameStateManager {
       this.state.resources.attention * (1 - this.balanceConfig.attentionDecayRate)
     );
 
-    // Update detection risk (from balance config)
-    this.state.detectionRisk = this.state.resources.attention / 100;
+    // Update detection risk (nonlinear - attention becomes dangerous at higher levels)
+    // Formula: risk = (attention/100)^1.5 to make high attention very risky
+    const normalizedAttention = this.state.resources.attention / 100;
+    this.state.detectionRisk = Math.pow(normalizedAttention, 1.5);
   }
 
   // ============================================
@@ -679,7 +682,7 @@ export class GameStateManager {
       }
 
       // Check for ally support
-      const connectedActors = getConnectedActors(this.state, targetId, 1);
+      const connectedActors = getConnectedActorsWithDepth(this.state, targetId, 1);
       connectedActors.forEach(ally => {
         const allyBehavior = ally.behavior || ACTOR_BEHAVIORS.passive;
         if (shouldSupportAlly(ally, target, allyBehavior)) {

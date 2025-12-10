@@ -59,8 +59,8 @@ export const BALANCE_PRESETS: Record<DifficultyLevel, BalanceConfig> = {
     moneyPerRound: 40,
     infrastructureBonusMultiplier: 0.15,
     attentionDecayRate: 0.10,
-    detectionThreshold: 0.9,
-    exposureThreshold: 0.95,
+    detectionThreshold: 0.75,      // Reduced: makes detection more meaningful
+    exposureThreshold: 0.85,       // Reduced: makes exposure a real threat
     maxRounds: 24,
     victoryThreshold: 0.6,  // Only 60% needed
     victoryTrustLevel: 0.5, // 50% trust
@@ -82,8 +82,8 @@ export const BALANCE_PRESETS: Record<DifficultyLevel, BalanceConfig> = {
     moneyPerRound: 35,
     infrastructureBonusMultiplier: 0.12,
     attentionDecayRate: 0.12,
-    detectionThreshold: 0.85,
-    exposureThreshold: 0.90,
+    detectionThreshold: 0.70,      // Reduced
+    exposureThreshold: 0.80,       // Reduced
     maxRounds: 28,
     victoryThreshold: 0.65,
     victoryTrustLevel: 0.45,
@@ -105,8 +105,8 @@ export const BALANCE_PRESETS: Record<DifficultyLevel, BalanceConfig> = {
     moneyPerRound: 30,
     infrastructureBonusMultiplier: 0.10,
     attentionDecayRate: 0.15,
-    detectionThreshold: 0.80,
-    exposureThreshold: 0.85,
+    detectionThreshold: 0.60,      // Reduced: makes detection meaningful
+    exposureThreshold: 0.70,       // Reduced: exposure is now a real threat
     maxRounds: 32,
     victoryThreshold: 0.70,      // 70% of 58 = ~41 actors
     victoryTrustLevel: 0.40,     // Below 40% trust
@@ -128,8 +128,8 @@ export const BALANCE_PRESETS: Record<DifficultyLevel, BalanceConfig> = {
     moneyPerRound: 25,
     infrastructureBonusMultiplier: 0.08,
     attentionDecayRate: 0.18,
-    detectionThreshold: 0.75,
-    exposureThreshold: 0.80,
+    detectionThreshold: 0.55,      // Reduced
+    exposureThreshold: 0.65,       // Reduced
     maxRounds: 36,
     victoryThreshold: 0.75,      // 75% of 58 = ~44 actors
     victoryTrustLevel: 0.35,
@@ -151,8 +151,8 @@ export const BALANCE_PRESETS: Record<DifficultyLevel, BalanceConfig> = {
     moneyPerRound: 20,
     infrastructureBonusMultiplier: 0.05,
     attentionDecayRate: 0.20,
-    detectionThreshold: 0.70,
-    exposureThreshold: 0.75,
+    detectionThreshold: 0.50,      // Reduced: very challenging
+    exposureThreshold: 0.60,       // Reduced: exposure is a constant threat
     maxRounds: 40,
     victoryThreshold: 0.80,      // 80% of 58 = ~47 actors
     victoryTrustLevel: 0.30,
