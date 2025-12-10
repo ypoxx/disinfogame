@@ -25,7 +25,7 @@ import {
   getConnectedActors,
 } from '@/utils';
 import { calculateSmartConnections } from '@/utils/network/connections';
-import { calculateForceLayout, getPresetConfig } from '@/utils/network/force-layout';
+import { calculateForceLayout, getRecommendedConfig } from '@/utils/network/force-layout';
 import { analyzeNetworkTopology } from '@/utils/network/topology-analysis';
 import {
   type BalanceConfig,
@@ -240,7 +240,7 @@ export class GameStateManager {
 
     // Step 3: Apply force-directed layout for better positioning
     console.log('📐 Applying force-directed layout...');
-    const layoutConfig = getPresetConfig(actors.length);
+    const layoutConfig = getRecommendedConfig(actors.length, 1200, 800); // Default canvas size
     const layoutResult = calculateForceLayout(actors, connections, layoutConfig);
 
     // Update actor positions from layout
@@ -679,7 +679,7 @@ export class GameStateManager {
       }
 
       // Check for ally support
-      const connectedActors = getConnectedActors(this.state, targetId, 1);
+      const connectedActors = getConnectedActors(targetId, this.state.network.actors, this.state.network.connections);
       connectedActors.forEach(ally => {
         const allyBehavior = ally.behavior || ACTOR_BEHAVIORS.passive;
         if (shouldSupportAlly(ally, target, allyBehavior)) {
@@ -1283,6 +1283,9 @@ export class GameStateManager {
       id: `defensive_${type}_${Date.now()}`,
       name: template.name || 'Defensive Actor',
       category: 'defensive',
+      tier: 1, // Defensive actors are always high priority
+      renderPriority: 10, // Highest priority
+      awareness: 0.9, // Very aware
       trust: template.baseTrust || 0.8,
       baseTrust: template.baseTrust || 0.8,
       resilience: template.resilience || 0.7,

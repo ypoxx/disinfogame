@@ -5,7 +5,7 @@
  * Uses multiple algorithms for robustness.
  */
 
-import type { Actor, Connection } from '@/game-logic/types';
+import type { Actor, Connection, ActorCategory } from '@/game-logic/types';
 import type { ActorCluster, Community } from '@/game-logic/types';
 
 // ============================================
@@ -102,12 +102,18 @@ export function detectCommunities(
       const members = actors.filter(a => memberIds.includes(a.id));
       const avgTrust = members.reduce((sum, a) => sum + a.trust, 0) / members.length;
 
+      const dominantCategory = findDominantCategory(members);
+      const communityType =
+        dominantCategory === 'media' ? 'media_ecosystem' as const :
+        dominantCategory === 'expert' ? 'expert_network' as const :
+        dominantCategory === 'lobby' ? 'lobby_coalition' as const :
+        'mixed' as const;
+
       communities.push({
         id: `community_${communities.length}`,
-        memberIds,
-        averageTrust: avgTrust,
+        type: communityType,
+        members: memberIds,
         cohesion: calculateCohesion(memberIds, connections),
-        dominantCategory: findDominantCategory(members),
       });
     }
   });
@@ -144,7 +150,7 @@ function findDominantCategory(actors: Actor[]): string {
   counts.forEach((count, category) => {
     if (count > maxCount) {
       maxCount = count;
-      maxCategory = category;
+      maxCategory = category as ActorCategory;
     }
   });
 
@@ -243,11 +249,11 @@ function createCluster(actors: Actor[]): ActorCluster {
 
   return {
     id: `cluster_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    actorIds: actors.map(a => a.id),
+    name: `Cluster of ${actors.length} actors`,
+    actors: actors.map(a => a.id),
     center: { x: centerX, y: centerY },
     radius: radius + 30, // Add padding
     averageTrust: avgTrust,
-    category: findDominantCategory(actors),
   };
 }
 
@@ -302,7 +308,7 @@ function calculateModularity(
   // Build community membership map
   const membership = new Map<string, string>();
   communities.forEach(community => {
-    community.memberIds.forEach(id => {
+    community.members.forEach((id: string) => {
       membership.set(id, community.id);
     });
   });
