@@ -35,6 +35,9 @@ export interface ForceSimulationConfig {
   // Optional constraints
   pinTier1?: boolean;             // Pin Tier 1 actors in place (default: false)
   boundaryPadding?: number;       // Keep actors away from edges (default: 50)
+
+  // FIX: Category positions for alignment with visual circles
+  categoryPositions?: Record<string, { x: number; y: number }>;
 }
 
 export interface SimulationResult {
@@ -86,7 +89,7 @@ export function calculateForceLayout(
     applyRepulsionForce(nodes, repulsionStrength * temperature);
     applyAttractionForce(nodes, connections, attractionStrength);
     applyCenteringForce(nodes, width / 2, height / 2, centeringStrength);
-    applyCategoryClusteringForce(nodes, categoryClusterStrength);
+    applyCategoryClusteringForce(nodes, categoryClusterStrength, config.categoryPositions);
 
     // Update positions
     nodes = updatePositions(nodes, damping, width, height, boundaryPadding);
@@ -145,7 +148,7 @@ export function* animatedForceLayout(
     applyRepulsionForce(nodes, repulsionStrength * temperature);
     applyAttractionForce(nodes, connections, attractionStrength);
     applyCenteringForce(nodes, width / 2, height / 2, centeringStrength);
-    applyCategoryClusteringForce(nodes, categoryClusterStrength);
+    applyCategoryClusteringForce(nodes, categoryClusterStrength, config.categoryPositions);
 
     nodes = updatePositions(nodes, damping, width, height, boundaryPadding);
 
@@ -265,20 +268,32 @@ function applyCenteringForce(
 /**
  * Category clustering force: Same-category actors attract
  * Creates visual grouping by actor type
+ * FIX: Now uses fixed category positions if provided, ensuring actors stay in their category circles
  */
 function applyCategoryClusteringForce(
   nodes: any[],
-  strength: number
+  strength: number,
+  categoryPositions?: Record<string, { x: number; y: number }>
 ): void {
   // Group nodes by category
   const categoryGroups = groupBy(nodes, 'category');
 
   Object.entries(categoryGroups).forEach(([category, groupNodes]) => {
-    if (groupNodes.length < 2) return;
+    if (groupNodes.length < 1) return;
 
-    // Calculate center of mass for this category
-    const centerX = groupNodes.reduce((sum, n) => sum + n.position.x, 0) / groupNodes.length;
-    const centerY = groupNodes.reduce((sum, n) => sum + n.position.y, 0) / groupNodes.length;
+    let centerX: number;
+    let centerY: number;
+
+    // FIX: Use fixed category positions if provided (aligns with visual circles)
+    if (categoryPositions && categoryPositions[category]) {
+      centerX = categoryPositions[category].x;
+      centerY = categoryPositions[category].y;
+    } else {
+      // Fallback: Calculate dynamic center of mass for this category
+      if (groupNodes.length < 2) return;
+      centerX = groupNodes.reduce((sum, n) => sum + n.position.x, 0) / groupNodes.length;
+      centerY = groupNodes.reduce((sum, n) => sum + n.position.y, 0) / groupNodes.length;
+    }
 
     // Pull nodes toward category center
     groupNodes.forEach(node => {

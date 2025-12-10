@@ -240,7 +240,22 @@ export class GameStateManager {
 
     // Step 3: Apply force-directed layout for better positioning
     console.log('📐 Applying force-directed layout...');
-    const layoutConfig = getRecommendedConfig(actors.length, 1200, 800); // Default canvas size
+    const canvasWidth = 1200;
+    const canvasHeight = 800;
+    const layoutConfig = getRecommendedConfig(actors.length, canvasWidth, canvasHeight);
+
+    // FIX: Add fixed category positions to align actors with visual circles
+    // These match the CATEGORY_POSITIONS_RELATIVE from NetworkVisualization.tsx
+    layoutConfig.categoryPositions = {
+      media: { x: 0.25 * canvasWidth, y: 0.3 * canvasHeight },
+      expert: { x: 0.75 * canvasWidth, y: 0.3 * canvasHeight },
+      lobby: { x: 0.25 * canvasWidth, y: 0.7 * canvasHeight },
+      organization: { x: 0.75 * canvasWidth, y: 0.7 * canvasHeight },
+      defensive: { x: 0.5 * canvasWidth, y: 0.5 * canvasHeight },
+    };
+    // Increase category clustering strength to keep actors in their circles
+    layoutConfig.categoryClusterStrength = 0.02; // Increased from default 0.005
+
     const layoutResult = calculateForceLayout(actors, connections, layoutConfig);
 
     // Update actor positions from layout

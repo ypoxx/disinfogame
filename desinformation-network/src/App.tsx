@@ -523,8 +523,9 @@ function App() {
       </div>
 
       {/* Filter Controls (Phase 2: UX Layer) - Progressive Reveal: Only shown from Round 5+ */}
+      {/* FIX: Adjusted position to avoid collision with Top-Right HUD */}
       {advancedFeaturesUnlocked && (
-        <div className="absolute top-20 right-[320px] z-20 animate-fade-in">
+        <div className="absolute top-[180px] right-[320px] z-20 animate-fade-in">
           <FilterControls
             actors={gameState.network.actors}
             filters={actorFilters}
@@ -594,7 +595,8 @@ function App() {
       />
 
       {/* Unified Round Modal (Phase 0.2: Combines Round Summary + Event Choice) */}
-      {(showRoundSummary && currentRoundSummary) || gameState.pendingEventChoice ? (
+      {/* FIX: Also show for uiState.currentEvent (single events without choices) */}
+      {(showRoundSummary && currentRoundSummary) || gameState.pendingEventChoice || uiState.currentEvent ? (
         <UnifiedRoundModal
           summary={currentRoundSummary || {
             round: gameState.round - 1,
@@ -615,14 +617,14 @@ function App() {
             totalTrustChange: 0,
             actorsAffected: 0,
             propagationDepth: 1,
-            roundNarrative: 'An event has occurred...',
+            roundNarrative: uiState.currentEvent ? 'A world event has occurred...' : 'An event has occurred...',
             keyMoments: [],
             consequences: [],
           }}
           impactVisualizations={[]}
-          event={gameState.pendingEventChoice?.event || null}
+          event={gameState.pendingEventChoice?.event || uiState.currentEvent || null}
           resources={gameState.resources}
-          onContinue={handleContinue}
+          onContinue={uiState.currentEvent ? dismissCurrentEvent : handleContinue}
           onEventChoice={makeEventChoice}
         />
       ) : null}
@@ -643,13 +645,7 @@ function App() {
         </>
       )}
 
-      {/* Event Notification */}
-      {uiState.currentEvent && (
-        <EventNotification
-          event={uiState.currentEvent}
-          onClose={dismissCurrentEvent}
-        />
-      )}
+      {/* FIX: EventNotification removed - now integrated into UnifiedRoundModal */}
     </div>
   );
 }
