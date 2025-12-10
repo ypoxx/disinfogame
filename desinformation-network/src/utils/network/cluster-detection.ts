@@ -254,6 +254,7 @@ function createCluster(actors: Actor[]): ActorCluster {
     id: `cluster_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     name,
     actors: actors.map(a => a.id),
+    category: dominantCategory,
     center: { x: centerX, y: centerY },
     radius: radius + 30, // Add padding
     averageTrust: avgTrust,
