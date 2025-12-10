@@ -72,6 +72,9 @@ function App() {
   // Topology state (Phase 4.2: Network Topology Analysis)
   const [topologyCollapsed, setTopologyCollapsed] = useState(false);
 
+  // Progressive UI Reveal (Phase 0.4: Show advanced features only when relevant)
+  const [advancedFeaturesUnlocked, setAdvancedFeaturesUnlocked] = useState(false);
+
   // Toast notification system (Phase 0: Fix position conflicts)
   const { notifications, addNotification: addToast, dismissNotification } = useToastNotifications();
 
@@ -194,6 +197,21 @@ function App() {
       });
     }
   }, [gameState.actorReactions, addToast]); // Only trigger when reactions change
+
+  // Progressive UI Reveal: Unlock advanced features at Round 5 (Phase 0.4)
+  useEffect(() => {
+    if (gameState.phase === 'playing' && gameState.round >= 5 && !advancedFeaturesUnlocked) {
+      setAdvancedFeaturesUnlocked(true);
+
+      // Show notification about new features
+      addToast({
+        type: 'success',
+        title: 'New Features Unlocked! 🎉',
+        message: 'Advanced tools are now available: Filters and Network Topology',
+        duration: 8000,
+      });
+    }
+  }, [gameState.round, gameState.phase, advancedFeaturesUnlocked, addToast]);
 
   // ============================================
   // SCREENS
@@ -459,16 +477,18 @@ function App() {
         />
       </div>
 
-      {/* Filter Controls (Phase 2: UX Layer) - adjusted for side panel */}
-      <div className="absolute top-20 right-[320px] z-20">
-        <FilterControls
-          actors={gameState.network.actors}
-          filters={actorFilters}
-          onFiltersChange={setActorFilters}
-          collapsed={filterCollapsed}
-          onToggleCollapse={() => setFilterCollapsed(!filterCollapsed)}
-        />
-      </div>
+      {/* Filter Controls (Phase 2: UX Layer) - Progressive Reveal: Only shown from Round 5+ */}
+      {advancedFeaturesUnlocked && (
+        <div className="absolute top-20 right-[320px] z-20 animate-fade-in">
+          <FilterControls
+            actors={gameState.network.actors}
+            filters={actorFilters}
+            onFiltersChange={setActorFilters}
+            collapsed={filterCollapsed}
+            onToggleCollapse={() => setFilterCollapsed(!filterCollapsed)}
+          />
+        </div>
+      )}
 
       {/* Combo Tracker (Phase 4: Combo System) */}
       {gameState.activeCombos.length > 0 && (
@@ -482,10 +502,10 @@ function App() {
         </div>
       )}
 
-      {/* Topology Overlay (Phase 4.2: Network Topology Analysis) */}
-      {gameState.topology && (
+      {/* Topology Overlay (Phase 4.2: Network Topology Analysis) - Progressive Reveal: Only shown from Round 5+ */}
+      {gameState.topology && advancedFeaturesUnlocked && (
         <div className={cn(
-          "absolute left-4 z-20",
+          "absolute left-4 z-20 animate-fade-in",
           gameState.activeCombos.length > 0 ? "top-96" : "top-20"
         )}>
           <TopologyOverlay
