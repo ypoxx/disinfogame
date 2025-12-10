@@ -19,6 +19,7 @@ import {
 import { ComboTracker } from '@/components/ComboTracker';
 import { TopologyOverlay } from '@/components/TopologyOverlay';
 import { NodeSizeLegend } from '@/components/NodeSizeLegend';
+import { GraphModeToggle, type GraphMode } from '@/components/GraphModeToggle';
 import { NotificationToast, useToastNotifications, actorReactionToToast } from '@/components/NotificationToast';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
@@ -76,6 +77,9 @@ function App() {
 
   // Progressive UI Reveal (Phase 0.4: Show advanced features only when relevant)
   const [advancedFeaturesUnlocked, setAdvancedFeaturesUnlocked] = useState(false);
+
+  // PHASE 1.3: Dual-Graph System - Graph mode toggle
+  const [graphMode, setGraphMode] = useState<GraphMode>('trust');
 
   // Toast notification system (Phase 0: Fix position conflicts)
   const { notifications, addNotification: addToast, dismissNotification } = useToastNotifications();
@@ -514,6 +518,7 @@ function App() {
           validTargets={uiState.validTargets}
           onActorClick={selectActor}
           onActorHover={hoverActor}
+          graphMode={graphMode}
         />
       </div>
 
@@ -560,6 +565,11 @@ function App() {
       {/* Node Size Legend (Phase 1.1: Visual Hierarchy) */}
       <div className="absolute bottom-6 left-6 z-20 animate-fade-in">
         <NodeSizeLegend />
+      </div>
+
+      {/* Graph Mode Toggle (Phase 1.3: Dual-Graph System) */}
+      <div className="absolute bottom-6 left-[260px] z-20 animate-fade-in">
+        <GraphModeToggle mode={graphMode} onModeChange={setGraphMode} />
       </div>
 
       {/* Toast Notifications (Phase 0: Replaces ActorReactionsOverlay to fix position conflicts) */}

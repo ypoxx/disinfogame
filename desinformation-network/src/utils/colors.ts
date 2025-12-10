@@ -135,3 +135,58 @@ export function getAbilityColor(abilityType: string): string {
   };
   return abilityColors[abilityType] || '#6B7280';
 }
+
+/**
+ * PHASE 1.3: Dual-Graph System - Awareness colors
+ * Orange (low awareness/unaware) → Purple (high awareness/aware)
+ */
+const AWARENESS_COLORS = {
+  low: { r: 249, g: 115, b: 22 },    // #F97316 - Orange (unaware)
+  medium: { r: 168, g: 85, b: 247 }, // #A855F7 - Purple-400
+  high: { r: 139, g: 92, b: 246 },   // #8B5CF6 - Purple (aware)
+};
+
+/**
+ * Convert awareness value (0-1) to RGB color
+ * Low awareness (unaware) = Orange, High awareness (aware) = Purple
+ */
+export function awarenessToColor(awareness: number): { r: number; g: number; b: number } {
+  const clampedAwareness = Math.max(0, Math.min(1, awareness));
+
+  if (clampedAwareness < 0.5) {
+    // Orange to Purple-400 (0 to 0.5)
+    const t = clampedAwareness * 2;
+    return {
+      r: Math.round(AWARENESS_COLORS.low.r + (AWARENESS_COLORS.medium.r - AWARENESS_COLORS.low.r) * t),
+      g: Math.round(AWARENESS_COLORS.low.g + (AWARENESS_COLORS.medium.g - AWARENESS_COLORS.low.g) * t),
+      b: Math.round(AWARENESS_COLORS.low.b + (AWARENESS_COLORS.medium.b - AWARENESS_COLORS.low.b) * t),
+    };
+  } else {
+    // Purple-400 to Purple (0.5 to 1)
+    const t = (clampedAwareness - 0.5) * 2;
+    return {
+      r: Math.round(AWARENESS_COLORS.medium.r + (AWARENESS_COLORS.high.r - AWARENESS_COLORS.medium.r) * t),
+      g: Math.round(AWARENESS_COLORS.medium.g + (AWARENESS_COLORS.high.g - AWARENESS_COLORS.medium.g) * t),
+      b: Math.round(AWARENESS_COLORS.medium.b + (AWARENESS_COLORS.high.b - AWARENESS_COLORS.medium.b) * t),
+    };
+  }
+}
+
+/**
+ * Convert awareness value (0-1) to hex color string
+ */
+export function awarenessToHex(awareness: number): string {
+  const { r, g, b } = awarenessToColor(awareness);
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
+/**
+ * Get awareness level label
+ */
+export function getAwarenessLabel(awareness: number): string {
+  if (awareness < 0.3) return 'Unaware';
+  if (awareness < 0.5) return 'Slightly Aware';
+  if (awareness < 0.7) return 'Moderately Aware';
+  if (awareness < 0.9) return 'Very Aware';
+  return 'Highly Aware';
+}

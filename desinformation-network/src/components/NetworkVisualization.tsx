@@ -1,7 +1,8 @@
 import { useRef, useEffect, useCallback, useState, useMemo, memo } from 'react';
 import type { Actor, Connection } from '@/game-logic/types';
-import { trustToHex, getCategoryColor } from '@/utils/colors';
+import { trustToHex, awarenessToHex, getCategoryColor } from '@/utils/colors';
 import { euclideanDistance, cn } from '@/utils';
+import type { GraphMode } from '@/components/GraphModeToggle';
 import {
   detectSpatialClusters,
   getClusterColor,
@@ -22,6 +23,7 @@ type NetworkVisualizationProps = {
   validTargets: string[];
   onActorClick: (actorId: string) => void;
   onActorHover: (actorId: string | null) => void;
+  graphMode?: GraphMode; // PHASE 1.3: Dual-Graph System
 };
 
 // Relative positions (0-1 range) for responsive layout
@@ -50,6 +52,7 @@ export function NetworkVisualization({
   validTargets,
   onActorClick,
   onActorHover,
+  graphMode = 'trust', // PHASE 1.3: Default to trust mode
 }: NetworkVisualizationProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -155,6 +158,14 @@ export function NetworkVisualization({
     // Actors now have positions set by force-directed layout in GameState
     return actor.position;
   }, []);
+
+  // PHASE 1.3: Get color based on graph mode
+  const getActorColor = useCallback((actor: Actor): string => {
+    if (graphMode === 'awareness') {
+      return awarenessToHex(actor.awareness || 0);
+    }
+    return trustToHex(actor.trust);
+  }, [graphMode]);
 
   // PHASE 5: Performance - Viewport culling helper
   const isInViewport = useCallback((pos: { x: number; y: number }, padding: number = BASE_NODE_RADIUS * 2) => {
@@ -421,22 +432,23 @@ export function NetworkVisualization({
           pos.y,
           innerRadius
         );
-        const trustColor = trustToHex(actor.trust);
-        innerGradient.addColorStop(0, trustColor);
-        innerGradient.addColorStop(1, trustColor + 'DD');
+        const actorColor = getActorColor(actor); // PHASE 1.3: Use mode-based color
+        innerGradient.addColorStop(0, actorColor);
+        innerGradient.addColorStop(1, actorColor + 'DD');
 
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, innerRadius, 0, Math.PI * 2);
         ctx.fillStyle = innerGradient;
         ctx.fill();
 
-        // Trust percentage arc
+        // Metric percentage arc (trust or awareness based on mode)
         const arcRadius = nodeRadius * 0.85;
         const startAngle = -Math.PI / 2;
-        const endAngle = startAngle + actor.trust * Math.PI * 2;
+        const metricValue = graphMode === 'awareness' ? (actor.awareness || 0) : actor.trust;
+        const endAngle = startAngle + metricValue * Math.PI * 2;
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, arcRadius, startAngle, endAngle);
-        ctx.strokeStyle = trustToHex(actor.trust);
+        ctx.strokeStyle = actorColor; // PHASE 1.3: Use mode-based color
         ctx.lineWidth = 4;
         ctx.stroke();
 
@@ -468,21 +480,21 @@ export function NetworkVisualization({
         ctx.fillStyle = '#1F2937';
         ctx.fillText(displayName, pos.x, nameY + 2);
 
-        // Trust percentage below name
+        // Metric percentage below name (trust or awareness based on mode)
         if (isSelected || isHovered) {
-          const trustFontSize = Math.max(11, nodeRadius * 0.3);
-          ctx.font = `${trustFontSize}px Inter, sans-serif`;
-          ctx.fillStyle = trustToHex(actor.trust);
-          const trustText = `${Math.round(actor.trust * 100)}%`;
-          const trustWidth = ctx.measureText(trustText).width;
+          const metricFontSize = Math.max(11, nodeRadius * 0.3);
+          ctx.font = `${metricFontSize}px Inter, sans-serif`;
+          const metricColor = getActorColor(actor); // PHASE 1.3: Mode-based color
+          const metricText = `${Math.round(metricValue * 100)}%`;
+          const metricWidth = ctx.measureText(metricText).width;
 
-          const trustY = nameY + nameFontSize + 10;
-          // Background for trust percentage
+          const metricY = nameY + nameFontSize + 10;
+          // Background for metric percentage
           ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-          ctx.fillRect(pos.x - trustWidth / 2 - 3, trustY, trustWidth + 6, trustFontSize + 4);
+          ctx.fillRect(pos.x - metricWidth / 2 - 3, metricY, metricWidth + 6, metricFontSize + 4);
 
-          ctx.fillStyle = trustToHex(actor.trust);
-          ctx.fillText(trustText, pos.x, trustY + 2);
+          ctx.fillStyle = metricColor; // PHASE 1.3: Mode-based color
+          ctx.fillText(metricText, pos.x, metricY + 2);
         }
     });
 
@@ -520,7 +532,7 @@ export function NetworkVisualization({
     ctx.restore();
 
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, getNodeRadius, BASE_NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan, ripples]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, getNodeRadius, getActorColor, BASE_NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan, ripples, graphMode]);
 
   // Transform screen coordinates to canvas coordinates (accounting for zoom/pan)
   const screenToCanvas = useCallback((screenX: number, screenY: number) => {
