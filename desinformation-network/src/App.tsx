@@ -18,11 +18,14 @@ import {
 } from '@/components/FilterControls';
 import { ComboTracker } from '@/components/ComboTracker';
 import { TopologyOverlay } from '@/components/TopologyOverlay';
+import { NodeSizeLegend } from '@/components/NodeSizeLegend';
+import { GraphModeToggle, type GraphMode } from '@/components/GraphModeToggle';
 import { NotificationToast, useToastNotifications, actorReactionToToast } from '@/components/NotificationToast';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
 import type { TutorialState } from '@/game-logic/types/tutorial';
+import * as Audio from '@/utils/audio'; // PHASE 1.2: Sound effects
 
 // ============================================
 // MAIN APP COMPONENT
@@ -75,6 +78,9 @@ function App() {
   // Progressive UI Reveal (Phase 0.4: Show advanced features only when relevant)
   const [advancedFeaturesUnlocked, setAdvancedFeaturesUnlocked] = useState(false);
 
+  // PHASE 1.3: Dual-Graph System - Graph mode toggle
+  const [graphMode, setGraphMode] = useState<GraphMode>('trust');
+
   // Toast notification system (Phase 0: Fix position conflicts)
   const { notifications, addNotification: addToast, dismissNotification } = useToastNotifications();
 
@@ -97,6 +103,23 @@ function App() {
     cancelAbility(); // Cancel any selected ability
     selectActor(null); // Deselect actor
   };
+
+  // PHASE 1.2: Initialize audio on first user interaction
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      Audio.initializeAudio();
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('keydown', handleFirstInteraction);
+    };
+
+    document.addEventListener('click', handleFirstInteraction);
+    document.addEventListener('keydown', handleFirstInteraction);
+
+    return () => {
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('keydown', handleFirstInteraction);
+    };
+  }, []);
 
   // Track round changes and generate summaries
   useEffect(() => {
@@ -136,6 +159,9 @@ function App() {
 
       setCurrentRoundSummary(summary);
       setShowRoundSummary(true);
+
+      // PHASE 1.2: Play round complete sound
+      Audio.playRoundComplete();
     }
 
     setPreviousRound(gameState.round);
@@ -144,6 +170,8 @@ function App() {
 
   const handleContinue = () => {
     setShowRoundSummary(false);
+    // PHASE 1.2: Play UI click sound
+    Audio.playUIClick();
   };
 
   // Tutorial handlers
@@ -193,6 +221,9 @@ function App() {
         if (actor) {
           const toast = actorReactionToToast(reaction, actor);
           addToast(toast);
+
+          // PHASE 1.2: Play actor reaction sound
+          Audio.playActorReaction();
         }
       });
     }
@@ -210,6 +241,9 @@ function App() {
         message: 'Advanced tools are now available: Filters and Network Topology',
         duration: 8000,
       });
+
+      // PHASE 1.2: Play feature unlock sound
+      Audio.playFeatureUnlock();
     }
   }, [gameState.round, gameState.phase, advancedFeaturesUnlocked, addToast]);
 
@@ -263,6 +297,11 @@ function App() {
 
   // Victory Screen
   if (gameState.phase === 'victory') {
+    // PHASE 1.2: Play victory sound once
+    useEffect(() => {
+      Audio.playVictory();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-900 via-gray-900 to-gray-900 flex items-center justify-center p-8">
         <div className="max-w-2xl text-center">
@@ -332,6 +371,11 @@ function App() {
 
   // Defeat Screen
   if (gameState.phase === 'defeat') {
+    // PHASE 1.2: Play defeat sound once
+    useEffect(() => {
+      Audio.playDefeat();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-900 via-gray-900 to-gray-900 flex items-center justify-center p-8">
         <div className="max-w-2xl text-center">
@@ -474,6 +518,7 @@ function App() {
           validTargets={uiState.validTargets}
           onActorClick={selectActor}
           onActorHover={hoverActor}
+          graphMode={graphMode}
         />
       </div>
 
@@ -516,6 +561,16 @@ function App() {
           />
         </div>
       )}
+
+      {/* Node Size Legend (Phase 1.1: Visual Hierarchy) */}
+      <div className="absolute bottom-6 left-6 z-20 animate-fade-in">
+        <NodeSizeLegend />
+      </div>
+
+      {/* Graph Mode Toggle (Phase 1.3: Dual-Graph System) */}
+      <div className="absolute bottom-6 left-[260px] z-20 animate-fade-in">
+        <GraphModeToggle mode={graphMode} onModeChange={setGraphMode} />
+      </div>
 
       {/* Toast Notifications (Phase 0: Replaces ActorReactionsOverlay to fix position conflicts) */}
       <NotificationToast

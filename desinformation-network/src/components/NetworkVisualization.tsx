@@ -1,7 +1,8 @@
 import { useRef, useEffect, useCallback, useState, useMemo, memo } from 'react';
 import type { Actor, Connection } from '@/game-logic/types';
-import { trustToHex, getCategoryColor } from '@/utils/colors';
+import { trustToHex, awarenessToHex, getCategoryColor } from '@/utils/colors';
 import { euclideanDistance, cn } from '@/utils';
+import type { GraphMode } from '@/components/GraphModeToggle';
 import {
   detectSpatialClusters,
   getClusterColor,
@@ -22,6 +23,7 @@ type NetworkVisualizationProps = {
   validTargets: string[];
   onActorClick: (actorId: string) => void;
   onActorHover: (actorId: string | null) => void;
+  graphMode?: GraphMode; // PHASE 1.3: Dual-Graph System
 };
 
 // Relative positions (0-1 range) for responsive layout
@@ -50,6 +52,7 @@ export function NetworkVisualization({
   validTargets,
   onActorClick,
   onActorHover,
+  graphMode = 'trust', // PHASE 1.3: Default to trust mode
 }: NetworkVisualizationProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -67,10 +70,60 @@ export function NetworkVisualization({
   // Cluster visualization (Phase 2: UX Layer)
   const [showClusters, setShowClusters] = useState(true);
 
+  // PHASE 1.2: Enhanced Microinteractions - Ripple effects
+  interface Ripple {
+    id: string;
+    x: number;
+    y: number;
+    maxRadius: number;
+    startTime: number;
+    duration: number;
+    color: string;
+  }
+  const [ripples, setRipples] = useState<Ripple[]>([]);
+
+  // PHASE 1.4: Connection Explorer - Hovered connection
+  const [hoveredConnection, setHoveredConnection] = useState<Connection | null>(null);
+  const [connectionTooltipPos, setConnectionTooltipPos] = useState<{ x: number; y: number } | null>(null);
+
   // Constants scaled by canvas size
-  const NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.04; // 4% of smaller dimension
+  const BASE_NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.04; // 4% of smaller dimension (base size)
   const CATEGORY_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.15; // 15% of smaller dimension
   const ACTOR_SPREAD_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.12; // 12% for actor arrangement
+
+  // PHASE 1.1: Visual Hierarchy - Calculate node radius based on actor tier
+  // Tier 3 (most influential): 1.3x base size
+  // Tier 2 (medium influence): 1.0x base size
+  // Tier 1 (least influential): 0.7x base size
+  const getNodeRadius = useCallback((actor: Actor) => {
+    const tierScales: Record<number, number> = {
+      3: 1.3,  // High-tier actors (most influential)
+      2: 1.0,  // Mid-tier actors (standard size)
+      1: 0.7,  // Low-tier actors (smaller)
+    };
+    const scale = tierScales[actor.tier] || 1.0;
+    return BASE_NODE_RADIUS * scale;
+  }, [BASE_NODE_RADIUS]);
+
+  // PHASE 1.2: Create ripple effect at position
+  const createRipple = useCallback((x: number, y: number, color: string = '#3B82F6', maxRadius: number = 100) => {
+    const ripple: Ripple = {
+      id: `ripple_${Date.now()}_${Math.random()}`,
+      x,
+      y,
+      maxRadius,
+      startTime: Date.now(),
+      duration: 600, // 600ms animation
+      color,
+    };
+
+    setRipples(prev => [...prev, ripple]);
+
+    // Remove ripple after duration
+    setTimeout(() => {
+      setRipples(prev => prev.filter(r => r.id !== ripple.id));
+    }, ripple.duration + 50);
+  }, []);
 
   // Group actors by category
   const actorsByCategory = actors.reduce((groups, actor) => {
@@ -110,8 +163,16 @@ export function NetworkVisualization({
     return actor.position;
   }, []);
 
+  // PHASE 1.3: Get color based on graph mode
+  const getActorColor = useCallback((actor: Actor): string => {
+    if (graphMode === 'awareness') {
+      return awarenessToHex(actor.awareness || 0);
+    }
+    return trustToHex(actor.trust);
+  }, [graphMode]);
+
   // PHASE 5: Performance - Viewport culling helper
-  const isInViewport = useCallback((pos: { x: number; y: number }, padding: number = NODE_RADIUS * 2) => {
+  const isInViewport = useCallback((pos: { x: number; y: number }, padding: number = BASE_NODE_RADIUS * 2) => {
     const viewX = -pan.x / zoom;
     const viewY = -pan.y / zoom;
     const viewWidth = canvasSize.width / zoom;
@@ -123,7 +184,7 @@ export function NetworkVisualization({
       pos.y >= viewY - padding &&
       pos.y <= viewY + viewHeight + padding
     );
-  }, [pan, zoom, canvasSize, NODE_RADIUS]);
+  }, [pan, zoom, canvasSize, BASE_NODE_RADIUS]);
 
   // Drawing function
   const draw = useCallback(() => {
@@ -184,7 +245,7 @@ export function NetworkVisualization({
 
       // Category label background for better readability
       const label = CATEGORY_LABELS[category] || category;
-      const fontSize = Math.max(14, NODE_RADIUS * 0.4);
+      const fontSize = Math.max(14, BASE_NODE_RADIUS * 0.4);
       ctx.font = `bold ${fontSize}px Inter, sans-serif`;
       const labelMetrics = ctx.measureText(label);
       const labelWidth = labelMetrics.width;
@@ -227,7 +288,13 @@ export function NetworkVisualization({
       const sourcPos = getActorPosition(source);
       const targetPos = getActorPosition(target);
 
+      // PHASE 1.4: Include hovered connection in highlighting
+      const isConnectionHovered = hoveredConnection &&
+        conn.sourceId === hoveredConnection.sourceId &&
+        conn.targetId === hoveredConnection.targetId;
+
       const isHighlighted =
+        isConnectionHovered ||
         source.id === selectedActorId ||
         target.id === selectedActorId ||
         source.id === hoveredActorId ||
@@ -287,12 +354,13 @@ export function NetworkVisualization({
       }
     });
 
-    // Draw actors (nodes) - PHASE 5: Apply viewport culling
+    // Draw actors (nodes) - PHASE 5: Apply viewport culling + PHASE 1.1: Tier-based sizing
     actors.forEach((actor) => {
       const pos = getActorPosition(actor);
+      const nodeRadius = getNodeRadius(actor); // PHASE 1.1: Dynamic radius based on tier
 
       // Skip actors outside viewport (with padding for smooth entry/exit)
-      if (!isInViewport(pos, NODE_RADIUS * 3)) {
+      if (!isInViewport(pos, nodeRadius * 3)) {
         return;
       }
 
@@ -304,7 +372,7 @@ export function NetworkVisualization({
         if (targetingMode && isValidTarget) {
           const pulse = (Date.now() % 1000) / 1000;
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, NODE_RADIUS * 1.3 + pulse * 15, 0, Math.PI * 2);
+          ctx.arc(pos.x, pos.y, nodeRadius * 1.3 + pulse * 15, 0, Math.PI * 2);
           ctx.strokeStyle = `rgba(239, 68, 68, ${1 - pulse})`;
           ctx.lineWidth = 4;
           ctx.stroke();
@@ -313,7 +381,7 @@ export function NetworkVisualization({
         // Selection ring
         if (isSelected) {
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, NODE_RADIUS * 1.3, 0, Math.PI * 2);
+          ctx.arc(pos.x, pos.y, nodeRadius * 1.3, 0, Math.PI * 2);
           ctx.strokeStyle = '#3B82F6';
           ctx.lineWidth = 5;
           ctx.stroke();
@@ -322,7 +390,7 @@ export function NetworkVisualization({
         // Hover ring
         if (isHovered && !isSelected) {
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, NODE_RADIUS * 1.2, 0, Math.PI * 2);
+          ctx.arc(pos.x, pos.y, nodeRadius * 1.2, 0, Math.PI * 2);
           ctx.strokeStyle = '#9CA3AF';
           ctx.lineWidth = 3;
           ctx.stroke();
@@ -330,8 +398,8 @@ export function NetworkVisualization({
 
         // Glow effect for selected/hovered actors
         if (isSelected || isHovered) {
-          const glowRadius = NODE_RADIUS * 1.5;
-          const gradient = ctx.createRadialGradient(pos.x, pos.y, NODE_RADIUS, pos.x, pos.y, glowRadius);
+          const glowRadius = nodeRadius * 1.5;
+          const gradient = ctx.createRadialGradient(pos.x, pos.y, nodeRadius, pos.x, pos.y, glowRadius);
           const glowColor = isSelected ? '#3B82F6' : '#9CA3AF';
           gradient.addColorStop(0, `${glowColor}40`);
           gradient.addColorStop(0.5, `${glowColor}20`);
@@ -345,19 +413,19 @@ export function NetworkVisualization({
 
         // Actor outer circle (category color) with subtle gradient
         const outerGradient = ctx.createRadialGradient(
-          pos.x - NODE_RADIUS * 0.3,
-          pos.y - NODE_RADIUS * 0.3,
+          pos.x - nodeRadius * 0.3,
+          pos.y - nodeRadius * 0.3,
           0,
           pos.x,
           pos.y,
-          NODE_RADIUS
+          nodeRadius
         );
         const categoryColor = getCategoryColor(actor.category);
         outerGradient.addColorStop(0, categoryColor);
         outerGradient.addColorStop(1, categoryColor + 'CC');
 
         ctx.beginPath();
-        ctx.arc(pos.x, pos.y, NODE_RADIUS, 0, Math.PI * 2);
+        ctx.arc(pos.x, pos.y, nodeRadius, 0, Math.PI * 2);
         ctx.fillStyle = outerGradient;
         ctx.fill();
         ctx.strokeStyle = '#FFFFFF';
@@ -365,7 +433,7 @@ export function NetworkVisualization({
         ctx.stroke();
 
         // Actor inner circle (trust color) with gradient
-        const innerRadius = NODE_RADIUS * 0.7;
+        const innerRadius = nodeRadius * 0.7;
         const innerGradient = ctx.createRadialGradient(
           pos.x - innerRadius * 0.3,
           pos.y - innerRadius * 0.3,
@@ -374,28 +442,29 @@ export function NetworkVisualization({
           pos.y,
           innerRadius
         );
-        const trustColor = trustToHex(actor.trust);
-        innerGradient.addColorStop(0, trustColor);
-        innerGradient.addColorStop(1, trustColor + 'DD');
+        const actorColor = getActorColor(actor); // PHASE 1.3: Use mode-based color
+        innerGradient.addColorStop(0, actorColor);
+        innerGradient.addColorStop(1, actorColor + 'DD');
 
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, innerRadius, 0, Math.PI * 2);
         ctx.fillStyle = innerGradient;
         ctx.fill();
 
-        // Trust percentage arc
-        const arcRadius = NODE_RADIUS * 0.85;
+        // Metric percentage arc (trust or awareness based on mode)
+        const arcRadius = nodeRadius * 0.85;
         const startAngle = -Math.PI / 2;
-        const endAngle = startAngle + actor.trust * Math.PI * 2;
+        const metricValue = graphMode === 'awareness' ? (actor.awareness || 0) : actor.trust;
+        const endAngle = startAngle + metricValue * Math.PI * 2;
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, arcRadius, startAngle, endAngle);
-        ctx.strokeStyle = trustToHex(actor.trust);
+        ctx.strokeStyle = actorColor; // PHASE 1.3: Use mode-based color
         ctx.lineWidth = 4;
         ctx.stroke();
 
         // Actor name with text wrapping for long names
-        const maxNameWidth = NODE_RADIUS * 4;
-        const nameFontSize = Math.max(12, NODE_RADIUS * 0.35);
+        const maxNameWidth = nodeRadius * 4;
+        const nameFontSize = Math.max(12, nodeRadius * 0.35);
         ctx.font = `${isSelected || isHovered ? 'bold ' : ''}${nameFontSize}px Inter, sans-serif`;
         ctx.fillStyle = '#1F2937';
         ctx.textAlign = 'center';
@@ -414,36 +483,66 @@ export function NetworkVisualization({
 
         // Name background for better readability
         const textWidth = ctx.measureText(displayName).width;
-        const nameY = pos.y + NODE_RADIUS + 8;
+        const nameY = pos.y + nodeRadius + 8;
         ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
         ctx.fillRect(pos.x - textWidth / 2 - 4, nameY, textWidth + 8, nameFontSize + 6);
 
         ctx.fillStyle = '#1F2937';
         ctx.fillText(displayName, pos.x, nameY + 2);
 
-        // Trust percentage below name
+        // Metric percentage below name (trust or awareness based on mode)
         if (isSelected || isHovered) {
-          const trustFontSize = Math.max(11, NODE_RADIUS * 0.3);
-          ctx.font = `${trustFontSize}px Inter, sans-serif`;
-          ctx.fillStyle = trustToHex(actor.trust);
-          const trustText = `${Math.round(actor.trust * 100)}%`;
-          const trustWidth = ctx.measureText(trustText).width;
+          const metricFontSize = Math.max(11, nodeRadius * 0.3);
+          ctx.font = `${metricFontSize}px Inter, sans-serif`;
+          const metricColor = getActorColor(actor); // PHASE 1.3: Mode-based color
+          const metricText = `${Math.round(metricValue * 100)}%`;
+          const metricWidth = ctx.measureText(metricText).width;
 
-          const trustY = nameY + nameFontSize + 10;
-          // Background for trust percentage
+          const metricY = nameY + nameFontSize + 10;
+          // Background for metric percentage
           ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-          ctx.fillRect(pos.x - trustWidth / 2 - 3, trustY, trustWidth + 6, trustFontSize + 4);
+          ctx.fillRect(pos.x - metricWidth / 2 - 3, metricY, metricWidth + 6, metricFontSize + 4);
 
-          ctx.fillStyle = trustToHex(actor.trust);
-          ctx.fillText(trustText, pos.x, trustY + 2);
+          ctx.fillStyle = metricColor; // PHASE 1.3: Mode-based color
+          ctx.fillText(metricText, pos.x, metricY + 2);
         }
+    });
+
+    // PHASE 1.2: Draw ripple effects
+    const now = Date.now();
+    ripples.forEach(ripple => {
+      const elapsed = now - ripple.startTime;
+      const progress = Math.min(1, elapsed / ripple.duration);
+
+      // Easing function (ease-out)
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+      const currentRadius = ripple.maxRadius * easedProgress;
+      const opacity = (1 - progress) * 0.6; // Fade out
+
+      ctx.beginPath();
+      ctx.arc(ripple.x, ripple.y, currentRadius, 0, Math.PI * 2);
+      ctx.strokeStyle = ripple.color + Math.round(opacity * 255).toString(16).padStart(2, '0');
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Inner ripple for depth
+      if (progress < 0.7) {
+        const innerRadius = currentRadius * 0.7;
+        const innerOpacity = opacity * 0.5;
+        ctx.beginPath();
+        ctx.arc(ripple.x, ripple.y, innerRadius, 0, Math.PI * 2);
+        ctx.strokeStyle = ripple.color + Math.round(innerOpacity * 255).toString(16).padStart(2, '0');
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
     });
 
     // Restore context after zoom/pan transform
     ctx.restore();
 
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, getNodeRadius, getActorColor, BASE_NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan, ripples, graphMode, hoveredConnection]);
 
   // Transform screen coordinates to canvas coordinates (accounting for zoom/pan)
   const screenToCanvas = useCallback((screenX: number, screenY: number) => {
@@ -453,19 +552,60 @@ export function NetworkVisualization({
     };
   }, [zoom, pan]);
 
-  // Find actor at click position
+  // Find actor at click position - PHASE 1.1: Use tier-based radius
   const findActorAtPosition = useCallback((screenX: number, screenY: number): Actor | null => {
     const { x, y } = screenToCanvas(screenX, screenY);
 
     for (const actor of actors) {
       const pos = getActorPosition(actor);
+      const nodeRadius = getNodeRadius(actor); // PHASE 1.1: Tier-based hit detection
       const distance = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
-      if (distance <= NODE_RADIUS * 1.5) {
+      if (distance <= nodeRadius * 1.5) {
         return actor;
       }
     }
     return null;
-  }, [actors, getActorPosition, NODE_RADIUS, screenToCanvas]);
+  }, [actors, getActorPosition, getNodeRadius, screenToCanvas]);
+
+  // PHASE 1.4: Find connection near mouse position
+  const findConnectionAtPosition = useCallback((screenX: number, screenY: number): Connection | null => {
+    const { x, y } = screenToCanvas(screenX, screenY);
+    const threshold = 10; // pixels
+
+    for (const conn of connections) {
+      const source = actorMap.get(conn.sourceId);
+      const target = actorMap.get(conn.targetId);
+      if (!source || !target) continue;
+
+      const sourcePos = getActorPosition(source);
+      const targetPos = getActorPosition(target);
+
+      // Calculate distance from point to line segment
+      const lineLength = Math.sqrt(
+        Math.pow(targetPos.x - sourcePos.x, 2) + Math.pow(targetPos.y - sourcePos.y, 2)
+      );
+
+      if (lineLength === 0) continue;
+
+      // Calculate the perpendicular distance from the point to the line
+      const t = Math.max(0, Math.min(1,
+        ((x - sourcePos.x) * (targetPos.x - sourcePos.x) + (y - sourcePos.y) * (targetPos.y - sourcePos.y)) / (lineLength * lineLength)
+      ));
+
+      const projectionX = sourcePos.x + t * (targetPos.x - sourcePos.x);
+      const projectionY = sourcePos.y + t * (targetPos.y - sourcePos.y);
+
+      const distance = Math.sqrt(
+        Math.pow(x - projectionX, 2) + Math.pow(y - projectionY, 2)
+      );
+
+      if (distance <= threshold) {
+        return conn;
+      }
+    }
+
+    return null;
+  }, [connections, actorMap, getActorPosition, screenToCanvas]);
 
   // Event handlers
   const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -478,9 +618,16 @@ export function NetworkVisualization({
 
     const actor = findActorAtPosition(x, y);
     if (actor) {
+      // PHASE 1.2: Create ripple effect on click
+      const pos = getActorPosition(actor);
+      const canvasX = pos.x * zoom + pan.x;
+      const canvasY = pos.y * zoom + pan.y;
+      const nodeRadius = getNodeRadius(actor);
+      createRipple(pos.x, pos.y, getCategoryColor(actor.category), nodeRadius * 3);
+
       onActorClick(actor.id);
     }
-  }, [findActorAtPosition, onActorClick]);
+  }, [findActorAtPosition, onActorClick, getActorPosition, getNodeRadius, createRipple, zoom, pan]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -505,6 +652,23 @@ export function NetworkVisualization({
     const actor = findActorAtPosition(x, y);
     onActorHover(actor?.id || null);
 
+    // PHASE 1.4: Check for connection hover if no actor found
+    if (!actor) {
+      const connection = findConnectionAtPosition(x, y);
+      if (connection) {
+        setHoveredConnection(connection);
+        setConnectionTooltipPos({ x: e.clientX, y: e.clientY });
+        canvas.style.cursor = 'pointer';
+      } else {
+        setHoveredConnection(null);
+        setConnectionTooltipPos(null);
+        canvas.style.cursor = 'default';
+      }
+    } else {
+      setHoveredConnection(null);
+      setConnectionTooltipPos(null);
+    }
+
     // Update tooltip
     if (actor) {
       setHoveredActor(actor);
@@ -513,7 +677,7 @@ export function NetworkVisualization({
       setHoveredActor(null);
       setTooltipPosition(null);
     }
-  }, [findActorAtPosition, onActorHover, isPanning, panStart]);
+  }, [findActorAtPosition, findConnectionAtPosition, onActorHover, isPanning, panStart]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     // Start panning on right-click (button 2), middle mouse (button 1), or space+left click
@@ -783,6 +947,38 @@ export function NetworkVisualization({
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* PHASE 1.4: Connection Tooltip */}
+      {hoveredConnection && connectionTooltipPos && (
+        <div
+          className="fixed z-50 pointer-events-none"
+          style={{
+            left: connectionTooltipPos.x + 15,
+            top: connectionTooltipPos.y + 15,
+          }}
+        >
+          <div className="bg-gray-900 text-white text-xs rounded-lg py-2 px-3 shadow-xl max-w-[250px]">
+            <div className="font-bold mb-1.5">Connection Details</div>
+            <div className="space-y-0.5 text-[11px]">
+              <div className="text-gray-300">
+                <span className="font-semibold text-blue-400">{actorMap.get(hoveredConnection.sourceId)?.name}</span>
+                {' → '}
+                <span className="font-semibold text-purple-400">{actorMap.get(hoveredConnection.targetId)?.name}</span>
+              </div>
+              <div className="mt-1.5 pt-1.5 border-t border-gray-700">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Strength:</span>
+                  <span className="font-semibold text-green-400">{Math.round(hoveredConnection.strength * 100)}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Type:</span>
+                  <span className="font-semibold capitalize">{hoveredConnection.type}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
