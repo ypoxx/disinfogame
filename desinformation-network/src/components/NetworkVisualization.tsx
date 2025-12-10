@@ -67,6 +67,18 @@ export function NetworkVisualization({
   // Cluster visualization (Phase 2: UX Layer)
   const [showClusters, setShowClusters] = useState(true);
 
+  // PHASE 1.2: Enhanced Microinteractions - Ripple effects
+  interface Ripple {
+    id: string;
+    x: number;
+    y: number;
+    maxRadius: number;
+    startTime: number;
+    duration: number;
+    color: string;
+  }
+  const [ripples, setRipples] = useState<Ripple[]>([]);
+
   // Constants scaled by canvas size
   const BASE_NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.04; // 4% of smaller dimension (base size)
   const CATEGORY_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.15; // 15% of smaller dimension
@@ -85,6 +97,26 @@ export function NetworkVisualization({
     const scale = tierScales[actor.tier] || 1.0;
     return BASE_NODE_RADIUS * scale;
   }, [BASE_NODE_RADIUS]);
+
+  // PHASE 1.2: Create ripple effect at position
+  const createRipple = useCallback((x: number, y: number, color: string = '#3B82F6', maxRadius: number = 100) => {
+    const ripple: Ripple = {
+      id: `ripple_${Date.now()}_${Math.random()}`,
+      x,
+      y,
+      maxRadius,
+      startTime: Date.now(),
+      duration: 600, // 600ms animation
+      color,
+    };
+
+    setRipples(prev => [...prev, ripple]);
+
+    // Remove ripple after duration
+    setTimeout(() => {
+      setRipples(prev => prev.filter(r => r.id !== ripple.id));
+    }, ripple.duration + 50);
+  }, []);
 
   // Group actors by category
   const actorsByCategory = actors.reduce((groups, actor) => {
@@ -454,11 +486,41 @@ export function NetworkVisualization({
         }
     });
 
+    // PHASE 1.2: Draw ripple effects
+    const now = Date.now();
+    ripples.forEach(ripple => {
+      const elapsed = now - ripple.startTime;
+      const progress = Math.min(1, elapsed / ripple.duration);
+
+      // Easing function (ease-out)
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+      const currentRadius = ripple.maxRadius * easedProgress;
+      const opacity = (1 - progress) * 0.6; // Fade out
+
+      ctx.beginPath();
+      ctx.arc(ripple.x, ripple.y, currentRadius, 0, Math.PI * 2);
+      ctx.strokeStyle = ripple.color + Math.round(opacity * 255).toString(16).padStart(2, '0');
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Inner ripple for depth
+      if (progress < 0.7) {
+        const innerRadius = currentRadius * 0.7;
+        const innerOpacity = opacity * 0.5;
+        ctx.beginPath();
+        ctx.arc(ripple.x, ripple.y, innerRadius, 0, Math.PI * 2);
+        ctx.strokeStyle = ripple.color + Math.round(innerOpacity * 255).toString(16).padStart(2, '0');
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    });
+
     // Restore context after zoom/pan transform
     ctx.restore();
 
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, getNodeRadius, BASE_NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, getNodeRadius, BASE_NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan, ripples]);
 
   // Transform screen coordinates to canvas coordinates (accounting for zoom/pan)
   const screenToCanvas = useCallback((screenX: number, screenY: number) => {
@@ -494,9 +556,16 @@ export function NetworkVisualization({
 
     const actor = findActorAtPosition(x, y);
     if (actor) {
+      // PHASE 1.2: Create ripple effect on click
+      const pos = getActorPosition(actor);
+      const canvasX = pos.x * zoom + pan.x;
+      const canvasY = pos.y * zoom + pan.y;
+      const nodeRadius = getNodeRadius(actor);
+      createRipple(pos.x, pos.y, getCategoryColor(actor.category), nodeRadius * 3);
+
       onActorClick(actor.id);
     }
-  }, [findActorAtPosition, onActorClick]);
+  }, [findActorAtPosition, onActorClick, getActorPosition, getNodeRadius, createRipple, zoom, pan]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
