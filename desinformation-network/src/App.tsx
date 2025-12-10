@@ -4,13 +4,12 @@ import { cn } from '@/utils/cn';
 import { formatPercent } from '@/utils';
 import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
 import { NetworkVisualization } from '@/components/NetworkVisualization';
-import { RoundSummary } from '@/components/RoundSummary';
+import { UnifiedRoundModal } from '@/components/UnifiedRoundModal';
 import { VictoryProgressBar } from '@/components/VictoryProgressBar';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
 import { BottomSheet } from '@/components/BottomSheet';
 import { GameStatistics } from '@/components/GameStatistics';
 import { EventNotification } from '@/components/EventNotification';
-import { EventChoiceModal } from '@/components/EventChoiceModal';
 import {
   FilterControls,
   type ActorFilters,
@@ -519,14 +518,39 @@ function App() {
         getValidTargets={getValidTargets}
       />
 
-      {/* Round Summary Modal */}
-      {showRoundSummary && currentRoundSummary && (
-        <RoundSummary
-          summary={currentRoundSummary}
+      {/* Unified Round Modal (Phase 0.2: Combines Round Summary + Event Choice) */}
+      {(showRoundSummary && currentRoundSummary) || gameState.pendingEventChoice ? (
+        <UnifiedRoundModal
+          summary={currentRoundSummary || {
+            round: gameState.round - 1,
+            playerActions: [],
+            automaticEvents: [],
+            networkBefore: {
+              averageTrust: networkMetrics.averageTrust,
+              lowTrustCount: networkMetrics.lowTrustCount,
+              highTrustCount: networkMetrics.highTrustCount,
+              polarization: networkMetrics.polarizationIndex,
+            },
+            networkAfter: {
+              averageTrust: networkMetrics.averageTrust,
+              lowTrustCount: networkMetrics.lowTrustCount,
+              highTrustCount: networkMetrics.highTrustCount,
+              polarization: networkMetrics.polarizationIndex,
+            },
+            totalTrustChange: 0,
+            actorsAffected: 0,
+            propagationDepth: 1,
+            roundNarrative: 'An event has occurred...',
+            keyMoments: [],
+            consequences: [],
+          }}
           impactVisualizations={[]}
+          event={gameState.pendingEventChoice?.event || null}
+          resources={gameState.resources}
           onContinue={handleContinue}
+          onEventChoice={makeEventChoice}
         />
-      )}
+      ) : null}
 
       {/* Tutorial Overlay */}
       {tutorialState.active && showTutorial && (
@@ -542,15 +566,6 @@ function App() {
             onSkip={handleTutorialSkip}
           />
         </>
-      )}
-
-      {/* Event Choice Modal (Phase 4.4) */}
-      {gameState.pendingEventChoice && (
-        <EventChoiceModal
-          event={gameState.pendingEventChoice.event}
-          resources={gameState.resources}
-          onChoose={makeEventChoice}
-        />
       )}
 
       {/* Event Notification */}
