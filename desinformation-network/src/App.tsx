@@ -18,6 +18,7 @@ import {
 } from '@/components/FilterControls';
 import { ComboTracker } from '@/components/ComboTracker';
 import { TopologyOverlay } from '@/components/TopologyOverlay';
+import { NodeSizeLegend } from '@/components/NodeSizeLegend';
 import { NotificationToast, useToastNotifications, actorReactionToToast } from '@/components/NotificationToast';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
@@ -516,6 +517,11 @@ function App() {
           />
         </div>
       )}
+
+      {/* Node Size Legend (Phase 1.1: Visual Hierarchy) */}
+      <div className="absolute bottom-6 left-6 z-20 animate-fade-in">
+        <NodeSizeLegend />
+      </div>
 
       {/* Toast Notifications (Phase 0: Replaces ActorReactionsOverlay to fix position conflicts) */}
       <NotificationToast

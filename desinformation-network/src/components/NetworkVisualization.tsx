@@ -68,9 +68,23 @@ export function NetworkVisualization({
   const [showClusters, setShowClusters] = useState(true);
 
   // Constants scaled by canvas size
-  const NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.04; // 4% of smaller dimension
+  const BASE_NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.04; // 4% of smaller dimension (base size)
   const CATEGORY_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.15; // 15% of smaller dimension
   const ACTOR_SPREAD_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.12; // 12% for actor arrangement
+
+  // PHASE 1.1: Visual Hierarchy - Calculate node radius based on actor tier
+  // Tier 3 (most influential): 1.3x base size
+  // Tier 2 (medium influence): 1.0x base size
+  // Tier 1 (least influential): 0.7x base size
+  const getNodeRadius = useCallback((actor: Actor) => {
+    const tierScales: Record<number, number> = {
+      3: 1.3,  // High-tier actors (most influential)
+      2: 1.0,  // Mid-tier actors (standard size)
+      1: 0.7,  // Low-tier actors (smaller)
+    };
+    const scale = tierScales[actor.tier] || 1.0;
+    return BASE_NODE_RADIUS * scale;
+  }, [BASE_NODE_RADIUS]);
 
   // Group actors by category
   const actorsByCategory = actors.reduce((groups, actor) => {
@@ -111,7 +125,7 @@ export function NetworkVisualization({
   }, []);
 
   // PHASE 5: Performance - Viewport culling helper
-  const isInViewport = useCallback((pos: { x: number; y: number }, padding: number = NODE_RADIUS * 2) => {
+  const isInViewport = useCallback((pos: { x: number; y: number }, padding: number = BASE_NODE_RADIUS * 2) => {
     const viewX = -pan.x / zoom;
     const viewY = -pan.y / zoom;
     const viewWidth = canvasSize.width / zoom;
@@ -123,7 +137,7 @@ export function NetworkVisualization({
       pos.y >= viewY - padding &&
       pos.y <= viewY + viewHeight + padding
     );
-  }, [pan, zoom, canvasSize, NODE_RADIUS]);
+  }, [pan, zoom, canvasSize, BASE_NODE_RADIUS]);
 
   // Drawing function
   const draw = useCallback(() => {
@@ -184,7 +198,7 @@ export function NetworkVisualization({
 
       // Category label background for better readability
       const label = CATEGORY_LABELS[category] || category;
-      const fontSize = Math.max(14, NODE_RADIUS * 0.4);
+      const fontSize = Math.max(14, BASE_NODE_RADIUS * 0.4);
       ctx.font = `bold ${fontSize}px Inter, sans-serif`;
       const labelMetrics = ctx.measureText(label);
       const labelWidth = labelMetrics.width;
@@ -287,12 +301,13 @@ export function NetworkVisualization({
       }
     });
 
-    // Draw actors (nodes) - PHASE 5: Apply viewport culling
+    // Draw actors (nodes) - PHASE 5: Apply viewport culling + PHASE 1.1: Tier-based sizing
     actors.forEach((actor) => {
       const pos = getActorPosition(actor);
+      const nodeRadius = getNodeRadius(actor); // PHASE 1.1: Dynamic radius based on tier
 
       // Skip actors outside viewport (with padding for smooth entry/exit)
-      if (!isInViewport(pos, NODE_RADIUS * 3)) {
+      if (!isInViewport(pos, nodeRadius * 3)) {
         return;
       }
 
@@ -304,7 +319,7 @@ export function NetworkVisualization({
         if (targetingMode && isValidTarget) {
           const pulse = (Date.now() % 1000) / 1000;
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, NODE_RADIUS * 1.3 + pulse * 15, 0, Math.PI * 2);
+          ctx.arc(pos.x, pos.y, nodeRadius * 1.3 + pulse * 15, 0, Math.PI * 2);
           ctx.strokeStyle = `rgba(239, 68, 68, ${1 - pulse})`;
           ctx.lineWidth = 4;
           ctx.stroke();
@@ -313,7 +328,7 @@ export function NetworkVisualization({
         // Selection ring
         if (isSelected) {
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, NODE_RADIUS * 1.3, 0, Math.PI * 2);
+          ctx.arc(pos.x, pos.y, nodeRadius * 1.3, 0, Math.PI * 2);
           ctx.strokeStyle = '#3B82F6';
           ctx.lineWidth = 5;
           ctx.stroke();
@@ -322,7 +337,7 @@ export function NetworkVisualization({
         // Hover ring
         if (isHovered && !isSelected) {
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, NODE_RADIUS * 1.2, 0, Math.PI * 2);
+          ctx.arc(pos.x, pos.y, nodeRadius * 1.2, 0, Math.PI * 2);
           ctx.strokeStyle = '#9CA3AF';
           ctx.lineWidth = 3;
           ctx.stroke();
@@ -330,8 +345,8 @@ export function NetworkVisualization({
 
         // Glow effect for selected/hovered actors
         if (isSelected || isHovered) {
-          const glowRadius = NODE_RADIUS * 1.5;
-          const gradient = ctx.createRadialGradient(pos.x, pos.y, NODE_RADIUS, pos.x, pos.y, glowRadius);
+          const glowRadius = nodeRadius * 1.5;
+          const gradient = ctx.createRadialGradient(pos.x, pos.y, nodeRadius, pos.x, pos.y, glowRadius);
           const glowColor = isSelected ? '#3B82F6' : '#9CA3AF';
           gradient.addColorStop(0, `${glowColor}40`);
           gradient.addColorStop(0.5, `${glowColor}20`);
@@ -345,19 +360,19 @@ export function NetworkVisualization({
 
         // Actor outer circle (category color) with subtle gradient
         const outerGradient = ctx.createRadialGradient(
-          pos.x - NODE_RADIUS * 0.3,
-          pos.y - NODE_RADIUS * 0.3,
+          pos.x - nodeRadius * 0.3,
+          pos.y - nodeRadius * 0.3,
           0,
           pos.x,
           pos.y,
-          NODE_RADIUS
+          nodeRadius
         );
         const categoryColor = getCategoryColor(actor.category);
         outerGradient.addColorStop(0, categoryColor);
         outerGradient.addColorStop(1, categoryColor + 'CC');
 
         ctx.beginPath();
-        ctx.arc(pos.x, pos.y, NODE_RADIUS, 0, Math.PI * 2);
+        ctx.arc(pos.x, pos.y, nodeRadius, 0, Math.PI * 2);
         ctx.fillStyle = outerGradient;
         ctx.fill();
         ctx.strokeStyle = '#FFFFFF';
@@ -365,7 +380,7 @@ export function NetworkVisualization({
         ctx.stroke();
 
         // Actor inner circle (trust color) with gradient
-        const innerRadius = NODE_RADIUS * 0.7;
+        const innerRadius = nodeRadius * 0.7;
         const innerGradient = ctx.createRadialGradient(
           pos.x - innerRadius * 0.3,
           pos.y - innerRadius * 0.3,
@@ -384,7 +399,7 @@ export function NetworkVisualization({
         ctx.fill();
 
         // Trust percentage arc
-        const arcRadius = NODE_RADIUS * 0.85;
+        const arcRadius = nodeRadius * 0.85;
         const startAngle = -Math.PI / 2;
         const endAngle = startAngle + actor.trust * Math.PI * 2;
         ctx.beginPath();
@@ -394,8 +409,8 @@ export function NetworkVisualization({
         ctx.stroke();
 
         // Actor name with text wrapping for long names
-        const maxNameWidth = NODE_RADIUS * 4;
-        const nameFontSize = Math.max(12, NODE_RADIUS * 0.35);
+        const maxNameWidth = nodeRadius * 4;
+        const nameFontSize = Math.max(12, nodeRadius * 0.35);
         ctx.font = `${isSelected || isHovered ? 'bold ' : ''}${nameFontSize}px Inter, sans-serif`;
         ctx.fillStyle = '#1F2937';
         ctx.textAlign = 'center';
@@ -414,7 +429,7 @@ export function NetworkVisualization({
 
         // Name background for better readability
         const textWidth = ctx.measureText(displayName).width;
-        const nameY = pos.y + NODE_RADIUS + 8;
+        const nameY = pos.y + nodeRadius + 8;
         ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
         ctx.fillRect(pos.x - textWidth / 2 - 4, nameY, textWidth + 8, nameFontSize + 6);
 
@@ -423,7 +438,7 @@ export function NetworkVisualization({
 
         // Trust percentage below name
         if (isSelected || isHovered) {
-          const trustFontSize = Math.max(11, NODE_RADIUS * 0.3);
+          const trustFontSize = Math.max(11, nodeRadius * 0.3);
           ctx.font = `${trustFontSize}px Inter, sans-serif`;
           ctx.fillStyle = trustToHex(actor.trust);
           const trustText = `${Math.round(actor.trust * 100)}%`;
@@ -443,7 +458,7 @@ export function NetworkVisualization({
     ctx.restore();
 
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, getNodeRadius, BASE_NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan]);
 
   // Transform screen coordinates to canvas coordinates (accounting for zoom/pan)
   const screenToCanvas = useCallback((screenX: number, screenY: number) => {
@@ -453,19 +468,20 @@ export function NetworkVisualization({
     };
   }, [zoom, pan]);
 
-  // Find actor at click position
+  // Find actor at click position - PHASE 1.1: Use tier-based radius
   const findActorAtPosition = useCallback((screenX: number, screenY: number): Actor | null => {
     const { x, y } = screenToCanvas(screenX, screenY);
 
     for (const actor of actors) {
       const pos = getActorPosition(actor);
+      const nodeRadius = getNodeRadius(actor); // PHASE 1.1: Tier-based hit detection
       const distance = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
-      if (distance <= NODE_RADIUS * 1.5) {
+      if (distance <= nodeRadius * 1.5) {
         return actor;
       }
     }
     return null;
-  }, [actors, getActorPosition, NODE_RADIUS, screenToCanvas]);
+  }, [actors, getActorPosition, getNodeRadius, screenToCanvas]);
 
   // Event handlers
   const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
