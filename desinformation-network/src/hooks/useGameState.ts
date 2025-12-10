@@ -16,7 +16,7 @@ import actorDefinitions from '@/data/game/actors'; // NEW: 58 actors from modula
 import abilityDefinitions from '@/data/game/ability-definitions-v2.json';
 import baseEventDefinitions from '@/data/game/event-definitions.json';
 import eventChainDefinitions from '@/data/game/event-chains.json';
-import comboDefinitions from '@/data/game/combo-definitions.json';
+import comboDefinitionsData from '@/data/game/combo-definitions.json';
 
 // Merge event definitions
 const eventDefinitions = [...baseEventDefinitions, ...eventChainDefinitions];
@@ -106,7 +106,7 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
       actorDefinitions as any,
       convertedAbilities as any,
       eventDefinitions as any,
-      comboDefinitions as any
+      comboDefinitionsData as any
     );
   }
   

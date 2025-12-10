@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback, useState, useMemo, memo } from 'react';
-import type { Actor, Connection } from '@/game-logic/types';
+import type { Actor, Connection, ActorCategory } from '@/game-logic/types';
 import { trustToHex, getCategoryColor } from '@/utils/colors';
 import { euclideanDistance, cn } from '@/utils';
 import {
@@ -145,8 +145,23 @@ export function NetworkVisualization({
         ctx.beginPath();
         ctx.arc(cluster.center.x, cluster.center.y, cluster.radius, 0, Math.PI * 2);
 
+        // Get dominant category from cluster actors
+        const clusterActors = cluster.actors.map(id => actorMap.get(id)).filter(Boolean) as Actor[];
+        const categoryCounts = new Map<ActorCategory, number>();
+        clusterActors.forEach(a => {
+          categoryCounts.set(a.category, (categoryCounts.get(a.category) || 0) + 1);
+        });
+        let dominantCategory: ActorCategory = clusterActors[0]?.category || 'media';
+        let maxCount = 0;
+        categoryCounts.forEach((count, category) => {
+          if (count > maxCount) {
+            maxCount = count;
+            dominantCategory = category;
+          }
+        });
+
         // Fill with semi-transparent color based on category
-        ctx.fillStyle = getClusterColor(cluster.category, 0.12);
+        ctx.fillStyle = getClusterColor(dominantCategory, 0.12);
         ctx.fill();
 
         // Border based on trust level
@@ -160,7 +175,7 @@ export function NetworkVisualization({
         // ctx.font = '12px Inter, sans-serif';
         // ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
         // ctx.textAlign = 'center';
-        // ctx.fillText(`Cluster (${cluster.actorIds.length})`, cluster.center.x, cluster.center.y);
+        // ctx.fillText(`Cluster (${cluster.actors.length})`, cluster.center.x, cluster.center.y);
       });
     }
 

@@ -5,7 +5,7 @@
  * Uses multiple algorithms for robustness.
  */
 
-import type { Actor, Connection } from '@/game-logic/types';
+import type { Actor, Connection, ActorCategory } from '@/game-logic/types';
 import type { ActorCluster, Community } from '@/game-logic/types';
 
 // ============================================
@@ -99,15 +99,20 @@ export function detectCommunities(
   const communities: Community[] = [];
   communityMap.forEach((memberIds, communityId) => {
     if (memberIds.length > 1) { // Only include communities with 2+ members
-      const members = actors.filter(a => memberIds.includes(a.id));
-      const avgTrust = members.reduce((sum, a) => sum + a.trust, 0) / members.length;
+      const memberActors = actors.filter(a => memberIds.includes(a.id));
+      const dominantCategory = findDominantCategory(memberActors);
+
+      // Determine community type based on dominant category
+      let type: Community['type'] = 'mixed';
+      if (dominantCategory === 'media') type = 'media_ecosystem';
+      else if (dominantCategory === 'expert') type = 'expert_network';
+      else if (dominantCategory === 'lobby') type = 'lobby_coalition';
 
       communities.push({
         id: `community_${communities.length}`,
-        memberIds,
-        averageTrust: avgTrust,
+        type,
+        members: memberIds,
         cohesion: calculateCohesion(memberIds, connections),
-        dominantCategory: findDominantCategory(members),
       });
     }
   });
@@ -133,13 +138,13 @@ function calculateCohesion(memberIds: string[], connections: Connection[]): numb
 /**
  * Find the most common category in a group of actors
  */
-function findDominantCategory(actors: Actor[]): string {
-  const counts = new Map<string, number>();
+function findDominantCategory(actors: Actor[]): ActorCategory {
+  const counts = new Map<ActorCategory, number>();
   actors.forEach(a => {
     counts.set(a.category, (counts.get(a.category) || 0) + 1);
   });
 
-  let maxCategory = actors[0]?.category || 'media';
+  let maxCategory: ActorCategory = actors[0]?.category || 'media';
   let maxCount = 0;
   counts.forEach((count, category) => {
     if (count > maxCount) {
@@ -231,6 +236,7 @@ function createCluster(actors: Actor[]): ActorCluster {
   const centerY = actors.reduce((sum, a) => sum + a.position.y, 0) / actors.length;
 
   const avgTrust = actors.reduce((sum, a) => sum + a.trust, 0) / actors.length;
+  const dominantCategory = findDominantCategory(actors);
 
   // Calculate radius (furthest actor from center)
   const radius = Math.max(
@@ -241,13 +247,16 @@ function createCluster(actors: Actor[]): ActorCluster {
     })
   );
 
+  // Generate cluster name
+  const name = `${dominantCategory} cluster (${actors.length} actors)`;
+
   return {
     id: `cluster_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    actorIds: actors.map(a => a.id),
+    name,
+    actors: actors.map(a => a.id),
     center: { x: centerX, y: centerY },
     radius: radius + 30, // Add padding
     averageTrust: avgTrust,
-    category: findDominantCategory(actors),
   };
 }
 
@@ -302,7 +311,7 @@ function calculateModularity(
   // Build community membership map
   const membership = new Map<string, string>();
   communities.forEach(community => {
-    community.memberIds.forEach(id => {
+    community.members.forEach(id => {
       membership.set(id, community.id);
     });
   });
