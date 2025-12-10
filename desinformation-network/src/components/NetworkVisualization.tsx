@@ -145,8 +145,8 @@ export function NetworkVisualization({
         ctx.beginPath();
         ctx.arc(cluster.center.x, cluster.center.y, cluster.radius, 0, Math.PI * 2);
 
-        // Fill with semi-transparent color based on category
-        ctx.fillStyle = getClusterColor(cluster.category, 0.12);
+        // Fill with semi-transparent color (generic cluster color since category removed)
+        ctx.fillStyle = getClusterColor('mixed', 0.12);
         ctx.fill();
 
         // Border based on trust level

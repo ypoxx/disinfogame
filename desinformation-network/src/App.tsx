@@ -4,13 +4,12 @@ import { cn } from '@/utils/cn';
 import { formatPercent } from '@/utils';
 import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
 import { NetworkVisualization } from '@/components/NetworkVisualization';
-import { RoundSummary } from '@/components/RoundSummary';
+import { UnifiedRoundModal } from '@/components/UnifiedRoundModal';
 import { VictoryProgressBar } from '@/components/VictoryProgressBar';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
-import { BottomSheet } from '@/components/BottomSheet';
+import { CompactSidePanel } from '@/components/CompactSidePanel';
 import { GameStatistics } from '@/components/GameStatistics';
 import { EventNotification } from '@/components/EventNotification';
-import { EventChoiceModal } from '@/components/EventChoiceModal';
 import {
   FilterControls,
   type ActorFilters,
@@ -19,7 +18,7 @@ import {
 } from '@/components/FilterControls';
 import { ComboTracker } from '@/components/ComboTracker';
 import { TopologyOverlay } from '@/components/TopologyOverlay';
-import { ActorReactionsOverlay } from '@/components/ActorReactionsOverlay';
+import { NotificationToast, useToastNotifications, actorReactionToToast } from '@/components/NotificationToast';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
@@ -73,8 +72,11 @@ function App() {
   // Topology state (Phase 4.2: Network Topology Analysis)
   const [topologyCollapsed, setTopologyCollapsed] = useState(false);
 
-  // Actor Reactions state (Phase 4.3: Actor AI & Reactions)
-  const [reactionsCollapsed, setReactionsCollapsed] = useState(false);
+  // Progressive UI Reveal (Phase 0.4: Show advanced features only when relevant)
+  const [advancedFeaturesUnlocked, setAdvancedFeaturesUnlocked] = useState(false);
+
+  // Toast notification system (Phase 0: Fix position conflicts)
+  const { notifications, addNotification: addToast, dismissNotification } = useToastNotifications();
 
   // Apply filters to actors
   const filteredActors = useMemo(
@@ -179,6 +181,37 @@ function App() {
   }, [gameState.phase, gameState.round, tutorialState.skipped, tutorialState.completed]);
 
   // Tutorial is now fully manual - all steps use Continue button
+
+  // Convert actor reactions to toast notifications (Phase 0: Fix position conflicts)
+  useEffect(() => {
+    if (gameState.actorReactions && gameState.actorReactions.length > 0) {
+      // Get new reactions (not already shown)
+      const newReactions = gameState.actorReactions.slice(-3); // Last 3 reactions
+
+      newReactions.forEach(reaction => {
+        const actor = gameState.network.actors.find(a => a.id === reaction.actorId);
+        if (actor) {
+          const toast = actorReactionToToast(reaction, actor);
+          addToast(toast);
+        }
+      });
+    }
+  }, [gameState.actorReactions, addToast]); // Only trigger when reactions change
+
+  // Progressive UI Reveal: Unlock advanced features at Round 5 (Phase 0.4)
+  useEffect(() => {
+    if (gameState.phase === 'playing' && gameState.round >= 5 && !advancedFeaturesUnlocked) {
+      setAdvancedFeaturesUnlocked(true);
+
+      // Show notification about new features
+      addToast({
+        type: 'success',
+        title: 'New Features Unlocked! 🎉',
+        message: 'Advanced tools are now available: Filters and Network Topology',
+        duration: 8000,
+      });
+    }
+  }, [gameState.round, gameState.phase, advancedFeaturesUnlocked, addToast]);
 
   // ============================================
   // SCREENS
@@ -430,8 +463,8 @@ function App() {
         </button>
       </div>
 
-      {/* Fullscreen Network Visualization */}
-      <div className="absolute inset-0 w-full h-full">
+      {/* Network Visualization (left side, minus 300px for side panel) */}
+      <div className="absolute inset-y-0 left-0 right-[300px] w-auto h-full">
         <NetworkVisualization
           actors={filteredActors}
           connections={filteredConnections}
@@ -444,16 +477,18 @@ function App() {
         />
       </div>
 
-      {/* Filter Controls (Phase 2: UX Layer) */}
-      <div className="absolute top-20 right-4 z-20">
-        <FilterControls
-          actors={gameState.network.actors}
-          filters={actorFilters}
-          onFiltersChange={setActorFilters}
-          collapsed={filterCollapsed}
-          onToggleCollapse={() => setFilterCollapsed(!filterCollapsed)}
-        />
-      </div>
+      {/* Filter Controls (Phase 2: UX Layer) - Progressive Reveal: Only shown from Round 5+ */}
+      {advancedFeaturesUnlocked && (
+        <div className="absolute top-20 right-[320px] z-20 animate-fade-in">
+          <FilterControls
+            actors={gameState.network.actors}
+            filters={actorFilters}
+            onFiltersChange={setActorFilters}
+            collapsed={filterCollapsed}
+            onToggleCollapse={() => setFilterCollapsed(!filterCollapsed)}
+          />
+        </div>
+      )}
 
       {/* Combo Tracker (Phase 4: Combo System) */}
       {gameState.activeCombos.length > 0 && (
@@ -467,10 +502,10 @@ function App() {
         </div>
       )}
 
-      {/* Topology Overlay (Phase 4.2: Network Topology Analysis) */}
-      {gameState.topology && (
+      {/* Topology Overlay (Phase 4.2: Network Topology Analysis) - Progressive Reveal: Only shown from Round 5+ */}
+      {gameState.topology && advancedFeaturesUnlocked && (
         <div className={cn(
-          "absolute left-4 z-20",
+          "absolute left-4 z-20 animate-fade-in",
           gameState.activeCombos.length > 0 ? "top-96" : "top-20"
         )}>
           <TopologyOverlay
@@ -482,21 +517,15 @@ function App() {
         </div>
       )}
 
-      {/* Actor Reactions Overlay (Phase 4.3: Actor AI & Reactions) */}
-      {gameState.actorReactions && gameState.actorReactions.length > 0 && (
-        <div className="absolute top-20 right-4 z-20">
-          <ActorReactionsOverlay
-            reactions={gameState.actorReactions}
-            actors={gameState.network.actors}
-            currentRound={gameState.round}
-            collapsed={reactionsCollapsed}
-            onToggleCollapse={() => setReactionsCollapsed(!reactionsCollapsed)}
-          />
-        </div>
-      )}
+      {/* Toast Notifications (Phase 0: Replaces ActorReactionsOverlay to fix position conflicts) */}
+      <NotificationToast
+        notifications={notifications}
+        onDismiss={dismissNotification}
+        maxVisible={3}
+      />
 
-      {/* Bottom Sheet */}
-      <BottomSheet
+      {/* Compact Side Panel (Phase 0.3: Replaces Bottom Sheet) */}
+      <CompactSidePanel
         actor={selectedActor}
         abilities={selectedActor ? getActorAbilities(selectedActor.id) : []}
         resources={gameState.resources}
@@ -509,14 +538,39 @@ function App() {
         getValidTargets={getValidTargets}
       />
 
-      {/* Round Summary Modal */}
-      {showRoundSummary && currentRoundSummary && (
-        <RoundSummary
-          summary={currentRoundSummary}
+      {/* Unified Round Modal (Phase 0.2: Combines Round Summary + Event Choice) */}
+      {(showRoundSummary && currentRoundSummary) || gameState.pendingEventChoice ? (
+        <UnifiedRoundModal
+          summary={currentRoundSummary || {
+            round: gameState.round - 1,
+            playerActions: [],
+            automaticEvents: [],
+            networkBefore: {
+              averageTrust: networkMetrics.averageTrust,
+              lowTrustCount: networkMetrics.lowTrustCount,
+              highTrustCount: networkMetrics.highTrustCount,
+              polarization: networkMetrics.polarizationIndex,
+            },
+            networkAfter: {
+              averageTrust: networkMetrics.averageTrust,
+              lowTrustCount: networkMetrics.lowTrustCount,
+              highTrustCount: networkMetrics.highTrustCount,
+              polarization: networkMetrics.polarizationIndex,
+            },
+            totalTrustChange: 0,
+            actorsAffected: 0,
+            propagationDepth: 1,
+            roundNarrative: 'An event has occurred...',
+            keyMoments: [],
+            consequences: [],
+          }}
           impactVisualizations={[]}
+          event={gameState.pendingEventChoice?.event || null}
+          resources={gameState.resources}
           onContinue={handleContinue}
+          onEventChoice={makeEventChoice}
         />
-      )}
+      ) : null}
 
       {/* Tutorial Overlay */}
       {tutorialState.active && showTutorial && (
@@ -532,15 +586,6 @@ function App() {
             onSkip={handleTutorialSkip}
           />
         </>
-      )}
-
-      {/* Event Choice Modal (Phase 4.4) */}
-      {gameState.pendingEventChoice && (
-        <EventChoiceModal
-          event={gameState.pendingEventChoice.event}
-          resources={gameState.resources}
-          onChoose={makeEventChoice}
-        />
       )}
 
       {/* Event Notification */}

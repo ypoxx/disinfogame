@@ -18,6 +18,7 @@ const CATEGORY_COLORS: Record<ActorCategory, string> = {
   expert: '#8B5CF6',      // Purple
   lobby: '#EC4899',       // Pink
   organization: '#14B8A6', // Teal
+  infrastructure: '#6B7280', // Gray
   defensive: '#22C55E',   // Green
 };
 
@@ -79,6 +80,7 @@ export function getCategoryColorLight(category: ActorCategory): string {
     expert: '#EDE9FE',      // Purple-100
     lobby: '#FCE7F3',       // Pink-100
     organization: '#CCFBF1', // Teal-100
+    infrastructure: '#F3F4F6', // Gray-100
     defensive: '#DCFCE7',   // Green-100
   };
   return lightColors[category] || '#F3F4F6';

@@ -93,7 +93,6 @@ export function updateComboProgress(
         const updatedProgress: ComboProgress = {
           ...existingProgress,
           usedAbilities: [...existingProgress.usedAbilities, abilityId],
-          lastUsedRound: currentRound,
         };
 
         // Check if combo is complete
@@ -121,7 +120,6 @@ export function updateComboProgress(
           targetActorId,
           usedAbilities: [abilityId],
           startRound: currentRound,
-          lastUsedRound: currentRound,
         });
       }
     }
@@ -256,7 +254,7 @@ export function applyComboBonus(
   if (bonus.connectionWeakening) {
     gameState.network.connections.forEach((conn) => {
       if (conn.sourceId === target.id || conn.targetId === target.id) {
-        conn.strength = Math.max(0, conn.strength - bonus.connectionWeakening);
+        conn.strength = Math.max(0, conn.strength - bonus.connectionWeakening!);
       }
     });
   }
