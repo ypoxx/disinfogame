@@ -11,6 +11,8 @@ import {
   getConstrainedActorPosition,
   getCategoryConstraint,
   CATEGORY_RADIUS_PERCENT,
+  CATEGORY_LAYOUT,
+  getZoomLevelConfig,
 } from '@/utils/constrainedLayout';
 
 // ============================================
@@ -29,13 +31,13 @@ type NetworkVisualizationProps = {
   onActorHover: (actorId: string | null) => void;
 };
 
-// Relative positions (0-1 range) for responsive layout
+// Use positions from constrainedLayout for consistency
 const CATEGORY_POSITIONS_RELATIVE: Record<string, { x: number; y: number }> = {
-  media: { x: 0.25, y: 0.3 },
-  expert: { x: 0.75, y: 0.3 },
-  lobby: { x: 0.25, y: 0.7 },
-  organization: { x: 0.75, y: 0.7 },
-  defensive: { x: 0.5, y: 0.5 }, // Center
+  media: { x: CATEGORY_LAYOUT.media.rx, y: CATEGORY_LAYOUT.media.ry },
+  expert: { x: CATEGORY_LAYOUT.expert.rx, y: CATEGORY_LAYOUT.expert.ry },
+  lobby: { x: CATEGORY_LAYOUT.lobby.rx, y: CATEGORY_LAYOUT.lobby.ry },
+  organization: { x: CATEGORY_LAYOUT.organization.rx, y: CATEGORY_LAYOUT.organization.ry },
+  defensive: { x: CATEGORY_LAYOUT.defensive.rx, y: CATEGORY_LAYOUT.defensive.ry },
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -72,10 +74,13 @@ export function NetworkVisualization({
   // Cluster visualization (Phase 2: UX Layer)
   const [showClusters, setShowClusters] = useState(true);
 
-  // Constants scaled by canvas size
-  const NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.04; // 4% of smaller dimension
-  const CATEGORY_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.15; // 15% of smaller dimension
-  const ACTOR_SPREAD_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.12; // 12% for actor arrangement
+  // Zoom-based level of detail configuration (Google Maps style)
+  const zoomConfig = useMemo(() => getZoomLevelConfig(zoom), [zoom]);
+
+  // Constants scaled by canvas size - use CATEGORY_RADIUS_PERCENT for larger circles
+  const BASE_NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.035; // 3.5% base
+  const NODE_RADIUS = BASE_NODE_RADIUS * zoomConfig.nodeScale; // Dynamic based on zoom
+  const CATEGORY_RADIUS = Math.min(canvasSize.width, canvasSize.height) * CATEGORY_RADIUS_PERCENT; // 22% - larger circles
 
   // Group actors by category
   const actorsByCategory = actors.reduce((groups, actor) => {
@@ -108,17 +113,30 @@ export function NetworkVisualization({
     };
   }, [canvasSize]);
 
-  // Use actor's own position (from force-directed layout) with category constraints
-  // Phase 2: Constrain actors to stay within their category circles
+  // Create actor index map for ring-based positioning
+  const actorIndexMap = useMemo(() => {
+    const indexMap = new Map<string, { index: number; total: number }>();
+    Object.entries(actorsByCategory).forEach(([category, categoryActors]) => {
+      categoryActors.forEach((actor, index) => {
+        indexMap.set(actor.id, { index, total: categoryActors.length });
+      });
+    });
+    return indexMap;
+  }, [actorsByCategory]);
+
+  // Use ring-based distribution for even actor spacing within circles
+  // Phase 2 Optimized: Deterministic positioning based on actor index
   const getActorPosition = useCallback((actor: Actor) => {
-    // Apply constraint to keep actor within their category circle
+    const indexInfo = actorIndexMap.get(actor.id) || { index: 0, total: 1 };
     return getConstrainedActorPosition(
       actor.position,
       actor.category,
       canvasSize.width,
-      canvasSize.height
+      canvasSize.height,
+      indexInfo.index,
+      indexInfo.total
     );
-  }, [canvasSize.width, canvasSize.height]);
+  }, [canvasSize.width, canvasSize.height, actorIndexMap]);
 
   // PHASE 5: Performance - Viewport culling helper
   const isInViewport = useCallback((pos: { x: number; y: number }, padding: number = NODE_RADIUS * 2) => {
@@ -439,49 +457,57 @@ export function NetworkVisualization({
         ctx.lineWidth = 4;
         ctx.stroke();
 
-        // Actor name with text wrapping for long names
-        const maxNameWidth = NODE_RADIUS * 4;
-        const nameFontSize = Math.max(12, NODE_RADIUS * 0.35);
-        ctx.font = `${isSelected || isHovered ? 'bold ' : ''}${nameFontSize}px Inter, sans-serif`;
-        ctx.fillStyle = '#1F2937';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
+        // Actor name - only show based on zoom level (Google Maps style progressive disclosure)
+        if (zoomConfig.showLabels || isSelected || isHovered) {
+          const maxNameWidth = NODE_RADIUS * 4;
+          const nameFontSize = Math.max(10, NODE_RADIUS * 0.35) * zoomConfig.labelFontSize;
+          ctx.font = `${isSelected || isHovered ? 'bold ' : ''}${nameFontSize}px Inter, sans-serif`;
+          ctx.fillStyle = '#1F2937';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
 
-        // Truncate name if too long
-        let displayName = actor.name;
-        const nameMetrics = ctx.measureText(displayName);
-        if (nameMetrics.width > maxNameWidth) {
-          // Shorten the name
-          while (ctx.measureText(displayName + '...').width > maxNameWidth && displayName.length > 0) {
-            displayName = displayName.slice(0, -1);
+          // Truncate name if too long
+          let displayName = actor.name;
+          const nameMetrics = ctx.measureText(displayName);
+          if (nameMetrics.width > maxNameWidth) {
+            while (ctx.measureText(displayName + '...').width > maxNameWidth && displayName.length > 0) {
+              displayName = displayName.slice(0, -1);
+            }
+            displayName = displayName + '...';
           }
-          displayName = displayName + '...';
+
+          // Name background for better readability
+          const textWidth = ctx.measureText(displayName).width;
+          const nameY = pos.y + NODE_RADIUS + 6;
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+          ctx.fillRect(pos.x - textWidth / 2 - 4, nameY, textWidth + 8, nameFontSize + 4);
+
+          ctx.fillStyle = '#1F2937';
+          ctx.fillText(displayName, pos.x, nameY + 1);
         }
 
-        // Name background for better readability
-        const textWidth = ctx.measureText(displayName).width;
-        const nameY = pos.y + NODE_RADIUS + 8;
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.fillRect(pos.x - textWidth / 2 - 4, nameY, textWidth + 8, nameFontSize + 6);
-
-        ctx.fillStyle = '#1F2937';
-        ctx.fillText(displayName, pos.x, nameY + 2);
-
-        // Trust percentage below name
-        if (isSelected || isHovered) {
-          const trustFontSize = Math.max(11, NODE_RADIUS * 0.3);
-          ctx.font = `${trustFontSize}px Inter, sans-serif`;
-          ctx.fillStyle = trustToHex(actor.trust);
+        // Trust percentage - show based on zoom level or selection
+        if (zoomConfig.showStats || isSelected || isHovered) {
+          const trustFontSize = Math.max(9, NODE_RADIUS * 0.28) * zoomConfig.labelFontSize;
+          ctx.font = `bold ${trustFontSize}px Inter, sans-serif`;
           const trustText = `${Math.round(actor.trust * 100)}%`;
           const trustWidth = ctx.measureText(trustText).width;
 
-          const trustY = nameY + nameFontSize + 10;
-          // Background for trust percentage
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-          ctx.fillRect(pos.x - trustWidth / 2 - 3, trustY, trustWidth + 6, trustFontSize + 4);
-
+          // Position trust inside the node for cleaner look
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
           ctx.fillStyle = trustToHex(actor.trust);
-          ctx.fillText(trustText, pos.x, trustY + 2);
+          // Only show external trust label when zoomed in enough or selected
+          if (isSelected || isHovered || zoom >= 1.5) {
+            const nameY = pos.y + NODE_RADIUS + 6;
+            const nameFontSize = Math.max(10, NODE_RADIUS * 0.35) * zoomConfig.labelFontSize;
+            const trustY = nameY + nameFontSize + 8;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillRect(pos.x - trustWidth / 2 - 3, trustY - trustFontSize/2 - 2, trustWidth + 6, trustFontSize + 4);
+            ctx.fillStyle = trustToHex(actor.trust);
+            ctx.fillText(trustText, pos.x, trustY);
+          }
         }
     });
 
@@ -489,7 +515,7 @@ export function NetworkVisualization({
     ctx.restore();
 
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan, zoomConfig]);
 
   // Transform screen coordinates to canvas coordinates (accounting for zoom/pan)
   const screenToCanvas = useCallback((screenX: number, screenY: number) => {
