@@ -74,7 +74,7 @@ function App() {
   const [advancedFeaturesUnlocked, setAdvancedFeaturesUnlocked] = useState(false);
 
   // Toast notification system (Phase 0: Fix position conflicts)
-  const { notifications, addNotification: addToast, dismissNotification } = useToastNotifications();
+  const { notifications, notificationHistory, addNotification: addToast, dismissNotification, clearHistory } = useToastNotifications();
 
   // Apply filters to actors
   const filteredActors = useMemo(
@@ -477,7 +477,9 @@ function App() {
       <NotificationToast
         notifications={notifications}
         onDismiss={dismissNotification}
-        maxVisible={3}
+        maxVisible={2}
+        notificationHistory={notificationHistory}
+        onClearHistory={clearHistory}
       />
 
       {/* Unified Right Panel (Phase 3.2: Integrates Victory, Resources, Actions, Actor Details) */}
