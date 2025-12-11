@@ -15,6 +15,9 @@ export type TutorialStep = {
   };
   action?: 'click_actor' | 'hover_ability' | 'select_ability' | 'select_target' | 'end_round';
   completed: boolean;
+  // PHASE 2: Enhanced Tutorial Animations
+  overlayType?: 'modal' | 'arrow' | 'hand' | 'highlight';
+  arrowPosition?: 'top' | 'bottom' | 'left' | 'right';
 };
 
 export type TutorialState = {
@@ -152,7 +155,9 @@ export const TUTORIAL_SEQUENCE: Omit<TutorialStep, 'completed'>[] = [
     highlight: {
       type: 'actor'
     },
-    action: 'click_actor'
+    action: 'click_actor',
+    overlayType: 'hand',
+    arrowPosition: 'top'
   },
   {
     id: 'ability_explanation',
@@ -160,7 +165,9 @@ export const TUTORIAL_SEQUENCE: Omit<TutorialStep, 'completed'>[] = [
     phase: 'ability_hover',
     title: 'Abilities Explained',
     message: 'Each actor has unique abilities based on real disinformation tactics. Hover over an ability to see details.',
-    action: 'hover_ability'
+    action: 'hover_ability',
+    overlayType: 'arrow',
+    arrowPosition: 'right'
   },
   {
     id: 'select_ability',
@@ -168,7 +175,9 @@ export const TUTORIAL_SEQUENCE: Omit<TutorialStep, 'completed'>[] = [
     phase: 'ability_select',
     title: 'Use an Ability',
     message: 'Click on an ability to activate targeting mode.',
-    action: 'select_ability'
+    action: 'select_ability',
+    overlayType: 'hand',
+    arrowPosition: 'right'
   },
   {
     id: 'select_target',
@@ -179,7 +188,9 @@ export const TUTORIAL_SEQUENCE: Omit<TutorialStep, 'completed'>[] = [
     highlight: {
       type: 'actor'
     },
-    action: 'select_target'
+    action: 'select_target',
+    overlayType: 'arrow',
+    arrowPosition: 'top'
   },
   {
     id: 'observe_effects',
