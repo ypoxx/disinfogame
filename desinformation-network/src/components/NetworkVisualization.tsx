@@ -7,6 +7,12 @@ import {
   getClusterColor,
   getClusterBorderColor,
 } from '@/utils/network/cluster-detection';
+import {
+  getActorRenderInfo,
+  getRecommendedRenderOptions,
+  createActorRenderMap,
+  type RenderOptions,
+} from '@/utils/rendering/visual-hierarchy';
 
 // ============================================
 // FULLSCREEN RESPONSIVE NETWORK VISUALIZATION
@@ -93,6 +99,16 @@ export function NetworkVisualization({
     if (!showClusters || actors.length < 3) return [];
     return detectSpatialClusters(actors, 180, 3); // epsilon=180px, minPoints=3
   }, [actors, showClusters]);
+
+  // PHASE 1.1: Visual Hierarchy - Get render options based on zoom and actor count
+  const renderOptions: RenderOptions = useMemo(() => {
+    return getRecommendedRenderOptions(actors.length, zoom);
+  }, [actors.length, zoom]);
+
+  // PHASE 1.1: Create actor render map for visual hierarchy
+  const actorRenderMap = useMemo(() => {
+    return createActorRenderMap(actors, renderOptions);
+  }, [actors, renderOptions]);
 
   // Convert relative position to absolute based on canvas size
   const getCategoryPosition = useCallback((category: string) => {
@@ -291,6 +307,12 @@ export function NetworkVisualization({
     actors.forEach((actor) => {
       const pos = getActorPosition(actor);
 
+      // PHASE 1.1: Get visual hierarchy render info for this actor
+      const renderInfo = actorRenderMap.get(actor.id);
+      if (!renderInfo || !renderInfo.shouldRender) {
+        return; // Skip actors that shouldn't be rendered based on LOD
+      }
+
       // Skip actors outside viewport (with padding for smooth entry/exit)
       if (!isInViewport(pos, NODE_RADIUS * 3)) {
         return;
@@ -300,12 +322,16 @@ export function NetworkVisualization({
       const isHovered = actor.id === hoveredActorId;
       const isValidTarget = validTargets.includes(actor.id);
 
+      // PHASE 1.1: Use tier-based node size from render info
+      const nodeRadius = NODE_RADIUS * (renderInfo.size / (actor.size || 50));
+      const nodeOpacity = renderInfo.opacity;
+
         // Glow for targeting mode
         if (targetingMode && isValidTarget) {
           const pulse = (Date.now() % 1000) / 1000;
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, NODE_RADIUS * 1.3 + pulse * 15, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(239, 68, 68, ${1 - pulse})`;
+          ctx.arc(pos.x, pos.y, nodeRadius * 1.3 + pulse * 15, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(239, 68, 68, ${(1 - pulse) * nodeOpacity})`;
           ctx.lineWidth = 4;
           ctx.stroke();
         }
@@ -313,8 +339,8 @@ export function NetworkVisualization({
         // Selection ring
         if (isSelected) {
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, NODE_RADIUS * 1.3, 0, Math.PI * 2);
-          ctx.strokeStyle = '#3B82F6';
+          ctx.arc(pos.x, pos.y, nodeRadius * 1.3, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(59, 130, 246, ${nodeOpacity})`;
           ctx.lineWidth = 5;
           ctx.stroke();
         }
@@ -322,19 +348,19 @@ export function NetworkVisualization({
         // Hover ring
         if (isHovered && !isSelected) {
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, NODE_RADIUS * 1.2, 0, Math.PI * 2);
-          ctx.strokeStyle = '#9CA3AF';
+          ctx.arc(pos.x, pos.y, nodeRadius * 1.2, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(156, 163, 175, ${nodeOpacity})`;
           ctx.lineWidth = 3;
           ctx.stroke();
         }
 
         // Glow effect for selected/hovered actors
         if (isSelected || isHovered) {
-          const glowRadius = NODE_RADIUS * 1.5;
-          const gradient = ctx.createRadialGradient(pos.x, pos.y, NODE_RADIUS, pos.x, pos.y, glowRadius);
+          const glowRadius = nodeRadius * 1.5;
+          const gradient = ctx.createRadialGradient(pos.x, pos.y, nodeRadius, pos.x, pos.y, glowRadius);
           const glowColor = isSelected ? '#3B82F6' : '#9CA3AF';
-          gradient.addColorStop(0, `${glowColor}40`);
-          gradient.addColorStop(0.5, `${glowColor}20`);
+          gradient.addColorStop(0, `${glowColor}${Math.round(nodeOpacity * 64).toString(16).padStart(2, '0')}`);
+          gradient.addColorStop(0.5, `${glowColor}${Math.round(nodeOpacity * 32).toString(16).padStart(2, '0')}`);
           gradient.addColorStop(1, `${glowColor}00`);
 
           ctx.beginPath();
@@ -343,21 +369,24 @@ export function NetworkVisualization({
           ctx.fill();
         }
 
+        // PHASE 1.1: Set global alpha for this actor based on opacity
+        ctx.globalAlpha = nodeOpacity;
+
         // Actor outer circle (category color) with subtle gradient
         const outerGradient = ctx.createRadialGradient(
-          pos.x - NODE_RADIUS * 0.3,
-          pos.y - NODE_RADIUS * 0.3,
+          pos.x - nodeRadius * 0.3,
+          pos.y - nodeRadius * 0.3,
           0,
           pos.x,
           pos.y,
-          NODE_RADIUS
+          nodeRadius
         );
         const categoryColor = getCategoryColor(actor.category);
         outerGradient.addColorStop(0, categoryColor);
         outerGradient.addColorStop(1, categoryColor + 'CC');
 
         ctx.beginPath();
-        ctx.arc(pos.x, pos.y, NODE_RADIUS, 0, Math.PI * 2);
+        ctx.arc(pos.x, pos.y, nodeRadius, 0, Math.PI * 2);
         ctx.fillStyle = outerGradient;
         ctx.fill();
         ctx.strokeStyle = '#FFFFFF';
@@ -365,7 +394,7 @@ export function NetworkVisualization({
         ctx.stroke();
 
         // Actor inner circle (trust color) with gradient
-        const innerRadius = NODE_RADIUS * 0.7;
+        const innerRadius = nodeRadius * 0.7;
         const innerGradient = ctx.createRadialGradient(
           pos.x - innerRadius * 0.3,
           pos.y - innerRadius * 0.3,
@@ -384,7 +413,7 @@ export function NetworkVisualization({
         ctx.fill();
 
         // Trust percentage arc
-        const arcRadius = NODE_RADIUS * 0.85;
+        const arcRadius = nodeRadius * 0.85;
         const startAngle = -Math.PI / 2;
         const endAngle = startAngle + actor.trust * Math.PI * 2;
         ctx.beginPath();
@@ -393,49 +422,63 @@ export function NetworkVisualization({
         ctx.lineWidth = 4;
         ctx.stroke();
 
-        // Actor name with text wrapping for long names
-        const maxNameWidth = NODE_RADIUS * 4;
-        const nameFontSize = Math.max(12, NODE_RADIUS * 0.35);
-        ctx.font = `${isSelected || isHovered ? 'bold ' : ''}${nameFontSize}px Inter, sans-serif`;
-        ctx.fillStyle = '#1F2937';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
+        // PHASE 1.1: Reset global alpha
+        ctx.globalAlpha = 1.0;
 
-        // Truncate name if too long
-        let displayName = actor.name;
-        const nameMetrics = ctx.measureText(displayName);
-        if (nameMetrics.width > maxNameWidth) {
-          // Shorten the name
-          while (ctx.measureText(displayName + '...').width > maxNameWidth && displayName.length > 0) {
-            displayName = displayName.slice(0, -1);
+        // PHASE 1.1: Smart Label Showing - Only show labels for important actors
+        const shouldShowLabel =
+          actor.tier === 1 || // Always show Tier 1 (Core actors)
+          (actor.centrality && actor.centrality > 0.7) || // High centrality actors
+          actor.trust < 0.3 || // Highly manipulated actors
+          zoom > 1.0 || // When zoomed in
+          isSelected || // Selected actor
+          isHovered; // Hovered actor
+
+        if (shouldShowLabel) {
+          // Actor name with text wrapping for long names
+          const maxNameWidth = nodeRadius * 4;
+          const nameFontSize = Math.max(12, nodeRadius * 0.35);
+          ctx.font = `${isSelected || isHovered ? 'bold ' : ''}${nameFontSize}px Inter, sans-serif`;
+          ctx.fillStyle = '#1F2937';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+
+          // Truncate name if too long
+          let displayName = actor.name;
+          const nameMetrics = ctx.measureText(displayName);
+          if (nameMetrics.width > maxNameWidth) {
+            // Shorten the name
+            while (ctx.measureText(displayName + '...').width > maxNameWidth && displayName.length > 0) {
+              displayName = displayName.slice(0, -1);
+            }
+            displayName = displayName + '...';
           }
-          displayName = displayName + '...';
-        }
 
-        // Name background for better readability
-        const textWidth = ctx.measureText(displayName).width;
-        const nameY = pos.y + NODE_RADIUS + 8;
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.fillRect(pos.x - textWidth / 2 - 4, nameY, textWidth + 8, nameFontSize + 6);
-
-        ctx.fillStyle = '#1F2937';
-        ctx.fillText(displayName, pos.x, nameY + 2);
-
-        // Trust percentage below name
-        if (isSelected || isHovered) {
-          const trustFontSize = Math.max(11, NODE_RADIUS * 0.3);
-          ctx.font = `${trustFontSize}px Inter, sans-serif`;
-          ctx.fillStyle = trustToHex(actor.trust);
-          const trustText = `${Math.round(actor.trust * 100)}%`;
-          const trustWidth = ctx.measureText(trustText).width;
-
-          const trustY = nameY + nameFontSize + 10;
-          // Background for trust percentage
+          // Name background for better readability
+          const textWidth = ctx.measureText(displayName).width;
+          const nameY = pos.y + nodeRadius + 8;
           ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-          ctx.fillRect(pos.x - trustWidth / 2 - 3, trustY, trustWidth + 6, trustFontSize + 4);
+          ctx.fillRect(pos.x - textWidth / 2 - 4, nameY, textWidth + 8, nameFontSize + 6);
 
-          ctx.fillStyle = trustToHex(actor.trust);
-          ctx.fillText(trustText, pos.x, trustY + 2);
+          ctx.fillStyle = '#1F2937';
+          ctx.fillText(displayName, pos.x, nameY + 2);
+
+          // Trust percentage below name
+          if (isSelected || isHovered) {
+            const trustFontSize = Math.max(11, nodeRadius * 0.3);
+            ctx.font = `${trustFontSize}px Inter, sans-serif`;
+            ctx.fillStyle = trustToHex(actor.trust);
+            const trustText = `${Math.round(actor.trust * 100)}%`;
+            const trustWidth = ctx.measureText(trustText).width;
+
+            const trustY = nameY + nameFontSize + 10;
+            // Background for trust percentage
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillRect(pos.x - trustWidth / 2 - 3, trustY, trustWidth + 6, trustFontSize + 4);
+
+            ctx.fillStyle = trustToHex(actor.trust);
+            ctx.fillText(trustText, pos.x, trustY + 2);
+          }
         }
     });
 
@@ -443,7 +486,7 @@ export function NetworkVisualization({
     ctx.restore();
 
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan, actorRenderMap, actorMap, isInViewport]);
 
   // Transform screen coordinates to canvas coordinates (accounting for zoom/pan)
   const screenToCanvas = useCallback((screenX: number, screenY: number) => {

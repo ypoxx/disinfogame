@@ -78,6 +78,9 @@ function App() {
   // Toast notification system (Phase 0: Fix position conflicts)
   const { notifications, addNotification: addToast, dismissNotification } = useToastNotifications();
 
+  // PHASE 1.2: Smart Information Layering - Auto-hide combo tracker
+  const [comboTrackerVisible, setComboTrackerVisible] = useState(true);
+
   // Apply filters to actors
   const filteredActors = useMemo(
     () => applyFilters(gameState.network.actors, actorFilters),
@@ -212,6 +215,25 @@ function App() {
       });
     }
   }, [gameState.round, gameState.phase, advancedFeaturesUnlocked, addToast]);
+
+  // PHASE 1.2: Auto-hide Combo Tracker after 5 seconds of inactivity
+  useEffect(() => {
+    if (gameState.activeCombos.length > 0) {
+      // Show combo tracker when combos are active
+      setComboTrackerVisible(true);
+
+      // Set timer to hide after 5 seconds
+      const timer = setTimeout(() => {
+        setComboTrackerVisible(false);
+      }, 5000);
+
+      // Cleanup timer if combos change before it expires
+      return () => clearTimeout(timer);
+    } else {
+      // Hide when no combos
+      setComboTrackerVisible(false);
+    }
+  }, [gameState.activeCombos]);
 
   // ============================================
   // SCREENS
@@ -490,16 +512,31 @@ function App() {
         </div>
       )}
 
-      {/* Combo Tracker (Phase 4: Combo System) */}
+      {/* Combo Tracker (Phase 4: Combo System + PHASE 1.2: Auto-hide) */}
       {gameState.activeCombos.length > 0 && (
-        <div className="absolute top-20 left-4 z-20">
-          <ComboTracker
-            activeCombos={gameState.activeCombos}
-            comboDefinitions={comboDefinitions}
-            actors={gameState.network.actors}
-            currentRound={gameState.round}
-          />
-        </div>
+        <>
+          <div className={cn(
+            "absolute top-20 left-4 z-20 transition-all duration-300",
+            comboTrackerVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"
+          )}>
+            <ComboTracker
+              activeCombos={gameState.activeCombos}
+              comboDefinitions={comboDefinitions}
+              actors={gameState.network.actors}
+              currentRound={gameState.round}
+            />
+          </div>
+          {/* Toggle button to show/hide manually - PHASE 1.2 */}
+          {!comboTrackerVisible && (
+            <button
+              onClick={() => setComboTrackerVisible(true)}
+              className="absolute top-20 left-4 z-20 bg-purple-600/90 hover:bg-purple-600 text-white px-3 py-2 rounded-lg transition-all shadow-lg hover:shadow-xl hover:scale-105"
+              title="Show Active Combos"
+            >
+              🎯 Combos ({gameState.activeCombos.length})
+            </button>
+          )}
+        </>
       )}
 
       {/* Topology Overlay (Phase 4.2: Network Topology Analysis) - Progressive Reveal: Only shown from Round 5+ */}
