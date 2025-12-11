@@ -75,6 +75,9 @@ export function NetworkVisualization({
   // Cluster visualization (Phase 2: UX Layer)
   const [showClusters, setShowClusters] = useState(true);
 
+  // Legend collapsed state (Phase 4: Visual Polish)
+  const [legendCollapsed, setLegendCollapsed] = useState(false);
+
   // Zoom-based level of detail configuration (Google Maps style)
   const zoomConfig = useMemo(() => getZoomLevelConfig(zoom), [zoom]);
 
@@ -262,46 +265,7 @@ export function NetworkVisualization({
       ctx.strokeStyle = `${categoryColor}15`;
       ctx.lineWidth = 1;
       ctx.stroke();
-
-      // Category label background for better readability
-      const label = CATEGORY_LABELS[category] || category;
-      const fontSize = Math.max(14, NODE_RADIUS * 0.4);
-      ctx.font = `bold ${fontSize}px Inter, sans-serif`;
-      const labelMetrics = ctx.measureText(label);
-      const labelWidth = labelMetrics.width;
-      const labelX = pos.x;
-      const labelY = pos.y - dynamicRadius - 20;
-
-      // Label background with rounded corners effect
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-      ctx.beginPath();
-      const bgX = labelX - labelWidth / 2 - 8;
-      const bgY = labelY - 12;
-      const bgW = labelWidth + 16;
-      const bgH = 24;
-      const bgR = 6;
-      ctx.moveTo(bgX + bgR, bgY);
-      ctx.lineTo(bgX + bgW - bgR, bgY);
-      ctx.quadraticCurveTo(bgX + bgW, bgY, bgX + bgW, bgY + bgR);
-      ctx.lineTo(bgX + bgW, bgY + bgH - bgR);
-      ctx.quadraticCurveTo(bgX + bgW, bgY + bgH, bgX + bgW - bgR, bgY + bgH);
-      ctx.lineTo(bgX + bgR, bgY + bgH);
-      ctx.quadraticCurveTo(bgX, bgY + bgH, bgX, bgY + bgH - bgR);
-      ctx.lineTo(bgX, bgY + bgR);
-      ctx.quadraticCurveTo(bgX, bgY, bgX + bgR, bgY);
-      ctx.closePath();
-      ctx.fill();
-
-      // Label border
-      ctx.strokeStyle = `${categoryColor}60`;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // Category label text
-      ctx.fillStyle = categoryColor;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(label, labelX, labelY);
+      // NOTE: Category labels are drawn AFTER actors (see below) to stay in foreground
     });
 
     // Draw connections (edges) - PHASE 5: Use actorMap for O(1) lookups
@@ -531,6 +495,68 @@ export function NetworkVisualization({
             ctx.fillText(trustText, pos.x, trustY);
           }
         }
+    });
+
+    // ========================================
+    // PHASE 4: Draw category labels LAST (foreground)
+    // This ensures labels are never covered by connections or actors
+    // ========================================
+    Object.keys(CATEGORY_POSITIONS_RELATIVE).forEach((category) => {
+      const categoryActorsList = actorsByCategory[category] || [];
+      if (categoryActorsList.length === 0 && category !== 'defensive') return;
+
+      const pos = getCategoryPosition(category);
+      const categoryColor = getCategoryColor(category as any);
+      const dynamicRadius = categoryRadii[category] || CATEGORY_RADIUS;
+
+      // Category label
+      const label = CATEGORY_LABELS[category] || category;
+      const fontSize = Math.max(14, NODE_RADIUS * 0.4);
+      ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+      const labelMetrics = ctx.measureText(label);
+      const labelWidth = labelMetrics.width;
+      const labelX = pos.x;
+      const labelY = pos.y - dynamicRadius - 20;
+
+      // Label background with rounded corners
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.98)';
+      ctx.beginPath();
+      const bgX = labelX - labelWidth / 2 - 10;
+      const bgY = labelY - 14;
+      const bgW = labelWidth + 20;
+      const bgH = 28;
+      const bgR = 8;
+      ctx.moveTo(bgX + bgR, bgY);
+      ctx.lineTo(bgX + bgW - bgR, bgY);
+      ctx.quadraticCurveTo(bgX + bgW, bgY, bgX + bgW, bgY + bgR);
+      ctx.lineTo(bgX + bgW, bgY + bgH - bgR);
+      ctx.quadraticCurveTo(bgX + bgW, bgY + bgH, bgX + bgW - bgR, bgY + bgH);
+      ctx.lineTo(bgX + bgR, bgY + bgH);
+      ctx.quadraticCurveTo(bgX, bgY + bgH, bgX, bgY + bgH - bgR);
+      ctx.lineTo(bgX, bgY + bgR);
+      ctx.quadraticCurveTo(bgX, bgY, bgX + bgR, bgY);
+      ctx.closePath();
+      ctx.fill();
+
+      // Label shadow for depth
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetY = 2;
+      ctx.fill();
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
+
+      // Label border (stronger)
+      ctx.strokeStyle = `${categoryColor}80`;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Category label text
+      ctx.fillStyle = categoryColor;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, labelX, labelY);
     });
 
     // Restore context after zoom/pan transform
@@ -820,39 +846,57 @@ export function NetworkVisualization({
         </button>
       </div>
 
-      {/* Legend - positioned at bottom right */}
-      <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2.5 text-xs max-w-[160px]">
-        <h4 className="font-bold text-gray-900 mb-1.5 text-[11px]">Legend</h4>
-        <div className="space-y-1">
-          {Object.entries(CATEGORY_LABELS).map(([cat, label]) => {
-            const count = actorsByCategory[cat]?.length || 0;
-            if (count === 0 && cat !== 'defensive') return null;
-            return (
-              <div key={cat} className="flex items-center gap-1.5">
-                <div
-                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: getCategoryColor(cat as any) }}
-                />
-                <span className="text-gray-700 text-[10px] leading-tight truncate">
-                  {label.replace('Community', '').replace('Outlets', '').trim()} ({count})
-                </span>
-              </div>
-            );
-          })}
-          <div className="border-t border-gray-200 my-1"></div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#EF4444' }} />
-            <span className="text-gray-700 text-[10px]">Low trust</span>
+      {/* Legend - positioned at bottom right, collapsible (Phase 4) */}
+      <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg text-xs max-w-[160px] overflow-hidden transition-all duration-200">
+        {/* Header with toggle */}
+        <button
+          onClick={() => setLegendCollapsed(!legendCollapsed)}
+          className="w-full flex items-center justify-between px-2.5 py-2 hover:bg-gray-100/50 transition-colors"
+        >
+          <h4 className="font-bold text-gray-900 text-[11px]">Legend</h4>
+          <span className={cn(
+            "text-gray-500 text-[10px] transition-transform duration-200",
+            legendCollapsed ? "rotate-180" : ""
+          )}>
+            ▼
+          </span>
+        </button>
+
+        {/* Collapsible content */}
+        {!legendCollapsed && (
+          <div className="px-2.5 pb-2.5 space-y-1 border-t border-gray-200/50">
+            <div className="pt-1.5">
+              {Object.entries(CATEGORY_LABELS).map(([cat, label]) => {
+                const count = actorsByCategory[cat]?.length || 0;
+                if (count === 0 && cat !== 'defensive') return null;
+                return (
+                  <div key={cat} className="flex items-center gap-1.5 py-0.5">
+                    <div
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: getCategoryColor(cat as any) }}
+                    />
+                    <span className="text-gray-700 text-[10px] leading-tight truncate">
+                      {label.replace('Community', '').replace('Outlets', '').trim()} ({count})
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="border-t border-gray-200 my-1"></div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#EF4444' }} />
+              <span className="text-gray-700 text-[10px]">Low trust</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#EAB308' }} />
+              <span className="text-gray-700 text-[10px]">Med trust</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#22C55E' }} />
+              <span className="text-gray-700 text-[10px]">High trust</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#EAB308' }} />
-            <span className="text-gray-700 text-[10px]">Med trust</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#22C55E' }} />
-            <span className="text-gray-700 text-[10px]">High trust</span>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Actor Tooltip */}
