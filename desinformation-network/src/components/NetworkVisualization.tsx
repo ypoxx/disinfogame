@@ -442,59 +442,76 @@ export function NetworkVisualization({
         ctx.strokeStyle = trustToHex(actor.trust);
         ctx.lineWidth = 4;
         ctx.stroke();
+    });
 
-        // Actor name - only show based on zoom level (Google Maps style progressive disclosure)
-        if (zoomConfig.showLabels || isSelected || isHovered) {
-          const maxNameWidth = NODE_RADIUS * 4;
-          const nameFontSize = Math.max(10, NODE_RADIUS * 0.35) * zoomConfig.labelFontSize;
-          ctx.font = `${isSelected || isHovered ? 'bold ' : ''}${nameFontSize}px Inter, sans-serif`;
-          ctx.fillStyle = '#1F2937';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'top';
+    // ========================================
+    // PASS 2: Draw actor labels AFTER all circles
+    // This ensures labels are always readable on top of overlapping nodes
+    // Click detection is based on circle centers, so this doesn't affect interactions
+    // ========================================
+    actors.forEach((actor) => {
+      const pos = getActorPosition(actor);
 
-          // Truncate name if too long
-          let displayName = actor.name;
-          const nameMetrics = ctx.measureText(displayName);
-          if (nameMetrics.width > maxNameWidth) {
-            while (ctx.measureText(displayName + '...').width > maxNameWidth && displayName.length > 0) {
-              displayName = displayName.slice(0, -1);
-            }
-            displayName = displayName + '...';
+      // Skip actors outside viewport
+      if (!isInViewport(pos, NODE_RADIUS * 3)) {
+        return;
+      }
+
+      const isSelected = actor.id === selectedActorId;
+      const isHovered = actor.id === hoveredActorId;
+
+      // Actor name - only show based on zoom level (Google Maps style progressive disclosure)
+      if (zoomConfig.showLabels || isSelected || isHovered) {
+        const maxNameWidth = NODE_RADIUS * 4;
+        const nameFontSize = Math.max(10, NODE_RADIUS * 0.35) * zoomConfig.labelFontSize;
+        ctx.font = `${isSelected || isHovered ? 'bold ' : ''}${nameFontSize}px Inter, sans-serif`;
+        ctx.fillStyle = '#1F2937';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+
+        // Truncate name if too long
+        let displayName = actor.name;
+        const nameMetrics = ctx.measureText(displayName);
+        if (nameMetrics.width > maxNameWidth) {
+          while (ctx.measureText(displayName + '...').width > maxNameWidth && displayName.length > 0) {
+            displayName = displayName.slice(0, -1);
           }
+          displayName = displayName + '...';
+        }
 
-          // Name background for better readability
-          const textWidth = ctx.measureText(displayName).width;
+        // Name background for better readability
+        const textWidth = ctx.measureText(displayName).width;
+        const nameY = pos.y + NODE_RADIUS + 6;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+        ctx.fillRect(pos.x - textWidth / 2 - 4, nameY, textWidth + 8, nameFontSize + 4);
+
+        ctx.fillStyle = '#1F2937';
+        ctx.fillText(displayName, pos.x, nameY + 1);
+      }
+
+      // Trust percentage - show based on zoom level or selection
+      if (zoomConfig.showStats || isSelected || isHovered) {
+        const trustFontSize = Math.max(9, NODE_RADIUS * 0.28) * zoomConfig.labelFontSize;
+        ctx.font = `bold ${trustFontSize}px Inter, sans-serif`;
+        const trustText = `${Math.round(actor.trust * 100)}%`;
+        const trustWidth = ctx.measureText(trustText).width;
+
+        // Position trust inside the node for cleaner look
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = trustToHex(actor.trust);
+        // Only show external trust label when zoomed in enough or selected
+        if (isSelected || isHovered || zoom >= 1.5) {
           const nameY = pos.y + NODE_RADIUS + 6;
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
-          ctx.fillRect(pos.x - textWidth / 2 - 4, nameY, textWidth + 8, nameFontSize + 4);
-
-          ctx.fillStyle = '#1F2937';
-          ctx.fillText(displayName, pos.x, nameY + 1);
-        }
-
-        // Trust percentage - show based on zoom level or selection
-        if (zoomConfig.showStats || isSelected || isHovered) {
-          const trustFontSize = Math.max(9, NODE_RADIUS * 0.28) * zoomConfig.labelFontSize;
-          ctx.font = `bold ${trustFontSize}px Inter, sans-serif`;
-          const trustText = `${Math.round(actor.trust * 100)}%`;
-          const trustWidth = ctx.measureText(trustText).width;
-
-          // Position trust inside the node for cleaner look
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
+          const nameFontSize = Math.max(10, NODE_RADIUS * 0.35) * zoomConfig.labelFontSize;
+          const trustY = nameY + nameFontSize + 8;
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+          ctx.fillRect(pos.x - trustWidth / 2 - 3, trustY - trustFontSize/2 - 2, trustWidth + 6, trustFontSize + 4);
           ctx.fillStyle = trustToHex(actor.trust);
-          // Only show external trust label when zoomed in enough or selected
-          if (isSelected || isHovered || zoom >= 1.5) {
-            const nameY = pos.y + NODE_RADIUS + 6;
-            const nameFontSize = Math.max(10, NODE_RADIUS * 0.35) * zoomConfig.labelFontSize;
-            const trustY = nameY + nameFontSize + 8;
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            ctx.fillRect(pos.x - trustWidth / 2 - 3, trustY - trustFontSize/2 - 2, trustWidth + 6, trustFontSize + 4);
-            ctx.fillStyle = trustToHex(actor.trust);
-            ctx.fillText(trustText, pos.x, trustY);
-          }
+          ctx.fillText(trustText, pos.x, trustY);
         }
+      }
     });
 
     // ========================================
