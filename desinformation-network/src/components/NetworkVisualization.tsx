@@ -73,6 +73,10 @@ export function NetworkVisualization({
   // Cluster visualization (Phase 2: UX Layer)
   const [showClusters, setShowClusters] = useState(true);
 
+  // PHASE 1.6: Connection Explorer Mode - Track shift key for locking explorer view
+  const [isShiftPressed, setIsShiftPressed] = useState(false);
+  const [lockedExplorerActorId, setLockedExplorerActorId] = useState<string | null>(null);
+
   // Constants scaled by canvas size
   const NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.04; // 4% of smaller dimension
   const CATEGORY_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.15; // 15% of smaller dimension
@@ -109,6 +113,28 @@ export function NetworkVisualization({
   const actorRenderMap = useMemo(() => {
     return createActorRenderMap(actors, renderOptions);
   }, [actors, renderOptions]);
+
+  // PHASE 1.6: Connection Explorer - Determine which actor is being explored
+  const explorerActorId = lockedExplorerActorId || hoveredActorId;
+
+  // PHASE 1.6: Get connected actor IDs for explorer mode
+  const connectedActorIds = useMemo(() => {
+    if (!explorerActorId) return new Set<string>();
+
+    const connected = new Set<string>();
+    connected.add(explorerActorId); // Include the explored actor itself
+
+    connections.forEach(conn => {
+      if (conn.sourceId === explorerActorId) {
+        connected.add(conn.targetId);
+      }
+      if (conn.targetId === explorerActorId) {
+        connected.add(conn.sourceId);
+      }
+    });
+
+    return connected;
+  }, [explorerActorId, connections]);
 
   // Convert relative position to absolute based on canvas size
   const getCategoryPosition = useCallback((category: string) => {
@@ -249,27 +275,76 @@ export function NetworkVisualization({
         source.id === hoveredActorId ||
         target.id === hoveredActorId;
 
-      // Connection line with gradient for depth
-      if (isHighlighted) {
-        const gradient = ctx.createLinearGradient(sourcPos.x, sourcPos.y, targetPos.x, targetPos.y);
-        gradient.addColorStop(0, `rgba(59, 130, 246, ${conn.strength})`);
-        gradient.addColorStop(0.5, `rgba(139, 92, 246, ${conn.strength})`);
-        gradient.addColorStop(1, `rgba(59, 130, 246, ${conn.strength})`);
+      // PHASE 1.6: Connection Explorer Mode - Check if this connection is being explored
+      const isExplorerConnection = explorerActorId && (
+        conn.sourceId === explorerActorId || conn.targetId === explorerActorId
+      );
+      const isOutgoing = conn.sourceId === explorerActorId;
 
-        ctx.beginPath();
-        ctx.moveTo(sourcPos.x, sourcPos.y);
-        ctx.lineTo(targetPos.x, targetPos.y);
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = 3;
-        ctx.stroke();
+      // Connection line with gradient for depth
+      if (isHighlighted || isExplorerConnection) {
+        // PHASE 1.6: Calculate trust flow for explorer connections
+        const trustFlow = isExplorerConnection ? (target.trust - source.trust) * conn.strength : 0;
+        const flowColor = trustFlow > 0 ? '#22C55E' : trustFlow < 0 ? '#EF4444' : '#6B7280';
+
+        // Use flow color for explorer connections, blue gradient for others
+        if (isExplorerConnection) {
+          ctx.beginPath();
+          ctx.moveTo(sourcPos.x, sourcPos.y);
+          ctx.lineTo(targetPos.x, targetPos.y);
+          ctx.strokeStyle = flowColor;
+          ctx.lineWidth = 2 + conn.strength * 3;
+
+          // PHASE 1.6: Animated dashed line for explorer connections
+          const dashOffset = (Date.now() / 50) % 12; // Animate dash offset
+          ctx.setLineDash([8, 4]);
+          ctx.lineDashOffset = isOutgoing ? -dashOffset : dashOffset; // Direction based on outgoing/incoming
+          ctx.stroke();
+          ctx.setLineDash([]); // Reset dash
+          ctx.lineDashOffset = 0;
+        } else {
+          const gradient = ctx.createLinearGradient(sourcPos.x, sourcPos.y, targetPos.x, targetPos.y);
+          gradient.addColorStop(0, `rgba(59, 130, 246, ${conn.strength})`);
+          gradient.addColorStop(0.5, `rgba(139, 92, 246, ${conn.strength})`);
+          gradient.addColorStop(1, `rgba(59, 130, 246, ${conn.strength})`);
+
+          ctx.beginPath();
+          ctx.moveTo(sourcPos.x, sourcPos.y);
+          ctx.lineTo(targetPos.x, targetPos.y);
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 3;
+          ctx.stroke();
+        }
 
         // Add glow effect to highlighted connections
         ctx.beginPath();
         ctx.moveTo(sourcPos.x, sourcPos.y);
         ctx.lineTo(targetPos.x, targetPos.y);
-        ctx.strokeStyle = `rgba(59, 130, 246, ${conn.strength * 0.3})`;
+        ctx.strokeStyle = isExplorerConnection
+          ? `${flowColor}40`
+          : `rgba(59, 130, 246, ${conn.strength * 0.3})`;
         ctx.lineWidth = 8;
         ctx.stroke();
+
+        // PHASE 1.6: Show trust flow label for explorer connections
+        if (isExplorerConnection && Math.abs(trustFlow) > 0.01) {
+          const midX = (sourcPos.x + targetPos.x) / 2;
+          const midY = (sourcPos.y + targetPos.y) / 2;
+
+          const flowText = `${trustFlow > 0 ? '+' : ''}${(trustFlow * 100).toFixed(0)}%`;
+          ctx.font = '12px Inter, sans-serif';
+          ctx.fillStyle = flowColor;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          // Background for better readability
+          const textWidth = ctx.measureText(flowText).width;
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+          ctx.fillRect(midX - textWidth / 2 - 4, midY - 8, textWidth + 8, 16);
+
+          ctx.fillStyle = flowColor;
+          ctx.fillText(flowText, midX, midY);
+        }
       } else {
         ctx.beginPath();
         ctx.moveTo(sourcPos.x, sourcPos.y);
@@ -324,7 +399,12 @@ export function NetworkVisualization({
 
       // PHASE 1.1: Use tier-based node size from render info
       const nodeRadius = NODE_RADIUS * (renderInfo.size / (actor.size || 50));
-      const nodeOpacity = renderInfo.opacity;
+      let nodeOpacity = renderInfo.opacity;
+
+      // PHASE 1.6: Connection Explorer - Dim non-connected actors
+      if (explorerActorId && !connectedActorIds.has(actor.id)) {
+        nodeOpacity *= 0.3; // Reduce opacity to 30% for non-connected actors
+      }
 
         // Glow for targeting mode
         if (targetingMode && isValidTarget) {
@@ -486,7 +566,7 @@ export function NetworkVisualization({
     ctx.restore();
 
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan, actorRenderMap, actorMap, isInViewport]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan, actorRenderMap, actorMap, isInViewport, explorerActorId, connectedActorIds]);
 
   // Transform screen coordinates to canvas coordinates (accounting for zoom/pan)
   const screenToCanvas = useCallback((screenX: number, screenY: number) => {
@@ -637,6 +717,14 @@ export function NetworkVisualization({
         return; // Don't interfere with input fields
       }
 
+      // PHASE 1.6: Track Shift key for Connection Explorer lock
+      if (e.key === 'Shift') {
+        setIsShiftPressed(true);
+        if (hoveredActorId) {
+          setLockedExplorerActorId(hoveredActorId);
+        }
+      }
+
       switch (e.key) {
         case '+':
         case '=':
@@ -661,9 +749,21 @@ export function NetworkVisualization({
       }
     };
 
+    // PHASE 1.6: Track Shift key release
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'Shift') {
+        setIsShiftPressed(false);
+        setLockedExplorerActorId(null);
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [hoveredActorId]);
 
   // Resize canvas
   useEffect(() => {
