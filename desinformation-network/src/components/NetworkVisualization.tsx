@@ -7,6 +7,11 @@ import {
   getClusterColor,
   getClusterBorderColor,
 } from '@/utils/network/cluster-detection';
+import {
+  getConstrainedActorPosition,
+  getCategoryConstraint,
+  CATEGORY_RADIUS_PERCENT,
+} from '@/utils/constrainedLayout';
 
 // ============================================
 // FULLSCREEN RESPONSIVE NETWORK VISUALIZATION
@@ -103,12 +108,17 @@ export function NetworkVisualization({
     };
   }, [canvasSize]);
 
-  // Use actor's own position (from force-directed layout)
-  // Phase 3: Actors now have positions calculated by force-directed layout
+  // Use actor's own position (from force-directed layout) with category constraints
+  // Phase 2: Constrain actors to stay within their category circles
   const getActorPosition = useCallback((actor: Actor) => {
-    // Actors now have positions set by force-directed layout in GameState
-    return actor.position;
-  }, []);
+    // Apply constraint to keep actor within their category circle
+    return getConstrainedActorPosition(
+      actor.position,
+      actor.category,
+      canvasSize.width,
+      canvasSize.height
+    );
+  }, [canvasSize.width, canvasSize.height]);
 
   // PHASE 5: Performance - Viewport culling helper
   const isInViewport = useCallback((pos: { x: number; y: number }, padding: number = NODE_RADIUS * 2) => {
@@ -164,23 +174,54 @@ export function NetworkVisualization({
       });
     }
 
-    // Draw category regions
+    // Draw category regions (Phase 2: Enhanced visual containers)
     Object.keys(CATEGORY_POSITIONS_RELATIVE).forEach((category) => {
-      const actors = actorsByCategory[category] || [];
-      if (actors.length === 0 && category !== 'defensive') return;
+      const categoryActors = actorsByCategory[category] || [];
+      if (categoryActors.length === 0 && category !== 'defensive') return;
 
       const pos = getCategoryPosition(category);
+      const categoryColor = getCategoryColor(category as any);
 
-      // Category background
+      // Outer glow/shadow for depth
+      const outerGlow = ctx.createRadialGradient(
+        pos.x, pos.y, CATEGORY_RADIUS * 0.8,
+        pos.x, pos.y, CATEGORY_RADIUS * 1.1
+      );
+      outerGlow.addColorStop(0, `${categoryColor}00`);
+      outerGlow.addColorStop(0.7, `${categoryColor}08`);
+      outerGlow.addColorStop(1, `${categoryColor}00`);
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, CATEGORY_RADIUS * 1.1, 0, Math.PI * 2);
+      ctx.fillStyle = outerGlow;
+      ctx.fill();
+
+      // Inner radial gradient for "container" feel
+      const innerGradient = ctx.createRadialGradient(
+        pos.x, pos.y, 0,
+        pos.x, pos.y, CATEGORY_RADIUS
+      );
+      innerGradient.addColorStop(0, `${categoryColor}18`); // Slightly visible center
+      innerGradient.addColorStop(0.6, `${categoryColor}12`);
+      innerGradient.addColorStop(0.85, `${categoryColor}08`);
+      innerGradient.addColorStop(1, `${categoryColor}20`); // Stronger at edge
       ctx.beginPath();
       ctx.arc(pos.x, pos.y, CATEGORY_RADIUS, 0, Math.PI * 2);
-      ctx.fillStyle = `${getCategoryColor(category as any)}08`;
+      ctx.fillStyle = innerGradient;
       ctx.fill();
-      ctx.strokeStyle = `${getCategoryColor(category as any)}30`;
-      ctx.lineWidth = 2;
-      ctx.setLineDash([5, 5]);
+
+      // Solid border (not dashed - feels more like a container)
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, CATEGORY_RADIUS, 0, Math.PI * 2);
+      ctx.strokeStyle = `${categoryColor}40`;
+      ctx.lineWidth = 3;
       ctx.stroke();
-      ctx.setLineDash([]);
+
+      // Inner border for depth
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, CATEGORY_RADIUS - 2, 0, Math.PI * 2);
+      ctx.strokeStyle = `${categoryColor}15`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
 
       // Category label background for better readability
       const label = CATEGORY_LABELS[category] || category;
@@ -191,28 +232,33 @@ export function NetworkVisualization({
       const labelX = pos.x;
       const labelY = pos.y - CATEGORY_RADIUS - 20;
 
-      // Label background
+      // Label background with rounded corners effect
       ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-      ctx.fillRect(
-        labelX - labelWidth / 2 - 6,
-        labelY - 10,
-        labelWidth + 12,
-        20
-      );
+      ctx.beginPath();
+      const bgX = labelX - labelWidth / 2 - 8;
+      const bgY = labelY - 12;
+      const bgW = labelWidth + 16;
+      const bgH = 24;
+      const bgR = 6;
+      ctx.moveTo(bgX + bgR, bgY);
+      ctx.lineTo(bgX + bgW - bgR, bgY);
+      ctx.quadraticCurveTo(bgX + bgW, bgY, bgX + bgW, bgY + bgR);
+      ctx.lineTo(bgX + bgW, bgY + bgH - bgR);
+      ctx.quadraticCurveTo(bgX + bgW, bgY + bgH, bgX + bgW - bgR, bgY + bgH);
+      ctx.lineTo(bgX + bgR, bgY + bgH);
+      ctx.quadraticCurveTo(bgX, bgY + bgH, bgX, bgY + bgH - bgR);
+      ctx.lineTo(bgX, bgY + bgR);
+      ctx.quadraticCurveTo(bgX, bgY, bgX + bgR, bgY);
+      ctx.closePath();
+      ctx.fill();
 
       // Label border
-      ctx.strokeStyle = `${getCategoryColor(category as any)}50`;
-      ctx.lineWidth = 1;
-      ctx.setLineDash([]);
-      ctx.strokeRect(
-        labelX - labelWidth / 2 - 6,
-        labelY - 10,
-        labelWidth + 12,
-        20
-      );
+      ctx.strokeStyle = `${categoryColor}60`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
 
       // Category label text
-      ctx.fillStyle = getCategoryColor(category as any);
+      ctx.fillStyle = categoryColor;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(label, labelX, labelY);
