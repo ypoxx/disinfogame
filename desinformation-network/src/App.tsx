@@ -18,6 +18,7 @@ import {
 } from '@/components/FilterControls';
 import { ComboTracker } from '@/components/ComboTracker';
 import { TopologyOverlay } from '@/components/TopologyOverlay';
+import { TrustAwarenessDualGraph } from '@/components/TrustAwarenessDualGraph';
 import { NotificationToast, useToastNotifications, actorReactionToToast } from '@/components/NotificationToast';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
@@ -71,6 +72,9 @@ function App() {
 
   // Topology state (Phase 4.2: Network Topology Analysis)
   const [topologyCollapsed, setTopologyCollapsed] = useState(false);
+
+  // PHASE 1.4: Trust vs. Awareness Dual-Graph state
+  const [dualGraphCollapsed, setDualGraphCollapsed] = useState(false);
 
   // Progressive UI Reveal (Phase 0.4: Show advanced features only when relevant)
   const [advancedFeaturesUnlocked, setAdvancedFeaturesUnlocked] = useState(false);
@@ -210,7 +214,7 @@ function App() {
       addToast({
         type: 'success',
         title: 'New Features Unlocked! 🎉',
-        message: 'Advanced tools are now available: Filters and Network Topology',
+        message: 'Advanced tools are now available: Filters, Network Topology, and Trust vs. Awareness Graph',
         duration: 8000,
       });
     }
@@ -550,6 +554,19 @@ function App() {
             actors={gameState.network.actors}
             collapsed={topologyCollapsed}
             onToggleCollapse={() => setTopologyCollapsed(!topologyCollapsed)}
+          />
+        </div>
+      )}
+
+      {/* PHASE 1.4: Trust vs. Awareness Dual-Graph - Progressive Reveal: Only shown from Round 5+ */}
+      {advancedFeaturesUnlocked && (
+        <div className="absolute bottom-4 right-4 z-20 animate-fade-in">
+          <TrustAwarenessDualGraph
+            actors={gameState.network.actors}
+            selectedActorId={uiState.selectedActor?.actorId || null}
+            onActorClick={selectActor}
+            collapsed={dualGraphCollapsed}
+            onToggleCollapse={() => setDualGraphCollapsed(!dualGraphCollapsed)}
           />
         </div>
       )}
