@@ -180,11 +180,15 @@ function App() {
 
   // Tutorial is now fully manual - all steps use Continue button
 
+  // Track shown reactions to prevent duplicates (Bug Fix)
+  const [shownReactionCount, setShownReactionCount] = useState(0);
+
   // Convert actor reactions to toast notifications (Phase 0: Fix position conflicts)
+  // BUG FIX: Only show NEW reactions, not all last 3 on every change
   useEffect(() => {
-    if (gameState.actorReactions && gameState.actorReactions.length > 0) {
-      // Get new reactions (not already shown)
-      const newReactions = gameState.actorReactions.slice(-3); // Last 3 reactions
+    if (gameState.actorReactions && gameState.actorReactions.length > shownReactionCount) {
+      // Only get actually NEW reactions since last check
+      const newReactions = gameState.actorReactions.slice(shownReactionCount);
 
       newReactions.forEach(reaction => {
         const actor = gameState.network.actors.find(a => a.id === reaction.actorId);
@@ -193,8 +197,18 @@ function App() {
           addToast(toast);
         }
       });
+
+      // Update counter to prevent showing same reactions again
+      setShownReactionCount(gameState.actorReactions.length);
     }
-  }, [gameState.actorReactions, addToast]); // Only trigger when reactions change
+  }, [gameState.actorReactions, shownReactionCount, addToast, gameState.network.actors]);
+
+  // Reset reaction counter when game resets
+  useEffect(() => {
+    if (gameState.phase === 'start' || gameState.round === 1) {
+      setShownReactionCount(0);
+    }
+  }, [gameState.phase, gameState.round]);
 
   // Progressive UI Reveal: Unlock advanced features at Round 5 (Phase 0.4)
   useEffect(() => {

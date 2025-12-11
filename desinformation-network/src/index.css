@@ -114,14 +114,14 @@
   }
 }
 
-/* Phase 1: Toast notifications animation (slide in from left) */
-@keyframes slide-in-left {
+/* Toast notifications animation (slide down from top) */
+@keyframes slide-down {
   from {
-    transform: translateX(-384px);
+    transform: translateY(-20px);
     opacity: 0;
   }
   to {
-    transform: translateX(0);
+    transform: translateY(0);
     opacity: 1;
   }
 }
@@ -135,8 +135,8 @@
   }
 }
 
-.animate-slide-in-left {
-  animation: slide-in-left 0.3s ease-out forwards;
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out forwards;
 }
 
 /* Canvas styles */

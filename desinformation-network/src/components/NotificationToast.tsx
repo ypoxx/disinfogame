@@ -8,16 +8,58 @@
  * - Auto-dismiss after 3.5 seconds (reduced from 5s for better flow)
  * - Click to dismiss manually
  * - Stackable (max 2 visible to reduce clutter)
- * - Smooth slide-in/fade-out animations
- * - Bottom-LEFT positioning (moved from right to avoid panel overlap)
+ * - Smooth slide-down animations (from top)
+ * - TOP-RIGHT positioning (beside panel, visible area)
+ * - Audio feedback for new notifications
  *
  * Uses z-index CSS variable: var(--z-notification)
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { cn } from '@/utils/cn';
 import type { ActorReaction } from '@/game-logic/types';
 import type { Actor } from '@/game-logic/types';
+
+// ============================================
+// NOTIFICATION SOUND (Web Audio API)
+// ============================================
+
+/**
+ * Play a subtle notification sound using Web Audio API
+ * No external files needed - generates sound programmatically
+ */
+function playNotificationSound() {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+    // Create oscillator for a pleasant "ping" sound
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    // Gentle, non-intrusive notification sound
+    oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // A5 note
+    oscillator.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 0.1); // Slide down to A4
+
+    oscillator.type = 'sine';
+
+    // Quick fade in/out for smooth sound
+    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.02); // Fade in
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3); // Fade out
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+
+    // Cleanup
+    setTimeout(() => audioContext.close(), 500);
+  } catch (e) {
+    // Silently fail if audio is not supported or blocked
+    console.debug('Notification sound not available:', e);
+  }
+}
 
 // ============================================
 // TYPES
@@ -161,12 +203,12 @@ function ToastItem({ notification, onDismiss, index }: ToastItemProps) {
   return (
     <div
       className={cn(
-        'relative mb-3 w-80 overflow-hidden rounded-xl border-2 backdrop-blur-md shadow-xl transition-all duration-300',
+        'relative mb-3 w-72 overflow-hidden rounded-xl border-2 backdrop-blur-md shadow-xl transition-all duration-300',
         colors.bg,
         colors.border,
         isLeaving
-          ? '-translate-x-96 opacity-0'  // Slide out to left
-          : 'translate-x-0 opacity-100 animate-slide-in-left'  // Slide in from left
+          ? '-translate-y-4 opacity-0'  // Slide out upward
+          : 'translate-y-0 opacity-100 animate-slide-down'  // Slide in from top
       )}
       style={{
         transitionDelay: `${index * 50}ms`, // Stagger animation
@@ -248,9 +290,10 @@ export function NotificationToast({
   }
 
   return (
-    // Phase 1: Moved to bottom-LEFT, using CSS variable for z-index
-    <div className="fixed bottom-6 left-6 z-[var(--z-notification)] pointer-events-none">
-      <div className="flex flex-col-reverse pointer-events-auto">
+    // TOP-RIGHT positioning: beside the panel (320px), under HUD
+    // This is visible and doesn't conflict with zoom tools (bottom-left)
+    <div className="fixed top-20 right-[340px] z-[var(--z-notification)] pointer-events-none">
+      <div className="flex flex-col pointer-events-auto">
         {visibleNotifications.map((notification, index) => (
           <ToastItem
             key={notification.id}
@@ -269,27 +312,30 @@ export function NotificationToast({
 // ============================================
 
 /**
- * Hook to manage toast notifications
+ * Hook to manage toast notifications with audio feedback
  */
 export function useToastNotifications() {
   const [notifications, setNotifications] = useState<ToastNotification[]>([]);
 
-  const addNotification = (notification: Omit<ToastNotification, 'id'>) => {
+  const addNotification = useCallback((notification: Omit<ToastNotification, 'id'>) => {
     const newNotification: ToastNotification = {
       ...notification,
       id: `toast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     };
 
+    // Play notification sound
+    playNotificationSound();
+
     setNotifications(prev => [...prev, newNotification]);
-  };
+  }, []);
 
-  const dismissNotification = (id: string) => {
+  const dismissNotification = useCallback((id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
-  };
+  }, []);
 
-  const clearAll = () => {
+  const clearAll = useCallback(() => {
     setNotifications([]);
-  };
+  }, []);
 
   return {
     notifications,
