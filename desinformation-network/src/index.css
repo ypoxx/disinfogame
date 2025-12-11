@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   Z-INDEX LAYER SYSTEM (Phase 1)
+
+   Unified, scalable z-index hierarchy.
+   Use these CSS variables instead of hardcoded values.
+   ============================================ */
+:root {
+  /* Layer Hierarchy (ascending) */
+  --z-canvas: 0;           /* Network visualization canvas */
+  --z-overlay: 10;         /* Canvas overlays (legend, zoom controls) */
+  --z-panel: 20;           /* Side panels (UnifiedRightPanel) */
+  --z-hud: 30;             /* Floating HUD elements (top-left info) */
+  --z-notification: 40;    /* Toast notifications */
+  --z-modal: 50;           /* Blocking modals (round summary, events) */
+  --z-tooltip: 60;         /* Tooltips (highest - always visible) */
+}
+
 /* Custom base styles */
 @layer base {
   html {
@@ -95,6 +112,31 @@
     transform: scale(4);
     opacity: 0;
   }
+}
+
+/* Phase 1: Toast notifications animation (slide in from left) */
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-384px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.3s ease-out forwards;
 }
 
 /* Canvas styles */

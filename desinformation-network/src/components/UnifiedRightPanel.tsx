@@ -98,7 +98,7 @@ export function UnifiedRightPanel({
 
   if (isMinimized) {
     return (
-      <div className="fixed top-0 right-0 bottom-0 w-16 bg-gray-900/95 backdrop-blur-md border-l border-gray-700/50 z-30 flex flex-col animate-fade-in">
+      <div className="fixed top-0 right-0 bottom-0 w-16 bg-gray-900/95 backdrop-blur-md border-l border-gray-700/50 z-[var(--z-panel)] flex flex-col animate-fade-in">
         {/* Expand Button */}
         <button
           onClick={() => setIsMinimized(false)}
@@ -156,7 +156,7 @@ export function UnifiedRightPanel({
   // ============================================
 
   return (
-    <div className="fixed top-0 right-0 bottom-0 w-80 bg-gray-900/95 backdrop-blur-md border-l border-gray-700/50 z-30 flex flex-col overflow-hidden animate-fade-in">
+    <div className="fixed top-0 right-0 bottom-0 w-80 bg-gray-900/95 backdrop-blur-md border-l border-gray-700/50 z-[var(--z-panel)] flex flex-col overflow-hidden animate-fade-in">
 
       {/* ========== HEADER: Round & Victory ========== */}
       <div className="flex-shrink-0 p-4 border-b border-gray-700/50 bg-gray-900/50">

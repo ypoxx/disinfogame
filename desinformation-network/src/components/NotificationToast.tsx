@@ -1,15 +1,17 @@
 /**
- * NotificationToast Component
+ * NotificationToast Component (Phase 1: Notification Consolidation)
  *
  * Toast notification system for displaying actor reactions and game events.
  * Replaces ActorReactionsOverlay to fix position conflicts with FilterControls.
  *
  * Features:
- * - Auto-dismiss after 5 seconds
+ * - Auto-dismiss after 3.5 seconds (reduced from 5s for better flow)
  * - Click to dismiss manually
- * - Stackable (max 3 visible)
+ * - Stackable (max 2 visible to reduce clutter)
  * - Smooth slide-in/fade-out animations
- * - Bottom-right positioning (no conflicts)
+ * - Bottom-LEFT positioning (moved from right to avoid panel overlap)
+ *
+ * Uses z-index CSS variable: var(--z-notification)
  */
 
 import { useEffect, useState } from 'react';
@@ -82,7 +84,7 @@ export function actorReactionToToast(
     message: messages[reaction.type] || `${actor.name} reacted`,
     actorId: reaction.actorId,
     icon: icons[reaction.type] || '💬',
-    duration: 5000,
+    duration: 3500, // Reduced from 5000ms for better flow
   };
 }
 
@@ -139,7 +141,7 @@ function getToastColors(type: ToastNotification['type']) {
 function ToastItem({ notification, onDismiss, index }: ToastItemProps) {
   const [isLeaving, setIsLeaving] = useState(false);
   const colors = getToastColors(notification.type);
-  const duration = notification.duration || 5000;
+  const duration = notification.duration || 3500; // Reduced from 5000ms
 
   // Auto-dismiss after duration
   useEffect(() => {
@@ -163,8 +165,8 @@ function ToastItem({ notification, onDismiss, index }: ToastItemProps) {
         colors.bg,
         colors.border,
         isLeaving
-          ? 'translate-x-96 opacity-0'
-          : 'translate-x-0 opacity-100 animate-slide-in-right'
+          ? '-translate-x-96 opacity-0'  // Slide out to left
+          : 'translate-x-0 opacity-100 animate-slide-in-left'  // Slide in from left
       )}
       style={{
         transitionDelay: `${index * 50}ms`, // Stagger animation
@@ -236,7 +238,7 @@ function ToastItem({ notification, onDismiss, index }: ToastItemProps) {
 export function NotificationToast({
   notifications,
   onDismiss,
-  maxVisible = 3,
+  maxVisible = 2,  // Reduced from 3 to avoid clutter
 }: NotificationToastProps) {
   // Only show most recent notifications
   const visibleNotifications = notifications.slice(-maxVisible);
@@ -246,7 +248,8 @@ export function NotificationToast({
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 pointer-events-none">
+    // Phase 1: Moved to bottom-LEFT, using CSS variable for z-index
+    <div className="fixed bottom-6 left-6 z-[var(--z-notification)] pointer-events-none">
       <div className="flex flex-col-reverse pointer-events-auto">
         {visibleNotifications.map((notification, index) => (
           <ToastItem

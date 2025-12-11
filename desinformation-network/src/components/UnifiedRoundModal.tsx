@@ -128,7 +128,8 @@ export function UnifiedRoundModal({
   const allActions = [...summary.playerActions, ...summary.automaticEvents];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+    // Phase 1: Using CSS variable for z-index
+    <div className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
       <div className="w-full max-w-4xl max-h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-slide-up">
         {/* STEP 1: ROUND SUMMARY */}
         {currentStep === 'summary' && (

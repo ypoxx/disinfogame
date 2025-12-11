@@ -7,7 +7,7 @@ import { UnifiedRoundModal } from '@/components/UnifiedRoundModal';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
 import { UnifiedRightPanel } from '@/components/UnifiedRightPanel';
 import { GameStatistics } from '@/components/GameStatistics';
-import { EventNotification } from '@/components/EventNotification';
+// EventNotification removed in Phase 1 - consolidated into NotificationToast
 import {
   FilterControls,
   type ActorFilters,
@@ -396,8 +396,8 @@ function App() {
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col">
-      {/* Floating HUD - Top Left (Game Title only) */}
-      <div className="fixed top-6 left-6 z-40 animate-fade-in">
+      {/* Floating HUD - Top Left (Game Title only) - Phase 1: z-hud */}
+      <div className="fixed top-6 left-6 z-[var(--z-hud)] animate-fade-in">
         <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl">
           <h1 className="text-base font-bold text-white">
             Desinformation Network
@@ -421,7 +421,7 @@ function App() {
 
       {/* Filter Controls (Phase 2: UX Layer) - Progressive Reveal: Only shown from Round 5+ */}
       {advancedFeaturesUnlocked && (
-        <div className="absolute top-20 right-[340px] z-20 animate-fade-in">
+        <div className="absolute top-20 right-[340px] z-[var(--z-panel)] animate-fade-in">
           <FilterControls
             actors={gameState.network.actors}
             filters={actorFilters}
@@ -434,7 +434,7 @@ function App() {
 
       {/* Combo Tracker (Phase 4: Combo System) */}
       {gameState.activeCombos.length > 0 && (
-        <div className="absolute top-20 left-4 z-20">
+        <div className="absolute top-20 left-4 z-[var(--z-panel)]">
           <ComboTracker
             activeCombos={gameState.activeCombos}
             comboDefinitions={comboDefinitions}
@@ -447,7 +447,7 @@ function App() {
       {/* Topology Overlay (Phase 4.2: Network Topology Analysis) - Progressive Reveal: Only shown from Round 5+ */}
       {gameState.topology && advancedFeaturesUnlocked && (
         <div className={cn(
-          "absolute left-4 z-20 animate-fade-in",
+          "absolute left-4 z-[var(--z-panel)] animate-fade-in",
           gameState.activeCombos.length > 0 ? "top-96" : "top-20"
         )}>
           <TopologyOverlay
@@ -540,13 +540,7 @@ function App() {
         </>
       )}
 
-      {/* Event Notification */}
-      {uiState.currentEvent && (
-        <EventNotification
-          event={uiState.currentEvent}
-          onClose={dismissCurrentEvent}
-        />
-      )}
+      {/* EventNotification removed in Phase 1 - events now handled via UnifiedRoundModal */}
     </div>
   );
 }
