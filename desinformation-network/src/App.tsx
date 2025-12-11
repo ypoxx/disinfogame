@@ -18,11 +18,14 @@ import {
 } from '@/components/FilterControls';
 import { ComboTracker } from '@/components/ComboTracker';
 import { TopologyOverlay } from '@/components/TopologyOverlay';
+import { TrustAwarenessDualGraph } from '@/components/TrustAwarenessDualGraph';
+import { NodeSizeLegend } from '@/components/NodeSizeLegend';
 import { NotificationToast, useToastNotifications, actorReactionToToast } from '@/components/NotificationToast';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
 import type { TutorialState } from '@/game-logic/types/tutorial';
+import * as Audio from '@/utils/audio'; // PHASE 1.2: Sound effects
 
 // ============================================
 // MAIN APP COMPONENT
@@ -72,11 +75,17 @@ function App() {
   // Topology state (Phase 4.2: Network Topology Analysis)
   const [topologyCollapsed, setTopologyCollapsed] = useState(false);
 
+  // PHASE 1.4: Trust vs. Awareness Dual-Graph state
+  const [dualGraphCollapsed, setDualGraphCollapsed] = useState(false);
+
   // Progressive UI Reveal (Phase 0.4: Show advanced features only when relevant)
   const [advancedFeaturesUnlocked, setAdvancedFeaturesUnlocked] = useState(false);
 
   // Toast notification system (Phase 0: Fix position conflicts)
   const { notifications, addNotification: addToast, dismissNotification } = useToastNotifications();
+
+  // PHASE 1.2: Smart Information Layering - Auto-hide combo tracker
+  const [comboTrackerVisible, setComboTrackerVisible] = useState(true);
 
   // Apply filters to actors
   const filteredActors = useMemo(
@@ -97,6 +106,23 @@ function App() {
     cancelAbility(); // Cancel any selected ability
     selectActor(null); // Deselect actor
   };
+
+  // PHASE 1.2: Initialize audio on first user interaction
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      Audio.initializeAudio();
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('keydown', handleFirstInteraction);
+    };
+
+    document.addEventListener('click', handleFirstInteraction);
+    document.addEventListener('keydown', handleFirstInteraction);
+
+    return () => {
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('keydown', handleFirstInteraction);
+    };
+  }, []);
 
   // Track round changes and generate summaries
   useEffect(() => {
@@ -136,6 +162,9 @@ function App() {
 
       setCurrentRoundSummary(summary);
       setShowRoundSummary(true);
+
+      // PHASE 1.2: Play round complete sound
+      Audio.playRoundComplete();
     }
 
     setPreviousRound(gameState.round);
@@ -144,6 +173,8 @@ function App() {
 
   const handleContinue = () => {
     setShowRoundSummary(false);
+    // PHASE 1.2: Play UI click sound
+    Audio.playUIClick();
   };
 
   // Tutorial handlers
@@ -193,6 +224,9 @@ function App() {
         if (actor) {
           const toast = actorReactionToToast(reaction, actor);
           addToast(toast);
+
+          // PHASE 1.2: Play actor reaction sound
+          Audio.playActorReaction();
         }
       });
     }
@@ -207,11 +241,33 @@ function App() {
       addToast({
         type: 'success',
         title: 'New Features Unlocked! 🎉',
-        message: 'Advanced tools are now available: Filters and Network Topology',
+        message: 'Advanced tools are now available: Filters, Network Topology, and Trust vs. Awareness Graph',
         duration: 8000,
       });
+
+      // PHASE 1.2: Play feature unlock sound
+      Audio.playFeatureUnlock();
     }
   }, [gameState.round, gameState.phase, advancedFeaturesUnlocked, addToast]);
+
+  // PHASE 1.2: Auto-hide Combo Tracker after 5 seconds of inactivity
+  useEffect(() => {
+    if (gameState.activeCombos.length > 0) {
+      // Show combo tracker when combos are active
+      setComboTrackerVisible(true);
+
+      // Set timer to hide after 5 seconds
+      const timer = setTimeout(() => {
+        setComboTrackerVisible(false);
+      }, 5000);
+
+      // Cleanup timer if combos change before it expires
+      return () => clearTimeout(timer);
+    } else {
+      // Hide when no combos
+      setComboTrackerVisible(false);
+    }
+  }, [gameState.activeCombos]);
 
   // ============================================
   // SCREENS
@@ -263,6 +319,11 @@ function App() {
 
   // Victory Screen
   if (gameState.phase === 'victory') {
+    // PHASE 1.2: Play victory sound once
+    useEffect(() => {
+      Audio.playVictory();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-900 via-gray-900 to-gray-900 flex items-center justify-center p-8">
         <div className="max-w-2xl text-center">
@@ -332,6 +393,11 @@ function App() {
 
   // Defeat Screen
   if (gameState.phase === 'defeat') {
+    // PHASE 1.2: Play defeat sound once
+    useEffect(() => {
+      Audio.playDefeat();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-900 via-gray-900 to-gray-900 flex items-center justify-center p-8">
         <div className="max-w-2xl text-center">
@@ -490,16 +556,31 @@ function App() {
         </div>
       )}
 
-      {/* Combo Tracker (Phase 4: Combo System) */}
+      {/* Combo Tracker (Phase 4: Combo System + PHASE 1.2: Auto-hide) */}
       {gameState.activeCombos.length > 0 && (
-        <div className="absolute top-20 left-4 z-20">
-          <ComboTracker
-            activeCombos={gameState.activeCombos}
-            comboDefinitions={comboDefinitions}
-            actors={gameState.network.actors}
-            currentRound={gameState.round}
-          />
-        </div>
+        <>
+          <div className={cn(
+            "absolute top-20 left-4 z-20 transition-all duration-300",
+            comboTrackerVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"
+          )}>
+            <ComboTracker
+              activeCombos={gameState.activeCombos}
+              comboDefinitions={comboDefinitions}
+              actors={gameState.network.actors}
+              currentRound={gameState.round}
+            />
+          </div>
+          {/* Toggle button to show/hide manually - PHASE 1.2 */}
+          {!comboTrackerVisible && (
+            <button
+              onClick={() => setComboTrackerVisible(true)}
+              className="absolute top-20 left-4 z-20 bg-purple-600/90 hover:bg-purple-600 text-white px-3 py-2 rounded-lg transition-all shadow-lg hover:shadow-xl hover:scale-105"
+              title="Show Active Combos"
+            >
+              🎯 Combos ({gameState.activeCombos.length})
+            </button>
+          )}
+        </>
       )}
 
       {/* Topology Overlay (Phase 4.2: Network Topology Analysis) - Progressive Reveal: Only shown from Round 5+ */}
@@ -516,6 +597,24 @@ function App() {
           />
         </div>
       )}
+
+      {/* PHASE 1.4: Trust vs. Awareness Dual-Graph - Progressive Reveal: Only shown from Round 5+ */}
+      {advancedFeaturesUnlocked && (
+        <div className="absolute bottom-4 right-4 z-20 animate-fade-in">
+          <TrustAwarenessDualGraph
+            actors={gameState.network.actors}
+            selectedActorId={uiState.selectedActor?.actorId || null}
+            onActorClick={selectActor}
+            collapsed={dualGraphCollapsed}
+            onToggleCollapse={() => setDualGraphCollapsed(!dualGraphCollapsed)}
+          />
+        </div>
+      )}
+
+      {/* Node Size Legend (Phase 1.1: Visual Hierarchy) */}
+      <div className="absolute bottom-6 left-6 z-20 animate-fade-in">
+        <NodeSizeLegend />
+      </div>
 
       {/* Toast Notifications (Phase 0: Replaces ActorReactionsOverlay to fix position conflicts) */}
       <NotificationToast

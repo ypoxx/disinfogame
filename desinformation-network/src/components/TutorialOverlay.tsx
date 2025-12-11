@@ -1,14 +1,25 @@
 import { useEffect, useState } from 'react';
 import type { TutorialStep } from '@/game-logic/types/tutorial';
+import { AnimatedArrow } from './tutorial/AnimatedArrow';
+import { AnimatedHand } from './tutorial/AnimatedHand';
 
 interface TutorialOverlayProps {
   step: TutorialStep | null;
   onNext: () => void;
   onSkip: () => void;
   highlightElement?: HTMLElement | null;
+  overlayType?: 'modal' | 'arrow' | 'hand' | 'highlight';
+  arrowPosition?: 'top' | 'bottom' | 'left' | 'right';
 }
 
-export function TutorialOverlay({ step, onNext, onSkip, highlightElement }: TutorialOverlayProps) {
+export function TutorialOverlay({
+  step,
+  onNext,
+  onSkip,
+  highlightElement,
+  overlayType = 'modal',
+  arrowPosition = 'top'
+}: TutorialOverlayProps) {
   const [position, setPosition] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
@@ -25,11 +36,23 @@ export function TutorialOverlay({ step, onNext, onSkip, highlightElement }: Tuto
 
   return (
     <>
-      {/* Backdrop overlay */}
-      <div className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm" />
+      {/* Backdrop overlay - only for modal and highlight types */}
+      {(overlayType === 'modal' || overlayType === 'highlight') && (
+        <div className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm" />
+      )}
+
+      {/* PHASE 2: Animated Arrow */}
+      {overlayType === 'arrow' && highlightElement && (
+        <AnimatedArrow position={arrowPosition} targetElement={highlightElement} />
+      )}
+
+      {/* PHASE 2: Animated Hand */}
+      {overlayType === 'hand' && highlightElement && (
+        <AnimatedHand position={arrowPosition} targetElement={highlightElement} />
+      )}
 
       {/* Highlight spotlight */}
-      {highlightElement && (
+      {(overlayType === 'highlight' || overlayType === 'modal') && highlightElement && (
         <div
           className="fixed z-50 pointer-events-none"
           style={{
@@ -44,15 +67,16 @@ export function TutorialOverlay({ step, onNext, onSkip, highlightElement }: Tuto
         />
       )}
 
-      {/* Tutorial message card */}
-      <div
-        className="fixed z-50 max-w-md"
-        style={{
-          top: highlightElement ? position.top : '50%',
-          left: highlightElement ? position.left : '50%',
-          transform: highlightElement ? 'translateX(-50%)' : 'translate(-50%, -50%)'
-        }}
-      >
+      {/* Tutorial message card - PHASE 2: Only show for modal and highlight types */}
+      {(overlayType === 'modal' || overlayType === 'highlight') && (
+        <div
+          className="fixed z-50 max-w-md animate-slide-up"
+          style={{
+            top: highlightElement ? position.top : '50%',
+            left: highlightElement ? position.left : '50%',
+            transform: highlightElement ? 'translateX(-50%)' : 'translate(-50%, -50%)'
+          }}
+        >
         <div className="bg-white rounded-2xl shadow-2xl border-2 border-blue-500 overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-4">
@@ -128,6 +152,7 @@ export function TutorialOverlay({ step, onNext, onSkip, highlightElement }: Tuto
           />
         )}
       </div>
+      )}
     </>
   );
 }
