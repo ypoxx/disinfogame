@@ -2,12 +2,10 @@ import { useState, useEffect, useMemo } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { cn } from '@/utils/cn';
 import { formatPercent } from '@/utils';
-import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
 import { NetworkVisualization } from '@/components/NetworkVisualization';
 import { UnifiedRoundModal } from '@/components/UnifiedRoundModal';
-import { VictoryProgressBar } from '@/components/VictoryProgressBar';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
-import { CompactSidePanel } from '@/components/CompactSidePanel';
+import { UnifiedRightPanel } from '@/components/UnifiedRightPanel';
 import { GameStatistics } from '@/components/GameStatistics';
 import { EventNotification } from '@/components/EventNotification';
 import {
@@ -398,73 +396,17 @@ function App() {
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col">
-      {/* Floating HUD - Top Left */}
-      <div className="fixed top-6 left-6 z-40 flex flex-col gap-3 animate-fade-in">
-        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl transition-all hover:bg-gray-900/80 hover:shadow-2xl hover:shadow-blue-500/10">
-          <h1 className="text-base font-bold text-white mb-2">
+      {/* Floating HUD - Top Left (Game Title only) */}
+      <div className="fixed top-6 left-6 z-40 animate-fade-in">
+        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl">
+          <h1 className="text-base font-bold text-white">
             Desinformation Network
           </h1>
-          <div className="flex flex-col gap-1.5 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="text-gray-400">Round:</span>
-              <span className="font-semibold text-white">{gameState.round}/{gameState.maxRounds}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-yellow-400">💰</span>
-              <span className="font-semibold text-yellow-300">{gameState.resources.money}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-red-400">👁️</span>
-              <span className="font-semibold text-red-300">{Math.round(gameState.resources.attention)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-purple-400">🔧</span>
-              <span className="font-semibold text-purple-300">{gameState.resources.infrastructure}</span>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Floating HUD - Top Right */}
-      <div className="fixed top-6 right-6 z-40 flex flex-col gap-3 animate-fade-in">
-        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl min-w-[200px] transition-all hover:bg-gray-900/80 hover:shadow-2xl hover:shadow-purple-500/10">
-          <VictoryProgressBar
-            metrics={networkMetrics}
-            round={gameState.round}
-            maxRounds={gameState.maxRounds}
-            victoryThreshold={0.75}
-            trustThreshold={0.40}
-          />
-        </div>
-        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl transition-all hover:bg-gray-900/80 hover:shadow-2xl hover:shadow-blue-500/10">
-          <div className="flex flex-col gap-1.5 text-sm">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-400">Avg Trust:</span>
-              <span
-                className="font-semibold transition-colors"
-                style={{ color: trustToHex(networkMetrics.averageTrust) }}
-              >
-                {formatPercent(networkMetrics.averageTrust)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-400">Low Trust:</span>
-              <span className="font-semibold text-red-400 transition-all">
-                {networkMetrics.lowTrustCount}/{gameState.network.actors.length}
-              </span>
-            </div>
-          </div>
-        </div>
-        <button
-          onClick={advanceRound}
-          className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-green-600/30 hover:scale-105 active:scale-95"
-        >
-          End Round →
-        </button>
-      </div>
-
-      {/* Network Visualization (left side, minus 300px for side panel) */}
-      <div className="absolute inset-y-0 left-0 right-[300px] w-auto h-full">
+      {/* Network Visualization (left side, minus 320px for unified panel) */}
+      <div className="absolute inset-y-0 left-0 right-[320px] w-auto h-full">
         <NetworkVisualization
           actors={filteredActors}
           connections={filteredConnections}
@@ -479,7 +421,7 @@ function App() {
 
       {/* Filter Controls (Phase 2: UX Layer) - Progressive Reveal: Only shown from Round 5+ */}
       {advancedFeaturesUnlocked && (
-        <div className="absolute top-20 right-[320px] z-20 animate-fade-in">
+        <div className="absolute top-20 right-[340px] z-20 animate-fade-in">
           <FilterControls
             actors={gameState.network.actors}
             filters={actorFilters}
@@ -524,16 +466,26 @@ function App() {
         maxVisible={3}
       />
 
-      {/* Compact Side Panel (Phase 0.3: Replaces Bottom Sheet) */}
-      <CompactSidePanel
-        actor={selectedActor}
-        abilities={selectedActor ? getActorAbilities(selectedActor.id) : []}
+      {/* Unified Right Panel (Phase 3.2: Integrates Victory, Resources, Actions, Actor Details) */}
+      <UnifiedRightPanel
+        // Game State
+        round={gameState.round}
+        maxRounds={gameState.maxRounds}
         resources={gameState.resources}
-        canUseAbility={canUseAbility}
-        onSelectAbility={selectAbility}
-        onCancel={handleCloseActorPanel}
+        networkMetrics={networkMetrics}
+        victoryThreshold={0.75}
+        trustThreshold={0.40}
+        // Actor State
+        selectedActor={selectedActor}
+        abilities={selectedActor ? getActorAbilities(selectedActor.id) : []}
         selectedAbilityId={uiState.selectedAbility?.abilityId || null}
         targetingMode={uiState.targetingMode}
+        // Callbacks
+        onAdvanceRound={advanceRound}
+        onSelectAbility={selectAbility}
+        onCancelAbility={cancelAbility}
+        onClosePanel={handleCloseActorPanel}
+        canUseAbility={canUseAbility}
         addNotification={addNotification}
         getValidTargets={getValidTargets}
       />
