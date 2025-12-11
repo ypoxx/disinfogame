@@ -77,10 +77,56 @@ export function NetworkVisualization({
   const [isShiftPressed, setIsShiftPressed] = useState(false);
   const [lockedExplorerActorId, setLockedExplorerActorId] = useState<string | null>(null);
 
+  // PHASE 1.2: Enhanced Microinteractions - Ripple effects
+  interface Ripple {
+    id: string;
+    x: number;
+    y: number;
+    maxRadius: number;
+    startTime: number;
+    duration: number;
+    color: string;
+  }
+  const [ripples, setRipples] = useState<Ripple[]>([]);
+
   // Constants scaled by canvas size
-  const NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.04; // 4% of smaller dimension
+  const BASE_NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.04; // 4% of smaller dimension (base size)
   const CATEGORY_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.15; // 15% of smaller dimension
   const ACTOR_SPREAD_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.12; // 12% for actor arrangement
+
+  // PHASE 1.1: Visual Hierarchy - Calculate node radius based on actor tier
+  // Tier 3 (most influential): 1.3x base size
+  // Tier 2 (medium influence): 1.0x base size
+  // Tier 1 (least influential): 0.7x base size
+  const getNodeRadius = useCallback((actor: Actor) => {
+    const tierScales: Record<number, number> = {
+      3: 1.3,  // High-tier actors (most influential)
+      2: 1.0,  // Mid-tier actors (standard size)
+      1: 0.7,  // Low-tier actors (smaller)
+    };
+    const scale = tierScales[actor.tier] || 1.0;
+    return BASE_NODE_RADIUS * scale;
+  }, [BASE_NODE_RADIUS]);
+
+  // PHASE 1.2: Create ripple effect at position
+  const createRipple = useCallback((x: number, y: number, color: string = '#3B82F6', maxRadius: number = 100) => {
+    const ripple: Ripple = {
+      id: `ripple_${Date.now()}_${Math.random()}`,
+      x,
+      y,
+      maxRadius,
+      startTime: Date.now(),
+      duration: 600, // 600ms animation
+      color,
+    };
+
+    setRipples(prev => [...prev, ripple]);
+
+    // Remove ripple after duration
+    setTimeout(() => {
+      setRipples(prev => prev.filter(r => r.id !== ripple.id));
+    }, ripple.duration + 50);
+  }, []);
 
   // Group actors by category
   const actorsByCategory = actors.reduce((groups, actor) => {
@@ -153,7 +199,7 @@ export function NetworkVisualization({
   }, []);
 
   // PHASE 5: Performance - Viewport culling helper
-  const isInViewport = useCallback((pos: { x: number; y: number }, padding: number = NODE_RADIUS * 2) => {
+  const isInViewport = useCallback((pos: { x: number; y: number }, padding: number = BASE_NODE_RADIUS * 2) => {
     const viewX = -pan.x / zoom;
     const viewY = -pan.y / zoom;
     const viewWidth = canvasSize.width / zoom;
@@ -165,7 +211,7 @@ export function NetworkVisualization({
       pos.y >= viewY - padding &&
       pos.y <= viewY + viewHeight + padding
     );
-  }, [pan, zoom, canvasSize, NODE_RADIUS]);
+  }, [pan, zoom, canvasSize, BASE_NODE_RADIUS]);
 
   // Drawing function
   const draw = useCallback(() => {
@@ -226,7 +272,7 @@ export function NetworkVisualization({
 
       // Category label background for better readability
       const label = CATEGORY_LABELS[category] || category;
-      const fontSize = Math.max(14, NODE_RADIUS * 0.4);
+      const fontSize = Math.max(14, BASE_NODE_RADIUS * 0.4);
       ctx.font = `bold ${fontSize}px Inter, sans-serif`;
       const labelMetrics = ctx.measureText(label);
       const labelWidth = labelMetrics.width;
@@ -378,9 +424,10 @@ export function NetworkVisualization({
       }
     });
 
-    // Draw actors (nodes) - PHASE 5: Apply viewport culling
+    // Draw actors (nodes) - PHASE 5: Apply viewport culling + PHASE 1.1: Tier-based sizing
     actors.forEach((actor) => {
       const pos = getActorPosition(actor);
+      const nodeRadius = getNodeRadius(actor); // PHASE 1.1: Dynamic radius based on tier
 
       // PHASE 1.1: Get visual hierarchy render info for this actor
       const renderInfo = actorRenderMap.get(actor.id);
@@ -389,7 +436,7 @@ export function NetworkVisualization({
       }
 
       // Skip actors outside viewport (with padding for smooth entry/exit)
-      if (!isInViewport(pos, NODE_RADIUS * 3)) {
+      if (!isInViewport(pos, nodeRadius * 3)) {
         return;
       }
 
@@ -397,8 +444,7 @@ export function NetworkVisualization({
       const isHovered = actor.id === hoveredActorId;
       const isValidTarget = validTargets.includes(actor.id);
 
-      // PHASE 1.1: Use tier-based node size from render info
-      const nodeRadius = NODE_RADIUS * (renderInfo.size / (actor.size || 50));
+      // PHASE 1.1: Use opacity from render info
       let nodeOpacity = renderInfo.opacity;
 
       // PHASE 1.6: Connection Explorer - Dim non-connected actors
@@ -562,11 +608,41 @@ export function NetworkVisualization({
         }
     });
 
+    // PHASE 1.2: Draw ripple effects
+    const now = Date.now();
+    ripples.forEach(ripple => {
+      const elapsed = now - ripple.startTime;
+      const progress = Math.min(1, elapsed / ripple.duration);
+
+      // Easing function (ease-out)
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+      const currentRadius = ripple.maxRadius * easedProgress;
+      const opacity = (1 - progress) * 0.6; // Fade out
+
+      ctx.beginPath();
+      ctx.arc(ripple.x, ripple.y, currentRadius, 0, Math.PI * 2);
+      ctx.strokeStyle = ripple.color + Math.round(opacity * 255).toString(16).padStart(2, '0');
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Inner ripple for depth
+      if (progress < 0.7) {
+        const innerRadius = currentRadius * 0.7;
+        const innerOpacity = opacity * 0.5;
+        ctx.beginPath();
+        ctx.arc(ripple.x, ripple.y, innerRadius, 0, Math.PI * 2);
+        ctx.strokeStyle = ripple.color + Math.round(innerOpacity * 255).toString(16).padStart(2, '0');
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    });
+
     // Restore context after zoom/pan transform
     ctx.restore();
 
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan, actorRenderMap, actorMap, isInViewport, explorerActorId, connectedActorIds]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, getNodeRadius, BASE_NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan, actorRenderMap, actorMap, isInViewport, explorerActorId, connectedActorIds, ripples]);
 
   // Transform screen coordinates to canvas coordinates (accounting for zoom/pan)
   const screenToCanvas = useCallback((screenX: number, screenY: number) => {
@@ -576,19 +652,20 @@ export function NetworkVisualization({
     };
   }, [zoom, pan]);
 
-  // Find actor at click position
+  // Find actor at click position - PHASE 1.1: Use tier-based radius
   const findActorAtPosition = useCallback((screenX: number, screenY: number): Actor | null => {
     const { x, y } = screenToCanvas(screenX, screenY);
 
     for (const actor of actors) {
       const pos = getActorPosition(actor);
+      const nodeRadius = getNodeRadius(actor); // PHASE 1.1: Tier-based hit detection
       const distance = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
-      if (distance <= NODE_RADIUS * 1.5) {
+      if (distance <= nodeRadius * 1.5) {
         return actor;
       }
     }
     return null;
-  }, [actors, getActorPosition, NODE_RADIUS, screenToCanvas]);
+  }, [actors, getActorPosition, getNodeRadius, screenToCanvas]);
 
   // Event handlers
   const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -601,9 +678,16 @@ export function NetworkVisualization({
 
     const actor = findActorAtPosition(x, y);
     if (actor) {
+      // PHASE 1.2: Create ripple effect on click
+      const pos = getActorPosition(actor);
+      const canvasX = pos.x * zoom + pan.x;
+      const canvasY = pos.y * zoom + pan.y;
+      const nodeRadius = getNodeRadius(actor);
+      createRipple(pos.x, pos.y, getCategoryColor(actor.category), nodeRadius * 3);
+
       onActorClick(actor.id);
     }
-  }, [findActorAtPosition, onActorClick]);
+  }, [findActorAtPosition, onActorClick, getActorPosition, getNodeRadius, createRipple, zoom, pan]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
