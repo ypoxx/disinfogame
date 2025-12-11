@@ -13,6 +13,7 @@ import {
   CATEGORY_RADIUS_PERCENT,
   CATEGORY_LAYOUT,
   getZoomLevelConfig,
+  getDynamicCategoryRadius,
 } from '@/utils/constrainedLayout';
 
 // ============================================
@@ -124,6 +125,25 @@ export function NetworkVisualization({
     return indexMap;
   }, [actorsByCategory]);
 
+  // Compute dynamic radius for each category based on actor count
+  const categoryRadii = useMemo(() => {
+    const radii: Record<string, number> = {};
+    Object.entries(actorsByCategory).forEach(([category, categoryActors]) => {
+      radii[category] = getDynamicCategoryRadius(
+        categoryActors.length,
+        canvasSize.width,
+        canvasSize.height
+      );
+    });
+    // Also compute default for empty categories
+    Object.keys(CATEGORY_POSITIONS_RELATIVE).forEach(cat => {
+      if (!radii[cat]) {
+        radii[cat] = getDynamicCategoryRadius(0, canvasSize.width, canvasSize.height);
+      }
+    });
+    return radii;
+  }, [actorsByCategory, canvasSize.width, canvasSize.height]);
+
   // Use ring-based distribution for even actor spacing within circles
   // Phase 2 Optimized: Deterministic positioning based on actor index
   const getActorPosition = useCallback((actor: Actor) => {
@@ -192,51 +212,53 @@ export function NetworkVisualization({
       });
     }
 
-    // Draw category regions (Phase 2: Enhanced visual containers)
+    // Draw category regions (Phase 2: Enhanced visual containers with dynamic sizing)
     Object.keys(CATEGORY_POSITIONS_RELATIVE).forEach((category) => {
-      const categoryActors = actorsByCategory[category] || [];
-      if (categoryActors.length === 0 && category !== 'defensive') return;
+      const categoryActorsList = actorsByCategory[category] || [];
+      if (categoryActorsList.length === 0 && category !== 'defensive') return;
 
       const pos = getCategoryPosition(category);
       const categoryColor = getCategoryColor(category as any);
+      // Use dynamic radius based on actor count in this category
+      const dynamicRadius = categoryRadii[category] || CATEGORY_RADIUS;
 
       // Outer glow/shadow for depth
       const outerGlow = ctx.createRadialGradient(
-        pos.x, pos.y, CATEGORY_RADIUS * 0.8,
-        pos.x, pos.y, CATEGORY_RADIUS * 1.1
+        pos.x, pos.y, dynamicRadius * 0.8,
+        pos.x, pos.y, dynamicRadius * 1.1
       );
       outerGlow.addColorStop(0, `${categoryColor}00`);
       outerGlow.addColorStop(0.7, `${categoryColor}08`);
       outerGlow.addColorStop(1, `${categoryColor}00`);
       ctx.beginPath();
-      ctx.arc(pos.x, pos.y, CATEGORY_RADIUS * 1.1, 0, Math.PI * 2);
+      ctx.arc(pos.x, pos.y, dynamicRadius * 1.1, 0, Math.PI * 2);
       ctx.fillStyle = outerGlow;
       ctx.fill();
 
       // Inner radial gradient for "container" feel
       const innerGradient = ctx.createRadialGradient(
         pos.x, pos.y, 0,
-        pos.x, pos.y, CATEGORY_RADIUS
+        pos.x, pos.y, dynamicRadius
       );
       innerGradient.addColorStop(0, `${categoryColor}18`); // Slightly visible center
       innerGradient.addColorStop(0.6, `${categoryColor}12`);
       innerGradient.addColorStop(0.85, `${categoryColor}08`);
       innerGradient.addColorStop(1, `${categoryColor}20`); // Stronger at edge
       ctx.beginPath();
-      ctx.arc(pos.x, pos.y, CATEGORY_RADIUS, 0, Math.PI * 2);
+      ctx.arc(pos.x, pos.y, dynamicRadius, 0, Math.PI * 2);
       ctx.fillStyle = innerGradient;
       ctx.fill();
 
       // Solid border (not dashed - feels more like a container)
       ctx.beginPath();
-      ctx.arc(pos.x, pos.y, CATEGORY_RADIUS, 0, Math.PI * 2);
+      ctx.arc(pos.x, pos.y, dynamicRadius, 0, Math.PI * 2);
       ctx.strokeStyle = `${categoryColor}40`;
       ctx.lineWidth = 3;
       ctx.stroke();
 
       // Inner border for depth
       ctx.beginPath();
-      ctx.arc(pos.x, pos.y, CATEGORY_RADIUS - 2, 0, Math.PI * 2);
+      ctx.arc(pos.x, pos.y, dynamicRadius - 2, 0, Math.PI * 2);
       ctx.strokeStyle = `${categoryColor}15`;
       ctx.lineWidth = 1;
       ctx.stroke();
@@ -248,7 +270,7 @@ export function NetworkVisualization({
       const labelMetrics = ctx.measureText(label);
       const labelWidth = labelMetrics.width;
       const labelX = pos.x;
-      const labelY = pos.y - CATEGORY_RADIUS - 20;
+      const labelY = pos.y - dynamicRadius - 20;
 
       // Label background with rounded corners effect
       ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
@@ -515,7 +537,7 @@ export function NetworkVisualization({
     ctx.restore();
 
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan, zoomConfig]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, categoryRadii, getCategoryPosition, zoom, pan, zoomConfig]);
 
   // Transform screen coordinates to canvas coordinates (accounting for zoom/pan)
   const screenToCanvas = useCallback((screenX: number, screenY: number) => {
@@ -602,8 +624,9 @@ export function NetworkVisualization({
 
   const handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
     e.preventDefault();
-    // Smooth zoom factor based on best practices
-    const zoomFactor = e.deltaY > 0 ? 0.95 : 1.05;
+    // Smoother zoom factor for better control (Google Maps style)
+    // Reduced from 0.95/1.05 to 0.98/1.02 for finer granularity
+    const zoomFactor = e.deltaY > 0 ? 0.98 : 1.02;
     setZoom(prevZoom => Math.max(0.5, Math.min(3, prevZoom * zoomFactor)));
   }, []);
 
@@ -670,12 +693,13 @@ export function NetworkVisualization({
         case '+':
         case '=':
           e.preventDefault();
-          setZoom(prev => Math.min(3, prev * 1.2));
+          // Smoother keyboard zoom (10% instead of 20%)
+          setZoom(prev => Math.min(3, prev * 1.1));
           break;
         case '-':
         case '_':
           e.preventDefault();
-          setZoom(prev => Math.max(0.5, prev / 1.2));
+          setZoom(prev => Math.max(0.5, prev / 1.1));
           break;
         case '0':
           e.preventDefault();
@@ -754,7 +778,7 @@ export function NetworkVisualization({
       {/* Zoom Controls - positioned on left side to avoid HUD overlap */}
       <div className="absolute bottom-20 left-4 flex flex-col gap-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2">
         <button
-          onClick={() => setZoom(prev => Math.min(3, prev * 1.2))}
+          onClick={() => setZoom(prev => Math.min(3, prev * 1.1))}
           className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 font-bold text-lg transition-colors"
           title="Zoom In (+, Scroll Up)"
         >
@@ -768,7 +792,7 @@ export function NetworkVisualization({
           {Math.round(zoom * 100)}%
         </button>
         <button
-          onClick={() => setZoom(prev => Math.max(0.5, prev / 1.2))}
+          onClick={() => setZoom(prev => Math.max(0.5, prev / 1.1))}
           className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 font-bold text-lg transition-colors"
           title="Zoom Out (-, Scroll Down)"
         >

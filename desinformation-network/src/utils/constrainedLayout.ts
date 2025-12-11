@@ -43,9 +43,53 @@ export const CATEGORY_LAYOUT: Record<string, { rx: number; ry: number }> = {
 
 /**
  * Category radius as percentage of the smaller canvas dimension.
- * INCREASED from 15% to 22% for better actor spacing.
+ * Base value - actual radius is calculated dynamically based on actor count.
  */
-export const CATEGORY_RADIUS_PERCENT = 0.22; // 22% - larger circles
+export const CATEGORY_RADIUS_PERCENT = 0.22; // 22% base - larger circles
+
+/**
+ * Configuration for dynamic category sizing.
+ */
+const DYNAMIC_SIZING_CONFIG = {
+  minRadiusPercent: 0.15,   // Minimum circle size (15% of canvas)
+  maxRadiusPercent: 0.28,   // Maximum circle size (28% of canvas)
+  baseActorCount: 5,        // Reference actor count for base radius
+  scaleFactor: 0.015,       // How much to increase per extra actor
+};
+
+/**
+ * Calculate dynamic category radius based on actor count.
+ * More actors = bigger circle for better readability.
+ */
+export function getDynamicCategoryRadius(
+  actorCount: number,
+  canvasWidth: number,
+  canvasHeight: number
+): number {
+  const minDim = Math.min(canvasWidth, canvasHeight);
+  const { minRadiusPercent, maxRadiusPercent, baseActorCount, scaleFactor } = DYNAMIC_SIZING_CONFIG;
+
+  // Base radius at 22%
+  let radiusPercent = CATEGORY_RADIUS_PERCENT;
+
+  // Scale up for more actors
+  if (actorCount > baseActorCount) {
+    const extraActors = actorCount - baseActorCount;
+    radiusPercent = Math.min(
+      maxRadiusPercent,
+      CATEGORY_RADIUS_PERCENT + extraActors * scaleFactor
+    );
+  } else if (actorCount < baseActorCount && actorCount > 0) {
+    // Scale down for fewer actors
+    const fewerActors = baseActorCount - actorCount;
+    radiusPercent = Math.max(
+      minRadiusPercent,
+      CATEGORY_RADIUS_PERCENT - fewerActors * (scaleFactor * 0.5)
+    );
+  }
+
+  return minDim * radiusPercent;
+}
 
 // ============================================
 // RING-BASED DISTRIBUTION
@@ -141,14 +185,20 @@ export function calculateRingPosition(
 
 /**
  * Get the constraint (center and radius) for a category based on canvas size.
+ * Now supports dynamic radius based on actor count.
  */
 export function getCategoryConstraint(
   category: string,
   canvasWidth: number,
-  canvasHeight: number
+  canvasHeight: number,
+  actorCount?: number
 ): CategoryConstraint {
   const layout = CATEGORY_LAYOUT[category] || { rx: 0.5, ry: 0.5 };
-  const radius = Math.min(canvasWidth, canvasHeight) * CATEGORY_RADIUS_PERCENT;
+
+  // Use dynamic radius if actor count provided, otherwise use base
+  const radius = actorCount !== undefined
+    ? getDynamicCategoryRadius(actorCount, canvasWidth, canvasHeight)
+    : Math.min(canvasWidth, canvasHeight) * CATEGORY_RADIUS_PERCENT;
 
   return {
     center: {
@@ -165,6 +215,8 @@ export function getCategoryConstraint(
  * NEW APPROACH: Instead of just constraining the force-layout position,
  * we calculate a deterministic ring-based position using the actor's
  * index within their category.
+ *
+ * Uses dynamic radius based on total actors in category for better spacing.
  */
 export function getConstrainedActorPosition(
   actorPosition: Position,
@@ -174,7 +226,8 @@ export function getConstrainedActorPosition(
   actorIndex: number = 0,
   totalInCategory: number = 1
 ): Position {
-  const constraint = getCategoryConstraint(category, canvasWidth, canvasHeight);
+  // Pass totalInCategory for dynamic radius calculation
+  const constraint = getCategoryConstraint(category, canvasWidth, canvasHeight, totalInCategory);
 
   // Use ring-based distribution for deterministic, even spacing
   return calculateRingPosition(actorIndex, totalInCategory, constraint);
