@@ -342,6 +342,633 @@ NÄCHSTER TAG (oder Game Over)
 
 ---
 
+## ⚙️ Technische Machbarkeit: Herausforderungen & Lösungen
+
+**Recherche-Datum:** 2025-12-12 (Web-Recherche zu React+Pixel-Art, Phaser, Rendering, Architecture)
+
+### 🚨 Kritische Erkenntnisse: Widersprüche zu bisherigen Annahmen
+
+#### **WIDERSPRUCH 1: "React einfach beibehalten" ist zu optimistisch**
+
+**Bisherige Annahme (Q5.1):**
+> "React beibehalten? (gleicher Stack)"
+
+**Neue Erkenntnisse:**
+- React + Pixel-Art ist **nicht trivial** für Anfänger
+- Zwei grundsätzlich verschiedene Ansätze mit unterschiedlicher Komplexität:
+  - **Ansatz A: Pure React (DOM-based)** - Einfacher, aber limitiert
+  - **Ansatz B: React + Phaser (Hybrid)** - Mächtiger, aber komplexer
+
+**Empfehlung:** Für MVP → **Ansatz A (Pure React)**, später optional Phaser für erweiterte Features
+
+#### **WIDERSPRUCH 2: Pixel-Art Zeitaufwand stark unterschätzt**
+
+**Bisherige Annahme:**
+> "Asset Pipeline aufsetzen" als Phase 1 Task, "PoC: 1-2 Tage"
+
+**Neue Erkenntnisse:**
+- **"Pixel art at the level most people want to do it is time-consuming"** ([EJAW](https://ejaw.net/how-to-get-started-with-pixel-art-game-development/))
+- Indie Devs denken "1 Jahr", Realität ist oft "6 Jahre" für vollständige Pixel-Art Metroidvanias
+- **Over-perfecting einzelner Sprites** ist häufigster Anfänger-Fehler
+
+**Empfehlung:**
+- PoC mit **Placeholder-Grafiken** (einfarbige Rechtecke, Prototyping-Assets)
+- Asset-Pack kaufen statt selbst erstellen für MVP
+- Nur finale Version bekommt Custom Pixel-Art
+
+#### **WIDERSPRUCH 3: "100% Austauschbare UI" - React State Management ist nicht so isoliert**
+
+**Bisherige Annahme:**
+> "UI-Layer komplett austauschbar, Engine ist framework-agnostisch"
+
+**Neue Erkenntnisse:**
+- **Zustand-Synchronisation** zwischen React und Game Engine ist komplex
+- Bei Phaser+React: **EventEmitter Pattern** erforderlich für Kommunikation
+- "Division of Responsibilities" muss klar definiert sein
+
+**Empfehlung:**
+- **Adapter-Pattern** einführen: `useGameState` Hook als einzige Brücke
+- Beide UIs nutzen identischen Hook, nur Presentation-Layer unterschiedlich
+- State Management bleibt in Engine, React ist reine View
+
+---
+
+### 📊 Technologie-Entscheidungs-Matrix (aktualisiert)
+
+| Aspekt | Pure React (DOM) | React + Phaser (Hybrid) | Pure Phaser (No React) |
+|--------|------------------|-------------------------|------------------------|
+| **Lernkurve für Anfänger** | ✅ Niedrig | ⚠️ Mittel-Hoch | ❌ Hoch |
+| **Pixel-Art Rendering** | 🟡 Gut (CSS) | ✅ Exzellent (Canvas) | ✅ Exzellent |
+| **UI-Komponenten** | ✅ Nativ (React) | 🟡 Hybrid (komplex) | ❌ Custom nötig |
+| **Performance** | 🟡 Gut für UI | ✅ Sehr gut | ✅ Beste |
+| **Iteration Speed** | ✅ Schnell (Hot Reload) | ✅ Schnell (mit Setup) | 🟡 Mittel |
+| **Asset Pipeline** | 🟡 Manuell | ✅ Built-in | ✅ Built-in |
+| **Bestehender Code** | ✅ Wiederverwendbar | ✅ Wiederverwendbar | 🟡 Teilweise |
+| **Community/Support** | ✅ Riesig | 🟡 Wachsend | ✅ Etabliert |
+| **Debug-Tools** | ✅ React DevTools | 🟡 Beide Tools nötig | ✅ Phaser DevTools |
+
+**Empfehlung für MVP:** **Pure React (DOM)** - niedrigste Einstiegshürde, schnellste Iteration
+
+---
+
+### 🎨 Pixel-Art Rendering: Technische Details
+
+#### **Kritisches Problem: Blur/Anti-Aliasing**
+
+Pixel-Art muss **crisp** (scharf) bleiben, nicht verwaschen. Browser anti-aliasen standardmäßig.
+
+**Lösung (CSS):**
+```css
+.pixel-art {
+  image-rendering: -moz-crisp-edges;      /* Firefox */
+  image-rendering: -webkit-crisp-edges;   /* Webkit */
+  image-rendering: pixelated;             /* Standard */
+  image-rendering: crisp-edges;           /* Fallback */
+}
+```
+
+**Lösung (Canvas):**
+```javascript
+context.imageSmoothingEnabled = false;  // Disable smoothing
+```
+
+**WICHTIG - Häufigster Fehler:**
+> "You need to use **integer values** for x and y when rendering images, otherwise the image will blur regardless of the image-rendering setting" ([MDN](https://developer.mozilla.org/en-US/docs/Games/Techniques/Crisp_pixel_art_look))
+
+**Bedeutet für uns:**
+- Alle Positionen müssen `Math.floor()` oder `Math.round()` nutzen
+- Keine Float-Positionen (z.B. `x: 45.5px` → blur!)
+- Grid-System verwenden (16px oder 32px Grid)
+
+---
+
+### 🏗️ Architektur-Empfehlung für iterative Entwicklung
+
+#### **Pattern: Component-Based UI mit Atomic Design**
+
+Basierend auf Research zu [Modular Game UI Architecture](https://gameprogrammingpatterns.com/component.html):
+
+```
+src/components/story-mode/
+  ├── atoms/                    # Kleinste Bausteine
+  │   ├── PixelButton.tsx       # Einzelner Button (90s Style)
+  │   ├── PixelText.tsx         # Retro-Font Text
+  │   └── PixelIcon.tsx         # Icons (16x16px)
+  │
+  ├── molecules/                # Kombinationen von Atoms
+  │   ├── EmailListItem.tsx     # E-Mail Zeile in Inbox
+  │   ├── ResourceDisplay.tsx   # Money/Attention/Infra Display
+  │   └── NPCPortrait.tsx       # NPC mit Name + Portrait
+  │
+  ├── organisms/                # Komplexe UI-Bereiche
+  │   ├── InboxPanel.tsx        # Vollständige E-Mail Liste
+  │   ├── NPCDialogBox.tsx      # Dialog-Interface
+  │   └── OfficeRoom.tsx        # Raum mit NPCs/Türen
+  │
+  ├── templates/                # Page Layouts
+  │   ├── OfficeLayout.tsx      # Hauptbüro-Layout
+  │   └── NPCRoomLayout.tsx     # NPC-Raum-Layout
+  │
+  └── pages/                    # Vollständige Screens
+      ├── OfficePage.tsx        # Hauptbildschirm
+      ├── InboxPage.tsx         # E-Mail-Screen
+      └── DaySummaryPage.tsx    # Tages-Zusammenfassung
+```
+
+**Vorteile für iterative Entwicklung:**
+- ✅ **Komponenten einzeln testbar** (Storybook-kompatibel)
+- ✅ **Einfach austauschbar** (z.B. PixelButton → ModernButton)
+- ✅ **Wiederverwendbar** über verschiedene Screens
+- ✅ **Schnelles Prototyping** (Atoms kombinieren zu neuen Molecules)
+
+#### **Pattern: Mediator für UI-Game-Kommunikation**
+
+```typescript
+// src/hooks/useStoryMode.ts - Mediator zwischen UI und Engine
+
+interface StoryModeState {
+  currentRoom: 'office' | 'media' | 'bots' | 'ngo' | 'strategy';
+  unreadEmails: Event[];
+  availableNPCs: NPC[];
+  currentDialog: Dialog | null;
+}
+
+export function useStoryMode() {
+  const gameState = useGameState(); // Bestehender Engine-Hook
+
+  // Transformiere Game State → Story UI State
+  const storyState: StoryModeState = {
+    currentRoom: 'office',
+    unreadEmails: gameState.pendingEvents.map(eventToEmail),
+    availableNPCs: getNPCsForRoom(currentRoom),
+    currentDialog: null
+  };
+
+  // UI-spezifische Actions
+  const actions = {
+    goToRoom: (room: string) => { /* ... */ },
+    readEmail: (emailId: string) => gameState.processEvent(emailId),
+    talkToNPC: (npcId: string) => { /* ... */ },
+    selectAbility: (abilityId: string) => { /* ... */ }
+  };
+
+  return { storyState, actions };
+}
+```
+
+**Warum Mediator statt direkt gameState nutzen?**
+- ✅ **UI-Logik isoliert** (z.B. "currentRoom" existiert nicht in Engine)
+- ✅ **Transformations-Layer** (Events → E-Mails, Abilities → NPC-Dialoge)
+- ✅ **Leichter zu testen** (Mock useStoryMode, nicht ganze Engine)
+- ✅ **Beide Modi parallel** (Profi-Modus nutzt useGameState direkt)
+
+---
+
+### 🚧 Häufigste Anfänger-Fehler & wie wir sie vermeiden
+
+#### **1. Breaking Pixel Boundaries** ([Derek Yu Pixel Art Tutorial](https://derekyu.com/makegames/pixelart2.html))
+
+**Problem:** Anti-aliased Edges durch falsche Tool-Einstellungen
+
+**Lösung:**
+- Grid in Aseprite/Photoshop aktivieren (16px oder 32px)
+- Snap-to-Grid erzwingen
+- Preview bei 1x, 2x, 4x Skalierung testen
+
+#### **2. Making Elements Too Thin**
+
+**Problem:** Dünne Linien (1px) sind schwer zu shaden, wirken flach
+
+**Lösung:**
+- Minimum 2-3px Breite für Objekte
+- Bei 16px Grid: Characters mind. 12-14px hoch
+
+#### **3. Overusing Outlines**
+
+**Problem:** Alles mit schwarzem Outline → messy
+
+**Lösung:**
+- Outlines nur für wichtige Objekte (Characters, Buttons)
+- UI-Elemente können outline-free sein
+
+#### **4. Creating "Noise"**
+
+**Problem:** Random platzierte Pixels für "Textur"
+
+**Lösung:**
+- Patterns verwenden (2x2, 4x4 Tile-Patterns)
+- Konsistente Dithering-Patterns
+
+#### **5. Too Much Saturation**
+
+**Problem:** Knallige Farben überall
+
+**Lösung:**
+- Palette limitieren (z.B. 16-32 Farben für gesamtes Spiel)
+- Desaturierte Base-Farben, Akzente in Saturierung
+
+#### **6. Colors Too Similar**
+
+**Problem:** Kontrast zu niedrig, Details verschwimmen
+
+**Lösung:**
+- Value-Check (Grayscale testen)
+- Mindestens 3-4 Steps zwischen Schatten/Highlight
+
+#### **7. Over-Perfecting Individual Sprites**
+
+**Problem:** Tage an einem Sprite, nie fertig
+
+**Lösung für uns:**
+- **Timeboxing:** Max. 30min pro Asset im PoC
+- **Iterative Verbesserung:** V1 → V2 → V3 später
+- **Asset-Packs für MVP** (Kaufen statt erstellen)
+
+#### **8. Underestimating Time Requirements**
+
+**Problem:** "Das schaff ich in 1 Monat" → dauert 6 Monate
+
+**Lösung:**
+- **Realistische Timeline:** Custom Pixel-Art erst nach PoC
+- **MVP mit Placeholders:** Rechtecke + Labels genügen für Mechanik-Test
+- **Purchased Assets:** itch.io, CraftPix für initiale Version
+
+#### **9. Not Previewing at Different Scales**
+
+**Problem:** Sieht in Editor gut aus, matschig bei 2x Skalierung
+
+**Lösung:**
+- Immer bei Ziel-Skalierung testen (nicht nur Editor)
+- CSS: `transform: scale(2)` testen
+- Verschiedene Monitor-Auflösungen checken
+
+#### **10. Poor Asset Organization**
+
+**Problem:** `sprite_final_v2_FINAL_reallyFINAL.png`
+
+**Lösung - Asset Naming Convention:**
+```
+assets/story-mode/
+  ├── ui/
+  │   ├── buttons/
+  │   │   ├── btn-primary-16x16.png
+  │   │   ├── btn-primary-16x16-hover.png
+  │   │   └── btn-primary-16x16-pressed.png
+  │   └── icons/
+  │       ├── icon-money-16x16.png
+  │       └── icon-attention-16x16.png
+  ├── characters/
+  │   └── npc-media-boss-48x48.png
+  └── rooms/
+      ├── office-bg-320x180.png
+      └── media-room-bg-320x180.png
+```
+
+**Naming Pattern:** `{type}-{variant}-{size}.png`
+
+---
+
+### 🛠️ Empfohlene Tools für schnelle Iteration
+
+#### **1. Prototyping: Figma (Web-based, kostenlos)**
+
+**Was funktioniert gut:**
+- [Pixel Art UI Kit](https://www.figma.com/community/file/1224460064522598216/pixel-art-ui-kit) - Fertige Components
+- [Pixel Game Prototype](https://www.figma.com/community/file/1364337760230397087/game-ui-prototype) - Interaktive Mockups
+- **Vorteil:** Clickable Prototypes OHNE Code → Playtesting vor Development
+
+**Workflow:**
+1. Wireframes in Figma (Low-Fi Rectangles)
+2. Pixel UI Kit importieren
+3. Interaktive Flows mit Prototyping-Tool
+4. Export als PNG Placeholders für PoC
+5. Später: Custom Pixel-Art erstellen
+
+**Figma → Code:**
+- Code Snippets generieren (React-friendly)
+- CSS kopieren für Layout
+- **Aber:** Pixel-Art selbst muss manuell optimiert werden
+
+#### **2. Pixel-Art Creation (falls doch Custom Assets):**
+
+**Für Anfänger:**
+- **Aseprite** (€20, bestes Tool für Pixel-Art, Animationen)
+- **Lospec Palette List** (Gratis, 16-32 Color Palettes)
+- **Pixilart** (Web-based, gratis, für Quick Sketches)
+
+**Für PoC/MVP:**
+- **itch.io Asset Packs** (€5-20, sofort verwendbar)
+  - [Office Pixel Art Pack](https://itch.io/game-assets/tag-office/tag-pixel-art)
+  - [UI Elements Pack](https://craftpix.net/categorys/pixel-art-game-ui/)
+
+#### **3. React Development:**
+
+**Setup mit Vite (empfohlen):**
+```bash
+npm create vite@latest story-mode-poc -- --template react-ts
+cd story-mode-poc
+npm install
+npm run dev  # Hot-reload ready!
+```
+
+**Vorteil Vite:**
+- ✅ **Instant Hot Reload** (< 100ms nach Änderung)
+- ✅ **TypeScript out-of-box**
+- ✅ **Kleiner als Create-React-App**
+- ✅ **Asset Pipeline integriert** (import PNG direkt)
+
+**Optional: Storybook für Component Development**
+```bash
+npx storybook@latest init
+```
+- ✅ Komponenten isoliert entwickeln
+- ✅ Visueller Katalog aller UI-Elemente
+- ✅ Props interaktiv testen
+
+#### **4. State Management (falls mehr als useGameState):**
+
+**Für Story-Mode UI-State:**
+- **Zustand** (bereits im Projekt!) - Perfekt für UI-State
+- **React Context** - Für Theme/Locale (wenn Multi-Language)
+
+**NICHT verwenden für MVP:**
+- ❌ Redux (Overkill für Story-Mode UI)
+- ❌ MobX (Additional Learning Curve)
+
+---
+
+### ⚡ Performance-Optimierung für Pixel-Art
+
+#### **Problem: Viele kleine PNG-Files**
+
+**Naiver Ansatz:**
+```tsx
+<img src="/assets/icon-money-16x16.png" />  // 100+ HTTP Requests!
+```
+
+**Optimierter Ansatz: Sprite Sheets**
+```tsx
+// Ein großes Bild, CSS Positioning
+<div className="sprite sprite-icon-money" />
+```
+
+```css
+.sprite {
+  width: 16px;
+  height: 16px;
+  background: url('/sprites/ui-sheet.png') no-repeat;
+  image-rendering: pixelated;
+}
+.sprite-icon-money {
+  background-position: -0px -0px;
+}
+.sprite-icon-attention {
+  background-position: -16px -0px;
+}
+```
+
+**Tools für Sprite Sheet Generation:**
+- **Leshy SpriteSheet Tool** (Web, gratis)
+- **TexturePacker** (Pro Tool, aber Overkill für MVP)
+- **Aseprite** (kann Sheets exportieren)
+
+#### **Problem: Pixel-Art skaliert falsch auf HiDPI/Retina**
+
+**Lösung: CSS Media Queries**
+```css
+/* Standard: 1x Skalierung */
+.pixel-canvas {
+  width: 320px;
+  height: 180px;
+  image-rendering: pixelated;
+}
+
+/* HiDPI/Retina: 2x Skalierung (ganzzahlig!) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .pixel-canvas {
+    width: 640px;  /* 2x */
+    height: 360px;
+  }
+}
+```
+
+**Wichtig:** Nur ganzzahlige Skalierung (1x, 2x, 3x, 4x) - niemals 1.5x oder 2.3x!
+
+---
+
+### 🧪 Testing-Strategie für UI-Entwicklung
+
+#### **Component Testing (Fast Feedback)**
+
+```tsx
+// PixelButton.test.tsx
+import { render, fireEvent } from '@testing-library/react';
+import { PixelButton } from './PixelButton';
+
+test('renders with correct pixel styling', () => {
+  const { container } = render(<PixelButton>Click</PixelButton>);
+  const button = container.querySelector('button');
+
+  expect(button).toHaveStyle({ imageRendering: 'pixelated' });
+});
+
+test('calls onClick when clicked', () => {
+  const handleClick = jest.fn();
+  const { getByText } = render(
+    <PixelButton onClick={handleClick}>Click</PixelButton>
+  );
+
+  fireEvent.click(getByText('Click'));
+  expect(handleClick).toHaveBeenCalledTimes(1);
+});
+```
+
+#### **Visual Regression Testing (Optional, später)**
+
+**Tools:**
+- **Chromatic** (mit Storybook, Screenshot-Diffing)
+- **Percy** (Visual Testing Service)
+
+**Für MVP:** Nicht nötig, manuelle Tests genügen
+
+---
+
+### 📦 Asset-Pipeline: Praktischer Workflow
+
+#### **Phase 1: PoC (Woche 1-2)**
+
+**Ziel:** Mechanik validieren, Null Custom Assets
+
+**Assets:**
+- Colored Rectangles (CSS `background-color`)
+- System Fonts (Monospace für Retro-Feel)
+- Emoji als Icons (💰 = Money, 👁️ = Attention)
+
+```tsx
+// PoC: Kein Pixel-Art nötig
+<div className="npc-portrait" style={{
+  width: 64, height: 64,
+  background: '#4a90e2',
+  border: '2px solid black'
+}}>
+  <span style={{ fontSize: 32 }}>👨‍💼</span>
+</div>
+```
+
+#### **Phase 2: MVP mit Purchased Assets (Woche 3-4)**
+
+**Ziel:** Visuelle Konsistenz, schnell
+
+**Assets kaufen:**
+- [itch.io Office Pack](https://itch.io/game-assets/tag-office/tag-pixel-art) (€10-20)
+- [CraftPix UI Pack](https://craftpix.net/categorys/pixel-art-game-ui/) (€15-30)
+
+**Integration:**
+```
+public/assets/
+  └── purchased/
+      ├── office-tileset-16x16.png
+      ├── ui-buttons-sprite-sheet.png
+      └── npc-portraits-64x64.png
+```
+
+#### **Phase 3: Custom Assets (Post-MVP, optional)**
+
+**Ziel:** Unique Look, Brand Identity
+
+**Workflow:**
+1. **Style Guide erstellen** (Palette, Grid Size, Outline-Rules)
+2. **Einen Raum vollständig machen** (z.B. Office)
+3. **Playtest** mit Custom + Purchased Mix
+4. **Iterativ ersetzen** (Priorität: häufig sichtbare Assets)
+
+**Realistische Timeline:**
+- Office-Raum Background (320x180px): 2-4 Stunden
+- NPC-Portrait (48x48px): 1-2 Stunden
+- UI-Button-Set (3 States): 1 Stunde
+- Icon-Set (10 Icons, 16x16px): 2-3 Stunden
+
+**Für vollständigen Story-Mode (6 Räume, 6 NPCs, UI):** ~40-60 Stunden Pixel-Art
+
+---
+
+### 🎯 Architektur-Empfehlung: Zusammenfassung
+
+#### **Für Anfänger: Pure React (DOM-based) Ansatz**
+
+**Vorteile:**
+- ✅ Vertraute Technologie (bereits im Projekt)
+- ✅ Schnelles Hot-Reload (Vite)
+- ✅ Component-Library wiederverwendbar
+- ✅ CSS-basiertes Pixel-Art Rendering (ausreichend für UI-Game)
+- ✅ Keine zusätzliche Lernkurve (Phaser/Canvas)
+
+**Einschränkungen:**
+- 🟡 Keine nativen Animationen (CSS Transitions OK für UI)
+- 🟡 Performance bei 100+ animierten Sprites problematisch (unser Use-Case: <10 NPCs)
+
+**Technischer Stack:**
+```
+React 18 + TypeScript
+  └── Vite (Build Tool)
+  └── Zustand (State Management - bereits vorhanden)
+  └── CSS Modules (Scoped Styling)
+  └── image-rendering: pixelated (Crisp Pixels)
+  └── useGameState Hook (Engine Integration)
+```
+
+#### **Wenn später mehr nötig: React + Phaser Hybrid**
+
+**Nur verwenden wenn:**
+- Komplexe Animationen nötig (z.B. animierte NPCs)
+- Performance-Probleme mit DOM-Rendering
+- Mini-Games im Office (z.B. "Memo-Puzzle")
+
+**Pattern:**
+```tsx
+// Hybrid Approach
+<div className="office-screen">
+  <ReactUI>
+    <ResourceDisplay />  {/* React */}
+    <InboxButton />      {/* React */}
+  </ReactUI>
+
+  <PhaserCanvas>
+    <OfficeRoom />       {/* Phaser Scene */}
+    <NPCSprites />       {/* Phaser Game Objects */}
+  </PhaserCanvas>
+</div>
+```
+
+**Kommunikation via EventEmitter:**
+```typescript
+// React → Phaser
+phaserGame.events.emit('npc-clicked', { npcId: 'media-boss' });
+
+// Phaser → React
+phaserGame.events.on('animation-complete', () => {
+  setDialogOpen(true);
+});
+```
+
+**Empfehlung:** Erst bei PoC v2.0 evaluieren, **nicht für MVP**
+
+---
+
+### 🔍 Kritische Bewertung bisheriger Annahmen
+
+| Annahme (alt) | Realität (recherchiert) | Anpassung |
+|---------------|-------------------------|-----------|
+| "React beibehalten = einfach" | React+Pixel-Art hat spezielle Challenges (Rendering, Performance) | ✅ OK, aber CSS `image-rendering` essentiell |
+| "1-2 Tage PoC" | Realistisch NUR mit Placeholder-Assets (keine Pixel-Art) | ⚠️ Anpassen: "PoC ohne Custom Assets" |
+| "Asset Pipeline Phase 1" | Pixel-Art dauert 6x länger als erwartet (6 Jahre statt 1) | ❌ Verschieben zu Phase 5-6, MVP kauft Assets |
+| "100% austauschbare UI" | State-Synchronisation braucht Mediator-Pattern | 🟡 Korrekt, aber Hook-Layer nötig |
+| "Framework-agnostisch Engine" | Korrekt, aber UI-Modes brauchen mode-spezifische Hooks | ✅ Bestätigt + Präzisiert |
+| "Phaser für 2D?" | Overkill für UI-fokussiertes Spiel, nur wenn Animationen wichtig | 🟡 Optional für v2.0, nicht MVP |
+
+---
+
+### ✅ Aktualisierte Empfehlungen
+
+#### **Für PoC (Proof-of-Concept):**
+1. **Pure React + Vite** (kein Phaser)
+2. **Placeholder-Grafiken** (CSS-Colored Divs + Emoji)
+3. **Einen Raum implementieren** (Office) + 1 NPC
+4. **useStoryMode Hook** erstellen (Mediator zu useGameState)
+5. **Pixel-Styling testen** (`image-rendering: pixelated` auf einem Testbild)
+
+**Timeline:** 3-5 Tage (statt 1-2 Tage wie ursprünglich)
+
+#### **Für MVP:**
+1. **Asset-Packs kaufen** (itch.io, CraftPix) - Budget: €30-50
+2. **Figma Prototyping** BEVOR Coding (spare 2-3 Iterations-Runden)
+3. **Atomic Design** von Anfang an (Atoms → Molecules → Organisms)
+4. **Sprite Sheets verwenden** (Performance + einfacheres Asset Management)
+5. **Timeboxing** für jede Component (max. 2h pro Molecule)
+
+**Timeline:** 3-4 Wochen (statt "1 Woche" wie in Roadmap)
+
+#### **Für finale Version:**
+1. **Custom Pixel-Art** NACH erfolgreichem MVP
+2. **Style Guide** mit Palette + Grid-Rules
+3. **Iterativ ersetzen** (nicht alles auf einmal)
+4. **Phaser evaluieren** für v2.0 Features (Animationen, Mini-Games)
+
+**Timeline:** 6-10 Wochen zusätzlich
+
+---
+
+**Quellen für diesen Abschnitt:**
+- [MDN: Crisp Pixel Art](https://developer.mozilla.org/en-US/docs/Games/Techniques/Crisp_pixel_art_look)
+- [Phaser + React Official Template](https://phaser.io/news/2024/02/official-phaser-3-and-react-template)
+- [Derek Yu: Pixel Art Tutorial](https://derekyu.com/makegames/pixelart2.html)
+- [Common Pixel Art Mistakes](https://www.phonoforest.com/2020/05/3-major-mistakes-pixel-art-beginners.html)
+- [Component Pattern (Game Programming Patterns)](https://gameprogrammingpatterns.com/component.html)
+- [Figma Pixel Art UI Kit](https://www.figma.com/community/file/1224460064522598216/pixel-art-ui-kit)
+- [EJAW: Pixel Art Game Development](https://ejaw.net/how-to-get-started-with-pixel-art-game-development/)
+
+---
+
 ## ❓ Kritische Fragen zur Visionspräzisierung
 
 ### 1. Narrative & Szenario

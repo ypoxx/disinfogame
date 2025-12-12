@@ -248,57 +248,205 @@ src/
 
 Legende: ✅ = Full Implementation, 🟡 = Partial/Simplified, ❌ = Not Included
 
-### 7. Proof-of-Concept Plan
+### 7. Proof-of-Concept Plan ⚠️ AKTUALISIERT nach technischer Recherche
+
 **Ziel:** Technische Machbarkeit testen BEVOR Full Development
-**Scope:** Minimal Viable Prototype (1-2 Tage Entwicklung)
+**Scope:** Minimal Viable Prototype
+**Timeframe:** **3-5 Tage** (aktualisiert von 1-2 Tagen)
 
-**Features:**
-- Mode Selection Screen (simpel)
-- 1 Office-Raum mit 1 NPC (Pixel-Art Mock)
-- 1 Dialog mit 2 Ability-Optionen
-- Simplified Targeting (nur 3 Akteure zur Auswahl)
-- Ability Execution über bestehende Engine
-- "Tag beenden" → Round Processing → Simple Summary
+#### **Technische Entscheidungen (basierend auf Recherche):**
 
-**Nicht im PoC:**
-- Volle Pixel-Art Assets (Placeholder Grafiken OK)
-- Alle NPCs/Räume
-- E-Mail System
-- Events
-- Tutorial
+**Framework:** Pure React + Vite (NICHT Phaser für MVP)
+- ✅ Niedrigste Lernkurve
+- ✅ Hot-Reload < 100ms
+- ✅ Bestehender Code wiederverwendbar
+- 🟡 CSS-basiertes Pixel-Art Rendering (ausreichend für UI-Game)
 
-**Erfolgs-Kriterien:**
-- [ ] User kann zwischen Modi wählen
-- [ ] Office-Screen rendert
-- [ ] NPC-Dialog funktioniert
-- [ ] Ability wird korrekt an Engine übergeben
-- [ ] Trust-Änderung sichtbar nach Round
-- [ ] Zurück zu Office nach Aktion
+**Asset-Strategie:** KEINE Custom Pixel-Art im PoC
+- ✅ Colored Rectangles (CSS `background-color`)
+- ✅ System Fonts (Monospace für Retro-Feel)
+- ✅ Emoji als Icons (💰 = Money, 👁️ = Attention, 👨‍💼 = NPC)
+- **Warum:** Pixel-Art dauert 6x länger als erwartet (siehe DUAL_INTERFACE_VISION.md)
 
-**Timeframe:** 1 Sprint (ca. 1 Woche)
+**Architecture:** Mediator Pattern
+- `useStoryMode.ts` Hook als Brücke zu `useGameState`
+- Atomic Design von Anfang an (Atoms → Molecules → Organisms)
 
 ---
 
-## 🗓️ Vorgeschlagener Zeitplan
+#### **Features im PoC:**
 
-### Woche 1: Konzeptvalidierung
-- [ ] Tag 1-2: Fragen-Workshop & Entscheidungen
-- [ ] Tag 3-4: Szenario ausarbeiten & Wireframes
+**✅ Enthalten:**
+- Mode Selection Screen (simpel: 2 Buttons)
+- 1 Office-Raum mit 1 NPC (CSS-Rechtecke + Emoji)
+- 1 Dialog mit 2 Ability-Optionen
+- Simplified Targeting (nur 3 Akteure zur Auswahl)
+- Ability Execution über `useGameState` Hook
+- "Tag beenden" → Round Processing → Simple Summary
+- **NEU:** `image-rendering: pixelated` CSS-Test (ein Testbild)
+
+**❌ Explizit NICHT im PoC:**
+- Custom Pixel-Art Assets (Phase 2!)
+- Volle Office-Layout-Grafik
+- Alle NPCs/Räume (nur 1!)
+- E-Mail System (Phase 2)
+- Events (Phase 2)
+- Tutorial (Phase 3)
+- Animationen (optional für v2.0)
+
+---
+
+#### **Erfolgs-Kriterien:**
+
+**Technisch:**
+- [ ] User kann zwischen Profi/Spieler-Modus wählen
+- [ ] Office-Screen rendert mit Placeholder-Grafiken
+- [ ] NPC-Dialog funktioniert (Text-basiert)
+- [ ] Ability wird korrekt an Engine übergeben
+- [ ] Trust-Änderung sichtbar nach Round
+- [ ] Zurück zu Office nach Aktion
+- [ ] **NEU:** `image-rendering: pixelated` funktioniert auf Testbild
+
+**Architektur:**
+- [ ] `useStoryMode` Hook isoliert UI-Logik von Engine
+- [ ] Atomic Design Structure angelegt (atoms/, molecules/, organisms/)
+- [ ] Komponenten haben TypeScript Props
+- [ ] Hot-Reload funktioniert (< 200ms)
+
+**Learning:**
+- [ ] Ist Pure React ausreichend oder brauchen wir Phaser?
+- [ ] Wie komplex ist State-Transformation (Events → E-Mails)?
+- [ ] Performance OK mit DOM-Rendering?
+- [ ] Macht Placeholder-Ansatz Sinn für Team/Playtesting?
+
+---
+
+#### **Detaillierter Timeline-Plan (5 Tage):**
+
+**Tag 1: Setup & Architecture**
+- Vite-Projekt aufsetzen (`npm create vite@latest`)
+- Folder Structure erstellen (Atomic Design)
+- `useStoryMode` Hook Boilerplate
+- Mode Selection Screen (2 Buttons, Routing)
+
+**Tag 2: Office Screen & NPC**
+- Office-Layout (CSS Grid, Placeholder-Rechtecke)
+- NPC-Portrait Component (Emoji-basiert)
+- Navigation (Office → NPC-Room → zurück)
+- Zustand: `currentRoom` State Management
+
+**Tag 3: Dialog & Ability Integration**
+- Dialog Component (Text + 2 Optionen)
+- Ability-Mapping (Engine-Abilities → Dialog-Optionen)
+- `selectAbility` Action in `useStoryMode`
+- Test: Ability-Klick → Engine-Call
+
+**Tag 4: Targeting & Round Processing**
+- Targeting-Interface (Simplified: Dropdown mit 3 Akteuren)
+- Ability Execution über `useGameState.executeAbility()`
+- "Tag beenden" Button
+- Round Summary Component (Trust-Änderungen anzeigen)
+
+**Tag 5: Testing & Crisp Pixel Test**
+- End-to-End Flow testen (Mode Select → Office → NPC → Ability → Round End)
+- `image-rendering: pixelated` auf Testbild (z.B. ein Button-Mock)
+- Performance-Check (Chrome DevTools)
+- Dokumentation: Was funktioniert, was nicht?
+
+---
+
+#### **Budget (falls relevant):**
+
+- **Zeit:** 3-5 Tage (1 Person Vollzeit)
+- **Kosten:** €0 (alles gratis: Vite, React, Placeholder-Assets)
+- **Optional:** Figma Pro (€12/Monat) für Prototyping - NICHT essentiell
+
+---
+
+#### **Exit-Kriterien:**
+
+**PoC ist erfolgreich wenn:**
+- ✅ Vollständiger Flow funktioniert (Start → Ability → Round End)
+- ✅ Architecture ist sauber (Mediator Pattern klar getrennt)
+- ✅ Performance ist OK (keine Lags bei Interaktionen)
+- ✅ Team kann Flow playtesten (auch mit Placeholders)
+
+**PoC zeigt Probleme wenn:**
+- ❌ React zu langsam für UI-Updates (→ Phaser evaluieren)
+- ❌ State-Transformation zu komplex (→ Architecture überdenken)
+- ❌ Placeholder-Assets verwirren Playtester (→ früher Assets kaufen)
+
+**Nach PoC Entscheidung:**
+- **Erfolgreich:** → MVP Development (Phase 2: Purchased Assets)
+- **Problematisch:** → Pivot oder Alternative Ansätze (z.B. Phaser Hybrid)
+- **Mixed:** → PoC v2 mit Anpassungen (z.B. 1-2 gekaufte Assets testen)
+
+---
+
+## 🗓️ Vorgeschlagener Zeitplan ⚠️ AKTUALISIERT
+
+### Woche 1: Konzeptvalidierung (unverändert)
+- [ ] Tag 1-2: Fragen-Workshop & Entscheidungen (5 Sofort-Fragen beantworten)
+- [ ] Tag 3-4: Szenario ausarbeiten & Wireframes in Figma
 - [ ] Tag 5: UX-Flow & Tech Architecture Doc
 - [ ] Tag 6-7: MVP Feature Matrix & PoC Planning
 
-### Woche 2: Proof-of-Concept
-- [ ] Tag 1-2: Mode Selection + Office Basic Layout
-- [ ] Tag 3-4: NPC Dialog System + Ability Integration
-- [ ] Tag 5: Round Processing Integration
-- [ ] Tag 6-7: Testing & Iteration
+### Woche 2: **Optional - Figma Prototyping** (NEU - empfohlen!)
+- [ ] Tag 1-2: Figma Wireframes → Pixel Art UI Kit Integration
+- [ ] Tag 3-4: Clickable Prototype (Office → NPC → Dialog Flow)
+- [ ] Tag 5: Playtesting mit Stakeholders (OHNE Code!)
+- [ ] Tag 6-7: Iteration basierend auf Feedback
 
-### Woche 3+: Entscheidung basierend auf PoC
-- **Wenn PoC erfolgreich:**
-  - → Full MVP Development (siehe Roadmap in DUAL_INTERFACE_VISION.md)
-- **Wenn PoC zeigt Probleme:**
-  - → Pivot oder Konzept anpassen
-  - → Alternative technische Ansätze evaluieren
+**Warum neu?** Recherche zeigt: Figma-Prototyping spart 2-3 Code-Iterations-Runden
+
+### Woche 3-4: Proof-of-Concept ⚠️ Timeline aktualisiert
+- [ ] **Tag 1: Setup** (Vite + Folder Structure + `useStoryMode` Hook)
+- [ ] **Tag 2: Office Screen** (Placeholder-Layout + NPC Component)
+- [ ] **Tag 3: Dialog & Integration** (Ability-Mapping + Engine-Call)
+- [ ] **Tag 4: Targeting & Round** (Simplified Targeting + Round Processing)
+- [ ] **Tag 5: Testing** (E2E Flow + `image-rendering` Test + Performance)
+- [ ] **Tag 6-7: Buffer** (Unvorhergesehenes + Dokumentation)
+
+**Änderung:** Von "1-2 Tage" auf **5-7 Tage** basierend auf realistischer Einschätzung
+
+### Woche 5: PoC Review & Entscheidung
+- [ ] Tag 1-2: Interne Playtests (Team + Stakeholder)
+- [ ] Tag 3: Review-Meeting (Go/No-Go/Pivot Decision)
+- [ ] Tag 4-5: Dokumentation Learnings (`docs/POC_RESULTS.md`)
+
+**PoC Outcomes:**
+- **Erfolgreich:** → MVP Development mit Purchased Assets (Woche 6+)
+- **Problematisch:** → Alternative Ansätze evaluieren (z.B. Phaser Hybrid)
+- **Mixed:** → PoC v2 mit Anpassungen
+
+### Woche 6-9: MVP Development (wenn PoC erfolgreich) ⚠️ Timeline realistischer
+- **Woche 6:**
+  - [ ] Asset-Packs kaufen (itch.io: €30-50 Budget)
+  - [ ] Asset-Integration (Sprite Sheets erstellen)
+  - [ ] Atomic Design Components (Atoms: PixelButton, PixelText, PixelIcon)
+
+- **Woche 7:**
+  - [ ] Molecules (EmailListItem, NPCPortrait, ResourceDisplay)
+  - [ ] Organisms (InboxPanel, NPCDialogBox, OfficeRoom)
+  - [ ] Office-Screen komplett (mit gekauften Assets)
+
+- **Woche 8:**
+  - [ ] 3-4 NPCs implementieren (Medien, Bots, NGO, Strategie)
+  - [ ] E-Mail-System (Events → E-Mails Transformation)
+  - [ ] Tages-Zusammenfassung Screen
+
+- **Woche 9:**
+  - [ ] Tutorial für Spieler-Modus
+  - [ ] Polish (Transitions, Sounds optional)
+  - [ ] Testing & Bug Fixes
+  - [ ] Deployment (Netlify/Vercel)
+
+**Änderung:** Von "1 Woche" auf **4 Wochen** MVP (realistischer)
+
+### Woche 10+: Post-MVP (optional)
+- **Custom Pixel-Art** (falls gewünscht): 6-10 Wochen
+- **Phaser Integration** (für Animationen): 2-4 Wochen
+- **Zusätzliche Features** (siehe DUAL_INTERFACE_VISION.md Roadmap)
 
 ---
 
@@ -488,30 +636,298 @@ Wenn Solo-Arbeit:
 
 ---
 
-## 📚 Ressourcen für nächste Schritte
+## 📚 Ressourcen für nächste Schritte ⚠️ ERWEITERT
 
-### Wireframing Tools:
-- **Excalidraw** (Web, kostenlos, schnell)
-- **Figma** (Web, kostenlos für Solo, kollaborativ)
-- **Balsamiq** (Desktop, Low-Fi spezialisiert)
-- **Papier + Stift** (schnellste Option für erste Iteration)
+### 1. Prototyping & Design Tools
 
-### UX-Flow Tools:
-- **Whimsical** (Web, schöne Flow-Diagramme)
-- **Miro** (Web, kollaborativ, Templates)
-- **Draw.io** (Web/Desktop, kostenlos, flexibel)
-- **Lucidchart** (Web, professionell)
+#### **Figma (🔥 Top-Empfehlung für Anfänger)**
+- **URL:** https://figma.com
+- **Kosten:** Gratis für Solo-Projekte
+- **Warum:** Web-based, kollaborativ, riesige Community
+- **Spezifische Ressourcen:**
+  - [Pixel Art UI Kit](https://www.figma.com/community/file/1224460064522598216) - Fertige Components
+  - [Pixel Game Prototype Template](https://www.figma.com/community/file/1364337760230397087)
+  - [Pixel Game Playground](https://www.figma.com/community/file/1496921984465285822)
+- **Workflow:** Wireframes → UI Kit → Clickable Prototype → PNG Export für PoC
+- **Learning:** Figma Tutorials auf YouTube (~2h für Basics)
 
-### Pixel-Art References:
-- **Lospec Palette List** (Farbpaletten)
-- **itch.io Asset Packs** (Platzhalter für PoC)
-- **OpenGameArt** (Kostenlose Game Assets)
-- **Pinterest "90s Computer UI"** (Inspiration)
+#### **Excalidraw (für schnelle Skizzen)**
+- **URL:** https://excalidraw.com
+- **Kosten:** Gratis
+- **Wann nutzen:** Brainstorming, UX-Flows, Lo-Fi Wireframes
+- **Vorteil:** Kein Account nötig, schneller als Figma
 
-### Narrative Design Resources:
-- **"Hamlet on the Holodeck"** (Janet Murray) - Interactive Narrative
-- **"The Art of Game Design"** (Jesse Schell) - Chapter on Story
-- **Game Writing Style Guides** (Valve, Riot, etc. online verfügbar)
+#### **Whimsical (für UX-Flows)**
+- **URL:** https://whimsical.com
+- **Kosten:** Gratis (Limited), €10/Monat (Pro)
+- **Wann nutzen:** Flow-Diagramme, User Journeys
+- **Alternative:** Draw.io (gratis, aber weniger schön)
+
+---
+
+### 2. Pixel-Art Creation Tools
+
+#### **Aseprite (🔥 Beste für Pixel-Art) - NUR falls Custom Assets**
+- **URL:** https://www.aseprite.org
+- **Kosten:** €19.99 (einmalig) oder gratis selbst kompilieren
+- **Features:** Animationen, Onion Skinning, Sprite Sheets Export
+- **Lernen:** [Derek Yu Tutorial](https://www.derekyu.com/makegames/pixelart.html) (gratis)
+- **ABER:** Für PoC & MVP NICHT nötig (Assets kaufen!)
+
+#### **Lospec (Farbpaletten - gratis)**
+- **URL:** https://lospec.com/palette-list
+- **Features:** 16-32 Color Palettes für retro Look
+- **Empfehlung:** "Sweetie 16" oder "AAP-64" Palette
+
+#### **Pixilart (Web-based, für Quick Tests)**
+- **URL:** https://www.pixilart.com
+- **Kosten:** Gratis
+- **Wann nutzen:** Schnelle Mockups testen ohne Software-Install
+
+---
+
+### 3. Asset-Packs (für PoC & MVP)
+
+#### **itch.io (🔥 Top-Empfehlung)**
+- **Office-themed:** https://itch.io/game-assets/tag-office/tag-pixel-art
+  - Preis: €5-20 pro Pack
+  - Enthält: Tileset, UI-Elemente, Icons
+  - **Kaufempfehlung:** 1-2 Packs reichen für MVP
+
+- **UI-Elements:** https://itch.io/game-assets/tag-ui/tag-pixel-art
+  - Buttons, Windows, Dialoge
+  - Oft mit verschiedenen Themes (90s, Retro, etc.)
+
+#### **CraftPix**
+- **URL:** https://craftpix.net/categorys/pixel-art-game-ui/
+- **Preis:** €15-30 pro Pack
+- **Qualität:** Höher als itch.io, professioneller
+- **Lizenz:** Meist auch Commercial Use OK
+
+#### **OpenGameArt (gratis, aber variabel Qualität)**
+- **URL:** https://opengameart.org
+- **Vorteil:** Kostenlos, Public Domain / CC
+- **Nachteil:** Inkonsistente Styles, muss Mix-and-Match
+
+**Budget-Empfehlung für MVP:** €30-50 für 2-3 Packs (Office + UI + Icons)
+
+---
+
+### 4. React & Development Tools
+
+#### **Vite (🔥 Build Tool - verwenden!)**
+- **URL:** https://vitejs.dev
+- **Setup:** `npm create vite@latest story-mode-poc -- --template react-ts`
+- **Vorteil vs. Create-React-App:**
+  - 10x schneller Hot-Reload (< 100ms)
+  - Kleinere Bundle Size
+  - Native TypeScript Support
+  - Bessere Asset Handling
+
+#### **Storybook (optional für Component Development)**
+- **URL:** https://storybook.js.org
+- **Setup:** `npx storybook@latest init`
+- **Wann nutzen:** Wenn > 20 Components (Katalog-View)
+- **Für PoC:** NICHT nötig (zu viel Overhead)
+- **Für MVP:** Evaluieren (beschleunigt Iteration)
+
+#### **VS Code Extensions für Pixel-Art/React:**
+- **Prettier** - Code Formatting
+- **ESLint** - Linting
+- **Error Lens** - Inline Error Display
+- **Auto Rename Tag** - HTML Tag Sync
+- **Image Preview** - Hover über PNG → Preview
+
+---
+
+### 5. CSS & Pixel-Art Rendering
+
+#### **CSS Snippets (kritisch!):**
+
+**Crisp Pixel Rendering:**
+```css
+/* IMMER verwenden für Pixel-Art! */
+.pixel-art {
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+```
+
+**Pixel Font (Retro-Feel ohne Custom Font):**
+```css
+.retro-text {
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  letter-spacing: 1px;
+  image-rendering: pixelated;
+}
+```
+
+**Button mit Pixel-Art Feel (CSS-only):**
+```css
+.pixel-button {
+  border: 3px solid #000;
+  background: #4a90e2;
+  padding: 8px 16px;
+  font-family: monospace;
+  cursor: pointer;
+  image-rendering: pixelated;
+  transition: none; /* Kein smooth Transition! */
+}
+.pixel-button:hover {
+  background: #6aade2;
+}
+.pixel-button:active {
+  background: #2a70c2;
+}
+```
+
+#### **Referenzen:**
+- [MDN: Crisp Pixel Art](https://developer.mozilla.org/en-US/docs/Games/Techniques/Crisp_pixel_art_look)
+- [CSS Tricks: Keep Pixelated Images Pixelated](https://css-tricks.com/keep-pixelated-images-pixelated-as-they-scale/)
+
+---
+
+### 6. Learning Resources (für Anfänger)
+
+#### **React Basics (falls Auffrischung nötig):**
+- **React Official Tutorial:** https://react.dev/learn
+  - ~2-3 Stunden für Basics
+  - Fokus: Components, Props, State, Hooks
+- **React + TypeScript Cheatsheet:** https://react-typescript-cheatsheet.netlify.app
+
+#### **Pixel-Art Tutorials:**
+- **Derek Yu: Pixel Art Basics** - https://www.derekyu.com/makegames/pixelart.html
+  - Gratis, kompakt, fokussiert auf Game Art
+- **Pedro Medeiros (@saint11) Twitter** - Viele GIFs mit Tutorials
+- **Lospec Tutorials** - https://lospec.com/articles/
+
+#### **Game UI Design:**
+- **Interface In Game:** https://interfaceingame.com
+  - Screenshotsammlung von Game UIs
+  - Filterable by genre, style
+- **Game UI Database:** https://gameuidatabase.com
+  - Gute Beispiele für verschiedene Screens
+
+#### **Narrative Design:**
+- **"Hamlet on the Holodeck"** (Janet Murray) - Interactive Narrative Theorie
+- **Emily Short's Blog** - https://emshort.blog - Interactive Fiction
+- **Gamasutra Narrative Design Articles** - Viele Praxis-Beispiele
+
+---
+
+### 7. Performance & Testing
+
+#### **Chrome DevTools (wichtigste Features):**
+- **Performance Tab:**
+  - Identifiziere langsame Renders
+  - Ziel: < 16ms pro Frame (60 FPS)
+- **Network Tab:**
+  - Prüfe Asset-Ladezeiten
+  - Sprite Sheets = weniger Requests
+- **Lighthouse:**
+  - Performance Score für Web-Apps
+  - Accessibility Check
+
+#### **React DevTools (Browser Extension):**
+- **URL:** https://react.dev/learn/react-developer-tools
+- **Features:**
+  - Component Tree inspizieren
+  - Props/State debuggen
+  - Re-Render Highlighting (Performance)
+
+---
+
+### 8. Deployment (für MVP)
+
+#### **Netlify (🔥 Empfehlung für static React Apps)**
+- **URL:** https://netlify.com
+- **Kosten:** Gratis (100GB/Monat Bandwidth)
+- **Setup:** `npm run build` → Drag & Drop Ordner
+- **Features:** Auto-Deploy von Git, Preview Branches
+
+#### **Vercel (Alternative)**
+- **URL:** https://vercel.com
+- **Vorteil:** Besser für Next.js (falls später SSR)
+- **Für Vite:** Netlify ist simpler
+
+---
+
+### 9. Community & Support
+
+#### **Discord/Forums:**
+- **r/PixelArt (Reddit):** Feedback auf Assets
+- **r/reactjs (Reddit):** React-Fragen
+- **Phaser Discord:** Falls später Phaser (https://discord.gg/phaser)
+
+#### **Stack Overflow Tags:**
+- `reactjs` + `typescript`
+- `pixel-art` + `canvas`
+- `css` + `image-rendering`
+
+---
+
+### 10. Spezielle Tools (für Fortgeschrittene)
+
+#### **Sprite Sheet Generator (falls Custom Pixel-Art):**
+- **Leshy SpriteSheet Tool:** https://www.leshylabs.com/apps/sstool/ (Web, gratis)
+- **Aseprite:** Built-in Sheet Export
+- **TexturePacker:** Pro Tool (€40), Overkill für MVP
+
+#### **Pixel Art Scaling (für HiDPI):**
+- **xBRZ Algorithm:** Für non-integer Scales (selten nötig)
+- **Rotsprite:** Rotation ohne Blur (advanced)
+
+---
+
+### 📦 Empfohlenes Starter-Kit (Budget: €20-50)
+
+**Für PoC (€0):**
+- ✅ Figma (gratis)
+- ✅ Vite (gratis)
+- ✅ VS Code (gratis)
+- ✅ Placeholder-Assets (CSS + Emoji)
+
+**Für MVP (€30-50):**
+- ✅ 2x itch.io Asset Packs (€10-20 each)
+  - Office Pack (Rooms, Furniture)
+  - UI Pack (Buttons, Icons, Windows)
+- ✅ Optional: CraftPix Premium Pack (€15-30)
+
+**Für Custom Assets später (€20):**
+- ✅ Aseprite License (€19.99)
+
+**Total für vollständigen Workflow:** ~€70 (einmalig)
+
+---
+
+### ⚠️ Was NICHT kaufen/lernen für MVP:
+
+❌ **Photoshop/Illustrator** - Overkill, Aseprite reicht
+❌ **Unity/Unreal** - Falsche Tools für Web-Game
+❌ **Phaser Kurse** - Erst nach PoC evaluieren
+❌ **Game Design Bücher** - Zu theoretisch, fokussiere auf Praxis
+❌ **Animationssoftware** - Aseprite hat alles
+❌ **Paid Fonts** - Monospace System-Fonts genügen
+
+---
+
+**Zusammenfassung für Anfänger:**
+
+1. **Starte mit Figma** - Kein Code, schnelles Feedback
+2. **PoC mit Vite + React** - Technologie die du kennst
+3. **Kaufe Assets für MVP** - Spare Wochen/Monate
+4. **Custom Assets nur wenn nötig** - Unterschätz Zeit nicht
+
+**Zeitinvestition Learning:**
+- Figma Basics: 2-3 Stunden
+- Vite Setup: 30 Minuten
+- CSS Pixel-Art Rendering: 1 Stunde
+- React Hooks Refresh: 2 Stunden (optional)
+
+**Total:** ~6 Stunden Learning für vollständige Tool-Chain
 
 ---
 
