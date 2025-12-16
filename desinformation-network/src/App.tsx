@@ -23,6 +23,7 @@ import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrat
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
 import type { TutorialState } from '@/game-logic/types/tutorial';
+import { StoryModeTest } from '@/story-mode/StoryModeTest';
 
 // ============================================
 // MAIN APP COMPONENT
@@ -77,6 +78,9 @@ function App() {
 
   // Toast notification system (Phase 0: Fix position conflicts)
   const { notifications, addNotification: addToast, dismissNotification } = useToastNotifications();
+
+  // Story Mode Test state
+  const [showStoryModeTest, setShowStoryModeTest] = useState(false);
 
   // Apply filters to actors
   const filteredActors = useMemo(
@@ -217,6 +221,11 @@ function App() {
   // SCREENS
   // ============================================
 
+  // Story Mode Test (overrides everything)
+  if (showStoryModeTest) {
+    return <StoryModeTest onExit={() => setShowStoryModeTest(false)} />;
+  }
+
   // Start Screen
   if (gameState.phase === 'start') {
     return (
@@ -246,13 +255,26 @@ function App() {
             </ul>
           </div>
           
-          <button
-            onClick={startGame}
-            className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-xl font-semibold rounded-xl transition-colors shadow-lg"
-          >
-            Start Game
-          </button>
-          
+          <div className="flex flex-col gap-4 items-center">
+            <button
+              onClick={startGame}
+              className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-xl font-semibold rounded-xl transition-colors shadow-lg"
+            >
+              Start Game
+            </button>
+
+            <button
+              onClick={() => setShowStoryModeTest(true)}
+              className="px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white text-xl font-semibold rounded-xl transition-colors shadow-lg"
+            >
+              📖 Story Mode Test
+            </button>
+
+            <p className="text-gray-400 text-sm max-w-md">
+              Story Mode is a visual prototype showing how the same game could be played with a narrative, office-simulation interface inspired by Papers Please.
+            </p>
+          </div>
+
           <p className="mt-6 text-gray-500 text-sm">
             Seed: {gameState.seed}
           </p>
