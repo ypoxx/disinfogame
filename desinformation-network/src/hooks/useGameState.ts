@@ -218,20 +218,22 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
       targetActorIds
     );
 
-    if (success) {
-      syncState();
-      addNotification('success', 'Ability applied successfully');
+    // Always sync state and clear targeting mode after attempt
+    syncState();
 
-      // Clear selection
-      setUIState(prev => ({
-        ...prev,
-        selectedAbility: null,
-        targetingMode: false,
-        validTargets: [],
-      }));
+    if (success) {
+      addNotification('success', 'Ability applied successfully');
     } else {
       addNotification('error', 'Failed to apply ability');
     }
+
+    // ALWAYS clear targeting mode after ability attempt (success or failure)
+    setUIState(prev => ({
+      ...prev,
+      selectedAbility: null,
+      targetingMode: false,
+      validTargets: [],
+    }));
 
     return success;
   }, [uiState.selectedAbility, gameManager, syncState, addNotification]);
@@ -291,8 +293,17 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
     if (uiState.targetingMode && actorId) {
       // In targeting mode - check if valid target
       if (uiState.validTargets.includes(actorId)) {
-        // Apply ability to this target
+        // Apply ability to this target (applyAbility handles state cleanup)
         applyAbility([actorId]);
+      } else {
+        // Clicked on invalid target - cancel targeting mode
+        addNotification('warning', 'Invalid target - ability cancelled');
+        setUIState(prev => ({
+          ...prev,
+          selectedAbility: null,
+          targetingMode: false,
+          validTargets: [],
+        }));
       }
       return;
     }
@@ -307,7 +318,7 @@ export function useGameState(initialSeed?: string): UseGameStateReturn {
       targetingMode: false,
       validTargets: [],
     }));
-  }, [uiState.targetingMode, uiState.validTargets, applyAbility]);
+  }, [uiState.targetingMode, uiState.validTargets, applyAbility, addNotification]);
 
   const hoverActor = useCallback((actorId: string | null) => {
     setUIState(prev => ({
