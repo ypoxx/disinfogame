@@ -10,9 +10,12 @@ type Interaction = {
   description: string;
 };
 
+type HoverArea = 'computer' | 'phone' | 'smartphone' | 'tv' | 'door' | null;
+
 export function OfficeScreen({ onExit }: OfficeScreenProps) {
   const [selectedInteraction, setSelectedInteraction] = useState<Interaction | null>(null);
-  const [emailNotification, setEmailNotification] = useState(true);
+  const [hoverArea, setHoverArea] = useState<HoverArea>(null);
+  const [emailNotification] = useState(true);
 
   const showNote = (title: string, description: string) => {
     setSelectedInteraction({ title, description });
@@ -24,7 +27,6 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
 
   const playSound = (soundName: string) => {
     console.log(`🔊 [SOUND: ${soundName}]`);
-    // Placeholder for actual sound implementation
   };
 
   return (
@@ -37,7 +39,7 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
     >
       {/* Header Bar - Status */}
       <div
-        className="border-b-4 p-3 flex justify-between items-center z-20"
+        className="border-b-4 p-3 flex justify-between items-center z-20 relative"
         style={{
           backgroundColor: StoryModeColors.darkConcrete,
           borderColor: StoryModeColors.border
@@ -83,28 +85,58 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
         </button>
       </div>
 
-      {/* Main Office View - Isometric-ish perspective */}
-      <div className="flex-1 relative">
-        {/* Back Wall with TV Screen */}
-        <div
-          className="absolute top-0 left-0 right-0 h-48 border-b-4"
-          style={{
-            backgroundColor: StoryModeColors.darkConcrete,
-            borderColor: StoryModeColors.border,
-            background: `linear-gradient(to bottom, ${StoryModeColors.darkConcrete} 0%, ${StoryModeColors.concrete} 100%)`
-          }}
-        >
-          {/* TV Screen on Wall */}
+      {/* Main Office Scene - AI Image Background with Clickable Areas */}
+      <div
+        className="flex-1 relative"
+        style={{
+          backgroundImage: 'url(/office-brutalist-scene.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          // Fallback gradient if image not loaded
+          background: `linear-gradient(135deg, ${StoryModeColors.darkConcrete} 0%, ${StoryModeColors.concrete} 50%, ${StoryModeColors.darkConcrete} 100%)`
+        }}
+      >
+        {/* Placeholder message if image not loaded */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div
-            className="absolute top-8 left-1/2 transform -translate-x-1/2 w-96 border-8 cursor-pointer hover:brightness-110 transition-all"
+            className="text-center p-8 border-4"
             style={{
-              height: '140px',
-              backgroundColor: '#1a1a1a',
-              borderColor: StoryModeColors.darkConcrete,
-              boxShadow: '8px 8px 0px 0px rgba(0,0,0,0.6)'
+              backgroundColor: 'rgba(61, 61, 61, 0.9)',
+              borderColor: StoryModeColors.sovietRed,
+              color: StoryModeColors.textPrimary
             }}
-            onClick={() => showNote(
-              '📺 CAMPAIGN ANALYTICS - TV DISPLAY',
+          >
+            <div className="text-2xl mb-4">📷</div>
+            <div className="font-bold mb-2">AI-GENERATED OFFICE SCENE</div>
+            <div className="text-xs" style={{ color: StoryModeColors.textSecondary }}>
+              Place your AI-generated image at:<br />
+              <code>/public/office-brutalist-scene.jpg</code>
+              <br /><br />
+              Interactive areas are still clickable!
+            </div>
+          </div>
+        </div>
+
+        {/* TV Screen - Top Left */}
+        <div
+          className="absolute cursor-pointer transition-all"
+          style={{
+            top: '8%',
+            left: '15%',
+            width: '28%',
+            height: '20%',
+            backgroundColor: hoverArea === 'tv' ? 'rgba(74, 157, 255, 0.3)' : 'transparent',
+            border: hoverArea === 'tv' ? `3px solid ${StoryModeColors.agencyBlue}` : 'none',
+            boxShadow: hoverArea === 'tv' ? `0 0 20px ${StoryModeColors.agencyBlue}` : 'none',
+            borderRadius: '8px'
+          }}
+          onMouseEnter={() => setHoverArea('tv')}
+          onMouseLeave={() => setHoverArea(null)}
+          onClick={() => {
+            playSound('Screen beep');
+            showNote(
+              '📺 CAMPAIGN ANALYTICS - WALL DISPLAY',
               'PLACEHOLDER: Interactive campaign dashboard\n\n' +
               '████████████ Trust Decrease: 15%\n' +
               '██████          Bot Reach: 45K\n' +
@@ -112,479 +144,375 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
               '████            Detection Risk: 8%\n\n' +
               'Would show:\n' +
               '→ Real-time campaign performance bars\n' +
-              '→ Network trust degradation graph\n' +
-              '→ Reach vs. exposure metrics\n' +
+              '→ Network trust degradation graph (like Pro Mode metrics)\n' +
+              '→ Reach vs. exposure trade-offs\n' +
               '→ Target demographics breakdown\n' +
-              '→ Comparative analysis vs. previous days\n\n' +
-              '🔔 [SOUND: Screen beep]'
-            )}
-          >
-            <div
-              className="p-4 h-full flex flex-col justify-center"
-              style={{ backgroundColor: StoryModeColors.agencyBlue }}
-            >
-              <div className="text-center mb-2 font-bold" style={{ color: StoryModeColors.warning }}>
-                ═══ CAMPAIGN STATUS ═══
-              </div>
-              <div className="space-y-1 text-xs" style={{ color: StoryModeColors.textPrimary }}>
-                <div className="flex justify-between">
-                  <span>TRUST ▼</span>
-                  <span style={{ color: StoryModeColors.sovietRed }}>-15% ████████</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>REACH</span>
-                  <span style={{ color: StoryModeColors.success }}>45K ██████</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>ENGAGE</span>
-                  <span style={{ color: StoryModeColors.warning }}>89% ████████████</span>
-                </div>
-              </div>
-              <div className="text-center mt-2 text-xs" style={{ color: StoryModeColors.textMuted }}>
-                [Click for details]
-              </div>
-            </div>
-          </div>
-
-          {/* Door on the side */}
-          <div
-            className="absolute top-4 right-12 w-32 border-4 cursor-pointer hover:brightness-110 transition-all"
-            style={{
-              height: '180px',
-              backgroundColor: StoryModeColors.militaryOlive,
-              borderColor: StoryModeColors.border,
-              boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)'
-            }}
-            onClick={() => showNote(
-              '🚪 DOOR - EVENT ENTRANCE',
-              'PLACEHOLDER: Random event system\n\n' +
-              'When important events occur, an NPC will appear here:\n\n' +
-              '→ Superior bringing urgent orders\n' +
-              '→ IT warning about security breach\n' +
-              '→ Finance auditor questioning expenses\n' +
-              '→ Rival operative with "friendly" advice\n' +
-              '→ Journalist who somehow found your office\n\n' +
-              'Each visitor triggers a decision event.\n' +
-              'Some are time-sensitive (must respond within X AP).\n\n' +
-              'The door stays empty until an event triggers.\n' +
-              'Visual: Person sprite would appear in doorway.\n\n' +
-              '🔔 [SOUND: Door knock/open]'
-            )}
-          >
-            <div className="h-full flex flex-col items-center justify-center text-center p-2">
-              <div className="text-4xl mb-2">🚪</div>
-              <div className="text-xs font-bold" style={{ color: StoryModeColors.textSecondary }}>
-                [EVENT DOOR]
-              </div>
-              <div className="text-xs mt-2" style={{ color: StoryModeColors.textMuted }}>
-                Currently closed
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Desk Surface */}
-        <div
-          className="absolute top-48 left-0 right-0 bottom-0 p-8"
-          style={{
-            backgroundColor: StoryModeColors.concrete,
-            background: `linear-gradient(to bottom, ${StoryModeColors.lightConcrete} 0%, ${StoryModeColors.concrete} 100%)`
+              '→ Comparative analysis vs. previous days\n' +
+              '→ Clickable bars to drill down into details\n\n' +
+              'This bridges Story Mode visuals with Pro Mode analytics.\n\n' +
+              '🔔 [SOUND: Screen beep, data refresh]'
+            );
           }}
         >
-          {/* Computer Monitor (Center) */}
-          <div
-            className="absolute top-12 left-1/2 transform -translate-x-1/2 w-[480px] cursor-pointer hover:brightness-110 transition-all"
-            onClick={() => {
-              setEmailNotification(false);
-              playSound('Email notification click');
-              showNote(
-                '💻 COMPUTER - EMAIL SYSTEM',
-                'PLACEHOLDER: Full email interface\n\n' +
-                '📧 INBOX (3 unread)\n\n' +
-                '═══════════════════════════\n' +
-                'FROM: DIRECTOR\n' +
-                'SUBJECT: First Day - Choose Focus\n' +
-                'PRIORITY: URGENT\n' +
-                '═══════════════════════════\n\n' +
-                'Welcome to your first day as Information Operations Coordinator.\n\n' +
-                'Your mission: Destabilize public trust in [TARGET REGION] institutions.\n\n' +
-                'Choose your initial approach:\n\n' +
-                '[BUTTON] → Focus on domestic influencers (Cost: 2 AP)\n' +
-                '[BUTTON] → Target international audience (Cost: 3 AP) \n' +
-                '[BUTTON] → Request more intelligence first (Cost: 1 AP)\n\n' +
-                'Each choice has different long-term implications.\n\n' +
-                '🔔 [SOUND: Keyboard typing when making choice]'
-              );
-            }}
-          >
-            {/* Monitor Frame */}
+          {hoverArea === 'tv' && (
             <div
-              className="border-8 relative"
+              className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap"
               style={{
-                backgroundColor: '#000',
-                borderColor: StoryModeColors.darkConcrete,
-                boxShadow: '6px 6px 0px 0px rgba(0,0,0,0.8)'
+                backgroundColor: StoryModeColors.agencyBlue,
+                borderColor: StoryModeColors.darkBlue,
+                color: StoryModeColors.warning
               }}
             >
-              {/* Screen */}
-              <div
-                className="p-6 relative"
-                style={{
-                  height: '280px',
-                  backgroundColor: StoryModeColors.agencyBlue
-                }}
-              >
-                {/* Email notification badge */}
-                {emailNotification && (
-                  <div
-                    className="absolute top-2 right-2 px-3 py-1 border-2 font-bold animate-pulse"
-                    style={{
-                      backgroundColor: StoryModeColors.sovietRed,
-                      borderColor: StoryModeColors.darkRed,
-                      color: '#fff'
-                    }}
-                  >
-                    🔔 3 NEW
-                  </div>
-                )}
-
-                <div className="text-center mb-4 font-bold text-lg" style={{ color: StoryModeColors.warning }}>
-                  ╔═══════════════════════╗
-                  <br />
-                  ║   SECURE TERMINAL    ║
-                  <br />
-                  ╚═══════════════════════╝
-                </div>
-
-                <div className="space-y-3 text-xs">
-                  <div
-                    className="p-3 border-2"
-                    style={{
-                      backgroundColor: StoryModeColors.darkConcrete,
-                      borderColor: StoryModeColors.sovietRed
-                    }}
-                  >
-                    <div className="flex justify-between mb-1">
-                      <span className="font-bold">📧 DIRECTOR</span>
-                      <span style={{ color: StoryModeColors.danger }}>URGENT</span>
-                    </div>
-                    <div style={{ color: StoryModeColors.textSecondary }}>
-                      First Day - Choose Campaign Focus
-                    </div>
-                  </div>
-
-                  <div
-                    className="p-3 border-2"
-                    style={{
-                      backgroundColor: StoryModeColors.darkConcrete,
-                      borderColor: StoryModeColors.warning
-                    }}
-                  >
-                    <div className="flex justify-between mb-1">
-                      <span className="font-bold">💰 FINANCE</span>
-                      <span style={{ color: StoryModeColors.warning }}>PENDING</span>
-                    </div>
-                    <div style={{ color: StoryModeColors.textSecondary }}>
-                      Budget Allocation - $50,000
-                    </div>
-                  </div>
-
-                  <div
-                    className="p-3 border-2"
-                    style={{
-                      backgroundColor: StoryModeColors.darkConcrete,
-                      borderColor: StoryModeColors.agencyBlue
-                    }}
-                  >
-                    <div className="flex justify-between mb-1">
-                      <span className="font-bold">🗺️ INTEL</span>
-                      <span style={{ color: StoryModeColors.agencyBlue }}>INFO</span>
-                    </div>
-                    <div style={{ color: StoryModeColors.textSecondary }}>
-                      Target Network Analysis Ready
-                    </div>
-                  </div>
-                </div>
-
-                <div className="absolute bottom-2 left-0 right-0 text-center text-xs" style={{ color: StoryModeColors.textMuted }}>
-                  [Click to open email client]
-                </div>
-              </div>
+              📺 CAMPAIGN STATS
             </div>
-
-            {/* Monitor Stand */}
-            <div
-              className="mx-auto w-24 h-6 border-4"
-              style={{
-                backgroundColor: StoryModeColors.darkConcrete,
-                borderColor: StoryModeColors.border
-              }}
-            />
-            <div
-              className="mx-auto w-32 h-3"
-              style={{
-                backgroundColor: StoryModeColors.darkConcrete,
-                borderTop: `4px solid ${StoryModeColors.border}`
-              }}
-            />
-          </div>
-
-          {/* Telephone (Left side of desk) */}
-          <div
-            className="absolute top-24 left-12 w-48 cursor-pointer hover:scale-105 transition-all"
-            onClick={() => {
-              playSound('Phone dial tone');
-              showNote(
-                '☎️ OFFICE TELEPHONE - TEAM CONTACTS',
-                'PLACEHOLDER: NPC calling system\n\n' +
-                '═══ SPEED DIAL ═══\n\n' +
-                '[1] 🤖 VOLKOV - Bot Farm Chief\n' +
-                '    "The machines are ready, boss."\n' +
-                '    • Request bot campaign\n' +
-                '    • Check capacity\n' +
-                '    • Discuss strategy\n\n' +
-                '[2] 📺 CHEN - Media Buyer\n' +
-                '    "I can get your message anywhere."\n' +
-                '    • Purchase ad placements\n' +
-                '    • Target demographics\n' +
-                '    • Budget allocation\n\n' +
-                '[3] 🔍 KESSLER - Intelligence\n' +
-                '    "I see everything they don\'t hide well."\n' +
-                '    • Network analysis\n' +
-                '    • Vulnerability reports\n' +
-                '    • Defensive actor warnings\n\n' +
-                'Each call costs 1 AP.\n' +
-                'Some NPCs may call YOU with urgent info.\n\n' +
-                '🔔 [SOUND: Phone ringing / dial tone / hang up]'
-              );
-            }}
-          >
-            <div
-              className="p-4 border-4"
-              style={{
-                backgroundColor: StoryModeColors.darkConcrete,
-                borderColor: StoryModeColors.border,
-                boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)'
-              }}
-            >
-              <div className="text-center text-4xl mb-2">☎️</div>
-              <div className="text-center font-bold text-xs mb-2" style={{ color: StoryModeColors.warning }}>
-                SECURE LINE
-              </div>
-              <div className="space-y-1 text-xs" style={{ color: StoryModeColors.textSecondary }}>
-                <div>[1] VOLKOV</div>
-                <div>[2] CHEN</div>
-                <div>[3] KESSLER</div>
-              </div>
-              <div className="text-center mt-2 text-xs" style={{ color: StoryModeColors.textMuted }}>
-                [Click to dial]
-              </div>
-            </div>
-          </div>
-
-          {/* Smartphone (Right side of desk) */}
-          <div
-            className="absolute top-24 right-12 w-44 cursor-pointer hover:scale-105 transition-all"
-            onClick={() => {
-              playSound('Phone notification');
-              showNote(
-                '📱 SMARTPHONE - NEWS FEED',
-                'PLACEHOLDER: Live news ticker\n\n' +
-                '═══ BREAKING NEWS ═══\n\n' +
-                '⚡ 08:15 - TRENDING: #ElectionDebate\n' +
-                '   Public trust in candidates: 67%\n\n' +
-                '⚡ 08:03 - SOCIAL: Viral video reaches 2M views\n' +
-                '   Sentiment: 45% positive, 55% negative\n\n' +
-                '⚡ 07:52 - POLITICS: Minister denies allegations\n' +
-                '   Media coverage: High\n\n' +
-                '⚡ 07:41 - ECONOMY: Market uncertainty grows\n' +
-                '   Public confidence: 58% (-3%)\n\n' +
-                '═══════════════════\n\n' +
-                'Would show real-time events in target region:\n' +
-                '→ Trending topics (campaign opportunities)\n' +
-                '→ Public sentiment shifts\n' +
-                '→ Defensive responses to your campaigns\n' +
-                '→ Random events affecting strategy\n\n' +
-                'News affects campaign effectiveness.\n' +
-                'Timing your actions with news cycles = bonus.\n\n' +
-                '🔔 [SOUND: Phone buzz/notification]'
-              );
-            }}
-          >
-            <div
-              className="border-8 rounded-lg"
-              style={{
-                height: '280px',
-                backgroundColor: '#000',
-                borderColor: StoryModeColors.darkConcrete,
-                boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)'
-              }}
-            >
-              <div
-                className="p-3 h-full overflow-hidden"
-                style={{ backgroundColor: StoryModeColors.surface }}
-              >
-                <div className="text-center mb-2 text-xs font-bold" style={{ color: StoryModeColors.danger }}>
-                  ⚡ LIVE NEWS ⚡
-                </div>
-
-                <div className="space-y-2 text-xs">
-                  <div
-                    className="p-2 border-l-4"
-                    style={{
-                      backgroundColor: StoryModeColors.darkConcrete,
-                      borderColor: StoryModeColors.sovietRed
-                    }}
-                  >
-                    <div className="font-bold mb-1">08:15 BREAKING</div>
-                    <div style={{ color: StoryModeColors.textSecondary }}>
-                      #ElectionDebate trending
-                    </div>
-                  </div>
-
-                  <div
-                    className="p-2 border-l-4"
-                    style={{
-                      backgroundColor: StoryModeColors.darkConcrete,
-                      borderColor: StoryModeColors.warning
-                    }}
-                  >
-                    <div className="font-bold mb-1">08:03 VIRAL</div>
-                    <div style={{ color: StoryModeColors.textSecondary }}>
-                      Video: 2M views
-                    </div>
-                  </div>
-
-                  <div
-                    className="p-2 border-l-4"
-                    style={{
-                      backgroundColor: StoryModeColors.darkConcrete,
-                      borderColor: StoryModeColors.agencyBlue
-                    }}
-                  >
-                    <div className="font-bold mb-1">07:52 POLITICS</div>
-                    <div style={{ color: StoryModeColors.textSecondary }}>
-                      Minister statement
-                    </div>
-                  </div>
-                </div>
-
-                <div className="absolute bottom-3 left-0 right-0 text-center text-xs" style={{ color: StoryModeColors.textMuted }}>
-                  [Tap for details]
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Desk Items Bottom */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-4">
-            <button
-              onClick={() => {
-                playSound('Button click');
-                showNote(
-                  '📅 CALENDAR',
-                  'PLACEHOLDER: Mission timeline\n\n' +
-                  '═══ 30-DAY CAMPAIGN ═══\n\n' +
-                  'DAY 01 ◄ YOU ARE HERE\n' +
-                  '│ └─ Choose initial strategy\n' +
-                  '│\n' +
-                  'DAY 05\n' +
-                  '│ └─ ⚠️ First evaluation checkpoint\n' +
-                  '│\n' +
-                  'DAY 10\n' +
-                  '│ └─ ⚠️ Mid-campaign review\n' +
-                  '│\n' +
-                  'DAY 15\n' +
-                  '│ └─ Budget renewal decision\n' +
-                  '│\n' +
-                  'DAY 30\n' +
-                  '└─ 🎯 FINAL OBJECTIVE DEADLINE\n\n' +
-                  'View upcoming events, deadlines, milestones.\n' +
-                  'Plan your AP spending across days.\n\n' +
-                  '🔔 [SOUND: Page flip]'
-                );
-              }}
-              className="p-4 border-4 hover:brightness-110 transition-all"
-              style={{
-                backgroundColor: StoryModeColors.darkConcrete,
-                borderColor: StoryModeColors.border,
-                boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
-                color: StoryModeColors.textPrimary
-              }}
-            >
-              <div className="text-2xl mb-1">📅</div>
-              <div className="text-xs font-bold">CALENDAR</div>
-            </button>
-
-            <button
-              onClick={() => {
-                playSound('Button click');
-                showNote(
-                  '📖 MANUAL',
-                  'PLACEHOLDER: In-game encyclopedia\n\n' +
-                  '═══ OPERATIONAL MANUAL ═══\n\n' +
-                  '📚 SECTIONS:\n\n' +
-                  '→ Technique Glossary\n' +
-                  '   (Astroturfing, Sockpuppets, etc.)\n\n' +
-                  '→ System Mechanics\n' +
-                  '   (How AP, Heat, Trust work)\n\n' +
-                  '→ Team Profiles\n' +
-                  '   (Volkov, Chen, Kessler bios)\n\n' +
-                  '→ Campaign Types\n' +
-                  '   (Bot swarms, Ad buys, etc.)\n\n' +
-                  '→ Risk Management\n' +
-                  '   (Avoiding detection)\n\n' +
-                  'Like Papers Please rulebook.\n' +
-                  'Reference anytime without AP cost.\n\n' +
-                  '🔔 [SOUND: Book open]'
-                );
-              }}
-              className="p-4 border-4 hover:brightness-110 transition-all"
-              style={{
-                backgroundColor: StoryModeColors.darkConcrete,
-                borderColor: StoryModeColors.border,
-                boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
-                color: StoryModeColors.textPrimary
-              }}
-            >
-              <div className="text-2xl mb-1">📖</div>
-              <div className="text-xs font-bold">MANUAL</div>
-            </button>
-          </div>
+          )}
         </div>
-      </div>
 
-      {/* Bottom Status Bar */}
-      <div
-        className="border-t-4 p-3 text-xs z-20"
-        style={{
-          backgroundColor: StoryModeColors.darkConcrete,
-          borderColor: StoryModeColors.border
-        }}
-      >
-        <div className="flex justify-between items-center">
-          <div style={{ color: StoryModeColors.textSecondary }}>
-            💡 TIP: Check your emails on the computer. Each action costs AP. Choose wisely.
+        {/* Computer Monitor - Center */}
+        <div
+          className="absolute cursor-pointer transition-all"
+          style={{
+            top: '38%',
+            left: '35%',
+            width: '30%',
+            height: '32%',
+            backgroundColor: hoverArea === 'computer' ? 'rgba(196, 30, 58, 0.3)' : 'transparent',
+            border: hoverArea === 'computer' ? `3px solid ${StoryModeColors.sovietRed}` : 'none',
+            boxShadow: hoverArea === 'computer' ? `0 0 20px ${StoryModeColors.sovietRed}` : 'none',
+            borderRadius: '8px'
+          }}
+          onMouseEnter={() => setHoverArea('computer')}
+          onMouseLeave={() => setHoverArea(null)}
+          onClick={() => {
+            playSound('Email notification click');
+            showNote(
+              '💻 SECURE TERMINAL - EMAIL SYSTEM',
+              'PLACEHOLDER: Full email interface\n\n' +
+              '📧 INBOX (3 unread)\n\n' +
+              '═══════════════════════════\n' +
+              'FROM: DIRECTOR\n' +
+              'SUBJECT: First Day - Choose Campaign Focus\n' +
+              'PRIORITY: 🔴 URGENT\n' +
+              'RECEIVED: 08:00\n' +
+              '═══════════════════════════\n\n' +
+              'Welcome to your first day as Information Operations Coordinator.\n\n' +
+              'Your mission: Destabilize public trust in [TARGET REGION] institutions within 30 days.\n\n' +
+              'Choose your initial approach:\n\n' +
+              '[BUTTON] → Focus on domestic influencers (Cost: 2 AP, Risk: Low)\n' +
+              '[BUTTON] → Target international audience (Cost: 3 AP, Risk: Medium)\n' +
+              '[BUTTON] → Request more intelligence first (Cost: 1 AP, Risk: None)\n\n' +
+              'Each choice affects:\n' +
+              '- Available campaign types\n' +
+              '- NPC relationships\n' +
+              '- Long-term strategy options\n\n' +
+              'The notification badge (1) would disappear after reading.\n\n' +
+              '🔔 [SOUND: Keyboard typing, email swoosh]'
+            );
+          }}
+        >
+          {/* Email Notification Badge */}
+          {emailNotification && (
+            <div
+              className="absolute -top-2 -right-2 w-8 h-8 flex items-center justify-center border-2 font-bold animate-pulse"
+              style={{
+                backgroundColor: StoryModeColors.sovietRed,
+                borderColor: StoryModeColors.darkRed,
+                color: '#fff',
+                borderRadius: '50%'
+              }}
+            >
+              1
+            </div>
+          )}
+          {hoverArea === 'computer' && (
+            <div
+              className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap"
+              style={{
+                backgroundColor: StoryModeColors.sovietRed,
+                borderColor: StoryModeColors.darkRed,
+                color: '#fff'
+              }}
+            >
+              💻 SECURE TERMINAL
+            </div>
+          )}
+        </div>
+
+        {/* Telephone - Left Side */}
+        <div
+          className="absolute cursor-pointer transition-all"
+          style={{
+            top: '50%',
+            left: '10%',
+            width: '18%',
+            height: '18%',
+            backgroundColor: hoverArea === 'phone' ? 'rgba(212, 160, 23, 0.3)' : 'transparent',
+            border: hoverArea === 'phone' ? `3px solid ${StoryModeColors.warning}` : 'none',
+            boxShadow: hoverArea === 'phone' ? `0 0 20px ${StoryModeColors.warning}` : 'none',
+            borderRadius: '8px'
+          }}
+          onMouseEnter={() => setHoverArea('phone')}
+          onMouseLeave={() => setHoverArea(null)}
+          onClick={() => {
+            playSound('Phone dial tone');
+            showNote(
+              '☎️ SECURE LINE - TEAM CONTACTS',
+              'PLACEHOLDER: NPC calling system\n\n' +
+              '═══ SPEED DIAL ═══\n\n' +
+              '[1] 🤖 VOLKOV - Bot Farm Chief\n' +
+              '    STATUS: Available\n' +
+              '    "The machines are ready, boss. Just point me at the target."\n\n' +
+              '    Available options:\n' +
+              '    • Request coordinated bot campaign (2 AP)\n' +
+              '    • Check current capacity (0 AP)\n' +
+              '    • Discuss new tactics (1 AP)\n' +
+              '    • Emergency: Shut down detected bots (1 AP, urgent)\n\n' +
+              '[2] 📺 CHEN - Media Buyer\n' +
+              '    STATUS: Available\n' +
+              '    "I can get your message anywhere. Money talks."\n\n' +
+              '    Available options:\n' +
+              '    • Purchase ad placements (3 AP, high cost)\n' +
+              '    • Target specific demographics (2 AP)\n' +
+              '    • Review budget allocation (0 AP)\n\n' +
+              '[3] 🔍 KESSLER - Intelligence Analyst\n' +
+              '    STATUS: Available\n' +
+              '    "I see everything they think they hide."\n\n' +
+              '    Available options:\n' +
+              '    • Request network analysis (1 AP)\n' +
+              '    • Get vulnerability report (2 AP)\n' +
+              '    • Warning: Defensive actors detected (0 AP, alert)\n\n' +
+              'Each call costs AP. Choose wisely.\n' +
+              'NPCs may call YOU with urgent info (interrupts).\n\n' +
+              '🔔 [SOUND: Phone ringing, dial tone, hang up click]'
+            );
+          }}
+        >
+          {hoverArea === 'phone' && (
+            <div
+              className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap"
+              style={{
+                backgroundColor: StoryModeColors.warning,
+                borderColor: '#A37F1A',
+                color: StoryModeColors.background
+              }}
+            >
+              ☎️ SECURE LINE
+            </div>
+          )}
+        </div>
+
+        {/* Smartphone - Right Side */}
+        <div
+          className="absolute cursor-pointer transition-all"
+          style={{
+            top: '56%',
+            left: '68%',
+            width: '14%',
+            height: '22%',
+            backgroundColor: hoverArea === 'smartphone' ? 'rgba(255, 68, 68, 0.3)' : 'transparent',
+            border: hoverArea === 'smartphone' ? `3px solid ${StoryModeColors.danger}` : 'none',
+            boxShadow: hoverArea === 'smartphone' ? `0 0 20px ${StoryModeColors.danger}` : 'none',
+            borderRadius: '8px'
+          }}
+          onMouseEnter={() => setHoverArea('smartphone')}
+          onMouseLeave={() => setHoverArea(null)}
+          onClick={() => {
+            playSound('Phone notification buzz');
+            showNote(
+              '📱 LIVE NEWS FEED - INTELLIGENCE',
+              'PLACEHOLDER: Real-time news ticker\n\n' +
+              '═══ BREAKING NEWS - TARGET REGION ═══\n\n' +
+              '⚡ 08:15 - TRENDING: #ElectionDebate\n' +
+              '   Public trust in candidates: 67% (-2% since yesterday)\n' +
+              '   💡 OPPORTUNITY: High engagement, low defenses\n' +
+              '   Recommended: Launch bot campaign now (bonus effectiveness)\n\n' +
+              '⚡ 08:03 - VIRAL: Scandal video reaches 2M views\n' +
+              '   Sentiment: 45% positive, 55% negative\n' +
+              '   💡 OPPORTUNITY: Amplify negative sentiment\n' +
+              '   Risk: High attention = detection risk\n\n' +
+              '⚡ 07:52 - POLITICS: Minister denies corruption allegations\n' +
+              '   Media coverage: Very High\n' +
+              '   💡 OPPORTUNITY: Seed doubt with targeted ads\n\n' +
+              '⚡ 07:41 - ECONOMY: Market uncertainty grows\n' +
+              '   Public confidence: 58% (-3% this week)\n' +
+              '   ⚠️ WARNING: Economic instability attracts investigators\n\n' +
+              '═══════════════════════════════\n\n' +
+              'News Feed shows:\n' +
+              '→ Trending topics = campaign opportunities\n' +
+              '→ Public sentiment shifts in real-time\n' +
+              '→ Defensive responses to your campaigns\n' +
+              '→ Random events affecting strategy\n\n' +
+              'TIMING BONUS: Launch campaigns during relevant news = +25% effectiveness\n\n' +
+              'News updates every turn (day).\n\n' +
+              '🔔 [SOUND: Phone buzz, notification ping]'
+            );
+          }}
+        >
+          {hoverArea === 'smartphone' && (
+            <div
+              className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap"
+              style={{
+                backgroundColor: StoryModeColors.danger,
+                borderColor: '#CC0000',
+                color: '#fff'
+              }}
+            >
+              📱 LIVE NEWS
+            </div>
+          )}
+        </div>
+
+        {/* Door - Right Side */}
+        <div
+          className="absolute cursor-pointer transition-all"
+          style={{
+            top: '15%',
+            left: '75%',
+            width: '16%',
+            height: '35%',
+            backgroundColor: hoverArea === 'door' ? 'rgba(74, 93, 35, 0.3)' : 'transparent',
+            border: hoverArea === 'door' ? `3px solid ${StoryModeColors.militaryOlive}` : 'none',
+            boxShadow: hoverArea === 'door' ? `0 0 20px ${StoryModeColors.militaryOlive}` : 'none',
+            borderRadius: '8px'
+          }}
+          onMouseEnter={() => setHoverArea('door')}
+          onMouseLeave={() => setHoverArea(null)}
+          onClick={() => {
+            playSound('Door knock');
+            showNote(
+              '🚪 SECURITY DOOR - EVENT SYSTEM',
+              'PLACEHOLDER: Random event entrance\n\n' +
+              'Currently: CLOSED (No active events)\n\n' +
+              'When critical events occur, an NPC appears here:\n\n' +
+              '👤 POSSIBLE VISITORS:\n\n' +
+              '→ 👔 DIRECTOR: Urgent orders, strategy changes\n' +
+              '   "The higher-ups want results. Now."\n\n' +
+              '→ 🖥️ IT SECURITY: Warning about detection\n' +
+              '   "We have a problem. They\'re looking for us."\n\n' +
+              '→ 💰 FINANCE AUDITOR: Questioning expenses\n' +
+              '   "I need to see receipts for these \'consultant fees\'."\n\n' +
+              '→ 🎭 RIVAL OPERATIVE: "Friendly" advice\n' +
+              '   "Nice campaign. Shame if something... disrupted it."\n\n' +
+              '→ 📰 JOURNALIST: Investigative reporter\n' +
+              '   "I know what you\'re doing. Care to comment?"\n\n' +
+              'EVENT MECHANICS:\n' +
+              '- NPC sprite appears in doorway\n' +
+              '- Dialogue choices presented\n' +
+              '- Some events are TIME-SENSITIVE (must respond within X AP)\n' +
+              '- Choices affect: Heat level, NPC relationships, story branches\n' +
+              '- Door pulses/glows when event is active\n\n' +
+              'Like Papers Please inspector visits - creates tension!\n\n' +
+              '🔔 [SOUND: Door knock, footsteps, door creak]'
+            );
+          }}
+        >
+          {hoverArea === 'door' && (
+            <div
+              className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap"
+              style={{
+                backgroundColor: StoryModeColors.militaryOlive,
+                borderColor: StoryModeColors.darkOlive,
+                color: StoryModeColors.warning
+              }}
+            >
+              🚪 EVENT DOOR
+            </div>
+          )}
+        </div>
+
+        {/* Desk Items - Soviet Folder */}
+        <div
+          className="absolute cursor-pointer transition-all"
+          style={{
+            top: '58%',
+            left: '28%',
+            width: '12%',
+            height: '12%',
+            backgroundColor: hoverArea === 'folder' ? 'rgba(196, 30, 58, 0.3)' : 'transparent',
+            border: hoverArea === 'folder' ? `3px solid ${StoryModeColors.sovietRed}` : 'none',
+            boxShadow: hoverArea === 'folder' ? `0 0 20px ${StoryModeColors.sovietRed}` : 'none',
+            borderRadius: '8px'
+          }}
+          onMouseEnter={() => setHoverArea('folder' as HoverArea)}
+          onMouseLeave={() => setHoverArea(null)}
+          onClick={() => {
+            playSound('Page flip');
+            showNote(
+              '📕 CLASSIFIED DOSSIER - MISSION BRIEFING',
+              'PLACEHOLDER: Mission documents & objectives\n\n' +
+              '═══ OPERATION DOSSIER ═══\n\n' +
+              '🌟 MISSION: DESTABILIZE\n' +
+              'TARGET: [REDACTED] Democratic Institutions\n' +
+              'TIMELINE: 30 Days\n' +
+              'BUDGET: $50,000 (renewable based on results)\n\n' +
+              'PRIMARY OBJECTIVE:\n' +
+              '→ Reduce public trust below 40% threshold\n' +
+              '→ Target: 75% of population affected\n\n' +
+              'SECONDARY OBJECTIVES:\n' +
+              '→ Maintain operational security (Heat < 80%)\n' +
+              '→ Maximize ROI (efficiency scoring)\n' +
+              '→ Avoid attribution (no direct links to source)\n\n' +
+              'SUCCESS METRICS:\n' +
+              '- Trust degradation rate\n' +
+              '- Campaign reach vs. cost\n' +
+              '- Detection avoidance\n' +
+              '- Network effect propagation\n\n' +
+              'FAILURE CONDITIONS:\n' +
+              '❌ Exposure > 90% (operation shut down)\n' +
+              '❌ Time runs out (30 days)\n' +
+              '❌ Budget exhausted with no results\n\n' +
+              'This connects to the Pro Mode victory conditions!\n\n' +
+              '🔔 [SOUND: Page rustle, stamp]'
+            );
+          }}
+        />
+
+        {/* Bottom Action Bar - Overlay on image */}
+        <div
+          className="absolute bottom-0 left-0 right-0 p-4 flex justify-between items-center"
+          style={{
+            backgroundColor: 'rgba(45, 45, 45, 0.95)',
+            borderTop: `4px solid ${StoryModeColors.border}`
+          }}
+        >
+          <div style={{ color: StoryModeColors.textSecondary }} className="text-xs">
+            💡 TIP: Hover over any element to see interactions. Click to view details.
           </div>
           <button
             onClick={() => {
               playSound('End day transition');
               showNote(
-                'END DAY',
+                'END DAY - TIME ADVANCEMENT',
                 'PLACEHOLDER: Day transition system\n\n' +
-                'When you end the day:\n\n' +
-                '→ All active campaigns run automatically\n' +
-                '→ Network effects propagate (trust changes)\n' +
-                '→ Random events may occur\n' +
-                '→ Resources regenerate\n' +
-                '→ New emails arrive tomorrow morning\n' +
-                '→ News feed updates\n' +
-                '→ Heat level adjusts based on activity\n\n' +
-                'You get 12 AP per day.\n' +
-                'Unused AP = wasted opportunity.\n' +
-                'But rushing = higher heat = detection risk.\n\n' +
-                'Time pressure: Balance speed vs. stealth.\n\n' +
-                '🔔 [SOUND: Clock chime, transition music]'
+                '⏰ END DAY SEQUENCE:\n\n' +
+                '1. CAMPAIGN EXECUTION\n' +
+                '   → All active campaigns run automatically\n' +
+                '   → Bot swarms deploy\n' +
+                '   → Ads reach target audiences\n' +
+                '   → Content spreads through network\n\n' +
+                '2. NETWORK PROPAGATION\n' +
+                '   → Trust changes ripple through connections\n' +
+                '   → Like Pro Mode network mechanics\n' +
+                '   → Results shown on TV screen\n\n' +
+                '3. RANDOM EVENTS\n' +
+                '   → News stories break\n' +
+                '   → Defensive actors may spawn\n' +
+                '   → Budget changes\n' +
+                '   → NPC status updates\n\n' +
+                '4. RESOURCE REGENERATION\n' +
+                '   → AP resets to 12\n' +
+                '   → Heat level adjusts\n' +
+                '   → New emails arrive\n\n' +
+                '5. NEW DAY BEGINS\n' +
+                '   → Day counter increments\n' +
+                '   → Fresh opportunities\n' +
+                '   → Time pressure increases\n\n' +
+                'STRATEGY:\n' +
+                '- Unused AP = wasted opportunity\n' +
+                '- But rushing = higher heat = detection\n' +
+                '- Balance speed vs. stealth\n\n' +
+                'You have 12 AP per day. Use them wisely.\n\n' +
+                '🔔 [SOUND: Clock chime, transition whoosh, new day jingle]'
               );
             }}
             className="px-6 py-2 border-4 font-bold hover:brightness-110 transition-all"
@@ -600,7 +528,7 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
         </div>
       </div>
 
-      {/* Note/Description Modal */}
+      {/* Modal - Unchanged from previous version */}
       {selectedInteraction && (
         <div className="absolute inset-0 flex items-center justify-center p-8 z-50" style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}>
           <div
