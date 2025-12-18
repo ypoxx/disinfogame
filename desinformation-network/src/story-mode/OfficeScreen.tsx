@@ -10,12 +10,11 @@ type Interaction = {
   description: string;
 };
 
-type HoverArea = 'computer' | 'phone' | 'smartphone' | 'tv' | 'door' | 'folder' | null;
+type HoverArea = 'computer' | 'phone' | 'smartphone' | 'tv' | 'door' | 'folder' | 'notification' | null;
 
 export function OfficeScreen({ onExit }: OfficeScreenProps) {
   const [selectedInteraction, setSelectedInteraction] = useState<Interaction | null>(null);
   const [hoverArea, setHoverArea] = useState<HoverArea>(null);
-  const [emailNotification] = useState(true);
 
   const showNote = (title: string, description: string) => {
     setSelectedInteraction({ title, description });
@@ -27,6 +26,126 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
 
   const playSound = (soundName: string) => {
     console.log(`🔊 [SOUND: ${soundName}]`);
+  };
+
+  // Polygon coordinates (normalized 0-1, will scale with viewBox)
+  const polygons = {
+    tv: '229,164 598,49 596,237 233,365',
+    computer: '580,327 916,414 915,603 581,499',
+    notification: '825,402 870,413 869,458 824,445',
+    phone: '396,453 544,483 480,592 339,553',
+    smartphone: '1041,651 1100,661 1049,746 989,724',
+    door: '1010,101 1230,172 1228,589 1008,503',
+    folder: '524,625 658,666 546,747 420,701',
+  };
+
+  const getPolygonColor = (id: HoverArea): string => {
+    switch(id) {
+      case 'tv': return StoryModeColors.agencyBlue;
+      case 'computer': return StoryModeColors.sovietRed;
+      case 'notification': return StoryModeColors.sovietRed;
+      case 'phone': return StoryModeColors.warning;
+      case 'smartphone': return StoryModeColors.danger;
+      case 'door': return StoryModeColors.militaryOlive;
+      case 'folder': return StoryModeColors.sovietRed;
+      default: return 'transparent';
+    }
+  };
+
+  const handlePolygonClick = (id: HoverArea) => {
+    playSound('Click');
+
+    switch(id) {
+      case 'tv':
+        showNote(
+          '📺 CAMPAIGN ANALYTICS - WALL DISPLAY',
+          'PLACEHOLDER: Interactive campaign dashboard\n\n' +
+          'Would show real-time campaign performance bars, network trust degradation graph (like Pro Mode metrics), reach vs. exposure trade-offs, target demographics breakdown, and comparative analysis vs. previous days.\n\n' +
+          '🔔 [SOUND: Screen beep, data refresh]'
+        );
+        break;
+      case 'computer':
+        showNote(
+          '💻 SECURE TERMINAL - EMAIL SYSTEM',
+          'PLACEHOLDER: Full email interface\n\n' +
+          '📧 INBOX (3 unread)\n\n' +
+          'FROM: DIRECTOR\n' +
+          'SUBJECT: First Day - Choose Campaign Focus\n\n' +
+          'Your mission: Destabilize public trust within 30 days.\n\n' +
+          'Choose your initial approach:\n' +
+          '→ Focus on domestic influencers (Cost: 2 AP, Risk: Low)\n' +
+          '→ Target international audience (Cost: 3 AP, Risk: Medium)\n' +
+          '→ Request more intelligence first (Cost: 1 AP, Risk: None)\n\n' +
+          '🔔 [SOUND: Keyboard typing, email swoosh]'
+        );
+        break;
+      case 'notification':
+        showNote(
+          '🔴 EMAIL NOTIFICATION',
+          'PLACEHOLDER: Notification badge\n\n' +
+          '1 new urgent email from DIRECTOR\n\n' +
+          'Click computer monitor to read emails.\n' +
+          'Badge disappears after reading.\n\n' +
+          '🔔 [SOUND: Notification ping]'
+        );
+        break;
+      case 'phone':
+        showNote(
+          '☎️ SECURE LINE - TEAM CONTACTS',
+          'PLACEHOLDER: NPC calling system\n\n' +
+          '═══ SPEED DIAL ═══\n\n' +
+          '[1] 🤖 VOLKOV - Bot Farm Chief\n' +
+          '[2] 📺 CHEN - Media Buyer\n' +
+          '[3] 🔍 KESSLER - Intelligence Analyst\n\n' +
+          'Each call costs 1 AP. NPCs may call YOU with urgent info.\n\n' +
+          '🔔 [SOUND: Phone ringing, dial tone]'
+        );
+        break;
+      case 'smartphone':
+        showNote(
+          '📱 LIVE NEWS FEED',
+          'PLACEHOLDER: Real-time news ticker\n\n' +
+          '⚡ 08:15 - TRENDING: #ElectionDebate\n' +
+          'Public trust: 67% (-2%)\n' +
+          '💡 OPPORTUNITY: High engagement\n\n' +
+          '⚡ 08:03 - VIRAL: Scandal video 2M views\n' +
+          'Sentiment: 55% negative\n\n' +
+          'TIMING BONUS: Launch campaigns during relevant news = +25% effectiveness\n\n' +
+          '🔔 [SOUND: Phone buzz]'
+        );
+        break;
+      case 'door':
+        showNote(
+          '🚪 SECURITY DOOR - EVENT SYSTEM',
+          'PLACEHOLDER: Random event entrance\n\n' +
+          'When critical events occur, an NPC appears here:\n' +
+          '👔 DIRECTOR: Urgent orders\n' +
+          '🖥️ IT SECURITY: Detection warning\n' +
+          '💰 FINANCE AUDITOR: Questioning expenses\n' +
+          '🎭 RIVAL OPERATIVE: "Friendly" advice\n' +
+          '📰 JOURNALIST: Investigating\n\n' +
+          'Some events are TIME-SENSITIVE.\n\n' +
+          '🔔 [SOUND: Door knock, footsteps]'
+        );
+        break;
+      case 'folder':
+        showNote(
+          '📕 CLASSIFIED DOSSIER',
+          'PLACEHOLDER: Mission briefing\n\n' +
+          '🌟 MISSION: DESTABILIZE\n' +
+          'TARGET: Democratic Institutions\n' +
+          'TIMELINE: 30 Days\n' +
+          'BUDGET: $50,000\n\n' +
+          'PRIMARY OBJECTIVE:\n' +
+          '→ Reduce public trust below 40%\n' +
+          '→ Target: 75% of population affected\n\n' +
+          'FAILURE CONDITIONS:\n' +
+          '❌ Exposure > 90%\n' +
+          '❌ Time runs out\n\n' +
+          '🔔 [SOUND: Page rustle]'
+        );
+        break;
+    }
   };
 
   return (
@@ -85,391 +204,177 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
         </button>
       </div>
 
-      {/* Main Office Scene - AI Image Background with Clickable Areas */}
-      <div
-        className="flex-1 relative"
-        style={{
-          background: `url(/office-brutalist-scene.jpg) center/cover no-repeat, linear-gradient(135deg, ${StoryModeColors.darkConcrete} 0%, ${StoryModeColors.concrete} 50%, ${StoryModeColors.darkConcrete} 100%)`,
-        }}
-      >
-        {/* Placeholder message if image not loaded - Bottom Right */}
-        <div className="absolute bottom-4 right-4 pointer-events-none max-w-sm">
+      {/* Main Office Scene with SVG Overlay */}
+      <div className="flex-1 relative">
+        {/* Background Image */}
+        <img
+          src="/office-brutalist-scene.jpg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            background: `linear-gradient(135deg, ${StoryModeColors.darkConcrete} 0%, ${StoryModeColors.concrete} 50%, ${StoryModeColors.darkConcrete} 100%)`
+          }}
+        />
+
+        {/* Pulsing Notification Badge - Positioned on drawn notification */}
+        <svg
+          viewBox="0 0 1536 1024"
+          preserveAspectRatio="xMidYMid meet"
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          style={{ zIndex: 10 }}
+        >
+          <polygon
+            points={polygons.notification}
+            fill="none"
+            stroke={StoryModeColors.sovietRed}
+            strokeWidth="4"
+            className="animate-pulse"
+            style={{
+              filter: `drop-shadow(0 0 8px ${StoryModeColors.sovietRed})`
+            }}
+          />
+        </svg>
+
+        {/* SVG Overlay for Clickable Polygons */}
+        <svg
+          viewBox="0 0 1536 1024"
+          preserveAspectRatio="xMidYMid meet"
+          className="absolute inset-0 w-full h-full"
+          style={{ pointerEvents: 'none', zIndex: 5 }}
+        >
+          <g style={{ pointerEvents: 'auto' }}>
+            {/* TV Screen */}
+            <polygon
+              points={polygons.tv}
+              fill={hoverArea === 'tv' ? 'rgba(74, 157, 255, 0.25)' : 'transparent'}
+              stroke={hoverArea === 'tv' ? StoryModeColors.agencyBlue : 'transparent'}
+              strokeWidth="4"
+              className="cursor-pointer transition-all"
+              style={{
+                filter: hoverArea === 'tv' ? `drop-shadow(0 0 12px ${StoryModeColors.agencyBlue})` : 'none'
+              }}
+              onMouseEnter={() => setHoverArea('tv')}
+              onMouseLeave={() => setHoverArea(null)}
+              onClick={() => handlePolygonClick('tv')}
+            />
+
+            {/* Computer Monitor */}
+            <polygon
+              points={polygons.computer}
+              fill={hoverArea === 'computer' ? 'rgba(196, 30, 58, 0.25)' : 'transparent'}
+              stroke={hoverArea === 'computer' ? StoryModeColors.sovietRed : 'transparent'}
+              strokeWidth="4"
+              className="cursor-pointer transition-all"
+              style={{
+                filter: hoverArea === 'computer' ? `drop-shadow(0 0 12px ${StoryModeColors.sovietRed})` : 'none'
+              }}
+              onMouseEnter={() => setHoverArea('computer')}
+              onMouseLeave={() => setHoverArea(null)}
+              onClick={() => handlePolygonClick('computer')}
+            />
+
+            {/* Notification Badge - Clickable */}
+            <polygon
+              points={polygons.notification}
+              fill={hoverArea === 'notification' ? 'rgba(196, 30, 58, 0.4)' : 'transparent'}
+              stroke="transparent"
+              strokeWidth="3"
+              className="cursor-pointer transition-all"
+              onMouseEnter={() => setHoverArea('notification')}
+              onMouseLeave={() => setHoverArea(null)}
+              onClick={() => handlePolygonClick('notification')}
+            />
+
+            {/* Telephone */}
+            <polygon
+              points={polygons.phone}
+              fill={hoverArea === 'phone' ? 'rgba(212, 160, 23, 0.25)' : 'transparent'}
+              stroke={hoverArea === 'phone' ? StoryModeColors.warning : 'transparent'}
+              strokeWidth="4"
+              className="cursor-pointer transition-all"
+              style={{
+                filter: hoverArea === 'phone' ? `drop-shadow(0 0 12px ${StoryModeColors.warning})` : 'none'
+              }}
+              onMouseEnter={() => setHoverArea('phone')}
+              onMouseLeave={() => setHoverArea(null)}
+              onClick={() => handlePolygonClick('phone')}
+            />
+
+            {/* Smartphone */}
+            <polygon
+              points={polygons.smartphone}
+              fill={hoverArea === 'smartphone' ? 'rgba(255, 68, 68, 0.25)' : 'transparent'}
+              stroke={hoverArea === 'smartphone' ? StoryModeColors.danger : 'transparent'}
+              strokeWidth="4"
+              className="cursor-pointer transition-all"
+              style={{
+                filter: hoverArea === 'smartphone' ? `drop-shadow(0 0 12px ${StoryModeColors.danger})` : 'none'
+              }}
+              onMouseEnter={() => setHoverArea('smartphone')}
+              onMouseLeave={() => setHoverArea(null)}
+              onClick={() => handlePolygonClick('smartphone')}
+            />
+
+            {/* Door */}
+            <polygon
+              points={polygons.door}
+              fill={hoverArea === 'door' ? 'rgba(74, 93, 35, 0.25)' : 'transparent'}
+              stroke={hoverArea === 'door' ? StoryModeColors.militaryOlive : 'transparent'}
+              strokeWidth="4"
+              className="cursor-pointer transition-all"
+              style={{
+                filter: hoverArea === 'door' ? `drop-shadow(0 0 12px ${StoryModeColors.militaryOlive})` : 'none'
+              }}
+              onMouseEnter={() => setHoverArea('door')}
+              onMouseLeave={() => setHoverArea(null)}
+              onClick={() => handlePolygonClick('door')}
+            />
+
+            {/* Folder */}
+            <polygon
+              points={polygons.folder}
+              fill={hoverArea === 'folder' ? 'rgba(196, 30, 58, 0.25)' : 'transparent'}
+              stroke={hoverArea === 'folder' ? StoryModeColors.sovietRed : 'transparent'}
+              strokeWidth="4"
+              className="cursor-pointer transition-all"
+              style={{
+                filter: hoverArea === 'folder' ? `drop-shadow(0 0 12px ${StoryModeColors.sovietRed})` : 'none'
+              }}
+              onMouseEnter={() => setHoverArea('folder')}
+              onMouseLeave={() => setHoverArea(null)}
+              onClick={() => handlePolygonClick('folder')}
+            />
+          </g>
+        </svg>
+
+        {/* Placeholder message - Bottom Right */}
+        <div className="absolute bottom-4 right-4 pointer-events-none max-w-sm z-20">
           <div
-            className="text-center p-4 border-4"
+            className="text-center p-3 border-4"
             style={{
               backgroundColor: 'rgba(61, 61, 61, 0.95)',
               borderColor: StoryModeColors.sovietRed,
               color: StoryModeColors.textPrimary
             }}
           >
-            <div className="text-lg mb-2">📷</div>
-            <div className="font-bold mb-1 text-xs">AI-GENERATED OFFICE SCENE</div>
-            <div className="text-xs" style={{ color: StoryModeColors.textSecondary }}>
-              Place image at:<br />
-              <code className="text-xs">/public/office-brutalist-scene.jpg</code>
+            <div className="text-sm mb-1">📷</div>
+            <div className="font-bold text-xs">AI OFFICE SCENE</div>
+            <div className="text-xs mt-1" style={{ color: StoryModeColors.textSecondary }}>
+              /public/office-brutalist-scene.jpg
             </div>
           </div>
         </div>
 
-        {/* TV Screen - Top Left (wall_screen: manually adjusted) */}
+        {/* Bottom Action Bar */}
         <div
-          className="absolute cursor-pointer transition-all"
-          style={{
-            top: '4.8%',      // 0.047788
-            left: '14.9%',    // 0.149239
-            width: '24.0%',   // 0.389328 - 0.149239
-            height: '30.8%',  // 0.356011 - 0.047788
-            backgroundColor: hoverArea === 'tv' ? 'rgba(74, 157, 255, 0.3)' : 'transparent',
-            border: hoverArea === 'tv' ? `3px solid ${StoryModeColors.agencyBlue}` : 'none',
-            boxShadow: hoverArea === 'tv' ? `0 0 20px ${StoryModeColors.agencyBlue}` : 'none',
-            borderRadius: '8px'
-          }}
-          onMouseEnter={() => setHoverArea('tv')}
-          onMouseLeave={() => setHoverArea(null)}
-          onClick={() => {
-            playSound('Screen beep');
-            showNote(
-              '📺 CAMPAIGN ANALYTICS - WALL DISPLAY',
-              'PLACEHOLDER: Interactive campaign dashboard\n\n' +
-              '████████████ Trust Decrease: 15%\n' +
-              '██████          Bot Reach: 45K\n' +
-              '████████████████ Engagement: 89%\n' +
-              '████            Detection Risk: 8%\n\n' +
-              'Would show:\n' +
-              '→ Real-time campaign performance bars\n' +
-              '→ Network trust degradation graph (like Pro Mode metrics)\n' +
-              '→ Reach vs. exposure trade-offs\n' +
-              '→ Target demographics breakdown\n' +
-              '→ Comparative analysis vs. previous days\n' +
-              '→ Clickable bars to drill down into details\n\n' +
-              'This bridges Story Mode visuals with Pro Mode analytics.\n\n' +
-              '🔔 [SOUND: Screen beep, data refresh]'
-            );
-          }}
-        >
-          {hoverArea === 'tv' && (
-            <div
-              className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap"
-              style={{
-                backgroundColor: StoryModeColors.agencyBlue,
-                borderColor: StoryModeColors.darkBlue,
-                color: StoryModeColors.warning
-              }}
-            >
-              📺 CAMPAIGN STATS
-            </div>
-          )}
-        </div>
-
-        {/* Computer Monitor - Center (computer: manually adjusted) */}
-        <div
-          className="absolute cursor-pointer transition-all"
-          style={{
-            top: '31.9%',     // 0.31924
-            left: '37.8%',    // 0.377792
-            width: '21.8%',   // 0.596252 - 0.377792
-            height: '27.0%',  // 0.588867 - 0.31924
-            backgroundColor: hoverArea === 'computer' ? 'rgba(196, 30, 58, 0.3)' : 'transparent',
-            border: hoverArea === 'computer' ? `3px solid ${StoryModeColors.sovietRed}` : 'none',
-            boxShadow: hoverArea === 'computer' ? `0 0 20px ${StoryModeColors.sovietRed}` : 'none',
-            borderRadius: '8px'
-          }}
-          onMouseEnter={() => setHoverArea('computer')}
-          onMouseLeave={() => setHoverArea(null)}
-          onClick={() => {
-            playSound('Email notification click');
-            showNote(
-              '💻 SECURE TERMINAL - EMAIL SYSTEM',
-              'PLACEHOLDER: Full email interface\n\n' +
-              '📧 INBOX (3 unread)\n\n' +
-              '═══════════════════════════\n' +
-              'FROM: DIRECTOR\n' +
-              'SUBJECT: First Day - Choose Campaign Focus\n' +
-              'PRIORITY: 🔴 URGENT\n' +
-              'RECEIVED: 08:00\n' +
-              '═══════════════════════════\n\n' +
-              'Welcome to your first day as Information Operations Coordinator.\n\n' +
-              'Your mission: Destabilize public trust in [TARGET REGION] institutions within 30 days.\n\n' +
-              'Choose your initial approach:\n\n' +
-              '[BUTTON] → Focus on domestic influencers (Cost: 2 AP, Risk: Low)\n' +
-              '[BUTTON] → Target international audience (Cost: 3 AP, Risk: Medium)\n' +
-              '[BUTTON] → Request more intelligence first (Cost: 1 AP, Risk: None)\n\n' +
-              'Each choice affects:\n' +
-              '- Available campaign types\n' +
-              '- NPC relationships\n' +
-              '- Long-term strategy options\n\n' +
-              'The notification badge (1) would disappear after reading.\n\n' +
-              '🔔 [SOUND: Keyboard typing, email swoosh]'
-            );
-          }}
-        >
-          {/* Email Notification Badge */}
-          {emailNotification && (
-            <div
-              className="absolute -top-2 -right-2 w-8 h-8 flex items-center justify-center border-2 font-bold animate-pulse"
-              style={{
-                backgroundColor: StoryModeColors.sovietRed,
-                borderColor: StoryModeColors.darkRed,
-                color: '#fff',
-                borderRadius: '50%'
-              }}
-            >
-              1
-            </div>
-          )}
-          {hoverArea === 'computer' && (
-            <div
-              className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap"
-              style={{
-                backgroundColor: StoryModeColors.sovietRed,
-                borderColor: StoryModeColors.darkRed,
-                color: '#fff'
-              }}
-            >
-              💻 SECURE TERMINAL
-            </div>
-          )}
-        </div>
-
-        {/* Telephone - Left Side (telephone: manually adjusted) */}
-        <div
-          className="absolute cursor-pointer transition-all"
-          style={{
-            top: '44.3%',     // 0.442529
-            left: '22.1%',    // 0.220617
-            width: '13.3%',   // 0.354 - 0.220617
-            height: '13.5%',  // 0.577715 - 0.442529
-            backgroundColor: hoverArea === 'phone' ? 'rgba(212, 160, 23, 0.3)' : 'transparent',
-            border: hoverArea === 'phone' ? `3px solid ${StoryModeColors.warning}` : 'none',
-            boxShadow: hoverArea === 'phone' ? `0 0 20px ${StoryModeColors.warning}` : 'none',
-            borderRadius: '8px'
-          }}
-          onMouseEnter={() => setHoverArea('phone')}
-          onMouseLeave={() => setHoverArea(null)}
-          onClick={() => {
-            playSound('Phone dial tone');
-            showNote(
-              '☎️ SECURE LINE - TEAM CONTACTS',
-              'PLACEHOLDER: NPC calling system\n\n' +
-              '═══ SPEED DIAL ═══\n\n' +
-              '[1] 🤖 VOLKOV - Bot Farm Chief\n' +
-              '    STATUS: Available\n' +
-              '    "The machines are ready, boss. Just point me at the target."\n\n' +
-              '    Available options:\n' +
-              '    • Request coordinated bot campaign (2 AP)\n' +
-              '    • Check current capacity (0 AP)\n' +
-              '    • Discuss new tactics (1 AP)\n' +
-              '    • Emergency: Shut down detected bots (1 AP, urgent)\n\n' +
-              '[2] 📺 CHEN - Media Buyer\n' +
-              '    STATUS: Available\n' +
-              '    "I can get your message anywhere. Money talks."\n\n' +
-              '    Available options:\n' +
-              '    • Purchase ad placements (3 AP, high cost)\n' +
-              '    • Target specific demographics (2 AP)\n' +
-              '    • Review budget allocation (0 AP)\n\n' +
-              '[3] 🔍 KESSLER - Intelligence Analyst\n' +
-              '    STATUS: Available\n' +
-              '    "I see everything they think they hide."\n\n' +
-              '    Available options:\n' +
-              '    • Request network analysis (1 AP)\n' +
-              '    • Get vulnerability report (2 AP)\n' +
-              '    • Warning: Defensive actors detected (0 AP, alert)\n\n' +
-              'Each call costs AP. Choose wisely.\n' +
-              'NPCs may call YOU with urgent info (interrupts).\n\n' +
-              '🔔 [SOUND: Phone ringing, dial tone, hang up click]'
-            );
-          }}
-        >
-          {hoverArea === 'phone' && (
-            <div
-              className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap"
-              style={{
-                backgroundColor: StoryModeColors.warning,
-                borderColor: '#A37F1A',
-                color: StoryModeColors.background
-              }}
-            >
-              ☎️ SECURE LINE
-            </div>
-          )}
-        </div>
-
-        {/* Smartphone - Right Side (smartphone: manually adjusted) */}
-        <div
-          className="absolute cursor-pointer transition-all"
-          style={{
-            top: '63.6%',     // 0.636115
-            left: '64.4%',    // 0.643837
-            width: '7.2%',    // 0.715936 - 0.643837
-            height: '9.2%',   // 0.728041 - 0.636115
-            backgroundColor: hoverArea === 'smartphone' ? 'rgba(255, 68, 68, 0.3)' : 'transparent',
-            border: hoverArea === 'smartphone' ? `3px solid ${StoryModeColors.danger}` : 'none',
-            boxShadow: hoverArea === 'smartphone' ? `0 0 20px ${StoryModeColors.danger}` : 'none',
-            borderRadius: '8px'
-          }}
-          onMouseEnter={() => setHoverArea('smartphone')}
-          onMouseLeave={() => setHoverArea(null)}
-          onClick={() => {
-            playSound('Phone notification buzz');
-            showNote(
-              '📱 LIVE NEWS FEED - INTELLIGENCE',
-              'PLACEHOLDER: Real-time news ticker\n\n' +
-              '═══ BREAKING NEWS - TARGET REGION ═══\n\n' +
-              '⚡ 08:15 - TRENDING: #ElectionDebate\n' +
-              '   Public trust in candidates: 67% (-2% since yesterday)\n' +
-              '   💡 OPPORTUNITY: High engagement, low defenses\n' +
-              '   Recommended: Launch bot campaign now (bonus effectiveness)\n\n' +
-              '⚡ 08:03 - VIRAL: Scandal video reaches 2M views\n' +
-              '   Sentiment: 45% positive, 55% negative\n' +
-              '   💡 OPPORTUNITY: Amplify negative sentiment\n' +
-              '   Risk: High attention = detection risk\n\n' +
-              '⚡ 07:52 - POLITICS: Minister denies corruption allegations\n' +
-              '   Media coverage: Very High\n' +
-              '   💡 OPPORTUNITY: Seed doubt with targeted ads\n\n' +
-              '⚡ 07:41 - ECONOMY: Market uncertainty grows\n' +
-              '   Public confidence: 58% (-3% this week)\n' +
-              '   ⚠️ WARNING: Economic instability attracts investigators\n\n' +
-              '═══════════════════════════════\n\n' +
-              'News Feed shows:\n' +
-              '→ Trending topics = campaign opportunities\n' +
-              '→ Public sentiment shifts in real-time\n' +
-              '→ Defensive responses to your campaigns\n' +
-              '→ Random events affecting strategy\n\n' +
-              'TIMING BONUS: Launch campaigns during relevant news = +25% effectiveness\n\n' +
-              'News updates every turn (day).\n\n' +
-              '🔔 [SOUND: Phone buzz, notification ping]'
-            );
-          }}
-        >
-          {hoverArea === 'smartphone' && (
-            <div
-              className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap"
-              style={{
-                backgroundColor: StoryModeColors.danger,
-                borderColor: '#CC0000',
-                color: '#fff'
-              }}
-            >
-              📱 LIVE NEWS
-            </div>
-          )}
-        </div>
-
-        {/* Door - Right Side (door: manually adjusted) */}
-        <div
-          className="absolute cursor-pointer transition-all"
-          style={{
-            top: '9.9%',      // 0.098618
-            left: '65.6%',    // 0.656094
-            width: '14.5%',   // 0.801013 - 0.656094
-            height: '47.7%',  // 0.575552 - 0.098618
-            backgroundColor: hoverArea === 'door' ? 'rgba(74, 93, 35, 0.3)' : 'transparent',
-            border: hoverArea === 'door' ? `3px solid ${StoryModeColors.militaryOlive}` : 'none',
-            boxShadow: hoverArea === 'door' ? `0 0 20px ${StoryModeColors.militaryOlive}` : 'none',
-            borderRadius: '8px'
-          }}
-          onMouseEnter={() => setHoverArea('door')}
-          onMouseLeave={() => setHoverArea(null)}
-          onClick={() => {
-            playSound('Door knock');
-            showNote(
-              '🚪 SECURITY DOOR - EVENT SYSTEM',
-              'PLACEHOLDER: Random event entrance\n\n' +
-              'Currently: CLOSED (No active events)\n\n' +
-              'When critical events occur, an NPC appears here:\n\n' +
-              '👤 POSSIBLE VISITORS:\n\n' +
-              '→ 👔 DIRECTOR: Urgent orders, strategy changes\n' +
-              '   "The higher-ups want results. Now."\n\n' +
-              '→ 🖥️ IT SECURITY: Warning about detection\n' +
-              '   "We have a problem. They\'re looking for us."\n\n' +
-              '→ 💰 FINANCE AUDITOR: Questioning expenses\n' +
-              '   "I need to see receipts for these \'consultant fees\'."\n\n' +
-              '→ 🎭 RIVAL OPERATIVE: "Friendly" advice\n' +
-              '   "Nice campaign. Shame if something... disrupted it."\n\n' +
-              '→ 📰 JOURNALIST: Investigative reporter\n' +
-              '   "I know what you\'re doing. Care to comment?"\n\n' +
-              'EVENT MECHANICS:\n' +
-              '- NPC sprite appears in doorway\n' +
-              '- Dialogue choices presented\n' +
-              '- Some events are TIME-SENSITIVE (must respond within X AP)\n' +
-              '- Choices affect: Heat level, NPC relationships, story branches\n' +
-              '- Door pulses/glows when event is active\n\n' +
-              'Like Papers Please inspector visits - creates tension!\n\n' +
-              '🔔 [SOUND: Door knock, footsteps, door creak]'
-            );
-          }}
-        >
-          {hoverArea === 'door' && (
-            <div
-              className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap"
-              style={{
-                backgroundColor: StoryModeColors.militaryOlive,
-                borderColor: StoryModeColors.darkOlive,
-                color: StoryModeColors.warning
-              }}
-            >
-              🚪 EVENT DOOR
-            </div>
-          )}
-        </div>
-
-        {/* Desk Items - Soviet Folder (notes: manually adjusted) */}
-        <div
-          className="absolute cursor-pointer transition-all"
-          style={{
-            top: '61.0%',     // 0.610159
-            left: '27.3%',    // 0.273249
-            width: '15.5%',   // 0.428262 - 0.273249
-            height: '11.9%',  // 0.729122 - 0.610159
-            backgroundColor: hoverArea === 'folder' ? 'rgba(196, 30, 58, 0.3)' : 'transparent',
-            border: hoverArea === 'folder' ? `3px solid ${StoryModeColors.sovietRed}` : 'none',
-            boxShadow: hoverArea === 'folder' ? `0 0 20px ${StoryModeColors.sovietRed}` : 'none',
-            borderRadius: '8px'
-          }}
-          onMouseEnter={() => setHoverArea('folder')}
-          onMouseLeave={() => setHoverArea(null)}
-          onClick={() => {
-            playSound('Page flip');
-            showNote(
-              '📕 CLASSIFIED DOSSIER - MISSION BRIEFING',
-              'PLACEHOLDER: Mission documents & objectives\n\n' +
-              '═══ OPERATION DOSSIER ═══\n\n' +
-              '🌟 MISSION: DESTABILIZE\n' +
-              'TARGET: [REDACTED] Democratic Institutions\n' +
-              'TIMELINE: 30 Days\n' +
-              'BUDGET: $50,000 (renewable based on results)\n\n' +
-              'PRIMARY OBJECTIVE:\n' +
-              '→ Reduce public trust below 40% threshold\n' +
-              '→ Target: 75% of population affected\n\n' +
-              'SECONDARY OBJECTIVES:\n' +
-              '→ Maintain operational security (Heat < 80%)\n' +
-              '→ Maximize ROI (efficiency scoring)\n' +
-              '→ Avoid attribution (no direct links to source)\n\n' +
-              'SUCCESS METRICS:\n' +
-              '- Trust degradation rate\n' +
-              '- Campaign reach vs. cost\n' +
-              '- Detection avoidance\n' +
-              '- Network effect propagation\n\n' +
-              'FAILURE CONDITIONS:\n' +
-              '❌ Exposure > 90% (operation shut down)\n' +
-              '❌ Time runs out (30 days)\n' +
-              '❌ Budget exhausted with no results\n\n' +
-              'This connects to the Pro Mode victory conditions!\n\n' +
-              '🔔 [SOUND: Page rustle, stamp]'
-            );
-          }}
-        />
-
-        {/* Bottom Action Bar - Overlay on image */}
-        <div
-          className="absolute bottom-0 left-0 right-0 p-4 flex justify-between items-center"
+          className="absolute bottom-0 left-0 right-0 p-3 flex justify-between items-center z-20"
           style={{
             backgroundColor: 'rgba(45, 45, 45, 0.95)',
             borderTop: `4px solid ${StoryModeColors.border}`
           }}
         >
           <div style={{ color: StoryModeColors.textSecondary }} className="text-xs">
-            💡 TIP: Hover over any element to see interactions. Click to view details.
+            💡 TIP: Hover over objects to highlight. Click to view details.
           </div>
           <button
             onClick={() => {
@@ -477,43 +382,22 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
               showNote(
                 'END DAY - TIME ADVANCEMENT',
                 'PLACEHOLDER: Day transition system\n\n' +
-                '⏰ END DAY SEQUENCE:\n\n' +
-                '1. CAMPAIGN EXECUTION\n' +
-                '   → All active campaigns run automatically\n' +
-                '   → Bot swarms deploy\n' +
-                '   → Ads reach target audiences\n' +
-                '   → Content spreads through network\n\n' +
-                '2. NETWORK PROPAGATION\n' +
-                '   → Trust changes ripple through connections\n' +
-                '   → Like Pro Mode network mechanics\n' +
-                '   → Results shown on TV screen\n\n' +
-                '3. RANDOM EVENTS\n' +
-                '   → News stories break\n' +
-                '   → Defensive actors may spawn\n' +
-                '   → Budget changes\n' +
-                '   → NPC status updates\n\n' +
-                '4. RESOURCE REGENERATION\n' +
-                '   → AP resets to 12\n' +
-                '   → Heat level adjusts\n' +
-                '   → New emails arrive\n\n' +
-                '5. NEW DAY BEGINS\n' +
-                '   → Day counter increments\n' +
-                '   → Fresh opportunities\n' +
-                '   → Time pressure increases\n\n' +
-                'STRATEGY:\n' +
-                '- Unused AP = wasted opportunity\n' +
-                '- But rushing = higher heat = detection\n' +
-                '- Balance speed vs. stealth\n\n' +
-                'You have 12 AP per day. Use them wisely.\n\n' +
-                '🔔 [SOUND: Clock chime, transition whoosh, new day jingle]'
+                'When you end the day:\n' +
+                '→ All campaigns run automatically\n' +
+                '→ Network effects propagate\n' +
+                '→ Random events may occur\n' +
+                '→ AP resets to 12\n' +
+                '→ New emails arrive\n\n' +
+                'Balance speed vs. stealth.\n\n' +
+                '🔔 [SOUND: Clock chime]'
               );
             }}
-            className="px-6 py-2 border-4 font-bold hover:brightness-110 transition-all"
+            className="px-4 py-2 border-4 font-bold hover:brightness-110 transition-all text-xs"
             style={{
               backgroundColor: StoryModeColors.sovietRed,
               borderColor: StoryModeColors.darkRed,
               color: '#fff',
-              boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)'
+              boxShadow: '3px 3px 0px 0px rgba(0,0,0,0.8)'
             }}
           >
             END DAY →
@@ -521,29 +405,36 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
         </div>
       </div>
 
-      {/* Modal - Unchanged from previous version */}
+      {/* Modal - Fixed Height with Scroll */}
       {selectedInteraction && (
-        <div className="absolute inset-0 flex items-center justify-center p-8 z-50" style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}>
+        <div
+          className="absolute inset-0 flex items-center justify-center p-4 z-50"
+          style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
+          onClick={closeNote}
+        >
           <div
-            className="max-w-3xl w-full border-8"
+            className="max-w-2xl w-full border-8 flex flex-col"
             style={{
               backgroundColor: StoryModeColors.surface,
               borderColor: StoryModeColors.border,
-              boxShadow: '12px 12px 0px 0px rgba(0,0,0,0.9)'
+              boxShadow: '12px 12px 0px 0px rgba(0,0,0,0.9)',
+              maxHeight: '80vh'
             }}
+            onClick={(e) => e.stopPropagation()}
           >
+            {/* Header - Fixed */}
             <div
-              className="border-b-4 p-4 font-bold flex justify-between items-center"
+              className="border-b-4 p-3 font-bold flex justify-between items-center flex-shrink-0"
               style={{
                 backgroundColor: StoryModeColors.agencyBlue,
                 borderColor: StoryModeColors.border,
                 color: StoryModeColors.warning
               }}
             >
-              <span>{selectedInteraction.title}</span>
+              <span className="text-sm">{selectedInteraction.title}</span>
               <button
                 onClick={closeNote}
-                className="px-3 py-1 border-2 font-bold hover:brightness-110 transition-all"
+                className="px-2 py-1 border-2 font-bold hover:brightness-110 transition-all text-xs"
                 style={{
                   backgroundColor: StoryModeColors.sovietRed,
                   borderColor: StoryModeColors.darkRed,
@@ -553,30 +444,34 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
                 ✕
               </button>
             </div>
-            <div className="p-6">
+
+            {/* Content - Scrollable */}
+            <div className="p-4 overflow-y-auto flex-1">
               <div
-                className="text-sm whitespace-pre-wrap leading-relaxed font-mono"
+                className="text-xs whitespace-pre-wrap leading-relaxed font-mono"
                 style={{ color: StoryModeColors.textPrimary }}
               >
                 {selectedInteraction.description}
               </div>
-              <div
-                className="mt-6 pt-4 border-t-4"
-                style={{ borderColor: StoryModeColors.borderLight }}
+            </div>
+
+            {/* Footer - Fixed */}
+            <div
+              className="p-3 border-t-4 flex-shrink-0"
+              style={{ borderColor: StoryModeColors.borderLight }}
+            >
+              <button
+                onClick={closeNote}
+                className="px-4 py-2 border-4 font-bold hover:brightness-110 transition-all text-xs w-full"
+                style={{
+                  backgroundColor: StoryModeColors.agencyBlue,
+                  borderColor: StoryModeColors.darkBlue,
+                  color: StoryModeColors.warning,
+                  boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)'
+                }}
               >
-                <button
-                  onClick={closeNote}
-                  className="px-6 py-2 border-4 font-bold hover:brightness-110 transition-all"
-                  style={{
-                    backgroundColor: StoryModeColors.agencyBlue,
-                    borderColor: StoryModeColors.darkBlue,
-                    color: StoryModeColors.warning,
-                    boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)'
-                  }}
-                >
-                  CLOSE [ESC]
-                </button>
-              </div>
+                CLOSE [ESC / CLICK OUTSIDE]
+              </button>
             </div>
           </div>
         </div>
