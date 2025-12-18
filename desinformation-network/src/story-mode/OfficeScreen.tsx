@@ -89,12 +89,7 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
       <div
         className="flex-1 relative"
         style={{
-          backgroundImage: 'url(/office-brutalist-scene.jpg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          // Fallback gradient if image not loaded
-          background: `linear-gradient(135deg, ${StoryModeColors.darkConcrete} 0%, ${StoryModeColors.concrete} 50%, ${StoryModeColors.darkConcrete} 100%)`
+          background: `url(/office-brutalist-scene.jpg) center/cover no-repeat, linear-gradient(135deg, ${StoryModeColors.darkConcrete} 0%, ${StoryModeColors.concrete} 50%, ${StoryModeColors.darkConcrete} 100%)`,
         }}
       >
         {/* Placeholder message if image not loaded */}
