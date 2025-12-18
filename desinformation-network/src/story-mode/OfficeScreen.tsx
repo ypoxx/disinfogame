@@ -210,7 +210,7 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
         <img
           src="/office-brutalist-scene.jpg"
           alt=""
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-contain"
           style={{
             background: `linear-gradient(135deg, ${StoryModeColors.darkConcrete} 0%, ${StoryModeColors.concrete} 50%, ${StoryModeColors.darkConcrete} 100%)`
           }}
