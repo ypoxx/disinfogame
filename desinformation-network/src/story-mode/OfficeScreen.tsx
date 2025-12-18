@@ -10,7 +10,7 @@ type Interaction = {
   description: string;
 };
 
-type HoverArea = 'computer' | 'phone' | 'smartphone' | 'tv' | 'door' | null;
+type HoverArea = 'computer' | 'phone' | 'smartphone' | 'tv' | 'door' | 'folder' | null;
 
 export function OfficeScreen({ onExit }: OfficeScreenProps) {
   const [selectedInteraction, setSelectedInteraction] = useState<Interaction | null>(null);
@@ -433,7 +433,7 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
             boxShadow: hoverArea === 'folder' ? `0 0 20px ${StoryModeColors.sovietRed}` : 'none',
             borderRadius: '8px'
           }}
-          onMouseEnter={() => setHoverArea('folder' as HoverArea)}
+          onMouseEnter={() => setHoverArea('folder')}
           onMouseLeave={() => setHoverArea(null)}
           onClick={() => {
             playSound('Page flip');
