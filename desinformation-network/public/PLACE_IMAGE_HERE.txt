@@ -1,0 +1,9 @@
+Save your AI-generated brutalist office image here as:
+
+office-brutalist-scene.jpg
+
+The image should be the isometric office scene you generated with AI.
+
+Once placed here, it will be automatically served by Vite and appear in the Story Mode.
+
+Path: /home/user/disinfogame/desinformation-network/public/office-brutalist-scene.jpg
