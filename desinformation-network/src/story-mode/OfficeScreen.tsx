@@ -92,35 +92,33 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           background: `url(/office-brutalist-scene.jpg) center/cover no-repeat, linear-gradient(135deg, ${StoryModeColors.darkConcrete} 0%, ${StoryModeColors.concrete} 50%, ${StoryModeColors.darkConcrete} 100%)`,
         }}
       >
-        {/* Placeholder message if image not loaded */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        {/* Placeholder message if image not loaded - Bottom Right */}
+        <div className="absolute bottom-4 right-4 pointer-events-none max-w-sm">
           <div
-            className="text-center p-8 border-4"
+            className="text-center p-4 border-4"
             style={{
-              backgroundColor: 'rgba(61, 61, 61, 0.9)',
+              backgroundColor: 'rgba(61, 61, 61, 0.95)',
               borderColor: StoryModeColors.sovietRed,
               color: StoryModeColors.textPrimary
             }}
           >
-            <div className="text-2xl mb-4">📷</div>
-            <div className="font-bold mb-2">AI-GENERATED OFFICE SCENE</div>
+            <div className="text-lg mb-2">📷</div>
+            <div className="font-bold mb-1 text-xs">AI-GENERATED OFFICE SCENE</div>
             <div className="text-xs" style={{ color: StoryModeColors.textSecondary }}>
-              Place your AI-generated image at:<br />
-              <code>/public/office-brutalist-scene.jpg</code>
-              <br /><br />
-              Interactive areas are still clickable!
+              Place image at:<br />
+              <code className="text-xs">/public/office-brutalist-scene.jpg</code>
             </div>
           </div>
         </div>
 
-        {/* TV Screen - Top Left (wall_screen: 250,88 -> 585,343) */}
+        {/* TV Screen - Top Left (wall_screen: manually adjusted) */}
         <div
           className="absolute cursor-pointer transition-all"
           style={{
-            top: '8.6%',      // 88/1024
-            left: '16.3%',    // 250/1536
-            width: '21.8%',   // (585-250)/1536
-            height: '24.9%',  // (343-88)/1024
+            top: '4.8%',      // 0.047788
+            left: '14.9%',    // 0.149239
+            width: '24.0%',   // 0.389328 - 0.149239
+            height: '30.8%',  // 0.356011 - 0.047788
             backgroundColor: hoverArea === 'tv' ? 'rgba(74, 157, 255, 0.3)' : 'transparent',
             border: hoverArea === 'tv' ? `3px solid ${StoryModeColors.agencyBlue}` : 'none',
             boxShadow: hoverArea === 'tv' ? `0 0 20px ${StoryModeColors.agencyBlue}` : 'none',
@@ -163,14 +161,14 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           )}
         </div>
 
-        {/* Computer Monitor - Center (computer: 595,350 -> 930,603) */}
+        {/* Computer Monitor - Center (computer: manually adjusted) */}
         <div
           className="absolute cursor-pointer transition-all"
           style={{
-            top: '34.2%',     // 350/1024
-            left: '38.7%',    // 595/1536
-            width: '21.8%',   // (930-595)/1536
-            height: '24.7%',  // (603-350)/1024
+            top: '31.9%',     // 0.31924
+            left: '37.8%',    // 0.377792
+            width: '21.8%',   // 0.596252 - 0.377792
+            height: '27.0%',  // 0.588867 - 0.31924
             backgroundColor: hoverArea === 'computer' ? 'rgba(196, 30, 58, 0.3)' : 'transparent',
             border: hoverArea === 'computer' ? `3px solid ${StoryModeColors.sovietRed}` : 'none',
             boxShadow: hoverArea === 'computer' ? `0 0 20px ${StoryModeColors.sovietRed}` : 'none',
@@ -233,14 +231,14 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           )}
         </div>
 
-        {/* Telephone - Left Side (telephone: 305,420 -> 560,575) */}
+        {/* Telephone - Left Side (telephone: manually adjusted) */}
         <div
           className="absolute cursor-pointer transition-all"
           style={{
-            top: '41.0%',     // 420/1024
-            left: '19.9%',    // 305/1536
-            width: '16.6%',   // (560-305)/1536
-            height: '15.1%',  // (575-420)/1024
+            top: '44.3%',     // 0.442529
+            left: '22.1%',    // 0.220617
+            width: '13.3%',   // 0.354 - 0.220617
+            height: '13.5%',  // 0.577715 - 0.442529
             backgroundColor: hoverArea === 'phone' ? 'rgba(212, 160, 23, 0.3)' : 'transparent',
             border: hoverArea === 'phone' ? `3px solid ${StoryModeColors.warning}` : 'none',
             boxShadow: hoverArea === 'phone' ? `0 0 20px ${StoryModeColors.warning}` : 'none',
@@ -296,14 +294,14 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           )}
         </div>
 
-        {/* Smartphone - Right Side (smartphone: 996,654 -> 1125,763) */}
+        {/* Smartphone - Right Side (smartphone: manually adjusted) */}
         <div
           className="absolute cursor-pointer transition-all"
           style={{
-            top: '63.9%',     // 654/1024
-            left: '64.8%',    // 996/1536
-            width: '8.4%',    // (1125-996)/1536
-            height: '10.6%',  // (763-654)/1024
+            top: '63.6%',     // 0.636115
+            left: '64.4%',    // 0.643837
+            width: '7.2%',    // 0.715936 - 0.643837
+            height: '9.2%',   // 0.728041 - 0.636115
             backgroundColor: hoverArea === 'smartphone' ? 'rgba(255, 68, 68, 0.3)' : 'transparent',
             border: hoverArea === 'smartphone' ? `3px solid ${StoryModeColors.danger}` : 'none',
             boxShadow: hoverArea === 'smartphone' ? `0 0 20px ${StoryModeColors.danger}` : 'none',
@@ -357,14 +355,14 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           )}
         </div>
 
-        {/* Door - Right Side (door: 1006,98 -> 1238,576) */}
+        {/* Door - Right Side (door: manually adjusted) */}
         <div
           className="absolute cursor-pointer transition-all"
           style={{
-            top: '9.6%',      // 98/1024
-            left: '65.5%',    // 1006/1536
-            width: '15.1%',   // (1238-1006)/1536
-            height: '46.7%',  // (576-98)/1024
+            top: '9.9%',      // 0.098618
+            left: '65.6%',    // 0.656094
+            width: '14.5%',   // 0.801013 - 0.656094
+            height: '47.7%',  // 0.575552 - 0.098618
             backgroundColor: hoverArea === 'door' ? 'rgba(74, 93, 35, 0.3)' : 'transparent',
             border: hoverArea === 'door' ? `3px solid ${StoryModeColors.militaryOlive}` : 'none',
             boxShadow: hoverArea === 'door' ? `0 0 20px ${StoryModeColors.militaryOlive}` : 'none',
@@ -415,14 +413,14 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           )}
         </div>
 
-        {/* Desk Items - Soviet Folder (notes: 420,624 -> 694,756) */}
+        {/* Desk Items - Soviet Folder (notes: manually adjusted) */}
         <div
           className="absolute cursor-pointer transition-all"
           style={{
-            top: '60.9%',     // 624/1024
-            left: '27.3%',    // 420/1536
-            width: '17.8%',   // (694-420)/1536
-            height: '12.9%',  // (756-624)/1024
+            top: '61.0%',     // 0.610159
+            left: '27.3%',    // 0.273249
+            width: '15.5%',   // 0.428262 - 0.273249
+            height: '11.9%',  // 0.729122 - 0.610159
             backgroundColor: hoverArea === 'folder' ? 'rgba(196, 30, 58, 0.3)' : 'transparent',
             border: hoverArea === 'folder' ? `3px solid ${StoryModeColors.sovietRed}` : 'none',
             boxShadow: hoverArea === 'folder' ? `0 0 20px ${StoryModeColors.sovietRed}` : 'none',
