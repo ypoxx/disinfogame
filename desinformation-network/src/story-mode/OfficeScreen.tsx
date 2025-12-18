@@ -113,14 +113,14 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           </div>
         </div>
 
-        {/* TV Screen - Top Left */}
+        {/* TV Screen - Top Left (wall_screen: 250,88 -> 585,343) */}
         <div
           className="absolute cursor-pointer transition-all"
           style={{
-            top: '8%',
-            left: '15%',
-            width: '28%',
-            height: '20%',
+            top: '8.6%',      // 88/1024
+            left: '16.3%',    // 250/1536
+            width: '21.8%',   // (585-250)/1536
+            height: '24.9%',  // (343-88)/1024
             backgroundColor: hoverArea === 'tv' ? 'rgba(74, 157, 255, 0.3)' : 'transparent',
             border: hoverArea === 'tv' ? `3px solid ${StoryModeColors.agencyBlue}` : 'none',
             boxShadow: hoverArea === 'tv' ? `0 0 20px ${StoryModeColors.agencyBlue}` : 'none',
@@ -163,14 +163,14 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           )}
         </div>
 
-        {/* Computer Monitor - Center */}
+        {/* Computer Monitor - Center (computer: 595,350 -> 930,603) */}
         <div
           className="absolute cursor-pointer transition-all"
           style={{
-            top: '38%',
-            left: '35%',
-            width: '30%',
-            height: '32%',
+            top: '34.2%',     // 350/1024
+            left: '38.7%',    // 595/1536
+            width: '21.8%',   // (930-595)/1536
+            height: '24.7%',  // (603-350)/1024
             backgroundColor: hoverArea === 'computer' ? 'rgba(196, 30, 58, 0.3)' : 'transparent',
             border: hoverArea === 'computer' ? `3px solid ${StoryModeColors.sovietRed}` : 'none',
             boxShadow: hoverArea === 'computer' ? `0 0 20px ${StoryModeColors.sovietRed}` : 'none',
@@ -233,14 +233,14 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           )}
         </div>
 
-        {/* Telephone - Left Side */}
+        {/* Telephone - Left Side (telephone: 305,420 -> 560,575) */}
         <div
           className="absolute cursor-pointer transition-all"
           style={{
-            top: '50%',
-            left: '10%',
-            width: '18%',
-            height: '18%',
+            top: '41.0%',     // 420/1024
+            left: '19.9%',    // 305/1536
+            width: '16.6%',   // (560-305)/1536
+            height: '15.1%',  // (575-420)/1024
             backgroundColor: hoverArea === 'phone' ? 'rgba(212, 160, 23, 0.3)' : 'transparent',
             border: hoverArea === 'phone' ? `3px solid ${StoryModeColors.warning}` : 'none',
             boxShadow: hoverArea === 'phone' ? `0 0 20px ${StoryModeColors.warning}` : 'none',
@@ -296,14 +296,14 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           )}
         </div>
 
-        {/* Smartphone - Right Side */}
+        {/* Smartphone - Right Side (smartphone: 996,654 -> 1125,763) */}
         <div
           className="absolute cursor-pointer transition-all"
           style={{
-            top: '56%',
-            left: '68%',
-            width: '14%',
-            height: '22%',
+            top: '63.9%',     // 654/1024
+            left: '64.8%',    // 996/1536
+            width: '8.4%',    // (1125-996)/1536
+            height: '10.6%',  // (763-654)/1024
             backgroundColor: hoverArea === 'smartphone' ? 'rgba(255, 68, 68, 0.3)' : 'transparent',
             border: hoverArea === 'smartphone' ? `3px solid ${StoryModeColors.danger}` : 'none',
             boxShadow: hoverArea === 'smartphone' ? `0 0 20px ${StoryModeColors.danger}` : 'none',
@@ -357,14 +357,14 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           )}
         </div>
 
-        {/* Door - Right Side */}
+        {/* Door - Right Side (door: 1006,98 -> 1238,576) */}
         <div
           className="absolute cursor-pointer transition-all"
           style={{
-            top: '15%',
-            left: '75%',
-            width: '16%',
-            height: '35%',
+            top: '9.6%',      // 98/1024
+            left: '65.5%',    // 1006/1536
+            width: '15.1%',   // (1238-1006)/1536
+            height: '46.7%',  // (576-98)/1024
             backgroundColor: hoverArea === 'door' ? 'rgba(74, 93, 35, 0.3)' : 'transparent',
             border: hoverArea === 'door' ? `3px solid ${StoryModeColors.militaryOlive}` : 'none',
             boxShadow: hoverArea === 'door' ? `0 0 20px ${StoryModeColors.militaryOlive}` : 'none',
@@ -415,14 +415,14 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           )}
         </div>
 
-        {/* Desk Items - Soviet Folder */}
+        {/* Desk Items - Soviet Folder (notes: 420,624 -> 694,756) */}
         <div
           className="absolute cursor-pointer transition-all"
           style={{
-            top: '58%',
-            left: '28%',
-            width: '12%',
-            height: '12%',
+            top: '60.9%',     // 624/1024
+            left: '27.3%',    // 420/1536
+            width: '17.8%',   // (694-420)/1536
+            height: '12.9%',  // (756-624)/1024
             backgroundColor: hoverArea === 'folder' ? 'rgba(196, 30, 58, 0.3)' : 'transparent',
             border: hoverArea === 'folder' ? `3px solid ${StoryModeColors.sovietRed}` : 'none',
             boxShadow: hoverArea === 'folder' ? `0 0 20px ${StoryModeColors.sovietRed}` : 'none',
