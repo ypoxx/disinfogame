@@ -1,34 +1,31 @@
+/**
+ * OfficeScreen - Main Hub for Story Mode
+ *
+ * This is the player's office where they interact with emails, NPCs, and objects.
+ * Fully integrated with Story Mode state and game engine.
+ */
+
 import { useState } from 'react';
 import { StoryModeColors } from './theme';
+import { useStoryModeState } from './useStoryModeState';
+import { InboxScreen, EmailModal, NPCDialog, TargetingScreen, DaySummary } from './components';
+import { day1Emails } from './data/day1-emails';
+import { npcs } from './data/npcs';
 
 interface OfficeScreenProps {
   onExit: () => void;
 }
 
-type Interaction = {
-  title: string;
-  description: string;
-};
-
 type HoverArea = 'computer' | 'phone' | 'smartphone' | 'tv' | 'door' | 'folder' | 'notification' | null;
 
 export function OfficeScreen({ onExit }: OfficeScreenProps) {
-  const [selectedInteraction, setSelectedInteraction] = useState<Interaction | null>(null);
   const [hoverArea, setHoverArea] = useState<HoverArea>(null);
+  const [currentEmail, setCurrentEmail] = useState<string | null>(null);
 
-  const showNote = (title: string, description: string) => {
-    setSelectedInteraction({ title, description });
-  };
+  // Story Mode State Hook (integrates with game engine)
+  const storyMode = useStoryModeState(day1Emails, npcs);
 
-  const closeNote = () => {
-    setSelectedInteraction(null);
-  };
-
-  const playSound = (soundName: string) => {
-    console.log(`🔊 [SOUND: ${soundName}]`);
-  };
-
-  // Polygon coordinates (normalized 0-1, will scale with viewBox)
+  // Polygon coordinates for clickable areas (from user's manual adjustment)
   const polygons = {
     tv: '229,164 598,49 596,237 233,365',
     computer: '580,327 916,414 915,603 581,499',
@@ -40,120 +37,146 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
   };
 
   const getPolygonColor = (id: HoverArea): string => {
-    switch(id) {
-      case 'tv': return StoryModeColors.agencyBlue;
-      case 'computer': return StoryModeColors.sovietRed;
-      case 'notification': return StoryModeColors.sovietRed;
-      case 'phone': return StoryModeColors.warning;
-      case 'smartphone': return StoryModeColors.danger;
-      case 'door': return StoryModeColors.militaryOlive;
-      case 'folder': return StoryModeColors.sovietRed;
-      default: return 'transparent';
+    switch (id) {
+      case 'tv':
+        return StoryModeColors.agencyBlue;
+      case 'computer':
+      case 'notification':
+        return StoryModeColors.sovietRed;
+      case 'phone':
+        return StoryModeColors.warning;
+      case 'smartphone':
+        return StoryModeColors.danger;
+      case 'door':
+        return StoryModeColors.militaryOlive;
+      case 'folder':
+        return StoryModeColors.sovietRed;
+      default:
+        return 'transparent';
     }
   };
 
   const handlePolygonClick = (id: HoverArea) => {
-    playSound('Click');
-
-    switch(id) {
-      case 'tv':
-        showNote(
-          '📺 CAMPAIGN ANALYTICS - WALL DISPLAY',
-          'PLACEHOLDER: Interactive campaign dashboard\n\n' +
-          'Would show real-time campaign performance bars, network trust degradation graph (like Pro Mode metrics), reach vs. exposure trade-offs, target demographics breakdown, and comparative analysis vs. previous days.\n\n' +
-          '🔔 [SOUND: Screen beep, data refresh]'
-        );
-        break;
+    switch (id) {
       case 'computer':
-        showNote(
-          '💻 SECURE TERMINAL - EMAIL SYSTEM',
-          'PLACEHOLDER: Full email interface\n\n' +
-          '📧 INBOX (3 unread)\n\n' +
-          'FROM: DIRECTOR\n' +
-          'SUBJECT: First Day - Choose Campaign Focus\n\n' +
-          'Your mission: Destabilize public trust within 30 days.\n\n' +
-          'Choose your initial approach:\n' +
-          '→ Focus on domestic influencers (Cost: 2 AP, Risk: Low)\n' +
-          '→ Target international audience (Cost: 3 AP, Risk: Medium)\n' +
-          '→ Request more intelligence first (Cost: 1 AP, Risk: None)\n\n' +
-          '🔔 [SOUND: Keyboard typing, email swoosh]'
-        );
-        break;
       case 'notification':
-        showNote(
-          '🔴 EMAIL NOTIFICATION',
-          'PLACEHOLDER: Notification badge\n\n' +
-          '1 new urgent email from DIRECTOR\n\n' +
-          'Click computer monitor to read emails.\n' +
-          'Badge disappears after reading.\n\n' +
-          '🔔 [SOUND: Notification ping]'
-        );
+        // Open inbox
+        storyMode.goToLocation('inbox');
         break;
+
       case 'phone':
-        showNote(
-          '☎️ SECURE LINE - TEAM CONTACTS',
-          'PLACEHOLDER: NPC calling system\n\n' +
-          '═══ SPEED DIAL ═══\n\n' +
-          '[1] 🤖 VOLKOV - Bot Farm Chief\n' +
-          '[2] 📺 CHEN - Media Buyer\n' +
-          '[3] 🔍 KESSLER - Intelligence Analyst\n\n' +
-          'Each call costs 1 AP. NPCs may call YOU with urgent info.\n\n' +
-          '🔔 [SOUND: Phone ringing, dial tone]'
-        );
+        // Show NPC selection (for now, just open Volkov if available)
+        const availableNPCs = storyMode.getAvailableNPCs();
+        if (availableNPCs.length > 0) {
+          storyMode.talkToNPC(availableNPCs[0].id);
+        }
         break;
-      case 'smartphone':
-        showNote(
-          '📱 LIVE NEWS FEED',
-          'PLACEHOLDER: Real-time news ticker\n\n' +
-          '⚡ 08:15 - TRENDING: #ElectionDebate\n' +
-          'Public trust: 67% (-2%)\n' +
-          '💡 OPPORTUNITY: High engagement\n\n' +
-          '⚡ 08:03 - VIRAL: Scandal video 2M views\n' +
-          'Sentiment: 55% negative\n\n' +
-          'TIMING BONUS: Launch campaigns during relevant news = +25% effectiveness\n\n' +
-          '🔔 [SOUND: Phone buzz]'
-        );
-        break;
+
       case 'door':
-        showNote(
-          '🚪 SECURITY DOOR - EVENT SYSTEM',
-          'PLACEHOLDER: Random event entrance\n\n' +
-          'When critical events occur, an NPC appears here:\n' +
-          '👔 DIRECTOR: Urgent orders\n' +
-          '🖥️ IT SECURITY: Detection warning\n' +
-          '💰 FINANCE AUDITOR: Questioning expenses\n' +
-          '🎭 RIVAL OPERATIVE: "Friendly" advice\n' +
-          '📰 JOURNALIST: Investigating\n\n' +
-          'Some events are TIME-SENSITIVE.\n\n' +
-          '🔔 [SOUND: Door knock, footsteps]'
-        );
+        // Future: Show event NPCs
         break;
+
+      case 'tv':
+        // Future: Show analytics dashboard
+        break;
+
+      case 'smartphone':
+        // Future: Show news feed
+        break;
+
       case 'folder':
-        showNote(
-          '📕 CLASSIFIED DOSSIER',
-          'PLACEHOLDER: Mission briefing\n\n' +
-          '🌟 MISSION: DESTABILIZE\n' +
-          'TARGET: Democratic Institutions\n' +
-          'TIMELINE: 30 Days\n' +
-          'BUDGET: $50,000\n\n' +
-          'PRIMARY OBJECTIVE:\n' +
-          '→ Reduce public trust below 40%\n' +
-          '→ Target: 75% of population affected\n\n' +
-          'FAILURE CONDITIONS:\n' +
-          '❌ Exposure > 90%\n' +
-          '❌ Time runs out\n\n' +
-          '🔔 [SOUND: Page rustle]'
-        );
+        // Future: Show mission briefing
         break;
     }
   };
 
+  // Get current email object if one is selected
+  const selectedEmailObject = currentEmail
+    ? day1Emails.find((e) => e.id === currentEmail)
+    : null;
+
+  // Render different screens based on location
+  if (storyMode.storyState.currentLocation === 'inbox') {
+    const availableEmails = storyMode.getAvailableEmails();
+
+    if (currentEmail && selectedEmailObject) {
+      // Show email modal
+      return (
+        <EmailModal
+          email={selectedEmailObject}
+          onChoose={(choiceId) => {
+            storyMode.makeEmailChoice(currentEmail, choiceId);
+            setCurrentEmail(null);
+          }}
+          onClose={() => {
+            setCurrentEmail(null);
+            storyMode.goToOffice();
+          }}
+          canAfford={storyMode.canAfford}
+        />
+      );
+    }
+
+    // Show inbox screen
+    return (
+      <InboxScreen
+        emails={availableEmails}
+        onSelectEmail={(emailId) => setCurrentEmail(emailId)}
+        onClose={() => storyMode.goToOffice()}
+      />
+    );
+  }
+
+  // Show NPC Dialog
+  if (storyMode.storyState.currentLocation.startsWith('npc-')) {
+    const npcId = storyMode.storyState.currentLocation.replace('npc-', '');
+    const npc = npcs.find((n) => n.id === npcId);
+    const dialog = storyMode.getCurrentNPCDialog();
+
+    if (npc) {
+      return (
+        <NPCDialog
+          npc={npc}
+          dialog={dialog}
+          relationship={storyMode.getRelationship(npcId)}
+          onChooseOption={(optionId) => storyMode.chooseDialogOption(optionId)}
+          onClose={() => storyMode.goToOffice()}
+        />
+      );
+    }
+  }
+
+  // Show Targeting Screen
+  if (storyMode.targetingMode) {
+    return (
+      <TargetingScreen
+        targetingMode={storyMode.targetingMode}
+        onSelectTarget={(actorId) => storyMode.selectTarget(actorId)}
+        onCancel={() => storyMode.cancelTargeting()}
+      />
+    );
+  }
+
+  // Show Day Summary
+  if (storyMode.storyState.currentLocation === 'day-summary') {
+    const summary = storyMode.getDaySummary();
+    if (summary) {
+      return (
+        <DaySummary
+          summary={summary}
+          onContinue={() => storyMode.advanceToNextDay()}
+        />
+      );
+    }
+  }
+
+  // Main Office View
   return (
     <div
       className="h-full flex flex-col font-mono text-sm relative overflow-hidden"
       style={{
         backgroundColor: StoryModeColors.background,
-        color: StoryModeColors.textPrimary
+        color: StoryModeColors.textPrimary,
       }}
     >
       {/* Header Bar - Status */}
@@ -161,13 +184,13 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
         className="border-b-4 p-3 flex justify-between items-center z-20 relative"
         style={{
           backgroundColor: StoryModeColors.darkConcrete,
-          borderColor: StoryModeColors.border
+          borderColor: StoryModeColors.border,
         }}
       >
         <div className="flex gap-6 text-xs font-bold">
           <div>
             <span style={{ color: StoryModeColors.textSecondary }}>DAY:</span>{' '}
-            <span style={{ color: StoryModeColors.sovietRed }}>01</span>
+            <span style={{ color: StoryModeColors.sovietRed }}>{storyMode.storyState.currentDay.toString().padStart(2, '0')}</span>
           </div>
           <div>
             <span style={{ color: StoryModeColors.textSecondary }}>TIME:</span>{' '}
@@ -175,19 +198,21 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           </div>
           <div>
             <span style={{ color: StoryModeColors.textSecondary }}>AP:</span>{' '}
-            <span style={{ color: StoryModeColors.warning }}>12/12</span>
+            <span style={{ color: StoryModeColors.warning }}>
+              {storyMode.storyState.actionsToday}/{storyMode.storyState.maxActionsPerDay}
+            </span>
           </div>
           <div>
             <span style={{ color: StoryModeColors.textSecondary }}>💰</span>{' '}
-            <span style={{ color: StoryModeColors.warning }}>$50K</span>
+            <span style={{ color: StoryModeColors.warning }}>${storyMode.storyState.resources.money}K</span>
           </div>
           <div>
-            <span style={{ color: StoryModeColors.textSecondary }}>🏗️</span>{' '}
-            <span style={{ color: StoryModeColors.agencyBlue }}>INFRA:3</span>
+            <span style={{ color: StoryModeColors.textSecondary }}>🏭</span>{' '}
+            <span style={{ color: StoryModeColors.agencyBlue }}>INFRA:{storyMode.storyState.resources.infrastructure}</span>
           </div>
           <div>
             <span style={{ color: StoryModeColors.textSecondary }}>👁️</span>{' '}
-            <span style={{ color: StoryModeColors.danger }}>HEAT:5%</span>
+            <span style={{ color: StoryModeColors.danger }}>HEAT:{storyMode.storyState.resources.attention}%</span>
           </div>
         </div>
         <button
@@ -197,7 +222,7 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
             backgroundColor: StoryModeColors.concrete,
             borderColor: StoryModeColors.borderLight,
             color: StoryModeColors.textPrimary,
-            boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)'
+            boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',
           }}
         >
           ← EXIT
@@ -212,28 +237,30 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           alt=""
           className="absolute inset-0 w-full h-full object-contain"
           style={{
-            background: `linear-gradient(135deg, ${StoryModeColors.darkConcrete} 0%, ${StoryModeColors.concrete} 50%, ${StoryModeColors.darkConcrete} 100%)`
+            background: `linear-gradient(135deg, ${StoryModeColors.darkConcrete} 0%, ${StoryModeColors.concrete} 50%, ${StoryModeColors.darkConcrete} 100%)`,
           }}
         />
 
-        {/* Pulsing Notification Badge - Positioned on drawn notification */}
-        <svg
-          viewBox="0 0 1536 1024"
-          preserveAspectRatio="xMidYMid meet"
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          style={{ zIndex: 10 }}
-        >
-          <polygon
-            points={polygons.notification}
-            fill="none"
-            stroke={StoryModeColors.sovietRed}
-            strokeWidth="4"
-            className="animate-pulse"
-            style={{
-              filter: `drop-shadow(0 0 8px ${StoryModeColors.sovietRed})`
-            }}
-          />
-        </svg>
+        {/* Pulsing Notification Badge (if unread emails) */}
+        {storyMode.storyState.unreadEmails > 0 && (
+          <svg
+            viewBox="0 0 1536 1024"
+            preserveAspectRatio="xMidYMid meet"
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            style={{ zIndex: 10 }}
+          >
+            <polygon
+              points={polygons.notification}
+              fill="none"
+              stroke={StoryModeColors.sovietRed}
+              strokeWidth="4"
+              className="animate-pulse"
+              style={{
+                filter: `drop-shadow(0 0 8px ${StoryModeColors.sovietRed})`,
+              }}
+            />
+          </svg>
+        )}
 
         {/* SVG Overlay for Clickable Polygons */}
         <svg
@@ -251,7 +278,7 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
               strokeWidth="4"
               className="cursor-pointer transition-all"
               style={{
-                filter: hoverArea === 'tv' ? `drop-shadow(0 0 12px ${StoryModeColors.agencyBlue})` : 'none'
+                filter: hoverArea === 'tv' ? `drop-shadow(0 0 12px ${StoryModeColors.agencyBlue})` : 'none',
               }}
               onMouseEnter={() => setHoverArea('tv')}
               onMouseLeave={() => setHoverArea(null)}
@@ -266,7 +293,7 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
               strokeWidth="4"
               className="cursor-pointer transition-all"
               style={{
-                filter: hoverArea === 'computer' ? `drop-shadow(0 0 12px ${StoryModeColors.sovietRed})` : 'none'
+                filter: hoverArea === 'computer' ? `drop-shadow(0 0 12px ${StoryModeColors.sovietRed})` : 'none',
               }}
               onMouseEnter={() => setHoverArea('computer')}
               onMouseLeave={() => setHoverArea(null)}
@@ -274,16 +301,18 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
             />
 
             {/* Notification Badge - Clickable */}
-            <polygon
-              points={polygons.notification}
-              fill={hoverArea === 'notification' ? 'rgba(196, 30, 58, 0.4)' : 'transparent'}
-              stroke="transparent"
-              strokeWidth="3"
-              className="cursor-pointer transition-all"
-              onMouseEnter={() => setHoverArea('notification')}
-              onMouseLeave={() => setHoverArea(null)}
-              onClick={() => handlePolygonClick('notification')}
-            />
+            {storyMode.storyState.unreadEmails > 0 && (
+              <polygon
+                points={polygons.notification}
+                fill={hoverArea === 'notification' ? 'rgba(196, 30, 58, 0.4)' : 'transparent'}
+                stroke="transparent"
+                strokeWidth="3"
+                className="cursor-pointer transition-all"
+                onMouseEnter={() => setHoverArea('notification')}
+                onMouseLeave={() => setHoverArea(null)}
+                onClick={() => handlePolygonClick('notification')}
+              />
+            )}
 
             {/* Telephone */}
             <polygon
@@ -293,7 +322,7 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
               strokeWidth="4"
               className="cursor-pointer transition-all"
               style={{
-                filter: hoverArea === 'phone' ? `drop-shadow(0 0 12px ${StoryModeColors.warning})` : 'none'
+                filter: hoverArea === 'phone' ? `drop-shadow(0 0 12px ${StoryModeColors.warning})` : 'none',
               }}
               onMouseEnter={() => setHoverArea('phone')}
               onMouseLeave={() => setHoverArea(null)}
@@ -308,7 +337,7 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
               strokeWidth="4"
               className="cursor-pointer transition-all"
               style={{
-                filter: hoverArea === 'smartphone' ? `drop-shadow(0 0 12px ${StoryModeColors.danger})` : 'none'
+                filter: hoverArea === 'smartphone' ? `drop-shadow(0 0 12px ${StoryModeColors.danger})` : 'none',
               }}
               onMouseEnter={() => setHoverArea('smartphone')}
               onMouseLeave={() => setHoverArea(null)}
@@ -323,7 +352,7 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
               strokeWidth="4"
               className="cursor-pointer transition-all"
               style={{
-                filter: hoverArea === 'door' ? `drop-shadow(0 0 12px ${StoryModeColors.militaryOlive})` : 'none'
+                filter: hoverArea === 'door' ? `drop-shadow(0 0 12px ${StoryModeColors.militaryOlive})` : 'none',
               }}
               onMouseEnter={() => setHoverArea('door')}
               onMouseLeave={() => setHoverArea(null)}
@@ -338,7 +367,7 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
               strokeWidth="4"
               className="cursor-pointer transition-all"
               style={{
-                filter: hoverArea === 'folder' ? `drop-shadow(0 0 12px ${StoryModeColors.sovietRed})` : 'none'
+                filter: hoverArea === 'folder' ? `drop-shadow(0 0 12px ${StoryModeColors.sovietRed})` : 'none',
               }}
               onMouseEnter={() => setHoverArea('folder')}
               onMouseLeave={() => setHoverArea(null)}
@@ -347,133 +376,49 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           </g>
         </svg>
 
-        {/* Placeholder message - Bottom Right */}
-        <div className="absolute bottom-4 right-4 pointer-events-none max-w-sm z-20">
+        {/* Hover Hint */}
+        {hoverArea && (
           <div
-            className="text-center p-3 border-4"
+            className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 border-4 font-bold text-xs z-20"
             style={{
-              backgroundColor: 'rgba(61, 61, 61, 0.95)',
-              borderColor: StoryModeColors.sovietRed,
-              color: StoryModeColors.textPrimary
+              backgroundColor: StoryModeColors.darkConcrete,
+              borderColor: getPolygonColor(hoverArea),
+              color: getPolygonColor(hoverArea),
+              boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
             }}
           >
-            <div className="text-sm mb-1">📷</div>
-            <div className="font-bold text-xs">AI OFFICE SCENE</div>
-            <div className="text-xs mt-1" style={{ color: StoryModeColors.textSecondary }}>
-              /public/office-brutalist-scene.jpg
-            </div>
+            {hoverArea === 'computer' && `📧 INBOX (${storyMode.storyState.unreadEmails} unread)`}
+            {hoverArea === 'notification' && '🔴 NEUE NACHRICHT'}
+            {hoverArea === 'phone' && '☎️ TEAM KONTAKTE'}
+            {hoverArea === 'tv' && '📺 ANALYTICS'}
+            {hoverArea === 'smartphone' && '📱 NEWS FEED'}
+            {hoverArea === 'door' && '🚪 EVENTS'}
+            {hoverArea === 'folder' && '📕 MISSION BRIEFING'}
           </div>
-        </div>
-
-        {/* Bottom Action Bar */}
-        <div
-          className="absolute bottom-0 left-0 right-0 p-3 flex justify-between items-center z-20"
-          style={{
-            backgroundColor: 'rgba(45, 45, 45, 0.95)',
-            borderTop: `4px solid ${StoryModeColors.border}`
-          }}
-        >
-          <div style={{ color: StoryModeColors.textSecondary }} className="text-xs">
-            💡 TIP: Hover over objects to highlight. Click to view details.
-          </div>
-          <button
-            onClick={() => {
-              playSound('End day transition');
-              showNote(
-                'END DAY - TIME ADVANCEMENT',
-                'PLACEHOLDER: Day transition system\n\n' +
-                'When you end the day:\n' +
-                '→ All campaigns run automatically\n' +
-                '→ Network effects propagate\n' +
-                '→ Random events may occur\n' +
-                '→ AP resets to 12\n' +
-                '→ New emails arrive\n\n' +
-                'Balance speed vs. stealth.\n\n' +
-                '🔔 [SOUND: Clock chime]'
-              );
-            }}
-            className="px-4 py-2 border-4 font-bold hover:brightness-110 transition-all text-xs"
-            style={{
-              backgroundColor: StoryModeColors.sovietRed,
-              borderColor: StoryModeColors.darkRed,
-              color: '#fff',
-              boxShadow: '3px 3px 0px 0px rgba(0,0,0,0.8)'
-            }}
-          >
-            END DAY →
-          </button>
-        </div>
+        )}
       </div>
 
-      {/* Modal - Fixed Height with Scroll */}
-      {selectedInteraction && (
+      {/* Footer - End Day Button */}
+      {storyMode.canEndDay() && (
         <div
-          className="absolute inset-0 flex items-center justify-center p-4 z-50"
-          style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
-          onClick={closeNote}
+          className="p-3 border-t-4 flex justify-center z-20 relative"
+          style={{
+            backgroundColor: StoryModeColors.darkConcrete,
+            borderColor: StoryModeColors.border,
+          }}
         >
-          <div
-            className="max-w-2xl w-full border-8 flex flex-col"
+          <button
+            onClick={() => storyMode.endDay()}
+            className="px-8 py-3 font-bold border-4 transition-all hover:translate-y-1"
             style={{
-              backgroundColor: StoryModeColors.surface,
+              backgroundColor: StoryModeColors.sovietRed,
               borderColor: StoryModeColors.border,
-              boxShadow: '12px 12px 0px 0px rgba(0,0,0,0.9)',
-              maxHeight: '80vh'
+              color: '#FFFFFF',
+              boxShadow: '0px 4px 0px 0px rgba(0,0,0,0.8)',
             }}
-            onClick={(e) => e.stopPropagation()}
           >
-            {/* Header - Fixed */}
-            <div
-              className="border-b-4 p-3 font-bold flex justify-between items-center flex-shrink-0"
-              style={{
-                backgroundColor: StoryModeColors.agencyBlue,
-                borderColor: StoryModeColors.border,
-                color: StoryModeColors.warning
-              }}
-            >
-              <span className="text-sm">{selectedInteraction.title}</span>
-              <button
-                onClick={closeNote}
-                className="px-2 py-1 border-2 font-bold hover:brightness-110 transition-all text-xs"
-                style={{
-                  backgroundColor: StoryModeColors.sovietRed,
-                  borderColor: StoryModeColors.darkRed,
-                  color: '#fff'
-                }}
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Content - Scrollable */}
-            <div className="p-4 overflow-y-auto flex-1">
-              <div
-                className="text-xs whitespace-pre-wrap leading-relaxed font-mono"
-                style={{ color: StoryModeColors.textPrimary }}
-              >
-                {selectedInteraction.description}
-              </div>
-            </div>
-
-            {/* Footer - Fixed */}
-            <div
-              className="p-3 border-t-4 flex-shrink-0"
-              style={{ borderColor: StoryModeColors.borderLight }}
-            >
-              <button
-                onClick={closeNote}
-                className="px-4 py-2 border-4 font-bold hover:brightness-110 transition-all text-xs w-full"
-                style={{
-                  backgroundColor: StoryModeColors.agencyBlue,
-                  borderColor: StoryModeColors.darkBlue,
-                  color: StoryModeColors.warning,
-                  boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)'
-                }}
-              >
-                CLOSE [ESC / CLICK OUTSIDE]
-              </button>
-            </div>
-          </div>
+            ⏰ TAG BEENDEN →
+          </button>
         </div>
       )}
     </div>
