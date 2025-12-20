@@ -10,6 +10,7 @@ import { StoryModeColors } from './theme';
 import { useStoryModeState } from './useStoryModeState';
 import { InboxScreen, EmailModal, NPCDialog, TargetingScreen, DaySummary } from './components';
 import { day1Emails } from './data/day1-emails';
+import { day2Emails } from './data/day2-emails';
 import { npcs } from './data/npcs';
 
 interface OfficeScreenProps {
@@ -22,8 +23,11 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
   const [hoverArea, setHoverArea] = useState<HoverArea>(null);
   const [currentEmail, setCurrentEmail] = useState<string | null>(null);
 
+  // Combine all emails from all days
+  const allEmails = [...day1Emails, ...day2Emails];
+
   // Story Mode State Hook (integrates with game engine)
-  const storyMode = useStoryModeState(day1Emails, npcs);
+  const storyMode = useStoryModeState(allEmails, npcs);
 
   // Polygon coordinates for clickable areas (from user's manual adjustment)
   const polygons = {
@@ -92,7 +96,7 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
 
   // Get current email object if one is selected
   const selectedEmailObject = currentEmail
-    ? day1Emails.find((e) => e.id === currentEmail)
+    ? allEmails.find((e) => e.id === currentEmail)
     : null;
 
   // Render different screens based on location
