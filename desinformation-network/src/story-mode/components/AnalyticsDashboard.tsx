@@ -7,14 +7,11 @@
 
 import { StoryModeColors } from '../theme';
 import type { StoryModeState } from '../types';
+import type { NetworkMetrics } from '@/game-logic/types';
 
 interface AnalyticsDashboardProps {
   storyState: StoryModeState;
-  networkMetrics: {
-    averageTrust: number;
-    totalReach: number;
-    exposureRisk: number;
-  };
+  networkMetrics: NetworkMetrics;
   onClose: () => void;
 }
 
@@ -23,7 +20,9 @@ export function AnalyticsDashboard({ storyState, networkMetrics, onClose }: Anal
   const campaignEffectiveness = Math.min(100, storyState.resources.infrastructure * 5);
 
   // Calculate public sentiment based on moral alignment and trust
-  const publicSentiment = Math.max(0, Math.min(100, 50 + (storyState.moralAlignment / 2) + (networkMetrics.averageTrust - 50)));
+  // NetworkMetrics.averageTrust is 0-1, convert to 0-100
+  const trustPercentage = networkMetrics.averageTrust * 100;
+  const publicSentiment = Math.max(0, Math.min(100, 50 + (storyState.moralAlignment / 2) + (trustPercentage - 50)));
 
   // Calculate election projection
   const electionProjection = Math.max(0, Math.min(100,
@@ -124,7 +123,7 @@ export function AnalyticsDashboard({ storyState, networkMetrics, onClose }: Anal
               />
               <ProgressBar
                 label="Netzwerk Trust Degradation"
-                value={Math.max(0, 100 - networkMetrics.averageTrust)}
+                value={Math.max(0, 100 - (networkMetrics.averageTrust * 100))}
                 max={100}
                 color={StoryModeColors.danger}
               />
