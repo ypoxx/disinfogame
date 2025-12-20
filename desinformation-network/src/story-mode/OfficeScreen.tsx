@@ -8,7 +8,16 @@
 import { useState } from 'react';
 import { StoryModeColors } from './theme';
 import { useStoryModeState } from './useStoryModeState';
-import { InboxScreen, EmailModal, NPCDialog, TargetingScreen, DaySummary } from './components';
+import {
+  InboxScreen,
+  EmailModal,
+  NPCDialog,
+  TargetingScreen,
+  DaySummary,
+  AnalyticsDashboard,
+  NewsFeed,
+  MissionBriefing,
+} from './components';
 import { day1Emails } from './data/day1-emails';
 import { day2Emails } from './data/day2-emails';
 import { npcs } from './data/npcs';
@@ -18,10 +27,12 @@ interface OfficeScreenProps {
 }
 
 type HoverArea = 'computer' | 'phone' | 'smartphone' | 'tv' | 'door' | 'folder' | 'notification' | null;
+type OfficeAuxScreen = 'analytics' | 'newsfeed' | 'briefing' | null;
 
 export function OfficeScreen({ onExit }: OfficeScreenProps) {
   const [hoverArea, setHoverArea] = useState<HoverArea>(null);
   const [currentEmail, setCurrentEmail] = useState<string | null>(null);
+  const [auxScreen, setAuxScreen] = useState<OfficeAuxScreen>(null);
 
   // Combine all emails from all days
   const allEmails = [...day1Emails, ...day2Emails];
@@ -81,15 +92,18 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
         break;
 
       case 'tv':
-        // Future: Show analytics dashboard
+        // Show analytics dashboard
+        setAuxScreen('analytics');
         break;
 
       case 'smartphone':
-        // Future: Show news feed
+        // Show news feed
+        setAuxScreen('newsfeed');
         break;
 
       case 'folder':
-        // Future: Show mission briefing
+        // Show mission briefing
+        setAuxScreen('briefing');
         break;
     }
   };
@@ -172,6 +186,37 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
         />
       );
     }
+  }
+
+  // Show Analytics Dashboard
+  if (auxScreen === 'analytics') {
+    return (
+      <AnalyticsDashboard
+        storyState={storyMode.storyState}
+        networkMetrics={storyMode.networkMetrics}
+        onClose={() => setAuxScreen(null)}
+      />
+    );
+  }
+
+  // Show News Feed
+  if (auxScreen === 'newsfeed') {
+    return (
+      <NewsFeed
+        storyState={storyMode.storyState}
+        onClose={() => setAuxScreen(null)}
+      />
+    );
+  }
+
+  // Show Mission Briefing
+  if (auxScreen === 'briefing') {
+    return (
+      <MissionBriefing
+        storyState={storyMode.storyState}
+        onClose={() => setAuxScreen(null)}
+      />
+    );
   }
 
   // Main Office View
