@@ -16,6 +16,37 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
   const [selectedInteraction, setSelectedInteraction] = useState<Interaction | null>(null);
   const [hoverArea, setHoverArea] = useState<HoverArea>(null);
   const [emailNotification] = useState(true);
+  const [day] = useState(1);
+  const [heat] = useState(32);
+  const [chaos] = useState(18);
+  const [hour] = useState(8);
+
+  const isNight = hour < 6 || hour >= 20;
+  const roomState = heat >= 70 || chaos >= 70 ? 'crisis' : heat >= 40 || chaos >= 40 ? 'stress' : 'calm';
+  const dayLabel = String(day).padStart(2, '0');
+  const timeLabel = `${String(hour).padStart(2, '0')}:00`;
+  const heatLabel = `${heat}%`;
+  const chaosLabel = `${chaos}%`;
+
+  const ambientOverlay = isNight
+    ? 'linear-gradient(180deg, rgba(8, 14, 32, 0.72) 0%, rgba(8, 14, 32, 0.3) 55%, rgba(0, 0, 0, 0.55) 100%)'
+    : 'linear-gradient(180deg, rgba(255, 230, 186, 0.25) 0%, rgba(255, 230, 186, 0.08) 55%, rgba(61, 61, 61, 0.4) 100%)';
+  const shadowOverlay = isNight
+    ? 'radial-gradient(circle at 40% 30%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.45) 55%, rgba(0, 0, 0, 0.7) 100%)'
+    : 'radial-gradient(circle at 60% 20%, rgba(255, 255, 255, 0.25) 0%, rgba(0, 0, 0, 0.35) 60%, rgba(0, 0, 0, 0.6) 100%)';
+  const alertOverlay = roomState === 'crisis'
+    ? 'linear-gradient(135deg, rgba(255, 20, 20, 0.35) 0%, rgba(0, 0, 0, 0.2) 55%, rgba(255, 20, 20, 0.25) 100%)'
+    : roomState === 'stress'
+      ? 'linear-gradient(135deg, rgba(255, 170, 40, 0.25) 0%, rgba(0, 0, 0, 0.1) 65%, rgba(255, 170, 40, 0.2) 100%)'
+      : 'linear-gradient(135deg, rgba(74, 157, 255, 0.12) 0%, rgba(0, 0, 0, 0.05) 65%, rgba(74, 157, 255, 0.1) 100%)';
+  const hudGlow = roomState === 'crisis'
+    ? 'linear-gradient(90deg, rgba(255, 68, 68, 0.5) 0%, rgba(255, 68, 68, 0.15) 35%, rgba(0, 0, 0, 0) 70%)'
+    : roomState === 'stress'
+      ? 'linear-gradient(90deg, rgba(255, 196, 87, 0.4) 0%, rgba(255, 196, 87, 0.12) 35%, rgba(0, 0, 0, 0) 70%)'
+      : 'linear-gradient(90deg, rgba(74, 157, 255, 0.3) 0%, rgba(74, 157, 255, 0.1) 35%, rgba(0, 0, 0, 0) 70%)';
+  const rainOverlay = roomState === 'crisis'
+    ? 'repeating-linear-gradient(-20deg, rgba(200, 220, 255, 0.2) 0px, rgba(200, 220, 255, 0.2) 1px, transparent 1px, transparent 8px)'
+    : 'none';
 
   const showNote = (title: string, description: string) => {
     setSelectedInteraction({ title, description });
@@ -48,11 +79,11 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
         <div className="flex gap-6 text-xs font-bold">
           <div>
             <span style={{ color: StoryModeColors.textSecondary }}>DAY:</span>{' '}
-            <span style={{ color: StoryModeColors.sovietRed }}>01</span>
+            <span style={{ color: StoryModeColors.sovietRed }}>{dayLabel}</span>
           </div>
           <div>
             <span style={{ color: StoryModeColors.textSecondary }}>TIME:</span>{' '}
-            <span style={{ color: StoryModeColors.document }}>08:00</span>
+            <span style={{ color: StoryModeColors.document }}>{timeLabel}</span>
           </div>
           <div>
             <span style={{ color: StoryModeColors.textSecondary }}>AP:</span>{' '}
@@ -68,7 +99,17 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           </div>
           <div>
             <span style={{ color: StoryModeColors.textSecondary }}>👁️</span>{' '}
-            <span style={{ color: StoryModeColors.danger }}>HEAT:5%</span>
+            <span style={{ color: StoryModeColors.danger }}>HEAT:{heatLabel}</span>
+          </div>
+          <div>
+            <span style={{ color: StoryModeColors.textSecondary }}>🌪️</span>{' '}
+            <span style={{ color: StoryModeColors.warning }}>CHAOS:{chaosLabel}</span>
+          </div>
+          <div>
+            <span style={{ color: StoryModeColors.textSecondary }}>STATE:</span>{' '}
+            <span style={{ color: StoryModeColors.agencyBlue }}>
+              {isNight ? 'NIGHT' : 'DAY'} / {roomState.toUpperCase()}
+            </span>
           </div>
         </div>
         <button
@@ -97,6 +138,46 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           background: `linear-gradient(135deg, ${StoryModeColors.darkConcrete} 0%, ${StoryModeColors.concrete} 50%, ${StoryModeColors.darkConcrete} 100%)`
         }}
       >
+        {/* Layered lighting & atmosphere overlays */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: ambientOverlay,
+            mixBlendMode: 'screen',
+            pointerEvents: 'none'
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: shadowOverlay,
+            pointerEvents: 'none'
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: alertOverlay,
+            mixBlendMode: 'screen',
+            opacity: roomState === 'calm' ? 0.45 : 0.85,
+            pointerEvents: 'none'
+          }}
+        />
+        <div
+          className="absolute inset-y-0 left-0 w-1/3"
+          style={{
+            backgroundImage: hudGlow,
+            pointerEvents: 'none'
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: rainOverlay,
+            opacity: roomState === 'crisis' ? 0.4 : 0,
+            pointerEvents: 'none'
+          }}
+        />
         {/* Placeholder message if image not loaded */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div
