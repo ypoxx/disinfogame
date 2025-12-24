@@ -1,0 +1,1895 @@
+{
+  "meta": {
+    "id": "doc.graph_unverified_full",
+    "created": "2025-12-24",
+    "updated": "2025-12-24",
+    "language": "de"
+  },
+  "refs": [
+    "ref.disarm_explorer",
+    "ref.disarm_github_c00125",
+    "ref.disarm_github_t0049_003",
+    "ref.disarm_github_counters_index",
+    "ref.fimi_isac_pdf",
+    "ref.kettering",
+    "ref.senate_intel",
+    "ref.disarm_foundation",
+    "ref.disarm_github",
+    "ref.arxiv_2407_18098",
+    "ref.abc_pdf"
+  ],
+  "flat_index": {
+    "framework": [
+      "fw.5ds",
+      "fw.abc",
+      "fw.disarm",
+      "fw.mice"
+    ],
+    "actor_category": [
+      "actor_cat.automation",
+      "actor_cat.individual",
+      "actor_cat.infrastructure",
+      "actor_cat.non_state",
+      "actor_cat.state"
+    ],
+    "organization": [
+      "org.agency_of_social_design",
+      "org.cambridge_analytica",
+      "org.cgtn",
+      "org.cpdc",
+      "org.gru",
+      "org.ira",
+      "org.mss",
+      "org.nk_72ssc",
+      "org.pla_isf",
+      "org.press_tv",
+      "org.rt",
+      "org.social_design_agency",
+      "org.struktura"
+    ],
+    "actor_archetype": [
+      "actor.automation.cyborg",
+      "actor.automation.simple_bot",
+      "actor.automation.sock_puppet",
+      "actor.automation.sophisticated_bot",
+      "actor.individual.pseudo_expert.academic_contrarian",
+      "actor.individual.pseudo_expert.alt_media",
+      "actor.individual.pseudo_expert.former_official",
+      "actor.individual.unwitting",
+      "actor.individual.useful_idiot",
+      "actor.individual.witting",
+      "actor.nonstate.ideological",
+      "actor.nonstate.political_consult",
+      "actor.nonstate.profit",
+      "actor.state.intelligence",
+      "actor.state.media_apparatus",
+      "actor.state.military_info_unit",
+      "actor.state.proxy_org"
+    ],
+    "infrastructure_actor": [
+      "infra.ai_content_generator",
+      "infra.domain_network",
+      "infra.fake_third_party_app",
+      "infra.meme_factory",
+      "infra.scheduling_service",
+      "infra.troll_farm"
+    ],
+    "tactic": [
+      "disarm_unverified.tactic.ta01",
+      "disarm_unverified.tactic.ta02",
+      "disarm_unverified.tactic.ta03",
+      "disarm_unverified.tactic.ta04",
+      "disarm_unverified.tactic.ta05",
+      "disarm_unverified.tactic.ta06",
+      "disarm_unverified.tactic.ta07"
+    ],
+    "technique": [
+      "disarm_unverified.tech.t0001",
+      "disarm_unverified.tech.t0003",
+      "disarm_unverified.tech.t0004",
+      "disarm_unverified.tech.t0023",
+      "disarm_unverified.tech.t0024",
+      "disarm_unverified.tech.t0025",
+      "disarm_unverified.tech.t0034",
+      "disarm_unverified.tech.t0035",
+      "disarm_unverified.tech.t0039",
+      "disarm_unverified.tech.t0046",
+      "disarm_unverified.tech.t0049",
+      "disarm_unverified.tech.t0053",
+      "disarm_unverified.tech.t0057",
+      "disarm_unverified.tech.t0058",
+      "disarm_unverified.tech.t0060",
+      "disarm_unverified.tech.t0062",
+      "disarm_unverified.tech.t0063",
+      "disarm_unverified.tech.t0073",
+      "disarm_unverified.tech.t0074",
+      "disarm_unverified.tech.t0080",
+      "disarm_unverified.tech.t0081",
+      "disarm_unverified.tech.t0082",
+      "disarm_unverified.tech.t0083",
+      "disarm_unverified.tech.t0086",
+      "disarm_unverified.tech.t0097",
+      "disarm_unverified.tech.t0121",
+      "disarm_unverified.tech.t0141",
+      "disarm_unverified.tech.t0142",
+      "disarm_unverified.tech.t0143"
+    ],
+    "vulnerability": [
+      "vuln.bot.content_quality",
+      "vuln.bot.pattern_detection",
+      "vuln.individual.credibility_constraints",
+      "vuln.individual.financial_dependence",
+      "vuln.individual.personal_exposure",
+      "vuln.platform.policies",
+      "vuln.proxy.employee_turnover",
+      "vuln.proxy.financial_trails",
+      "vuln.proxy.opsec_failures",
+      "vuln.state.attribution_risk",
+      "vuln.state.bureaucratic_inflexibility",
+      "vuln.state.consistency_requirements"
+    ],
+    "strength": [
+      "strength.bot.cost_effectiveness",
+      "strength.bot.scale",
+      "strength.bot.tirelessness",
+      "strength.individual.adaptability",
+      "strength.individual.authenticity",
+      "strength.individual.niche_expertise",
+      "strength.proxy.operational_flexibility",
+      "strength.proxy.plausible_deniability",
+      "strength.proxy.scale",
+      "strength.state.coordination",
+      "strength.state.immunity",
+      "strength.state.resource_abundance"
+    ],
+    "countermeasure": [
+      "disarm_unverified.cm.c00008",
+      "disarm_unverified.cm.c00010",
+      "disarm_unverified.cm.c00012",
+      "disarm_unverified.cm.c00013",
+      "disarm_unverified.cm.c00019",
+      "disarm_unverified.cm.c00021",
+      "disarm_unverified.cm.c00027",
+      "disarm_unverified.cm.c00029",
+      "disarm_unverified.cm.c00031",
+      "disarm_unverified.cm.c00042",
+      "disarm_unverified.cm.c00081",
+      "disarm_unverified.cm.c00092",
+      "disarm_unverified.cm.c00096",
+      "disarm_unverified.cm.c00126",
+      "disarm_unverified.cm.c00153",
+      "disarm_unverified.cm.c00176",
+      "disarm_unverified.cm.c00205"
+    ],
+    "case": [
+      "case.cambridge_analytica",
+      "case.copycop",
+      "case.doppelgaenger",
+      "case.fimi_eu_2024",
+      "case.ira_2016",
+      "case.ira_fr_2017",
+      "case.iran_cpdc_2024",
+      "case.trump_attempt_disinfo_2024_07"
+    ],
+    "game_concept": [
+      "game.player_role.analyst"
+    ],
+    "game_resource": [
+      "game.resource.contacts",
+      "game.resource.credibility",
+      "game.resource.platform_coop",
+      "game.resource.time"
+    ],
+    "game_tradeoff": [
+      "game.tradeoff.public_vs_private",
+      "game.tradeoff.speed_vs_depth"
+    ],
+    "game_tool": [
+      "game.tool.content_analysis",
+      "game.tool.financial_investigation",
+      "game.tool.network_visualizer",
+      "game.tool.source_verification",
+      "game.tool.timeline_constructor"
+    ],
+    "game_indicator": [
+      "game.indicator.behavior_signatures",
+      "game.indicator.content_patterns",
+      "game.indicator.financial_anomalies",
+      "game.indicator.mice_signals",
+      "game.indicator.network_patterns",
+      "game.indicator.thread_5_indicators"
+    ],
+    "game_difficulty": [
+      "game.difficulty.easy",
+      "game.difficulty.hard",
+      "game.difficulty.medium",
+      "game.difficulty.very_hard"
+    ],
+    "game_mode": [
+      "game.mode.competitive",
+      "game.mode.coop",
+      "game.mode.crowd",
+      "game.mode.singleplayer"
+    ],
+    "campaign_type": [
+      "game.campaign_type.long_term",
+      "game.campaign_type.multi_narrative",
+      "game.campaign_type.opportunistic",
+      "game.campaign_type.single_issue"
+    ],
+    "scenario": [
+      "game.scenario.corporate_attacks",
+      "game.scenario.election_interference",
+      "game.scenario.geopolitics",
+      "game.scenario.public_health",
+      "game.scenario.social_movement_cooption"
+    ]
+  },
+  "by_id": {
+    "fw.disarm": {
+      "id": "fw.disarm",
+      "type": "framework",
+      "label": "DISARM (Red & Blue)",
+      "authority": "external_framework",
+      "refs": [
+        "ref.disarm_foundation",
+        "ref.disarm_github"
+      ]
+    },
+    "fw.abc": {
+      "id": "fw.abc",
+      "type": "framework",
+      "label": "ABC Framework (Actors, Behaviors, Content)",
+      "authority": "external_framework",
+      "refs": [
+        "ref.abc_pdf"
+      ]
+    },
+    "fw.mice": {
+      "id": "fw.mice",
+      "type": "framework",
+      "label": "MICE (Money, Ideology, Coercion, Ego)",
+      "authority": "external_framework"
+    },
+    "fw.5ds": {
+      "id": "fw.5ds",
+      "type": "framework",
+      "label": "5Ds (Dismiss, Distort, Distract, Dismay, Divide)",
+      "authority": "external_framework"
+    },
+    "actor_cat.state": {
+      "id": "actor_cat.state",
+      "type": "actor_category",
+      "label": "Staatliche Akteure",
+      "authority": "game",
+      "default_attributes": {
+        "influence_range": "global",
+        "resource_level": "very_high",
+        "detection_difficulty": "high",
+        "tempo": "medium"
+      }
+    },
+    "actor_cat.non_state": {
+      "id": "actor_cat.non_state",
+      "type": "actor_category",
+      "label": "Nicht-staatliche Akteure",
+      "authority": "game"
+    },
+    "actor_cat.individual": {
+      "id": "actor_cat.individual",
+      "type": "actor_category",
+      "label": "Einzelakteure",
+      "authority": "game"
+    },
+    "actor_cat.automation": {
+      "id": "actor_cat.automation",
+      "type": "actor_category",
+      "label": "Automatisierte Akteure (Bots/Cyborgs)",
+      "authority": "game"
+    },
+    "actor_cat.infrastructure": {
+      "id": "actor_cat.infrastructure",
+      "type": "actor_category",
+      "label": "Infrastruktur-Akteure",
+      "authority": "game"
+    },
+    "org.gru": {
+      "id": "org.gru",
+      "type": "organization",
+      "label": "Geheimdienst: GRU",
+      "authority": "source_text"
+    },
+    "org.mss": {
+      "id": "org.mss",
+      "type": "organization",
+      "label": "Geheimdienst: MSS",
+      "authority": "source_text"
+    },
+    "org.pla_isf": {
+      "id": "org.pla_isf",
+      "type": "organization",
+      "label": "PLA Information Support Force (ISF)",
+      "authority": "source_text"
+    },
+    "org.nk_72ssc": {
+      "id": "org.nk_72ssc",
+      "type": "organization",
+      "label": "72nd Special Service Center (Nordkorea)",
+      "authority": "source_text"
+    },
+    "org.rt": {
+      "id": "org.rt",
+      "type": "organization",
+      "label": "RT (Russia Today)",
+      "authority": "source_text"
+    },
+    "org.cgtn": {
+      "id": "org.cgtn",
+      "type": "organization",
+      "label": "CGTN",
+      "authority": "source_text"
+    },
+    "org.press_tv": {
+      "id": "org.press_tv",
+      "type": "organization",
+      "label": "Press TV (Iran)",
+      "authority": "source_text"
+    },
+    "org.ira": {
+      "id": "org.ira",
+      "type": "organization",
+      "label": "Internet Research Agency (IRA)",
+      "authority": "source_text"
+    },
+    "org.struktura": {
+      "id": "org.struktura",
+      "type": "organization",
+      "label": "Struktura",
+      "authority": "source_text"
+    },
+    "org.social_design_agency": {
+      "id": "org.social_design_agency",
+      "type": "organization",
+      "label": "Social Design Agency",
+      "authority": "source_text"
+    },
+    "org.agency_of_social_design": {
+      "id": "org.agency_of_social_design",
+      "type": "organization",
+      "label": "Agency of Social Design",
+      "authority": "source_text"
+    },
+    "org.cpdc": {
+      "id": "org.cpdc",
+      "type": "organization",
+      "label": "Cognitive Design Production Center (CPDC)",
+      "authority": "source_text"
+    },
+    "org.cambridge_analytica": {
+      "id": "org.cambridge_analytica",
+      "type": "organization",
+      "label": "Cambridge Analytica / SCL Group",
+      "authority": "source_text"
+    },
+    "actor.state.intelligence": {
+      "id": "actor.state.intelligence",
+      "type": "actor_archetype",
+      "label": "Geheimdienste",
+      "authority": "source_text",
+      "category_id": "actor_cat.state",
+      "capabilities": [
+        "sigint",
+        "humint",
+        "inter_agency_coordination",
+        "long_term_planning"
+      ],
+      "examples": [
+        "org.gru",
+        "org.mss"
+      ],
+      "game_attributes": {
+        "influence_range": "global",
+        "resource_level": "very_high",
+        "detection_difficulty": "high",
+        "tempo": "medium"
+      }
+    },
+    "actor.state.military_info_unit": {
+      "id": "actor.state.military_info_unit",
+      "type": "actor_archetype",
+      "label": "Militärische Informationseinheiten",
+      "authority": "source_text",
+      "category_id": "actor_cat.state",
+      "capabilities": [
+        "cyber_ops",
+        "psyops",
+        "multi_platform_campaigns",
+        "military_integration"
+      ],
+      "examples": [
+        "org.pla_isf",
+        "org.nk_72ssc"
+      ]
+    },
+    "actor.state.media_apparatus": {
+      "id": "actor.state.media_apparatus",
+      "type": "actor_archetype",
+      "label": "Staatsmedien-Apparat",
+      "authority": "source_text",
+      "category_id": "actor_cat.state",
+      "capabilities": [
+        "media_production",
+        "international_distribution",
+        "narrative_laundering",
+        "ecosystem_integration"
+      ],
+      "examples": [
+        "org.rt",
+        "org.cgtn",
+        "org.press_tv"
+      ],
+      "game_attributes": {
+        "detection_difficulty": "low",
+        "legitimacy": "medium"
+      }
+    },
+    "actor.state.proxy_org": {
+      "id": "actor.state.proxy_org",
+      "type": "actor_archetype",
+      "label": "Proxy-Organisationen",
+      "authority": "source_text",
+      "category_id": "actor_cat.state",
+      "capabilities": [
+        "plausible_deniability",
+        "cib",
+        "rapid_adaptation",
+        "multi_platform_presence"
+      ],
+      "examples": [
+        "org.ira",
+        "org.struktura",
+        "org.social_design_agency",
+        "org.agency_of_social_design",
+        "org.cpdc"
+      ]
+    },
+    "actor.nonstate.ideological": {
+      "id": "actor.nonstate.ideological",
+      "type": "actor_archetype",
+      "label": "Ideologische Bewegungen",
+      "authority": "source_text",
+      "category_id": "actor_cat.non_state",
+      "motivation_mice": [
+        "ideology"
+      ],
+      "capabilities": [
+        "grassroots_mobilization",
+        "decentralized_networks",
+        "niche_penetration"
+      ]
+    },
+    "actor.nonstate.profit": {
+      "id": "actor.nonstate.profit",
+      "type": "actor_archetype",
+      "label": "Profitorientierte Akteure",
+      "authority": "source_text",
+      "category_id": "actor_cat.non_state",
+      "motivation_mice": [
+        "money"
+      ],
+      "capabilities": [
+        "seo",
+        "viral_content",
+        "ad_network_exploitation",
+        "trend_following"
+      ]
+    },
+    "actor.nonstate.political_consult": {
+      "id": "actor.nonstate.political_consult",
+      "type": "actor_archetype",
+      "label": "Politische Beratungsagenturen",
+      "authority": "source_text",
+      "category_id": "actor_cat.non_state",
+      "motivation_mice": [
+        "money",
+        "ideology"
+      ],
+      "capabilities": [
+        "microtargeting",
+        "ab_testing",
+        "psychological_manipulation"
+      ],
+      "examples": [
+        "org.cambridge_analytica"
+      ]
+    },
+    "actor.individual.witting": {
+      "id": "actor.individual.witting",
+      "type": "actor_archetype",
+      "label": "Witting Agent",
+      "authority": "source_text",
+      "category_id": "actor_cat.individual",
+      "motivation_mice": [
+        "money",
+        "ideology",
+        "coercion",
+        "ego"
+      ]
+    },
+    "actor.individual.unwitting": {
+      "id": "actor.individual.unwitting",
+      "type": "actor_archetype",
+      "label": "Unwitting Agent",
+      "authority": "source_text",
+      "category_id": "actor_cat.individual",
+      "motivation_mice": [
+        "ego",
+        "ideology"
+      ]
+    },
+    "actor.individual.useful_idiot": {
+      "id": "actor.individual.useful_idiot",
+      "type": "actor_archetype",
+      "label": "Useful Idiot",
+      "authority": "source_text",
+      "category_id": "actor_cat.individual",
+      "motivation_mice": [
+        "ideology",
+        "ego"
+      ]
+    },
+    "actor.individual.pseudo_expert.former_official": {
+      "id": "actor.individual.pseudo_expert.former_official",
+      "type": "actor_archetype",
+      "label": "Pseudo-Experte: Former Officials",
+      "authority": "source_text",
+      "category_id": "actor_cat.individual",
+      "game_attributes": {
+        "legitimacy_multiplier": "high",
+        "media_access": "high",
+        "detection_difficulty": "medium"
+      }
+    },
+    "actor.individual.pseudo_expert.academic_contrarian": {
+      "id": "actor.individual.pseudo_expert.academic_contrarian",
+      "type": "actor_archetype",
+      "label": "Pseudo-Experte: Academic Contrarians",
+      "authority": "source_text",
+      "category_id": "actor_cat.individual",
+      "game_attributes": {
+        "legitimacy_multiplier": "medium_high",
+        "niche_penetration": "high",
+        "detection_difficulty": "high"
+      }
+    },
+    "actor.individual.pseudo_expert.alt_media": {
+      "id": "actor.individual.pseudo_expert.alt_media",
+      "type": "actor_archetype",
+      "label": "Pseudo-Experte: Alternative Media Personalities",
+      "authority": "source_text",
+      "category_id": "actor_cat.individual",
+      "game_attributes": {
+        "legitimacy_multiplier": "low_medium",
+        "audience_loyalty": "very_high",
+        "detection_difficulty": "low_medium"
+      }
+    },
+    "actor.automation.simple_bot": {
+      "id": "actor.automation.simple_bot",
+      "type": "actor_archetype",
+      "label": "Simple Bots",
+      "authority": "source_text",
+      "category_id": "actor_cat.automation",
+      "detection_difficulty": "low"
+    },
+    "actor.automation.sophisticated_bot": {
+      "id": "actor.automation.sophisticated_bot",
+      "type": "actor_archetype",
+      "label": "Sophisticated Bots",
+      "authority": "source_text",
+      "category_id": "actor_cat.automation",
+      "detection_difficulty": "high"
+    },
+    "actor.automation.cyborg": {
+      "id": "actor.automation.cyborg",
+      "type": "actor_archetype",
+      "label": "Cyborgs",
+      "authority": "source_text",
+      "category_id": "actor_cat.automation",
+      "detection_difficulty": "very_high"
+    },
+    "actor.automation.sock_puppet": {
+      "id": "actor.automation.sock_puppet",
+      "type": "actor_archetype",
+      "label": "Sock Puppets",
+      "authority": "source_text",
+      "category_id": "actor_cat.automation",
+      "detection_difficulty": "high"
+    },
+    "infra.troll_farm": {
+      "id": "infra.troll_farm",
+      "type": "infrastructure_actor",
+      "label": "Troll Farms",
+      "authority": "source_text",
+      "category_id": "actor_cat.infrastructure"
+    },
+    "infra.ai_content_generator": {
+      "id": "infra.ai_content_generator",
+      "type": "infrastructure_actor",
+      "label": "AI Content Generators",
+      "authority": "source_text",
+      "category_id": "actor_cat.infrastructure"
+    },
+    "infra.meme_factory": {
+      "id": "infra.meme_factory",
+      "type": "infrastructure_actor",
+      "label": "Meme Factories",
+      "authority": "source_text",
+      "category_id": "actor_cat.infrastructure"
+    },
+    "infra.domain_network": {
+      "id": "infra.domain_network",
+      "type": "infrastructure_actor",
+      "label": "Domain Networks",
+      "authority": "source_text",
+      "category_id": "actor_cat.infrastructure"
+    },
+    "infra.scheduling_service": {
+      "id": "infra.scheduling_service",
+      "type": "infrastructure_actor",
+      "label": "Scheduling Services",
+      "authority": "source_text",
+      "category_id": "actor_cat.infrastructure"
+    },
+    "infra.fake_third_party_app": {
+      "id": "infra.fake_third_party_app",
+      "type": "infrastructure_actor",
+      "label": "Fake Third-Party Apps",
+      "authority": "source_text",
+      "category_id": "actor_cat.infrastructure"
+    },
+    "disarm_unverified.tactic.ta01": {
+      "id": "disarm_unverified.tactic.ta01",
+      "type": "tactic",
+      "label": "Plan Strategy",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "TA01"
+    },
+    "disarm_unverified.tactic.ta02": {
+      "id": "disarm_unverified.tactic.ta02",
+      "type": "tactic",
+      "label": "Establish Assets",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "TA02"
+    },
+    "disarm_unverified.tactic.ta03": {
+      "id": "disarm_unverified.tactic.ta03",
+      "type": "tactic",
+      "label": "Create Content",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "TA03"
+    },
+    "disarm_unverified.tactic.ta04": {
+      "id": "disarm_unverified.tactic.ta04",
+      "type": "tactic",
+      "label": "Deliver Content",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "TA04"
+    },
+    "disarm_unverified.tactic.ta05": {
+      "id": "disarm_unverified.tactic.ta05",
+      "type": "tactic",
+      "label": "Amplify Content",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "TA05"
+    },
+    "disarm_unverified.tactic.ta06": {
+      "id": "disarm_unverified.tactic.ta06",
+      "type": "tactic",
+      "label": "Drive Engagement",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "TA06"
+    },
+    "disarm_unverified.tactic.ta07": {
+      "id": "disarm_unverified.tactic.ta07",
+      "type": "tactic",
+      "label": "Target Vulnerabilities",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "TA07"
+    },
+    "disarm_unverified.tech.t0001": {
+      "id": "disarm_unverified.tech.t0001",
+      "type": "technique",
+      "label": "5Ds (Dismiss, Distort, Distract, Dismay, Divide)",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0001",
+      "tactic_id": "disarm_unverified.tactic.ta01",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "narrative_resilience",
+          "delta": 0.1,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0073": {
+      "id": "disarm_unverified.tech.t0073",
+      "type": "technique",
+      "label": "Determine Target Audiences",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0073",
+      "tactic_id": "disarm_unverified.tactic.ta01",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "campaign_effectiveness",
+          "delta": 0.15,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0074": {
+      "id": "disarm_unverified.tech.t0074",
+      "type": "technique",
+      "label": "Determine Strategic Ends",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0074",
+      "tactic_id": "disarm_unverified.tactic.ta01",
+      "disarm_id_verified": false,
+      "notes": [
+        "Im Spiel: definiert Objectives/Wins."
+      ]
+    },
+    "disarm_unverified.tech.t0003": {
+      "id": "disarm_unverified.tech.t0003",
+      "type": "technique",
+      "label": "Develop Owned Media Websites",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0003",
+      "tactic_id": "disarm_unverified.tactic.ta02",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "content_distribution_capacity",
+          "delta": 0.2,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0004": {
+      "id": "disarm_unverified.tech.t0004",
+      "type": "technique",
+      "label": "Develop Inauthentic Identities",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0004",
+      "tactic_id": "disarm_unverified.tactic.ta02",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.tech.t0097": {
+      "id": "disarm_unverified.tech.t0097",
+      "type": "technique",
+      "label": "Create Inauthentic Accounts",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0097",
+      "tactic_id": "disarm_unverified.tactic.ta02",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "amplification_capacity",
+          "delta": 0.3,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0143": {
+      "id": "disarm_unverified.tech.t0143",
+      "type": "technique",
+      "label": "Cultivate Trolls",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0143",
+      "tactic_id": "disarm_unverified.tactic.ta02",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "harassment_capacity",
+          "delta": 0.25,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0023": {
+      "id": "disarm_unverified.tech.t0023",
+      "type": "technique",
+      "label": "Distort Facts",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0023",
+      "tactic_id": "disarm_unverified.tactic.ta03",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "factcheck_difficulty",
+          "delta": 0.15,
+          "placeholder": true
+        }
+      ],
+      "notes": [
+        "Cherry-picking; Statistiken falsch; Zitat aus Kontext."
+      ]
+    },
+    "disarm_unverified.tech.t0024": {
+      "id": "disarm_unverified.tech.t0024",
+      "type": "technique",
+      "label": "Create Fake Experts",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0024",
+      "tactic_id": "disarm_unverified.tactic.ta03",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "legitimacy",
+          "delta": 0.2,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0025": {
+      "id": "disarm_unverified.tech.t0025",
+      "type": "technique",
+      "label": "Develop AI-Generated Text",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0025",
+      "tactic_id": "disarm_unverified.tactic.ta03",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "production_speed",
+          "delta": 0.5,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0086": {
+      "id": "disarm_unverified.tech.t0086",
+      "type": "technique",
+      "label": "Develop AI-Generated Images (Deepfakes)",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0086",
+      "tactic_id": "disarm_unverified.tactic.ta03",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "emotional_impact",
+          "delta": 0.4,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0141": {
+      "id": "disarm_unverified.tech.t0141",
+      "type": "technique",
+      "label": "Develop Memes",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0141",
+      "tactic_id": "disarm_unverified.tactic.ta03",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "virality_potential",
+          "delta": 0.35,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0034": {
+      "id": "disarm_unverified.tech.t0034",
+      "type": "technique",
+      "label": "Hijack Hashtags",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0034",
+      "tactic_id": "disarm_unverified.tactic.ta04",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "organic_reach",
+          "delta": 0.25,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0035": {
+      "id": "disarm_unverified.tech.t0035",
+      "type": "technique",
+      "label": "Use Bots to Amplify",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0035",
+      "tactic_id": "disarm_unverified.tactic.ta04",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "amplification",
+          "delta": 0.6,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0039": {
+      "id": "disarm_unverified.tech.t0039",
+      "type": "technique",
+      "label": "Bait Journalists",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0039",
+      "tactic_id": "disarm_unverified.tactic.ta04",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "legitimacy_on_success",
+          "delta": 1.0,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0046": {
+      "id": "disarm_unverified.tech.t0046",
+      "type": "technique",
+      "label": "Search Engine Optimization",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0046",
+      "tactic_id": "disarm_unverified.tactic.ta04",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "long_term_visibility",
+          "delta": 0.3,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0121": {
+      "id": "disarm_unverified.tech.t0121",
+      "type": "technique",
+      "label": "Use Scheduling Software",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0121",
+      "tactic_id": "disarm_unverified.tactic.ta04",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "operational_efficiency",
+          "delta": 0.4,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0049": {
+      "id": "disarm_unverified.tech.t0049",
+      "type": "technique",
+      "label": "Flooding",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0049",
+      "tactic_id": "disarm_unverified.tactic.ta05",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "noise_generation",
+          "delta": 0.45,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0053": {
+      "id": "disarm_unverified.tech.t0053",
+      "type": "technique",
+      "label": "Disguise Automated Accounts as Grassroots (Astroturfing)",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0053",
+      "tactic_id": "disarm_unverified.tactic.ta05",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "perceived_authenticity",
+          "delta": 0.35,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0057": {
+      "id": "disarm_unverified.tech.t0057",
+      "type": "technique",
+      "label": "Organize Events",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0057",
+      "tactic_id": "disarm_unverified.tactic.ta05",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "online_offline_impact",
+          "delta": 0.7,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0058": {
+      "id": "disarm_unverified.tech.t0058",
+      "type": "technique",
+      "label": "Microtarget",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0058",
+      "tactic_id": "disarm_unverified.tactic.ta05",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "conversion_rate",
+          "delta": 0.55,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0060": {
+      "id": "disarm_unverified.tech.t0060",
+      "type": "technique",
+      "label": "Continue Amplifying Existing Narratives",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0060",
+      "tactic_id": "disarm_unverified.tactic.ta06",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "momentum",
+          "delta": 0.2,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0062": {
+      "id": "disarm_unverified.tech.t0062",
+      "type": "technique",
+      "label": "Backstop Personas",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0062",
+      "tactic_id": "disarm_unverified.tactic.ta06",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "account_lifespan",
+          "delta": 0.25,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0063": {
+      "id": "disarm_unverified.tech.t0063",
+      "type": "technique",
+      "label": "Use Controversial Content",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0063",
+      "tactic_id": "disarm_unverified.tactic.ta06",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "engagement_rate",
+          "delta": 0.4,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0142": {
+      "id": "disarm_unverified.tech.t0142",
+      "type": "technique",
+      "label": "Cultivate Community",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0142",
+      "tactic_id": "disarm_unverified.tactic.ta06",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "user_retention",
+          "delta": 0.6,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0080": {
+      "id": "disarm_unverified.tech.t0080",
+      "type": "technique",
+      "label": "Identify Wedge Issues",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0080",
+      "tactic_id": "disarm_unverified.tactic.ta07",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "divisiveness",
+          "delta": 0.5,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0081": {
+      "id": "disarm_unverified.tech.t0081",
+      "type": "technique",
+      "label": "Develop Competing Narratives",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0081",
+      "tactic_id": "disarm_unverified.tactic.ta07",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "confusion",
+          "delta": 0.35,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0082": {
+      "id": "disarm_unverified.tech.t0082",
+      "type": "technique",
+      "label": "Exploit Conspiracy Theories",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0082",
+      "tactic_id": "disarm_unverified.tactic.ta07",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "true_believer_recruitment",
+          "delta": 0.45,
+          "placeholder": true
+        }
+      ]
+    },
+    "disarm_unverified.tech.t0083": {
+      "id": "disarm_unverified.tech.t0083",
+      "type": "technique",
+      "label": "Exploit Polarization",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "T0083",
+      "tactic_id": "disarm_unverified.tactic.ta07",
+      "disarm_id_verified": false,
+      "game_effects": [
+        {
+          "stat": "societal_impact",
+          "delta": 0.55,
+          "placeholder": true
+        }
+      ]
+    },
+    "vuln.state.attribution_risk": {
+      "id": "vuln.state.attribution_risk",
+      "type": "vulnerability",
+      "label": "Attribution Risk",
+      "authority": "source_text",
+      "group": "state"
+    },
+    "vuln.state.bureaucratic_inflexibility": {
+      "id": "vuln.state.bureaucratic_inflexibility",
+      "type": "vulnerability",
+      "label": "Bureaucratic Inflexibility",
+      "authority": "source_text",
+      "group": "state"
+    },
+    "vuln.state.consistency_requirements": {
+      "id": "vuln.state.consistency_requirements",
+      "type": "vulnerability",
+      "label": "Consistency Requirements",
+      "authority": "source_text",
+      "group": "state"
+    },
+    "vuln.proxy.financial_trails": {
+      "id": "vuln.proxy.financial_trails",
+      "type": "vulnerability",
+      "label": "Financial Trails",
+      "authority": "source_text",
+      "group": "proxy"
+    },
+    "vuln.proxy.opsec_failures": {
+      "id": "vuln.proxy.opsec_failures",
+      "type": "vulnerability",
+      "label": "OPSEC Failures",
+      "authority": "source_text",
+      "group": "proxy"
+    },
+    "vuln.proxy.employee_turnover": {
+      "id": "vuln.proxy.employee_turnover",
+      "type": "vulnerability",
+      "label": "Employee Turnover",
+      "authority": "source_text",
+      "group": "proxy"
+    },
+    "vuln.individual.personal_exposure": {
+      "id": "vuln.individual.personal_exposure",
+      "type": "vulnerability",
+      "label": "Personal Exposure",
+      "authority": "source_text",
+      "group": "individual"
+    },
+    "vuln.individual.financial_dependence": {
+      "id": "vuln.individual.financial_dependence",
+      "type": "vulnerability",
+      "label": "Financial Dependence",
+      "authority": "source_text",
+      "group": "individual"
+    },
+    "vuln.individual.credibility_constraints": {
+      "id": "vuln.individual.credibility_constraints",
+      "type": "vulnerability",
+      "label": "Credibility/Credibility Constraints",
+      "authority": "source_text",
+      "group": "individual"
+    },
+    "vuln.bot.pattern_detection": {
+      "id": "vuln.bot.pattern_detection",
+      "type": "vulnerability",
+      "label": "Pattern Detection",
+      "authority": "source_text",
+      "group": "bot"
+    },
+    "vuln.bot.content_quality": {
+      "id": "vuln.bot.content_quality",
+      "type": "vulnerability",
+      "label": "Content Quality",
+      "authority": "source_text",
+      "group": "bot"
+    },
+    "vuln.platform.policies": {
+      "id": "vuln.platform.policies",
+      "type": "vulnerability",
+      "label": "Platform Policies/TOS",
+      "authority": "source_text",
+      "group": "platform"
+    },
+    "strength.state.resource_abundance": {
+      "id": "strength.state.resource_abundance",
+      "type": "strength",
+      "label": "Resource Abundance",
+      "authority": "source_text",
+      "group": "state"
+    },
+    "strength.state.coordination": {
+      "id": "strength.state.coordination",
+      "type": "strength",
+      "label": "Coordination Capability",
+      "authority": "source_text",
+      "group": "state"
+    },
+    "strength.state.immunity": {
+      "id": "strength.state.immunity",
+      "type": "strength",
+      "label": "Immunity and Protection",
+      "authority": "source_text",
+      "group": "state"
+    },
+    "strength.proxy.plausible_deniability": {
+      "id": "strength.proxy.plausible_deniability",
+      "type": "strength",
+      "label": "Plausible Deniability",
+      "authority": "source_text",
+      "group": "proxy"
+    },
+    "strength.proxy.operational_flexibility": {
+      "id": "strength.proxy.operational_flexibility",
+      "type": "strength",
+      "label": "Operational Flexibility",
+      "authority": "source_text",
+      "group": "proxy"
+    },
+    "strength.proxy.scale": {
+      "id": "strength.proxy.scale",
+      "type": "strength",
+      "label": "Scale of Operations",
+      "authority": "source_text",
+      "group": "proxy"
+    },
+    "strength.individual.authenticity": {
+      "id": "strength.individual.authenticity",
+      "type": "strength",
+      "label": "Authenticity",
+      "authority": "source_text",
+      "group": "individual"
+    },
+    "strength.individual.adaptability": {
+      "id": "strength.individual.adaptability",
+      "type": "strength",
+      "label": "Adaptability",
+      "authority": "source_text",
+      "group": "individual"
+    },
+    "strength.individual.niche_expertise": {
+      "id": "strength.individual.niche_expertise",
+      "type": "strength",
+      "label": "Niche Expertise",
+      "authority": "source_text",
+      "group": "individual"
+    },
+    "strength.bot.scale": {
+      "id": "strength.bot.scale",
+      "type": "strength",
+      "label": "Scale",
+      "authority": "source_text",
+      "group": "bot"
+    },
+    "strength.bot.tirelessness": {
+      "id": "strength.bot.tirelessness",
+      "type": "strength",
+      "label": "Tirelessness",
+      "authority": "source_text",
+      "group": "bot"
+    },
+    "strength.bot.cost_effectiveness": {
+      "id": "strength.bot.cost_effectiveness",
+      "type": "strength",
+      "label": "Cost-Effectiveness",
+      "authority": "source_text",
+      "group": "bot"
+    },
+    "disarm_unverified.cm.c00092": {
+      "id": "disarm_unverified.cm.c00092",
+      "type": "countermeasure",
+      "label": "Bot Detection and Network Analysis (as in source text)",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00092",
+      "category": "detection_analysis",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.cm.c00008": {
+      "id": "disarm_unverified.cm.c00008",
+      "type": "countermeasure",
+      "label": "Create Shared Fact-Checking Database",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00008",
+      "category": "detection_analysis",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.cm.c00010": {
+      "id": "disarm_unverified.cm.c00010",
+      "type": "countermeasure",
+      "label": "Identify and Counter Social Engineering",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00010",
+      "category": "detection_analysis",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.cm.c00027": {
+      "id": "disarm_unverified.cm.c00027",
+      "type": "countermeasure",
+      "label": "Audit Search Algorithms",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00027",
+      "category": "detection_analysis",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.cm.c00012": {
+      "id": "disarm_unverified.cm.c00012",
+      "type": "countermeasure",
+      "label": "Platform Regulation",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00012",
+      "category": "prevention_inoculation",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.cm.c00019": {
+      "id": "disarm_unverified.cm.c00019",
+      "type": "countermeasure",
+      "label": "Reduce Political Targeting",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00019",
+      "category": "prevention_inoculation",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.cm.c00021": {
+      "id": "disarm_unverified.cm.c00021",
+      "type": "countermeasure",
+      "label": "Encourage Independent Reporting",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00021",
+      "category": "prevention_inoculation",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.cm.c00029": {
+      "id": "disarm_unverified.cm.c00029",
+      "type": "countermeasure",
+      "label": "Increase Media, Information, and Data Literacy",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00029",
+      "category": "prevention_inoculation",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.cm.c00153": {
+      "id": "disarm_unverified.cm.c00153",
+      "type": "countermeasure",
+      "label": "Inoculation/Prebunking (as in source text)",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00153",
+      "category": "prevention_inoculation",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.cm.c00013": {
+      "id": "disarm_unverified.cm.c00013",
+      "type": "countermeasure",
+      "label": "Deplatform Actors",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00013",
+      "category": "disruption_degradation",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.cm.c00031": {
+      "id": "disarm_unverified.cm.c00031",
+      "type": "countermeasure",
+      "label": "Reduce Effect of Division-Enablers",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00031",
+      "category": "disruption_degradation",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.cm.c00081": {
+      "id": "disarm_unverified.cm.c00081",
+      "type": "countermeasure",
+      "label": "Highlight Flooding Tactics",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00081",
+      "category": "disruption_degradation",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.cm.c00096": {
+      "id": "disarm_unverified.cm.c00096",
+      "type": "countermeasure",
+      "label": "Sticky Content",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00096",
+      "category": "disruption_degradation",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.cm.c00042": {
+      "id": "disarm_unverified.cm.c00042",
+      "type": "countermeasure",
+      "label": "Address Truth and Emotional Needs",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00042",
+      "category": "response_recovery",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.cm.c00126": {
+      "id": "disarm_unverified.cm.c00126",
+      "type": "countermeasure",
+      "label": "Social Media Verification (as in source text)",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00126",
+      "category": "response_recovery",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.cm.c00176": {
+      "id": "disarm_unverified.cm.c00176",
+      "type": "countermeasure",
+      "label": "Whole-of-Society Approach",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00176",
+      "category": "coordinated_approaches",
+      "disarm_id_verified": false
+    },
+    "disarm_unverified.cm.c00205": {
+      "id": "disarm_unverified.cm.c00205",
+      "type": "countermeasure",
+      "label": "Strong Coordination Between Platforms",
+      "authority": "disarm_unverified",
+      "source_disarm_id": "C00205",
+      "category": "coordinated_approaches",
+      "disarm_id_verified": false
+    },
+    "case.ira_2016": {
+      "id": "case.ira_2016",
+      "type": "case",
+      "label": "IRA 2016 US Election",
+      "authority": "source_text",
+      "time_range": {
+        "start": "2014-01-01",
+        "end": "2017-12-31"
+      },
+      "actors": [
+        "org.ira"
+      ],
+      "refs": [
+        "ref.senate_intel"
+      ]
+    },
+    "case.cambridge_analytica": {
+      "id": "case.cambridge_analytica",
+      "type": "case",
+      "label": "Cambridge Analytica 2014-2018",
+      "authority": "source_text",
+      "time_range": {
+        "start": "2014-01-01",
+        "end": "2018-12-31"
+      },
+      "actors": [
+        "org.cambridge_analytica"
+      ],
+      "refs": []
+    },
+    "case.ira_fr_2017": {
+      "id": "case.ira_fr_2017",
+      "type": "case",
+      "label": "IRA 2017 French Presidential Election",
+      "authority": "source_text",
+      "time_range": {
+        "start": "2017-01-01",
+        "end": "2017-12-31"
+      },
+      "actors": [
+        "org.ira"
+      ],
+      "refs": []
+    },
+    "case.doppelgaenger": {
+      "id": "case.doppelgaenger",
+      "type": "case",
+      "label": "Doppelgänger Campaign (peak 2024)",
+      "authority": "source_text",
+      "time_range": {
+        "start": "2022-01-01",
+        "end": "2024-12-31"
+      },
+      "actors": [
+        "org.struktura",
+        "org.social_design_agency"
+      ],
+      "refs": [
+        "ref.kettering"
+      ]
+    },
+    "case.copycop": {
+      "id": "case.copycop",
+      "type": "case",
+      "label": "CopyCop AI-Generated Campaign (2024)",
+      "authority": "source_text",
+      "time_range": {
+        "start": "2024-01-01",
+        "end": "2024-12-31"
+      },
+      "actors": [],
+      "refs": [
+        "ref.kettering"
+      ]
+    },
+    "case.fimi_eu_2024": {
+      "id": "case.fimi_eu_2024",
+      "type": "case",
+      "label": "FIMI in 2024 European Elections",
+      "authority": "source_text",
+      "time_range": {
+        "start": "2024-01-01",
+        "end": "2024-06-30"
+      },
+      "actors": [],
+      "refs": []
+    },
+    "case.iran_cpdc_2024": {
+      "id": "case.iran_cpdc_2024",
+      "type": "case",
+      "label": "Iran CPDC 2024 US Election Interference",
+      "authority": "source_text",
+      "time_range": {
+        "start": "2024-01-01",
+        "end": "2024-12-31"
+      },
+      "actors": [
+        "org.cpdc"
+      ],
+      "refs": []
+    },
+    "case.trump_attempt_disinfo_2024_07": {
+      "id": "case.trump_attempt_disinfo_2024_07",
+      "type": "case",
+      "label": "Trump Assassination Attempt Disinfo (July 2024)",
+      "authority": "source_text",
+      "time_range": {
+        "start": "2024-07-01",
+        "end": "2024-07-31"
+      },
+      "actors": [],
+      "refs": [
+        "ref.kettering"
+      ]
+    },
+    "game.player_role.analyst": {
+      "id": "game.player_role.analyst",
+      "type": "game_concept",
+      "label": "Spielerrolle: Analyst/Investigator",
+      "authority": "game"
+    },
+    "game.resource.time": {
+      "id": "game.resource.time",
+      "type": "game_resource",
+      "label": "Untersuchungszeit",
+      "authority": "game"
+    },
+    "game.resource.credibility": {
+      "id": "game.resource.credibility",
+      "type": "game_resource",
+      "label": "Glaubwürdigkeit/Reputation",
+      "authority": "game"
+    },
+    "game.resource.contacts": {
+      "id": "game.resource.contacts",
+      "type": "game_resource",
+      "label": "Kontakt-Netzwerk",
+      "authority": "game"
+    },
+    "game.resource.platform_coop": {
+      "id": "game.resource.platform_coop",
+      "type": "game_resource",
+      "label": "Plattform-Kooperation",
+      "authority": "game"
+    },
+    "game.tradeoff.speed_vs_depth": {
+      "id": "game.tradeoff.speed_vs_depth",
+      "type": "game_tradeoff",
+      "label": "Schnell vs gründlich",
+      "authority": "game"
+    },
+    "game.tradeoff.public_vs_private": {
+      "id": "game.tradeoff.public_vs_private",
+      "type": "game_tradeoff",
+      "label": "Öffentlich vs privat",
+      "authority": "game"
+    },
+    "game.tool.network_visualizer": {
+      "id": "game.tool.network_visualizer",
+      "type": "game_tool",
+      "label": "Social Network Visualizer",
+      "authority": "game"
+    },
+    "game.tool.financial_investigation": {
+      "id": "game.tool.financial_investigation",
+      "type": "game_tool",
+      "label": "Financial Investigation Tools",
+      "authority": "game"
+    },
+    "game.tool.content_analysis": {
+      "id": "game.tool.content_analysis",
+      "type": "game_tool",
+      "label": "Content-Analyse Tools",
+      "authority": "game"
+    },
+    "game.tool.timeline_constructor": {
+      "id": "game.tool.timeline_constructor",
+      "type": "game_tool",
+      "label": "Timeline Constructor",
+      "authority": "game"
+    },
+    "game.tool.source_verification": {
+      "id": "game.tool.source_verification",
+      "type": "game_tool",
+      "label": "Source Verification Tools",
+      "authority": "game"
+    },
+    "game.indicator.mice_signals": {
+      "id": "game.indicator.mice_signals",
+      "type": "game_indicator",
+      "label": "MICE Motivations-Zeichen",
+      "authority": "game"
+    },
+    "game.indicator.thread_5_indicators": {
+      "id": "game.indicator.thread_5_indicators",
+      "type": "game_indicator",
+      "label": "5-Indikatoren-System (aus Original-Thread erwähnt)",
+      "authority": "game"
+    },
+    "game.indicator.network_patterns": {
+      "id": "game.indicator.network_patterns",
+      "type": "game_indicator",
+      "label": "Netzwerkanalyse-Muster",
+      "authority": "game"
+    },
+    "game.indicator.financial_anomalies": {
+      "id": "game.indicator.financial_anomalies",
+      "type": "game_indicator",
+      "label": "Financial Trail-Anomalien",
+      "authority": "game"
+    },
+    "game.indicator.content_patterns": {
+      "id": "game.indicator.content_patterns",
+      "type": "game_indicator",
+      "label": "Content-Mustererkennung",
+      "authority": "game"
+    },
+    "game.indicator.behavior_signatures": {
+      "id": "game.indicator.behavior_signatures",
+      "type": "game_indicator",
+      "label": "Verhaltens-Signaturen",
+      "authority": "game"
+    },
+    "game.difficulty.easy": {
+      "id": "game.difficulty.easy",
+      "type": "game_difficulty",
+      "label": "Easy: Staatsmedien (offen)",
+      "authority": "game"
+    },
+    "game.difficulty.medium": {
+      "id": "game.difficulty.medium",
+      "type": "game_difficulty",
+      "label": "Medium: Proxy-Organisationen (versteckte Verbindungen)",
+      "authority": "game"
+    },
+    "game.difficulty.hard": {
+      "id": "game.difficulty.hard",
+      "type": "game_difficulty",
+      "label": "Hard: Sophisticated Individuals (subtiler Einfluss)",
+      "authority": "game"
+    },
+    "game.difficulty.very_hard": {
+      "id": "game.difficulty.very_hard",
+      "type": "game_difficulty",
+      "label": "Very Hard: Koordinierte Multi-Akteur-Kampagnen",
+      "authority": "game"
+    },
+    "game.mode.singleplayer": {
+      "id": "game.mode.singleplayer",
+      "type": "game_mode",
+      "label": "Singleplayer",
+      "authority": "game"
+    },
+    "game.mode.coop": {
+      "id": "game.mode.coop",
+      "type": "game_mode",
+      "label": "Kooperativ (Team von Analysten)",
+      "authority": "game"
+    },
+    "game.mode.competitive": {
+      "id": "game.mode.competitive",
+      "type": "game_mode",
+      "label": "Kompetitiv (Counter vs Campaign, asymmetrisch)",
+      "authority": "game"
+    },
+    "game.mode.crowd": {
+      "id": "game.mode.crowd",
+      "type": "game_mode",
+      "label": "Crowdsourced Investigation",
+      "authority": "game"
+    },
+    "game.campaign_type.single_issue": {
+      "id": "game.campaign_type.single_issue",
+      "type": "campaign_type",
+      "label": "Single-Issue fokussiert",
+      "authority": "game"
+    },
+    "game.campaign_type.multi_narrative": {
+      "id": "game.campaign_type.multi_narrative",
+      "type": "campaign_type",
+      "label": "Multi-Narrativ koordiniert",
+      "authority": "game"
+    },
+    "game.campaign_type.opportunistic": {
+      "id": "game.campaign_type.opportunistic",
+      "type": "campaign_type",
+      "label": "Opportunistisch (Event-getrieben)",
+      "authority": "game"
+    },
+    "game.campaign_type.long_term": {
+      "id": "game.campaign_type.long_term",
+      "type": "campaign_type",
+      "label": "Langfristig strategisch",
+      "authority": "game"
+    },
+    "game.scenario.election_interference": {
+      "id": "game.scenario.election_interference",
+      "type": "scenario",
+      "label": "Wahleinmischung",
+      "authority": "game"
+    },
+    "game.scenario.public_health": {
+      "id": "game.scenario.public_health",
+      "type": "scenario",
+      "label": "Public Health Krisen-Manipulation",
+      "authority": "game"
+    },
+    "game.scenario.geopolitics": {
+      "id": "game.scenario.geopolitics",
+      "type": "scenario",
+      "label": "Geopolitische Narrativ-Formung",
+      "authority": "game"
+    },
+    "game.scenario.corporate_attacks": {
+      "id": "game.scenario.corporate_attacks",
+      "type": "scenario",
+      "label": "Corporate Reputation Attacks",
+      "authority": "game"
+    },
+    "game.scenario.social_movement_cooption": {
+      "id": "game.scenario.social_movement_cooption",
+      "type": "scenario",
+      "label": "Social Movement Co-Option",
+      "authority": "game"
+    }
+  },
+  "edges": [
+    {
+      "id": "edge.state_to_proxy",
+      "type": "edge",
+      "relation": "uses",
+      "from_id": "actor.state.intelligence",
+      "to_id": "actor.state.proxy_org",
+      "notes": "Plausible deniability, Flexibilität (source text)."
+    },
+    {
+      "id": "edge.proxy_to_individual_money",
+      "type": "edge",
+      "relation": "recruits",
+      "from_id": "actor.state.proxy_org",
+      "to_id": "actor.individual.witting",
+      "notes": "MICE: money/ideology/coercion/ego."
+    },
+    {
+      "id": "edge.state_media_laundering",
+      "type": "edge",
+      "relation": "uses",
+      "from_id": "actor.state.media_apparatus",
+      "to_id": "fw.5ds",
+      "notes": "Strategie-Frame; Laundering beschrieben."
+    },
+    {
+      "id": "edge.synergy.ai_text_plus_bots",
+      "type": "edge",
+      "relation": "synergy_with",
+      "from_id": "disarm_unverified.tech.t0025",
+      "to_id": "disarm_unverified.tech.t0035",
+      "notes": "AI text + bot amplification."
+    },
+    {
+      "id": "edge.synergy.ai_text_plus_microtarget",
+      "type": "edge",
+      "relation": "synergy_with",
+      "from_id": "disarm_unverified.tech.t0025",
+      "to_id": "disarm_unverified.tech.t0058",
+      "notes": "AI text + microtargeting."
+    },
+    {
+      "id": "edge.synergy.bot_plus_microtarget",
+      "type": "edge",
+      "relation": "synergy_with",
+      "from_id": "disarm_unverified.tech.t0035",
+      "to_id": "disarm_unverified.tech.t0058",
+      "notes": "Bots + microtargeting."
+    },
+    {
+      "id": "edge.cm_highlight_flooding_to_flooding",
+      "type": "edge",
+      "relation": "mitigates",
+      "from_id": "disarm_unverified.cm.c00081",
+      "to_id": "disarm_unverified.tech.t0049"
+    },
+    {
+      "id": "edge.cm_deplatform_to_bots",
+      "type": "edge",
+      "relation": "mitigates",
+      "from_id": "disarm_unverified.cm.c00013",
+      "to_id": "actor.automation.simple_bot"
+    },
+    {
+      "id": "edge.case.ira2016.uses.events",
+      "type": "edge",
+      "relation": "uses",
+      "from_id": "case.ira_2016",
+      "to_id": "disarm_unverified.tech.t0057"
+    },
+    {
+      "id": "edge.case.ira2016.uses.microtarget",
+      "type": "edge",
+      "relation": "uses",
+      "from_id": "case.ira_2016",
+      "to_id": "disarm_unverified.tech.t0058"
+    },
+    {
+      "id": "edge.case.doppelgaenger.uses.domain_network",
+      "type": "edge",
+      "relation": "uses",
+      "from_id": "case.doppelgaenger",
+      "to_id": "infra.domain_network"
+    },
+    {
+      "id": "edge.case.copycop.uses.ai_text",
+      "type": "edge",
+      "relation": "uses",
+      "from_id": "case.copycop",
+      "to_id": "disarm_unverified.tech.t0025"
+    }
+  ]
+}

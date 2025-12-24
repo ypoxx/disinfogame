@@ -1,0 +1,225 @@
+{
+  "meta": {
+    "id": "doc.source_snapshot.desinfo_taxonomy",
+    "created": "2025-12-24",
+    "updated": "2025-12-24",
+    "source_document_date_claim": "2024-12-24",
+    "language": "de"
+  },
+  "sections": [
+    {
+      "id": "sec.1",
+      "title": "Akteure in Desinformationskampagnen",
+      "children": [
+        {
+          "id": "sec.1.1",
+          "title": "Staatliche Akteure",
+          "children": [
+            {
+              "id": "sec.1.1.1",
+              "title": "Geheimdienste"
+            },
+            {
+              "id": "sec.1.1.2",
+              "title": "Militärische Informationseinheiten"
+            },
+            {
+              "id": "sec.1.1.3",
+              "title": "Staatsmedien-Apparat"
+            },
+            {
+              "id": "sec.1.1.4",
+              "title": "Proxy-Organisationen"
+            }
+          ]
+        },
+        {
+          "id": "sec.1.2",
+          "title": "Nicht-staatliche Akteure",
+          "children": [
+            {
+              "id": "sec.1.2.1",
+              "title": "Ideologische Bewegungen"
+            },
+            {
+              "id": "sec.1.2.2",
+              "title": "Profitorientierte Akteure"
+            },
+            {
+              "id": "sec.1.2.3",
+              "title": "Politische Beratungsagenturen"
+            }
+          ]
+        },
+        {
+          "id": "sec.1.3",
+          "title": "Einzelakteure",
+          "children": [
+            {
+              "id": "sec.1.3.1",
+              "title": "Einflussagenten (Individuals)"
+            },
+            {
+              "id": "sec.1.3.2",
+              "title": "Pseudo-Experten"
+            },
+            {
+              "id": "sec.1.3.3",
+              "title": "Automatisierte/Bot Akteure"
+            }
+          ]
+        },
+        {
+          "id": "sec.1.4",
+          "title": "Infrastruktur-Akteure",
+          "children": [
+            {
+              "id": "sec.1.4.1",
+              "title": "Content-Produktionseinheiten"
+            },
+            {
+              "id": "sec.1.4.2",
+              "title": "Technische Infrastruktur"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sec.2",
+      "title": "Fähigkeiten der Desinformation (DISARM Red)",
+      "children": [
+        {
+          "id": "sec.2.1",
+          "title": "TA01 Plan Strategy"
+        },
+        {
+          "id": "sec.2.2",
+          "title": "TA02 Establish Assets"
+        },
+        {
+          "id": "sec.2.3",
+          "title": "TA03 Create Content"
+        },
+        {
+          "id": "sec.2.4",
+          "title": "TA04 Deliver Content"
+        },
+        {
+          "id": "sec.2.5",
+          "title": "TA05 Amplify Content"
+        },
+        {
+          "id": "sec.2.6",
+          "title": "TA06 Drive Engagement"
+        },
+        {
+          "id": "sec.2.7",
+          "title": "TA07 Target Vulnerabilities"
+        }
+      ]
+    },
+    {
+      "id": "sec.3",
+      "title": "Schwachstellen und Stärken",
+      "children": [
+        {
+          "id": "sec.3.1",
+          "title": "Akteurs-Schwachstellen & Stärken"
+        },
+        {
+          "id": "sec.3.2",
+          "title": "Gegenmaßnahmen (DISARM Blue)"
+        }
+      ]
+    },
+    {
+      "id": "sec.4",
+      "title": "Historische und aktuelle Fälle",
+      "children": [
+        {
+          "id": "sec.4.1",
+          "title": "Gut untersuchte historische Fälle"
+        },
+        {
+          "id": "sec.4.2",
+          "title": "Aktuelle Kampagnen 2024"
+        }
+      ]
+    },
+    {
+      "id": "sec.5",
+      "title": "Frameworks und Methodologien",
+      "children": [
+        {
+          "id": "sec.5.1",
+          "title": "DISARM (Red & Blue)"
+        },
+        {
+          "id": "sec.5.2",
+          "title": "ABC Framework"
+        },
+        {
+          "id": "sec.5.3",
+          "title": "MICE"
+        },
+        {
+          "id": "sec.5.4",
+          "title": "5Ds"
+        }
+      ]
+    },
+    {
+      "id": "sec.6",
+      "title": "Spiel-Mechanik Vorschläge",
+      "children": [
+        {
+          "id": "sec.6.1",
+          "title": "Akteurs-Auswahl"
+        },
+        {
+          "id": "sec.6.2",
+          "title": "Fähigkeitssystem (Tech Tree)"
+        },
+        {
+          "id": "sec.6.3",
+          "title": "Erkennungs-Mechanik"
+        },
+        {
+          "id": "sec.6.4",
+          "title": "Gegenmaßnahmen-System"
+        },
+        {
+          "id": "sec.6.5",
+          "title": "Narrative Komplexität"
+        },
+        {
+          "id": "sec.6.6",
+          "title": "Multiplayer-Potenzial"
+        }
+      ]
+    },
+    {
+      "id": "sec.7",
+      "title": "Bezüge und Beziehungen",
+      "children": [
+        {
+          "id": "sec.7.1",
+          "title": "Akteurs-Beziehungen"
+        },
+        {
+          "id": "sec.7.2",
+          "title": "Capability-Beziehungen"
+        }
+      ]
+    },
+    {
+      "id": "sec.8",
+      "title": "Quellen-Verzeichnis"
+    }
+  ],
+  "raw_text": {
+    "note": "Der komplette Raw-Text ist sehr lang; hier wird er als 'provided_text' gespeichert.",
+    "provided_text": "SEE_USER_PROMPT_ORIGINAL_TEXT"
+  }
+}

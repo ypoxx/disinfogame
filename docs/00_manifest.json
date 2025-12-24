@@ -1,0 +1,77 @@
+{
+  "meta": {
+    "id": "bundle.desinfo_taxonomy.full",
+    "created": "2025-12-24",
+    "updated": "2025-12-24",
+    "language": "de"
+  },
+  "files": [
+    {
+      "filename": "00_manifest.json",
+      "purpose": "Index/README: beschreibt alle Dateien im Bundle, ihre Zwecke und wie sie zusammenhängen.",
+      "consumes": [],
+      "produces": [
+        "alle anderen Dateien"
+      ]
+    },
+    {
+      "filename": "01_source_text_snapshot.json",
+      "purpose": "Vollständiger Snapshot des gelieferten Ausgangstextes (alle Überlegungen wortnah in Abschnitten), damit nichts verloren geht.",
+      "consumes": [
+        "User-Input (Original)"
+      ],
+      "produces": [
+        "Maschinenlesbarer Abschnittsbaum, plus Raw-Text"
+      ]
+    },
+    {
+      "filename": "02_graph_unverified_full.json",
+      "purpose": "Normalisierte Wissensgraph-Representation aus dem Ausgangstext (IDs, by_id, edges, flat_index). DISARM-IDs hier als 'disarm_unverified' behandelt.",
+      "consumes": [
+        "01_source_text_snapshot.json"
+      ],
+      "produces": [
+        "Graph für Spiel/Analyse/Comparisons"
+      ]
+    },
+    {
+      "filename": "03_disarm_verified_overlay.json",
+      "purpose": "Overlay mit verifizierten DISARM-IDs/Mappings (Korrekturen + eindeutige Referenzen auf offizielle DISARM Quellen). Kann über 02 gelegt werden.",
+      "consumes": [
+        "02_graph_unverified_full.json"
+      ],
+      "produces": [
+        "DISARM-verifizierte Sicht (ohne Source-Text-Details zu verlieren)"
+      ]
+    },
+    {
+      "filename": "04_game_design_layer.json",
+      "purpose": "Spiel-Design Layer: Mechanics, Player Tools, Ressourcen, Difficulty, Modes, Progression. Rein game-oriented und direkt implementierbar.",
+      "consumes": [
+        "02_graph_unverified_full.json"
+      ],
+      "produces": [
+        "Spielmechanik-Katalog + Mappings zu Akteuren/Techniken/Countermeasures"
+      ]
+    },
+    {
+      "filename": "05_claims_registry.json",
+      "purpose": "Claim-Registry: Jede konkrete Behauptung aus dem Ausgangstext als eigener Claim mit Herkunft, betroffener Entity, und (optional) Verifikationsstatus.",
+      "consumes": [
+        "01_source_text_snapshot.json",
+        "02_graph_unverified_full.json"
+      ],
+      "produces": [
+        "prüfbare, auditierbare Faktenschicht"
+      ]
+    }
+  ],
+  "recommended_workflow": [
+    "Starte mit 00_manifest.json",
+    "Wenn du 'alles' im Original brauchst: nutze 01_source_text_snapshot.json",
+    "Für Graph-Analysen/Mechanik-Vergleich: nutze 02_graph_unverified_full.json",
+    "Wenn du DISARM-reine Vergleiche willst: lege 03_disarm_verified_overlay.json über 02 (oder nutze nur 03 für Mapping-Tabellen)",
+    "Für Game-Design/Implementation: nutze 04_game_design_layer.json",
+    "Für Fact-Checking/Research: nutze 05_claims_registry.json"
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "meta": {
+    "id": "doc.disarm_verified_overlay",
+    "created": "2025-12-24",
+    "updated": "2025-12-24",
+    "language": "de"
+  },
+  "refs": [
+    "ref.disarm_explorer",
+    "ref.disarm_github_counters_index",
+    "ref.disarm_github_c00125",
+    "ref.disarm_github_t0049_003",
+    "ref.fimi_isac_pdf"
+  ],
+  "verified": {
+    "countermeasures": {
+      "C00125": {
+        "label": "Prebunking",
+        "url": "https://github.com/DISARMFoundation/DISARMframeworks/blob/main/generated_pages/counters/C00125.md"
+      },
+      "C00126": {
+        "label": "Social media amber alert",
+        "url": "https://disarmframework.herokuapp.com/counter/"
+      },
+      "C00092": {
+        "label": "Establish a truth teller reputation score for influencers",
+        "url": "https://github.com/DISARMFoundation/DISARMframeworks/blob/main/generated_pages/counters_index.md"
+      }
+    },
+    "techniques": {
+      "T0049": {
+        "label": "Flooding the Information Space",
+        "url": "https://disarmframework.herokuapp.com/technique/"
+      },
+      "T0049.002": {
+        "label": "Hijack existing hashtag",
+        "url": "https://disarmframework.herokuapp.com/"
+      },
+      "T0049.003": {
+        "label": "Bots Amplify via Automated Forwarding and Reposting",
+        "url": "https://github.com/DISARMFoundation/DISARMframeworks/blob/main/generated_pages/techniques/T0049.003.md"
+      }
+    }
+  },
+  "mappings_and_corrections": [
+    {
+      "id": "map.source_text.t0034_to_verified.t0049_002",
+      "type": "mapping",
+      "from": {
+        "id": "disarm_unverified.tech.t0034",
+        "source_disarm_id": "T0034",
+        "label": "Hijack Hashtags (source text)"
+      },
+      "to": {
+        "verified_disarm_id": "T0049.002",
+        "label": "Hijack existing hashtag"
+      },
+      "rationale": "In DISARM current docs, hashtag hijacking appears as sub-technique under T0049.*.",
+      "refs": [
+        "ref.disarm_explorer",
+        "ref.fimi_isac_pdf"
+      ]
+    },
+    {
+      "id": "map.source_text.t0035_to_verified.t0049_003",
+      "type": "mapping",
+      "from": {
+        "id": "disarm_unverified.tech.t0035",
+        "source_disarm_id": "T0035",
+        "label": "Use Bots to Amplify (source text)"
+      },
+      "to": {
+        "verified_disarm_id": "T0049.003",
+        "label": "Bots Amplify via Automated Forwarding and Reposting"
+      },
+      "refs": [
+        "ref.disarm_github_t0049_003",
+        "ref.fimi_isac_pdf"
+      ]
+    },
+    {
+      "id": "map.source_text.c00153_to_verified.c00125",
+      "type": "mapping",
+      "from": {
+        "id": "disarm_unverified.cm.c00153",
+        "source_disarm_id": "C00153",
+        "label": "Inoculation/Prebunking (source text)"
+      },
+      "to": {
+        "verified_disarm_id": "C00125",
+        "label": "Prebunking"
+      },
+      "refs": [
+        "ref.disarm_github_c00125",
+        "ref.disarm_explorer"
+      ]
+    },
+    {
+      "id": "map.source_text.c00126_label_fix",
+      "type": "mapping",
+      "from": {
+        "id": "disarm_unverified.cm.c00126",
+        "source_disarm_id": "C00126",
+        "label": "Social Media Verification (source text)"
+      },
+      "to": {
+        "verified_disarm_id": "C00126",
+        "label": "Social media amber alert"
+      },
+      "refs": [
+        "ref.disarm_explorer"
+      ]
+    },
+    {
+      "id": "map.source_text.c00092_label_fix",
+      "type": "mapping",
+      "from": {
+        "id": "disarm_unverified.cm.c00092",
+        "source_disarm_id": "C00092",
+        "label": "Bot Detection and Network Analysis (source text)"
+      },
+      "to": {
+        "verified_disarm_id": "C00092",
+        "label": "Establish a truth teller reputation score for influencers"
+      },
+      "notes": "Das bedeutet: Bot Detection sollte als eigenständiges game/ops Objekt modelliert werden, nicht als DISARM C00092.",
+      "refs": [
+        "ref.disarm_github_counters_index",
+        "ref.disarm_explorer"
+      ]
+    }
+  ],
+  "recommended_overlay_actions": [
+    "Behalte die Source-Text-Knoten als historische/Quellen-Schicht.",
+    "Für Vergleiche mit externen Konzepten verwende die verified_disarm_id in den Mapping-Objekten.",
+    "Erzeuge game-eigene Countermeasure-Knoten für Bot/Network Analysis (nicht DISARM C00092)."
+  ]
+}

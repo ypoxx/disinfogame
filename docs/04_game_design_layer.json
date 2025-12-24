@@ -1,0 +1,210 @@
+{
+  "meta": {
+    "id": "doc.game_design_layer",
+    "created": "2025-12-24",
+    "updated": "2025-12-24",
+    "language": "de"
+  },
+  "player_role": "game.player_role.analyst",
+  "actor_select_roster": [
+    "actor.state.intelligence",
+    "actor.state.proxy_org",
+    "actor.nonstate.political_consult",
+    "actor.nonstate.ideological",
+    "actor.nonstate.profit",
+    "actor.individual.witting",
+    "actor.automation.simple_bot"
+  ],
+  "attributes_schema": {
+    "resource_level": [
+      "low",
+      "medium",
+      "high",
+      "very_high"
+    ],
+    "sophistication": [
+      "low",
+      "medium",
+      "high",
+      "very_high"
+    ],
+    "detection_difficulty": [
+      "low",
+      "medium",
+      "high",
+      "very_high"
+    ],
+    "influence_range": [
+      "local",
+      "national",
+      "regional",
+      "global"
+    ],
+    "tempo": [
+      "slow",
+      "medium",
+      "fast",
+      "very_fast"
+    ],
+    "legitimacy": [
+      "low",
+      "medium",
+      "high"
+    ]
+  },
+  "progression": {
+    "tech_tree_model": "unlock_and_upgrade",
+    "phases": [
+      {
+        "phase": "TA01",
+        "tactic_id": "disarm_unverified.tactic.ta01",
+        "description": "Strategie/Ziele/Zielgruppen"
+      },
+      {
+        "phase": "TA02",
+        "tactic_id": "disarm_unverified.tactic.ta02",
+        "description": "Assets/Accounts/Personas/Infra"
+      },
+      {
+        "phase": "TA03",
+        "tactic_id": "disarm_unverified.tactic.ta03",
+        "description": "Content-Erzeugung"
+      },
+      {
+        "phase": "TA04",
+        "tactic_id": "disarm_unverified.tactic.ta04",
+        "description": "Distribution/Delivery"
+      },
+      {
+        "phase": "TA05",
+        "tactic_id": "disarm_unverified.tactic.ta05",
+        "description": "Amplification"
+      },
+      {
+        "phase": "TA06",
+        "tactic_id": "disarm_unverified.tactic.ta06",
+        "description": "Engagement/Community"
+      },
+      {
+        "phase": "TA07",
+        "tactic_id": "disarm_unverified.tactic.ta07",
+        "description": "Wedge Issues/Vulnerabilities"
+      }
+    ]
+  },
+  "detection_system": {
+    "indicators": [
+      "game.indicator.mice_signals",
+      "game.indicator.thread_5_indicators",
+      "game.indicator.network_patterns",
+      "game.indicator.financial_anomalies",
+      "game.indicator.content_patterns",
+      "game.indicator.behavior_signatures"
+    ],
+    "player_tools": [
+      "game.tool.network_visualizer",
+      "game.tool.financial_investigation",
+      "game.tool.content_analysis",
+      "game.tool.timeline_constructor",
+      "game.tool.source_verification"
+    ],
+    "false_positive_costs": [
+      "reputation_loss",
+      "trust_damage",
+      "time_waste"
+    ]
+  },
+  "countermeasures_system": {
+    "actions": [
+      {
+        "id": "game.action.attribution",
+        "label": "Attribution aufdecken"
+      },
+      {
+        "id": "game.action.platform_request",
+        "label": "Plattform-Aktion anfordern"
+      },
+      {
+        "id": "game.action.publish_investigation",
+        "label": "Untersuchung veröffentlichen"
+      },
+      {
+        "id": "game.action.alert_authorities",
+        "label": "Behörden alarmieren"
+      },
+      {
+        "id": "game.action.prebunking",
+        "label": "Prebunking einsetzen"
+      },
+      {
+        "id": "game.action.factcheck_boost",
+        "label": "Fact-Checks verstärken"
+      }
+    ],
+    "outcomes": [
+      {
+        "id": "game.outcome.expose_success",
+        "label": "Erfolgreiche Exposition: Akteur degradiert, Kampagne gestört"
+      },
+      {
+        "id": "game.outcome.false_positive",
+        "label": "False Positive: Reputationsschaden, reduzierte Glaubwürdigkeit"
+      },
+      {
+        "id": "game.outcome.partial",
+        "label": "Teilweiser Erfolg: Akteur passt sich an"
+      }
+    ],
+    "resources": [
+      "game.resource.time",
+      "game.resource.credibility",
+      "game.resource.contacts",
+      "game.resource.platform_coop"
+    ],
+    "tradeoffs": [
+      "game.tradeoff.speed_vs_depth",
+      "game.tradeoff.public_vs_private"
+    ]
+  },
+  "difficulty_scaling": [
+    "game.difficulty.easy",
+    "game.difficulty.medium",
+    "game.difficulty.hard",
+    "game.difficulty.very_hard"
+  ],
+  "multiplayer": [
+    "game.mode.coop",
+    "game.mode.competitive",
+    "game.mode.crowd"
+  ],
+  "scenario_catalog": [
+    "game.scenario.election_interference",
+    "game.scenario.public_health",
+    "game.scenario.geopolitics",
+    "game.scenario.corporate_attacks",
+    "game.scenario.social_movement_cooption"
+  ],
+  "campaign_types": [
+    "game.campaign_type.single_issue",
+    "game.campaign_type.multi_narrative",
+    "game.campaign_type.opportunistic",
+    "game.campaign_type.long_term"
+  ],
+  "case_references_for_scenarios": {
+    "game.scenario.election_interference": [
+      "case.ira_2016",
+      "case.cambridge_analytica",
+      "case.doppelgaenger"
+    ],
+    "game.scenario.public_health": [
+      "case.fimi_eu_2024"
+    ],
+    "game.scenario.geopolitics": [
+      "case.doppelgaenger"
+    ],
+    "game.scenario.corporate_attacks": [],
+    "game.scenario.social_movement_cooption": [
+      "case.ira_2016"
+    ]
+  }
+}

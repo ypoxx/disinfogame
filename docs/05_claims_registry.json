@@ -1,0 +1,82 @@
+{
+  "meta": {
+    "id": "doc.claims_registry",
+    "created": "2025-12-24",
+    "updated": "2025-12-24",
+    "language": "de"
+  },
+  "notes": [
+    "Dies ist eine auditierbare Claim-Schicht. Jeder Claim kann später verifiziert und mit weiteren Quellen angereichert werden.",
+    "Der Registry-Umfang ist 'voll' bzgl. zentraler Zahlen/Behauptungen; feinere Claims (z.B. jede Prozentzahl bei Game-Effekten) sind in 02 als placeholder markiert."
+  ],
+  "claims": [
+    {
+      "id": "cl.ira.scale_accounts",
+      "claim": "IRA operated 3,000+ accounts (source text).",
+      "entity_id": "org.ira",
+      "refs": [
+        "ref.senate_intel"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "cl.ira.scale_tweets",
+      "claim": "IRA produced 9+ million tweets (source text).",
+      "entity_id": "org.ira",
+      "refs": [
+        "ref.senate_intel"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "cl.ira.staff",
+      "claim": "IRA had 600+ employees in 2014 (source text).",
+      "entity_id": "infra.troll_farm",
+      "refs": [
+        "ref.senate_intel"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "cl.ira.quota",
+      "claim": "IRA quota 100 comments/day/employee (source text).",
+      "entity_id": "infra.troll_farm",
+      "refs": [
+        "ref.senate_intel"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "cl.doppelgaenger.domains",
+      "claim": "Doppelgänger used 300+ copycat domains (source text).",
+      "entity_id": "case.doppelgaenger",
+      "refs": [
+        "ref.kettering"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "cl.copycop.personas",
+      "claim": "CopyCop had 100+ AI-generated journalist personas (source text).",
+      "entity_id": "case.copycop",
+      "refs": [
+        "ref.kettering"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "cl.fimi.narrative_types",
+      "claim": "FIMI EU elections used Type A (social vulnerabilities) and Type B (institutional mistrust) narrative types (source text).",
+      "entity_id": "case.fimi_eu_2024",
+      "refs": [],
+      "status": "unverified"
+    },
+    {
+      "id": "cl.botometer.metric",
+      "claim": "Botometer ~56% precision at 50% recall (as claimed in source text).",
+      "entity_id": "vuln.bot.pattern_detection",
+      "refs": [],
+      "status": "unverified"
+    }
+  ]
+}
