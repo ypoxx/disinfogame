@@ -8,7 +8,7 @@ Kreative Ideen und Vorschläge, die noch nicht priorisiert oder entschieden sind
 
 ### I-001: Gegenseite spielen (Same Seed)
 **Quelle:** Chat 2025-12-24
-**Status:** 💡 Konzept
+**Status:** ✅ Angenommen (MVP grob, Post-MVP Detail)
 
 **Beschreibung:**
 Nach Abschluss des Spiels kann man denselben Seed als Verteidiger spielen.
@@ -17,11 +17,6 @@ Nach Abschluss des Spiels kann man denselben Seed als Verteidiger spielen.
 - Direkter Vergleich: Wie gut war die Offensive vs. Defensive?
 
 **Technische Machbarkeit:** ✅ Seed-System existiert bereits
-
-**Offene Fragen:**
-- Wie unterscheidet sich Verteidiger-Gameplay?
-- Welche Abilities hat der Verteidiger?
-- Ist das ein separater Modus oder Teil der Kampagne?
 
 ---
 
@@ -46,15 +41,18 @@ AI-Spoofing-Forschung zeigt: Kleine Sprachräume sind anfälliger.
 
 ### I-003: Raum-Progression statt statischem Büro
 **Quelle:** Analyse 2025-12-24
-**Status:** 💡 Konzept
+**Status:** ✅ Angenommen → D-023
 
 **Beschreibung:**
-Das Büro entwickelt sich mit dem Spielfortschritt:
+Das Büro entwickelt sich mit dem Spielfortschritt. Die Tür führt zu anderen Räumen.
 
 ```
-Phase 1: Kleines Büro (Starter)
-Phase 2: Operations Center (Aufstieg)
-Phase 3: Kommandoposten (Endgame)
+Mögliche Räume:
+├── Büro (Start)
+├── Operations Center (Aufstieg)
+├── Server-Raum (Tech-Aktionen)
+├── Besprechungsraum (NPC-Dialoge)
+└── Außeneinsatz? (Spezial-Missionen)
 ```
 
 **Vorteile:**
@@ -62,26 +60,18 @@ Phase 3: Kommandoposten (Endgame)
 - Neue Interaktionsmöglichkeiten pro Phase
 - Zeigt Eskalation der Kampagne
 
-**Aufwand:** Mittel (neue Hintergründe, gleiche Interaktionslogik)
-
 ---
 
 ### I-004: NPC-Archetypen mit Dilemmata
 **Quelle:** Chat 2025-12-24
-**Status:** 💡 Konzept
+**Status:** ✅ Angenommen → D-010
 
-**Archetypen:**
+**Archetypen (mit Big Five Basis):**
 1. **Volkov** (Bot-Farm-Chef) - Loyal, aber eigene Ambitionen
 2. **Marina** (Analystin) - Kompetent, aber moralisch zerrissen
 3. **Der Direktor** (Boss) - Fordert Ergebnisse, kennt keine Gnade
 4. **Aleksei** (Rivale) - Will deinen Job, sabotiert subtil
 5. **Der Journalist** (Bedrohung) - Recherchiert über eure Operationen
-
-**Dilemma-Beispiel:**
-Marina: "Ich habe Zugang zu einem westlichen Journalisten. Er würde für uns arbeiten. Aber er hat Familie."
-- Option A: Rekrutieren (effektiv, aber moralisch fragwürdig)
-- Option B: In Ruhe lassen (sicher, aber verpasste Chance)
-- Option C: Familie als Druckmittel (extrem effektiv, aber dunkel)
 
 ---
 
@@ -100,18 +90,11 @@ Content-Pyramide:
 └── Tier 4: ∞ generierte Kombinationen
 ```
 
-**Template-Beispiel:**
-```
-"Die Medien in {country} berichten {sentiment} über {topic}"
-Variables: country=[Nordmark, Gallia, Balticum], sentiment=[kritisch, neutral, positiv], topic=[Sanktionen, Energiepreise]
-= 3 × 3 × 2 = 18 Varianten aus 1 Template
-```
-
 ---
 
-### I-006: Chaos-Level im Büro
-**Quelle:** Analyse 2025-12-24
-**Status:** 💡 Kosmetisch
+### I-006: Chaos-Level im Büro → Emotionale Visualisierung
+**Quelle:** Analyse 2025-12-24 + Antwort #57
+**Status:** 💡 Idee (später evaluieren)
 
 **Beschreibung:**
 Das Büro wird visuell chaotischer bei steigendem Stress:
@@ -124,69 +107,297 @@ Das Büro wird visuell chaotischer bei steigendem Stress:
 ---
 
 ### I-007: News-Ticker mit echten Konsequenzen
-**Quelle:** Bestehende UI
-**Status:** 💡 Erweiterung
+**Quelle:** Bestehende UI + Antwort #78
+**Status:** 💡 Konzept
 
 **Beschreibung:**
 Der News-Ticker zeigt nicht nur Flavor, sondern:
-- Reaktionen auf Spieleraktionen ("Skandal um BILD-Berichterstattung")
-- Warnsignale ("Fact-Checker-Initiative gestartet")
-- Konsequenzen ("Vertrauen in Experten sinkt landesweit")
+- Reaktionen auf Spieleraktionen
+- Warnsignale
+- Konsequenzen
+
+**Format:** Klickbare Liste (kein animierter Ticker)
+- Klare Unterscheidung: Neu vs. Alt
 
 ---
 
 ### I-008: Post-Game Debriefing
-**Quelle:** Pädagogisches Konzept
-**Status:** 💡 Feature
+**Quelle:** Pädagogisches Konzept + Antwort #37
+**Status:** ✅ Angenommen
 
 **Beschreibung:**
 Nach Spielende:
-1. Zusammenfassung der Kampagne
-2. Analyse: "Das hast du getan" mit realen Parallelen
-3. Reflexionsfragen: "Was hättest du anders machen können?"
+1. Zusammenfassung der Kampagne (kompakt)
+2. Analyse: "Das hast du getan" mit realen Parallelen (als Links)
+3. Reflexionsfragen
 4. Ressourcen: Links zu echten Fact-Checking-Organisationen
+
+**Unterschied Wargaming:** Detailliertere Diagramme, Phasen-Analyse
+
+---
+
+## Neue Ideen aus Q&A 2025-12-27
+
+### I-009: Protagonist-Hintergründe (Civilization-Stil)
+**Quelle:** Antwort #2
+**Status:** 💡 Idee (bei Spielevariationen ausbauen)
+
+**Beschreibung:**
+Verschiedene Hintergründe mit Vor-/Nachteilen:
+- **Unternehmer:** +Ressourcen, -Kontakte
+- **Ex-Geheimdienstler:** +Taktik, -Öffentlichkeit
+- **Start-up-Gründer:** +Tech, -Erfahrung
+
+**Wichtig:** Muss zum Meta-Narrativ passen (freiwillige Teilnahme)
+
+---
+
+### I-010: Ausstiegs-Quiz
+**Quelle:** Antwort #3
+**Status:** 💡 Idee
+
+**Beschreibung:**
+Beim Versuch auszusteigen:
+- Quiz-Fragen über das Gelernte
+- Hindernisse basierend auf Verstrickungsgrad
+- Realistische Konsequenzen des Ausstiegs
+
+**Pädagogischer Wert:** Zeigt, wie schwer der Ausstieg wirklich ist
+
+---
+
+### I-011: Sekundäre Konsequenzen-Ketten
+**Quelle:** Antwort #5
+**Status:** 🔴 MVP-relevant (siehe Q-NEW-008)
+
+**Beschreibung:**
+Aktionen haben Kettenreaktionen:
+```
+Journalist attackiert
+    └── Selbstmordversuch
+        └── Solidarisierung unter Journalisten
+            └── Große Enthüllung über Operation
+                └── Demonstrationen
+                    └── Politischer Druck
+```
+
+---
+
+### I-012: NPC-Austausch-System
+**Quelle:** Antwort #13
+**Status:** 💡 Konzept
+
+**Beschreibung:**
+NPCs können ausgetauscht werden (Fehler, Kündigung, etc.)
+- Rollen/Funktionen bleiben
+- Neue Charaktere bringen neue Dynamiken
+- Spieler muss sich anpassen
+
+**Beispiel:**
+Marina (vorsichtig) → wird ersetzt durch → Igor (rücksichtslos)
+= Gameplay-Änderung
+
+---
+
+### I-013: Absurde Normalisierungs-Sammlung
+**Quelle:** Antwort #1
+**Status:** 🔍 Recherche nötig
+
+**Beschreibung:**
+Sammlung realer absurder Situationen als Ton-Referenz:
+- Prominente mit merkwürdigen Alters-Positionen
+- Politiker mit absurden Aussagen die durchkommen
+- Normalisierungen die früher undenkbar waren
+
+**Zweck:** Richtigen Ton für zynische Momente finden
+
+---
+
+### I-014: 10+ Beziehungshinweis-Varianten
+**Quelle:** Antwort #21
+**Status:** 🔍 Recherche nötig
+
+**Beschreibung:**
+Statt nur 4 Varianten ("wirkt distanziert") brauchen wir 10+ pro Zustand:
+- Basierend auf psychologischen Modellen
+- Verhaltensmarker
+- Non-verbale Signale
+
+**Beispiel für "Misstrauen":**
+1. "Marina meidet deinen Blick"
+2. "Marina überprüft deine Aussagen bei Kollegen"
+3. "Marina antwortet einsilbig"
+4. "Marina sitzt mit verschränkten Armen"
+5. "Marina fragt nach schriftlicher Bestätigung"
+... etc.
+
+---
+
+### I-015: Day/Night-Cycle für Atmosphäre
+**Quelle:** Antwort #56
+**Status:** ✅ Angenommen (low effort)
+
+**Beschreibung:**
+Verschiedene Tageszeiten:
+- Morgen: Warmes Licht
+- Mittag: Neutral
+- Abend: Goldenes Licht
+- Nacht: Blaues Licht, Lampen an
+
+**Aufwand:** Gering (Farbfilter/Overlay)
+
+---
+
+### I-016: Sound-Atmosphäre
+**Quelle:** Antwort #29
+**Status:** 💡 Konzept
+
+**Beschreibung:**
+Atmosphärische Sounds:
+- Ventilator/Klimaanlage
+- Tastaturklappern
+- Telefone im Hintergrund
+- Straßenlärm gedämpft
+
+**Umsetzung:** KI-generiert (ElevenLabs o.ä.)
+
+---
+
+### I-017: Intro-Text mit Warnung
+**Quelle:** Antwort #41
+**Status:** ✅ Angenommen
+
+**Beschreibung:**
+Beim Spielstart:
+- Kurze Text-Einführung in die Situation
+- Eingebetteter Hinweis auf ethische Dimension
+- NICHT als "Ethik-Warnung" gelabelt
 
 ---
 
 ## Szenario-Ideen
 
 ### I-S001: "Die Wahl" (Innenpolitisch)
+**Status:** 💡 Post-MVP
 **Beschreibung:** Spieler beeinflusst eine Wahl in einer Demokratie.
-**Universell anwendbar:** Ja (jedes Land mit Wahlen)
 
 ### I-S002: "Der Konzern" (Kommerziell)
+**Status:** 💡 Nächstes nach MVP (Antwort #49)
 **Beschreibung:** Spieler arbeitet für PR-Abteilung eines Skandal-Konzerns.
-**Beispiele:** Pharma, Öl, Tabak, Tech
+**Kandidaten:** Pharma, Öl, Tech, Tabak
 
 ### I-S003: "Kalter Krieg" (Historisch)
+**Status:** 💡 Post-MVP
 **Beschreibung:** Operation INFEKTION (AIDS-Desinformation der 1980er).
-**Vorteil:** Abgeschlossen, dokumentiert, rechtlich unbedenklich
 
 ### I-S004: "Der Aufstand" (Bewegung)
+**Status:** 💡 Post-MVP
 **Beschreibung:** Spieler koordiniert Protest-Bewegung mit fragwürdigen Mitteln.
-**Moral:** Sind die Mittel gerechtfertigt, wenn das Ziel "gut" ist?
 
 ---
 
 ## Technische Ideen
 
-### I-T001: Seed-Sharing mit Leaderboards
-**Beschreibung:** Spieler teilen Seeds, andere versuchen bessere Ergebnisse.
-**Technische Basis:** API-Funktionen existieren bereits (getPopularSeeds)
+### I-T001: Seed-Sharing ohne Leaderboards
+**Quelle:** Antwort #17
+**Status:** 💡 Konzept (kein Leaderboard!)
+
+**Beschreibung:**
+Spieler teilen Seeds, andere versuchen andere Strategien.
+- KEIN Leaderboard (falscher Anreiz)
+- Fokus auf Strategie-Vergleich
+
+---
 
 ### I-T002: Replay-System
+**Status:** 💡 Post-MVP
 **Beschreibung:** Spiel aufzeichnen und als "Film" abspielen.
-**Nutzen:** Analyse, Lernmaterial, Content-Creation
 
 ### I-T003: Modding-Support für Szenarien
+**Status:** ✅ Angenommen → D-T008
 **Beschreibung:** Community kann eigene Szenarien erstellen.
-**Technische Basis:** JSON-basierte Konfiguration bereits vorhanden
+
+---
+
+## Pädagogik-Ideen
+
+### I-P001: Schulmodus / Schülermodus
+**Quelle:** Antwort #40
+**Status:** 💡 Später (eigenes Kapitel)
+
+**Beschreibung:**
+Spezielle Version für Schulen:
+- Kürzere Spielzeit?
+- Lehrer-Dashboard?
+- Curriculare Integration?
+- Altersgerechte Anpassung?
+
+**Nächster Schritt:** Eigenes Konzept-Dokument wenn Zeit erlaubt
+
+---
+
+### I-P002: Wissenschaftler-Zugang
+**Quelle:** Antwort #45
+**Status:** 💡 Konzept
+
+**Beschreibung:**
+- Forscher können Spielmechaniken aktualisieren
+- Neue Erkenntnisse einpflegen
+- Spielnutzung für wissenschaftliche Zwecke
+- Leads auswerten
+
+---
+
+## Visuelle Ideen
+
+### I-V001: Props/Decals/Screen-Content Variation
+**Quelle:** Antwort #53
+**Status:** 💡 Low-Cost Visual Variation
+
+**Beschreibung:**
+Statt vieler Hero-Räume:
+- Variation über Props (Gegenstände)
+- Decals (Aufkleber, Poster)
+- Screen-Content (was auf Monitoren läuft)
+- Farbvarianten
+
+---
+
+### I-V002: Atmosphärische Mikro-Animationen
+**Quelle:** Antwort #73
+**Status:** ✅ Angenommen
+
+**Beschreibung:**
+- Monitor-Flackern
+- LED-Blinken
+- Partikel (Staub?)
+- Sanfte Glows
+
+**Technik:** Tween/Opacity/UV-Scroll (kein komplexes Animation-Framework nötig)
 
 ---
 
 ## Verworfene Ideen
 
-*(Hier landen Ideen, die diskutiert und abgelehnt wurden, mit Begründung)*
+### ❌ I-X001: Romanzen mit NPCs
+**Quelle:** Antwort #24
+**Grund:** Würde vom Spielkern ablenken
+
+### ❌ I-X002: Leaderboard
+**Quelle:** Antwort #17
+**Grund:** Setzt falschen Anreiz (Gamification von Desinformation)
+
+### ❌ I-X003: Multiplayer Story Mode
+**Quelle:** Antwort #52
+**Grund:** Zu komplex, lenkt ab
+
+### ❌ I-X004: Animierte Übergänge
+**Quelle:** Antwort #73
+**Grund:** Zu aufwändig für MVP
+
+### ❌ I-X005: Animierter News-Ticker
+**Quelle:** Antwort #78
+**Grund:** Klickbare Liste ist besser
 
 ---
 
