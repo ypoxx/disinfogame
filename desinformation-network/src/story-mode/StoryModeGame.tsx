@@ -3,6 +3,12 @@ import { StoryModeColors } from './theme';
 import { DialogBox } from './components/DialogBox';
 import { StoryHUD } from './components/StoryHUD';
 import { ActionPanel } from './components/ActionPanel';
+import { NewsPanel } from './components/NewsPanel';
+import { StatsPanel } from './components/StatsPanel';
+import { NpcPanel } from './components/NpcPanel';
+import { MissionPanel } from './components/MissionPanel';
+import { ActionFeedbackDialog } from './components/ActionFeedbackDialog';
+import { ConsequenceModal } from './components/ConsequenceModal';
 import { useStoryGameState } from './hooks/useStoryGameState';
 import { OfficeScreen } from './OfficeScreen';
 
@@ -387,12 +393,20 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     endPhase,
     executeAction,
     handleConsequenceChoice,
+    interactWithNpc,
+    markNewsAsRead,
+    toggleNewsPinned,
     saveGame,
     loadGame,
     hasSaveGame,
   } = useStoryGameState();
 
   const [showActionPanel, setShowActionPanel] = useState(false);
+  const [showNewsPanel, setShowNewsPanel] = useState(false);
+  const [showStatsPanel, setShowStatsPanel] = useState(false);
+  const [showNpcPanel, setShowNpcPanel] = useState(false);
+  const [showMissionPanel, setShowMissionPanel] = useState(false);
+  const [showActionFeedback, setShowActionFeedback] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
   // Keyboard shortcuts
@@ -498,8 +512,16 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         <OfficeScreen
           onExit={pauseGame}
           onOpenActions={() => setShowActionPanel(true)}
+          onOpenNews={() => setShowNewsPanel(true)}
+          onOpenStats={() => setShowStatsPanel(true)}
+          onOpenNpcs={() => setShowNpcPanel(true)}
+          onOpenMission={() => setShowMissionPanel(true)}
+          onEndPhase={endPhase}
           resources={state.resources}
           phase={state.storyPhase}
+          newsEvents={state.newsEvents}
+          objectives={state.objectives}
+          unreadNewsCount={state.unreadNewsCount}
         />
       </div>
 
@@ -556,11 +578,68 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           actionPoints: state.resources.actionPointsRemaining,
         }}
         onSelectAction={(actionId) => {
-          executeAction(actionId);
+          const result = executeAction(actionId);
           setShowActionPanel(false);
+          if (result) {
+            setShowActionFeedback(true);
+          }
         }}
         onClose={() => setShowActionPanel(false)}
       />
+
+      {/* News Panel */}
+      <NewsPanel
+        isVisible={showNewsPanel}
+        newsEvents={state.newsEvents}
+        onMarkAsRead={markNewsAsRead}
+        onTogglePinned={toggleNewsPinned}
+        onClose={() => setShowNewsPanel(false)}
+      />
+
+      {/* Stats Panel */}
+      <StatsPanel
+        isVisible={showStatsPanel}
+        resources={state.resources}
+        phase={state.storyPhase}
+        objectives={state.objectives}
+        onClose={() => setShowStatsPanel(false)}
+      />
+
+      {/* NPC Panel */}
+      <NpcPanel
+        isVisible={showNpcPanel}
+        npcs={state.npcs}
+        onSelectNpc={(npcId) => {
+          setShowNpcPanel(false);
+          interactWithNpc(npcId);
+        }}
+        onClose={() => setShowNpcPanel(false)}
+      />
+
+      {/* Mission Panel */}
+      <MissionPanel
+        isVisible={showMissionPanel}
+        phase={state.storyPhase}
+        objectives={state.objectives}
+        onClose={() => setShowMissionPanel(false)}
+      />
+
+      {/* Action Feedback Dialog */}
+      <ActionFeedbackDialog
+        isVisible={showActionFeedback}
+        result={state.lastActionResult}
+        onClose={() => setShowActionFeedback(false)}
+      />
+
+      {/* Consequence Modal */}
+      {state.gamePhase === 'consequence' && state.activeConsequence && (
+        <ConsequenceModal
+          isVisible={true}
+          consequence={state.activeConsequence}
+          currentPhase={state.storyPhase.number}
+          onChoice={handleConsequenceChoice}
+        />
+      )}
 
       {/* Pause Menu */}
       {state.gamePhase === 'paused' && (
