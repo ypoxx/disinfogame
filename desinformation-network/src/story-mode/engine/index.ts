@@ -12,3 +12,21 @@ export type {
   PendingConsequence,
   ActiveConsequence,
 } from './ConsequenceSystem';
+
+export { DialogLoader, dialogLoader } from './DialogLoader';
+export type {
+  Dialogue,
+  DialogueResponse,
+  NPCDialogues,
+  DialogueType,
+  ResponseEffects,
+} from './DialogLoader';
+
+export { CountermeasureSystem, countermeasureSystem } from './CountermeasureSystem';
+export type {
+  CountermeasureDefinition,
+  CounterOption,
+  ActiveCountermeasure,
+  CountermeasureContext,
+  SeverityLevel,
+} from './CountermeasureSystem';

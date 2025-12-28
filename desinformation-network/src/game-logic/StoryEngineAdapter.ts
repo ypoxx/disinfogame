@@ -26,6 +26,19 @@ import {
   type ConsequenceEffects,
 } from '../story-mode/engine/ConsequenceSystem';
 
+import {
+  DialogLoader,
+  type Dialogue,
+  type DialogueResponse,
+} from '../story-mode/engine/DialogLoader';
+
+import {
+  CountermeasureSystem,
+  type CountermeasureDefinition,
+  type ActiveCountermeasure,
+  type CounterOption,
+} from '../story-mode/engine/CountermeasureSystem';
+
 // Import NPC and World Events data
 import npcsData from '../story-mode/data/npcs.json';
 import worldEventsData from '../story-mode/data/world-events.json';
@@ -312,6 +325,8 @@ export class StoryEngineAdapter {
   // Engine Integration
   private actionLoader: ActionLoader;
   private consequenceSystem: ConsequenceSystem;
+  private dialogLoader: DialogLoader;
+  private countermeasureSystem: CountermeasureSystem;
   private rngSeed: string;
 
   // Konfiguration
@@ -326,6 +341,8 @@ export class StoryEngineAdapter {
     // Initialize engine components
     this.actionLoader = getActionLoader();
     this.consequenceSystem = getConsequenceSystem();
+    this.dialogLoader = new DialogLoader();
+    this.countermeasureSystem = new CountermeasureSystem();
 
     // Initialer Zustand
     this.storyPhase = this.createPhase(1);
@@ -1689,6 +1706,190 @@ export class StoryEngineAdapter {
     }
   }
 
+  // ============================================
+  // DIALOGUE SYSTEM
+  // ============================================
+
+  /**
+   * Get greeting dialogue for an NPC based on current relationship
+   */
+  getNPCGreeting(npcId: string): Dialogue | null {
+    const npc = this.npcStates.get(npcId);
+    if (!npc) return null;
+
+    return this.dialogLoader.getGreeting(
+      npcId,
+      npc.relationshipLevel,
+      () => this.seededRandom(`greeting_${npcId}_${this.storyPhase.number}`)
+    );
+  }
+
+  /**
+   * Get briefing dialogue for an NPC
+   */
+  getNPCBriefing(npcId: string): Dialogue | null {
+    return this.dialogLoader.getBriefing(
+      npcId,
+      this.storyPhase.number,
+      () => this.seededRandom(`briefing_${npcId}_${this.storyPhase.number}`)
+    );
+  }
+
+  /**
+   * Get NPC reaction to an action
+   */
+  getNPCReaction(npcId: string, actionTags: string[]): Dialogue | null {
+    const npc = this.npcStates.get(npcId);
+    if (!npc) return null;
+
+    const conditions = {
+      morale: npc.morale,
+      risk: this.storyResources.risk,
+      moral_weight: this.storyResources.moralWeight || 0
+    };
+
+    return this.dialogLoader.getReaction(
+      npcId,
+      actionTags,
+      conditions,
+      () => this.seededRandom(`reaction_${npcId}_${this.storyPhase.number}`)
+    );
+  }
+
+  /**
+   * Get crisis dialogue for an NPC (if in crisis state)
+   */
+  getNPCCrisisDialogue(npcId: string): Dialogue | null {
+    const npc = this.npcStates.get(npcId);
+    if (!npc || !npc.inCrisis) return null;
+
+    // Calculate objective progress
+    const primaryObjective = this.objectives.find(o => o.id === 'destabilize_westunion');
+    const objectiveProgress = primaryObjective
+      ? (primaryObjective.currentValue / primaryObjective.targetValue) * 100
+      : 0;
+
+    const conditions = {
+      morale: npc.morale,
+      risk: this.storyResources.risk,
+      moscow_pressure: this.storyPhase.number > 60 && objectiveProgress < 50,
+      moral_weight: this.storyResources.moralWeight || 0
+    };
+
+    return this.dialogLoader.getCrisisDialogue(npcId, conditions);
+  }
+
+  /**
+   * Get first meeting dialogue for an NPC
+   */
+  getNPCFirstMeeting(npcId: string): Dialogue | null {
+    return this.dialogLoader.getFirstMeetingDialogue(npcId);
+  }
+
+  /**
+   * Get game end dialogue for an NPC
+   */
+  getNPCGameEndDialogue(npcId: string, isVictory: boolean): string | null {
+    return this.dialogLoader.getGameEndDialogue(npcId, isVictory);
+  }
+
+  /**
+   * Process player response to dialogue
+   */
+  processDialogueResponse(response: DialogueResponse, npcId: string): void {
+    const effects = this.dialogLoader.getResponseEffects(response.effect);
+    if (!effects) return;
+
+    const npc = this.npcStates.get(npcId);
+    if (!npc) return;
+
+    // Apply relationship change
+    npc.relationshipProgress += effects.relationship_change;
+    if (npc.relationshipProgress >= 100 && npc.relationshipLevel < 3) {
+      npc.relationshipLevel++;
+      npc.relationshipProgress -= 100;
+    } else if (npc.relationshipProgress < 0 && npc.relationshipLevel > 0) {
+      npc.relationshipLevel--;
+      npc.relationshipProgress = 100 + npc.relationshipProgress;
+    }
+
+    // Apply morale change
+    npc.morale = Math.max(0, Math.min(100, npc.morale + effects.morale_change));
+
+    // Check for crisis triggers
+    if (effects.triggers?.includes('npc_fear')) {
+      npc.inCrisis = true;
+    }
+  }
+
+  // ============================================
+  // COUNTERMEASURE SYSTEM
+  // ============================================
+
+  /**
+   * Check for countermeasures after an action
+   */
+  checkForCountermeasures(actionId?: string, actionTags?: string[]): CountermeasureDefinition[] {
+    const context = {
+      risk: this.storyResources.risk,
+      attention: this.storyResources.attention,
+      phase: this.storyPhase.number,
+      actionId,
+      actionTags,
+      moralWeight: this.storyResources.moralWeight || 0,
+      teamSize: this.npcStates.size
+    };
+
+    return this.countermeasureSystem.checkForCountermeasures(
+      context,
+      () => this.seededRandom(`countermeasure_${this.storyPhase.number}`)
+    );
+  }
+
+  /**
+   * Get all active countermeasures
+   */
+  getActiveCountermeasures(): Array<{ active: ActiveCountermeasure; definition: CountermeasureDefinition }> {
+    return this.countermeasureSystem.getActiveCountermeasures();
+  }
+
+  /**
+   * Resolve a countermeasure with the chosen option
+   */
+  resolveCountermeasure(cmId: string, optionIndex: number): CounterOption | null {
+    const option = this.countermeasureSystem.resolveCountermeasure(
+      cmId,
+      optionIndex,
+      this.storyPhase.number
+    );
+
+    if (option && option.cost) {
+      // Apply costs
+      if (option.cost.budget) {
+        this.storyResources.budget -= option.cost.budget;
+      }
+      if (option.cost.capacity) {
+        this.storyResources.capacity -= option.cost.capacity;
+      }
+      if (option.cost.risk) {
+        this.storyResources.risk += option.cost.risk;
+      }
+    }
+
+    return option;
+  }
+
+  /**
+   * Get potential countermeasures that could be triggered by an action
+   */
+  getPotentialCountermeasures(actionId: string, actionTags: string[]): CountermeasureDefinition[] {
+    return this.countermeasureSystem.getPotentialCountermeasuresForAction(actionId, actionTags);
+  }
+
+  // ============================================
+  // SAVE/LOAD/RESET
+  // ============================================
+
   /**
    * Reset game to initial state
    */
@@ -1707,6 +1908,7 @@ export class StoryEngineAdapter {
     // Reset engine components
     this.actionLoader.reset();
     this.consequenceSystem.reset();
+    this.countermeasureSystem.reset();
   }
 }
 
