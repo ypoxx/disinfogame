@@ -495,7 +495,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
       {/* Office Scene (with padding for HUD) */}
       <div className="pt-16 h-full">
-        <OfficeScreen onExit={pauseGame} />
+        <OfficeScreen
+          onExit={pauseGame}
+          onOpenActions={() => setShowActionPanel(true)}
+          resources={state.resources}
+          phase={state.storyPhase}
+        />
       </div>
 
       {/* Dialog Box */}
@@ -523,7 +528,27 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       {/* Action Panel */}
       <ActionPanel
         isVisible={showActionPanel}
-        actions={[]} // TODO: Load from engine
+        actions={state.availableActions.map(a => ({
+          id: a.id,
+          phase: a.phase,
+          label_de: a.label_de,
+          label_en: a.label_en,
+          narrative_de: a.narrative_de,
+          costs: {
+            budget: a.costs.budget,
+            capacity: a.costs.capacity,
+            risk: a.costs.risk,
+            attention: a.costs.attention,
+            moral_weight: a.costs.moralWeight,
+          },
+          npc_affinity: a.npcAffinity,
+          legality: a.legality,
+          tags: a.tags,
+          prerequisites: a.prerequisites,
+          disarm_ref: a.disarmRef,
+          isUnlocked: a.available,
+          isUsed: !a.available && a.unavailableReason === 'Already used',
+        }))}
         currentPhase={`ta0${Math.min(state.storyPhase.year, 7)}`}
         availableResources={{
           budget: state.resources.budget,

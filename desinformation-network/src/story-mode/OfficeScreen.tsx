@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { StoryModeColors } from './theme';
+import type { StoryResources, StoryPhase } from '../game-logic/StoryEngineAdapter';
 
 interface OfficeScreenProps {
   onExit: () => void;
+  onOpenActions?: () => void;
+  resources?: StoryResources;
+  phase?: StoryPhase;
 }
 
 type Interaction = {
@@ -12,7 +16,7 @@ type Interaction = {
 
 type HoverArea = 'computer' | 'phone' | 'smartphone' | 'tv' | 'door' | 'folder' | null;
 
-export function OfficeScreen({ onExit }: OfficeScreenProps) {
+export function OfficeScreen({ onExit, onOpenActions, resources, phase }: OfficeScreenProps) {
   const [selectedInteraction, setSelectedInteraction] = useState<Interaction | null>(null);
   const [hoverArea, setHoverArea] = useState<HoverArea>(null);
   const [emailNotification] = useState(true);
@@ -58,28 +62,34 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
       >
         <div className="flex gap-6 text-xs font-bold">
           <div>
-            <span style={{ color: StoryModeColors.textSecondary }}>DAY:</span>{' '}
-            <span style={{ color: StoryModeColors.sovietRed }}>01</span>
-          </div>
-          <div>
-            <span style={{ color: StoryModeColors.textSecondary }}>TIME:</span>{' '}
-            <span style={{ color: StoryModeColors.document }}>08:00</span>
+            <span style={{ color: StoryModeColors.textSecondary }}>PHASE:</span>{' '}
+            <span style={{ color: StoryModeColors.sovietRed }}>
+              {phase ? `Y${phase.year} M${phase.month}` : '01'}
+            </span>
           </div>
           <div>
             <span style={{ color: StoryModeColors.textSecondary }}>AP:</span>{' '}
-            <span style={{ color: StoryModeColors.warning }}>12/12</span>
+            <span style={{ color: StoryModeColors.warning }}>
+              {resources ? `${resources.actionPointsRemaining}/${resources.actionPointsMax}` : '5/5'}
+            </span>
           </div>
           <div>
             <span style={{ color: StoryModeColors.textSecondary }}>💰</span>{' '}
-            <span style={{ color: StoryModeColors.warning }}>$50K</span>
+            <span style={{ color: StoryModeColors.warning }}>
+              ${resources?.budget ?? 100}K
+            </span>
           </div>
           <div>
-            <span style={{ color: StoryModeColors.textSecondary }}>🏗️</span>{' '}
-            <span style={{ color: StoryModeColors.agencyBlue }}>INFRA:3</span>
+            <span style={{ color: StoryModeColors.textSecondary }}>⚡</span>{' '}
+            <span style={{ color: StoryModeColors.agencyBlue }}>
+              {resources?.capacity ?? 5}
+            </span>
           </div>
           <div>
-            <span style={{ color: StoryModeColors.textSecondary }}>👁️</span>{' '}
-            <span style={{ color: StoryModeColors.danger }}>HEAT:5%</span>
+            <span style={{ color: StoryModeColors.textSecondary }}>⚠️</span>{' '}
+            <span style={{ color: StoryModeColors.danger }}>
+              {resources?.risk ?? 0}%
+            </span>
           </div>
         </div>
         <button
@@ -195,30 +205,10 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
           onMouseEnter={() => setHoverArea('computer')}
           onMouseLeave={() => setHoverArea(null)}
           onClick={() => {
-            playSound('Email notification click');
-            showNote(
-              '💻 SECURE TERMINAL - EMAIL SYSTEM',
-              'PLACEHOLDER: Full email interface\n\n' +
-              '📧 INBOX (3 unread)\n\n' +
-              '═══════════════════════════\n' +
-              'FROM: DIRECTOR\n' +
-              'SUBJECT: First Day - Choose Campaign Focus\n' +
-              'PRIORITY: 🔴 URGENT\n' +
-              'RECEIVED: 08:00\n' +
-              '═══════════════════════════\n\n' +
-              'Welcome to your first day as Information Operations Coordinator.\n\n' +
-              'Your mission: Destabilize public trust in [TARGET REGION] institutions within 30 days.\n\n' +
-              'Choose your initial approach:\n\n' +
-              '[BUTTON] → Focus on domestic influencers (Cost: 2 AP, Risk: Low)\n' +
-              '[BUTTON] → Target international audience (Cost: 3 AP, Risk: Medium)\n' +
-              '[BUTTON] → Request more intelligence first (Cost: 1 AP, Risk: None)\n\n' +
-              'Each choice affects:\n' +
-              '- Available campaign types\n' +
-              '- NPC relationships\n' +
-              '- Long-term strategy options\n\n' +
-              'The notification badge (1) would disappear after reading.\n\n' +
-              '🔔 [SOUND: Keyboard typing, email swoosh]'
-            );
+            playSound('Terminal access');
+            if (onOpenActions) {
+              onOpenActions();
+            }
           }}
         >
           {/* Email Notification Badge */}
@@ -244,7 +234,7 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
                 color: '#fff'
               }}
             >
-              💻 SECURE TERMINAL
+              💻 AKTIONEN PLANEN
             </div>
           )}
         </div>

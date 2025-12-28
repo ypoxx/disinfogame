@@ -116,8 +116,17 @@ export function useStoryGameState(seed?: string) {
   // GAME FLOW ACTIONS
   // ============================================
 
+  // Refresh available actions from engine
+  const refreshAvailableActions = useCallback(() => {
+    const actions = engine.getAvailableActions();
+    setAvailableActions(actions);
+  }, [engine]);
+
   const startGame = useCallback(() => {
     setGamePhase('tutorial');
+
+    // Load available actions from engine
+    refreshAvailableActions();
 
     // Show intro dialog
     setCurrentDialog({
@@ -126,7 +135,7 @@ export function useStoryGameState(seed?: string) {
       text: 'Willkommen in der Abteilung für Sonderoperationen. Ihre Mission: die politische Landschaft von Westunion zu destabilisieren. Sie haben 10 Jahre Zeit. Nutzen Sie sie weise.',
       mood: 'neutral',
     });
-  }, []);
+  }, [refreshAvailableActions]);
 
   const skipTutorial = useCallback(() => {
     setGamePhase('playing');
@@ -194,6 +203,10 @@ export function useStoryGameState(seed?: string) {
       setResources(engine.getResources());
       setNewsEvents(engine.getNewsEvents());
       setNpcs(engine.getAllNPCs());
+      setObjectives(engine.getObjectives());
+
+      // Refresh available actions (some may be unlocked or used)
+      refreshAvailableActions();
 
       // Show result dialog if there are NPC reactions
       if (result.npcReactions && result.npcReactions.length > 0) {
@@ -222,7 +235,7 @@ export function useStoryGameState(seed?: string) {
       console.error('Action execution failed:', error);
       return null;
     }
-  }, [engine, npcs]);
+  }, [engine, npcs, refreshAvailableActions]);
 
   // ============================================
   // CONSEQUENCE HANDLING
@@ -314,6 +327,7 @@ export function useStoryGameState(seed?: string) {
       setNewsEvents(engine.getNewsEvents());
       setObjectives(engine.getObjectives());
       setActiveConsequence(engine.getActiveConsequence());
+      refreshAvailableActions();
       setGamePhase('playing');
 
       return true;
@@ -321,7 +335,7 @@ export function useStoryGameState(seed?: string) {
       console.error('Failed to load save:', error);
       return false;
     }
-  }, [engine]);
+  }, [engine, refreshAvailableActions]);
 
   const hasSaveGame = useCallback(() => {
     return localStorage.getItem('storyMode_save') !== null;
