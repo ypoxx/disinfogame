@@ -498,6 +498,13 @@ export class StoryEngineAdapter {
   private checkConsequences(currentPhase: number): ActiveConsequence[] {
     const activated: ActiveConsequence[] = [];
 
+    // First, check if active consequence deadline has passed (TD-004: Effects bei Ignorieren)
+    if (this.activeConsequence && this.activeConsequence.deadline) {
+      if (currentPhase > this.activeConsequence.deadline) {
+        this.handleIgnoredConsequence(currentPhase);
+      }
+    }
+
     // Check ConsequenceSystem for activating consequences
     const engineActive = this.consequenceSystem.checkPhase(currentPhase);
 
@@ -663,6 +670,60 @@ export class StoryEngineAdapter {
       read: false,
       pinned: consequence.severity === 'critical' || consequence.severity === 'severe',
     });
+  }
+
+  /**
+   * Handle a consequence that was ignored (deadline passed)
+   * TD-004: Apply effects_if_ignored and TD-003: Trigger chain consequences
+   */
+  private handleIgnoredConsequence(currentPhase: number): void {
+    if (!this.activeConsequence) return;
+
+    // Call the ConsequenceSystem to handle the ignore
+    const result = this.consequenceSystem.ignoreConsequence();
+    if (!result) return;
+
+    const { consequence, effects } = result;
+
+    // Apply effects_if_ignored
+    if (effects) {
+      if (effects.risk_increase) {
+        this.storyResources.risk = Math.min(100, this.storyResources.risk + effects.risk_increase);
+      }
+      if (effects.attention_increase) {
+        this.storyResources.attention = Math.min(100, this.storyResources.attention + effects.attention_increase);
+      }
+
+      // TD-003: Handle chain_trigger - trigger another consequence
+      if (effects.chain_trigger) {
+        const chainDef = this.consequenceSystem.getDefinition(effects.chain_trigger);
+        if (chainDef) {
+          // Manually trigger the chained consequence
+          this.consequenceSystem.triggerConsequence(effects.chain_trigger, 'chain_from_' + consequence.id, currentPhase);
+          console.log(`[ChainTrigger] ${consequence.id} → ${effects.chain_trigger}`);
+        }
+      }
+    }
+
+    // Add news event about the ignored consequence
+    this.newsEvents.unshift({
+      id: `news_ignored_${Date.now()}`,
+      phase: currentPhase,
+      headline_de: `${consequence.label_de} - Ignoriert!`,
+      headline_en: `${consequence.label_en} - Ignored!`,
+      description_de: `Sie haben nicht rechtzeitig reagiert. Die Situation eskaliert.`,
+      description_en: `You failed to respond in time. The situation escalates.`,
+      type: 'consequence',
+      severity: 'danger',
+      sourceConsequenceId: consequence.id,
+      read: false,
+      pinned: true,
+    });
+
+    // Clear the active consequence in adapter
+    this.activeConsequence = null;
+
+    console.log(`[IgnoredConsequence] ${consequence.label_de} - effects applied:`, effects);
   }
 
   private generateWorldEvents(phase: number): NewsEvent[] {
@@ -1129,7 +1190,7 @@ export class StoryEngineAdapter {
     const consequenceLabels: string[] = [];
 
     for (const pending of pendingFromSystem) {
-      const def = this.consequenceSystem['definitions'].get(pending.consequenceId);
+      const def = this.consequenceSystem.getDefinition(pending.consequenceId);
       if (def) {
         // Add to adapter's pending list for UI display
         this.pendingConsequences.push({
@@ -1293,6 +1354,49 @@ export class StoryEngineAdapter {
 
   getAllNPCs(): NPCState[] {
     return Array.from(this.npcStates.values());
+  }
+
+  /**
+   * Get NPC dialogue based on context
+   * TD-006: Dynamic NPC dialogues from JSON
+   */
+  getNPCDialogue(npcId: string, context: {
+    type: 'greeting' | 'reaction' | 'topic';
+    subtype?: string;  // For reactions: 'success'/'failure'/'crisis', for topics: topic name
+    relationshipLevel?: number;
+  }): string | null {
+    const dialogues = this.npcDialogues.get(npcId);
+    if (!dialogues) return null;
+
+    const npc = this.npcStates.get(npcId);
+    if (!npc) return null;
+
+    switch (context.type) {
+      case 'greeting': {
+        const level = context.relationshipLevel ?? npc.relationshipLevel;
+        const greetings = dialogues.greetings;
+        return greetings?.[level.toString()] || greetings?.['0'] || null;
+      }
+      case 'reaction': {
+        const reactions = dialogues.reactions;
+        return reactions?.[context.subtype || 'success'] || null;
+      }
+      case 'topic': {
+        const topics = dialogues.topics;
+        return topics?.[context.subtype || ''] || null;
+      }
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * Get available topics for an NPC
+   */
+  getNPCTopics(npcId: string): string[] {
+    const dialogues = this.npcDialogues.get(npcId);
+    if (!dialogues || !dialogues.topics) return [];
+    return Object.keys(dialogues.topics);
   }
 
   getNewsEvents(options?: { unreadOnly?: boolean; limit?: number }): NewsEvent[] {

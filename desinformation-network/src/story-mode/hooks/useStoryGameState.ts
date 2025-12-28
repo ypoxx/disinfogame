@@ -12,12 +12,46 @@ import {
   ActiveConsequence,
   GameEndState,
 } from '../../game-logic/StoryEngineAdapter';
+import { playSound } from '../utils/SoundSystem';
 
 // ============================================
 // TYPES
 // ============================================
 
 export type GamePhase = 'intro' | 'tutorial' | 'playing' | 'consequence' | 'paused' | 'ended';
+
+// ============================================
+// HELPERS
+// ============================================
+
+/**
+ * Convert topic key to human-readable label
+ * TD-006: Part of dynamic NPC dialogue system
+ */
+function getTopicLabel(topic: string): string {
+  const labels: Record<string, string> = {
+    // Direktor topics
+    mission: 'Über die Mission',
+    resources: 'Über Ressourcen',
+    risks: 'Über Risiken',
+    // Marina topics
+    content: 'Über Inhalte',
+    platforms: 'Über Plattformen',
+    viral: 'Über Viralität',
+    // Alexei topics
+    infrastructure: 'Über Infrastruktur',
+    bots: 'Über Bot-Netzwerke',
+    security: 'Über Sicherheit',
+    // Katja topics
+    field: 'Über Feldarbeit',
+    contacts: 'Über Kontakte',
+    // Igor topics
+    budget: 'Über das Budget',
+    fronts: 'Über Tarnfirmen',
+    flow: 'Über Geldflüsse',
+  };
+  return labels[topic] || topic.charAt(0).toUpperCase() + topic.slice(1);
+}
 
 export interface StoryGameState {
   // Engine
@@ -124,6 +158,7 @@ export function useStoryGameState(seed?: string) {
 
   const startGame = useCallback(() => {
     setGamePhase('tutorial');
+    playSound('notification');
 
     // Load available actions from engine
     refreshAvailableActions();
@@ -153,9 +188,64 @@ export function useStoryGameState(seed?: string) {
   }, [gamePhase]);
 
   const handleDialogChoice = useCallback((choiceId: string) => {
-    // Handle dialog choices
+    // TD-006: Handle NPC topic choices
+    if (choiceId.startsWith('topic_') && activeNpcId) {
+      const topic = choiceId.replace('topic_', '');
+      const npc = engine.getNPCState(activeNpcId);
+      if (npc) {
+        const response = engine.getNPCDialogue(activeNpcId, { type: 'topic', subtype: topic });
+        if (response) {
+          setCurrentDialog({
+            speaker: npc.name,
+            speakerTitle: npc.role_de,
+            text: response,
+            mood: 'neutral',
+            choices: [{ id: 'back_to_npc', text: 'Zurück' }],
+          });
+          return;
+        }
+      }
+    }
+
+    // Handle going back to NPC greeting - inline the logic to avoid circular dependency
+    if (choiceId === 'back_to_npc' && activeNpcId) {
+      const npc = engine.getNPCState(activeNpcId);
+      if (npc) {
+        const greeting = engine.getNPCDialogue(activeNpcId, { type: 'greeting' });
+        const topics = engine.getNPCTopics(activeNpcId);
+        const topicChoices = topics.map(topic => ({
+          id: `topic_${topic}`,
+          text: getTopicLabel(topic),
+        }));
+
+        setCurrentDialog({
+          speaker: npc.name,
+          speakerTitle: npc.role_de,
+          text: greeting || 'Was gibt es?',
+          mood: npc.inCrisis ? 'angry' :
+                npc.currentMood === 'positive' ? 'happy' :
+                npc.currentMood === 'concerned' ? 'worried' :
+                npc.currentMood === 'upset' ? 'angry' : 'neutral',
+          choices: topicChoices.length > 0 ? [
+            ...topicChoices,
+            { id: 'dismiss', text: 'Auf Wiedersehen' },
+          ] : undefined,
+        });
+      }
+      return;
+    }
+
+    // Handle dismiss
+    if (choiceId === 'dismiss' || choiceId === 'continue') {
+      setCurrentDialog(null);
+      setActiveNpcId(null);
+      return;
+    }
+
+    // Default: close dialog
+    playSound('click');
     setCurrentDialog(null);
-  }, []);
+  }, [activeNpcId, engine]);
 
   // ============================================
   // PHASE ACTIONS
@@ -163,6 +253,7 @@ export function useStoryGameState(seed?: string) {
 
   const endPhase = useCallback(() => {
     const result = engine.advancePhase();
+    playSound('phaseEnd');
 
     // Update state
     setStoryPhase(result.newPhase);
@@ -175,6 +266,7 @@ export function useStoryGameState(seed?: string) {
     if (result.triggeredConsequences.length > 0) {
       const consequence = result.triggeredConsequences[0];
       if (consequence.requiresChoice) {
+        playSound('consequence');
         setActiveConsequence(consequence);
         setGamePhase('consequence');
       }
@@ -183,6 +275,7 @@ export function useStoryGameState(seed?: string) {
     // Check for game end
     const endState = engine.checkGameEnd();
     if (endState) {
+      playSound(endState.type === 'victory' ? 'success' : 'error');
       setGameEnd(endState);
       setGamePhase('ended');
     }
@@ -198,6 +291,18 @@ export function useStoryGameState(seed?: string) {
   }) => {
     try {
       const result = engine.executeAction(actionId, options);
+
+      // Play sound based on action result
+      if (result.success) {
+        const action = result.action;
+        if (action.legality === 'illegal') {
+          playSound('warning'); // Risky action
+        } else {
+          playSound('success');
+        }
+      } else {
+        playSound('error');
+      }
 
       setLastActionResult(result);
       setResources(engine.getResources());
@@ -268,21 +373,28 @@ export function useStoryGameState(seed?: string) {
 
     setActiveNpcId(npcId);
 
-    // Generate greeting based on relationship level
-    const greetings: Record<number, string> = {
-      0: `Hmm. Was wollen Sie?`,
-      1: `Ah, Sie sind es. Was gibt es?`,
-      2: `Schön Sie zu sehen. Wie kann ich helfen?`,
-      3: `Endlich! Ich habe auf Sie gewartet.`,
-    };
+    // TD-006: Get dynamic greeting from JSON data based on relationship level
+    const greeting = engine.getNPCDialogue(npcId, { type: 'greeting' });
+
+    // Get available topics for conversation choices
+    const topics = engine.getNPCTopics(npcId);
+    const topicChoices = topics.map(topic => ({
+      id: `topic_${topic}`,
+      text: getTopicLabel(topic),
+    }));
 
     setCurrentDialog({
       speaker: npc.name,
       speakerTitle: npc.role_de,
-      text: greetings[npc.relationshipLevel] || greetings[0],
-      mood: npc.currentMood === 'positive' ? 'happy' :
+      text: greeting || 'Was gibt es?',
+      mood: npc.inCrisis ? 'angry' :
+            npc.currentMood === 'positive' ? 'happy' :
             npc.currentMood === 'concerned' ? 'worried' :
             npc.currentMood === 'upset' ? 'angry' : 'neutral',
+      choices: topicChoices.length > 0 ? [
+        ...topicChoices,
+        { id: 'dismiss', text: 'Auf Wiedersehen' },
+      ] : undefined,
     });
   }, [engine]);
 

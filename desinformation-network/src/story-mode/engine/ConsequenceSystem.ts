@@ -282,6 +282,40 @@ export class ConsequenceSystem {
   }
 
   /**
+   * Manually trigger a consequence (for chain triggers from effects_if_ignored)
+   * TD-003: Consequence Chain implementation
+   */
+  triggerConsequence(
+    consequenceId: string,
+    triggeredByAction: string,
+    currentPhase: number
+  ): PendingConsequence | null {
+    const def = this.definitions.get(consequenceId);
+    if (!def) {
+      console.warn(`[ChainTrigger] Consequence ${consequenceId} not found`);
+      return null;
+    }
+
+    // Calculate activation phase (use min delay for chain triggers)
+    const delay = def.delay.min_phases;
+
+    const pending: PendingConsequence = {
+      id: `chain_${Date.now()}_${consequenceId}`,
+      consequenceId,
+      triggeredByAction,
+      triggeredAtPhase: currentPhase,
+      activatesAtPhase: currentPhase + delay,
+      probability: 1.0, // Chain triggers are guaranteed
+      hasActivated: false,
+    };
+
+    this.pendingConsequences.push(pending);
+
+    console.log(`🔗 Chain consequence triggered: ${def.label_de} (activates phase ${pending.activatesAtPhase})`);
+    return pending;
+  }
+
+  /**
    * Handle player's choice for active consequence
    */
   resolveConsequence(choiceId: string): {

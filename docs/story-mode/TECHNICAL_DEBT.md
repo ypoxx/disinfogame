@@ -29,28 +29,28 @@
 
 ### TD-002: Private Member Access Violation
 - **Erstellt:** 2025-12-28
-- **Status:** `[OFFEN]`
+- **Status:** `[ERLEDIGT]` (2025-12-28)
 - **Datei:** `src/game-logic/StoryEngineAdapter.ts`
 - **Zeile:** ~1019
 - **Problem:** `this.consequenceSystem['definitions'].get(pending.consequenceId)` greift über Bracket-Notation auf private Map zu.
 - **Auswirkung:** TypeScript-Fehler bei stricter Konfiguration, fragile Kopplung.
-- **Lösung:** Public Getter in ConsequenceSystem hinzufügen oder Methode refactoren.
+- **Lösung:** Public Getter `getDefinition()` in ConsequenceSystem hinzugefügt.
 
 ### TD-003: Consequence Chain Trigger nicht implementiert
 - **Erstellt:** 2025-12-28
-- **Status:** `[OFFEN]`
-- **Datei:** `src/game-logic/StoryEngineAdapter.ts`
+- **Status:** `[ERLEDIGT]` (2025-12-28)
+- **Datei:** `src/game-logic/StoryEngineAdapter.ts`, `src/story-mode/engine/ConsequenceSystem.ts`
 - **Problem:** `effects_if_ignored.chain_trigger` in JSON definiert aber nicht implementiert.
 - **Auswirkung:** Ignorierte Konsequenzen lösen keine Folge-Konsequenzen aus.
-- **Lösung:** Chain-Trigger-Logik in `handleIgnoredConsequence()` implementieren.
+- **Lösung:** `triggerConsequence()` Methode und `handleIgnoredConsequence()` implementiert.
 
 ### TD-004: Effects bei Ignorieren nicht angewandt
 - **Erstellt:** 2025-12-28
-- **Status:** `[OFFEN]`
+- **Status:** `[ERLEDIGT]` (2025-12-28)
 - **Datei:** `src/game-logic/StoryEngineAdapter.ts`
 - **Problem:** `effects_if_ignored` Objekt wird nicht verarbeitet.
 - **Auswirkung:** Ignorieren einer Konsequenz hat keine negativen Folgen.
-- **Lösung:** Effekte aus `effects_if_ignored` beim Deadline-Ablauf anwenden.
+- **Lösung:** `handleIgnoredConsequence()` wendet jetzt risk_increase und attention_increase an.
 
 ---
 
@@ -66,12 +66,12 @@
 
 ### TD-006: NPC-Dialoge hardcoded statt aus JSON
 - **Erstellt:** 2025-12-28
-- **Status:** `[OFFEN]`
-- **Datei:** `src/story-mode/hooks/useStoryGameState.ts`
+- **Status:** `[ERLEDIGT]` (2025-12-28)
+- **Datei:** `src/story-mode/hooks/useStoryGameState.ts`, `src/game-logic/StoryEngineAdapter.ts`
 - **Zeile:** ~272-276
 - **Problem:** NPC-Interaktionen nutzen hardcoded Antworten statt die Dialogdaten aus npcs.json.
 - **Auswirkung:** NPCs wirken statisch und nicht reaktiv.
-- **Lösung:** Dialogue-System das JSON-Daten basierend auf Beziehungslevel und Kontext auswählt.
+- **Lösung:** `getNPCDialogue()` und `getNPCTopics()` Methoden hinzugefügt. Dialogauswahl basiert auf Beziehungslevel, mit Themenauswahl für tiefere Gespräche.
 
 ### TD-007: Objectives hardcoded statt Szenario-basiert
 - **Erstellt:** 2025-12-28
@@ -155,9 +155,9 @@
 
 ### TD-017: Kein Sound-System
 - **Erstellt:** 2025-12-28
-- **Status:** `[OFFEN]`
+- **Status:** `[ERLEDIGT]` (2025-12-28)
 - **Problem:** Nur console.log Platzhalter für Audio.
-- **Lösung:** Web Audio API oder Howler.js integrieren.
+- **Lösung:** Web Audio API mit synthetisierten Tönen für UI-Feedback (click, success, warning, error, notification, phaseEnd, consequence).
 
 ### TD-018: Kein Auto-Save
 - **Erstellt:** 2025-12-28
@@ -177,9 +177,14 @@
 | 2025-12-28 | TD-005 erledigt | Alle 4 Endings implementiert (victory, defeat, escape, moral_redemption) |
 | 2025-12-28 | TD-008 erledigt | CSS-basierte NPC-Portraits erstellt |
 | 2025-12-28 | Datenpfade gefixt | JSON-Dateien nach src/story-mode/data/ verschoben |
+| 2025-12-28 | TD-002 erledigt | getDefinition() Public Getter hinzugefügt |
+| 2025-12-28 | TD-003 erledigt | triggerConsequence() für Chain-Konsequenzen implementiert |
+| 2025-12-28 | TD-004 erledigt | handleIgnoredConsequence() wendet effects_if_ignored an |
+| 2025-12-28 | TD-006 erledigt | Dynamisches NPC-Dialogsystem mit Themenauswahl |
+| 2025-12-28 | TD-017 erledigt | Sound-System mit Web Audio API und synthetisierten Tönen |
 
 ---
 
 ## Nächste Review
 
-Geplant: Nach Abschluss der vier Prioritäten (TD-001, TD-005, TD-008, Datenpfade)
+Geplant: Nach Implementierung weiterer Gameplay-Features
