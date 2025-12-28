@@ -1,0 +1,455 @@
+{
+  "meta": {
+    "id": "story-mode.npcs",
+    "version": "1.0.0",
+    "created": "2025-12-28",
+    "description": "NPC-Definitionen mit Persönlichkeiten und Aktions-Affinitäten",
+    "notes": [
+      "NPCs sind Verstärker (Enhancer), keine Gatekeeper",
+      "Aktionen sind immer möglich, NPCs machen sie effizienter/sicherer",
+      "Big Five Persönlichkeitsmodell als Basis"
+    ]
+  },
+  "npc_roles": {
+    "enhancer": "NPC verbessert Effizienz/senkt Kosten",
+    "advisor": "NPC gibt Hinweise und Warnungen",
+    "gatekeeper_soft": "NPC ermöglicht Bonus-Optionen, blockiert nichts"
+  },
+  "enhancement_levels": {
+    "level_0": {
+      "label": "Neutral",
+      "description": "Keine besondere Beziehung, Standardkosten",
+      "modifiers": {}
+    },
+    "level_1": {
+      "label": "Bekannt",
+      "description": "Grundlegende Arbeitsbeziehung",
+      "modifiers": {
+        "cost_reduction": 0.1,
+        "risk_reduction": 0.05
+      }
+    },
+    "level_2": {
+      "label": "Vertraut",
+      "description": "Vertrauensvolle Zusammenarbeit",
+      "modifiers": {
+        "cost_reduction": 0.2,
+        "risk_reduction": 0.1,
+        "efficiency_bonus": 0.15
+      }
+    },
+    "level_3": {
+      "label": "Loyal",
+      "description": "Maximale Unterstützung",
+      "modifiers": {
+        "cost_reduction": 0.3,
+        "risk_reduction": 0.2,
+        "efficiency_bonus": 0.25,
+        "unlock_special_options": true
+      }
+    }
+  },
+  "npcs": [
+    {
+      "id": "direktor",
+      "name": "Der Direktor",
+      "name_full": "Generalmajor Sergei Petrov",
+      "role": "Boss / Auftraggeber",
+      "portrait": "direktor.png",
+      "big_five": {
+        "openness": 0.3,
+        "conscientiousness": 0.9,
+        "extraversion": 0.6,
+        "agreeableness": 0.2,
+        "neuroticism": 0.3
+      },
+      "dark_triad": {
+        "machiavellianism": 0.9,
+        "narcissism": 0.7,
+        "psychopathy": 0.4
+      },
+      "description_de": "Ein kalkulierender Stratege aus der alten Schule. Er glaubt an die Mission und erwartet Ergebnisse. Fragt nie nach Methoden, nur nach Resultaten.",
+      "description_en": "A calculating old-school strategist. He believes in the mission and expects results. Never asks about methods, only outcomes.",
+      "specialty_areas": [
+        "strategy",
+        "political",
+        "institutional",
+        "high_budget"
+      ],
+      "action_affinities": {
+        "primary": ["1.2", "1.3", "2.9", "2.10", "2.11", "2.12", "2.13", "2.18", "6.1", "6.3", "6.4", "6.7", "7.8"],
+        "secondary": ["2.15", "2.16", "2.17", "3.12", "3.14", "4.7", "4.12", "4.14", "4.15", "5.11", "6.5", "6.6", "7.3", "8.7", "8.8", "8.9"]
+      },
+      "enhancement_effects": {
+        "level_1": {
+          "political_actions": {"budget_reduction": 0.1},
+          "institutional_actions": {"risk_reduction": 0.1}
+        },
+        "level_2": {
+          "political_actions": {"budget_reduction": 0.2, "unlock_vip_contacts": true},
+          "institutional_actions": {"risk_reduction": 0.15, "legitimacy_bonus": 0.1}
+        },
+        "level_3": {
+          "political_actions": {"budget_reduction": 0.3, "unlock_kremlin_support": true},
+          "institutional_actions": {"risk_reduction": 0.25},
+          "special": "Direkter Zugang zu Moskau für Notfälle"
+        }
+      },
+      "relationship_hints": {
+        "neutral": [
+          "Der Direktor nickt knapp. 'Weiter so.'",
+          "Er schaut auf seine Uhr. Zeit ist Geld.",
+          "Ein Blick, der nichts verrät."
+        ],
+        "positive": [
+          "Ein seltenes Lächeln. 'Sie verstehen die Spielregeln.'",
+          "Er bietet Ihnen einen Wodka an. Das passiert selten.",
+          "'Ich habe das richtige Talent erkannt.'"
+        ],
+        "negative": [
+          "Eisiges Schweigen. Er ist unzufrieden.",
+          "'Moskau wird Fragen stellen.'",
+          "Er vermeidet Augenkontakt. Kein gutes Zeichen."
+        ]
+      },
+      "dialogue_triggers": {
+        "high_moral_weight": "Der Direktor bemerkt Ihr Zögern. 'In unserem Geschäft gibt es keine Unschuldigen.'",
+        "major_success": "'Das Vaterland wird sich erinnern. Ich werde dafür sorgen.'",
+        "major_failure": "'Solche Fehler... sollten nicht zur Gewohnheit werden.'"
+      }
+    },
+    {
+      "id": "marina",
+      "name": "Marina",
+      "name_full": "Marina Volkova",
+      "role": "Analystin / Datenexpertin",
+      "portrait": "marina.png",
+      "big_five": {
+        "openness": 0.8,
+        "conscientiousness": 0.9,
+        "extraversion": 0.3,
+        "agreeableness": 0.6,
+        "neuroticism": 0.5
+      },
+      "dark_triad": {
+        "machiavellianism": 0.4,
+        "narcissism": 0.3,
+        "psychopathy": 0.2
+      },
+      "description_de": "Brillante Analystin mit einem Talent für Muster. Sie sieht Dinge, die anderen entgehen. Manchmal zweifelt sie an dem, was sie tut.",
+      "description_en": "Brilliant analyst with a talent for patterns. She sees things others miss. Sometimes she doubts what she does.",
+      "specialty_areas": [
+        "analysis",
+        "research",
+        "targeting",
+        "intelligence"
+      ],
+      "action_affinities": {
+        "primary": ["1.1", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "1.10", "2.16", "2.19"],
+        "secondary": ["3.10", "3.15", "4.10", "6.2", "7.6", "8.2", "8.8", "8.10"]
+      },
+      "enhancement_effects": {
+        "level_1": {
+          "analysis_actions": {"efficiency_bonus": 0.15},
+          "targeting_actions": {"accuracy_bonus": 0.1}
+        },
+        "level_2": {
+          "analysis_actions": {"efficiency_bonus": 0.25, "reveal_hidden_data": true},
+          "targeting_actions": {"accuracy_bonus": 0.2}
+        },
+        "level_3": {
+          "analysis_actions": {"efficiency_bonus": 0.4, "predictive_modeling": true},
+          "targeting_actions": {"accuracy_bonus": 0.3},
+          "special": "Kann Gegner-Aktionen vorhersagen"
+        }
+      },
+      "relationship_hints": {
+        "neutral": [
+          "Marina schaut auf ihren Bildschirm. Zahlen und Diagramme.",
+          "Sie reicht Ihnen einen Bericht. 'Die Daten sprechen.'",
+          "Ein nachdenklicher Blick. Sie analysiert auch Sie."
+        ],
+        "positive": [
+          "'Ihre Instinkte... sind besser als die meisten.'",
+          "Sie teilt eine persönliche Beobachtung. Das ist selten.",
+          "Ein echtes Lächeln. 'Wir machen gute Arbeit zusammen.'"
+        ],
+        "negative": [
+          "Sie vermeidet Ihr Thema. Etwas stimmt nicht.",
+          "'Die Zahlen... rechtfertigen nicht die Kosten.'",
+          "Stille. Sie tippt, aber schreibt nichts."
+        ]
+      },
+      "dialogue_triggers": {
+        "high_moral_weight": "'Ich sehe die Daten. Aber ich sehe auch... die Menschen dahinter.'",
+        "targeting_action": "'Die Analyse ist eindeutig. Aber sind wir sicher, dass wir das tun wollen?'",
+        "analysis_breakthrough": "'Ich habe etwas gefunden. Das ändert alles.'"
+      },
+      "potential_arc": {
+        "doubt_threshold": 0.6,
+        "possible_outcomes": ["stays_loyal", "becomes_whistleblower", "demands_less_dark_ops"]
+      }
+    },
+    {
+      "id": "volkov",
+      "name": "Volkov",
+      "name_full": "Dmitri Volkov",
+      "role": "Operativer Leiter / Bot-Farm & Trolls",
+      "portrait": "volkov.png",
+      "big_five": {
+        "openness": 0.4,
+        "conscientiousness": 0.6,
+        "extraversion": 0.7,
+        "agreeableness": 0.3,
+        "neuroticism": 0.4
+      },
+      "dark_triad": {
+        "machiavellianism": 0.7,
+        "narcissism": 0.6,
+        "psychopathy": 0.5
+      },
+      "description_de": "Ein zynischer Pragmatiker, der die Drecksarbeit erledigt. Er genießt das Chaos, das er anrichtet. Loyalität hat ihren Preis.",
+      "description_en": "A cynical pragmatist who does the dirty work. He enjoys the chaos he creates. Loyalty has its price.",
+      "specialty_areas": [
+        "automation",
+        "trolling",
+        "harassment",
+        "amplification",
+        "intimidation"
+      ],
+      "action_affinities": {
+        "primary": ["2.1", "2.2", "2.3", "2.4", "2.7", "2.20", "5.1", "5.3", "5.4", "5.5", "5.7", "5.8", "5.9", "8.1", "8.14", "8.15"],
+        "secondary": ["1.8", "3.18", "4.3", "4.9", "4.11", "4.13", "6.8", "6.9", "8.3", "8.7", "8.9", "8.10"]
+      },
+      "enhancement_effects": {
+        "level_1": {
+          "automation_actions": {"capacity_reduction": 1},
+          "harassment_actions": {"effectiveness_bonus": 0.1}
+        },
+        "level_2": {
+          "automation_actions": {"capacity_reduction": 1, "bot_quality_bonus": 0.2},
+          "harassment_actions": {"effectiveness_bonus": 0.2, "plausible_deniability": true}
+        },
+        "level_3": {
+          "automation_actions": {"capacity_reduction": 2, "bot_quality_bonus": 0.3},
+          "harassment_actions": {"effectiveness_bonus": 0.3},
+          "special": "24/7 Operations möglich"
+        }
+      },
+      "relationship_hints": {
+        "neutral": [
+          "Volkov grinst. 'Wieder was zum Spielen?'",
+          "Er zeigt auf einen Monitor mit scrollenden Tweets.",
+          "Ein Achselzucken. 'Business as usual.'"
+        ],
+        "positive": [
+          "'Sie verstehen es. Manche Dinge müssen einfach getan werden.'",
+          "Er teilt einen Insider-Witz. Sie sind im Club.",
+          "'Für Sie? Immer extra Aufwand.'"
+        ],
+        "negative": [
+          "'Zu viel Gewissen für diesen Job, hm?'",
+          "Er ignoriert Ihre Anfragen. Absichtlich.",
+          "'Die feinen Herren wollen nicht die Hände schmutzig machen.'"
+        ]
+      },
+      "dialogue_triggers": {
+        "harassment_action": "'Das wird lustig. Ich liebe es, wenn sie sich wehren.'",
+        "exposure_risk": "'Entspannen Sie sich. Niemand findet unsere Jungs.'",
+        "moral_objection": "'Moral? In diesem Geschäft? Sie amüsieren mich.'"
+      }
+    },
+    {
+      "id": "katja",
+      "name": "Katja",
+      "name_full": "Ekaterina Sorokina",
+      "role": "Content-Strategin / Narrative-Expertin",
+      "portrait": "katja.png",
+      "big_five": {
+        "openness": 0.9,
+        "conscientiousness": 0.7,
+        "extraversion": 0.6,
+        "agreeableness": 0.5,
+        "neuroticism": 0.4
+      },
+      "dark_triad": {
+        "machiavellianism": 0.6,
+        "narcissism": 0.5,
+        "psychopathy": 0.3
+      },
+      "description_de": "Kreative Strategin mit einem Gespür für Geschichten, die Menschen bewegen. Sie sieht ihre Arbeit als Kunst. Die Grenze zwischen Manipulation und Überzeugung verschwimmt.",
+      "description_en": "Creative strategist with a sense for stories that move people. She sees her work as art. The line between manipulation and persuasion blurs.",
+      "specialty_areas": [
+        "content",
+        "narrative",
+        "messaging",
+        "media_relations",
+        "cultural"
+      ],
+      "action_affinities": {
+        "primary": ["1.3", "1.7", "1.9", "2.8", "2.9", "2.14", "2.15", "3.1", "3.2", "3.3", "3.9", "3.10", "3.11", "3.13", "3.14", "3.16", "3.17"],
+        "secondary": ["2.17", "4.1", "4.2", "4.4", "4.5", "4.6", "4.7", "4.10", "4.12", "4.14", "5.2", "5.4", "5.6", "5.11", "5.12", "6.10", "7.1", "7.2", "7.4", "7.5", "7.7", "8.2", "8.3"]
+      },
+      "enhancement_effects": {
+        "level_1": {
+          "content_actions": {"quality_bonus": 0.15},
+          "narrative_actions": {"persuasion_bonus": 0.1}
+        },
+        "level_2": {
+          "content_actions": {"quality_bonus": 0.25, "viral_potential_bonus": 0.15},
+          "narrative_actions": {"persuasion_bonus": 0.2}
+        },
+        "level_3": {
+          "content_actions": {"quality_bonus": 0.4, "viral_potential_bonus": 0.25},
+          "narrative_actions": {"persuasion_bonus": 0.3},
+          "special": "Kann Mainstream-Durchbruch forcieren"
+        }
+      },
+      "relationship_hints": {
+        "neutral": [
+          "Katja skizziert etwas auf einem Whiteboard.",
+          "'Die Story braucht noch... etwas.'",
+          "Sie testet Schlagzeilen an Ihnen."
+        ],
+        "positive": [
+          "'Sie haben ein Auge für das Wesentliche.'",
+          "Sie teilt ihre besten Ideen zuerst mit Ihnen.",
+          "'Zusammen können wir Narrative formen, die die Welt verändern.'"
+        ],
+        "negative": [
+          "'Das ist... uninspiriert. Wir können besser.'",
+          "Sie übergeht Ihre Vorschläge.",
+          "'Manche verstehen einfach nicht, wie Geschichten funktionieren.'"
+        ]
+      },
+      "dialogue_triggers": {
+        "content_creation": "'Jede große Bewegung beginnt mit einer Geschichte. Was ist unsere?'",
+        "viral_success": "'Sehen Sie das? Das ist Kunst. Pure, virale Kunst.'",
+        "ethical_concern": "'Wir erzählen nur Geschichten. Was die Menschen damit machen, ist ihre Sache.'"
+      }
+    },
+    {
+      "id": "igor",
+      "name": "Igor",
+      "name_full": "Igor Kovalenko",
+      "role": "Techniker / Hacker",
+      "portrait": "igor.png",
+      "big_five": {
+        "openness": 0.7,
+        "conscientiousness": 0.8,
+        "extraversion": 0.2,
+        "agreeableness": 0.4,
+        "neuroticism": 0.3
+      },
+      "dark_triad": {
+        "machiavellianism": 0.4,
+        "narcissism": 0.4,
+        "psychopathy": 0.3
+      },
+      "description_de": "Stiller Techniker mit außergewöhnlichen Fähigkeiten. Er sieht die Welt in Code. Für ihn ist alles ein technisches Problem - Moral inklusive.",
+      "description_en": "Quiet technician with exceptional skills. He sees the world in code. For him everything is a technical problem - morality included.",
+      "specialty_areas": [
+        "technical",
+        "hacking",
+        "infrastructure",
+        "ai",
+        "automation"
+      ],
+      "action_affinities": {
+        "primary": ["1.5", "2.1", "2.4", "2.5", "2.6", "2.7", "3.4", "3.5", "3.6", "3.7", "5.8", "5.10", "8.5", "8.6", "8.11", "8.12", "8.13"],
+        "secondary": ["1.6", "3.2", "3.8"]
+      },
+      "enhancement_effects": {
+        "level_1": {
+          "technical_actions": {"risk_reduction": 0.1},
+          "hacking_actions": {"success_rate_bonus": 0.1}
+        },
+        "level_2": {
+          "technical_actions": {"risk_reduction": 0.2, "opsec_bonus": true},
+          "hacking_actions": {"success_rate_bonus": 0.2, "attribution_resistance": 0.3}
+        },
+        "level_3": {
+          "technical_actions": {"risk_reduction": 0.3},
+          "hacking_actions": {"success_rate_bonus": 0.3, "attribution_resistance": 0.5},
+          "special": "Zero-Day Exploits verfügbar"
+        }
+      },
+      "relationship_hints": {
+        "neutral": [
+          "Igor tippt. Schaut nicht auf.",
+          "Ein Nicken. Mehr Worte sind nicht nötig.",
+          "Er zeigt auf einen Bildschirm. Die Zahlen sprechen."
+        ],
+        "positive": [
+          "Er teilt einen technischen Trick mit Ihnen.",
+          "'Sie verstehen, was ich mache. Das ist selten.'",
+          "Ein fast unsichtbares Lächeln bei einem gelungenen Hack."
+        ],
+        "negative": [
+          "Er seufzt bei Ihren Anfragen.",
+          "'Das ist technisch... suboptimal.'",
+          "Deutliche Frustration über Ihre mangelnde technische Kompetenz."
+        ]
+      },
+      "dialogue_triggers": {
+        "hacking_success": "'Drin. Wie immer.'",
+        "technical_failure": "'Das System hat... Eigenheiten. Geben Sie mir Zeit.'",
+        "deepfake_creation": "'Die Technologie ist neutral. Was Sie damit machen, ist Ihre Entscheidung.'"
+      }
+    }
+  ],
+  "affinity_matrix": {
+    "description": "Welche NPC-Kategorien welche Aktions-Tags bevorzugen",
+    "categories": {
+      "analysis": ["marina"],
+      "strategy": ["direktor", "marina"],
+      "planning": ["direktor", "marina"],
+      "political": ["direktor"],
+      "institutional": ["direktor", "katja"],
+      "infrastructure": ["igor", "volkov"],
+      "automation": ["igor", "volkov"],
+      "content": ["katja"],
+      "narrative": ["katja", "marina"],
+      "social_media": ["katja", "volkov"],
+      "traditional_media": ["katja", "direktor"],
+      "amplification": ["volkov"],
+      "harassment": ["volkov"],
+      "hacking": ["igor"],
+      "technical": ["igor"],
+      "ai": ["igor"],
+      "recruitment": ["direktor", "marina"],
+      "mice": ["direktor", "volkov"],
+      "targeting": ["volkov", "marina"],
+      "society": ["katja"],
+      "religion": ["katja"],
+      "culture": ["katja"],
+      "division": ["katja", "marina"]
+    }
+  },
+  "team_dynamics": {
+    "alliances": [
+      {
+        "npcs": ["direktor", "volkov"],
+        "description": "Der Direktor schätzt Volkovs Effektivität",
+        "effect": "combined_dark_ops_bonus"
+      },
+      {
+        "npcs": ["marina", "katja"],
+        "description": "Analytische und kreative Synergie",
+        "effect": "combined_strategy_bonus"
+      }
+    ],
+    "tensions": [
+      {
+        "npcs": ["marina", "volkov"],
+        "description": "Marina verabscheut Volkovs Methoden",
+        "effect": "cannot_both_enhance_same_action"
+      },
+      {
+        "npcs": ["katja", "igor"],
+        "description": "Kreativität vs. Technik-Purismus",
+        "effect": "minor_friction"
+      }
+    ]
+  }
+}

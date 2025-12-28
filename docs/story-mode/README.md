@@ -15,14 +15,20 @@ docs/story-mode/
 ├── TECH_STACK.md                # Technische Architektur & Bibliotheken
 ├── SCENARIO_FRAMEWORK.md        # Szenario-System Design
 ├── ENGINE_INTEGRATION.md        # Technische Brücke zur Wargaming-Engine
-└── PERSONAS.md                  # Zielgruppen-Personas
+├── PERSONAS.md                  # Zielgruppen-Personas
+├── NEXT_ACTIONS.md              # Priorisierte Aktionsliste
+└── data/                        # 🆕 Maschinenlesbare Spieldaten
+    ├── actions.json             # 108 Aktionen (Phase 1-2)
+    ├── actions_continued.json   # 108 Aktionen (Phase 3-8)
+    ├── countermeasures.json     # 20 Gegner-Events
+    └── npcs.json                # 5 NPC-Definitionen
 ```
 
 ## Status
 
-**Letzte Aktualisierung:** 2025-12-27
+**Letzte Aktualisierung:** 2025-12-28
 
-**Phase:** Konzeption abgeschlossen → Bereit für Implementierung
+**Phase:** Konzeption abgeschlossen → Datendefinition → Bereit für Implementierung
 
 ## Schnellzugriff
 
@@ -38,6 +44,46 @@ docs/story-mode/
 ### Priorität 3: Offen & Ideen
 - [Offene Fragen →](./OPEN_QUESTIONS.md) — Noch zu klären (8 Fragen)
 - [Ideen-Backlog →](./IDEAS.md) — Alle Ideen mit Status
+
+### Priorität 4: Spieldaten (JSON)
+- [Aktionen →](./data/actions.json) — 108 Aktionen mit DISARM-Referenzen
+- [Countermeasures →](./data/countermeasures.json) — 20 Gegner-Events
+- [NPCs →](./data/npcs.json) — 5 NPCs mit Big Five Persönlichkeiten
+
+---
+
+## Spieldaten-Übersicht
+
+### Aktionen (108 total)
+
+| Phase | Kategorie | Anzahl |
+|-------|-----------|--------|
+| TA01 | Strategie & Analyse | 10 |
+| TA02 | Infrastruktur & Assets | 20 |
+| TA03 | Content-Erzeugung | 18 |
+| TA04 | Distribution | 15 |
+| TA05 | Verstärkung | 12 |
+| TA06 | Politik & Lobbying | 10 |
+| TA07 | Gesellschaft & Kultur | 8 |
+| Targeting | Direkte Angriffe | 15 |
+
+### Countermeasures (20 Events)
+
+Gegner-Reaktionen basierend auf DISARM Framework:
+- **Gering:** Fact-Checks, Account-Sperrungen, Community-Pushback
+- **Mittel:** Plattform-Maßnahmen, Rechtliche Schritte, NPC-Krisen
+- **Schwer:** Bot-Enttarnung, Investigativ-Recherchen, Sanktionen
+- **Kritisch:** Whistleblower, Technische Attribution
+
+### NPCs (5 Charaktere)
+
+| NPC | Rolle | Spezialgebiete |
+|-----|-------|----------------|
+| Der Direktor | Boss | Politik, Strategie, Institutionen |
+| Marina | Analystin | Analyse, Recherche, Targeting |
+| Volkov | Operativer Leiter | Bots, Trolls, Amplifikation |
+| Katja | Content-Strategin | Narrative, Content, Medien |
+| Igor | Techniker | Hacking, AI, Infrastruktur |
 
 ---
 
