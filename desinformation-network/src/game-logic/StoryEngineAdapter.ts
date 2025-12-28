@@ -13,6 +13,18 @@ import type {
   ResourceCost,
 } from './types';
 
+import {
+  ActionLoader,
+  getActionLoader,
+  type LoadedAction,
+} from '../story-mode/engine/ActionLoader';
+
+import {
+  ConsequenceSystem,
+  getConsequenceSystem,
+  type ActiveConsequence as EngineActiveConsequence,
+} from '../story-mode/engine/ConsequenceSystem';
+
 // ============================================
 // STORY MODE SPECIFIC TYPES
 // ============================================
@@ -285,6 +297,11 @@ export class StoryEngineAdapter {
   private npcStates: Map<string, NPCState> = new Map();
   private actionHistory: { phase: number; actionId: string; result: ActionResult }[] = [];
 
+  // Engine Integration
+  private actionLoader: ActionLoader;
+  private consequenceSystem: ConsequenceSystem;
+  private rngSeed: string;
+
   // Konfiguration
   private readonly PHASES_PER_YEAR = 12;
   private readonly MAX_YEARS = 10;
@@ -292,11 +309,28 @@ export class StoryEngineAdapter {
   private readonly CAPACITY_REGEN_PER_PHASE = 2;
 
   constructor(seed?: string) {
+    this.rngSeed = seed || Date.now().toString();
+
+    // Initialize engine components
+    this.actionLoader = getActionLoader();
+    this.consequenceSystem = getConsequenceSystem();
+
     // Initialer Zustand
     this.storyPhase = this.createPhase(1);
     this.storyResources = this.createInitialResources();
     this.initializeNPCs();
     this.initializeObjectives();
+
+    console.log(`✅ StoryEngineAdapter initialized (seed: ${this.rngSeed})`);
+  }
+
+  /**
+   * Simple seeded random number generator
+   */
+  private seededRandom(): number {
+    // Simple hash-based RNG for consequence probabilities
+    const x = Math.sin(parseInt(this.rngSeed, 36) + this.storyPhase.number) * 10000;
+    return x - Math.floor(x);
   }
 
   // ============================================
@@ -445,25 +479,49 @@ export class StoryEngineAdapter {
   private checkConsequences(currentPhase: number): ActiveConsequence[] {
     const activated: ActiveConsequence[] = [];
 
-    this.pendingConsequences = this.pendingConsequences.filter(cons => {
-      if (cons.activatesAtPhase <= currentPhase) {
-        const active: ActiveConsequence = {
-          ...cons,
-          requiresChoice: cons.choices !== undefined && cons.choices.length > 0,
-        };
-        activated.push(active);
+    // Check ConsequenceSystem for activating consequences
+    const engineActive = this.consequenceSystem.checkPhase(currentPhase);
 
-        if (active.requiresChoice) {
-          this.activeConsequence = active;
-        } else {
-          // Auto-apply
-          this.applyConsequenceEffects(active);
-        }
+    if (engineActive) {
+      // Convert engine active consequence to adapter format
+      const active: ActiveConsequence = {
+        id: engineActive.id,
+        consequenceId: engineActive.consequence.id,
+        triggeredAtPhase: currentPhase - 2, // Approximate
+        activatesAtPhase: currentPhase,
+        label_de: engineActive.consequence.label_de,
+        label_en: engineActive.consequence.label_en,
+        severity: engineActive.consequence.severity,
+        type: engineActive.consequence.type,
+        requiresChoice: engineActive.choices.length > 0,
+        deadline: engineActive.deadline,
+        choices: engineActive.choices.map(c => ({
+          id: c.id,
+          label_de: c.label_de,
+          label_en: c.label_en,
+          cost: c.costs ? {
+            budget: c.costs.budget,
+            moralWeight: c.costs.moral_weight,
+          } : undefined,
+          outcome_de: c.outcome_de,
+          outcome_en: c.outcome_en,
+        })),
+      };
 
-        return false; // Remove from pending
+      activated.push(active);
+
+      if (active.requiresChoice) {
+        this.activeConsequence = active;
+      } else {
+        // Auto-apply
+        this.applyConsequenceEffects(active);
       }
-      return true;
-    });
+
+      // Remove from our pending list
+      this.pendingConsequences = this.pendingConsequences.filter(
+        p => p.id !== active.id
+      );
+    }
 
     return activated;
   }
@@ -501,8 +559,56 @@ export class StoryEngineAdapter {
    * Hole alle verfügbaren Aktionen
    */
   getAvailableActions(): StoryAction[] {
-    // TODO: Load from actions.json and filter by prerequisites
-    return [];
+    const loadedActions = this.actionLoader.getAvailableActions();
+
+    return loadedActions.map(loaded => this.convertToStoryAction(loaded));
+  }
+
+  /**
+   * Convert LoadedAction to StoryAction format
+   */
+  private convertToStoryAction(loaded: LoadedAction): StoryAction {
+    // Check for NPC bonus
+    let npcBonus: StoryAction['npcBonus'] | undefined;
+    if (loaded.npc_affinity.length > 0) {
+      const primaryNpc = loaded.npc_affinity[0];
+      const npcState = this.npcStates.get(primaryNpc);
+      if (npcState && npcState.relationshipLevel > 0) {
+        npcBonus = {
+          npcId: primaryNpc,
+          costReduction: npcState.relationshipLevel * 0.1,
+          riskReduction: npcState.relationshipLevel * 0.05,
+          effectBonus: npcState.relationshipLevel * 0.1,
+        };
+      }
+    }
+
+    return {
+      id: loaded.id,
+      label_de: loaded.label_de,
+      label_en: loaded.label_en || loaded.label_de,
+      narrative_de: loaded.narrative_de || '',
+      narrative_en: loaded.narrative_en || loaded.narrative_de || '',
+      phase: loaded.phase,
+      tags: loaded.tags,
+      legality: loaded.legality,
+      costs: {
+        budget: loaded.costs.budget,
+        capacity: loaded.costs.capacity,
+        risk: loaded.costs.risk,
+        attention: loaded.costs.attention,
+        moralWeight: loaded.costs.moral_weight,
+      },
+      available: loaded.isUnlocked && !loaded.isUsed,
+      unavailableReason: !loaded.isUnlocked ? 'Locked - prerequisites not met' :
+                         loaded.isUsed ? 'Already used' : undefined,
+      prerequisites: loaded.prerequisites || [],
+      prerequisitesMet: this.actionLoader.arePrerequisitesMet(loaded),
+      npcAffinity: loaded.npc_affinity,
+      npcBonus,
+      engineAbilityId: loaded.disarm_ref || undefined,
+      disarmRef: loaded.disarm_ref || undefined,
+    };
   }
 
   /**
@@ -567,6 +673,12 @@ export class StoryEngineAdapter {
       npcReactions,
     };
 
+    // Mark action as used in ActionLoader
+    this.actionLoader.markAsUsed(actionId);
+
+    // Check for unlocking new actions based on this action's completion
+    this.actionLoader.checkUnlocks(actionId);
+
     // Historie
     this.actionHistory.push({
       phase: this.storyPhase.number,
@@ -593,8 +705,9 @@ export class StoryEngineAdapter {
   }
 
   private getActionById(id: string): StoryAction | null {
-    // TODO: Lookup from loaded actions
-    return null;
+    const loaded = this.actionLoader.getAction(id);
+    if (!loaded) return null;
+    return this.convertToStoryAction(loaded);
   }
 
   private canAffordAction(action: StoryAction): boolean {
@@ -641,13 +754,160 @@ export class StoryEngineAdapter {
     targetId?: string;
     npcAssist?: string;
   }): ActionResult['effects'] {
-    // TODO: Apply effects via engine
-    return [];
+    const effects: ActionResult['effects'] = [];
+
+    // Get loaded action for raw effects data
+    const loadedAction = this.actionLoader.getAction(action.id);
+    if (!loadedAction || !loadedAction.effects) {
+      return effects;
+    }
+
+    // Calculate effectiveness multiplier based on NPC assist
+    let effectivenessMultiplier = 1.0;
+    if (options?.npcAssist && action.npcAffinity.includes(options.npcAssist)) {
+      const npc = this.npcStates.get(options.npcAssist);
+      if (npc) {
+        effectivenessMultiplier = 1 + (npc.relationshipLevel * 0.1);
+      }
+    }
+
+    // Process effects from loaded action
+    const actionEffects = loadedAction.effects as Record<string, unknown>;
+
+    // Content quality effect - increases trust erosion potential
+    if (actionEffects.content_quality && typeof actionEffects.content_quality === 'number') {
+      const value = Math.round(actionEffects.content_quality * effectivenessMultiplier * 10);
+      effects.push({
+        type: 'content_quality',
+        value,
+        description_de: `Inhaltsqualität +${value}%`,
+        description_en: `Content quality +${value}%`,
+      });
+    }
+
+    // Virality boost
+    if (actionEffects.virality_boost && typeof actionEffects.virality_boost === 'number') {
+      const value = Math.round(actionEffects.virality_boost * effectivenessMultiplier * 10);
+      effects.push({
+        type: 'virality',
+        value,
+        description_de: `Virale Reichweite +${value}%`,
+        description_en: `Viral reach +${value}%`,
+      });
+    }
+
+    // Trust erosion effect - contributes to objective progress
+    if (actionEffects.trust_erosion && typeof actionEffects.trust_erosion === 'number') {
+      const value = Math.round(actionEffects.trust_erosion * effectivenessMultiplier * 10);
+      effects.push({
+        type: 'trust_erosion',
+        value,
+        description_de: `Vertrauenserosion +${value}%`,
+        description_en: `Trust erosion +${value}%`,
+      });
+
+      // Update primary objective progress
+      const destabilizeObj = this.objectives.find(o => o.id === 'obj_destabilize');
+      if (destabilizeObj) {
+        destabilizeObj.currentValue = Math.max(0, destabilizeObj.currentValue - value);
+        destabilizeObj.progress = Math.min(100,
+          ((75 - destabilizeObj.currentValue) / (75 - destabilizeObj.targetValue)) * 100
+        );
+        if (destabilizeObj.currentValue <= destabilizeObj.targetValue) {
+          destabilizeObj.completed = true;
+        }
+      }
+    }
+
+    // Polarization effect
+    if (actionEffects.polarization && typeof actionEffects.polarization === 'number') {
+      const value = Math.round(actionEffects.polarization * effectivenessMultiplier * 10);
+      effects.push({
+        type: 'polarization',
+        value,
+        description_de: `Gesellschaftliche Spaltung +${value}%`,
+        description_en: `Social polarization +${value}%`,
+      });
+    }
+
+    // Infrastructure boost
+    if (actionEffects.infrastructure_boost && typeof actionEffects.infrastructure_boost === 'number') {
+      const value = actionEffects.infrastructure_boost;
+      effects.push({
+        type: 'infrastructure',
+        value,
+        description_de: 'Infrastruktur ausgebaut',
+        description_en: 'Infrastructure expanded',
+      });
+    }
+
+    // Network reach
+    if (actionEffects.network_reach && typeof actionEffects.network_reach === 'number') {
+      const value = Math.round(actionEffects.network_reach * effectivenessMultiplier * 10);
+      effects.push({
+        type: 'network',
+        value,
+        description_de: `Netzwerk-Reichweite +${value}%`,
+        description_en: `Network reach +${value}%`,
+      });
+    }
+
+    // Political leverage
+    if (actionEffects.political_leverage && typeof actionEffects.political_leverage === 'number') {
+      const value = Math.round(actionEffects.political_leverage * effectivenessMultiplier * 10);
+      effects.push({
+        type: 'political',
+        value,
+        description_de: `Politischer Einfluss +${value}%`,
+        description_en: `Political leverage +${value}%`,
+      });
+    }
+
+    return effects;
   }
 
   private registerPotentialConsequences(action: StoryAction): string[] {
-    // TODO: Look up consequences.json and register with probability
-    return [];
+    // Use ConsequenceSystem to check for triggered consequences
+    const pendingFromSystem = this.consequenceSystem.onActionExecuted(
+      action.id,
+      this.storyPhase.number,
+      () => this.seededRandom()
+    );
+
+    // Convert to UI-friendly pending consequences and add to our list
+    const consequenceLabels: string[] = [];
+
+    for (const pending of pendingFromSystem) {
+      const def = this.consequenceSystem['definitions'].get(pending.consequenceId);
+      if (def) {
+        // Add to adapter's pending list for UI display
+        this.pendingConsequences.push({
+          id: pending.id,
+          consequenceId: pending.consequenceId,
+          triggeredAtPhase: pending.triggeredAtPhase,
+          activatesAtPhase: pending.activatesAtPhase,
+          label_de: def.label_de,
+          label_en: def.label_en,
+          severity: def.severity,
+          type: def.type,
+          choices: def.player_choices.map(c => ({
+            id: c.id,
+            label_de: c.label_de,
+            label_en: c.label_en,
+            cost: c.costs ? {
+              budget: c.costs.budget,
+              moralWeight: c.costs.moral_weight,
+            } : undefined,
+            outcome_de: c.outcome_de,
+            outcome_en: c.outcome_en,
+          })),
+        });
+
+        consequenceLabels.push(def.label_de);
+      }
+    }
+
+    return consequenceLabels;
   }
 
   private processNPCReactions(action: StoryAction): ActionResult['npcReactions'] {
@@ -687,7 +947,11 @@ export class StoryEngineAdapter {
   /**
    * Beantworte aktive Konsequenz
    */
-  handleConsequenceChoice(choiceId: string): void {
+  handleConsequenceChoice(choiceId: string): {
+    success: boolean;
+    outcome_de?: string;
+    outcome_en?: string;
+  } {
     if (!this.activeConsequence) {
       throw new Error('No active consequence');
     }
@@ -697,16 +961,67 @@ export class StoryEngineAdapter {
       throw new Error(`Choice ${choiceId} not found`);
     }
 
-    // Kosten anwenden
+    // Use ConsequenceSystem to resolve
+    const result = this.consequenceSystem.resolveConsequence(choiceId);
+
+    if (!result.success) {
+      return { success: false };
+    }
+
+    // Apply costs from the choice
     if (choice.cost) {
       if (choice.cost.budget) this.storyResources.budget -= choice.cost.budget;
       if (choice.cost.capacity) this.storyResources.capacity -= choice.cost.capacity;
       if (choice.cost.moralWeight) this.storyResources.moralWeight += choice.cost.moralWeight;
     }
 
-    // TODO: Apply choice effects
+    // Apply effects from the system
+    if (result.effects) {
+      if (result.effects.risk_change) {
+        this.storyResources.risk += result.effects.risk_change;
+      }
+      if (result.effects.attention_change) {
+        this.storyResources.attention += result.effects.attention_change;
+      }
+      if (result.effects.npc_relationship) {
+        const npc = this.npcStates.get(result.effects.npc_relationship.npc);
+        if (npc) {
+          npc.relationshipProgress += result.effects.npc_relationship.change * 10;
+          // Check for level up/down
+          if (npc.relationshipProgress >= 100 && npc.relationshipLevel < 3) {
+            npc.relationshipLevel++;
+            npc.relationshipProgress = 0;
+          } else if (npc.relationshipProgress < 0 && npc.relationshipLevel > 0) {
+            npc.relationshipLevel--;
+            npc.relationshipProgress = 50;
+          }
+        }
+      }
+    }
+
+    // Add news event
+    this.newsEvents.unshift({
+      id: `news_consequence_${Date.now()}`,
+      phase: this.storyPhase.number,
+      headline_de: this.activeConsequence.label_de,
+      headline_en: this.activeConsequence.label_en,
+      description_de: choice.outcome_de,
+      description_en: choice.outcome_en,
+      type: 'consequence',
+      severity: this.activeConsequence.severity === 'critical' ? 'danger' :
+                this.activeConsequence.severity === 'severe' ? 'warning' : 'info',
+      sourceConsequenceId: this.activeConsequence.consequenceId,
+      read: false,
+      pinned: false,
+    });
 
     this.activeConsequence = null;
+
+    return {
+      success: true,
+      outcome_de: choice.outcome_de,
+      outcome_en: choice.outcome_en,
+    };
   }
 
   // ============================================
@@ -820,6 +1135,7 @@ export class StoryEngineAdapter {
   saveState(): string {
     const state = {
       version: '1.0.0',
+      rngSeed: this.rngSeed,
       storyPhase: this.storyPhase,
       storyResources: this.storyResources,
       pendingConsequences: this.pendingConsequences,
@@ -827,6 +1143,9 @@ export class StoryEngineAdapter {
       objectives: this.objectives,
       npcStates: Array.from(this.npcStates.entries()),
       actionHistory: this.actionHistory,
+      // Engine state
+      actionLoaderState: this.actionLoader.exportState(),
+      consequenceSystemState: this.consequenceSystem.exportState(),
     };
 
     return JSON.stringify(state);
@@ -835,6 +1154,7 @@ export class StoryEngineAdapter {
   loadState(savedState: string): void {
     const state = JSON.parse(savedState);
 
+    this.rngSeed = state.rngSeed || this.rngSeed;
     this.storyPhase = state.storyPhase;
     this.storyResources = state.storyResources;
     this.pendingConsequences = state.pendingConsequences;
@@ -842,6 +1162,32 @@ export class StoryEngineAdapter {
     this.objectives = state.objectives;
     this.npcStates = new Map(state.npcStates);
     this.actionHistory = state.actionHistory;
+
+    // Restore engine state
+    if (state.actionLoaderState) {
+      this.actionLoader.importState(state.actionLoaderState);
+    }
+    if (state.consequenceSystemState) {
+      this.consequenceSystem.importState(state.consequenceSystemState);
+    }
+  }
+
+  /**
+   * Reset game to initial state
+   */
+  reset(): void {
+    this.storyPhase = this.createPhase(1);
+    this.storyResources = this.createInitialResources();
+    this.pendingConsequences = [];
+    this.activeConsequence = null;
+    this.newsEvents = [];
+    this.actionHistory = [];
+    this.initializeNPCs();
+    this.initializeObjectives();
+
+    // Reset engine components
+    this.actionLoader.reset();
+    this.consequenceSystem.reset();
   }
 }
 
