@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StoryModeColors } from './theme';
 
 interface OfficeScreenProps {
@@ -24,6 +24,17 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
   const closeNote = () => {
     setSelectedInteraction(null);
   };
+
+  // ESC key handler to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedInteraction) {
+        closeNote();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedInteraction]);
 
   const playSound = (soundName: string) => {
     console.log(`🔊 [SOUND: ${soundName}]`);
@@ -528,19 +539,25 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
         </div>
       </div>
 
-      {/* Modal - Unchanged from previous version */}
+      {/* Modal - Fixed positioning, scrollable, ESC to close */}
       {selectedInteraction && (
-        <div className="absolute inset-0 flex items-center justify-center p-8 z-50" style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}>
+        <div
+          className="fixed inset-0 flex items-center justify-center p-4 z-[100]"
+          style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
+          onClick={closeNote}
+        >
           <div
-            className="max-w-3xl w-full border-8"
+            className="max-w-3xl w-full max-h-[85vh] flex flex-col border-8"
             style={{
               backgroundColor: StoryModeColors.surface,
               borderColor: StoryModeColors.border,
               boxShadow: '12px 12px 0px 0px rgba(0,0,0,0.9)'
             }}
+            onClick={(e) => e.stopPropagation()}
           >
+            {/* Header - fixed */}
             <div
-              className="border-b-4 p-4 font-bold flex justify-between items-center"
+              className="border-b-4 p-4 font-bold flex justify-between items-center shrink-0"
               style={{
                 backgroundColor: StoryModeColors.agencyBlue,
                 borderColor: StoryModeColors.border,
@@ -560,30 +577,35 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
                 ✕
               </button>
             </div>
-            <div className="p-6">
+            {/* Content - scrollable */}
+            <div className="p-6 overflow-y-auto flex-1">
               <div
                 className="text-sm whitespace-pre-wrap leading-relaxed font-mono"
                 style={{ color: StoryModeColors.textPrimary }}
               >
                 {selectedInteraction.description}
               </div>
-              <div
-                className="mt-6 pt-4 border-t-4"
-                style={{ borderColor: StoryModeColors.borderLight }}
+            </div>
+            {/* Footer - fixed */}
+            <div
+              className="p-4 border-t-4 shrink-0"
+              style={{
+                borderColor: StoryModeColors.borderLight,
+                backgroundColor: StoryModeColors.darkConcrete
+              }}
+            >
+              <button
+                onClick={closeNote}
+                className="px-6 py-2 border-4 font-bold hover:brightness-110 transition-all"
+                style={{
+                  backgroundColor: StoryModeColors.agencyBlue,
+                  borderColor: StoryModeColors.darkBlue,
+                  color: StoryModeColors.warning,
+                  boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)'
+                }}
               >
-                <button
-                  onClick={closeNote}
-                  className="px-6 py-2 border-4 font-bold hover:brightness-110 transition-all"
-                  style={{
-                    backgroundColor: StoryModeColors.agencyBlue,
-                    borderColor: StoryModeColors.darkBlue,
-                    color: StoryModeColors.warning,
-                    boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)'
-                  }}
-                >
-                  CLOSE [ESC]
-                </button>
-              </div>
+                SCHLIESSEN [ESC]
+              </button>
             </div>
           </div>
         </div>
