@@ -21,6 +21,7 @@ docs/story-mode/
     ├── actions.json             # 108 Aktionen (Phase 1-2)
     ├── actions_continued.json   # 108 Aktionen (Phase 3-8)
     ├── countermeasures.json     # 20 Gegner-Events
+    ├── consequences.json        # 🆕 22 Sekundäre Konsequenzen
     └── npcs.json                # 5 NPC-Definitionen
 ```
 
@@ -47,6 +48,7 @@ docs/story-mode/
 
 ### Priorität 4: Spieldaten (JSON)
 - [Aktionen →](./data/actions.json) — 108 Aktionen mit DISARM-Referenzen
+- [Konsequenzen →](./data/consequences.json) — 22 Sekundäre Konsequenzen mit Ketten
 - [Countermeasures →](./data/countermeasures.json) — 20 Gegner-Events
 - [NPCs →](./data/npcs.json) — 5 NPCs mit Big Five Persönlichkeiten
 
@@ -66,6 +68,24 @@ docs/story-mode/
 | TA06 | Politik & Lobbying | 10 |
 | TA07 | Gesellschaft & Kultur | 8 |
 | Targeting | Direkte Angriffe | 15 |
+
+### Sekundäre Konsequenzen (22 Events)
+
+Verzögerte Auswirkungen von Spieleraktionen:
+
+| Typ | Beispiele |
+|-----|-----------|
+| **Enttarnung** | Bot-Netzwerk, Deepfake, Hack zurückverfolgt |
+| **Rückschlag** | Journalist wird Double Agent, Wahl geht nach hinten los |
+| **Eskalation** | Investigation, Whistleblower, Sanktionen |
+| **Intern** | NPC-Krise, Troll-Burnout, Machtkampf |
+| **Kollateral** | Opfer-Suizid (mit NPC-Reaktionen) |
+| **Gelegenheit** | Viraler Erfolg, Unerwarteter Verbündeter |
+
+Konsequenz-Ketten:
+- `Exposure → Investigation → Imminent Exposure → Sanctions/Game End`
+- `Dark Ops → Victim Suicide → NPC Crisis → Whistleblower`
+- `Viral Success → Fact-Check Surge → Investigation`
 
 ### Countermeasures (20 Events)
 
