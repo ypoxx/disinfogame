@@ -13,12 +13,14 @@ interface OfficeScreenProps {
   onOpenStats?: () => void;
   onOpenNpcs?: () => void;
   onOpenMission?: () => void;
+  onOpenEvents?: () => void;
   onEndPhase?: () => void;
   resources?: StoryResources;
   phase?: StoryPhase;
   newsEvents?: NewsEvent[];
   objectives?: Objective[];
   unreadNewsCount?: number;
+  worldEventCount?: number;
 }
 
 type HoverArea = 'computer' | 'phone' | 'smartphone' | 'tv' | 'door' | 'folder' | null;
@@ -338,7 +340,7 @@ function Smartphone({ isHovered, unreadCount, onClick }: { isHovered: boolean; u
   );
 }
 
-function OfficeDoor({ isHovered, onClick }: { isHovered: boolean; onClick: () => void }) {
+function OfficeDoor({ isHovered, eventCount, onClick }: { isHovered: boolean; eventCount: number; onClick: () => void }) {
   return (
     <div
       className="absolute cursor-pointer transition-all duration-200"
@@ -374,16 +376,18 @@ function OfficeDoor({ isHovered, onClick }: { isHovered: boolean; onClick: () =>
             className="absolute right-2 top-1/2 transform -translate-y-1/2 w-3 h-8 rounded"
             style={{ backgroundColor: isHovered ? StoryModeColors.warning : '#888' }}
           />
-          {/* Window */}
+          {/* Window - shows world map silhouette */}
           <div
-            className="absolute top-4 left-1/2 transform -translate-x-1/2 w-1/2 h-1/4"
+            className="absolute top-4 left-1/2 transform -translate-x-1/2 w-1/2 h-1/4 flex items-center justify-center"
             style={{
-              backgroundColor: '#222',
+              backgroundColor: '#1a1a1a',
               border: '2px solid #555',
             }}
-          />
+          >
+            <span className="text-lg opacity-60">🌍</span>
+          </div>
         </div>
-        {/* CLOSED Sign */}
+        {/* Sign */}
         <div
           className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-2 py-1 text-[8px] font-bold"
           style={{
@@ -391,9 +395,23 @@ function OfficeDoor({ isHovered, onClick }: { isHovered: boolean; onClick: () =>
             color: StoryModeColors.warning,
           }}
         >
-          SECURE
+          WELT
         </div>
       </div>
+      {/* Event Counter Badge */}
+      {eventCount > 0 && (
+        <div
+          className="absolute -top-2 -right-2 w-7 h-7 flex items-center justify-center border-2 font-bold text-xs z-10"
+          style={{
+            backgroundColor: StoryModeColors.militaryOlive,
+            borderColor: StoryModeColors.darkOlive,
+            color: StoryModeColors.warning,
+            borderRadius: '50%',
+          }}
+        >
+          {eventCount}
+        </div>
+      )}
       {/* Label */}
       {isHovered && (
         <div
@@ -404,7 +422,7 @@ function OfficeDoor({ isHovered, onClick }: { isHovered: boolean; onClick: () =>
             color: StoryModeColors.warning,
           }}
         >
-          EVENTS
+          WELT-EREIGNISSE
         </div>
       )}
     </div>
@@ -481,10 +499,12 @@ export function OfficeScreen({
   onOpenStats,
   onOpenNpcs,
   onOpenMission,
+  onOpenEvents,
   onEndPhase,
   resources,
   phase,
   unreadNewsCount = 0,
+  worldEventCount = 0,
 }: OfficeScreenProps) {
   const [hoverArea, setHoverArea] = useState<HoverArea>(null);
 
@@ -496,10 +516,11 @@ export function OfficeScreen({
       if (e.key === 's' && onOpenStats) onOpenStats();
       if (e.key === 'p' && onOpenNpcs) onOpenNpcs();
       if (e.key === 'm' && onOpenMission) onOpenMission();
+      if (e.key === 'e' && onOpenEvents) onOpenEvents();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onOpenActions, onOpenNews, onOpenStats, onOpenNpcs, onOpenMission]);
+  }, [onOpenActions, onOpenNews, onOpenStats, onOpenNpcs, onOpenMission, onOpenEvents]);
 
   return (
     <div
@@ -633,7 +654,11 @@ export function OfficeScreen({
 
         <OfficeDoor
           isHovered={hoverArea === 'door'}
-          onClick={() => setHoverArea(null)}
+          eventCount={worldEventCount}
+          onClick={() => {
+            setHoverArea(null);
+            if (onOpenEvents) onOpenEvents();
+          }}
         />
 
         <MissionFolder
@@ -696,7 +721,8 @@ export function OfficeScreen({
             <span className="mr-2">[N] News</span>
             <span className="mr-2">[S] Stats</span>
             <span className="mr-2">[P] NPCs</span>
-            <span>[M] Mission</span>
+            <span className="mr-2">[M] Mission</span>
+            <span>[E] Events</span>
           </div>
           <button
             onClick={onEndPhase}

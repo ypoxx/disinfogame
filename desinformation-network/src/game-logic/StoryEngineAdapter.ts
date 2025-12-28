@@ -26,8 +26,8 @@ import {
 } from '../story-mode/engine/ConsequenceSystem';
 
 // Import NPC and World Events data
-import npcsData from '../../docs/story-mode/data/npcs.json';
-import worldEventsData from '../../docs/story-mode/data/world-events.json';
+import npcsData from '../story-mode/data/npcs.json';
+import worldEventsData from '../story-mode/data/world-events.json';
 
 // ============================================
 // STORY MODE SPECIFIC TYPES
@@ -330,14 +330,6 @@ export class StoryEngineAdapter {
     console.log(`✅ StoryEngineAdapter initialized (seed: ${this.rngSeed})`);
   }
 
-  /**
-   * Simple seeded random number generator
-   */
-  private seededRandom(): number {
-    // Simple hash-based RNG for consequence probabilities
-    const x = Math.sin(parseInt(this.rngSeed, 36) + this.storyPhase.number) * 10000;
-    return x - Math.floor(x);
-  }
 
   // ============================================
   // INITIALIZATION
@@ -685,7 +677,7 @@ export class StoryEngineAdapter {
     }
   }
 
-  private seededRandom(seed: string): number {
+  private seededRandom(seed: string = `phase_${this.storyPhase.number}`): number {
     // Simple hash-based seeded random
     let hash = 0;
     const fullSeed = this.rngSeed + seed;
