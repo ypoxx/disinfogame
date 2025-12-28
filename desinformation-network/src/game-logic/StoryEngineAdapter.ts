@@ -25,6 +25,10 @@ import {
   type ActiveConsequence as EngineActiveConsequence,
 } from '../story-mode/engine/ConsequenceSystem';
 
+// Import NPC and World Events data
+import npcsData from '../../docs/story-mode/data/npcs.json';
+import worldEventsData from '../../docs/story-mode/data/world-events.json';
+
 // ============================================
 // STORY MODE SPECIFIC TYPES
 // ============================================
@@ -295,6 +299,8 @@ export class StoryEngineAdapter {
   private newsEvents: NewsEvent[] = [];
   private objectives: Objective[] = [];
   private npcStates: Map<string, NPCState> = new Map();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private npcDialogues: Map<string, any> = new Map();
   private actionHistory: { phase: number; actionId: string; result: ActionResult }[] = [];
 
   // Engine Integration
@@ -369,25 +375,33 @@ export class StoryEngineAdapter {
   }
 
   private initializeNPCs(): void {
-    // TODO: Load from npcs.json
-    const npcIds = ['direktor', 'marina', 'volkov', 'katja', 'igor'];
+    // Load NPCs from JSON data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data = npcsData as any;
 
-    npcIds.forEach(id => {
-      this.npcStates.set(id, {
-        id,
-        name: id.charAt(0).toUpperCase() + id.slice(1),
-        role_de: 'Mitarbeiter',
-        role_en: 'Staff',
-        relationshipLevel: 0,
+    for (const npc of data.npcs) {
+      this.npcStates.set(npc.id, {
+        id: npc.id,
+        name: npc.name,
+        role_de: npc.role_de,
+        role_en: npc.role_en,
+        relationshipLevel: npc.initialState?.relationshipLevel ?? 0,
         relationshipProgress: 0,
-        morale: 100,
+        morale: npc.initialState?.morale ?? 100,
         inCrisis: false,
-        available: true,
+        available: npc.initialState?.available ?? true,
         currentMood: 'neutral',
-        specialtyAreas: [],
-        enhancedActions: [],
+        specialtyAreas: npc.specialtyAreas || [],
+        enhancedActions: npc.enhancedActions || [],
       });
-    });
+
+      // Store dialogue data for later use
+      if (npc.dialogues) {
+        this.npcDialogues.set(npc.id, npc.dialogues);
+      }
+    }
+
+    console.log(`Loaded ${this.npcStates.size} NPCs from data`);
   }
 
   private initializeObjectives(): void {
@@ -547,8 +561,140 @@ export class StoryEngineAdapter {
   }
 
   private generateWorldEvents(phase: number): NewsEvent[] {
-    // TODO: Generate based on game state and random events
-    return [];
+    const generatedEvents: NewsEvent[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data = worldEventsData as any;
+
+    for (const eventDef of data.worldEvents) {
+      // Check if event should trigger
+      if (this.shouldTriggerWorldEvent(eventDef, phase)) {
+        const newsEvent: NewsEvent = {
+          id: `world_${eventDef.id}_${phase}`,
+          phase,
+          headline_de: eventDef.headline_de,
+          headline_en: eventDef.headline_en,
+          description_de: eventDef.description_de,
+          description_en: eventDef.description_en,
+          type: 'world_event',
+          severity: eventDef.severity || 'info',
+          read: false,
+          pinned: false,
+        };
+
+        generatedEvents.push(newsEvent);
+        this.newsEvents.push(newsEvent);
+
+        // Apply event effects
+        this.applyWorldEventEffects(eventDef.effects);
+
+        console.log(`World event triggered: ${eventDef.headline_de}`);
+      }
+    }
+
+    return generatedEvents;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private shouldTriggerWorldEvent(eventDef: any, phase: number): boolean {
+    const trigger = eventDef.trigger;
+    if (!trigger) return false;
+
+    // Use seeded random for consistency
+    const eventRandom = this.seededRandom(`event_${eventDef.id}_${phase}`);
+
+    switch (trigger.type) {
+      case 'phase':
+        // Triggers at specific phase
+        if (trigger.conditions.phaseNumber && phase === trigger.conditions.phaseNumber) {
+          return true;
+        }
+        // Triggers at phase multiples (e.g., every 24 phases)
+        if (trigger.conditions.phaseMultiple && phase % trigger.conditions.phaseMultiple === 0) {
+          return true;
+        }
+        return false;
+
+      case 'random':
+        // Random trigger with minimum phase requirement
+        if (trigger.conditions.minPhase && phase < trigger.conditions.minPhase) {
+          return false;
+        }
+        return eventRandom < (trigger.conditions.probability || eventDef.probability || 0.1);
+
+      case 'risk_threshold':
+        // Trigger when risk exceeds threshold
+        if (this.storyResources.risk > (trigger.conditions.riskAbove || 50)) {
+          return eventRandom < (trigger.conditions.probability || 0.2);
+        }
+        return false;
+
+      case 'attention_threshold':
+        // Trigger when attention exceeds threshold
+        if (this.storyResources.attention > (trigger.conditions.attentionAbove || 50)) {
+          return eventRandom < (trigger.conditions.probability || 0.2);
+        }
+        return false;
+
+      case 'objective_progress':
+        // Trigger based on objective progress
+        const objective = this.objectives.find(o => o.category === trigger.conditions.objective);
+        if (objective && objective.currentValue >= (trigger.conditions.progressAbove || 50)) {
+          return eventRandom < (trigger.conditions.probability || 0.3);
+        }
+        return false;
+
+      case 'relationship_threshold':
+        // Trigger when any NPC relationship exceeds threshold
+        for (const npc of this.npcStates.values()) {
+          if (npc.relationshipLevel >= (trigger.conditions.anyNpcAbove || 2)) {
+            return eventRandom < (trigger.conditions.probability || 0.3);
+          }
+        }
+        return false;
+
+      default:
+        return false;
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private applyWorldEventEffects(effects: any): void {
+    if (!effects) return;
+
+    // Budget changes
+    if (effects.budget_increase) {
+      this.storyResources.budget += effects.budget_increase;
+    }
+
+    // Risk changes
+    if (effects.risk_increase) {
+      this.storyResources.risk = Math.min(100, this.storyResources.risk + effects.risk_increase);
+    }
+
+    // Attention changes
+    if (effects.attention_increase) {
+      this.storyResources.attention = Math.min(100, this.storyResources.attention + effects.attention_increase);
+    }
+
+    // Polarization boost affects trust objective
+    if (effects.polarization_boost) {
+      const trustObj = this.objectives.find(o => o.category === 'trust_reduction');
+      if (trustObj) {
+        trustObj.currentValue = Math.max(0, trustObj.currentValue - effects.polarization_boost);
+      }
+    }
+  }
+
+  private seededRandom(seed: string): number {
+    // Simple hash-based seeded random
+    let hash = 0;
+    const fullSeed = this.rngSeed + seed;
+    for (let i = 0; i < fullSeed.length; i++) {
+      const char = fullSeed.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return Math.abs(hash % 1000) / 1000;
   }
 
   // ============================================

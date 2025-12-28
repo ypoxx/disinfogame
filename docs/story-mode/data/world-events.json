@@ -1,0 +1,183 @@
+{
+  "worldEvents": [
+    {
+      "id": "election_announced",
+      "type": "political",
+      "trigger": {
+        "type": "phase",
+        "conditions": { "phaseNumber": 12 }
+      },
+      "probability": 1.0,
+      "headline_de": "Westunion kundigt Wahlen an",
+      "headline_en": "Westunion Announces Elections",
+      "description_de": "Die Regierung von Westunion hat fur nachstes Jahr Parlamentswahlen angekündigt. Dies eröffnet neue Möglichkeiten zur Einflussnahme.",
+      "description_en": "The government of Westunion has announced parliamentary elections for next year.",
+      "effects": {
+        "opportunity_window": "elections",
+        "actions_unlocked": ["ta06_election_interference"]
+      },
+      "severity": "info"
+    },
+    {
+      "id": "media_scandal",
+      "type": "media",
+      "trigger": {
+        "type": "random",
+        "conditions": { "minPhase": 6, "probability": 0.15 }
+      },
+      "probability": 0.15,
+      "headline_de": "Medienskandal erschuttert Westunion",
+      "headline_en": "Media Scandal Rocks Westunion",
+      "description_de": "Ein grosser Medienskandal hat das Vertrauen der Bevolkerung in die Presse erschuttert. Die Glaubwurdigkeit sinkt.",
+      "description_en": "A major media scandal has shaken public trust in the press.",
+      "effects": {
+        "trust_media_change": -10,
+        "content_effectiveness_boost": 1.2
+      },
+      "severity": "success"
+    },
+    {
+      "id": "economic_crisis",
+      "type": "economic",
+      "trigger": {
+        "type": "random",
+        "conditions": { "minPhase": 24, "probability": 0.1 }
+      },
+      "probability": 0.1,
+      "headline_de": "Wirtschaftskrise trifft Westunion",
+      "headline_en": "Economic Crisis Hits Westunion",
+      "description_de": "Eine Wirtschaftskrise hat Westunion erfasst. Die Unzufriedenheit in der Bevolkerung wachst.",
+      "description_en": "An economic crisis has hit Westunion. Public discontent is growing.",
+      "effects": {
+        "polarization_boost": 15,
+        "economic_actions_cost_reduction": 0.8
+      },
+      "severity": "success"
+    },
+    {
+      "id": "security_leak",
+      "type": "security",
+      "trigger": {
+        "type": "risk_threshold",
+        "conditions": { "riskAbove": 60, "probability": 0.2 }
+      },
+      "probability": 0.2,
+      "headline_de": "Sicherheitsleck entdeckt",
+      "headline_en": "Security Leak Discovered",
+      "description_de": "Ein Sicherheitsleck wurde in einer staatlichen Behörde entdeckt. Die Aufmerksamkeit der Geheimdienste steigt.",
+      "description_en": "A security leak was discovered in a government agency.",
+      "effects": {
+        "attention_increase": 15,
+        "risk_increase": 10
+      },
+      "severity": "warning"
+    },
+    {
+      "id": "protest_movement",
+      "type": "social",
+      "trigger": {
+        "type": "objective_progress",
+        "conditions": { "objective": "polarization", "progressAbove": 50 }
+      },
+      "probability": 0.8,
+      "headline_de": "Protestbewegung formiert sich",
+      "headline_en": "Protest Movement Forms",
+      "description_de": "Eine neue Protestbewegung hat sich in Westunion formiert. Die gesellschaftliche Spaltung vertieft sich.",
+      "description_en": "A new protest movement has formed in Westunion.",
+      "effects": {
+        "polarization_boost": 10,
+        "social_actions_effectiveness": 1.3
+      },
+      "severity": "success"
+    },
+    {
+      "id": "foreign_pressure",
+      "type": "diplomatic",
+      "trigger": {
+        "type": "attention_threshold",
+        "conditions": { "attentionAbove": 70, "probability": 0.3 }
+      },
+      "probability": 0.3,
+      "headline_de": "Internationale Kritik an Westunion",
+      "headline_en": "International Criticism of Westunion",
+      "description_de": "Internationale Partner haben Bedenken uber die politische Lage in Westunion geaussert.",
+      "description_en": "International partners have expressed concerns about the political situation.",
+      "effects": {
+        "diplomatic_pressure": true,
+        "some_actions_restricted": true
+      },
+      "severity": "warning"
+    },
+    {
+      "id": "journalist_investigation",
+      "type": "media",
+      "trigger": {
+        "type": "action_count",
+        "conditions": { "actionType": "content_creation", "countAbove": 10 }
+      },
+      "probability": 0.25,
+      "headline_de": "Journalisten beginnen Untersuchung",
+      "headline_en": "Journalists Begin Investigation",
+      "description_de": "Investigativjournalisten haben begonnen, verdachtige Online-Aktivitaten zu untersuchen.",
+      "description_en": "Investigative journalists have begun investigating suspicious online activities.",
+      "effects": {
+        "risk_increase": 15,
+        "content_detection_chance_increase": 0.1
+      },
+      "severity": "danger"
+    },
+    {
+      "id": "tech_platform_crackdown",
+      "type": "technical",
+      "trigger": {
+        "type": "random",
+        "conditions": { "minPhase": 36, "probability": 0.2 }
+      },
+      "probability": 0.2,
+      "headline_de": "Plattformen verscharfen Regeln",
+      "headline_en": "Platforms Tighten Rules",
+      "description_de": "Grosse Social-Media-Plattformen haben ihre Regeln gegen Desinformation verscharft.",
+      "description_en": "Major social media platforms have tightened their rules against disinformation.",
+      "effects": {
+        "bot_effectiveness_reduction": 0.7,
+        "content_reach_reduction": 0.8
+      },
+      "severity": "danger"
+    },
+    {
+      "id": "political_ally_emerges",
+      "type": "political",
+      "trigger": {
+        "type": "relationship_threshold",
+        "conditions": { "anyNpcAbove": 2, "probability": 0.4 }
+      },
+      "probability": 0.4,
+      "headline_de": "Neuer politischer Verbundeter",
+      "headline_en": "New Political Ally",
+      "description_de": "Ein einflussreicher Politiker hat sich als potentieller Verbundeter erwiesen.",
+      "description_en": "An influential politician has emerged as a potential ally.",
+      "effects": {
+        "political_actions_cost_reduction": 0.9,
+        "new_contact_available": true
+      },
+      "severity": "success"
+    },
+    {
+      "id": "budget_increase",
+      "type": "internal",
+      "trigger": {
+        "type": "phase",
+        "conditions": { "phaseMultiple": 24 }
+      },
+      "probability": 1.0,
+      "headline_de": "Jahresbudget genehmigt",
+      "headline_en": "Annual Budget Approved",
+      "description_de": "Das Hauptquartier hat das Jahresbudget fur die Operation genehmigt.",
+      "description_en": "Headquarters has approved the annual budget for the operation.",
+      "effects": {
+        "budget_increase": 50
+      },
+      "severity": "info"
+    }
+  ]
+}
