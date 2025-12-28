@@ -11,3 +11,9 @@ export type {
 
 export { ActionPanel } from './ActionPanel';
 export type { StoryAction as ActionPanelAction } from './ActionPanel';
+
+export { TutorialOverlay, useTutorial, TUTORIAL_STEPS } from './TutorialOverlay';
+export type { TutorialStep } from './TutorialOverlay';
+
+export { GameEndScreen } from './GameEndScreen';
+export type { GameEndData, EndingType } from './GameEndScreen';
