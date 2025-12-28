@@ -3,7 +3,7 @@
  * Manages delayed consequences from player actions
  */
 
-import consequencesData from '../../../../docs/story-mode/data/consequences.json';
+import consequencesData from '../data/consequences.json';
 
 // ============================================
 // TYPES
@@ -28,6 +28,66 @@ export interface ConsequenceChoice {
   outcome_en: string;
 }
 
+export interface ConsequenceEffects {
+  // Resource changes
+  risk_increase?: number;
+  attention_increase?: number;
+  capacity_reduction?: number;
+  budget_reduction_permanent?: number;
+  moral_weight_increase?: number;
+
+  // Infrastructure loss
+  infrastructure_loss?: string;  // 'bot_network', 'persona_network', etc.
+
+  // Efficiency reductions
+  troll_efficiency_reduction?: number;
+  persona_pool_reduction?: number;
+  reach_reduction?: number;
+  credibility_loss?: number;
+  content_reach_reduction?: number;
+  credibility_damage?: number;
+  forgery_credibility_loss?: number;
+  future_deepfake_penalty?: number;
+  political_influence_reduction?: number;
+  organic_reach_reduction?: number;
+  npc_effectiveness_reduction?: number;
+  study_credibility_reduction?: number;
+  media_access_reduction?: number;
+
+  // Boolean flags
+  asset_lost?: boolean;
+  investigation_active?: boolean;
+  emergency_mode?: boolean;
+  public_backlash?: boolean;
+  npc_moral_crisis?: boolean;
+  political_access_threatened?: boolean;
+  critical_exposure_risk?: boolean;
+  technical_attribution?: boolean;
+  diplomatic_incident?: boolean;
+  international_operations_restricted?: boolean;
+  some_assets_frozen?: boolean;
+  academic_legitimacy_lost?: boolean;
+  community_trust_lost?: boolean;
+  counter_movement_spawned?: boolean;
+  religious_influence_lost?: boolean;
+  organic_amplification?: boolean;
+  massive_reach_bonus?: boolean;
+  platform_warnings?: boolean;
+  job_security_threatened?: boolean;
+  pressure_increased?: boolean;
+  target_party_boost?: boolean;
+
+  // Special counters
+  countdown_to_exposure?: number;
+  final_countdown?: number;
+  all_risks_increased?: number;
+  all_hacking_risk_increased?: number;
+  defection_risk?: number;
+  legitimacy_boost?: number;
+  narrative_penetration?: number;
+  narrative_effectiveness_in_religious_communities_reduced?: number;
+}
+
 export interface ConsequenceDefinition {
   id: string;
   type: 'exposure' | 'blowback' | 'escalation' | 'internal' | 'collateral' | 'opportunity';
@@ -46,6 +106,7 @@ export interface ConsequenceDefinition {
   label_en: string;
   description_de: string;
   description_en: string;
+  effects?: ConsequenceEffects;
   player_choices: ConsequenceChoice[];
   effects_if_ignored?: {
     risk_increase?: number;
@@ -211,6 +272,13 @@ export class ConsequenceSystem {
    */
   getActiveConsequence(): ActiveConsequence | null {
     return this.activeConsequence;
+  }
+
+  /**
+   * Get consequence definition by ID
+   */
+  getDefinition(consequenceId: string): ConsequenceDefinition | undefined {
+    return this.definitions.get(consequenceId);
   }
 
   /**

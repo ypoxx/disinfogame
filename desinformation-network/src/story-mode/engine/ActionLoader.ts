@@ -4,8 +4,8 @@
  */
 
 // Import action data directly (bundled with the app)
-import actionsData from '../../../../docs/story-mode/data/actions.json';
-import actionsContinuedData from '../../../../docs/story-mode/data/actions_continued.json';
+import actionsData from '../data/actions.json';
+import actionsContinuedData from '../data/actions_continued.json';
 
 // ============================================
 // TYPES

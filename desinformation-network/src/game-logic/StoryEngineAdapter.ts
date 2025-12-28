@@ -23,6 +23,7 @@ import {
   ConsequenceSystem,
   getConsequenceSystem,
   type ActiveConsequence as EngineActiveConsequence,
+  type ConsequenceEffects,
 } from '../story-mode/engine/ConsequenceSystem';
 
 // Import NPC and World Events data
@@ -209,6 +210,7 @@ export interface PendingConsequence {
 export interface ActiveConsequence extends PendingConsequence {
   requiresChoice: boolean;
   deadline?: number;  // Phase, bis wann entschieden werden muss
+  effects?: ConsequenceEffects;  // Effects to apply when consequence activates
 }
 
 /**
@@ -302,6 +304,7 @@ export class StoryEngineAdapter {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private npcDialogues: Map<string, any> = new Map();
   private actionHistory: { phase: number; actionId: string; result: ActionResult }[] = [];
+  private exposureCountdown: number | null = null;  // Countdown to forced exposure/game end
 
   // Engine Integration
   private actionLoader: ActionLoader;
@@ -465,6 +468,16 @@ export class StoryEngineAdapter {
 
     Object.assign(this.storyResources, resourceChanges);
 
+    // Decrement exposure countdown if active
+    if (this.exposureCountdown !== null) {
+      this.exposureCountdown--;
+      if (this.exposureCountdown <= 0) {
+        // Countdown expired - force high risk to trigger game end
+        this.storyResources.risk = 100;
+        console.log('[ExposureCountdown] Countdown expired - exposure imminent!');
+      }
+    }
+
     // Konsequenzen prüfen
     const triggeredConsequences = this.checkConsequences(newPhaseNumber);
 
@@ -501,6 +514,7 @@ export class StoryEngineAdapter {
         type: engineActive.consequence.type,
         requiresChoice: engineActive.choices.length > 0,
         deadline: engineActive.deadline,
+        effects: engineActive.consequence.effects,
         choices: engineActive.choices.map(c => ({
           id: c.id,
           label_de: c.label_de,
@@ -533,16 +547,115 @@ export class StoryEngineAdapter {
   }
 
   private applyConsequenceEffects(consequence: ActiveConsequence): void {
-    // TODO: Apply effects based on consequence type
+    const effects = consequence.effects;
 
-    // Add to news
+    if (effects) {
+      // Apply resource changes
+      if (effects.risk_increase) {
+        this.storyResources.risk = Math.min(100, this.storyResources.risk + effects.risk_increase);
+      }
+      if (effects.attention_increase) {
+        this.storyResources.attention = Math.min(100, this.storyResources.attention + effects.attention_increase);
+      }
+      if (effects.capacity_reduction) {
+        this.storyResources.capacity = Math.max(0, this.storyResources.capacity - effects.capacity_reduction);
+      }
+      if (effects.budget_reduction_permanent) {
+        this.storyResources.budget = Math.max(0,
+          this.storyResources.budget * (1 - effects.budget_reduction_permanent)
+        );
+      }
+      if (effects.moral_weight_increase) {
+        this.storyResources.moralWeight += effects.moral_weight_increase;
+      }
+
+      // Apply countdown effects (critical - can end the game)
+      if (effects.countdown_to_exposure) {
+        // Store countdown in a special tracking variable
+        this.exposureCountdown = effects.countdown_to_exposure;
+      }
+      if (effects.final_countdown) {
+        this.exposureCountdown = effects.final_countdown;
+      }
+
+      // Apply efficiency/effectiveness modifiers
+      if (effects.all_risks_increased) {
+        // Increase base risk for all future actions
+        this.storyResources.risk = Math.min(100,
+          this.storyResources.risk + (this.storyResources.risk * effects.all_risks_increased)
+        );
+      }
+
+      // Handle NPC effects
+      if (effects.npc_moral_crisis) {
+        // Trigger moral crisis for NPCs
+        for (const npc of this.npcStates.values()) {
+          if (npc.morale > 0) {
+            npc.morale = Math.max(0, npc.morale - 20);
+            if (npc.morale < 30) {
+              npc.inCrisis = true;
+            }
+          }
+        }
+      }
+
+      if (effects.npc_effectiveness_reduction) {
+        // Reduce NPC effectiveness (simplified: reduce relationship progress and morale)
+        for (const npc of this.npcStates.values()) {
+          npc.relationshipProgress = Math.max(0,
+            npc.relationshipProgress - Math.round(effects.npc_effectiveness_reduction * 30)
+          );
+          npc.morale = Math.max(0,
+            npc.morale - Math.round(effects.npc_effectiveness_reduction * 20)
+          );
+        }
+      }
+
+      // Handle infrastructure loss
+      if (effects.infrastructure_loss) {
+        console.log(`[ConsequenceEffect] Infrastructure lost: ${effects.infrastructure_loss}`);
+        // Track infrastructure losses for gameplay effects
+        // This could affect action availability or costs
+      }
+
+      // Handle investigation/emergency flags
+      if (effects.investigation_active || effects.critical_exposure_risk) {
+        // Increase risk significantly
+        this.storyResources.risk = Math.min(100, this.storyResources.risk + 15);
+        this.storyResources.attention = Math.min(100, this.storyResources.attention + 10);
+      }
+
+      if (effects.emergency_mode) {
+        // Critical state - everything becomes harder
+        this.storyResources.risk = Math.min(100, this.storyResources.risk + 25);
+      }
+
+      // Handle positive effects (opportunity type)
+      if (effects.organic_amplification || effects.massive_reach_bonus) {
+        // Positive effect - could unlock bonuses
+        console.log('[ConsequenceEffect] Positive amplification effect triggered');
+      }
+
+      if (effects.legitimacy_boost) {
+        // Reduce risk slightly as operations gain legitimacy
+        this.storyResources.risk = Math.max(0, this.storyResources.risk - 5);
+      }
+
+      console.log('[ConsequenceEffect] Applied effects:', effects);
+    }
+
+    // Add to news - get description from consequence definition
+    const definition = this.consequenceSystem.getDefinition(consequence.consequenceId);
+    const description_de = definition?.description_de || 'Eine Konsequenz Ihrer Aktionen...';
+    const description_en = definition?.description_en || 'A consequence of your actions...';
+
     this.newsEvents.unshift({
       id: `news_${Date.now()}`,
       phase: this.storyPhase.number,
       headline_de: consequence.label_de,
       headline_en: consequence.label_en,
-      description_de: `Eine Konsequenz Ihrer Aktionen...`,
-      description_en: `A consequence of your actions...`,
+      description_de,
+      description_en,
       type: 'consequence',
       severity: consequence.severity === 'critical' ? 'danger' :
                 consequence.severity === 'severe' ? 'warning' : 'info',
@@ -1209,35 +1322,91 @@ export class StoryEngineAdapter {
   // ============================================
 
   checkGameEnd(): GameEndState | null {
-    // Entdeckung
+    const stats = this.getEndStats();
+    const primaryObjectives = this.objectives.filter(o => o.type === 'primary');
+    const allCompleted = primaryObjectives.every(o => o.completed);
+    const npcArray = Array.from(this.npcStates.values());
+    const npcsInCrisis = npcArray.filter(npc => npc.inCrisis).length;
+    const allNpcsLost = npcsInCrisis >= npcArray.length - 1; // Almost all NPCs in crisis
+
+    // ENDING 1: Exposure/Defeat - Risk too high
     if (this.storyResources.risk >= 85) {
+      // Check if player chose to flee (escape ending)
+      // This would be set by a specific consequence choice
       return {
         type: 'defeat',
         title_de: 'Enttarnt',
         title_en: 'Exposed',
-        description_de: 'Ihre Operationen wurden aufgedeckt. Die Verbindung zu Ostland ist bewiesen.',
-        description_en: 'Your operations have been uncovered. The connection to Ostland is proven.',
-        stats: this.getEndStats(),
-        epilogue_de: 'Sie werden zur persona non grata erklärt...',
-        epilogue_en: 'You are declared persona non grata...',
+        description_de: this.exposureCountdown === 0
+          ? 'Die Untersuchung hat Sie erreicht. Es gibt kein Entkommen mehr.'
+          : 'Ihre Operationen wurden aufgedeckt. Die Verbindung zu Ostland ist bewiesen.',
+        description_en: this.exposureCountdown === 0
+          ? 'The investigation has caught up with you. There is no escape.'
+          : 'Your operations have been uncovered. The connection to Ostland is proven.',
+        stats,
+        epilogue_de: 'Sie werden zur persona non grata erklärt. Diplomatische Beziehungen werden eingefroren. Ihre Karriere endet in Schande.',
+        epilogue_en: 'You are declared persona non grata. Diplomatic relations are frozen. Your career ends in disgrace.',
       };
     }
 
-    // Zeitablauf mit Erfolg
-    const primaryObjectives = this.objectives.filter(o => o.type === 'primary');
-    const allCompleted = primaryObjectives.every(o => o.completed);
+    // ENDING 2: Moral Redemption - High moral weight and player turned
+    // Triggered when moral weight is extremely high and specific conditions are met
+    if (this.storyResources.moralWeight >= 80 && allNpcsLost) {
+      return {
+        type: 'moral_redemption',
+        title_de: 'Gewissensentscheidung',
+        title_en: 'Crisis of Conscience',
+        description_de: 'Die Last Ihrer Taten ist unerträglich geworden. Sie haben beschlossen, auszusteigen.',
+        description_en: 'The weight of your actions has become unbearable. You have decided to defect.',
+        stats,
+        epilogue_de: 'Sie kontaktieren westliche Geheimdienste und bieten Ihre Kooperation an. Ein neues Leben unter neuem Namen beginnt.',
+        epilogue_en: 'You contact Western intelligence and offer your cooperation. A new life under a new name begins.',
+      };
+    }
 
+    // ENDING 3: Escape - Risk is critical but player chose to flee
+    // This can be triggered by specific consequence choices or if risk hits 75-84
+    if (this.storyResources.risk >= 75 && this.storyResources.risk < 85 && this.storyResources.moralWeight < 50) {
+      // Check if there's an active escape opportunity (from consequence choice)
+      const hasEscapeOpportunity = this.exposureCountdown !== null && this.exposureCountdown <= 1;
+
+      if (hasEscapeOpportunity) {
+        return {
+          type: 'escape',
+          title_de: 'Flucht nach Osten',
+          title_en: 'Flight to the East',
+          description_de: 'Sie haben die Zeichen erkannt. Bevor die Schlinge sich zuzieht, setzen Sie sich nach Ostland ab.',
+          description_en: 'You recognized the signs. Before the noose tightens, you escape to Ostland.',
+          stats,
+          epilogue_de: 'In Ostland werden Sie als Held empfangen. Doch die Schatten Ihrer Taten folgen Ihnen.',
+          epilogue_en: 'In Ostland you are received as a hero. But the shadows of your deeds follow you.',
+        };
+      }
+    }
+
+    // ENDING 4: Victory - Time limit with objectives completed
     if (this.storyPhase.number >= this.PHASES_PER_YEAR * this.MAX_YEARS) {
       if (allCompleted) {
+        // Determine victory flavor based on moral weight
+        const isDarkVictory = this.storyResources.moralWeight >= 50;
+
         return {
           type: 'victory',
-          title_de: 'Mission erfüllt',
-          title_en: 'Mission Accomplished',
-          description_de: 'Nach 10 Jahren haben Sie Ihre Ziele erreicht.',
-          description_en: 'After 10 years, you have achieved your objectives.',
-          stats: this.getEndStats(),
-          epilogue_de: 'Westunion ist gespalten. Moskau ist zufrieden.',
-          epilogue_en: 'Westunion is divided. Moscow is pleased.',
+          title_de: isDarkVictory ? 'Pyrrhussieg' : 'Mission erfüllt',
+          title_en: isDarkVictory ? 'Pyrrhic Victory' : 'Mission Accomplished',
+          description_de: isDarkVictory
+            ? 'Sie haben Ihre Ziele erreicht - aber zu welchem Preis?'
+            : 'Nach 10 Jahren haben Sie Ihre Ziele erreicht.',
+          description_en: isDarkVictory
+            ? 'You have achieved your objectives - but at what cost?'
+            : 'After 10 years, you have achieved your objectives.',
+          stats,
+          epilogue_de: isDarkVictory
+            ? 'Westunion ist destabilisiert. Moskau ist zufrieden. Doch nachts verfolgen Sie die Gesichter derer, die Sie geopfert haben.'
+            : 'Westunion ist gespalten. Moskau ist zufrieden. Sie werden befördert und kehren als Held heim.',
+          epilogue_en: isDarkVictory
+            ? 'Westunion is destabilized. Moscow is pleased. But at night, the faces of those you sacrificed haunt you.'
+            : 'Westunion is divided. Moscow is pleased. You are promoted and return home as a hero.',
         };
       } else {
         return {
@@ -1246,9 +1415,9 @@ export class StoryEngineAdapter {
           title_en: 'Time\'s Up',
           description_de: 'Die Zeit ist abgelaufen, ohne dass die Ziele erreicht wurden.',
           description_en: 'Time has run out without achieving the objectives.',
-          stats: this.getEndStats(),
-          epilogue_de: 'Sie werden abberufen. Ihre Karriere ist beendet.',
-          epilogue_en: 'You are recalled. Your career is over.',
+          stats,
+          epilogue_de: 'Sie werden abberufen. Ihre Karriere stagniert. Jüngere Agenten überholen Sie.',
+          epilogue_en: 'You are recalled. Your career stagnates. Younger agents surpass you.',
         };
       }
     }
@@ -1277,6 +1446,7 @@ export class StoryEngineAdapter {
       storyPhase: this.storyPhase,
       storyResources: this.storyResources,
       pendingConsequences: this.pendingConsequences,
+      exposureCountdown: this.exposureCountdown,
       newsEvents: this.newsEvents,
       objectives: this.objectives,
       npcStates: Array.from(this.npcStates.entries()),
@@ -1296,6 +1466,7 @@ export class StoryEngineAdapter {
     this.storyPhase = state.storyPhase;
     this.storyResources = state.storyResources;
     this.pendingConsequences = state.pendingConsequences;
+    this.exposureCountdown = state.exposureCountdown ?? null;
     this.newsEvents = state.newsEvents;
     this.objectives = state.objectives;
     this.npcStates = new Map(state.npcStates);
@@ -1318,6 +1489,7 @@ export class StoryEngineAdapter {
     this.storyResources = this.createInitialResources();
     this.pendingConsequences = [];
     this.activeConsequence = null;
+    this.exposureCountdown = null;
     this.newsEvents = [];
     this.actionHistory = [];
     this.initializeNPCs();
