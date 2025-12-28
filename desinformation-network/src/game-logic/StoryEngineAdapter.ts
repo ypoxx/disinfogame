@@ -305,6 +305,9 @@ export class StoryEngineAdapter {
   private npcDialogues: Map<string, any> = new Map();
   private actionHistory: { phase: number; actionId: string; result: ActionResult }[] = [];
   private exposureCountdown: number | null = null;  // Countdown to forced exposure/game end
+  // P2-7: Track world event cooldowns (eventId -> last triggered phase)
+  private worldEventCooldowns: Map<string, number> = new Map();
+  private readonly WORLD_EVENT_COOLDOWN = 12;  // 12 phases = 1 year cooldown
 
   // Engine Integration
   private actionLoader: ActionLoader;
@@ -456,14 +459,21 @@ export class StoryEngineAdapter {
     this.storyPhase = this.createPhase(newPhaseNumber);
 
     // Ressourcen regenerieren
+    // P1-4 Fix: Reduce attention decay from 5 to 2
+    // P1-5 Fix: Add budget regeneration (+5 per phase)
+    // P2-6 Fix: Add risk decay (-2 per phase, min 0)
     const resourceChanges: Partial<StoryResources> = {
       capacity: Math.min(
         this.storyResources.capacity + this.CAPACITY_REGEN_PER_PHASE,
         10 // Max Capacity
       ),
       actionPointsRemaining: this.ACTION_POINTS_PER_PHASE,
-      // Passive Decay
-      attention: Math.max(0, this.storyResources.attention - 5),
+      // Budget regeneration (operational funding)
+      budget: this.storyResources.budget + 5,
+      // Passive Decay - reduced from 5 to 2
+      attention: Math.max(0, this.storyResources.attention - 2),
+      // Risk decay - counter-intelligence loses track over time
+      risk: Math.max(0, this.storyResources.risk - 2),
     };
 
     Object.assign(this.storyResources, resourceChanges);
@@ -750,6 +760,9 @@ export class StoryEngineAdapter {
         generatedEvents.push(newsEvent);
         this.newsEvents.push(newsEvent);
 
+        // P2-7: Record cooldown for this event
+        this.worldEventCooldowns.set(eventDef.id, phase);
+
         // Apply event effects
         this.applyWorldEventEffects(eventDef.effects);
 
@@ -764,6 +777,15 @@ export class StoryEngineAdapter {
   private shouldTriggerWorldEvent(eventDef: any, phase: number): boolean {
     const trigger = eventDef.trigger;
     if (!trigger) return false;
+
+    // P2-7: Check cooldown - prevent same event from triggering too often
+    const lastTriggered = this.worldEventCooldowns.get(eventDef.id);
+    if (lastTriggered !== undefined) {
+      const phasesSinceLastTrigger = phase - lastTriggered;
+      if (phasesSinceLastTrigger < this.WORLD_EVENT_COOLDOWN) {
+        return false;  // Still on cooldown
+      }
+    }
 
     // Use seeded random for consistency
     const eventRandom = this.seededRandom(`event_${eventDef.id}_${phase}`);
@@ -969,6 +991,9 @@ export class StoryEngineAdapter {
     // NPC-Reaktionen
     const npcReactions = this.processNPCReactions(action);
 
+    // P2-8: NPC Relationship Progress - improve relationship with NPCs matching action affinity
+    this.updateNPCRelationships(action, options?.npcAssist);
+
     // Ergebnis
     const result: ActionResult = {
       success: true,
@@ -1109,19 +1134,56 @@ export class StoryEngineAdapter {
     }
 
     // Trust erosion effect - contributes to objective progress
+    // P1-3 Fix: Calculate implicit trust_erosion from action effects and phase
+    let trustErosionValue = 0;
+
+    // Explicit trust_erosion
     if (actionEffects.trust_erosion && typeof actionEffects.trust_erosion === 'number') {
-      const value = Math.round(actionEffects.trust_erosion * effectivenessMultiplier * 10);
+      trustErosionValue += Math.round(actionEffects.trust_erosion * effectivenessMultiplier * 10);
+    }
+
+    // Implicit trust_erosion from other effects (content/amplification actions contribute)
+    if (actionEffects.content_quality && typeof actionEffects.content_quality === 'number') {
+      trustErosionValue += Math.round(actionEffects.content_quality * effectivenessMultiplier * 2);
+    }
+    if (actionEffects.virality_boost && typeof actionEffects.virality_boost === 'number') {
+      trustErosionValue += Math.round(actionEffects.virality_boost * effectivenessMultiplier * 3);
+    }
+    if (actionEffects.polarization && typeof actionEffects.polarization === 'number') {
+      trustErosionValue += Math.round(actionEffects.polarization * effectivenessMultiplier * 4);
+    }
+    if (actionEffects.amplification_base && typeof actionEffects.amplification_base === 'number') {
+      trustErosionValue += Math.round(actionEffects.amplification_base * effectivenessMultiplier * 5);
+    }
+    if (actionEffects.amplification_bonus && typeof actionEffects.amplification_bonus === 'number') {
+      trustErosionValue += Math.round(actionEffects.amplification_bonus * effectivenessMultiplier * 3);
+    }
+
+    // Base trust erosion for aggressive actions (grey/illegal with no specific effects)
+    if (trustErosionValue === 0) {
+      const loadedAction = this.actionLoader.getAction(action.id);
+      if (loadedAction) {
+        // Content/amplification phases contribute to trust erosion
+        const aggressivePhases = ['ta03', 'ta04', 'ta05', 'targeting'];
+        if (aggressivePhases.includes(loadedAction.phase)) {
+          trustErosionValue = loadedAction.legality === 'illegal' ? 3 :
+                              loadedAction.legality === 'grey' ? 2 : 1;
+        }
+      }
+    }
+
+    if (trustErosionValue > 0) {
       effects.push({
         type: 'trust_erosion',
-        value,
-        description_de: `Vertrauenserosion +${value}%`,
-        description_en: `Trust erosion +${value}%`,
+        value: trustErosionValue,
+        description_de: `Vertrauenserosion +${trustErosionValue}%`,
+        description_en: `Trust erosion +${trustErosionValue}%`,
       });
 
       // Update primary objective progress
       const destabilizeObj = this.objectives.find(o => o.id === 'obj_destabilize');
       if (destabilizeObj) {
-        destabilizeObj.currentValue = Math.max(0, destabilizeObj.currentValue - value);
+        destabilizeObj.currentValue = Math.max(0, destabilizeObj.currentValue - trustErosionValue);
         destabilizeObj.progress = Math.min(100,
           ((75 - destabilizeObj.currentValue) / (75 - destabilizeObj.targetValue)) * 100
         );
@@ -1180,10 +1242,12 @@ export class StoryEngineAdapter {
 
   private registerPotentialConsequences(action: StoryAction): string[] {
     // Use ConsequenceSystem to check for triggered consequences
+    // P0-2 Fix: Use unique seed per RNG call to ensure different random values
+    let rngCounter = 0;
     const pendingFromSystem = this.consequenceSystem.onActionExecuted(
       action.id,
       this.storyPhase.number,
-      () => this.seededRandom()
+      () => this.seededRandom(`action_${action.id}_${this.storyPhase.number}_${rngCounter++}`)
     );
 
     // Convert to UI-friendly pending consequences and add to our list
@@ -1243,6 +1307,44 @@ export class StoryEngineAdapter {
     }
 
     return reactions;
+  }
+
+  /**
+   * P2-8: Update NPC relationships based on action execution
+   */
+  private updateNPCRelationships(action: StoryAction, npcAssist?: string): void {
+    // NPCs with affinity to this action get relationship progress
+    for (const npcId of action.npcAffinity) {
+      const npc = this.npcStates.get(npcId);
+      if (!npc) continue;
+
+      // Base progress for actions in their specialty
+      let progressGain = 5;
+
+      // Bonus if this NPC was specifically assisting
+      if (npcAssist === npcId) {
+        progressGain = 15;
+      }
+
+      // Apply progress
+      npc.relationshipProgress += progressGain;
+
+      // Check for level up (every 100 progress points)
+      if (npc.relationshipProgress >= 100 && npc.relationshipLevel < 3) {
+        npc.relationshipLevel++;
+        npc.relationshipProgress -= 100;
+        console.log(`🤝 NPC ${npc.name} relationship upgraded to level ${npc.relationshipLevel}`);
+      }
+
+      // Successful actions also improve morale slightly
+      npc.morale = Math.min(100, npc.morale + 2);
+
+      // If was in crisis and morale recovered, clear crisis
+      if (npc.inCrisis && npc.morale >= 50) {
+        npc.inCrisis = false;
+        console.log(`✅ NPC ${npc.name} recovered from crisis`);
+      }
+    }
   }
 
   // ============================================
@@ -1555,6 +1657,7 @@ export class StoryEngineAdapter {
       objectives: this.objectives,
       npcStates: Array.from(this.npcStates.entries()),
       actionHistory: this.actionHistory,
+      worldEventCooldowns: Array.from(this.worldEventCooldowns.entries()),
       // Engine state
       actionLoaderState: this.actionLoader.exportState(),
       consequenceSystemState: this.consequenceSystem.exportState(),
@@ -1575,6 +1678,7 @@ export class StoryEngineAdapter {
     this.objectives = state.objectives;
     this.npcStates = new Map(state.npcStates);
     this.actionHistory = state.actionHistory;
+    this.worldEventCooldowns = new Map(state.worldEventCooldowns || []);
 
     // Restore engine state
     if (state.actionLoaderState) {
@@ -1596,6 +1700,7 @@ export class StoryEngineAdapter {
     this.exposureCountdown = null;
     this.newsEvents = [];
     this.actionHistory = [];
+    this.worldEventCooldowns.clear();
     this.initializeNPCs();
     this.initializeObjectives();
 

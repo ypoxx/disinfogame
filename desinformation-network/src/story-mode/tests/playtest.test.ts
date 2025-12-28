@@ -361,7 +361,8 @@ function runMultiplePlaytests(count: number, phasesPerTest: number): void {
 }
 
 // Export for use
-export { runPlaytest, runMultiplePlaytests, PlaytestReport };
+export { runPlaytest, runMultiplePlaytests };
+export type { PlaytestReport };
 
 // Vitest test wrapper
 describe('Story Mode Playtest', () => {

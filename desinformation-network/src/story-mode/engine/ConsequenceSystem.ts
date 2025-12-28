@@ -194,9 +194,10 @@ export class ConsequenceSystem {
       if (!def) continue;
 
       // Calculate probability based on use count
+      // P0-1 Fix: Default max to 1.0 when undefined to prevent NaN
       const baseProbability = def.probability.base;
       const increasePerUse = def.probability.per_use_increase;
-      const maxProbability = def.probability.max;
+      const maxProbability = def.probability.max ?? 1.0;
 
       const probability = Math.min(
         baseProbability + (count - 1) * increasePerUse,
