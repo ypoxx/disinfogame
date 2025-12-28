@@ -229,6 +229,9 @@ export interface ActiveConsequence extends PendingConsequence {
 /**
  * News-Event für die News-Liste
  */
+export type EventScale = 'local' | 'regional' | 'national' | 'transnational';
+export type MemberState = 'nordmark' | 'gallia' | 'insulandia' | 'balticum' | 'suedland' | 'ostmark';
+
 export interface NewsEvent {
   id: string;
   phase: number;
@@ -242,6 +245,11 @@ export interface NewsEvent {
   // Typ
   type: 'action_result' | 'consequence' | 'world_event' | 'npc_event';
   severity: 'info' | 'warning' | 'danger' | 'success';
+
+  // Multi-scale world event properties
+  scale?: EventScale;
+  region?: MemberState;
+  location?: string;
 
   // Quelle
   sourceActionId?: string;
@@ -321,6 +329,9 @@ export class StoryEngineAdapter {
   // P2-7: Track world event cooldowns (eventId -> last triggered phase)
   private worldEventCooldowns: Map<string, number> = new Map();
   private readonly WORLD_EVENT_COOLDOWN = 12;  // 12 phases = 1 year cooldown
+  // Track triggered events for cascade system (eventId -> phase triggered)
+  private triggeredEventsThisPhase: Set<string> = new Set();
+  private allTriggeredEvents: Map<string, number> = new Map();
 
   // Engine Integration
   private actionLoader: ActionLoader;
@@ -758,24 +769,22 @@ export class StoryEngineAdapter {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = worldEventsData as any;
 
-    for (const eventDef of data.worldEvents) {
-      // Check if event should trigger
-      if (this.shouldTriggerWorldEvent(eventDef, phase)) {
-        const newsEvent: NewsEvent = {
-          id: `world_${eventDef.id}_${phase}`,
-          phase,
-          headline_de: eventDef.headline_de,
-          headline_en: eventDef.headline_en,
-          description_de: eventDef.description_de,
-          description_en: eventDef.description_en,
-          type: 'world_event',
-          severity: eventDef.severity || 'info',
-          read: false,
-          pinned: false,
-        };
+    // Clear triggered events for this phase (used for cascade tracking)
+    this.triggeredEventsThisPhase.clear();
 
+    // First pass: trigger non-cascade events
+    for (const eventDef of data.worldEvents) {
+      // Skip cascade events in first pass
+      if (eventDef.trigger?.type === 'event_cascade') continue;
+
+      if (this.shouldTriggerWorldEvent(eventDef, phase)) {
+        const newsEvent = this.createNewsEventFromDef(eventDef, phase);
         generatedEvents.push(newsEvent);
         this.newsEvents.push(newsEvent);
+
+        // Track triggered event for cascades
+        this.triggeredEventsThisPhase.add(eventDef.id);
+        this.allTriggeredEvents.set(eventDef.id, phase);
 
         // P2-7: Record cooldown for this event
         this.worldEventCooldowns.set(eventDef.id, phase);
@@ -783,11 +792,71 @@ export class StoryEngineAdapter {
         // Apply event effects
         this.applyWorldEventEffects(eventDef.effects);
 
-        console.log(`World event triggered: ${eventDef.headline_de}`);
+        console.log(`[${eventDef.scale || 'national'}] World event triggered: ${eventDef.headline_de}`);
+      }
+    }
+
+    // Second pass: process cascade events (events triggered by other events)
+    let cascadePass = 0;
+    const maxCascadePasses = 3; // Prevent infinite loops
+    let newCascades = true;
+
+    while (newCascades && cascadePass < maxCascadePasses) {
+      newCascades = false;
+      cascadePass++;
+
+      for (const eventDef of data.worldEvents) {
+        if (eventDef.trigger?.type !== 'event_cascade') continue;
+        if (this.triggeredEventsThisPhase.has(eventDef.id)) continue; // Already triggered
+
+        const parentEventId = eventDef.trigger.conditions?.parentEvent;
+        if (!parentEventId) continue;
+
+        // Check if parent event was triggered this phase or recently (within 2 phases)
+        const parentTriggeredPhase = this.allTriggeredEvents.get(parentEventId);
+        const recentlyTriggered = parentTriggeredPhase !== undefined &&
+                                   (phase - parentTriggeredPhase) <= 2;
+
+        if (this.triggeredEventsThisPhase.has(parentEventId) || recentlyTriggered) {
+          // Check probability
+          const eventRandom = this.seededRandom(`cascade_${eventDef.id}_${phase}`);
+          if (eventRandom < (eventDef.probability || 0.5)) {
+            const newsEvent = this.createNewsEventFromDef(eventDef, phase);
+            generatedEvents.push(newsEvent);
+            this.newsEvents.push(newsEvent);
+
+            this.triggeredEventsThisPhase.add(eventDef.id);
+            this.allTriggeredEvents.set(eventDef.id, phase);
+            this.worldEventCooldowns.set(eventDef.id, phase);
+            this.applyWorldEventEffects(eventDef.effects);
+
+            console.log(`[CASCADE] ${eventDef.headline_de} (triggered by ${parentEventId})`);
+            newCascades = true;
+          }
+        }
       }
     }
 
     return generatedEvents;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private createNewsEventFromDef(eventDef: any, phase: number): NewsEvent {
+    return {
+      id: `world_${eventDef.id}_${phase}`,
+      phase,
+      headline_de: eventDef.headline_de,
+      headline_en: eventDef.headline_en,
+      description_de: eventDef.description_de,
+      description_en: eventDef.description_en,
+      type: 'world_event',
+      severity: eventDef.severity || 'info',
+      scale: eventDef.scale,
+      region: eventDef.region,
+      location: eventDef.location,
+      read: false,
+      pinned: false,
+    };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -886,6 +955,63 @@ export class StoryEngineAdapter {
       const trustObj = this.objectives.find(o => o.category === 'trust_reduction');
       if (trustObj) {
         trustObj.currentValue = Math.max(0, trustObj.currentValue - effects.polarization_boost);
+      }
+    }
+
+    // Trust in media/government changes
+    if (effects.trust_media_change || effects.trust_government_change) {
+      const trustObj = this.objectives.find(o => o.category === 'trust_reduction');
+      if (trustObj) {
+        const change = (effects.trust_media_change || 0) + (effects.trust_government_change || 0);
+        trustObj.currentValue = Math.max(0, trustObj.currentValue + Math.abs(change));
+      }
+    }
+
+    // Westunion cohesion damage (major success for player)
+    if (effects.westunion_cohesion_damage || effects.westunion_division) {
+      const damage = (effects.westunion_cohesion_damage || 0) + (effects.westunion_division || 0);
+      // Boost primary objective progress
+      const primaryObj = this.objectives.find(o => o.id === 'destabilize_westunion');
+      if (primaryObj) {
+        primaryObj.currentValue = Math.min(primaryObj.targetValue, primaryObj.currentValue + damage * 0.5);
+      }
+    }
+
+    // Content effectiveness modifiers (stored for action calculations)
+    if (effects.content_effectiveness_boost) {
+      // This would be used by action system - for now just log
+      console.log(`[Effect] Content effectiveness boosted by ${effects.content_effectiveness_boost}`);
+    }
+
+    // Regional effects (affect specific member states)
+    const regionalEffects = [
+      'regional_anxiety', 'regional_discontent', 'regional_unrest', 'regional_nationalism',
+      'ethnic_tension', 'economic_discontent', 'separatism_boost', 'internal_division',
+      'political_instability', 'historical_division', 'populist_boost'
+    ];
+
+    for (const effectType of regionalEffects) {
+      if (effects[effectType] && typeof effects[effectType] === 'object') {
+        // Regional effect with member state target
+        for (const [region, value] of Object.entries(effects[effectType])) {
+          console.log(`[Regional Effect] ${region}: ${effectType} +${value}`);
+          // These regional tensions contribute to overall destabilization
+          const primaryObj = this.objectives.find(o => o.id === 'destabilize_westunion');
+          if (primaryObj) {
+            primaryObj.currentValue = Math.min(
+              primaryObj.targetValue,
+              primaryObj.currentValue + (value as number) * 0.2
+            );
+          }
+        }
+      }
+    }
+
+    // Narrative boost effects (improve effectiveness of related narratives)
+    const narrativeBoosts = Object.keys(effects).filter(k => k.endsWith('_narrative_boost') || k.endsWith('_boost'));
+    for (const boost of narrativeBoosts) {
+      if (typeof effects[boost] === 'number' && effects[boost] > 1) {
+        console.log(`[Narrative Boost] ${boost}: ${effects[boost]}x effectiveness`);
       }
     }
   }
