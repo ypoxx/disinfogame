@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { cn } from '@/utils/cn';
 import { formatPercent } from '@/utils';
@@ -21,7 +21,9 @@ import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrat
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
 import type { TutorialState } from '@/game-logic/types/tutorial';
-import { StoryModeTest } from '@/story-mode/StoryModeTest';
+// Lazy load Story Mode to reduce initial bundle size
+const StoryModeTest = lazy(() => import('@/story-mode/StoryModeTest').then(m => ({ default: m.StoryModeTest })));
+
 import type { Scenario } from '@/game-logic/types';
 import scenariosData from '@/data/game/scenarios.json';
 
@@ -243,7 +245,15 @@ function App() {
 
   // Story Mode Test (overrides everything)
   if (showStoryModeTest) {
-    return <StoryModeTest onExit={() => setShowStoryModeTest(false)} />;
+    return (
+      <Suspense fallback={
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900">
+          <div className="text-white text-xl">Loading Story Mode...</div>
+        </div>
+      }>
+        <StoryModeTest onExit={() => setShowStoryModeTest(false)} />
+      </Suspense>
+    );
   }
 
   // Start Screen
