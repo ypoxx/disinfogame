@@ -83,3 +83,15 @@ export type {
   WorldEndState,
   EndingGameState,
 } from './EndingSystem';
+
+export { ExtendedActorLoader, getExtendedActorLoader, resetExtendedActorLoader } from './ExtendedActorLoader';
+export type {
+  ExtendedActor,
+  ActorEffectivenessModifier,
+} from './ExtendedActorLoader';
+
+export { StoryNarrativeGenerator } from './StoryNarrativeGenerator';
+export type {
+  StoryNarrative,
+  ActionNarrativeContext,
+} from './StoryNarrativeGenerator';

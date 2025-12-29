@@ -591,6 +591,34 @@ export class CrisisMomentSystem {
     this.activeCrises.clear();
     this.resolvedCrises = [];
     this.chainQueue = [];
+    this.ignoredCrises = 0;
+  }
+
+  // ============================================
+  // ADDITIONAL METHODS FOR STORY ENGINE ADAPTER
+  // ============================================
+
+  private ignoredCrises: number = 0;
+
+  /**
+   * Get count of resolved crises
+   */
+  getResolvedCount(): number {
+    return this.resolvedCrises.length;
+  }
+
+  /**
+   * Get count of ignored/expired crises
+   */
+  getIgnoredCount(): number {
+    return this.ignoredCrises;
+  }
+
+  /**
+   * Mark a crisis as ignored (called when expired)
+   */
+  markAsIgnored(): void {
+    this.ignoredCrises++;
   }
 }
 

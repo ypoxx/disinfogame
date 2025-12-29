@@ -788,6 +788,127 @@ export class EndingSystem {
 
     return hints;
   }
+
+  // ============================================
+  // ADDITIONAL METHODS FOR STORY ENGINE ADAPTER
+  // ============================================
+
+  /**
+   * Evaluate if the game should end, and if so, assemble the ending
+   * Returns null if game should continue
+   */
+  evaluateEnding(state: EndingGameState): AssembledEnding | null {
+    // Check if game should end
+    const shouldEnd = this.shouldGameEnd(state);
+    if (!shouldEnd) return null;
+
+    // Build NPC names map (using IDs as fallback names)
+    const npcNames: Record<string, string> = {};
+    for (const npcId of Object.keys(state.npcRelationships)) {
+      npcNames[npcId] = npcId.charAt(0).toUpperCase() + npcId.slice(1);
+    }
+
+    return this.assembleEnding(state, npcNames);
+  }
+
+  /**
+   * Check if the game should end based on state
+   */
+  private shouldGameEnd(state: EndingGameState): boolean {
+    // Exposure - risk too high
+    if (state.risk >= 95) return true;
+
+    // Time limit reached
+    if (state.phasesElapsed >= 120) return true; // 10 years
+
+    // Total victory
+    if (state.objectivesCompleted >= state.objectivesTotal && state.objectivesTotal > 0) return true;
+
+    // Complete collapse
+    if (state.armsRaceLevel >= 5) return true;
+
+    // All NPCs betrayed
+    if (state.npcsBetray.length >= 3) return true;
+
+    // Out of budget with no way to continue
+    if (state.budget <= 0 && state.risk >= 70) return true;
+
+    return false;
+  }
+
+  /**
+   * Force a specific ending type (for testing or narrative triggers)
+   */
+  forceEnding(category: string, tone: string): AssembledEnding | null {
+    // Validate inputs
+    const validCategories: EndingCategory[] = [
+      'exposure', 'victory', 'pyrrhic', 'escape',
+      'collapse', 'redemption', 'stalemate', 'continuation'
+    ];
+    const validTones: EndingTone[] = [
+      'triumphant', 'bittersweet', 'tragic', 'haunting',
+      'hopeful', 'dark', 'ambiguous'
+    ];
+
+    if (!validCategories.includes(category as EndingCategory)) return null;
+    if (!validTones.includes(tone as EndingTone)) return null;
+
+    // Create a mock state that produces this ending
+    const mockState: EndingGameState = {
+      risk: category === 'exposure' ? 95 : 30,
+      attention: 50,
+      moralWeight: tone === 'dark' ? 80 : tone === 'hopeful' ? 20 : 50,
+      budget: category === 'escape' ? 100 : 50,
+      objectivesCompleted: category === 'victory' ? 5 : 2,
+      objectivesTotal: 5,
+      phasesElapsed: 60,
+      totalActionsUsed: 50,
+      illegalActionsUsed: category === 'redemption' ? 5 : 20,
+      violentActionsUsed: 3,
+      ethicalActionsUsed: category === 'redemption' ? 30 : 10,
+      npcRelationships: {},
+      npcsBetray: [],
+      npcsLost: [],
+      armsRaceLevel: category === 'collapse' ? 5 : 2,
+      defenderCount: 3,
+      flags: [],
+      crisesResolved: 3,
+      crisesIgnored: 1,
+      combosCompleted: 4,
+    };
+
+    const title = ENDING_TITLES[category as EndingCategory][tone as EndingTone];
+    const components = this.selectComponents(mockState);
+
+    return {
+      category: category as EndingCategory,
+      tone: tone as EndingTone,
+      title_de: title.de,
+      title_en: title.en,
+      components,
+      fullNarrative_de: components.map(c => c.text_de).join('\n\n'),
+      fullNarrative_en: components.map(c => c.text_en).join('\n\n'),
+      npcFates: [],
+      worldState: this.buildWorldState(mockState),
+      achievementIds: [],
+      replayHints: [],
+    };
+  }
+
+  /**
+   * Get all possible ending categories
+   */
+  getCategories(): string[] {
+    return ['exposure', 'victory', 'pyrrhic', 'escape', 'collapse', 'redemption', 'stalemate', 'continuation'];
+  }
+
+  /**
+   * Reset the system (for new game)
+   */
+  reset(): void {
+    // EndingSystem is stateless, nothing to reset
+    // Method exists for consistent API
+  }
 }
 
 // Singleton instance

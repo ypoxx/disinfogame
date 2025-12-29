@@ -69,6 +69,29 @@ import {
   type AIAction,
 } from '../story-mode/engine/StoryActorAI';
 
+import {
+  BetrayalSystem,
+  getBetrayalSystem,
+  type BetrayalWarning,
+  type BetrayalEvent,
+} from '../story-mode/engine/BetrayalSystem';
+
+import {
+  EndingSystem,
+  getEndingSystem,
+  type AssembledEnding,
+  type EndingGameState,
+} from '../story-mode/engine/EndingSystem';
+
+import {
+  ExtendedActorLoader,
+  getExtendedActorLoader,
+  type ExtendedActor,
+  type ActorEffectivenessModifier,
+} from '../story-mode/engine/ExtendedActorLoader';
+
+import { StoryNarrativeGenerator } from '../story-mode/engine/StoryNarrativeGenerator';
+
 import { playSound } from '../story-mode/utils/SoundSystem';
 
 // Import NPC and World Events data
@@ -197,6 +220,12 @@ export interface ActionResult {
   // Combo-Ergebnisse
   completedCombos?: StoryComboActivation[];
   comboHints?: ComboHint[];
+
+  // Extended Actor targeting results
+  actorModifiers?: ActorEffectivenessModifier[];
+
+  // Betrayal warnings triggered
+  betrayalWarnings?: BetrayalWarning[];
 }
 
 /**
@@ -419,6 +448,9 @@ export class StoryEngineAdapter {
   private comboSystem: StoryComboSystem;
   private crisisMomentSystem: CrisisMomentSystem;
   private actorAI: StoryActorAI;
+  private betrayalSystem: BetrayalSystem;
+  private endingSystem: EndingSystem;
+  private extendedActorLoader: ExtendedActorLoader;
   private rngSeed: string;
 
   // Konfiguration
@@ -438,6 +470,9 @@ export class StoryEngineAdapter {
     this.comboSystem = getStoryComboSystem();
     this.crisisMomentSystem = getCrisisMomentSystem();
     this.actorAI = getStoryActorAI();
+    this.betrayalSystem = getBetrayalSystem();
+    this.endingSystem = getEndingSystem();
+    this.extendedActorLoader = getExtendedActorLoader();
 
     // Initialer Zustand
     this.storyPhase = this.createPhase(1);
@@ -474,7 +509,7 @@ export class StoryEngineAdapter {
 
   private createInitialResources(): StoryResources {
     return {
-      budget: 100,            // Startbudget
+      budget: 150,            // P1-5 Fix: Increased from 100 to 150
       capacity: 5,            // Volle Kapazität
       risk: 0,
       attention: 0,
@@ -509,6 +544,20 @@ export class StoryEngineAdapter {
       if (npc.dialogues) {
         this.npcDialogues.set(npc.id, npc.dialogues);
       }
+
+      // Register NPC with betrayal system
+      // Map NPC role to archetype for red line configuration
+      const archetypeMap: Record<string, string> = {
+        tech_specialist: 'techie',
+        handler: 'veteran',
+        analyst: 'analyst',
+        operative: 'ideologue',
+        newbie: 'newbie',
+        opportunist: 'opportunist',
+      };
+      const archetype = archetypeMap[npc.archetype || npc.role || 'ideologue'] || 'ideologue';
+      const initialMorale = npc.initialState?.morale ?? 100;
+      this.betrayalSystem.initializeNPC(npc.id, archetype, initialMorale);
     }
 
     console.log(`Loaded ${this.npcStates.size} NPCs from data`);
@@ -1177,7 +1226,7 @@ export class StoryEngineAdapter {
     if (effects.westunion_cohesion_damage || effects.westunion_division) {
       const damage = (effects.westunion_cohesion_damage || 0) + (effects.westunion_division || 0);
       // Boost primary objective progress
-      const primaryObj = this.objectives.find(o => o.id === 'destabilize_westunion');
+      const primaryObj = this.objectives.find(o => o.id === 'obj_destabilize');
       if (primaryObj) {
         primaryObj.currentValue = Math.min(primaryObj.targetValue, primaryObj.currentValue + damage * 0.5);
       }
@@ -1196,7 +1245,7 @@ export class StoryEngineAdapter {
         for (const [region, value] of Object.entries(effects[effectType])) {
           console.log(`[Regional Effect] ${region}: ${effectType} +${value}`);
           // These regional tensions contribute to overall destabilization
-          const primaryObj = this.objectives.find(o => o.id === 'destabilize_westunion');
+          const primaryObj = this.objectives.find(o => o.id === 'obj_destabilize');
           if (primaryObj) {
             primaryObj.currentValue = Math.min(
               primaryObj.targetValue,
@@ -1570,11 +1619,49 @@ export class StoryEngineAdapter {
     // Konsequenzen registrieren
     const potentialConsequences = this.registerPotentialConsequences(action);
 
-    // NPC-Reaktionen
-    const npcReactions = this.processNPCReactions(action);
+    // NPC-Reaktionen (now includes betrayal warnings)
+    const { reactions: npcReactions, betrayalWarnings } = this.processNPCReactions(action);
 
     // P2-8: NPC Relationship Progress - improve relationship with NPCs matching action affinity
     this.updateNPCRelationships(action, options?.npcAssist);
+
+    // === EXTENDED ACTORS INTEGRATION ===
+    // Calculate effectiveness modifiers based on actor vulnerabilities
+    const actorModifiers = this.extendedActorLoader.calculateEffectivenessModifiers(
+      action.tags,
+      [action.phase]
+    );
+
+    // Apply trust damage to vulnerable actors
+    for (const mod of actorModifiers) {
+      if (mod.isVulnerable) {
+        this.extendedActorLoader.applyTrustDamage(
+          mod.actorId,
+          5 * (action.costs.moralWeight || 1), // Base damage scaled by moral weight
+          mod.modifier
+        );
+      }
+    }
+
+    // === NARRATIVE GENERATOR INTEGRATION ===
+    // Generate rich narrative for action result
+    const storyNarrative = StoryNarrativeGenerator.generateActionNarrative({
+      actionId: action.id,
+      actionLabel_de: action.label_de,
+      actionLabel_en: action.label_en,
+      phase: action.phase,
+      tags: action.tags,
+      legality: action.legality,
+      targetActors: actorModifiers
+        .filter(m => m.isVulnerable)
+        .slice(0, 3)
+        .map(m => this.extendedActorLoader.getActor(m.actorId)!)
+        .filter(Boolean),
+      npcAssist: options?.npcAssist,
+      effectiveness: Math.min(100, 50 + actorModifiers.reduce((sum, m) => sum + (m.modifier - 1) * 50, 0)),
+      risk: this.storyResources.risk,
+      moralWeight: this.storyResources.moralWeight,
+    });
 
     // Ergebnis
     const result: ActionResult = {
@@ -1583,13 +1670,15 @@ export class StoryEngineAdapter {
       effects,
       resourceChanges: action.costs,
       narrative: {
-        headline_de: action.label_de,
-        headline_en: action.label_en,
-        description_de: action.narrative_de,
-        description_en: action.narrative_en,
+        headline_de: storyNarrative.headline_de,
+        headline_en: storyNarrative.headline_en,
+        description_de: storyNarrative.description_de,
+        description_en: storyNarrative.description_en,
       },
       potentialConsequences,
       npcReactions,
+      actorModifiers: actorModifiers.length > 0 ? actorModifiers : undefined,
+      betrayalWarnings: betrayalWarnings.length > 0 ? betrayalWarnings : undefined,
     };
 
     // Play appropriate sound based on action type
@@ -1710,9 +1799,19 @@ export class StoryEngineAdapter {
     if (costs.risk) {
       this.storyResources.risk += costs.risk;
     }
-    if (costs.attention) {
-      this.storyResources.attention += costs.attention;
+
+    // P1-4 Fix: Implicit attention gain for all actions (more for illegal)
+    // This ensures attention builds up over time even without explicit costs
+    let attentionGain = costs.attention || 0;
+    if (action.legality === 'illegal') {
+      attentionGain += 3;  // Illegal actions always draw some attention
+    } else if (action.legality === 'grey') {
+      attentionGain += 1;  // Grey area actions draw minimal attention
     }
+    if (attentionGain > 0) {
+      this.storyResources.attention = Math.min(100, this.storyResources.attention + attentionGain);
+    }
+
     if (costs.moralWeight) {
       this.storyResources.moralWeight += costs.moralWeight;
     }
@@ -1917,13 +2016,59 @@ export class StoryEngineAdapter {
     return consequenceLabels;
   }
 
-  private processNPCReactions(action: StoryAction): ActionResult['npcReactions'] {
+  private processNPCReactions(action: StoryAction): {
+    reactions: ActionResult['npcReactions'];
+    betrayalWarnings: BetrayalWarning[];
+  } {
     const reactions: ActionResult['npcReactions'] = [];
+    const betrayalWarnings: BetrayalWarning[] = [];
 
-    // Prüfe moralische Last
+    // === BETRAYAL SYSTEM INTEGRATION ===
+    // Track the action for betrayal system (checks red lines)
+    const betrayalResult = this.betrayalSystem.processAction(
+      action.id,
+      action.tags,
+      action.costs.moralWeight || 0,
+      this.storyPhase.number
+    );
+
+    // Process each NPC for betrayal warnings
+    for (const [npcId, npcState] of this.npcStates) {
+      // Get any pending warnings for this NPC from the action
+      const npcWarnings = betrayalResult.warnings.filter(w => w.npcId === npcId);
+      betrayalWarnings.push(...npcWarnings);
+
+      // Convert betrayal warnings to NPC reactions
+      for (const warning of npcWarnings) {
+        const warnLevel = warning.warningLevel;
+        const reactionType = warnLevel >= 4 ? 'crisis' :
+                            warnLevel >= 3 ? 'negative' :
+                            warnLevel >= 2 ? 'concerned' : 'neutral';
+
+        if (warnLevel >= 2) {
+          reactions.push({
+            npcId,
+            reaction: reactionType === 'concerned' ? 'negative' : reactionType as 'positive' | 'neutral' | 'negative' | 'crisis',
+            dialogue_de: warning.warning_de,
+            dialogue_en: warning.warning_en,
+          });
+        }
+
+        // Update NPC morale based on warning level
+        npcState.morale = Math.max(0, npcState.morale - (warnLevel * 10));
+
+        // Set crisis state if level is high
+        if (warnLevel >= 4 && !npcState.inCrisis) {
+          npcState.inCrisis = true;
+        }
+      }
+    }
+
+    // === LEGACY MORAL WEIGHT PROCESSING (enhanced) ===
+    // Additional processing for high moral weight actions
     if (action.costs.moralWeight && action.costs.moralWeight >= 3) {
       const marina = this.npcStates.get('marina');
-      if (marina) {
+      if (marina && !betrayalWarnings.some(w => w.npcId === 'marina')) {
         marina.morale -= action.costs.moralWeight * 5;
         if (marina.morale < 30 && !marina.inCrisis) {
           marina.inCrisis = true;
@@ -1937,7 +2082,7 @@ export class StoryEngineAdapter {
       }
     }
 
-    return reactions;
+    return { reactions, betrayalWarnings };
   }
 
   /**
@@ -1997,7 +2142,7 @@ export class StoryEngineAdapter {
 
     // Polarization bonus -> affects destabilization
     if (bonus.polarizationBonus) {
-      const primaryObj = this.objectives.find(o => o.id === 'destabilize_westunion');
+      const primaryObj = this.objectives.find(o => o.id === 'obj_destabilize');
       if (primaryObj) {
         primaryObj.currentValue = Math.min(
           primaryObj.targetValue,
@@ -2127,7 +2272,7 @@ export class StoryEngineAdapter {
 
         case 'emotional_delta':
           // Affects polarization objective
-          const polarObj = this.objectives.find(o => o.id === 'destabilize_westunion');
+          const polarObj = this.objectives.find(o => o.id === 'obj_destabilize');
           if (polarObj && typeof effect.value === 'number') {
             polarObj.currentValue = Math.min(
               polarObj.targetValue,
@@ -2562,7 +2707,7 @@ export class StoryEngineAdapter {
     if (!npc || !npc.inCrisis) return null;
 
     // Calculate objective progress
-    const primaryObjective = this.objectives.find(o => o.id === 'destabilize_westunion');
+    const primaryObjective = this.objectives.find(o => o.id === 'obj_destabilize');
     const objectiveProgress = primaryObjective
       ? (primaryObjective.currentValue / primaryObjective.targetValue) * 100
       : 0;
@@ -2772,6 +2917,9 @@ export class StoryEngineAdapter {
     this.comboSystem.reset();
     this.crisisMomentSystem.reset();
     this.actorAI.reset();
+    this.betrayalSystem.reset();
+    this.endingSystem.reset();
+    this.extendedActorLoader.reset();
   }
 
   // ============================================
@@ -2808,6 +2956,259 @@ export class StoryEngineAdapter {
    */
   getDisabledActions(): Record<string, number> {
     return this.actorAI.getDisabledActions();
+  }
+
+  // ============================================
+  // BETRAYAL SYSTEM PUBLIC METHODS
+  // ============================================
+
+  /**
+   * Get current betrayal status for all NPCs
+   */
+  getBetrayalStatus(): {
+    npcStatuses: Map<string, {
+      warningLevel: number;
+      redLinesCrossed: string[];
+      isBetraying: boolean;
+    }>;
+    imminentBetrayals: string[];
+  } {
+    return this.betrayalSystem.getStatus();
+  }
+
+  /**
+   * Get betrayal history (all warnings issued)
+   */
+  getBetrayalHistory(): BetrayalWarning[] {
+    return this.betrayalSystem.getWarningHistory();
+  }
+
+  /**
+   * Check if a specific NPC is at betrayal risk
+   */
+  isNPCAtBetrayalRisk(npcId: string): boolean {
+    const status = this.betrayalSystem.getStatus();
+    const npcStatus = status.npcStatuses.get(npcId);
+    return npcStatus ? npcStatus.warningLevel >= 3 : false;
+  }
+
+  /**
+   * Get NPC-specific betrayal narrative
+   */
+  getNPCBetrayalNarrative(npcId: string): { de: string; en: string } | null {
+    const warning = this.betrayalSystem.getLatestWarning(npcId);
+    if (warning) {
+      return {
+        de: warning.warning_de,
+        en: warning.warning_en,
+      };
+    }
+    return null;
+  }
+
+  // ============================================
+  // ENDING SYSTEM PUBLIC METHODS
+  // ============================================
+
+  /**
+   * Check if the game has ended and get the ending
+   */
+  checkGameEnding(): AssembledEnding | null {
+    // Count objectives completed
+    const completedObjectives = this.objectives.filter(o => o.completed).length;
+
+    // Count action types from history
+    const illegalActions = this.actionHistory.filter(h => {
+      const action = this.getActionById(h.actionId);
+      return action?.legality === 'illegal';
+    }).length;
+
+    const violentActions = this.actionHistory.filter(h => {
+      const action = this.getActionById(h.actionId);
+      return action?.tags.includes('violence') || action?.tags.includes('harassment');
+    }).length;
+
+    const ethicalActions = this.actionHistory.filter(h => {
+      const action = this.getActionById(h.actionId);
+      return action?.legality === 'legal' && (action?.costs.moralWeight || 0) < 2;
+    }).length;
+
+    // Build NPC relationships map
+    const npcRelationships: Record<string, number> = {};
+    for (const [npcId, npc] of this.npcStates) {
+      // Convert relationship level (0-3) and morale (0-100) to relationship score (-100 to 100)
+      const relationshipScore = (npc.relationshipLevel * 30) + (npc.morale - 50);
+      npcRelationships[npcId] = Math.max(-100, Math.min(100, relationshipScore));
+    }
+
+    // Get NPCs lost (in crisis and not available)
+    const npcsLost = Array.from(this.npcStates.values())
+      .filter(n => n.inCrisis && !n.available)
+      .map(n => n.id);
+
+    // Get arms race status
+    const armsRaceStatus = this.actorAI.getStatus();
+
+    // Build the game state for ending evaluation
+    const gameState: EndingGameState = {
+      // Core metrics
+      risk: this.storyResources.risk,
+      attention: this.storyResources.attention,
+      moralWeight: this.storyResources.moralWeight,
+      budget: this.storyResources.budget,
+
+      // Progress
+      objectivesCompleted: completedObjectives,
+      objectivesTotal: this.objectives.length,
+      phasesElapsed: this.storyPhase.number,
+
+      // Player behavior
+      totalActionsUsed: this.actionHistory.length,
+      illegalActionsUsed: illegalActions,
+      violentActionsUsed: violentActions,
+      ethicalActionsUsed: ethicalActions,
+
+      // NPCs
+      npcRelationships,
+      npcsBetray: this.betrayalSystem.getBetrayingNPCs(),
+      npcsLost,
+
+      // Arms race
+      armsRaceLevel: armsRaceStatus.armsRaceLevel,
+      defenderCount: armsRaceStatus.activeDefenders,
+
+      // Flags
+      flags: [],
+
+      // Crises
+      crisesResolved: this.crisisMomentSystem.getResolvedCount(),
+      crisesIgnored: this.crisisMomentSystem.getIgnoredCount(),
+
+      // Combos
+      combosCompleted: this.comboSystem.getCompletedCount(),
+    };
+
+    return this.endingSystem.evaluateEnding(gameState);
+  }
+
+  /**
+   * Force a specific ending (for testing or narrative triggers)
+   */
+  forceEnding(category: string, tone: string): AssembledEnding | null {
+    return this.endingSystem.forceEnding(category, tone);
+  }
+
+  /**
+   * Get all possible ending categories for UI preview
+   */
+  getEndingCategories(): string[] {
+    return this.endingSystem.getCategories();
+  }
+
+  // ============================================
+  // EXTENDED ACTORS PUBLIC METHODS
+  // ============================================
+
+  /**
+   * Get all extended actors (German media, experts, lobby)
+   */
+  getExtendedActors(): ExtendedActor[] {
+    return this.extendedActorLoader.getAllActors();
+  }
+
+  /**
+   * Get extended actors by category
+   */
+  getExtendedActorsByCategory(category: 'media' | 'expert' | 'lobby'): ExtendedActor[] {
+    return this.extendedActorLoader.getActorsByCategory(category);
+  }
+
+  /**
+   * Get a specific extended actor
+   */
+  getExtendedActor(actorId: string): ExtendedActor | undefined {
+    return this.extendedActorLoader.getActor(actorId);
+  }
+
+  /**
+   * Get effectiveness modifiers for a hypothetical action (for UI preview)
+   */
+  previewActionEffectiveness(actionTags: string[]): ActorEffectivenessModifier[] {
+    return this.extendedActorLoader.calculateEffectivenessModifiers(actionTags, []);
+  }
+
+  /**
+   * Get suggested targets for an action
+   */
+  getSuggestedTargets(actionPhase: string, actionTags: string[]): ExtendedActor[] {
+    return this.extendedActorLoader.getSuggestedTargets(actionPhase, actionTags);
+  }
+
+  /**
+   * Get extended actor statistics
+   */
+  getExtendedActorStats(): {
+    totalActors: number;
+    byCategory: Record<string, number>;
+    averageTrust: number;
+    defensiveActors: number;
+  } {
+    return this.extendedActorLoader.getStats();
+  }
+
+  // ============================================
+  // NARRATIVE GENERATOR PUBLIC METHODS
+  // ============================================
+
+  /**
+   * Generate phase transition narrative
+   */
+  getPhaseNarrative(): { de: string; en: string } {
+    return StoryNarrativeGenerator.generatePhaseNarrative(
+      this.storyPhase.number,
+      {
+        risk: this.storyResources.risk,
+        attention: this.storyResources.attention,
+        moralWeight: this.storyResources.moralWeight,
+      },
+      this.newsEvents.slice(0, 3).map(e => e.headline_de)
+    );
+  }
+
+  /**
+   * Generate NPC reaction narrative
+   */
+  getNPCReactionNarrative(
+    npcId: string,
+    reactionType: 'positive' | 'negative' | 'neutral' | 'crisis'
+  ): { de: string; en: string } {
+    return StoryNarrativeGenerator.generateNPCReactionNarrative(npcId, reactionType, {
+      moralWeight: this.storyResources.moralWeight,
+      risk: this.storyResources.risk,
+    });
+  }
+
+  /**
+   * Generate round summary for news ticker
+   */
+  getRoundSummary(): { de: string; en: string } {
+    const actionsThisRound = this.actionHistory.filter(
+      h => h.phase === this.storyPhase.number
+    ).length;
+
+    const consequencesThisRound = this.newsEvents.filter(
+      e => e.phase === this.storyPhase.number && e.type === 'consequence'
+    ).length;
+
+    // Calculate trust change (simplified)
+    const trustObj = this.objectives.find(o => o.category === 'trust_reduction');
+    const trustChange = trustObj ? (trustObj.progress - 50) / 100 : 0;
+
+    return StoryNarrativeGenerator.generateRoundSummary(
+      actionsThisRound,
+      consequencesThisRound,
+      trustChange
+    );
   }
 }
 

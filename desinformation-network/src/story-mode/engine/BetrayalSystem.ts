@@ -78,6 +78,10 @@ export interface BetrayalWarning {
   suggestion_en?: string;
   urgency: 'low' | 'medium' | 'high' | 'critical';
   grievance?: BetrayalGrievance;
+  // Aliased fields for adapter integration
+  level?: BetrayalWarningLevel;
+  narrative_de?: string;
+  narrative_en?: string;
 }
 
 /**
@@ -805,6 +809,108 @@ export class BetrayalSystem {
   reset(): void {
     this.betrayalStates.clear();
     this.completedBetrayals = [];
+    this.warningHistory = [];
+  }
+
+  // ============================================
+  // ADDITIONAL METHODS FOR STORY ENGINE ADAPTER
+  // ============================================
+
+  private warningHistory: BetrayalWarning[] = [];
+
+  /**
+   * Process an action for ALL registered NPCs at once
+   * Returns all warnings generated
+   */
+  processAction(
+    actionId: string,
+    tags: string[],
+    moralWeight: number,
+    currentPhase: number
+  ): { warnings: BetrayalWarning[] } {
+    const warnings: BetrayalWarning[] = [];
+
+    for (const [npcId] of this.betrayalStates) {
+      const warning = this.processMoralAction(npcId, actionId, moralWeight, tags, currentPhase);
+      if (warning) {
+        // Add narrative fields for adapter integration
+        const enrichedWarning: BetrayalWarning = {
+          ...warning,
+          level: warning.warningLevel,
+          narrative_de: warning.warning_de,
+          narrative_en: warning.warning_en,
+        };
+        warnings.push(enrichedWarning);
+        this.warningHistory.push(enrichedWarning);
+      }
+    }
+
+    return { warnings };
+  }
+
+  /**
+   * Get overall betrayal status for all NPCs
+   */
+  getStatus(): {
+    npcStatuses: Map<string, {
+      warningLevel: number;
+      redLinesCrossed: string[];
+      isBetraying: boolean;
+    }>;
+    imminentBetrayals: string[];
+  } {
+    const npcStatuses = new Map<string, {
+      warningLevel: number;
+      redLinesCrossed: string[];
+      isBetraying: boolean;
+    }>();
+
+    for (const [npcId, state] of this.betrayalStates) {
+      const redLinesCrossed = state.grievances
+        .filter(g => g.type === 'red_line_crossed' && !g.addressed)
+        .map(g => g.description_en);
+
+      npcStatuses.set(npcId, {
+        warningLevel: state.warningLevel,
+        redLinesCrossed,
+        isBetraying: this.completedBetrayals.includes(npcId),
+      });
+    }
+
+    const imminentBetrayals = Array.from(this.betrayalStates.entries())
+      .filter(([_, state]) => state.warningLevel >= 4)
+      .map(([npcId]) => npcId);
+
+    return { npcStatuses, imminentBetrayals };
+  }
+
+  /**
+   * Get full warning history
+   */
+  getWarningHistory(): BetrayalWarning[] {
+    return [...this.warningHistory];
+  }
+
+  /**
+   * Get the most recent warning for a specific NPC
+   */
+  getLatestWarning(npcId: string): BetrayalWarning | null {
+    const npcWarnings = this.warningHistory.filter(w => w.npcId === npcId);
+    return npcWarnings.length > 0 ? npcWarnings[npcWarnings.length - 1] : null;
+  }
+
+  /**
+   * Check if any betrayal has occurred
+   */
+  hasBetrayalOccurred(): boolean {
+    return this.completedBetrayals.length > 0;
+  }
+
+  /**
+   * Get list of NPCs who have betrayed
+   */
+  getBetrayingNPCs(): string[] {
+    return [...this.completedBetrayals];
   }
 }
 

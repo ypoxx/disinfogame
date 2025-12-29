@@ -461,6 +461,13 @@ export class StoryComboSystem {
     this.completedCombos = [];
     this.discoveredCombos.clear();
   }
+
+  /**
+   * Get count of completed combos
+   */
+  getCompletedCount(): number {
+    return this.completedCombos.length;
+  }
 }
 
 // Singleton instance
