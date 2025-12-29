@@ -1,368 +1,352 @@
 # DISINFOGAME - Umfassender Projekt-Audit Report
 
-**Datum:** 29. Dezember 2025
+**Datum:** 29. Dezember 2025 (aktualisiert nach main-Branch Rebase)
 **Ziel:** Platin-Niveau erreichen
 **Analysiert von:** Claude Code (Opus 4.5)
+**Basierend auf:** Commit 617ae5f (main nach PR #24 Merge)
 
 ---
 
 ## EXECUTIVE SUMMARY
 
-Das **Disinfogame** (Desinformation Network) ist ein gut strukturiertes Educational Strategy Game mit solider technischer Basis. Die Analyse zeigt jedoch **signifikante Lücken** zwischen dokumentierten Features und tatsächlicher Implementierung, kritische Bugs im Spielalgorithmus, und erheblichen Verbesserungsbedarf bei Accessibility und UX.
+Das **Disinfogame** (Desinformation Network) ist ein gut strukturiertes Educational Strategy Game mit einer **deutlich fortgeschritteneren Codebasis als ursprünglich angenommen**. Nach dem Merge von PR #24 (Story Mode) wurden **viele kritische Bugs bereits behoben** und **mehrere komplexe Systeme vollständig implementiert**.
 
-### Gesamtbewertung
+### Gesamtbewertung (aktualisiert)
 
 | Bereich | Status | Note |
 |---------|--------|------|
-| Architektur | ✅ Solide | B+ |
-| Game Logic | ⚠️ Bugs vorhanden | C+ |
-| Feature-Vollständigkeit | ⚠️ ~40-50% | C |
-| Technische Schulden | 🔴 Signifikant | D+ |
+| Architektur | ✅ Solide | A- |
+| Game Logic (Pro Mode) | ⚠️ Einige Bugs | B |
+| Story Mode | ✅ ~75% fertig | B+ |
+| Feature-Vollständigkeit | ✅ ~60-70% | B |
+| Technische Schulden | ⚠️ Moderat | C+ |
 | UX/Accessibility | 🔴 Kritisch | D |
-| Dokumentation | ✅ Gut (High-Level) | B |
+| Dokumentation | ✅ Sehr gut | A |
 | Code-Qualität | ⚠️ Inkonsistent | C+ |
-| Test-Abdeckung | 🔴 Minimal (~3%) | F |
+| Test-Abdeckung | 🔴 Minimal (~5%) | D |
 
-**Geschätzter Aufwand für Platin-Niveau:** 200-300 Stunden
-
----
-
-## 1. KRITISCHE BUGS IM SPIELALGORITHMUS
-
-### 🔴 BUG #1: Code-Injection via Event-Bedingungen (SICHERHEITSKRITISCH)
-- **Datei:** `src/game-logic/GameState.ts:1113`
-- **Problem:** `new Function()` wird zur dynamischen Code-Evaluierung verwendet
-- **Risiko:** Potenzielle Code-Injection, XSS
-- **Fix:** Expression-Parser statt eval verwenden
-
-### 🔴 BUG #2: Math.random() statt SeededRandom (GAMEPLAY-KRITISCH)
-- **Dateien:** 9 Dateien verwenden `Math.random()` statt `SeededRandom`
-- **Problem:** Replay-System funktioniert nicht, Spiel nicht reproduzierbar
-- **Betroffene:** `actor-ai.ts`, `utils/index.ts`, `force-layout.ts`, `cluster-detection.ts`
-- **Fix:** Globale SeededRandom-Instanz einführen
-
-### 🟠 BUG #3: Ressourcen-Validierung fehlerhaft
-- **Datei:** `src/game-logic/GameState.ts:316-323`
-- **Problem:** `attention <= 100` ist falsche Logik
-- **Auswirkung:** Spieler können unendlich Fähigkeiten nutzen
-
-### 🟠 BUG #4: Nur ein Event pro Runde triggert
-- **Datei:** `src/game-logic/event-chain-system.ts:90`
-- **Problem:** `break` Statement limitiert auf ein Event
-- **Auswirkung:** Event-Chains funktionieren nicht korrekt
-
-### 🟡 BUG #5: Fehlende Input-Validierung bei Event-Choices
-- **Datei:** `src/game-logic/GameState.ts:1171`
-- **Problem:** `choiceIndex` wird nicht auf >= 0 geprüft
+**Geschätzter Aufwand für Platin-Niveau:** 150-200 Stunden (reduziert von 290-400h)
 
 ---
 
-## 2. NICHT INTEGRIERTE FEATURES
+## 1. BEREITS BEHOBENE BUGS (durch PR #24)
 
-### Story Mode (~30% implementiert)
-| Feature | Status | Datei |
-|---------|--------|-------|
-| Office UI | ✅ Vorhanden | `story-mode/OfficeScreen.tsx` |
-| Game Engine Integration | ❌ Fehlt | - |
-| NPC Dialogue Trees | ❌ Fehlt | - |
-| Action Points System | ❌ Fehlt | - |
-| Day Transition | ❌ Fehlt | - |
-| Audio/Sound | ❌ Nur console.log | - |
+### ✅ P0 Kritische Bugs - ALLE BEHOBEN
 
-### Roadmap Features (~40% implementiert)
-| Phase | Feature | Status |
+| Bug-ID | Problem | Status | Commit |
+|--------|---------|--------|--------|
+| BUG-001 | Konsequenzen triggern nie (NaN probability) | ✅ BEHOBEN | 5e79cb7 |
+| BUG-002 | seededRandom nicht eindeutig pro Aufruf | ✅ BEHOBEN | 5e79cb7 |
+| BUG-003 | Destabilisierung ohne Fortschritt (0%) | ✅ BEHOBEN | 5e79cb7 |
+| BUG-004 | Attention bleibt immer 0% | ✅ BEHOBEN | 5e79cb7 |
+| BUG-005 | Budget erschöpft zu schnell | ✅ BEHOBEN | 5e79cb7 |
+| BUG-006 | Risk-Eskalation zu schnell | ✅ BEHOBEN | 5e79cb7 |
+| BUG-007 | Welt-Events triggern zu häufig | ✅ BEHOBEN | 5e79cb7 |
+| BUG-008 | NPC Relationship-Progress fehlt | ✅ BEHOBEN | 5e79cb7 |
+
+### ✅ Technical Debt - 8 von 18 ERLEDIGT
+
+| TD-ID | Problem | Status |
 |-------|---------|--------|
-| 1 | Smart Connection Algorithm | ❌ TODO im Code |
-| 1 | Spatial Indexing | ❌ Nicht implementiert |
-| 2 | Search Component | ❌ Nicht vorhanden |
-| 2 | Cluster Visualization | ❌ Nicht vorhanden |
-| 3 | Force-Directed Layout (optimiert) | ⚠️ Nur Basic |
-| 4 | Network Topology Analysis | ⚠️ Teilweise |
-| 5 | Performance Optimizations | ❌ Nicht vorhanden |
+| TD-001 | Consequence Effects werden nicht angewandt | ✅ ERLEDIGT |
+| TD-002 | Private Member Access Violation | ✅ ERLEDIGT |
+| TD-003 | Consequence Chain Trigger | ✅ ERLEDIGT |
+| TD-004 | Effects bei Ignorieren nicht angewandt | ✅ ERLEDIGT |
+| TD-005 | Nur 2 von 4 Endings implementiert | ✅ ERLEDIGT |
+| TD-006 | NPC-Dialoge hardcoded | ✅ ERLEDIGT |
+| TD-008 | NPC-Portraits sind Emojis | ✅ ERLEDIGT |
+| TD-017 | Kein Sound-System | ✅ ERLEDIGT |
 
-### Deaktivierte Feature-Flags
+---
+
+## 2. NEUE VOLLSTÄNDIG IMPLEMENTIERTE SYSTEME (Story Mode)
+
+### BetrayalSystem.ts (915 Zeilen) ✅
+- Warning Levels (0-4): Loyal → Imminent Betrayal
+- Personal Red Lines: violence, children, whistleblowers
+- Grievance Tracking & Recovery Actions
+- 6 Betrayal Types: whistleblower, defection, sabotage, etc.
+
+### EndingSystem.ts (923 Zeilen) ✅
+- 8 Ending Categories × 7 Tones = viele Kombinationen
+- 49 modulare Ending-Komponenten
+- Achievement System integriert
+
+### CrisisMomentSystem.ts (641 Zeilen) ✅
+- Crisis Definitions aus event-chains.json
+- Spawn Conditions, Resolution, Auto-Resolution
+- Deutsch + Englisch Übersetzungen
+
+### StoryActorAI.ts (637 Zeilen) ✅ - Arms Race System
+- 7 Defensive Actor Types (Fact Checker, NGO Watchdog, etc.)
+- Awareness Tracking, Arms Race Level (0-5)
+- AI Actions: counter_narrative, investigation, exposure
+
+### Sound System ✅
+- Web Audio API mit synthetisierten Tönen
+- 7 Sound Types: click, success, warning, error, notification, phaseEnd, consequence
+
+---
+
+## 3. VERBLEIBENDE BUGS IM PRO MODE
+
+### 🔴 Noch zu beheben (Pro Mode Algorithmus)
+
+| # | Problem | Datei | Schwere |
+|---|---------|-------|---------|
+| 1 | `new Function()` Code-Injection Risiko | GameState.ts:1113 | KRITISCH |
+| 2 | Math.random() statt SeededRandom | 9 Dateien | HOCH |
+| 3 | Dead Code (v1 Definitions) | ability/actor-definitions.json | MITTEL |
+
+### Details zu verbleibenden Pro Mode Bugs:
+
+**Bug 1: Code-Injection via Event-Bedingungen**
 ```typescript
-// balance-config.ts
-tutorial: { enableTier2Actors: false, enableTier3Actors: false }
-easy: { enableTier3Actors: false }
+// GameState.ts:1113 - UNSICHER
+const result = new Function(`return ${evalString}`)();
 ```
+**Fix benötigt:** Expression-Parser statt eval
 
-### Dead Code (zu entfernen)
-- `ability-definitions.json` (v1, 245 Zeilen) - NICHT verwendet
-- `actor-definitions.json` (v1, 122 Zeilen) - NICHT verwendet
-
----
-
-## 3. TECHNISCHE SCHULDEN
-
-### Nach Schweregrad sortiert
-
-| # | Problem | Schwere | LOC betroffen | Aufwand |
-|---|---------|---------|---------------|---------|
-| 1 | `new Function()` Sicherheit | KRITISCH | 1 Datei | 4h |
-| 2 | Math.random() überall | KRITISCH | 9 Dateien | 8h |
-| 3 | Dead Code (v1 Defs) | KRITISCH | 367 Zeilen | 1h |
-| 4 | Test-Coverage (~3%) | HOCH | 16k+ LOC | 40h |
-| 5 | God Components (>400 LOC) | HOCH | 7 Komponenten | 20h |
-| 6 | 54x `any` Types | HOCH | 26 Dateien | 16h |
-| 7 | Fehlerbehandlung minimal | HOCH | 18k LOC | 16h |
-| 8 | 37x console.log in Prod | MITTEL | 10+ Dateien | 4h |
-| 9 | Memoization fehlt | MITTEL | 210+ Operationen | 12h |
-| 10 | Duplicate Data Structures | MITTEL | 5+ Dateien | 8h |
-
-### God Components (zu refactoren)
-- `NetworkVisualization.tsx`: **804 Zeilen**
-- `App.tsx`: **624 Zeilen**
-- `GameCanvas.tsx`: **496 Zeilen**
-- `UnifiedRoundModal.tsx`: **455 Zeilen**
-- `FilterControls.tsx`: **425 Zeilen**
-- `CompactSidePanel.tsx`: **414 Zeilen**
+**Bug 2: Math.random() in 9 Dateien**
+Betroffen: `actor-ai.ts`, `utils/index.ts`, `force-layout.ts`, `cluster-detection.ts`, etc.
+**Fix benötigt:** Globale SeededRandom-Instanz für Replay-Fähigkeit
 
 ---
 
-## 4. UX & ACCESSIBILITY DEFIZITE
+## 4. OFFENE TECHNICAL DEBT (10 Items)
 
-### 🔴 WCAG 2.1 Verstöße (Kritisch)
-
-| Kriterium | Problem | Komponenten |
-|-----------|---------|-------------|
-| 1.1.1 Non-text Content | Canvas ohne Alternative | GameCanvas |
-| 1.4.3 Kontrast | < 4.5:1 für Text | Tooltips, Labels |
-| 2.1.1 Keyboard | Nicht bedienbar | Canvas, Modals |
-| 2.4.3 Focus Order | Unlogisch | App-weit |
-| 4.1.2 Name/Role/Value | Fehlt für Canvas-Nodes | GameCanvas |
-
-### Fehlende Features
-- ❌ Keine Error Boundaries
-- ❌ Keine Loading Skeletons
-- ❌ Keine Offline-Indikatoren
-- ❌ Keine Keyboard Shortcuts
-- ❌ Nur 6 ARIA Labels im gesamten Projekt
-- ❌ Keine prefers-reduced-motion Unterstützung
-- ❌ Keine Mobile-First Breakpoints (< 768px)
-
-### Responsive Design Lücken
-- Sidebar (300px) blockiert Content auf < 1024px
-- Keine Tablet-Optimierung
-- Canvas zu groß auf kleinen Screens
-- Keine Fluid Typography
+| TD-ID | Problem | Priorität | Aufwand |
+|-------|---------|-----------|---------|
+| TD-007 | Objectives hardcoded statt Szenario-basiert | HOCH | 2h |
+| TD-009 | Office-Hintergrund ist CSS-Fallback | MITTEL | 4h |
+| TD-010 | Große Komponenten (400+ LOC) | MITTEL | 8h |
+| TD-011 | Magic Numbers statt Konstanten | MITTEL | 2h |
+| TD-012 | Ungenutzte Imports | NIEDRIG | 1h |
+| TD-013 | Fehlende Unit-Tests | HOCH | 20h |
+| TD-014 | Type-Safety Lücken (as any) | MITTEL | 4h |
+| TD-015 | Fehlende JSDoc Dokumentation | NIEDRIG | 4h |
+| TD-016 | Keine ARIA-Labels | HOCH | 8h |
+| TD-018 | Kein Auto-Save | MITTEL | 2h |
 
 ---
 
-## 5. DOKUMENTATIONSLÜCKEN
+## 5. UX & ACCESSIBILITY (Weiterhin kritisch)
 
-### 🔴 Kritisch
-| Datei | Problem |
-|-------|---------|
-| `/README.md` (Root) | Praktisch leer, nur "# disinfogame" |
-| `CompactSidePanel.tsx` (17KB) | Keine JSDoc |
-| `NarrativeGenerator.ts` (12KB) | Keine JSDoc |
-| `useGameState.ts` (12KB) | Keine JSDoc |
-| `balance-config.ts` (8.5KB) | Keine JSDoc |
+### 🔴 WCAG 2.1 Verstöße
 
-### 🟡 Wichtig
-- Alle 6 Netlify Functions ohne JSDoc
-- 10 von 17 React Components ohne JSDoc
-- Network/Rendering Utilities undokumentiert
-- Keine `CONTRIBUTING.md`
-- Keine OpenAPI/Swagger Spec
+| Kriterium | Problem | Betrifft |
+|-----------|---------|----------|
+| 1.1.1 | Canvas ohne Alternative | GameCanvas, NetworkVisualization |
+| 1.4.3 | Kontrast < 4.5:1 | Tooltips, Labels |
+| 2.1.1 | Nicht per Tastatur bedienbar | Canvas, Story Mode Modals |
+| 2.4.3 | Focus Order unlogisch | App-weit |
 
-### ✅ Gut dokumentiert
-- `.claude/ARCHITECTURE.md` - Ausgezeichnet
-- `.claude/GAME_DESIGN.md` - Ausgezeichnet
-- `desinformation-network/README.md` - Vollständig
-- `story-mode/README.md` - Ausgezeichnet
+### Fehlende UX Features
+- ❌ Error Boundaries
+- ❌ Loading Skeletons
+- ❌ Keyboard Shortcuts
+- ❌ Mobile-First Breakpoints (< 768px)
+- ❌ prefers-reduced-motion Support
 
 ---
 
-## 6. OFFENE TODOs IM CODE
+## 6. DOKUMENTATION (Sehr gut!)
 
-```typescript
-// src/utils/index.ts:50
-// TODO: Replace with smart connection algorithm from roadmap
-```
+### ✅ Ausgezeichnet dokumentiert
 
-Das ist der einzige explizite TODO im Code - aber viele implizite TODOs existieren in der Roadmap-Dokumentation.
+| Datei | Inhalt | Qualität |
+|-------|--------|----------|
+| `.claude/ARCHITECTURE.md` | Technische Architektur | ⭐⭐⭐⭐⭐ |
+| `.claude/GAME_DESIGN.md` | Spielmechaniken | ⭐⭐⭐⭐⭐ |
+| `docs/story-mode/README.md` | Story Mode Übersicht | ⭐⭐⭐⭐⭐ |
+| `docs/story-mode/PLAYTEST_2025-12-28.md` | Playtest Ergebnisse | ⭐⭐⭐⭐⭐ |
+| `docs/story-mode/TECHNICAL_DEBT.md` | TD Tracking | ⭐⭐⭐⭐⭐ |
+| `docs/story-mode/MVP_SCOPE.md` | MVP Definition | ⭐⭐⭐⭐ |
+
+### ⚠️ Lücken
+- Root README.md (praktisch leer)
+- JSDoc für große Komponenten
+- CONTRIBUTING.md fehlt
 
 ---
 
-## 7. PRIORISIERTE PLANUNG FÜR PLATIN-NIVEAU
+## 7. FEATURE-VOLLSTÄNDIGKEIT
 
-### PHASE 1: Kritische Bugs (Woche 1-2)
-**Aufwand: 30-40 Stunden**
+### Story Mode: ~75% ✅
+
+| Feature | Status |
+|---------|--------|
+| BetrayalSystem | ✅ Vollständig |
+| EndingSystem | ✅ Vollständig |
+| CrisisMomentSystem | ✅ Vollständig |
+| StoryActorAI (Arms Race) | ✅ Vollständig |
+| ActionLoader (108 Aktionen) | ✅ Vollständig |
+| ConsequenceSystem | ✅ Funktional |
+| NPC Dialoge | ✅ Dynamisch |
+| Sound System | ✅ Web Audio API |
+| Save/Load | ✅ Vollständig |
+| Szenario-basierte Objectives | ⚠️ Offen (TD-007) |
+
+### Pro Mode: ~80% ✅
+
+| Feature | Status |
+|---------|--------|
+| Kern-Gameplay | ✅ Funktional |
+| 58 Actors | ✅ Vollständig |
+| Combo System | ✅ Implementiert |
+| Event System | ✅ Implementiert |
+| Actor AI | ✅ Implementiert |
+| Replay (Seeded Random) | ⚠️ Teilweise defekt |
+| Performance Optimization | ⚠️ Offen |
+
+### Roadmap Features: ~50%
+
+| Phase | Status |
+|-------|--------|
+| Phase 1-3 (Foundation) | ✅ ~70% |
+| Phase 4 (Mechanics) | ✅ ~80% |
+| Phase 5 (Performance) | ❌ ~10% |
+
+---
+
+## 8. PRIORISIERTE PLANUNG (aktualisiert)
+
+### PHASE 1: Kritische Fixes (1 Woche)
+**Aufwand: 15-20 Stunden**
 
 | # | Task | Priorität | Aufwand |
 |---|------|-----------|---------|
-| 1.1 | `new Function()` durch Expression Parser ersetzen | KRITISCH | 4h |
-| 1.2 | SeededRandom global implementieren | KRITISCH | 8h |
-| 1.3 | Ressourcen-Validierung korrigieren | HOCH | 2h |
-| 1.4 | Event-Chain Multi-Trigger ermöglichen | HOCH | 4h |
-| 1.5 | Input-Validierung hinzufügen | HOCH | 4h |
-| 1.6 | Dead Code entfernen (v1 Defs) | MITTEL | 1h |
-| 1.7 | Console.log Statements entfernen | MITTEL | 4h |
+| 1.1 | `new Function()` durch Parser ersetzen | KRITISCH | 4h |
+| 1.2 | SeededRandom global implementieren | HOCH | 6h |
+| 1.3 | Dead Code entfernen (v1 Defs) | MITTEL | 1h |
+| 1.4 | TD-007: Objectives aus JSON | HOCH | 2h |
 
-### PHASE 2: Test-Coverage (Woche 2-4)
-**Aufwand: 40-60 Stunden**
+### PHASE 2: Accessibility (1-2 Wochen)
+**Aufwand: 25-35 Stunden**
 
-| # | Task | Ziel-Coverage |
-|---|------|---------------|
-| 2.1 | GameState Unit Tests erweitern | 80% |
-| 2.2 | Ability System Tests | 70% |
-| 2.3 | Event System Tests | 70% |
-| 2.4 | Actor AI Tests | 60% |
-| 2.5 | Network Utilities Tests | 50% |
-| 2.6 | React Component Tests (kritische) | 40% |
-| 2.7 | E2E Gameplay Flow Test | 1 Happy Path |
+| # | Task | Aufwand |
+|---|------|---------|
+| 2.1 | Canvas ARIA Labels | 4h |
+| 2.2 | Keyboard Navigation | 8h |
+| 2.3 | Kontrast-Fixes | 4h |
+| 2.4 | Focus Management | 4h |
+| 2.5 | Error Boundaries | 4h |
+| 2.6 | Loading States | 4h |
 
-### PHASE 3: Accessibility (Woche 4-6)
-**Aufwand: 40-50 Stunden**
-
-| # | Task | WCAG Level |
-|---|------|------------|
-| 3.1 | Canvas ARIA Labels | AA |
-| 3.2 | Keyboard Navigation (Canvas) | AA |
-| 3.3 | Kontrast-Fixes | AA |
-| 3.4 | Focus Management (Modals) | AA |
-| 3.5 | Error Boundaries | - |
-| 3.6 | Loading Skeletons | - |
-| 3.7 | prefers-reduced-motion | AA |
-
-### PHASE 4: UX & Responsive (Woche 6-8)
+### PHASE 3: Test-Coverage (2 Wochen)
 **Aufwand: 30-40 Stunden**
 
-| # | Task |
-|---|------|
-| 4.1 | Mobile-First Breakpoints |
-| 4.2 | Bottom Sheet für Mobile Sidebar |
-| 4.3 | Fluid Typography |
-| 4.4 | Keyboard Shortcuts System |
-| 4.5 | Offline/Network Error UI |
-| 4.6 | Toast-System verbessern |
+| # | Task | Ziel |
+|---|------|------|
+| 3.1 | Story Mode Engine Tests | 60% |
+| 3.2 | Pro Mode GameState Tests | 70% |
+| 3.3 | Component Tests (kritische) | 40% |
+| 3.4 | E2E Test (1 Happy Path) | ✓ |
 
-### PHASE 5: Code-Qualität (Woche 8-10)
-**Aufwand: 30-40 Stunden**
+### PHASE 4: Code-Qualität (1 Woche)
+**Aufwand: 20-25 Stunden**
 
-| # | Task |
-|---|------|
-| 5.1 | God Components refactoren |
-| 5.2 | Alle `any` Types ersetzen |
-| 5.3 | Error Handling systematisch |
-| 5.4 | Memoization (useMemo/useCallback) |
-| 5.5 | Performance Profiling |
+| # | Task | Aufwand |
+|---|------|---------|
+| 4.1 | Große Komponenten refactoren | 8h |
+| 4.2 | `any` Types ersetzen | 4h |
+| 4.3 | Magic Numbers → Konstanten | 2h |
+| 4.4 | Ungenutzte Imports cleanup | 1h |
+| 4.5 | JSDoc für public APIs | 4h |
 
-### PHASE 6: Story Mode Integration (Woche 10-14)
-**Aufwand: 60-80 Stunden**
+### PHASE 5: UX Polish (1 Woche)
+**Aufwand: 15-20 Stunden**
 
-| # | Task |
-|---|------|
-| 6.1 | Game Engine Integration |
-| 6.2 | Action Points System |
-| 6.3 | NPC Dialogue Trees |
-| 6.4 | Day Transition System |
-| 6.5 | Event/Email System Backend |
-| 6.6 | Sound System (Web Audio API) |
+| # | Task | Aufwand |
+|---|------|---------|
+| 5.1 | Mobile Responsive | 8h |
+| 5.2 | Keyboard Shortcuts | 4h |
+| 5.3 | Auto-Save (TD-018) | 2h |
+| 5.4 | Office-Hintergrund (TD-009) | 4h |
 
-### PHASE 7: Feature-Completion (Woche 14-18)
-**Aufwand: 40-60 Stunden**
+### PHASE 6: Performance & Polish (1 Woche)
+**Aufwand: 15-20 Stunden**
 
-| # | Task |
-|---|------|
-| 7.1 | Smart Connection Algorithm |
-| 7.2 | Force-Directed Layout Optimierung |
-| 7.3 | Search Component |
-| 7.4 | Cluster Visualization |
-| 7.5 | Heat Maps |
-| 7.6 | Achievement System |
-
-### PHASE 8: Dokumentation & Polish (Woche 18-20)
-**Aufwand: 20-30 Stunden**
-
-| # | Task |
-|---|------|
-| 8.1 | Root README erweitern |
-| 8.2 | JSDoc für alle großen Dateien |
-| 8.3 | CONTRIBUTING.md erstellen |
-| 8.4 | API Dokumentation (OpenAPI) |
-| 8.5 | Final Testing & QA |
+| # | Task | Aufwand |
+|---|------|---------|
+| 6.1 | Memoization | 6h |
+| 6.2 | Force-Layout Optimization | 4h |
+| 6.3 | Code Splitting | 4h |
+| 6.4 | Final Testing | 4h |
 
 ---
 
-## 8. RESSOURCEN-SCHÄTZUNG
+## 9. RESSOURCEN-SCHÄTZUNG (aktualisiert)
 
-### Gesamtaufwand
-| Phase | Stunden | Wochen (40h) |
-|-------|---------|--------------|
-| Phase 1: Bugs | 30-40h | 1 |
-| Phase 2: Tests | 40-60h | 1.5 |
-| Phase 3: A11y | 40-50h | 1.25 |
-| Phase 4: UX | 30-40h | 1 |
-| Phase 5: Code | 30-40h | 1 |
-| Phase 6: Story | 60-80h | 2 |
-| Phase 7: Features | 40-60h | 1.5 |
-| Phase 8: Docs | 20-30h | 0.75 |
-| **TOTAL** | **290-400h** | **10-12 Wochen** |
-
-### Empfohlene Reihenfolge
-1. **Woche 1-2:** Kritische Bugs (Game unplayable ohne)
-2. **Woche 2-4:** Test-Coverage (Sicherheit für weitere Änderungen)
-3. **Woche 4-8:** A11y + UX (parallel möglich)
-4. **Woche 8-10:** Code-Qualität
-5. **Woche 10-18:** Feature-Completion (Story Mode + Roadmap)
-6. **Woche 18-20:** Polish & Dokumentation
+| Phase | Stunden | Wochen |
+|-------|---------|--------|
+| Phase 1: Kritische Fixes | 15-20h | 0.5 |
+| Phase 2: Accessibility | 25-35h | 1 |
+| Phase 3: Tests | 30-40h | 1.5 |
+| Phase 4: Code-Qualität | 20-25h | 0.5 |
+| Phase 5: UX Polish | 15-20h | 0.5 |
+| Phase 6: Performance | 15-20h | 0.5 |
+| **TOTAL** | **120-160h** | **4-5 Wochen** |
 
 ---
 
-## 9. QUICK WINS (Sofort umsetzbar)
+## 10. QUICK WINS (Sofort umsetzbar)
 
 | # | Task | Aufwand | Impact |
 |---|------|---------|--------|
 | 1 | Dead Code löschen (v1 Defs) | 5 min | Cleanup |
-| 2 | Canvas ARIA Label hinzufügen | 10 min | A11y |
-| 3 | ESC für Modal-Close | 15 min | UX |
-| 4 | Root README erweitern | 30 min | Docs |
-| 5 | Console.log → Logger | 2h | Prod-Ready |
+| 2 | Canvas ARIA Label | 10 min | A11y |
+| 3 | Root README erweitern | 30 min | Docs |
+| 4 | Ungenutzte Imports entfernen | 30 min | Code Quality |
 
 ---
 
-## 10. RISIKEN & EMPFEHLUNGEN
+## 11. NEUE DATEIEN SEIT LETZTEM AUDIT
 
-### Risiken
-1. **SeededRandom Migration:** Könnte bestehende Saves invalidieren
-2. **Component Refactoring:** Hohes Regressions-Risiko ohne Tests
-3. **Story Mode:** Umfangreichste Arbeit, könnte Scope sprengen
-
-### Empfehlungen
-1. **Tests ZUERST** bevor große Refactorings
-2. **Feature-Freeze** für Pro Mode während Story Mode Entwicklung
-3. **Inkrementelle Releases** nach jeder Phase
-4. **Accessibility Audit** durch echte Screen-Reader-Nutzer
-
----
-
-## ANHANG: Dateistatistiken
-
+### Dokumentation (docs/story-mode/)
 ```
-TypeScript/TSX Dateien:  63
-JSON Datendateien:       12
-Markdown Dokumentation:  11
-React Komponenten:       24
-Netlify Functions:       6
-Game Logic Dateien:      8
-Test-Dateien:           2
-
-Größte Dateien:
-- GameState.ts:           1538 LOC
-- NetworkVisualization:    804 LOC
-- App.tsx:                 624 LOC
-- types/index.ts:          637 LOC
+PLAYTEST_2025-12-28.md      # Playtest-Ergebnisse
+TECHNICAL_DEBT.md           # TD Tracking
+MVP_SCOPE.md                # MVP Definition
+NEXT_ACTIONS.md             # Roadmap
+data/actions.json           # 804 Zeilen
+data/consequences.json      # 938 Zeilen
+data/dialogues.json         # 703 Zeilen
+data/countermeasures.json   # 621 Zeilen
 ```
 
+### Engine (src/story-mode/engine/)
+```
+BetrayalSystem.ts           # 915 Zeilen
+EndingSystem.ts             # 923 Zeilen
+CrisisMomentSystem.ts       # 641 Zeilen
+StoryActorAI.ts             # 637 Zeilen
+ConsequenceSystem.ts        # Erweitert
+```
+
+### Neue Zeilen Code: ~35.000+
+
 ---
 
-**Report erstellt:** 29. Dezember 2025, 14:30 UTC
+## FAZIT
+
+Das Projekt ist **deutlich weiter fortgeschritten** als der ursprüngliche Audit vermuten ließ. Nach dem Merge von PR #24:
+
+✅ **8 kritische Bugs bereits behoben**
+✅ **8 Technical Debt Items erledigt**
+✅ **Story Mode ~75% funktional**
+✅ **4 komplexe Engine-Systeme vollständig**
+✅ **Umfassende Dokumentation vorhanden**
+
+**Hauptfokus für Platin-Niveau:**
+1. Pro Mode Bugs fixen (Code-Injection, SeededRandom)
+2. Accessibility WCAG AA erreichen
+3. Test-Coverage auf 50%+ erhöhen
+4. UX Polish (Mobile, Keyboard)
+
+**Geschätzter Aufwand:** 4-5 Wochen (statt 10-12 Wochen)
+
+---
+
+**Report erstellt:** 29. Dezember 2025, 15:00 UTC
 **Nächste Review:** Nach Phase 1 Completion
-**Verantwortlich:** Development Team
-
----
-
-*Dieser Report dient als Grundlage für die Projektplanung und sollte regelmäßig aktualisiert werden.*
