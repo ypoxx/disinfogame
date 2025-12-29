@@ -72,3 +72,14 @@ export type {
   BetrayalEffect,
   BetrayalGrievance,
 } from './BetrayalSystem';
+
+export { EndingSystem, getEndingSystem } from './EndingSystem';
+export type {
+  EndingCategory,
+  EndingTone,
+  EndingComponent,
+  AssembledEnding,
+  NPCFate,
+  WorldEndState,
+  EndingGameState,
+} from './EndingSystem';
