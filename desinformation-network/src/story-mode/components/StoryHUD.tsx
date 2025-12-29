@@ -197,7 +197,7 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
   return (
     <button
       onClick={onClick}
-      className="text-left px-3 py-2 border-2 transition-all hover:brightness-110"
+      className="text-left px-3 py-2 border-2 transition-all hover:brightness-110 active:translate-y-0.5 story-btn-ripple overflow-hidden"
       style={{
         backgroundColor: StoryModeColors.surfaceLight,
         borderColor: StoryModeColors.border,
@@ -319,7 +319,7 @@ export function StoryHUD({
             {onOpenMenu && (
               <button
                 onClick={onOpenMenu}
-                className="px-3 py-1.5 border-2 font-bold text-sm transition-all hover:brightness-110 active:translate-y-0.5"
+                className="px-3 py-1.5 border-2 font-bold text-sm transition-all hover:brightness-110 active:translate-y-0.5 story-btn-ripple overflow-hidden"
                 style={{
                   backgroundColor: StoryModeColors.concrete,
                   borderColor: StoryModeColors.borderLight,
@@ -333,7 +333,7 @@ export function StoryHUD({
             {onEndPhase && (
               <button
                 onClick={onEndPhase}
-                className="px-4 py-1.5 border-2 font-bold text-sm transition-all hover:brightness-110 active:translate-y-0.5"
+                className="px-4 py-1.5 border-2 font-bold text-sm transition-all hover:brightness-110 active:translate-y-0.5 story-btn-ripple overflow-hidden"
                 style={{
                   backgroundColor: StoryModeColors.sovietRed,
                   borderColor: StoryModeColors.darkRed,

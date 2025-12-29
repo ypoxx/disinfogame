@@ -28,6 +28,7 @@ interface DialogBoxProps {
   message: DialogMessage | null;
   onChoice?: (choiceId: string) => void;
   onContinue?: () => void;
+  onClose?: () => void;
   isVisible: boolean;
 }
 
@@ -391,7 +392,7 @@ function useTypewriter(text: string, speed: number = 30, enabled: boolean = true
 // DIALOG BOX COMPONENT
 // ============================================
 
-export function DialogBox({ message, onChoice, onContinue, isVisible }: DialogBoxProps) {
+export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }: DialogBoxProps) {
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
 
   const { displayedText, isComplete, skipToEnd } = useTypewriter(
@@ -462,12 +463,28 @@ export function DialogBox({ message, onChoice, onContinue, isVisible }: DialogBo
           ) : (
             <span className="text-2xl">{fallbackEmoji}</span>
           )}
-          <div>
+          <div className="flex-1">
             <div className="font-bold text-white text-lg">{message.speaker}</div>
             {message.speakerTitle && (
               <div className="text-xs text-white/70">{message.speakerTitle}</div>
             )}
           </div>
+          {onClose && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              className="px-3 py-1 border-2 font-bold transition-all hover:brightness-110 active:translate-y-0.5 story-btn-ripple overflow-hidden"
+              style={{
+                backgroundColor: StoryModeColors.darkConcrete,
+                borderColor: StoryModeColors.border,
+                color: StoryModeColors.textPrimary,
+              }}
+            >
+              ✕
+            </button>
+          )}
         </div>
 
         {/* Message Content */}
@@ -499,7 +516,7 @@ export function DialogBox({ message, onChoice, onContinue, isVisible }: DialogBo
                   }}
                   disabled={choice.disabled}
                   className={`
-                    w-full text-left px-4 py-3 border-2 font-mono transition-all
+                    w-full text-left px-4 py-3 border-2 font-mono transition-all story-btn-ripple overflow-hidden
                     ${choice.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110 active:translate-y-0.5'}
                     ${selectedChoice === choice.id ? 'translate-y-0.5' : ''}
                   `}

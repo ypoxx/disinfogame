@@ -10,6 +10,7 @@ import { MissionPanel } from './components/MissionPanel';
 import { ActionFeedbackDialog } from './components/ActionFeedbackDialog';
 import { ConsequenceModal } from './components/ConsequenceModal';
 import { TutorialOverlay, useTutorial } from './components/TutorialOverlay';
+import { PhaseTransitionOverlay } from './components/PhaseTransitionOverlay';
 import { useStoryGameState } from './hooks/useStoryGameState';
 import { OfficeScreen } from './OfficeScreen';
 
@@ -100,7 +101,7 @@ function IntroScreen({ onStart, onLoadGame, hasSave }: {
           <div className="flex flex-col gap-3">
             <button
               onClick={onStart}
-              className="w-full py-4 border-4 font-bold text-lg transition-all hover:brightness-110 active:translate-y-1"
+              className="w-full py-4 border-4 font-bold text-lg transition-all hover:brightness-110 active:translate-y-1 story-btn-ripple overflow-hidden"
               style={{
                 backgroundColor: StoryModeColors.sovietRed,
                 borderColor: StoryModeColors.darkRed,
@@ -114,7 +115,7 @@ function IntroScreen({ onStart, onLoadGame, hasSave }: {
             {hasSave && (
               <button
                 onClick={onLoadGame}
-                className="w-full py-3 border-4 font-bold transition-all hover:brightness-110 active:translate-y-1"
+                className="w-full py-3 border-4 font-bold transition-all hover:brightness-110 active:translate-y-1 story-btn-ripple overflow-hidden"
                 style={{
                   backgroundColor: StoryModeColors.agencyBlue,
                   borderColor: StoryModeColors.darkBlue,
@@ -272,7 +273,7 @@ function GameEndScreen({ gameEnd, stats, onRestart, onExit }: {
           <div className="flex gap-4">
             <button
               onClick={onRestart}
-              className="flex-1 py-3 border-4 font-bold transition-all hover:brightness-110 active:translate-y-1"
+              className="flex-1 py-3 border-4 font-bold transition-all hover:brightness-110 active:translate-y-1 story-btn-ripple overflow-hidden"
               style={{
                 backgroundColor: StoryModeColors.sovietRed,
                 borderColor: StoryModeColors.darkRed,
@@ -284,7 +285,7 @@ function GameEndScreen({ gameEnd, stats, onRestart, onExit }: {
             </button>
             <button
               onClick={onExit}
-              className="flex-1 py-3 border-4 font-bold transition-all hover:brightness-110 active:translate-y-1"
+              className="flex-1 py-3 border-4 font-bold transition-all hover:brightness-110 active:translate-y-1 story-btn-ripple overflow-hidden"
               style={{
                 backgroundColor: StoryModeColors.concrete,
                 borderColor: StoryModeColors.borderLight,
@@ -387,6 +388,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     startGame,
     skipTutorial,
     continueDialog,
+    closeDialog,
     handleDialogChoice,
     pauseGame,
     resumeGame,
@@ -412,6 +414,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showMissionPanel, setShowMissionPanel] = useState(false);
   const [showActionFeedback, setShowActionFeedback] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [isPhaseTransitioning, setIsPhaseTransitioning] = useState(false);
 
   // Start tutorial when game starts (if first time)
   useEffect(() => {
@@ -461,6 +464,20 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
   const handleLoad = () => {
     loadGame();
+  };
+
+  // Handle phase transition with loading state
+  const handleEndPhase = () => {
+    setIsPhaseTransitioning(true);
+
+    // Show transition overlay for 2 seconds before advancing
+    setTimeout(() => {
+      endPhase();
+      // Hide overlay after phase advances
+      setTimeout(() => {
+        setIsPhaseTransitioning(false);
+      }, 500);
+    }, 1500);
   };
 
   // ============================================
@@ -520,7 +537,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           isCompleted: o.completed,
           isPrimary: o.type === 'primary',
         }))}
-        onEndPhase={endPhase}
+        onEndPhase={handleEndPhase}
         onOpenMenu={pauseGame}
       />
 
@@ -533,7 +550,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           onOpenStats={() => setShowStatsPanel(true)}
           onOpenNpcs={() => setShowNpcPanel(true)}
           onOpenMission={() => setShowMissionPanel(true)}
-          onEndPhase={endPhase}
+          onEndPhase={handleEndPhase}
           resources={state.resources}
           phase={state.storyPhase}
           newsEvents={state.newsEvents}
@@ -561,6 +578,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           }}
           onChoice={handleDialogChoice}
           onContinue={continueDialog}
+          onClose={closeDialog}
         />
       )}
 
@@ -693,6 +711,14 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           onComplete={tutorial.complete}
         />
       )}
+
+      {/* Phase Transition Overlay */}
+      <PhaseTransitionOverlay
+        isVisible={isPhaseTransitioning}
+        currentPhase={state.storyPhase.number}
+        currentYear={state.storyPhase.year}
+        currentMonth={state.storyPhase.month}
+      />
     </div>
   );
 }
