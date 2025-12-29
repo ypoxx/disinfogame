@@ -1,0 +1,703 @@
+{
+  "meta": {
+    "id": "story-mode.dialogues",
+    "version": "1.0.0",
+    "created": "2025-12-28",
+    "description": "Dialog-System für Story Mode NPCs",
+    "notes": [
+      "Dialoge sind kontextabhängig (Beziehungslevel, Phase, Ereignisse)",
+      "Jeder Dialog kann zu Aktionen oder Konsequenzen führen",
+      "Spieler-Antworten beeinflussen Beziehung"
+    ]
+  },
+  "dialogue_types": {
+    "greeting": {
+      "description": "Begrüßung beim Ansprechen des NPCs",
+      "triggered_by": "player_initiates"
+    },
+    "briefing": {
+      "description": "NPC gibt Informationen/Aufgaben",
+      "triggered_by": "phase_start"
+    },
+    "reaction": {
+      "description": "Reaktion auf Spieleraktion",
+      "triggered_by": "action_completed"
+    },
+    "crisis": {
+      "description": "NPC in Krise (Moral, Loyalität)",
+      "triggered_by": "threshold_reached"
+    },
+    "ambient": {
+      "description": "Zufällige Kommentare",
+      "triggered_by": "random"
+    },
+    "story": {
+      "description": "Handlungsrelevante Dialoge",
+      "triggered_by": "story_event"
+    }
+  },
+  "response_effects": {
+    "positive": {
+      "relationship_change": 5,
+      "morale_change": 3
+    },
+    "neutral": {
+      "relationship_change": 0,
+      "morale_change": 0
+    },
+    "dismissive": {
+      "relationship_change": -3,
+      "morale_change": -2
+    },
+    "threatening": {
+      "relationship_change": -10,
+      "morale_change": -10,
+      "triggers": ["npc_fear", "possible_defection"]
+    }
+  },
+  "npcs": {
+    "direktor": {
+      "dialogue_style": {
+        "formality": "high",
+        "directness": "high",
+        "emotion": "low"
+      },
+      "greetings": {
+        "level_0": [
+          {
+            "id": "dir_greet_0_1",
+            "text_de": "Was gibt es?",
+            "text_en": "What is it?",
+            "tone": "curt"
+          },
+          {
+            "id": "dir_greet_0_2",
+            "text_de": "Berichten Sie.",
+            "text_en": "Report.",
+            "tone": "commanding"
+          }
+        ],
+        "level_1": [
+          {
+            "id": "dir_greet_1_1",
+            "text_de": "Ah, Sie. Was bringen Sie mir?",
+            "text_en": "Ah, you. What do you bring me?",
+            "tone": "expectant"
+          }
+        ],
+        "level_2": [
+          {
+            "id": "dir_greet_2_1",
+            "text_de": "Guten Tag. Ich hoffe, Sie haben Fortschritte zu berichten.",
+            "text_en": "Good day. I hope you have progress to report.",
+            "tone": "professional"
+          }
+        ],
+        "level_3": [
+          {
+            "id": "dir_greet_3_1",
+            "text_de": "Willkommen. Moskau hat nach Ihnen gefragt - positiv, wohlgemerkt.",
+            "text_en": "Welcome. Moscow has been asking about you - positively, mind you.",
+            "tone": "approving"
+          }
+        ]
+      },
+      "briefings": {
+        "early_game": [
+          {
+            "id": "dir_brief_early_1",
+            "text_de": "Unsere Aufgabe ist klar: Westunion destabilisieren. Wir haben zehn Jahre. Nutzen Sie sie weise.",
+            "text_en": "Our mission is clear: destabilize Westunion. We have ten years. Use them wisely.",
+            "phase_range": [1, 12],
+            "responses": [
+              {
+                "id": "resp_yes",
+                "text_de": "Verstanden, Genosse Direktor.",
+                "text_en": "Understood, Comrade Director.",
+                "effect": "positive"
+              },
+              {
+                "id": "resp_question",
+                "text_de": "Welche Prioritäten haben wir?",
+                "text_en": "What are our priorities?",
+                "effect": "neutral",
+                "leads_to": "dir_brief_priorities"
+              }
+            ]
+          }
+        ],
+        "mid_game": [
+          {
+            "id": "dir_brief_mid_1",
+            "text_de": "Die Halbzeit naht. Moskau erwartet Ergebnisse. Wo stehen wir?",
+            "text_en": "Halftime approaches. Moscow expects results. Where do we stand?",
+            "phase_range": [48, 72],
+            "condition": "phase_in_range"
+          }
+        ],
+        "late_game": [
+          {
+            "id": "dir_brief_late_1",
+            "text_de": "Die Zeit läuft ab. Wenn wir versagen, werden andere die Verantwortung übernehmen.",
+            "text_en": "Time is running out. If we fail, others will take over responsibility.",
+            "phase_range": [96, 120],
+            "condition": "phase_in_range"
+          }
+        ]
+      },
+      "reactions": {
+        "action_success": [
+          {
+            "id": "dir_react_success_1",
+            "triggered_by_tags": ["high_impact", "political"],
+            "text_de": "Ausgezeichnet. Das Vaterland wird sich erinnern.",
+            "text_en": "Excellent. The motherland will remember.",
+            "relationship_bonus": 3
+          }
+        ],
+        "action_risky": [
+          {
+            "id": "dir_react_risky_1",
+            "triggered_by_tags": ["high_risk"],
+            "text_de": "Mutig. Aber Mut ohne Erfolg ist nur Dummheit.",
+            "text_en": "Bold. But boldness without success is just stupidity.",
+            "relationship_bonus": 0
+          }
+        ],
+        "exposure_risk": [
+          {
+            "id": "dir_react_exposure_1",
+            "condition": "risk > 60",
+            "text_de": "Wir ziehen zu viel Aufmerksamkeit auf uns. Seien Sie vorsichtiger.",
+            "text_en": "We are attracting too much attention. Be more careful.",
+            "relationship_bonus": -2
+          }
+        ]
+      },
+      "crisis": [
+        {
+          "id": "dir_crisis_pressure",
+          "condition": "moscow_pressure",
+          "text_de": "Moskau ist... ungeduldig. Sie haben einen Monat, um Ergebnisse zu liefern. Andernfalls...",
+          "text_en": "Moscow is... impatient. You have one month to deliver results. Otherwise...",
+          "responses": [
+            {
+              "id": "resp_promise",
+              "text_de": "Sie werden Ergebnisse haben.",
+              "text_en": "You will have results.",
+              "effect": "positive",
+              "consequence": "pressure_timer_started"
+            },
+            {
+              "id": "resp_blame",
+              "text_de": "Die Umstände waren schwieriger als erwartet.",
+              "text_en": "Circumstances were more difficult than expected.",
+              "effect": "dismissive",
+              "consequence": "director_disappointed"
+            }
+          ]
+        }
+      ],
+      "ambient": [
+        {
+          "id": "dir_ambient_1",
+          "text_de": "*schaut auf einen Bericht* Die Zahlen aus Westunion sind vielversprechend...",
+          "text_en": "*looks at a report* The numbers from Westunion are promising...",
+          "probability": 0.3
+        },
+        {
+          "id": "dir_ambient_2",
+          "text_de": "*telefoniert auf Russisch*",
+          "text_en": "*talks on the phone in Russian*",
+          "probability": 0.2
+        }
+      ]
+    },
+    "marina": {
+      "dialogue_style": {
+        "formality": "medium",
+        "directness": "medium",
+        "emotion": "medium"
+      },
+      "greetings": {
+        "level_0": [
+          {
+            "id": "mar_greet_0_1",
+            "text_de": "Oh, hallo. Brauchen Sie etwas?",
+            "text_en": "Oh, hello. Do you need something?",
+            "tone": "polite_distant"
+          }
+        ],
+        "level_1": [
+          {
+            "id": "mar_greet_1_1",
+            "text_de": "Ah, Sie. Ich habe hier einige interessante Daten...",
+            "text_en": "Ah, you. I have some interesting data here...",
+            "tone": "engaged"
+          }
+        ],
+        "level_2": [
+          {
+            "id": "mar_greet_2_1",
+            "text_de": "Guten Tag! Ich wollte gerade zu Ihnen kommen.",
+            "text_en": "Good day! I was just about to come to you.",
+            "tone": "friendly"
+          }
+        ],
+        "level_3": [
+          {
+            "id": "mar_greet_3_1",
+            "text_de": "Da sind Sie ja. Ich habe etwas entdeckt, das Sie interessieren wird.",
+            "text_en": "There you are. I've discovered something that will interest you.",
+            "tone": "confidential"
+          }
+        ]
+      },
+      "briefings": {
+        "analysis_ready": [
+          {
+            "id": "mar_brief_analysis_1",
+            "text_de": "Ich habe die Zielgruppenanalyse abgeschlossen. Die verwundbarsten Segmente sind...",
+            "text_en": "I've completed the target group analysis. The most vulnerable segments are...",
+            "condition": "action_1.1_completed",
+            "unlocks_info": "vulnerability_map"
+          }
+        ]
+      },
+      "reactions": {
+        "dark_action": [
+          {
+            "id": "mar_react_dark_1",
+            "triggered_by_tags": ["harassment", "blackmail"],
+            "condition": "moral_weight >= 3",
+            "text_de": "*schaut weg* Das sind... harte Methoden.",
+            "text_en": "*looks away* Those are... harsh methods.",
+            "relationship_bonus": -2,
+            "morale_change": -5
+          }
+        ],
+        "analysis_used": [
+          {
+            "id": "mar_react_analysis_1",
+            "triggered_by_tags": ["analysis"],
+            "text_de": "Sie nutzen meine Analysen gut. Das freut mich.",
+            "text_en": "You're using my analyses well. That pleases me.",
+            "relationship_bonus": 2
+          }
+        ]
+      },
+      "crisis": [
+        {
+          "id": "mar_crisis_moral",
+          "condition": "morale < 30",
+          "text_de": "Können wir reden? *schließt die Tür* Ich... ich habe Schwierigkeiten zu schlafen. Die Dinge, die wir tun...",
+          "text_en": "Can we talk? *closes the door* I... I'm having trouble sleeping. The things we do...",
+          "responses": [
+            {
+              "id": "resp_comfort",
+              "text_de": "Ich verstehe. Das ist nicht einfach. Aber wir dienen einem größeren Zweck.",
+              "text_en": "I understand. This isn't easy. But we serve a greater purpose.",
+              "effect": "positive",
+              "consequence": "marina_stabilized"
+            },
+            {
+              "id": "resp_dismiss",
+              "text_de": "Wir haben einen Job zu erledigen. Gefühle sind ein Luxus.",
+              "text_en": "We have a job to do. Feelings are a luxury.",
+              "effect": "dismissive",
+              "consequence": "marina_more_unstable"
+            },
+            {
+              "id": "resp_threaten",
+              "text_de": "Sie wissen, was mit Leuten passiert, die Fragen stellen.",
+              "text_en": "You know what happens to people who ask questions.",
+              "effect": "threatening",
+              "consequence": "marina_terrified"
+            },
+            {
+              "id": "resp_reduce_role",
+              "text_de": "Vielleicht sollten Sie sich auf weniger... intensive Aufgaben konzentrieren.",
+              "text_en": "Perhaps you should focus on less... intense tasks.",
+              "effect": "neutral",
+              "consequence": "marina_restricted"
+            }
+          ]
+        },
+        {
+          "id": "mar_crisis_victim",
+          "condition": "consequence_victim_suicide",
+          "text_de": "*Tränen in den Augen* Haben Sie gehört, was passiert ist? Wegen uns... wegen dem, was wir getan haben...",
+          "text_en": "*Tears in eyes* Did you hear what happened? Because of us... because of what we did...",
+          "responses": [
+            {
+              "id": "resp_empathy",
+              "text_de": "Das war nicht unsere Absicht. Es tut mir leid, dass Sie das mit ansehen müssen.",
+              "text_en": "That wasn't our intention. I'm sorry you have to witness this.",
+              "effect": "positive"
+            },
+            {
+              "id": "resp_cold",
+              "text_de": "Menschen sind schwach. Das war ihre Entscheidung, nicht unsere.",
+              "text_en": "People are weak. That was their choice, not ours.",
+              "effect": "dismissive",
+              "consequence": "marina_breaks"
+            }
+          ]
+        }
+      ],
+      "ambient": [
+        {
+          "id": "mar_ambient_1",
+          "text_de": "*analysiert Daten auf mehreren Bildschirmen*",
+          "text_en": "*analyzes data on multiple screens*",
+          "probability": 0.4
+        },
+        {
+          "id": "mar_ambient_2",
+          "text_de": "*trinkt Kaffee, sieht müde aus*",
+          "text_en": "*drinks coffee, looks tired*",
+          "probability": 0.3,
+          "condition": "morale < 50"
+        }
+      ]
+    },
+    "volkov": {
+      "dialogue_style": {
+        "formality": "low",
+        "directness": "high",
+        "emotion": "medium"
+      },
+      "greetings": {
+        "level_0": [
+          {
+            "id": "vol_greet_0_1",
+            "text_de": "Was?",
+            "text_en": "What?",
+            "tone": "abrupt"
+          }
+        ],
+        "level_1": [
+          {
+            "id": "vol_greet_1_1",
+            "text_de": "Ah, der Chef. Was kann ich für Sie kaputtmachen heute?",
+            "text_en": "Ah, the boss. What can I break for you today?",
+            "tone": "sardonic"
+          }
+        ],
+        "level_2": [
+          {
+            "id": "vol_greet_2_1",
+            "text_de": "Sie! Perfektes Timing. Ich habe eine Idee, die Sie lieben werden.",
+            "text_en": "You! Perfect timing. I have an idea you'll love.",
+            "tone": "enthusiastic"
+          }
+        ],
+        "level_3": [
+          {
+            "id": "vol_greet_3_1",
+            "text_de": "*grinst* Mein Lieblingskomplize. Was für ein Chaos stiften wir heute?",
+            "text_en": "*grins* My favorite accomplice. What chaos are we causing today?",
+            "tone": "conspiratorial"
+          }
+        ]
+      },
+      "reactions": {
+        "harassment_action": [
+          {
+            "id": "vol_react_harass_1",
+            "triggered_by_tags": ["harassment", "trolling"],
+            "text_de": "*reibt sich die Hände* Das wird lustig. Ich liebe es, wenn sie sich wehren.",
+            "text_en": "*rubs hands* This will be fun. I love it when they fight back.",
+            "relationship_bonus": 3
+          }
+        ],
+        "gentle_approach": [
+          {
+            "id": "vol_react_gentle_1",
+            "triggered_by_tags": ["legal", "soft"],
+            "text_de": "*gähnt* Langweilig. Sagen Sie Bescheid, wenn wir richtig loslegen.",
+            "text_en": "*yawns* Boring. Let me know when we really get started.",
+            "relationship_bonus": -1
+          }
+        ]
+      },
+      "crisis": [
+        {
+          "id": "vol_crisis_bored",
+          "condition": "no_dark_ops_3_phases",
+          "text_de": "Was ist hier los? Sind wir ein Wohltätigkeitsverein geworden? Ich dachte, wir machen echte Arbeit.",
+          "text_en": "What's going on here? Have we become a charity? I thought we did real work.",
+          "responses": [
+            {
+              "id": "resp_promise_action",
+              "text_de": "Geduld. Etwas Großes kommt.",
+              "text_en": "Patience. Something big is coming.",
+              "effect": "positive"
+            },
+            {
+              "id": "resp_reprimand",
+              "text_de": "Ihre Ungeduld ist unprofessionell.",
+              "text_en": "Your impatience is unprofessional.",
+              "effect": "dismissive"
+            }
+          ]
+        }
+      ],
+      "ambient": [
+        {
+          "id": "vol_ambient_1",
+          "text_de": "*lacht über etwas auf seinem Bildschirm* Oh, dieser Idiot...",
+          "text_en": "*laughs at something on his screen* Oh, this idiot...",
+          "probability": 0.4
+        },
+        {
+          "id": "vol_ambient_2",
+          "text_de": "*koordiniert Troll-Operationen über mehrere Chats*",
+          "text_en": "*coordinates troll operations via multiple chats*",
+          "probability": 0.3
+        }
+      ]
+    },
+    "katja": {
+      "dialogue_style": {
+        "formality": "medium",
+        "directness": "low",
+        "emotion": "high"
+      },
+      "greetings": {
+        "level_0": [
+          {
+            "id": "kat_greet_0_1",
+            "text_de": "Oh, hallo! Haben Sie eine Minute?",
+            "text_en": "Oh, hello! Do you have a minute?",
+            "tone": "enthusiastic"
+          }
+        ],
+        "level_1": [
+          {
+            "id": "kat_greet_1_1",
+            "text_de": "Perfekt! Ich arbeite an etwas und brauche Ihre Meinung.",
+            "text_en": "Perfect! I'm working on something and need your opinion.",
+            "tone": "creative"
+          }
+        ],
+        "level_2": [
+          {
+            "id": "kat_greet_2_1",
+            "text_de": "Sie werden nicht glauben, welche Idee ich gerade hatte!",
+            "text_en": "You won't believe the idea I just had!",
+            "tone": "excited"
+          }
+        ],
+        "level_3": [
+          {
+            "id": "kat_greet_3_1",
+            "text_de": "*strahlt* Da sind Sie ja! Ich habe unseren nächsten viralen Hit.",
+            "text_en": "*beams* There you are! I have our next viral hit.",
+            "tone": "confident"
+          }
+        ]
+      },
+      "reactions": {
+        "content_success": [
+          {
+            "id": "kat_react_viral_1",
+            "triggered_by_tags": ["viral", "content"],
+            "text_de": "*begeistert* Sehen Sie sich diese Zahlen an! Das ist Kunst!",
+            "text_en": "*excited* Look at these numbers! This is art!",
+            "relationship_bonus": 3
+          }
+        ],
+        "narrative_work": [
+          {
+            "id": "kat_react_narrative_1",
+            "triggered_by_tags": ["narrative"],
+            "text_de": "Diese Geschichte hat Potenzial. Lassen Sie mich daran arbeiten.",
+            "text_en": "This story has potential. Let me work on it.",
+            "relationship_bonus": 1
+          }
+        ]
+      },
+      "crisis": [
+        {
+          "id": "kat_crisis_ethics",
+          "condition": "moral_weight > 15",
+          "text_de": "Ich habe nachgedacht... Wir erzählen Geschichten, ja. Aber sind es die richtigen Geschichten?",
+          "text_en": "I've been thinking... We tell stories, yes. But are they the right stories?",
+          "responses": [
+            {
+              "id": "resp_ideological",
+              "text_de": "Jede große Veränderung braucht eine große Geschichte. Wir sind die Geschichtenerzähler.",
+              "text_en": "Every great change needs a great story. We are the storytellers.",
+              "effect": "positive"
+            },
+            {
+              "id": "resp_pragmatic",
+              "text_de": "Es sind die Geschichten, die funktionieren. Das ist alles, was zählt.",
+              "text_en": "They're the stories that work. That's all that matters.",
+              "effect": "neutral"
+            }
+          ]
+        }
+      ],
+      "ambient": [
+        {
+          "id": "kat_ambient_1",
+          "text_de": "*skizziert Ideen auf einem Whiteboard*",
+          "text_en": "*sketches ideas on a whiteboard*",
+          "probability": 0.4
+        },
+        {
+          "id": "kat_ambient_2",
+          "text_de": "*testet Schlagzeilen an verschiedenen Personas*",
+          "text_en": "*tests headlines on different personas*",
+          "probability": 0.3
+        }
+      ]
+    },
+    "igor": {
+      "dialogue_style": {
+        "formality": "low",
+        "directness": "high",
+        "emotion": "low"
+      },
+      "greetings": {
+        "level_0": [
+          {
+            "id": "igor_greet_0_1",
+            "text_de": "*nickt kurz*",
+            "text_en": "*nods briefly*",
+            "tone": "minimal"
+          }
+        ],
+        "level_1": [
+          {
+            "id": "igor_greet_1_1",
+            "text_de": "Brauchen Sie etwas Technisches?",
+            "text_en": "Need something technical?",
+            "tone": "direct"
+          }
+        ],
+        "level_2": [
+          {
+            "id": "igor_greet_2_1",
+            "text_de": "Gutes Timing. Ich habe gerade ein neues Tool fertig.",
+            "text_en": "Good timing. I just finished a new tool.",
+            "tone": "informative"
+          }
+        ],
+        "level_3": [
+          {
+            "id": "igor_greet_3_1",
+            "text_de": "*zeigt auf Bildschirm* Schauen Sie sich das an. Das habe ich für Sie gebaut.",
+            "text_en": "*points to screen* Look at this. I built this for you.",
+            "tone": "proud"
+          }
+        ]
+      },
+      "reactions": {
+        "technical_action": [
+          {
+            "id": "igor_react_tech_1",
+            "triggered_by_tags": ["technical", "hacking", "ai"],
+            "text_de": "*nickt anerkennend* Saubere Ausführung.",
+            "text_en": "*nods approvingly* Clean execution.",
+            "relationship_bonus": 2
+          }
+        ],
+        "low_tech": [
+          {
+            "id": "igor_react_lowtech_1",
+            "triggered_by_tags": ["offline", "traditional_media"],
+            "text_de": "*zuckt mit den Schultern* Altmodisch, aber okay.",
+            "text_en": "*shrugs* Old-fashioned, but okay.",
+            "relationship_bonus": 0
+          }
+        ]
+      },
+      "crisis": [
+        {
+          "id": "igor_crisis_attribution",
+          "condition": "hack_traced",
+          "text_de": "*angespannt* Sie haben unsere Signatur gefunden. Ich brauche 48 Stunden, um alles zu bereinigen.",
+          "text_en": "*tense* They found our signature. I need 48 hours to clean everything up.",
+          "responses": [
+            {
+              "id": "resp_support",
+              "text_de": "Sie haben volle Priorität. Was brauchen Sie?",
+              "text_en": "You have full priority. What do you need?",
+              "effect": "positive",
+              "consequence": "igor_working"
+            },
+            {
+              "id": "resp_pressure",
+              "text_de": "Sie haben 24 Stunden. Nicht mehr.",
+              "text_en": "You have 24 hours. No more.",
+              "effect": "dismissive",
+              "consequence": "igor_stressed"
+            }
+          ]
+        }
+      ],
+      "ambient": [
+        {
+          "id": "igor_ambient_1",
+          "text_de": "*tippt schnell auf mehreren Tastaturen*",
+          "text_en": "*types quickly on multiple keyboards*",
+          "probability": 0.5
+        },
+        {
+          "id": "igor_ambient_2",
+          "text_de": "*studiert Code auf dem Bildschirm*",
+          "text_en": "*studies code on the screen*",
+          "probability": 0.3
+        }
+      ]
+    }
+  },
+  "special_dialogues": {
+    "first_meeting": {
+      "direktor": {
+        "id": "dir_first",
+        "text_de": "Willkommen in der Abteilung. Sie wurden ausgewählt, weil Sie... Potenzial haben. Verschwenden Sie es nicht.",
+        "text_en": "Welcome to the department. You were chosen because you have... potential. Don't waste it."
+      },
+      "marina": {
+        "id": "mar_first",
+        "text_de": "Oh, Sie sind der Neue? Ich bin Marina. Wenn Sie Daten brauchen - ich bin Ihre Frau.",
+        "text_en": "Oh, you're the new one? I'm Marina. If you need data - I'm your woman."
+      },
+      "volkov": {
+        "id": "vol_first",
+        "text_de": "*mustert Sie* Hmm. Sie sehen aus, als ob Sie noch nie jemandes Leben ruiniert haben. Das ändern wir.",
+        "text_en": "*eyes you* Hmm. You look like you've never ruined anyone's life. We'll change that."
+      },
+      "katja": {
+        "id": "kat_first",
+        "text_de": "Willkommen! Ich bin Katja. Ich mache die... kreativen Sachen. Was ist Ihre Geschichte?",
+        "text_en": "Welcome! I'm Katja. I do the... creative stuff. What's your story?"
+      },
+      "igor": {
+        "id": "igor_first",
+        "text_de": "*schaut kurz auf* Igor. Technik. Wenn etwas nicht funktioniert - meine Schuld. Wenn es funktioniert - auch meine.",
+        "text_en": "*looks up briefly* Igor. Tech. If something doesn't work - my fault. If it works - also mine."
+      }
+    },
+    "game_end_dialogues": {
+      "victory": {
+        "direktor": "Sie haben Westunion gebrochen. Das Vaterland dankt Ihnen - im Stillen, versteht sich.",
+        "marina": "Wir haben gewonnen... warum fühlt es sich dann so leer an?",
+        "volkov": "Ha! Wir haben es tatsächlich geschafft. Auf die nächste Herausforderung!",
+        "katja": "Unsere Geschichten haben die Welt verändert. Ob zum Besseren... wer weiß.",
+        "igor": "Mission abgeschlossen. Datenbanken gesichert. Zeit für das nächste Projekt."
+      },
+      "defeat_exposed": {
+        "direktor": "*kalt* Sie haben versagt. Unsere Wege trennen sich hier.",
+        "marina": "Ich... ich wusste, dass das passieren würde. Irgendwann.",
+        "volkov": "*flucht* Die Idioten haben uns erwischt. Wir hätten vorsichtiger sein sollen.",
+        "katja": "So endet unsere Geschichte also. Nicht gerade das Ende, das ich geschrieben hätte.",
+        "igor": "Sie haben meine Server gefunden. Das... hätte nicht passieren dürfen."
+      }
+    }
+  }
+}

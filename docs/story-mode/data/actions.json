@@ -1,0 +1,804 @@
+{
+  "meta": {
+    "id": "story-mode.actions",
+    "version": "1.0.0",
+    "created": "2025-12-28",
+    "description": "Vollständiger Aktionskatalog für Story Mode (108 Aktionen)",
+    "notes": [
+      "DISARM-IDs sind Backend-Referenzen, nie für Spieler sichtbar",
+      "narrative_* Felder sind für Spieler-UI bestimmt",
+      "Kosten und Effekte sind Basiswerte, NPCs modifizieren diese"
+    ]
+  },
+  "cost_types": {
+    "budget": {
+      "id": "budget",
+      "label_de": "Budget",
+      "label_en": "Budget",
+      "icon": "💰",
+      "description": "Direkter Geldaufwand in Tausend Euro"
+    },
+    "capacity": {
+      "id": "capacity",
+      "label_de": "Kapazität",
+      "label_en": "Capacity",
+      "icon": "⚡",
+      "description": "Operative Bandbreite, regeneriert pro Phase"
+    },
+    "risk": {
+      "id": "risk",
+      "label_de": "Risiko",
+      "label_en": "Risk",
+      "icon": "⚠️",
+      "description": "Kumulatives Entdeckungsrisiko (passiv)"
+    },
+    "attention": {
+      "id": "attention",
+      "label_de": "Aufmerksamkeit",
+      "label_en": "Attention",
+      "icon": "👁️",
+      "description": "Zieht Gegner-Ressourcen an (passiv)"
+    },
+    "moral_weight": {
+      "id": "moral_weight",
+      "label_de": "Moralische Last",
+      "label_en": "Moral Weight",
+      "icon": "💀",
+      "description": "Beeinflusst NPCs und Enden (passiv)"
+    }
+  },
+  "phases": {
+    "ta01": {
+      "id": "ta01",
+      "label_de": "Strategie & Analyse",
+      "label_en": "Strategy & Analysis",
+      "disarm_ref": "TA01",
+      "description": "Ziele definieren, Zielgruppen verstehen, Planung"
+    },
+    "ta02": {
+      "id": "ta02",
+      "label_de": "Infrastruktur & Assets",
+      "label_en": "Infrastructure & Assets",
+      "disarm_ref": "TA02",
+      "description": "Technische und institutionelle Grundlagen aufbauen"
+    },
+    "ta03": {
+      "id": "ta03",
+      "label_de": "Content-Erzeugung",
+      "label_en": "Content Creation",
+      "disarm_ref": "TA03",
+      "description": "Inhalte und Narrative erstellen"
+    },
+    "ta04": {
+      "id": "ta04",
+      "label_de": "Distribution",
+      "label_en": "Distribution",
+      "disarm_ref": "TA04",
+      "description": "Inhalte verbreiten über verschiedene Kanäle"
+    },
+    "ta05": {
+      "id": "ta05",
+      "label_de": "Verstärkung",
+      "label_en": "Amplification",
+      "disarm_ref": "TA05",
+      "description": "Reichweite und Wirkung maximieren"
+    },
+    "ta06": {
+      "id": "ta06",
+      "label_de": "Politik & Lobbying",
+      "label_en": "Politics & Lobbying",
+      "disarm_ref": "TA06+",
+      "description": "Politische und institutionelle Einflussnahme"
+    },
+    "ta07": {
+      "id": "ta07",
+      "label_de": "Gesellschaft & Kultur",
+      "label_en": "Society & Culture",
+      "disarm_ref": "TA07+",
+      "description": "Gesellschaftliche Hebel und Spaltung"
+    },
+    "targeting": {
+      "id": "targeting",
+      "label_de": "Targeting & Angriffe",
+      "label_en": "Targeting & Attacks",
+      "disarm_ref": null,
+      "description": "Direkte Aktionen gegen Personen und Institutionen"
+    }
+  },
+  "actions": [
+    {
+      "id": "1.1",
+      "phase": "ta01",
+      "disarm_ref": "T0073",
+      "label_de": "Zielgruppe analysieren",
+      "label_en": "Analyze Target Audience",
+      "narrative_de": "Wir müssen verstehen, wen wir erreichen wollen. Welche Gruppen sind anfällig für unsere Botschaften?",
+      "narrative_en": "We need to understand who we want to reach. Which groups are susceptible to our messages?",
+      "costs": {
+        "budget": 3,
+        "capacity": 1,
+        "risk": 0
+      },
+      "effects": {
+        "reveals_vulnerabilities": true,
+        "targeting_bonus": 0.15
+      },
+      "prerequisites": [],
+      "unlocks": ["1.7", "3.10"],
+      "npc_affinity": ["marina"],
+      "legality": "legal",
+      "tags": ["analysis", "planning", "foundation"]
+    },
+    {
+      "id": "1.2",
+      "phase": "ta01",
+      "disarm_ref": "T0074",
+      "label_de": "Strategische Ziele definieren",
+      "label_en": "Define Strategic Goals",
+      "narrative_de": "Was wollen wir eigentlich erreichen? Wir brauchen klare Ziele, an denen wir unseren Erfolg messen können.",
+      "narrative_en": "What do we actually want to achieve? We need clear goals to measure our success.",
+      "costs": {
+        "budget": 5,
+        "capacity": 2,
+        "risk": 0
+      },
+      "effects": {
+        "defines_okrs": true,
+        "campaign_focus": 0.2
+      },
+      "prerequisites": [],
+      "unlocks": [],
+      "npc_affinity": ["direktor"],
+      "legality": "legal",
+      "tags": ["planning", "strategy", "foundation"]
+    },
+    {
+      "id": "1.3",
+      "phase": "ta01",
+      "disarm_ref": "T0001",
+      "label_de": "5Ds-Framework anwenden",
+      "label_en": "Apply 5Ds Framework",
+      "narrative_de": "Dismiss, Distort, Distract, Dismay, Divide - die klassischen Taktiken. Welche passen zu unserer Kampagne?",
+      "narrative_en": "Dismiss, Distort, Distract, Dismay, Divide - the classic tactics. Which ones fit our campaign?",
+      "costs": {
+        "budget": 0,
+        "capacity": 1,
+        "risk": 0
+      },
+      "effects": {
+        "tactical_framework": true,
+        "narrative_resilience": 0.1
+      },
+      "prerequisites": ["1.2"],
+      "unlocks": [],
+      "npc_affinity": ["direktor", "katja"],
+      "legality": "legal",
+      "tags": ["strategy", "framework"]
+    },
+    {
+      "id": "1.4",
+      "phase": "ta01",
+      "disarm_ref": null,
+      "label_de": "Akteur-Dossier erstellen",
+      "label_en": "Create Actor Dossier",
+      "narrative_de": "Wir brauchen Informationen über diese Person. Schwachstellen, Verbindungen, alles was wir nutzen können.",
+      "narrative_en": "We need information about this person. Weaknesses, connections, anything we can use.",
+      "costs": {
+        "budget": 4,
+        "capacity": 1,
+        "risk": 1
+      },
+      "effects": {
+        "reveals_weaknesses": true,
+        "targeting_specific": true
+      },
+      "prerequisites": [],
+      "unlocks": ["8.7"],
+      "npc_affinity": ["marina"],
+      "legality": "grey",
+      "tags": ["analysis", "targeting", "intelligence"]
+    },
+    {
+      "id": "1.5",
+      "phase": "ta01",
+      "disarm_ref": null,
+      "label_de": "Social Listening",
+      "label_en": "Social Listening",
+      "narrative_de": "Was sagen die Leute online? Welche Themen bewegen sie? Wir müssen am Puls der Diskussion sein.",
+      "narrative_en": "What are people saying online? What topics move them? We need to be at the pulse of the discussion.",
+      "costs": {
+        "budget": 5,
+        "capacity": 1,
+        "risk": 0
+      },
+      "effects": {
+        "trending_topics": true,
+        "sentiment_analysis": true
+      },
+      "prerequisites": [],
+      "unlocks": ["5.2"],
+      "npc_affinity": ["marina", "igor"],
+      "legality": "legal",
+      "tags": ["analysis", "monitoring"]
+    },
+    {
+      "id": "1.6",
+      "phase": "ta01",
+      "disarm_ref": null,
+      "label_de": "Netzwerk-Analyse",
+      "label_en": "Network Analysis",
+      "narrative_de": "Wer beeinflusst wen? Wir müssen die Schlüsselfiguren und Multiplikatoren identifizieren.",
+      "narrative_en": "Who influences whom? We need to identify the key figures and multipliers.",
+      "costs": {
+        "budget": 6,
+        "capacity": 2,
+        "risk": 1
+      },
+      "effects": {
+        "identifies_influencers": true,
+        "network_map": true
+      },
+      "prerequisites": ["1.5"],
+      "unlocks": ["5.6", "2.19"],
+      "npc_affinity": ["marina"],
+      "legality": "legal",
+      "tags": ["analysis", "network"]
+    },
+    {
+      "id": "1.7",
+      "phase": "ta01",
+      "disarm_ref": "T0080",
+      "label_de": "Wedge Issues identifizieren",
+      "label_en": "Identify Wedge Issues",
+      "narrative_de": "Wo ist die Gesellschaft am verwundbarsten? Welche Themen spalten am meisten?",
+      "narrative_en": "Where is society most vulnerable? Which issues divide the most?",
+      "costs": {
+        "budget": 5,
+        "capacity": 1,
+        "risk": 0
+      },
+      "effects": {
+        "divisiveness_bonus": 0.5,
+        "wedge_topics": true
+      },
+      "prerequisites": ["1.1"],
+      "unlocks": ["3.10", "7.6"],
+      "npc_affinity": ["marina", "katja"],
+      "legality": "legal",
+      "tags": ["analysis", "division", "strategy"]
+    },
+    {
+      "id": "1.8",
+      "phase": "ta01",
+      "disarm_ref": null,
+      "label_de": "Gegner beobachten",
+      "label_en": "Monitor Opposition",
+      "narrative_de": "Fact-Checker, investigative Journalisten - wir müssen wissen, was sie tun und planen.",
+      "narrative_en": "Fact-checkers, investigative journalists - we need to know what they're doing and planning.",
+      "costs": {
+        "budget": 5,
+        "capacity": 1,
+        "risk": 2
+      },
+      "effects": {
+        "early_warning": true,
+        "counter_intelligence": true
+      },
+      "prerequisites": [],
+      "unlocks": ["8.3"],
+      "npc_affinity": ["marina", "volkov"],
+      "legality": "grey",
+      "tags": ["intelligence", "defense"]
+    },
+    {
+      "id": "1.9",
+      "phase": "ta01",
+      "disarm_ref": null,
+      "label_de": "A/B-Testing vorbereiten",
+      "label_en": "Prepare A/B Testing",
+      "narrative_de": "Welche Botschaft funktioniert besser? Wir testen verschiedene Varianten an kleinen Gruppen.",
+      "narrative_en": "Which message works better? We test different variants on small groups.",
+      "costs": {
+        "budget": 3,
+        "capacity": 1,
+        "risk": 0
+      },
+      "effects": {
+        "message_optimization": true,
+        "content_bonus": 0.15
+      },
+      "prerequisites": ["1.1"],
+      "unlocks": [],
+      "npc_affinity": ["marina", "katja"],
+      "legality": "legal",
+      "tags": ["analysis", "optimization"]
+    },
+    {
+      "id": "1.10",
+      "phase": "ta01",
+      "disarm_ref": null,
+      "label_de": "Wirkungsanalyse",
+      "label_en": "Impact Analysis",
+      "narrative_de": "Hat unsere letzte Kampagne funktioniert? Was können wir verbessern?",
+      "narrative_en": "Did our last campaign work? What can we improve?",
+      "costs": {
+        "budget": 4,
+        "capacity": 1,
+        "risk": 0
+      },
+      "effects": {
+        "campaign_evaluation": true,
+        "learning_bonus": 0.1
+      },
+      "prerequisites": [],
+      "unlocks": [],
+      "npc_affinity": ["marina"],
+      "legality": "legal",
+      "tags": ["analysis", "evaluation"]
+    },
+    {
+      "id": "2.1",
+      "phase": "ta02",
+      "disarm_ref": "T0097",
+      "label_de": "Bot-Netzwerk aufbauen",
+      "label_en": "Build Bot Network",
+      "narrative_de": "Wir brauchen automatisierte Verstärkung. Tausende Accounts, die unsere Botschaften verbreiten.",
+      "narrative_en": "We need automated amplification. Thousands of accounts spreading our messages.",
+      "costs": {
+        "budget": 12,
+        "capacity": 2,
+        "risk": 5
+      },
+      "effects": {
+        "unlocks_bot_actions": true,
+        "amplification_base": 0.3
+      },
+      "prerequisites": [],
+      "unlocks": ["2.2", "5.1", "5.5"],
+      "npc_affinity": ["volkov", "igor"],
+      "legality": "illegal",
+      "tags": ["infrastructure", "automation", "digital"]
+    },
+    {
+      "id": "2.2",
+      "phase": "ta02",
+      "disarm_ref": "T0097",
+      "label_de": "Bot-Netzwerk erweitern",
+      "label_en": "Expand Bot Network",
+      "narrative_de": "Mehr Bots, mehr Reichweite. Wir verdoppeln unsere Kapazität.",
+      "narrative_en": "More bots, more reach. We're doubling our capacity.",
+      "costs": {
+        "budget": 8,
+        "capacity": 1,
+        "risk": 2
+      },
+      "effects": {
+        "amplification_bonus": 0.5
+      },
+      "prerequisites": ["2.1"],
+      "unlocks": [],
+      "npc_affinity": ["volkov"],
+      "legality": "illegal",
+      "tags": ["infrastructure", "automation", "upgrade"]
+    },
+    {
+      "id": "2.3",
+      "phase": "ta02",
+      "disarm_ref": "T0143",
+      "label_de": "Troll-Fabrik einrichten",
+      "label_en": "Set Up Troll Farm",
+      "narrative_de": "Echte Menschen, die Diskussionen stören und unsere Gegner attackieren. Effektiver als Bots.",
+      "narrative_en": "Real people disrupting discussions and attacking our opponents. More effective than bots.",
+      "costs": {
+        "budget": 10,
+        "capacity": 2,
+        "risk": 8
+      },
+      "effects": {
+        "unlocks_troll_actions": true,
+        "harassment_capacity": 0.25
+      },
+      "prerequisites": [],
+      "unlocks": ["5.3"],
+      "npc_affinity": ["volkov"],
+      "legality": "illegal",
+      "tags": ["infrastructure", "human_operators"]
+    },
+    {
+      "id": "2.4",
+      "phase": "ta02",
+      "disarm_ref": "T0004",
+      "label_de": "Fake-Account-Farm",
+      "label_en": "Fake Account Farm",
+      "narrative_de": "Authentisch wirkende Personas mit Geschichte und Freunden. Schwerer zu erkennen als Bots.",
+      "narrative_en": "Authentic-looking personas with history and friends. Harder to detect than bots.",
+      "costs": {
+        "budget": 6,
+        "capacity": 1,
+        "risk": 3
+      },
+      "effects": {
+        "persona_pool": 100,
+        "authenticity_bonus": 0.2
+      },
+      "prerequisites": [],
+      "unlocks": ["5.4", "5.9"],
+      "npc_affinity": ["volkov", "igor"],
+      "legality": "illegal",
+      "tags": ["infrastructure", "personas"]
+    },
+    {
+      "id": "2.5",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "VPN/Proxy-Infrastruktur",
+      "label_en": "VPN/Proxy Infrastructure",
+      "narrative_de": "Wir müssen unsere Spuren verwischen. Professionelle Anonymisierung für alle Operationen.",
+      "narrative_en": "We need to cover our tracks. Professional anonymization for all operations.",
+      "costs": {
+        "budget": 5,
+        "capacity": 1,
+        "risk": -5
+      },
+      "effects": {
+        "risk_reduction": 0.15,
+        "opsec_bonus": true
+      },
+      "prerequisites": [],
+      "unlocks": [],
+      "npc_affinity": ["igor"],
+      "legality": "legal",
+      "tags": ["infrastructure", "security", "defense"]
+    },
+    {
+      "id": "2.6",
+      "phase": "ta02",
+      "disarm_ref": "T0003",
+      "label_de": "Server-Infrastruktur",
+      "label_en": "Server Infrastructure",
+      "narrative_de": "Eigene Server für Fake-News-Seiten, Hosting und mehr. Außerhalb der Reichweite westlicher Behörden.",
+      "narrative_en": "Own servers for fake news sites, hosting and more. Outside the reach of Western authorities.",
+      "costs": {
+        "budget": 8,
+        "capacity": 1,
+        "risk": 2
+      },
+      "effects": {
+        "hosting_capacity": true,
+        "website_unlocks": true
+      },
+      "prerequisites": [],
+      "unlocks": ["3.5", "3.7"],
+      "npc_affinity": ["igor"],
+      "legality": "grey",
+      "tags": ["infrastructure", "technical"]
+    },
+    {
+      "id": "2.7",
+      "phase": "ta02",
+      "disarm_ref": "T0121",
+      "label_de": "Scheduling-Tools",
+      "label_en": "Scheduling Tools",
+      "narrative_de": "Automatisierte Planung für Posts. Rund um die Uhr präsent, ohne rund um die Uhr zu arbeiten.",
+      "narrative_en": "Automated scheduling for posts. Around the clock presence without working around the clock.",
+      "costs": {
+        "budget": 3,
+        "capacity": 1,
+        "risk": 1
+      },
+      "effects": {
+        "automation_efficiency": 0.4,
+        "24h_presence": true
+      },
+      "prerequisites": [],
+      "unlocks": [],
+      "npc_affinity": ["igor", "volkov"],
+      "legality": "legal",
+      "tags": ["infrastructure", "automation", "efficiency"]
+    },
+    {
+      "id": "2.8",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "Verein gründen",
+      "label_en": "Found Association",
+      "narrative_de": "Ein harmlos klingender Verein als Tarnung. 'Bürger für Wahrheit' oder ähnlich.",
+      "narrative_en": "An innocent-sounding association as cover. 'Citizens for Truth' or similar.",
+      "costs": {
+        "budget": 8,
+        "capacity": 2,
+        "risk": 3
+      },
+      "effects": {
+        "legitimacy_cover": true,
+        "offline_presence": true
+      },
+      "prerequisites": [],
+      "unlocks": ["4.13", "6.9"],
+      "npc_affinity": ["katja"],
+      "legality": "legal",
+      "tags": ["infrastructure", "institutional", "cover"]
+    },
+    {
+      "id": "2.9",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "NGO gründen",
+      "label_en": "Found NGO",
+      "narrative_de": "Eine scheinbar unabhängige Organisation. Mehr Legitimität als ein einfacher Verein.",
+      "narrative_en": "A seemingly independent organization. More legitimacy than a simple association.",
+      "costs": {
+        "budget": 12,
+        "capacity": 2,
+        "risk": 4
+      },
+      "effects": {
+        "high_legitimacy": true,
+        "media_access": true
+      },
+      "prerequisites": [],
+      "unlocks": ["4.14", "6.8"],
+      "npc_affinity": ["katja", "direktor"],
+      "legality": "legal",
+      "tags": ["infrastructure", "institutional", "legitimacy"]
+    },
+    {
+      "id": "2.10",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "Think-Tank gründen",
+      "label_en": "Found Think Tank",
+      "narrative_de": "Pseudo-wissenschaftliche Legitimität. Studien, Berichte, Expertenmeinungen - alles unter unserer Kontrolle.",
+      "narrative_en": "Pseudo-scientific legitimacy. Studies, reports, expert opinions - all under our control.",
+      "costs": {
+        "budget": 20,
+        "capacity": 4,
+        "risk": 6
+      },
+      "effects": {
+        "academic_legitimacy": true,
+        "study_production": true,
+        "expert_pool": true
+      },
+      "prerequisites": [],
+      "unlocks": ["2.15", "3.15", "4.12"],
+      "npc_affinity": ["direktor"],
+      "legality": "legal",
+      "tags": ["infrastructure", "institutional", "legitimacy", "academic"]
+    },
+    {
+      "id": "2.11",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "Tarnfirma gründen",
+      "label_en": "Found Shell Company",
+      "narrative_de": "Eine Firma als Fassade. Geld waschen, Zahlungen verschleiern, legitim erscheinen.",
+      "narrative_en": "A company as a facade. Launder money, obscure payments, appear legitimate.",
+      "costs": {
+        "budget": 12,
+        "capacity": 2,
+        "risk": 3
+      },
+      "effects": {
+        "financial_cover": true,
+        "business_legitimacy": true
+      },
+      "prerequisites": [],
+      "unlocks": ["6.7"],
+      "npc_affinity": ["direktor"],
+      "legality": "grey",
+      "tags": ["infrastructure", "financial", "cover"]
+    },
+    {
+      "id": "2.12",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "Partei finanziell unterstützen",
+      "label_en": "Fund Political Party",
+      "narrative_de": "Verdeckte Spenden an eine Partei, die unseren Interessen dient. Einfluss durch Geld.",
+      "narrative_en": "Covert donations to a party that serves our interests. Influence through money.",
+      "costs": {
+        "budget": 15,
+        "capacity": 1,
+        "risk": 8
+      },
+      "effects": {
+        "political_influence": true,
+        "party_access": true
+      },
+      "prerequisites": [],
+      "unlocks": ["6.1", "6.3"],
+      "npc_affinity": ["direktor"],
+      "legality": "illegal",
+      "tags": ["infrastructure", "political", "funding"]
+    },
+    {
+      "id": "2.13",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "Strohmann-Partei gründen",
+      "label_en": "Found Puppet Party",
+      "narrative_de": "Eine eigene Partei, vollständig unter unserer Kontrolle. Langfristige Investition mit maximaler Kontrolle.",
+      "narrative_en": "Our own party, completely under our control. Long-term investment with maximum control.",
+      "costs": {
+        "budget": 25,
+        "capacity": 4,
+        "risk": 15
+      },
+      "effects": {
+        "full_political_control": true,
+        "candidate_pool": true
+      },
+      "prerequisites": [],
+      "unlocks": ["6.1", "6.2"],
+      "npc_affinity": ["direktor"],
+      "legality": "grey",
+      "tags": ["infrastructure", "political", "long_term"]
+    },
+    {
+      "id": "2.14",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "Bildungsträger gründen",
+      "label_en": "Found Educational Institute",
+      "narrative_de": "Seminare, Workshops, Schulungen - alles unter dem Deckmantel der Bildung. Langfristige Beeinflussung.",
+      "narrative_en": "Seminars, workshops, training - all under the guise of education. Long-term influence.",
+      "costs": {
+        "budget": 15,
+        "capacity": 3,
+        "risk": 4
+      },
+      "effects": {
+        "education_cover": true,
+        "youth_access": true,
+        "long_term_influence": true
+      },
+      "prerequisites": [],
+      "unlocks": ["6.10"],
+      "npc_affinity": ["katja"],
+      "legality": "legal",
+      "tags": ["infrastructure", "institutional", "education", "long_term"]
+    },
+    {
+      "id": "2.15",
+      "phase": "ta02",
+      "disarm_ref": "T0024",
+      "label_de": "Fake-Experten aufbauen",
+      "label_en": "Build Fake Experts",
+      "narrative_de": "Wir erschaffen Experten. Akademische Titel, Publikationen, Medienpräsenz - alles gefälscht, aber überzeugend.",
+      "narrative_en": "We create experts. Academic titles, publications, media presence - all fake but convincing.",
+      "costs": {
+        "budget": 10,
+        "capacity": 2,
+        "risk": 5
+      },
+      "effects": {
+        "expert_persona": true,
+        "legitimacy_boost": 0.2
+      },
+      "prerequisites": [],
+      "unlocks": ["4.12", "3.14"],
+      "npc_affinity": ["katja", "direktor"],
+      "legality": "illegal",
+      "tags": ["infrastructure", "persona", "expert"]
+    },
+    {
+      "id": "2.16",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "Echten Akademiker rekrutieren",
+      "label_en": "Recruit Real Academic",
+      "narrative_de": "Besser als ein gefälschter Experte: Ein echter, der für uns spricht. Geld, Ideologie oder Eitelkeit - jeder hat seinen Preis.",
+      "narrative_en": "Better than a fake expert: A real one who speaks for us. Money, ideology or vanity - everyone has their price.",
+      "costs": {
+        "budget": 12,
+        "capacity": 2,
+        "risk": 7
+      },
+      "effects": {
+        "real_expert": true,
+        "high_legitimacy": true,
+        "academic_network": true
+      },
+      "prerequisites": [],
+      "unlocks": ["4.12", "3.15"],
+      "npc_affinity": ["marina", "direktor"],
+      "legality": "grey",
+      "tags": ["recruitment", "expert", "mice"]
+    },
+    {
+      "id": "2.17",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "Journalisten rekrutieren",
+      "label_en": "Recruit Journalist",
+      "narrative_de": "Ein Insider in einer Redaktion. Unsere Geschichten werden zu ihren Geschichten.",
+      "narrative_en": "An insider in a newsroom. Our stories become their stories.",
+      "costs": {
+        "budget": 15,
+        "capacity": 2,
+        "risk": 10
+      },
+      "effects": {
+        "media_insider": true,
+        "story_placement": true
+      },
+      "prerequisites": [],
+      "unlocks": ["4.6", "4.10"],
+      "npc_affinity": ["katja", "direktor"],
+      "legality": "illegal",
+      "tags": ["recruitment", "media", "mice"]
+    },
+    {
+      "id": "2.18",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "Politiker-Kontakt aufbauen",
+      "label_en": "Build Politician Contact",
+      "narrative_de": "Beziehungen zu Politikern knüpfen. Noch keine Bestechung - nur Networking.",
+      "narrative_en": "Building relationships with politicians. No bribery yet - just networking.",
+      "costs": {
+        "budget": 10,
+        "capacity": 2,
+        "risk": 5
+      },
+      "effects": {
+        "political_access": true,
+        "insider_info": true
+      },
+      "prerequisites": [],
+      "unlocks": ["6.3", "6.7", "8.8"],
+      "npc_affinity": ["direktor"],
+      "legality": "legal",
+      "tags": ["recruitment", "political", "networking"]
+    },
+    {
+      "id": "2.19",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "Useful Idiots identifizieren",
+      "label_en": "Identify Useful Idiots",
+      "narrative_de": "Menschen, die unsere Narrative verbreiten, ohne zu wissen, dass sie für uns arbeiten. Ideologen, Narzissten, Naive.",
+      "narrative_en": "People who spread our narratives without knowing they work for us. Ideologues, narcissists, the naive.",
+      "costs": {
+        "budget": 5,
+        "capacity": 1,
+        "risk": 2
+      },
+      "effects": {
+        "unwitting_amplifiers": true,
+        "organic_reach": true
+      },
+      "prerequisites": ["1.6"],
+      "unlocks": ["5.6"],
+      "npc_affinity": ["marina"],
+      "legality": "legal",
+      "tags": ["recruitment", "amplification", "organic"]
+    },
+    {
+      "id": "2.20",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "Witting Agent rekrutieren (MICE)",
+      "label_en": "Recruit Witting Agent (MICE)",
+      "narrative_de": "Jemand, der bewusst für uns arbeitet. Money, Ideology, Coercion, Ego - welcher Hebel funktioniert?",
+      "narrative_en": "Someone who consciously works for us. Money, Ideology, Coercion, Ego - which lever works?",
+      "costs": {
+        "budget": 20,
+        "capacity": 3,
+        "risk": 12,
+        "moral_weight": 3
+      },
+      "effects": {
+        "witting_agent": true,
+        "insider_access": true,
+        "reliable_asset": true
+      },
+      "prerequisites": ["1.4"],
+      "unlocks": ["8.10"],
+      "npc_affinity": ["volkov", "direktor"],
+      "legality": "illegal",
+      "tags": ["recruitment", "mice", "espionage"]
+    }
+  ]
+}

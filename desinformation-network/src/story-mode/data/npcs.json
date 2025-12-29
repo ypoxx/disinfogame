@@ -1,0 +1,189 @@
+{
+  "npcs": [
+    {
+      "id": "direktor",
+      "name": "Direktor Volkov",
+      "role_de": "Leiter der Agentur",
+      "role_en": "Agency Director",
+      "portrait": "direktor",
+      "personality": {
+        "traits": ["authoritar", "strategisch", "kalt"],
+        "motivation": "Macht und Kontrolle uber die Operation",
+        "weakness": "Ungeduld bei langsamen Fortschritten"
+      },
+      "specialtyAreas": ["strategy", "political_leverage", "command"],
+      "enhancedActions": ["ta01_recruit_local", "ta05_establish_front"],
+      "dialogues": {
+        "greetings": {
+          "0": "Hmm. Sie verschwenden meine Zeit.",
+          "1": "Was gibt es zu berichten?",
+          "2": "Ah, unser aufsteigender Stern. Was haben Sie fur mich?",
+          "3": "Genosse! Ich habe grosse Plane fur uns beide."
+        },
+        "reactions": {
+          "success": "Akzeptabel. Weiter so.",
+          "failure": "Inakzeptabel. Enttauschen Sie mich nicht noch einmal.",
+          "crisis": "Dies konnte uns alle zu Fall bringen!"
+        },
+        "topics": {
+          "mission": "Die Destabilisierung von Westunion ist von hochster Prioritat.",
+          "resources": "Budget ist knapp. Nutzen Sie es weise.",
+          "risks": "Risiko ist unvermeidlich. Aber Entdeckung ist nicht akzeptabel."
+        }
+      },
+      "initialState": {
+        "relationshipLevel": 1,
+        "morale": 80,
+        "available": true
+      }
+    },
+    {
+      "id": "marina",
+      "name": "Marina Petrova",
+      "role_de": "Medien-Spezialistin",
+      "role_en": "Media Specialist",
+      "portrait": "marina",
+      "personality": {
+        "traits": ["kreativ", "manipulativ", "ehrgeizig"],
+        "motivation": "Anerkennung fur ihre Arbeit",
+        "weakness": "Neigt zu ubertriebenem Selbstvertrauen"
+      },
+      "specialtyAreas": ["media", "content_creation", "social_engineering"],
+      "enhancedActions": ["ta02_create_content", "ta03_amplify_message", "ta04_social_bots"],
+      "dialogues": {
+        "greetings": {
+          "0": "Wer sind Sie uberhaupt?",
+          "1": "Oh, Sie schon wieder. Was brauchen Sie?",
+          "2": "Schon Sie zu sehen! Ich habe neue Ideen...",
+          "3": "Endlich jemand, der meine Arbeit versteht!"
+        },
+        "reactions": {
+          "success": "Das ist erst der Anfang. Warten Sie ab!",
+          "failure": "Das war nicht meine Schuld. Die Daten waren schlecht.",
+          "crisis": "Wir mussen das sofort unter Kontrolle bringen!"
+        },
+        "topics": {
+          "content": "Inhalte mussen emotional sein. Fakten sind nebensachlich.",
+          "platforms": "Jede Plattform braucht einen anderen Ansatz.",
+          "viral": "Viralitat ist keine Kunst - es ist Wissenschaft."
+        }
+      },
+      "initialState": {
+        "relationshipLevel": 0,
+        "morale": 70,
+        "available": true
+      }
+    },
+    {
+      "id": "alexei",
+      "name": "Alexei Petrov",
+      "role_de": "Technischer Leiter",
+      "role_en": "Technical Lead",
+      "portrait": "volkov",
+      "personality": {
+        "traits": ["analytisch", "paranoid", "perfektionistisch"],
+        "motivation": "Technische Exzellenz und Sicherheit",
+        "weakness": "Ubermassige Vorsicht verlangsamt Operationen"
+      },
+      "specialtyAreas": ["technical", "infrastructure", "security"],
+      "enhancedActions": ["ta04_social_bots", "ta06_build_network", "ta07_data_harvest"],
+      "dialogues": {
+        "greetings": {
+          "0": "Ihre Sicherheitsprotokolle sind mangelhaft.",
+          "1": "Haben Sie die Verschlusselungsstandards aktualisiert?",
+          "2": "Gut, dass Sie da sind. Ich habe Verbesserungsvorschlage.",
+          "3": "Sie verstehen Technologie. Das schatze ich."
+        },
+        "reactions": {
+          "success": "Die Systeme laufen optimal. Vorerst.",
+          "failure": "Ich habe vor den Risiken gewarnt.",
+          "crisis": "Aktiviere Protokoll Omega. Sofort alles loschen."
+        },
+        "topics": {
+          "infrastructure": "Unsere Server sind uber 7 Lander verteilt.",
+          "bots": "Die Bot-Netzwerke brauchen standige Wartung.",
+          "security": "Jeder Fehler kann zur Entdeckung fuhren."
+        }
+      },
+      "initialState": {
+        "relationshipLevel": 0,
+        "morale": 60,
+        "available": true
+      }
+    },
+    {
+      "id": "katja",
+      "name": "Katja Orlova",
+      "role_de": "Feld-Operateurin",
+      "role_en": "Field Operative",
+      "portrait": "katja",
+      "personality": {
+        "traits": ["pragmatisch", "loyal", "risikobereit"],
+        "motivation": "Erfolgreiche Missionen und Teamschutz",
+        "weakness": "Emotionale Bindung an Quellen"
+      },
+      "specialtyAreas": ["field_ops", "recruitment", "human_intelligence"],
+      "enhancedActions": ["ta01_recruit_local", "ta05_establish_front", "ta08_infiltrate"],
+      "dialogues": {
+        "greetings": {
+          "0": "Ich bin beschaftigt. Machen Sie es kurz.",
+          "1": "Was brauchen Sie von mir?",
+          "2": "Gutes Timing. Ich habe Neuigkeiten aus dem Feld.",
+          "3": "Ich vertraue Ihnen. Das sage ich nicht oft."
+        },
+        "reactions": {
+          "success": "Mission erfolgreich. Auf zum nachsten Ziel.",
+          "failure": "Wir haben Leute verloren. Das wird nicht vergessen.",
+          "crisis": "Alle Kontakte abbrechen. Sofort untertauchen."
+        },
+        "topics": {
+          "field": "Das Feld ist unberechenbar. Plane halten nie lange.",
+          "contacts": "Meine Quellen sind mein Lebenswerk.",
+          "risks": "Risiko gehort zum Job. Aber unnotige Risiken nicht."
+        }
+      },
+      "initialState": {
+        "relationshipLevel": 0,
+        "morale": 75,
+        "available": true
+      }
+    },
+    {
+      "id": "igor",
+      "name": "Igor Smirnov",
+      "role_de": "Finanz-Analyst",
+      "role_en": "Financial Analyst",
+      "portrait": "igor",
+      "personality": {
+        "traits": ["vorsichtig", "akkurat", "misstrauisch"],
+        "motivation": "Finanzielle Stabilitat der Operation",
+        "weakness": "Zu konservativ bei Investitionen"
+      },
+      "specialtyAreas": ["finance", "money_laundering", "economic_warfare"],
+      "enhancedActions": ["ta05_establish_front", "ta09_economic_pressure"],
+      "dialogues": {
+        "greetings": {
+          "0": "Die Bucher stimmen nicht. Erklaren Sie sich.",
+          "1": "Haben Sie die Belege fur letzte Woche?",
+          "2": "Ah, jemand der Zahlen versteht. Gut.",
+          "3": "Sie sind einer der Wenigen, denen ich vertraue."
+        },
+        "reactions": {
+          "success": "Die Investition hat sich gelohnt. Vorerst.",
+          "failure": "Verschwendetes Budget. Das wird Konsequenzen haben.",
+          "crisis": "Alle Konten einfrieren. Notfall-Protokoll aktivieren."
+        },
+        "topics": {
+          "budget": "Jeder Rubel muss Rechenschaft ablegen.",
+          "fronts": "Tarnfirmen sind unsere Lebensader.",
+          "flow": "Geldstrome sind nachverfolgbar. Deshalb brauchen wir Schichten."
+        }
+      },
+      "initialState": {
+        "relationshipLevel": 0,
+        "morale": 65,
+        "available": true
+      }
+    }
+  ]
+}

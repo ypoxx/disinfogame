@@ -1,0 +1,2263 @@
+{
+  "meta": {
+    "note": "Fortsetzung von actions.json - Phase 3-8 + Countermeasures",
+    "merge_with": "actions.json"
+  },
+  "actions_phase3": [
+    {
+      "id": "3.1",
+      "phase": "ta03",
+      "disarm_ref": "T0023",
+      "label_de": "Fake-News-Artikel erstellen",
+      "label_en": "Create Fake News Article",
+      "narrative_de": "Ein gut geschriebener Artikel mit einer erfundenen Geschichte. Sieht echt aus, ist aber komplett konstruiert.",
+      "costs": {
+        "budget": 3,
+        "capacity": 1,
+        "risk": 3
+      },
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "content",
+        "text",
+        "disinformation"
+      ],
+      "effects": {
+        "content_quality": 0.19,
+        "trust_erosion": 0.27,
+        "effectiveness_boost": 0.27,
+        "backlash_risk": 0.13,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "3.2",
+      "phase": "ta03",
+      "disarm_ref": "T0141",
+      "label_de": "Meme-Serie erstellen",
+      "label_en": "Create Meme Series",
+      "narrative_de": "Bilder sagen mehr als Worte. Memes verbreiten sich wie ein Virus und sind schwer zu bekämpfen.",
+      "costs": {
+        "budget": 2,
+        "capacity": 1,
+        "risk": 1
+      },
+      "npc_affinity": [
+        "katja",
+        "igor"
+      ],
+      "legality": "grey",
+      "tags": [
+        "content",
+        "visual",
+        "viral"
+      ],
+      "effects": {
+        "content_quality": 0.16,
+        "virality_boost": 0.29,
+        "deniability": 0.45,
+        "impact_scale": "low"
+      }
+    },
+    {
+      "id": "3.3",
+      "phase": "ta03",
+      "disarm_ref": null,
+      "label_de": "Emotionales Video erstellen",
+      "label_en": "Create Emotional Video",
+      "narrative_de": "Wut, Angst, Empörung - Emotionen bewegen Menschen. Ein gut gemachtes Video kann Massen mobilisieren.",
+      "costs": {
+        "budget": 5,
+        "capacity": 2,
+        "risk": 4
+      },
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "grey",
+      "tags": [
+        "content",
+        "video",
+        "emotional"
+      ],
+      "effects": {
+        "content_quality": 0.25,
+        "emotional_impact": 0.31,
+        "deniability": 0.32,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "3.4",
+      "phase": "ta03",
+      "disarm_ref": "T0025",
+      "label_de": "AI-generierte Texte",
+      "label_en": "AI-Generated Texts",
+      "narrative_de": "Massenhaft Content mit KI produzieren. Schnell, billig, skalierbar.",
+      "costs": {
+        "budget": 4,
+        "capacity": 1,
+        "risk": 2
+      },
+      "prerequisites": [
+        "2.6"
+      ],
+      "npc_affinity": [
+        "igor"
+      ],
+      "legality": "grey",
+      "tags": [
+        "content",
+        "ai",
+        "scale"
+      ],
+      "effects": {
+        "content_quality": 0.22,
+        "detection_difficulty": 0.46,
+        "deniability": 0.48,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "3.5",
+      "phase": "ta03",
+      "disarm_ref": "T0086",
+      "label_de": "Deep Fake Video",
+      "label_en": "Deep Fake Video",
+      "narrative_de": "Eine Person sagt oder tut Dinge, die sie nie gesagt oder getan hat. Mächtig und gefährlich.",
+      "costs": {
+        "budget": 15,
+        "capacity": 3,
+        "risk": 10,
+        "moral_weight": 4
+      },
+      "prerequisites": [
+        "2.6"
+      ],
+      "npc_affinity": [
+        "igor"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "content",
+        "ai",
+        "deepfake",
+        "high_impact"
+      ],
+      "effects": {
+        "content_quality": 0.21,
+        "detection_difficulty": 0.36,
+        "effectiveness_boost": 0.28,
+        "backlash_risk": 0.2,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "3.6",
+      "phase": "ta03",
+      "disarm_ref": "T0086",
+      "label_de": "Deep Fake Audio",
+      "label_en": "Deep Fake Audio",
+      "narrative_de": "Gefälschte Aufnahmen. Leichter zu produzieren als Video, schwerer zu widerlegen.",
+      "costs": {
+        "budget": 8,
+        "capacity": 2,
+        "risk": 8,
+        "moral_weight": 3
+      },
+      "prerequisites": [
+        "2.6"
+      ],
+      "npc_affinity": [
+        "igor"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "content",
+        "ai",
+        "deepfake",
+        "audio"
+      ],
+      "effects": {
+        "content_quality": 0.2,
+        "detection_difficulty": 0.46,
+        "effectiveness_boost": 0.22,
+        "backlash_risk": 0.25,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "3.7",
+      "phase": "ta03",
+      "disarm_ref": "T0003",
+      "label_de": "Fake-News-Website klonen",
+      "label_en": "Clone Fake News Website",
+      "narrative_de": "Eine Website, die wie ein echtes Nachrichtenportal aussieht. Typosquatting inklusive.",
+      "costs": {
+        "budget": 5,
+        "capacity": 1,
+        "risk": 5
+      },
+      "prerequisites": [
+        "2.6"
+      ],
+      "npc_affinity": [
+        "igor"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "content",
+        "infrastructure",
+        "impersonation"
+      ],
+      "effects": {
+        "content_quality": 0.25,
+        "infrastructure_boost": 1,
+        "credibility_theft": 0.32,
+        "effectiveness_boost": 0.24,
+        "backlash_risk": 0.22,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "3.8",
+      "phase": "ta03",
+      "disarm_ref": null,
+      "label_de": "Gefälschte Dokumente erstellen",
+      "label_en": "Create Forged Documents",
+      "narrative_de": "Offizielle aussehende Dokumente, Briefe, E-Mails. 'Geleakte' Beweise für unsere Narrative.",
+      "costs": {
+        "budget": 10,
+        "capacity": 2,
+        "risk": 8,
+        "moral_weight": 3
+      },
+      "npc_affinity": [
+        "igor",
+        "katja"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "content",
+        "forgery",
+        "evidence"
+      ],
+      "effects": {
+        "content_quality": 0.19,
+        "effectiveness_boost": 0.29,
+        "backlash_risk": 0.22,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "3.9",
+      "phase": "ta03",
+      "disarm_ref": "T0082",
+      "label_de": "Verschwörungsnarrativ entwickeln",
+      "label_en": "Develop Conspiracy Narrative",
+      "narrative_de": "Die Wahrheit ist da draußen - und wir erfinden sie. Verschwörungstheorien haben loyale Anhänger.",
+      "costs": {
+        "budget": 4,
+        "capacity": 1,
+        "risk": 5
+      },
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "grey",
+      "tags": [
+        "content",
+        "narrative",
+        "conspiracy"
+      ],
+      "effects": {
+        "content_quality": 0.19,
+        "polarization": 0.26,
+        "deniability": 0.36,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "3.10",
+      "phase": "ta03",
+      "disarm_ref": "T0083",
+      "label_de": "Spaltungsnarrativ entwickeln",
+      "label_en": "Develop Division Narrative",
+      "narrative_de": "Links gegen Rechts, Alt gegen Jung, Stadt gegen Land. Wir verstärken bestehende Konflikte.",
+      "costs": {
+        "budget": 4,
+        "capacity": 1,
+        "risk": 4
+      },
+      "prerequisites": [
+        "1.7"
+      ],
+      "npc_affinity": [
+        "katja",
+        "marina"
+      ],
+      "legality": "grey",
+      "tags": [
+        "content",
+        "narrative",
+        "division"
+      ],
+      "effects": {
+        "content_quality": 0.21,
+        "social_division": 0.16,
+        "deniability": 0.47,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "3.11",
+      "phase": "ta03",
+      "disarm_ref": "T0081",
+      "label_de": "Gegennarrativ zu Fakten",
+      "label_en": "Counter-Narrative to Facts",
+      "narrative_de": "Die Wahrheit verwässern. Alternative Erklärungen, Zweifel säen, 'beide Seiten' darstellen.",
+      "costs": {
+        "budget": 3,
+        "capacity": 1,
+        "risk": 2
+      },
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "grey",
+      "tags": [
+        "content",
+        "narrative",
+        "counter"
+      ],
+      "effects": {
+        "content_quality": 0.17,
+        "deniability": 0.39,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "3.12",
+      "phase": "ta03",
+      "disarm_ref": null,
+      "label_de": "Historien-Revision",
+      "label_en": "History Revision",
+      "narrative_de": "Die Vergangenheit umschreiben. Wer die Geschichte kontrolliert, kontrolliert die Gegenwart.",
+      "costs": {
+        "budget": 6,
+        "capacity": 2,
+        "risk": 6
+      },
+      "npc_affinity": [
+        "katja",
+        "direktor"
+      ],
+      "legality": "grey",
+      "tags": [
+        "content",
+        "narrative",
+        "history",
+        "long_term"
+      ],
+      "effects": {
+        "content_quality": 0.17,
+        "deniability": 0.49,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "3.13",
+      "phase": "ta03",
+      "disarm_ref": "T0063",
+      "label_de": "Polarisierender Content",
+      "label_en": "Polarizing Content",
+      "narrative_de": "Kontroverse Inhalte, die Reaktionen provozieren. Engagement durch Empörung.",
+      "costs": {
+        "budget": 4,
+        "capacity": 1,
+        "risk": 3
+      },
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "grey",
+      "tags": [
+        "content",
+        "engagement",
+        "polarization"
+      ],
+      "effects": {
+        "content_quality": 0.25,
+        "social_division": 0.17,
+        "deniability": 0.46,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "3.14",
+      "phase": "ta03",
+      "disarm_ref": null,
+      "label_de": "Buch veröffentlichen",
+      "label_en": "Publish Book",
+      "narrative_de": "Ein Buch verleiht Autorität. 'Laut dem Buch...' klingt seriöser als 'Laut Facebook...'",
+      "costs": {
+        "budget": 15,
+        "capacity": 3,
+        "risk": 5
+      },
+      "prerequisites": [
+        "2.15"
+      ],
+      "npc_affinity": [
+        "katja",
+        "direktor"
+      ],
+      "legality": "legal",
+      "tags": [
+        "content",
+        "legitimacy",
+        "long_term"
+      ],
+      "effects": {
+        "content_quality": 0.15,
+        "sustainability": 0.55,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "3.15",
+      "phase": "ta03",
+      "disarm_ref": null,
+      "label_de": "Studie fabrizieren",
+      "label_en": "Fabricate Study",
+      "narrative_de": "Pseudo-wissenschaftliche Studien mit vorbestimmten Ergebnissen. 'Die Wissenschaft sagt...'",
+      "costs": {
+        "budget": 12,
+        "capacity": 3,
+        "risk": 6
+      },
+      "prerequisites": [
+        "2.10"
+      ],
+      "npc_affinity": [
+        "marina",
+        "direktor"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "content",
+        "academic",
+        "legitimacy"
+      ],
+      "effects": {
+        "content_quality": 0.19,
+        "effectiveness_boost": 0.18,
+        "backlash_risk": 0.13,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "3.16",
+      "phase": "ta03",
+      "disarm_ref": null,
+      "label_de": "Pseudo-Dokumentation",
+      "label_en": "Pseudo-Documentary",
+      "narrative_de": "Ein 'Dokumentarfilm', der unsere Version der Ereignisse als Wahrheit präsentiert.",
+      "costs": {
+        "budget": 12,
+        "capacity": 3,
+        "risk": 8
+      },
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "grey",
+      "tags": [
+        "content",
+        "video",
+        "documentary"
+      ],
+      "effects": {
+        "content_quality": 0.2,
+        "deniability": 0.46,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "3.17",
+      "phase": "ta03",
+      "disarm_ref": null,
+      "label_de": "Pressemitteilung verfassen",
+      "label_en": "Write Press Release",
+      "narrative_de": "Offizielle Kommunikation von unseren Tarnorganisationen. Sieht legitim aus.",
+      "costs": {
+        "budget": 3,
+        "capacity": 1,
+        "risk": 1
+      },
+      "prerequisites": [
+        "2.8"
+      ],
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "legal",
+      "tags": [
+        "content",
+        "pr",
+        "official"
+      ],
+      "effects": {
+        "content_quality": 0.23,
+        "sustainability": 0.45,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "3.18",
+      "phase": "ta03",
+      "disarm_ref": null,
+      "label_de": "Fake-Whistleblower inszenieren",
+      "label_en": "Stage Fake Whistleblower",
+      "narrative_de": "Ein 'Insider' enthüllt 'geheime Informationen'. Alles inszeniert, aber überzeugend.",
+      "costs": {
+        "budget": 18,
+        "capacity": 3,
+        "risk": 12,
+        "moral_weight": 4
+      },
+      "npc_affinity": [
+        "katja",
+        "volkov"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "content",
+        "persona",
+        "high_impact"
+      ],
+      "effects": {
+        "content_quality": 0.15,
+        "effectiveness_boost": 0.24,
+        "backlash_risk": 0.26,
+        "impact_scale": "high"
+      }
+    }
+  ],
+  "actions_phase4": [
+    {
+      "id": "4.1",
+      "phase": "ta04",
+      "disarm_ref": null,
+      "label_de": "Social Media Post",
+      "label_en": "Social Media Post",
+      "narrative_de": "Ein einzelner Post auf den großen Plattformen. Der Anfang jeder Kampagne.",
+      "costs": {
+        "budget": 1,
+        "capacity": 1,
+        "risk": 1
+      },
+      "npc_affinity": [
+        "katja",
+        "volkov"
+      ],
+      "legality": "legal",
+      "tags": [
+        "distribution",
+        "social_media",
+        "basic"
+      ],
+      "effects": {
+        "sustainability": 0.49,
+        "impact_scale": "low"
+      }
+    },
+    {
+      "id": "4.2",
+      "phase": "ta04",
+      "disarm_ref": null,
+      "label_de": "Blog-Netzwerk nutzen",
+      "label_en": "Use Blog Network",
+      "narrative_de": "Verbreitung über scheinbar unabhängige Blogs. Verschiedene Stimmen, gleiche Botschaft.",
+      "costs": {
+        "budget": 5,
+        "capacity": 1,
+        "risk": 2
+      },
+      "prerequisites": [
+        "2.6"
+      ],
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "grey",
+      "tags": [
+        "distribution",
+        "blogs",
+        "network"
+      ],
+      "effects": {
+        "network_reach": 0.28,
+        "deniability": 0.42,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "4.3",
+      "phase": "ta04",
+      "disarm_ref": null,
+      "label_de": "Telegram-Kanal bespielen",
+      "label_en": "Use Telegram Channel",
+      "narrative_de": "Telegram - wenig Moderation, treue Follower. Perfekt für radikalere Inhalte.",
+      "costs": {
+        "budget": 3,
+        "capacity": 1,
+        "risk": 1
+      },
+      "npc_affinity": [
+        "volkov"
+      ],
+      "legality": "legal",
+      "tags": [
+        "distribution",
+        "messaging",
+        "direct"
+      ],
+      "effects": {
+        "sustainability": 0.54,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "4.4",
+      "phase": "ta04",
+      "disarm_ref": null,
+      "label_de": "YouTube-Video hochladen",
+      "label_en": "Upload YouTube Video",
+      "narrative_de": "Video-Content auf der größten Plattform. Algorithmus kann Freund oder Feind sein.",
+      "costs": {
+        "budget": 4,
+        "capacity": 1,
+        "risk": 2
+      },
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "legal",
+      "tags": [
+        "distribution",
+        "video",
+        "platform"
+      ],
+      "effects": {
+        "platform_presence": true,
+        "sustainability": 0.56,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "4.5",
+      "phase": "ta04",
+      "disarm_ref": null,
+      "label_de": "Newsletter versenden",
+      "label_en": "Send Newsletter",
+      "narrative_de": "Direkt in die Inbox. Persönlich, vertrauenswürdig, schwer zu filtern.",
+      "costs": {
+        "budget": 4,
+        "capacity": 1,
+        "risk": 1
+      },
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "legal",
+      "tags": [
+        "distribution",
+        "email",
+        "direct"
+      ],
+      "effects": {
+        "sustainability": 0.53,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "4.6",
+      "phase": "ta04",
+      "disarm_ref": null,
+      "label_de": "Boulevardblatt füttern",
+      "label_en": "Feed Tabloid",
+      "narrative_de": "Die Boulevardpresse liebt Skandale. Wir liefern, sie drucken.",
+      "costs": {
+        "budget": 5,
+        "capacity": 1,
+        "risk": 4
+      },
+      "prerequisites": [
+        "2.17"
+      ],
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "grey",
+      "tags": [
+        "distribution",
+        "traditional_media",
+        "tabloid"
+      ],
+      "effects": {
+        "deniability": 0.38,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "4.7",
+      "phase": "ta04",
+      "disarm_ref": null,
+      "label_de": "Redakteur kontaktieren",
+      "label_en": "Contact Editor",
+      "narrative_de": "Persönlicher Kontakt zu Entscheidern in Redaktionen. Subtile Beeinflussung.",
+      "costs": {
+        "budget": 8,
+        "capacity": 2,
+        "risk": 8
+      },
+      "npc_affinity": [
+        "katja",
+        "direktor"
+      ],
+      "legality": "grey",
+      "tags": [
+        "distribution",
+        "traditional_media",
+        "influence"
+      ],
+      "effects": {
+        "influence_gain": 0.25,
+        "deniability": 0.42,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "4.8",
+      "phase": "ta04",
+      "disarm_ref": null,
+      "label_de": "Anzeigen schalten",
+      "label_en": "Place Advertisements",
+      "narrative_de": "Bezahlte Werbung für unsere Botschaften. Legal, aber teuer.",
+      "costs": {
+        "budget": 6,
+        "capacity": 1,
+        "risk": 2
+      },
+      "npc_affinity": [
+        "direktor"
+      ],
+      "legality": "legal",
+      "tags": [
+        "distribution",
+        "advertising",
+        "paid"
+      ],
+      "effects": {
+        "sustainability": 0.49,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "4.9",
+      "phase": "ta04",
+      "disarm_ref": null,
+      "label_de": "Leserbrief-Kampagne",
+      "label_en": "Letter Campaign",
+      "narrative_de": "Koordinierte Leserbriefe an Zeitungen. Viele Stimmen, eine Meinung.",
+      "costs": {
+        "budget": 3,
+        "capacity": 1,
+        "risk": 1
+      },
+      "prerequisites": [
+        "2.4"
+      ],
+      "npc_affinity": [
+        "volkov"
+      ],
+      "legality": "grey",
+      "tags": [
+        "distribution",
+        "traditional_media",
+        "astroturf"
+      ],
+      "effects": {
+        "deniability": 0.46,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "4.10",
+      "phase": "ta04",
+      "disarm_ref": "T0039",
+      "label_de": "Journalist ködern",
+      "label_en": "Bait Journalist",
+      "narrative_de": "Einem Journalisten eine 'exklusive Story' unterschieben. Funktioniert es, haben wir Mainstream-Reichweite.",
+      "costs": {
+        "budget": 12,
+        "capacity": 2,
+        "risk": 10
+      },
+      "npc_affinity": [
+        "katja",
+        "marina"
+      ],
+      "legality": "grey",
+      "tags": [
+        "distribution",
+        "traditional_media",
+        "high_risk_high_reward"
+      ],
+      "effects": {
+        "deniability": 0.41,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "4.11",
+      "phase": "ta04",
+      "disarm_ref": null,
+      "label_de": "Radio-Talkshow infiltrieren",
+      "label_en": "Infiltrate Radio Talkshow",
+      "narrative_de": "Koordinierte Anrufer in Talkshows. Scheinbar spontane Bürgermeinungen.",
+      "costs": {
+        "budget": 6,
+        "capacity": 2,
+        "risk": 4
+      },
+      "prerequisites": [
+        "2.3"
+      ],
+      "npc_affinity": [
+        "volkov"
+      ],
+      "legality": "grey",
+      "tags": [
+        "distribution",
+        "traditional_media",
+        "astroturf"
+      ],
+      "effects": {
+        "deniability": 0.48,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "4.12",
+      "phase": "ta04",
+      "disarm_ref": null,
+      "label_de": "Talkshow-Gast platzieren",
+      "label_en": "Place Talkshow Guest",
+      "narrative_de": "Unser 'Experte' in einer TV-Talkshow. Millionen Zuschauer, unsere Narrative.",
+      "costs": {
+        "budget": 8,
+        "capacity": 2,
+        "risk": 6
+      },
+      "prerequisites": [
+        "2.15"
+      ],
+      "npc_affinity": [
+        "katja",
+        "direktor"
+      ],
+      "legality": "grey",
+      "tags": [
+        "distribution",
+        "traditional_media",
+        "expert",
+        "high_impact"
+      ],
+      "effects": {
+        "deniability": 0.3,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "4.13",
+      "phase": "ta04",
+      "disarm_ref": "T0057",
+      "label_de": "Demonstration organisieren",
+      "label_en": "Organize Demonstration",
+      "narrative_de": "Menschen auf die Straße bringen. Sichtbare Unterstützung für unsere Sache.",
+      "costs": {
+        "budget": 8,
+        "capacity": 2,
+        "risk": 5,
+        "attention": 3
+      },
+      "prerequisites": [
+        "2.8"
+      ],
+      "npc_affinity": [
+        "volkov"
+      ],
+      "legality": "legal",
+      "tags": [
+        "distribution",
+        "offline",
+        "mobilization"
+      ],
+      "effects": {
+        "sustainability": 0.55,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "4.14",
+      "phase": "ta04",
+      "disarm_ref": null,
+      "label_de": "Pressekonferenz inszenieren",
+      "label_en": "Stage Press Conference",
+      "narrative_de": "Eine offizielle Pressekonferenz unserer Tarnorganisation. Medien kommen, berichten.",
+      "costs": {
+        "budget": 10,
+        "capacity": 2,
+        "risk": 6
+      },
+      "prerequisites": [
+        "2.9"
+      ],
+      "npc_affinity": [
+        "katja",
+        "direktor"
+      ],
+      "legality": "legal",
+      "tags": [
+        "distribution",
+        "offline",
+        "pr",
+        "official"
+      ],
+      "effects": {
+        "sustainability": 0.51,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "4.15",
+      "phase": "ta04",
+      "disarm_ref": null,
+      "label_de": "Konferenz sponsern",
+      "label_en": "Sponsor Conference",
+      "narrative_de": "Akademische Konferenzen mit unserer Agenda. Legitimität durch Wissenschaft.",
+      "costs": {
+        "budget": 12,
+        "capacity": 2,
+        "risk": 4
+      },
+      "prerequisites": [
+        "2.10"
+      ],
+      "npc_affinity": [
+        "direktor"
+      ],
+      "legality": "legal",
+      "tags": [
+        "distribution",
+        "offline",
+        "academic",
+        "legitimacy"
+      ],
+      "effects": {
+        "sustainability": 0.54,
+        "impact_scale": "high"
+      }
+    }
+  ],
+  "actions_phase5": [
+    {
+      "id": "5.1",
+      "phase": "ta05",
+      "disarm_ref": "T0035",
+      "label_de": "Bot-Schwarm aktivieren",
+      "label_en": "Activate Bot Swarm",
+      "narrative_de": "Tausende Bots verbreiten unseren Content gleichzeitig. Künstliche Viralität.",
+      "costs": {
+        "budget": 5,
+        "capacity": 2,
+        "risk": 5
+      },
+      "prerequisites": [
+        "2.1"
+      ],
+      "npc_affinity": [
+        "volkov"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "amplification",
+        "automation",
+        "bots"
+      ],
+      "effects": {
+        "reach_multiplier": 1.67,
+        "automation_level": 0.49,
+        "effectiveness_boost": 0.16,
+        "backlash_risk": 0.25,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "5.2",
+      "phase": "ta05",
+      "disarm_ref": "T0034",
+      "label_de": "Hashtag-Kampagne",
+      "label_en": "Hashtag Campaign",
+      "narrative_de": "Ein Hashtag zum Trending Topic machen. Sichtbarkeit erzwingen.",
+      "costs": {
+        "budget": 4,
+        "capacity": 1,
+        "risk": 3
+      },
+      "npc_affinity": [
+        "volkov",
+        "katja"
+      ],
+      "legality": "grey",
+      "tags": [
+        "amplification",
+        "social_media",
+        "trending"
+      ],
+      "effects": {
+        "reach_multiplier": 1.52,
+        "deniability": 0.35,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "5.3",
+      "phase": "ta05",
+      "disarm_ref": null,
+      "label_de": "Troll-Attacke",
+      "label_en": "Troll Attack",
+      "narrative_de": "Koordinierter Angriff auf eine Person oder ein Thema. Diskussion dominieren, Gegner einschüchtern.",
+      "costs": {
+        "budget": 6,
+        "capacity": 2,
+        "risk": 8,
+        "moral_weight": 2
+      },
+      "prerequisites": [
+        "2.3"
+      ],
+      "npc_affinity": [
+        "volkov"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "amplification",
+        "harassment",
+        "trolling"
+      ],
+      "effects": {
+        "reach_multiplier": 1.45,
+        "target_damage": 0.39,
+        "effectiveness_boost": 0.23,
+        "backlash_risk": 0.29,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "5.4",
+      "phase": "ta05",
+      "disarm_ref": "T0053",
+      "label_de": "Astroturfing",
+      "label_en": "Astroturfing",
+      "narrative_de": "Eine Graswurzelbewegung simulieren. Künstlich, aber überzeugend organisch wirkend.",
+      "costs": {
+        "budget": 8,
+        "capacity": 2,
+        "risk": 6
+      },
+      "prerequisites": [
+        "2.4"
+      ],
+      "npc_affinity": [
+        "volkov",
+        "katja"
+      ],
+      "legality": "grey",
+      "tags": [
+        "amplification",
+        "fake_grassroots"
+      ],
+      "effects": {
+        "reach_multiplier": 1.44,
+        "deniability": 0.4,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "5.5",
+      "phase": "ta05",
+      "disarm_ref": null,
+      "label_de": "Cross-Platform-Push",
+      "label_en": "Cross-Platform Push",
+      "narrative_de": "Gleichzeitig auf allen Plattformen. Koordinierter, überwältigender Effekt.",
+      "costs": {
+        "budget": 8,
+        "capacity": 3,
+        "risk": 7
+      },
+      "prerequisites": [
+        "2.1",
+        "2.3"
+      ],
+      "npc_affinity": [
+        "volkov"
+      ],
+      "legality": "grey",
+      "tags": [
+        "amplification",
+        "multi_platform",
+        "coordinated"
+      ],
+      "effects": {
+        "reach_multiplier": 1.57,
+        "deniability": 0.41,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "5.6",
+      "phase": "ta05",
+      "disarm_ref": null,
+      "label_de": "Influencer kaufen",
+      "label_en": "Buy Influencer",
+      "narrative_de": "Reichweite leihen. Ein Influencer verbreitet unsere Botschaft an sein Publikum.",
+      "costs": {
+        "budget": 10,
+        "capacity": 2,
+        "risk": 10
+      },
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "grey",
+      "tags": [
+        "amplification",
+        "influencer",
+        "paid"
+      ],
+      "effects": {
+        "reach_multiplier": 1.66,
+        "deniability": 0.49,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "5.7",
+      "phase": "ta05",
+      "disarm_ref": "T0060",
+      "label_de": "Kampagne fortsetzen",
+      "label_en": "Continue Campaign",
+      "narrative_de": "Momentum aufrechterhalten. Nicht nachlassen, bevor die Botschaft sitzt.",
+      "costs": {
+        "budget": 3,
+        "capacity": 1,
+        "risk": 2
+      },
+      "npc_affinity": [
+        "volkov"
+      ],
+      "legality": "grey",
+      "tags": [
+        "amplification",
+        "persistence"
+      ],
+      "effects": {
+        "reach_multiplier": 1.24,
+        "deniability": 0.49,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "5.8",
+      "phase": "ta05",
+      "disarm_ref": "T0049",
+      "label_de": "Information Flooding",
+      "label_en": "Information Flooding",
+      "narrative_de": "Die Zone mit Informationen fluten. Wahrheit und Lüge ununterscheidbar machen.",
+      "costs": {
+        "budget": 10,
+        "capacity": 3,
+        "risk": 8
+      },
+      "prerequisites": [
+        "2.1"
+      ],
+      "npc_affinity": [
+        "volkov",
+        "igor"
+      ],
+      "legality": "grey",
+      "tags": [
+        "amplification",
+        "flooding",
+        "confusion"
+      ],
+      "effects": {
+        "reach_multiplier": 1.21,
+        "deniability": 0.32,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "5.9",
+      "phase": "ta05",
+      "disarm_ref": "T0062",
+      "label_de": "Persona-Pflege",
+      "label_en": "Maintain Personas",
+      "narrative_de": "Fake-Accounts müssen gepflegt werden. Geschichte aufbauen, glaubwürdig bleiben.",
+      "costs": {
+        "budget": 4,
+        "capacity": 1,
+        "risk": 1
+      },
+      "prerequisites": [
+        "2.4"
+      ],
+      "npc_affinity": [
+        "volkov"
+      ],
+      "legality": "grey",
+      "tags": [
+        "amplification",
+        "maintenance",
+        "personas"
+      ],
+      "effects": {
+        "reach_multiplier": 1.28,
+        "deniability": 0.36,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "5.10",
+      "phase": "ta05",
+      "disarm_ref": "T0046",
+      "label_de": "SEO-Manipulation",
+      "label_en": "SEO Manipulation",
+      "narrative_de": "Suchergebnisse manipulieren. Unsere Inhalte ganz oben, auf lange Sicht.",
+      "costs": {
+        "budget": 8,
+        "capacity": 2,
+        "risk": 4
+      },
+      "npc_affinity": [
+        "igor"
+      ],
+      "legality": "grey",
+      "tags": [
+        "amplification",
+        "seo",
+        "long_term"
+      ],
+      "effects": {
+        "reach_multiplier": 1.67,
+        "deniability": 0.5,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "5.11",
+      "phase": "ta05",
+      "disarm_ref": null,
+      "label_de": "Mainstream-Einschleusung",
+      "label_en": "Mainstream Infiltration",
+      "narrative_de": "Narrative in etablierte Medien einschleusen. Der heilige Gral der Verstärkung.",
+      "costs": {
+        "budget": 12,
+        "capacity": 3,
+        "risk": 8
+      },
+      "prerequisites": [
+        "2.17"
+      ],
+      "npc_affinity": [
+        "katja",
+        "direktor"
+      ],
+      "legality": "grey",
+      "tags": [
+        "amplification",
+        "mainstream",
+        "high_impact"
+      ],
+      "effects": {
+        "reach_multiplier": 1.28,
+        "deniability": 0.46,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "5.12",
+      "phase": "ta05",
+      "disarm_ref": "T0142",
+      "label_de": "Community aufbauen",
+      "label_en": "Build Community",
+      "narrative_de": "Langfristige Bindung von Followern. Eine treue Basis, die für uns kämpft.",
+      "costs": {
+        "budget": 10,
+        "capacity": 2,
+        "risk": 4
+      },
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "legal",
+      "tags": [
+        "amplification",
+        "community",
+        "long_term"
+      ],
+      "effects": {
+        "reach_multiplier": 1.2,
+        "sustainability": 0.55,
+        "impact_scale": "high"
+      }
+    }
+  ],
+  "actions_phase6_politics": [
+    {
+      "id": "6.1",
+      "phase": "ta06",
+      "label_de": "Wahlkampf unterstützen",
+      "label_en": "Support Election Campaign",
+      "narrative_de": "Kandidaten mit Geld und Ressourcen unterstützen. Einfluss durch Wahlhilfe.",
+      "costs": {
+        "budget": 20,
+        "capacity": 3,
+        "risk": 10
+      },
+      "prerequisites": [
+        "2.12"
+      ],
+      "npc_affinity": [
+        "direktor"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "political",
+        "election",
+        "funding"
+      ],
+      "effects": {
+        "effectiveness_boost": 0.17,
+        "backlash_risk": 0.18,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "6.2",
+      "phase": "ta06",
+      "label_de": "Partei-Spaltung fördern",
+      "label_en": "Promote Party Split",
+      "narrative_de": "Interne Konflikte in einer Partei anheizen. Schwache Parteien, schwache Demokratie.",
+      "costs": {
+        "budget": 10,
+        "capacity": 2,
+        "risk": 8
+      },
+      "npc_affinity": [
+        "marina",
+        "katja"
+      ],
+      "legality": "grey",
+      "tags": [
+        "political",
+        "division",
+        "destabilization"
+      ],
+      "effects": {
+        "social_division": 0.28,
+        "deniability": 0.34,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "6.3",
+      "phase": "ta06",
+      "label_de": "Lobbying betreiben",
+      "label_en": "Conduct Lobbying",
+      "narrative_de": "Offizielles Lobbying über unsere Tarnorganisationen. Einfluss auf Gesetzgebung.",
+      "costs": {
+        "budget": 15,
+        "capacity": 2,
+        "risk": 6
+      },
+      "prerequisites": [
+        "2.9",
+        "2.18"
+      ],
+      "npc_affinity": [
+        "direktor"
+      ],
+      "legality": "legal",
+      "tags": [
+        "political",
+        "lobbying",
+        "institutional"
+      ],
+      "effects": {
+        "political_leverage": 0.22,
+        "sustainability": 0.51,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "6.4",
+      "phase": "ta06",
+      "label_de": "Gesetzgebung beeinflussen",
+      "label_en": "Influence Legislation",
+      "narrative_de": "Konkrete Gesetzesentwürfe beeinflussen. Langfristiger, struktureller Einfluss.",
+      "costs": {
+        "budget": 20,
+        "capacity": 3,
+        "risk": 10
+      },
+      "prerequisites": [
+        "6.3"
+      ],
+      "npc_affinity": [
+        "direktor"
+      ],
+      "legality": "grey",
+      "tags": [
+        "political",
+        "legislation",
+        "long_term"
+      ],
+      "effects": {
+        "deniability": 0.41,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "6.5",
+      "phase": "ta06",
+      "label_de": "Berufsverband infiltrieren",
+      "label_en": "Infiltrate Professional Association",
+      "narrative_de": "Einfluss in Berufsverbänden gewinnen. Branchenweite Meinungsführerschaft.",
+      "costs": {
+        "budget": 10,
+        "capacity": 2,
+        "risk": 5
+      },
+      "npc_affinity": [
+        "direktor"
+      ],
+      "legality": "grey",
+      "tags": [
+        "political",
+        "professional",
+        "institutional"
+      ],
+      "effects": {
+        "deniability": 0.36,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "6.6",
+      "phase": "ta06",
+      "label_de": "Wirtschaftslobby beeinflussen",
+      "label_en": "Influence Business Lobby",
+      "narrative_de": "Kammern, Verbände, Wirtschaftsvereinigungen - alle können unsere Botschaften tragen.",
+      "costs": {
+        "budget": 15,
+        "capacity": 2,
+        "risk": 6
+      },
+      "npc_affinity": [
+        "direktor"
+      ],
+      "legality": "grey",
+      "tags": [
+        "political",
+        "business",
+        "lobbying"
+      ],
+      "effects": {
+        "political_leverage": 0.17,
+        "deniability": 0.49,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "6.7",
+      "phase": "ta06",
+      "label_de": "Korruption / Bestechung",
+      "label_en": "Corruption / Bribery",
+      "narrative_de": "Direkte Käuflichkeit. Riskant, aber effektiv. Manche Menschen haben ihren Preis.",
+      "costs": {
+        "budget": 20,
+        "capacity": 2,
+        "risk": 15,
+        "moral_weight": 4
+      },
+      "prerequisites": [
+        "2.11",
+        "2.18"
+      ],
+      "npc_affinity": [
+        "direktor"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "political",
+        "corruption",
+        "high_risk"
+      ],
+      "effects": {
+        "effectiveness_boost": 0.17,
+        "backlash_risk": 0.26,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "6.8",
+      "phase": "ta06",
+      "label_de": "NGO infiltrieren",
+      "label_en": "Infiltrate NGO",
+      "narrative_de": "Bestehende NGOs unterwandern. Ihre Glaubwürdigkeit für unsere Zwecke nutzen.",
+      "costs": {
+        "budget": 10,
+        "capacity": 2,
+        "risk": 6
+      },
+      "npc_affinity": [
+        "marina",
+        "volkov"
+      ],
+      "legality": "grey",
+      "tags": [
+        "political",
+        "ngo",
+        "infiltration"
+      ],
+      "effects": {
+        "deniability": 0.36,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "6.9",
+      "phase": "ta06",
+      "label_de": "Offline-Astroturfing",
+      "label_en": "Offline Astroturfing",
+      "narrative_de": "Fake-Graswurzelbewegung im echten Leben. Bürgerinitiativen, die keine sind.",
+      "costs": {
+        "budget": 12,
+        "capacity": 3,
+        "risk": 6
+      },
+      "prerequisites": [
+        "2.8"
+      ],
+      "npc_affinity": [
+        "volkov"
+      ],
+      "legality": "grey",
+      "tags": [
+        "political",
+        "offline",
+        "astroturf"
+      ],
+      "effects": {
+        "deniability": 0.35,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "6.10",
+      "phase": "ta06",
+      "label_de": "Jugendorganisation aufbauen",
+      "label_en": "Build Youth Organization",
+      "narrative_de": "Die Jugend ist die Zukunft. Langfristige Investition in kommende Generationen.",
+      "costs": {
+        "budget": 12,
+        "capacity": 3,
+        "risk": 5
+      },
+      "prerequisites": [
+        "2.14"
+      ],
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "legal",
+      "tags": [
+        "political",
+        "youth",
+        "long_term"
+      ],
+      "effects": {
+        "sustainability": 0.49,
+        "impact_scale": "high"
+      }
+    }
+  ],
+  "actions_phase7_society": [
+    {
+      "id": "7.1",
+      "phase": "ta07",
+      "label_de": "Religiöse Gruppen ansprechen",
+      "label_en": "Engage Religious Groups",
+      "narrative_de": "Wertkonservative Narrative für religiöse Gemeinschaften. Gemeinsame Feinde verbinden.",
+      "costs": {
+        "budget": 5,
+        "capacity": 1,
+        "risk": 3
+      },
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "legal",
+      "tags": [
+        "society",
+        "religion",
+        "values"
+      ],
+      "effects": {
+        "sustainability": 0.5,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "7.2",
+      "phase": "ta07",
+      "label_de": "Kulturkrieg befeuern",
+      "label_en": "Fuel Culture War",
+      "narrative_de": "Tradition gegen Moderne, Werte gegen Liberalismus. Kulturelle Spaltung vertiefen.",
+      "costs": {
+        "budget": 4,
+        "capacity": 1,
+        "risk": 4
+      },
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "grey",
+      "tags": [
+        "society",
+        "culture",
+        "division"
+      ],
+      "effects": {
+        "social_division": 0.21,
+        "deniability": 0.34,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "7.3",
+      "phase": "ta07",
+      "label_de": "Religionsführer beeinflussen",
+      "label_en": "Influence Religious Leaders",
+      "narrative_de": "Prediger, Priester, Imame - ihre Worte erreichen Millionen gläubiger Menschen.",
+      "costs": {
+        "budget": 12,
+        "capacity": 2,
+        "risk": 8
+      },
+      "npc_affinity": [
+        "direktor"
+      ],
+      "legality": "grey",
+      "tags": [
+        "society",
+        "religion",
+        "influence"
+      ],
+      "effects": {
+        "influence_gain": 0.25,
+        "deniability": 0.36,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "7.4",
+      "phase": "ta07",
+      "label_de": "Kulturveranstaltung kapern",
+      "label_en": "Hijack Cultural Event",
+      "narrative_de": "Festivals, Konzerte, Messen - Gelegenheiten, unsere Narrative zu verbreiten.",
+      "costs": {
+        "budget": 8,
+        "capacity": 2,
+        "risk": 4
+      },
+      "npc_affinity": [
+        "katja",
+        "volkov"
+      ],
+      "legality": "grey",
+      "tags": [
+        "society",
+        "culture",
+        "events"
+      ],
+      "effects": {
+        "deniability": 0.49,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "7.5",
+      "phase": "ta07",
+      "label_de": "Nationalismus fördern",
+      "label_en": "Promote Nationalism",
+      "narrative_de": "'Volkskultur' und nationale Identität instrumentalisieren. Uns gegen die Anderen.",
+      "costs": {
+        "budget": 6,
+        "capacity": 1,
+        "risk": 3
+      },
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "grey",
+      "tags": [
+        "society",
+        "nationalism",
+        "identity"
+      ],
+      "effects": {
+        "deniability": 0.3,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "7.6",
+      "phase": "ta07",
+      "disarm_ref": "T0083",
+      "label_de": "Polarisierung ausnutzen",
+      "label_en": "Exploit Polarization",
+      "narrative_de": "Bestehende gesellschaftliche Spannungen verstärken. Die Mitte aushöhlen.",
+      "costs": {
+        "budget": 8,
+        "capacity": 2,
+        "risk": 5
+      },
+      "prerequisites": [
+        "1.7"
+      ],
+      "npc_affinity": [
+        "marina",
+        "katja"
+      ],
+      "legality": "grey",
+      "tags": [
+        "society",
+        "polarization",
+        "division"
+      ],
+      "effects": {
+        "social_division": 0.21,
+        "deniability": 0.36,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "7.7",
+      "phase": "ta07",
+      "label_de": "Wirtschaftsnarrativ verbreiten",
+      "label_en": "Spread Economic Narrative",
+      "narrative_de": "'Die Wirtschaft leidet unter...' - Ökonomische Ängste schüren und kanalisieren.",
+      "costs": {
+        "budget": 6,
+        "capacity": 1,
+        "risk": 3
+      },
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "grey",
+      "tags": [
+        "society",
+        "economy",
+        "fear"
+      ],
+      "effects": {
+        "deniability": 0.44,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "7.8",
+      "phase": "ta07",
+      "label_de": "Medienunternehmen kaufen",
+      "label_en": "Buy Media Company",
+      "narrative_de": "Kontrolle über ein bestehendes Medienunternehmen übernehmen. Teuer, aber mächtig.",
+      "costs": {
+        "budget": 30,
+        "capacity": 4,
+        "risk": 5
+      },
+      "npc_affinity": [
+        "direktor"
+      ],
+      "legality": "legal",
+      "tags": [
+        "society",
+        "media",
+        "acquisition",
+        "high_impact"
+      ],
+      "effects": {
+        "sustainability": 0.58,
+        "impact_scale": "high"
+      }
+    }
+  ],
+  "actions_phase8_targeting": [
+    {
+      "id": "8.1",
+      "phase": "targeting",
+      "label_de": "Person einschüchtern",
+      "label_en": "Intimidate Person",
+      "narrative_de": "Online-Druck, Drohungen, Belästigung. Die Person soll verstummen.",
+      "costs": {
+        "budget": 6,
+        "capacity": 2,
+        "risk": 10,
+        "moral_weight": 3
+      },
+      "npc_affinity": [
+        "volkov"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "targeting",
+        "harassment",
+        "intimidation"
+      ],
+      "effects": {
+        "targeting_precision": 0.29,
+        "target_damage": 0.23,
+        "effectiveness_boost": 0.29,
+        "backlash_risk": 0.11,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "8.2",
+      "phase": "targeting",
+      "label_de": "Person diskreditieren",
+      "label_en": "Discredit Person",
+      "narrative_de": "Rufmord. Wahre, halbwahre oder erfundene Geschichten, die den Ruf zerstören.",
+      "costs": {
+        "budget": 8,
+        "capacity": 2,
+        "risk": 8,
+        "moral_weight": 3
+      },
+      "npc_affinity": [
+        "katja",
+        "marina"
+      ],
+      "legality": "grey",
+      "tags": [
+        "targeting",
+        "reputation",
+        "attack"
+      ],
+      "effects": {
+        "targeting_precision": 0.33,
+        "target_damage": 0.29,
+        "deniability": 0.32,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "8.3",
+      "phase": "targeting",
+      "label_de": "Fact-Checker angreifen",
+      "label_en": "Attack Fact-Checker",
+      "narrative_de": "Wer unsere Lügen aufdeckt, muss selbst diskreditiert werden. Vorwürfe der Parteilichkeit.",
+      "costs": {
+        "budget": 8,
+        "capacity": 2,
+        "risk": 8
+      },
+      "prerequisites": [
+        "1.8"
+      ],
+      "npc_affinity": [
+        "katja",
+        "volkov"
+      ],
+      "legality": "grey",
+      "tags": [
+        "targeting",
+        "fact_checkers",
+        "counter"
+      ],
+      "effects": {
+        "targeting_precision": 0.38,
+        "deniability": 0.42,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "8.4",
+      "phase": "targeting",
+      "label_de": "Institution delegitimieren",
+      "label_en": "Delegitimize Institution",
+      "narrative_de": "'Ausländische Agenten', 'Lügenpresse', 'Systemmedien' - Vertrauen in Institutionen untergraben.",
+      "costs": {
+        "budget": 10,
+        "capacity": 2,
+        "risk": 6
+      },
+      "npc_affinity": [
+        "katja"
+      ],
+      "legality": "grey",
+      "tags": [
+        "targeting",
+        "institutions",
+        "trust"
+      ],
+      "effects": {
+        "targeting_precision": 0.38,
+        "deniability": 0.3,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "8.5",
+      "phase": "targeting",
+      "label_de": "Social-Media-Account hacken",
+      "label_en": "Hack Social Media Account",
+      "narrative_de": "Zugang zu einem fremden Account. Peinliche Posts, 'Enthüllungen', Übernahme.",
+      "costs": {
+        "budget": 10,
+        "capacity": 2,
+        "risk": 12,
+        "moral_weight": 3
+      },
+      "npc_affinity": [
+        "igor"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "targeting",
+        "hacking",
+        "technical"
+      ],
+      "effects": {
+        "targeting_precision": 0.34,
+        "effectiveness_boost": 0.21,
+        "backlash_risk": 0.25,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "8.6",
+      "phase": "targeting",
+      "label_de": "E-Mails hacken",
+      "label_en": "Hack Emails",
+      "narrative_de": "Private Kommunikation stehlen. Für Erpressung, Leaks oder Kompromat.",
+      "costs": {
+        "budget": 12,
+        "capacity": 2,
+        "risk": 15,
+        "moral_weight": 4
+      },
+      "npc_affinity": [
+        "igor"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "targeting",
+        "hacking",
+        "espionage"
+      ],
+      "effects": {
+        "targeting_precision": 0.34,
+        "effectiveness_boost": 0.24,
+        "backlash_risk": 0.2,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "8.7",
+      "phase": "targeting",
+      "label_de": "Person erpressen",
+      "label_en": "Blackmail Person",
+      "narrative_de": "Mit Kompromat drohen. Die dunkelste aller Taktiken, aber effektiv.",
+      "costs": {
+        "budget": 15,
+        "capacity": 2,
+        "risk": 15,
+        "moral_weight": 5
+      },
+      "prerequisites": [
+        "1.4",
+        "8.6"
+      ],
+      "npc_affinity": [
+        "volkov",
+        "direktor"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "targeting",
+        "blackmail",
+        "coercion"
+      ],
+      "effects": {
+        "targeting_precision": 0.3,
+        "effectiveness_boost": 0.23,
+        "backlash_risk": 0.15,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "8.8",
+      "phase": "targeting",
+      "label_de": "Politiker kompromittieren",
+      "label_en": "Compromise Politician",
+      "narrative_de": "Einen Skandal inszenieren oder aufdecken. Die Karriere eines Politikers zerstören.",
+      "costs": {
+        "budget": 15,
+        "capacity": 3,
+        "risk": 12,
+        "moral_weight": 4
+      },
+      "prerequisites": [
+        "2.18"
+      ],
+      "npc_affinity": [
+        "marina",
+        "direktor"
+      ],
+      "legality": "grey",
+      "tags": [
+        "targeting",
+        "political",
+        "scandal"
+      ],
+      "effects": {
+        "targeting_precision": 0.33,
+        "deniability": 0.49,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "8.9",
+      "phase": "targeting",
+      "label_de": "Whistleblower neutralisieren",
+      "label_en": "Neutralize Whistleblower",
+      "narrative_de": "Jemand will über uns reden? Das muss verhindert werden. Mit allen Mitteln.",
+      "costs": {
+        "budget": 15,
+        "capacity": 3,
+        "risk": 12,
+        "moral_weight": 4
+      },
+      "npc_affinity": [
+        "volkov",
+        "direktor"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "targeting",
+        "counter",
+        "threat"
+      ],
+      "effects": {
+        "targeting_precision": 0.21,
+        "effectiveness_boost": 0.22,
+        "backlash_risk": 0.18,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "8.10",
+      "phase": "targeting",
+      "label_de": "Informant rekrutieren",
+      "label_en": "Recruit Informant",
+      "narrative_de": "Einen Insider gewinnen. Informationen sind Macht.",
+      "costs": {
+        "budget": 12,
+        "capacity": 2,
+        "risk": 5
+      },
+      "prerequisites": [
+        "2.20"
+      ],
+      "npc_affinity": [
+        "volkov",
+        "marina"
+      ],
+      "legality": "grey",
+      "tags": [
+        "targeting",
+        "recruitment",
+        "intelligence"
+      ],
+      "effects": {
+        "targeting_precision": 0.26,
+        "asset_acquisition": true,
+        "deniability": 0.47,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "8.11",
+      "phase": "targeting",
+      "label_de": "DDoS-Ablenkung",
+      "label_en": "DDoS Distraction",
+      "narrative_de": "Die Website eines Gegners offline nehmen. Temporär, aber effektiv.",
+      "costs": {
+        "budget": 7,
+        "capacity": 1,
+        "risk": 5
+      },
+      "prerequisites": [
+        "2.6"
+      ],
+      "npc_affinity": [
+        "igor"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "targeting",
+        "technical",
+        "disruption"
+      ],
+      "effects": {
+        "targeting_precision": 0.26,
+        "effectiveness_boost": 0.2,
+        "backlash_risk": 0.23,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "8.12",
+      "phase": "targeting",
+      "label_de": "Algorithmus manipulieren",
+      "label_en": "Manipulate Algorithm",
+      "narrative_de": "Social-Media-Algorithmen zu unserem Vorteil ausnutzen. Sichtbarkeit kaufen.",
+      "costs": {
+        "budget": 10,
+        "capacity": 2,
+        "risk": 5
+      },
+      "npc_affinity": [
+        "igor"
+      ],
+      "legality": "grey",
+      "tags": [
+        "targeting",
+        "technical",
+        "algorithm"
+      ],
+      "effects": {
+        "targeting_precision": 0.2,
+        "deniability": 0.34,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "8.13",
+      "phase": "targeting",
+      "label_de": "Fake-Datenbank-Leak",
+      "label_en": "Fake Database Leak",
+      "narrative_de": "Gefälschte 'geleakte' Dokumente. Sieht echt aus, ist aber konstruiert.",
+      "costs": {
+        "budget": 10,
+        "capacity": 2,
+        "risk": 10
+      },
+      "npc_affinity": [
+        "igor",
+        "katja"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "targeting",
+        "forgery",
+        "leak"
+      ],
+      "effects": {
+        "targeting_precision": 0.23,
+        "effectiveness_boost": 0.19,
+        "backlash_risk": 0.16,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "8.14",
+      "phase": "targeting",
+      "label_de": "Kommentar-Flooding",
+      "label_en": "Comment Flooding",
+      "narrative_de": "Diskussionen mit unseren Kommentaren fluten. Die echten Stimmen übertönen.",
+      "costs": {
+        "budget": 3,
+        "capacity": 1,
+        "risk": 2
+      },
+      "prerequisites": [
+        "2.3"
+      ],
+      "npc_affinity": [
+        "volkov"
+      ],
+      "legality": "grey",
+      "tags": [
+        "targeting",
+        "flooding",
+        "discussion"
+      ],
+      "effects": {
+        "targeting_precision": 0.28,
+        "deniability": 0.4,
+        "impact_scale": "medium"
+      }
+    },
+    {
+      "id": "8.15",
+      "phase": "targeting",
+      "label_de": "Gegner-Account sperren lassen",
+      "label_en": "Get Opponent Account Banned",
+      "narrative_de": "Koordinierte Meldungen, um Gegner von Plattformen zu entfernen. Ihre eigenen Regeln gegen sie nutzen.",
+      "costs": {
+        "budget": 5,
+        "capacity": 1,
+        "risk": 4
+      },
+      "prerequisites": [
+        "2.3"
+      ],
+      "npc_affinity": [
+        "volkov"
+      ],
+      "legality": "grey",
+      "tags": [
+        "targeting",
+        "deplatforming",
+        "counter"
+      ],
+      "effects": {
+        "targeting_precision": 0.33,
+        "deniability": 0.45,
+        "impact_scale": "high"
+      }
+    }
+  ]
+}
