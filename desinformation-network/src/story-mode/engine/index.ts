@@ -61,3 +61,14 @@ export type {
   AIActionEffect,
   StoryActorAIState,
 } from './StoryActorAI';
+
+export { BetrayalSystem, getBetrayalSystem, resetBetrayalSystem } from './BetrayalSystem';
+export type {
+  BetrayalWarningLevel,
+  BetrayalState,
+  BetrayalWarning,
+  BetrayalEvent,
+  BetrayalType,
+  BetrayalEffect,
+  BetrayalGrievance,
+} from './BetrayalSystem';
