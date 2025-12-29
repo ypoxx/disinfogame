@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import type { GameStatistics as GameStatsType } from '@/game-logic/types';
 import { formatPercent } from '@/utils';
 import { trustToHex } from '@/utils/colors';
-import { cn } from '@/utils/cn';
 
 type GameStatisticsProps = {
   statistics: GameStatsType;

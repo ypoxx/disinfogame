@@ -1,6 +1,6 @@
 import { formatPercent } from '@/utils';
 import { trustToHex } from '@/utils/colors';
-import type { RoundSummary, ActionRecord, ImpactVisualization } from '@/game-logic/types/narrative';
+import type { RoundSummary, ImpactVisualization } from '@/game-logic/types/narrative';
 import { cn } from '@/utils/cn';
 
 type RoundSummaryProps = {

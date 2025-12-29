@@ -1,0 +1,98 @@
+[
+  {
+    "id": "default",
+    "name": "Standard Campaign",
+    "description": "Classic disinformation campaign scenario",
+    "objectives": {
+      "primary": "Reduce 75% of actors' trust below 40% within 32 rounds",
+      "secondary": [
+        "Maintain detection risk below 80%",
+        "Complete within round limit"
+      ]
+    },
+    "victoryConditions": {
+      "trustThreshold": 0.4,
+      "actorPercentage": 0.75,
+      "maxRounds": 32
+    },
+    "defeatConditions": {
+      "detectionThreshold": 0.8,
+      "roundLimit": 32
+    },
+    "difficulty": "medium",
+    "startingResources": {
+      "actionPoints": 5,
+      "budget": 1000
+    },
+    "howToPlay": [
+      "Click on actors in the network to select them",
+      "Use their abilities to manipulate trust",
+      "Watch effects propagate through connections",
+      "Manage your resources wisely"
+    ]
+  },
+  {
+    "id": "quickstart",
+    "name": "Tutorial Mode",
+    "description": "Learn the basics with easier objectives",
+    "objectives": {
+      "primary": "Reduce 50% of actors' trust below 50% within 20 rounds",
+      "secondary": [
+        "Experiment with different abilities",
+        "Observe how trust propagates"
+      ]
+    },
+    "victoryConditions": {
+      "trustThreshold": 0.5,
+      "actorPercentage": 0.5,
+      "maxRounds": 20
+    },
+    "defeatConditions": {
+      "detectionThreshold": 0.9,
+      "roundLimit": 20
+    },
+    "difficulty": "easy",
+    "startingResources": {
+      "actionPoints": 7,
+      "budget": 1500
+    },
+    "howToPlay": [
+      "Click on actors in the network to select them",
+      "Try different abilities to see their effects",
+      "Notice how trust changes spread through connections",
+      "Don't worry about losing - this is practice!"
+    ]
+  },
+  {
+    "id": "hardcore",
+    "name": "Expert Challenge",
+    "description": "Maximum difficulty for experienced players",
+    "objectives": {
+      "primary": "Reduce 90% of actors' trust below 30% within 25 rounds",
+      "secondary": [
+        "Maintain detection risk below 60%",
+        "Use combos strategically"
+      ]
+    },
+    "victoryConditions": {
+      "trustThreshold": 0.3,
+      "actorPercentage": 0.9,
+      "maxRounds": 25
+    },
+    "defeatConditions": {
+      "detectionThreshold": 0.6,
+      "roundLimit": 25
+    },
+    "difficulty": "hard",
+    "startingResources": {
+      "actionPoints": 4,
+      "budget": 800
+    },
+    "howToPlay": [
+      "Plan your moves carefully - resources are limited",
+      "Identify key actors to target first",
+      "Build powerful combos for maximum impact",
+      "Monitor detection risk constantly"
+    ]
+  }
+]

@@ -7,6 +7,7 @@
 
 import type { Actor, Connection, ActorCategory } from '@/game-logic/types';
 import type { ActorCluster, Community } from '@/game-logic/types';
+import { globalRandom } from '@/services/globalRandom';
 
 // ============================================
 // TYPES
@@ -53,7 +54,7 @@ export function detectCommunities(
     iterations++;
 
     // Shuffle actors for randomness
-    const shuffled = [...actors].sort(() => Math.random() - 0.5);
+    const shuffled = [...actors].sort(() => globalRandom.random() - 0.5);
 
     for (const actor of shuffled) {
       const neighbors = adjacency.get(actor.id);
@@ -248,7 +249,7 @@ function createCluster(actors: Actor[]): ActorCluster {
   );
 
   return {
-    id: `cluster_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    id: `cluster_${Date.now()}_${globalRandom.random().toString(36).substr(2, 9)}`,
     name: `Cluster of ${actors.length} actors`,
     actors: actors.map(a => a.id),
     center: { x: centerX, y: centerY },

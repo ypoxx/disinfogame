@@ -1,7 +1,7 @@
 import { useRef, useEffect, useCallback, useState, useMemo, memo } from 'react';
 import type { Actor, Connection } from '@/game-logic/types';
 import { trustToHex, getCategoryColor } from '@/utils/colors';
-import { euclideanDistance, cn } from '@/utils';
+import { cn } from '@/utils';
 import {
   detectSpatialClusters,
   getClusterColor,
@@ -801,6 +801,8 @@ export function NetworkVisualization({
       <canvas
         ref={canvasRef}
         className={isPanning ? "absolute inset-0 cursor-grabbing" : "absolute inset-0 cursor-pointer"}
+        role="application"
+        aria-label={`Network graph with ${actors.length} nodes and ${connections.length} connections. ${selectedActorId ? `Node ${actors.find(a => a.id === selectedActorId)?.name || selectedActorId} is selected.` : 'No node selected.'}`}
         onClick={handleClick}
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}

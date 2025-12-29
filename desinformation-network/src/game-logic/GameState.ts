@@ -16,6 +16,7 @@ import type {
   RoundStatistics,
 } from './types';
 import { SeededRandom, generateSeedString } from './seed/SeededRandom';
+import { safeEvaluate } from '@/utils/safe-expression-parser';
 import {
   clamp,
   calculateConnections,
@@ -1084,7 +1085,7 @@ export class GameStateManager {
   }
   
   /**
-   * Evaluate event condition
+   * Evaluate event condition using safe expression parser
    */
   private evaluateCondition(condition?: string): boolean {
     if (!condition) return false;
@@ -1094,30 +1095,17 @@ export class GameStateManager {
     const detectionRisk = this.state.detectionRisk;
     const lowTrustCount = metrics.lowTrustCount;
 
-    try {
-      // Create evaluation context
-      const context = {
-        averageTrust: metrics.averageTrust,
-        polarizationIndex: metrics.polarizationIndex,
-        detectionRisk,
-        round,
-        lowTrustCount,
-      };
+    // Create evaluation context
+    const context = {
+      averageTrust: metrics.averageTrust,
+      polarizationIndex: metrics.polarizationIndex,
+      detectionRisk,
+      round,
+      lowTrustCount,
+    };
 
-      // Replace context variables in condition string
-      let evalString = condition;
-      for (const [key, value] of Object.entries(context)) {
-        evalString = evalString.replace(new RegExp(key, 'g'), String(value));
-      }
-
-      // Evaluate using Function constructor (safe for known conditions)
-      // eslint-disable-next-line no-new-func
-      const result = new Function(`return ${evalString}`)();
-      return Boolean(result);
-    } catch (error) {
-      console.warn(`Failed to evaluate condition: ${condition}`, error);
-      return false;
-    }
+    // Use safe expression parser instead of eval/Function
+    return safeEvaluate(condition, context);
   }
   
   /**

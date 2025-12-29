@@ -5,7 +5,7 @@
  * Shows event description, available choices with costs and consequences.
  */
 
-import type { GameEvent, EventChoice, Resources } from '@/game-logic/types';
+import type { GameEvent, Resources } from '@/game-logic/types';
 import { canAffordChoice } from '@/game-logic/event-chain-system';
 import { cn } from '@/utils/cn';
 
