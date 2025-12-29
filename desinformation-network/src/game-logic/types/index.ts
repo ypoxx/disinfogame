@@ -635,3 +635,6 @@ export type DeepPartial<T> = {
 
 // Re-export narrative types
 export * from './narrative';
+
+// Re-export scenario types
+export * from './scenario';

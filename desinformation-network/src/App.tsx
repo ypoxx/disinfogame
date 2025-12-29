@@ -24,6 +24,8 @@ import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
 import type { TutorialState } from '@/game-logic/types/tutorial';
 import { StoryModeTest } from '@/story-mode/StoryModeTest';
+import type { Scenario } from '@/game-logic/types';
+import scenariosData from '@/data/game/scenarios.json';
 
 // ============================================
 // MAIN APP COMPONENT
@@ -52,6 +54,12 @@ function App() {
     dismissCurrentEvent,
     makeEventChoice,
   } = useGameState();
+
+  // Scenario management
+  const scenarios = scenariosData as Scenario[];
+  const [currentScenario, setCurrentScenario] = useState<Scenario>(
+    scenarios.find(s => s.id === 'default') || scenarios[0]
+  );
 
   // Round summary state
   const [showRoundSummary, setShowRoundSummary] = useState(false);
@@ -242,15 +250,14 @@ function App() {
           <div className="bg-gray-800/50 rounded-2xl p-6 mb-8 text-left">
             <h2 className="text-lg font-semibold text-white mb-3">Objective</h2>
             <p className="text-gray-300 mb-4">
-              Reduce <span className="text-red-400 font-semibold">75% of actors' trust below 40%</span> within 32 rounds.
+              {currentScenario.objectives.primary}
             </p>
-            
+
             <h2 className="text-lg font-semibold text-white mb-3">How to Play</h2>
             <ul className="text-gray-300 space-y-2">
-              <li>• Click on actors in the network to select them</li>
-              <li>• Use their abilities to manipulate trust</li>
-              <li>• Watch effects propagate through connections</li>
-              <li>• Manage your resources wisely</li>
+              {currentScenario.howToPlay.map((tip, idx) => (
+                <li key={idx}>• {tip}</li>
+              ))}
               <li>• Beware of defensive actors that may spawn</li>
             </ul>
           </div>
@@ -453,9 +460,9 @@ function App() {
           <VictoryProgressBar
             metrics={networkMetrics}
             round={gameState.round}
-            maxRounds={gameState.maxRounds}
-            victoryThreshold={0.75}
-            trustThreshold={0.40}
+            maxRounds={currentScenario.victoryConditions.maxRounds}
+            victoryThreshold={currentScenario.victoryConditions.actorPercentage}
+            trustThreshold={currentScenario.victoryConditions.trustThreshold}
           />
         </div>
         <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl transition-all hover:bg-gray-900/80 hover:shadow-2xl hover:shadow-blue-500/10">
