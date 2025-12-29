@@ -609,28 +609,30 @@ export class GameStateManager {
     usageCount: number
   ): number {
     let effect = ability.effects.trustDelta;
-    
+
     // Resilience reduction
     effect *= (1 - target.resilience * 0.5);
-    
-    // Vulnerability bonus
-    if (ability.basedOn.some(t => target.vulnerabilities.includes(t))) {
-      effect *= 1.3; // 30% more effective
+
+    // Vulnerability bonus (defensive check for missing basedOn)
+    if (ability.basedOn && ability.basedOn.length > 0) {
+      if (ability.basedOn.some(t => target.vulnerabilities.includes(t))) {
+        effect *= 1.3; // 30% more effective
+      }
+
+      // Resistance penalty
+      if (ability.basedOn.some(t => target.resistances.includes(t))) {
+        effect *= 0.7; // 30% less effective
+      }
     }
-    
-    // Resistance penalty
-    if (ability.basedOn.some(t => target.resistances.includes(t))) {
-      effect *= 0.7; // 30% less effective
-    }
-    
+
     // Diminishing returns
     effect *= Math.pow(ability.diminishingFactor, usageCount - 1);
-    
+
     // Emotional state modifier
     if (ability.effects.emotionalDelta && ability.effects.emotionalDelta > 0) {
       effect *= (1 + target.emotionalState * 0.2);
     }
-    
+
     return effect;
   }
   
