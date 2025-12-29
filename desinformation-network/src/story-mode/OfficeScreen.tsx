@@ -621,14 +621,8 @@ export function OfficeScreen({
         <WallTV
           isHovered={hoverArea === 'tv'}
           onClick={() => {
-            console.log('📺 [Story Mode] Wall TV clicked');
             setHoverArea(null);
-            if (onOpenStats) {
-              console.log('📺 [Story Mode] Opening stats panel');
-              onOpenStats();
-            } else {
-              console.warn('⚠️ [Story Mode] onOpenStats callback not provided');
-            }
+            if (onOpenStats) onOpenStats();
           }}
         />
 
@@ -644,14 +638,8 @@ export function OfficeScreen({
         <DeskPhone
           isHovered={hoverArea === 'phone'}
           onClick={() => {
-            console.log('📱 [Story Mode] Desk phone clicked');
             setHoverArea(null);
-            if (onOpenNpcs) {
-              console.log('📱 [Story Mode] Opening NPC panel');
-              onOpenNpcs();
-            } else {
-              console.warn('⚠️ [Story Mode] onOpenNpcs callback not provided');
-            }
+            if (onOpenNpcs) onOpenNpcs();
           }}
         />
 
@@ -699,7 +687,6 @@ export function OfficeScreen({
           onMouseEnter={() => setHoverArea('computer')}
           onMouseLeave={() => setHoverArea(null)}
           onClick={() => {
-            console.log('💻 [Story Mode] Computer overlay clicked');
             setHoverArea(null);
             if (onOpenActions) onOpenActions();
           }}
@@ -710,7 +697,6 @@ export function OfficeScreen({
           onMouseEnter={() => setHoverArea('phone')}
           onMouseLeave={() => setHoverArea(null)}
           onClick={() => {
-            console.log('📱 [Story Mode] Phone overlay clicked');
             setHoverArea(null);
             if (onOpenNpcs) onOpenNpcs();
           }}
@@ -721,7 +707,6 @@ export function OfficeScreen({
           onMouseEnter={() => setHoverArea('smartphone')}
           onMouseLeave={() => setHoverArea(null)}
           onClick={() => {
-            console.log('📰 [Story Mode] Smartphone overlay clicked');
             setHoverArea(null);
             if (onOpenNews) onOpenNews();
           }}
@@ -732,7 +717,6 @@ export function OfficeScreen({
           onMouseEnter={() => setHoverArea('door')}
           onMouseLeave={() => setHoverArea(null)}
           onClick={() => {
-            console.log('🚪 [Story Mode] Door overlay clicked');
             setHoverArea(null);
             if (onOpenEvents) onOpenEvents();
           }}
@@ -743,7 +727,6 @@ export function OfficeScreen({
           onMouseEnter={() => setHoverArea('folder')}
           onMouseLeave={() => setHoverArea(null)}
           onClick={() => {
-            console.log('📁 [Story Mode] Folder overlay clicked');
             setHoverArea(null);
             if (onOpenMission) onOpenMission();
           }}
@@ -767,14 +750,7 @@ export function OfficeScreen({
             <span>[E] Events</span>
           </div>
           <button
-            onClick={() => {
-              console.log('⏭️ [Story Mode] End Phase button clicked');
-              if (onEndPhase) {
-                onEndPhase();
-              } else {
-                console.warn('⚠️ [Story Mode] onEndPhase callback not provided');
-              }
-            }}
+            onClick={onEndPhase}
             className="px-6 py-2 border-4 font-bold hover:brightness-110 transition-all active:translate-y-0.5"
             style={{
               backgroundColor: StoryModeColors.sovietRed,

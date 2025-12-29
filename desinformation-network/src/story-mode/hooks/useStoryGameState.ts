@@ -368,25 +368,16 @@ export function useStoryGameState(seed?: string) {
   // ============================================
 
   const interactWithNpc = useCallback((npcId: string) => {
-    console.log('📞 [Story Mode] interactWithNpc called with npcId:', npcId);
-
     const npc = engine.getNPCState(npcId);
-    if (!npc) {
-      console.error('❌ [Story Mode] NPC not found:', npcId);
-      return;
-    }
+    if (!npc) return;
 
-    console.log('✅ [Story Mode] NPC found:', npc.name);
     setActiveNpcId(npcId);
 
     // TD-006: Get dynamic greeting from JSON data based on relationship level
     const greeting = engine.getNPCDialogue(npcId, { type: 'greeting' });
-    console.log('💬 [Story Mode] NPC greeting:', greeting);
 
     // Get available topics for conversation choices
     const topics = engine.getNPCTopics(npcId);
-    console.log('📋 [Story Mode] Available topics:', topics);
-
     const topicChoices = topics.map(topic => ({
       id: `topic_${topic}`,
       text: getTopicLabel(topic),
