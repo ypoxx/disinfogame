@@ -9,6 +9,7 @@ import { NpcPanel } from './components/NpcPanel';
 import { MissionPanel } from './components/MissionPanel';
 import { ActionFeedbackDialog } from './components/ActionFeedbackDialog';
 import { ConsequenceModal } from './components/ConsequenceModal';
+import { TutorialOverlay, useTutorial } from './components/TutorialOverlay';
 import { useStoryGameState } from './hooks/useStoryGameState';
 import { OfficeScreen } from './OfficeScreen';
 
@@ -401,6 +402,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     hasSaveGame,
   } = useStoryGameState();
 
+  // Tutorial state
+  const tutorial = useTutorial();
+
   const [showActionPanel, setShowActionPanel] = useState(false);
   const [showNewsPanel, setShowNewsPanel] = useState(false);
   const [showStatsPanel, setShowStatsPanel] = useState(false);
@@ -409,9 +413,22 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showActionFeedback, setShowActionFeedback] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
+  // Start tutorial when game starts (if first time)
+  useEffect(() => {
+    if (state.gamePhase === 'playing' && tutorial.shouldShowTutorial()) {
+      tutorial.start();
+    }
+  }, [state.gamePhase]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Tutorial ESC to skip
+      if (e.key === 'Escape' && tutorial.isActive) {
+        tutorial.skip();
+        return;
+      }
+
       if (e.key === 'Escape') {
         if (state.gamePhase === 'playing') {
           pauseGame();
@@ -427,7 +444,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog]);
+  }, [state.gamePhase, state.currentDialog, tutorial.isActive, pauseGame, resumeGame, continueDialog, tutorial]);
 
   // Save message timeout
   useEffect(() => {
@@ -667,6 +684,18 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         >
           {saveMessage}
         </div>
+      )}
+
+      {/* Tutorial Overlay */}
+      {tutorial.isActive && tutorial.currentStepData && (
+        <TutorialOverlay
+          step={tutorial.currentStepData}
+          currentStep={tutorial.currentStep}
+          totalSteps={tutorial.totalSteps}
+          onNext={tutorial.next}
+          onSkip={tutorial.skip}
+          onComplete={tutorial.complete}
+        />
       )}
     </div>
   );
