@@ -13,6 +13,7 @@
 
 import type { Actor, Connection, Position } from '@/game-logic/types';
 import { euclideanDistance, clamp, groupBy } from '@/utils';
+import { globalRandom } from '@/services/globalRandom';
 
 // ============================================
 // FORCE SIMULATION
@@ -419,8 +420,8 @@ export function initializeRandomPositions(
   return actors.map(actor => ({
     ...actor,
     position: {
-      x: padding + Math.random() * (width - 2 * padding),
-      y: padding + Math.random() * (height - 2 * padding),
+      x: padding + globalRandom.random() * (width - 2 * padding),
+      y: padding + globalRandom.random() * (height - 2 * padding),
     },
     velocity: { x: 0, y: 0 },
   }));

@@ -7,6 +7,7 @@
 
 import type { Actor, GameState, ActorReaction } from '@/game-logic/types';
 import type { ActorBehavior } from '@/game-logic/types';
+import { globalRandom } from '@/services/globalRandom';
 
 // ============================================
 // TYPES
@@ -122,7 +123,7 @@ export function shouldReact(
     return true;
   }
 
-  return Math.random() < reactionChance;
+  return globalRandom.random() < reactionChance;
 }
 
 /**
@@ -353,7 +354,7 @@ export function shouldSupportAlly(
   const bothTrusted = actor.trust > 0.6 && ally.trust > 0.6;
   const awarenessBonus = (actor.awareness || 0) * 0.3;
 
-  return sameCategory && bothTrusted && Math.random() < (0.2 + awarenessBonus);
+  return sameCategory && bothTrusted && globalRandom.random() < (0.2 + awarenessBonus);
 }
 
 /**
@@ -416,7 +417,7 @@ export function processActorAI(gameState: GameState): ActorReaction[] {
     if (actor.category === 'defensive') return; // Already processed
 
     const awareness = actor.awareness || 0;
-    if (awareness > 0.7 && Math.random() < 0.3) {
+    if (awareness > 0.7 && globalRandom.random() < 0.3) {
       const trigger: ReactionTrigger = {
         type: 'manipulation_detected',
         severity: awareness,

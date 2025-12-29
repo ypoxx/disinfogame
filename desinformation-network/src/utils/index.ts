@@ -1,4 +1,5 @@
 import type { Actor, Connection, Network, NetworkMetrics, Position } from '@/game-logic/types';
+import { globalRandom } from '@/services/globalRandom';
 
 // ============================================
 // MATH UTILITIES
@@ -223,7 +224,7 @@ export function calculateNetworkMetrics(network: Network): NetworkMetrics {
 export function shuffle<T>(array: T[]): T[] {
   const result = [...array];
   for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(globalRandom.random() * (i + 1));
     [result[i], result[j]] = [result[j], result[i]];
   }
   return result;
@@ -234,7 +235,7 @@ export function shuffle<T>(array: T[]): T[] {
  */
 export function pickRandom<T>(array: T[]): T | undefined {
   if (array.length === 0) return undefined;
-  return array[Math.floor(Math.random() * array.length)];
+  return array[Math.floor(globalRandom.random() * array.length)];
 }
 
 /**
@@ -276,7 +277,7 @@ export function formatRound(round: number): string {
  */
 export function generateId(prefix: string = ''): string {
   const timestamp = Date.now().toString(36);
-  const random = Math.random().toString(36).substring(2, 8);
+  const random = globalRandom.random().toString(36).substring(2, 8);
   return prefix ? `${prefix}_${timestamp}${random}` : `${timestamp}${random}`;
 }
 

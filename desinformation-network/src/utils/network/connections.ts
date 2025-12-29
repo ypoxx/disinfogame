@@ -10,6 +10,7 @@
 
 import type { Actor, Connection, ConnectionType, ActorCategory } from '@/game-logic/types';
 import { euclideanDistance, clamp } from '@/utils';
+import { globalRandom } from '@/services/globalRandom';
 
 // ============================================
 // CONNECTION RULES
@@ -382,7 +383,7 @@ function tryConnectionRules(
   );
 
   // Check probability
-  if (bestRule.probability && Math.random() > bestRule.probability) {
+  if (bestRule.probability && globalRandom.random() > bestRule.probability) {
     return null;
   }
 
