@@ -327,7 +327,7 @@ export function ActionPanel({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-8"
+      className="fixed inset-0 z-50 flex items-center justify-center p-8 animate-fade-in"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
     >
       <div
@@ -336,6 +336,7 @@ export function ActionPanel({
           backgroundColor: StoryModeColors.surface,
           borderColor: StoryModeColors.border,
           boxShadow: '12px 12px 0px 0px rgba(0,0,0,0.9)',
+          animation: 'story-modal-appear 0.3s ease-out',
         }}
       >
         {/* Header */}

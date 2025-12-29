@@ -29,7 +29,7 @@ export function MissionPanel({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center z-50"
+      className="fixed inset-0 flex items-center justify-center z-50 animate-fade-in"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
       onClick={onClose}
     >
@@ -39,6 +39,7 @@ export function MissionPanel({
           backgroundColor: StoryModeColors.surface,
           borderColor: StoryModeColors.sovietRed,
           boxShadow: '12px 12px 0px 0px rgba(0,0,0,0.9)',
+          animation: 'story-modal-appear 0.3s ease-out',
         }}
         onClick={e => e.stopPropagation()}
       >
