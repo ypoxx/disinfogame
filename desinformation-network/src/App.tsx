@@ -7,6 +7,7 @@ import { UnifiedRoundModal } from '@/components/UnifiedRoundModal';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
 import { UnifiedRightPanel } from '@/components/UnifiedRightPanel';
 import { GameStatistics } from '@/components/GameStatistics';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 // EventNotification removed in Phase 1 - consolidated into NotificationToast
 import {
   FilterControls,
@@ -448,7 +449,8 @@ function App() {
     : null;
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col">
+    <ErrorBoundary>
+      <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col">
       {/* Floating HUD - Top Left (Game Title only) - Phase 1: z-hud */}
       <div className="fixed top-6 left-6 z-[var(--z-hud)] animate-fade-in">
         <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl">
@@ -596,7 +598,8 @@ function App() {
       )}
 
       {/* EventNotification removed in Phase 1 - events now handled via UnifiedRoundModal */}
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }
 

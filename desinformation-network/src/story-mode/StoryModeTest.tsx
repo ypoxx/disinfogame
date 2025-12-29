@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { OfficeScreen } from './OfficeScreen';
 import { StoryModeGame } from './StoryModeGame';
+import { StoryModeErrorBoundary } from './components/StoryModeErrorBoundary';
 
 interface StoryModeTestProps {
   onExit: () => void;
@@ -17,7 +18,11 @@ export function StoryModeTest({ onExit }: StoryModeTestProps) {
   const [useFullGame] = useState(true); // Toggle for development
 
   if (useFullGame) {
-    return <StoryModeGame onExit={onExit} />;
+    return (
+      <StoryModeErrorBoundary onReset={onExit}>
+        <StoryModeGame onExit={onExit} />
+      </StoryModeErrorBoundary>
+    );
   }
 
   // Original prototype for quick testing
