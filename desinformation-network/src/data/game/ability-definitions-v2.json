@@ -63,6 +63,7 @@
     "longDescription": "Focus on local issues to create concentrated outrage in specific communities. More effective on regionally-connected actors.",
     "resourceCost": 25,
     "cooldown": 2,
+    "basedOn": ["emotional_appeal", "framing"],
     "effectType": "regional",
     "targetType": "single",
     "effects": {
@@ -118,6 +119,7 @@
     "longDescription": "Use bot army to artificially boost engagement. Makes content appear popular and credible through fake likes, shares, and comments.",
     "resourceCost": 35,
     "cooldown": 3,
+    "basedOn": ["social_proof", "bandwagon"],
     "requires": "active_bot_army",
     "effectType": "amplification",
     "targetType": "any_actor",
@@ -173,6 +175,7 @@
     "longDescription": "Flood trending hashtags with your narrative. Drowns out organic discourse and redirects public conversation.",
     "resourceCost": 30,
     "cooldown": 2,
+    "basedOn": ["bandwagon", "social_proof"],
     "effectType": "social_media",
     "targetType": "platform",
     "effects": {
@@ -198,6 +201,7 @@
     "longDescription": "Ghost-write or influence a book by the expert. Slow to produce but creates lasting authority and citeable source.",
     "resourceCost": 60,
     "cooldown": 6,
+    "basedOn": ["authority"],
     "effectType": "authority_building",
     "targetType": "self",
     "effects": {
@@ -225,6 +229,7 @@
     "longDescription": "Place expert on popular talk show to spread narrative. Quick visibility but effect fades unless reinforced.",
     "resourceCost": 35,
     "cooldown": 3,
+    "basedOn": ["authority", "social_proof"],
     "effectType": "visibility",
     "targetType": "self_and_media",
     "effects": {
@@ -252,6 +257,7 @@
     "longDescription": "Leak preliminary research findings before peer review. Creates citations and headlines before scientific scrutiny.",
     "resourceCost": 40,
     "cooldown": 4,
+    "basedOn": ["authority", "scarcity"],
     "effectType": "information_laundering",
     "targetType": "media",
     "effects": {
@@ -279,6 +285,7 @@
     "longDescription": "Create official-looking research organization to publish biased reports. Classic authority laundering tactic.",
     "resourceCost": 70,
     "cooldown": 8,
+    "basedOn": ["authority"],
     "effectType": "infrastructure",
     "targetType": "creates_new_actor",
     "effects": {
@@ -308,6 +315,7 @@
     "longDescription": "Fund research with predetermined conclusions. Provides citeable 'evidence' for your narrative.",
     "resourceCost": 55,
     "cooldown": 5,
+    "basedOn": ["authority", "confirmation_bias"],
     "effectType": "evidence_creation",
     "targetType": "self",
     "effects": {
@@ -335,6 +343,7 @@
     "longDescription": "Classic laundering: (1) Publish in blog/Telegram, (2) Tabloid reports 'claims circulating online', (3) Story gains legitimacy.",
     "resourceCost": 45,
     "cooldown": 4,
+    "basedOn": ["social_proof", "repetition"],
     "effectType": "chain",
     "targetType": "multi_actor",
     "requires": ["alternative_media", "tabloid"],
@@ -366,6 +375,7 @@
     "longDescription": "Leak documents to media - can be authentic, selectively edited, or completely fabricated. Creates news cycle.",
     "resourceCost": 50,
     "cooldown": 5,
+    "basedOn": ["scarcity", "emotional_appeal"],
     "effectType": "scandal",
     "targetType": "any",
     "effects": {
@@ -393,6 +403,7 @@
     "longDescription": "Deploy pseudo-experts with fake PhDs or inflated credentials. Appears legitimate in media appearances.",
     "resourceCost": 30,
     "cooldown": 3,
+    "basedOn": ["authority"],
     "effectType": "authority_fake",
     "targetType": "self",
     "effects": {
@@ -419,6 +430,7 @@
     "longDescription": "Coordinate posts to artificially trend a hashtag. Creates appearance of widespread public interest.",
     "resourceCost": 35,
     "cooldown": 3,
+    "basedOn": ["bandwagon", "social_proof"],
     "effectType": "visibility",
     "targetType": "platform",
     "effects": {

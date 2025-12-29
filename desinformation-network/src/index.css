@@ -2,6 +2,83 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   Z-INDEX LAYER SYSTEM (Phase 1)
+
+   Unified, scalable z-index hierarchy.
+   Use these CSS variables instead of hardcoded values.
+   ============================================ */
+:root {
+  /* ============================================
+     Layer Hierarchy (ascending)
+     ============================================ */
+  --z-canvas: 0;           /* Network visualization canvas */
+  --z-overlay: 10;         /* Canvas overlays (legend, zoom controls) */
+  --z-panel: 20;           /* Side panels (UnifiedRightPanel) */
+  --z-hud: 30;             /* Floating HUD elements (top-left info) */
+  --z-notification: 40;    /* Toast notifications */
+  --z-modal: 50;           /* Blocking modals (round summary, events) */
+  --z-tooltip: 60;         /* Tooltips (highest - always visible) */
+
+  /* ============================================
+     Design System: Surfaces (Phase 5)
+     Dark theme with subtle blue undertone
+     ============================================ */
+  --surface-base: hsl(220, 20%, 10%);
+  --surface-elevated: hsl(220, 20%, 14%);
+  --surface-overlay: hsl(220, 20%, 18%);
+
+  /* ============================================
+     Design System: Borders
+     ============================================ */
+  --border-subtle: hsla(220, 20%, 50%, 0.15);
+  --border-default: hsla(220, 20%, 50%, 0.25);
+  --border-strong: hsla(220, 20%, 50%, 0.40);
+
+  /* ============================================
+     Design System: Trust Colors (consistent)
+     Used for actor trust levels across UI
+     ============================================ */
+  --trust-high: hsl(142, 71%, 45%);      /* Green - trusted actors */
+  --trust-medium: hsl(45, 93%, 47%);     /* Yellow/Amber - neutral */
+  --trust-low: hsl(0, 84%, 60%);         /* Red - low trust/manipulated */
+
+  /* ============================================
+     Design System: Accent Colors
+     ============================================ */
+  --accent-primary: hsl(217, 91%, 60%);  /* Blue - primary actions */
+  --accent-success: hsl(142, 71%, 45%);  /* Green - success states */
+  --accent-warning: hsl(38, 92%, 50%);   /* Orange - warnings */
+  --accent-danger: hsl(0, 84%, 60%);     /* Red - errors/danger */
+
+  /* ============================================
+     Design System: Spacing (8px grid)
+     ============================================ */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* ============================================
+     Design System: Border Radius
+     ============================================ */
+  --radius-sm: 4px;   /* Small elements */
+  --radius-md: 6px;   /* Buttons */
+  --radius-lg: 8px;   /* Cards */
+  --radius-xl: 12px;  /* Panels */
+  --radius-2xl: 16px; /* Modals */
+
+  /* ============================================
+     Design System: Transitions
+     ============================================ */
+  --transition-fast: 100ms ease;
+  --transition-normal: 150ms ease;
+  --transition-slow: 300ms ease;
+}
+
 /* Custom base styles */
 @layer base {
   html {
@@ -52,6 +129,54 @@
   .animate-slide-up {
     animation: slideUp 0.3s ease-out forwards;
   }
+
+  /* ============================================
+     Interactive States (Phase 5)
+     Apply to clickable elements for consistent UX
+     ============================================ */
+  .interactive {
+    transition: all var(--transition-normal);
+    cursor: pointer;
+  }
+
+  .interactive:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .interactive:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Subtle variant for smaller elements */
+  .interactive-subtle {
+    transition: all var(--transition-fast);
+    cursor: pointer;
+  }
+
+  .interactive-subtle:hover {
+    opacity: 0.85;
+  }
+
+  .interactive-subtle:active {
+    transform: scale(0.97);
+  }
+
+  /* Glow variant for emphasized elements */
+  .interactive-glow {
+    transition: all var(--transition-normal);
+    cursor: pointer;
+  }
+
+  .interactive-glow:hover {
+    box-shadow: 0 0 20px var(--accent-primary);
+  }
+
+  .interactive-glow:active {
+    transform: scale(0.98);
+    box-shadow: 0 0 10px var(--accent-primary);
+  }
 }
 
 /* Keyframes */
@@ -95,6 +220,31 @@
     transform: scale(4);
     opacity: 0;
   }
+}
+
+/* Toast notifications animation (slide down from top) */
+@keyframes slide-down {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out forwards;
 }
 
 /* Canvas styles */

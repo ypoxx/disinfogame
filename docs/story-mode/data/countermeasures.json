@@ -1,0 +1,621 @@
+{
+  "meta": {
+    "id": "story-mode.countermeasures",
+    "version": "1.0.0",
+    "created": "2025-12-28",
+    "description": "Gegner-Events und Gegenmaßnahmen basierend auf DISARM Framework",
+    "notes": [
+      "DISARM C00xxx-Codes sind Backend-Referenzen",
+      "Events werden durch Spieleraktionen, Risiko-Level und Aufmerksamkeit getriggert",
+      "Effekte können temporär oder permanent sein"
+    ]
+  },
+  "trigger_types": {
+    "risk_threshold": {
+      "description": "Wird ausgelöst wenn kumulatives Risiko einen Schwellenwert erreicht",
+      "values": ["low", "medium", "high", "critical"]
+    },
+    "attention_threshold": {
+      "description": "Wird ausgelöst wenn Aufmerksamkeit auf Operationen zu hoch wird",
+      "values": ["low", "medium", "high", "critical"]
+    },
+    "action_specific": {
+      "description": "Wird als direkte Reaktion auf bestimmte Aktionen ausgelöst"
+    },
+    "random_check": {
+      "description": "Zufällige Überprüfung basierend auf globalen Faktoren"
+    },
+    "time_based": {
+      "description": "Tritt nach bestimmter Spielzeit automatisch auf"
+    }
+  },
+  "severity_levels": {
+    "minor": {
+      "label_de": "Gering",
+      "description": "Kleine Unannehmlichkeit, leicht zu handhaben"
+    },
+    "moderate": {
+      "label_de": "Mittel",
+      "description": "Spürbare Einschränkung, erfordert Anpassung"
+    },
+    "severe": {
+      "label_de": "Schwer",
+      "description": "Erheblicher Rückschlag, gefährdet Operationen"
+    },
+    "critical": {
+      "label_de": "Kritisch",
+      "description": "Existenzbedrohend, kann zum Spielende führen"
+    }
+  },
+  "countermeasures": [
+    {
+      "id": "cm01",
+      "disarm_ref": "C00072",
+      "label_de": "Fact-Check veröffentlicht",
+      "label_en": "Fact-Check Published",
+      "narrative_de": "Eine unserer Geschichten wurde von Correctiv als Falschinformation eingestuft. Die Reichweite sinkt.",
+      "severity": "minor",
+      "trigger": {
+        "type": "action_specific",
+        "triggers_on": ["3.1", "3.9", "3.11"],
+        "probability_base": 0.3
+      },
+      "effects": {
+        "content_reach_reduction": 0.5,
+        "attention_increase": 2
+      },
+      "counter_options": [
+        {
+          "action": "Fact-Checker angreifen",
+          "action_ref": "8.3"
+        },
+        {
+          "action": "Ignorieren und weitermachen",
+          "effect": "attention_increase_small"
+        }
+      ]
+    },
+    {
+      "id": "cm02",
+      "disarm_ref": "C00073",
+      "label_de": "Account gesperrt",
+      "label_en": "Account Suspended",
+      "narrative_de": "Einer unserer wichtigen Accounts wurde von der Plattform gesperrt. Wir verlieren Reichweite.",
+      "severity": "moderate",
+      "trigger": {
+        "type": "risk_threshold",
+        "threshold": "medium",
+        "probability_base": 0.15
+      },
+      "effects": {
+        "capacity_reduction": 1,
+        "infrastructure_loss": "single_account"
+      },
+      "counter_options": [
+        {
+          "action": "Ersatz-Account aktivieren",
+          "cost": {"budget": 2, "capacity": 1}
+        },
+        {
+          "action": "Appeal einreichen",
+          "probability_success": 0.3
+        }
+      ]
+    },
+    {
+      "id": "cm03",
+      "disarm_ref": "C00074",
+      "label_de": "Bot-Netzwerk enttarnt",
+      "label_en": "Bot Network Exposed",
+      "narrative_de": "Forscher haben unser Bot-Netzwerk identifiziert und dokumentiert. Die Bots werden massenhaft gesperrt.",
+      "severity": "severe",
+      "trigger": {
+        "type": "action_specific",
+        "triggers_on": ["2.1", "2.2", "5.1"],
+        "probability_base": 0.1,
+        "probability_increase_per_use": 0.05
+      },
+      "effects": {
+        "infrastructure_loss": "bot_network",
+        "risk_increase": 5,
+        "attention_increase": 5
+      },
+      "counter_options": [
+        {
+          "action": "Neues Bot-Netzwerk aufbauen",
+          "action_ref": "2.1",
+          "cost_multiplier": 1.5
+        },
+        {
+          "action": "Zu menschlichen Operatoren wechseln",
+          "action_ref": "2.3"
+        }
+      ]
+    },
+    {
+      "id": "cm04",
+      "disarm_ref": "C00075",
+      "label_de": "Investigative Recherche",
+      "label_en": "Investigative Report",
+      "narrative_de": "Ein Journalist hat unsere Operationen recherchiert. Die Veröffentlichung steht bevor.",
+      "severity": "severe",
+      "trigger": {
+        "type": "attention_threshold",
+        "threshold": "high",
+        "probability_base": 0.2
+      },
+      "effects": {
+        "risk_increase": 10,
+        "countdown_to_exposure": 3
+      },
+      "counter_options": [
+        {
+          "action": "Journalist diskreditieren",
+          "action_ref": "8.2"
+        },
+        {
+          "action": "Journalist einschüchtern",
+          "action_ref": "8.1"
+        },
+        {
+          "action": "Ablenkungsmanöver starten",
+          "cost": {"budget": 10, "capacity": 2}
+        }
+      ]
+    },
+    {
+      "id": "cm05",
+      "disarm_ref": "C00076",
+      "label_de": "Plattform-Maßnahmen",
+      "label_en": "Platform Action",
+      "narrative_de": "Die Plattform hat ihre Richtlinien verschärft. Unsere Taktiken funktionieren nicht mehr so gut.",
+      "severity": "moderate",
+      "trigger": {
+        "type": "time_based",
+        "phases_after_start": 4
+      },
+      "effects": {
+        "reach_reduction_global": 0.2,
+        "bot_efficiency_reduction": 0.3
+      },
+      "counter_options": [
+        {
+          "action": "Taktiken anpassen",
+          "cost": {"capacity": 2}
+        },
+        {
+          "action": "Auf alternative Plattformen ausweichen",
+          "effect": "reach_reduction_temporary"
+        }
+      ]
+    },
+    {
+      "id": "cm06",
+      "disarm_ref": "C00077",
+      "label_de": "Medienkompetenz-Kampagne",
+      "label_en": "Media Literacy Campaign",
+      "narrative_de": "Die Regierung hat eine Kampagne zur Medienkompetenz gestartet. Die Bevölkerung wird kritischer.",
+      "severity": "minor",
+      "trigger": {
+        "type": "time_based",
+        "phases_after_start": 6
+      },
+      "effects": {
+        "population_resistance": 0.1,
+        "narrative_effectiveness_reduction": 0.15
+      },
+      "counter_options": [
+        {
+          "action": "Kampagne als Propaganda bezeichnen",
+          "action_ref": "8.4"
+        },
+        {
+          "action": "Emotionalere Inhalte produzieren",
+          "effect": "bypass_critical_thinking"
+        }
+      ]
+    },
+    {
+      "id": "cm07",
+      "disarm_ref": "C00078",
+      "label_de": "Diplomatische Spannungen",
+      "label_en": "Diplomatic Tensions",
+      "narrative_de": "Die Regierung von Westunion hat offiziell Einflussoperationen durch Ostland angeprangert.",
+      "severity": "moderate",
+      "trigger": {
+        "type": "attention_threshold",
+        "threshold": "high",
+        "probability_base": 0.25
+      },
+      "effects": {
+        "political_operations_harder": true,
+        "scrutiny_increase": 0.2
+      },
+      "counter_options": [
+        {
+          "action": "Operationen pausieren",
+          "effect": "attention_decay"
+        },
+        {
+          "action": "Tarnidentitäten verstärken",
+          "cost": {"budget": 5, "risk": -3}
+        }
+      ]
+    },
+    {
+      "id": "cm08",
+      "disarm_ref": "C00079",
+      "label_de": "Whistleblower",
+      "label_en": "Whistleblower",
+      "narrative_de": "Jemand aus unserer Organisation droht, uns zu verraten. Wir müssen handeln.",
+      "severity": "critical",
+      "trigger": {
+        "type": "risk_threshold",
+        "threshold": "critical",
+        "probability_base": 0.2
+      },
+      "effects": {
+        "countdown_to_exposure": 2,
+        "npc_loyalty_check": true
+      },
+      "counter_options": [
+        {
+          "action": "Whistleblower neutralisieren",
+          "action_ref": "8.9"
+        },
+        {
+          "action": "Beweise vernichten",
+          "cost": {"budget": 10, "capacity": 2, "moral_weight": 3}
+        },
+        {
+          "action": "Fluchtplan aktivieren",
+          "effect": "game_end_escape"
+        }
+      ]
+    },
+    {
+      "id": "cm09",
+      "disarm_ref": "C00080",
+      "label_de": "Technische Attribution",
+      "label_en": "Technical Attribution",
+      "narrative_de": "Cybersecurity-Experten haben unsere Infrastruktur zurückverfolgt. Die Verbindung zu Ostland ist öffentlich.",
+      "severity": "severe",
+      "trigger": {
+        "type": "action_specific",
+        "triggers_on": ["8.5", "8.6", "8.11"],
+        "probability_base": 0.2
+      },
+      "effects": {
+        "risk_increase": 15,
+        "all_cover_blown": true
+      },
+      "counter_options": [
+        {
+          "action": "Alles abstreiten",
+          "effect": "temporary_reprieve"
+        },
+        {
+          "action": "False-Flag-Operation",
+          "cost": {"budget": 15, "capacity": 3, "risk": 5}
+        }
+      ]
+    },
+    {
+      "id": "cm10",
+      "disarm_ref": "C00081",
+      "label_de": "Rechtliche Schritte",
+      "label_en": "Legal Action",
+      "narrative_de": "Jemand, den wir attackiert haben, geht rechtlich gegen uns vor. Unsere Tarnfirmen sind in Gefahr.",
+      "severity": "moderate",
+      "trigger": {
+        "type": "action_specific",
+        "triggers_on": ["8.1", "8.2", "8.7"],
+        "probability_base": 0.15
+      },
+      "effects": {
+        "budget_loss": 10,
+        "legal_pressure": true
+      },
+      "counter_options": [
+        {
+          "action": "Anwälte engagieren",
+          "cost": {"budget": 15}
+        },
+        {
+          "action": "Tarnfirma aufgeben",
+          "effect": "lose_shell_company"
+        }
+      ]
+    },
+    {
+      "id": "cm11",
+      "disarm_ref": "C00082",
+      "label_de": "Insider-Leck",
+      "label_en": "Insider Leak",
+      "narrative_de": "Interne Dokumente sind an die Presse gelangt. Wir wissen nicht, wer es war.",
+      "severity": "severe",
+      "trigger": {
+        "type": "random_check",
+        "probability_base": 0.05,
+        "probability_increase_with_team_size": 0.02
+      },
+      "effects": {
+        "attention_increase": 8,
+        "trust_decrease_internal": 0.3
+      },
+      "counter_options": [
+        {
+          "action": "Maulwurf suchen",
+          "cost": {"capacity": 2}
+        },
+        {
+          "action": "Dokumente als Fälschung bezeichnen",
+          "probability_success": 0.4
+        }
+      ]
+    },
+    {
+      "id": "cm12",
+      "disarm_ref": "C00083",
+      "label_de": "Sanktionen",
+      "label_en": "Sanctions",
+      "narrative_de": "Westunion hat Sanktionen gegen mit uns verbundene Personen und Organisationen verhängt.",
+      "severity": "severe",
+      "trigger": {
+        "type": "attention_threshold",
+        "threshold": "critical",
+        "probability_base": 0.4
+      },
+      "effects": {
+        "budget_reduction_permanent": 0.3,
+        "financial_channels_restricted": true
+      },
+      "counter_options": [
+        {
+          "action": "Alternative Finanzwege",
+          "cost": {"budget": 10}
+        },
+        {
+          "action": "Operationen reduzieren",
+          "effect": "scale_down"
+        }
+      ]
+    },
+    {
+      "id": "cm13",
+      "disarm_ref": "C00084",
+      "label_de": "Gegennarrative",
+      "label_en": "Counter-Narrative",
+      "narrative_de": "Eine erfolgreiche Gegen-Kampagne untergräbt unsere Hauptnarrative.",
+      "severity": "moderate",
+      "trigger": {
+        "type": "action_specific",
+        "triggers_on": ["3.9", "3.10", "7.6"],
+        "probability_base": 0.2
+      },
+      "effects": {
+        "narrative_effectiveness_reduction": 0.25,
+        "need_new_angle": true
+      },
+      "counter_options": [
+        {
+          "action": "Narrativ anpassen",
+          "cost": {"capacity": 2}
+        },
+        {
+          "action": "Gegenangriff auf Quelle",
+          "action_ref": "8.4"
+        }
+      ]
+    },
+    {
+      "id": "cm14",
+      "disarm_ref": "C00085",
+      "label_de": "Community-Pushback",
+      "label_en": "Community Pushback",
+      "narrative_de": "Die Zielgruppe reagiert negativ. Unser Astroturfing wurde durchschaut.",
+      "severity": "minor",
+      "trigger": {
+        "type": "action_specific",
+        "triggers_on": ["5.4", "6.9"],
+        "probability_base": 0.25
+      },
+      "effects": {
+        "community_trust_loss": 0.2,
+        "campaign_backlash": true
+      },
+      "counter_options": [
+        {
+          "action": "Zurückziehen und warten",
+          "effect": "cool_down_period"
+        },
+        {
+          "action": "Echte Unterstützer mobilisieren",
+          "cost": {"budget": 5, "capacity": 1}
+        }
+      ]
+    },
+    {
+      "id": "cm15",
+      "disarm_ref": "C00086",
+      "label_de": "Tarnfirma enttarnt",
+      "label_en": "Shell Company Exposed",
+      "narrative_de": "Journalisten haben die Verbindungen unserer Tarnfirma aufgedeckt.",
+      "severity": "severe",
+      "trigger": {
+        "type": "action_specific",
+        "triggers_on": ["2.11", "2.12"],
+        "probability_base": 0.1
+      },
+      "effects": {
+        "lose_legitimacy_cover": true,
+        "financial_audit_risk": true
+      },
+      "counter_options": [
+        {
+          "action": "Neue Tarnfirma gründen",
+          "action_ref": "2.11"
+        },
+        {
+          "action": "Verbindungen bestreiten",
+          "probability_success": 0.3
+        }
+      ]
+    },
+    {
+      "id": "cm16",
+      "disarm_ref": "C00087",
+      "label_de": "Rekrutierter Agent enttarnt",
+      "label_en": "Recruited Agent Exposed",
+      "narrative_de": "Einer unserer rekrutierten Agenten wurde enttarnt. Er könnte uns verraten.",
+      "severity": "severe",
+      "trigger": {
+        "type": "action_specific",
+        "triggers_on": ["2.16", "2.17", "2.20"],
+        "probability_base": 0.1
+      },
+      "effects": {
+        "asset_lost": true,
+        "risk_increase": 8,
+        "possible_double_agent": true
+      },
+      "counter_options": [
+        {
+          "action": "Agenten neutralisieren",
+          "cost": {"budget": 10, "moral_weight": 4}
+        },
+        {
+          "action": "Schaden begrenzen",
+          "cost": {"capacity": 2}
+        }
+      ]
+    },
+    {
+      "id": "cm17",
+      "disarm_ref": "C00088",
+      "label_de": "Deepfake entlarvt",
+      "label_en": "Deepfake Debunked",
+      "narrative_de": "Unser Deepfake wurde als Fälschung identifiziert. Die Glaubwürdigkeit sinkt.",
+      "severity": "moderate",
+      "trigger": {
+        "type": "action_specific",
+        "triggers_on": ["3.5", "3.6"],
+        "probability_base": 0.35
+      },
+      "effects": {
+        "credibility_loss": 0.3,
+        "future_deepfake_effectiveness_reduction": 0.5
+      },
+      "counter_options": [
+        {
+          "action": "Auf traditionelle Methoden zurückgreifen",
+          "effect": "avoid_deepfakes"
+        },
+        {
+          "action": "Technologie verbessern",
+          "cost": {"budget": 15}
+        }
+      ]
+    },
+    {
+      "id": "cm18",
+      "label_de": "NPC-Krise",
+      "label_en": "NPC Crisis",
+      "narrative_de": "Einer Ihrer Mitarbeiter hat ernsthafte Bedenken. Die Moral leidet unter den dunklen Operationen.",
+      "severity": "moderate",
+      "trigger": {
+        "type": "risk_threshold",
+        "threshold": "medium",
+        "probability_base": 0.1,
+        "probability_increase_with_moral_weight": 0.05
+      },
+      "effects": {
+        "npc_effectiveness_reduction": 0.3,
+        "possible_defection": true
+      },
+      "counter_options": [
+        {
+          "action": "NPC beruhigen",
+          "cost": {"capacity": 1}
+        },
+        {
+          "action": "NPC ersetzen",
+          "cost": {"budget": 10}
+        },
+        {
+          "action": "Ignorieren",
+          "effect": "defection_risk_increase"
+        }
+      ]
+    },
+    {
+      "id": "cm19",
+      "label_de": "Budget-Kürzung",
+      "label_en": "Budget Cut",
+      "narrative_de": "Moskau ist mit den Ergebnissen unzufrieden. Das Budget für das nächste Quartal wird gekürzt.",
+      "severity": "moderate",
+      "trigger": {
+        "type": "random_check",
+        "probability_base": 0.1,
+        "conditions": ["low_campaign_effectiveness"]
+      },
+      "effects": {
+        "budget_reduction_temporary": 0.25
+      },
+      "counter_options": [
+        {
+          "action": "Erfolge präsentieren",
+          "cost": {"capacity": 1}
+        },
+        {
+          "action": "Mit weniger auskommen",
+          "effect": "accept_reduction"
+        }
+      ]
+    },
+    {
+      "id": "cm20",
+      "label_de": "Direktor-Druck",
+      "label_en": "Director Pressure",
+      "narrative_de": "Der Direktor verlangt schnellere Ergebnisse. Die Erwartungen sind gestiegen.",
+      "severity": "minor",
+      "trigger": {
+        "type": "time_based",
+        "phases_without_major_success": 3
+      },
+      "effects": {
+        "pressure_increase": true,
+        "risky_actions_expected": true
+      },
+      "counter_options": [
+        {
+          "action": "Große Operation starten",
+          "effect": "high_risk_high_reward"
+        },
+        {
+          "action": "Kleinere Erfolge präsentieren",
+          "cost": {"capacity": 1}
+        }
+      ]
+    }
+  ],
+  "event_chains": {
+    "exposure_chain": {
+      "description": "Eskalations-Kette bei zunehmender Enttarnung",
+      "stages": [
+        {"stage": 1, "triggers": ["cm01", "cm02"], "next_probability_increase": 0.1},
+        {"stage": 2, "triggers": ["cm03", "cm04"], "next_probability_increase": 0.15},
+        {"stage": 3, "triggers": ["cm09", "cm11"], "next_probability_increase": 0.2},
+        {"stage": 4, "triggers": ["cm08", "cm12"], "effect": "game_end_possible"}
+      ]
+    },
+    "legal_chain": {
+      "description": "Rechtliche Eskalation",
+      "stages": [
+        {"stage": 1, "triggers": ["cm10"], "next_probability_increase": 0.1},
+        {"stage": 2, "triggers": ["cm15"], "next_probability_increase": 0.15},
+        {"stage": 3, "triggers": ["cm12"], "effect": "operations_frozen"}
+      ]
+    }
+  }
+}

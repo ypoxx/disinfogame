@@ -1,40 +1,533 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StoryModeColors } from './theme';
+import type { StoryResources, StoryPhase, NewsEvent, Objective } from '../game-logic/StoryEngineAdapter';
+
+// ============================================
+// TYPES
+// ============================================
 
 interface OfficeScreenProps {
   onExit: () => void;
+  onOpenActions?: () => void;
+  onOpenNews?: () => void;
+  onOpenStats?: () => void;
+  onOpenNpcs?: () => void;
+  onOpenMission?: () => void;
+  onOpenEvents?: () => void;
+  onEndPhase?: () => void;
+  resources?: StoryResources;
+  phase?: StoryPhase;
+  newsEvents?: NewsEvent[];
+  objectives?: Objective[];
+  unreadNewsCount?: number;
+  worldEventCount?: number;
 }
 
-type Interaction = {
-  title: string;
-  description: string;
-};
+type HoverArea = 'computer' | 'phone' | 'smartphone' | 'tv' | 'door' | 'folder' | null;
 
-type HoverArea = 'computer' | 'phone' | 'smartphone' | 'tv' | 'door' | null;
+// ============================================
+// CSS OFFICE FURNITURE COMPONENTS
+// ============================================
 
-export function OfficeScreen({ onExit }: OfficeScreenProps) {
-  const [selectedInteraction, setSelectedInteraction] = useState<Interaction | null>(null);
+function WallTV({ isHovered, onClick }: { isHovered: boolean; onClick: () => void }) {
+  return (
+    <div
+      className="absolute cursor-pointer transition-all duration-200"
+      style={{
+        top: '5%',
+        left: '8%',
+        width: '35%',
+        height: '28%',
+      }}
+      onClick={onClick}
+    >
+      {/* TV Frame */}
+      <div
+        className="w-full h-full border-8 relative"
+        style={{
+          backgroundColor: '#1a1a1a',
+          borderColor: isHovered ? StoryModeColors.agencyBlue : '#333',
+          boxShadow: isHovered
+            ? `0 0 30px ${StoryModeColors.agencyBlue}, inset 0 0 20px rgba(74, 157, 255, 0.3)`
+            : '8px 8px 0 rgba(0,0,0,0.5)',
+        }}
+      >
+        {/* Screen Content - Stats Bars */}
+        <div className="absolute inset-2 p-2 overflow-hidden" style={{ backgroundColor: '#0a0a0a' }}>
+          <div className="text-xs font-bold mb-2" style={{ color: StoryModeColors.agencyBlue }}>
+            CAMPAIGN METRICS
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-xs w-16" style={{ color: StoryModeColors.textMuted }}>TRUST</span>
+              <div className="flex-1 h-3 bg-black">
+                <div className="h-full" style={{ width: '65%', backgroundColor: StoryModeColors.danger }} />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs w-16" style={{ color: StoryModeColors.textMuted }}>REACH</span>
+              <div className="flex-1 h-3 bg-black">
+                <div className="h-full" style={{ width: '45%', backgroundColor: StoryModeColors.agencyBlue }} />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs w-16" style={{ color: StoryModeColors.textMuted }}>RISK</span>
+              <div className="flex-1 h-3 bg-black">
+                <div className="h-full" style={{ width: '25%', backgroundColor: StoryModeColors.warning }} />
+              </div>
+            </div>
+          </div>
+          {/* Scan line effect */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-10"
+            style={{
+              background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)',
+            }}
+          />
+        </div>
+        {/* Power LED */}
+        <div
+          className="absolute bottom-2 right-2 w-2 h-2 rounded-full animate-pulse"
+          style={{ backgroundColor: StoryModeColors.success }}
+        />
+      </div>
+      {/* Label */}
+      {isHovered && (
+        <div
+          className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap z-10"
+          style={{
+            backgroundColor: StoryModeColors.agencyBlue,
+            borderColor: StoryModeColors.darkBlue,
+            color: StoryModeColors.warning,
+          }}
+        >
+          KAMPAGNEN-STATISTIK
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DeskComputer({ isHovered, hasNotification, onClick }: { isHovered: boolean; hasNotification: boolean; onClick: () => void }) {
+  return (
+    <div
+      className="absolute cursor-pointer transition-all duration-200"
+      style={{
+        top: '35%',
+        left: '30%',
+        width: '28%',
+        height: '38%',
+      }}
+      onClick={onClick}
+    >
+      {/* Monitor */}
+      <div
+        className="absolute top-0 left-1/2 transform -translate-x-1/2 border-6"
+        style={{
+          width: '85%',
+          height: '60%',
+          backgroundColor: '#1a1a1a',
+          borderColor: isHovered ? StoryModeColors.sovietRed : '#444',
+          boxShadow: isHovered
+            ? `0 0 30px ${StoryModeColors.sovietRed}`
+            : '6px 6px 0 rgba(0,0,0,0.5)',
+        }}
+      >
+        {/* Screen */}
+        <div
+          className="absolute inset-2 p-3"
+          style={{
+            backgroundColor: '#0d1117',
+            border: `2px solid ${isHovered ? StoryModeColors.sovietRed : '#333'}`,
+          }}
+        >
+          <div className="text-xs font-bold mb-1" style={{ color: StoryModeColors.sovietRed }}>
+            SECURE TERMINAL
+          </div>
+          <div className="text-xs" style={{ color: StoryModeColors.textMuted }}>
+            {'>'} AKTIONEN VERFÜGBAR_
+          </div>
+          <div className="text-xs mt-2" style={{ color: StoryModeColors.success }}>
+            [KLICKEN ZUM ÖFFNEN]
+          </div>
+        </div>
+      </div>
+      {/* Monitor Stand */}
+      <div
+        className="absolute bottom-[35%] left-1/2 transform -translate-x-1/2"
+        style={{
+          width: '15%',
+          height: '8%',
+          backgroundColor: '#333',
+        }}
+      />
+      {/* Keyboard */}
+      <div
+        className="absolute bottom-[15%] left-1/2 transform -translate-x-1/2"
+        style={{
+          width: '70%',
+          height: '12%',
+          backgroundColor: '#2a2a2a',
+          borderRadius: '2px',
+          border: '2px solid #444',
+        }}
+      />
+      {/* Notification Badge */}
+      {hasNotification && (
+        <div
+          className="absolute top-0 right-[5%] w-8 h-8 flex items-center justify-center border-2 font-bold animate-pulse z-10"
+          style={{
+            backgroundColor: StoryModeColors.sovietRed,
+            borderColor: StoryModeColors.darkRed,
+            color: '#fff',
+            borderRadius: '50%',
+          }}
+        >
+          !
+        </div>
+      )}
+      {/* Label */}
+      {isHovered && (
+        <div
+          className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap z-10"
+          style={{
+            backgroundColor: StoryModeColors.sovietRed,
+            borderColor: StoryModeColors.darkRed,
+            color: '#fff',
+          }}
+        >
+          AKTIONEN PLANEN
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DeskPhone({ isHovered, onClick }: { isHovered: boolean; onClick: () => void }) {
+  return (
+    <div
+      className="absolute cursor-pointer transition-all duration-200"
+      style={{
+        top: '55%',
+        left: '8%',
+        width: '16%',
+        height: '20%',
+      }}
+      onClick={onClick}
+    >
+      {/* Phone Base */}
+      <div
+        className="w-full h-full border-4 relative"
+        style={{
+          backgroundColor: '#2d2d2d',
+          borderColor: isHovered ? StoryModeColors.warning : '#444',
+          boxShadow: isHovered
+            ? `0 0 25px ${StoryModeColors.warning}`
+            : '4px 4px 0 rgba(0,0,0,0.5)',
+          borderRadius: '4px',
+        }}
+      >
+        {/* Handset */}
+        <div
+          className="absolute top-2 left-1/2 transform -translate-x-1/2"
+          style={{
+            width: '80%',
+            height: '25%',
+            backgroundColor: '#1a1a1a',
+            borderRadius: '20px',
+          }}
+        />
+        {/* Dial Buttons */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 grid grid-cols-3 gap-1">
+          {[1,2,3,4,5,6,7,8,9].map(n => (
+            <div
+              key={n}
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: '#555' }}
+            />
+          ))}
+        </div>
+      </div>
+      {/* Label */}
+      {isHovered && (
+        <div
+          className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap z-10"
+          style={{
+            backgroundColor: StoryModeColors.warning,
+            borderColor: '#A37F1A',
+            color: StoryModeColors.background,
+          }}
+        >
+          NPC-KONTAKTE
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Smartphone({ isHovered, unreadCount, onClick }: { isHovered: boolean; unreadCount: number; onClick: () => void }) {
+  return (
+    <div
+      className="absolute cursor-pointer transition-all duration-200"
+      style={{
+        top: '58%',
+        left: '62%',
+        width: '10%',
+        height: '22%',
+      }}
+      onClick={onClick}
+    >
+      {/* Phone Body */}
+      <div
+        className="w-full h-full border-4 relative"
+        style={{
+          backgroundColor: '#1a1a1a',
+          borderColor: isHovered ? StoryModeColors.danger : '#333',
+          boxShadow: isHovered
+            ? `0 0 25px ${StoryModeColors.danger}`
+            : '4px 4px 0 rgba(0,0,0,0.5)',
+          borderRadius: '8px',
+        }}
+      >
+        {/* Screen */}
+        <div
+          className="absolute inset-1 rounded"
+          style={{ backgroundColor: '#0a0a0a' }}
+        >
+          <div className="p-1">
+            <div className="text-[8px] font-bold" style={{ color: StoryModeColors.danger }}>
+              NEWS
+            </div>
+            <div className="text-[6px] mt-1" style={{ color: StoryModeColors.textMuted }}>
+              Breaking...
+            </div>
+          </div>
+        </div>
+        {/* Home Button */}
+        <div
+          className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-4 h-4 rounded-full border"
+          style={{ borderColor: '#444' }}
+        />
+      </div>
+      {/* Notification Badge */}
+      {unreadCount > 0 && (
+        <div
+          className="absolute -top-2 -right-2 w-6 h-6 flex items-center justify-center border-2 font-bold text-xs animate-pulse z-10"
+          style={{
+            backgroundColor: StoryModeColors.danger,
+            borderColor: '#CC0000',
+            color: '#fff',
+            borderRadius: '50%',
+          }}
+        >
+          {unreadCount}
+        </div>
+      )}
+      {/* Label */}
+      {isHovered && (
+        <div
+          className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap z-10"
+          style={{
+            backgroundColor: StoryModeColors.danger,
+            borderColor: '#CC0000',
+            color: '#fff',
+          }}
+        >
+          NACHRICHTEN
+        </div>
+      )}
+    </div>
+  );
+}
+
+function OfficeDoor({ isHovered, eventCount, onClick }: { isHovered: boolean; eventCount: number; onClick: () => void }) {
+  return (
+    <div
+      className="absolute cursor-pointer transition-all duration-200"
+      style={{
+        top: '8%',
+        left: '78%',
+        width: '18%',
+        height: '55%',
+      }}
+      onClick={onClick}
+    >
+      {/* Door Frame */}
+      <div
+        className="w-full h-full border-8 relative"
+        style={{
+          backgroundColor: '#3d3d3d',
+          borderColor: isHovered ? StoryModeColors.militaryOlive : '#555',
+          boxShadow: isHovered
+            ? `0 0 30px ${StoryModeColors.militaryOlive}`
+            : 'inset 4px 4px 10px rgba(0,0,0,0.5)',
+        }}
+      >
+        {/* Door Panel */}
+        <div
+          className="absolute inset-2"
+          style={{
+            backgroundColor: '#4a4a4a',
+            border: '4px solid #333',
+          }}
+        >
+          {/* Door Handle */}
+          <div
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 w-3 h-8 rounded"
+            style={{ backgroundColor: isHovered ? StoryModeColors.warning : '#888' }}
+          />
+          {/* Window - shows world map silhouette */}
+          <div
+            className="absolute top-4 left-1/2 transform -translate-x-1/2 w-1/2 h-1/4 flex items-center justify-center"
+            style={{
+              backgroundColor: '#1a1a1a',
+              border: '2px solid #555',
+            }}
+          >
+            <span className="text-lg opacity-60">🌍</span>
+          </div>
+        </div>
+        {/* Sign */}
+        <div
+          className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-2 py-1 text-[8px] font-bold"
+          style={{
+            backgroundColor: StoryModeColors.militaryOlive,
+            color: StoryModeColors.warning,
+          }}
+        >
+          WELT
+        </div>
+      </div>
+      {/* Event Counter Badge */}
+      {eventCount > 0 && (
+        <div
+          className="absolute -top-2 -right-2 w-7 h-7 flex items-center justify-center border-2 font-bold text-xs z-10"
+          style={{
+            backgroundColor: StoryModeColors.militaryOlive,
+            borderColor: StoryModeColors.darkOlive,
+            color: StoryModeColors.warning,
+            borderRadius: '50%',
+          }}
+        >
+          {eventCount}
+        </div>
+      )}
+      {/* Label */}
+      {isHovered && (
+        <div
+          className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap z-10"
+          style={{
+            backgroundColor: StoryModeColors.militaryOlive,
+            borderColor: StoryModeColors.darkOlive,
+            color: StoryModeColors.warning,
+          }}
+        >
+          WELT-EREIGNISSE
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MissionFolder({ isHovered, onClick }: { isHovered: boolean; onClick: () => void }) {
+  return (
+    <div
+      className="absolute cursor-pointer transition-all duration-200"
+      style={{
+        top: '65%',
+        left: '25%',
+        width: '12%',
+        height: '15%',
+      }}
+      onClick={onClick}
+    >
+      {/* Folder */}
+      <div
+        className="w-full h-full relative"
+        style={{
+          backgroundColor: isHovered ? StoryModeColors.sovietRed : '#8B4513',
+          boxShadow: isHovered
+            ? `0 0 20px ${StoryModeColors.sovietRed}`
+            : '3px 3px 0 rgba(0,0,0,0.5)',
+          clipPath: 'polygon(0 10%, 30% 10%, 35% 0, 100% 0, 100% 100%, 0 100%)',
+        }}
+      >
+        {/* Tab */}
+        <div
+          className="absolute top-0 left-[30%] w-[40%] h-[15%]"
+          style={{
+            backgroundColor: isHovered ? StoryModeColors.darkRed : '#654321',
+          }}
+        />
+        {/* Label */}
+        <div
+          className="absolute top-1/3 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-center"
+          style={{ color: '#fff' }}
+        >
+          GEHEIM
+        </div>
+        {/* Star */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 text-lg">
+          ☭
+        </div>
+      </div>
+      {/* Label */}
+      {isHovered && (
+        <div
+          className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap z-10"
+          style={{
+            backgroundColor: StoryModeColors.sovietRed,
+            borderColor: StoryModeColors.darkRed,
+            color: '#fff',
+          }}
+        >
+          MISSION BRIEFING
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================
+// MAIN COMPONENT
+// ============================================
+
+export function OfficeScreen({
+  onExit,
+  onOpenActions,
+  onOpenNews,
+  onOpenStats,
+  onOpenNpcs,
+  onOpenMission,
+  onOpenEvents,
+  onEndPhase,
+  resources,
+  phase,
+  unreadNewsCount = 0,
+  worldEventCount = 0,
+}: OfficeScreenProps) {
   const [hoverArea, setHoverArea] = useState<HoverArea>(null);
-  const [emailNotification] = useState(true);
 
-  const showNote = (title: string, description: string) => {
-    setSelectedInteraction({ title, description });
-  };
-
-  const closeNote = () => {
-    setSelectedInteraction(null);
-  };
-
-  const playSound = (soundName: string) => {
-    console.log(`🔊 [SOUND: ${soundName}]`);
-  };
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'a' && onOpenActions) onOpenActions();
+      if (e.key === 'n' && onOpenNews) onOpenNews();
+      if (e.key === 's' && onOpenStats) onOpenStats();
+      if (e.key === 'p' && onOpenNpcs) onOpenNpcs();
+      if (e.key === 'm' && onOpenMission) onOpenMission();
+      if (e.key === 'e' && onOpenEvents) onOpenEvents();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onOpenActions, onOpenNews, onOpenStats, onOpenNpcs, onOpenMission, onOpenEvents]);
 
   return (
     <div
       className="h-full flex flex-col font-mono text-sm relative overflow-hidden"
       style={{
         backgroundColor: StoryModeColors.background,
-        color: StoryModeColors.textPrimary
+        color: StoryModeColors.textPrimary,
       }}
     >
       {/* Header Bar - Status */}
@@ -42,33 +535,33 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
         className="border-b-4 p-3 flex justify-between items-center z-20 relative"
         style={{
           backgroundColor: StoryModeColors.darkConcrete,
-          borderColor: StoryModeColors.border
+          borderColor: StoryModeColors.border,
         }}
       >
         <div className="flex gap-6 text-xs font-bold">
           <div>
-            <span style={{ color: StoryModeColors.textSecondary }}>DAY:</span>{' '}
-            <span style={{ color: StoryModeColors.sovietRed }}>01</span>
-          </div>
-          <div>
-            <span style={{ color: StoryModeColors.textSecondary }}>TIME:</span>{' '}
-            <span style={{ color: StoryModeColors.document }}>08:00</span>
+            <span style={{ color: StoryModeColors.textSecondary }}>PHASE:</span>{' '}
+            <span style={{ color: StoryModeColors.sovietRed }}>
+              {phase ? `Y${phase.year} M${phase.month}` : 'Y1 M1'}
+            </span>
           </div>
           <div>
             <span style={{ color: StoryModeColors.textSecondary }}>AP:</span>{' '}
-            <span style={{ color: StoryModeColors.warning }}>12/12</span>
+            <span style={{ color: StoryModeColors.warning }}>
+              {resources ? `${resources.actionPointsRemaining}/${resources.actionPointsMax}` : '5/5'}
+            </span>
           </div>
           <div>
-            <span style={{ color: StoryModeColors.textSecondary }}>💰</span>{' '}
-            <span style={{ color: StoryModeColors.warning }}>$50K</span>
+            <span style={{ color: StoryModeColors.warning }}>💰 ${resources?.budget ?? 100}K</span>
           </div>
           <div>
-            <span style={{ color: StoryModeColors.textSecondary }}>🏗️</span>{' '}
-            <span style={{ color: StoryModeColors.agencyBlue }}>INFRA:3</span>
+            <span style={{ color: StoryModeColors.agencyBlue }}>⚡ {resources?.capacity ?? 5}</span>
           </div>
           <div>
-            <span style={{ color: StoryModeColors.textSecondary }}>👁️</span>{' '}
-            <span style={{ color: StoryModeColors.danger }}>HEAT:5%</span>
+            <span style={{ color: StoryModeColors.danger }}>⚠️ {resources?.risk ?? 0}%</span>
+          </div>
+          <div>
+            <span style={{ color: StoryModeColors.sovietRed }}>💀 {resources?.moralWeight ?? 0}</span>
           </div>
         </div>
         <button
@@ -78,516 +571,175 @@ export function OfficeScreen({ onExit }: OfficeScreenProps) {
             backgroundColor: StoryModeColors.concrete,
             borderColor: StoryModeColors.borderLight,
             color: StoryModeColors.textPrimary,
-            boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)'
+            boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',
           }}
         >
-          ← EXIT
+          MENU [ESC]
         </button>
       </div>
 
-      {/* Main Office Scene - AI Image Background with Clickable Areas */}
+      {/* Main Office Scene */}
       <div
         className="flex-1 relative"
         style={{
-          backgroundImage: 'url(/office-brutalist-scene.jpg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          // Fallback gradient if image not loaded
-          background: `linear-gradient(135deg, ${StoryModeColors.darkConcrete} 0%, ${StoryModeColors.concrete} 50%, ${StoryModeColors.darkConcrete} 100%)`
+          background: `linear-gradient(180deg,
+            ${StoryModeColors.darkConcrete} 0%,
+            ${StoryModeColors.concrete} 40%,
+            #4a4a4a 60%,
+            ${StoryModeColors.darkConcrete} 100%)`,
         }}
       >
-        {/* Placeholder message if image not loaded */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div
-            className="text-center p-8 border-4"
-            style={{
-              backgroundColor: 'rgba(61, 61, 61, 0.9)',
-              borderColor: StoryModeColors.sovietRed,
-              color: StoryModeColors.textPrimary
-            }}
-          >
-            <div className="text-2xl mb-4">📷</div>
-            <div className="font-bold mb-2">AI-GENERATED OFFICE SCENE</div>
-            <div className="text-xs" style={{ color: StoryModeColors.textSecondary }}>
-              Place your AI-generated image at:<br />
-              <code>/public/office-brutalist-scene.jpg</code>
-              <br /><br />
-              Interactive areas are still clickable!
-            </div>
-          </div>
-        </div>
-
-        {/* TV Screen - Top Left */}
+        {/* Wall Pattern */}
         <div
-          className="absolute cursor-pointer transition-all"
+          className="absolute inset-0 opacity-20"
           style={{
-            top: '8%',
-            left: '15%',
-            width: '28%',
-            height: '20%',
-            backgroundColor: hoverArea === 'tv' ? 'rgba(74, 157, 255, 0.3)' : 'transparent',
-            border: hoverArea === 'tv' ? `3px solid ${StoryModeColors.agencyBlue}` : 'none',
-            boxShadow: hoverArea === 'tv' ? `0 0 20px ${StoryModeColors.agencyBlue}` : 'none',
-            borderRadius: '8px'
-          }}
-          onMouseEnter={() => setHoverArea('tv')}
-          onMouseLeave={() => setHoverArea(null)}
-          onClick={() => {
-            playSound('Screen beep');
-            showNote(
-              '📺 CAMPAIGN ANALYTICS - WALL DISPLAY',
-              'PLACEHOLDER: Interactive campaign dashboard\n\n' +
-              '████████████ Trust Decrease: 15%\n' +
-              '██████          Bot Reach: 45K\n' +
-              '████████████████ Engagement: 89%\n' +
-              '████            Detection Risk: 8%\n\n' +
-              'Would show:\n' +
-              '→ Real-time campaign performance bars\n' +
-              '→ Network trust degradation graph (like Pro Mode metrics)\n' +
-              '→ Reach vs. exposure trade-offs\n' +
-              '→ Target demographics breakdown\n' +
-              '→ Comparative analysis vs. previous days\n' +
-              '→ Clickable bars to drill down into details\n\n' +
-              'This bridges Story Mode visuals with Pro Mode analytics.\n\n' +
-              '🔔 [SOUND: Screen beep, data refresh]'
-            );
-          }}
-        >
-          {hoverArea === 'tv' && (
-            <div
-              className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap"
-              style={{
-                backgroundColor: StoryModeColors.agencyBlue,
-                borderColor: StoryModeColors.darkBlue,
-                color: StoryModeColors.warning
-              }}
-            >
-              📺 CAMPAIGN STATS
-            </div>
-          )}
-        </div>
-
-        {/* Computer Monitor - Center */}
-        <div
-          className="absolute cursor-pointer transition-all"
-          style={{
-            top: '38%',
-            left: '35%',
-            width: '30%',
-            height: '32%',
-            backgroundColor: hoverArea === 'computer' ? 'rgba(196, 30, 58, 0.3)' : 'transparent',
-            border: hoverArea === 'computer' ? `3px solid ${StoryModeColors.sovietRed}` : 'none',
-            boxShadow: hoverArea === 'computer' ? `0 0 20px ${StoryModeColors.sovietRed}` : 'none',
-            borderRadius: '8px'
-          }}
-          onMouseEnter={() => setHoverArea('computer')}
-          onMouseLeave={() => setHoverArea(null)}
-          onClick={() => {
-            playSound('Email notification click');
-            showNote(
-              '💻 SECURE TERMINAL - EMAIL SYSTEM',
-              'PLACEHOLDER: Full email interface\n\n' +
-              '📧 INBOX (3 unread)\n\n' +
-              '═══════════════════════════\n' +
-              'FROM: DIRECTOR\n' +
-              'SUBJECT: First Day - Choose Campaign Focus\n' +
-              'PRIORITY: 🔴 URGENT\n' +
-              'RECEIVED: 08:00\n' +
-              '═══════════════════════════\n\n' +
-              'Welcome to your first day as Information Operations Coordinator.\n\n' +
-              'Your mission: Destabilize public trust in [TARGET REGION] institutions within 30 days.\n\n' +
-              'Choose your initial approach:\n\n' +
-              '[BUTTON] → Focus on domestic influencers (Cost: 2 AP, Risk: Low)\n' +
-              '[BUTTON] → Target international audience (Cost: 3 AP, Risk: Medium)\n' +
-              '[BUTTON] → Request more intelligence first (Cost: 1 AP, Risk: None)\n\n' +
-              'Each choice affects:\n' +
-              '- Available campaign types\n' +
-              '- NPC relationships\n' +
-              '- Long-term strategy options\n\n' +
-              'The notification badge (1) would disappear after reading.\n\n' +
-              '🔔 [SOUND: Keyboard typing, email swoosh]'
-            );
-          }}
-        >
-          {/* Email Notification Badge */}
-          {emailNotification && (
-            <div
-              className="absolute -top-2 -right-2 w-8 h-8 flex items-center justify-center border-2 font-bold animate-pulse"
-              style={{
-                backgroundColor: StoryModeColors.sovietRed,
-                borderColor: StoryModeColors.darkRed,
-                color: '#fff',
-                borderRadius: '50%'
-              }}
-            >
-              1
-            </div>
-          )}
-          {hoverArea === 'computer' && (
-            <div
-              className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap"
-              style={{
-                backgroundColor: StoryModeColors.sovietRed,
-                borderColor: StoryModeColors.darkRed,
-                color: '#fff'
-              }}
-            >
-              💻 SECURE TERMINAL
-            </div>
-          )}
-        </div>
-
-        {/* Telephone - Left Side */}
-        <div
-          className="absolute cursor-pointer transition-all"
-          style={{
-            top: '50%',
-            left: '10%',
-            width: '18%',
-            height: '18%',
-            backgroundColor: hoverArea === 'phone' ? 'rgba(212, 160, 23, 0.3)' : 'transparent',
-            border: hoverArea === 'phone' ? `3px solid ${StoryModeColors.warning}` : 'none',
-            boxShadow: hoverArea === 'phone' ? `0 0 20px ${StoryModeColors.warning}` : 'none',
-            borderRadius: '8px'
-          }}
-          onMouseEnter={() => setHoverArea('phone')}
-          onMouseLeave={() => setHoverArea(null)}
-          onClick={() => {
-            playSound('Phone dial tone');
-            showNote(
-              '☎️ SECURE LINE - TEAM CONTACTS',
-              'PLACEHOLDER: NPC calling system\n\n' +
-              '═══ SPEED DIAL ═══\n\n' +
-              '[1] 🤖 VOLKOV - Bot Farm Chief\n' +
-              '    STATUS: Available\n' +
-              '    "The machines are ready, boss. Just point me at the target."\n\n' +
-              '    Available options:\n' +
-              '    • Request coordinated bot campaign (2 AP)\n' +
-              '    • Check current capacity (0 AP)\n' +
-              '    • Discuss new tactics (1 AP)\n' +
-              '    • Emergency: Shut down detected bots (1 AP, urgent)\n\n' +
-              '[2] 📺 CHEN - Media Buyer\n' +
-              '    STATUS: Available\n' +
-              '    "I can get your message anywhere. Money talks."\n\n' +
-              '    Available options:\n' +
-              '    • Purchase ad placements (3 AP, high cost)\n' +
-              '    • Target specific demographics (2 AP)\n' +
-              '    • Review budget allocation (0 AP)\n\n' +
-              '[3] 🔍 KESSLER - Intelligence Analyst\n' +
-              '    STATUS: Available\n' +
-              '    "I see everything they think they hide."\n\n' +
-              '    Available options:\n' +
-              '    • Request network analysis (1 AP)\n' +
-              '    • Get vulnerability report (2 AP)\n' +
-              '    • Warning: Defensive actors detected (0 AP, alert)\n\n' +
-              'Each call costs AP. Choose wisely.\n' +
-              'NPCs may call YOU with urgent info (interrupts).\n\n' +
-              '🔔 [SOUND: Phone ringing, dial tone, hang up click]'
-            );
-          }}
-        >
-          {hoverArea === 'phone' && (
-            <div
-              className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap"
-              style={{
-                backgroundColor: StoryModeColors.warning,
-                borderColor: '#A37F1A',
-                color: StoryModeColors.background
-              }}
-            >
-              ☎️ SECURE LINE
-            </div>
-          )}
-        </div>
-
-        {/* Smartphone - Right Side */}
-        <div
-          className="absolute cursor-pointer transition-all"
-          style={{
-            top: '56%',
-            left: '68%',
-            width: '14%',
-            height: '22%',
-            backgroundColor: hoverArea === 'smartphone' ? 'rgba(255, 68, 68, 0.3)' : 'transparent',
-            border: hoverArea === 'smartphone' ? `3px solid ${StoryModeColors.danger}` : 'none',
-            boxShadow: hoverArea === 'smartphone' ? `0 0 20px ${StoryModeColors.danger}` : 'none',
-            borderRadius: '8px'
-          }}
-          onMouseEnter={() => setHoverArea('smartphone')}
-          onMouseLeave={() => setHoverArea(null)}
-          onClick={() => {
-            playSound('Phone notification buzz');
-            showNote(
-              '📱 LIVE NEWS FEED - INTELLIGENCE',
-              'PLACEHOLDER: Real-time news ticker\n\n' +
-              '═══ BREAKING NEWS - TARGET REGION ═══\n\n' +
-              '⚡ 08:15 - TRENDING: #ElectionDebate\n' +
-              '   Public trust in candidates: 67% (-2% since yesterday)\n' +
-              '   💡 OPPORTUNITY: High engagement, low defenses\n' +
-              '   Recommended: Launch bot campaign now (bonus effectiveness)\n\n' +
-              '⚡ 08:03 - VIRAL: Scandal video reaches 2M views\n' +
-              '   Sentiment: 45% positive, 55% negative\n' +
-              '   💡 OPPORTUNITY: Amplify negative sentiment\n' +
-              '   Risk: High attention = detection risk\n\n' +
-              '⚡ 07:52 - POLITICS: Minister denies corruption allegations\n' +
-              '   Media coverage: Very High\n' +
-              '   💡 OPPORTUNITY: Seed doubt with targeted ads\n\n' +
-              '⚡ 07:41 - ECONOMY: Market uncertainty grows\n' +
-              '   Public confidence: 58% (-3% this week)\n' +
-              '   ⚠️ WARNING: Economic instability attracts investigators\n\n' +
-              '═══════════════════════════════\n\n' +
-              'News Feed shows:\n' +
-              '→ Trending topics = campaign opportunities\n' +
-              '→ Public sentiment shifts in real-time\n' +
-              '→ Defensive responses to your campaigns\n' +
-              '→ Random events affecting strategy\n\n' +
-              'TIMING BONUS: Launch campaigns during relevant news = +25% effectiveness\n\n' +
-              'News updates every turn (day).\n\n' +
-              '🔔 [SOUND: Phone buzz, notification ping]'
-            );
-          }}
-        >
-          {hoverArea === 'smartphone' && (
-            <div
-              className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap"
-              style={{
-                backgroundColor: StoryModeColors.danger,
-                borderColor: '#CC0000',
-                color: '#fff'
-              }}
-            >
-              📱 LIVE NEWS
-            </div>
-          )}
-        </div>
-
-        {/* Door - Right Side */}
-        <div
-          className="absolute cursor-pointer transition-all"
-          style={{
-            top: '15%',
-            left: '75%',
-            width: '16%',
-            height: '35%',
-            backgroundColor: hoverArea === 'door' ? 'rgba(74, 93, 35, 0.3)' : 'transparent',
-            border: hoverArea === 'door' ? `3px solid ${StoryModeColors.militaryOlive}` : 'none',
-            boxShadow: hoverArea === 'door' ? `0 0 20px ${StoryModeColors.militaryOlive}` : 'none',
-            borderRadius: '8px'
-          }}
-          onMouseEnter={() => setHoverArea('door')}
-          onMouseLeave={() => setHoverArea(null)}
-          onClick={() => {
-            playSound('Door knock');
-            showNote(
-              '🚪 SECURITY DOOR - EVENT SYSTEM',
-              'PLACEHOLDER: Random event entrance\n\n' +
-              'Currently: CLOSED (No active events)\n\n' +
-              'When critical events occur, an NPC appears here:\n\n' +
-              '👤 POSSIBLE VISITORS:\n\n' +
-              '→ 👔 DIRECTOR: Urgent orders, strategy changes\n' +
-              '   "The higher-ups want results. Now."\n\n' +
-              '→ 🖥️ IT SECURITY: Warning about detection\n' +
-              '   "We have a problem. They\'re looking for us."\n\n' +
-              '→ 💰 FINANCE AUDITOR: Questioning expenses\n' +
-              '   "I need to see receipts for these \'consultant fees\'."\n\n' +
-              '→ 🎭 RIVAL OPERATIVE: "Friendly" advice\n' +
-              '   "Nice campaign. Shame if something... disrupted it."\n\n' +
-              '→ 📰 JOURNALIST: Investigative reporter\n' +
-              '   "I know what you\'re doing. Care to comment?"\n\n' +
-              'EVENT MECHANICS:\n' +
-              '- NPC sprite appears in doorway\n' +
-              '- Dialogue choices presented\n' +
-              '- Some events are TIME-SENSITIVE (must respond within X AP)\n' +
-              '- Choices affect: Heat level, NPC relationships, story branches\n' +
-              '- Door pulses/glows when event is active\n\n' +
-              'Like Papers Please inspector visits - creates tension!\n\n' +
-              '🔔 [SOUND: Door knock, footsteps, door creak]'
-            );
-          }}
-        >
-          {hoverArea === 'door' && (
-            <div
-              className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 border-2 font-bold text-xs whitespace-nowrap"
-              style={{
-                backgroundColor: StoryModeColors.militaryOlive,
-                borderColor: StoryModeColors.darkOlive,
-                color: StoryModeColors.warning
-              }}
-            >
-              🚪 EVENT DOOR
-            </div>
-          )}
-        </div>
-
-        {/* Desk Items - Soviet Folder */}
-        <div
-          className="absolute cursor-pointer transition-all"
-          style={{
-            top: '58%',
-            left: '28%',
-            width: '12%',
-            height: '12%',
-            backgroundColor: hoverArea === 'folder' ? 'rgba(196, 30, 58, 0.3)' : 'transparent',
-            border: hoverArea === 'folder' ? `3px solid ${StoryModeColors.sovietRed}` : 'none',
-            boxShadow: hoverArea === 'folder' ? `0 0 20px ${StoryModeColors.sovietRed}` : 'none',
-            borderRadius: '8px'
-          }}
-          onMouseEnter={() => setHoverArea('folder' as HoverArea)}
-          onMouseLeave={() => setHoverArea(null)}
-          onClick={() => {
-            playSound('Page flip');
-            showNote(
-              '📕 CLASSIFIED DOSSIER - MISSION BRIEFING',
-              'PLACEHOLDER: Mission documents & objectives\n\n' +
-              '═══ OPERATION DOSSIER ═══\n\n' +
-              '🌟 MISSION: DESTABILIZE\n' +
-              'TARGET: [REDACTED] Democratic Institutions\n' +
-              'TIMELINE: 30 Days\n' +
-              'BUDGET: $50,000 (renewable based on results)\n\n' +
-              'PRIMARY OBJECTIVE:\n' +
-              '→ Reduce public trust below 40% threshold\n' +
-              '→ Target: 75% of population affected\n\n' +
-              'SECONDARY OBJECTIVES:\n' +
-              '→ Maintain operational security (Heat < 80%)\n' +
-              '→ Maximize ROI (efficiency scoring)\n' +
-              '→ Avoid attribution (no direct links to source)\n\n' +
-              'SUCCESS METRICS:\n' +
-              '- Trust degradation rate\n' +
-              '- Campaign reach vs. cost\n' +
-              '- Detection avoidance\n' +
-              '- Network effect propagation\n\n' +
-              'FAILURE CONDITIONS:\n' +
-              '❌ Exposure > 90% (operation shut down)\n' +
-              '❌ Time runs out (30 days)\n' +
-              '❌ Budget exhausted with no results\n\n' +
-              'This connects to the Pro Mode victory conditions!\n\n' +
-              '🔔 [SOUND: Page rustle, stamp]'
-            );
+            backgroundImage: `repeating-linear-gradient(
+              90deg,
+              transparent,
+              transparent 50px,
+              rgba(0,0,0,0.1) 50px,
+              rgba(0,0,0,0.1) 51px
+            )`,
           }}
         />
 
-        {/* Bottom Action Bar - Overlay on image */}
+        {/* Desk Surface */}
+        <div
+          className="absolute"
+          style={{
+            top: '50%',
+            left: '5%',
+            right: '5%',
+            height: '40%',
+            background: `linear-gradient(180deg, #5a4a3a 0%, #4a3a2a 50%, #3a2a1a 100%)`,
+            borderTop: `6px solid ${StoryModeColors.border}`,
+            boxShadow: 'inset 0 5px 15px rgba(0,0,0,0.3)',
+          }}
+        />
+
+        {/* Interactive Elements */}
+        <WallTV
+          isHovered={hoverArea === 'tv'}
+          onClick={() => {
+            setHoverArea(null);
+            if (onOpenStats) onOpenStats();
+          }}
+        />
+
+        <DeskComputer
+          isHovered={hoverArea === 'computer'}
+          hasNotification={true}
+          onClick={() => {
+            setHoverArea(null);
+            if (onOpenActions) onOpenActions();
+          }}
+        />
+
+        <DeskPhone
+          isHovered={hoverArea === 'phone'}
+          onClick={() => {
+            setHoverArea(null);
+            if (onOpenNpcs) onOpenNpcs();
+          }}
+        />
+
+        <Smartphone
+          isHovered={hoverArea === 'smartphone'}
+          unreadCount={unreadNewsCount}
+          onClick={() => {
+            setHoverArea(null);
+            if (onOpenNews) onOpenNews();
+          }}
+        />
+
+        <OfficeDoor
+          isHovered={hoverArea === 'door'}
+          eventCount={worldEventCount}
+          onClick={() => {
+            setHoverArea(null);
+            if (onOpenEvents) onOpenEvents();
+          }}
+        />
+
+        <MissionFolder
+          isHovered={hoverArea === 'folder'}
+          onClick={() => {
+            setHoverArea(null);
+            if (onOpenMission) onOpenMission();
+          }}
+        />
+
+        {/* Hover Detection Overlays */}
+        <div
+          className="absolute"
+          style={{ top: '5%', left: '8%', width: '35%', height: '28%' }}
+          onMouseEnter={() => setHoverArea('tv')}
+          onMouseLeave={() => setHoverArea(null)}
+        />
+        <div
+          className="absolute"
+          style={{ top: '35%', left: '30%', width: '28%', height: '38%' }}
+          onMouseEnter={() => setHoverArea('computer')}
+          onMouseLeave={() => setHoverArea(null)}
+        />
+        <div
+          className="absolute"
+          style={{ top: '55%', left: '8%', width: '16%', height: '20%' }}
+          onMouseEnter={() => setHoverArea('phone')}
+          onMouseLeave={() => setHoverArea(null)}
+        />
+        <div
+          className="absolute"
+          style={{ top: '58%', left: '62%', width: '10%', height: '22%' }}
+          onMouseEnter={() => setHoverArea('smartphone')}
+          onMouseLeave={() => setHoverArea(null)}
+        />
+        <div
+          className="absolute"
+          style={{ top: '8%', left: '78%', width: '18%', height: '55%' }}
+          onMouseEnter={() => setHoverArea('door')}
+          onMouseLeave={() => setHoverArea(null)}
+        />
+        <div
+          className="absolute"
+          style={{ top: '65%', left: '25%', width: '12%', height: '15%' }}
+          onMouseEnter={() => setHoverArea('folder')}
+          onMouseLeave={() => setHoverArea(null)}
+        />
+
+        {/* Bottom Action Bar */}
         <div
           className="absolute bottom-0 left-0 right-0 p-4 flex justify-between items-center"
           style={{
             backgroundColor: 'rgba(45, 45, 45, 0.95)',
-            borderTop: `4px solid ${StoryModeColors.border}`
+            borderTop: `4px solid ${StoryModeColors.border}`,
           }}
         >
-          <div style={{ color: StoryModeColors.textSecondary }} className="text-xs">
-            💡 TIP: Hover over any element to see interactions. Click to view details.
+          <div className="text-xs" style={{ color: StoryModeColors.textSecondary }}>
+            <span className="mr-4">💡 Klicke auf Objekte | Tastenkürzel:</span>
+            <span className="mr-2">[A] Aktionen</span>
+            <span className="mr-2">[N] News</span>
+            <span className="mr-2">[S] Stats</span>
+            <span className="mr-2">[P] NPCs</span>
+            <span className="mr-2">[M] Mission</span>
+            <span>[E] Events</span>
           </div>
           <button
-            onClick={() => {
-              playSound('End day transition');
-              showNote(
-                'END DAY - TIME ADVANCEMENT',
-                'PLACEHOLDER: Day transition system\n\n' +
-                '⏰ END DAY SEQUENCE:\n\n' +
-                '1. CAMPAIGN EXECUTION\n' +
-                '   → All active campaigns run automatically\n' +
-                '   → Bot swarms deploy\n' +
-                '   → Ads reach target audiences\n' +
-                '   → Content spreads through network\n\n' +
-                '2. NETWORK PROPAGATION\n' +
-                '   → Trust changes ripple through connections\n' +
-                '   → Like Pro Mode network mechanics\n' +
-                '   → Results shown on TV screen\n\n' +
-                '3. RANDOM EVENTS\n' +
-                '   → News stories break\n' +
-                '   → Defensive actors may spawn\n' +
-                '   → Budget changes\n' +
-                '   → NPC status updates\n\n' +
-                '4. RESOURCE REGENERATION\n' +
-                '   → AP resets to 12\n' +
-                '   → Heat level adjusts\n' +
-                '   → New emails arrive\n\n' +
-                '5. NEW DAY BEGINS\n' +
-                '   → Day counter increments\n' +
-                '   → Fresh opportunities\n' +
-                '   → Time pressure increases\n\n' +
-                'STRATEGY:\n' +
-                '- Unused AP = wasted opportunity\n' +
-                '- But rushing = higher heat = detection\n' +
-                '- Balance speed vs. stealth\n\n' +
-                'You have 12 AP per day. Use them wisely.\n\n' +
-                '🔔 [SOUND: Clock chime, transition whoosh, new day jingle]'
-              );
-            }}
-            className="px-6 py-2 border-4 font-bold hover:brightness-110 transition-all"
+            onClick={onEndPhase}
+            className="px-6 py-2 border-4 font-bold hover:brightness-110 transition-all active:translate-y-0.5"
             style={{
               backgroundColor: StoryModeColors.sovietRed,
               borderColor: StoryModeColors.darkRed,
               color: '#fff',
-              boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)'
+              boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
             }}
           >
-            END DAY →
+            PHASE BEENDEN →
           </button>
         </div>
       </div>
-
-      {/* Modal - Unchanged from previous version */}
-      {selectedInteraction && (
-        <div className="absolute inset-0 flex items-center justify-center p-8 z-50" style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}>
-          <div
-            className="max-w-3xl w-full border-8"
-            style={{
-              backgroundColor: StoryModeColors.surface,
-              borderColor: StoryModeColors.border,
-              boxShadow: '12px 12px 0px 0px rgba(0,0,0,0.9)'
-            }}
-          >
-            <div
-              className="border-b-4 p-4 font-bold flex justify-between items-center"
-              style={{
-                backgroundColor: StoryModeColors.agencyBlue,
-                borderColor: StoryModeColors.border,
-                color: StoryModeColors.warning
-              }}
-            >
-              <span>{selectedInteraction.title}</span>
-              <button
-                onClick={closeNote}
-                className="px-3 py-1 border-2 font-bold hover:brightness-110 transition-all"
-                style={{
-                  backgroundColor: StoryModeColors.sovietRed,
-                  borderColor: StoryModeColors.darkRed,
-                  color: '#fff'
-                }}
-              >
-                ✕
-              </button>
-            </div>
-            <div className="p-6">
-              <div
-                className="text-sm whitespace-pre-wrap leading-relaxed font-mono"
-                style={{ color: StoryModeColors.textPrimary }}
-              >
-                {selectedInteraction.description}
-              </div>
-              <div
-                className="mt-6 pt-4 border-t-4"
-                style={{ borderColor: StoryModeColors.borderLight }}
-              >
-                <button
-                  onClick={closeNote}
-                  className="px-6 py-2 border-4 font-bold hover:brightness-110 transition-all"
-                  style={{
-                    backgroundColor: StoryModeColors.agencyBlue,
-                    borderColor: StoryModeColors.darkBlue,
-                    color: StoryModeColors.warning,
-                    boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)'
-                  }}
-                >
-                  CLOSE [ESC]
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
+
+export default OfficeScreen;

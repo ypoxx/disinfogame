@@ -4,12 +4,12 @@ import { cn } from '@/utils/cn';
 import { formatPercent } from '@/utils';
 import { trustToHex } from '@/utils/colors';
 import { NetworkVisualization } from '@/components/NetworkVisualization';
-import { UnifiedRoundModal } from '@/components/UnifiedRoundModal';
 import { VictoryProgressBar } from '@/components/VictoryProgressBar';
+import { UnifiedRoundModal } from '@/components/UnifiedRoundModal';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
-import { CompactSidePanel } from '@/components/CompactSidePanel';
+import { UnifiedRightPanel } from '@/components/UnifiedRightPanel';
 import { GameStatistics } from '@/components/GameStatistics';
-import { EventNotification } from '@/components/EventNotification';
+// EventNotification removed in Phase 1 - consolidated into NotificationToast
 import {
   FilterControls,
   type ActorFilters,
@@ -85,7 +85,7 @@ function App() {
   const [advancedFeaturesUnlocked, setAdvancedFeaturesUnlocked] = useState(false);
 
   // Toast notification system (Phase 0: Fix position conflicts)
-  const { notifications, addNotification: addToast, dismissNotification } = useToastNotifications();
+  const { notifications, notificationHistory, addNotification: addToast, dismissNotification, clearHistory } = useToastNotifications();
 
   // Story Mode Test state
   const [showStoryModeTest, setShowStoryModeTest] = useState(false);
@@ -194,11 +194,15 @@ function App() {
 
   // Tutorial is now fully manual - all steps use Continue button
 
+  // Track shown reactions to prevent duplicates (Bug Fix)
+  const [shownReactionCount, setShownReactionCount] = useState(0);
+
   // Convert actor reactions to toast notifications (Phase 0: Fix position conflicts)
+  // BUG FIX: Only show NEW reactions, not all last 3 on every change
   useEffect(() => {
-    if (gameState.actorReactions && gameState.actorReactions.length > 0) {
-      // Get new reactions (not already shown)
-      const newReactions = gameState.actorReactions.slice(-3); // Last 3 reactions
+    if (gameState.actorReactions && gameState.actorReactions.length > shownReactionCount) {
+      // Only get actually NEW reactions since last check
+      const newReactions = gameState.actorReactions.slice(shownReactionCount);
 
       newReactions.forEach(reaction => {
         const actor = gameState.network.actors.find(a => a.id === reaction.actorId);
@@ -207,8 +211,18 @@ function App() {
           addToast(toast);
         }
       });
+
+      // Update counter to prevent showing same reactions again
+      setShownReactionCount(gameState.actorReactions.length);
     }
-  }, [gameState.actorReactions, addToast]); // Only trigger when reactions change
+  }, [gameState.actorReactions, shownReactionCount, addToast, gameState.network.actors]);
+
+  // Reset reaction counter when game resets
+  useEffect(() => {
+    if (gameState.phase === 'start' || gameState.round === 1) {
+      setShownReactionCount(0);
+    }
+  }, [gameState.phase, gameState.round]);
 
   // Progressive UI Reveal: Unlock advanced features at Round 5 (Phase 0.4)
   useEffect(() => {
@@ -427,30 +441,12 @@ function App() {
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col">
-      {/* Floating HUD - Top Left */}
-      <div className="fixed top-6 left-6 z-40 flex flex-col gap-3 animate-fade-in">
-        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl transition-all hover:bg-gray-900/80 hover:shadow-2xl hover:shadow-blue-500/10">
-          <h1 className="text-base font-bold text-white mb-2">
+      {/* Floating HUD - Top Left (Game Title only) - Phase 1: z-hud */}
+      <div className="fixed top-6 left-6 z-[var(--z-hud)] animate-fade-in">
+        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl">
+          <h1 className="text-base font-bold text-white">
             Desinformation Network
           </h1>
-          <div className="flex flex-col gap-1.5 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="text-gray-400">Round:</span>
-              <span className="font-semibold text-white">{gameState.round}/{gameState.maxRounds}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-yellow-400">💰</span>
-              <span className="font-semibold text-yellow-300">{gameState.resources.money}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-red-400">👁️</span>
-              <span className="font-semibold text-red-300">{Math.round(gameState.resources.attention)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-purple-400">🔧</span>
-              <span className="font-semibold text-purple-300">{gameState.resources.infrastructure}</span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -492,8 +488,8 @@ function App() {
         </button>
       </div>
 
-      {/* Network Visualization (left side, minus 300px for side panel) */}
-      <div className="absolute inset-y-0 left-0 right-[300px] w-auto h-full">
+      {/* Network Visualization (left side, minus 320px for unified panel) */}
+      <div className="absolute inset-y-0 left-0 right-[320px] w-auto h-full">
         <NetworkVisualization
           actors={filteredActors}
           connections={filteredConnections}
@@ -508,7 +504,7 @@ function App() {
 
       {/* Filter Controls (Phase 2: UX Layer) - Progressive Reveal: Only shown from Round 5+ */}
       {advancedFeaturesUnlocked && (
-        <div className="absolute top-20 right-[320px] z-20 animate-fade-in">
+        <div className="absolute top-20 right-[340px] z-[var(--z-panel)] animate-fade-in">
           <FilterControls
             actors={gameState.network.actors}
             filters={actorFilters}
@@ -521,7 +517,7 @@ function App() {
 
       {/* Combo Tracker (Phase 4: Combo System) */}
       {gameState.activeCombos.length > 0 && (
-        <div className="absolute top-20 left-4 z-20">
+        <div className="absolute top-20 left-4 z-[var(--z-panel)]">
           <ComboTracker
             activeCombos={gameState.activeCombos}
             comboDefinitions={comboDefinitions}
@@ -534,7 +530,7 @@ function App() {
       {/* Topology Overlay (Phase 4.2: Network Topology Analysis) - Progressive Reveal: Only shown from Round 5+ */}
       {gameState.topology && advancedFeaturesUnlocked && (
         <div className={cn(
-          "absolute left-4 z-20 animate-fade-in",
+          "absolute left-4 z-[var(--z-panel)] animate-fade-in",
           gameState.activeCombos.length > 0 ? "top-96" : "top-20"
         )}>
           <TopologyOverlay
@@ -550,19 +546,31 @@ function App() {
       <NotificationToast
         notifications={notifications}
         onDismiss={dismissNotification}
-        maxVisible={3}
+        maxVisible={2}
+        notificationHistory={notificationHistory}
+        onClearHistory={clearHistory}
       />
 
-      {/* Compact Side Panel (Phase 0.3: Replaces Bottom Sheet) */}
-      <CompactSidePanel
-        actor={selectedActor}
-        abilities={selectedActor ? getActorAbilities(selectedActor.id) : []}
+      {/* Unified Right Panel (Phase 3.2: Integrates Victory, Resources, Actions, Actor Details) */}
+      <UnifiedRightPanel
+        // Game State
+        round={gameState.round}
+        maxRounds={gameState.maxRounds}
         resources={gameState.resources}
-        canUseAbility={canUseAbility}
-        onSelectAbility={selectAbility}
-        onCancel={handleCloseActorPanel}
+        networkMetrics={networkMetrics}
+        victoryThreshold={0.75}
+        trustThreshold={0.40}
+        // Actor State
+        selectedActor={selectedActor}
+        abilities={selectedActor ? getActorAbilities(selectedActor.id) : []}
         selectedAbilityId={uiState.selectedAbility?.abilityId || null}
         targetingMode={uiState.targetingMode}
+        // Callbacks
+        onAdvanceRound={advanceRound}
+        onSelectAbility={selectAbility}
+        onCancelAbility={cancelAbility}
+        onClosePanel={handleCloseActorPanel}
+        canUseAbility={canUseAbility}
         addNotification={addNotification}
         getValidTargets={getValidTargets}
       />
@@ -617,13 +625,7 @@ function App() {
         </>
       )}
 
-      {/* Event Notification */}
-      {uiState.currentEvent && (
-        <EventNotification
-          event={uiState.currentEvent}
-          onClose={dismissCurrentEvent}
-        />
-      )}
+      {/* EventNotification removed in Phase 1 - events now handled via UnifiedRoundModal */}
     </div>
   );
 }

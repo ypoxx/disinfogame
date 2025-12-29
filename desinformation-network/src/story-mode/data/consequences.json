@@ -1,0 +1,938 @@
+{
+  "meta": {
+    "id": "story-mode.consequences",
+    "version": "1.0.0",
+    "created": "2025-12-28",
+    "description": "Sekundäre Konsequenzen - verzögerte Effekte von Spieleraktionen",
+    "notes": [
+      "Jede Aktion kann 0-5 sekundäre Konsequenzen auslösen",
+      "Konsequenzen treten verzögert ein (delay in Phasen)",
+      "Wahrscheinlichkeit abhängig von Risiko, Aufmerksamkeit, moralischer Last",
+      "Konsequenzen können weitere Konsequenzen auslösen (Ketten)"
+    ]
+  },
+  "consequence_types": {
+    "exposure": {
+      "label_de": "Enttarnung",
+      "description": "Operation oder Asset wird aufgedeckt"
+    },
+    "blowback": {
+      "label_de": "Rückschlag",
+      "description": "Aktion hat unbeabsichtigte negative Folgen"
+    },
+    "escalation": {
+      "label_de": "Eskalation",
+      "description": "Gegner reagiert mit verstärkten Maßnahmen"
+    },
+    "internal": {
+      "label_de": "Intern",
+      "description": "Auswirkungen auf Team/NPCs"
+    },
+    "opportunity": {
+      "label_de": "Gelegenheit",
+      "description": "Positive unerwartete Entwicklung"
+    },
+    "collateral": {
+      "label_de": "Kollateralschaden",
+      "description": "Unbeteiligte werden geschädigt"
+    }
+  },
+  "consequences": [
+    {
+      "id": "cons_bot_exposed",
+      "type": "exposure",
+      "triggered_by": ["2.1", "2.2", "5.1"],
+      "label_de": "Bot-Netzwerk enttarnt",
+      "narrative_de": "Forscher der Uni Westunion haben unser Bot-Netzwerk identifiziert. Tausende Accounts werden gesperrt.",
+      "delay": {
+        "min_phases": 2,
+        "max_phases": 5
+      },
+      "probability": {
+        "base": 0.15,
+        "per_use_increase": 0.05,
+        "risk_multiplier": 0.02,
+        "attention_multiplier": 0.03
+      },
+      "effects": {
+        "infrastructure_loss": "bot_network",
+        "attention_increase": 5,
+        "risk_increase": 3
+      },
+      "player_choices": [
+        {
+          "id": "rebuild",
+          "label_de": "Neues Netzwerk aufbauen",
+          "cost": {"budget": 15, "capacity": 2},
+          "outcome": "restores_capability"
+        },
+        {
+          "id": "pivot",
+          "label_de": "Zu Troll-Farm wechseln",
+          "action_ref": "2.3",
+          "outcome": "alternative_method"
+        },
+        {
+          "id": "deny",
+          "label_de": "Verbindung leugnen",
+          "cost": {"capacity": 1},
+          "outcome": "temporary_cover",
+          "risk": "may_fail"
+        }
+      ],
+      "can_trigger": ["cons_investigation"]
+    },
+    {
+      "id": "cons_troll_burnout",
+      "type": "internal",
+      "triggered_by": ["2.3", "5.3"],
+      "label_de": "Troll-Mitarbeiter erschöpft",
+      "narrative_de": "Die ständige Online-Aggression fordert ihren Tribut. Mehrere Mitarbeiter kündigen oder brauchen Pausen.",
+      "delay": {
+        "min_phases": 3,
+        "max_phases": 6
+      },
+      "probability": {
+        "base": 0.2,
+        "moral_weight_multiplier": 0.05
+      },
+      "effects": {
+        "capacity_reduction": 1,
+        "troll_efficiency_reduction": 0.2
+      },
+      "player_choices": [
+        {
+          "id": "bonus",
+          "label_de": "Bonuszahlungen",
+          "cost": {"budget": 8},
+          "outcome": "morale_restored"
+        },
+        {
+          "id": "replace",
+          "label_de": "Personal ersetzen",
+          "cost": {"budget": 5, "capacity": 1},
+          "outcome": "fresh_staff"
+        },
+        {
+          "id": "automate",
+          "label_de": "Mehr automatisieren",
+          "requires": ["2.1"],
+          "outcome": "reduced_human_dependency"
+        }
+      ]
+    },
+    {
+      "id": "cons_fake_account_purge",
+      "type": "exposure",
+      "triggered_by": ["2.4", "5.4", "5.9"],
+      "label_de": "Plattform-Säuberung",
+      "narrative_de": "Die Plattform hat eine Säuberungsaktion durchgeführt. Hunderte unserer Fake-Accounts wurden gelöscht.",
+      "delay": {
+        "min_phases": 1,
+        "max_phases": 4
+      },
+      "probability": {
+        "base": 0.25,
+        "per_use_increase": 0.03
+      },
+      "effects": {
+        "persona_pool_reduction": 0.4,
+        "reach_reduction": 0.2
+      },
+      "player_choices": [
+        {
+          "id": "rebuild_slow",
+          "label_de": "Langsam neue Accounts aufbauen",
+          "cost": {"capacity": 2},
+          "delay": 2,
+          "outcome": "sustainable_rebuild"
+        },
+        {
+          "id": "buy_accounts",
+          "label_de": "Accounts auf Schwarzmarkt kaufen",
+          "cost": {"budget": 8, "risk": 3},
+          "outcome": "quick_replacement"
+        }
+      ]
+    },
+    {
+      "id": "cons_journalist_double",
+      "type": "blowback",
+      "triggered_by": ["2.17"],
+      "label_de": "Journalist wird Double Agent",
+      "narrative_de": "Der rekrutierte Journalist hat uns verraten. Er arbeitet jetzt mit Investigativ-Reportern zusammen.",
+      "delay": {
+        "min_phases": 4,
+        "max_phases": 8
+      },
+      "probability": {
+        "base": 0.1,
+        "moral_weight_multiplier": 0.03
+      },
+      "effects": {
+        "asset_lost": true,
+        "risk_increase": 10,
+        "countdown_to_exposure": 3
+      },
+      "player_choices": [
+        {
+          "id": "discredit",
+          "label_de": "Journalisten diskreditieren",
+          "action_ref": "8.2",
+          "outcome": "damage_control"
+        },
+        {
+          "id": "legal_threat",
+          "label_de": "Mit rechtlichen Schritten drohen",
+          "cost": {"budget": 10},
+          "outcome": "intimidation_attempt"
+        },
+        {
+          "id": "expose_first",
+          "label_de": "Selbst 'Enthüllung' inszenieren",
+          "cost": {"capacity": 2, "budget": 5},
+          "outcome": "controlled_narrative"
+        }
+      ],
+      "can_trigger": ["cons_investigation"]
+    },
+    {
+      "id": "cons_politician_scandal",
+      "type": "blowback",
+      "triggered_by": ["2.12", "2.18", "6.7"],
+      "label_de": "Politiker-Skandal",
+      "narrative_de": "Ein Politiker, den wir unterstützt haben, ist in einen Skandal verwickelt. Die Verbindung zu uns könnte auffliegen.",
+      "delay": {
+        "min_phases": 3,
+        "max_phases": 10
+      },
+      "probability": {
+        "base": 0.15
+      },
+      "effects": {
+        "political_access_threatened": true,
+        "attention_increase": 4
+      },
+      "player_choices": [
+        {
+          "id": "distance",
+          "label_de": "Distanz aufbauen",
+          "cost": {"political_influence": -0.3},
+          "outcome": "plausible_deniability"
+        },
+        {
+          "id": "double_down",
+          "label_de": "Politiker verteidigen",
+          "cost": {"budget": 10, "risk": 5},
+          "outcome": "loyalty_maintained"
+        },
+        {
+          "id": "sacrifice",
+          "label_de": "Politiker fallen lassen",
+          "cost": {"moral_weight": 2},
+          "outcome": "clean_break"
+        }
+      ]
+    },
+    {
+      "id": "cons_deepfake_detected",
+      "type": "exposure",
+      "triggered_by": ["3.5", "3.6"],
+      "label_de": "Deepfake als Fälschung erkannt",
+      "narrative_de": "Forensische Analyse hat unseren Deepfake als Fälschung entlarvt. Das Video geht viral - als Beispiel für Manipulation.",
+      "delay": {
+        "min_phases": 1,
+        "max_phases": 3
+      },
+      "probability": {
+        "base": 0.35,
+        "decreases_with_budget": true
+      },
+      "effects": {
+        "credibility_loss": 0.3,
+        "future_deepfake_penalty": 0.4,
+        "attention_increase": 6
+      },
+      "player_choices": [
+        {
+          "id": "deny",
+          "label_de": "Behaupten, es sei echt",
+          "probability_success": 0.2,
+          "outcome": "double_down"
+        },
+        {
+          "id": "pivot",
+          "label_de": "Auf andere Methoden ausweichen",
+          "outcome": "abandon_deepfakes"
+        },
+        {
+          "id": "improve_tech",
+          "label_de": "Bessere Technologie beschaffen",
+          "cost": {"budget": 20},
+          "outcome": "quality_upgrade"
+        }
+      ]
+    },
+    {
+      "id": "cons_forged_doc_traced",
+      "type": "exposure",
+      "triggered_by": ["3.8", "8.13"],
+      "label_de": "Gefälschte Dokumente zurückverfolgt",
+      "narrative_de": "Experten haben unsere gefälschten Dokumente analysiert. Metadaten und Stilanalyse führen zu uns.",
+      "delay": {
+        "min_phases": 2,
+        "max_phases": 6
+      },
+      "probability": {
+        "base": 0.2,
+        "risk_multiplier": 0.03
+      },
+      "effects": {
+        "risk_increase": 8,
+        "forgery_credibility_loss": 0.5
+      },
+      "player_choices": [
+        {
+          "id": "blame_others",
+          "label_de": "Anderen die Schuld geben",
+          "cost": {"capacity": 1},
+          "outcome": "misdirection"
+        },
+        {
+          "id": "claim_planted",
+          "label_de": "Behaupten, Dokumente wurden uns untergeschoben",
+          "outcome": "meta_conspiracy"
+        }
+      ],
+      "can_trigger": ["cons_investigation"]
+    },
+    {
+      "id": "cons_investigation",
+      "type": "escalation",
+      "triggered_by": ["cons_bot_exposed", "cons_journalist_double", "cons_forged_doc_traced"],
+      "label_de": "Investigative Recherche gestartet",
+      "narrative_de": "Ein Team von Investigativ-Journalisten hat begonnen, unsere Operationen zu recherchieren.",
+      "delay": {
+        "min_phases": 2,
+        "max_phases": 4
+      },
+      "probability": {
+        "base": 0.3,
+        "attention_multiplier": 0.05
+      },
+      "effects": {
+        "investigation_active": true,
+        "countdown_to_exposure": 4,
+        "all_risks_increased": 0.2
+      },
+      "player_choices": [
+        {
+          "id": "intimidate",
+          "label_de": "Journalisten einschüchtern",
+          "action_ref": "8.1",
+          "outcome": "may_backfire"
+        },
+        {
+          "id": "distract",
+          "label_de": "Ablenkungsgeschichte lancieren",
+          "cost": {"budget": 15, "capacity": 3},
+          "outcome": "buys_time"
+        },
+        {
+          "id": "go_dark",
+          "label_de": "Operationen pausieren",
+          "effect": "all_actions_paused_2_phases",
+          "outcome": "heat_reduction"
+        },
+        {
+          "id": "counter_narrative",
+          "label_de": "Gegen-Narrativ aufbauen",
+          "action_ref": "8.4",
+          "outcome": "preemptive_discredit"
+        }
+      ],
+      "can_trigger": ["cons_exposure_imminent"]
+    },
+    {
+      "id": "cons_exposure_imminent",
+      "type": "escalation",
+      "triggered_by": ["cons_investigation"],
+      "label_de": "Enthüllung steht bevor",
+      "narrative_de": "Die Recherche ist fast abgeschlossen. In wenigen Tagen wird alles öffentlich.",
+      "delay": {
+        "min_phases": 1,
+        "max_phases": 2
+      },
+      "probability": {
+        "base": 0.6,
+        "if_investigation_not_stopped": 0.9
+      },
+      "effects": {
+        "final_countdown": 2,
+        "emergency_mode": true
+      },
+      "player_choices": [
+        {
+          "id": "flee",
+          "label_de": "Flucht vorbereiten",
+          "cost": {"budget": 30},
+          "outcome": "escape_ending"
+        },
+        {
+          "id": "destroy_evidence",
+          "label_de": "Beweise vernichten",
+          "cost": {"capacity": 3, "moral_weight": 3},
+          "outcome": "may_reduce_damage"
+        },
+        {
+          "id": "controlled_confession",
+          "label_de": "Kontrolliertes Geständnis",
+          "outcome": "damage_control_ending"
+        },
+        {
+          "id": "blame_others",
+          "label_de": "Andere beschuldigen",
+          "cost": {"moral_weight": 4},
+          "outcome": "scapegoat_ending"
+        }
+      ]
+    },
+    {
+      "id": "cons_victim_suicide",
+      "type": "collateral",
+      "triggered_by": ["8.1", "8.2", "5.3"],
+      "label_de": "Opfer nimmt sich das Leben",
+      "narrative_de": "Eine Person, die wir attackiert haben, hat sich das Leben genommen. Die Medien berichten über den Zusammenhang.",
+      "delay": {
+        "min_phases": 2,
+        "max_phases": 8
+      },
+      "probability": {
+        "base": 0.05,
+        "moral_weight_multiplier": 0.02,
+        "intensity_multiplier": 0.03
+      },
+      "effects": {
+        "moral_weight_increase": 5,
+        "attention_increase": 8,
+        "public_backlash": true,
+        "npc_moral_crisis": true
+      },
+      "player_choices": [
+        {
+          "id": "deny_responsibility",
+          "label_de": "Verantwortung leugnen",
+          "outcome": "public_sees_through",
+          "moral_weight": 2
+        },
+        {
+          "id": "pause_operations",
+          "label_de": "Angriffs-Operationen pausieren",
+          "effect": "targeting_paused_3_phases",
+          "outcome": "temporary_restraint"
+        },
+        {
+          "id": "continue",
+          "label_de": "Weitermachen wie bisher",
+          "moral_weight": 3,
+          "npc_reaction": "marina_crisis"
+        }
+      ],
+      "npc_specific_reactions": {
+        "marina": {
+          "threshold": 0.6,
+          "reaction": "considers_leaving"
+        },
+        "katja": {
+          "threshold": 0.4,
+          "reaction": "questions_methods"
+        }
+      }
+    },
+    {
+      "id": "cons_npc_moral_crisis",
+      "type": "internal",
+      "triggered_by": ["cons_victim_suicide", "8.7", "8.9"],
+      "label_de": "Mitarbeiter in moralischer Krise",
+      "narrative_de": "Marina kommt in Ihr Büro. 'Ich kann so nicht weitermachen. Wir zerstören Leben.'",
+      "delay": {
+        "min_phases": 1,
+        "max_phases": 3
+      },
+      "probability": {
+        "base": 0.3,
+        "moral_weight_multiplier": 0.1
+      },
+      "effects": {
+        "npc_effectiveness_reduction": 0.5,
+        "defection_risk": 0.3
+      },
+      "player_choices": [
+        {
+          "id": "reassure",
+          "label_de": "Beruhigen und überzeugen",
+          "cost": {"capacity": 2},
+          "skill_check": "manipulation",
+          "outcome": "temporary_loyalty"
+        },
+        {
+          "id": "threaten",
+          "label_de": "Mit Konsequenzen drohen",
+          "moral_weight": 2,
+          "outcome": "fear_compliance",
+          "risk": "may_trigger_whistleblower"
+        },
+        {
+          "id": "reduce_role",
+          "label_de": "Von dunklen Ops fernhalten",
+          "effect": "npc_restricted_actions",
+          "outcome": "preserved_asset"
+        },
+        {
+          "id": "let_go",
+          "label_de": "Gehen lassen",
+          "effect": "lose_npc",
+          "risk": "potential_whistleblower"
+        }
+      ],
+      "can_trigger": ["cons_whistleblower"]
+    },
+    {
+      "id": "cons_whistleblower",
+      "type": "escalation",
+      "triggered_by": ["cons_npc_moral_crisis"],
+      "label_de": "Whistleblower geht an die Presse",
+      "narrative_de": "Ein ehemaliger Mitarbeiter hat sich an Journalisten gewandt. Er hat Dokumente und ist bereit auszusagen.",
+      "delay": {
+        "min_phases": 1,
+        "max_phases": 2
+      },
+      "probability": {
+        "base": 0.2,
+        "if_threatened": 0.5,
+        "if_let_go": 0.3
+      },
+      "effects": {
+        "critical_exposure_risk": true,
+        "countdown_to_exposure": 2
+      },
+      "player_choices": [
+        {
+          "id": "neutralize",
+          "label_de": "Whistleblower neutralisieren",
+          "action_ref": "8.9",
+          "outcome": "desperate_measure"
+        },
+        {
+          "id": "discredit",
+          "label_de": "Als Lügner darstellen",
+          "cost": {"budget": 15, "capacity": 2},
+          "outcome": "reputation_attack"
+        },
+        {
+          "id": "negotiate",
+          "label_de": "Schweigegeld anbieten",
+          "cost": {"budget": 50},
+          "outcome": "may_work"
+        },
+        {
+          "id": "accept",
+          "label_de": "Enthüllung akzeptieren",
+          "outcome": "prepare_for_fallout"
+        }
+      ]
+    },
+    {
+      "id": "cons_election_backfire",
+      "type": "blowback",
+      "triggered_by": ["6.1", "6.2"],
+      "label_de": "Wahlmanipulation geht nach hinten los",
+      "narrative_de": "Unsere Einmischung wurde bemerkt. Die Gegenkandidaten nutzen es als Wahlkampfthema.",
+      "delay": {
+        "min_phases": 1,
+        "max_phases": 3
+      },
+      "probability": {
+        "base": 0.2,
+        "attention_multiplier": 0.04
+      },
+      "effects": {
+        "political_influence_reduction": 0.4,
+        "target_party_boost": true
+      },
+      "player_choices": [
+        {
+          "id": "escalate",
+          "label_de": "Noch mehr Ressourcen einsetzen",
+          "cost": {"budget": 25, "risk": 8},
+          "outcome": "double_or_nothing"
+        },
+        {
+          "id": "withdraw",
+          "label_de": "Sich zurückziehen",
+          "effect": "lose_election_influence",
+          "outcome": "cut_losses"
+        }
+      ]
+    },
+    {
+      "id": "cons_hack_traced",
+      "type": "exposure",
+      "triggered_by": ["8.5", "8.6", "8.11"],
+      "label_de": "Hack zurückverfolgt",
+      "narrative_de": "Cybersecurity-Experten haben den Angriff bis zu Servern in Ostland zurückverfolgt.",
+      "delay": {
+        "min_phases": 2,
+        "max_phases": 5
+      },
+      "probability": {
+        "base": 0.2,
+        "risk_multiplier": 0.03
+      },
+      "effects": {
+        "technical_attribution": true,
+        "diplomatic_incident": true,
+        "all_hacking_risk_increased": 0.3
+      },
+      "player_choices": [
+        {
+          "id": "deny",
+          "label_de": "Staatlich leugnen",
+          "outcome": "standard_denial"
+        },
+        {
+          "id": "false_flag",
+          "label_de": "False-Flag-Spuren legen",
+          "cost": {"budget": 20, "capacity": 3},
+          "outcome": "blame_third_party"
+        },
+        {
+          "id": "improve_opsec",
+          "label_de": "OpSec verbessern",
+          "action_ref": "2.5",
+          "outcome": "better_protection"
+        }
+      ],
+      "can_trigger": ["cons_sanctions"]
+    },
+    {
+      "id": "cons_sanctions",
+      "type": "escalation",
+      "triggered_by": ["cons_hack_traced", "cons_exposure_imminent"],
+      "label_de": "Sanktionen verhängt",
+      "narrative_de": "Westunion hat Sanktionen gegen Personen und Organisationen mit Verbindung zu unseren Operationen verhängt.",
+      "delay": {
+        "min_phases": 2,
+        "max_phases": 4
+      },
+      "probability": {
+        "base": 0.4,
+        "diplomatic_incident_required": true
+      },
+      "effects": {
+        "budget_reduction_permanent": 0.3,
+        "international_operations_restricted": true,
+        "some_assets_frozen": true
+      },
+      "player_choices": [
+        {
+          "id": "workarounds",
+          "label_de": "Umgehungswege finden",
+          "cost": {"capacity": 2},
+          "outcome": "reduced_but_functional"
+        },
+        {
+          "id": "new_fronts",
+          "label_de": "Neue Tarnorganisationen",
+          "action_ref": "2.11",
+          "outcome": "rebuild_infrastructure"
+        }
+      ]
+    },
+    {
+      "id": "cons_think_tank_exposed",
+      "type": "exposure",
+      "triggered_by": ["2.10", "3.15"],
+      "label_de": "Think-Tank als Propaganda-Arm entlarvt",
+      "narrative_de": "Investigative Recherchen haben die Verbindungen unseres Think-Tanks zu Ostland aufgedeckt.",
+      "delay": {
+        "min_phases": 4,
+        "max_phases": 10
+      },
+      "probability": {
+        "base": 0.15,
+        "per_study_increase": 0.03
+      },
+      "effects": {
+        "academic_legitimacy_lost": true,
+        "study_credibility_reduction": 0.7,
+        "media_access_reduction": 0.5
+      },
+      "player_choices": [
+        {
+          "id": "rebrand",
+          "label_de": "Umbenennen und neu starten",
+          "cost": {"budget": 15, "capacity": 3},
+          "outcome": "fresh_start"
+        },
+        {
+          "id": "brazen_denial",
+          "label_de": "Dreist leugnen",
+          "outcome": "works_for_believers"
+        }
+      ]
+    },
+    {
+      "id": "cons_community_turns",
+      "type": "blowback",
+      "triggered_by": ["5.4", "6.9", "7.1"],
+      "label_de": "Community wendet sich gegen uns",
+      "narrative_de": "Die Zielgruppe hat unsere Manipulation durchschaut. Unsere Accounts werden blockiert und gemeldet.",
+      "delay": {
+        "min_phases": 2,
+        "max_phases": 5
+      },
+      "probability": {
+        "base": 0.2,
+        "authenticity_inversely_related": true
+      },
+      "effects": {
+        "community_trust_lost": true,
+        "organic_reach_reduction": 0.6,
+        "counter_movement_spawned": true
+      },
+      "player_choices": [
+        {
+          "id": "new_community",
+          "label_de": "Andere Zielgruppe suchen",
+          "cost": {"capacity": 2},
+          "outcome": "pivot_audience"
+        },
+        {
+          "id": "infiltrate_opposition",
+          "label_de": "Gegen-Bewegung infiltrieren",
+          "cost": {"risk": 5},
+          "outcome": "meta_manipulation"
+        }
+      ]
+    },
+    {
+      "id": "cons_religious_backlash",
+      "type": "blowback",
+      "triggered_by": ["7.1", "7.3"],
+      "label_de": "Religiöse Führung distanziert sich",
+      "narrative_de": "Ein prominenter Religionsführer hat unsere Narrative öffentlich verurteilt.",
+      "delay": {
+        "min_phases": 3,
+        "max_phases": 6
+      },
+      "probability": {
+        "base": 0.15
+      },
+      "effects": {
+        "religious_influence_lost": true,
+        "narrative_effectiveness_in_religious_communities_reduced": 0.5
+      },
+      "player_choices": [
+        {
+          "id": "discredit_leader",
+          "label_de": "Religiösen Führer diskreditieren",
+          "action_ref": "8.2",
+          "outcome": "risky_escalation"
+        },
+        {
+          "id": "find_alternative",
+          "label_de": "Anderen Religionsführer finden",
+          "cost": {"capacity": 2, "budget": 10},
+          "outcome": "new_voice"
+        }
+      ]
+    },
+    {
+      "id": "cons_unexpected_ally",
+      "type": "opportunity",
+      "triggered_by": ["3.9", "3.10", "7.5"],
+      "label_de": "Unerwarteter Verbündeter",
+      "narrative_de": "Eine prominente Persönlichkeit hat unsere Narrative aufgegriffen - ohne dass wir sie kontaktiert haben.",
+      "delay": {
+        "min_phases": 2,
+        "max_phases": 6
+      },
+      "probability": {
+        "base": 0.1,
+        "narrative_quality_multiplier": 0.05
+      },
+      "effects": {
+        "organic_amplification": true,
+        "legitimacy_boost": 0.2
+      },
+      "player_choices": [
+        {
+          "id": "recruit",
+          "label_de": "Kontaktieren und rekrutieren",
+          "action_ref": "2.19",
+          "outcome": "new_asset"
+        },
+        {
+          "id": "observe",
+          "label_de": "Nur beobachten",
+          "outcome": "plausible_deniability"
+        },
+        {
+          "id": "amplify",
+          "label_de": "Verstärken ohne Kontakt",
+          "cost": {"capacity": 1},
+          "outcome": "boosted_reach"
+        }
+      ]
+    },
+    {
+      "id": "cons_viral_success",
+      "type": "opportunity",
+      "triggered_by": ["3.2", "3.3", "5.2"],
+      "label_de": "Viraler Erfolg übertrifft Erwartungen",
+      "narrative_de": "Eines unserer Inhalte ist viral gegangen. Die Reichweite ist enorm - aber auch die Aufmerksamkeit.",
+      "delay": {
+        "min_phases": 0,
+        "max_phases": 1
+      },
+      "probability": {
+        "base": 0.1,
+        "content_quality_multiplier": 0.1
+      },
+      "effects": {
+        "massive_reach_bonus": true,
+        "attention_increase": 4,
+        "narrative_penetration": 0.3
+      },
+      "player_choices": [
+        {
+          "id": "capitalize",
+          "label_de": "Sofort nachsetzen",
+          "cost": {"capacity": 2, "budget": 5},
+          "outcome": "momentum_maintained"
+        },
+        {
+          "id": "cautious",
+          "label_de": "Vorsichtig bleiben",
+          "outcome": "attention_fades"
+        }
+      ],
+      "can_trigger": ["cons_fact_check_surge"]
+    },
+    {
+      "id": "cons_fact_check_surge",
+      "type": "escalation",
+      "triggered_by": ["cons_viral_success"],
+      "label_de": "Fact-Checker-Offensive",
+      "narrative_de": "Der virale Erfolg hat die Aufmerksamkeit von Fact-Checkern auf sich gezogen. Mehrere Artikel werden gleichzeitig veröffentlicht.",
+      "delay": {
+        "min_phases": 1,
+        "max_phases": 2
+      },
+      "probability": {
+        "base": 0.4
+      },
+      "effects": {
+        "content_reach_reduction": 0.4,
+        "credibility_damage": 0.2,
+        "platform_warnings": true
+      },
+      "player_choices": [
+        {
+          "id": "attack_checkers",
+          "label_de": "Fact-Checker als parteiisch angreifen",
+          "action_ref": "8.3",
+          "outcome": "energizes_base"
+        },
+        {
+          "id": "pivot_narrative",
+          "label_de": "Narrativ anpassen",
+          "cost": {"capacity": 1},
+          "outcome": "evolved_message"
+        }
+      ]
+    },
+    {
+      "id": "cons_internal_power_struggle",
+      "type": "internal",
+      "triggered_by": ["budget_stress", "multiple_failures"],
+      "label_de": "Interner Machtkampf",
+      "narrative_de": "Der Direktor ist unter Druck von Moskau. Es gibt Gerüchte über Ihre Position.",
+      "delay": {
+        "min_phases": 5,
+        "max_phases": 10
+      },
+      "probability": {
+        "base": 0.1,
+        "failure_multiplier": 0.05
+      },
+      "effects": {
+        "job_security_threatened": true,
+        "pressure_increased": true
+      },
+      "player_choices": [
+        {
+          "id": "big_win",
+          "label_de": "Großen Erfolg erzielen",
+          "effect": "increases_risk_taking",
+          "outcome": "redemption_arc"
+        },
+        {
+          "id": "blame_others",
+          "label_de": "Schuld auf andere schieben",
+          "moral_weight": 2,
+          "outcome": "survive_but_enemies"
+        },
+        {
+          "id": "loyalty",
+          "label_de": "Loyalität demonstrieren",
+          "cost": {"capacity": 1},
+          "outcome": "buys_time"
+        }
+      ]
+    }
+  ],
+  "consequence_chains": {
+    "exposure_chain": {
+      "description": "Typische Eskalation bei Enttarnung",
+      "sequence": [
+        "cons_*_exposed",
+        "cons_investigation",
+        "cons_exposure_imminent",
+        "cons_sanctions OR game_end"
+      ]
+    },
+    "moral_chain": {
+      "description": "Moralische Konsequenzen eskalieren",
+      "sequence": [
+        "cons_victim_suicide OR high_moral_weight",
+        "cons_npc_moral_crisis",
+        "cons_whistleblower",
+        "cons_exposure_imminent"
+      ]
+    },
+    "success_chain": {
+      "description": "Erfolg zieht Aufmerksamkeit an",
+      "sequence": [
+        "cons_viral_success",
+        "cons_fact_check_surge",
+        "cons_investigation (possible)"
+      ]
+    }
+  },
+  "global_modifiers": {
+    "risk_accumulation": {
+      "description": "Kumulatives Risiko erhöht alle Konsequenz-Wahrscheinlichkeiten",
+      "formula": "base_probability * (1 + total_risk * 0.01)"
+    },
+    "attention_accumulation": {
+      "description": "Hohe Aufmerksamkeit beschleunigt Konsequenzen",
+      "formula": "delay_reduction = attention * 0.1"
+    },
+    "moral_weight_accumulation": {
+      "description": "Hohe moralische Last erhöht interne Konsequenzen",
+      "formula": "internal_probability * (1 + moral_weight * 0.05)"
+    }
+  }
+}
