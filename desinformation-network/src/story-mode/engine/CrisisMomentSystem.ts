@@ -174,102 +174,136 @@ export class CrisisMomentSystem {
   private translateName(name: string): string {
     const translations: Record<string, string> = {
       'Anonymous Tip': 'Anonymer Hinweis',
-      'Investigation Results': 'Ermittlungsergebnisse',
-      'Content Goes Viral': 'Inhalt wird viral',
-      'Platform Policy Update': 'Plattform-Richtlinienänderung',
-      'Mass Account Suspensions': 'Massenhafte Kontosperrungen',
-      'Foreign Influence Allegations': 'Vorwürfe ausländischer Einflussnahme',
-      'Academic Research Exposes Tactics': 'Akademische Studie enthüllt Taktiken',
-      'Influencer Approaches': 'Influencer zeigt Interesse',
-      'Citizen Fact-Checkers Mobilize': 'Bürger-Faktenchecker mobilisieren',
-      'Social Media Algorithm Update': 'Social-Media-Algorithmus-Update',
+      'Investigation Results': 'Ergebnis der Ermittlungen',
+      'Content Goes Viral': 'Viraler Durchbruch',
+      'Platform Policy Update': 'Neue Plattform-Richtlinien',
+      'Mass Account Suspensions': 'Massensperrung von Konten',
+      'Foreign Influence Allegations': 'Verdacht ausländischer Einflussnahme',
+      'Academic Research Exposes Tactics': 'Forscher enthüllen Taktiken',
+      'Influencer Approaches': 'Influencer-Kontakt',
+      'Citizen Fact-Checkers Mobilize': 'Bürger-Faktenchecker formieren sich',
+      'Social Media Algorithm Update': 'Algorithmus-Änderung',
     };
     return translations[name] || name;
   }
 
   private translateDescription(description: string): string {
-    // For now, keep English for longer descriptions
-    // In production, this would use a translation service
-    return description;
+    const translations: Record<string, string> = {
+      'A whistleblower has contacted a journalist about suspicious online activity. They claim to have evidence of a coordinated disinformation campaign.':
+        'Ein Whistleblower hat einen Journalisten über verdächtige Online-Aktivitäten informiert. Er behauptet, Beweise für eine koordinierte Desinformationskampagne zu haben.',
+      'The investigation has concluded. Your earlier choices now determine the outcome.':
+        'Die Ermittlungen sind abgeschlossen. Ihre früheren Entscheidungen bestimmen nun das Ergebnis.',
+      'One of your disinformation pieces has unexpectedly gone viral, reaching millions. This is a critical moment - how do you capitalize on it?':
+        'Einer Ihrer Desinformationsinhalte ist unerwartet viral gegangen und erreicht Millionen. Dies ist ein entscheidender Moment – wie nutzen Sie ihn?',
+      'A major social media platform announces new content moderation policies targeting coordinated inauthentic behavior.':
+        'Eine große Social-Media-Plattform kündigt neue Moderationsrichtlinien gegen koordiniertes unechtes Verhalten an.',
+      'The platform begins enforcing its new policies. Hundreds of accounts are suspended.':
+        'Die Plattform setzt ihre neuen Richtlinien durch. Hunderte Konten werden gesperrt.',
+      'Government officials claim your campaign may have foreign backing. This narrative is spreading through legitimate news channels.':
+        'Regierungsbeamte behaupten, Ihre Kampagne könnte ausländische Unterstützung haben. Dieses Narrativ verbreitet sich über seriöse Nachrichtenkanäle.',
+      'Researchers publish a comprehensive study identifying the exact manipulation techniques you\'ve been using.':
+        'Forscher veröffentlichen eine umfassende Studie, die genau die Manipulationstechniken identifiziert, die Sie verwendet haben.',
+      'A controversial influencer with millions of followers is willing to amplify your narratives. They have credibility with your target audience.':
+        'Ein kontroverser Influencer mit Millionen Followern ist bereit, Ihre Narrative zu verstärken. Er hat Glaubwürdigkeit bei Ihrer Zielgruppe.',
+      'Ordinary citizens have started organizing to counter your disinformation. They\'re creating crowdsourced fact-checking networks.':
+        'Gewöhnliche Bürger haben begonnen, sich gegen Ihre Desinformation zu organisieren. Sie bauen ein Netzwerk für gemeinschaftliches Fact-Checking auf.',
+      'A major platform updates its recommendation algorithm to demote sensational content. Your reach is affected.':
+        'Eine große Plattform aktualisiert ihren Empfehlungsalgorithmus, um sensationelle Inhalte herabzustufen. Ihre Reichweite ist betroffen.',
+    };
+    return translations[description] || description;
   }
 
   private translateNewsTicker(text: string): string {
-    // Keep emojis, translate key phrases
-    return text
-      .replace('Anonymous tip received', 'Anonymer Hinweis eingegangen')
-      .replace('Controversial content trending', 'Kontroverser Inhalt trending')
-      .replace('Tech platforms tighten', 'Tech-Plattformen verschärfen')
-      .replace('Foreign interference suspected', 'Ausländische Einmischung vermutet')
-      .replace('Academic study exposes', 'Akademische Studie enthüllt')
-      .replace('Grassroots fact-checking movement', 'Faktencheck-Bewegung gewinnt')
-      .replace('Algorithm changes', 'Algorithmus-Änderungen');
+    const translations: Record<string, string> = {
+      '🔍 Anonymous tip received by investigative journalist':
+        '🔍 Investigativjournalist erhält anonymen Hinweis',
+      '📰 Investigation report published - Fact-checkers mobilizing':
+        '📰 Ermittlungsbericht veröffentlicht – Faktenchecker mobilisieren',
+      '🔥 Controversial content trending #1':
+        '🔥 Kontroverser Inhalt auf Platz 1 der Trends',
+      '🛡️ Tech platforms tighten content policies':
+        '🛡️ Tech-Plattformen verschärfen Inhaltsrichtlinien',
+      '🚫 Wave of account suspensions - Network disrupted':
+        '🚫 Welle von Kontosperrungen – Netzwerk gestört',
+      '🌍 Foreign interference suspected by authorities':
+        '🌍 Behörden vermuten ausländische Einmischung',
+      '📚 Academic study exposes disinformation playbook':
+        '📚 Wissenschaftler enthüllen Desinformations-Handbuch',
+      '⭐ High-profile figure joins conversation':
+        '⭐ Prominente Persönlichkeit schaltet sich ein',
+      '👥 Grassroots fact-checking movement gains momentum':
+        '👥 Bürger-Faktenchecker gewinnen an Dynamik',
+      '🔄 Algorithm changes reduce viral misinformation':
+        '🔄 Algorithmus-Änderungen reduzieren virale Falschinformationen',
+    };
+    return translations[text] || text;
   }
 
   private translateChoiceText(text: string): string {
     const translations: Record<string, string> = {
       // Whistleblower crisis
       'Accelerate campaign - Strike before investigation gains traction':
-        'Kampagne beschleunigen - Zuschlagen bevor die Untersuchung Fahrt aufnimmt',
+        'Offensive verstärken – Zuschlagen, bevor die Ermittlung Fahrt aufnimmt',
       'Lay low - Pause operations and reduce detection':
-        'Abtauchen - Operationen pausieren und Entdeckungsrisiko senken',
+        'Untertauchen – Operationen pausieren und Entdeckungsrisiko senken',
       'Discredit whistleblower - Launch counter-narrative':
-        'Whistleblower diskreditieren - Gegen-Narrativ starten',
+        'Whistleblower diskreditieren – Gegenkampagne starten',
 
       // Viral content crisis
       'Double down - Amplify with coordinated bot network':
-        'Verdoppeln - Mit koordiniertem Bot-Netzwerk verstärken',
+        'Alles auf eine Karte – Mit Bot-Netzwerk massiv verstärken',
       'Ride the wave - Let it spread organically':
-        'Die Welle reiten - Organisch verbreiten lassen',
+        'Auf der Welle reiten – Organische Verbreitung nutzen',
       'Distance yourself - Claim it was \'satire\'':
-        'Distanzieren - Als "Satire" bezeichnen',
+        'Distanzieren – Als „Satire" deklarieren',
 
       // Platform policy crisis
       'Adapt tactics - Invest in more sophisticated methods':
-        'Taktik anpassen - In ausgefeiltere Methoden investieren',
+        'Taktik anpassen – In raffiniertere Methoden investieren',
       'Shift platforms - Move operations to alternative networks':
-        'Plattform wechseln - Operationen auf alternative Netzwerke verlagern',
+        'Plattform wechseln – Auf alternative Netzwerke ausweichen',
       'Legal challenge - Sue platform claiming censorship':
-        'Rechtlich vorgehen - Plattform wegen Zensur verklagen',
+        'Rechtsweg – Plattform wegen Zensur verklagen',
 
       // Foreign influence crisis
       'Deny everything - Claim it\'s a witch hunt':
-        'Alles abstreiten - Als Hexenjagd bezeichnen',
+        'Alles abstreiten – Als Hexenjagd abtun',
       'Provide \'evidence\' - Create fake documentation of domestic origin':
-        'Beweise liefern - Gefälschte Dokumentation inländischer Herkunft erstellen',
+        '„Beweise" liefern – Gefälschte Dokumente inländischer Herkunft erstellen',
       'Go dark - Completely shut down operations':
-        'Untertauchen - Operationen komplett einstellen',
+        'Abtauchen – Alle Operationen sofort einstellen',
 
       // Academic study crisis
       'Attack the researchers - Discredit their methodology':
-        'Forscher attackieren - Deren Methodik diskreditieren',
+        'Forscher angreifen – Deren Methodik in Frage stellen',
       'Adapt and evolve - Develop new techniques':
-        'Anpassen und entwickeln - Neue Techniken entwickeln',
+        'Weiterentwickeln – Neue Techniken entwickeln',
       'Embrace transparency - Claim you\'re conducting research too':
-        'Transparenz vortäuschen - Behaupten, selbst zu forschen',
+        'Transparenz vortäuschen – Eigene „Forschung" behaupten',
 
       // Influencer crisis
       'Full partnership - Pay for consistent amplification':
-        'Volle Partnerschaft - Für konstante Verstärkung bezahlen',
+        'Volle Partnerschaft – Für dauerhafte Verstärkung bezahlen',
       'Subtle coordination - Light collaboration':
-        'Subtile Koordination - Lockere Zusammenarbeit',
+        'Subtile Koordination – Lockere Zusammenarbeit',
       'Decline - Too risky to involve public figures':
-        'Ablehnen - Zu riskant, öffentliche Personen einzubeziehen',
+        'Ablehnen – Öffentliche Personen sind zu riskant',
 
       // Grassroots crisis
       'Infiltrate - Plant agents in their groups':
-        'Infiltrieren - Agenten in deren Gruppen einschleusen',
+        'Unterwandern – Agenten in deren Gruppen einschleusen',
       'Overwhelm - Flood with contradictory \'evidence\'':
-        'Überfluten - Mit widersprüchlichen Beweisen überschwemmen',
+        'Überfluten – Mit widersprüchlichen „Beweisen" bombardieren',
       'Ignore - Focus elsewhere':
-        'Ignorieren - Auf anderes konzentrieren',
+        'Ignorieren – Woanders weitermachen',
 
       // Algorithm crisis
       'Game the algorithm - Hire experts to find exploits':
-        'Algorithmus austricksen - Experten für Exploits engagieren',
+        'Algorithmus austricksen – Experten für Schwachstellen engagieren',
       'Shift content strategy - Make it look more legitimate':
-        'Content-Strategie anpassen - Legitimer erscheinen lassen',
+        'Content-Strategie anpassen – Seriöser erscheinen',
       'Accept the hit - Wait for next opportunity':
-        'Rückschlag akzeptieren - Auf nächste Gelegenheit warten',
+        'Rückschlag akzeptieren – Auf die nächste Chance warten',
     };
 
     return translations[text] || text;
@@ -277,30 +311,54 @@ export class CrisisMomentSystem {
 
   private translateConsequence(consequence: string): string {
     const translations: Record<string, string> = {
-      'Gain resources but risk exposure': 'Ressourcengewinn aber Enttarnungsrisiko',
-      'Network recovers slightly but buys time': 'Netzwerk erholt sich leicht, gewinnt Zeit',
-      'Confuse media but increase attention': 'Medien verwirren, aber mehr Aufmerksamkeit',
-      'Massive trust damage but huge detection risk': 'Massiver Vertrauensschaden, hohes Enttarnungsrisiko',
-      'Moderate impact with controlled risk': 'Moderater Effekt mit kontrolliertem Risiko',
-      'Minimal impact but reduces detection': 'Minimaler Effekt, reduzierte Entdeckung',
-      'Expensive but maintains operational capacity': 'Teuer aber operative Kapazität erhalten',
-      'Lose some reach but evade enforcement': 'Etwas Reichweite verlieren, aber Durchsetzung umgehen',
-      'Draw sympathetic attention but expensive': 'Sympathie gewinnen, aber teuer',
-      'Polarizes the narrative further': 'Polarisiert das Narrativ weiter',
-      'May convince experts but risky': 'Könnte Experten überzeugen, aber riskant',
-      'Major setback but avoids investigation': 'Großer Rückschlag, aber Untersuchung vermeiden',
-      'Undermines academic credibility': 'Untergräbt akademische Glaubwürdigkeit',
-      'Expensive but stays ahead of defenders': 'Teuer aber Verteidigern voraus bleiben',
-      'Confuses the narrative': 'Verwirrt das Narrativ',
-      'Massive reach but expensive and risky': 'Massive Reichweite aber teuer und riskant',
-      'Good impact with less exposure': 'Guter Effekt mit weniger Sichtbarkeit',
-      'Missed opportunity but safer': 'Verpasste Gelegenheit aber sicherer',
-      'Disrupt from within but high risk': 'Von innen stören aber hohes Risiko',
-      'Confusion strategy but draws attention': 'Verwirrungsstrategie aber zieht Aufmerksamkeit',
-      'They gain ground but you avoid escalation': 'Sie gewinnen Boden, aber Eskalation vermieden',
-      'Expensive but restores reach': 'Teuer aber Reichweite wiederhergestellt',
-      'Moderate effectiveness': 'Moderate Wirksamkeit',
-      'Temporary setback': 'Vorübergehender Rückschlag',
+      'Gain resources but risk exposure':
+        'Kurzfristiger Ressourcengewinn, aber erhöhtes Enttarnungsrisiko',
+      'Network recovers slightly but buys time':
+        'Das Netzwerk erholt sich etwas und gewinnt wertvolle Zeit',
+      'Confuse media but increase attention':
+        'Medien werden verwirrt, aber die Aufmerksamkeit steigt',
+      'Massive trust damage but huge detection risk':
+        'Massiver Vertrauensschaden bei der Zielgruppe, aber extrem hohes Entdeckungsrisiko',
+      'Moderate impact with controlled risk':
+        'Solide Wirkung bei überschaubarem Risiko',
+      'Minimal impact but reduces detection':
+        'Geringe Wirkung, aber deutlich reduziertes Entdeckungsrisiko',
+      'Expensive but maintains operational capacity':
+        'Kostspielig, aber die operative Handlungsfähigkeit bleibt erhalten',
+      'Lose some reach but evade enforcement':
+        'Etwas Reichweite geht verloren, aber die Durchsetzung wird umgangen',
+      'Draw sympathetic attention but expensive':
+        'Erzeugt Sympathie in bestimmten Kreisen, aber kostspielig',
+      'Polarizes the narrative further':
+        'Treibt die Polarisierung der öffentlichen Debatte voran',
+      'May convince experts but risky':
+        'Könnte Experten täuschen, birgt aber erhebliche Risiken',
+      'Major setback but avoids investigation':
+        'Schwerer Rückschlag, aber die Ermittlungen werden abgewendet',
+      'Undermines academic credibility':
+        'Untergräbt die akademische Glaubwürdigkeit der Kritiker',
+      'Expensive but stays ahead of defenders':
+        'Teuer, aber Sie bleiben den Verteidigern einen Schritt voraus',
+      'Confuses the narrative':
+        'Verwirrt das öffentliche Narrativ',
+      'Massive reach but expensive and risky':
+        'Enorme Reichweite, aber teuer und mit hohem Risiko verbunden',
+      'Good impact with less exposure':
+        'Gute Wirkung bei geringerer eigener Sichtbarkeit',
+      'Missed opportunity but safer':
+        'Chance verpasst, aber die sichere Variante',
+      'Disrupt from within but high risk':
+        'Störung von innen, aber mit erheblichem Risiko',
+      'Confusion strategy but draws attention':
+        'Verwirrungsstrategie funktioniert, zieht aber Aufmerksamkeit auf sich',
+      'They gain ground but you avoid escalation':
+        'Die Gegner gewinnen an Boden, aber eine Eskalation wird vermieden',
+      'Expensive but restores reach':
+        'Kostspielig, aber die Reichweite wird wiederhergestellt',
+      'Moderate effectiveness':
+        'Mittelmäßige Wirksamkeit',
+      'Temporary setback':
+        'Vorübergehender Rückschlag – nichts Dauerhaftes',
     };
 
     return translations[consequence] || consequence;
