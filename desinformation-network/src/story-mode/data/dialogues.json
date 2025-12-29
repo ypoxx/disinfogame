@@ -75,6 +75,18 @@
             "text_de": "Berichten Sie.",
             "text_en": "Report.",
             "tone": "commanding"
+          },
+          {
+            "id": "dir_greet_0_3",
+            "text_de": "*blickt kalt* Sie verschwenden meine Zeit. Machen Sie es kurz.",
+            "text_en": "*cold stare* You're wasting my time. Make it brief.",
+            "tone": "hostile"
+          },
+          {
+            "id": "dir_greet_0_4",
+            "text_de": "Hmm. *mustert Sie* Zeigen Sie mir, dass ich mich nicht in Ihnen geirrt habe.",
+            "text_en": "Hmm. *scrutinizes you* Show me I wasn't wrong about you.",
+            "tone": "skeptical"
           }
         ],
         "level_1": [
@@ -83,6 +95,24 @@
             "text_de": "Ah, Sie. Was bringen Sie mir?",
             "text_en": "Ah, you. What do you bring me?",
             "tone": "expectant"
+          },
+          {
+            "id": "dir_greet_1_2",
+            "text_de": "*nickt knapp* Ihre letzten Ergebnisse waren... akzeptabel. Weiter so.",
+            "text_en": "*nods briefly* Your recent results were... acceptable. Continue.",
+            "tone": "grudging_approval"
+          },
+          {
+            "id": "dir_greet_1_3",
+            "text_de": "Kommen Sie. *deutet auf Stuhl* Ich habe eine neue Aufgabe für Sie.",
+            "text_en": "Come. *gestures to chair* I have a new assignment for you.",
+            "tone": "businesslike"
+          },
+          {
+            "id": "dir_greet_1_4",
+            "text_de": "*legt Akte zur Seite* Sie haben Initiative gezeigt. Das gefällt mir.",
+            "text_en": "*sets file aside* You've shown initiative. I like that.",
+            "tone": "impressed"
           }
         ],
         "level_2": [
@@ -91,6 +121,24 @@
             "text_de": "Guten Tag. Ich hoffe, Sie haben Fortschritte zu berichten.",
             "text_en": "Good day. I hope you have progress to report.",
             "tone": "professional"
+          },
+          {
+            "id": "dir_greet_2_2",
+            "text_de": "*lächelt leicht* Ausgezeichnet, dass Sie da sind. Moskau ist... zufrieden mit unserer Zusammenarbeit.",
+            "text_en": "*slight smile* Excellent that you're here. Moscow is... satisfied with our collaboration.",
+            "tone": "pleased"
+          },
+          {
+            "id": "dir_greet_2_3",
+            "text_de": "Ah, mein zuverlässigster Operateur. *schenkt Wodka ein* Auf unseren Erfolg.",
+            "text_en": "Ah, my most reliable operative. *pours vodka* To our success.",
+            "tone": "collegial"
+          },
+          {
+            "id": "dir_greet_2_4",
+            "text_de": "Gut, dass Sie kommen. Ich habe einen delikaten Auftrag - nur Sie können das erledigen.",
+            "text_en": "Good that you're here. I have a delicate assignment - only you can handle this.",
+            "tone": "trusting"
           }
         ],
         "level_3": [
@@ -99,6 +147,24 @@
             "text_de": "Willkommen. Moskau hat nach Ihnen gefragt - positiv, wohlgemerkt.",
             "text_en": "Welcome. Moscow has been asking about you - positively, mind you.",
             "tone": "approving"
+          },
+          {
+            "id": "dir_greet_3_2",
+            "text_de": "*steht auf, schüttelt Hand* Genosse. Sie haben sich als unentbehrlich erwiesen. Das Vaterland wird sich erinnern.",
+            "text_en": "*stands up, shakes hand* Comrade. You have proven indispensable. The motherland will remember.",
+            "tone": "respectful"
+          },
+          {
+            "id": "dir_greet_3_3",
+            "text_de": "*vertraulich* Zwischen uns gesagt: Sie sind der Grund, warum diese Operation funktioniert. Ich habe große Pläne für uns beide.",
+            "text_en": "*confidentially* Between you and me: you're the reason this operation works. I have big plans for both of us.",
+            "tone": "conspiratorial"
+          },
+          {
+            "id": "dir_greet_3_4",
+            "text_de": "Da sind Sie. *lächelt echt* Ich habe Nachrichten aus dem Kreml. Sehr gute Nachrichten für Sie und mich.",
+            "text_en": "There you are. *genuine smile* I have news from the Kremlin. Very good news for you and me.",
+            "tone": "triumphant"
           }
         ]
       },
@@ -226,6 +292,24 @@
             "text_de": "Oh, hallo. Brauchen Sie etwas?",
             "text_en": "Oh, hello. Do you need something?",
             "tone": "polite_distant"
+          },
+          {
+            "id": "mar_greet_0_2",
+            "text_de": "*blickt kurz auf* Ja? Ich bin gerade beschäftigt.",
+            "text_en": "*looks up briefly* Yes? I'm busy right now.",
+            "tone": "professional_cold"
+          },
+          {
+            "id": "mar_greet_0_3",
+            "text_de": "Guten Tag. Wie kann ich Ihnen behilflich sein?",
+            "text_en": "Good day. How can I help you?",
+            "tone": "formal"
+          },
+          {
+            "id": "mar_greet_0_4",
+            "text_de": "*nickt knapp* Haben Sie die Berichte schon gesehen?",
+            "text_en": "*nods briefly* Have you seen the reports yet?",
+            "tone": "businesslike"
           }
         ],
         "level_1": [
@@ -234,6 +318,24 @@
             "text_de": "Ah, Sie. Ich habe hier einige interessante Daten...",
             "text_en": "Ah, you. I have some interesting data here...",
             "tone": "engaged"
+          },
+          {
+            "id": "mar_greet_1_2",
+            "text_de": "Perfektes Timing. Ich wollte gerade Ihre Meinung zu etwas einholen.",
+            "text_en": "Perfect timing. I wanted to get your opinion on something.",
+            "tone": "collaborative"
+          },
+          {
+            "id": "mar_greet_1_3",
+            "text_de": "*lächelt leicht* Schön Sie zu sehen. Die letzte Kampagne lief gut, oder?",
+            "text_en": "*smiles slightly* Good to see you. The last campaign went well, didn't it?",
+            "tone": "friendly_professional"
+          },
+          {
+            "id": "mar_greet_1_4",
+            "text_de": "Ich habe die Zahlen durchgearbeitet. *zeigt auf Bildschirm* Sehen Sie sich das an.",
+            "text_en": "I've worked through the numbers. *points to screen* Take a look at this.",
+            "tone": "analytical"
           }
         ],
         "level_2": [
@@ -242,6 +344,24 @@
             "text_de": "Guten Tag! Ich wollte gerade zu Ihnen kommen.",
             "text_en": "Good day! I was just about to come to you.",
             "tone": "friendly"
+          },
+          {
+            "id": "mar_greet_2_2",
+            "text_de": "Es ist gut, Sie zu sehen. *lächelt echt* Nach all dem... Sie sind einer der wenigen, denen ich noch vertraue.",
+            "text_en": "It's good to see you. *smiles genuinely* After everything... you're one of the few I still trust.",
+            "tone": "warm_personal"
+          },
+          {
+            "id": "mar_greet_2_3",
+            "text_de": "Ah, perfektes Timing! Ich habe neue Analysedaten - möchten Sie sich das gemeinsam ansehen? *wirkt enthusiastisch*",
+            "text_en": "Ah, perfect timing! I have new analysis data - want to look at this together? *seems enthusiastic*",
+            "tone": "enthusiastic_motivated"
+          },
+          {
+            "id": "mar_greet_2_4",
+            "text_de": "*schaut besorgt* Ich habe die Exposure-Reports gesehen. Geht es Ihnen gut? Wir müssen vorsichtiger sein...",
+            "text_en": "*looks concerned* I saw the exposure reports. Are you okay? We need to be more careful...",
+            "tone": "concerned_caring"
           }
         ],
         "level_3": [
@@ -250,6 +370,24 @@
             "text_de": "Da sind Sie ja. Ich habe etwas entdeckt, das Sie interessieren wird.",
             "text_en": "There you are. I've discovered something that will interest you.",
             "tone": "confidential"
+          },
+          {
+            "id": "mar_greet_3_2",
+            "text_de": "*umarmt Sie kurz* Es ist so gut, jemanden zu haben, auf den ich mich verlassen kann. Was würde ich ohne Sie machen?",
+            "text_en": "*hugs you briefly* It's so good to have someone I can rely on. What would I do without you?",
+            "tone": "deeply_connected"
+          },
+          {
+            "id": "mar_greet_3_3",
+            "text_de": "Ihre letzte Entscheidung war brillant. *zeigt begeistert Diagramme* Sehen Sie diese Zahlen? Das übertrifft alle Erwartungen!",
+            "text_en": "Your last decision was brilliant. *excitedly shows diagrams* See these numbers? This exceeds all expectations!",
+            "tone": "admiring"
+          },
+          {
+            "id": "mar_greet_3_4",
+            "text_de": "*flüstert* Ich habe etwas entdeckt, das Sie sehen müssen. Nur unter uns beiden... *schließt die Tür*",
+            "text_en": "*whispers* I discovered something you need to see. Just between us... *closes the door*",
+            "tone": "conspiratorial_trusting"
           }
         ]
       },

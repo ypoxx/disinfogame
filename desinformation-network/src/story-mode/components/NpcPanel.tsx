@@ -267,7 +267,7 @@ export function NpcPanel({
                   >
                     STATUS
                   </h4>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="grid grid-cols-2 gap-3 text-sm mb-3">
                     <div>
                       <span style={{ color: StoryModeColors.textMuted }}>Beziehung:</span>
                       <span
@@ -287,15 +287,6 @@ export function NpcPanel({
                       </span>
                     </div>
                     <div>
-                      <span style={{ color: StoryModeColors.textMuted }}>Moral:</span>
-                      <span
-                        className="ml-2 font-bold"
-                        style={{ color: StoryModeColors.agencyBlue }}
-                      >
-                        {selectedNpc.morale}%
-                      </span>
-                    </div>
-                    <div>
                       <span style={{ color: StoryModeColors.textMuted }}>Verfugbar:</span>
                       <span
                         className="ml-2 font-bold"
@@ -307,6 +298,79 @@ export function NpcPanel({
                       >
                         {selectedNpc.available ? 'Ja' : 'Nein'}
                       </span>
+                    </div>
+                    {selectedNpc.inCrisis && (
+                      <div className="col-span-2">
+                        <span
+                          className="px-2 py-1 text-xs font-bold"
+                          style={{
+                            backgroundColor: StoryModeColors.sovietRed,
+                            color: '#fff',
+                          }}
+                        >
+                          ⚠️ IN KRISE - GESPRACH NOTIG!
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Morale Bar */}
+                  <div className="mt-3">
+                    <div className="flex justify-between mb-1">
+                      <span
+                        className="text-xs"
+                        style={{ color: StoryModeColors.textMuted }}
+                      >
+                        Morale
+                      </span>
+                      <span
+                        className="text-xs font-bold"
+                        style={{
+                          color: selectedNpc.morale >= 70
+                            ? StoryModeColors.success
+                            : selectedNpc.morale >= 50
+                            ? StoryModeColors.agencyBlue
+                            : selectedNpc.morale >= 30
+                            ? StoryModeColors.warning
+                            : StoryModeColors.danger
+                        }}
+                      >
+                        {selectedNpc.morale}/100 {
+                          selectedNpc.morale >= 70 ? '💚 Stabil' :
+                          selectedNpc.morale >= 50 ? '🟡 Neutral' :
+                          selectedNpc.morale >= 30 ? '🟠 Besorgt' :
+                          '🔴 KRISE'
+                        }
+                      </span>
+                    </div>
+                    <div
+                      className="h-2 w-full"
+                      style={{ backgroundColor: StoryModeColors.darkConcrete }}
+                    >
+                      <div
+                        className="h-full transition-all"
+                        style={{
+                          width: `${selectedNpc.morale}%`,
+                          backgroundColor: selectedNpc.morale >= 70
+                            ? StoryModeColors.success
+                            : selectedNpc.morale >= 50
+                            ? StoryModeColors.agencyBlue
+                            : selectedNpc.morale >= 30
+                            ? StoryModeColors.warning
+                            : StoryModeColors.danger
+                        }}
+                      />
+                    </div>
+                    <div
+                      className="text-xs mt-1"
+                      style={{ color: StoryModeColors.textMuted }}
+                    >
+                      {selectedNpc.morale < 70 && (
+                        <>Dunkle Aktionen senken Morale. Niedrige Morale reduziert Boni.</>
+                      )}
+                      {selectedNpc.morale >= 70 && (
+                        <>Hohe Morale = volle Effizienz bei Kosten-Rabatten!</>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -333,11 +397,11 @@ export function NpcPanel({
                       className="font-bold"
                       style={{ color: getRelationshipColor(selectedNpc.relationshipLevel) }}
                     >
-                      {selectedNpc.relationshipProgress}%
+                      {selectedNpc.relationshipProgress}/100 Punkte
                     </span>
                   </div>
                   <div
-                    className="h-3 w-full"
+                    className="h-3 w-full mb-2"
                     style={{ backgroundColor: StoryModeColors.darkConcrete }}
                   >
                     <div
@@ -347,6 +411,16 @@ export function NpcPanel({
                         backgroundColor: getRelationshipColor(selectedNpc.relationshipLevel),
                       }}
                     />
+                  </div>
+                  <div
+                    className="text-xs"
+                    style={{ color: StoryModeColors.textMuted }}
+                  >
+                    {selectedNpc.relationshipLevel < 3 ? (
+                      <>Aktionen mit {selectedNpc.name}'s Spezialisierung: +10 Punkte</>
+                    ) : (
+                      <>Maximales Level erreicht!</>
+                    )}
                   </div>
                 </div>
 
