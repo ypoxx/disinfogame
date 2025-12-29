@@ -30,3 +30,25 @@ export type {
   CountermeasureContext,
   SeverityLevel,
 } from './CountermeasureSystem';
+
+export { getTaxonomyLoader, taxonomyLoader } from './TaxonomyLoader';
+export type {
+  TaxonomyTechnique,
+  TaxonomyInfo,
+} from './TaxonomyLoader';
+
+export { StoryComboSystem, getStoryComboSystem, resetStoryComboSystem } from './StoryComboSystem';
+export type {
+  StoryComboProgress,
+  StoryComboActivation,
+  ComboHint,
+} from './StoryComboSystem';
+
+export { CrisisMomentSystem, getCrisisMomentSystem, resetCrisisMomentSystem } from './CrisisMomentSystem';
+export type {
+  CrisisMoment,
+  CrisisChoice,
+  CrisisEffect,
+  ActiveCrisis,
+  CrisisResolution,
+} from './CrisisMomentSystem';

@@ -39,6 +39,31 @@ import {
   type CounterOption,
 } from '../story-mode/engine/CountermeasureSystem';
 
+import {
+  getTaxonomyLoader,
+  type TaxonomyInfo,
+  type TaxonomyTechnique,
+} from '../story-mode/engine/TaxonomyLoader';
+
+import {
+  StoryComboSystem,
+  getStoryComboSystem,
+  type StoryComboProgress,
+  type StoryComboActivation,
+  type ComboHint,
+} from '../story-mode/engine/StoryComboSystem';
+
+import {
+  CrisisMomentSystem,
+  getCrisisMomentSystem,
+  type CrisisMoment,
+  type CrisisChoice,
+  type ActiveCrisis,
+  type CrisisResolution,
+} from '../story-mode/engine/CrisisMomentSystem';
+
+import { playSound } from '../story-mode/utils/SoundSystem';
+
 // Import NPC and World Events data
 import npcsData from '../story-mode/data/npcs.json';
 import worldEventsData from '../story-mode/data/world-events.json';
@@ -161,6 +186,10 @@ export interface ActionResult {
     dialogue_de: string;
     dialogue_en: string;
   }[];
+
+  // Combo-Ergebnisse
+  completedCombos?: StoryComboActivation[];
+  comboHints?: ComboHint[];
 }
 
 /**
@@ -231,6 +260,45 @@ export interface ActiveConsequence extends PendingConsequence {
  */
 export type EventScale = 'local' | 'regional' | 'national' | 'transnational';
 export type MemberState = 'nordmark' | 'gallia' | 'insulandia' | 'balticum' | 'suedland' | 'ostmark';
+
+/**
+ * Opportunity Window - Zeitfenster mit erhöhter Aktionseffektivität
+ * Entsteht durch World Events und vergeht nach einer gewissen Zeit
+ */
+export interface OpportunityWindow {
+  id: string;
+  type: OpportunityType;
+  source: string;                     // Event ID that created this window
+  sourceHeadline_de: string;          // For display
+  sourceHeadline_en: string;
+  createdPhase: number;
+  expiresPhase: number;               // Window closes after this phase
+  region?: MemberState;               // If regional opportunity
+
+  // What actions/tags are boosted
+  boostedTags: string[];              // Action tags that get bonus
+  boostedPhases: string[];            // Action phases (ta01-ta07) that get bonus
+
+  // Modifiers during this window
+  effectivenessMultiplier: number;    // 1.3 = 30% more effective
+  costReduction?: number;             // 0.8 = 20% cheaper
+  riskReduction?: number;             // Reduced risk for these actions
+}
+
+export type OpportunityType =
+  | 'elections'           // Election interference window
+  | 'crisis'              // Economic/political crisis
+  | 'scandal'             // Media scandal
+  | 'protest'             // Social unrest
+  | 'extremism'           // Far-right/populist surge
+  | 'division'            // Internal division in target
+  | 'chaos'               // General chaos/confusion
+  | 'media_distrust'      // Low trust in media
+  | 'economic_anxiety'    // Economic fears
+  | 'migration'           // Migration debate
+  | 'sovereignty'         // Sovereignty concerns
+  | 'security'            // Security tensions
+  | 'narrative';          // Specific narrative boost
 
 export interface NewsEvent {
   id: string;
@@ -332,12 +400,17 @@ export class StoryEngineAdapter {
   // Track triggered events for cascade system (eventId -> phase triggered)
   private triggeredEventsThisPhase: Set<string> = new Set();
   private allTriggeredEvents: Map<string, number> = new Map();
+  // Track active opportunity windows (created by world events)
+  private activeOpportunityWindows: Map<string, OpportunityWindow> = new Map();
+  private readonly OPPORTUNITY_WINDOW_DURATION = 6;  // Default: 6 phases = 6 months
 
   // Engine Integration
   private actionLoader: ActionLoader;
   private consequenceSystem: ConsequenceSystem;
   private dialogLoader: DialogLoader;
   private countermeasureSystem: CountermeasureSystem;
+  private comboSystem: StoryComboSystem;
+  private crisisMomentSystem: CrisisMomentSystem;
   private rngSeed: string;
 
   // Konfiguration
@@ -354,6 +427,8 @@ export class StoryEngineAdapter {
     this.consequenceSystem = getConsequenceSystem();
     this.dialogLoader = new DialogLoader();
     this.countermeasureSystem = new CountermeasureSystem();
+    this.comboSystem = getStoryComboSystem();
+    this.crisisMomentSystem = getCrisisMomentSystem();
 
     // Initialer Zustand
     this.storyPhase = this.createPhase(1);
@@ -474,7 +549,11 @@ export class StoryEngineAdapter {
     resourceChanges: Partial<StoryResources>;
     triggeredConsequences: ActiveConsequence[];
     worldEvents: NewsEvent[];
+    triggeredCrises: CrisisMoment[];
   } {
+    // Play phase transition sound
+    playSound('phaseEnd');
+
     const previousPhase = this.storyPhase.number;
     const newPhaseNumber = previousPhase + 1;
 
@@ -485,6 +564,12 @@ export class StoryEngineAdapter {
 
     // Phase aktualisieren
     this.storyPhase = this.createPhase(newPhaseNumber);
+
+    // Clean up expired opportunity windows
+    this.cleanupExpiredOpportunityWindows();
+
+    // Clean up expired combo progress
+    this.comboSystem.cleanupExpired(newPhaseNumber);
 
     // Ressourcen regenerieren
     // P1-4 Fix: Reduce attention decay from 5 to 2
@@ -522,11 +607,44 @@ export class StoryEngineAdapter {
     // Welt-Events generieren
     const worldEvents = this.generateWorldEvents(newPhaseNumber);
 
+    // Check for crisis moments
+    const triggeredCrises = this.crisisMomentSystem.checkForCrises({
+      phase: newPhaseNumber,
+      risk: this.storyResources.risk,
+      attention: this.storyResources.attention,
+      actionCount: this.actionHistory.length,
+      lowTrustActors: 0, // Could be calculated from objectives
+    });
+
+    // Play crisis sound if new crisis
+    if (triggeredCrises.length > 0) {
+      playSound('crisis');
+      for (const crisis of triggeredCrises) {
+        // Add crisis to news
+        this.newsEvents.unshift({
+          id: `news_crisis_${crisis.id}_${Date.now()}`,
+          phase: this.storyPhase.number,
+          headline_de: crisis.name_de,
+          headline_en: crisis.name_en,
+          description_de: crisis.description_de,
+          description_en: crisis.description_en,
+          type: 'consequence',
+          severity: crisis.severity === 'critical' ? 'danger' : crisis.severity === 'high' ? 'warning' : 'info',
+          read: false,
+          pinned: true, // Pin crisis news
+        });
+      }
+    }
+
+    // Cleanup expired crises
+    this.crisisMomentSystem.cleanupExpiredCrises(newPhaseNumber);
+
     return {
       newPhase: this.storyPhase,
       resourceChanges,
       triggeredConsequences,
       worldEvents,
+      triggeredCrises,
     };
   }
 
@@ -789,8 +907,11 @@ export class StoryEngineAdapter {
         // P2-7: Record cooldown for this event
         this.worldEventCooldowns.set(eventDef.id, phase);
 
-        // Apply event effects
-        this.applyWorldEventEffects(eventDef.effects);
+        // Apply event effects and create opportunity windows
+        this.applyWorldEventEffects(eventDef.effects, eventDef);
+
+        // Play world event sound
+        playSound('worldEvent');
 
         console.log(`[${eventDef.scale || 'national'}] World event triggered: ${eventDef.headline_de}`);
       }
@@ -828,7 +949,7 @@ export class StoryEngineAdapter {
             this.triggeredEventsThisPhase.add(eventDef.id);
             this.allTriggeredEvents.set(eventDef.id, phase);
             this.worldEventCooldowns.set(eventDef.id, phase);
-            this.applyWorldEventEffects(eventDef.effects);
+            this.applyWorldEventEffects(eventDef.effects, eventDef);
 
             console.log(`[CASCADE] ${eventDef.headline_de} (triggered by ${parentEventId})`);
             newCascades = true;
@@ -932,7 +1053,7 @@ export class StoryEngineAdapter {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private applyWorldEventEffects(effects: any): void {
+  private applyWorldEventEffects(effects: any, eventDef?: any): void {
     if (!effects) return;
 
     // Budget changes
@@ -977,12 +1098,6 @@ export class StoryEngineAdapter {
       }
     }
 
-    // Content effectiveness modifiers (stored for action calculations)
-    if (effects.content_effectiveness_boost) {
-      // This would be used by action system - for now just log
-      console.log(`[Effect] Content effectiveness boosted by ${effects.content_effectiveness_boost}`);
-    }
-
     // Regional effects (affect specific member states)
     const regionalEffects = [
       'regional_anxiety', 'regional_discontent', 'regional_unrest', 'regional_nationalism',
@@ -1007,13 +1122,252 @@ export class StoryEngineAdapter {
       }
     }
 
-    // Narrative boost effects (improve effectiveness of related narratives)
-    const narrativeBoosts = Object.keys(effects).filter(k => k.endsWith('_narrative_boost') || k.endsWith('_boost'));
-    for (const boost of narrativeBoosts) {
-      if (typeof effects[boost] === 'number' && effects[boost] > 1) {
-        console.log(`[Narrative Boost] ${boost}: ${effects[boost]}x effectiveness`);
+    // ====================================================
+    // OPPORTUNITY WINDOWS - Create from event effects
+    // ====================================================
+    if (eventDef) {
+      this.createOpportunityWindowsFromEvent(effects, eventDef);
+    }
+  }
+
+  /**
+   * Create opportunity windows from world event effects
+   * Opportunity windows boost action effectiveness during specific time periods
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private createOpportunityWindowsFromEvent(effects: any, eventDef: any): void {
+    const opportunityMappings: {
+      effectKey: string | string[];
+      type: OpportunityType;
+      boostedTags: string[];
+      boostedPhases: string[];
+      multiplier: number;
+      duration?: number;
+    }[] = [
+      // Election opportunities
+      {
+        effectKey: ['opportunity_window', 'election_interference_window'],
+        type: 'elections',
+        boostedTags: ['election', 'political', 'influence', 'propaganda'],
+        boostedPhases: ['ta06', 'ta07'],
+        multiplier: 1.5,
+        duration: 12, // 1 year window for elections
+      },
+      // Content effectiveness boost
+      {
+        effectKey: 'content_effectiveness_boost',
+        type: 'media_distrust',
+        boostedTags: ['content', 'fake_news', 'meme', 'viral'],
+        boostedPhases: ['ta03', 'ta04'],
+        multiplier: 0, // Will use effect value
+      },
+      // Social actions boost (protests, unrest)
+      {
+        effectKey: 'social_actions_effectiveness',
+        type: 'protest',
+        boostedTags: ['polarization', 'amplification', 'social'],
+        boostedPhases: ['ta04', 'ta07'],
+        multiplier: 0,
+      },
+      // Economic crisis opportunities
+      {
+        effectKey: ['economic_actions_cost_reduction', 'economic_anxiety', 'financial_panic'],
+        type: 'economic_anxiety',
+        boostedTags: ['economic', 'exploit', 'division'],
+        boostedPhases: ['ta03', 'ta07'],
+        multiplier: 1.3,
+      },
+      // Extremism window
+      {
+        effectKey: 'extremism_window',
+        type: 'extremism',
+        boostedTags: ['polarization', 'conspiracy', 'attack'],
+        boostedPhases: ['ta05', 'ta07'],
+        multiplier: 1.4,
+      },
+      // Political chaos
+      {
+        effectKey: ['political_chaos_boost', 'political_instability'],
+        type: 'chaos',
+        boostedTags: ['political', 'influence', 'infiltration'],
+        boostedPhases: ['ta06'],
+        multiplier: 1.3,
+      },
+      // Migration debate
+      {
+        effectKey: ['migration_debate_boost', 'migration_narrative_boost'],
+        type: 'migration',
+        boostedTags: ['polarization', 'content', 'targeting'],
+        boostedPhases: ['ta03', 'ta04'],
+        multiplier: 1.4,
+      },
+      // Sovereignty concerns (anti-Westunion)
+      {
+        effectKey: ['anti_westunion_boost', 'anti_westunion_narrative_boost', 'sovereignty_narrative_boost'],
+        type: 'sovereignty',
+        boostedTags: ['political', 'content', 'propaganda'],
+        boostedPhases: ['ta03', 'ta06'],
+        multiplier: 1.35,
+      },
+      // Security tensions
+      {
+        effectKey: ['security_tension', 'military_tension_boost', 'fear_narrative_boost'],
+        type: 'security',
+        boostedTags: ['conspiracy', 'fake_news', 'emotional'],
+        boostedPhases: ['ta03'],
+        multiplier: 1.3,
+      },
+      // Division/polarization opportunities
+      {
+        effectKey: ['generational_divide', 'social_division', 'culture_war_boost'],
+        type: 'division',
+        boostedTags: ['polarization', 'division', 'targeting'],
+        boostedPhases: ['ta04', 'ta07'],
+        multiplier: 1.35,
+      },
+    ];
+
+    for (const mapping of opportunityMappings) {
+      const effectKeys = Array.isArray(mapping.effectKey) ? mapping.effectKey : [mapping.effectKey];
+
+      for (const key of effectKeys) {
+        if (effects[key]) {
+          const windowId = `${eventDef.id}_${mapping.type}_${this.storyPhase.number}`;
+
+          // Don't create duplicate windows
+          if (this.activeOpportunityWindows.has(windowId)) continue;
+
+          const multiplier = mapping.multiplier === 0
+            ? (typeof effects[key] === 'number' ? effects[key] : 1.2)
+            : mapping.multiplier;
+
+          const window: OpportunityWindow = {
+            id: windowId,
+            type: mapping.type,
+            source: eventDef.id,
+            sourceHeadline_de: eventDef.headline_de || eventDef.id,
+            sourceHeadline_en: eventDef.headline_en || eventDef.id,
+            createdPhase: this.storyPhase.number,
+            expiresPhase: this.storyPhase.number + (mapping.duration || this.OPPORTUNITY_WINDOW_DURATION),
+            region: eventDef.region as MemberState | undefined,
+            boostedTags: mapping.boostedTags,
+            boostedPhases: mapping.boostedPhases,
+            effectivenessMultiplier: multiplier,
+            costReduction: effects[`${key}_cost_reduction`] || undefined,
+            riskReduction: effects[`${key}_risk_reduction`] || undefined,
+          };
+
+          this.activeOpportunityWindows.set(windowId, window);
+          playSound('opportunityOpen');
+          console.log(`[OPPORTUNITY] Window opened: ${mapping.type} (${multiplier}x) until phase ${window.expiresPhase}`);
+          break; // Only create one window per mapping
+        }
       }
     }
+
+    // Also create windows for explicit narrative boosts
+    const narrativeBoosts = Object.keys(effects).filter(k =>
+      (k.endsWith('_narrative_boost') || k.endsWith('_boost')) &&
+      typeof effects[k] === 'number' &&
+      effects[k] > 1
+    );
+
+    for (const boostKey of narrativeBoosts) {
+      // Extract narrative type from key (e.g., "energy_narrative_boost" -> "energy")
+      const narrativeType = boostKey.replace('_narrative_boost', '').replace('_boost', '');
+      const windowId = `${eventDef.id}_narrative_${narrativeType}_${this.storyPhase.number}`;
+
+      if (this.activeOpportunityWindows.has(windowId)) continue;
+
+      const window: OpportunityWindow = {
+        id: windowId,
+        type: 'narrative',
+        source: eventDef.id,
+        sourceHeadline_de: eventDef.headline_de || eventDef.id,
+        sourceHeadline_en: eventDef.headline_en || eventDef.id,
+        createdPhase: this.storyPhase.number,
+        expiresPhase: this.storyPhase.number + this.OPPORTUNITY_WINDOW_DURATION,
+        region: eventDef.region as MemberState | undefined,
+        boostedTags: [narrativeType, 'content', 'propaganda'],
+        boostedPhases: ['ta03', 'ta04'],
+        effectivenessMultiplier: effects[boostKey],
+      };
+
+      this.activeOpportunityWindows.set(windowId, window);
+      console.log(`[NARRATIVE BOOST] ${narrativeType}: ${effects[boostKey]}x until phase ${window.expiresPhase}`);
+    }
+  }
+
+  /**
+   * Clean up expired opportunity windows (call at phase start)
+   */
+  private cleanupExpiredOpportunityWindows(): void {
+    const expiredWindows: string[] = [];
+
+    for (const [id, window] of this.activeOpportunityWindows) {
+      if (this.storyPhase.number > window.expiresPhase) {
+        expiredWindows.push(id);
+        console.log(`[OPPORTUNITY] Window closed: ${window.type} (was from ${window.sourceHeadline_de})`);
+      }
+    }
+
+    for (const id of expiredWindows) {
+      this.activeOpportunityWindows.delete(id);
+    }
+  }
+
+  /**
+   * Get all active opportunity windows
+   */
+  getActiveOpportunityWindows(): OpportunityWindow[] {
+    return Array.from(this.activeOpportunityWindows.values());
+  }
+
+  /**
+   * Get effectiveness modifier for an action based on active opportunity windows
+   * Returns combined multiplier and any cost/risk reductions
+   */
+  getOpportunityModifiers(actionId: string, tags: string[], phase: string): {
+    effectivenessMultiplier: number;
+    costMultiplier: number;
+    riskMultiplier: number;
+    activeWindows: OpportunityWindow[];
+  } {
+    let effectivenessMultiplier = 1.0;
+    let costMultiplier = 1.0;
+    let riskMultiplier = 1.0;
+    const activeWindows: OpportunityWindow[] = [];
+
+    for (const window of this.activeOpportunityWindows.values()) {
+      // Check if window is still active
+      if (this.storyPhase.number > window.expiresPhase) continue;
+
+      // Check if this action matches the window's criteria
+      const matchesTags = window.boostedTags.some(t => tags.includes(t));
+      const matchesPhase = window.boostedPhases.includes(phase);
+
+      if (matchesTags || matchesPhase) {
+        // Apply the boost (multiplicative stacking with diminishing returns)
+        const boostAmount = window.effectivenessMultiplier - 1;
+        effectivenessMultiplier += boostAmount * 0.7; // 70% of boost stacks
+
+        if (window.costReduction) {
+          costMultiplier *= window.costReduction;
+        }
+        if (window.riskReduction) {
+          riskMultiplier *= window.riskReduction;
+        }
+
+        activeWindows.push(window);
+      }
+    }
+
+    return {
+      effectivenessMultiplier: Math.min(2.5, effectivenessMultiplier), // Cap at 2.5x
+      costMultiplier: Math.max(0.5, costMultiplier), // Min 50% cost
+      riskMultiplier: Math.max(0.5, riskMultiplier), // Min 50% risk
+      activeWindows,
+    };
   }
 
   private seededRandom(seed: string = `phase_${this.storyPhase.number}`): number {
@@ -1153,11 +1507,57 @@ export class StoryEngineAdapter {
       npcReactions,
     };
 
+    // Play appropriate sound based on action type
+    if (action.legality === 'illegal' || (action.costs.moralWeight && action.costs.moralWeight > 5)) {
+      playSound('moralShift'); // Dark action
+    } else {
+      playSound('success'); // Standard success
+    }
+
     // Mark action as used in ActionLoader
     this.actionLoader.markAsUsed(actionId);
 
     // Check for unlocking new actions based on this action's completion
     this.actionLoader.checkUnlocks(actionId);
+
+    // Process combo progress
+    const comboResult = this.comboSystem.processAction(
+      actionId,
+      action.tags,
+      this.storyPhase.number
+    );
+
+    // Apply combo effects and add to result
+    if (comboResult.completedCombos.length > 0) {
+      result.completedCombos = comboResult.completedCombos;
+
+      for (const combo of comboResult.completedCombos) {
+        // Apply combo bonuses to resources
+        this.applyComboBonus(combo);
+
+        // Play combo sound
+        playSound('combo');
+
+        // Add combo completion news
+        this.newsEvents.unshift({
+          id: `news_combo_${combo.comboId}_${Date.now()}`,
+          phase: this.storyPhase.number,
+          headline_de: `Kombination: ${combo.comboName}`,
+          headline_en: `Combo: ${combo.comboName}`,
+          description_de: combo.description,
+          description_en: combo.description,
+          type: 'action_result',
+          severity: 'success',
+          read: false,
+          pinned: false,
+        });
+      }
+    }
+
+    // Add combo hints to result
+    if (comboResult.newHints.length > 0) {
+      result.comboHints = comboResult.newHints;
+    }
 
     // Historie
     this.actionHistory.push({
@@ -1490,6 +1890,176 @@ export class StoryEngineAdapter {
     }
   }
 
+  /**
+   * Apply combo bonus effects to story resources
+   */
+  private applyComboBonus(combo: StoryComboActivation): void {
+    const bonus = combo.bonus;
+
+    // Trust reduction -> affects primary objective
+    if (bonus.trustReduction) {
+      const trustObj = this.objectives.find(o => o.category === 'trust_reduction');
+      if (trustObj) {
+        trustObj.currentValue = Math.min(
+          trustObj.targetValue,
+          trustObj.currentValue + bonus.trustReduction * 100
+        );
+      }
+    }
+
+    // Polarization bonus -> affects destabilization
+    if (bonus.polarizationBonus) {
+      const primaryObj = this.objectives.find(o => o.id === 'destabilize_westunion');
+      if (primaryObj) {
+        primaryObj.currentValue = Math.min(
+          primaryObj.targetValue,
+          primaryObj.currentValue + bonus.polarizationBonus * 50
+        );
+      }
+    }
+
+    // Attention cost changes
+    if (bonus.attentionCost) {
+      this.storyResources.attention = Math.max(0, this.storyResources.attention + bonus.attentionCost);
+    }
+    if (bonus.attentionReduction) {
+      this.storyResources.attention = Math.max(0, this.storyResources.attention - bonus.attentionReduction);
+    }
+
+    // Detection/risk reduction
+    if (bonus.detectionReduction) {
+      this.storyResources.risk = Math.max(0, this.storyResources.risk - bonus.detectionReduction * 100);
+    }
+
+    // Money refund
+    if (bonus.moneyRefund) {
+      this.storyResources.budget += bonus.moneyRefund;
+    }
+
+    // Infrastructure gain (affects capacity)
+    if (bonus.infrastructureGain) {
+      this.storyResources.capacity = Math.min(15, this.storyResources.capacity + bonus.infrastructureGain);
+    }
+
+    console.log(`[COMBO BONUS] Applied: ${combo.comboName} (${combo.category})`);
+  }
+
+  /**
+   * Get active combo hints for display
+   */
+  getActiveComboHints(): ComboHint[] {
+    return this.comboSystem.getActiveHints(this.storyPhase.number);
+  }
+
+  /**
+   * Get combo statistics
+   */
+  getComboStats(): {
+    total: number;
+    byCategory: Record<string, number>;
+    discoveredCombos: string[];
+  } {
+    return this.comboSystem.getComboStats();
+  }
+
+  // ============================================
+  // CRISIS MOMENT HANDLING
+  // ============================================
+
+  /**
+   * Get active crisis moments (for display)
+   */
+  getActiveCrises(): ActiveCrisis[] {
+    return this.crisisMomentSystem.getActiveCrises();
+  }
+
+  /**
+   * Get the most urgent crisis
+   */
+  getMostUrgentCrisis(): ActiveCrisis | null {
+    return this.crisisMomentSystem.getMostUrgentCrisis();
+  }
+
+  /**
+   * Resolve a crisis with a player choice
+   */
+  resolveCrisis(crisisId: string, choiceId: string): CrisisResolution | null {
+    const resolution = this.crisisMomentSystem.resolveCrisis(
+      crisisId,
+      choiceId,
+      this.storyPhase.number
+    );
+
+    if (resolution) {
+      // Apply crisis effects
+      this.applyCrisisEffects(resolution.effects);
+
+      // Add resolution to news
+      this.newsEvents.unshift({
+        id: `news_crisis_resolved_${crisisId}_${Date.now()}`,
+        phase: this.storyPhase.number,
+        headline_de: 'Krise bewältigt',
+        headline_en: 'Crisis Resolved',
+        description_de: resolution.consequence_de,
+        description_en: resolution.consequence_en,
+        type: 'action_result',
+        severity: 'info',
+        read: false,
+        pinned: false,
+      });
+
+      playSound('success');
+    }
+
+    return resolution;
+  }
+
+  /**
+   * Apply effects from a crisis resolution
+   */
+  private applyCrisisEffects(effects: import('../story-mode/engine/CrisisMomentSystem').CrisisEffect[]): void {
+    for (const effect of effects) {
+      switch (effect.type) {
+        case 'trust_delta':
+          // Affects objectives
+          const trustObj = this.objectives.find(o => o.category === 'trust_reduction');
+          if (trustObj && typeof effect.value === 'number') {
+            trustObj.currentValue = Math.min(
+              trustObj.targetValue,
+              trustObj.currentValue + Math.abs(effect.value) * 100
+            );
+          }
+          break;
+
+        case 'resource_bonus':
+          if (typeof effect.value === 'number') {
+            this.storyResources.budget += effect.value;
+          }
+          break;
+
+        case 'emotional_delta':
+          // Affects polarization objective
+          const polarObj = this.objectives.find(o => o.id === 'destabilize_westunion');
+          if (polarObj && typeof effect.value === 'number') {
+            polarObj.currentValue = Math.min(
+              polarObj.targetValue,
+              polarObj.currentValue + Math.abs(effect.value) * 50
+            );
+          }
+          break;
+
+        case 'objective_progress':
+          if (typeof effect.value === 'number') {
+            const obj = this.objectives.find(o => o.id === effect.target);
+            if (obj) {
+              obj.currentValue = Math.min(obj.targetValue, obj.currentValue + effect.value);
+            }
+          }
+          break;
+      }
+    }
+  }
+
   // ============================================
   // CONSEQUENCE HANDLING
   // ============================================
@@ -1801,6 +2371,9 @@ export class StoryEngineAdapter {
       npcStates: Array.from(this.npcStates.entries()),
       actionHistory: this.actionHistory,
       worldEventCooldowns: Array.from(this.worldEventCooldowns.entries()),
+      activeOpportunityWindows: Array.from(this.activeOpportunityWindows.entries()),
+      comboSystemState: this.comboSystem.exportState(),
+      crisisMomentSystemState: this.crisisMomentSystem.exportState(),
       // Engine state
       actionLoaderState: this.actionLoader.exportState(),
       consequenceSystemState: this.consequenceSystem.exportState(),
@@ -1822,6 +2395,13 @@ export class StoryEngineAdapter {
     this.npcStates = new Map(state.npcStates);
     this.actionHistory = state.actionHistory;
     this.worldEventCooldowns = new Map(state.worldEventCooldowns || []);
+    this.activeOpportunityWindows = new Map(state.activeOpportunityWindows || []);
+    if (state.comboSystemState) {
+      this.comboSystem.importState(state.comboSystemState);
+    }
+    if (state.crisisMomentSystemState) {
+      this.crisisMomentSystem.importState(state.crisisMomentSystemState);
+    }
 
     // Restore engine state
     if (state.actionLoaderState) {
@@ -1966,10 +2546,17 @@ export class StoryEngineAdapter {
       teamSize: this.npcStates.size
     };
 
-    return this.countermeasureSystem.checkForCountermeasures(
+    const triggered = this.countermeasureSystem.checkForCountermeasures(
       context,
       () => this.seededRandom(`countermeasure_${this.storyPhase.number}`)
     );
+
+    // Play countermeasure sound if any were triggered
+    if (triggered.length > 0) {
+      playSound('countermeasure');
+    }
+
+    return triggered;
   }
 
   /**
@@ -2013,6 +2600,60 @@ export class StoryEngineAdapter {
   }
 
   // ============================================
+  // TAXONOMY SYSTEM (Educational Research Links)
+  // ============================================
+
+  /**
+   * Get taxonomy information for an action
+   * Links actions to real-world persuasion research for educational value
+   */
+  getTaxonomyForAction(actionId: string): TaxonomyInfo {
+    const action = this.getActionById(actionId);
+    if (!action) {
+      return {
+        techniques: [],
+        primaryTechnique: null,
+        combinedManipulationPotential: 0,
+        allCounterStrategies: [],
+        allEvidence: [],
+      };
+    }
+
+    const taxonomyLoader = getTaxonomyLoader();
+    return taxonomyLoader.getTaxonomyForAction(actionId, action.tags);
+  }
+
+  /**
+   * Get formatted taxonomy display info for an action (for UI)
+   */
+  getActionTaxonomyDisplay(actionId: string, locale: 'de' | 'en' = 'de'): {
+    basedOn: string;
+    primaryDescription: string;
+    evidence: string;
+    counterStrategies: string[];
+  } | null {
+    const info = this.getTaxonomyForAction(actionId);
+    const taxonomyLoader = getTaxonomyLoader();
+    return taxonomyLoader.formatForDisplay(info, locale);
+  }
+
+  /**
+   * Get a specific persuasion technique by ID
+   */
+  getTaxonomyTechnique(techniqueId: string): TaxonomyTechnique | null {
+    const taxonomyLoader = getTaxonomyLoader();
+    return taxonomyLoader.getTechnique(techniqueId);
+  }
+
+  /**
+   * Get all available persuasion techniques
+   */
+  getAllTaxonomyTechniques(): TaxonomyTechnique[] {
+    const taxonomyLoader = getTaxonomyLoader();
+    return taxonomyLoader.getAllTechniques();
+  }
+
+  // ============================================
   // SAVE/LOAD/RESET
   // ============================================
 
@@ -2028,6 +2669,7 @@ export class StoryEngineAdapter {
     this.newsEvents = [];
     this.actionHistory = [];
     this.worldEventCooldowns.clear();
+    this.activeOpportunityWindows.clear();
     this.initializeNPCs();
     this.initializeObjectives();
 
@@ -2035,6 +2677,8 @@ export class StoryEngineAdapter {
     this.actionLoader.reset();
     this.consequenceSystem.reset();
     this.countermeasureSystem.reset();
+    this.comboSystem.reset();
+    this.crisisMomentSystem.reset();
   }
 }
 

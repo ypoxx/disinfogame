@@ -5,7 +5,22 @@
  * Uses synthesized tones instead of audio files for simplicity and small bundle size.
  */
 
-type SoundType = 'click' | 'success' | 'warning' | 'error' | 'notification' | 'phaseEnd' | 'consequence';
+type SoundType =
+  | 'click'
+  | 'success'
+  | 'warning'
+  | 'error'
+  | 'notification'
+  | 'phaseEnd'
+  | 'consequence'
+  // New platinum-level sounds
+  | 'combo'           // Combo activated
+  | 'crisis'          // Crisis moment triggered
+  | 'betrayal'        // NPC betrayal
+  | 'moralShift'      // Significant moral weight change
+  | 'opportunityOpen' // Opportunity window opens
+  | 'countermeasure'  // Enemy countermeasure activated
+  | 'worldEvent';     // Major world event
 
 interface SoundConfig {
   frequency: number;
@@ -61,6 +76,56 @@ const SOUND_CONFIGS: Record<SoundType, SoundConfig> = {
     frequency: 293.66, // D4
     duration: 0.4,
     type: 'sawtooth',
+    volume: 0.2,
+    decay: true,
+  },
+  // Platinum-level sounds
+  combo: {
+    frequency: 659.25, // E5
+    duration: 0.2,
+    type: 'sine',
+    volume: 0.25,
+    secondFreq: 830.61, // G#5 - triumphant major third
+  },
+  crisis: {
+    frequency: 220, // A3 - low, ominous
+    duration: 0.5,
+    type: 'sawtooth',
+    volume: 0.3,
+    decay: true,
+  },
+  betrayal: {
+    frequency: 146.83, // D3 - very low, shocking
+    duration: 0.6,
+    type: 'square',
+    volume: 0.35,
+    secondFreq: 155.56, // Eb3 - dissonant minor second
+  },
+  moralShift: {
+    frequency: 185, // F#3 - dark
+    duration: 0.35,
+    type: 'triangle',
+    volume: 0.2,
+    decay: true,
+  },
+  opportunityOpen: {
+    frequency: 523.25, // C5
+    duration: 0.15,
+    type: 'sine',
+    volume: 0.2,
+    secondFreq: 783.99, // G5 - bright, hopeful fifth
+  },
+  countermeasure: {
+    frequency: 329.63, // E4
+    duration: 0.25,
+    type: 'sawtooth',
+    volume: 0.2,
+    secondFreq: 261.63, // C4 - descending, threatening
+  },
+  worldEvent: {
+    frequency: 349.23, // F4
+    duration: 0.3,
+    type: 'sine',
     volume: 0.2,
     decay: true,
   },

@@ -12,3 +12,13 @@ export type { StoryGameState, DialogState, GamePhase } from './hooks/useStoryGam
 
 // Theme
 export { StoryModeColors } from './theme';
+
+// Sound System
+export {
+  playSound,
+  setSoundEnabled,
+  isSoundEnabled,
+  setSoundVolume,
+  getSoundVolume,
+  getSoundSystem
+} from './utils/SoundSystem';
