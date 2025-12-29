@@ -52,21 +52,23 @@ class GlobalRandomService {
    * Get a random number between 0 and 1
    */
   public random(): number {
-    return this.instance.random();
+    return this.instance.next();
   }
 
   /**
-   * Get a random integer between min (inclusive) and max (exclusive)
+   * Get a random integer between min (inclusive) and max (inclusive)
    */
   public randomInt(min: number, max: number): number {
-    return this.instance.randomInt(min, max);
+    return this.instance.nextInt(min, max);
   }
 
   /**
    * Get a random element from an array
    */
   public choice<T>(array: T[]): T {
-    return this.instance.choice(array);
+    const result = this.instance.pick(array);
+    if (result === undefined) throw new Error('Cannot pick from empty array');
+    return result;
   }
 
   /**
