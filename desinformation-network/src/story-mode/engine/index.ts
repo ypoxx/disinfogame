@@ -52,3 +52,12 @@ export type {
   ActiveCrisis,
   CrisisResolution,
 } from './CrisisMomentSystem';
+
+export { StoryActorAI, getStoryActorAI, resetStoryActorAI } from './StoryActorAI';
+export type {
+  DefensiveActor,
+  DefensiveActorType,
+  AIAction,
+  AIActionEffect,
+  StoryActorAIState,
+} from './StoryActorAI';

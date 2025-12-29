@@ -62,6 +62,13 @@ import {
   type CrisisResolution,
 } from '../story-mode/engine/CrisisMomentSystem';
 
+import {
+  StoryActorAI,
+  getStoryActorAI,
+  type DefensiveActor,
+  type AIAction,
+} from '../story-mode/engine/StoryActorAI';
+
 import { playSound } from '../story-mode/utils/SoundSystem';
 
 // Import NPC and World Events data
@@ -411,6 +418,7 @@ export class StoryEngineAdapter {
   private countermeasureSystem: CountermeasureSystem;
   private comboSystem: StoryComboSystem;
   private crisisMomentSystem: CrisisMomentSystem;
+  private actorAI: StoryActorAI;
   private rngSeed: string;
 
   // Konfiguration
@@ -429,6 +437,7 @@ export class StoryEngineAdapter {
     this.countermeasureSystem = new CountermeasureSystem();
     this.comboSystem = getStoryComboSystem();
     this.crisisMomentSystem = getCrisisMomentSystem();
+    this.actorAI = getStoryActorAI();
 
     // Initialer Zustand
     this.storyPhase = this.createPhase(1);
@@ -550,6 +559,8 @@ export class StoryEngineAdapter {
     triggeredConsequences: ActiveConsequence[];
     worldEvents: NewsEvent[];
     triggeredCrises: CrisisMoment[];
+    aiActions: AIAction[];
+    newDefenders: DefensiveActor[];
   } {
     // Play phase transition sound
     playSound('phaseEnd');
@@ -639,12 +650,86 @@ export class StoryEngineAdapter {
     // Cleanup expired crises
     this.crisisMomentSystem.cleanupExpiredCrises(newPhaseNumber);
 
+    // Process Actor-AI (Arms Race)
+    const recentCrisis = triggeredCrises.length > 0;
+    const newDefenders = this.actorAI.checkSpawnConditions(
+      newPhaseNumber,
+      this.storyResources.risk,
+      recentCrisis
+    );
+
+    // Add news for newly spawned defenders
+    for (const defender of newDefenders) {
+      this.newsEvents.unshift({
+        id: `news_defender_${defender.id}_${Date.now()}`,
+        phase: this.storyPhase.number,
+        headline_de: defender.newsOnSpawn_de,
+        headline_en: defender.newsOnSpawn_en,
+        description_de: `Ein neuer Akteur formiert sich gegen Desinformation.`,
+        description_en: `A new actor mobilizes against disinformation.`,
+        type: 'world_event',
+        severity: 'warning',
+        read: false,
+        pinned: false,
+      });
+      playSound('countermeasure');
+    }
+
+    // Process AI actions
+    const recentActions = this.actionHistory.slice(-3).map(a => a.result?.action?.id || '');
+    const recentTags = this.actionHistory.slice(-3).flatMap(a => a.result?.action?.tags || []);
+    const aiActions = this.actorAI.processPhase(newPhaseNumber, {
+      risk: this.storyResources.risk,
+      attention: this.storyResources.attention,
+      recentActions,
+      recentTags,
+    });
+
+    // Apply AI action effects
+    for (const aiAction of aiActions) {
+      for (const effect of aiAction.effects) {
+        switch (effect.type) {
+          case 'risk_increase':
+            this.storyResources.risk = Math.min(100, this.storyResources.risk + effect.value);
+            break;
+          case 'attention_increase':
+            this.storyResources.attention = Math.min(100, this.storyResources.attention + effect.value);
+            break;
+          case 'reach_reduction':
+            // Affects action effectiveness (tracked in modifiers)
+            break;
+          case 'countdown_start':
+            if (this.exposureCountdown === null) {
+              this.exposureCountdown = effect.value;
+              console.log(`[ActorAI] Exposure countdown started: ${effect.value} phases`);
+            }
+            break;
+        }
+      }
+
+      // Add AI action to news
+      this.newsEvents.unshift({
+        id: `news_ai_${aiAction.id}`,
+        phase: this.storyPhase.number,
+        headline_de: aiAction.news_de,
+        headline_en: aiAction.news_en,
+        description_de: `Verteidigungsakteur ergreift Maßnahmen.`,
+        description_en: `Defensive actor takes action.`,
+        type: 'world_event',
+        severity: aiAction.type === 'investigation' ? 'danger' : 'warning',
+        read: false,
+        pinned: aiAction.type === 'investigation', // Pin investigations
+      });
+    }
+
     return {
       newPhase: this.storyPhase,
       resourceChanges,
       triggeredConsequences,
       worldEvents,
       triggeredCrises,
+      aiActions,
+      newDefenders,
     };
   }
 
@@ -1559,6 +1644,9 @@ export class StoryEngineAdapter {
       result.comboHints = comboResult.newHints;
     }
 
+    // Track action for Actor-AI (Arms Race)
+    this.actorAI.trackAction(actionId, action.tags, this.storyPhase.number);
+
     // Historie
     this.actionHistory.push({
       phase: this.storyPhase.number,
@@ -2374,6 +2462,7 @@ export class StoryEngineAdapter {
       activeOpportunityWindows: Array.from(this.activeOpportunityWindows.entries()),
       comboSystemState: this.comboSystem.exportState(),
       crisisMomentSystemState: this.crisisMomentSystem.exportState(),
+      actorAIState: this.actorAI.exportState(),
       // Engine state
       actionLoaderState: this.actionLoader.exportState(),
       consequenceSystemState: this.consequenceSystem.exportState(),
@@ -2401,6 +2490,9 @@ export class StoryEngineAdapter {
     }
     if (state.crisisMomentSystemState) {
       this.crisisMomentSystem.importState(state.crisisMomentSystemState);
+    }
+    if (state.actorAIState) {
+      this.actorAI.importState(state.actorAIState);
     }
 
     // Restore engine state
@@ -2679,6 +2771,43 @@ export class StoryEngineAdapter {
     this.countermeasureSystem.reset();
     this.comboSystem.reset();
     this.crisisMomentSystem.reset();
+    this.actorAI.reset();
+  }
+
+  // ============================================
+  // ACTOR-AI (ARMS RACE) PUBLIC METHODS
+  // ============================================
+
+  /**
+   * Get current arms race status for UI display
+   */
+  getArmsRaceStatus(): {
+    armsRaceLevel: number;
+    activeDefenders: number;
+    threatLevel: 'low' | 'medium' | 'high' | 'critical';
+  } {
+    return this.actorAI.getStatus();
+  }
+
+  /**
+   * Get all currently active defensive actors
+   */
+  getActiveDefenders(): DefensiveActor[] {
+    return this.actorAI.getSpawnedActors();
+  }
+
+  /**
+   * Check if an action is currently disabled by platform moderation
+   */
+  isActionDisabledByAI(actionId: string): boolean {
+    return this.actorAI.isActionDisabled(actionId, this.storyPhase.number);
+  }
+
+  /**
+   * Get all currently disabled actions with reenable phase
+   */
+  getDisabledActions(): Record<string, number> {
+    return this.actorAI.getDisabledActions();
   }
 }
 
