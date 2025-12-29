@@ -1,6 +1,6 @@
 import type { GameState, NetworkMetrics } from '@/game-logic/types';
 import { cn } from '@/utils/cn';
-import { formatPercent, formatRound } from '@/utils';
+import { formatPercent } from '@/utils';
 import { trustToHex } from '@/utils/colors';
 
 // ============================================

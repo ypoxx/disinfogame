@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { Actor, Ability, Resources, ResourceCost } from '@/game-logic/types';
-import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
+import type { Actor, Ability, Resources } from '@/game-logic/types';
+import { trustToHex, getCategoryColor } from '@/utils/colors';
 import { formatPercent } from '@/utils';
 import { cn } from '@/utils/cn';
 import { AbilityPreview } from './AbilityPreview';

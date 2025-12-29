@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { cn } from '@/utils/cn';
 import { formatPercent } from '@/utils';
-import { trustToHex, getCategoryColor, getTrustLabel } from '@/utils/colors';
+import { trustToHex } from '@/utils/colors';
 import { NetworkVisualization } from '@/components/NetworkVisualization';
 import { UnifiedRoundModal } from '@/components/UnifiedRoundModal';
 import { VictoryProgressBar } from '@/components/VictoryProgressBar';
