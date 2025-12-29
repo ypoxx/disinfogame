@@ -681,42 +681,72 @@ export function OfficeScreen({
           }}
         />
 
-        {/* Hover Detection Overlays */}
+        {/* Hover Detection Overlays with Click Handlers */}
         <div
-          className="absolute"
+          className="absolute cursor-pointer"
           style={{ top: '5%', left: '8%', width: '35%', height: '28%' }}
           onMouseEnter={() => setHoverArea('tv')}
           onMouseLeave={() => setHoverArea(null)}
+          onClick={() => {
+            console.log('📺 [Story Mode] TV overlay clicked');
+            setHoverArea(null);
+            if (onOpenStats) onOpenStats();
+          }}
         />
         <div
-          className="absolute"
+          className="absolute cursor-pointer"
           style={{ top: '35%', left: '30%', width: '28%', height: '38%' }}
           onMouseEnter={() => setHoverArea('computer')}
           onMouseLeave={() => setHoverArea(null)}
+          onClick={() => {
+            console.log('💻 [Story Mode] Computer overlay clicked');
+            setHoverArea(null);
+            if (onOpenActions) onOpenActions();
+          }}
         />
         <div
-          className="absolute"
+          className="absolute cursor-pointer"
           style={{ top: '55%', left: '8%', width: '16%', height: '20%' }}
           onMouseEnter={() => setHoverArea('phone')}
           onMouseLeave={() => setHoverArea(null)}
+          onClick={() => {
+            console.log('📱 [Story Mode] Phone overlay clicked');
+            setHoverArea(null);
+            if (onOpenNpcs) onOpenNpcs();
+          }}
         />
         <div
-          className="absolute"
+          className="absolute cursor-pointer"
           style={{ top: '58%', left: '62%', width: '10%', height: '22%' }}
           onMouseEnter={() => setHoverArea('smartphone')}
           onMouseLeave={() => setHoverArea(null)}
+          onClick={() => {
+            console.log('📰 [Story Mode] Smartphone overlay clicked');
+            setHoverArea(null);
+            if (onOpenNews) onOpenNews();
+          }}
         />
         <div
-          className="absolute"
+          className="absolute cursor-pointer"
           style={{ top: '8%', left: '78%', width: '18%', height: '55%' }}
           onMouseEnter={() => setHoverArea('door')}
           onMouseLeave={() => setHoverArea(null)}
+          onClick={() => {
+            console.log('🚪 [Story Mode] Door overlay clicked');
+            setHoverArea(null);
+            if (onOpenEvents) onOpenEvents();
+          }}
         />
         <div
-          className="absolute"
+          className="absolute cursor-pointer"
           style={{ top: '65%', left: '25%', width: '12%', height: '15%' }}
           onMouseEnter={() => setHoverArea('folder')}
           onMouseLeave={() => setHoverArea(null)}
+          onClick={() => {
+            console.log('📁 [Story Mode] Folder overlay clicked');
+            setHoverArea(null);
+            if (onOpenMission) onOpenMission();
+          }}
         />
 
         {/* Bottom Action Bar */}
@@ -737,7 +767,14 @@ export function OfficeScreen({
             <span>[E] Events</span>
           </div>
           <button
-            onClick={onEndPhase}
+            onClick={() => {
+              console.log('⏭️ [Story Mode] End Phase button clicked');
+              if (onEndPhase) {
+                onEndPhase();
+              } else {
+                console.warn('⚠️ [Story Mode] onEndPhase callback not provided');
+              }
+            }}
             className="px-6 py-2 border-4 font-bold hover:brightness-110 transition-all active:translate-y-0.5"
             style={{
               backgroundColor: StoryModeColors.sovietRed,
