@@ -7,6 +7,14 @@ import {
   getClusterColor,
   getClusterBorderColor,
 } from '@/utils/network/cluster-detection';
+import {
+  getConstrainedActorPosition,
+  getCategoryConstraint,
+  CATEGORY_RADIUS_PERCENT,
+  CATEGORY_LAYOUT,
+  getZoomLevelConfig,
+  getDynamicCategoryRadius,
+} from '@/utils/constrainedLayout';
 
 // ============================================
 // FULLSCREEN RESPONSIVE NETWORK VISUALIZATION
@@ -24,13 +32,13 @@ type NetworkVisualizationProps = {
   onActorHover: (actorId: string | null) => void;
 };
 
-// Relative positions (0-1 range) for responsive layout
+// Use positions from constrainedLayout for consistency
 const CATEGORY_POSITIONS_RELATIVE: Record<string, { x: number; y: number }> = {
-  media: { x: 0.25, y: 0.3 },
-  expert: { x: 0.75, y: 0.3 },
-  lobby: { x: 0.25, y: 0.7 },
-  organization: { x: 0.75, y: 0.7 },
-  defensive: { x: 0.5, y: 0.5 }, // Center
+  media: { x: CATEGORY_LAYOUT.media.rx, y: CATEGORY_LAYOUT.media.ry },
+  expert: { x: CATEGORY_LAYOUT.expert.rx, y: CATEGORY_LAYOUT.expert.ry },
+  lobby: { x: CATEGORY_LAYOUT.lobby.rx, y: CATEGORY_LAYOUT.lobby.ry },
+  organization: { x: CATEGORY_LAYOUT.organization.rx, y: CATEGORY_LAYOUT.organization.ry },
+  defensive: { x: CATEGORY_LAYOUT.defensive.rx, y: CATEGORY_LAYOUT.defensive.ry },
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -67,10 +75,16 @@ export function NetworkVisualization({
   // Cluster visualization (Phase 2: UX Layer)
   const [showClusters, setShowClusters] = useState(true);
 
-  // Constants scaled by canvas size
-  const NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.04; // 4% of smaller dimension
-  const CATEGORY_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.15; // 15% of smaller dimension
-  const ACTOR_SPREAD_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.12; // 12% for actor arrangement
+  // Legend collapsed state (Phase 4: Visual Polish)
+  const [legendCollapsed, setLegendCollapsed] = useState(false);
+
+  // Zoom-based level of detail configuration (Google Maps style)
+  const zoomConfig = useMemo(() => getZoomLevelConfig(zoom), [zoom]);
+
+  // Constants scaled by canvas size - use CATEGORY_RADIUS_PERCENT for larger circles
+  const BASE_NODE_RADIUS = Math.min(canvasSize.width, canvasSize.height) * 0.035; // 3.5% base
+  const NODE_RADIUS = BASE_NODE_RADIUS * zoomConfig.nodeScale; // Dynamic based on zoom
+  const CATEGORY_RADIUS = Math.min(canvasSize.width, canvasSize.height) * CATEGORY_RADIUS_PERCENT; // 22% - larger circles
 
   // Group actors by category
   const actorsByCategory = actors.reduce((groups, actor) => {
@@ -103,12 +117,49 @@ export function NetworkVisualization({
     };
   }, [canvasSize]);
 
-  // Use actor's own position (from force-directed layout)
-  // Phase 3: Actors now have positions calculated by force-directed layout
+  // Create actor index map for ring-based positioning
+  const actorIndexMap = useMemo(() => {
+    const indexMap = new Map<string, { index: number; total: number }>();
+    Object.entries(actorsByCategory).forEach(([category, categoryActors]) => {
+      categoryActors.forEach((actor, index) => {
+        indexMap.set(actor.id, { index, total: categoryActors.length });
+      });
+    });
+    return indexMap;
+  }, [actorsByCategory]);
+
+  // Compute dynamic radius for each category based on actor count
+  const categoryRadii = useMemo(() => {
+    const radii: Record<string, number> = {};
+    Object.entries(actorsByCategory).forEach(([category, categoryActors]) => {
+      radii[category] = getDynamicCategoryRadius(
+        categoryActors.length,
+        canvasSize.width,
+        canvasSize.height
+      );
+    });
+    // Also compute default for empty categories
+    Object.keys(CATEGORY_POSITIONS_RELATIVE).forEach(cat => {
+      if (!radii[cat]) {
+        radii[cat] = getDynamicCategoryRadius(0, canvasSize.width, canvasSize.height);
+      }
+    });
+    return radii;
+  }, [actorsByCategory, canvasSize.width, canvasSize.height]);
+
+  // Use ring-based distribution for even actor spacing within circles
+  // Phase 2 Optimized: Deterministic positioning based on actor index
   const getActorPosition = useCallback((actor: Actor) => {
-    // Actors now have positions set by force-directed layout in GameState
-    return actor.position;
-  }, []);
+    const indexInfo = actorIndexMap.get(actor.id) || { index: 0, total: 1 };
+    return getConstrainedActorPosition(
+      actor.position,
+      actor.category,
+      canvasSize.width,
+      canvasSize.height,
+      indexInfo.index,
+      indexInfo.total
+    );
+  }, [canvasSize.width, canvasSize.height, actorIndexMap]);
 
   // PHASE 5: Performance - Viewport culling helper
   const isInViewport = useCallback((pos: { x: number; y: number }, padding: number = NODE_RADIUS * 2) => {
@@ -164,58 +215,57 @@ export function NetworkVisualization({
       });
     }
 
-    // Draw category regions
+    // Draw category regions (Phase 2: Enhanced visual containers with dynamic sizing)
     Object.keys(CATEGORY_POSITIONS_RELATIVE).forEach((category) => {
-      const actors = actorsByCategory[category] || [];
-      if (actors.length === 0 && category !== 'defensive') return;
+      const categoryActorsList = actorsByCategory[category] || [];
+      if (categoryActorsList.length === 0 && category !== 'defensive') return;
 
       const pos = getCategoryPosition(category);
+      const categoryColor = getCategoryColor(category as any);
+      // Use dynamic radius based on actor count in this category
+      const dynamicRadius = categoryRadii[category] || CATEGORY_RADIUS;
 
-      // Category background
+      // Outer glow/shadow for depth
+      const outerGlow = ctx.createRadialGradient(
+        pos.x, pos.y, dynamicRadius * 0.8,
+        pos.x, pos.y, dynamicRadius * 1.1
+      );
+      outerGlow.addColorStop(0, `${categoryColor}00`);
+      outerGlow.addColorStop(0.7, `${categoryColor}08`);
+      outerGlow.addColorStop(1, `${categoryColor}00`);
       ctx.beginPath();
-      ctx.arc(pos.x, pos.y, CATEGORY_RADIUS, 0, Math.PI * 2);
-      ctx.fillStyle = `${getCategoryColor(category as any)}08`;
+      ctx.arc(pos.x, pos.y, dynamicRadius * 1.1, 0, Math.PI * 2);
+      ctx.fillStyle = outerGlow;
       ctx.fill();
-      ctx.strokeStyle = `${getCategoryColor(category as any)}30`;
-      ctx.lineWidth = 2;
-      ctx.setLineDash([5, 5]);
+
+      // Inner radial gradient for "container" feel
+      const innerGradient = ctx.createRadialGradient(
+        pos.x, pos.y, 0,
+        pos.x, pos.y, dynamicRadius
+      );
+      innerGradient.addColorStop(0, `${categoryColor}18`); // Slightly visible center
+      innerGradient.addColorStop(0.6, `${categoryColor}12`);
+      innerGradient.addColorStop(0.85, `${categoryColor}08`);
+      innerGradient.addColorStop(1, `${categoryColor}20`); // Stronger at edge
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, dynamicRadius, 0, Math.PI * 2);
+      ctx.fillStyle = innerGradient;
+      ctx.fill();
+
+      // Solid border (not dashed - feels more like a container)
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, dynamicRadius, 0, Math.PI * 2);
+      ctx.strokeStyle = `${categoryColor}40`;
+      ctx.lineWidth = 3;
       ctx.stroke();
-      ctx.setLineDash([]);
 
-      // Category label background for better readability
-      const label = CATEGORY_LABELS[category] || category;
-      const fontSize = Math.max(14, NODE_RADIUS * 0.4);
-      ctx.font = `bold ${fontSize}px Inter, sans-serif`;
-      const labelMetrics = ctx.measureText(label);
-      const labelWidth = labelMetrics.width;
-      const labelX = pos.x;
-      const labelY = pos.y - CATEGORY_RADIUS - 20;
-
-      // Label background
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-      ctx.fillRect(
-        labelX - labelWidth / 2 - 6,
-        labelY - 10,
-        labelWidth + 12,
-        20
-      );
-
-      // Label border
-      ctx.strokeStyle = `${getCategoryColor(category as any)}50`;
+      // Inner border for depth
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, dynamicRadius - 2, 0, Math.PI * 2);
+      ctx.strokeStyle = `${categoryColor}15`;
       ctx.lineWidth = 1;
-      ctx.setLineDash([]);
-      ctx.strokeRect(
-        labelX - labelWidth / 2 - 6,
-        labelY - 10,
-        labelWidth + 12,
-        20
-      );
-
-      // Category label text
-      ctx.fillStyle = getCategoryColor(category as any);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(label, labelX, labelY);
+      ctx.stroke();
+      // NOTE: Category labels are drawn AFTER actors (see below) to stay in foreground
     });
 
     // Draw connections (edges) - PHASE 5: Use actorMap for O(1) lookups
@@ -392,10 +442,28 @@ export function NetworkVisualization({
         ctx.strokeStyle = trustToHex(actor.trust);
         ctx.lineWidth = 4;
         ctx.stroke();
+    });
 
-        // Actor name with text wrapping for long names
+    // ========================================
+    // PASS 2: Draw actor labels AFTER all circles
+    // This ensures labels are always readable on top of overlapping nodes
+    // Click detection is based on circle centers, so this doesn't affect interactions
+    // ========================================
+    actors.forEach((actor) => {
+      const pos = getActorPosition(actor);
+
+      // Skip actors outside viewport
+      if (!isInViewport(pos, NODE_RADIUS * 3)) {
+        return;
+      }
+
+      const isSelected = actor.id === selectedActorId;
+      const isHovered = actor.id === hoveredActorId;
+
+      // Actor name - only show based on zoom level (Google Maps style progressive disclosure)
+      if (zoomConfig.showLabels || isSelected || isHovered) {
         const maxNameWidth = NODE_RADIUS * 4;
-        const nameFontSize = Math.max(12, NODE_RADIUS * 0.35);
+        const nameFontSize = Math.max(10, NODE_RADIUS * 0.35) * zoomConfig.labelFontSize;
         ctx.font = `${isSelected || isHovered ? 'bold ' : ''}${nameFontSize}px Inter, sans-serif`;
         ctx.fillStyle = '#1F2937';
         ctx.textAlign = 'center';
@@ -405,7 +473,6 @@ export function NetworkVisualization({
         let displayName = actor.name;
         const nameMetrics = ctx.measureText(displayName);
         if (nameMetrics.width > maxNameWidth) {
-          // Shorten the name
           while (ctx.measureText(displayName + '...').width > maxNameWidth && displayName.length > 0) {
             displayName = displayName.slice(0, -1);
           }
@@ -414,36 +481,106 @@ export function NetworkVisualization({
 
         // Name background for better readability
         const textWidth = ctx.measureText(displayName).width;
-        const nameY = pos.y + NODE_RADIUS + 8;
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.fillRect(pos.x - textWidth / 2 - 4, nameY, textWidth + 8, nameFontSize + 6);
+        const nameY = pos.y + NODE_RADIUS + 6;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+        ctx.fillRect(pos.x - textWidth / 2 - 4, nameY, textWidth + 8, nameFontSize + 4);
 
         ctx.fillStyle = '#1F2937';
-        ctx.fillText(displayName, pos.x, nameY + 2);
+        ctx.fillText(displayName, pos.x, nameY + 1);
+      }
 
-        // Trust percentage below name
-        if (isSelected || isHovered) {
-          const trustFontSize = Math.max(11, NODE_RADIUS * 0.3);
-          ctx.font = `${trustFontSize}px Inter, sans-serif`;
-          ctx.fillStyle = trustToHex(actor.trust);
-          const trustText = `${Math.round(actor.trust * 100)}%`;
-          const trustWidth = ctx.measureText(trustText).width;
+      // Trust percentage - show based on zoom level or selection
+      if (zoomConfig.showStats || isSelected || isHovered) {
+        const trustFontSize = Math.max(9, NODE_RADIUS * 0.28) * zoomConfig.labelFontSize;
+        ctx.font = `bold ${trustFontSize}px Inter, sans-serif`;
+        const trustText = `${Math.round(actor.trust * 100)}%`;
+        const trustWidth = ctx.measureText(trustText).width;
 
-          const trustY = nameY + nameFontSize + 10;
-          // Background for trust percentage
+        // Position trust inside the node for cleaner look
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = trustToHex(actor.trust);
+        // Only show external trust label when zoomed in enough or selected
+        if (isSelected || isHovered || zoom >= 1.5) {
+          const nameY = pos.y + NODE_RADIUS + 6;
+          const nameFontSize = Math.max(10, NODE_RADIUS * 0.35) * zoomConfig.labelFontSize;
+          const trustY = nameY + nameFontSize + 8;
           ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-          ctx.fillRect(pos.x - trustWidth / 2 - 3, trustY, trustWidth + 6, trustFontSize + 4);
-
+          ctx.fillRect(pos.x - trustWidth / 2 - 3, trustY - trustFontSize/2 - 2, trustWidth + 6, trustFontSize + 4);
           ctx.fillStyle = trustToHex(actor.trust);
-          ctx.fillText(trustText, pos.x, trustY + 2);
+          ctx.fillText(trustText, pos.x, trustY);
         }
+      }
+    });
+
+    // ========================================
+    // PHASE 4: Draw category labels LAST (foreground)
+    // This ensures labels are never covered by connections or actors
+    // ========================================
+    Object.keys(CATEGORY_POSITIONS_RELATIVE).forEach((category) => {
+      const categoryActorsList = actorsByCategory[category] || [];
+      if (categoryActorsList.length === 0 && category !== 'defensive') return;
+
+      const pos = getCategoryPosition(category);
+      const categoryColor = getCategoryColor(category as any);
+      const dynamicRadius = categoryRadii[category] || CATEGORY_RADIUS;
+
+      // Category label
+      const label = CATEGORY_LABELS[category] || category;
+      const fontSize = Math.max(14, NODE_RADIUS * 0.4);
+      ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+      const labelMetrics = ctx.measureText(label);
+      const labelWidth = labelMetrics.width;
+      const labelX = pos.x;
+      const labelY = pos.y - dynamicRadius - 20;
+
+      // Label background with rounded corners
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.98)';
+      ctx.beginPath();
+      const bgX = labelX - labelWidth / 2 - 10;
+      const bgY = labelY - 14;
+      const bgW = labelWidth + 20;
+      const bgH = 28;
+      const bgR = 8;
+      ctx.moveTo(bgX + bgR, bgY);
+      ctx.lineTo(bgX + bgW - bgR, bgY);
+      ctx.quadraticCurveTo(bgX + bgW, bgY, bgX + bgW, bgY + bgR);
+      ctx.lineTo(bgX + bgW, bgY + bgH - bgR);
+      ctx.quadraticCurveTo(bgX + bgW, bgY + bgH, bgX + bgW - bgR, bgY + bgH);
+      ctx.lineTo(bgX + bgR, bgY + bgH);
+      ctx.quadraticCurveTo(bgX, bgY + bgH, bgX, bgY + bgH - bgR);
+      ctx.lineTo(bgX, bgY + bgR);
+      ctx.quadraticCurveTo(bgX, bgY, bgX + bgR, bgY);
+      ctx.closePath();
+      ctx.fill();
+
+      // Label shadow for depth
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetY = 2;
+      ctx.fill();
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
+
+      // Label border (stronger)
+      ctx.strokeStyle = `${categoryColor}80`;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Category label text
+      ctx.fillStyle = categoryColor;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, labelX, labelY);
     });
 
     // Restore context after zoom/pan transform
     ctx.restore();
 
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, getCategoryPosition, zoom, pan]);
+  }, [actors, connections, selectedActorId, hoveredActorId, targetingMode, validTargets, spatialClusters, showClusters, actorsByCategory, getActorPosition, NODE_RADIUS, CATEGORY_RADIUS, categoryRadii, getCategoryPosition, zoom, pan, zoomConfig]);
 
   // Transform screen coordinates to canvas coordinates (accounting for zoom/pan)
   const screenToCanvas = useCallback((screenX: number, screenY: number) => {
@@ -530,8 +667,9 @@ export function NetworkVisualization({
 
   const handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
     e.preventDefault();
-    // Smooth zoom factor based on best practices
-    const zoomFactor = e.deltaY > 0 ? 0.95 : 1.05;
+    // Smoother zoom factor for better control (Google Maps style)
+    // Reduced from 0.95/1.05 to 0.98/1.02 for finer granularity
+    const zoomFactor = e.deltaY > 0 ? 0.98 : 1.02;
     setZoom(prevZoom => Math.max(0.5, Math.min(3, prevZoom * zoomFactor)));
   }, []);
 
@@ -598,12 +736,13 @@ export function NetworkVisualization({
         case '+':
         case '=':
           e.preventDefault();
-          setZoom(prev => Math.min(3, prev * 1.2));
+          // Smoother keyboard zoom (10% instead of 20%)
+          setZoom(prev => Math.min(3, prev * 1.1));
           break;
         case '-':
         case '_':
           e.preventDefault();
-          setZoom(prev => Math.max(0.5, prev / 1.2));
+          setZoom(prev => Math.max(0.5, prev / 1.1));
           break;
         case '0':
           e.preventDefault();
@@ -682,7 +821,7 @@ export function NetworkVisualization({
       {/* Zoom Controls - positioned on left side to avoid HUD overlap */}
       <div className="absolute bottom-20 left-4 flex flex-col gap-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2">
         <button
-          onClick={() => setZoom(prev => Math.min(3, prev * 1.2))}
+          onClick={() => setZoom(prev => Math.min(3, prev * 1.1))}
           className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 font-bold text-lg transition-colors"
           title="Zoom In (+, Scroll Up)"
         >
@@ -696,7 +835,7 @@ export function NetworkVisualization({
           {Math.round(zoom * 100)}%
         </button>
         <button
-          onClick={() => setZoom(prev => Math.max(0.5, prev / 1.2))}
+          onClick={() => setZoom(prev => Math.max(0.5, prev / 1.1))}
           className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 font-bold text-lg transition-colors"
           title="Zoom Out (-, Scroll Down)"
         >
@@ -724,39 +863,57 @@ export function NetworkVisualization({
         </button>
       </div>
 
-      {/* Legend - positioned at bottom right */}
-      <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2.5 text-xs max-w-[160px]">
-        <h4 className="font-bold text-gray-900 mb-1.5 text-[11px]">Legend</h4>
-        <div className="space-y-1">
-          {Object.entries(CATEGORY_LABELS).map(([cat, label]) => {
-            const count = actorsByCategory[cat]?.length || 0;
-            if (count === 0 && cat !== 'defensive') return null;
-            return (
-              <div key={cat} className="flex items-center gap-1.5">
-                <div
-                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: getCategoryColor(cat as any) }}
-                />
-                <span className="text-gray-700 text-[10px] leading-tight truncate">
-                  {label.replace('Community', '').replace('Outlets', '').trim()} ({count})
-                </span>
-              </div>
-            );
-          })}
-          <div className="border-t border-gray-200 my-1"></div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#EF4444' }} />
-            <span className="text-gray-700 text-[10px]">Low trust</span>
+      {/* Legend - positioned at bottom right, collapsible (Phase 4) */}
+      <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg text-xs max-w-[160px] overflow-hidden transition-all duration-200">
+        {/* Header with toggle */}
+        <button
+          onClick={() => setLegendCollapsed(!legendCollapsed)}
+          className="w-full flex items-center justify-between px-2.5 py-2 hover:bg-gray-100/50 transition-colors"
+        >
+          <h4 className="font-bold text-gray-900 text-[11px]">Legend</h4>
+          <span className={cn(
+            "text-gray-500 text-[10px] transition-transform duration-200",
+            legendCollapsed ? "rotate-180" : ""
+          )}>
+            ▼
+          </span>
+        </button>
+
+        {/* Collapsible content */}
+        {!legendCollapsed && (
+          <div className="px-2.5 pb-2.5 space-y-1 border-t border-gray-200/50">
+            <div className="pt-1.5">
+              {Object.entries(CATEGORY_LABELS).map(([cat, label]) => {
+                const count = actorsByCategory[cat]?.length || 0;
+                if (count === 0 && cat !== 'defensive') return null;
+                return (
+                  <div key={cat} className="flex items-center gap-1.5 py-0.5">
+                    <div
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: getCategoryColor(cat as any) }}
+                    />
+                    <span className="text-gray-700 text-[10px] leading-tight truncate">
+                      {label.replace('Community', '').replace('Outlets', '').trim()} ({count})
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="border-t border-gray-200 my-1"></div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#EF4444' }} />
+              <span className="text-gray-700 text-[10px]">Low trust</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#EAB308' }} />
+              <span className="text-gray-700 text-[10px]">Med trust</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#22C55E' }} />
+              <span className="text-gray-700 text-[10px]">High trust</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#EAB308' }} />
-            <span className="text-gray-700 text-[10px]">Med trust</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#22C55E' }} />
-            <span className="text-gray-700 text-[10px]">High trust</span>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Actor Tooltip */}
