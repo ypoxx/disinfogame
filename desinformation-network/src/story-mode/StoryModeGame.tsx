@@ -610,10 +610,14 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         isVisible={showNpcPanel}
         npcs={state.npcs}
         onSelectNpc={(npcId) => {
+          console.log('🎯 [Story Mode] NPC selected from panel:', npcId);
           setShowNpcPanel(false);
           interactWithNpc(npcId);
         }}
-        onClose={() => setShowNpcPanel(false)}
+        onClose={() => {
+          console.log('❌ [Story Mode] NPC panel closed');
+          setShowNpcPanel(false);
+        }}
       />
 
       {/* Mission Panel */}

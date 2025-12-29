@@ -523,6 +523,7 @@ export class StoryEngineAdapter {
     // Load NPCs from JSON data
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = npcsData as any;
+    console.log(`👥 [Story Engine] Initializing ${data.npcs.length} NPCs from data`);
 
     for (const npc of data.npcs) {
       this.npcStates.set(npc.id, {

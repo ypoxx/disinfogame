@@ -45,7 +45,7 @@ function LineChart({
   }, [data, width, height]);
 
   const gridLines = useMemo(() => {
-    const lines = [];
+    const lines: Array<{ y: number; value: number }> = [];
     const yMin = Math.min(...data.map(d => d.y), 0);
     const yMax = Math.max(...data.map(d => d.y), 1);
     const padding = 40;

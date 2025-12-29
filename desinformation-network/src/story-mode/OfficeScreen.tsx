@@ -621,8 +621,14 @@ export function OfficeScreen({
         <WallTV
           isHovered={hoverArea === 'tv'}
           onClick={() => {
+            console.log('📺 [Story Mode] Wall TV clicked');
             setHoverArea(null);
-            if (onOpenStats) onOpenStats();
+            if (onOpenStats) {
+              console.log('📺 [Story Mode] Opening stats panel');
+              onOpenStats();
+            } else {
+              console.warn('⚠️ [Story Mode] onOpenStats callback not provided');
+            }
           }}
         />
 
@@ -638,8 +644,14 @@ export function OfficeScreen({
         <DeskPhone
           isHovered={hoverArea === 'phone'}
           onClick={() => {
+            console.log('📱 [Story Mode] Desk phone clicked');
             setHoverArea(null);
-            if (onOpenNpcs) onOpenNpcs();
+            if (onOpenNpcs) {
+              console.log('📱 [Story Mode] Opening NPC panel');
+              onOpenNpcs();
+            } else {
+              console.warn('⚠️ [Story Mode] onOpenNpcs callback not provided');
+            }
           }}
         />
 
