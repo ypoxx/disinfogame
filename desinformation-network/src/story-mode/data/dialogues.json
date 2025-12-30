@@ -512,6 +512,24 @@
             "text_de": "Was?",
             "text_en": "What?",
             "tone": "abrupt"
+          },
+          {
+            "id": "vol_greet_0_2",
+            "text_de": "*blickt nicht auf* Beschäftigt. Später.",
+            "text_en": "*doesn't look up* Busy. Later.",
+            "tone": "dismissive"
+          },
+          {
+            "id": "vol_greet_0_3",
+            "text_de": "Hmm? *kaut an Energyriegel* Sie sind...?",
+            "text_en": "Hmm? *chews on energy bar* You are...?",
+            "tone": "indifferent"
+          },
+          {
+            "id": "vol_greet_0_4",
+            "text_de": "*tippt aggressiv* Wenn Sie mich unterbrechen wollen, sollte es wichtig sein.",
+            "text_en": "*types aggressively* If you want to interrupt me, it better be important.",
+            "tone": "annoyed"
           }
         ],
         "level_1": [
@@ -520,6 +538,24 @@
             "text_de": "Ah, der Chef. Was kann ich für Sie kaputtmachen heute?",
             "text_en": "Ah, the boss. What can I break for you today?",
             "tone": "sardonic"
+          },
+          {
+            "id": "vol_greet_1_2",
+            "text_de": "*grinst schief* Sie haben endlich erkannt, dass ich der Beste bin? Gute Entscheidung.",
+            "text_en": "*grins crookedly* You finally realized I'm the best? Good decision.",
+            "tone": "cocky"
+          },
+          {
+            "id": "vol_greet_1_3",
+            "text_de": "*dreht Stuhl um* Na? Bereit für echte Arbeit oder wieder nur Kindergarten-Kram?",
+            "text_en": "*spins chair around* Well? Ready for real work or just kindergarten stuff again?",
+            "tone": "provocative"
+          },
+          {
+            "id": "vol_greet_1_4",
+            "text_de": "Oh. Sie. *legt Füße hoch* Ihr letzter Job war nicht total schrecklich. Was jetzt?",
+            "text_en": "Oh. You. *puts feet up* Your last job wasn't totally terrible. What now?",
+            "tone": "grudging_respect"
           }
         ],
         "level_2": [
@@ -528,6 +564,24 @@
             "text_de": "Sie! Perfektes Timing. Ich habe eine Idee, die Sie lieben werden.",
             "text_en": "You! Perfect timing. I have an idea you'll love.",
             "tone": "enthusiastic"
+          },
+          {
+            "id": "vol_greet_2_2",
+            "text_de": "*reibt sich die Hände* Endlich! Jemand, der versteht, was echte Disruptionarbeit bedeutet.",
+            "text_en": "*rubs hands* Finally! Someone who understands what real disruption work means.",
+            "tone": "excited"
+          },
+          {
+            "id": "vol_greet_2_3",
+            "text_de": "Da ist mein Lieblingspartner für schmutzige Arbeit. *zeigt Bildschirm* Sehen Sie das? Chaos in Echtzeit!",
+            "text_en": "There's my favorite partner for dirty work. *shows screen* See this? Chaos in real-time!",
+            "tone": "gleeful"
+          },
+          {
+            "id": "vol_greet_2_4",
+            "text_de": "*lacht laut* Haben Sie die Nachrichten gesehen? DAS haben WIR gemacht! Ist das nicht großartig?",
+            "text_en": "*laughs loudly* Did you see the news? WE did that! Isn't that amazing?",
+            "tone": "proud"
           }
         ],
         "level_3": [
@@ -536,6 +590,24 @@
             "text_de": "*grinst* Mein Lieblingskomplize. Was für ein Chaos stiften wir heute?",
             "text_en": "*grins* My favorite accomplice. What chaos are we causing today?",
             "tone": "conspiratorial"
+          },
+          {
+            "id": "vol_greet_3_2",
+            "text_de": "*umarmt Sie grob* Bruder! Niemand versteht das Spiel so wie Sie. Lass uns die Welt brennen sehen!",
+            "text_en": "*rough hug* Brother! Nobody understands the game like you do. Let's watch the world burn!",
+            "tone": "brotherly"
+          },
+          {
+            "id": "vol_greet_3_3",
+            "text_de": "*flüstert verschwörerisch* Ich habe etwas... *grinst böse* ...unglaublich Destruktives vorbereitet. Nur für Sie.",
+            "text_en": "*whispers conspiratorially* I've prepared something... *grins evilly* ...incredibly destructive. Just for you.",
+            "tone": "devious"
+          },
+          {
+            "id": "vol_greet_3_4",
+            "text_de": "*schenkt Wodka ein* Auf uns. Die besten Chaos-Architekten, die es je gab. *prostet*",
+            "text_en": "*pours vodka* To us. The best chaos architects that ever existed. *toasts*",
+            "tone": "celebratory"
           }
         ]
       },
@@ -609,6 +681,24 @@
             "text_de": "Oh, hallo! Haben Sie eine Minute?",
             "text_en": "Oh, hello! Do you have a minute?",
             "tone": "enthusiastic"
+          },
+          {
+            "id": "kat_greet_0_2",
+            "text_de": "*lächelt freundlich* Guten Tag! Ich bin Katja. Content & Narrative. Sie sind...?",
+            "text_en": "*smiles friendly* Good day! I'm Katja. Content & Narrative. You are...?",
+            "tone": "welcoming"
+          },
+          {
+            "id": "kat_greet_0_3",
+            "text_de": "*skizziert auf Whiteboard* Oh! Entschuldigung, ich war in Gedanken. Wie kann ich helfen?",
+            "text_en": "*sketching on whiteboard* Oh! Sorry, I was lost in thought. How can I help?",
+            "tone": "distracted_friendly"
+          },
+          {
+            "id": "kat_greet_0_4",
+            "text_de": "Hallo! *ordnet Notizen* Haben Sie schon die neue Kampagne gesehen? Ich bin gespannt auf Feedback.",
+            "text_en": "Hello! *organizing notes* Have you seen the new campaign? I'm curious about feedback.",
+            "tone": "professional_eager"
           }
         ],
         "level_1": [
@@ -617,6 +707,24 @@
             "text_de": "Perfekt! Ich arbeite an etwas und brauche Ihre Meinung.",
             "text_en": "Perfect! I'm working on something and need your opinion.",
             "tone": "creative"
+          },
+          {
+            "id": "kat_greet_1_2",
+            "text_de": "*zeigt begeistert Skizzen* Schauen Sie! Ich habe drei Narrative-Varianten entwickelt. Welche spricht Sie an?",
+            "text_en": "*excitedly shows sketches* Look! I developed three narrative variants. Which speaks to you?",
+            "tone": "collaborative"
+          },
+          {
+            "id": "kat_greet_1_3",
+            "text_de": "Oh, gut dass Sie kommen! *macht Platz* Setzen Sie sich. Ich hab Ideen zu Ihrer letzten Anfrage.",
+            "text_en": "Oh, good that you're here! *makes space* Sit down. I have ideas about your last request.",
+            "tone": "helpful"
+          },
+          {
+            "id": "kat_greet_1_4",
+            "text_de": "*lächelt warm* Sie verstehen wirklich, wie Geschichten funktionieren. Das schätze ich sehr.",
+            "text_en": "*smiles warmly* You really understand how stories work. I appreciate that.",
+            "tone": "appreciative"
           }
         ],
         "level_2": [
@@ -625,6 +733,24 @@
             "text_de": "Sie werden nicht glauben, welche Idee ich gerade hatte!",
             "text_en": "You won't believe the idea I just had!",
             "tone": "excited"
+          },
+          {
+            "id": "kat_greet_2_2",
+            "text_de": "*springt auf* Endlich! Ich hab die GANZE Nacht an dieser Story gearbeitet. *zeigt Storyboard* Was sagen Sie?",
+            "text_en": "*jumps up* Finally! I worked on this story ALL night. *shows storyboard* What do you think?",
+            "tone": "passionate"
+          },
+          {
+            "id": "kat_greet_2_3",
+            "text_de": "*umarmt Sie* Sie sind der Einzige hier, der versteht, dass wir Künstler sind, nicht nur... Propagandisten.",
+            "text_en": "*hugs you* You're the only one here who understands we're artists, not just... propagandists.",
+            "tone": "emotional"
+          },
+          {
+            "id": "kat_greet_2_4",
+            "text_de": "Ich wollte gerade zu Ihnen! *wedelt mit Papieren* Unsere letzte Kampagne - sehen Sie diese Resonanz? WIR haben das erschaffen!",
+            "text_en": "I was just about to come to you! *waves papers* Our last campaign - see this resonance? WE created that!",
+            "tone": "proud_excited"
           }
         ],
         "level_3": [
@@ -633,6 +759,24 @@
             "text_de": "*strahlt* Da sind Sie ja! Ich habe unseren nächsten viralen Hit.",
             "text_en": "*beams* There you are! I have our next viral hit.",
             "tone": "confident"
+          },
+          {
+            "id": "kat_greet_3_2",
+            "text_de": "*nimmt Ihre Hände* Sie sind nicht nur mein Partner - Sie sind meine Muse. Ihre Visionen inspirieren mich jeden Tag.",
+            "text_en": "*takes your hands* You're not just my partner - you're my muse. Your visions inspire me every day.",
+            "tone": "deeply_connected"
+          },
+          {
+            "id": "kat_greet_3_3",
+            "text_de": "*flüstert verschwörerisch* Ich habe eine Geschichte entwickelt, die... *Augen leuchten* ...die Welt verändern wird. Nur Sie können sie verstehen.",
+            "text_en": "*whispers conspiratorially* I developed a story that... *eyes gleaming* ...will change the world. Only you can understand it.",
+            "tone": "visionary"
+          },
+          {
+            "id": "kat_greet_3_4",
+            "text_de": "*tanzt leicht* Haben Sie gesehen? Unsere Narrative dominieren die Timeline! Wir sind die besten Geschichtenerzähler dieser Operation!",
+            "text_en": "*dances lightly* Did you see? Our narratives dominate the timeline! We're the best storytellers in this operation!",
+            "tone": "triumphant_joyful"
           }
         ]
       },
@@ -706,6 +850,24 @@
             "text_de": "*nickt kurz*",
             "text_en": "*nods briefly*",
             "tone": "minimal"
+          },
+          {
+            "id": "igor_greet_0_2",
+            "text_de": "*blickt kurz auf, dann zurück zum Bildschirm*",
+            "text_en": "*glances up briefly, then back at screen*",
+            "tone": "minimal"
+          },
+          {
+            "id": "igor_greet_0_3",
+            "text_de": "Beschäftigt.",
+            "text_en": "Busy.",
+            "tone": "terse"
+          },
+          {
+            "id": "igor_greet_0_4",
+            "text_de": "*tippt weiter, keine Reaktion*",
+            "text_en": "*keeps typing, no reaction*",
+            "tone": "minimal"
           }
         ],
         "level_1": [
@@ -714,6 +876,24 @@
             "text_de": "Brauchen Sie etwas Technisches?",
             "text_en": "Need something technical?",
             "tone": "direct"
+          },
+          {
+            "id": "igor_greet_1_2",
+            "text_de": "Server sind online. Was brauchen Sie?",
+            "text_en": "Servers are online. What do you need?",
+            "tone": "direct"
+          },
+          {
+            "id": "igor_greet_1_3",
+            "text_de": "*dreht sich um* Hack oder Infra?",
+            "text_en": "*turns around* Hack or infra?",
+            "tone": "direct"
+          },
+          {
+            "id": "igor_greet_1_4",
+            "text_de": "Neue Encryption läuft. Sie können anfangen.",
+            "text_en": "New encryption running. You can start.",
+            "tone": "informative"
           }
         ],
         "level_2": [
@@ -722,6 +902,24 @@
             "text_de": "Gutes Timing. Ich habe gerade ein neues Tool fertig.",
             "text_en": "Good timing. I just finished a new tool.",
             "tone": "informative"
+          },
+          {
+            "id": "igor_greet_2_2",
+            "text_de": "*zeigt auf Dashboard* Alle Systeme grün. Wir haben 99,7% Uptime.",
+            "text_en": "*points at dashboard* All systems green. We have 99.7% uptime.",
+            "tone": "proud"
+          },
+          {
+            "id": "igor_greet_2_3",
+            "text_de": "Ich habe Ihre letzte Operation analysiert. *schiebt USB-Stick rüber* Optimierungen.",
+            "text_en": "I analyzed your last operation. *slides USB stick over* Optimizations.",
+            "tone": "collaborative"
+          },
+          {
+            "id": "igor_greet_2_4",
+            "text_de": "Server-Kapazität verdoppelt. Kosten halbiert. *nickt zufrieden*",
+            "text_en": "Server capacity doubled. Costs halved. *nods with satisfaction*",
+            "tone": "proud"
           }
         ],
         "level_3": [
@@ -730,6 +928,24 @@
             "text_de": "*zeigt auf Bildschirm* Schauen Sie sich das an. Das habe ich für Sie gebaut.",
             "text_en": "*points to screen* Look at this. I built this for you.",
             "tone": "proud"
+          },
+          {
+            "id": "igor_greet_3_2",
+            "text_de": "*dreht Monitor zu Ihnen* Custom exploit. Funktioniert nur mit Ihrem Fingerprint. Niemand sonst kann es nutzen.",
+            "text_en": "*turns monitor to you* Custom exploit. Works only with your fingerprint. Nobody else can use it.",
+            "tone": "loyal"
+          },
+          {
+            "id": "igor_greet_3_3",
+            "text_de": "Ich habe alle Ihre Systeme auf meine privaten Server gespiegelt. Backup läuft alle 10 Minuten. Sie sind sicher.",
+            "text_en": "I mirrored all your systems to my private servers. Backup runs every 10 minutes. You're safe.",
+            "tone": "protective"
+          },
+          {
+            "id": "igor_greet_3_4",
+            "text_de": "*schiebt Laptop rüber* Root-Zugriff zu allem. Nur für Sie. Passwort ist... *flüstert*",
+            "text_en": "*slides laptop over* Root access to everything. Only for you. Password is... *whispers*",
+            "tone": "trusted"
           }
         ]
       },
