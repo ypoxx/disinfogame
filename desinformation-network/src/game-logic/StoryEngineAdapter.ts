@@ -1577,6 +1577,193 @@ export class StoryEngineAdapter {
   }
 
   /**
+   * Generate contextual news events from a player action
+   * PIPELINE 1: Actions → News
+   *
+   * Implements smart filtering - not every action generates news.
+   * News generated based on: Impact, Legality, Risk, Tags, Moral Weight
+   */
+  private generateActionNews(action: StoryAction, result: ActionResult): NewsEvent[] {
+    const news: NewsEvent[] = [];
+
+    // SMART FILTERING: Only significant actions generate news
+    const isSignificant =
+      action.legality !== 'legal' ||                           // Illegal/grey actions
+      (action.costs.moralWeight && action.costs.moralWeight >= 5) ||  // High moral weight
+      (action.costs.risk && action.costs.risk >= 30) ||        // High risk
+      (action.costs.attention && action.costs.attention >= 25) || // High attention
+      action.tags.includes('viral') ||                         // Viral potential
+      action.tags.includes('violent') ||                       // Violence
+      this.storyResources.risk >= 60;                          // Already hot
+
+    if (!isSignificant) {
+      // Skip news for routine, low-impact actions
+      return news;
+    }
+
+    // === PRIMARY ACTION NEWS ===
+    const primaryNews = this.createPrimaryActionNews(action, result);
+    news.push(primaryNews);
+
+    // === WORLD REACTION NEWS (for very significant actions) ===
+    const worldReaction = this.createWorldReactionNews(action, result);
+    if (worldReaction) {
+      news.push(worldReaction);
+    }
+
+    return news;
+  }
+
+  /**
+   * Create primary action news with contextual headlines
+   */
+  private createPrimaryActionNews(action: StoryAction, result: ActionResult): NewsEvent {
+    let headline_de = action.label_de;
+    let headline_en = action.label_en;
+    let description_de = action.narrative_de;
+    let description_en = action.narrative_en;
+    let severity: 'info' | 'success' | 'warning' | 'danger' = 'info';
+
+    // === TAG-BASED HEADLINES ===
+    // Generate more dramatic headlines based on action tags
+    if (action.tags.includes('bot')) {
+      headline_de = 'Koordinierte Bot-Aktivität beobachtet';
+      headline_en = 'Coordinated Bot Activity Observed';
+      description_de = 'Experten entdecken Muster automatisierter Accounts.';
+      description_en = 'Experts detect patterns of automated accounts.';
+      severity = 'warning';
+    } else if (action.tags.includes('trolling') || action.tags.includes('harassment')) {
+      headline_de = 'Welle an Belästigungen in sozialen Medien';
+      headline_en = 'Wave of Harassment on Social Media';
+      description_de = 'Koordinierte Angriffe gegen Zielpersonen dokumentiert.';
+      description_en = 'Coordinated attacks against targets documented.';
+      severity = 'warning';
+    } else if (action.tags.includes('blackmail')) {
+      headline_de = 'Politische Figur unter mysteriösem Druck';
+      headline_en = 'Political Figure Under Mysterious Pressure';
+      description_de = 'Quellen berichten von kompromittierendem Material.';
+      description_en = 'Sources report compromising material.';
+      severity = 'danger';
+    } else if (action.tags.includes('propaganda') || action.tags.includes('content')) {
+      headline_de = 'Neue Narrative verbreiten sich viral';
+      headline_en = 'New Narratives Spreading Virally';
+      description_de = 'Unbekannte Quellen pushen koordinierte Botschaften.';
+      description_en = 'Unknown sources push coordinated messages.';
+      severity = 'info';
+    } else if (action.tags.includes('hacking') || action.tags.includes('technical')) {
+      headline_de = 'Sicherheitsexperten warnen vor Cyber-Aktivität';
+      headline_en = 'Security Experts Warn of Cyber Activity';
+      description_de = 'Verdächtige digitale Operationen entdeckt.';
+      description_en = 'Suspicious digital operations detected.';
+      severity = 'warning';
+    } else if (action.tags.includes('recruiting')) {
+      headline_de = 'Insider berichten von Rekrutierungsversuchen';
+      headline_en = 'Insiders Report Recruitment Attempts';
+      description_de = 'Quellen sprechen von geheimnisvollen Angeboten.';
+      description_en = 'Sources speak of mysterious offers.';
+      severity = 'info';
+    } else if (action.tags.includes('violence') || action.tags.includes('violent')) {
+      headline_de = 'Gewaltvolle Inhalte nehmen zu';
+      headline_en = 'Violent Content on the Rise';
+      description_de = 'Extremistische Rhetorik erreicht neue Intensität.';
+      description_en = 'Extremist rhetoric reaches new intensity.';
+      severity = 'danger';
+    } else if (action.tags.includes('viral')) {
+      headline_de = 'Mysteriöse Kampagne erreicht Millionen';
+      headline_en = 'Mysterious Campaign Reaches Millions';
+      description_de = 'Unklare Quellen hinter viralem Phänomen.';
+      description_en = 'Unclear sources behind viral phenomenon.';
+      severity = 'success';
+    }
+
+    // === SEVERITY ADJUSTMENTS ===
+    // Override severity based on legality and moral weight
+    if (action.legality === 'illegal') {
+      severity = severity === 'info' ? 'warning' : severity;
+      severity = severity === 'success' ? 'warning' : severity;
+    }
+
+    if (action.costs.moralWeight && action.costs.moralWeight >= 7) {
+      severity = 'danger';
+    }
+
+    // === RISK-BASED MODIFICATIONS ===
+    if (this.storyResources.risk >= 70) {
+      headline_de = '⚠️ ' + headline_de;
+      headline_en = '⚠️ ' + headline_en;
+      severity = severity === 'info' ? 'warning' : severity;
+    }
+
+    return {
+      id: `news_action_${action.id}_${Date.now()}`,
+      phase: this.storyPhase.number,
+      headline_de,
+      headline_en,
+      description_de,
+      description_en,
+      type: 'action_result',
+      severity,
+      sourceActionId: action.id,
+      read: false,
+      pinned: false,
+    };
+  }
+
+  /**
+   * Create world reaction news for very significant actions
+   * Only triggered for high-impact operations
+   */
+  private createWorldReactionNews(action: StoryAction, result: ActionResult): NewsEvent | null {
+    // Only very significant actions get world reactions
+    const needsWorldReaction =
+      (action.costs.moralWeight && action.costs.moralWeight >= 8) ||
+      (action.costs.risk && action.costs.risk >= 40) ||
+      action.tags.includes('blackmail') ||
+      action.tags.includes('violence') ||
+      this.storyResources.risk >= 80;
+
+    if (!needsWorldReaction) {
+      return null;
+    }
+
+    let headline_de = 'Behörden äußern Bedenken';
+    let headline_en = 'Authorities Express Concerns';
+    let description_de = 'Offizielle beobachten die Entwicklung mit Sorge.';
+    let description_en = 'Officials monitor developments with concern.';
+
+    // Customize based on context
+    if (this.storyResources.risk >= 80) {
+      headline_de = 'Druck auf Ermittlungsbehörden steigt';
+      headline_en = 'Pressure on Investigators Mounts';
+      description_de = 'Öffentlichkeit fordert Aufklärung verdächtiger Aktivitäten.';
+      description_en = 'Public demands clarification of suspicious activities.';
+    } else if (action.tags.includes('blackmail')) {
+      headline_de = 'Politische Instabilität nimmt zu';
+      headline_en = 'Political Instability Increases';
+      description_de = 'Experten warnen vor Destabilisierung.';
+      description_en = 'Experts warn of destabilization.';
+    } else if (action.tags.includes('violence')) {
+      headline_de = 'Sicherheitskräfte in Alarmbereitschaft';
+      headline_en = 'Security Forces on Alert';
+      description_de = 'Behörden erhöhen Überwachung extremistischer Aktivitäten.';
+      description_en = 'Authorities increase monitoring of extremist activities.';
+    }
+
+    return {
+      id: `news_reaction_${action.id}_${Date.now()}`,
+      phase: this.storyPhase.number,
+      headline_de,
+      headline_en,
+      description_de,
+      description_en,
+      type: 'world_event',
+      severity: 'warning',
+      read: false,
+      pinned: false,
+    };
+  }
+
+  /**
    * Führe eine Aktion aus
    */
   executeAction(actionId: string, options?: {
@@ -1746,20 +1933,12 @@ export class StoryEngineAdapter {
       result,
     });
 
-    // News
-    this.newsEvents.unshift({
-      id: `news_action_${Date.now()}`,
-      phase: this.storyPhase.number,
-      headline_de: action.label_de,
-      headline_en: action.label_en,
-      description_de: action.narrative_de,
-      description_en: action.narrative_en,
-      type: 'action_result',
-      severity: action.legality === 'illegal' ? 'warning' : 'info',
-      sourceActionId: actionId,
-      read: false,
-      pinned: false,
-    });
+    // === PIPELINE 1: Actions → News ===
+    // Generate contextual news based on action significance
+    const actionNews = this.generateActionNews(action, result);
+    for (const news of actionNews) {
+      this.newsEvents.unshift(news);
+    }
 
     return result;
   }
