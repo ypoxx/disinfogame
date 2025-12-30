@@ -219,6 +219,13 @@
             "text_de": "Ausgezeichnet. Das Vaterland wird sich erinnern.",
             "text_en": "Excellent. The motherland will remember.",
             "relationship_bonus": 3
+          },
+          {
+            "id": "dir_react_success_2",
+            "triggered_by_tags": ["high_impact"],
+            "text_de": "*nickt zustimmend* Sie verstehen strategisches Denken. Gut.",
+            "text_en": "*nods approvingly* You understand strategic thinking. Good.",
+            "relationship_bonus": 2
           }
         ],
         "action_risky": [
@@ -227,6 +234,13 @@
             "triggered_by_tags": ["high_risk"],
             "text_de": "Mutig. Aber Mut ohne Erfolg ist nur Dummheit.",
             "text_en": "Bold. But boldness without success is just stupidity.",
+            "relationship_bonus": 0
+          },
+          {
+            "id": "dir_react_risky_2",
+            "triggered_by_tags": ["high_risk"],
+            "text_de": "Kalkuliertes Risiko oder Wahnsinn? Wir werden sehen.",
+            "text_en": "Calculated risk or madness? We shall see.",
             "relationship_bonus": 0
           }
         ],
@@ -237,6 +251,66 @@
             "text_de": "Wir ziehen zu viel Aufmerksamkeit auf uns. Seien Sie vorsichtiger.",
             "text_en": "We are attracting too much attention. Be more careful.",
             "relationship_bonus": -2
+          },
+          {
+            "id": "dir_react_exposure_2",
+            "condition": "risk > 70",
+            "text_de": "*schlägt auf Tisch* DISKRETION! Haben Sie dieses Wort vergessen?",
+            "text_en": "*slams desk* DISCRETION! Have you forgotten this word?",
+            "relationship_bonus": -3
+          }
+        ],
+        "first_dark_action": [
+          {
+            "id": "dir_react_first_dark_1",
+            "triggered_by_tags": ["blackmail", "harassment"],
+            "condition": "first_dark_action",
+            "text_de": "*lächelt kalt* Gut. Sie haben Ihr wahres Potential entdeckt. Willkommen in der echten Welt.",
+            "text_en": "*smiles coldly* Good. You've discovered your true potential. Welcome to the real world.",
+            "relationship_bonus": 5
+          }
+        ],
+        "consecutive_success": [
+          {
+            "id": "dir_react_consecutive_1",
+            "condition": "consecutive_successes >= 3",
+            "text_de": "Drei Erfolge in Folge. Sie lernen, wie man Macht ausübt.",
+            "text_en": "Three successes in a row. You're learning how to wield power.",
+            "relationship_bonus": 3
+          },
+          {
+            "id": "dir_react_consecutive_2",
+            "condition": "consecutive_successes >= 5",
+            "text_de": "*schenkt Wodka ein* Auf Ihren Erfolg. Sie werden weit kommen.",
+            "text_en": "*pours vodka* To your success. You will go far.",
+            "relationship_bonus": 5
+          }
+        ],
+        "level_up": [
+          {
+            "id": "dir_react_levelup_1",
+            "triggered_by_tags": ["relationship_level_up"],
+            "text_de": "Sie haben mein Vertrauen verdient. Das ist... selten.",
+            "text_en": "You have earned my trust. That is... rare.",
+            "relationship_bonus": 0
+          }
+        ],
+        "morale_low": [
+          {
+            "id": "dir_react_morale_low_1",
+            "condition": "morale < 40",
+            "text_de": "*schaut Sie an* Sie zweifeln. Das sehe ich. Schwäche wird bestraft.",
+            "text_en": "*looks at you* You doubt. I see it. Weakness will be punished.",
+            "relationship_bonus": -2
+          }
+        ],
+        "crisis_recovery": [
+          {
+            "id": "dir_react_recovery_1",
+            "condition": "crisis_resolved",
+            "text_de": "*entspannt sich leicht* Die Krise ist vorbei. Aber vergessen Sie nicht - es war Ihre Verantwortung.",
+            "text_en": "*relaxes slightly* The crisis is over. But don't forget - it was your responsibility.",
+            "relationship_bonus": 2
           }
         ]
       },
@@ -520,6 +594,15 @@
             "text_en": "*looks away* Those are... harsh methods.",
             "relationship_bonus": -2,
             "morale_change": -5
+          },
+          {
+            "id": "mar_react_dark_2",
+            "triggered_by_tags": ["harassment", "blackmail"],
+            "condition": "moral_weight >= 5",
+            "text_de": "*reibt sich die Schläfen* Ich verstehe die Notwendigkeit, aber... *seufzt*",
+            "text_en": "*rubs temples* I understand the necessity, but... *sighs*",
+            "relationship_bonus": -3,
+            "morale_change": -7
           }
         ],
         "analysis_used": [
@@ -529,6 +612,70 @@
             "text_de": "Sie nutzen meine Analysen gut. Das freut mich.",
             "text_en": "You're using my analyses well. That pleases me.",
             "relationship_bonus": 2
+          },
+          {
+            "id": "mar_react_analysis_2",
+            "triggered_by_tags": ["data", "analysis"],
+            "text_de": "*lächelt müde* Sehen Sie? Daten lügen nicht. Sie verstehen das.",
+            "text_en": "*smiles tiredly* See? Data doesn't lie. You understand that.",
+            "relationship_bonus": 3
+          }
+        ],
+        "data_success": [
+          {
+            "id": "mar_react_datasuccess_1",
+            "triggered_by_tags": ["high_impact", "analysis"],
+            "text_de": "*begeistert* Die Vorhersage war zu 94% akkurat! Das ist... wunderschön!",
+            "text_en": "*excited* The prediction was 94% accurate! That's... beautiful!",
+            "relationship_bonus": 4
+          }
+        ],
+        "first_dark_action": [
+          {
+            "id": "mar_react_first_dark_1",
+            "triggered_by_tags": ["blackmail", "harassment"],
+            "condition": "first_dark_action",
+            "text_de": "*blass* Das... das haben wir wirklich getan? Ich brauche... Kaffee. Viel Kaffee.",
+            "text_en": "*pale* We... we really did that? I need... coffee. Lots of coffee.",
+            "relationship_bonus": -5,
+            "morale_change": -10
+          }
+        ],
+        "consecutive_dark": [
+          {
+            "id": "mar_react_consec_dark_1",
+            "condition": "consecutive_dark_actions >= 3",
+            "text_de": "*vermeidet Blickkontakt* Ich... ich zähle nicht mehr mit, wie oft...",
+            "text_en": "*avoids eye contact* I... I've stopped counting how many times...",
+            "relationship_bonus": -4,
+            "morale_change": -8
+          }
+        ],
+        "level_up": [
+          {
+            "id": "mar_react_levelup_1",
+            "triggered_by_tags": ["relationship_level_up"],
+            "text_de": "*umarmt Sie* Danke. Dass Sie mir vertrauen bedeutet mir... viel.",
+            "text_en": "*hugs you* Thank you. That you trust me means... a lot.",
+            "relationship_bonus": 0
+          }
+        ],
+        "morale_recovery": [
+          {
+            "id": "mar_react_recovery_1",
+            "condition": "morale_recovered",
+            "text_de": "*atmet tief durch* Ich habe nachgedacht. Vielleicht gibt es einen Sinn darin. Danke, dass Sie geduldig waren.",
+            "text_en": "*breathes deeply* I've been thinking. Maybe there's meaning in this. Thank you for being patient.",
+            "relationship_bonus": 3
+          }
+        ],
+        "high_exposure": [
+          {
+            "id": "mar_react_exposure_1",
+            "condition": "risk > 65",
+            "text_de": "*zeigt Statistiken* Schauen Sie! Unsere Exposure-Rate ist kritisch. Die Wahrscheinlichkeit der Attribution liegt bei 78%!",
+            "text_en": "*shows statistics* Look! Our exposure rate is critical. Attribution probability is at 78%!",
+            "relationship_bonus": -2
           }
         ]
       },
@@ -837,6 +984,13 @@
             "text_de": "*reibt sich die Hände* Das wird lustig. Ich liebe es, wenn sie sich wehren.",
             "text_en": "*rubs hands* This will be fun. I love it when they fight back.",
             "relationship_bonus": 3
+          },
+          {
+            "id": "vol_react_harass_2",
+            "triggered_by_tags": ["harassment", "trolling"],
+            "text_de": "*lacht laut* JA! Schauen Sie, wie sie ausrasten! *zeigt Bildschirm*",
+            "text_en": "*laughs loudly* YES! Look how they're freaking out! *shows screen*",
+            "relationship_bonus": 4
           }
         ],
         "gentle_approach": [
@@ -846,6 +1000,75 @@
             "text_de": "*gähnt* Langweilig. Sagen Sie Bescheid, wenn wir richtig loslegen.",
             "text_en": "*yawns* Boring. Let me know when we really get started.",
             "relationship_bonus": -1
+          },
+          {
+            "id": "vol_react_gentle_2",
+            "triggered_by_tags": ["legal", "soft"],
+            "text_de": "*rollt mit den Augen* Wieder Kindergarten-Spielchen? Verschwendung meiner Zeit.",
+            "text_en": "*rolls eyes* Kindergarten games again? Waste of my time.",
+            "relationship_bonus": -2
+          }
+        ],
+        "chaos_success": [
+          {
+            "id": "vol_react_chaos_1",
+            "triggered_by_tags": ["high_impact", "trolling"],
+            "text_de": "*springt auf* HABEN SIE DAS GESEHEN?! Die MEDIEN berichten über UNS! Wir sind Trending!",
+            "text_en": "*jumps up* DID YOU SEE THAT?! The MEDIA is reporting on US! We're trending!",
+            "relationship_bonus": 5
+          }
+        ],
+        "viral_moment": [
+          {
+            "id": "vol_react_viral_1",
+            "triggered_by_tags": ["viral"],
+            "text_de": "*tanzt* 10 Millionen Views! DAS ist echte Macht!",
+            "text_en": "*dances* 10 million views! THAT'S real power!",
+            "relationship_bonus": 4
+          }
+        ],
+        "first_dark_action": [
+          {
+            "id": "vol_react_first_dark_1",
+            "triggered_by_tags": ["blackmail", "harassment"],
+            "condition": "first_dark_action",
+            "text_de": "*grinst breit* ENDLICH! Ich wusste, Sie haben es in sich! Willkommen auf der dunklen Seite!",
+            "text_en": "*grins widely* FINALLY! I knew you had it in you! Welcome to the dark side!",
+            "relationship_bonus": 7
+          }
+        ],
+        "consecutive_dark": [
+          {
+            "id": "vol_react_consec_dark_1",
+            "condition": "consecutive_dark_actions >= 3",
+            "text_de": "*klatscht* Drei dunkle Ops in Folge! Sie werden zu meinem Lieblings-Partner!",
+            "text_en": "*claps* Three dark ops in a row! You're becoming my favorite partner!",
+            "relationship_bonus": 5
+          },
+          {
+            "id": "vol_react_consec_dark_2",
+            "condition": "consecutive_dark_actions >= 5",
+            "text_de": "*umarmt Sie grob* Sie sind nicht mehr aufzuhalten! Pure Chaos-Energie!",
+            "text_en": "*rough hug* You can't be stopped anymore! Pure chaos energy!",
+            "relationship_bonus": 8
+          }
+        ],
+        "level_up": [
+          {
+            "id": "vol_react_levelup_1",
+            "triggered_by_tags": ["relationship_level_up"],
+            "text_de": "*schlägt auf Schulter* Partner! Echte Partner! Lass uns die Welt anzünden!",
+            "text_en": "*slaps shoulder* Partner! Real partner! Let's set the world on fire!",
+            "relationship_bonus": 0
+          }
+        ],
+        "gentle_streak": [
+          {
+            "id": "vol_react_gentlestreak_1",
+            "condition": "consecutive_soft_actions >= 3",
+            "text_de": "*frustriert* Was ist los mit Ihnen? Drei langweilige Aktionen! Haben Sie Ihr Feuer verloren?",
+            "text_en": "*frustrated* What's wrong with you? Three boring actions! Did you lose your fire?",
+            "relationship_bonus": -3
           }
         ]
       },
@@ -1114,6 +1337,13 @@
             "text_de": "*begeistert* Sehen Sie sich diese Zahlen an! Das ist Kunst!",
             "text_en": "*excited* Look at these numbers! This is art!",
             "relationship_bonus": 3
+          },
+          {
+            "id": "kat_react_viral_2",
+            "triggered_by_tags": ["viral", "content"],
+            "text_de": "*springt auf und ab* Es funktioniert! Die Menschen FÜHLEN es! Das ist ECHTE Kreativität!",
+            "text_en": "*jumps up and down* It's working! People FEEL it! This is REAL creativity!",
+            "relationship_bonus": 4
           }
         ],
         "narrative_work": [
@@ -1123,6 +1353,69 @@
             "text_de": "Diese Geschichte hat Potenzial. Lassen Sie mich daran arbeiten.",
             "text_en": "This story has potential. Let me work on it.",
             "relationship_bonus": 1
+          },
+          {
+            "id": "kat_react_narrative_2",
+            "triggered_by_tags": ["narrative", "storytelling"],
+            "text_de": "*Augen leuchten* Oh! Ich sehe den perfekten Arc! Geben Sie mir 2 Stunden!",
+            "text_en": "*eyes light up* Oh! I see the perfect arc! Give me 2 hours!",
+            "relationship_bonus": 2
+          }
+        ],
+        "emotional_impact": [
+          {
+            "id": "kat_react_emotional_1",
+            "triggered_by_tags": ["high_impact", "emotional"],
+            "text_de": "*weint* Sie haben es verstanden. Die emotionale Resonanz ist... perfekt.",
+            "text_en": "*cries* You understood it. The emotional resonance is... perfect.",
+            "relationship_bonus": 5
+          }
+        ],
+        "viral_success": [
+          {
+            "id": "kat_react_viralsuccess_1",
+            "triggered_by_tags": ["viral"],
+            "text_de": "*umarmt Sie* 5 Millionen Shares! Die Geschichte lebt! Sie LEBT!",
+            "text_en": "*hugs you* 5 million shares! The story lives! It LIVES!",
+            "relationship_bonus": 6
+          }
+        ],
+        "first_dark_action": [
+          {
+            "id": "kat_react_first_dark_1",
+            "triggered_by_tags": ["blackmail", "harassment"],
+            "condition": "first_dark_action",
+            "text_de": "*starrt* Das... das ist keine Geschichte mehr. Das sind echte Menschen. Ich... *schluckt*",
+            "text_en": "*stares* This... this isn't a story anymore. These are real people. I... *swallows*",
+            "relationship_bonus": -4,
+            "morale_change": -8
+          }
+        ],
+        "creative_block": [
+          {
+            "id": "kat_react_block_1",
+            "condition": "no_content_actions_3_phases",
+            "text_de": "*frustriert* Wo ist die Kreativität? Die Geschichten? Ich brauche... Inspiration!",
+            "text_en": "*frustrated* Where is the creativity? The stories? I need... inspiration!",
+            "relationship_bonus": -2
+          }
+        ],
+        "level_up": [
+          {
+            "id": "kat_react_levelup_1",
+            "triggered_by_tags": ["relationship_level_up"],
+            "text_de": "*umarmt lange* Sie verstehen meine Kunst. Sie sind mehr als ein Partner - Sie sind meine Muse!",
+            "text_en": "*long hug* You understand my art. You're more than a partner - you're my muse!",
+            "relationship_bonus": 0
+          }
+        ],
+        "narrative_breakthrough": [
+          {
+            "id": "kat_react_breakthrough_1",
+            "triggered_by_tags": ["high_impact", "storytelling"],
+            "text_de": "*lacht und weint* Das ist es! DAS ist die perfekte Geschichte! Ich liebe Sie! *platonisch*",
+            "text_en": "*laughs and cries* This is it! THIS is the perfect story! I love you! *platonically*",
+            "relationship_bonus": 7
           }
         ]
       },
@@ -1392,6 +1685,13 @@
             "text_de": "*nickt anerkennend* Saubere Ausführung.",
             "text_en": "*nods approvingly* Clean execution.",
             "relationship_bonus": 2
+          },
+          {
+            "id": "igor_react_tech_2",
+            "triggered_by_tags": ["technical", "hacking"],
+            "text_de": "*zeigt Daumen hoch* Effizient.",
+            "text_en": "*thumbs up* Efficient.",
+            "relationship_bonus": 3
           }
         ],
         "low_tech": [
@@ -1401,6 +1701,68 @@
             "text_de": "*zuckt mit den Schultern* Altmodisch, aber okay.",
             "text_en": "*shrugs* Old-fashioned, but okay.",
             "relationship_bonus": 0
+          },
+          {
+            "id": "igor_react_lowtech_2",
+            "triggered_by_tags": ["offline"],
+            "text_de": "*runzelt Stirn* Suboptimal. Aber funktional.",
+            "text_en": "*frowns* Suboptimal. But functional.",
+            "relationship_bonus": -1
+          }
+        ],
+        "hack_success": [
+          {
+            "id": "igor_react_hacksuccess_1",
+            "triggered_by_tags": ["high_impact", "hacking"],
+            "text_de": "*tippt schnell* Zero-Day-Exploit erfolgreich. Schöne Arbeit.",
+            "text_en": "*types quickly* Zero-day exploit successful. Nice work.",
+            "relationship_bonus": 4
+          }
+        ],
+        "infrastructure_solid": [
+          {
+            "id": "igor_react_infra_1",
+            "condition": "system_uptime > 95",
+            "text_de": "*zeigt Dashboard* 99.8% Uptime. Alle Systeme optimal.",
+            "text_en": "*shows dashboard* 99.8% uptime. All systems optimal.",
+            "relationship_bonus": 2
+          }
+        ],
+        "first_dark_action": [
+          {
+            "id": "igor_react_first_dark_1",
+            "triggered_by_tags": ["blackmail", "harassment"],
+            "condition": "first_dark_action",
+            "text_de": "*nickt* Verstanden. Erhöhe Verschlüsselung. Lösche Logs.",
+            "text_en": "*nods* Understood. Increasing encryption. Deleting logs.",
+            "relationship_bonus": 3
+          }
+        ],
+        "technical_failure": [
+          {
+            "id": "igor_react_failure_1",
+            "triggered_by_tags": ["technical_failure"],
+            "text_de": "*tippt aggressiv* Das sollte nicht passieren. Ich fixe es.",
+            "text_en": "*types aggressively* That shouldn't happen. I'll fix it.",
+            "relationship_bonus": -2
+          }
+        ],
+        "level_up": [
+          {
+            "id": "igor_react_levelup_1",
+            "triggered_by_tags": ["relationship_level_up"],
+            "text_de": "*reicht USB-Stick* Zugriff zu allem. Nur Sie.",
+            "text_en": "*hands over USB stick* Access to everything. Only you.",
+            "relationship_bonus": 0
+          }
+        ],
+        "security_breach": [
+          {
+            "id": "igor_react_breach_1",
+            "condition": "security_risk > 70",
+            "text_de": "*ernst* Sicherheit kompromittiert. Gebe mir 2 Stunden. Offline gehen.",
+            "text_en": "*serious* Security compromised. Give me 2 hours. Going offline.",
+            "relationship_bonus": -3
           }
         ]
       },
