@@ -595,6 +595,55 @@ interface ReactionTrigger {
 
 ---
 
+## CURRENT STATUS
+
+### ✅ COMPLETED PIPELINES
+
+**Pipeline 1: Actions → News** ✓ DONE (Commit 822b209)
+- Smart filtering: Only 40-60% of actions generate news
+- 10 tag-based contextual templates
+- Dynamic severity based on legality, moral weight, risk
+- World reactions for very significant actions
+- Risk-based modifiers (⚠️ prefix at risk ≥70)
+
+**Pipeline 2: Events → NPC Reactions** ✓ DONE (Commit 4f5fa84)
+- NPCs react to world events based on expertise
+- Context-aware dialogues (relationship/mood/morale)
+- 40+ unique dialogue paths across 5 NPCs
+- **BONUS:** Pipeline 1 Synergy - NPCs react to player action-news!
+- Smart NPC selection by event type + severity
+- 100+ possible reaction variations
+
+### 🎯 ACTIVE IMPACT
+
+**Narrative Feedback Loops Working:**
+```
+Player Action
+  → Pipeline 1: Generates contextual news
+    → Pipeline 2: NPCs react to news
+      → Player sees team opinions
+        → Influences next decision
+```
+
+**Example Cascade:**
+```
+Bot Campaign (illegal, moral_weight: 5)
+  → News: "Koordinierte Bot-Aktivität beobachtet" (warning)
+    → Igor: "*runzelt Stirn* Signatur zu offensichtlich"
+    → Marina: "*seufzt* Ich verstehe die Notwendigkeit..."
+    → Volkov: "*grinst* Ah, Sie zeigen Zähne. Gut."
+```
+
+### 🔜 NEXT PIPELINE
+
+**Pipeline 3: Consequences → NPC Morale** (NEXT)
+- Severe consequences affect team morale
+- Investigation → All NPCs -5 morale (except Volkov +5)
+- Team member arrested → -15 morale + crisis trigger
+- NPC-specific modifiers (Igor -10 if tech consequences)
+
+---
+
 **Last Updated:** 2025-12-30
-**Status:** Phase 1 - Pipeline 1 in progress
-**Next Steps:** Implement `generateActionNews()` function
+**Status:** Phase 1 - Pipelines 1 & 2 ✅ COMPLETE, Pipeline 3 next
+**Commits:** 822b209 (Pipeline 1), 4f5fa84 (Pipeline 2)
