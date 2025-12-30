@@ -1625,6 +1625,9 @@ export class StoryEngineAdapter {
     // P2-8: NPC Relationship Progress - improve relationship with NPCs matching action affinity
     this.updateNPCRelationships(action, options?.npcAssist);
 
+    // NPC Morale Update - dark actions affect team morale
+    this.updateNPCMorale(action);
+
     // === EXTENDED ACTORS INTEGRATION ===
     // Calculate effectiveness modifiers based on actor vulnerabilities
     const actorModifiers = this.extendedActorLoader.calculateEffectivenessModifiers(
@@ -1770,24 +1773,63 @@ export class StoryEngineAdapter {
   private canAffordAction(action: StoryAction): boolean {
     const costs = action.costs;
 
-    if (costs.budget && this.storyResources.budget < costs.budget) return false;
+    // Calculate discounted budget cost based on NPC affinity
+    if (costs.budget) {
+      const discountPercent = this.calculateNPCDiscount(action);
+      const actualCost = Math.ceil(costs.budget * (1 - discountPercent / 100));
+      if (this.storyResources.budget < actualCost) return false;
+    }
+
     if (costs.capacity && this.storyResources.capacity < costs.capacity) return false;
     if (this.storyResources.actionPointsRemaining <= 0) return false;
 
     return true;
   }
 
+  /**
+   * Calculate NPC-based discount for an action
+   * Returns discount percentage (0-50)
+   */
+  private calculateNPCDiscount(action: StoryAction): number {
+    let totalDiscount = 0;
+
+    // Check all NPCs with affinity to this action
+    for (const npcId of action.npcAffinity) {
+      const npc = this.npcStates.get(npcId);
+      if (!npc) continue;
+
+      // Base discount based on relationship level (0%, 10%, 20%, 30%)
+      const levelDiscount = npc.relationshipLevel * 10;
+
+      // Morale modifier (0.0 to 1.0)
+      // Low morale reduces the effectiveness of the discount
+      const moraleModifier = npc.morale / 100;
+
+      // Effective discount for this NPC
+      const effectiveDiscount = levelDiscount * moraleModifier;
+
+      totalDiscount += effectiveDiscount;
+
+      console.log(`💰 NPC ${npc.name}: ${levelDiscount}% discount × ${moraleModifier.toFixed(2)} morale = ${effectiveDiscount.toFixed(1)}%`);
+    }
+
+    // Cap total discount at 50%
+    return Math.min(50, totalDiscount);
+  }
+
   private deductActionCosts(action: StoryAction, npcAssist?: string): void {
     const costs = action.costs;
-    let costMultiplier = 1.0;
 
-    // NPC-Bonus
-    if (npcAssist && action.npcAffinity.includes(npcAssist)) {
-      const npc = this.npcStates.get(npcAssist);
-      if (npc) {
-        const levelBonus = [1.0, 0.9, 0.8, 0.7][npc.relationshipLevel];
-        costMultiplier = levelBonus;
-      }
+    // Calculate NPC discount (applies to budget costs)
+    const discountPercent = this.calculateNPCDiscount(action);
+    const costMultiplier = 1 - (discountPercent / 100);
+
+    // Log discount if significant
+    if (discountPercent > 0 && costs.budget) {
+      const originalCost = costs.budget;
+      const discountedCost = Math.ceil(originalCost * costMultiplier);
+      const saved = originalCost - discountedCost;
+      console.log(`💸 Cost Reduction: ${originalCost} → ${discountedCost} (saved ${saved}, -${discountPercent.toFixed(1)}%)`);
     }
 
     if (costs.budget) {
@@ -2095,11 +2137,11 @@ export class StoryEngineAdapter {
       if (!npc) continue;
 
       // Base progress for actions in their specialty
-      let progressGain = 5;
+      let progressGain = 10;  // Increased from 5 to 10 for better progression
 
       // Bonus if this NPC was specifically assisting
       if (npcAssist === npcId) {
-        progressGain = 15;
+        progressGain = 20;  // Increased from 15 to 20
       }
 
       // Apply progress
@@ -2110,16 +2152,139 @@ export class StoryEngineAdapter {
         npc.relationshipLevel++;
         npc.relationshipProgress -= 100;
         console.log(`🤝 NPC ${npc.name} relationship upgraded to level ${npc.relationshipLevel}`);
+
+        // Play level-up sound
+        playSound('success');
+
+        // Update mood to positive on level-up
+        npc.currentMood = 'positive';
       }
 
-      // Successful actions also improve morale slightly
-      npc.morale = Math.min(100, npc.morale + 2);
+      // Successful actions also improve morale slightly (only if not a dark action)
+      if (!action.costs.moralWeight || action.costs.moralWeight < 3) {
+        npc.morale = Math.min(100, npc.morale + 2);
+      }
 
       // If was in crisis and morale recovered, clear crisis
       if (npc.inCrisis && npc.morale >= 50) {
         npc.inCrisis = false;
         console.log(`✅ NPC ${npc.name} recovered from crisis`);
+
+        // Add recovery news event
+        this.newsEvents.unshift({
+          id: `news_npc_recovery_${npc.id}_${Date.now()}`,
+          phase: this.storyPhase.number,
+          headline_de: `${npc.name} hat sich von der Krise erholt`,
+          headline_en: `${npc.name} has recovered from crisis`,
+          description_de: `${npc.name} scheint wieder stabiler zu sein.`,
+          description_en: `${npc.name} seems more stable again.`,
+          type: 'npc_event',
+          severity: 'success',
+          read: false,
+          pinned: false,
+        });
       }
+    }
+  }
+
+  /**
+   * Update NPC morale based on action moral weight
+   * Dark actions (high moral_weight) decrease team morale
+   */
+  private updateNPCMorale(action: StoryAction): void {
+    const moralWeight = action.costs.moralWeight || 0;
+
+    // No morale impact for light actions
+    if (moralWeight < 3) return;
+
+    // Calculate morale loss based on moral weight thresholds
+    let baseMoraleLoss = 0;
+
+    if (moralWeight >= 10) {
+      // Extreme actions: deepfakes, harassment, blackmail
+      baseMoraleLoss = 15;
+    } else if (moralWeight >= 7) {
+      // Severe actions: targeted attacks, doxxing
+      baseMoraleLoss = 10;
+    } else if (moralWeight >= 5) {
+      // Moderate dark actions: aggressive propaganda
+      baseMoraleLoss = 5;
+    } else if (moralWeight >= 3) {
+      // Mild dark actions: misleading content
+      baseMoraleLoss = 3;
+    }
+
+    // Apply morale loss to all NPCs
+    for (const [npcId, npc] of this.npcStates) {
+      // NPC-specific modifiers
+      let moraleLoss = baseMoraleLoss;
+
+      // Marina is more sensitive to moral issues (2x impact)
+      if (npcId === 'marina') {
+        moraleLoss *= 2;
+      }
+
+      // Volkov (alexei) actually enjoys dark actions (reversed effect)
+      if (npcId === 'volkov' || npcId === 'alexei') {
+        // Dark actions boost Volkov's morale slightly
+        npc.morale = Math.min(100, npc.morale + baseMoraleLoss / 3);
+        continue;
+      }
+
+      // Direktor is less affected (0.5x impact)
+      if (npcId === 'direktor') {
+        moraleLoss *= 0.5;
+      }
+
+      // Apply morale loss
+      const previousMorale = npc.morale;
+      npc.morale = Math.max(0, npc.morale - moraleLoss);
+
+      // Update mood based on morale level
+      this.updateNPCMood(npc);
+
+      // Check for crisis trigger (morale drops below 30)
+      if (previousMorale >= 30 && npc.morale < 30 && !npc.inCrisis) {
+        npc.inCrisis = true;
+        console.log(`⚠️ NPC ${npc.name} entered crisis (morale: ${npc.morale})`);
+
+        // Add crisis news event
+        this.newsEvents.unshift({
+          id: `news_npc_crisis_${npc.id}_${Date.now()}`,
+          phase: this.storyPhase.number,
+          headline_de: `${npc.name} in Krise!`,
+          headline_en: `${npc.name} in Crisis!`,
+          description_de: `${npc.name} scheint mit der Situation zu kämpfen. Ein Gespräch ist dringend nötig.`,
+          description_en: `${npc.name} seems to be struggling. An urgent conversation is needed.`,
+          type: 'npc_event',
+          severity: 'danger',
+          read: false,
+          pinned: true,
+        });
+
+        // Play crisis sound
+        playSound('crisis');
+      }
+
+      // Log morale change for significant drops
+      if (moraleLoss >= 10) {
+        console.log(`📉 NPC ${npc.name} morale: ${previousMorale} → ${npc.morale} (-${moraleLoss})`);
+      }
+    }
+  }
+
+  /**
+   * Update NPC mood based on current morale level
+   */
+  private updateNPCMood(npc: NPCState): void {
+    if (npc.morale >= 70) {
+      npc.currentMood = 'positive';
+    } else if (npc.morale >= 50) {
+      npc.currentMood = 'neutral';
+    } else if (npc.morale >= 30) {
+      npc.currentMood = 'concerned';
+    } else {
+      npc.currentMood = 'upset';
     }
   }
 

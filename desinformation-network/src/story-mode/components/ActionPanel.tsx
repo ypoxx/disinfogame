@@ -220,22 +220,49 @@ function ActionCard({ action, canAfford, onSelect }: ActionCardProps) {
       {/* NPC Affinity */}
       {action.npc_affinity.length > 0 && (
         <div
-          className="mt-2 pt-2 border-t text-xs flex items-center gap-1"
+          className="mt-2 pt-2 border-t text-xs"
           style={{ borderColor: StoryModeColors.borderLight }}
         >
-          <span style={{ color: StoryModeColors.textMuted }}>Suggested by:</span>
-          {action.npc_affinity.map(npc => (
-            <span
-              key={npc}
-              className="px-1.5 py-0.5 capitalize"
-              style={{
-                backgroundColor: StoryModeColors.agencyBlue,
-                color: StoryModeColors.textPrimary,
-              }}
-            >
-              {npc}
-            </span>
-          ))}
+          <div
+            className="font-bold mb-1"
+            style={{ color: StoryModeColors.textSecondary }}
+          >
+            👥 NPC-Vorteile:
+          </div>
+          <div className="space-y-1">
+            {action.npc_affinity.map(npcId => (
+              <div
+                key={npcId}
+                className="flex items-center justify-between gap-2 px-2 py-1"
+                style={{
+                  backgroundColor: StoryModeColors.background,
+                  border: `1px solid ${StoryModeColors.borderLight}`,
+                }}
+              >
+                <span
+                  className="capitalize font-bold"
+                  style={{ color: StoryModeColors.agencyBlue }}
+                >
+                  {npcId}
+                </span>
+                <div className="flex gap-2 text-xs">
+                  <span style={{ color: StoryModeColors.success }}>
+                    +10 Beziehung
+                  </span>
+                  {/* Note: Actual discount calculation would need NPC state here */}
+                  <span style={{ color: StoryModeColors.warning }}>
+                    Kosten-Rabatt
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div
+            className="text-xs mt-1 italic"
+            style={{ color: StoryModeColors.textMuted }}
+          >
+            Hohere Beziehung = großerer Rabatt (max. 30%)
+          </div>
         </div>
       )}
 
