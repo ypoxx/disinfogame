@@ -276,6 +276,114 @@
           "text_de": "*telefoniert auf Russisch*",
           "text_en": "*talks on the phone in Russian*",
           "probability": 0.2
+        },
+        {
+          "id": "dir_ambient_3",
+          "text_de": "*unterschreibt Dokumente mit hartem Strich*",
+          "text_en": "*signs documents with hard strokes*",
+          "probability": 0.3
+        },
+        {
+          "id": "dir_ambient_4",
+          "text_de": "*studiert taktische Karte an der Wand*",
+          "text_en": "*studies tactical map on the wall*",
+          "probability": 0.25
+        },
+        {
+          "id": "dir_ambient_5",
+          "text_de": "*brüllt jemanden am Telefon an* Ich sagte HEUTE, nicht morgen!",
+          "text_en": "*yells at someone on phone* I said TODAY, not tomorrow!",
+          "probability": 0.2
+        },
+        {
+          "id": "dir_ambient_6",
+          "text_de": "*trinkt Wodka aus einem Kristallglas*",
+          "text_en": "*drinks vodka from a crystal glass*",
+          "probability": 0.15
+        },
+        {
+          "id": "dir_ambient_7",
+          "text_de": "*beobachtet Nachrichtensender auf mehreren Bildschirmen*",
+          "text_en": "*watches news channels on multiple screens*",
+          "probability": 0.3
+        },
+        {
+          "id": "dir_ambient_8",
+          "text_de": "*notiert etwas in ein ledernes Notizbuch*",
+          "text_en": "*writes something in a leather notebook*",
+          "probability": 0.25
+        },
+        {
+          "id": "dir_ambient_9",
+          "text_de": "*lehnt sich zurück, Finger gefaltet* Alles läuft nach Plan...",
+          "text_en": "*leans back, fingers folded* Everything is going according to plan...",
+          "probability": 0.2
+        },
+        {
+          "id": "dir_ambient_10",
+          "text_de": "*liest Geheimdienstbericht mit konzentrierter Miene*",
+          "text_en": "*reads intelligence report with focused expression*",
+          "probability": 0.3
+        },
+        {
+          "id": "dir_ambient_11",
+          "text_de": "*diktiert Brief an Sekretärin über Intercom*",
+          "text_en": "*dictates letter to secretary via intercom*",
+          "probability": 0.2
+        },
+        {
+          "id": "dir_ambient_12",
+          "text_de": "*zündet sich eine Zigarre an*",
+          "text_en": "*lights a cigar*",
+          "probability": 0.15
+        },
+        {
+          "id": "dir_ambient_13",
+          "text_de": "*prüft verschlüsselte Nachrichten auf speziellem Tablet*",
+          "text_en": "*checks encrypted messages on special tablet*",
+          "probability": 0.25
+        },
+        {
+          "id": "dir_ambient_14",
+          "text_de": "*sortiert Akten in 'Dringend' und 'Entsorgen' Stapel*",
+          "text_en": "*sorts files into 'Urgent' and 'Dispose' piles*",
+          "probability": 0.2
+        },
+        {
+          "id": "dir_ambient_15",
+          "text_de": "*murmelt* Die Amerikaner werden das nie kommen sehen...",
+          "text_en": "*mutters* The Americans will never see this coming...",
+          "probability": 0.15
+        },
+        {
+          "id": "dir_ambient_16",
+          "text_de": "*justiert Portrait an der Wand - Stalin blickt herab*",
+          "text_en": "*adjusts portrait on wall - Stalin gazes down*",
+          "probability": 0.1
+        },
+        {
+          "id": "dir_ambient_17",
+          "text_de": "*öffnet Safe, entnimmt Dokument mit Wappen*",
+          "text_en": "*opens safe, removes document with coat of arms*",
+          "probability": 0.15
+        },
+        {
+          "id": "dir_ambient_18",
+          "text_de": "*beobachtet Sie aus dem Augenwinkel*",
+          "text_en": "*observes you from the corner of his eye*",
+          "probability": 0.25
+        },
+        {
+          "id": "dir_ambient_19",
+          "text_de": "*streicht Namen von einer Liste* Wieder einer weniger...",
+          "text_en": "*crosses name off a list* One less again...",
+          "probability": 0.1
+        },
+        {
+          "id": "dir_ambient_20",
+          "text_de": "*spricht leise ins Mobiltelefon - alte Militär-Codes*",
+          "text_en": "*speaks quietly into mobile phone - old military codes*",
+          "probability": 0.15
         }
       ]
     },
@@ -496,6 +604,116 @@
           "text_en": "*drinks coffee, looks tired*",
           "probability": 0.3,
           "condition": "morale < 50"
+        },
+        {
+          "id": "mar_ambient_3",
+          "text_de": "*trackt Sentiment-Änderungen in Echtzeit-Dashboard*",
+          "text_en": "*tracks sentiment changes in real-time dashboard*",
+          "probability": 0.35
+        },
+        {
+          "id": "mar_ambient_4",
+          "text_de": "*markiert Anomalien in Statistiken mit gelbem Marker*",
+          "text_en": "*marks anomalies in statistics with yellow highlighter*",
+          "probability": 0.3
+        },
+        {
+          "id": "mar_ambient_5",
+          "text_de": "*seufzt* Diese Korrelationen ergeben einfach keinen Sinn...",
+          "text_en": "*sighs* These correlations just don't make sense...",
+          "probability": 0.25
+        },
+        {
+          "id": "mar_ambient_6",
+          "text_de": "*gießt sich bereits den vierten Kaffee*",
+          "text_en": "*pours herself the fourth coffee already*",
+          "probability": 0.3
+        },
+        {
+          "id": "mar_ambient_7",
+          "text_de": "*vergleicht Zeitreihen-Analysen zwischen zwei Monitoren*",
+          "text_en": "*compares time series analyses between two monitors*",
+          "probability": 0.35
+        },
+        {
+          "id": "mar_ambient_8",
+          "text_de": "*telefoniert leise mit Quelle* Ja, ich garantiere Anonymität...",
+          "text_en": "*talks quietly on phone with source* Yes, I guarantee anonymity...",
+          "probability": 0.2
+        },
+        {
+          "id": "mar_ambient_9",
+          "text_de": "*erstellt komplexe Regression-Modelle in R*",
+          "text_en": "*creates complex regression models in R*",
+          "probability": 0.25
+        },
+        {
+          "id": "mar_ambient_10",
+          "text_de": "*reibt sich müde die Augen, dann zurück zu den Zahlen*",
+          "text_en": "*rubs eyes tiredly, then back to the numbers*",
+          "probability": 0.3
+        },
+        {
+          "id": "mar_ambient_11",
+          "text_de": "*lächelt* Aha! Hier ist das Muster!",
+          "text_en": "*smiles* Aha! There's the pattern!",
+          "probability": 0.2
+        },
+        {
+          "id": "mar_ambient_12",
+          "text_de": "*exportiert Daten in verschlüsselte Datei*",
+          "text_en": "*exports data to encrypted file*",
+          "probability": 0.25
+        },
+        {
+          "id": "mar_ambient_13",
+          "text_de": "*kritzelt Formeln auf Whiteboard*",
+          "text_en": "*scribbles formulas on whiteboard*",
+          "probability": 0.3
+        },
+        {
+          "id": "mar_ambient_14",
+          "text_de": "*schaut besorgt* Die Public Opinion dreht sich schneller als erwartet...",
+          "text_en": "*looks worried* Public opinion is shifting faster than expected...",
+          "probability": 0.2,
+          "condition": "morale < 40"
+        },
+        {
+          "id": "mar_ambient_15",
+          "text_de": "*organisiert Post-Its nach Dringlichkeit*",
+          "text_en": "*organizes Post-Its by urgency*",
+          "probability": 0.25
+        },
+        {
+          "id": "mar_ambient_16",
+          "text_de": "*führt A/B-Test-Ergebnisse zusammen*",
+          "text_en": "*merges A/B test results*",
+          "probability": 0.3
+        },
+        {
+          "id": "mar_ambient_17",
+          "text_de": "*blättert durch dicken Stapel Ausdrucke*",
+          "text_en": "*flips through thick stack of printouts*",
+          "probability": 0.25
+        },
+        {
+          "id": "mar_ambient_18",
+          "text_de": "*checked Fact-Checking-Tools auf drei Browsern*",
+          "text_en": "*checks fact-checking tools on three browsers*",
+          "probability": 0.3
+        },
+        {
+          "id": "mar_ambient_19",
+          "text_de": "*murmelt Zahlen im Schlaf - hat am Schreibtisch gedöst*",
+          "text_en": "*mumbles numbers in sleep - dozed off at desk*",
+          "probability": 0.15,
+          "condition": "morale < 35"
+        },
+        {
+          "id": "mar_ambient_20",
+          "text_de": "*aktualisiert Psychographic Profiles in Datenbank*",
+          "text_en": "*updates psychographic profiles in database*",
+          "probability": 0.3
         }
       ]
     },
@@ -665,6 +883,114 @@
           "text_de": "*koordiniert Troll-Operationen über mehrere Chats*",
           "text_en": "*coordinates troll operations via multiple chats*",
           "probability": 0.3
+        },
+        {
+          "id": "vol_ambient_3",
+          "text_de": "*tippt wie besessen* Lass uns sehen, wie sie DAS verteidigen... *grinst*",
+          "text_en": "*types frantically* Let's see how they defend THIS... *grins*",
+          "probability": 0.35
+        },
+        {
+          "id": "vol_ambient_4",
+          "text_de": "*scrollt durch wütende Kommentare* Perfekt. Genau wie geplant.",
+          "text_en": "*scrolls through angry comments* Perfect. Exactly as planned.",
+          "probability": 0.3
+        },
+        {
+          "id": "vol_ambient_5",
+          "text_de": "*trinkt Energy-Drink* 72 Stunden wach. Neuer Rekord!",
+          "text_en": "*drinks energy drink* 72 hours awake. New record!",
+          "probability": 0.25
+        },
+        {
+          "id": "vol_ambient_6",
+          "text_de": "*brüllt lachend* NEIN! Die haben es wirklich geglaubt! *schlägt auf Tisch*",
+          "text_en": "*roars with laughter* NO WAY! They actually believed it! *slams desk*",
+          "probability": 0.2
+        },
+        {
+          "id": "vol_ambient_7",
+          "text_de": "*erstellt Fake-Accounts im Sekundentakt*",
+          "text_en": "*creates fake accounts by the second*",
+          "probability": 0.35
+        },
+        {
+          "id": "vol_ambient_8",
+          "text_de": "*orchestriert koordinierten Hashtag-Sturm*",
+          "text_en": "*orchestrates coordinated hashtag storm*",
+          "probability": 0.3
+        },
+        {
+          "id": "vol_ambient_9",
+          "text_de": "*zeigt anderen Troll* Schau! Die streiten sich jetzt untereinander!",
+          "text_en": "*shows another troll* Look! They're arguing among themselves now!",
+          "probability": 0.25
+        },
+        {
+          "id": "vol_ambient_10",
+          "text_de": "*analysiert Trending Topics* Zeit, das zu kapern...",
+          "text_en": "*analyzes trending topics* Time to hijack that...",
+          "probability": 0.3
+        },
+        {
+          "id": "vol_ambient_11",
+          "text_de": "*postet absurde Meme-Kombination* Das wird sie komplett verwirren.",
+          "text_en": "*posts absurd meme combination* This will confuse them completely.",
+          "probability": 0.35
+        },
+        {
+          "id": "vol_ambient_12",
+          "text_de": "*grinst zynisch beim Lesen von 'empörten' Reaktionen*",
+          "text_en": "*grins cynically while reading 'outraged' reactions*",
+          "probability": 0.3
+        },
+        {
+          "id": "vol_ambient_13",
+          "text_de": "*jongliert zwischen 15 offenen Discord-Servern*",
+          "text_en": "*juggles between 15 open Discord servers*",
+          "probability": 0.25
+        },
+        {
+          "id": "vol_ambient_14",
+          "text_de": "*testet neue Desinformation-Formate* Mal sehen, was funktioniert...",
+          "text_en": "*tests new disinformation formats* Let's see what works...",
+          "probability": 0.3
+        },
+        {
+          "id": "vol_ambient_15",
+          "text_de": "*schreibt bewusst schlechte Rechtschreibung* Authentizität ist alles!",
+          "text_en": "*deliberately writes poor spelling* Authenticity is everything!",
+          "probability": 0.25
+        },
+        {
+          "id": "vol_ambient_16",
+          "text_de": "*kichert* Sie haben uns wieder ein Fact-Check gewidmet. Kostenlose Publicity!",
+          "text_en": "*giggles* They dedicated another fact-check to us. Free publicity!",
+          "probability": 0.2
+        },
+        {
+          "id": "vol_ambient_17",
+          "text_de": "*koordiniert Bot-Netzwerk über verschlüsselten Kanal*",
+          "text_en": "*coordinates bot network via encrypted channel*",
+          "probability": 0.3
+        },
+        {
+          "id": "vol_ambient_18",
+          "text_de": "*isst kalte Pizza vom Vortag ohne hinzusehen*",
+          "text_en": "*eats yesterday's cold pizza without looking*",
+          "probability": 0.25
+        },
+        {
+          "id": "vol_ambient_19",
+          "text_de": "*murmelt* Chaos ist eine Leiter... *lacht irre*",
+          "text_en": "*mutters* Chaos is a ladder... *laughs maniacally*",
+          "probability": 0.15
+        },
+        {
+          "id": "vol_ambient_20",
+          "text_de": "*startet neue Kontroverse mit einem einzigen Tweet*",
+          "text_en": "*starts new controversy with a single tweet*",
+          "probability": 0.3
         }
       ]
     },
@@ -833,6 +1159,115 @@
           "id": "kat_ambient_2",
           "text_de": "*testet Schlagzeilen an verschiedenen Personas*",
           "text_en": "*tests headlines on different personas*",
+          "probability": 0.3
+        },
+        {
+          "id": "kat_ambient_3",
+          "text_de": "*gestikuliert wild während sie Story-Arc erklärt*",
+          "text_en": "*gesticulates wildly while explaining story arc*",
+          "probability": 0.35
+        },
+        {
+          "id": "kat_ambient_4",
+          "text_de": "*hört dramatische Musik während sie schreibt*",
+          "text_en": "*listens to dramatic music while writing*",
+          "probability": 0.3
+        },
+        {
+          "id": "kat_ambient_5",
+          "text_de": "*liest laut verschiedene Versionen* Nein, das klingt nicht echt genug...",
+          "text_en": "*reads different versions aloud* No, that doesn't sound real enough...",
+          "probability": 0.25
+        },
+        {
+          "id": "kat_ambient_6",
+          "text_de": "*sammelt Bilder für emotionales Storyboard*",
+          "text_en": "*collects images for emotional storyboard*",
+          "probability": 0.3
+        },
+        {
+          "id": "kat_ambient_7",
+          "text_de": "*weint bei eigener Story* Wenn ICH weine, werden SIE auch weinen!",
+          "text_en": "*cries at own story* If I cry, THEY will cry too!",
+          "probability": 0.2
+        },
+        {
+          "id": "kat_ambient_8",
+          "text_de": "*erstellt Character-Profile für Fake-Personas*",
+          "text_en": "*creates character profiles for fake personas*",
+          "probability": 0.35
+        },
+        {
+          "id": "kat_ambient_9",
+          "text_de": "*umgibt sich mit Post-Its in allen Farben*",
+          "text_en": "*surrounds herself with Post-Its in all colors*",
+          "probability": 0.25
+        },
+        {
+          "id": "kat_ambient_10",
+          "text_de": "*spielt verschiedene Zielgruppen-Reaktionen durch*",
+          "text_en": "*plays through different target audience reactions*",
+          "probability": 0.3
+        },
+        {
+          "id": "kat_ambient_11",
+          "text_de": "*springt auf* GENAU! Das ist der Hook! *kritzelt aufgeregt*",
+          "text_en": "*jumps up* EXACTLY! That's the hook! *scribbles excitedly*",
+          "probability": 0.25
+        },
+        {
+          "id": "kat_ambient_12",
+          "text_de": "*optimiert Schlagzeilen für emotionalen Impact*",
+          "text_en": "*optimizes headlines for emotional impact*",
+          "probability": 0.35
+        },
+        {
+          "id": "kat_ambient_13",
+          "text_de": "*flüstert Dialog vor sich hin, testet Authentizität*",
+          "text_en": "*whispers dialogue to herself, tests authenticity*",
+          "probability": 0.3
+        },
+        {
+          "id": "kat_ambient_14",
+          "text_de": "*studiert erfolgreiche virale Stories* Was macht sie so teilbar?",
+          "text_en": "*studies successful viral stories* What makes them so shareable?",
+          "probability": 0.25
+        },
+        {
+          "id": "kat_ambient_15",
+          "text_de": "*malt Story-Timeline mit bunten Markern*",
+          "text_en": "*draws story timeline with colorful markers*",
+          "probability": 0.3
+        },
+        {
+          "id": "kat_ambient_16",
+          "text_de": "*wählt perfektes Foto* Es muss die RICHTIGE Emotion auslösen...",
+          "text_en": "*selects perfect photo* It has to trigger the RIGHT emotion...",
+          "probability": 0.25
+        },
+        {
+          "id": "kat_ambient_17",
+          "text_de": "*schreibt emotionale Testimonials - alle erfunden*",
+          "text_en": "*writes emotional testimonials - all fabricated*",
+          "probability": 0.3
+        },
+        {
+          "id": "kat_ambient_18",
+          "text_de": "*testet verschiedene Narrative-Frames*",
+          "text_en": "*tests different narrative frames*",
+          "probability": 0.35
+        },
+        {
+          "id": "kat_ambient_19",
+          "text_de": "*seufzt erschöpft* Kreativität ist verdammt anstrengend...",
+          "text_en": "*sighs exhausted* Creativity is damn exhausting...",
+          "probability": 0.2,
+          "condition": "morale < 45"
+        },
+        {
+          "id": "kat_ambient_20",
+          "text_de": "*designed emotionale Infografik mit tränenreichem Appeal*",
+          "text_en": "*designs emotional infographic with tearjerker appeal*",
           "probability": 0.3
         }
       ]
@@ -1004,6 +1439,114 @@
           "id": "igor_ambient_2",
           "text_de": "*studiert Code auf dem Bildschirm*",
           "text_en": "*studies code on the screen*",
+          "probability": 0.3
+        },
+        {
+          "id": "igor_ambient_3",
+          "text_de": "*führt Penetration-Test durch*",
+          "text_en": "*conducts penetration test*",
+          "probability": 0.35
+        },
+        {
+          "id": "igor_ambient_4",
+          "text_de": "*überwacht Server-Logs in Echtzeit*",
+          "text_en": "*monitors server logs in real-time*",
+          "probability": 0.4
+        },
+        {
+          "id": "igor_ambient_5",
+          "text_de": "*kompiliert Code - beobachtet Terminal*",
+          "text_en": "*compiles code - watches terminal*",
+          "probability": 0.35
+        },
+        {
+          "id": "igor_ambient_6",
+          "text_de": "*nickt zufrieden bei erfolgreichem Exploit*",
+          "text_en": "*nods with satisfaction at successful exploit*",
+          "probability": 0.25
+        },
+        {
+          "id": "igor_ambient_7",
+          "text_de": "*patcht Sicherheitslücke*",
+          "text_en": "*patches security vulnerability*",
+          "probability": 0.3
+        },
+        {
+          "id": "igor_ambient_8",
+          "text_de": "*konfiguriert VPN-Tunnel*",
+          "text_en": "*configures VPN tunnel*",
+          "probability": 0.3
+        },
+        {
+          "id": "igor_ambient_9",
+          "text_de": "*schreibt Shell-Script ohne Kommentare*",
+          "text_en": "*writes shell script without comments*",
+          "probability": 0.35
+        },
+        {
+          "id": "igor_ambient_10",
+          "text_de": "*testet Zero-Day-Exploit*",
+          "text_en": "*tests zero-day exploit*",
+          "probability": 0.25
+        },
+        {
+          "id": "igor_ambient_11",
+          "text_de": "*optimiert Datenbank-Queries*",
+          "text_en": "*optimizes database queries*",
+          "probability": 0.3
+        },
+        {
+          "id": "igor_ambient_12",
+          "text_de": "*deployt Code auf Remote-Server*",
+          "text_en": "*deploys code to remote server*",
+          "probability": 0.35
+        },
+        {
+          "id": "igor_ambient_13",
+          "text_de": "*analysiert Netzwerk-Traffic*",
+          "text_en": "*analyzes network traffic*",
+          "probability": 0.3
+        },
+        {
+          "id": "igor_ambient_14",
+          "text_de": "*schreibt Python-Script für Automation*",
+          "text_en": "*writes Python script for automation*",
+          "probability": 0.35
+        },
+        {
+          "id": "igor_ambient_15",
+          "text_de": "*führt SQL-Injection durch*",
+          "text_en": "*performs SQL injection*",
+          "probability": 0.25
+        },
+        {
+          "id": "igor_ambient_16",
+          "text_de": "*konfiguriert Firewall-Regeln*",
+          "text_en": "*configures firewall rules*",
+          "probability": 0.3
+        },
+        {
+          "id": "igor_ambient_17",
+          "text_de": "*überwacht CPU-Auslastung - runzelt Stirn*",
+          "text_en": "*monitors CPU usage - frowns*",
+          "probability": 0.25
+        },
+        {
+          "id": "igor_ambient_18",
+          "text_de": "*erstellt verschlüsselte Backup*",
+          "text_en": "*creates encrypted backup*",
+          "probability": 0.3
+        },
+        {
+          "id": "igor_ambient_19",
+          "text_de": "*trinkt Club-Mate ohne hinzusehen*",
+          "text_en": "*drinks Club-Mate without looking*",
+          "probability": 0.35
+        },
+        {
+          "id": "igor_ambient_20",
+          "text_de": "*reviewed Pull-Request - merged ohne Kommentar*",
+          "text_en": "*reviews pull request - merges without comment*",
           "probability": 0.3
         }
       ]
