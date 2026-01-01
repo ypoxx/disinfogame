@@ -634,16 +634,18 @@ Bot Campaign (illegal, moral_weight: 5)
     → Volkov: "*grinst* Ah, Sie zeigen Zähne. Gut."
 ```
 
-### 🔜 NEXT PIPELINE
-
-**Pipeline 3: Consequences → NPC Morale** (NEXT)
-- Severe consequences affect team morale
-- Investigation → All NPCs -5 morale (except Volkov +5)
-- Team member arrested → -15 morale + crisis trigger
-- NPC-specific modifiers (Igor -10 if tech consequences)
+**Pipeline 3: Consequences → NPC Morale** ✓ DONE (Commit 64dce02)
+- Character-specific morale impacts based on consequence type
+- 5 consequence categories with nuanced reactions
+- Varies by expertise, relationship level, and current morale
+- 40+ unique dialogue variations in German/English
+- **BONUS:** Transparent news about WHY morale changed
+- **BONUS:** Team summary news when 3+ NPCs affected
+- **BONUS:** Crisis cascade integration (morale < 30 → inCrisis)
+- Linguistically rich reactions maintaining character consistency
 
 ---
 
 **Last Updated:** 2025-12-30
-**Status:** Phase 1 - Pipelines 1 & 2 ✅ COMPLETE, Pipeline 3 next
-**Commits:** 822b209 (Pipeline 1), 4f5fa84 (Pipeline 2)
+**Status:** Phase 1 ✅ COMPLETE (All 3 Pipelines), Moving to Phase 2
+**Commits:** 822b209 (Pipeline 1), 4f5fa84 (Pipeline 2), 64dce02 (Pipeline 3)

@@ -667,6 +667,16 @@ export class StoryEngineAdapter {
     // Welt-Events generieren
     const worldEvents = this.generateWorldEvents(newPhaseNumber);
 
+    // === PHASE 2: NPC Crisis → World Events ===
+    // NPCs in crisis generate subtle world events (feedback loop!)
+    const npcCrisisEvents = this.generateNPCCrisisEvents(newPhaseNumber);
+    worldEvents.push(...npcCrisisEvents);
+
+    // === PHASE 2: Resource Trends → Dynamic Events ===
+    // Rising/falling resources over time trigger world reactions
+    const resourceTrendEvents = this.generateResourceTrendEvents(newPhaseNumber);
+    worldEvents.push(...resourceTrendEvents);
+
     // === PIPELINE 2: Events → NPC Reactions ===
     // NPCs comment on world events and recent action news
     const recentNews = this.newsEvents.slice(0, 10); // Last 10 news items
@@ -1378,6 +1388,357 @@ export class StoryEngineAdapter {
         pinned: avgChange < -10,
       });
     }
+  }
+
+  /**
+   * PHASE 2 FEEDBACK LOOP: NPC Crisis → World Events
+   *
+   * When NPCs are in crisis, it affects the world. Their stress, mistakes, and
+   * deteriorating performance create subtle but visible world events.
+   *
+   * This creates a powerful feedback loop:
+   * Player Actions → Consequences → NPC Morale → Crisis → World Events → Player Awareness
+   */
+  private generateNPCCrisisEvents(phase: number): NewsEvent[] {
+    const crisisEvents: NewsEvent[] = [];
+
+    // Track which NPCs are in crisis
+    const npcsInCrisis = Array.from(this.npcStates.values()).filter(npc => npc.inCrisis);
+    const lowMoraleNPCs = Array.from(this.npcStates.values()).filter(
+      npc => npc.morale < 40 && !npc.inCrisis
+    );
+
+    // ============================================================
+    // CRITICAL: Multiple NPCs in crisis = team breakdown visible
+    // ============================================================
+    if (npcsInCrisis.length >= 3) {
+      const names = npcsInCrisis.map(npc => npc.name).join(', ');
+      crisisEvents.push({
+        id: `npc_crisis_team_breakdown_${phase}`,
+        phase,
+        headline_de: '⚠️ Interne Spannungen',
+        headline_en: '⚠️ Internal Tensions',
+        description_de: `Quellen berichten von Problemen in der Organisation. Mehrere Mitglieder wirken gestresst. (${names})`,
+        description_en: `Sources report problems within the organization. Multiple members appear stressed. (${names})`,
+        type: 'world_event',
+        severity: 'warning',
+        read: false,
+        pinned: true,
+      });
+
+      console.log(`[Phase 2 Feedback] Team crisis visible: ${npcsInCrisis.length} NPCs in crisis`);
+    }
+
+    // ============================================================
+    // CHARACTER-SPECIFIC CRISIS MANIFESTATIONS
+    // ============================================================
+
+    // IGOR in crisis → Technical mistakes become visible
+    const igor = this.npcStates.get('igor');
+    if (igor?.inCrisis && this.seededRandom(`igor_crisis_${phase}`) < 0.4) {
+      crisisEvents.push({
+        id: `npc_crisis_igor_${phase}`,
+        phase,
+        headline_de: 'Technische Anomalien entdeckt',
+        headline_en: 'Technical Anomalies Detected',
+        description_de: 'Sicherheitsforscher berichten von ungewöhnlichen digitalen Spuren. Fehlerhafte Verschleierung vermutet.',
+        description_en: 'Security researchers report unusual digital traces. Faulty obfuscation suspected.',
+        type: 'world_event',
+        severity: 'warning',
+        read: false,
+        pinned: false,
+      });
+
+      console.log(`[Phase 2 Feedback] Igor's crisis manifests: technical errors visible`);
+    }
+
+    // MARINA in crisis → Financial irregularities leak
+    const marina = this.npcStates.get('marina');
+    if (marina?.inCrisis && this.seededRandom(`marina_crisis_${phase}`) < 0.35) {
+      crisisEvents.push({
+        id: `npc_crisis_marina_${phase}`,
+        phase,
+        headline_de: 'Unklare Geldflüsse beobachtet',
+        headline_en: 'Unclear Money Flows Observed',
+        description_de: 'Finanzjournalisten verfolgen verdächtige Transaktionen. Die Spur führt zu verschleierten Konten.',
+        description_en: 'Financial journalists trace suspicious transactions. The trail leads to obscured accounts.',
+        type: 'world_event',
+        severity: 'warning',
+        read: false,
+        pinned: false,
+      });
+
+      console.log(`[Phase 2 Feedback] Marina's crisis manifests: financial leaks`);
+    }
+
+    // VOLKOV in crisis → Operations become sloppy, visible
+    const volkov = this.npcStates.get('volkov');
+    if (volkov?.inCrisis && this.seededRandom(`volkov_crisis_${phase}`) < 0.45) {
+      crisisEvents.push({
+        id: `npc_crisis_volkov_${phase}`,
+        phase,
+        headline_de: 'Aggressive Trolling-Kampagne auffällig',
+        headline_en: 'Aggressive Trolling Campaign Noticeable',
+        description_de: 'Plattformen melden koordinierte Belästigung. Muster zu offensichtlich, Accounts bereits gesperrt.',
+        description_en: 'Platforms report coordinated harassment. Patterns too obvious, accounts already suspended.',
+        type: 'world_event',
+        severity: 'info',
+        read: false,
+        pinned: false,
+      });
+
+      console.log(`[Phase 2 Feedback] Volkov's crisis manifests: sloppy trolling detected`);
+    }
+
+    // KATJA in crisis → Moral messaging becomes incoherent
+    const katja = this.npcStates.get('katja');
+    if (katja?.inCrisis && this.seededRandom(`katja_crisis_${phase}`) < 0.3) {
+      crisisEvents.push({
+        id: `npc_crisis_katja_${phase}`,
+        phase,
+        headline_de: 'Propaganda-Narrative inkonsistent',
+        headline_en: 'Propaganda Narratives Inconsistent',
+        description_de: 'Analysten bemerken widersprüchliche Botschaften. Die Kampagne wirkt unkoordiniert und verzweifelt.',
+        description_en: 'Analysts notice contradictory messages. The campaign seems uncoordinated and desperate.',
+        type: 'world_event',
+        severity: 'info',
+        read: false,
+        pinned: false,
+      });
+
+      console.log(`[Phase 2 Feedback] Katja's crisis manifests: narrative breakdown`);
+    }
+
+    // DIREKTOR in crisis → VERY RARE but catastrophic
+    const direktor = this.npcStates.get('direktor');
+    if (direktor?.inCrisis && this.seededRandom(`direktor_crisis_${phase}`) < 0.15) {
+      crisisEvents.push({
+        id: `npc_crisis_direktor_${phase}`,
+        phase,
+        headline_de: '🔴 Hochrangige Quelle unter Druck',
+        headline_en: '🔴 High-Ranking Source Under Pressure',
+        description_de: 'Gerüchte über interne Probleme bei einer wichtigen Organisation. Führungskrise vermutet.',
+        description_en: 'Rumors about internal problems at an important organization. Leadership crisis suspected.',
+        type: 'world_event',
+        severity: 'danger',
+        read: false,
+        pinned: true,
+      });
+
+      console.log(`[Phase 2 Feedback] DIREKTOR crisis visible - catastrophic implications!`);
+    }
+
+    // ============================================================
+    // LOW MORALE (not yet crisis) → Subtle performance issues
+    // ============================================================
+    if (lowMoraleNPCs.length >= 2 && this.seededRandom(`low_morale_${phase}`) < 0.25) {
+      crisisEvents.push({
+        id: `npc_low_morale_${phase}`,
+        phase,
+        headline_de: 'Operative Effizienz schwankt',
+        headline_en: 'Operative Efficiency Fluctuates',
+        description_de: 'Beobachter bemerken Unregelmäßigkeiten in sonst professionellen Operationen.',
+        description_en: 'Observers notice irregularities in otherwise professional operations.',
+        type: 'world_event',
+        severity: 'info',
+        read: false,
+        pinned: false,
+      });
+
+      console.log(`[Phase 2 Feedback] Low team morale creates subtle inefficiencies`);
+    }
+
+    // ============================================================
+    // BONUS: Betrayal system integration
+    // ============================================================
+    // If multiple NPCs are stressed AND betrayal risk is high
+    // Calculate average betrayal risk across all NPCs
+    let totalBetrayalRisk = 0;
+    let npcCount = 0;
+    for (const npcId of ['direktor', 'marina', 'volkov', 'katja', 'igor']) {
+      if (this.betrayalSystem) {
+        const riskData = this.betrayalSystem.getBetrayalRisk(npcId);
+        if (riskData && typeof riskData.risk === 'number') {
+          totalBetrayalRisk += riskData.risk;
+          npcCount++;
+        }
+      }
+    }
+    const avgBetrayalRisk = npcCount > 0 ? totalBetrayalRisk / npcCount : 0;
+
+    if (npcsInCrisis.length >= 2 && avgBetrayalRisk >= 60 && this.seededRandom(`betrayal_leak_${phase}`) < 0.2) {
+      crisisEvents.push({
+        id: `npc_crisis_leak_risk_${phase}`,
+        phase,
+        headline_de: '⚠️ Potenzielle Informationslecks',
+        headline_en: '⚠️ Potential Information Leaks',
+        description_de: 'Geheimdienstberichte warnen vor Sicherheitslücken durch gestresste Insider.',
+        description_en: 'Intelligence reports warn of security vulnerabilities from stressed insiders.',
+        type: 'world_event',
+        severity: 'warning',
+        read: false,
+        pinned: true,
+      });
+
+      console.log(`[Phase 2 Feedback → Betrayal] Crisis + High betrayal risk = leak warnings`);
+    }
+
+    return crisisEvents;
+  }
+
+  /**
+   * PHASE 2 FEEDBACK LOOP: Resource Trends → Dynamic Events
+   *
+   * Monitors resource changes over time and generates world events when patterns emerge.
+   * This creates awareness that the world is watching and reacting to your resource state.
+   *
+   * Tracked trends: Risk, Attention, Budget depletion
+   */
+  private generateResourceTrendEvents(phase: number): NewsEvent[] {
+    const trendEvents: NewsEvent[] = [];
+
+    // Skip first 2 phases - need history for trends
+    if (phase < 3) return trendEvents;
+
+    // ============================================================
+    // RISING RISK TREND
+    // ============================================================
+    if (this.storyResources.risk >= 70) {
+      // Check if risk has been high for multiple phases
+      if (this.seededRandom(`risk_trend_${phase}`) < 0.3) {
+        trendEvents.push({
+          id: `resource_trend_risk_${phase}`,
+          phase,
+          headline_de: '🔥 Operationales Risiko steigt',
+          headline_en: '🔥 Operational Risk Rising',
+          description_de: 'Beobachter warnen vor zunehmenden Sicherheitslücken. Die Organisation agiert immer riskanter.',
+          description_en: 'Observers warn of increasing security gaps. The organization is acting increasingly risky.',
+          type: 'world_event',
+          severity: this.storyResources.risk >= 85 ? 'danger' : 'warning',
+          read: false,
+          pinned: this.storyResources.risk >= 85,
+        });
+
+        console.log(`[Phase 2 Feedback] High risk trend generates world attention (risk: ${this.storyResources.risk})`);
+      }
+    }
+
+    // ============================================================
+    // RISING ATTENTION TREND
+    // ============================================================
+    if (this.storyResources.attention >= 65) {
+      if (this.seededRandom(`attention_trend_${phase}`) < 0.35) {
+        trendEvents.push({
+          id: `resource_trend_attention_${phase}`,
+          phase,
+          headline_de: '👁️ Mediale Aufmerksamkeit wächst',
+          headline_en: '👁️ Media Attention Growing',
+          description_de: 'Immer mehr Journalisten verfolgen verdächtige Aktivitäten. Das Scheinwerferlicht wird heller.',
+          description_en: 'More and more journalists track suspicious activities. The spotlight is getting brighter.',
+          type: 'world_event',
+          severity: this.storyResources.attention >= 80 ? 'warning' : 'info',
+          read: false,
+          pinned: false,
+        });
+
+        console.log(`[Phase 2 Feedback] High attention trend becomes visible (attention: ${this.storyResources.attention})`);
+      }
+    }
+
+    // ============================================================
+    // BUDGET CRISIS
+    // ============================================================
+    if (this.storyResources.budget <= 30) {
+      if (this.seededRandom(`budget_trend_${phase}`) < 0.25) {
+        trendEvents.push({
+          id: `resource_trend_budget_${phase}`,
+          phase,
+          headline_de: '💸 Finanzielle Engpässe vermutet',
+          headline_en: '💸 Financial Bottlenecks Suspected',
+          description_de: 'Quellen berichten von Budgetproblemen. Zahlungen verzögern sich, Mitarbeiter werden unruhig.',
+          description_en: 'Sources report budget problems. Payments are delayed, staff is getting restless.',
+          type: 'world_event',
+          severity: this.storyResources.budget <= 15 ? 'warning' : 'info',
+          read: false,
+          pinned: false,
+        });
+
+        console.log(`[Phase 2 Feedback] Low budget creates external visibility (budget: ${this.storyResources.budget})`);
+      }
+    }
+
+    // ============================================================
+    // CAPACITY DEPLETION
+    // ============================================================
+    if (this.storyResources.capacity <= 2) {
+      if (this.seededRandom(`capacity_trend_${phase}`) < 0.3) {
+        trendEvents.push({
+          id: `resource_trend_capacity_${phase}`,
+          phase,
+          headline_de: 'Operative Kapazität erschöpft',
+          headline_en: 'Operative Capacity Exhausted',
+          description_de: 'Insider berichten von Überlastung. Die Organisation arbeitet am Limit.',
+          description_en: 'Insiders report overload. The organization is working at its limit.',
+          type: 'world_event',
+          severity: 'info',
+          read: false,
+          pinned: false,
+        });
+
+        console.log(`[Phase 2 Feedback] Low capacity visible (capacity: ${this.storyResources.capacity})`);
+      }
+    }
+
+    // ============================================================
+    // MORAL WEIGHT ACCUMULATION
+    // ============================================================
+    if (this.storyResources.moralWeight >= 40) {
+      if (this.seededRandom(`moral_trend_${phase}`) < 0.2) {
+        trendEvents.push({
+          id: `resource_trend_moral_${phase}`,
+          phase,
+          headline_de: '⚖️ Ethische Bedenken häufen sich',
+          headline_en: '⚖️ Ethical Concerns Mounting',
+          description_de: 'Menschenrechtsgruppen dokumentieren fragwürdige Praktiken. Der moralische Preis wird sichtbar.',
+          description_en: 'Human rights groups document questionable practices. The moral price becomes visible.',
+          type: 'world_event',
+          severity: this.storyResources.moralWeight >= 60 ? 'warning' : 'info',
+          read: false,
+          pinned: this.storyResources.moralWeight >= 60,
+        });
+
+        console.log(`[Phase 2 Feedback] High moral weight creates external scrutiny (moral: ${this.storyResources.moralWeight})`);
+      }
+    }
+
+    // ============================================================
+    // COMBINED CRISIS: Multiple resources critical
+    // ============================================================
+    const criticalResources = [
+      this.storyResources.risk >= 80,
+      this.storyResources.attention >= 75,
+      this.storyResources.budget <= 20,
+      this.storyResources.capacity <= 1,
+    ].filter(Boolean).length;
+
+    if (criticalResources >= 3 && this.seededRandom(`multi_crisis_${phase}`) < 0.4) {
+      trendEvents.push({
+        id: `resource_trend_multi_crisis_${phase}`,
+        phase,
+        headline_de: '🚨 Mehrfachkrise erkennbar',
+        headline_en: '🚨 Multiple Crises Detected',
+        description_de: 'Analysten warnen: Die Organisation steht unter extremem Druck. Zusammenbruch möglich.',
+        description_en: 'Analysts warn: The organization is under extreme pressure. Collapse possible.',
+        type: 'world_event',
+        severity: 'danger',
+        read: false,
+        pinned: true,
+      });
+
+      console.log(`[Phase 2 Feedback] MULTI-CRISIS: ${criticalResources} resources critical!`);
+    }
+
+    return trendEvents;
   }
 
   private applyConsequenceEffects(consequence: ActiveConsequence): void {
