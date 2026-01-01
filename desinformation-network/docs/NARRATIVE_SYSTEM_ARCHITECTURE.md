@@ -644,8 +644,30 @@ Bot Campaign (illegal, moral_weight: 5)
 - **BONUS:** Crisis cascade integration (morale < 30 → inCrisis)
 - Linguistically rich reactions maintaining character consistency
 
+### ✅ PHASE 2: FEEDBACK LOOPS ✓ COMPLETE
+
+**NPC Crisis → World Events** ✓ DONE (Commit d190106)
+- When NPCs are in crisis, their mistakes become visible to the world
+- Character-specific manifestations based on expertise areas
+- Igor: Technical anomalies (40% probability when in crisis)
+- Marina: Financial leaks (35%)
+- Volkov: Sloppy trolling (45%)
+- Katja: Narrative breakdown (30%)
+- Direktor: Leadership rumors (15%, catastrophic)
+- Team crisis: 3+ NPCs → "Internal Tensions" world event
+- **BONUS:** Betrayal system integration (crisis + high betrayal risk → leak warnings)
+
+**Resource Trends → Dynamic Events** ✓ DONE (Commit d190106)
+- World monitors and reacts to sustained resource patterns
+- High Risk (≥70) → "Operational Risk Rising"
+- High Attention (≥65) → "Media Attention Growing"
+- Low Budget (≤30) → "Financial Bottlenecks Suspected"
+- Low Capacity (≤2) → "Operative Capacity Exhausted"
+- High Moral Weight (≥40) → "Ethical Concerns Mounting"
+- Multi-Crisis: 3+ critical resources → "Multiple Crises Detected" (danger level)
+
 ---
 
-**Last Updated:** 2025-12-30
-**Status:** Phase 1 ✅ COMPLETE (All 3 Pipelines), Moving to Phase 2
-**Commits:** 822b209 (Pipeline 1), 4f5fa84 (Pipeline 2), 64dce02 (Pipeline 3)
+**Last Updated:** 2026-01-01
+**Status:** Phase 1 & 2 ✅ COMPLETE (Full bidirectional feedback loops established)
+**Commits:** 822b209 (Pipeline 1), 4f5fa84 (Pipeline 2), 64dce02 (Pipeline 3), d190106 (Phase 2 Feedback)
