@@ -347,7 +347,7 @@ export interface NewsEvent {
   description_en: string;
 
   // Typ
-  type: 'action_result' | 'consequence' | 'world_event' | 'npc_event';
+  type: 'action_result' | 'consequence' | 'world_event' | 'npc_event' | 'npc_reaction';
   severity: 'info' | 'warning' | 'danger' | 'success';
 
   // Multi-scale world event properties
@@ -667,6 +667,24 @@ export class StoryEngineAdapter {
     // Welt-Events generieren
     const worldEvents = this.generateWorldEvents(newPhaseNumber);
 
+    // === PHASE 2: NPC Crisis → World Events ===
+    // NPCs in crisis generate subtle world events (feedback loop!)
+    const npcCrisisEvents = this.generateNPCCrisisEvents(newPhaseNumber);
+    worldEvents.push(...npcCrisisEvents);
+
+    // === PHASE 2: Resource Trends → Dynamic Events ===
+    // Rising/falling resources over time trigger world reactions
+    const resourceTrendEvents = this.generateResourceTrendEvents(newPhaseNumber);
+    worldEvents.push(...resourceTrendEvents);
+
+    // === PIPELINE 2: Events → NPC Reactions ===
+    // NPCs comment on world events and recent action news
+    const recentNews = this.newsEvents.slice(0, 10); // Last 10 news items
+    const npcReactions = this.generateNPCEventReactions([...worldEvents, ...recentNews]);
+    for (const reaction of npcReactions) {
+      this.newsEvents.unshift(reaction);
+    }
+
     // Check for crisis moments
     const triggeredCrises = this.crisisMomentSystem.checkForCrises({
       phase: newPhaseNumber,
@@ -843,6 +861,886 @@ export class StoryEngineAdapter {
     return activated;
   }
 
+  /**
+   * PIPELINE 3: Apply character-specific morale impacts from consequences
+   *
+   * Maps consequence types to NPCs based on expertise, personality, and context.
+   * Provides linguistically rich, nuanced morale changes that respect character
+   * consistency while creating systemic interconnection.
+   *
+   * BONUS Features:
+   * - Generates transparent news about team reactions
+   * - Integrates with crisis system for cascading effects
+   * - Varies by relationship level and current morale
+   */
+  private applyConsequenceMoraleImpact(consequence: ActiveConsequence): void {
+    const consequenceId = consequence.consequenceId;
+    const consequenceType = consequence.type; // exposure, internal, blowback, etc.
+    const severity = consequence.severity; // critical, severe, moderate
+
+    interface NPCReaction {
+      npcId: string;
+      moraleChange: number;
+      headline_de: string;
+      headline_en: string;
+      reaction_de: string;
+      reaction_en: string;
+      severity: 'info' | 'success' | 'warning' | 'danger';
+    }
+
+    const reactions: NPCReaction[] = [];
+
+    // ============================================================
+    // CATEGORY 1: BOT/TECH EXPOSURE
+    // ============================================================
+    if (consequenceId.includes('bot') || consequenceId.includes('fake_account')) {
+      // IGOR - This is his domain, he feels responsible
+      const igor = this.npcStates.get('igor');
+      if (igor) {
+        let moraleChange = -12;
+        let headline_de = 'Igor: Technisches Versagen';
+        let headline_en = 'Igor: Technical Failure';
+        let reaction_de = '*tippt aggressiv* Die Bot-Signatur war meine Verantwortung. Das wird nicht wieder passieren.';
+        let reaction_en = '*types aggressively* The bot signature was my responsibility. This won\'t happen again.';
+        let reactionSeverity: 'info' | 'success' | 'warning' | 'danger' = 'warning';
+
+        // Vary by current morale
+        if (igor.morale < 40) {
+          moraleChange = -15;
+          headline_de = 'Igor: Selbstzweifel';
+          headline_en = 'Igor: Self-Doubt';
+          reaction_de = '*starrt auf Bildschirm* Ich... ich habe versagt. Sie wurden wegen meines Fehlers enttarnt.';
+          reaction_en = '*stares at screen* I... I failed. You were exposed because of my mistake.';
+          reactionSeverity = 'danger';
+        } else if (igor.morale >= 70 && igor.relationshipLevel >= 2) {
+          moraleChange = -8;
+          headline_de = 'Igor: Lernmoment';
+          headline_en = 'Igor: Learning Moment';
+          reaction_de = '*nickt ernst* Verstanden. Ich analysiere das Erkennungsmuster. Beim nächsten Mal sind wir besser.';
+          reaction_en = '*nods seriously* Understood. I\'m analyzing the detection pattern. Next time we\'ll be better.';
+          reactionSeverity = 'info';
+        }
+
+        reactions.push({
+          npcId: 'igor',
+          moraleChange,
+          headline_de,
+          headline_en,
+          reaction_de,
+          reaction_en,
+          severity: reactionSeverity,
+        });
+      }
+
+      // MARINA - Worried about data security and escalation
+      const marina = this.npcStates.get('marina');
+      if (marina) {
+        let moraleChange = -8;
+        let headline_de = 'Marina: Sicherheitsbedenken';
+        let headline_en = 'Marina: Security Concerns';
+        let reaction_de = '*blättert durch Berichte* Wenn sie unsere Bots erkannt haben, könnten sie den Geldfluss zurückverfolgen.';
+        let reaction_en = '*flips through reports* If they detected our bots, they might trace the money flow.';
+
+        if (marina.relationshipLevel < 2) {
+          moraleChange = -12;
+          reaction_de = '*kritisch* Ich hatte Sie gewarnt, dass dieser Ansatz zu riskant ist. Jetzt haben wir ein ernstes Problem.';
+          reaction_en = '*critical* I warned you this approach was too risky. Now we have a serious problem.';
+        }
+
+        reactions.push({
+          npcId: 'marina',
+          moraleChange,
+          headline_de,
+          headline_en,
+          reaction_de,
+          reaction_en,
+          severity: 'warning',
+        });
+      }
+
+      // VOLKOV - Might actually enjoy the chaos
+      const volkov = this.npcStates.get('volkov');
+      if (volkov && volkov.morale >= 50) {
+        const moraleChange = severity === 'critical' ? -5 : +3;
+        const headline_de = 'Volkov: Kampfgeist';
+        const headline_en = 'Volkov: Fighting Spirit';
+        const reaction_de = '*grinst schief* Gut. Jetzt wird es interessant. Zeigen wir ihnen, was wir noch in petto haben.';
+        const reaction_en = '*grins crookedly* Good. Now it gets interesting. Let\'s show them what else we\'ve got.';
+
+        reactions.push({
+          npcId: 'volkov',
+          moraleChange,
+          headline_de,
+          headline_en,
+          reaction_de,
+          reaction_en,
+          severity: 'info',
+        });
+      }
+    }
+
+    // ============================================================
+    // CATEGORY 2: TROLL/HARASSMENT BURNOUT (Internal)
+    // ============================================================
+    if (consequenceType === 'internal' && (consequenceId.includes('troll') || consequenceId.includes('burnout'))) {
+      // VOLKOV - This directly affects his people
+      const volkov = this.npcStates.get('volkov');
+      if (volkov) {
+        let moraleChange = -10;
+        let headline_de = 'Volkov: Team-Sorgen';
+        let headline_en = 'Volkov: Team Concerns';
+        let reaction_de = '*ernst* Meine Leute sind erschöpft. Das hier... es hinterlässt Spuren, verstehen Sie?';
+        let reaction_en = '*serious* My people are exhausted. This... it leaves marks, you understand?';
+
+        if (volkov.morale < 35) {
+          moraleChange = -15;
+          headline_de = 'Volkov: Moral am Boden';
+          headline_en = 'Volkov: Morale Collapsed';
+          reaction_de = '*schlägt auf Tisch* Genug! Ich verliere gute Leute wegen dieser Scheiße. Das ist nicht mehr lustig.';
+          reaction_en = '*slams table* Enough! I\'m losing good people because of this shit. This isn\'t funny anymore.';
+        }
+
+        reactions.push({
+          npcId: 'volkov',
+          moraleChange,
+          headline_de,
+          headline_en,
+          reaction_de,
+          reaction_en,
+          severity: volkov.morale < 35 ? 'danger' : 'warning',
+        });
+      }
+
+      // KATJA - Empathetic, feels the human cost
+      const katja = this.npcStates.get('katja');
+      if (katja) {
+        let moraleChange = -12;
+        let headline_de = 'Katja: Menschliche Kosten';
+        let headline_en = 'Katja: Human Cost';
+        let reaction_de = '*leise* Wir vergessen manchmal, dass echte Menschen unsere Worte schreiben. Sie leiden darunter.';
+        let reaction_en = '*quietly* We sometimes forget that real people write our words. They suffer from it.';
+
+        if (katja.relationshipLevel >= 2) {
+          reaction_de = '*schaut Sie an* Sie sehen es auch, oder? Den Preis, den andere für unsere Ziele zahlen.';
+          reaction_en = '*looks at you* You see it too, don\'t you? The price others pay for our goals.';
+        }
+
+        reactions.push({
+          npcId: 'katja',
+          moraleChange,
+          headline_de,
+          headline_en,
+          reaction_de,
+          reaction_en,
+          severity: 'warning',
+        });
+      }
+
+      // MARINA - Calculates the operational impact
+      const marina = this.npcStates.get('marina');
+      if (marina) {
+        const moraleChange = -6;
+        const headline_de = 'Marina: Effizienzeinbußen';
+        const headline_en = 'Marina: Efficiency Loss';
+        const reaction_de = '*rechnet* Personalersatz kostet Budget. Verzögerungen kosten Zeit. Beides können wir uns kaum leisten.';
+        const reaction_en = '*calculates* Staff replacement costs budget. Delays cost time. We can afford neither.';
+
+        reactions.push({
+          npcId: 'marina',
+          moraleChange,
+          headline_de,
+          headline_en,
+          reaction_de,
+          reaction_en,
+          severity: 'info',
+        });
+      }
+    }
+
+    // ============================================================
+    // CATEGORY 3: INVESTIGATION/EXPOSURE (Critical for all)
+    // ============================================================
+    if (consequenceType === 'exposure' && (consequenceId.includes('investigation') || consequenceId.includes('expose'))) {
+      // EVERYONE reacts - this is existential
+
+      // DIREKTOR - Leadership under pressure
+      const direktor = this.npcStates.get('direktor');
+      if (direktor) {
+        let moraleChange = -15;
+        let headline_de = 'Direktor: Strategische Krise';
+        let headline_en = 'Direktor: Strategic Crisis';
+        let reaction_de = '*kalter Blick* Eine Untersuchung. Das bedeutet, wir haben begrenzte Zeit. Handeln Sie weise.';
+        let reaction_en = '*cold gaze* An investigation. That means we have limited time. Act wisely.';
+
+        if (direktor.morale < 40) {
+          moraleChange = -20;
+          headline_de = 'Direktor: Vertrauen schwindet';
+          headline_en = 'Direktor: Trust Fading';
+          reaction_de = '*langsam* Ich beginne zu fragen, ob Sie die richtige Person für diesen Job sind.';
+          reaction_en = '*slowly* I\'m beginning to question whether you\'re the right person for this job.';
+        } else if (direktor.relationshipLevel >= 3) {
+          moraleChange = -10;
+          headline_de = 'Direktor: Gemeinsamer Kampf';
+          headline_en = 'Direktor: Shared Struggle';
+          reaction_de = '*nickt* Schwierig. Aber wir haben schon Schlimmeres überstanden. Bleiben Sie fokussiert.';
+          reaction_en = '*nods* Difficult. But we\'ve weathered worse. Stay focused.';
+        }
+
+        reactions.push({
+          npcId: 'direktor',
+          moraleChange,
+          headline_de,
+          headline_en,
+          reaction_de,
+          reaction_en,
+          severity: 'danger',
+        });
+      }
+
+      // MARINA - Risk analyst's nightmare
+      const marina = this.npcStates.get('marina');
+      if (marina) {
+        const moraleChange = -18;
+        const headline_de = 'Marina: Risikoanalyse kritisch';
+        const headline_en = 'Marina: Risk Analysis Critical';
+        const reaction_de = '*hektisch* Alle Indikatoren sind rot. Wir müssen JETZT unsere Spuren verwischen - jede Stunde zählt.';
+        const reaction_en = '*frantic* All indicators are red. We need to cover our tracks NOW - every hour counts.';
+
+        reactions.push({
+          npcId: 'marina',
+          moraleChange,
+          headline_de,
+          headline_en,
+          reaction_de,
+          reaction_en,
+          severity: 'danger',
+        });
+      }
+
+      // IGOR - Tech cover-up mode
+      const igor = this.npcStates.get('igor');
+      if (igor) {
+        const moraleChange = -12;
+        const headline_de = 'Igor: Notfall-Protokolle';
+        const headline_en = 'Igor: Emergency Protocols';
+        const reaction_de = '*tippt rasend schnell* Starte Löschprogramme. Verschleiere IP-Spuren. Brauche 48 Stunden minimum.';
+        const reaction_en = '*types frantically* Starting deletion programs. Obscuring IP traces. Need 48 hours minimum.';
+
+        reactions.push({
+          npcId: 'igor',
+          moraleChange,
+          headline_de,
+          headline_en,
+          reaction_de,
+          reaction_en,
+          severity: 'danger',
+        });
+      }
+
+      // VOLKOV - Crisis brings focus
+      const volkov = this.npcStates.get('volkov');
+      if (volkov) {
+        let moraleChange = -8;
+        let headline_de = 'Volkov: Überlebensinstinkt';
+        let headline_en = 'Volkov: Survival Instinct';
+        let reaction_de = '*entschlossen* Gut. Keine Zeit mehr für Spielchen. Jetzt kämpfen wir ums Überleben.';
+        let reaction_en = '*determined* Good. No more time for games. Now we fight to survive.';
+
+        if (volkov.morale >= 60) {
+          moraleChange = -5;
+          headline_de = 'Volkov: Im Element';
+          headline_en = 'Volkov: In His Element';
+          reaction_de = '*grinst gefährlich* Das hier? Das ist mein Spezialgebiet. Lasst mich arbeiten.';
+          reaction_en = '*grins dangerously* This? This is my specialty. Let me work.';
+        }
+
+        reactions.push({
+          npcId: 'volkov',
+          moraleChange,
+          headline_de,
+          headline_en,
+          reaction_de,
+          reaction_en,
+          severity: 'warning',
+        });
+      }
+
+      // KATJA - Moral reckoning
+      const katja = this.npcStates.get('katja');
+      if (katja) {
+        let moraleChange = -14;
+        let headline_de = 'Katja: Moralische Rechnung';
+        let headline_en = 'Katja: Moral Reckoning';
+        let reaction_de = '*ruhig aber blass* Vielleicht... vielleicht ist das die Konsequenz, die wir verdienen.';
+        let reaction_en = '*calm but pale* Perhaps... perhaps this is the consequence we deserve.';
+
+        if (katja.relationshipLevel >= 2) {
+          reaction_de = '*schaut Sie direkt an* Was werden Sie jetzt tun? Noch tiefer sinken, oder endlich aufhören?';
+          reaction_en = '*looks directly at you* What will you do now? Sink deeper, or finally stop?';
+        }
+
+        reactions.push({
+          npcId: 'katja',
+          moraleChange,
+          headline_de,
+          headline_en,
+          reaction_de,
+          reaction_en,
+          severity: 'danger',
+        });
+      }
+    }
+
+    // ============================================================
+    // CATEGORY 4: OPPORTUNITY (Positive consequences)
+    // ============================================================
+    if (consequenceType === 'opportunity') {
+      // MARINA - Loves good news
+      const marina = this.npcStates.get('marina');
+      if (marina) {
+        const moraleChange = +10;
+        const headline_de = 'Marina: Positive Entwicklung';
+        const headline_en = 'Marina: Positive Development';
+        const reaction_de = '*lächelt* Endlich gute Nachrichten. So gewinnt man Kampagnen - mit kluger Strategie.';
+        const reaction_en = '*smiles* Finally good news. This is how you win campaigns - with smart strategy.';
+
+        reactions.push({
+          npcId: 'marina',
+          moraleChange,
+          headline_de,
+          headline_en,
+          reaction_de,
+          reaction_en,
+          severity: 'success',
+        });
+      }
+
+      // DIREKTOR - Acknowledges success
+      const direktor = this.npcStates.get('direktor');
+      if (direktor) {
+        const moraleChange = +8;
+        const headline_de = 'Direktor: Anerkennung';
+        const headline_en = 'Direktor: Recognition';
+        const reaction_de = direktor.relationshipLevel >= 2
+          ? '*nickt anerkennend* Exzellente Arbeit. Genau diese Initiative erwarte ich von Ihnen.'
+          : '*nickt kurz* Akzeptabel. Weiter so.';
+        const reaction_en = direktor.relationshipLevel >= 2
+          ? '*nods approvingly* Excellent work. This is exactly the initiative I expect from you.'
+          : '*nods briefly* Acceptable. Continue.';
+
+        reactions.push({
+          npcId: 'direktor',
+          moraleChange,
+          headline_de,
+          headline_en,
+          reaction_de,
+          reaction_en,
+          severity: 'success',
+        });
+      }
+    }
+
+    // ============================================================
+    // CATEGORY 5: COLLATERAL DAMAGE
+    // ============================================================
+    if (consequenceType === 'collateral') {
+      // KATJA - Most affected by innocent suffering
+      const katja = this.npcStates.get('katja');
+      if (katja) {
+        let moraleChange = -16;
+        let headline_de = 'Katja: Gewissenskonflikt';
+        let headline_en = 'Katja: Moral Conflict';
+        let reaction_de = '*stimme zittert* Unbeteiligte wurden verletzt. Das... das stand so nicht im Plan.';
+        let reaction_en = '*voice trembling* Innocent people were hurt. That... that wasn\'t part of the plan.';
+
+        if (katja.morale < 30) {
+          moraleChange = -20;
+          headline_de = 'Katja: Am Abgrund';
+          headline_en = 'Katja: At The Precipice';
+          reaction_de = '*wendet sich ab* Ich kann nicht mehr. Wie viele Leben müssen wir noch zerstören?';
+          reaction_en = '*turns away* I can\'t anymore. How many more lives must we destroy?';
+        }
+
+        reactions.push({
+          npcId: 'katja',
+          moraleChange,
+          headline_de,
+          headline_en,
+          reaction_de,
+          reaction_en,
+          severity: 'danger',
+        });
+      }
+
+      // VOLKOV - Pragmatic but not heartless
+      const volkov = this.npcStates.get('volkov');
+      if (volkov && volkov.morale < 60) {
+        const moraleChange = -7;
+        const headline_de = 'Volkov: Unbehagen';
+        const headline_en = 'Volkov: Discomfort';
+        const reaction_de = '*kratzt Nacken* Scheiße. Das wollte ich nicht. Ich mache viel, aber... *verstummt*';
+        const reaction_en = '*scratches neck* Shit. Didn\'t want that. I do a lot, but... *trails off*';
+
+        reactions.push({
+          npcId: 'volkov',
+          moraleChange,
+          headline_de,
+          headline_en,
+          reaction_de,
+          reaction_en,
+          severity: 'warning',
+        });
+      }
+
+      // DIREKTOR - Cold calculation
+      const direktor = this.npcStates.get('direktor');
+      if (direktor) {
+        const moraleChange = direktor.relationshipLevel >= 3 ? -5 : -2;
+        const headline_de = 'Direktor: Kalte Logik';
+        const headline_en = 'Direktor: Cold Logic';
+        const reaction_de = '*ausdruckslos* Bedauerlich. Aber unvermeidlich bei Operationen dieser Größenordnung.';
+        const reaction_en = '*expressionless* Regrettable. But inevitable in operations of this scale.';
+
+        reactions.push({
+          npcId: 'direktor',
+          moraleChange,
+          headline_de,
+          headline_en,
+          reaction_de,
+          reaction_en,
+          severity: 'info',
+        });
+      }
+    }
+
+    // ============================================================
+    // APPLY MORALE CHANGES & GENERATE NEWS
+    // ============================================================
+    for (const reaction of reactions) {
+      const npc = this.npcStates.get(reaction.npcId);
+      if (!npc) continue;
+
+      // Apply morale change
+      const oldMorale = npc.morale;
+      npc.morale = Math.max(0, Math.min(100, npc.morale + reaction.moraleChange));
+      const actualChange = npc.morale - oldMorale;
+
+      // === CASCADE: Check if morale drop triggers crisis ===
+      if (npc.morale < 30 && !npc.inCrisis && actualChange < 0) {
+        npc.inCrisis = true;
+        console.log(`[Pipeline 3 → Crisis] ${npc.name} entered crisis (morale: ${npc.morale})`);
+      }
+
+      // === BONUS: Generate transparent news about team reaction ===
+      const changeIndicator = actualChange > 0 ? '↑' : actualChange < 0 ? '↓' : '=';
+      const newsHeadline_de = `${reaction.headline_de} ${changeIndicator}${Math.abs(actualChange)}`;
+      const newsHeadline_en = `${reaction.headline_en} ${changeIndicator}${Math.abs(actualChange)}`;
+
+      this.newsEvents.unshift({
+        id: `news_consequence_reaction_${reaction.npcId}_${Date.now()}_${Math.random()}`,
+        phase: this.storyPhase.number,
+        headline_de: newsHeadline_de,
+        headline_en: newsHeadline_en,
+        description_de: reaction.reaction_de,
+        description_en: reaction.reaction_en,
+        type: 'npc_reaction',
+        severity: reaction.severity,
+        read: false,
+        pinned: reaction.severity === 'danger',
+      });
+
+      console.log(
+        `[Pipeline 3] ${npc.name}: ${actualChange > 0 ? '+' : ''}${actualChange} morale (now ${npc.morale}) - ${reaction.headline_en}`
+      );
+    }
+
+    // === BONUS: Generate summary news if multiple NPCs affected ===
+    if (reactions.length >= 3) {
+      const affectedNames = reactions.map(r => this.npcStates.get(r.npcId)?.name || r.npcId).join(', ');
+      const totalMoraleChange = reactions.reduce((sum, r) => sum + r.moraleChange, 0);
+      const avgChange = Math.round(totalMoraleChange / reactions.length);
+
+      const summaryHeadline_de = avgChange < -10
+        ? `Team-Moral sinkt: ${consequence.label_de}`
+        : avgChange > 5
+        ? `Team-Moral steigt: ${consequence.label_de}`
+        : `Team reagiert: ${consequence.label_de}`;
+
+      const summaryHeadline_en = avgChange < -10
+        ? `Team Morale Drops: ${consequence.label_en}`
+        : avgChange > 5
+        ? `Team Morale Rises: ${consequence.label_en}`
+        : `Team Reacts: ${consequence.label_en}`;
+
+      const summaryDescription_de = `Die Konsequenz betrifft das gesamte Team. Reaktionen von: ${affectedNames}`;
+      const summaryDescription_en = `The consequence affects the entire team. Reactions from: ${affectedNames}`;
+
+      this.newsEvents.unshift({
+        id: `news_consequence_summary_${Date.now()}`,
+        phase: this.storyPhase.number,
+        headline_de: summaryHeadline_de,
+        headline_en: summaryHeadline_en,
+        description_de: summaryDescription_de,
+        description_en: summaryDescription_en,
+        type: 'npc_event',
+        severity: avgChange < -10 ? 'warning' : 'info',
+        read: false,
+        pinned: avgChange < -10,
+      });
+    }
+  }
+
+  /**
+   * PHASE 2 FEEDBACK LOOP: NPC Crisis → World Events
+   *
+   * When NPCs are in crisis, it affects the world. Their stress, mistakes, and
+   * deteriorating performance create subtle but visible world events.
+   *
+   * This creates a powerful feedback loop:
+   * Player Actions → Consequences → NPC Morale → Crisis → World Events → Player Awareness
+   */
+  private generateNPCCrisisEvents(phase: number): NewsEvent[] {
+    const crisisEvents: NewsEvent[] = [];
+
+    // Track which NPCs are in crisis
+    const npcsInCrisis = Array.from(this.npcStates.values()).filter(npc => npc.inCrisis);
+    const lowMoraleNPCs = Array.from(this.npcStates.values()).filter(
+      npc => npc.morale < 40 && !npc.inCrisis
+    );
+
+    // ============================================================
+    // CRITICAL: Multiple NPCs in crisis = team breakdown visible
+    // ============================================================
+    if (npcsInCrisis.length >= 3) {
+      const names = npcsInCrisis.map(npc => npc.name).join(', ');
+      crisisEvents.push({
+        id: `npc_crisis_team_breakdown_${phase}`,
+        phase,
+        headline_de: '⚠️ Interne Spannungen',
+        headline_en: '⚠️ Internal Tensions',
+        description_de: `Quellen berichten von Problemen in der Organisation. Mehrere Mitglieder wirken gestresst. (${names})`,
+        description_en: `Sources report problems within the organization. Multiple members appear stressed. (${names})`,
+        type: 'world_event',
+        severity: 'warning',
+        read: false,
+        pinned: true,
+      });
+
+      console.log(`[Phase 2 Feedback] Team crisis visible: ${npcsInCrisis.length} NPCs in crisis`);
+    }
+
+    // ============================================================
+    // CHARACTER-SPECIFIC CRISIS MANIFESTATIONS
+    // ============================================================
+
+    // IGOR in crisis → Technical mistakes become visible
+    const igor = this.npcStates.get('igor');
+    if (igor?.inCrisis && this.seededRandom(`igor_crisis_${phase}`) < 0.4) {
+      crisisEvents.push({
+        id: `npc_crisis_igor_${phase}`,
+        phase,
+        headline_de: 'Technische Anomalien entdeckt',
+        headline_en: 'Technical Anomalies Detected',
+        description_de: 'Sicherheitsforscher berichten von ungewöhnlichen digitalen Spuren. Fehlerhafte Verschleierung vermutet.',
+        description_en: 'Security researchers report unusual digital traces. Faulty obfuscation suspected.',
+        type: 'world_event',
+        severity: 'warning',
+        read: false,
+        pinned: false,
+      });
+
+      console.log(`[Phase 2 Feedback] Igor's crisis manifests: technical errors visible`);
+    }
+
+    // MARINA in crisis → Financial irregularities leak
+    const marina = this.npcStates.get('marina');
+    if (marina?.inCrisis && this.seededRandom(`marina_crisis_${phase}`) < 0.35) {
+      crisisEvents.push({
+        id: `npc_crisis_marina_${phase}`,
+        phase,
+        headline_de: 'Unklare Geldflüsse beobachtet',
+        headline_en: 'Unclear Money Flows Observed',
+        description_de: 'Finanzjournalisten verfolgen verdächtige Transaktionen. Die Spur führt zu verschleierten Konten.',
+        description_en: 'Financial journalists trace suspicious transactions. The trail leads to obscured accounts.',
+        type: 'world_event',
+        severity: 'warning',
+        read: false,
+        pinned: false,
+      });
+
+      console.log(`[Phase 2 Feedback] Marina's crisis manifests: financial leaks`);
+    }
+
+    // VOLKOV in crisis → Operations become sloppy, visible
+    const volkov = this.npcStates.get('volkov');
+    if (volkov?.inCrisis && this.seededRandom(`volkov_crisis_${phase}`) < 0.45) {
+      crisisEvents.push({
+        id: `npc_crisis_volkov_${phase}`,
+        phase,
+        headline_de: 'Aggressive Trolling-Kampagne auffällig',
+        headline_en: 'Aggressive Trolling Campaign Noticeable',
+        description_de: 'Plattformen melden koordinierte Belästigung. Muster zu offensichtlich, Accounts bereits gesperrt.',
+        description_en: 'Platforms report coordinated harassment. Patterns too obvious, accounts already suspended.',
+        type: 'world_event',
+        severity: 'info',
+        read: false,
+        pinned: false,
+      });
+
+      console.log(`[Phase 2 Feedback] Volkov's crisis manifests: sloppy trolling detected`);
+    }
+
+    // KATJA in crisis → Moral messaging becomes incoherent
+    const katja = this.npcStates.get('katja');
+    if (katja?.inCrisis && this.seededRandom(`katja_crisis_${phase}`) < 0.3) {
+      crisisEvents.push({
+        id: `npc_crisis_katja_${phase}`,
+        phase,
+        headline_de: 'Propaganda-Narrative inkonsistent',
+        headline_en: 'Propaganda Narratives Inconsistent',
+        description_de: 'Analysten bemerken widersprüchliche Botschaften. Die Kampagne wirkt unkoordiniert und verzweifelt.',
+        description_en: 'Analysts notice contradictory messages. The campaign seems uncoordinated and desperate.',
+        type: 'world_event',
+        severity: 'info',
+        read: false,
+        pinned: false,
+      });
+
+      console.log(`[Phase 2 Feedback] Katja's crisis manifests: narrative breakdown`);
+    }
+
+    // DIREKTOR in crisis → VERY RARE but catastrophic
+    const direktor = this.npcStates.get('direktor');
+    if (direktor?.inCrisis && this.seededRandom(`direktor_crisis_${phase}`) < 0.15) {
+      crisisEvents.push({
+        id: `npc_crisis_direktor_${phase}`,
+        phase,
+        headline_de: '🔴 Hochrangige Quelle unter Druck',
+        headline_en: '🔴 High-Ranking Source Under Pressure',
+        description_de: 'Gerüchte über interne Probleme bei einer wichtigen Organisation. Führungskrise vermutet.',
+        description_en: 'Rumors about internal problems at an important organization. Leadership crisis suspected.',
+        type: 'world_event',
+        severity: 'danger',
+        read: false,
+        pinned: true,
+      });
+
+      console.log(`[Phase 2 Feedback] DIREKTOR crisis visible - catastrophic implications!`);
+    }
+
+    // ============================================================
+    // LOW MORALE (not yet crisis) → Subtle performance issues
+    // ============================================================
+    if (lowMoraleNPCs.length >= 2 && this.seededRandom(`low_morale_${phase}`) < 0.25) {
+      crisisEvents.push({
+        id: `npc_low_morale_${phase}`,
+        phase,
+        headline_de: 'Operative Effizienz schwankt',
+        headline_en: 'Operative Efficiency Fluctuates',
+        description_de: 'Beobachter bemerken Unregelmäßigkeiten in sonst professionellen Operationen.',
+        description_en: 'Observers notice irregularities in otherwise professional operations.',
+        type: 'world_event',
+        severity: 'info',
+        read: false,
+        pinned: false,
+      });
+
+      console.log(`[Phase 2 Feedback] Low team morale creates subtle inefficiencies`);
+    }
+
+    // ============================================================
+    // BONUS: Betrayal system integration
+    // ============================================================
+    // If multiple NPCs are stressed AND betrayal risk is high
+    // Calculate average betrayal risk across all NPCs
+    let totalBetrayalRisk = 0;
+    let npcCount = 0;
+    for (const npcId of ['direktor', 'marina', 'volkov', 'katja', 'igor']) {
+      if (this.betrayalSystem) {
+        const riskData = this.betrayalSystem.getBetrayalRisk(npcId);
+        if (riskData && typeof riskData.risk === 'number') {
+          totalBetrayalRisk += riskData.risk;
+          npcCount++;
+        }
+      }
+    }
+    const avgBetrayalRisk = npcCount > 0 ? totalBetrayalRisk / npcCount : 0;
+
+    if (npcsInCrisis.length >= 2 && avgBetrayalRisk >= 60 && this.seededRandom(`betrayal_leak_${phase}`) < 0.2) {
+      crisisEvents.push({
+        id: `npc_crisis_leak_risk_${phase}`,
+        phase,
+        headline_de: '⚠️ Potenzielle Informationslecks',
+        headline_en: '⚠️ Potential Information Leaks',
+        description_de: 'Geheimdienstberichte warnen vor Sicherheitslücken durch gestresste Insider.',
+        description_en: 'Intelligence reports warn of security vulnerabilities from stressed insiders.',
+        type: 'world_event',
+        severity: 'warning',
+        read: false,
+        pinned: true,
+      });
+
+      console.log(`[Phase 2 Feedback → Betrayal] Crisis + High betrayal risk = leak warnings`);
+    }
+
+    return crisisEvents;
+  }
+
+  /**
+   * PHASE 2 FEEDBACK LOOP: Resource Trends → Dynamic Events
+   *
+   * Monitors resource changes over time and generates world events when patterns emerge.
+   * This creates awareness that the world is watching and reacting to your resource state.
+   *
+   * Tracked trends: Risk, Attention, Budget depletion
+   */
+  private generateResourceTrendEvents(phase: number): NewsEvent[] {
+    const trendEvents: NewsEvent[] = [];
+
+    // Skip first 2 phases - need history for trends
+    if (phase < 3) return trendEvents;
+
+    // ============================================================
+    // RISING RISK TREND
+    // ============================================================
+    if (this.storyResources.risk >= 70) {
+      // Check if risk has been high for multiple phases
+      if (this.seededRandom(`risk_trend_${phase}`) < 0.3) {
+        trendEvents.push({
+          id: `resource_trend_risk_${phase}`,
+          phase,
+          headline_de: '🔥 Operationales Risiko steigt',
+          headline_en: '🔥 Operational Risk Rising',
+          description_de: 'Beobachter warnen vor zunehmenden Sicherheitslücken. Die Organisation agiert immer riskanter.',
+          description_en: 'Observers warn of increasing security gaps. The organization is acting increasingly risky.',
+          type: 'world_event',
+          severity: this.storyResources.risk >= 85 ? 'danger' : 'warning',
+          read: false,
+          pinned: this.storyResources.risk >= 85,
+        });
+
+        console.log(`[Phase 2 Feedback] High risk trend generates world attention (risk: ${this.storyResources.risk})`);
+      }
+    }
+
+    // ============================================================
+    // RISING ATTENTION TREND
+    // ============================================================
+    if (this.storyResources.attention >= 65) {
+      if (this.seededRandom(`attention_trend_${phase}`) < 0.35) {
+        trendEvents.push({
+          id: `resource_trend_attention_${phase}`,
+          phase,
+          headline_de: '👁️ Mediale Aufmerksamkeit wächst',
+          headline_en: '👁️ Media Attention Growing',
+          description_de: 'Immer mehr Journalisten verfolgen verdächtige Aktivitäten. Das Scheinwerferlicht wird heller.',
+          description_en: 'More and more journalists track suspicious activities. The spotlight is getting brighter.',
+          type: 'world_event',
+          severity: this.storyResources.attention >= 80 ? 'warning' : 'info',
+          read: false,
+          pinned: false,
+        });
+
+        console.log(`[Phase 2 Feedback] High attention trend becomes visible (attention: ${this.storyResources.attention})`);
+      }
+    }
+
+    // ============================================================
+    // BUDGET CRISIS
+    // ============================================================
+    if (this.storyResources.budget <= 30) {
+      if (this.seededRandom(`budget_trend_${phase}`) < 0.25) {
+        trendEvents.push({
+          id: `resource_trend_budget_${phase}`,
+          phase,
+          headline_de: '💸 Finanzielle Engpässe vermutet',
+          headline_en: '💸 Financial Bottlenecks Suspected',
+          description_de: 'Quellen berichten von Budgetproblemen. Zahlungen verzögern sich, Mitarbeiter werden unruhig.',
+          description_en: 'Sources report budget problems. Payments are delayed, staff is getting restless.',
+          type: 'world_event',
+          severity: this.storyResources.budget <= 15 ? 'warning' : 'info',
+          read: false,
+          pinned: false,
+        });
+
+        console.log(`[Phase 2 Feedback] Low budget creates external visibility (budget: ${this.storyResources.budget})`);
+      }
+    }
+
+    // ============================================================
+    // CAPACITY DEPLETION
+    // ============================================================
+    if (this.storyResources.capacity <= 2) {
+      if (this.seededRandom(`capacity_trend_${phase}`) < 0.3) {
+        trendEvents.push({
+          id: `resource_trend_capacity_${phase}`,
+          phase,
+          headline_de: 'Operative Kapazität erschöpft',
+          headline_en: 'Operative Capacity Exhausted',
+          description_de: 'Insider berichten von Überlastung. Die Organisation arbeitet am Limit.',
+          description_en: 'Insiders report overload. The organization is working at its limit.',
+          type: 'world_event',
+          severity: 'info',
+          read: false,
+          pinned: false,
+        });
+
+        console.log(`[Phase 2 Feedback] Low capacity visible (capacity: ${this.storyResources.capacity})`);
+      }
+    }
+
+    // ============================================================
+    // MORAL WEIGHT ACCUMULATION
+    // ============================================================
+    if (this.storyResources.moralWeight >= 40) {
+      if (this.seededRandom(`moral_trend_${phase}`) < 0.2) {
+        trendEvents.push({
+          id: `resource_trend_moral_${phase}`,
+          phase,
+          headline_de: '⚖️ Ethische Bedenken häufen sich',
+          headline_en: '⚖️ Ethical Concerns Mounting',
+          description_de: 'Menschenrechtsgruppen dokumentieren fragwürdige Praktiken. Der moralische Preis wird sichtbar.',
+          description_en: 'Human rights groups document questionable practices. The moral price becomes visible.',
+          type: 'world_event',
+          severity: this.storyResources.moralWeight >= 60 ? 'warning' : 'info',
+          read: false,
+          pinned: this.storyResources.moralWeight >= 60,
+        });
+
+        console.log(`[Phase 2 Feedback] High moral weight creates external scrutiny (moral: ${this.storyResources.moralWeight})`);
+      }
+    }
+
+    // ============================================================
+    // COMBINED CRISIS: Multiple resources critical
+    // ============================================================
+    const criticalResources = [
+      this.storyResources.risk >= 80,
+      this.storyResources.attention >= 75,
+      this.storyResources.budget <= 20,
+      this.storyResources.capacity <= 1,
+    ].filter(Boolean).length;
+
+    if (criticalResources >= 3 && this.seededRandom(`multi_crisis_${phase}`) < 0.4) {
+      trendEvents.push({
+        id: `resource_trend_multi_crisis_${phase}`,
+        phase,
+        headline_de: '🚨 Mehrfachkrise erkennbar',
+        headline_en: '🚨 Multiple Crises Detected',
+        description_de: 'Analysten warnen: Die Organisation steht unter extremem Druck. Zusammenbruch möglich.',
+        description_en: 'Analysts warn: The organization is under extreme pressure. Collapse possible.',
+        type: 'world_event',
+        severity: 'danger',
+        read: false,
+        pinned: true,
+      });
+
+      console.log(`[Phase 2 Feedback] MULTI-CRISIS: ${criticalResources} resources critical!`);
+    }
+
+    return trendEvents;
+  }
+
   private applyConsequenceEffects(consequence: ActiveConsequence): void {
     const effects = consequence.effects;
 
@@ -883,7 +1781,11 @@ export class StoryEngineAdapter {
         );
       }
 
-      // Handle NPC effects
+      // === PIPELINE 3: Consequence → NPC Morale (ENHANCED) ===
+      // Character-specific, linguistically rich morale impacts
+      this.applyConsequenceMoraleImpact(consequence);
+
+      // Handle NPC effects (LEGACY - kept for backward compatibility)
       if (effects.npc_moral_crisis) {
         // Trigger moral crisis for NPCs
         for (const npc of this.npcStates.values()) {
@@ -1014,6 +1916,382 @@ export class StoryEngineAdapter {
     this.activeConsequence = null;
 
     console.log(`[IgnoredConsequence] ${consequence.label_de} - effects applied:`, effects);
+  }
+
+  /**
+   * Generate NPC reactions to world events and action news
+   * PIPELINE 2: Events → NPC Reactions
+   *
+   * NPCs comment on significant events with character-specific perspectives.
+   * Reactions vary based on: Relationship Level, Mood, Morale, NPC Expertise
+   *
+   * BONUS: NPCs also react to player action-news (Pipeline 1 Synergy!)
+   */
+  private generateNPCEventReactions(events: NewsEvent[]): NewsEvent[] {
+    const reactions: NewsEvent[] = [];
+
+    for (const event of events) {
+      // Determine which NPCs should react to this event
+      const reactingNPCs = this.determineReactingNPCs(event);
+
+      for (const npcId of reactingNPCs) {
+        const npc = this.npcStates.get(npcId);
+        if (!npc) continue;
+
+        // Generate context-aware dialogue
+        const dialogue = this.selectNPCEventDialogue(npcId, npc, event);
+        if (!dialogue) continue;
+
+        // Create reaction news event
+        reactions.push({
+          id: `news_npc_reaction_${npcId}_${Date.now()}_${Math.random()}`,
+          phase: this.storyPhase.number,
+          headline_de: `${npc.name}: ${dialogue.headline_de}`,
+          headline_en: `${npc.name}: ${dialogue.headline_en}`,
+          description_de: dialogue.text_de,
+          description_en: dialogue.text_en,
+          type: 'npc_reaction',
+          severity: dialogue.severity || 'info',
+          read: false,
+          pinned: false,
+        });
+      }
+    }
+
+    return reactions;
+  }
+
+  /**
+   * Determine which NPCs should react to an event
+   * Based on: Event type, NPC specialties, Event severity, Current game state
+   */
+  private determineReactingNPCs(event: NewsEvent): string[] {
+    const reactingNPCs: string[] = [];
+
+    // High-severity events: Everyone reacts
+    const isHighSeverity = event.severity === 'danger' || event.severity === 'warning';
+    if (isHighSeverity) {
+      return ['direktor', 'marina', 'volkov', 'katja', 'igor'];
+    }
+
+    // Event-type based reactions
+    const eventKeywords = `${event.headline_de} ${event.headline_en} ${event.description_de}`.toLowerCase();
+
+    // Marina: Economics, data, analysis, public opinion
+    if (eventKeywords.includes('econom') ||
+        eventKeywords.includes('daten') || eventKeywords.includes('data') ||
+        eventKeywords.includes('umfrage') || eventKeywords.includes('poll') ||
+        eventKeywords.includes('studie') || eventKeywords.includes('study')) {
+      reactingNPCs.push('marina');
+    }
+
+    // Direktor: Politics, power, strategy
+    if (eventKeywords.includes('politik') || eventKeywords.includes('politic') ||
+        eventKeywords.includes('wahl') || eventKeywords.includes('election') ||
+        eventKeywords.includes('regierung') || eventKeywords.includes('government') ||
+        eventKeywords.includes('instabil') || eventKeywords.includes('instability')) {
+      reactingNPCs.push('direktor');
+    }
+
+    // Volkov: Chaos, protests, social unrest, trolling opportunities
+    if (eventKeywords.includes('protest') ||
+        eventKeywords.includes('unruhe') || eventKeywords.includes('unrest') ||
+        eventKeywords.includes('konflikt') || eventKeywords.includes('conflict') ||
+        eventKeywords.includes('krise') || eventKeywords.includes('crisis') ||
+        eventKeywords.includes('chaos')) {
+      reactingNPCs.push('volkov');
+    }
+
+    // Katja: Media, narratives, content, viral
+    if (eventKeywords.includes('media') || eventKeywords.includes('medien') ||
+        eventKeywords.includes('viral') ||
+        eventKeywords.includes('kampagne') || eventKeywords.includes('campaign') ||
+        eventKeywords.includes('narrativ') || eventKeywords.includes('narrative') ||
+        eventKeywords.includes('story')) {
+      reactingNPCs.push('katja');
+    }
+
+    // Igor: Technology, security, hacking, cyber
+    if (eventKeywords.includes('cyber') ||
+        eventKeywords.includes('hack') ||
+        eventKeywords.includes('sicherheit') || eventKeywords.includes('security') ||
+        eventKeywords.includes('tech') ||
+        eventKeywords.includes('bot') ||
+        eventKeywords.includes('digital')) {
+      reactingNPCs.push('igor');
+    }
+
+    // PIPELINE 1 SYNERGY: NPCs react to YOUR actions
+    if (event.type === 'action_result' && event.sourceActionId) {
+      // Dark actions: Everyone has an opinion
+      if (event.severity === 'danger') {
+        if (!reactingNPCs.includes('marina')) reactingNPCs.push('marina'); // Moral concern
+        if (!reactingNPCs.includes('volkov')) reactingNPCs.push('volkov'); // Celebrates
+      }
+
+      // Successful campaigns: Katja + Direktor react
+      if (event.severity === 'success') {
+        if (!reactingNPCs.includes('katja')) reactingNPCs.push('katja');
+        if (!reactingNPCs.includes('direktor')) reactingNPCs.push('direktor');
+      }
+    }
+
+    // If no specific reactions, pick 1-2 random NPCs (keep it varied)
+    if (reactingNPCs.length === 0 && event.severity !== 'info') {
+      const allNPCs = ['direktor', 'marina', 'volkov', 'katja', 'igor'];
+      const randomCount = Math.random() > 0.5 ? 1 : 2;
+      for (let i = 0; i < randomCount; i++) {
+        const randomNPC = allNPCs[Math.floor(Math.random() * allNPCs.length)];
+        if (!reactingNPCs.includes(randomNPC)) {
+          reactingNPCs.push(randomNPC);
+        }
+      }
+    }
+
+    return reactingNPCs;
+  }
+
+  /**
+   * Select appropriate dialogue for NPC reacting to event
+   * Context-aware based on: Relationship, Mood, Morale, Event Type
+   */
+  private selectNPCEventDialogue(npcId: string, npc: NPCState, event: NewsEvent): {
+    headline_de: string;
+    headline_en: string;
+    text_de: string;
+    text_en: string;
+    severity?: 'info' | 'success' | 'warning' | 'danger';
+  } | null {
+    const eventKeywords = `${event.headline_de} ${event.headline_en}`.toLowerCase();
+
+    // ===== DIREKTOR =====
+    if (npcId === 'direktor') {
+      // Strategic observations
+      if (eventKeywords.includes('politik') || eventKeywords.includes('politic')) {
+        return {
+          headline_de: npc.relationshipLevel >= 2 ? 'Das spielt uns in die Hände' : 'Politische Entwicklung',
+          headline_en: npc.relationshipLevel >= 2 ? 'This plays into our hands' : 'Political development',
+          text_de: npc.morale >= 60
+            ? '*nickt zufrieden* Perfekter Zeitpunkt für unsere Operationen.'
+            : '*runzelt Stirn* Das könnte kompliziert werden.',
+          text_en: npc.morale >= 60
+            ? '*nods with satisfaction* Perfect timing for our operations.'
+            : '*frowns* This could get complicated.',
+          severity: 'info',
+        };
+      }
+
+      if (eventKeywords.includes('krise') || eventKeywords.includes('crisis')) {
+        return {
+          headline_de: 'Krise ist Opportunität',
+          headline_en: 'Crisis is opportunity',
+          text_de: '*lehnt sich zurück* In Chaos liegt Macht. Wir müssen handeln.',
+          text_en: '*leans back* In chaos lies power. We must act.',
+          severity: 'success',
+        };
+      }
+
+      // Player action reactions
+      if (event.type === 'action_result') {
+        if (event.severity === 'danger') {
+          return {
+            headline_de: npc.morale >= 50 ? 'Mutige Taktik' : 'Zu riskant',
+            headline_en: npc.morale >= 50 ? 'Bold tactics' : 'Too risky',
+            text_de: npc.morale >= 50
+              ? 'Aggressiv, aber effektiv. So gewinnt man Kriege.'
+              : '*schaut Sie an* Das wird Konsequenzen haben.',
+            text_en: npc.morale >= 50
+              ? 'Aggressive, but effective. This is how wars are won.'
+              : '*looks at you* This will have consequences.',
+            severity: npc.morale >= 50 ? 'info' : 'warning',
+          };
+        }
+      }
+    }
+
+    // ===== MARINA =====
+    if (npcId === 'marina') {
+      // Data analysis
+      if (eventKeywords.includes('econom') || eventKeywords.includes('daten') || eventKeywords.includes('data')) {
+        return {
+          headline_de: 'Interessante Daten',
+          headline_en: 'Interesting data',
+          text_de: npc.relationshipLevel >= 2
+            ? '*zeigt Ihnen Graphen* Sehen Sie das Muster? Das können wir nutzen.'
+            : '*analysiert Bildschirm* Die Zahlen sind... aufschlussreich.',
+          text_en: npc.relationshipLevel >= 2
+            ? '*shows you graphs* See the pattern? We can use this.'
+            : '*analyzes screen* The numbers are... revealing.',
+          severity: 'info',
+        };
+      }
+
+      // Moral concerns on dark actions
+      if (event.type === 'action_result' && event.severity === 'danger') {
+        return {
+          headline_de: npc.morale >= 50 ? 'Notwendiges Übel' : 'Das geht zu weit',
+          headline_en: npc.morale >= 50 ? 'Necessary evil' : 'This goes too far',
+          text_de: npc.morale >= 50
+            ? '*seufzt* Ich verstehe die Notwendigkeit, aber... *schaut weg*'
+            : '*blass* Das... das war extrem. Ich brauche... einen Moment.',
+          text_en: npc.morale >= 50
+            ? '*sighs* I understand the necessity, but... *looks away*'
+            : '*pale* That... that was extreme. I need... a moment.',
+          severity: npc.morale >= 50 ? 'warning' : 'danger',
+        };
+      }
+
+      // Crisis reactions
+      if (eventKeywords.includes('krise') || eventKeywords.includes('crisis')) {
+        return {
+          headline_de: npc.morale >= 60 ? 'Besorgniserregend' : 'Ich mache mir Sorgen',
+          headline_en: npc.morale >= 60 ? 'Concerning' : 'I\'m worried',
+          text_de: npc.morale >= 60
+            ? 'Die Daten zeigen Eskalation. Wir sollten vorsichtig sein.'
+            : '*nervös* Die Entwicklung ist... beunruhigend. Sehr beunruhigend.',
+          text_en: npc.morale >= 60
+            ? 'Data shows escalation. We should be careful.'
+            : '*nervous* The development is... disturbing. Very disturbing.',
+          severity: 'warning',
+        };
+      }
+    }
+
+    // ===== VOLKOV =====
+    if (npcId === 'volkov') {
+      // Chaos = Joy
+      if (eventKeywords.includes('protest') || eventKeywords.includes('unruhe') || eventKeywords.includes('chaos')) {
+        return {
+          headline_de: npc.relationshipLevel >= 2 ? 'PERFEKT!' : 'Interessant',
+          headline_en: npc.relationshipLevel >= 2 ? 'PERFECT!' : 'Interesting',
+          text_de: npc.relationshipLevel >= 2
+            ? '*reibt sich die Hände* Das ist UNSER Moment! Lass uns Öl ins Feuer gießen!'
+            : '*grinst* Da draußen brodelt es. Das können wir nutzen.',
+          text_en: npc.relationshipLevel >= 2
+            ? '*rubs hands* This is OUR moment! Let\'s add fuel to the fire!'
+            : '*grins* It\'s simmering out there. We can use this.',
+          severity: 'success',
+        };
+      }
+
+      // Celebrates dark actions
+      if (event.type === 'action_result' && event.severity === 'danger') {
+        return {
+          headline_de: npc.relationshipLevel >= 1 ? 'ENDLICH Aktion!' : 'Jetzt wird\'s interessant',
+          headline_en: npc.relationshipLevel >= 1 ? 'FINALLY action!' : 'Now it gets interesting',
+          text_de: npc.relationshipLevel >= 1
+            ? '*lacht laut* JA! Das ist echte Arbeit! Mehr davon!'
+            : '*grinst* Ah, Sie zeigen Zähne. Gut.',
+          text_en: npc.relationshipLevel >= 1
+            ? '*laughs loudly* YES! That\'s real work! More of this!'
+            : '*grins* Ah, you show teeth. Good.',
+          severity: 'success',
+        };
+      }
+
+      // Bored by peaceful events
+      if (event.severity === 'info') {
+        return {
+          headline_de: 'Langweilig',
+          headline_en: 'Boring',
+          text_de: '*gähnt* Sagen Sie Bescheid, wenn was Interessantes passiert.',
+          text_en: '*yawns* Let me know when something interesting happens.',
+          severity: 'info',
+        };
+      }
+    }
+
+    // ===== KATJA =====
+    if (npcId === 'katja') {
+      // Media narratives
+      if (eventKeywords.includes('narrativ') || eventKeywords.includes('kampagne') || eventKeywords.includes('viral')) {
+        return {
+          headline_de: npc.relationshipLevel >= 2 ? 'Story-Gold!' : 'Story-Potential',
+          headline_en: npc.relationshipLevel >= 2 ? 'Story gold!' : 'Story potential',
+          text_de: npc.relationshipLevel >= 2
+            ? '*springt auf* Das ist PERFEKT für unsere Narrative! Lassen Sie mich ran!'
+            : '*notiert eifrig* Da steckt eine Geschichte drin...',
+          text_en: npc.relationshipLevel >= 2
+            ? '*jumps up* This is PERFECT for our narratives! Let me at it!'
+            : '*notes eagerly* There\'s a story in this...',
+          severity: 'success',
+        };
+      }
+
+      // Celebrates viral success
+      if (event.type === 'action_result' && event.severity === 'success') {
+        return {
+          headline_de: npc.relationshipLevel >= 1 ? 'BRILLIANT!' : 'Das funktioniert',
+          headline_en: npc.relationshipLevel >= 1 ? 'BRILLIANT!' : 'That works',
+          text_de: npc.relationshipLevel >= 1
+            ? '*umarmt Sie* Das ist Kunst! Pure Kunst! Die Menschen FÜHLEN es!'
+            : '*lächelt* Gute Arbeit. Die Resonanz ist stark.',
+          text_en: npc.relationshipLevel >= 1
+            ? '*hugs you* That\'s art! Pure art! People FEEL it!'
+            : '*smiles* Good work. The resonance is strong.',
+          severity: 'success',
+        };
+      }
+
+      // Worried by dark actions
+      if (event.type === 'action_result' && event.severity === 'danger') {
+        return {
+          headline_de: npc.morale >= 50 ? 'Starke Methoden' : 'Das ist... heftig',
+          headline_en: npc.morale >= 50 ? 'Strong methods' : 'That\'s... intense',
+          text_de: npc.morale >= 50
+            ? '*schluckt* Das ist... eine sehr dunkle Geschichte. Sind Sie sicher?'
+            : '*starrt* Das sind keine Geschichten mehr. Das sind echte Menschen...',
+          text_en: npc.morale >= 50
+            ? '*swallows* That\'s... a very dark story. Are you sure?'
+            : '*stares* These aren\'t stories anymore. These are real people...',
+          severity: 'warning',
+        };
+      }
+    }
+
+    // ===== IGOR =====
+    if (npcId === 'igor') {
+      // Technical/security events
+      if (eventKeywords.includes('cyber') || eventKeywords.includes('hack') || eventKeywords.includes('sicherheit')) {
+        return {
+          headline_de: event.severity === 'warning' ? 'Sicherheitsrisiko' : 'Noted',
+          headline_en: event.severity === 'warning' ? 'Security risk' : 'Noted',
+          text_de: event.severity === 'warning'
+            ? '*tippt schnell* Erhöhe Encryption. Ändere Routen. 30 Minuten.'
+            : '*nickt* Tracking. Updating protocols.',
+          text_en: event.severity === 'warning'
+            ? '*types quickly* Increasing encryption. Changing routes. 30 minutes.'
+            : '*nods* Tracking. Updating protocols.',
+          severity: event.severity === 'warning' ? 'warning' : 'info',
+        };
+      }
+
+      // Bot detection (player action)
+      if (eventKeywords.includes('bot') && event.type === 'action_result') {
+        return {
+          headline_de: npc.morale >= 60 ? 'Verbesserungsbedarf' : 'Problematisch',
+          headline_en: npc.morale >= 60 ? 'Needs improvement' : 'Problematic',
+          text_de: npc.morale >= 60
+            ? '*runzelt Stirn* Signatur zu offensichtlich. Ich optimiere.'
+            : '*ernst* Sie wurden entdeckt. Ich brauche Zeit zum Refactoring.',
+          text_en: npc.morale >= 60
+            ? '*frowns* Signature too obvious. I\'ll optimize.'
+            : '*serious* You were detected. I need time for refactoring.',
+          severity: 'warning',
+        };
+      }
+
+      // Minimal reactions to non-technical events
+      return {
+        headline_de: 'OK',
+        headline_en: 'OK',
+        text_de: '*nickt kurz*',
+        text_en: '*nods briefly*',
+        severity: 'info',
+      };
+    }
+
+    return null;
   }
 
   private generateWorldEvents(phase: number): NewsEvent[] {
@@ -1577,6 +2855,193 @@ export class StoryEngineAdapter {
   }
 
   /**
+   * Generate contextual news events from a player action
+   * PIPELINE 1: Actions → News
+   *
+   * Implements smart filtering - not every action generates news.
+   * News generated based on: Impact, Legality, Risk, Tags, Moral Weight
+   */
+  private generateActionNews(action: StoryAction, result: ActionResult): NewsEvent[] {
+    const news: NewsEvent[] = [];
+
+    // SMART FILTERING: Only significant actions generate news
+    const isSignificant =
+      action.legality !== 'legal' ||                           // Illegal/grey actions
+      (action.costs.moralWeight && action.costs.moralWeight >= 5) ||  // High moral weight
+      (action.costs.risk && action.costs.risk >= 30) ||        // High risk
+      (action.costs.attention && action.costs.attention >= 25) || // High attention
+      action.tags.includes('viral') ||                         // Viral potential
+      action.tags.includes('violent') ||                       // Violence
+      this.storyResources.risk >= 60;                          // Already hot
+
+    if (!isSignificant) {
+      // Skip news for routine, low-impact actions
+      return news;
+    }
+
+    // === PRIMARY ACTION NEWS ===
+    const primaryNews = this.createPrimaryActionNews(action, result);
+    news.push(primaryNews);
+
+    // === WORLD REACTION NEWS (for very significant actions) ===
+    const worldReaction = this.createWorldReactionNews(action, result);
+    if (worldReaction) {
+      news.push(worldReaction);
+    }
+
+    return news;
+  }
+
+  /**
+   * Create primary action news with contextual headlines
+   */
+  private createPrimaryActionNews(action: StoryAction, result: ActionResult): NewsEvent {
+    let headline_de = action.label_de;
+    let headline_en = action.label_en;
+    let description_de = action.narrative_de;
+    let description_en = action.narrative_en;
+    let severity: 'info' | 'success' | 'warning' | 'danger' = 'info';
+
+    // === TAG-BASED HEADLINES ===
+    // Generate more dramatic headlines based on action tags
+    if (action.tags.includes('bot')) {
+      headline_de = 'Koordinierte Bot-Aktivität beobachtet';
+      headline_en = 'Coordinated Bot Activity Observed';
+      description_de = 'Experten entdecken Muster automatisierter Accounts.';
+      description_en = 'Experts detect patterns of automated accounts.';
+      severity = 'warning';
+    } else if (action.tags.includes('trolling') || action.tags.includes('harassment')) {
+      headline_de = 'Welle an Belästigungen in sozialen Medien';
+      headline_en = 'Wave of Harassment on Social Media';
+      description_de = 'Koordinierte Angriffe gegen Zielpersonen dokumentiert.';
+      description_en = 'Coordinated attacks against targets documented.';
+      severity = 'warning';
+    } else if (action.tags.includes('blackmail')) {
+      headline_de = 'Politische Figur unter mysteriösem Druck';
+      headline_en = 'Political Figure Under Mysterious Pressure';
+      description_de = 'Quellen berichten von kompromittierendem Material.';
+      description_en = 'Sources report compromising material.';
+      severity = 'danger';
+    } else if (action.tags.includes('propaganda') || action.tags.includes('content')) {
+      headline_de = 'Neue Narrative verbreiten sich viral';
+      headline_en = 'New Narratives Spreading Virally';
+      description_de = 'Unbekannte Quellen pushen koordinierte Botschaften.';
+      description_en = 'Unknown sources push coordinated messages.';
+      severity = 'info';
+    } else if (action.tags.includes('hacking') || action.tags.includes('technical')) {
+      headline_de = 'Sicherheitsexperten warnen vor Cyber-Aktivität';
+      headline_en = 'Security Experts Warn of Cyber Activity';
+      description_de = 'Verdächtige digitale Operationen entdeckt.';
+      description_en = 'Suspicious digital operations detected.';
+      severity = 'warning';
+    } else if (action.tags.includes('recruiting')) {
+      headline_de = 'Insider berichten von Rekrutierungsversuchen';
+      headline_en = 'Insiders Report Recruitment Attempts';
+      description_de = 'Quellen sprechen von geheimnisvollen Angeboten.';
+      description_en = 'Sources speak of mysterious offers.';
+      severity = 'info';
+    } else if (action.tags.includes('violence') || action.tags.includes('violent')) {
+      headline_de = 'Gewaltvolle Inhalte nehmen zu';
+      headline_en = 'Violent Content on the Rise';
+      description_de = 'Extremistische Rhetorik erreicht neue Intensität.';
+      description_en = 'Extremist rhetoric reaches new intensity.';
+      severity = 'danger';
+    } else if (action.tags.includes('viral')) {
+      headline_de = 'Mysteriöse Kampagne erreicht Millionen';
+      headline_en = 'Mysterious Campaign Reaches Millions';
+      description_de = 'Unklare Quellen hinter viralem Phänomen.';
+      description_en = 'Unclear sources behind viral phenomenon.';
+      severity = 'success';
+    }
+
+    // === SEVERITY ADJUSTMENTS ===
+    // Override severity based on legality and moral weight
+    if (action.legality === 'illegal') {
+      severity = severity === 'info' ? 'warning' : severity;
+      severity = severity === 'success' ? 'warning' : severity;
+    }
+
+    if (action.costs.moralWeight && action.costs.moralWeight >= 7) {
+      severity = 'danger';
+    }
+
+    // === RISK-BASED MODIFICATIONS ===
+    if (this.storyResources.risk >= 70) {
+      headline_de = '⚠️ ' + headline_de;
+      headline_en = '⚠️ ' + headline_en;
+      severity = severity === 'info' ? 'warning' : severity;
+    }
+
+    return {
+      id: `news_action_${action.id}_${Date.now()}`,
+      phase: this.storyPhase.number,
+      headline_de,
+      headline_en,
+      description_de,
+      description_en,
+      type: 'action_result',
+      severity,
+      sourceActionId: action.id,
+      read: false,
+      pinned: false,
+    };
+  }
+
+  /**
+   * Create world reaction news for very significant actions
+   * Only triggered for high-impact operations
+   */
+  private createWorldReactionNews(action: StoryAction, result: ActionResult): NewsEvent | null {
+    // Only very significant actions get world reactions
+    const needsWorldReaction =
+      (action.costs.moralWeight && action.costs.moralWeight >= 8) ||
+      (action.costs.risk && action.costs.risk >= 40) ||
+      action.tags.includes('blackmail') ||
+      action.tags.includes('violence') ||
+      this.storyResources.risk >= 80;
+
+    if (!needsWorldReaction) {
+      return null;
+    }
+
+    let headline_de = 'Behörden äußern Bedenken';
+    let headline_en = 'Authorities Express Concerns';
+    let description_de = 'Offizielle beobachten die Entwicklung mit Sorge.';
+    let description_en = 'Officials monitor developments with concern.';
+
+    // Customize based on context
+    if (this.storyResources.risk >= 80) {
+      headline_de = 'Druck auf Ermittlungsbehörden steigt';
+      headline_en = 'Pressure on Investigators Mounts';
+      description_de = 'Öffentlichkeit fordert Aufklärung verdächtiger Aktivitäten.';
+      description_en = 'Public demands clarification of suspicious activities.';
+    } else if (action.tags.includes('blackmail')) {
+      headline_de = 'Politische Instabilität nimmt zu';
+      headline_en = 'Political Instability Increases';
+      description_de = 'Experten warnen vor Destabilisierung.';
+      description_en = 'Experts warn of destabilization.';
+    } else if (action.tags.includes('violence')) {
+      headline_de = 'Sicherheitskräfte in Alarmbereitschaft';
+      headline_en = 'Security Forces on Alert';
+      description_de = 'Behörden erhöhen Überwachung extremistischer Aktivitäten.';
+      description_en = 'Authorities increase monitoring of extremist activities.';
+    }
+
+    return {
+      id: `news_reaction_${action.id}_${Date.now()}`,
+      phase: this.storyPhase.number,
+      headline_de,
+      headline_en,
+      description_de,
+      description_en,
+      type: 'world_event',
+      severity: 'warning',
+      read: false,
+      pinned: false,
+    };
+  }
+
+  /**
    * Führe eine Aktion aus
    */
   executeAction(actionId: string, options?: {
@@ -1746,20 +3211,12 @@ export class StoryEngineAdapter {
       result,
     });
 
-    // News
-    this.newsEvents.unshift({
-      id: `news_action_${Date.now()}`,
-      phase: this.storyPhase.number,
-      headline_de: action.label_de,
-      headline_en: action.label_en,
-      description_de: action.narrative_de,
-      description_en: action.narrative_en,
-      type: 'action_result',
-      severity: action.legality === 'illegal' ? 'warning' : 'info',
-      sourceActionId: actionId,
-      read: false,
-      pinned: false,
-    });
+    // === PIPELINE 1: Actions → News ===
+    // Generate contextual news based on action significance
+    const actionNews = this.generateActionNews(action, result);
+    for (const news of actionNews) {
+      this.newsEvents.unshift(news);
+    }
 
     return result;
   }
