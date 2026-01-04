@@ -4,7 +4,6 @@ import { cn } from '@/utils/cn';
 import { formatPercent } from '@/utils';
 import { trustToHex } from '@/utils/colors';
 import { NetworkVisualization } from '@/components/NetworkVisualization';
-import { VictoryProgressBar } from '@/components/VictoryProgressBar';
 import { UnifiedRoundModal } from '@/components/UnifiedRoundModal';
 import { TutorialOverlay, TutorialProgress } from '@/components/TutorialOverlay';
 import { UnifiedRightPanel } from '@/components/UnifiedRightPanel';
@@ -449,44 +448,6 @@ function App() {
             Desinformation Network
           </h1>
         </div>
-      </div>
-
-      {/* Floating HUD - Top Right */}
-      <div className="fixed top-6 right-6 z-40 flex flex-col gap-3 animate-fade-in">
-        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl min-w-[200px] transition-all hover:bg-gray-900/80 hover:shadow-2xl hover:shadow-purple-500/10">
-          <VictoryProgressBar
-            metrics={networkMetrics}
-            round={gameState.round}
-            maxRounds={currentScenario.victoryConditions.maxRounds}
-            victoryThreshold={currentScenario.victoryConditions.actorPercentage}
-            trustThreshold={currentScenario.victoryConditions.trustThreshold}
-          />
-        </div>
-        <div className="bg-gray-900/70 backdrop-blur-md border border-gray-700/50 rounded-xl px-4 py-3 shadow-xl transition-all hover:bg-gray-900/80 hover:shadow-2xl hover:shadow-blue-500/10">
-          <div className="flex flex-col gap-1.5 text-sm">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-400">Avg Trust:</span>
-              <span
-                className="font-semibold transition-colors"
-                style={{ color: trustToHex(networkMetrics.averageTrust) }}
-              >
-                {formatPercent(networkMetrics.averageTrust)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-400">Low Trust:</span>
-              <span className="font-semibold text-red-400 transition-all">
-                {networkMetrics.lowTrustCount}/{gameState.network.actors.length}
-              </span>
-            </div>
-          </div>
-        </div>
-        <button
-          onClick={advanceRound}
-          className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-green-600/30 hover:scale-105 active:scale-95"
-        >
-          End Round →
-        </button>
       </div>
 
       {/* Network Visualization (left side, minus 320px for unified panel) */}
