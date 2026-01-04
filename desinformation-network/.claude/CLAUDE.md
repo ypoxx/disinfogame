@@ -554,6 +554,8 @@ netlify deploy --prod  # Deploy to production
 
 **PFLICHT: Bei jeder Code-Analyse diese Methodik befolgen:**
 
+**Skill verwenden:** `/code-review` - Führt interaktiv durch alle Phasen der Methodik.
+
 Siehe `docs/CODE_REVIEW_METHODOLOGY.md` für detaillierte Checkliste.
 
 **Kurzfassung:**
