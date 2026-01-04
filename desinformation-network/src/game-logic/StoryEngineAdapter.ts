@@ -91,6 +91,7 @@ import {
 } from '../story-mode/engine/ExtendedActorLoader';
 
 import { StoryNarrativeGenerator } from '../story-mode/engine/StoryNarrativeGenerator';
+import { dialogLoader } from '../story-mode/engine/DialogLoader';
 
 import { playSound } from '../story-mode/utils/SoundSystem';
 
@@ -4029,32 +4030,54 @@ export class StoryEngineAdapter {
 
   /**
    * Get NPC dialogue based on context
-   * TD-006: Dynamic NPC dialogues from JSON
+   * TD-006: Dynamic NPC dialogues from JSON (now uses DialogLoader for elaborate dialogues)
    */
   getNPCDialogue(npcId: string, context: {
     type: 'greeting' | 'reaction' | 'topic';
     subtype?: string;  // For reactions: 'success'/'failure'/'crisis', for topics: topic name
     relationshipLevel?: number;
   }): string | null {
-    const dialogues = this.npcDialogues.get(npcId);
-    if (!dialogues) return null;
-
     const npc = this.npcStates.get(npcId);
     if (!npc) return null;
 
+    // Use seeded random for deterministic selection
+    const rng = () => this.seededRandom(`dialog_${npcId}_${context.type}_${this.storyPhase.number}`);
+
     switch (context.type) {
       case 'greeting': {
+        // Use DialogLoader to get elaborate greetings from dialogues.json
         const level = context.relationshipLevel ?? npc.relationshipLevel;
-        const greetings = dialogues.greetings;
-        return greetings?.[level.toString()] || greetings?.['0'] || null;
+        const dialogue = dialogLoader.getGreeting(npcId, level, rng);
+        if (dialogue) {
+          return dialogue.text_de;
+        }
+        // Fallback to simple dialogues from npcs.json
+        const simpleDialogues = this.npcDialogues.get(npcId);
+        if (simpleDialogues?.greetings) {
+          return simpleDialogues.greetings[level.toString()] || simpleDialogues.greetings['0'] || null;
+        }
+        return null;
       }
       case 'reaction': {
-        const reactions = dialogues.reactions;
-        return reactions?.[context.subtype || 'success'] || null;
+        // Use DialogLoader to get elaborate reactions from dialogues.json
+        const actionTags = context.subtype ? [context.subtype] : [];
+        const conditions = {
+          risk: this.storyResources.risk,
+          morale: npc.morale,
+          moral_weight: this.storyResources.moralWeight,
+        };
+        const dialogue = dialogLoader.getReaction(npcId, actionTags, conditions, rng);
+        if (dialogue) {
+          return dialogue.text_de;
+        }
+        // Fallback to simple reactions
+        const simpleDialogues = this.npcDialogues.get(npcId);
+        return simpleDialogues?.reactions?.[context.subtype || 'success'] || null;
       }
       case 'topic': {
-        const topics = dialogues.topics;
-        return topics?.[context.subtype || ''] || null;
+        // Topics are still from simple dialogues (npcs.json) - dialogues.json doesn't have topics
+        const simpleDialogues = this.npcDialogues.get(npcId);
+        return simpleDialogues?.topics?.[context.subtype || ''] || null;
       }
       default:
         return null;
