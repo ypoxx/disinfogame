@@ -1,24 +1,27 @@
 # DESINFORMATION NETWORK - Development Roadmap 2026
 
 **Erstellt:** 2026-01-03
+**Aktualisiert:** 2026-01-04 (nach Experten-Review)
 **Ziel:** Platin-Niveau
 **Fokus:** Story Mode
+**Methodik:** Siehe `docs/CODE_REVIEW_METHODOLOGY.md`
 
 ---
 
 ## EXECUTIVE SUMMARY
 
-Nach umfassender Code-Analyse wurden folgende Hauptbereiche identifiziert:
+Nach umfassender Code-Analyse und **Experten-Review** wurden folgende Hauptbereiche identifiziert:
 
 | Bereich | Status | Kritische Issues | Geschätzter Aufwand |
 |---------|--------|------------------|---------------------|
-| **Kritische Bugs** | 5 gefunden | 2 Balance-breaking | 2-4h |
-| **Technische Schulden** | 18 Items | 10 offen | 40-60h |
-| **Nicht-integrierte Features** | 12+ | EventsPanel, Tutorial | 20-30h |
+| **Kritische Bugs** | 4 verifiziert | 1 Security, 1 Seeding | 4-6h |
+| **Orphan-Features** | 6+ gefunden | Encyclopedia, EventsPanel | 8-12h |
+| **Technische Schulden** | 18 Items | 10 offen | 50-70h |
+| **Nicht-integrierte Features** | 12+ | Tutorial, Combo-System | 30-40h |
 | **UX/Visual Design** | Viele Ideen | Büro-Konzept ausstehend | 40-80h |
 | **Dokumentationslücken** | 8 Bereiche | Testing, Architecture | 10-20h |
 
-**Gesamtschätzung für Platin:** 120-200 Stunden
+**Gesamtschätzung für Platin:** 180-280 Stunden (korrigiert nach Review)
 
 ---
 
@@ -30,31 +33,35 @@ Nach umfassender Code-Analyse wurden folgende Hauptbereiche identifiziert:
 - **Lösung:** onMouseEnter/onMouseLeave direkt in Komponenten integriert, Overlays entfernt
 - **Datei:** `src/story-mode/OfficeScreen.tsx`
 
-### 1.2 KRITISCH: Switch-Statement ohne break (Balance-Breaking)
-- **Status:** ❌ OFFEN
+### ~~1.2 FALSCH DOKUMENTIERT: Switch-Statement ohne break~~
+- **Status:** ⚠️ **FEHLER IN ANALYSE - BUG EXISTIERT NICHT!**
 - **Datei:** `src/game-logic/GameState.ts:360-373`
-- **Problem:**
-  ```typescript
-  case 'media': moneyGain += 5;  // Missing break!
-  case 'expert': moneyGain += 3;
-  case 'lobby': moneyGain += 4;
-  ```
-- **Auswirkung:** Media-Akteure geben +14 statt +5 pro Runde (Fallthrough)
-- **Aufwand:** 5 Minuten
+- **Realität:** Code wurde verifiziert - **ALLE break-Statements sind vorhanden**
+- **Lektion:** Agent-Berichte nicht blind vertrauen, Code selbst lesen
+- **Siehe:** `docs/CODE_REVIEW_METHODOLOGY.md`
 
-### 1.3 KRITISCH: Reaction Chance kann >100% sein
+### 1.2 NEU: Code-Injection Risiko (new Function)
+- **Status:** ❌ OFFEN - **SECURITY CRITICAL**
+- **Datei:** `src/game-logic/GameState.ts` (Event-Condition-Evaluation)
+- **Problem:** `new Function()` wird für Event-Bedingungen verwendet
+- **Risiko:** Potentielle Code-Injection bei manipulierten Event-Daten
+- **Lösung:** Expression-Parser-Library verwenden (z.B. expr-eval)
+- **Aufwand:** 2-4 Stunden
+
+### 1.3 VERIFIZIERT: Reaction Chance kann >100% sein
 - **Status:** ❌ OFFEN
 - **Datei:** `src/game-logic/actor-ai.ts:110-119`
 - **Problem:** `reactionChance` wird nicht geclampt
 - **Auswirkung:** Bei hohen Werten immer 100% Reaktionswahrscheinlichkeit
 - **Aufwand:** 10 Minuten
 
-### 1.4 HOCH: Math.random() bricht Seeding in Story Mode
-- **Status:** ❌ OFFEN
-- **Datei:** `src/game-logic/StoryEngineAdapter.ts:2042, 2044`
+### 1.4 VERIFIZIERT: Math.random() bricht Seeding in Story Mode
+- **Status:** ❌ OFFEN - **BLOCKING für Testing**
+- **Dateien:** `src/game-logic/StoryEngineAdapter.ts:2042, 2044` + **18 weitere Dateien!**
 - **Problem:** Gameplay-Entscheidungen nutzen ungeseedetes Math.random()
-- **Auswirkung:** Story Mode nicht reproduzierbar
-- **Aufwand:** 15 Minuten
+- **Auswirkung:** Story Mode nicht reproduzierbar, Tests nicht deterministisch
+- **Aufwand:** ~~15 Minuten~~ **2-3 Stunden** (19 Dateien betroffen!)
+- **Abhängigkeit:** Muss VOR allen anderen Tests gefixt werden
 
 ### 1.5 HOCH: Jahr 7 Phase-Limit
 - **Status:** ❌ OFFEN
@@ -113,6 +120,20 @@ Nach umfassender Code-Analyse wurden folgende Hauptbereiche identifiziert:
 - **Datei:** `src/story-mode/engine/TaxonomyLoader.ts`
 - **Problem:** 27 Überzeugungstechniken definiert, aber nicht in Aktions-UI sichtbar
 - **Aufwand:** 3 Stunden
+
+### 2.7 NEU: Weitere Orphan-Features (Experten-Review 2026-01-04)
+
+| Feature | Datei | Problem |
+|---------|-------|---------|
+| `dismissCurrentEvent` | hooks/useGameState.ts:375-381 | Handler existiert, wird nie aufgerufen |
+| `toggleSettings` | hooks/useGameState.ts:368-373 | Handler existiert, keine Settings-UI |
+| `toggleTutorial` | hooks/useGameState.ts:361-367 | Handler existiert, nicht verwendet |
+| `worldEventCount` | OfficeScreen.tsx:23 | Prop definiert, nie übergeben (immer 0) |
+| Actor-AI System | game-logic/actor-ai.ts | 300 Zeilen - komplett ungenutzt! |
+| Event-Chain-System | game-logic/event-chain-system.ts | System existiert, nie aufgerufen |
+| NarrativeGenerator | game-logic/NarrativeGenerator.ts | 400 Zeilen Templates, Story Mode nutzt es nicht |
+
+**Aufwand für Integration:** 6-10 Stunden
 
 ---
 
@@ -271,43 +292,48 @@ Nach umfassender Code-Analyse wurden folgende Hauptbereiche identifiziert:
 
 ## PRIORISIERTE AUFGABENLISTE
 
-### WOCHE 1: Kritische Bugs + Integration
-1. [ ] Switch-Statement break hinzufügen (5 min)
-2. [ ] Reaction Chance clampen (10 min)
-3. [ ] Math.random() durch seeded ersetzen (15 min)
-4. [ ] Jahr-7-Limit entfernen (10 min)
-5. [ ] EventsPanel integrieren (30 min)
-6. [ ] TutorialOverlay integrieren (1h)
-7. [ ] **KRITISCH: Encyclopedia.tsx rendern!** (30 min) - Komponente existiert, wird nie angezeigt
-8. [ ] TrustEvolutionChart in Post-Game integrieren (1h)
+### WOCHE 1: Kritische Bugs + Seeding (BLOCKING)
+1. [ ] ~~Switch-Statement break~~ **EXISTIERT NICHT - aus Liste entfernt**
+2. [ ] **FIRST: Math.random() durch seeded ersetzen (2-3h)** - 19 Dateien, BLOCKING für Tests!
+3. [ ] Code-Injection-Risiko (new Function) beheben (2-4h) - SECURITY
+4. [ ] Reaction Chance clampen (15 min)
+5. [ ] Jahr-7-Limit entfernen (10 min)
 
-### WOCHE 2: Story Mode Vollständigkeit
-9. [ ] GameEndScreen Duplikation beheben (30 min)
-10. [ ] Sound System aktivieren (2h)
-11. [ ] Combo System in Story Mode (4h)
-12. [ ] Taxonomy in UI anzeigen (3h)
+### WOCHE 2: Orphan-Features integrieren
+6. [ ] **KRITISCH: Encyclopedia.tsx rendern!** (30 min) - Bildungskomponente!
+7. [ ] EventsPanel + worldEventCount integrieren (1h)
+8. [ ] TutorialOverlay integrieren (2h)
+9. [ ] TrustEvolutionChart in Post-Game (1h)
+10. [ ] Actor-AI System aktivieren (2h)
 
-### WOCHE 3: Technische Schulden
-13. [ ] Type-Safety verbessern (4h)
-14. [ ] Console.log entfernen (2h)
-15. [ ] Duplicate Code konsolidieren (30 min)
-16. [ ] Große Komponenten aufteilen (8h)
+### WOCHE 3: Story Mode Vollständigkeit
+11. [ ] GameEndScreen Duplikation beheben (1-2h)
+12. [ ] Sound System aktivieren (1h)
+13. [ ] Combo System in Story Mode (2h) - System existiert bereits!
+14. [ ] Taxonomy in UI anzeigen (3h)
+15. [ ] NarrativeGenerator in Story Mode nutzen (2h)
 
-### WOCHE 4-6: UX/Visual Design
-17. [ ] Mikroanimationen hinzufügen (12h)
-18. [ ] Theme-System erweitern (4h)
-19. [ ] Büro-Konzept redesignen (40-60h)
+### WOCHE 4: Technische Schulden
+16. [ ] Type-Safety verbessern (6-8h) - Korrigierte Schätzung
+17. [ ] Console.log entfernen (4h) - 60+ Stellen
+18. [ ] Duplicate Code konsolidieren (1h)
+19. [ ] Große Komponenten aufteilen (8h)
 
-### WOCHE 7-8: Testing + Dokumentation
-20. [ ] Unit Tests schreiben (20h)
-21. [ ] Accessibility (ARIA) (8h)
-22. [ ] Dokumentation vervollständigen (10h)
+### WOCHE 5-7: UX/Visual Design
+20. [ ] Mikroanimationen hinzufügen (12h)
+21. [ ] Theme-System erweitern (4h)
+22. [ ] Büro-Konzept redesignen (40-60h)
 
-### WOCHE 9+: Polish
-23. [ ] Wertvolle Komponenten prüfen und ggf. integrieren
-24. [ ] Tatsächlich toten Code entfernen (nach Prüfung!)
-25. [ ] Performance-Optimierung
-26. [ ] Playtesting & Balancing
+### WOCHE 8-9: Testing + Dokumentation
+23. [ ] Unit Tests schreiben (20h)
+24. [ ] Accessibility (ARIA) (8h)
+25. [ ] Dokumentation vervollständigen (10h)
+
+### WOCHE 10+: Polish
+26. [ ] Alle Orphan-Features nochmal prüfen
+27. [ ] Code nach CODE_REVIEW_METHODOLOGY.md prüfen
+28. [ ] Performance-Optimierung
+29. [ ] Playtesting & Balancing
 
 ---
 
@@ -315,11 +341,13 @@ Nach umfassender Code-Analyse wurden folgende Hauptbereiche identifiziert:
 
 | Metrik | Aktuell | Ziel Platin |
 |--------|---------|-------------|
-| Kritische Bugs | 5 | 0 |
+| Kritische Bugs | 4 (verifiziert) | 0 |
+| Orphan-Features | 6+ | 0 (alle integriert) |
 | Test Coverage | ~5% | 60%+ |
 | Accessibility Score | ~10% | WCAG 2.1 AA |
 | Story Mode Completion | 75% | 100% |
 | UI/UX Design | Basic | Polished |
+| Seeding | Broken | Deterministisch |
 | Documentation | 85% | 100% |
 | Dead Code | ~3000 LOC | 0 |
 | Type Safety | 70% | 95%+ |
