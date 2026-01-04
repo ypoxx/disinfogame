@@ -94,6 +94,7 @@ import { StoryNarrativeGenerator } from '../story-mode/engine/StoryNarrativeGene
 import { dialogLoader } from '../story-mode/engine/DialogLoader';
 
 import { playSound } from '../story-mode/utils/SoundSystem';
+import { storyLogger } from '../utils/logger';
 
 // Import NPC and World Events data
 import npcsData from '../story-mode/data/npcs.json';
@@ -481,7 +482,7 @@ export class StoryEngineAdapter {
     this.initializeNPCs();
     this.initializeObjectives();
 
-    console.log(`✅ StoryEngineAdapter initialized (seed: ${this.rngSeed})`);
+    storyLogger.log(`✅ StoryEngineAdapter initialized (seed: ${this.rngSeed})`);
   }
 
 
@@ -561,7 +562,7 @@ export class StoryEngineAdapter {
       this.betrayalSystem.initializeNPC(npc.id, archetype, initialMorale);
     }
 
-    console.log(`Loaded ${this.npcStates.size} NPCs from data`);
+    storyLogger.log(`Loaded ${this.npcStates.size} NPCs from data`);
   }
 
   private initializeObjectives(): void {
@@ -658,7 +659,7 @@ export class StoryEngineAdapter {
       if (this.exposureCountdown <= 0) {
         // Countdown expired - force high risk to trigger game end
         this.storyResources.risk = 100;
-        console.log('[ExposureCountdown] Countdown expired - exposure imminent!');
+        storyLogger.log('[ExposureCountdown] Countdown expired - exposure imminent!');
       }
     }
 
@@ -769,7 +770,7 @@ export class StoryEngineAdapter {
           case 'countdown_start':
             if (this.exposureCountdown === null) {
               this.exposureCountdown = effect.value;
-              console.log(`[ActorAI] Exposure countdown started: ${effect.value} phases`);
+              storyLogger.log(`[ActorAI] Exposure countdown started: ${effect.value} phases`);
             }
             break;
         }
@@ -1329,7 +1330,7 @@ export class StoryEngineAdapter {
       // === CASCADE: Check if morale drop triggers crisis ===
       if (npc.morale < 30 && !npc.inCrisis && actualChange < 0) {
         npc.inCrisis = true;
-        console.log(`[Pipeline 3 → Crisis] ${npc.name} entered crisis (morale: ${npc.morale})`);
+        storyLogger.log(`[Pipeline 3 → Crisis] ${npc.name} entered crisis (morale: ${npc.morale})`);
       }
 
       // === BONUS: Generate transparent news about team reaction ===
@@ -1350,7 +1351,7 @@ export class StoryEngineAdapter {
         pinned: reaction.severity === 'danger',
       });
 
-      console.log(
+      storyLogger.log(
         `[Pipeline 3] ${npc.name}: ${actualChange > 0 ? '+' : ''}${actualChange} morale (now ${npc.morale}) - ${reaction.headline_en}`
       );
     }
@@ -1427,7 +1428,7 @@ export class StoryEngineAdapter {
         pinned: true,
       });
 
-      console.log(`[Phase 2 Feedback] Team crisis visible: ${npcsInCrisis.length} NPCs in crisis`);
+      storyLogger.log(`[Phase 2 Feedback] Team crisis visible: ${npcsInCrisis.length} NPCs in crisis`);
     }
 
     // ============================================================
@@ -1450,7 +1451,7 @@ export class StoryEngineAdapter {
         pinned: false,
       });
 
-      console.log(`[Phase 2 Feedback] Igor's crisis manifests: technical errors visible`);
+      storyLogger.log(`[Phase 2 Feedback] Igor's crisis manifests: technical errors visible`);
     }
 
     // MARINA in crisis → Financial irregularities leak
@@ -1469,7 +1470,7 @@ export class StoryEngineAdapter {
         pinned: false,
       });
 
-      console.log(`[Phase 2 Feedback] Marina's crisis manifests: financial leaks`);
+      storyLogger.log(`[Phase 2 Feedback] Marina's crisis manifests: financial leaks`);
     }
 
     // VOLKOV in crisis → Operations become sloppy, visible
@@ -1488,7 +1489,7 @@ export class StoryEngineAdapter {
         pinned: false,
       });
 
-      console.log(`[Phase 2 Feedback] Volkov's crisis manifests: sloppy trolling detected`);
+      storyLogger.log(`[Phase 2 Feedback] Volkov's crisis manifests: sloppy trolling detected`);
     }
 
     // KATJA in crisis → Moral messaging becomes incoherent
@@ -1507,7 +1508,7 @@ export class StoryEngineAdapter {
         pinned: false,
       });
 
-      console.log(`[Phase 2 Feedback] Katja's crisis manifests: narrative breakdown`);
+      storyLogger.log(`[Phase 2 Feedback] Katja's crisis manifests: narrative breakdown`);
     }
 
     // DIREKTOR in crisis → VERY RARE but catastrophic
@@ -1526,7 +1527,7 @@ export class StoryEngineAdapter {
         pinned: true,
       });
 
-      console.log(`[Phase 2 Feedback] DIREKTOR crisis visible - catastrophic implications!`);
+      storyLogger.log(`[Phase 2 Feedback] DIREKTOR crisis visible - catastrophic implications!`);
     }
 
     // ============================================================
@@ -1546,7 +1547,7 @@ export class StoryEngineAdapter {
         pinned: false,
       });
 
-      console.log(`[Phase 2 Feedback] Low team morale creates subtle inefficiencies`);
+      storyLogger.log(`[Phase 2 Feedback] Low team morale creates subtle inefficiencies`);
     }
 
     // ============================================================
@@ -1581,7 +1582,7 @@ export class StoryEngineAdapter {
         pinned: true,
       });
 
-      console.log(`[Phase 2 Feedback → Betrayal] Crisis + High betrayal risk = leak warnings`);
+      storyLogger.log(`[Phase 2 Feedback → Betrayal] Crisis + High betrayal risk = leak warnings`);
     }
 
     return crisisEvents;
@@ -1620,7 +1621,7 @@ export class StoryEngineAdapter {
           pinned: this.storyResources.risk >= 85,
         });
 
-        console.log(`[Phase 2 Feedback] High risk trend generates world attention (risk: ${this.storyResources.risk})`);
+        storyLogger.log(`[Phase 2 Feedback] High risk trend generates world attention (risk: ${this.storyResources.risk})`);
       }
     }
 
@@ -1642,7 +1643,7 @@ export class StoryEngineAdapter {
           pinned: false,
         });
 
-        console.log(`[Phase 2 Feedback] High attention trend becomes visible (attention: ${this.storyResources.attention})`);
+        storyLogger.log(`[Phase 2 Feedback] High attention trend becomes visible (attention: ${this.storyResources.attention})`);
       }
     }
 
@@ -1664,7 +1665,7 @@ export class StoryEngineAdapter {
           pinned: false,
         });
 
-        console.log(`[Phase 2 Feedback] Low budget creates external visibility (budget: ${this.storyResources.budget})`);
+        storyLogger.log(`[Phase 2 Feedback] Low budget creates external visibility (budget: ${this.storyResources.budget})`);
       }
     }
 
@@ -1686,7 +1687,7 @@ export class StoryEngineAdapter {
           pinned: false,
         });
 
-        console.log(`[Phase 2 Feedback] Low capacity visible (capacity: ${this.storyResources.capacity})`);
+        storyLogger.log(`[Phase 2 Feedback] Low capacity visible (capacity: ${this.storyResources.capacity})`);
       }
     }
 
@@ -1708,7 +1709,7 @@ export class StoryEngineAdapter {
           pinned: this.storyResources.moralWeight >= 60,
         });
 
-        console.log(`[Phase 2 Feedback] High moral weight creates external scrutiny (moral: ${this.storyResources.moralWeight})`);
+        storyLogger.log(`[Phase 2 Feedback] High moral weight creates external scrutiny (moral: ${this.storyResources.moralWeight})`);
       }
     }
 
@@ -1736,7 +1737,7 @@ export class StoryEngineAdapter {
         pinned: true,
       });
 
-      console.log(`[Phase 2 Feedback] MULTI-CRISIS: ${criticalResources} resources critical!`);
+      storyLogger.log(`[Phase 2 Feedback] MULTI-CRISIS: ${criticalResources} resources critical!`);
     }
 
     return trendEvents;
@@ -1813,7 +1814,7 @@ export class StoryEngineAdapter {
 
       // Handle infrastructure loss
       if (effects.infrastructure_loss) {
-        console.log(`[ConsequenceEffect] Infrastructure lost: ${effects.infrastructure_loss}`);
+        storyLogger.log(`[ConsequenceEffect] Infrastructure lost: ${effects.infrastructure_loss}`);
         // Track infrastructure losses for gameplay effects
         // This could affect action availability or costs
       }
@@ -1833,7 +1834,7 @@ export class StoryEngineAdapter {
       // Handle positive effects (opportunity type)
       if (effects.organic_amplification || effects.massive_reach_bonus) {
         // Positive effect - could unlock bonuses
-        console.log('[ConsequenceEffect] Positive amplification effect triggered');
+        storyLogger.log('[ConsequenceEffect] Positive amplification effect triggered');
       }
 
       if (effects.legitimacy_boost) {
@@ -1841,7 +1842,7 @@ export class StoryEngineAdapter {
         this.storyResources.risk = Math.max(0, this.storyResources.risk - 5);
       }
 
-      console.log('[ConsequenceEffect] Applied effects:', effects);
+      storyLogger.log('[ConsequenceEffect] Applied effects:', effects);
     }
 
     // Add to news - get description from consequence definition
@@ -1893,7 +1894,7 @@ export class StoryEngineAdapter {
         if (chainDef) {
           // Manually trigger the chained consequence
           this.consequenceSystem.triggerConsequence(effects.chain_trigger, 'chain_from_' + consequence.id, currentPhase);
-          console.log(`[ChainTrigger] ${consequence.id} → ${effects.chain_trigger}`);
+          storyLogger.log(`[ChainTrigger] ${consequence.id} → ${effects.chain_trigger}`);
         }
       }
     }
@@ -1916,7 +1917,7 @@ export class StoryEngineAdapter {
     // Clear the active consequence in adapter
     this.activeConsequence = null;
 
-    console.log(`[IgnoredConsequence] ${consequence.label_de} - effects applied:`, effects);
+    storyLogger.log(`[IgnoredConsequence] ${consequence.label_de} - effects applied:`, effects);
   }
 
   /**
@@ -2327,7 +2328,7 @@ export class StoryEngineAdapter {
         // Play world event sound
         playSound('worldEvent');
 
-        console.log(`[${eventDef.scale || 'national'}] World event triggered: ${eventDef.headline_de}`);
+        storyLogger.log(`[${eventDef.scale || 'national'}] World event triggered: ${eventDef.headline_de}`);
       }
     }
 
@@ -2365,7 +2366,7 @@ export class StoryEngineAdapter {
             this.worldEventCooldowns.set(eventDef.id, phase);
             this.applyWorldEventEffects(eventDef.effects, eventDef);
 
-            console.log(`[CASCADE] ${eventDef.headline_de} (triggered by ${parentEventId})`);
+            storyLogger.log(`[CASCADE] ${eventDef.headline_de} (triggered by ${parentEventId})`);
             newCascades = true;
           }
         }
@@ -2523,7 +2524,7 @@ export class StoryEngineAdapter {
       if (effects[effectType] && typeof effects[effectType] === 'object') {
         // Regional effect with member state target
         for (const [region, value] of Object.entries(effects[effectType])) {
-          console.log(`[Regional Effect] ${region}: ${effectType} +${value}`);
+          storyLogger.log(`[Regional Effect] ${region}: ${effectType} +${value}`);
           // These regional tensions contribute to overall destabilization
           const primaryObj = this.objectives.find(o => o.id === 'obj_destabilize');
           if (primaryObj) {
@@ -2673,7 +2674,7 @@ export class StoryEngineAdapter {
 
           this.activeOpportunityWindows.set(windowId, window);
           playSound('opportunityOpen');
-          console.log(`[OPPORTUNITY] Window opened: ${mapping.type} (${multiplier}x) until phase ${window.expiresPhase}`);
+          storyLogger.log(`[OPPORTUNITY] Window opened: ${mapping.type} (${multiplier}x) until phase ${window.expiresPhase}`);
           break; // Only create one window per mapping
         }
       }
@@ -2708,7 +2709,7 @@ export class StoryEngineAdapter {
       };
 
       this.activeOpportunityWindows.set(windowId, window);
-      console.log(`[NARRATIVE BOOST] ${narrativeType}: ${effects[boostKey]}x until phase ${window.expiresPhase}`);
+      storyLogger.log(`[NARRATIVE BOOST] ${narrativeType}: ${effects[boostKey]}x until phase ${window.expiresPhase}`);
     }
   }
 
@@ -2721,7 +2722,7 @@ export class StoryEngineAdapter {
     for (const [id, window] of this.activeOpportunityWindows) {
       if (this.storyPhase.number > window.expiresPhase) {
         expiredWindows.push(id);
-        console.log(`[OPPORTUNITY] Window closed: ${window.type} (was from ${window.sourceHeadline_de})`);
+        storyLogger.log(`[OPPORTUNITY] Window closed: ${window.type} (was from ${window.sourceHeadline_de})`);
       }
     }
 
@@ -3269,7 +3270,7 @@ export class StoryEngineAdapter {
 
       totalDiscount += effectiveDiscount;
 
-      console.log(`💰 NPC ${npc.name}: ${levelDiscount}% discount × ${moraleModifier.toFixed(2)} morale = ${effectiveDiscount.toFixed(1)}%`);
+      storyLogger.log(`💰 NPC ${npc.name}: ${levelDiscount}% discount × ${moraleModifier.toFixed(2)} morale = ${effectiveDiscount.toFixed(1)}%`);
     }
 
     // Cap total discount at 50%
@@ -3288,7 +3289,7 @@ export class StoryEngineAdapter {
       const originalCost = costs.budget;
       const discountedCost = Math.ceil(originalCost * costMultiplier);
       const saved = originalCost - discountedCost;
-      console.log(`💸 Cost Reduction: ${originalCost} → ${discountedCost} (saved ${saved}, -${discountPercent.toFixed(1)}%)`);
+      storyLogger.log(`💸 Cost Reduction: ${originalCost} → ${discountedCost} (saved ${saved}, -${discountPercent.toFixed(1)}%)`);
     }
 
     if (costs.budget) {
@@ -3610,7 +3611,7 @@ export class StoryEngineAdapter {
       if (npc.relationshipProgress >= 100 && npc.relationshipLevel < 3) {
         npc.relationshipLevel++;
         npc.relationshipProgress -= 100;
-        console.log(`🤝 NPC ${npc.name} relationship upgraded to level ${npc.relationshipLevel}`);
+        storyLogger.log(`🤝 NPC ${npc.name} relationship upgraded to level ${npc.relationshipLevel}`);
 
         // Play level-up sound
         playSound('success');
@@ -3627,7 +3628,7 @@ export class StoryEngineAdapter {
       // If was in crisis and morale recovered, clear crisis
       if (npc.inCrisis && npc.morale >= 50) {
         npc.inCrisis = false;
-        console.log(`✅ NPC ${npc.name} recovered from crisis`);
+        storyLogger.log(`✅ NPC ${npc.name} recovered from crisis`);
 
         // Add recovery news event
         this.newsEvents.unshift({
@@ -3705,7 +3706,7 @@ export class StoryEngineAdapter {
       // Check for crisis trigger (morale drops below 30)
       if (previousMorale >= 30 && npc.morale < 30 && !npc.inCrisis) {
         npc.inCrisis = true;
-        console.log(`⚠️ NPC ${npc.name} entered crisis (morale: ${npc.morale})`);
+        storyLogger.log(`⚠️ NPC ${npc.name} entered crisis (morale: ${npc.morale})`);
 
         // Add crisis news event
         this.newsEvents.unshift({
@@ -3727,7 +3728,7 @@ export class StoryEngineAdapter {
 
       // Log morale change for significant drops
       if (moraleLoss >= 10) {
-        console.log(`📉 NPC ${npc.name} morale: ${previousMorale} → ${npc.morale} (-${moraleLoss})`);
+        storyLogger.log(`📉 NPC ${npc.name} morale: ${previousMorale} → ${npc.morale} (-${moraleLoss})`);
       }
     }
   }
@@ -3798,7 +3799,7 @@ export class StoryEngineAdapter {
       this.storyResources.capacity = Math.min(15, this.storyResources.capacity + bonus.infrastructureGain);
     }
 
-    console.log(`[COMBO BONUS] Applied: ${combo.comboName} (${combo.category})`);
+    storyLogger.log(`[COMBO BONUS] Applied: ${combo.comboName} (${combo.category})`);
   }
 
   /**

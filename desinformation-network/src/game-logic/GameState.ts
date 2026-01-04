@@ -28,6 +28,7 @@ import {
 import { calculateSmartConnections } from '@/utils/network/connections';
 import { calculateForceLayout, getRecommendedConfig } from '@/utils/network/force-layout';
 import { analyzeNetworkTopology } from '@/utils/network/topology-analysis';
+import { gameLogger } from '@/utils/logger';
 import {
   type BalanceConfig,
   type DifficultyLevel,
@@ -193,8 +194,8 @@ export class GameStateManager {
     this.eventDefinitions = events;
     this.comboDefinitions = combos;
 
-    console.log(`✅ Loaded ${this.actorDefinitions.length} actors for difficulty: ${this.balanceConfig.actorCount} target`);
-    console.log(`✅ Loaded ${this.comboDefinitions.length} combo definitions`);
+    gameLogger.log(`✅ Loaded ${this.actorDefinitions.length} actors for difficulty: ${this.balanceConfig.actorCount} target`);
+    gameLogger.log(`✅ Loaded ${this.comboDefinitions.length} combo definitions`);
   }
   
   /**
@@ -207,7 +208,7 @@ export class GameStateManager {
       return;
     }
 
-    console.log(`🎮 Creating network with ${this.actorDefinitions.length} actors...`);
+    gameLogger.log(`🎮 Creating network with ${this.actorDefinitions.length} actors...`);
 
     // Step 1: Create actors with temporary random positions
     let actors: Actor[] = this.actorDefinitions.map(def => {
@@ -235,18 +236,18 @@ export class GameStateManager {
     });
 
     // Step 2: Calculate smart connections based on actor relationships
-    console.log('🔗 Calculating smart connections...');
+    gameLogger.log('🔗 Calculating smart connections...');
     const connections = calculateSmartConnections(actors);
-    console.log(`✅ Created ${connections.length} connections`);
+    gameLogger.log(`✅ Created ${connections.length} connections`);
 
     // Step 3: Apply force-directed layout for better positioning
-    console.log('📐 Applying force-directed layout...');
+    gameLogger.log('📐 Applying force-directed layout...');
     const layoutConfig = getRecommendedConfig(actors.length, 1200, 800); // Default canvas size
     const layoutResult = calculateForceLayout(actors, connections, layoutConfig);
 
     // Update actor positions from layout
     actors = layoutResult.actors;
-    console.log(`✅ Layout converged in ${layoutResult.iterations} iterations`);
+    gameLogger.log(`✅ Layout converged in ${layoutResult.iterations} iterations`);
 
     // Step 4: Calculate network metrics
     const metrics = calculateNetworkMetrics({ actors, connections, averageTrust: 0, polarizationIndex: 0 });
@@ -258,7 +259,7 @@ export class GameStateManager {
       polarizationIndex: metrics.polarizationIndex,
     };
 
-    console.log(`✅ Network initialized: ${actors.length} actors, ${connections.length} connections`);
+    gameLogger.log(`✅ Network initialized: ${actors.length} actors, ${connections.length} connections`);
 
     // PHASE 4.2: Analyze network topology
     this.updateNetworkTopology();
@@ -269,7 +270,7 @@ export class GameStateManager {
    * Calculates centrality scores and detects bottlenecks
    */
   private updateNetworkTopology(): void {
-    console.log('🔍 Analyzing network topology...');
+    gameLogger.log('🔍 Analyzing network topology...');
 
     const topology = analyzeNetworkTopology(
       this.state.network.actors,
@@ -292,7 +293,7 @@ export class GameStateManager {
       actor.isBottleneck = bottleneckIds.has(actor.id);
     });
 
-    console.log(`✅ Topology analyzed: ${topology.bottlenecks.length} bottlenecks detected`);
+    gameLogger.log(`✅ Topology analyzed: ${topology.bottlenecks.length} bottlenecks detected`);
   }
 
   /**
@@ -592,7 +593,7 @@ export class GameStateManager {
             this.state.completedCombos.push(activation.comboId);
             comboNotifications.push(activation);
 
-            console.log(`🎯 COMBO ACTIVATED: ${comboDef.name} on ${this.getActor(targetId)?.name}`);
+            gameLogger.log(`🎯 COMBO ACTIVATED: ${comboDef.name} on ${this.getActor(targetId)?.name}`);
           }
         }
       }
@@ -818,7 +819,7 @@ export class GameStateManager {
     // Apply all accumulated reactions
     applyReactionEffects(this.state.actorReactions, this.state);
 
-    console.log(`🤖 AI Processing: ${aiReactions.length} spontaneous reactions generated`);
+    gameLogger.log(`🤖 AI Processing: ${aiReactions.length} spontaneous reactions generated`);
 
     // 10. Track round statistics
     this.trackRoundStatistics();
@@ -1117,7 +1118,7 @@ export class GameStateManager {
 
     // PHASE 4.4: Check if event requires player choice
     if (requiresPlayerChoice(event)) {
-      console.log(`❓ Event requires player choice: ${event.name}`);
+      gameLogger.log(`❓ Event requires player choice: ${event.name}`);
       this.state.pendingEventChoice = {
         event,
         round: this.state.round,
@@ -1176,7 +1177,7 @@ export class GameStateManager {
     // Clear pending choice
     this.state.pendingEventChoice = undefined;
 
-    console.log(`✅ Event choice made for: ${event.name}`);
+    gameLogger.log(`✅ Event choice made for: ${event.name}`);
   }
   
   private applyEventTrustDelta(effect: { target: string; targetCategory?: ActorCategory; value: number | string }): void {

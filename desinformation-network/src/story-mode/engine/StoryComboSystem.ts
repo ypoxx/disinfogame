@@ -10,6 +10,7 @@
 
 import comboData from '../../data/game/combo-definitions.json';
 import type { ComboDefinition, ComboBonus } from '../../game-logic/combo-system';
+import { storyLogger } from '../../utils/logger';
 
 // ============================================
 // STORY MODE COMBO TYPES
@@ -128,7 +129,7 @@ export class StoryComboSystem {
   private loadCombos(): void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.comboDefinitions = comboData as any;
-    console.log(`[StoryComboSystem] Loaded ${this.comboDefinitions.length} combo definitions`);
+    storyLogger.log(`[StoryComboSystem] Loaded ${this.comboDefinitions.length} combo definitions`);
   }
 
   /**
@@ -205,7 +206,7 @@ export class StoryComboSystem {
               this.activeProgress.delete(progressKey);
               this.discoveredCombos.add(combo.id);
 
-              console.log(`[COMBO] Completed: ${combo.name}`);
+              storyLogger.log(`[COMBO] Completed: ${combo.name}`);
             } else {
               // Update progress
               progress = {
@@ -248,7 +249,7 @@ export class StoryComboSystem {
             this.activeProgress.set(progressKey, progress);
             progressUpdates.push(progress);
 
-            console.log(`[COMBO] Started: ${combo.name} (${progress.progress * 100}%)`);
+            storyLogger.log(`[COMBO] Started: ${combo.name} (${progress.progress * 100}%)`);
             break;
           }
         }
@@ -370,7 +371,7 @@ export class StoryComboSystem {
     for (const [key, progress] of this.activeProgress) {
       if (currentPhase > progress.expiresPhase) {
         expired.push(key);
-        console.log(`[COMBO] Expired: ${progress.comboName}`);
+        storyLogger.log(`[COMBO] Expired: ${progress.comboName}`);
       }
     }
 
