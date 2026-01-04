@@ -14,7 +14,7 @@ Nach umfassender Code-Analyse und **Experten-Review** wurden folgende Hauptberei
 
 | Bereich | Status | Kritische Issues | Geschätzter Aufwand |
 |---------|--------|------------------|---------------------|
-| **Kritische Bugs** | 4 verifiziert | 1 Security, 1 Seeding | 4-6h |
+| **Kritische Bugs** | ✅ WOCHE 1 ABGESCHLOSSEN | ~~1 Security~~, ~~1 Seeding~~ | ~~4-6h~~ ✅ |
 | **Orphan-Features** | 6+ gefunden | Encyclopedia, EventsPanel | 8-12h |
 | **Technische Schulden** | 18 Items | 10 offen | 50-70h |
 | **Nicht-integrierte Features** | 12+ | Tutorial, Combo-System | 30-40h |
@@ -22,6 +22,12 @@ Nach umfassender Code-Analyse und **Experten-Review** wurden folgende Hauptberei
 | **Dokumentationslücken** | 8 Bereiche | Testing, Architecture | 10-20h |
 
 **Gesamtschätzung für Platin:** 180-280 Stunden (korrigiert nach Review)
+
+### Fortschritt (2026-01-04):
+- ✅ Woche 1: Alle kritischen Bugs behoben (Seeding, Reaction Chance, Jahr-Limit)
+- ✅ 2 Analyse-Fehler entdeckt: "Switch-break" und "Code-Injection" existieren nicht
+- ✅ Methodik-Dokumentation erstellt: `docs/CODE_REVIEW_METHODOLOGY.md`
+- ⏳ Woche 2: Orphan-Features als nächstes
 
 ---
 
@@ -40,34 +46,35 @@ Nach umfassender Code-Analyse und **Experten-Review** wurden folgende Hauptberei
 - **Lektion:** Agent-Berichte nicht blind vertrauen, Code selbst lesen
 - **Siehe:** `docs/CODE_REVIEW_METHODOLOGY.md`
 
-### 1.2 NEU: Code-Injection Risiko (new Function)
-- **Status:** ❌ OFFEN - **SECURITY CRITICAL**
+### ~~1.2 FALSCH DOKUMENTIERT: Code-Injection Risiko (new Function)~~
+- **Status:** ⚠️ **FEHLER IN ANALYSE - RISIKO EXISTIERT NICHT!**
 - **Datei:** `src/game-logic/GameState.ts` (Event-Condition-Evaluation)
-- **Problem:** `new Function()` wird für Event-Bedingungen verwendet
-- **Risiko:** Potentielle Code-Injection bei manipulierten Event-Daten
-- **Lösung:** Expression-Parser-Library verwenden (z.B. expr-eval)
-- **Aufwand:** 2-4 Stunden
+- **Realität:** Code verwendet bereits `safe-expression-parser.ts` (Zeile 1108)
+  - Kein `eval()` oder `new Function()` im Codebase gefunden
+  - CrisisMomentSystem verwendet Regex-basiertes Parsing
+- **Lektion:** Auch Security-Behauptungen selbst verifizieren!
 
-### 1.3 VERIFIZIERT: Reaction Chance kann >100% sein
-- **Status:** ❌ OFFEN
-- **Datei:** `src/game-logic/actor-ai.ts:110-119`
-- **Problem:** `reactionChance` wird nicht geclampt
-- **Auswirkung:** Bei hohen Werten immer 100% Reaktionswahrscheinlichkeit
-- **Aufwand:** 10 Minuten
+### 1.3 BEHOBEN: Reaction Chance kann >100% sein
+- **Status:** ✅ BEHOBEN (2026-01-04)
+- **Datei:** `src/game-logic/actor-ai.ts:121-122`
+- **Problem:** `reactionChance` wurde nicht geclampt
+- **Lösung:** `Math.max(0, Math.min(1, reactionChance))` hinzugefügt
 
-### 1.4 VERIFIZIERT: Math.random() bricht Seeding in Story Mode
-- **Status:** ❌ OFFEN - **BLOCKING für Testing**
-- **Dateien:** `src/game-logic/StoryEngineAdapter.ts:2042, 2044` + **18 weitere Dateien!**
-- **Problem:** Gameplay-Entscheidungen nutzen ungeseedetes Math.random()
-- **Auswirkung:** Story Mode nicht reproduzierbar, Tests nicht deterministisch
-- **Aufwand:** ~~15 Minuten~~ **2-3 Stunden** (19 Dateien betroffen!)
-- **Abhängigkeit:** Muss VOR allen anderen Tests gefixt werden
+### 1.4 BEHOBEN: Math.random() bricht Seeding in Story Mode
+- **Status:** ✅ BEHOBEN (2026-01-04)
+- **Dateien:** 9 Dateien geändert
+- **Problem:** Gameplay-Entscheidungen nutzten ungeseedetes Math.random()
+- **Lösung:**
+  - StoryEngineAdapter: seededRandom() verwendet
+  - GameEndScreen, StoryActorAI, CrisisMomentSystem, ExtendedActorLoader: globalRandom.random() verwendet
+  - gameStore, NotificationToast: Deterministische Counter für IDs
+- **Story Mode jetzt vollständig reproduzierbar für Tests**
 
-### 1.5 HOCH: Jahr 7 Phase-Limit
-- **Status:** ❌ OFFEN
+### 1.5 BEHOBEN: Jahr 7 Phase-Limit
+- **Status:** ✅ BEHOBEN (2026-01-04)
 - **Datei:** `src/story-mode/StoryModeGame.tsx:574`
-- **Problem:** `Math.min(state.storyPhase.year, 7)` - Aktionen für Jahre 8-10 laden nicht
-- **Aufwand:** 10 Minuten
+- **Problem:** `Math.min(state.storyPhase.year, 7)` - Aktionen für Jahre 8-10 luden nicht
+- **Lösung:** Jahre 1-7 → ta01-ta07, Jahre 8-10 → 'targeting' Phase
 
 ---
 
@@ -292,12 +299,12 @@ Nach umfassender Code-Analyse und **Experten-Review** wurden folgende Hauptberei
 
 ## PRIORISIERTE AUFGABENLISTE
 
-### WOCHE 1: Kritische Bugs + Seeding (BLOCKING)
-1. [ ] ~~Switch-Statement break~~ **EXISTIERT NICHT - aus Liste entfernt**
-2. [ ] **FIRST: Math.random() durch seeded ersetzen (2-3h)** - 19 Dateien, BLOCKING für Tests!
-3. [ ] Code-Injection-Risiko (new Function) beheben (2-4h) - SECURITY
-4. [ ] Reaction Chance clampen (15 min)
-5. [ ] Jahr-7-Limit entfernen (10 min)
+### WOCHE 1: Kritische Bugs + Seeding (BLOCKING) ✅ ABGESCHLOSSEN
+1. [x] ~~Switch-Statement break~~ **EXISTIERT NICHT - aus Liste entfernt**
+2. [x] ✅ Math.random() durch seeded ersetzen - 9 Dateien geändert (2026-01-04)
+3. [x] ~~Code-Injection-Risiko~~ **EXISTIERT NICHT - Code bereits sicher**
+4. [x] ✅ Reaction Chance clampen (2026-01-04)
+5. [x] ✅ Jahr-7-Limit → Jahre 8-10 nutzen 'targeting' Phase (2026-01-04)
 
 ### WOCHE 2: Orphan-Features integrieren
 6. [ ] **KRITISCH: Encyclopedia.tsx rendern!** (30 min) - Bildungskomponente!
