@@ -29,7 +29,7 @@ type HoverArea = 'computer' | 'phone' | 'smartphone' | 'tv' | 'door' | 'folder' 
 // CSS OFFICE FURNITURE COMPONENTS
 // ============================================
 
-function WallTV({ isHovered, onClick }: { isHovered: boolean; onClick: () => void }) {
+function WallTV({ isHovered, onClick, onMouseEnter, onMouseLeave }: { isHovered: boolean; onClick: () => void; onMouseEnter: () => void; onMouseLeave: () => void }) {
   return (
     <div
       className="absolute cursor-pointer transition-all duration-200"
@@ -38,8 +38,11 @@ function WallTV({ isHovered, onClick }: { isHovered: boolean; onClick: () => voi
         left: '8%',
         width: '35%',
         height: '28%',
+        zIndex: 10,
       }}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       {/* TV Frame */}
       <div
@@ -108,7 +111,7 @@ function WallTV({ isHovered, onClick }: { isHovered: boolean; onClick: () => voi
   );
 }
 
-function DeskComputer({ isHovered, hasNotification, onClick }: { isHovered: boolean; hasNotification: boolean; onClick: () => void }) {
+function DeskComputer({ isHovered, hasNotification, onClick, onMouseEnter, onMouseLeave }: { isHovered: boolean; hasNotification: boolean; onClick: () => void; onMouseEnter: () => void; onMouseLeave: () => void }) {
   return (
     <div
       className="absolute cursor-pointer transition-all duration-200"
@@ -117,8 +120,11 @@ function DeskComputer({ isHovered, hasNotification, onClick }: { isHovered: bool
         left: '30%',
         width: '28%',
         height: '38%',
+        zIndex: 10,
       }}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       {/* Monitor */}
       <div
@@ -203,7 +209,7 @@ function DeskComputer({ isHovered, hasNotification, onClick }: { isHovered: bool
   );
 }
 
-function DeskPhone({ isHovered, onClick }: { isHovered: boolean; onClick: () => void }) {
+function DeskPhone({ isHovered, onClick, onMouseEnter, onMouseLeave }: { isHovered: boolean; onClick: () => void; onMouseEnter: () => void; onMouseLeave: () => void }) {
   return (
     <div
       className="absolute cursor-pointer transition-all duration-200"
@@ -212,8 +218,11 @@ function DeskPhone({ isHovered, onClick }: { isHovered: boolean; onClick: () => 
         left: '8%',
         width: '16%',
         height: '20%',
+        zIndex: 10,
       }}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       {/* Phone Base */}
       <div
@@ -265,7 +274,7 @@ function DeskPhone({ isHovered, onClick }: { isHovered: boolean; onClick: () => 
   );
 }
 
-function Smartphone({ isHovered, unreadCount, onClick }: { isHovered: boolean; unreadCount: number; onClick: () => void }) {
+function Smartphone({ isHovered, unreadCount, onClick, onMouseEnter, onMouseLeave }: { isHovered: boolean; unreadCount: number; onClick: () => void; onMouseEnter: () => void; onMouseLeave: () => void }) {
   return (
     <div
       className="absolute cursor-pointer transition-all duration-200"
@@ -274,8 +283,11 @@ function Smartphone({ isHovered, unreadCount, onClick }: { isHovered: boolean; u
         left: '62%',
         width: '10%',
         height: '22%',
+        zIndex: 10,
       }}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       {/* Phone Body */}
       <div
@@ -340,7 +352,7 @@ function Smartphone({ isHovered, unreadCount, onClick }: { isHovered: boolean; u
   );
 }
 
-function OfficeDoor({ isHovered, eventCount, onClick }: { isHovered: boolean; eventCount: number; onClick: () => void }) {
+function OfficeDoor({ isHovered, eventCount, onClick, onMouseEnter, onMouseLeave }: { isHovered: boolean; eventCount: number; onClick: () => void; onMouseEnter: () => void; onMouseLeave: () => void }) {
   return (
     <div
       className="absolute cursor-pointer transition-all duration-200"
@@ -349,8 +361,11 @@ function OfficeDoor({ isHovered, eventCount, onClick }: { isHovered: boolean; ev
         left: '78%',
         width: '18%',
         height: '55%',
+        zIndex: 10,
       }}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       {/* Door Frame */}
       <div
@@ -429,7 +444,7 @@ function OfficeDoor({ isHovered, eventCount, onClick }: { isHovered: boolean; ev
   );
 }
 
-function MissionFolder({ isHovered, onClick }: { isHovered: boolean; onClick: () => void }) {
+function MissionFolder({ isHovered, onClick, onMouseEnter, onMouseLeave }: { isHovered: boolean; onClick: () => void; onMouseEnter: () => void; onMouseLeave: () => void }) {
   return (
     <div
       className="absolute cursor-pointer transition-all duration-200"
@@ -438,8 +453,11 @@ function MissionFolder({ isHovered, onClick }: { isHovered: boolean; onClick: ()
         left: '25%',
         width: '12%',
         height: '15%',
+        zIndex: 10,
       }}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       {/* Folder */}
       <div
@@ -624,6 +642,8 @@ export function OfficeScreen({
             setHoverArea(null);
             if (onOpenStats) onOpenStats();
           }}
+          onMouseEnter={() => setHoverArea('tv')}
+          onMouseLeave={() => setHoverArea(null)}
         />
 
         <DeskComputer
@@ -633,6 +653,8 @@ export function OfficeScreen({
             setHoverArea(null);
             if (onOpenActions) onOpenActions();
           }}
+          onMouseEnter={() => setHoverArea('computer')}
+          onMouseLeave={() => setHoverArea(null)}
         />
 
         <DeskPhone
@@ -641,6 +663,8 @@ export function OfficeScreen({
             setHoverArea(null);
             if (onOpenNpcs) onOpenNpcs();
           }}
+          onMouseEnter={() => setHoverArea('phone')}
+          onMouseLeave={() => setHoverArea(null)}
         />
 
         <Smartphone
@@ -650,6 +674,8 @@ export function OfficeScreen({
             setHoverArea(null);
             if (onOpenNews) onOpenNews();
           }}
+          onMouseEnter={() => setHoverArea('smartphone')}
+          onMouseLeave={() => setHoverArea(null)}
         />
 
         <OfficeDoor
@@ -659,6 +685,8 @@ export function OfficeScreen({
             setHoverArea(null);
             if (onOpenEvents) onOpenEvents();
           }}
+          onMouseEnter={() => setHoverArea('door')}
+          onMouseLeave={() => setHoverArea(null)}
         />
 
         <MissionFolder
@@ -667,42 +695,6 @@ export function OfficeScreen({
             setHoverArea(null);
             if (onOpenMission) onOpenMission();
           }}
-        />
-
-        {/* Hover Detection Overlays */}
-        <div
-          className="absolute"
-          style={{ top: '5%', left: '8%', width: '35%', height: '28%' }}
-          onMouseEnter={() => setHoverArea('tv')}
-          onMouseLeave={() => setHoverArea(null)}
-        />
-        <div
-          className="absolute"
-          style={{ top: '35%', left: '30%', width: '28%', height: '38%' }}
-          onMouseEnter={() => setHoverArea('computer')}
-          onMouseLeave={() => setHoverArea(null)}
-        />
-        <div
-          className="absolute"
-          style={{ top: '55%', left: '8%', width: '16%', height: '20%' }}
-          onMouseEnter={() => setHoverArea('phone')}
-          onMouseLeave={() => setHoverArea(null)}
-        />
-        <div
-          className="absolute"
-          style={{ top: '58%', left: '62%', width: '10%', height: '22%' }}
-          onMouseEnter={() => setHoverArea('smartphone')}
-          onMouseLeave={() => setHoverArea(null)}
-        />
-        <div
-          className="absolute"
-          style={{ top: '8%', left: '78%', width: '18%', height: '55%' }}
-          onMouseEnter={() => setHoverArea('door')}
-          onMouseLeave={() => setHoverArea(null)}
-        />
-        <div
-          className="absolute"
-          style={{ top: '65%', left: '25%', width: '12%', height: '15%' }}
           onMouseEnter={() => setHoverArea('folder')}
           onMouseLeave={() => setHoverArea(null)}
         />
