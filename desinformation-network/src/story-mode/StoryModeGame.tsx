@@ -389,6 +389,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     startGame,
     skipTutorial,
     continueDialog,
+    dismissDialog,
     handleDialogChoice,
     pauseGame,
     resumeGame,
@@ -431,6 +432,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        // First priority: close dialog if open
+        if (state.currentDialog) {
+          dismissDialog();
+          return;
+        }
+        // Second priority: toggle pause
         if (state.gamePhase === 'playing') {
           pauseGame();
         } else if (state.gamePhase === 'paused') {
@@ -449,7 +456,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog]);
+  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog]);
 
   // Save message timeout
   useEffect(() => {
@@ -568,6 +575,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           }}
           onChoice={handleDialogChoice}
           onContinue={continueDialog}
+          onClose={dismissDialog}
         />
       )}
 

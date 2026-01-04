@@ -864,7 +864,7 @@
         }
       ]
     },
-    "volkov": {
+    "alexei": {
       "dialogue_style": {
         "formality": "low",
         "directness": "high",
@@ -1926,7 +1926,7 @@
         "text_de": "Oh, Sie sind der Neue? Ich bin Marina. Wenn Sie Daten brauchen - ich bin Ihre Frau.",
         "text_en": "Oh, you're the new one? I'm Marina. If you need data - I'm your woman."
       },
-      "volkov": {
+      "alexei": {
         "id": "vol_first",
         "text_de": "*mustert Sie* Hmm. Sie sehen aus, als ob Sie noch nie jemandes Leben ruiniert haben. Das ändern wir.",
         "text_en": "*eyes you* Hmm. You look like you've never ruined anyone's life. We'll change that."
@@ -1946,14 +1946,14 @@
       "victory": {
         "direktor": "Sie haben Westunion gebrochen. Das Vaterland dankt Ihnen - im Stillen, versteht sich.",
         "marina": "Wir haben gewonnen... warum fühlt es sich dann so leer an?",
-        "volkov": "Ha! Wir haben es tatsächlich geschafft. Auf die nächste Herausforderung!",
+        "alexei": "Ha! Wir haben es tatsächlich geschafft. Auf die nächste Herausforderung!",
         "katja": "Unsere Geschichten haben die Welt verändert. Ob zum Besseren... wer weiß.",
         "igor": "Mission abgeschlossen. Datenbanken gesichert. Zeit für das nächste Projekt."
       },
       "defeat_exposed": {
         "direktor": "*kalt* Sie haben versagt. Unsere Wege trennen sich hier.",
         "marina": "Ich... ich wusste, dass das passieren würde. Irgendwann.",
-        "volkov": "*flucht* Die Idioten haben uns erwischt. Wir hätten vorsichtiger sein sollen.",
+        "alexei": "*flucht* Die Idioten haben uns erwischt. Wir hätten vorsichtiger sein sollen.",
         "katja": "So endet unsere Geschichte also. Nicht gerade das Ende, das ich geschrieben hätte.",
         "igor": "Sie haben meine Server gefunden. Das... hätte nicht passieren dürfen."
       }

@@ -28,6 +28,7 @@ interface DialogBoxProps {
   message: DialogMessage | null;
   onChoice?: (choiceId: string) => void;
   onContinue?: () => void;
+  onClose?: () => void;
   isVisible: boolean;
 }
 
@@ -391,7 +392,7 @@ function useTypewriter(text: string, speed: number = 30, enabled: boolean = true
 // DIALOG BOX COMPONENT
 // ============================================
 
-export function DialogBox({ message, onChoice, onContinue, isVisible }: DialogBoxProps) {
+export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }: DialogBoxProps) {
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
 
   const { displayedText, isComplete, skipToEnd } = useTypewriter(
@@ -462,12 +463,26 @@ export function DialogBox({ message, onChoice, onContinue, isVisible }: DialogBo
           ) : (
             <span className="text-2xl">{fallbackEmoji}</span>
           )}
-          <div>
+          <div className="flex-1">
             <div className="font-bold text-white text-lg">{message.speaker}</div>
             {message.speakerTitle && (
               <div className="text-xs text-white/70">{message.speakerTitle}</div>
             )}
           </div>
+          {/* Close Button */}
+          {onClose && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              className="w-8 h-8 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/20 transition-colors"
+              style={{ fontSize: '24px', fontWeight: 'bold' }}
+              title="Schließen (Esc)"
+            >
+              ×
+            </button>
+          )}
         </div>
 
         {/* Message Content */}

@@ -187,6 +187,11 @@ export function useStoryGameState(seed?: string) {
     }
   }, [gamePhase]);
 
+  const dismissDialog = useCallback(() => {
+    setCurrentDialog(null);
+    setActiveNpcId(null);
+  }, []);
+
   const handleDialogChoice = useCallback((choiceId: string) => {
     // TD-006: Handle NPC topic choices
     if (choiceId.startsWith('topic_') && activeNpcId) {
@@ -522,6 +527,7 @@ export function useStoryGameState(seed?: string) {
     startGame,
     skipTutorial,
     continueDialog,
+    dismissDialog,
     handleDialogChoice,
     pauseGame,
     resumeGame,
