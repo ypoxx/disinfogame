@@ -550,6 +550,29 @@ netlify deploy --prod  # Deploy to production
    npm run typecheck
    ```
 
+### Code-Analyse & Roadmap-Erstellung
+
+**PFLICHT: Bei jeder Code-Analyse diese Methodik befolgen:**
+
+Siehe `docs/CODE_REVIEW_METHODOLOGY.md` für detaillierte Checkliste.
+
+**Kurzfassung:**
+1. **Design-Docs ZUERST lesen** - Verstehe Intentionen vor Code-Analyse
+2. **Bugs SELBST verifizieren** - Nie Agent-Berichte blind vertrauen
+3. **"Ungenutzt" differenzieren:**
+   - ORPHAN = Code da, UI fehlt → INTEGRIEREN
+   - SUPERSEDED = Durch neuere Version ersetzt → REFERENZ BEHALTEN
+   - EXPERIMENTAL = Alternativer Ansatz → DOKUMENTIEREN
+   - PLANNED = Für zukünftige Phase → NICHT ANFASSEN
+   - DEAD = Wirklich ungenutzt → ENTFERNEN
+4. **Abhängigkeitsanalyse** - Wie viele Dateien betroffen?
+5. **Cross-Reference** - Abgleich mit ROADMAP.md, AUDIT_REPORT, etc.
+
+**Anti-Patterns vermeiden:**
+- ❌ "Agent sagt Bug existiert" → Code nicht selbst geprüft
+- ❌ "Komponente wird nicht importiert" → Als toter Code markiert
+- ❌ "Einfache Änderung" → Abhängigkeiten nicht geprüft
+
 ### Common tasks
 
 **Add new actor type:**
