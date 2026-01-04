@@ -1337,7 +1337,7 @@ export class StoryEngineAdapter {
       const newsHeadline_en = `${reaction.headline_en} ${changeIndicator}${Math.abs(actualChange)}`;
 
       this.newsEvents.unshift({
-        id: `news_consequence_reaction_${reaction.npcId}_${Date.now()}_${Math.random()}`,
+        id: `news_consequence_reaction_${reaction.npcId}_${this.storyPhase.number}_${this.seededRandom(`news_consequence_${reaction.npcId}`)}`,
         phase: this.storyPhase.number,
         headline_de: newsHeadline_de,
         headline_en: newsHeadline_en,
@@ -1944,7 +1944,7 @@ export class StoryEngineAdapter {
 
         // Create reaction news event
         reactions.push({
-          id: `news_npc_reaction_${npcId}_${Date.now()}_${Math.random()}`,
+          id: `news_npc_reaction_${npcId}_${this.storyPhase.number}_${this.seededRandom(`npc_reaction_${npcId}`)}`,
           phase: this.storyPhase.number,
           headline_de: `${npc.name}: ${dialogue.headline_de}`,
           headline_en: `${npc.name}: ${dialogue.headline_en}`,
@@ -2039,9 +2039,10 @@ export class StoryEngineAdapter {
     // If no specific reactions, pick 1-2 random NPCs (keep it varied)
     if (reactingNPCs.length === 0 && event.severity !== 'info') {
       const allNPCs = ['direktor', 'marina', 'volkov', 'katja', 'igor'];
-      const randomCount = Math.random() > 0.5 ? 1 : 2;
+      const randomCount = this.seededRandom(`event_reaction_count_${event.id}`) > 0.5 ? 1 : 2;
       for (let i = 0; i < randomCount; i++) {
-        const randomNPC = allNPCs[Math.floor(Math.random() * allNPCs.length)];
+        const npcIndex = Math.floor(this.seededRandom(`event_reaction_npc_${event.id}_${i}`) * allNPCs.length);
+        const randomNPC = allNPCs[npcIndex];
         if (!reactingNPCs.includes(randomNPC)) {
           reactingNPCs.push(randomNPC);
         }

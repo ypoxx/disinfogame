@@ -10,6 +10,7 @@
 import mediaExtended from '../../data/game/actors/media-extended.json';
 import expertsExtended from '../../data/game/actors/experts-extended.json';
 import lobbyExtended from '../../data/game/actors/lobby-extended.json';
+import { globalRandom } from '../../services/globalRandom';
 
 // ============================================
 // TYPES
@@ -278,7 +279,7 @@ export class ExtendedActorLoader {
     return this.getDefensiveActors().filter(actor => {
       const threshold = actor.behavior?.triggerThreshold || 0.5;
       const reactionProb = actor.behavior?.reactionProbability || 0.3;
-      return averageTrustDrop >= threshold && Math.random() < reactionProb;
+      return averageTrustDrop >= threshold && globalRandom.random() < reactionProb;
     });
   }
 

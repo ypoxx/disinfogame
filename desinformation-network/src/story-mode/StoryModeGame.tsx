@@ -571,7 +571,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           isUnlocked: a.available,
           isUsed: !a.available && a.unavailableReason === 'Already used',
         }))}
-        currentPhase={`ta0${Math.min(state.storyPhase.year, 7)}`}
+        currentPhase={state.storyPhase.year <= 7 ? `ta0${state.storyPhase.year}` : 'targeting'}
         availableResources={{
           budget: state.resources.budget,
           capacity: state.resources.capacity,

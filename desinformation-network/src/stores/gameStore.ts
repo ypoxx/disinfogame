@@ -1,13 +1,16 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import type { 
-  GameState, 
-  UIState, 
-  GamePhase, 
-  Actor, 
+import type {
+  GameState,
+  UIState,
+  GamePhase,
+  Actor,
   Ability,
-  Notification 
+  Notification
 } from '@/game-logic/types';
+
+// Counter for deterministic notification IDs
+let notificationCounter = 0;
 
 // ============================================
 // STORE TYPES
@@ -258,7 +261,7 @@ export const useUIStore = create<UIStore>((set) => ({
   },
   
   addNotification: (notification) => {
-    const id = `notification_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const id = `notification_${Date.now()}_${++notificationCounter}`;
     const newNotification: Notification = {
       ...notification,
       id,

@@ -118,6 +118,9 @@ export function shouldReact(
   // Severity increases reaction chance
   reactionChance += trigger.severity * 0.2;
 
+  // Clamp to valid probability range [0, 1]
+  reactionChance = Math.max(0, Math.min(1, reactionChance));
+
   // Defensive actors always react to severe threats
   if (actor.category === 'defensive' && trigger.severity > 0.6) {
     return true;
