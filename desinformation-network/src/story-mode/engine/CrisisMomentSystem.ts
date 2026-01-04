@@ -8,6 +8,7 @@
  */
 
 import eventChainsData from '../../data/game/event-chains.json';
+import { globalRandom } from '../../services/globalRandom';
 
 // ============================================
 // TYPES
@@ -403,12 +404,12 @@ export class CrisisMomentSystem {
         shouldTrigger = this.evaluateCondition(raw.condition, gameState);
       } else if (raw.triggerType === 'random') {
         const probability = raw.probability || 0.2;
-        shouldTrigger = Math.random() < probability;
+        shouldTrigger = globalRandom.random() < probability;
       }
 
       // Check probability even for conditional triggers
       if (shouldTrigger && raw.probability) {
-        shouldTrigger = Math.random() < raw.probability;
+        shouldTrigger = globalRandom.random() < raw.probability;
       }
 
       if (shouldTrigger) {

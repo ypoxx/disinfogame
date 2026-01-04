@@ -17,6 +17,7 @@ import {
   type CounterStrategy,
 } from '../../game-logic/actor-ai';
 
+import { globalRandom } from '../../services/globalRandom';
 import type { GameState, Actor, ActorReaction } from '../../game-logic/types';
 
 // ============================================
@@ -372,7 +373,7 @@ export class StoryActorAI {
 
       // Action chance based on awareness and strength
       const actionChance = awareness * strength * (0.3 + this.armsRaceLevel * 0.1);
-      if (Math.random() > actionChance) continue;
+      if (globalRandom.random() > actionChance) continue;
 
       // Determine action type based on actor type
       const action = this.generateAction(actor, phase, gameState);
@@ -426,7 +427,7 @@ export class StoryActorAI {
       case 'platform_moderator':
         // May disable certain actions temporarily
         const targetAction = gameState.recentActions[0];
-        if (targetAction && Math.random() < strength * 0.5) {
+        if (targetAction && globalRandom.random() < strength * 0.5) {
           this.disabledActions.set(targetAction, phase + 3);
           return {
             id: `ai_${actor.id}_${phase}`,

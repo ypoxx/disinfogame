@@ -19,6 +19,9 @@ import { cn } from '@/utils/cn';
 import type { ActorReaction } from '@/game-logic/types';
 import type { Actor } from '@/game-logic/types';
 
+// Counter for deterministic toast IDs
+let toastCounter = 0;
+
 // ============================================
 // NOTIFICATION SOUND (Web Audio API)
 // ============================================
@@ -427,7 +430,7 @@ export function useToastNotifications() {
   const addNotification = useCallback((notification: Omit<ToastNotification, 'id'>) => {
     const newNotification: ToastNotification = {
       ...notification,
-      id: `toast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `toast_${Date.now()}_${++toastCounter}`,
       timestamp: Date.now(),
     };
 

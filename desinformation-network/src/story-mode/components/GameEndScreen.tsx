@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StoryModeColors } from '../theme';
+import { globalRandom } from '../../services/globalRandom';
 
 // ============================================
 // TYPES
@@ -101,10 +102,10 @@ const MORAL_REFLECTIONS: Record<string, string[]> = {
 };
 
 function getMoralReflection(moralWeight: number): string {
-  if (moralWeight < 20) return MORAL_REFLECTIONS.low[Math.floor(Math.random() * MORAL_REFLECTIONS.low.length)];
-  if (moralWeight < 50) return MORAL_REFLECTIONS.medium[Math.floor(Math.random() * MORAL_REFLECTIONS.medium.length)];
-  if (moralWeight < 80) return MORAL_REFLECTIONS.high[Math.floor(Math.random() * MORAL_REFLECTIONS.high.length)];
-  return MORAL_REFLECTIONS.extreme[Math.floor(Math.random() * MORAL_REFLECTIONS.extreme.length)];
+  if (moralWeight < 20) return globalRandom.choice(MORAL_REFLECTIONS.low);
+  if (moralWeight < 50) return globalRandom.choice(MORAL_REFLECTIONS.medium);
+  if (moralWeight < 80) return globalRandom.choice(MORAL_REFLECTIONS.high);
+  return globalRandom.choice(MORAL_REFLECTIONS.extreme);
 }
 
 // ============================================
