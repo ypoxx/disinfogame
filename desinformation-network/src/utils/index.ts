@@ -310,3 +310,6 @@ export function isValidActor(actor: unknown): actor is Actor {
 
 // Re-export cn utility
 export { cn } from './cn';
+
+// Re-export logger
+export { logger, gameLogger, storyLogger, uiLogger, networkLogger } from './logger';
