@@ -11,6 +11,7 @@ import { ActionFeedbackDialog } from './components/ActionFeedbackDialog';
 import { ConsequenceModal } from './components/ConsequenceModal';
 import { EventsPanel } from './components/EventsPanel';
 import { TutorialOverlay, useTutorial } from './components/TutorialOverlay';
+import { GameEndScreen } from './components/GameEndScreen';
 import { Encyclopedia } from '@/components/Encyclopedia';
 import { useStoryGameState } from './hooks/useStoryGameState';
 import { OfficeScreen } from './OfficeScreen';
@@ -147,171 +148,35 @@ function IntroScreen({ onStart, onLoadGame, hasSave }: {
 }
 
 // ============================================
-// GAME END SCREEN
-// ============================================
-
-function GameEndScreen({ gameEnd, stats, onRestart, onExit }: {
-  gameEnd: {
-    type: string;
-    title_de: string;
-    description_de: string;
-    epilogue_de: string;
-  };
-  stats: {
-    phasesPlayed: number;
-    actionsExecuted: number;
-    moralWeight: number;
-  };
-  onRestart: () => void;
-  onExit: () => void;
-}) {
-  const isVictory = gameEnd.type === 'victory';
-
-  return (
-    <div
-      className="fixed inset-0 flex items-center justify-center"
-      style={{ backgroundColor: StoryModeColors.background }}
-    >
-      <div
-        className="max-w-2xl w-full mx-4 border-8"
-        style={{
-          backgroundColor: StoryModeColors.surface,
-          borderColor: isVictory ? StoryModeColors.militaryOlive : StoryModeColors.danger,
-          boxShadow: '16px 16px 0px 0px rgba(0,0,0,0.9)',
-        }}
-      >
-        {/* Header */}
-        <div
-          className="px-8 py-6 border-b-4 text-center"
-          style={{
-            backgroundColor: isVictory ? StoryModeColors.militaryOlive : StoryModeColors.danger,
-            borderColor: StoryModeColors.border,
-          }}
-        >
-          <div className="text-4xl mb-2">{isVictory ? '🎖️' : '💀'}</div>
-          <h1
-            className="font-bold text-2xl tracking-wider"
-            style={{ color: isVictory ? StoryModeColors.warning : '#fff' }}
-          >
-            {gameEnd.title_de}
-          </h1>
-        </div>
-
-        {/* Content */}
-        <div className="p-8">
-          <p
-            className="text-center mb-6 font-mono"
-            style={{ color: StoryModeColors.textPrimary }}
-          >
-            {gameEnd.description_de}
-          </p>
-
-          {/* Stats */}
-          <div
-            className="grid grid-cols-3 gap-4 mb-6 p-4 border-2"
-            style={{
-              backgroundColor: StoryModeColors.background,
-              borderColor: StoryModeColors.borderLight,
-            }}
-          >
-            <div className="text-center">
-              <div
-                className="text-2xl font-bold"
-                style={{ color: StoryModeColors.warning }}
-              >
-                {Math.floor(stats.phasesPlayed / 12)}
-              </div>
-              <div
-                className="text-xs"
-                style={{ color: StoryModeColors.textSecondary }}
-              >
-                JAHRE
-              </div>
-            </div>
-            <div className="text-center">
-              <div
-                className="text-2xl font-bold"
-                style={{ color: StoryModeColors.agencyBlue }}
-              >
-                {stats.actionsExecuted}
-              </div>
-              <div
-                className="text-xs"
-                style={{ color: StoryModeColors.textSecondary }}
-              >
-                AKTIONEN
-              </div>
-            </div>
-            <div className="text-center">
-              <div
-                className="text-2xl font-bold"
-                style={{ color: StoryModeColors.sovietRed }}
-              >
-                {stats.moralWeight}
-              </div>
-              <div
-                className="text-xs"
-                style={{ color: StoryModeColors.textSecondary }}
-              >
-                MORAL. LAST
-              </div>
-            </div>
-          </div>
-
-          {/* Epilogue */}
-          <div
-            className="p-4 mb-6 border-l-4 font-mono text-sm italic"
-            style={{
-              backgroundColor: StoryModeColors.background,
-              borderColor: StoryModeColors.document,
-              color: StoryModeColors.textSecondary,
-            }}
-          >
-            "{gameEnd.epilogue_de}"
-          </div>
-
-          {/* Buttons */}
-          <div className="flex gap-4">
-            <button
-              onClick={onRestart}
-              className="flex-1 py-3 border-4 font-bold transition-all hover:brightness-110 active:translate-y-1"
-              style={{
-                backgroundColor: StoryModeColors.sovietRed,
-                borderColor: StoryModeColors.darkRed,
-                color: '#fff',
-                boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
-              }}
-            >
-              NOCHMAL SPIELEN
-            </button>
-            <button
-              onClick={onExit}
-              className="flex-1 py-3 border-4 font-bold transition-all hover:brightness-110 active:translate-y-1"
-              style={{
-                backgroundColor: StoryModeColors.concrete,
-                borderColor: StoryModeColors.borderLight,
-                color: StoryModeColors.textPrimary,
-                boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
-              }}
-            >
-              ZUM HAUPTMENÜ
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ============================================
 // PAUSE MENU
 // ============================================
+
+import { useState as usePauseState } from 'react';
+import { isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound } from './utils/SoundSystem';
 
 function PauseMenu({ onResume, onSave, onExit }: {
   onResume: () => void;
   onSave: () => void;
   onExit: () => void;
 }) {
+  const [soundOn, setSoundOn] = usePauseState(isSoundEnabled());
+  const [volume, setVolume] = usePauseState(getSoundVolume());
+
+  const handleSoundToggle = () => {
+    const newValue = !soundOn;
+    setSoundOn(newValue);
+    setSoundEnabled(newValue);
+    if (newValue) {
+      playSound('click');
+    }
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseFloat(e.target.value);
+    setVolume(newVolume);
+    setSoundVolume(newVolume);
+  };
+
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
@@ -361,6 +226,62 @@ function PauseMenu({ onResume, onSave, onExit }: {
           >
             SPEICHERN
           </button>
+
+          {/* Sound Settings */}
+          <div
+            className="w-full p-3 border-2"
+            style={{
+              backgroundColor: StoryModeColors.background,
+              borderColor: StoryModeColors.borderLight,
+            }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span
+                className="text-sm font-bold"
+                style={{ color: StoryModeColors.textSecondary }}
+              >
+                SOUND
+              </span>
+              <button
+                onClick={handleSoundToggle}
+                className="px-3 py-1 border-2 text-xs font-bold transition-all hover:brightness-110"
+                style={{
+                  backgroundColor: soundOn ? StoryModeColors.militaryOlive : StoryModeColors.concrete,
+                  borderColor: soundOn ? StoryModeColors.darkOlive : StoryModeColors.borderLight,
+                  color: soundOn ? StoryModeColors.warning : StoryModeColors.textSecondary,
+                }}
+              >
+                {soundOn ? 'AN' : 'AUS'}
+              </button>
+            </div>
+            {soundOn && (
+              <div className="flex items-center gap-2">
+                <span
+                  className="text-xs"
+                  style={{ color: StoryModeColors.textSecondary }}
+                >
+                  🔈
+                </span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={volume}
+                  onChange={handleVolumeChange}
+                  className="flex-1"
+                  style={{ accentColor: StoryModeColors.sovietRed }}
+                />
+                <span
+                  className="text-xs"
+                  style={{ color: StoryModeColors.textSecondary }}
+                >
+                  🔊
+                </span>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={onExit}
             className="w-full py-3 border-2 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
@@ -490,14 +411,13 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     );
   }
 
-  // Game End Screen
+  // Game End Screen (uses elaborate component from components/GameEndScreen.tsx)
   if (state.gamePhase === 'ended' && state.gameEnd) {
     return (
       <GameEndScreen
-        gameEnd={state.gameEnd}
-        stats={state.gameEnd.stats}
+        endData={state.gameEnd}
         onRestart={resetGame}
-        onExit={onExit}
+        onMainMenu={onExit}
       />
     );
   }
