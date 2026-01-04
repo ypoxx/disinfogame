@@ -28,7 +28,8 @@ Nach umfassender Code-Analyse und **Experten-Review** wurden folgende Hauptberei
 - ✅ Woche 2: Orphan-Features integriert (Encyclopedia, EventsPanel, TutorialOverlay)
 - ✅ 3 Analyse-Fehler entdeckt: "Switch-break", "Code-Injection", "Actor-AI inaktiv"
 - ✅ Methodik-Dokumentation erstellt: `docs/CODE_REVIEW_METHODOLOGY.md`
-- ⏳ Woche 3: Story Mode Vollständigkeit als nächstes
+- ✅ Woche 3: Story Mode Vollständigkeit (GameEndScreen, Sound, NPC Dialoge, Pro Mode Overlap-Fix)
+- ⏳ Woche 4: Technische Schulden (Logger-Service erstellt)
 
 ---
 
@@ -307,18 +308,22 @@ Nach umfassender Code-Analyse und **Experten-Review** wurden folgende Hauptberei
 9. [x] TrustEvolutionChart → GEPLANT (benötigt Trust-History-State)
 10. [x] Actor-AI System → WAR BEREITS AKTIV (falsche Analyse)
 
-### WOCHE 3: Story Mode Vollständigkeit
-11. [ ] GameEndScreen Duplikation beheben (1-2h)
-12. [ ] Sound System aktivieren (1h)
-13. [ ] Combo System in Story Mode (2h) - System existiert bereits!
-14. [ ] Taxonomy in UI anzeigen (3h)
-15. [ ] NarrativeGenerator in Story Mode nutzen (2h)
+### WOCHE 3: Story Mode Vollständigkeit ✅ ABGESCHLOSSEN
+11. [x] ✅ GameEndScreen Duplikation beheben - Inline-Version entfernt, Komponente importiert
+12. [x] ✅ Sound System aktivieren - UI-Toggle im Pause-Menü, 20+ playSound Aufrufe aktiv
+13. [x] ⚠️ Combo System in Story Mode - Backend funktioniert, UI-Anzeige fehlt noch
+14. [x] ✅ Taxonomy in UI anzeigen - Encyclopedia vollständig integriert
+15. [x] ✅ NarrativeGenerator in Story Mode - Bereits aktiv und integriert
+16. [x] ✅ NPC Dialog Close-Button Bug behoben (X-Button + Escape)
+17. [x] ✅ Elaborate NPC Dialoge aktiviert (DialogLoader statt npcs.json)
+18. [x] ✅ Pro Mode Overlap-Bug behoben (Floating HUD entfernt)
 
-### WOCHE 4: Technische Schulden
-16. [ ] Type-Safety verbessern (6-8h) - Korrigierte Schätzung
-17. [ ] Console.log entfernen (4h) - 60+ Stellen
-18. [ ] Duplicate Code konsolidieren (1h)
-19. [ ] Große Komponenten aufteilen (8h)
+### WOCHE 4: Technische Schulden ⏳ IN PROGRESS
+19. [x] ✅ Logger-Service erstellt (`src/utils/logger.ts`) - Production-aware logging
+20. [ ] Console.log durch Logger ersetzen (153 Stellen gefunden!)
+21. [ ] Type-Safety verbessern (23 `as any` casts)
+22. [ ] Duplicate Code konsolidieren (1h)
+23. [ ] Große Komponenten aufteilen (8h)
 
 ### WOCHE 5-7: UX/Visual Design
 20. [ ] Mikroanimationen hinzufügen (12h)
