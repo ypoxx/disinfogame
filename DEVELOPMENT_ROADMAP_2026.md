@@ -25,9 +25,10 @@ Nach umfassender Code-Analyse und **Experten-Review** wurden folgende Hauptberei
 
 ### Fortschritt (2026-01-04):
 - ✅ Woche 1: Alle kritischen Bugs behoben (Seeding, Reaction Chance, Jahr-Limit)
-- ✅ 2 Analyse-Fehler entdeckt: "Switch-break" und "Code-Injection" existieren nicht
+- ✅ Woche 2: Orphan-Features integriert (Encyclopedia, EventsPanel, TutorialOverlay)
+- ✅ 3 Analyse-Fehler entdeckt: "Switch-break", "Code-Injection", "Actor-AI inaktiv"
 - ✅ Methodik-Dokumentation erstellt: `docs/CODE_REVIEW_METHODOLOGY.md`
-- ⏳ Woche 2: Orphan-Features als nächstes
+- ⏳ Woche 3: Story Mode Vollständigkeit als nächstes
 
 ---
 
@@ -80,28 +81,21 @@ Nach umfassender Code-Analyse und **Experten-Review** wurden folgende Hauptberei
 
 ## PHASE 2: NICHT-INTEGRIERTE FEATURES
 
-### 2.1 EventsPanel nicht verbunden
-- **Status:** ❌ KOMPONENTE EXISTIERT, ABER NICHT GERENDERT
-- **Dateien:**
-  - `src/story-mode/components/EventsPanel.tsx` (vollständig implementiert)
-  - `src/story-mode/StoryModeGame.tsx:512-525` (fehlt `onOpenEvents` prop)
-- **Problem:**
-  - OfficeDoor ist klickbar aber funktionslos
-  - Keyboard-Shortcut 'e' macht nichts
-  - 72 World Events existieren, aber Spieler können sie nicht sehen
+### 2.1 BEHOBEN: EventsPanel integriert
+- **Status:** ✅ BEHOBEN (2026-01-04)
 - **Lösung:**
-  1. `showEvents` State hinzufügen
-  2. `onOpenEvents` Callback an OfficeScreen übergeben
-  3. EventsPanel rendern
-- **Aufwand:** 30 Minuten
+  - `showEventsPanel` State hinzugefügt
+  - `onOpenEvents` und `worldEventCount` an OfficeScreen übergeben
+  - OfficeDoor öffnet jetzt EventsPanel (auch 'E' Shortcut)
+  - 72 World Events sind jetzt sichtbar
 
-### 2.2 TutorialOverlay nicht integriert
-- **Status:** ❌ KOMPONENTE EXISTIERT, ABER NICHT GERENDERT
-- **Dateien:**
-  - `src/story-mode/components/TutorialOverlay.tsx` (200+ Zeilen)
-  - `src/story-mode/hooks/useStoryGameState.ts:160` (setzt 'tutorial' Phase)
-- **Problem:** Tutorial-Phase wird gesetzt, aber keine UI gezeigt
-- **Aufwand:** 1 Stunde
+### 2.2 BEHOBEN: TutorialOverlay integriert
+- **Status:** ✅ BEHOBEN (2026-01-04)
+- **Lösung:**
+  - `useTutorial` Hook integriert
+  - Auto-Start bei erstem Spielstart
+  - 10-Schritt Tutorial mit Skip/Complete
+  - Speichert Fortschritt in localStorage
 
 ### 2.3 GameEndScreen Duplikation
 - **Status:** ⚠️ ZWEI VERSIONEN
@@ -135,12 +129,12 @@ Nach umfassender Code-Analyse und **Experten-Review** wurden folgende Hauptberei
 | `dismissCurrentEvent` | hooks/useGameState.ts:375-381 | Handler existiert, wird nie aufgerufen |
 | `toggleSettings` | hooks/useGameState.ts:368-373 | Handler existiert, keine Settings-UI |
 | `toggleTutorial` | hooks/useGameState.ts:361-367 | Handler existiert, nicht verwendet |
-| `worldEventCount` | OfficeScreen.tsx:23 | Prop definiert, nie übergeben (immer 0) |
-| Actor-AI System | game-logic/actor-ai.ts | 300 Zeilen - komplett ungenutzt! |
+| ~~`worldEventCount`~~ | ~~OfficeScreen.tsx:23~~ | ✅ BEHOBEN: Wird jetzt übergeben |
+| ~~Actor-AI System~~ | ~~game-logic/actor-ai.ts~~ | ✅ WAR BEREITS AKTIV (falsche Analyse) |
 | Event-Chain-System | game-logic/event-chain-system.ts | System existiert, nie aufgerufen |
 | NarrativeGenerator | game-logic/NarrativeGenerator.ts | 400 Zeilen Templates, Story Mode nutzt es nicht |
 
-**Aufwand für Integration:** 6-10 Stunden
+**Aufwand für verbleibende Integration:** 4-6 Stunden
 
 ---
 
@@ -306,12 +300,12 @@ Nach umfassender Code-Analyse und **Experten-Review** wurden folgende Hauptberei
 4. [x] ✅ Reaction Chance clampen (2026-01-04)
 5. [x] ✅ Jahr-7-Limit → Jahre 8-10 nutzen 'targeting' Phase (2026-01-04)
 
-### WOCHE 2: Orphan-Features integrieren
-6. [ ] **KRITISCH: Encyclopedia.tsx rendern!** (30 min) - Bildungskomponente!
-7. [ ] EventsPanel + worldEventCount integrieren (1h)
-8. [ ] TutorialOverlay integrieren (2h)
-9. [ ] TrustEvolutionChart in Post-Game (1h)
-10. [ ] Actor-AI System aktivieren (2h)
+### WOCHE 2: Orphan-Features integrieren ✅ ABGESCHLOSSEN
+6. [x] ✅ Encyclopedia.tsx in App.tsx + StoryModeGame.tsx ('I' Shortcut)
+7. [x] ✅ EventsPanel + worldEventCount integriert (OfficeDoor + 'E' Shortcut)
+8. [x] ✅ TutorialOverlay integriert (auto-start, 10 Schritte)
+9. [x] TrustEvolutionChart → GEPLANT (benötigt Trust-History-State)
+10. [x] Actor-AI System → WAR BEREITS AKTIV (falsche Analyse)
 
 ### WOCHE 3: Story Mode Vollständigkeit
 11. [ ] GameEndScreen Duplikation beheben (1-2h)
