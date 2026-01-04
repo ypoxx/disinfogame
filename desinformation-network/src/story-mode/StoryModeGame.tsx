@@ -10,6 +10,7 @@ import { MissionPanel } from './components/MissionPanel';
 import { ActionFeedbackDialog } from './components/ActionFeedbackDialog';
 import { ConsequenceModal } from './components/ConsequenceModal';
 import { EventsPanel } from './components/EventsPanel';
+import { TutorialOverlay, useTutorial } from './components/TutorialOverlay';
 import { Encyclopedia } from '@/components/Encyclopedia';
 import { useStoryGameState } from './hooks/useStoryGameState';
 import { OfficeScreen } from './OfficeScreen';
@@ -416,6 +417,16 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   // Count world events
   const worldEventCount = state.newsEvents.filter(e => e.type === 'world_event').length;
 
+  // Tutorial system
+  const tutorial = useTutorial();
+
+  // Auto-start tutorial on first play
+  useEffect(() => {
+    if (state.gamePhase === 'playing' && tutorial.shouldShowTutorial() && !tutorial.isActive) {
+      tutorial.start();
+    }
+  }, [state.gamePhase, tutorial]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -684,6 +695,18 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         >
           {saveMessage}
         </div>
+      )}
+
+      {/* Tutorial Overlay */}
+      {tutorial.isActive && tutorial.currentStepData && (
+        <TutorialOverlay
+          step={tutorial.currentStepData}
+          currentStep={tutorial.currentStep}
+          totalSteps={tutorial.totalSteps}
+          onNext={tutorial.next}
+          onSkip={tutorial.skip}
+          onComplete={tutorial.complete}
+        />
       )}
 
       {/* Encyclopedia Modal (Press 'I' to toggle) */}
