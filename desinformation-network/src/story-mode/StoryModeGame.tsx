@@ -9,6 +9,8 @@ import { NpcPanel } from './components/NpcPanel';
 import { MissionPanel } from './components/MissionPanel';
 import { ActionFeedbackDialog } from './components/ActionFeedbackDialog';
 import { ConsequenceModal } from './components/ConsequenceModal';
+import { EventsPanel } from './components/EventsPanel';
+import { Encyclopedia } from '@/components/Encyclopedia';
 import { useStoryGameState } from './hooks/useStoryGameState';
 import { OfficeScreen } from './OfficeScreen';
 
@@ -406,8 +408,13 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showStatsPanel, setShowStatsPanel] = useState(false);
   const [showNpcPanel, setShowNpcPanel] = useState(false);
   const [showMissionPanel, setShowMissionPanel] = useState(false);
+  const [showEventsPanel, setShowEventsPanel] = useState(false);
   const [showActionFeedback, setShowActionFeedback] = useState(false);
+  const [showEncyclopedia, setShowEncyclopedia] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  // Count world events
+  const worldEventCount = state.newsEvents.filter(e => e.type === 'world_event').length;
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -422,6 +429,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       if (e.key === ' ' && state.currentDialog) {
         e.preventDefault();
         continueDialog();
+      }
+      // Encyclopedia shortcut (i for info)
+      if (e.key === 'i' || e.key === 'I') {
+        setShowEncyclopedia(prev => !prev);
       }
     };
 
@@ -516,12 +527,14 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           onOpenStats={() => setShowStatsPanel(true)}
           onOpenNpcs={() => setShowNpcPanel(true)}
           onOpenMission={() => setShowMissionPanel(true)}
+          onOpenEvents={() => setShowEventsPanel(true)}
           onEndPhase={endPhase}
           resources={state.resources}
           phase={state.storyPhase}
           newsEvents={state.newsEvents}
           objectives={state.objectives}
           unreadNewsCount={state.unreadNewsCount}
+          worldEventCount={worldEventCount}
         />
       </div>
 
@@ -624,6 +637,14 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         onClose={() => setShowMissionPanel(false)}
       />
 
+      {/* Events Panel (World Events) */}
+      <EventsPanel
+        isVisible={showEventsPanel}
+        worldEvents={state.newsEvents}
+        currentPhase={state.storyPhase.number}
+        onClose={() => setShowEventsPanel(false)}
+      />
+
       {/* Action Feedback Dialog */}
       <ActionFeedbackDialog
         isVisible={showActionFeedback}
@@ -664,6 +685,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           {saveMessage}
         </div>
       )}
+
+      {/* Encyclopedia Modal (Press 'I' to toggle) */}
+      <Encyclopedia
+        isOpen={showEncyclopedia}
+        onClose={() => setShowEncyclopedia(false)}
+      />
     </div>
   );
 }

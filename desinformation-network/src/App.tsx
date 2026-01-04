@@ -19,6 +19,7 @@ import {
 import { ComboTracker } from '@/components/ComboTracker';
 import { TopologyOverlay } from '@/components/TopologyOverlay';
 import { NotificationToast, useToastNotifications, actorReactionToToast } from '@/components/NotificationToast';
+import { Encyclopedia } from '@/components/Encyclopedia';
 import type { RoundSummary as RoundSummaryType } from '@/game-logic/types/narrative';
 import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
@@ -626,6 +627,12 @@ function App() {
       )}
 
       {/* EventNotification removed in Phase 1 - events now handled via UnifiedRoundModal */}
+
+      {/* Encyclopedia Modal */}
+      <Encyclopedia
+        isOpen={uiState.showEncyclopedia}
+        onClose={toggleEncyclopedia}
+      />
     </div>
   );
 }
