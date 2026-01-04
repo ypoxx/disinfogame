@@ -243,22 +243,29 @@ Nach umfassender Code-Analyse wurden folgende Hauptbereiche identifiziert:
 
 ---
 
-## PHASE 6: TOTE/UNGENUTZTE CODE-BEREINIGUNG
+## PHASE 6: CODE-BEREINIGUNG UND INTEGRATION
 
-### Zu entfernende Komponenten:
+### KRITISCH: Wertvolle Komponenten die INTEGRIERT werden müssen!
+
+| Komponente | Zeilen | Status | Aktion |
+|------------|--------|--------|--------|
+| **Encyclopedia.tsx** | 218 | ORPHAN! | **INTEGRIEREN** - Einzige Bildungskomponente! toggleEncyclopedia existiert, aber Komponente wird nie gerendert |
+| **TrustEvolutionChart.tsx** | 200+ | UNGENUTZT | **INTEGRIEREN** - Wertvolle Post-Game-Analytik (Trust-Trajektorie, Heatmaps) |
+| **CompactSidePanel.tsx** | ~200 | SUPERSEDED | **ALS REFERENZ BEHALTEN** - Löst dokumentierte Widescreen-UX-Probleme |
+| **RoundSummary.tsx** | ~200 | MERGED | **NARRATIVE PRÜFEN** - Hat detailliertere Erklärungen als UnifiedRoundModal |
+| **BottomSheet.tsx** | ~150 | SUPERSEDED | **FÜR MOBILE BEHALTEN** - Besseres Mobile-Pattern (swipe-up) |
+
+### Tatsächlich zu entfernende Komponenten:
 
 | Komponente | Zeilen | Grund |
 |------------|--------|-------|
-| GameCanvas.tsx | 498 | Ersetzt durch NetworkVisualization |
-| ActorPanel.tsx | 327 | Merged in UnifiedRightPanel |
+| GameCanvas.tsx | 498 | Ersetzt durch NetworkVisualization (Canvas bei 50+ Akteuren ggf. performanter) |
+| ActorPanel.tsx | 327 | Vollständig in UnifiedRightPanel integriert |
 | StatusDisplay.tsx | ~100 | In VictoryProgressBar integriert |
-| NewsTicker.tsx | 193 | Ersetzt durch EventNotification |
+| NewsTicker.tsx | 193 | Pattern aufgegeben |
 | EventNotification.tsx | ~150 | Konsolidiert in NotificationToast |
-| RoundSummary.tsx | ~200 | Merged in UnifiedRoundModal |
-| BottomSheet.tsx | ~150 | Ersetzt durch CompactSidePanel |
-| CompactSidePanel.tsx | ~200 | Ersetzt durch UnifiedRightPanel |
 
-**Potentielle Einsparung:** ~1,800+ Zeilen Code
+**Konservative Einsparung:** ~1,200 Zeilen Code (nach Behalten wertvoller Komponenten)
 
 ---
 
@@ -271,33 +278,36 @@ Nach umfassender Code-Analyse wurden folgende Hauptbereiche identifiziert:
 4. [ ] Jahr-7-Limit entfernen (10 min)
 5. [ ] EventsPanel integrieren (30 min)
 6. [ ] TutorialOverlay integrieren (1h)
+7. [ ] **KRITISCH: Encyclopedia.tsx rendern!** (30 min) - Komponente existiert, wird nie angezeigt
+8. [ ] TrustEvolutionChart in Post-Game integrieren (1h)
 
 ### WOCHE 2: Story Mode Vollständigkeit
-7. [ ] GameEndScreen Duplikation beheben (30 min)
-8. [ ] Sound System aktivieren (2h)
-9. [ ] Combo System in Story Mode (4h)
-10. [ ] Taxonomy in UI anzeigen (3h)
+9. [ ] GameEndScreen Duplikation beheben (30 min)
+10. [ ] Sound System aktivieren (2h)
+11. [ ] Combo System in Story Mode (4h)
+12. [ ] Taxonomy in UI anzeigen (3h)
 
 ### WOCHE 3: Technische Schulden
-11. [ ] Type-Safety verbessern (4h)
-12. [ ] Console.log entfernen (2h)
-13. [ ] Duplicate Code konsolidieren (30 min)
-14. [ ] Große Komponenten aufteilen (8h)
+13. [ ] Type-Safety verbessern (4h)
+14. [ ] Console.log entfernen (2h)
+15. [ ] Duplicate Code konsolidieren (30 min)
+16. [ ] Große Komponenten aufteilen (8h)
 
 ### WOCHE 4-6: UX/Visual Design
-15. [ ] Mikroanimationen hinzufügen (12h)
-16. [ ] Theme-System erweitern (4h)
-17. [ ] Büro-Konzept redesignen (40-60h)
+17. [ ] Mikroanimationen hinzufügen (12h)
+18. [ ] Theme-System erweitern (4h)
+19. [ ] Büro-Konzept redesignen (40-60h)
 
 ### WOCHE 7-8: Testing + Dokumentation
-18. [ ] Unit Tests schreiben (20h)
-19. [ ] Accessibility (ARIA) (8h)
-20. [ ] Dokumentation vervollständigen (10h)
+20. [ ] Unit Tests schreiben (20h)
+21. [ ] Accessibility (ARIA) (8h)
+22. [ ] Dokumentation vervollständigen (10h)
 
 ### WOCHE 9+: Polish
-21. [ ] Toten Code entfernen
-22. [ ] Performance-Optimierung
-23. [ ] Playtesting & Balancing
+23. [ ] Wertvolle Komponenten prüfen und ggf. integrieren
+24. [ ] Tatsächlich toten Code entfernen (nach Prüfung!)
+25. [ ] Performance-Optimierung
+26. [ ] Playtesting & Balancing
 
 ---
 
