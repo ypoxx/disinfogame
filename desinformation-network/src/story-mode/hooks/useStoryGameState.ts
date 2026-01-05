@@ -13,6 +13,7 @@ import {
   GameEndState,
 } from '../../game-logic/StoryEngineAdapter';
 import { playSound } from '../utils/SoundSystem';
+import { storyLogger } from '../../utils/logger';
 
 // ============================================
 // TYPES
@@ -342,7 +343,7 @@ export function useStoryGameState(seed?: string) {
 
       return result;
     } catch (error) {
-      console.error('Action execution failed:', error);
+      storyLogger.error('Action execution failed:', error);
       return null;
     }
   }, [engine, npcs, refreshAvailableActions]);
@@ -449,7 +450,7 @@ export function useStoryGameState(seed?: string) {
 
       return true;
     } catch (error) {
-      console.error('Failed to load save:', error);
+      storyLogger.error('Failed to load save:', error);
       return false;
     }
   }, [engine, refreshAvailableActions]);

@@ -9,6 +9,7 @@
 
 import eventChainsData from '../../data/game/event-chains.json';
 import { globalRandom } from '../../services/globalRandom';
+import { storyLogger } from '../../utils/logger';
 
 // ============================================
 // TYPES
@@ -135,7 +136,7 @@ export class CrisisMomentSystem {
       this.crisisDefinitions.set(crisis.id, crisis);
     }
 
-    console.log(`[CrisisMomentSystem] Loaded ${this.crisisDefinitions.size} crisis definitions`);
+    storyLogger.log(`[CrisisMomentSystem] Loaded ${this.crisisDefinitions.size} crisis definitions`);
   }
 
   private convertChoice(choice: any, index: number): CrisisChoice {
@@ -553,7 +554,7 @@ export class CrisisMomentSystem {
         const resolution = this.resolveCrisis(active.crisisId, safeChoice.id, currentPhase);
         if (resolution) {
           expired.push(resolution);
-          console.log(`[CRISIS] Auto-resolved expired: ${active.crisis.name_en}`);
+          storyLogger.log(`[CRISIS] Auto-resolved expired: ${active.crisis.name_en}`);
         }
       }
     }

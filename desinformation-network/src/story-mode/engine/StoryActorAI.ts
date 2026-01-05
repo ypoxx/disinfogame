@@ -18,6 +18,7 @@ import {
 } from '../../game-logic/actor-ai';
 
 import { globalRandom } from '../../services/globalRandom';
+import { storyLogger } from '../../utils/logger';
 import type { GameState, Actor, ActorReaction } from '../../game-logic/types';
 
 // ============================================
@@ -332,7 +333,7 @@ export class StoryActorAI {
         // Increase arms race level
         this.armsRaceLevel = Math.min(5, this.armsRaceLevel + 0.5);
 
-        console.log(`[StoryActorAI] Spawned: ${spawnedActor.name_en} (Arms Race Level: ${this.armsRaceLevel})`);
+        storyLogger.log(`[StoryActorAI] Spawned: ${spawnedActor.name_en} (Arms Race Level: ${this.armsRaceLevel})`);
       }
     }
 

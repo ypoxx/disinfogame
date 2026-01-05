@@ -5,6 +5,7 @@
  */
 
 import taxonomyData from '../../data/persuasion/taxonomy.json';
+import { storyLogger } from '../../utils/logger';
 
 export interface TaxonomyTechnique {
   id: string;
@@ -132,7 +133,7 @@ class TaxonomyLoader {
         this.techniques.set(technique.id, technique);
       }
       this.initialized = true;
-      console.log(`[TaxonomyLoader] Loaded ${this.techniques.size} persuasion techniques`);
+      storyLogger.log(`[TaxonomyLoader] Loaded ${this.techniques.size} persuasion techniques`);
     } catch (error) {
       console.error('[TaxonomyLoader] Failed to load taxonomy:', error);
     }

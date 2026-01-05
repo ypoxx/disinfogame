@@ -11,6 +11,7 @@ import mediaExtended from '../../data/game/actors/media-extended.json';
 import expertsExtended from '../../data/game/actors/experts-extended.json';
 import lobbyExtended from '../../data/game/actors/lobby-extended.json';
 import { globalRandom } from '../../services/globalRandom';
+import { storyLogger } from '../../utils/logger';
 
 // ============================================
 // TYPES
@@ -92,7 +93,7 @@ export class ExtendedActorLoader {
       this.addToCategory(actor);
     }
 
-    console.log(`[ExtendedActorLoader] Loaded ${this.actors.size} actors`);
+    storyLogger.log(`[ExtendedActorLoader] Loaded ${this.actors.size} actors`);
   }
 
   private addToCategory(actor: ExtendedActor): void {

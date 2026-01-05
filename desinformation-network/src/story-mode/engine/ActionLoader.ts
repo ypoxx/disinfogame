@@ -6,6 +6,7 @@
 // Import action data directly (bundled with the app)
 import actionsData from '../data/actions.json';
 import actionsContinuedData from '../data/actions_continued.json';
+import { storyLogger } from '../../utils/logger';
 
 // ============================================
 // TYPES
@@ -115,7 +116,7 @@ export class ActionLoader {
       }
     }
 
-    console.log(`✅ ActionLoader: Loaded ${this.actions.size} actions`);
+    storyLogger.log(`✅ ActionLoader: Loaded ${this.actions.size} actions`);
   }
 
   /**
@@ -229,7 +230,7 @@ export class ActionLoader {
       if (this.arePrerequisitesMet(action)) {
         action.isUnlocked = true;
         this.unlockedActionIds.add(actionId);
-        console.log(`🔓 Action unlocked: ${action.label_de}`);
+        storyLogger.log(`🔓 Action unlocked: ${action.label_de}`);
         return true;
       }
     }
@@ -262,7 +263,7 @@ export class ActionLoader {
           action.isUnlocked = true;
           this.unlockedActionIds.add(action.id);
           newlyUnlocked.push(action.id);
-          console.log(`🔓 Action unlocked: ${action.label_de}`);
+          storyLogger.log(`🔓 Action unlocked: ${action.label_de}`);
         }
       }
     }
