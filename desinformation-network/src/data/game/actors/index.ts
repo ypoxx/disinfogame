@@ -6,6 +6,7 @@
  */
 
 import type { ActorDefinition } from '@/game-logic/types';
+import { gameLogger } from '@/utils/logger';
 
 // Import core actors (existing 16 actors)
 import coreActorsV2 from '../actor-definitions-v2.json';
@@ -107,13 +108,13 @@ function combineActorDefinitions(): ActorDefinition[] {
   });
 
   if (duplicates.length > 0) {
-    console.error('Duplicate actor IDs found:', duplicates);
+    gameLogger.error('Duplicate actor IDs found:', duplicates);
   }
 
-  console.log(`✅ Loaded ${allActors.length} actor definitions`);
-  console.log(`  - Tier 1 (Core): ${allActors.filter(a => a.tier === 1).length}`);
-  console.log(`  - Tier 2 (Secondary): ${allActors.filter(a => a.tier === 2).length}`);
-  console.log(`  - Tier 3 (Background): ${allActors.filter(a => a.tier === 3).length}`);
+  gameLogger.log(`✅ Loaded ${allActors.length} actor definitions`);
+  gameLogger.log(`  - Tier 1 (Core): ${allActors.filter(a => a.tier === 1).length}`);
+  gameLogger.log(`  - Tier 2 (Secondary): ${allActors.filter(a => a.tier === 2).length}`);
+  gameLogger.log(`  - Tier 3 (Background): ${allActors.filter(a => a.tier === 3).length}`);
 
   return allActors;
 }

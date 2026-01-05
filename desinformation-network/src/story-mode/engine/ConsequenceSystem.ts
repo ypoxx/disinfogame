@@ -4,6 +4,7 @@
  */
 
 import consequencesData from '../data/consequences.json';
+import { storyLogger } from '../../utils/logger';
 
 // ============================================
 // TYPES
@@ -167,7 +168,7 @@ export class ConsequenceSystem {
       }
     }
 
-    console.log(`✅ ConsequenceSystem: Loaded ${this.definitions.size} consequences`);
+    storyLogger.log(`✅ ConsequenceSystem: Loaded ${this.definitions.size} consequences`);
   }
 
   // ============================================
@@ -223,7 +224,7 @@ export class ConsequenceSystem {
         this.pendingConsequences.push(pending);
         newPending.push(pending);
 
-        console.log(`⚠️ Consequence scheduled: ${def.label_de} (activates phase ${pending.activatesAtPhase})`);
+        storyLogger.log(`⚠️ Consequence scheduled: ${def.label_de} (activates phase ${pending.activatesAtPhase})`);
       }
     }
 
@@ -256,7 +257,7 @@ export class ConsequenceSystem {
           deadline: currentPhase + 2,  // 2 phases to decide
         };
 
-        console.log(`🚨 Consequence activated: ${def.label_de}`);
+        storyLogger.log(`🚨 Consequence activated: ${def.label_de}`);
         return this.activeConsequence;
       }
     }
@@ -312,7 +313,7 @@ export class ConsequenceSystem {
 
     this.pendingConsequences.push(pending);
 
-    console.log(`🔗 Chain consequence triggered: ${def.label_de} (activates phase ${pending.activatesAtPhase})`);
+    storyLogger.log(`🔗 Chain consequence triggered: ${def.label_de} (activates phase ${pending.activatesAtPhase})`);
     return pending;
   }
 
@@ -350,7 +351,7 @@ export class ConsequenceSystem {
     // Clear active
     this.activeConsequence = null;
 
-    console.log(`✅ Consequence resolved: ${choice.label_de}`);
+    storyLogger.log(`✅ Consequence resolved: ${choice.label_de}`);
     return result;
   }
 
@@ -379,7 +380,7 @@ export class ConsequenceSystem {
     // Clear active
     this.activeConsequence = null;
 
-    console.log(`❌ Consequence ignored: ${consequence.label_de}`);
+    storyLogger.log(`❌ Consequence ignored: ${consequence.label_de}`);
     return { consequence, effects };
   }
 

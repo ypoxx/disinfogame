@@ -66,9 +66,10 @@ export function trustToRgba(trust: number, alpha: number = 1): string {
 
 /**
  * Get color for actor category
+ * Accepts string for convenience when iterating Object.keys()
  */
-export function getCategoryColor(category: ActorCategory): string {
-  return CATEGORY_COLORS[category] || '#6B7280'; // Gray fallback
+export function getCategoryColor(category: ActorCategory | string): string {
+  return CATEGORY_COLORS[category as ActorCategory] || '#6B7280'; // Gray fallback
 }
 
 /**

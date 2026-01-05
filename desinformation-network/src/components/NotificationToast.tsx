@@ -31,7 +31,7 @@ let toastCounter = 0;
  */
 function playNotificationSound() {
   try {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();

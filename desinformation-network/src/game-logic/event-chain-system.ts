@@ -6,7 +6,8 @@
  * delays or based on player decisions.
  */
 
-import type { GameState, GameEvent, EventChoice, EventEffect } from './types';
+import type { GameState, GameEvent, EventChoice, EventEffect, Resources } from './types';
+import { gameLogger } from '@/utils/logger';
 
 // ============================================
 // TYPES
@@ -52,7 +53,7 @@ export function startEventChain(
     gameState.activeEventChains = gameState.activeEventChains || [];
     gameState.activeEventChains.push(chain);
 
-    console.log(`🔗 Event chain started: ${event.id} → ${event.chainTo}`);
+    gameLogger.log(`🔗 Event chain started: ${event.id} → ${event.chainTo}`);
   }
 }
 
@@ -84,7 +85,7 @@ export function processEventChains(
         const nextEvent = eventDefinitions.find((e) => e.id === chain.nextEventId);
 
         if (nextEvent) {
-          console.log(`🔗 Triggering chained event: ${chain.nextEventId}`);
+          gameLogger.log(`🔗 Triggering chained event: ${chain.nextEventId}`);
           triggeredEvent = nextEvent;
           chainsToRemove.push(i);
           break; // Only trigger one chained event per round
@@ -148,7 +149,7 @@ export function applyPlayerChoice(
     }
   }
 
-  console.log(`✅ Player chose: "${choice.text}"`);
+  gameLogger.log(`✅ Player chose: "${choice.text}"`);
 
   // Return effects to be applied
   return choice.effects;
@@ -158,7 +159,7 @@ export function applyPlayerChoice(
  * Check if player can afford a choice
  */
 export function canAffordChoice(
-  gameState: GameState,
+  gameState: GameState | { resources: Resources },
   choice: EventChoice
 ): boolean {
   if (!choice.cost) return true;
@@ -220,7 +221,7 @@ export function cleanupExpiredChains(gameState: GameState): void {
   gameState.activeEventChains = gameState.activeEventChains.filter((chain) => {
     const age = currentRound - chain.startRound;
     if (age > maxChainAge) {
-      console.log(`🧹 Cleaning up expired chain: ${chain.chainId}`);
+      gameLogger.log(`🧹 Cleaning up expired chain: ${chain.chainId}`);
       return false;
     }
     return true;

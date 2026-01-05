@@ -221,7 +221,7 @@ export function NetworkVisualization({
       if (categoryActorsList.length === 0 && category !== 'defensive') return;
 
       const pos = getCategoryPosition(category);
-      const categoryColor = getCategoryColor(category as any);
+      const categoryColor = getCategoryColor(category);
       // Use dynamic radius based on actor count in this category
       const dynamicRadius = categoryRadii[category] || CATEGORY_RADIUS;
 
@@ -523,7 +523,7 @@ export function NetworkVisualization({
       if (categoryActorsList.length === 0 && category !== 'defensive') return;
 
       const pos = getCategoryPosition(category);
-      const categoryColor = getCategoryColor(category as any);
+      const categoryColor = getCategoryColor(category);
       const dynamicRadius = categoryRadii[category] || CATEGORY_RADIUS;
 
       // Category label
@@ -892,7 +892,7 @@ export function NetworkVisualization({
                   <div key={cat} className="flex items-center gap-1.5 py-0.5">
                     <div
                       className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: getCategoryColor(cat as any) }}
+                      style={{ backgroundColor: getCategoryColor(cat) }}
                     />
                     <span className="text-gray-700 text-[10px] leading-tight truncate">
                       {label.replace('Community', '').replace('Outlets', '').trim()} ({count})
