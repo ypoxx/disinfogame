@@ -22,7 +22,7 @@ describe('StoryEngineAdapter', () => {
 
     it('should have initial resources', () => {
       const resources = engine.getResources();
-      expect(resources.budget).toBe(100);
+      expect(resources.budget).toBe(150); // P1-5 Fix: Increased from 100 to 150
       expect(resources.capacity).toBe(5);
       expect(resources.risk).toBe(0);
       expect(resources.attention).toBe(0);
@@ -35,7 +35,7 @@ describe('StoryEngineAdapter', () => {
       expect(npcs.length).toBe(5);
       expect(npcs.map(n => n.id)).toContain('direktor');
       expect(npcs.map(n => n.id)).toContain('marina');
-      expect(npcs.map(n => n.id)).toContain('volkov');
+      expect(npcs.map(n => n.id)).toContain('alexei'); // Fixed: was 'volkov', but volkov is direktor's name
       expect(npcs.map(n => n.id)).toContain('katja');
       expect(npcs.map(n => n.id)).toContain('igor');
     });
@@ -182,9 +182,9 @@ describe('StoryEngineAdapter', () => {
 
   describe('NPC Management', () => {
     it('should get NPC by ID', () => {
-      const npc = engine.getNPCState('volkov');
+      const npc = engine.getNPCState('alexei'); // Fixed: was 'volkov'
       expect(npc).not.toBeNull();
-      expect(npc?.id).toBe('volkov');
+      expect(npc?.id).toBe('alexei');
     });
 
     it('should return null for unknown NPC', () => {
