@@ -311,7 +311,7 @@ Nach umfassender Code-Analyse und **Experten-Review** wurden folgende Hauptberei
 ### WOCHE 3: Story Mode Vollständigkeit ✅ ABGESCHLOSSEN
 11. [x] ✅ GameEndScreen Duplikation beheben - Inline-Version entfernt, Komponente importiert
 12. [x] ✅ Sound System aktivieren - UI-Toggle im Pause-Menü, 20+ playSound Aufrufe aktiv
-13. [x] ⚠️ Combo System in Story Mode - Backend funktioniert, UI-Anzeige fehlt noch
+13. [x] ✅ Combo System in Story Mode - Backend + UI vollständig integriert
 14. [x] ✅ Taxonomy in UI anzeigen - Encyclopedia vollständig integriert
 15. [x] ✅ NarrativeGenerator in Story Mode - Bereits aktiv und integriert
 16. [x] ✅ NPC Dialog Close-Button Bug behoben (X-Button + Escape)
