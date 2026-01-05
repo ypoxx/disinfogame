@@ -325,10 +325,11 @@ Nach umfassender Code-Analyse und **Experten-Review** wurden folgende Hauptberei
 22. [x] ✅ Duplicate Code geprüft - getConnectedActors sind verschiedene Algorithmen (1-hop vs BFS)
 23. [ ] Große Komponenten aufteilen (8h) - Low priority, Code funktioniert
 
-### WOCHE 5-7: UX/Visual Design
-20. [ ] Mikroanimationen hinzufügen (12h)
-21. [ ] Theme-System erweitern (4h)
-22. [ ] Büro-Konzept redesignen (40-60h)
+### WOCHE 5-7: UX/Visual Design ⏳ IN PROGRESS
+20. [x] ✅ Theme-System erweitern (colors.ts) - Crisis/Combo/Betrayal/Opportunity Farben
+21. [x] ✅ Mikroanimationen (index.css) - 20+ Keyframes, Utility-Klassen
+22. [x] ✅ Animation-Hooks erstellt - useTypingEffect, useAnimatedValue
+23. [ ] Büro-Konzept redesignen (40-60h) - Größeres Projekt
 
 ### WOCHE 8-9: Testing + Dokumentation
 23. [ ] Unit Tests schreiben (20h)
