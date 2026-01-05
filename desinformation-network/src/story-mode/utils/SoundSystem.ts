@@ -147,7 +147,7 @@ class SoundSystem {
     // Create context lazily (required for browser autoplay policies)
     if (!this.audioContext) {
       try {
-        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
       } catch (e) {
         console.warn('Web Audio API not supported');
         return null;

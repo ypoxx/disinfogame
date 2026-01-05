@@ -62,7 +62,7 @@ export function EventChoiceModal({
         {/* Choices */}
         <div className="p-6 space-y-4 overflow-y-auto max-h-[60vh]">
           {event.playerChoice.map((choice, index) => {
-            const affordable = !choice.cost || canAffordChoice({ resources } as any, choice);
+            const affordable = !choice.cost || canAffordChoice({ resources }, choice);
 
             return (
               <button

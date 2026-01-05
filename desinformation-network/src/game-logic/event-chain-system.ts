@@ -6,7 +6,7 @@
  * delays or based on player decisions.
  */
 
-import type { GameState, GameEvent, EventChoice, EventEffect } from './types';
+import type { GameState, GameEvent, EventChoice, EventEffect, Resources } from './types';
 import { gameLogger } from '@/utils/logger';
 
 // ============================================
@@ -159,7 +159,7 @@ export function applyPlayerChoice(
  * Check if player can afford a choice
  */
 export function canAffordChoice(
-  gameState: GameState,
+  gameState: GameState | { resources: Resources },
   choice: EventChoice
 ): boolean {
   if (!choice.cost) return true;

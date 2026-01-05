@@ -331,7 +331,7 @@ export function UnifiedRoundModal({
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {event.playerChoice!.map((choice, index) => {
                 const affordable =
-                  !choice.cost || canAffordChoice({ resources } as any, choice);
+                  !choice.cost || canAffordChoice({ resources }, choice);
 
                 return (
                   <button
