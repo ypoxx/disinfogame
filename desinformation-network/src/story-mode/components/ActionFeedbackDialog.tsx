@@ -1,5 +1,6 @@
 import { StoryModeColors } from '../theme';
 import type { ActionResult } from '../../game-logic/StoryEngineAdapter';
+import { COMBO_COLORS } from '../../utils/colors';
 
 interface ActionFeedbackDialogProps {
   isVisible: boolean;
@@ -266,6 +267,146 @@ export function ActionFeedbackDialog({
             </div>
           )}
 
+          {/* Completed Combos - Celebration */}
+          {result.completedCombos && result.completedCombos.length > 0 && (
+            <div
+              className="border-4 p-4 animate-pulse-soft"
+              style={{
+                backgroundColor: 'rgba(139, 92, 246, 0.15)',
+                borderColor: COMBO_COLORS.ready,
+                boxShadow: `0 0 20px ${COMBO_COLORS.glow}`,
+              }}
+            >
+              <div
+                className="text-center font-bold text-xl mb-3"
+                style={{ color: COMBO_COLORS.ready }}
+              >
+                🎯 COMBO ABGESCHLOSSEN!
+              </div>
+              {result.completedCombos.map((combo, i) => (
+                <div
+                  key={i}
+                  className="border-2 p-3 mt-2"
+                  style={{
+                    backgroundColor: StoryModeColors.background,
+                    borderColor: COMBO_COLORS.active,
+                  }}
+                >
+                  <div
+                    className="font-bold"
+                    style={{ color: COMBO_COLORS.active }}
+                  >
+                    {combo.comboName}
+                  </div>
+                  <div
+                    className="text-sm mt-1"
+                    style={{ color: StoryModeColors.textSecondary }}
+                  >
+                    {combo.description}
+                  </div>
+                  {combo.bonus && (
+                    <div
+                      className="text-xs mt-2 flex gap-2 flex-wrap"
+                      style={{ color: StoryModeColors.success }}
+                    >
+                      {combo.bonus.trustReduction && (
+                        <span>📉 Trust -{combo.bonus.trustReduction}%</span>
+                      )}
+                      {combo.bonus.bonusAttention && (
+                        <span>📢 Attention +{combo.bonus.bonusAttention}%</span>
+                      )}
+                      {combo.bonus.propagationBonus && (
+                        <span>🌐 Verbreitung +{combo.bonus.propagationBonus}%</span>
+                      )}
+                      {combo.bonus.emotionalDamage && (
+                        <span>💔 Emotional -{combo.bonus.emotionalDamage}</span>
+                      )}
+                      {combo.bonus.moneyRefund && (
+                        <span>💰 Rückzahlung ${combo.bonus.moneyRefund}K</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Combo Hints - Progress */}
+          {result.comboHints && result.comboHints.length > 0 && (
+            <div
+              className="border-2 p-4"
+              style={{
+                backgroundColor: StoryModeColors.darkConcrete,
+                borderColor: COMBO_COLORS.building,
+              }}
+            >
+              <h3
+                className="font-bold mb-3 text-sm flex items-center gap-2"
+                style={{ color: COMBO_COLORS.building }}
+              >
+                <span>🔗</span>
+                COMBO-FORTSCHRITT
+              </h3>
+              <div className="space-y-3">
+                {result.comboHints.map((hint, i) => (
+                  <div
+                    key={i}
+                    className="border p-2"
+                    style={{
+                      backgroundColor: StoryModeColors.background,
+                      borderColor: StoryModeColors.borderLight,
+                    }}
+                  >
+                    <div className="flex justify-between items-center mb-1">
+                      <span
+                        className="font-bold text-sm"
+                        style={{ color: StoryModeColors.textPrimary }}
+                      >
+                        {hint.comboName}
+                      </span>
+                      <span
+                        className="text-xs"
+                        style={{ color: COMBO_COLORS.building }}
+                      >
+                        {Math.round(hint.progress * 100)}%
+                      </span>
+                    </div>
+                    {/* Progress Bar */}
+                    <div
+                      className="h-2 w-full rounded-full overflow-hidden"
+                      style={{ backgroundColor: StoryModeColors.border }}
+                    >
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{
+                          width: `${hint.progress * 100}%`,
+                          backgroundColor: hint.progress >= 0.75
+                            ? COMBO_COLORS.ready
+                            : COMBO_COLORS.building,
+                        }}
+                      />
+                    </div>
+                    <div
+                      className="text-xs mt-1 flex justify-between"
+                      style={{ color: StoryModeColors.textMuted }}
+                    >
+                      <span>{hint.hint_de}</span>
+                      <span>{hint.expiresIn} Phasen übrig</span>
+                    </div>
+                    {hint.nextAction_de && (
+                      <div
+                        className="text-xs mt-1"
+                        style={{ color: COMBO_COLORS.building }}
+                      >
+                        Nächste: {hint.nextAction_de}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Potential Consequences Warning */}
           {result.potentialConsequences && result.potentialConsequences.length > 0 && (
             <div
@@ -276,7 +417,7 @@ export function ActionFeedbackDialog({
                 color: StoryModeColors.danger,
               }}
             >
-              ⚠️ Diese Aktion konnte zukunftige Konsequenzen auslosen
+              ⚠️ Diese Aktion könnte zukünftige Konsequenzen auslösen
             </div>
           )}
         </div>
