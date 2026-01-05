@@ -14,6 +14,8 @@ import {
 } from '../../game-logic/StoryEngineAdapter';
 import { playSound } from '../utils/SoundSystem';
 import { storyLogger } from '../../utils/logger';
+import type { TrustHistoryPoint } from '../../components/TrustEvolutionChart';
+import type { ExtendedActor } from '../engine/ExtendedActorLoader';
 
 // ============================================
 // TYPES
@@ -86,6 +88,10 @@ export interface StoryGameState {
 
   // Dialog
   currentDialog: DialogState | null;
+
+  // Trust Evolution Tracking
+  trustHistory: TrustHistoryPoint[];
+  extendedActors: ExtendedActor[];
 }
 
 export interface DialogState {
@@ -137,6 +143,29 @@ export function useStoryGameState(seed?: string) {
 
   // Dialog
   const [currentDialog, setCurrentDialog] = useState<DialogState | null>(null);
+
+  // Trust Evolution Tracking
+  const [trustHistory, setTrustHistory] = useState<TrustHistoryPoint[]>(() => {
+    // Initialize with starting trust values
+    const actors = engine.getExtendedActors();
+    const actorTrust: Record<string, number> = {};
+    let totalTrust = 0;
+
+    actors.forEach(actor => {
+      const trust = actor.currentTrust ?? actor.baseTrust;
+      actorTrust[actor.id] = trust;
+      totalTrust += trust;
+    });
+
+    return [{
+      round: 0,
+      actorTrust,
+      averageTrust: actors.length > 0 ? totalTrust / actors.length : 1,
+    }];
+  });
+  const [extendedActors, setExtendedActors] = useState<ExtendedActor[]>(() =>
+    engine.getExtendedActors()
+  );
 
   // ============================================
   // DERIVED STATE
@@ -267,6 +296,32 @@ export function useStoryGameState(seed?: string) {
     setNpcs(engine.getAllNPCs());
     setNewsEvents(engine.getNewsEvents());
     setObjectives(engine.getObjectives());
+
+    // Track trust evolution
+    const actors = engine.getExtendedActors();
+    setExtendedActors(actors);
+
+    const actorTrust: Record<string, number> = {};
+    let totalTrust = 0;
+    actors.forEach(actor => {
+      const trust = actor.currentTrust ?? actor.baseTrust;
+      actorTrust[actor.id] = trust;
+      totalTrust += trust;
+    });
+
+    // Find any significant event from this phase
+    const latestNews = engine.getNewsEvents().slice(-1)[0];
+    const event = latestNews ? {
+      type: latestNews.type,
+      description: latestNews.headline_de,
+    } : undefined;
+
+    setTrustHistory(prev => [...prev, {
+      round: result.newPhase.month + (result.newPhase.year - 2024) * 12,
+      actorTrust,
+      averageTrust: actors.length > 0 ? totalTrust / actors.length : 1,
+      event,
+    }]);
 
     // Check for triggered consequences
     if (result.triggeredConsequences.length > 0) {
@@ -499,6 +554,24 @@ export function useStoryGameState(seed?: string) {
     setGameEnd(null);
     setCurrentDialog(null);
     setActiveNpcId(null);
+
+    // Reset trust tracking
+    const actors = newEngine.getExtendedActors();
+    setExtendedActors(actors);
+
+    const actorTrust: Record<string, number> = {};
+    let totalTrust = 0;
+    actors.forEach(actor => {
+      const trust = actor.currentTrust ?? actor.baseTrust;
+      actorTrust[actor.id] = trust;
+      totalTrust += trust;
+    });
+
+    setTrustHistory([{
+      round: 0,
+      actorTrust,
+      averageTrust: actors.length > 0 ? totalTrust / actors.length : 1,
+    }]);
   }, []);
 
   // ============================================
@@ -522,6 +595,8 @@ export function useStoryGameState(seed?: string) {
       activeConsequence,
       gameEnd,
       currentDialog,
+      trustHistory,
+      extendedActors,
     } as StoryGameState,
 
     // Game Flow

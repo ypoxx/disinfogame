@@ -3,7 +3,11 @@ import { formatPercent } from '@/utils';
 import { getCategoryColor } from '@/utils/colors';
 import type { Actor } from '@/game-logic/types';
 
-interface TrustHistoryPoint {
+/**
+ * TrustHistoryPoint - Track trust values over time
+ * Used by TrustEvolutionChart to visualize trust evolution
+ */
+export interface TrustHistoryPoint {
   round: number;
   actorTrust: Record<string, number>; // actorId → trust value
   averageTrust: number;

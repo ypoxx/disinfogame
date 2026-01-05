@@ -1,7 +1,7 @@
 # DESINFORMATION NETWORK - Development Roadmap 2026
 
 **Erstellt:** 2026-01-03
-**Aktualisiert:** 2026-01-05 (Woche 4 abgeschlossen)
+**Aktualisiert:** 2026-01-05 (Woche 5 UX/Visual Design)
 **Ziel:** Platin-Niveau
 **Fokus:** Story Mode
 **Methodik:** Siehe `docs/CODE_REVIEW_METHODOLOGY.md`
@@ -273,7 +273,7 @@ Nach umfassender Code-Analyse und **Experten-Review** wurden folgende Hauptberei
 | Komponente | Zeilen | Status | Aktion |
 |------------|--------|--------|--------|
 | **Encyclopedia.tsx** | 218 | ORPHAN! | **INTEGRIEREN** - Einzige Bildungskomponente! toggleEncyclopedia existiert, aber Komponente wird nie gerendert |
-| **TrustEvolutionChart.tsx** | 200+ | UNGENUTZT | **INTEGRIEREN** - Wertvolle Post-Game-Analytik (Trust-Trajektorie, Heatmaps) |
+| **TrustEvolutionChart.tsx** | 200+ | ✅ INTEGRIERT | GameEndScreen zeigt Post-Game Trust-Analyse (Trust-Trajektorie pro Phase) |
 | **CompactSidePanel.tsx** | ~200 | SUPERSEDED | **ALS REFERENZ BEHALTEN** - Löst dokumentierte Widescreen-UX-Probleme |
 | **RoundSummary.tsx** | ~200 | MERGED | **NARRATIVE PRÜFEN** - Hat detailliertere Erklärungen als UnifiedRoundModal |
 | **BottomSheet.tsx** | ~150 | SUPERSEDED | **FÜR MOBILE BEHALTEN** - Besseres Mobile-Pattern (swipe-up) |
@@ -305,7 +305,7 @@ Nach umfassender Code-Analyse und **Experten-Review** wurden folgende Hauptberei
 6. [x] ✅ Encyclopedia.tsx in App.tsx + StoryModeGame.tsx ('I' Shortcut)
 7. [x] ✅ EventsPanel + worldEventCount integriert (OfficeDoor + 'E' Shortcut)
 8. [x] ✅ TutorialOverlay integriert (auto-start, 10 Schritte)
-9. [x] TrustEvolutionChart → GEPLANT (benötigt Trust-History-State)
+9. [x] ✅ TrustEvolutionChart → Trust-History-State + GameEndScreen Integration (2026-01-05)
 10. [x] Actor-AI System → WAR BEREITS AKTIV (falsche Analyse)
 
 ### WOCHE 3: Story Mode Vollständigkeit ✅ ABGESCHLOSSEN
@@ -329,7 +329,9 @@ Nach umfassender Code-Analyse und **Experten-Review** wurden folgende Hauptberei
 20. [x] ✅ Theme-System erweitern (colors.ts) - Crisis/Combo/Betrayal/Opportunity Farben
 21. [x] ✅ Mikroanimationen (index.css) - 20+ Keyframes, Utility-Klassen
 22. [x] ✅ Animation-Hooks erstellt - useTypingEffect, useAnimatedValue
-23. [ ] Büro-Konzept redesignen (40-60h) - Größeres Projekt
+23. [x] ✅ Combo System UI - ActionFeedbackDialog zeigt Combos + Hints
+24. [x] ✅ TrustEvolutionChart integriert - Trust-Tracking pro Phase, GameEndScreen Analyse-Panel
+25. [ ] Büro-Konzept redesignen (40-60h) - Größeres Projekt
 
 ### WOCHE 8-9: Testing + Dokumentation
 23. [ ] Unit Tests schreiben (20h)
