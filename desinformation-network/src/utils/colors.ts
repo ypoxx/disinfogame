@@ -136,3 +136,102 @@ export function getAbilityColor(abilityType: string): string {
   };
   return abilityColors[abilityType] || '#6B7280';
 }
+
+// ============================================
+// GAME STATE COLORS (Week 5: UX Design)
+// ============================================
+
+/**
+ * Crisis escalation colors
+ * Used for crisis moments and escalating danger
+ */
+export const CRISIS_COLORS = {
+  level1: '#F59E0B', // Amber - Minor crisis
+  level2: '#F97316', // Orange - Moderate crisis
+  level3: '#EF4444', // Red - Severe crisis
+  level4: '#DC2626', // Dark Red - Critical crisis
+  level5: '#991B1B', // Darkest Red - Catastrophic
+} as const;
+
+export function getCrisisColor(level: number): string {
+  if (level <= 1) return CRISIS_COLORS.level1;
+  if (level <= 2) return CRISIS_COLORS.level2;
+  if (level <= 3) return CRISIS_COLORS.level3;
+  if (level <= 4) return CRISIS_COLORS.level4;
+  return CRISIS_COLORS.level5;
+}
+
+/**
+ * Combo progress colors
+ * Used for combo meter and combo activation feedback
+ */
+export const COMBO_COLORS = {
+  inactive: '#4B5563',    // Gray - No combo active
+  building: '#3B82F6',    // Blue - Building up
+  ready: '#8B5CF6',       // Purple - Ready to activate
+  active: '#F59E0B',      // Amber - Active combo
+  maxed: '#22C55E',       // Green - Maximum combo
+  glow: 'rgba(139, 92, 246, 0.4)', // Purple glow
+} as const;
+
+export function getComboColor(progress: number, isActive: boolean): string {
+  if (isActive) return COMBO_COLORS.active;
+  if (progress >= 1) return COMBO_COLORS.maxed;
+  if (progress >= 0.75) return COMBO_COLORS.ready;
+  if (progress > 0) return COMBO_COLORS.building;
+  return COMBO_COLORS.inactive;
+}
+
+/**
+ * Betrayal/Warning colors
+ * Used for NPC betrayal warnings and relationship damage
+ */
+export const BETRAYAL_COLORS = {
+  warning: '#FBBF24',     // Yellow - Early warning
+  danger: '#F97316',      // Orange - Relationship strained
+  critical: '#EF4444',    // Red - Near betrayal
+  betrayed: '#7C2D12',    // Dark brown-red - Betrayal complete
+  text: '#FEF3C7',        // Cream text on warning bg
+} as const;
+
+export function getBetrayalColor(relationshipLevel: number): string {
+  if (relationshipLevel >= 0.7) return 'transparent'; // Good relationship
+  if (relationshipLevel >= 0.4) return BETRAYAL_COLORS.warning;
+  if (relationshipLevel >= 0.2) return BETRAYAL_COLORS.danger;
+  if (relationshipLevel > 0) return BETRAYAL_COLORS.critical;
+  return BETRAYAL_COLORS.betrayed;
+}
+
+/**
+ * Opportunity colors
+ * Used for highlighting time-limited opportunities
+ */
+export const OPPORTUNITY_COLORS = {
+  available: '#22C55E',   // Green - Available now
+  expiring: '#F59E0B',    // Amber - Expiring soon
+  urgent: '#EF4444',      // Red - Last chance
+  glow: 'rgba(34, 197, 94, 0.3)', // Green glow
+  border: '#16A34A',      // Darker green border
+} as const;
+
+export function getOpportunityColor(turnsRemaining: number): string {
+  if (turnsRemaining <= 1) return OPPORTUNITY_COLORS.urgent;
+  if (turnsRemaining <= 3) return OPPORTUNITY_COLORS.expiring;
+  return OPPORTUNITY_COLORS.available;
+}
+
+/**
+ * Resource change colors
+ * Used for animating resource value changes
+ */
+export const RESOURCE_CHANGE_COLORS = {
+  increase: '#22C55E',    // Green - Gained
+  decrease: '#EF4444',    // Red - Lost
+  neutral: '#6B7280',     // Gray - No change
+} as const;
+
+export function getResourceChangeColor(delta: number): string {
+  if (delta > 0) return RESOURCE_CHANGE_COLORS.increase;
+  if (delta < 0) return RESOURCE_CHANGE_COLORS.decrease;
+  return RESOURCE_CHANGE_COLORS.neutral;
+}

@@ -77,6 +77,39 @@
   --transition-fast: 100ms ease;
   --transition-normal: 150ms ease;
   --transition-slow: 300ms ease;
+  --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ============================================
+     Design System: Game State Colors (Week 5)
+     ============================================ */
+  /* Crisis levels */
+  --crisis-1: hsl(38, 92%, 50%);    /* Amber */
+  --crisis-2: hsl(25, 95%, 53%);    /* Orange */
+  --crisis-3: hsl(0, 84%, 60%);     /* Red */
+  --crisis-4: hsl(0, 72%, 51%);     /* Dark Red */
+  --crisis-5: hsl(0, 63%, 35%);     /* Darkest Red */
+
+  /* Combo system */
+  --combo-inactive: hsl(220, 13%, 46%);
+  --combo-building: hsl(217, 91%, 60%);
+  --combo-ready: hsl(263, 70%, 50%);
+  --combo-active: hsl(38, 92%, 50%);
+  --combo-glow: hsla(263, 70%, 50%, 0.4);
+
+  /* Betrayal/Warning */
+  --betrayal-warning: hsl(45, 93%, 58%);
+  --betrayal-danger: hsl(25, 95%, 53%);
+  --betrayal-critical: hsl(0, 84%, 60%);
+
+  /* Opportunity */
+  --opportunity-available: hsl(142, 71%, 45%);
+  --opportunity-expiring: hsl(38, 92%, 50%);
+  --opportunity-urgent: hsl(0, 84%, 60%);
+  --opportunity-glow: hsla(142, 71%, 45%, 0.3);
+
+  /* Resource changes */
+  --resource-increase: hsl(142, 71%, 45%);
+  --resource-decrease: hsl(0, 84%, 60%);
 }
 
 /* Custom base styles */
@@ -179,14 +212,19 @@
   }
 }
 
-/* Keyframes */
+/* ============================================
+   KEYFRAMES (Week 5: Mikroanimationen)
+   ============================================ */
+
+/* Basic transitions */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 @keyframes slideUp {
@@ -200,6 +238,63 @@
   }
 }
 
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Panel animations */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInBottom {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pulse and glow effects */
 @keyframes pulse-ring {
   0% {
     transform: scale(1);
@@ -208,6 +303,35 @@
   100% {
     transform: scale(2);
     opacity: 0;
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--combo-glow);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--combo-glow), 0 0 30px var(--combo-glow);
+  }
+}
+
+@keyframes crisis-pulse {
+  0%, 100% {
+    background-color: var(--crisis-3);
+  }
+  50% {
+    background-color: var(--crisis-4);
   }
 }
 
@@ -222,7 +346,76 @@
   }
 }
 
-/* Toast notifications animation (slide down from top) */
+/* Number/value change animations */
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes countDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes valueFlash {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes valueIncrease {
+  0% {
+    color: var(--resource-increase);
+    transform: scale(1.2);
+  }
+  100% {
+    color: inherit;
+    transform: scale(1);
+  }
+}
+
+@keyframes valueDecrease {
+  0% {
+    color: var(--resource-decrease);
+    transform: scale(1.2);
+  }
+  100% {
+    color: inherit;
+    transform: scale(1);
+  }
+}
+
+/* Button hover effects */
+@keyframes buttonShake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+@keyframes buttonBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Toast/notification animations */
 @keyframes slide-down {
   from {
     transform: translateY(-20px);
@@ -235,16 +428,103 @@
 }
 
 @keyframes progress {
-  from {
-    width: 100%;
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+/* Typing effect for dialogs */
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes typewriter-reveal {
+  from { max-width: 0; }
+  to { max-width: 100%; }
+}
+
+/* Opportunity highlight */
+@keyframes opportunity-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px var(--opportunity-glow);
+    border-color: var(--opportunity-available);
   }
-  to {
-    width: 0%;
+  50% {
+    box-shadow: 0 0 16px var(--opportunity-glow), 0 0 24px var(--opportunity-glow);
+    border-color: var(--opportunity-available);
   }
 }
 
-.animate-slide-down {
-  animation: slide-down 0.3s ease-out forwards;
+/* Crisis warning */
+@keyframes crisis-flash {
+  0%, 100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: hsla(0, 84%, 60%, 0.1);
+  }
+}
+
+/* Scale in/out */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+/* ============================================
+   ANIMATION UTILITY CLASSES
+   ============================================ */
+
+.animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+.animate-fade-out { animation: fadeOut 0.3s ease-out forwards; }
+.animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
+.animate-slide-down { animation: slide-down 0.3s ease-out forwards; }
+.animate-slide-in-right { animation: slideInRight 0.3s ease-out forwards; }
+.animate-slide-in-left { animation: slideInLeft 0.3s ease-out forwards; }
+.animate-slide-in-bottom { animation: slideInBottom 0.3s ease-out forwards; }
+.animate-scale-in { animation: scaleIn 0.2s ease-out forwards; }
+
+/* Value change animations */
+.animate-value-increase { animation: valueIncrease 0.5s ease-out; }
+.animate-value-decrease { animation: valueDecrease 0.5s ease-out; }
+.animate-value-flash { animation: valueFlash 0.3s ease-out; }
+.animate-count-up { animation: countUp 0.3s ease-out; }
+.animate-count-down { animation: countDown 0.3s ease-out; }
+
+/* Pulsing/glowing effects */
+.animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+.animate-glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
+.animate-crisis-pulse { animation: crisis-pulse 1s ease-in-out infinite; }
+.animate-opportunity-glow { animation: opportunity-glow 2s ease-in-out infinite; }
+.animate-crisis-flash { animation: crisis-flash 1s ease-in-out infinite; }
+
+/* Button effects */
+.animate-shake { animation: buttonShake 0.4s ease-in-out; }
+.animate-bounce { animation: buttonBounce 0.3s ease-out; }
+
+/* Typing cursor */
+.typing-cursor::after {
+  content: '▌';
+  animation: blink-cursor 1s step-end infinite;
+  margin-left: 2px;
+  color: var(--accent-primary);
 }
 
 /* Canvas styles */
