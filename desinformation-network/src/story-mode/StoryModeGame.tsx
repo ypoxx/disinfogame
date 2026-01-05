@@ -413,9 +413,38 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
   // Game End Screen (uses elaborate component from components/GameEndScreen.tsx)
   if (state.gamePhase === 'ended' && state.gameEnd) {
+    // Convert ExtendedActors to Actor format for TrustEvolutionChart
+    const chartActors = state.extendedActors.map(actor => ({
+      id: actor.id,
+      name: actor.name,
+      category: actor.category as 'media' | 'expert' | 'lobby' | 'organization' | 'infrastructure' | 'defensive',
+      trust: actor.currentTrust ?? actor.baseTrust,
+      baseTrust: actor.baseTrust,
+      tier: actor.tier as 1 | 2 | 3,
+      resilience: actor.resilience,
+      influenceRadius: actor.influenceRadius ?? 0.5,
+      emotionalState: actor.emotionalState ?? 0.5,
+      recoveryRate: actor.recoveryRate ?? 0.02,
+      renderPriority: actor.tier === 1 ? 10 : actor.tier === 2 ? 5 : 2,
+      awareness: 0,
+      position: { x: 0, y: 0 },
+      color: actor.color ?? '#6B7280',
+      size: actor.tier === 1 ? 40 : actor.tier === 2 ? 30 : 20,
+      connections: [],
+      abilities: actor.abilities ?? [],
+      activeEffects: [],
+      cooldowns: {},
+      vulnerabilities: actor.vulnerabilities,
+      resistances: actor.resistances,
+    }));
+
     return (
       <GameEndScreen
-        endData={state.gameEnd}
+        endData={{
+          ...state.gameEnd,
+          trustHistory: state.trustHistory,
+          actors: chartActors,
+        }}
         onRestart={resetGame}
         onMainMenu={onExit}
       />

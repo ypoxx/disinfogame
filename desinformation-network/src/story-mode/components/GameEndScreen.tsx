@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { StoryModeColors } from '../theme';
 import { globalRandom } from '../../services/globalRandom';
+import { TrustEvolutionChart, type TrustHistoryPoint } from '../../components/TrustEvolutionChart';
+import type { Actor } from '../../game-logic/types';
 
 // ============================================
 // TYPES
@@ -25,6 +27,9 @@ export interface GameEndData {
     finalTrust?: number;
     finalRisk?: number;
   };
+  // Trust Evolution Data (optional for backwards compatibility)
+  trustHistory?: TrustHistoryPoint[];
+  actors?: Actor[];
 }
 
 interface GameEndScreenProps {
@@ -185,8 +190,12 @@ function StatsGrid({ stats }: { stats: GameEndData['stats'] }) {
 
 export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenProps) {
   const [showEducation, setShowEducation] = useState(false);
+  const [showTrustChart, setShowTrustChart] = useState(false);
   const config = ENDING_CONFIGS[endData.type];
   const moralReflection = getMoralReflection(endData.stats.moralWeight);
+
+  // Check if trust data is available
+  const hasTrustData = endData.trustHistory && endData.trustHistory.length > 1 && endData.actors && endData.actors.length > 0;
 
   return (
     <div
@@ -297,6 +306,39 @@ export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenP
               </div>
             )}
           </div>
+
+          {/* Trust Evolution Chart Toggle */}
+          {hasTrustData && (
+            <div className="mt-4">
+              <button
+                onClick={() => setShowTrustChart(!showTrustChart)}
+                className="w-full py-2 border-2 font-bold text-sm transition-all hover:brightness-110"
+                style={{
+                  backgroundColor: StoryModeColors.militaryOlive,
+                  borderColor: StoryModeColors.darkOlive,
+                  color: StoryModeColors.warning,
+                }}
+              >
+                {showTrustChart ? '▼ VERTRAUENSANALYSE VERBERGEN' : '▶ VERTRAUENSANALYSE ANZEIGEN'}
+              </button>
+
+              {showTrustChart && endData.trustHistory && endData.actors && (
+                <div
+                  className="mt-2 p-4 border-2"
+                  style={{
+                    backgroundColor: '#f8f9fa',
+                    borderColor: StoryModeColors.militaryOlive,
+                  }}
+                >
+                  <TrustEvolutionChart
+                    history={endData.trustHistory}
+                    actors={endData.actors}
+                    showAnnotations={true}
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex gap-4 mt-8">
