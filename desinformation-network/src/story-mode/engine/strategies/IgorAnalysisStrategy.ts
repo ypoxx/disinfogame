@@ -184,7 +184,7 @@ export class IgorAnalysisStrategy implements NPCAnalysisStrategy {
         suggestedActions: highROIActions.slice(0, 3).map(a => a.id),
         phase: currentPhase,
         confidence: 0.8,
-        tone: 'analytical',
+        tone: 'neutral',
       };
     }
 
@@ -244,7 +244,7 @@ export class IgorAnalysisStrategy implements NPCAnalysisStrategy {
         suggestedActions: frontActions.slice(0, 2).map(a => a.id),
         phase: currentPhase,
         confidence: 0.85,
-        tone: 'pragmatic',
+        tone: 'cautious',
       };
     }
 

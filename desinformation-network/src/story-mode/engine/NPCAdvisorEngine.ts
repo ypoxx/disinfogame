@@ -38,13 +38,12 @@ export class NPCAdvisorEngine {
 
   constructor() {
     // Initialize all NPC analysis strategies
-    this.analysisStrategies = new Map([
-      ['marina', new MarinaAnalysisStrategy()],
-      ['alexei', new AlexeiAnalysisStrategy()],
-      ['igor', new IgorAnalysisStrategy()],
-      ['katja', new KatjaAnalysisStrategy()],
-      ['direktor', new DirektorAnalysisStrategy()],
-    ]);
+    this.analysisStrategies = new Map<string, NPCAnalysisStrategy>();
+    this.analysisStrategies.set('marina', new MarinaAnalysisStrategy());
+    this.analysisStrategies.set('alexei', new AlexeiAnalysisStrategy());
+    this.analysisStrategies.set('igor', new IgorAnalysisStrategy());
+    this.analysisStrategies.set('katja', new KatjaAnalysisStrategy());
+    this.analysisStrategies.set('direktor', new DirektorAnalysisStrategy());
 
     this.lastRecommendations = new Map();
 
@@ -69,7 +68,7 @@ export class NPCAdvisorEngine {
     const timingStart = performance.now();
 
     // Each NPC analyzes independently
-    for (const [npcId, strategy] of this.analysisStrategies) {
+    for (const [npcId, strategy] of Array.from(this.analysisStrategies.entries())) {
       try {
         // Find NPC in game state
         const npc = context.gameState.npcs.find(n => n.id === npcId);

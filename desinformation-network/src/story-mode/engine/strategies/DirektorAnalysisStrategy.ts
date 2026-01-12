@@ -47,7 +47,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
       recommendations.push(...moraleAlerts);
 
       // D) Strategic Review: Phase Milestones
-      const milestoneReview = this.analyzePhase Milestones(context);
+      const milestoneReview = this.analyzePhaseMilestones(context);
       if (milestoneReview) recommendations.push(milestoneReview);
 
       // E) Meta-Strategic: NPC Conflicts (not implemented in analyze, handled by engine)
@@ -116,7 +116,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
         suggestedActions: aggressiveActions.slice(0, 3).map(a => a.id),
         phase: currentPhase,
         confidence: 1.0,
-        tone: 'demanding',
+        tone: 'urgent',
       };
     } else if (efficiency < 0.85 && currentPhase > 40) {
       // Warning if slightly behind schedule in mid-game
@@ -145,7 +145,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
         suggestedActions: balancedActions.slice(0, 3).map(a => a.id),
         phase: currentPhase,
         confidence: 0.85,
-        tone: 'firm',
+        tone: 'concerned',
       };
     }
 
@@ -168,11 +168,11 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
 
     // Warn if high risk (>60%) but low progress (<20%)
     if (currentRisk > 60 && trustProgress < 0.2) {
-      // Find balanced actions (moderate risk, good impact)
+      // Find balanced actions (moderate risk, good moral weight as proxy for impact)
       const balancedActions = gameState.availableActions.filter(a => {
         const risk = a.costs.risk || 0;
-        const impact = Math.abs(a.effects?.trust_impact || 0);
-        return risk > 0 && risk < 15 && impact > 0.05;
+        const moralWeight = a.costs.moralWeight || 0;
+        return risk > 0 && risk < 15 && moralWeight > 0.3;
       });
 
       const message = playerRelationship > 2
@@ -199,7 +199,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
         suggestedActions: balancedActions.slice(0, 3).map(a => a.id),
         phase: currentPhase,
         confidence: 0.9,
-        tone: 'critical',
+        tone: 'urgent',
       };
     }
 
@@ -327,7 +327,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
     personalMessage: string;
     detailedAnalysis: string;
     recommendations: string[];
-    tone: string;
+    tone: 'urgent' | 'cautious' | 'enthusiastic' | 'concerned' | 'neutral';
   } {
     const { gameState } = context;
     const trustProgress = gameState.objectives.find(o => o.type === 'trust_reduction')?.progress || 0;
@@ -344,7 +344,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
             `\nRisk Level: ${currentRisk.toFixed(0)}% (Target: <40%)` +
             `\nNext Phase: Expansion - build on foundation, increase reach and infrastructure.`,
           recommendations: ['ta02_server_network', 'ta03_content_creation', 'ta04_distribution'],
-          tone: 'businesslike',
+          tone: 'neutral',
         };
 
       case 40:
@@ -362,7 +362,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
           recommendations: trustProgress > 0.3
             ? ['ta06_political_leverage', 'ta08_operational_security']
             : ['ta07_aggressive_narrative', 'ta06_infiltration'],
-          tone: trustProgress > 0.3 ? 'approving' : 'demanding',
+          tone: trustProgress > 0.3 ? 'enthusiastic' : 'urgent',
         };
 
       case 60:
@@ -379,7 +379,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
           recommendations: trustProgress > 0.5
             ? ['ta08_consolidate', 'ta09_economic_warfare']
             : ['ta07_radical_narrative', 'ta06_deep_infiltration'],
-          tone: trustProgress > 0.5 ? 'pleased' : 'stern',
+          tone: trustProgress > 0.5 ? 'enthusiastic' : 'concerned',
         };
 
       case 80:
@@ -393,7 +393,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
             `\nRequired Rate: ${(((1.0 - trustProgress) / 40) * 100).toFixed(2)}% per phase` +
             `\n${trustProgress > 0.7 ? 'Victory achievable with current tempo.' : 'Must accelerate significantly to achieve objective.'}`,
           recommendations: ['ta09_final_operations', 'ta08_all_in'],
-          tone: trustProgress > 0.7 ? 'confident' : 'urgent',
+          tone: trustProgress > 0.7 ? 'enthusiastic' : 'urgent',
         };
 
       case 100:
@@ -407,7 +407,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
             `\nGap: ${((1.0 - trustProgress) * 100).toFixed(0)}%` +
             `\n${trustProgress > 0.85 ? 'Maintain course to victory.' : 'Desperate measures may be required.'}`,
           recommendations: ['all_available_aggressive_actions'],
-          tone: trustProgress > 0.85 ? 'triumphant' : 'desperate',
+          tone: trustProgress > 0.85 ? 'enthusiastic' : 'urgent',
         };
 
       default:

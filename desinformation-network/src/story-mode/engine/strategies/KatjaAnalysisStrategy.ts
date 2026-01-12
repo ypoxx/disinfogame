@@ -114,7 +114,7 @@ export class KatjaAnalysisStrategy implements NPCAnalysisStrategy {
         suggestedActions: recruitmentActions.slice(0, 3).map(a => a.id),
         phase: currentPhase,
         confidence: 0.8,
-        tone: 'pragmatic',
+        tone: 'cautious',
       };
     }
 
@@ -298,7 +298,7 @@ export class KatjaAnalysisStrategy implements NPCAnalysisStrategy {
         phase: currentPhase,
         expiresPhase: event.phase + 3, // Event window
         confidence: 0.8,
-        tone: 'pragmatic',
+        tone: 'cautious',
       };
     }
 

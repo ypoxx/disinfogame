@@ -7,7 +7,8 @@
  * @module AdvisorRecommendation
  */
 
-import type { StoryGameState, NPCState, StoryAction } from '../../game-logic/StoryEngineAdapter';
+import type { StoryGameState } from '../hooks/useStoryGameState';
+import type { NPCState, StoryAction } from '../../game-logic/StoryEngineAdapter';
 
 // ============================================
 // RECOMMENDATION TYPES
