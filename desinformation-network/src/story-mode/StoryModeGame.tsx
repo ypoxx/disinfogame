@@ -13,6 +13,8 @@ import { EventsPanel } from './components/EventsPanel';
 import { TutorialOverlay, useTutorial } from './components/TutorialOverlay';
 import { GameEndScreen } from './components/GameEndScreen';
 import { Encyclopedia } from '@/components/Encyclopedia';
+import { AdvisorPanel } from './components/AdvisorPanel';
+import { AdvisorDetailModal } from './components/AdvisorDetailModal';
 import { useStoryGameState } from './hooks/useStoryGameState';
 import { OfficeScreen } from './OfficeScreen';
 
@@ -335,6 +337,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showActionFeedback, setShowActionFeedback] = useState(false);
   const [showEncyclopedia, setShowEncyclopedia] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [selectedAdvisorNpc, setSelectedAdvisorNpc] = useState<string | null>(null);
+  const [advisorCollapsed, setAdvisorCollapsed] = useState(false);
 
   // Count world events
   const worldEventCount = state.newsEvents.filter(e => e.type === 'world_event').length;
@@ -671,6 +675,46 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         isOpen={showEncyclopedia}
         onClose={() => setShowEncyclopedia(false)}
       />
+
+      {/* Advisor Panel */}
+      {state.gamePhase === 'playing' && (
+        <AdvisorPanel
+          npcs={state.npcs.map(npc => ({
+            id: npc.id,
+            name: npc.name,
+            title_de: npc.title_de,
+            morale: npc.morale,
+            relationshipLevel: npc.relationshipLevel || 0,
+            available: npc.available,
+          }))}
+          recommendations={state.recommendations}
+          onSelectNpc={(npcId) => setSelectedAdvisorNpc(npcId)}
+          isCollapsed={advisorCollapsed}
+          onToggleCollapse={() => setAdvisorCollapsed(!advisorCollapsed)}
+        />
+      )}
+
+      {/* Advisor Detail Modal */}
+      {selectedAdvisorNpc && (
+        <AdvisorDetailModal
+          npc={state.npcs.find(n => n.id === selectedAdvisorNpc)
+            ? {
+                id: state.npcs.find(n => n.id === selectedAdvisorNpc)!.id,
+                name: state.npcs.find(n => n.id === selectedAdvisorNpc)!.name,
+                title_de: state.npcs.find(n => n.id === selectedAdvisorNpc)!.title_de,
+                morale: state.npcs.find(n => n.id === selectedAdvisorNpc)!.morale,
+                relationshipLevel: state.npcs.find(n => n.id === selectedAdvisorNpc)!.relationshipLevel || 0,
+                available: state.npcs.find(n => n.id === selectedAdvisorNpc)!.available,
+              }
+            : null}
+          recommendations={state.recommendations}
+          onClose={() => setSelectedAdvisorNpc(null)}
+          onSelectAction={(actionId) => {
+            setShowActionPanel(true);
+            // TODO: Scroll to action or highlight it
+          }}
+        />
+      )}
     </div>
   );
 }
