@@ -17,6 +17,8 @@ import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
 import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
 import { getBetrayalSystem } from '../engine/BetrayalSystem';
 import type { BetrayalState, BetrayalEvent, BetrayalWarning } from '../engine/BetrayalSystem';
+import { getCrisisMomentSystem } from '../engine/CrisisMomentSystem';
+import type { ActiveCrisis, CrisisResolution } from '../engine/CrisisMomentSystem';
 import { storyLogger } from '../../utils/logger';
 import type { TrustHistoryPoint } from '../../components/TrustEvolutionChart';
 import type { ExtendedActor } from '../engine/ExtendedActorLoader';
@@ -129,6 +131,9 @@ export interface StoryGameState {
   betrayalStates: Map<string, BetrayalState>;
   activeBetrayalWarnings: BetrayalWarning[];
   activeBetrayalEvent: BetrayalEvent | null;
+
+  // Crisis System
+  activeCrisis: ActiveCrisis | null;
 }
 
 export interface DialogState {
@@ -216,6 +221,9 @@ export function useStoryGameState(seed?: string) {
   const [betrayalStates, setBetrayalStates] = useState<Map<string, BetrayalState>>(new Map());
   const [activeBetrayalWarnings, setActiveBetrayalWarnings] = useState<BetrayalWarning[]>([]);
   const [activeBetrayalEvent, setActiveBetrayalEvent] = useState<BetrayalEvent | null>(null);
+
+  // Crisis System
+  const [activeCrisis, setActiveCrisis] = useState<ActiveCrisis | null>(null);
 
   // ============================================
   // DERIVED STATE
@@ -459,6 +467,33 @@ export function useStoryGameState(seed?: string) {
       }
     }
 
+    // Check Crisis System
+    const crisisSystem = getCrisisMomentSystem();
+    const currentResources = engine.getResources();
+    const currentPhase = result.newPhase.number;
+
+    // Auto-resolve expired crises
+    crisisSystem.cleanupExpiredCrises(currentPhase);
+
+    // Check for new crises to trigger
+    const triggeredCrises = crisisSystem.checkForCrises({
+      phase: currentPhase,
+      risk: currentResources.risk,
+      attention: currentResources.attention,
+      actionCount: completedActions.length,
+      lowTrustActors: actors.filter(a => (a.currentTrust ?? a.baseTrust) < 30).length,
+    });
+
+    // If crises triggered, show the most urgent one
+    if (triggeredCrises.length > 0) {
+      const mostUrgent = crisisSystem.getMostUrgentCrisis();
+      if (mostUrgent) {
+        playSound('warning');
+        setActiveCrisis(mostUrgent);
+        storyLogger.log(`[CRISIS] Triggered: ${mostUrgent.crisis.name_en}`);
+      }
+    }
+
     // Check for game end
     const endState = engine.checkGameEnd();
     if (endState) {
@@ -466,7 +501,7 @@ export function useStoryGameState(seed?: string) {
       setGameEnd(endState);
       setGamePhase('ended');
     }
-  }, [engine, generateRecommendations]);
+  }, [engine, generateRecommendations, completedActions]);
 
   // ============================================
   // ACTION EXECUTION
@@ -788,6 +823,53 @@ export function useStoryGameState(seed?: string) {
   }, [engine]);
 
   // ============================================
+  // CRISIS SYSTEM HANDLERS
+  // ============================================
+
+  const resolveCrisis = useCallback((choiceId: string) => {
+    if (!activeCrisis) return;
+
+    const crisisSystem = getCrisisMomentSystem();
+    const currentPhase = engine.getCurrentPhase();
+
+    const resolution = crisisSystem.resolveCrisis(
+      activeCrisis.crisisId,
+      choiceId,
+      currentPhase.number
+    );
+
+    if (resolution) {
+      storyLogger.log(`[CRISIS] Resolved: ${activeCrisis.crisis.name_en} with choice ${choiceId}`);
+
+      // Apply effects from the choice
+      resolution.effects.forEach(effect => {
+        if (effect.type === 'resource_bonus' && effect.value) {
+          // Apply resource changes
+          storyLogger.log(`[CRISIS] Effect: ${effect.type} = ${effect.value}`);
+        }
+      });
+
+      // Clear the active crisis
+      setActiveCrisis(null);
+      playSound('success');
+
+      // Refresh game state
+      setResources(engine.getResources());
+      setNpcs(engine.getAllNPCs());
+      setNewsEvents(engine.getNewsEvents());
+
+      // Check if there's a chained crisis
+      if (resolution.triggeredChain) {
+        storyLogger.log(`[CRISIS] Chained to: ${resolution.triggeredChain}`);
+      }
+    }
+  }, [activeCrisis, engine]);
+
+  const dismissCrisis = useCallback(() => {
+    setActiveCrisis(null);
+  }, []);
+
+  // ============================================
   // SAVE / LOAD
   // ============================================
 
@@ -955,6 +1037,10 @@ export function useStoryGameState(seed?: string) {
     acknowledgeBetrayal,
     dismissBetrayalWarnings,
     addressGrievance,
+
+    // Crisis System
+    resolveCrisis,
+    dismissCrisis,
 
     // Save/Load
     saveGame,

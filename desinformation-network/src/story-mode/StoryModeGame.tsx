@@ -19,6 +19,7 @@ import { AdvisorDetailModal } from './components/AdvisorDetailModal';
 import { BetrayalWarningBadge } from './components/BetrayalWarningBadge';
 import { GrievanceModal } from './components/GrievanceModal';
 import { BetrayalEventModal } from './components/BetrayalEventModal';
+import { CrisisModal } from './components/CrisisModal';
 import { useStoryGameState } from './hooks/useStoryGameState';
 import { OfficeScreen } from './OfficeScreen';
 
@@ -335,6 +336,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     acknowledgeBetrayal,
     dismissBetrayalWarnings,
     addressGrievance,
+    resolveCrisis,
+    dismissCrisis,
     saveGame,
     loadGame,
     hasSaveGame,
@@ -792,6 +795,26 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             addressGrievance(selectedGrievanceNpc, grievanceId);
             setSelectedGrievanceNpc(null);
           }}
+        />
+      )}
+
+      {/* Crisis System Modal */}
+      {state.activeCrisis && (
+        <CrisisModal
+          isVisible={true}
+          crisis={state.activeCrisis.crisis}
+          currentResources={{
+            budget: state.resources.budget,
+            attention: state.resources.attention,
+            risk: state.resources.risk,
+          }}
+          phasesRemaining={
+            state.activeCrisis.expiresPhase
+              ? state.activeCrisis.expiresPhase - state.storyPhase.number
+              : undefined
+          }
+          onSelectChoice={resolveCrisis}
+          onDismiss={dismissCrisis}
         />
       )}
     </div>

@@ -23,3 +23,6 @@ export type { GameEndData, EndingType } from './GameEndScreen';
 export { BetrayalWarningBadge } from './BetrayalWarningBadge';
 export { GrievanceModal } from './GrievanceModal';
 export { BetrayalEventModal } from './BetrayalEventModal';
+
+export { CrisisModal } from './CrisisModal';
+export type { CrisisMoment, CrisisChoice } from '../engine/CrisisMomentSystem';
