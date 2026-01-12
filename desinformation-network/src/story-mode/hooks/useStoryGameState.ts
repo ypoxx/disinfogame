@@ -15,6 +15,8 @@ import {
 import { playSound } from '../utils/SoundSystem';
 import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
 import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
+import { getBetrayalSystem } from '../engine/BetrayalSystem';
+import type { BetrayalState, BetrayalEvent, BetrayalWarning } from '../engine/BetrayalSystem';
 import { storyLogger } from '../../utils/logger';
 import type { TrustHistoryPoint } from '../../components/TrustEvolutionChart';
 import type { ExtendedActor } from '../engine/ExtendedActorLoader';
@@ -122,6 +124,11 @@ export interface StoryGameState {
   // Trust Evolution Tracking
   trustHistory: TrustHistoryPoint[];
   extendedActors: ExtendedActor[];
+
+  // Betrayal System
+  betrayalStates: Map<string, BetrayalState>;
+  activeBetrayalWarnings: BetrayalWarning[];
+  activeBetrayalEvent: BetrayalEvent | null;
 }
 
 export interface DialogState {
@@ -204,6 +211,11 @@ export function useStoryGameState(seed?: string) {
   const [extendedActors, setExtendedActors] = useState<ExtendedActor[]>(() =>
     engine.getExtendedActors()
   );
+
+  // Betrayal System
+  const [betrayalStates, setBetrayalStates] = useState<Map<string, BetrayalState>>(new Map());
+  const [activeBetrayalWarnings, setActiveBetrayalWarnings] = useState<BetrayalWarning[]>([]);
+  const [activeBetrayalEvent, setActiveBetrayalEvent] = useState<BetrayalEvent | null>(null);
 
   // ============================================
   // DERIVED STATE
@@ -292,6 +304,13 @@ export function useStoryGameState(seed?: string) {
 
     // Load available actions from engine
     refreshAvailableActions();
+
+    // Initialize Betrayal System for all NPCs
+    const betrayalSystem = getBetrayalSystem();
+    const allNpcs = engine.getAllNPCs();
+    allNpcs.forEach(npc => {
+      betrayalSystem.initializeNPC(npc.id, npc.name, npc.morale);
+    });
 
     // Show intro dialog
     setCurrentDialog({
@@ -481,6 +500,74 @@ export function useStoryGameState(seed?: string) {
       // Track completed action
       if (result.success) {
         setCompletedActions(prev => [...prev, actionId]);
+
+        // Process action through Betrayal System
+        const betrayalSystem = getBetrayalSystem();
+        const action = result.action;
+        const currentPhase = engine.getCurrentPhase();
+
+        // Check if action has moral weight (triggers betrayal risk)
+        if (action.costs?.moralWeight && action.costs.moralWeight > 0) {
+          const betrayalResult = betrayalSystem.processAction(
+            actionId,
+            action.tags || [],
+            action.costs.moralWeight,
+            currentPhase.number
+          );
+
+          // Store warnings to show later
+          if (betrayalResult.warnings.length > 0) {
+            setActiveBetrayalWarnings(betrayalResult.warnings);
+          }
+
+          // Check if any NPC is at critical betrayal risk
+          const atRisk = betrayalSystem.getNPCsAtRisk();
+          if (atRisk.length > 0) {
+            storyLogger.info(`NPCs at betrayal risk: ${atRisk.join(', ')}`);
+          }
+
+          // Check if betrayal threshold reached (risk > 85%)
+          const updatedNpcs = engine.getAllNPCs();
+          for (const npc of updatedNpcs) {
+            const risk = betrayalSystem.getBetrayalRisk(npc.id);
+            if (risk && risk.risk > 85 && risk.warningLevel >= 4) {
+              // Trigger betrayal event
+              const betrayalEvent = betrayalSystem.checkBetrayalTrigger(
+                npc.id,
+                npc.name,
+                currentPhase.number
+              );
+              if (betrayalEvent) {
+                setActiveBetrayalEvent(betrayalEvent);
+                storyLogger.warn(`BETRAYAL: ${npc.name} has betrayed the operation!`);
+                // Betrayal event will be shown via modal
+                break; // Only one betrayal per action
+              }
+            }
+          }
+
+          // Update betrayal states for UI (build from getBetrayalRisk calls)
+          const newBetrayalStates = new Map<string, BetrayalState>();
+          updatedNpcs.forEach(npc => {
+            const risk = betrayalSystem.getBetrayalRisk(npc.id);
+            if (risk) {
+              // Reconstruct minimal state for UI (we don't have full state access)
+              const state: BetrayalState = {
+                npcId: npc.id,
+                warningLevel: risk.warningLevel,
+                warningsShown: [],
+                betrayalRisk: risk.risk,
+                personalRedLines: [],
+                recentMoralActions: [],
+                lastWarningPhase: currentPhase.number,
+                grievances: risk.grievances,
+                recoveryActions: [],
+              };
+              newBetrayalStates.set(npc.id, state);
+            }
+          });
+          setBetrayalStates(newBetrayalStates);
+        }
       }
 
       // Refresh available actions (some may be unlocked or used)
@@ -662,6 +749,45 @@ export function useStoryGameState(seed?: string) {
   }, []);
 
   // ============================================
+  // BETRAYAL SYSTEM HANDLERS
+  // ============================================
+
+  const acknowledgeBetrayal = useCallback(() => {
+    setActiveBetrayalEvent(null);
+  }, []);
+
+  const dismissBetrayalWarnings = useCallback(() => {
+    setActiveBetrayalWarnings([]);
+  }, []);
+
+  const addressGrievance = useCallback((npcId: string, grievanceId: string) => {
+    // Use the built-in addressConcerns method (default to 'talk')
+    const betrayalSystem = getBetrayalSystem();
+    const currentPhase = engine.getCurrentPhase();
+    const result = betrayalSystem.addressConcerns(npcId, 'talk', currentPhase.number);
+
+    storyLogger.info(`Addressed concerns for ${npcId}: ${result.message_de}`);
+
+    // Update UI state
+    const risk = betrayalSystem.getBetrayalRisk(npcId);
+    if (risk) {
+      setBetrayalStates(prev => {
+        const newMap = new Map(prev);
+        const existingState = newMap.get(npcId);
+        if (existingState) {
+          newMap.set(npcId, {
+            ...existingState,
+            betrayalRisk: risk.risk,
+            warningLevel: risk.warningLevel,
+            grievances: risk.grievances,
+          });
+        }
+        return newMap;
+      });
+    }
+  }, [engine]);
+
+  // ============================================
   // SAVE / LOAD
   // ============================================
 
@@ -787,6 +913,9 @@ export function useStoryGameState(seed?: string) {
       actionQueue,
       trustHistory,
       extendedActors,
+      betrayalStates,
+      activeBetrayalWarnings,
+      activeBetrayalEvent,
     } as StoryGameState,
 
     // Game Flow
@@ -821,6 +950,11 @@ export function useStoryGameState(seed?: string) {
     // News
     markNewsAsRead,
     toggleNewsPinned,
+
+    // Betrayal System
+    acknowledgeBetrayal,
+    dismissBetrayalWarnings,
+    addressGrievance,
 
     // Save/Load
     saveGame,

@@ -9,6 +9,8 @@ import { useState } from 'react';
 import { StoryModeColors } from '../theme';
 import type { AdvisorRecommendation } from '../engine/AdvisorRecommendation';
 import { getPriorityEmoji, getPriorityColor } from '../engine/AdvisorRecommendation';
+import type { BetrayalState } from '../engine/BetrayalSystem';
+import { BetrayalWarningBadge } from './BetrayalWarningBadge';
 
 // ============================================
 // TYPES
@@ -29,6 +31,8 @@ interface AdvisorPanelProps {
   onSelectNpc: (npcId: string) => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  betrayalStates?: Map<string, BetrayalState>;
+  onOpenGrievances?: (npcId: string) => void;
 }
 
 // ============================================
@@ -41,6 +45,8 @@ export function AdvisorPanel({
   onSelectNpc,
   isCollapsed = false,
   onToggleCollapse,
+  betrayalStates,
+  onOpenGrievances,
 }: AdvisorPanelProps) {
   const [hoveredNpc, setHoveredNpc] = useState<string | null>(null);
 
@@ -173,13 +179,15 @@ export function AdvisorPanel({
             const npcRecs = recommendationsByNpc[npc.id] || [];
             const isHovered = hoveredNpc === npc.id;
 
+            const betrayalState = betrayalStates?.get(npc.id);
+
             return (
               <button
                 key={npc.id}
                 onClick={() => onSelectNpc(npc.id)}
                 onMouseEnter={() => setHoveredNpc(npc.id)}
                 onMouseLeave={() => setHoveredNpc(null)}
-                className="w-full text-left border-2 p-3 transition-all hover:brightness-110 active:translate-y-0.5"
+                className="w-full text-left border-2 p-3 transition-all hover:brightness-110 active:translate-y-0.5 relative"
                 style={{
                   backgroundColor: isHovered ? StoryModeColors.background : StoryModeColors.concrete,
                   borderColor: topRec ? getPriorityColor(topRec.priority) : StoryModeColors.borderLight,
@@ -188,6 +196,14 @@ export function AdvisorPanel({
                     : '2px 2px 0px rgba(0,0,0,0.5)',
                 }}
               >
+                {/* Betrayal Warning Badge */}
+                {betrayalState && betrayalState.warningLevel > 0 && onOpenGrievances && (
+                  <BetrayalWarningBadge
+                    warningLevel={betrayalState.warningLevel}
+                    betrayalRisk={betrayalState.betrayalRisk}
+                    onClick={() => onOpenGrievances(npc.id)}
+                  />
+                )}
                 {/* NPC Header */}
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1 min-w-0">

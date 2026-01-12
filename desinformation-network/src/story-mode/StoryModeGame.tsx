@@ -16,6 +16,9 @@ import { GameEndScreen } from './components/GameEndScreen';
 import { Encyclopedia } from '@/components/Encyclopedia';
 import { AdvisorPanel } from './components/AdvisorPanel';
 import { AdvisorDetailModal } from './components/AdvisorDetailModal';
+import { BetrayalWarningBadge } from './components/BetrayalWarningBadge';
+import { GrievanceModal } from './components/GrievanceModal';
+import { BetrayalEventModal } from './components/BetrayalEventModal';
 import { useStoryGameState } from './hooks/useStoryGameState';
 import { OfficeScreen } from './OfficeScreen';
 
@@ -329,6 +332,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     interactWithNpc,
     markNewsAsRead,
     toggleNewsPinned,
+    acknowledgeBetrayal,
+    dismissBetrayalWarnings,
+    addressGrievance,
     saveGame,
     loadGame,
     hasSaveGame,
@@ -348,6 +354,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [highlightActionId, setHighlightActionId] = useState<string | null>(null);
   const [queueCollapsed, setQueueCollapsed] = useState(false);
   const [batchActionResults, setBatchActionResults] = useState<any[] | null>(null);
+  const [selectedGrievanceNpc, setSelectedGrievanceNpc] = useState<string | null>(null);
 
   // Count world events
   const worldEventCount = state.newsEvents.filter(e => e.type === 'world_event').length;
@@ -712,6 +719,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           onSelectNpc={(npcId) => setSelectedAdvisorNpc(npcId)}
           isCollapsed={advisorCollapsed}
           onToggleCollapse={() => setAdvisorCollapsed(!advisorCollapsed)}
+          betrayalStates={state.betrayalStates}
+          onOpenGrievances={(npcId) => setSelectedGrievanceNpc(npcId)}
         />
       )}
 
@@ -761,6 +770,28 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           }}
           isCollapsed={queueCollapsed}
           onToggleCollapse={() => setQueueCollapsed(!queueCollapsed)}
+        />
+      )}
+
+      {/* Betrayal System Modals */}
+      {state.activeBetrayalEvent && (
+        <BetrayalEventModal
+          isVisible={true}
+          event={state.activeBetrayalEvent}
+          onAcknowledge={acknowledgeBetrayal}
+        />
+      )}
+
+      {selectedGrievanceNpc && state.betrayalStates.get(selectedGrievanceNpc) && (
+        <GrievanceModal
+          isVisible={true}
+          betrayalState={state.betrayalStates.get(selectedGrievanceNpc)!}
+          npcName={state.npcs.find(n => n.id === selectedGrievanceNpc)?.name || selectedGrievanceNpc}
+          onClose={() => setSelectedGrievanceNpc(null)}
+          onAddressGrievance={(grievanceId) => {
+            addressGrievance(selectedGrievanceNpc, grievanceId);
+            setSelectedGrievanceNpc(null);
+          }}
         />
       )}
     </div>
