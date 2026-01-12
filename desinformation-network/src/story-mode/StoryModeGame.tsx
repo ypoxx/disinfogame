@@ -347,6 +347,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [advisorCollapsed, setAdvisorCollapsed] = useState(false);
   const [highlightActionId, setHighlightActionId] = useState<string | null>(null);
   const [queueCollapsed, setQueueCollapsed] = useState(false);
+  const [batchActionResults, setBatchActionResults] = useState<any[] | null>(null);
 
   // Count world events
   const worldEventCount = state.newsEvents.filter(e => e.type === 'world_event').length;
@@ -637,8 +638,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       {/* Action Feedback Dialog */}
       <ActionFeedbackDialog
         isVisible={showActionFeedback}
-        result={state.lastActionResult}
-        onClose={() => setShowActionFeedback(false)}
+        result={batchActionResults || state.lastActionResult}
+        onClose={() => {
+          setShowActionFeedback(false);
+          setBatchActionResults(null);
+        }}
       />
 
       {/* Consequence Modal */}
@@ -745,9 +749,15 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           }}
           onRemove={removeFromQueue}
           onClear={clearQueue}
-          onExecute={() => {
-            executeQueue();
-            setShowActionFeedback(true);
+          onExecute={async () => {
+            const results = await executeQueue();
+            if (results && results.length > 0) {
+              const validResults = results.filter(r => r !== null);
+              if (validResults.length > 0) {
+                setBatchActionResults(validResults as any[]);
+                setShowActionFeedback(true);
+              }
+            }
           }}
           isCollapsed={queueCollapsed}
           onToggleCollapse={() => setQueueCollapsed(!queueCollapsed)}
