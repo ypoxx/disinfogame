@@ -13,6 +13,8 @@ import {
   GameEndState,
 } from '../../game-logic/StoryEngineAdapter';
 import { playSound } from '../utils/SoundSystem';
+import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
+import type { AdvisorRecommendation } from '../engine/AdvisorRecommendation';
 import { storyLogger } from '../../utils/logger';
 import type { TrustHistoryPoint } from '../../components/TrustEvolutionChart';
 import type { ExtendedActor } from '../engine/ExtendedActorLoader';
@@ -89,6 +91,9 @@ export interface StoryGameState {
   // Dialog
   currentDialog: DialogState | null;
 
+  // Advisor System
+  recommendations: AdvisorRecommendation[];
+
   // Trust Evolution Tracking
   trustHistory: TrustHistoryPoint[];
   extendedActors: ExtendedActor[];
@@ -143,6 +148,9 @@ export function useStoryGameState(seed?: string) {
 
   // Dialog
   const [currentDialog, setCurrentDialog] = useState<DialogState | null>(null);
+
+  // Advisor System
+  const [recommendations, setRecommendations] = useState<AdvisorRecommendation[]>([]);
 
   // Trust Evolution Tracking
   const [trustHistory, setTrustHistory] = useState<TrustHistoryPoint[]>(() => {
@@ -293,9 +301,67 @@ export function useStoryGameState(seed?: string) {
     // Update state
     setStoryPhase(result.newPhase);
     setResources(engine.getResources());
-    setNpcs(engine.getAllNPCs());
+    const updatedNpcs = engine.getAllNPCs();
+    setNpcs(updatedNpcs);
     setNewsEvents(engine.getNewsEvents());
     setObjectives(engine.getObjectives());
+
+    // Generate NPC recommendations
+    try {
+      const advisorEngine = getAdvisorEngine();
+      const currentResources = engine.getResources();
+      const currentObjectives = engine.getObjectives();
+
+      const newRecommendations = advisorEngine.generateRecommendations({
+        gameState: {
+          storyPhase: {
+            phaseNumber: result.newPhase.number,
+            phaseName: result.newPhase.label_de,
+            year: result.newPhase.year,
+            month: result.newPhase.month,
+          },
+          resources: {
+            budget: currentResources.budget,
+            maxBudget: 1000, // Fixed max budget for analysis
+            capacity: currentResources.capacity,
+            maxCapacity: 100, // Fixed max capacity for analysis
+            risk: currentResources.risk,
+            attention: currentResources.attention,
+            moralWeight: currentResources.moralWeight,
+          },
+          npcs: updatedNpcs,
+          availableActions: engine.getAvailableActions(),
+          completedActions: [], // TODO: Track completed actions
+          newsEvents: engine.getNewsEvents(),
+          worldEvents: [], // TODO: Convert from newsEvents if needed
+          objectives: currentObjectives.map(obj => ({
+            id: obj.id,
+            type: obj.type,
+            currentValue: obj.currentValue,
+            targetValue: obj.targetValue,
+            progress: obj.progress,
+            completed: obj.completed,
+          })),
+        },
+        npc: updatedNpcs[0], // Placeholder, will be overridden by engine
+        actionHistory: [],
+        metricsHistory: {
+          reachHistory: [],
+          trustHistory: [],
+          riskHistory: [],
+          budgetHistory: [],
+        },
+        otherNPCs: updatedNpcs,
+        playerRelationship: 0, // Placeholder, will be overridden by engine
+      });
+      setRecommendations(newRecommendations);
+      storyLogger.info('Generated advisor recommendations', {
+        count: newRecommendations.length,
+        phase: result.newPhase.number,
+      });
+    } catch (error) {
+      storyLogger.error('Failed to generate advisor recommendations', { error });
+    }
 
     // Track trust evolution
     const actors = engine.getExtendedActors();
@@ -595,6 +661,7 @@ export function useStoryGameState(seed?: string) {
       activeConsequence,
       gameEnd,
       currentDialog,
+      recommendations,
       trustHistory,
       extendedActors,
     } as StoryGameState,
