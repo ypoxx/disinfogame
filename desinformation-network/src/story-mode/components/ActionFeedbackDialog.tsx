@@ -1,10 +1,11 @@
+import { useState } from 'react';
 import { StoryModeColors } from '../theme';
 import type { ActionResult } from '../../game-logic/StoryEngineAdapter';
 import { COMBO_COLORS } from '../../utils/colors';
 
 interface ActionFeedbackDialogProps {
   isVisible: boolean;
-  result: ActionResult | null;
+  result: ActionResult | ActionResult[] | null;
   onClose: () => void;
 }
 
@@ -15,15 +16,380 @@ export function ActionFeedbackDialog({
 }: ActionFeedbackDialogProps) {
   if (!isVisible || !result) return null;
 
-  const getOutcomeColor = () => {
-    if (!result.success) return StoryModeColors.danger;
+  // Handle both single and multiple results
+  const results = Array.isArray(result) ? result : [result];
+  const isBatchMode = Array.isArray(result) && result.length > 1;
+  const [expandedIndex, setExpandedIndex] = useState<number>(0);
+
+  // Calculate cumulative stats for batch mode
+  const cumulativeChanges = isBatchMode ? results.reduce((acc, r) => {
+    if (r.resourceChanges) {
+      acc.budget += r.resourceChanges.budget || 0;
+      acc.capacity += r.resourceChanges.capacity || 0;
+      acc.risk += r.resourceChanges.risk || 0;
+      acc.attention += r.resourceChanges.attention || 0;
+      acc.moralWeight += r.resourceChanges.moralWeight || 0;
+    }
+    return acc;
+  }, { budget: 0, capacity: 0, risk: 0, attention: 0, moralWeight: 0 }) : null;
+
+  const allSuccess = results.every(r => r.success);
+  const successCount = results.filter(r => r.success).length;
+
+  const getOutcomeColor = (singleResult?: ActionResult) => {
+    if (singleResult) {
+      return singleResult.success ? StoryModeColors.success : StoryModeColors.danger;
+    }
+    if (!allSuccess) return StoryModeColors.warning;
     return StoryModeColors.success;
   };
 
-  const getOutcomeIcon = () => {
-    if (!result.success) return '❌';
-    return '✓';
+  const getOutcomeIcon = (singleResult?: ActionResult) => {
+    if (singleResult) {
+      return singleResult.success ? '✓' : '❌';
+    }
+    if (allSuccess) return '✓';
+    return '⚠';
   };
+
+  // Batch Mode - Multi-Step Results View
+  if (isBatchMode) {
+    return (
+      <div
+        className="fixed inset-0 flex items-center justify-center z-50"
+        style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
+        onClick={onClose}
+      >
+        <div
+          className="w-full max-w-4xl mx-4 max-h-[90vh] flex flex-col border-4 animate-fade-in"
+          style={{
+            backgroundColor: StoryModeColors.surface,
+            borderColor: getOutcomeColor(),
+            boxShadow: '10px 10px 0px 0px rgba(0,0,0,0.9)',
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Batch Header */}
+          <div
+            className="px-6 py-4 border-b-4"
+            style={{
+              backgroundColor: getOutcomeColor(),
+              borderColor: StoryModeColors.border,
+            }}
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-2xl">{getOutcomeIcon()}</span>
+              <h2 className="font-bold text-xl" style={{ color: '#fff' }}>
+                {allSuccess ? 'AKTIONEN ERFOLGREICH' : 'BATCH TEILWEISE ERFOLGREICH'}
+              </h2>
+            </div>
+            <div className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+              {successCount} von {results.length} Aktionen erfolgreich
+            </div>
+          </div>
+
+          {/* Cumulative Summary */}
+          {cumulativeChanges && (
+            <div
+              className="px-6 py-4 border-b-2"
+              style={{
+                backgroundColor: StoryModeColors.darkConcrete,
+                borderColor: StoryModeColors.border,
+              }}
+            >
+              <h3
+                className="font-bold mb-3 text-sm"
+                style={{ color: StoryModeColors.textSecondary }}
+              >
+                📊 GESAMT-BILANZ
+              </h3>
+              <div className="grid grid-cols-3 gap-3 text-sm">
+                {cumulativeChanges.budget !== 0 && (
+                  <div className="flex justify-between">
+                    <span style={{ color: StoryModeColors.textMuted }}>Budget:</span>
+                    <span
+                      className="font-bold"
+                      style={{
+                        color: cumulativeChanges.budget > 0
+                          ? StoryModeColors.success
+                          : StoryModeColors.danger,
+                      }}
+                    >
+                      {cumulativeChanges.budget > 0 ? '+' : ''}
+                      ${cumulativeChanges.budget}K
+                    </span>
+                  </div>
+                )}
+                {cumulativeChanges.capacity !== 0 && (
+                  <div className="flex justify-between">
+                    <span style={{ color: StoryModeColors.textMuted }}>Kapazität:</span>
+                    <span
+                      className="font-bold"
+                      style={{
+                        color: cumulativeChanges.capacity > 0
+                          ? StoryModeColors.success
+                          : StoryModeColors.danger,
+                      }}
+                    >
+                      {cumulativeChanges.capacity > 0 ? '+' : ''}
+                      {cumulativeChanges.capacity}
+                    </span>
+                  </div>
+                )}
+                {cumulativeChanges.risk !== 0 && (
+                  <div className="flex justify-between">
+                    <span style={{ color: StoryModeColors.textMuted }}>Risiko:</span>
+                    <span
+                      className="font-bold"
+                      style={{
+                        color: cumulativeChanges.risk > 0
+                          ? StoryModeColors.danger
+                          : StoryModeColors.success,
+                      }}
+                    >
+                      {cumulativeChanges.risk > 0 ? '+' : ''}
+                      {cumulativeChanges.risk}%
+                    </span>
+                  </div>
+                )}
+                {cumulativeChanges.attention !== 0 && (
+                  <div className="flex justify-between">
+                    <span style={{ color: StoryModeColors.textMuted }}>Aufmerksamkeit:</span>
+                    <span
+                      className="font-bold"
+                      style={{
+                        color: cumulativeChanges.attention > 0
+                          ? StoryModeColors.warning
+                          : StoryModeColors.success,
+                      }}
+                    >
+                      {cumulativeChanges.attention > 0 ? '+' : ''}
+                      {cumulativeChanges.attention}%
+                    </span>
+                  </div>
+                )}
+                {cumulativeChanges.moralWeight !== 0 && (
+                  <div className="flex justify-between">
+                    <span style={{ color: StoryModeColors.textMuted }}>Moral. Last:</span>
+                    <span
+                      className="font-bold"
+                      style={{ color: StoryModeColors.sovietRed }}
+                    >
+                      +{cumulativeChanges.moralWeight}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Action Steps */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {results.map((actionResult, index) => (
+              <div
+                key={index}
+                className="border-2"
+                style={{
+                  backgroundColor: StoryModeColors.background,
+                  borderColor: getOutcomeColor(actionResult),
+                  boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',
+                }}
+              >
+                {/* Action Step Header */}
+                <button
+                  onClick={() => setExpandedIndex(expandedIndex === index ? -1 : index)}
+                  className="w-full px-4 py-3 flex items-center justify-between hover:brightness-110 transition-all"
+                  style={{
+                    backgroundColor: StoryModeColors.surfaceLight,
+                    borderBottom: expandedIndex === index ? `2px solid ${StoryModeColors.border}` : 'none',
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="text-xl"
+                      style={{ color: getOutcomeColor(actionResult) }}
+                    >
+                      {getOutcomeIcon(actionResult)}
+                    </span>
+                    <span
+                      className="font-bold text-xs px-2 py-1 border"
+                      style={{
+                        backgroundColor: StoryModeColors.background,
+                        borderColor: StoryModeColors.borderLight,
+                        color: StoryModeColors.textSecondary,
+                      }}
+                    >
+                      #{index + 1}
+                    </span>
+                    <span
+                      className="font-bold"
+                      style={{ color: StoryModeColors.textPrimary }}
+                    >
+                      {actionResult.action?.label_de || 'Aktion'}
+                    </span>
+                  </div>
+                  <span style={{ color: StoryModeColors.textSecondary }}>
+                    {expandedIndex === index ? '▲' : '▼'}
+                  </span>
+                </button>
+
+                {/* Expanded Details */}
+                {expandedIndex === index && (
+                  <div className="p-4 space-y-3">
+                    {/* Render single result details - reusing existing logic */}
+                    {actionResult.narrative && (
+                      <div
+                        className="p-4 border-l-4"
+                        style={{
+                          backgroundColor: StoryModeColors.background,
+                          borderColor: StoryModeColors.document,
+                        }}
+                      >
+                        <div
+                          className="font-bold mb-2"
+                          style={{ color: StoryModeColors.textPrimary }}
+                        >
+                          {actionResult.narrative.headline_de}
+                        </div>
+                        <p
+                          className="text-sm italic"
+                          style={{ color: StoryModeColors.textSecondary }}
+                        >
+                          {actionResult.narrative.description_de}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Resource Changes */}
+                    {actionResult.resourceChanges && (
+                      <div
+                        className="border-2 p-3"
+                        style={{
+                          backgroundColor: StoryModeColors.concrete,
+                          borderColor: StoryModeColors.borderLight,
+                        }}
+                      >
+                        <h4
+                          className="font-bold mb-2 text-xs"
+                          style={{ color: StoryModeColors.textSecondary }}
+                        >
+                          RESSOURCEN-ÄNDERUNGEN
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          {actionResult.resourceChanges.budget !== undefined && actionResult.resourceChanges.budget !== 0 && (
+                            <div className="flex justify-between">
+                              <span style={{ color: StoryModeColors.textMuted }}>Budget:</span>
+                              <span
+                                className="font-bold"
+                                style={{
+                                  color: actionResult.resourceChanges.budget > 0
+                                    ? StoryModeColors.success
+                                    : StoryModeColors.danger,
+                                }}
+                              >
+                                {actionResult.resourceChanges.budget > 0 ? '+' : ''}
+                                ${actionResult.resourceChanges.budget}K
+                              </span>
+                            </div>
+                          )}
+                          {actionResult.resourceChanges.risk !== undefined && actionResult.resourceChanges.risk !== 0 && (
+                            <div className="flex justify-between">
+                              <span style={{ color: StoryModeColors.textMuted }}>Risiko:</span>
+                              <span
+                                className="font-bold"
+                                style={{
+                                  color: actionResult.resourceChanges.risk > 0
+                                    ? StoryModeColors.danger
+                                    : StoryModeColors.success,
+                                }}
+                              >
+                                {actionResult.resourceChanges.risk > 0 ? '+' : ''}
+                                {actionResult.resourceChanges.risk}%
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* NPC Reactions */}
+                    {actionResult.npcReactions && actionResult.npcReactions.length > 0 && (
+                      <div
+                        className="border-2 p-3"
+                        style={{
+                          backgroundColor: StoryModeColors.concrete,
+                          borderColor: StoryModeColors.warning,
+                        }}
+                      >
+                        <h4
+                          className="font-bold mb-2 text-xs"
+                          style={{ color: StoryModeColors.warning }}
+                        >
+                          NPC-REAKTIONEN
+                        </h4>
+                        <div className="space-y-2">
+                          {actionResult.npcReactions.map((reaction, i) => (
+                            <div
+                              key={i}
+                              className="flex items-start gap-2 text-xs"
+                            >
+                              <span
+                                className="font-bold"
+                                style={{
+                                  color: reaction.reaction === 'positive'
+                                    ? StoryModeColors.success
+                                    : reaction.reaction === 'negative'
+                                    ? StoryModeColors.danger
+                                    : StoryModeColors.textPrimary,
+                                }}
+                              >
+                                {reaction.npcId}:
+                              </span>
+                              <span style={{ color: StoryModeColors.textSecondary }}>
+                                {reaction.reaction === 'positive' ? '👍' :
+                                 reaction.reaction === 'negative' ? '👎' :
+                                 reaction.reaction === 'crisis' ? '😱' : '😐'}
+                                {' '}{reaction.dialogue_de}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Batch Footer */}
+          <div
+            className="px-6 py-4 border-t-4 flex justify-end"
+            style={{
+              backgroundColor: StoryModeColors.darkConcrete,
+              borderColor: StoryModeColors.border,
+            }}
+          >
+            <button
+              onClick={onClose}
+              className="px-6 py-2 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
+              style={{
+                backgroundColor: StoryModeColors.sovietRed,
+                borderColor: StoryModeColors.darkRed,
+                color: '#fff',
+                boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
+              }}
+            >
+              VERSTANDEN
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Single Mode - Original View (backwards compatible)
+  const singleResult = results[0];
 
   return (
     <div
@@ -35,7 +401,7 @@ export function ActionFeedbackDialog({
         className="w-full max-w-lg mx-4 border-4 animate-fade-in"
         style={{
           backgroundColor: StoryModeColors.surface,
-          borderColor: getOutcomeColor(),
+          borderColor: getOutcomeColor(singleResult),
           boxShadow: '10px 10px 0px 0px rgba(0,0,0,0.9)',
         }}
         onClick={e => e.stopPropagation()}
@@ -44,13 +410,13 @@ export function ActionFeedbackDialog({
         <div
           className="px-6 py-4 border-b-4 flex items-center gap-3"
           style={{
-            backgroundColor: getOutcomeColor(),
+            backgroundColor: getOutcomeColor(singleResult),
             borderColor: StoryModeColors.border,
           }}
         >
-          <span className="text-2xl">{getOutcomeIcon()}</span>
+          <span className="text-2xl">{getOutcomeIcon(singleResult)}</span>
           <h2 className="font-bold text-xl" style={{ color: '#fff' }}>
-            {result.success ? 'AKTION ERFOLGREICH' : 'AKTION FEHLGESCHLAGEN'}
+            {singleResult.success ? 'AKTION ERFOLGREICH' : 'AKTION FEHLGESCHLAGEN'}
           </h2>
         </div>
 
@@ -68,12 +434,12 @@ export function ActionFeedbackDialog({
               className="font-bold text-lg"
               style={{ color: StoryModeColors.textPrimary }}
             >
-              {result.action?.label_de || 'Aktion'}
+              {singleResult.action?.label_de || 'Aktion'}
             </span>
           </div>
 
           {/* Narrative */}
-          {result.narrative && (
+          {singleResult.narrative && (
             <div
               className="p-4 border-l-4"
               style={{
@@ -85,19 +451,19 @@ export function ActionFeedbackDialog({
                 className="font-bold mb-2"
                 style={{ color: StoryModeColors.textPrimary }}
               >
-                {result.narrative.headline_de}
+                {singleResult.narrative.headline_de}
               </div>
               <p
                 className="text-sm italic"
                 style={{ color: StoryModeColors.textSecondary }}
               >
-                {result.narrative.description_de}
+                {singleResult.narrative.description_de}
               </p>
             </div>
           )}
 
           {/* Resource Changes */}
-          {result.resourceChanges && (
+          {singleResult.resourceChanges && (
             <div
               className="border-2 p-4"
               style={{
@@ -112,78 +478,78 @@ export function ActionFeedbackDialog({
                 RESSOURCEN-ANDERUNGEN
               </h3>
               <div className="grid grid-cols-2 gap-2 text-sm">
-                {result.resourceChanges.budget !== undefined && result.resourceChanges.budget !== 0 && (
+                {singleResult.resourceChanges.budget !== undefined && singleResult.resourceChanges.budget !== 0 && (
                   <div className="flex justify-between">
                     <span style={{ color: StoryModeColors.textMuted }}>Budget:</span>
                     <span
                       className="font-bold"
                       style={{
-                        color: result.resourceChanges.budget > 0
+                        color: singleResult.resourceChanges.budget > 0
                           ? StoryModeColors.success
                           : StoryModeColors.danger,
                       }}
                     >
-                      {result.resourceChanges.budget > 0 ? '+' : ''}
-                      ${result.resourceChanges.budget}K
+                      {singleResult.resourceChanges.budget > 0 ? '+' : ''}
+                      ${singleResult.resourceChanges.budget}K
                     </span>
                   </div>
                 )}
-                {result.resourceChanges.capacity !== undefined && result.resourceChanges.capacity !== 0 && (
+                {singleResult.resourceChanges.capacity !== undefined && singleResult.resourceChanges.capacity !== 0 && (
                   <div className="flex justify-between">
                     <span style={{ color: StoryModeColors.textMuted }}>Kapazitat:</span>
                     <span
                       className="font-bold"
                       style={{
-                        color: result.resourceChanges.capacity > 0
+                        color: singleResult.resourceChanges.capacity > 0
                           ? StoryModeColors.success
                           : StoryModeColors.danger,
                       }}
                     >
-                      {result.resourceChanges.capacity > 0 ? '+' : ''}
-                      {result.resourceChanges.capacity}
+                      {singleResult.resourceChanges.capacity > 0 ? '+' : ''}
+                      {singleResult.resourceChanges.capacity}
                     </span>
                   </div>
                 )}
-                {result.resourceChanges.risk !== undefined && result.resourceChanges.risk !== 0 && (
+                {singleResult.resourceChanges.risk !== undefined && singleResult.resourceChanges.risk !== 0 && (
                   <div className="flex justify-between">
                     <span style={{ color: StoryModeColors.textMuted }}>Risiko:</span>
                     <span
                       className="font-bold"
                       style={{
-                        color: result.resourceChanges.risk > 0
+                        color: singleResult.resourceChanges.risk > 0
                           ? StoryModeColors.danger
                           : StoryModeColors.success,
                       }}
                     >
-                      {result.resourceChanges.risk > 0 ? '+' : ''}
-                      {result.resourceChanges.risk}%
+                      {singleResult.resourceChanges.risk > 0 ? '+' : ''}
+                      {singleResult.resourceChanges.risk}%
                     </span>
                   </div>
                 )}
-                {result.resourceChanges.attention !== undefined && result.resourceChanges.attention !== 0 && (
+                {singleResult.resourceChanges.attention !== undefined && singleResult.resourceChanges.attention !== 0 && (
                   <div className="flex justify-between">
                     <span style={{ color: StoryModeColors.textMuted }}>Aufmerksamkeit:</span>
                     <span
                       className="font-bold"
                       style={{
-                        color: result.resourceChanges.attention > 0
+                        color: singleResult.resourceChanges.attention > 0
                           ? StoryModeColors.warning
                           : StoryModeColors.success,
                       }}
                     >
-                      {result.resourceChanges.attention > 0 ? '+' : ''}
-                      {result.resourceChanges.attention}%
+                      {singleResult.resourceChanges.attention > 0 ? '+' : ''}
+                      {singleResult.resourceChanges.attention}%
                     </span>
                   </div>
                 )}
-                {result.resourceChanges.moralWeight !== undefined && result.resourceChanges.moralWeight !== 0 && (
+                {singleResult.resourceChanges.moralWeight !== undefined && singleResult.resourceChanges.moralWeight !== 0 && (
                   <div className="flex justify-between">
                     <span style={{ color: StoryModeColors.textMuted }}>Moral. Last:</span>
                     <span
                       className="font-bold"
                       style={{ color: StoryModeColors.sovietRed }}
                     >
-                      +{result.resourceChanges.moralWeight}
+                      +{singleResult.resourceChanges.moralWeight}
                     </span>
                   </div>
                 )}
@@ -192,7 +558,7 @@ export function ActionFeedbackDialog({
           )}
 
           {/* Effects */}
-          {result.effects && result.effects.length > 0 && (
+          {singleResult.effects && singleResult.effects.length > 0 && (
             <div
               className="border-2 p-4"
               style={{
@@ -207,7 +573,7 @@ export function ActionFeedbackDialog({
                 EFFEKTE
               </h3>
               <div className="space-y-2">
-                {result.effects.map((effect, i) => (
+                {singleResult.effects.map((effect, i) => (
                   <div
                     key={i}
                     className="flex items-center gap-2 text-sm"
@@ -223,7 +589,7 @@ export function ActionFeedbackDialog({
           )}
 
           {/* NPC Reactions */}
-          {result.npcReactions && result.npcReactions.length > 0 && (
+          {singleResult.npcReactions && singleResult.npcReactions.length > 0 && (
             <div
               className="border-2 p-4"
               style={{
@@ -238,7 +604,7 @@ export function ActionFeedbackDialog({
                 NPC-REAKTIONEN
               </h3>
               <div className="space-y-2">
-                {result.npcReactions.map((reaction, i) => (
+                {singleResult.npcReactions.map((reaction, i) => (
                   <div
                     key={i}
                     className="flex items-center gap-2 text-sm"
@@ -268,7 +634,7 @@ export function ActionFeedbackDialog({
           )}
 
           {/* Completed Combos - Celebration */}
-          {result.completedCombos && result.completedCombos.length > 0 && (
+          {singleResult.completedCombos && singleResult.completedCombos.length > 0 && (
             <div
               className="border-4 p-4 animate-pulse-soft"
               style={{
@@ -283,7 +649,7 @@ export function ActionFeedbackDialog({
               >
                 🎯 COMBO ABGESCHLOSSEN!
               </div>
-              {result.completedCombos.map((combo, i) => (
+              {singleResult.completedCombos.map((combo, i) => (
                 <div
                   key={i}
                   className="border-2 p-3 mt-2"
@@ -332,7 +698,7 @@ export function ActionFeedbackDialog({
           )}
 
           {/* Combo Hints - Progress */}
-          {result.comboHints && result.comboHints.length > 0 && (
+          {singleResult.comboHints && singleResult.comboHints.length > 0 && (
             <div
               className="border-2 p-4"
               style={{
@@ -348,7 +714,7 @@ export function ActionFeedbackDialog({
                 COMBO-FORTSCHRITT
               </h3>
               <div className="space-y-3">
-                {result.comboHints.map((hint, i) => (
+                {singleResult.comboHints.map((hint, i) => (
                   <div
                     key={i}
                     className="border p-2"
@@ -408,7 +774,7 @@ export function ActionFeedbackDialog({
           )}
 
           {/* Potential Consequences Warning */}
-          {result.potentialConsequences && result.potentialConsequences.length > 0 && (
+          {singleResult.potentialConsequences && singleResult.potentialConsequences.length > 0 && (
             <div
               className="p-3 text-center text-xs border-2"
               style={{

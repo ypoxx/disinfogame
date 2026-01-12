@@ -12,6 +12,8 @@ export type {
 export { ActionPanel } from './ActionPanel';
 export type { StoryAction as ActionPanelAction } from './ActionPanel';
 
+export { ActionQueueWidget } from './ActionQueueWidget';
+
 export { TutorialOverlay, useTutorial, TUTORIAL_STEPS } from './TutorialOverlay';
 export type { TutorialStep } from './TutorialOverlay';
 

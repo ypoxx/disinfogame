@@ -9,7 +9,7 @@ export interface TutorialStep {
   id: string;
   title: string;
   content: string;
-  highlight?: 'hud' | 'office' | 'dialog' | 'actions' | 'news' | 'objectives';
+  highlight?: 'hud' | 'office' | 'dialog' | 'actions' | 'news' | 'objectives' | 'advisors' | 'queue';
   position: 'center' | 'top' | 'bottom' | 'left' | 'right';
   requiresAction?: boolean;
   actionLabel?: string;
@@ -93,6 +93,65 @@ Klicken Sie auf die verschiedenen Bereiche, um zu interagieren.`,
 
 Je besser Ihre Beziehung zu einem NPC, desto günstiger werden dessen Aktionen.`,
     position: 'center',
+  },
+  {
+    id: 'advisors',
+    title: 'Berater-System',
+    content: `Rechts sehen Sie das BERATER-PANEL.
+
+⭐ Ihre NPCs analysieren die Situation kontinuierlich
+📊 Sie erhalten kontextuelle Empfehlungen basierend auf:
+   • Aktuellem Spielfortschritt
+   • Ressourcenlage
+   • Bedrohungen und Chancen
+   • NPC-Expertise
+
+🔴 CRITICAL - Sofort handeln!
+🟠 HIGH - Wichtig, bald umsetzen
+🟡 MEDIUM - Sollte beachtet werden
+⚪ LOW - Optional, aber sinnvoll
+
+Klicken Sie auf einen NPC für Details.`,
+    position: 'right',
+    highlight: 'advisors',
+  },
+  {
+    id: 'recommendations',
+    title: 'NPC-Empfehlungen nutzen',
+    content: `Empfehlungen helfen Ihnen, strategisch zu spielen:
+
+⭐ EMPFOHLENE AKTIONEN werden im Terminal golden markiert
+📋 Sie werden automatisch an den Anfang sortiert
+🎯 Klicken Sie auf eine Empfehlung → sie wird im Terminal hervorgehoben
+
+NPCs passen ihre Empfehlungen dynamisch an:
+• Phase im Spielverlauf
+• Ihre Ressourcen
+• Drohende Konsequenzen
+• Verfallende Combos
+
+Nutzen Sie die Expertise Ihres Teams!`,
+    position: 'right',
+    highlight: 'advisors',
+  },
+  {
+    id: 'queue',
+    title: 'Aktionen-Warteschlange',
+    content: `Planen Sie mehrere Aktionen im Voraus!
+
+📋 WARTESCHLANGE (unten rechts):
+▶ AUSFÜHREN - Aktion sofort starten
++ EINREIHEN - Zur Warteschlange hinzufügen
+
+BATCH-AUSFÜHRUNG:
+1️⃣ Mehrere Aktionen einreihen
+2️⃣ Gesamtkosten überprüfen
+3️⃣ Alle auf einmal ausführen
+4️⃣ Detaillierte Gesamt-Bilanz sehen
+
+💡 TIPP: Kombinieren Sie komplementäre Aktionen für maximalen Effekt!`,
+    position: 'right',
+    highlight: 'queue',
   },
   {
     id: 'actions',
@@ -316,6 +375,10 @@ function getHighlightPosition(highlight: string): React.CSSProperties {
       return { top: '50%', left: '50%', width: '600px', height: '400px', transform: 'translate(-50%, -50%)' };
     case 'objectives':
       return { bottom: '20px', left: '20px', width: '250px', height: '100px' };
+    case 'advisors':
+      return { top: '64px', right: 0, width: '320px', bottom: 0 };
+    case 'queue':
+      return { bottom: '16px', right: '16px', width: '384px', height: '360px' };
     default:
       return {};
   }

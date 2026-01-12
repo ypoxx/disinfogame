@@ -3,6 +3,7 @@ import { StoryModeColors } from './theme';
 import { DialogBox } from './components/DialogBox';
 import { StoryHUD } from './components/StoryHUD';
 import { ActionPanel } from './components/ActionPanel';
+import { ActionQueueWidget } from './components/ActionQueueWidget';
 import { NewsPanel } from './components/NewsPanel';
 import { StatsPanel } from './components/StatsPanel';
 import { NpcPanel } from './components/NpcPanel';
@@ -319,6 +320,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     resetGame,
     endPhase,
     executeAction,
+    addToQueue,
+    removeFromQueue,
+    clearQueue,
+    reorderQueue,
+    executeQueue,
     handleConsequenceChoice,
     interactWithNpc,
     markNewsAsRead,
@@ -339,6 +345,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [selectedAdvisorNpc, setSelectedAdvisorNpc] = useState<string | null>(null);
   const [advisorCollapsed, setAdvisorCollapsed] = useState(false);
+  const [highlightActionId, setHighlightActionId] = useState<string | null>(null);
+  const [queueCollapsed, setQueueCollapsed] = useState(false);
+  const [batchActionResults, setBatchActionResults] = useState<any[] | null>(null);
 
   // Count world events
   const worldEventCount = state.newsEvents.filter(e => e.type === 'world_event').length;
@@ -565,11 +574,20 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         onSelectAction={(actionId) => {
           const result = executeAction(actionId);
           setShowActionPanel(false);
+          setHighlightActionId(null);
           if (result) {
             setShowActionFeedback(true);
           }
         }}
-        onClose={() => setShowActionPanel(false)}
+        onAddToQueue={(actionId) => {
+          addToQueue(actionId);
+        }}
+        onClose={() => {
+          setShowActionPanel(false);
+          setHighlightActionId(null);
+        }}
+        recommendations={state.recommendations}
+        highlightActionId={highlightActionId}
       />
 
       {/* News Panel */}
@@ -620,8 +638,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       {/* Action Feedback Dialog */}
       <ActionFeedbackDialog
         isVisible={showActionFeedback}
-        result={state.lastActionResult}
-        onClose={() => setShowActionFeedback(false)}
+        result={batchActionResults || state.lastActionResult}
+        onClose={() => {
+          setShowActionFeedback(false);
+          setBatchActionResults(null);
+        }}
       />
 
       {/* Consequence Modal */}
@@ -710,9 +731,36 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           recommendations={state.recommendations}
           onClose={() => setSelectedAdvisorNpc(null)}
           onSelectAction={(actionId) => {
+            setHighlightActionId(actionId);
             setShowActionPanel(true);
-            // TODO: Scroll to action or highlight it
+            setSelectedAdvisorNpc(null);
           }}
+        />
+      )}
+
+      {/* Action Queue Widget */}
+      {state.gamePhase === 'playing' && (
+        <ActionQueueWidget
+          queue={state.actionQueue}
+          currentResources={{
+            budget: state.resources.budget,
+            capacity: state.resources.capacity,
+            actionPoints: state.resources.actionPointsRemaining,
+          }}
+          onRemove={removeFromQueue}
+          onClear={clearQueue}
+          onExecute={async () => {
+            const results = await executeQueue();
+            if (results && results.length > 0) {
+              const validResults = results.filter(r => r !== null);
+              if (validResults.length > 0) {
+                setBatchActionResults(validResults as any[]);
+                setShowActionFeedback(true);
+              }
+            }
+          }}
+          isCollapsed={queueCollapsed}
+          onToggleCollapse={() => setQueueCollapsed(!queueCollapsed)}
         />
       )}
     </div>

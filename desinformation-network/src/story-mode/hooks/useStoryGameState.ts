@@ -26,6 +26,26 @@ import type { ExtendedActor } from '../engine/ExtendedActorLoader';
 export type GamePhase = 'intro' | 'tutorial' | 'playing' | 'consequence' | 'paused' | 'ended';
 
 // ============================================
+// ACTION QUEUE
+// ============================================
+
+export interface QueuedAction {
+  id: string; // unique queue item id (timestamp-based)
+  actionId: string; // the story action to execute
+  label: string; // action label for display
+  costs: {
+    budget?: number;
+    capacity?: number;
+    actionPoints?: number;
+  };
+  legality: 'legal' | 'grey' | 'illegal';
+  options?: {
+    targetId?: string;
+    npcAssist?: string;
+  };
+}
+
+// ============================================
 // HELPERS
 // ============================================
 
@@ -94,6 +114,9 @@ export interface StoryGameState {
   // Advisor System
   recommendations: AdvisorRecommendation[];
 
+  // Action Queue
+  actionQueue: QueuedAction[];
+
   // Trust Evolution Tracking
   trustHistory: TrustHistoryPoint[];
   extendedActors: ExtendedActor[];
@@ -151,6 +174,9 @@ export function useStoryGameState(seed?: string) {
 
   // Advisor System
   const [recommendations, setRecommendations] = useState<AdvisorRecommendation[]>([]);
+
+  // Action Queue
+  const [actionQueue, setActionQueue] = useState<QueuedAction[]>([]);
 
   // Trust Evolution Tracking
   const [trustHistory, setTrustHistory] = useState<TrustHistoryPoint[]>(() => {
@@ -481,6 +507,80 @@ export function useStoryGameState(seed?: string) {
   }, [engine, npcs, refreshAvailableActions]);
 
   // ============================================
+  // ACTION QUEUE MANAGEMENT
+  // ============================================
+
+  const addToQueue = useCallback((actionId: string, options?: {
+    targetId?: string;
+    npcAssist?: string;
+  }) => {
+    const action = availableActions.find(a => a.id === actionId);
+    if (!action) {
+      storyLogger.warn('Action not found:', actionId);
+      return;
+    }
+
+    const queuedAction: QueuedAction = {
+      id: `queue_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      actionId: action.id,
+      label: action.label_de || action.label_en || actionId,
+      costs: {
+        budget: action.costs.budget,
+        capacity: action.costs.capacity,
+        actionPoints: 1, // Each action costs 1 AP
+      },
+      legality: action.legality,
+      options,
+    };
+
+    setActionQueue(prev => [...prev, queuedAction]);
+    playSound('click');
+  }, [availableActions]);
+
+  const removeFromQueue = useCallback((queueItemId: string) => {
+    setActionQueue(prev => prev.filter(item => item.id !== queueItemId));
+    playSound('click');
+  }, []);
+
+  const clearQueue = useCallback(() => {
+    setActionQueue([]);
+    playSound('click');
+  }, []);
+
+  const reorderQueue = useCallback((oldIndex: number, newIndex: number) => {
+    setActionQueue(prev => {
+      const newQueue = [...prev];
+      const [removed] = newQueue.splice(oldIndex, 1);
+      newQueue.splice(newIndex, 0, removed);
+      return newQueue;
+    });
+  }, []);
+
+  const executeQueue = useCallback(async () => {
+    if (actionQueue.length === 0) return;
+
+    // Execute all actions in sequence
+    const results: (ActionResult | null)[] = [];
+
+    for (const queuedAction of actionQueue) {
+      const result = executeAction(queuedAction.actionId, queuedAction.options);
+      results.push(result);
+
+      // If any action fails, stop execution
+      if (!result || !result.success) {
+        storyLogger.warn('Queue execution stopped due to failed action:', queuedAction.actionId);
+        break;
+      }
+    }
+
+    // Clear queue after execution
+    setActionQueue([]);
+
+    // Return results for potential feedback
+    return results;
+  }, [actionQueue, executeAction]);
+
+  // ============================================
   // CONSEQUENCE HANDLING
   // ============================================
 
@@ -673,6 +773,7 @@ export function useStoryGameState(seed?: string) {
       gameEnd,
       currentDialog,
       recommendations,
+      actionQueue,
       trustHistory,
       extendedActors,
     } as StoryGameState,
@@ -692,6 +793,13 @@ export function useStoryGameState(seed?: string) {
 
     // Actions
     executeAction,
+
+    // Action Queue
+    addToQueue,
+    removeFromQueue,
+    clearQueue,
+    reorderQueue,
+    executeQueue,
 
     // Consequences
     handleConsequenceChoice,

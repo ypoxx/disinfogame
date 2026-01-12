@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { StoryModeColors } from '../theme';
+import type { AdvisorRecommendation } from '../engine/AdvisorRecommendation';
 
 // ============================================
 // TYPES
@@ -42,8 +43,11 @@ interface ActionPanelProps {
     actionPoints: number;
   };
   onSelectAction: (actionId: string) => void;
+  onAddToQueue?: (actionId: string) => void;
   onClose: () => void;
   isVisible: boolean;
+  recommendations?: AdvisorRecommendation[];
+  highlightActionId?: string | null;
 }
 
 // ============================================
@@ -68,9 +72,13 @@ interface ActionCardProps {
   action: StoryAction;
   canAfford: boolean;
   onSelect: () => void;
+  onAddToQueue?: () => void;
+  isRecommended?: boolean;
+  isHighlighted?: boolean;
+  actionRef?: React.RefObject<HTMLDivElement>;
 }
 
-function ActionCard({ action, canAfford, onSelect }: ActionCardProps) {
+function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, isHighlighted, actionRef }: ActionCardProps) {
   const legalityColors = {
     legal: StoryModeColors.success,
     grey: StoryModeColors.warning,
@@ -85,32 +93,59 @@ function ActionCard({ action, canAfford, onSelect }: ActionCardProps) {
 
   const isDisabled = !canAfford || action.isUsed || !action.isUnlocked;
 
+  // Determine border styling
+  const getBorderColor = () => {
+    if (action.isUsed) return StoryModeColors.border;
+    if (isRecommended) return '#FFD700'; // Gold for recommended
+    return legalityColors[action.legality];
+  };
+
+  const getBorderWidth = () => {
+    if (isRecommended) return '3px';
+    return '2px';
+  };
+
   return (
-    <button
-      onClick={onSelect}
-      disabled={isDisabled}
+    <div
+      ref={actionRef as React.RefObject<HTMLDivElement>}
       className={`
-        w-full text-left p-4 border-2 transition-all
-        ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110 active:translate-y-0.5'}
+        w-full text-left p-4 transition-all
+        ${isDisabled ? 'opacity-50' : ''}
+        ${isHighlighted ? 'animate-pulse' : ''}
       `}
       style={{
         backgroundColor: action.isUsed
           ? StoryModeColors.border
+          : isRecommended
+          ? 'rgba(255, 215, 0, 0.05)' // Slight gold tint for recommended
           : StoryModeColors.surfaceLight,
-        borderColor: action.isUsed
-          ? StoryModeColors.borderLight
-          : legalityColors[action.legality],
-        boxShadow: isDisabled ? 'none' : '3px 3px 0px 0px rgba(0,0,0,0.6)',
+        border: `${getBorderWidth()} solid ${getBorderColor()}`,
+        boxShadow: isDisabled
+          ? 'none'
+          : isRecommended
+          ? '0 0 8px rgba(255, 215, 0, 0.3), 3px 3px 0px rgba(0,0,0,0.6)'
+          : '3px 3px 0px rgba(0,0,0,0.6)',
       }}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex-1">
-          <div
-            className="font-bold text-sm"
-            style={{ color: StoryModeColors.textPrimary }}
-          >
-            {action.label_de}
+          <div className="flex items-center gap-2">
+            <div
+              className="font-bold text-sm"
+              style={{ color: StoryModeColors.textPrimary }}
+            >
+              {action.label_de}
+            </div>
+            {isRecommended && (
+              <span
+                className="text-base"
+                style={{ color: '#FFD700' }}
+                title="Von NPCs empfohlen"
+              >
+                ⭐
+              </span>
+            )}
           </div>
           <div
             className="text-xs mt-0.5"
@@ -289,7 +324,41 @@ function ActionCard({ action, canAfford, onSelect }: ActionCardProps) {
           🔒 LOCKED
         </div>
       )}
-    </button>
+
+      {/* Action Buttons */}
+      {!isDisabled && (
+        <div className="flex gap-2 mt-3 pt-3 border-t" style={{ borderColor: StoryModeColors.borderLight }}>
+          <button
+            onClick={onSelect}
+            className="flex-1 px-3 py-1.5 border-2 text-xs font-bold transition-all hover:brightness-110 active:translate-y-0.5"
+            style={{
+              backgroundColor: StoryModeColors.success,
+              borderColor: '#15803d',
+              color: '#fff',
+              boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',
+            }}
+            title="Sofort ausführen"
+          >
+            ▶ AUSFÜHREN
+          </button>
+          {onAddToQueue && (
+            <button
+              onClick={onAddToQueue}
+              className="flex-1 px-3 py-1.5 border-2 text-xs font-bold transition-all hover:brightness-110 active:translate-y-0.5"
+              style={{
+                backgroundColor: StoryModeColors.militaryOlive,
+                borderColor: StoryModeColors.darkOlive,
+                color: StoryModeColors.warning,
+                boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',
+              }}
+              title="Zur Warteschlange hinzufügen"
+            >
+              + EINREIHEN
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -302,11 +371,39 @@ export function ActionPanel({
   currentPhase,
   availableResources,
   onSelectAction,
+  onAddToQueue,
   onClose,
   isVisible,
+  recommendations = [],
+  highlightActionId = null,
 }: ActionPanelProps) {
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const highlightedActionRef = useRef<HTMLDivElement>(null);
+
+  // Get all recommended action IDs
+  const recommendedActionIds = useMemo(() => {
+    const ids = new Set<string>();
+    recommendations.forEach(rec => {
+      rec.suggestedActions?.forEach(actionId => ids.add(actionId));
+    });
+    return ids;
+  }, [recommendations]);
+
+  // Check if action is recommended
+  const isActionRecommended = (actionId: string) => {
+    return recommendedActionIds.has(actionId);
+  };
+
+  // Scroll to highlighted action
+  useEffect(() => {
+    if (highlightActionId && highlightedActionRef.current) {
+      highlightedActionRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [highlightActionId]);
 
   const filteredActions = useMemo(() => {
     let result = actions;
@@ -334,8 +431,17 @@ export function ActionPanel({
       );
     }
 
+    // Sort: Recommended actions first
+    result.sort((a, b) => {
+      const aRecommended = isActionRecommended(a.id);
+      const bRecommended = isActionRecommended(b.id);
+      if (aRecommended && !bRecommended) return -1;
+      if (!aRecommended && bRecommended) return 1;
+      return 0; // Keep original order for same category
+    });
+
     return result;
-  }, [actions, currentPhase, activeTab, searchQuery]);
+  }, [actions, currentPhase, activeTab, searchQuery, isActionRecommended]);
 
   const canAffordAction = (action: StoryAction) => {
     if (action.costs.budget && action.costs.budget > availableResources.budget) {
@@ -455,14 +561,21 @@ export function ActionPanel({
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3">
-              {filteredActions.map(action => (
-                <ActionCard
-                  key={action.id}
-                  action={action}
-                  canAfford={canAffordAction(action)}
-                  onSelect={() => onSelectAction(action.id)}
-                />
-              ))}
+              {filteredActions.map(action => {
+                const isHighlighted = highlightActionId === action.id;
+                return (
+                  <ActionCard
+                    key={action.id}
+                    action={action}
+                    canAfford={canAffordAction(action)}
+                    onSelect={() => onSelectAction(action.id)}
+                    onAddToQueue={onAddToQueue ? () => onAddToQueue(action.id) : undefined}
+                    isRecommended={isActionRecommended(action.id)}
+                    isHighlighted={isHighlighted}
+                    actionRef={isHighlighted ? highlightedActionRef : undefined}
+                  />
+                );
+              })}
             </div>
           )}
         </div>
