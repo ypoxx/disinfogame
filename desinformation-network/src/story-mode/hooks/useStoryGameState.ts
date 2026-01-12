@@ -134,6 +134,14 @@ export interface StoryGameState {
 
   // Crisis System
   activeCrisis: ActiveCrisis | null;
+
+  // Recommendation Tracking
+  recommendationTracking: Map<string, {
+    followed: number;
+    ignored: number;
+    lastFollowed?: number; // phase number
+    lastIgnored?: number;  // phase number
+  }>;
 }
 
 export interface DialogState {
@@ -224,6 +232,14 @@ export function useStoryGameState(seed?: string) {
 
   // Crisis System
   const [activeCrisis, setActiveCrisis] = useState<ActiveCrisis | null>(null);
+
+  // Recommendation Tracking
+  const [recommendationTracking, setRecommendationTracking] = useState<Map<string, {
+    followed: number;
+    ignored: number;
+    lastFollowed?: number;
+    lastIgnored?: number;
+  }>>(new Map());
 
   // ============================================
   // DERIVED STATE
@@ -428,6 +444,35 @@ export function useStoryGameState(seed?: string) {
     setNewsEvents(engine.getNewsEvents());
     setObjectives(engine.getObjectives());
 
+    // Track ignored recommendations before generating new ones
+    // If phase is ending and there are unexecuted high-priority recommendations, count as "ignored"
+    if (recommendations.length > 0) {
+      recommendations.forEach(rec => {
+        if (rec.priority === 'critical' || rec.priority === 'high') {
+          // Check if any of the suggested actions were executed this phase
+          const wasFollowed = rec.suggestedActions.some(actionId =>
+            completedActions.includes(actionId)
+          );
+
+          if (!wasFollowed) {
+            // Count as ignored
+            setRecommendationTracking(prev => {
+              const newMap = new Map(prev);
+              const existing = newMap.get(rec.npcId) || { followed: 0, ignored: 0 };
+              newMap.set(rec.npcId, {
+                ...existing,
+                ignored: existing.ignored + 1,
+                lastIgnored: result.newPhase.number,
+              });
+              return newMap;
+            });
+
+            storyLogger.info(`[RECOMMENDATION] Player ignored ${rec.priority} advice from ${rec.npcId}`);
+          }
+        }
+      });
+    }
+
     // Generate NPC recommendations
     generateRecommendations();
 
@@ -501,7 +546,7 @@ export function useStoryGameState(seed?: string) {
       setGameEnd(endState);
       setGamePhase('ended');
     }
-  }, [engine, generateRecommendations, completedActions]);
+  }, [engine, generateRecommendations, completedActions, recommendations]);
 
   // ============================================
   // ACTION EXECUTION
@@ -602,6 +647,34 @@ export function useStoryGameState(seed?: string) {
             }
           });
           setBetrayalStates(newBetrayalStates);
+        }
+
+        // Track recommendation follow/ignore
+        const actionWasRecommended = recommendations.some(rec =>
+          rec.suggestedActions.includes(actionId)
+        );
+
+        if (actionWasRecommended) {
+          // Find which NPC(s) recommended this action
+          const recommendingNpcs = recommendations
+            .filter(rec => rec.suggestedActions.includes(actionId))
+            .map(rec => rec.npcId);
+
+          // Mark as "followed" for each NPC who recommended it
+          setRecommendationTracking(prev => {
+            const newMap = new Map(prev);
+            recommendingNpcs.forEach(npcId => {
+              const existing = newMap.get(npcId) || { followed: 0, ignored: 0 };
+              newMap.set(npcId, {
+                ...existing,
+                followed: existing.followed + 1,
+                lastFollowed: currentPhase.number,
+              });
+            });
+            return newMap;
+          });
+
+          storyLogger.info(`[RECOMMENDATION] Player followed advice from: ${recommendingNpcs.join(', ')}`);
         }
       }
 
