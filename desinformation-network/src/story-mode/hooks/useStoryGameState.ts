@@ -22,6 +22,7 @@ import type { ActiveCrisis, CrisisResolution } from '../engine/CrisisMomentSyste
 import { storyLogger } from '../../utils/logger';
 import type { TrustHistoryPoint } from '../../components/TrustEvolutionChart';
 import type { ExtendedActor } from '../engine/ExtendedActorLoader';
+import dialoguesData from '../data/dialogues.json';
 
 // ============================================
 // TYPES
@@ -80,6 +81,29 @@ function getTopicLabel(topic: string): string {
     flow: 'Über Geldflüsse',
   };
   return labels[topic] || topic.charAt(0).toUpperCase() + topic.slice(1);
+}
+
+/**
+ * Get recommendation reaction dialogues for an NPC
+ */
+function getRecommendationReaction(
+  npcId: string,
+  type: 'followed' | 'ignored'
+): Array<{ id: string; text_de: string; text_en: string; mood: string }> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dialogues = dialoguesData as any;
+    const reactions = dialogues?.special_dialogues?.recommendation_reactions;
+
+    if (!reactions || !reactions[npcId]) {
+      return [];
+    }
+
+    return reactions[npcId][type] || [];
+  } catch (error) {
+    storyLogger.error('Failed to load recommendation reactions:', error);
+    return [];
+  }
 }
 
 export interface StoryGameState {
@@ -815,8 +839,40 @@ export function useStoryGameState(seed?: string) {
 
     setActiveNpcId(npcId);
 
-    // TD-006: Get dynamic greeting from JSON data based on relationship level
-    const greeting = engine.getNPCDialogue(npcId, { type: 'greeting' });
+    // Check if NPC has recommendation reaction to show
+    const tracking = recommendationTracking.get(npcId);
+    const currentPhase = engine.getCurrentPhase().number;
+    let greetingText = engine.getNPCDialogue(npcId, { type: 'greeting' }) || 'Was gibt es?';
+    let mood: 'neutral' | 'happy' | 'angry' | 'worried' | 'suspicious' = npc.inCrisis ? 'angry' :
+          npc.currentMood === 'positive' ? 'happy' :
+          npc.currentMood === 'concerned' ? 'worried' :
+          npc.currentMood === 'upset' ? 'angry' : 'neutral';
+
+    // If player recently followed/ignored recommendation (within last 2 phases), show reaction
+    if (tracking) {
+      const recentlyFollowed = tracking.lastFollowed && (currentPhase - tracking.lastFollowed) <= 2;
+      const recentlyIgnored = tracking.lastIgnored && (currentPhase - tracking.lastIgnored) <= 2;
+
+      if (recentlyFollowed && tracking.followed > 0) {
+        // Show positive reaction
+        const reactions = getRecommendationReaction(npcId, 'followed');
+        if (reactions.length > 0) {
+          const reaction = reactions[Math.floor(Math.random() * reactions.length)];
+          greetingText = reaction.text_de;
+          mood = reaction.mood as typeof mood || 'happy';
+          storyLogger.info(`[DIALOG] ${npcId} reacts positively to followed recommendation`);
+        }
+      } else if (recentlyIgnored && tracking.ignored > 0) {
+        // Show negative reaction
+        const reactions = getRecommendationReaction(npcId, 'ignored');
+        if (reactions.length > 0) {
+          const reaction = reactions[Math.floor(Math.random() * reactions.length)];
+          greetingText = reaction.text_de;
+          mood = reaction.mood as typeof mood || 'worried';
+          storyLogger.info(`[DIALOG] ${npcId} reacts negatively to ignored recommendation`);
+        }
+      }
+    }
 
     // Get available topics for conversation choices
     const topics = engine.getNPCTopics(npcId);
@@ -828,17 +884,14 @@ export function useStoryGameState(seed?: string) {
     setCurrentDialog({
       speaker: npc.name,
       speakerTitle: npc.role_de,
-      text: greeting || 'Was gibt es?',
-      mood: npc.inCrisis ? 'angry' :
-            npc.currentMood === 'positive' ? 'happy' :
-            npc.currentMood === 'concerned' ? 'worried' :
-            npc.currentMood === 'upset' ? 'angry' : 'neutral',
+      text: greetingText,
+      mood,
       choices: topicChoices.length > 0 ? [
         ...topicChoices,
         { id: 'dismiss', text: 'Auf Wiedersehen' },
       ] : undefined,
     });
-  }, [engine]);
+  }, [engine, recommendationTracking]);
 
   // ============================================
   // NEWS MANAGEMENT
