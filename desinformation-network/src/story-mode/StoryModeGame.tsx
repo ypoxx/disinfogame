@@ -339,6 +339,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [selectedAdvisorNpc, setSelectedAdvisorNpc] = useState<string | null>(null);
   const [advisorCollapsed, setAdvisorCollapsed] = useState(false);
+  const [highlightActionId, setHighlightActionId] = useState<string | null>(null);
 
   // Count world events
   const worldEventCount = state.newsEvents.filter(e => e.type === 'world_event').length;
@@ -565,11 +566,17 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         onSelectAction={(actionId) => {
           const result = executeAction(actionId);
           setShowActionPanel(false);
+          setHighlightActionId(null);
           if (result) {
             setShowActionFeedback(true);
           }
         }}
-        onClose={() => setShowActionPanel(false)}
+        onClose={() => {
+          setShowActionPanel(false);
+          setHighlightActionId(null);
+        }}
+        recommendations={state.recommendations}
+        highlightActionId={highlightActionId}
       />
 
       {/* News Panel */}
@@ -710,8 +717,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           recommendations={state.recommendations}
           onClose={() => setSelectedAdvisorNpc(null)}
           onSelectAction={(actionId) => {
+            setHighlightActionId(actionId);
             setShowActionPanel(true);
-            // TODO: Scroll to action or highlight it
+            setSelectedAdvisorNpc(null);
           }}
         />
       )}
