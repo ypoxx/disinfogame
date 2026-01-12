@@ -3,6 +3,7 @@ import { StoryModeColors } from './theme';
 import { DialogBox } from './components/DialogBox';
 import { StoryHUD } from './components/StoryHUD';
 import { ActionPanel } from './components/ActionPanel';
+import { ActionQueueWidget } from './components/ActionQueueWidget';
 import { NewsPanel } from './components/NewsPanel';
 import { StatsPanel } from './components/StatsPanel';
 import { NpcPanel } from './components/NpcPanel';
@@ -319,6 +320,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     resetGame,
     endPhase,
     executeAction,
+    addToQueue,
+    removeFromQueue,
+    clearQueue,
+    reorderQueue,
+    executeQueue,
     handleConsequenceChoice,
     interactWithNpc,
     markNewsAsRead,
@@ -340,6 +346,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [selectedAdvisorNpc, setSelectedAdvisorNpc] = useState<string | null>(null);
   const [advisorCollapsed, setAdvisorCollapsed] = useState(false);
   const [highlightActionId, setHighlightActionId] = useState<string | null>(null);
+  const [queueCollapsed, setQueueCollapsed] = useState(false);
 
   // Count world events
   const worldEventCount = state.newsEvents.filter(e => e.type === 'world_event').length;
@@ -571,6 +578,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             setShowActionFeedback(true);
           }
         }}
+        onAddToQueue={(actionId) => {
+          addToQueue(actionId);
+        }}
         onClose={() => {
           setShowActionPanel(false);
           setHighlightActionId(null);
@@ -721,6 +731,26 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             setShowActionPanel(true);
             setSelectedAdvisorNpc(null);
           }}
+        />
+      )}
+
+      {/* Action Queue Widget */}
+      {state.gamePhase === 'playing' && (
+        <ActionQueueWidget
+          queue={state.actionQueue}
+          currentResources={{
+            budget: state.resources.budget,
+            capacity: state.resources.capacity,
+            actionPoints: state.resources.actionPointsRemaining,
+          }}
+          onRemove={removeFromQueue}
+          onClear={clearQueue}
+          onExecute={() => {
+            executeQueue();
+            setShowActionFeedback(true);
+          }}
+          isCollapsed={queueCollapsed}
+          onToggleCollapse={() => setQueueCollapsed(!queueCollapsed)}
         />
       )}
     </div>

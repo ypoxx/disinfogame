@@ -43,6 +43,7 @@ interface ActionPanelProps {
     actionPoints: number;
   };
   onSelectAction: (actionId: string) => void;
+  onAddToQueue?: (actionId: string) => void;
   onClose: () => void;
   isVisible: boolean;
   recommendations?: AdvisorRecommendation[];
@@ -71,12 +72,13 @@ interface ActionCardProps {
   action: StoryAction;
   canAfford: boolean;
   onSelect: () => void;
+  onAddToQueue?: () => void;
   isRecommended?: boolean;
   isHighlighted?: boolean;
-  actionRef?: React.RefObject<HTMLButtonElement>;
+  actionRef?: React.RefObject<HTMLDivElement>;
 }
 
-function ActionCard({ action, canAfford, onSelect, isRecommended, isHighlighted, actionRef }: ActionCardProps) {
+function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, isHighlighted, actionRef }: ActionCardProps) {
   const legalityColors = {
     legal: StoryModeColors.success,
     grey: StoryModeColors.warning,
@@ -104,13 +106,11 @@ function ActionCard({ action, canAfford, onSelect, isRecommended, isHighlighted,
   };
 
   return (
-    <button
-      ref={actionRef}
-      onClick={onSelect}
-      disabled={isDisabled}
+    <div
+      ref={actionRef as React.RefObject<HTMLDivElement>}
       className={`
         w-full text-left p-4 transition-all
-        ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110 active:translate-y-0.5'}
+        ${isDisabled ? 'opacity-50' : ''}
         ${isHighlighted ? 'animate-pulse' : ''}
       `}
       style={{
@@ -324,7 +324,41 @@ function ActionCard({ action, canAfford, onSelect, isRecommended, isHighlighted,
           🔒 LOCKED
         </div>
       )}
-    </button>
+
+      {/* Action Buttons */}
+      {!isDisabled && (
+        <div className="flex gap-2 mt-3 pt-3 border-t" style={{ borderColor: StoryModeColors.borderLight }}>
+          <button
+            onClick={onSelect}
+            className="flex-1 px-3 py-1.5 border-2 text-xs font-bold transition-all hover:brightness-110 active:translate-y-0.5"
+            style={{
+              backgroundColor: StoryModeColors.success,
+              borderColor: '#15803d',
+              color: '#fff',
+              boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',
+            }}
+            title="Sofort ausführen"
+          >
+            ▶ AUSFÜHREN
+          </button>
+          {onAddToQueue && (
+            <button
+              onClick={onAddToQueue}
+              className="flex-1 px-3 py-1.5 border-2 text-xs font-bold transition-all hover:brightness-110 active:translate-y-0.5"
+              style={{
+                backgroundColor: StoryModeColors.militaryOlive,
+                borderColor: StoryModeColors.darkOlive,
+                color: StoryModeColors.warning,
+                boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',
+              }}
+              title="Zur Warteschlange hinzufügen"
+            >
+              + EINREIHEN
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -337,6 +371,7 @@ export function ActionPanel({
   currentPhase,
   availableResources,
   onSelectAction,
+  onAddToQueue,
   onClose,
   isVisible,
   recommendations = [],
@@ -344,7 +379,7 @@ export function ActionPanel({
 }: ActionPanelProps) {
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const highlightedActionRef = useRef<HTMLButtonElement>(null);
+  const highlightedActionRef = useRef<HTMLDivElement>(null);
 
   // Get all recommended action IDs
   const recommendedActionIds = useMemo(() => {
@@ -534,6 +569,7 @@ export function ActionPanel({
                     action={action}
                     canAfford={canAffordAction(action)}
                     onSelect={() => onSelectAction(action.id)}
+                    onAddToQueue={onAddToQueue ? () => onAddToQueue(action.id) : undefined}
                     isRecommended={isActionRecommended(action.id)}
                     isHighlighted={isHighlighted}
                     actionRef={isHighlighted ? highlightedActionRef : undefined}
