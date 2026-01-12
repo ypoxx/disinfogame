@@ -19,3 +19,7 @@ export type { TutorialStep } from './TutorialOverlay';
 
 export { GameEndScreen } from './GameEndScreen';
 export type { GameEndData, EndingType } from './GameEndScreen';
+
+export { BetrayalWarningBadge } from './BetrayalWarningBadge';
+export { GrievanceModal } from './GrievanceModal';
+export { BetrayalEventModal } from './BetrayalEventModal';

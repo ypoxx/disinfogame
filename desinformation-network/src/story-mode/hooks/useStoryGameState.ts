@@ -14,7 +14,7 @@ import {
 } from '../../game-logic/StoryEngineAdapter';
 import { playSound } from '../utils/SoundSystem';
 import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
-import type { AdvisorRecommendation } from '../engine/AdvisorRecommendation';
+import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
 import { storyLogger } from '../../utils/logger';
 import type { TrustHistoryPoint } from '../../components/TrustEvolutionChart';
 import type { ExtendedActor } from '../engine/ExtendedActorLoader';
@@ -94,9 +94,11 @@ export interface StoryGameState {
   // Actions
   availableActions: StoryAction[];
   lastActionResult: ActionResult | null;
+  completedActions: string[]; // Track completed action IDs for history
 
   // News & Events
   newsEvents: NewsEvent[];
+  worldEvents: WorldEventSnapshot[]; // World-scale events for crisis system
   unreadNewsCount: number;
 
   // Objectives
@@ -156,9 +158,11 @@ export function useStoryGameState(seed?: string) {
   // Actions
   const [availableActions, setAvailableActions] = useState<StoryAction[]>([]);
   const [lastActionResult, setLastActionResult] = useState<ActionResult | null>(null);
+  const [completedActions, setCompletedActions] = useState<string[]>([]);
 
   // News
   const [newsEvents, setNewsEvents] = useState<NewsEvent[]>(engine.getNewsEvents());
+  const [worldEvents, setWorldEvents] = useState<WorldEventSnapshot[]>([]);
 
   // Objectives
   const [objectives, setObjectives] = useState<Objective[]>(engine.getObjectives());
@@ -242,9 +246,9 @@ export function useStoryGameState(seed?: string) {
           },
           npcs: currentNpcs,
           availableActions: engine.getAvailableActions(),
-          completedActions: [], // TODO: Track completed actions
+          completedActions: completedActions,
           newsEvents: engine.getNewsEvents(),
-          worldEvents: [], // TODO: Convert from newsEvents if needed
+          worldEvents: worldEvents,
           objectives: currentObjectives.map(obj => ({
             id: obj.id,
             type: obj.type,
@@ -473,6 +477,11 @@ export function useStoryGameState(seed?: string) {
       setNewsEvents(engine.getNewsEvents());
       setNpcs(engine.getAllNPCs());
       setObjectives(engine.getObjectives());
+
+      // Track completed action
+      if (result.success) {
+        setCompletedActions(prev => [...prev, actionId]);
+      }
 
       // Refresh available actions (some may be unlocked or used)
       refreshAvailableActions();
@@ -766,7 +775,9 @@ export function useStoryGameState(seed?: string) {
       activeNpcId,
       availableActions,
       lastActionResult,
+      completedActions,
       newsEvents,
+      worldEvents,
       unreadNewsCount,
       objectives,
       activeConsequence,
