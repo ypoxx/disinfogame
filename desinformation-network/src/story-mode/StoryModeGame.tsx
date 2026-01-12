@@ -682,7 +682,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           npcs={state.npcs.map(npc => ({
             id: npc.id,
             name: npc.name,
-            title_de: npc.title_de,
+            title_de: npc.role_de,
             morale: npc.morale,
             relationshipLevel: npc.relationshipLevel || 0,
             available: npc.available,
@@ -701,7 +701,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             ? {
                 id: state.npcs.find(n => n.id === selectedAdvisorNpc)!.id,
                 name: state.npcs.find(n => n.id === selectedAdvisorNpc)!.name,
-                title_de: state.npcs.find(n => n.id === selectedAdvisorNpc)!.title_de,
+                title_de: state.npcs.find(n => n.id === selectedAdvisorNpc)!.role_de,
                 morale: state.npcs.find(n => n.id === selectedAdvisorNpc)!.morale,
                 relationshipLevel: state.npcs.find(n => n.id === selectedAdvisorNpc)!.relationshipLevel || 0,
                 available: state.npcs.find(n => n.id === selectedAdvisorNpc)!.available,

@@ -316,15 +316,15 @@ export function useStoryGameState(seed?: string) {
         gameState: {
           storyPhase: {
             phaseNumber: result.newPhase.number,
-            phaseName: result.newPhase.name,
+            phaseName: result.newPhase.label_de,
             year: result.newPhase.year,
             month: result.newPhase.month,
           },
           resources: {
             budget: currentResources.budget,
-            maxBudget: currentResources.maxBudget,
+            maxBudget: 1000, // Fixed max budget for analysis
             capacity: currentResources.capacity,
-            maxCapacity: currentResources.maxCapacity,
+            maxCapacity: 100, // Fixed max capacity for analysis
             risk: currentResources.risk,
             attention: currentResources.attention,
             moralWeight: currentResources.moralWeight,
