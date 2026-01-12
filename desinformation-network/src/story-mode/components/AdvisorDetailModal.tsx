@@ -5,6 +5,7 @@
  * reasoning, and suggested actions.
  */
 
+import React from 'react';
 import { StoryModeColors } from '../theme';
 import type { AdvisorRecommendation } from '../engine/AdvisorRecommendation';
 import { getPriorityEmoji, getPriorityColor } from '../engine/AdvisorRecommendation';
@@ -88,7 +89,7 @@ export function AdvisorDetailModal({
           borderColor: StoryModeColors.sovietRed,
           boxShadow: '0 0 40px rgba(0, 0, 0, 0.9)',
         }}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
       >
         {/* Header */}
         <div

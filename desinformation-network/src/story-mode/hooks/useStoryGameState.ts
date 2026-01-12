@@ -309,33 +309,47 @@ export function useStoryGameState(seed?: string) {
     // Generate NPC recommendations
     try {
       const advisorEngine = getAdvisorEngine();
+      const currentResources = engine.getResources();
+      const currentObjectives = engine.getObjectives();
+
       const newRecommendations = advisorEngine.generateRecommendations({
         gameState: {
-          engine,
-          gamePhase: 'playing',
-          storyPhase: result.newPhase,
-          resources: engine.getResources(),
+          storyPhase: {
+            phaseNumber: result.newPhase.number,
+            phaseName: result.newPhase.name,
+            year: result.newPhase.year,
+            month: result.newPhase.month,
+          },
+          resources: {
+            budget: currentResources.budget,
+            maxBudget: currentResources.maxBudget,
+            capacity: currentResources.capacity,
+            maxCapacity: currentResources.maxCapacity,
+            risk: currentResources.risk,
+            attention: currentResources.attention,
+            moralWeight: currentResources.moralWeight,
+          },
           npcs: updatedNpcs,
-          activeNpcId: null,
           availableActions: engine.getAvailableActions(),
-          lastActionResult: null,
+          completedActions: [], // TODO: Track completed actions
           newsEvents: engine.getNewsEvents(),
-          unreadNewsCount: 0,
-          objectives: engine.getObjectives(),
-          activeConsequence: null,
-          gameEnd: null,
-          currentDialog: null,
-          recommendations: [], // Placeholder
-          trustHistory: [],
-          extendedActors: engine.getExtendedActors(),
+          worldEvents: [], // TODO: Convert from newsEvents if needed
+          objectives: currentObjectives.map(obj => ({
+            id: obj.id,
+            type: obj.type,
+            currentValue: obj.currentValue,
+            targetValue: obj.targetValue,
+            progress: obj.progress,
+            completed: obj.completed,
+          })),
         },
         npc: updatedNpcs[0], // Placeholder, will be overridden by engine
         actionHistory: [],
         metricsHistory: {
-          reach: [],
-          risk: [],
-          budget: [],
-          trust: [],
+          reachHistory: [],
+          trustHistory: [],
+          riskHistory: [],
+          budgetHistory: [],
         },
         otherNPCs: updatedNpcs,
         playerRelationship: 0, // Placeholder, will be overridden by engine
@@ -343,7 +357,7 @@ export function useStoryGameState(seed?: string) {
       setRecommendations(newRecommendations);
       storyLogger.info('Generated advisor recommendations', {
         count: newRecommendations.length,
-        phase: result.newPhase.phaseNumber,
+        phase: result.newPhase.number,
       });
     } catch (error) {
       storyLogger.error('Failed to generate advisor recommendations', { error });
