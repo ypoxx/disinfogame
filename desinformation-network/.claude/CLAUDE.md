@@ -716,6 +716,57 @@ const connections = useMemo(
 
 ---
 
+## Dokumentationsstruktur - KRITISCH
+
+### Goldene Regel: EINE zentrale Dokumentation
+
+**ALLE Dokumentation gehoert in `/docs/`** - NIEMALS an anderen Orten!
+
+```
+/docs/                              ← ZENTRALE DOKUMENTATION
+├── README.md                       ← Index aller Docs
+├── ROADMAP.md                      ← MASTER Roadmap (EINZIGE!)
+│
+├── story-mode/                     ← Story Mode spezifisch
+│   ├── NPC_ADVISOR_SYSTEM_DESIGN.md
+│   ├── IDEAS.md                    ← Ideen hier sammeln!
+│   └── IMPLEMENTATION_STATUS.md
+│
+├── reference/                      ← Statische Referenz (Lore, etc.)
+│   └── SCENARIO_FRAMEWORK.md
+│
+└── archive/                        ← Veraltete Dokumente
+```
+
+### VERBOTEN:
+
+1. **Keine .md Dateien im Root-Verzeichnis** (außer README.md)
+2. **Keine redundanten Roadmaps** - es gibt NUR `/docs/ROADMAP.md`
+3. **Keine temporären Dateien** wie PR_DESCRIPTION.md
+4. **Keine Duplikate** - existierende Dateien erweitern!
+
+### Bei neuen Ideen/Features:
+
+1. **ERST pruefen:** Existiert bereits ein Dokument dazu?
+2. **DANN erweitern:** `docs/story-mode/IDEAS.md` oder passende Datei
+3. **NIE neu erstellen** wenn existierendes Dokument erweiterbar
+
+### Bei Code-Reviews:
+
+1. Siehe `docs/CODE_REVIEW_METHODOLOGY.md`
+2. Ergebnisse in existierende Docs einarbeiten
+3. Keine neuen AUDIT_REPORT_*.md Dateien
+
+### Agent-Dokumentation:
+
+Diese Dateien in `.claude/` sind fuer AI-Agenten:
+- `CLAUDE.md` - Master (dieses Dokument)
+- `ARCHITECTURE.md` - Technische Details
+- `GAME_DESIGN.md` - Spielmechanik
+- `VISUAL_STYLE_GUIDE.md` - Design-System
+
+---
+
 ## Contact & Support
 
 **Project Owner:** (Add your contact info)
@@ -734,5 +785,5 @@ const connections = useMemo(
 
 ---
 
-*Last updated: 2025-01*
-*Version: 1.0.0*
+*Last updated: 2025-01-13*
+*Version: 1.1.0 - Added documentation structure rules*
