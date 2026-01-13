@@ -103,10 +103,10 @@ Debug-Flags und Balance-Presets:
 
 ## Bekannte Probleme
 
-### 1. Actor Effectiveness Widget nicht sichtbar
-- Komponente existiert: `components/ActorEffectivenessWidget.tsx`
-- Nicht in `StoryModeGame.tsx` eingebunden
-- **Prioritaet:** Niedrig (Feature funktioniert intern)
+### 1. ~~Actor Effectiveness Widget nicht sichtbar~~ ✅ BEHOBEN
+- Komponente: `components/ActorEffectivenessWidget.tsx`
+- Integriert in `StoryModeGame.tsx` via ActionPanel
+- Trigger: Klick auf 🎯 Button bei jeder Aktion
 
 ### 2. Recommendations manchmal leer
 - Debug-Fallback aktiv: Zeigt Test-Empfehlung wenn keine echten existieren

@@ -44,6 +44,7 @@ interface ActionPanelProps {
   };
   onSelectAction: (actionId: string) => void;
   onAddToQueue?: (actionId: string) => void;
+  onAnalyzeAction?: (actionId: string, actionLabel: string) => void;
   onClose: () => void;
   isVisible: boolean;
   recommendations?: AdvisorRecommendation[];
@@ -73,12 +74,13 @@ interface ActionCardProps {
   canAfford: boolean;
   onSelect: () => void;
   onAddToQueue?: () => void;
+  onAnalyze?: () => void;
   isRecommended?: boolean;
   isHighlighted?: boolean;
   actionRef?: React.RefObject<HTMLDivElement>;
 }
 
-function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, isHighlighted, actionRef }: ActionCardProps) {
+function ActionCard({ action, canAfford, onSelect, onAddToQueue, onAnalyze, isRecommended, isHighlighted, actionRef }: ActionCardProps) {
   const legalityColors = {
     legal: StoryModeColors.success,
     grey: StoryModeColors.warning,
@@ -356,6 +358,21 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
               + EINREIHEN
             </button>
           )}
+          {onAnalyze && (
+            <button
+              onClick={onAnalyze}
+              className="px-3 py-1.5 border-2 text-xs font-bold transition-all hover:brightness-110 active:translate-y-0.5"
+              style={{
+                backgroundColor: StoryModeColors.agencyBlue,
+                borderColor: '#1e3a5f',
+                color: '#fff',
+                boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',
+              }}
+              title="Ziel-Analyse anzeigen"
+            >
+              🎯
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -372,6 +389,7 @@ export function ActionPanel({
   availableResources,
   onSelectAction,
   onAddToQueue,
+  onAnalyzeAction,
   onClose,
   isVisible,
   recommendations = [],
@@ -570,6 +588,7 @@ export function ActionPanel({
                     canAfford={canAffordAction(action)}
                     onSelect={() => onSelectAction(action.id)}
                     onAddToQueue={onAddToQueue ? () => onAddToQueue(action.id) : undefined}
+                    onAnalyze={onAnalyzeAction ? () => onAnalyzeAction(action.id, action.label_de) : undefined}
                     isRecommended={isActionRecommended(action.id)}
                     isHighlighted={isHighlighted}
                     actionRef={isHighlighted ? highlightedActionRef : undefined}

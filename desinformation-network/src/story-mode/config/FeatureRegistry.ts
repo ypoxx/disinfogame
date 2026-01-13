@@ -135,8 +135,8 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
     enabled: true,
     component: 'components/ActorEffectivenessWidget.tsx',
     logic: 'engine/ExtendedActorLoader.ts',
-    trigger: 'Bei Aktionsauswahl im ActionPanel',
-    notes: 'Basiert auf Akteur-Vulnerabilities und Resistenzen',
+    trigger: 'Klick auf 🎯 Button bei Aktion im ActionPanel',
+    notes: 'Zeigt anfaellige und resistente Akteure fuer gewaehlte Aktion',
   },
 
   // =====================================

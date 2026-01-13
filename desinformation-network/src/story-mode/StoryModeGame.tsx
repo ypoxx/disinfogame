@@ -21,6 +21,7 @@ import { GrievanceModal } from './components/GrievanceModal';
 import { BetrayalEventModal } from './components/BetrayalEventModal';
 import { ComboHintsWidget } from './components/ComboHintsWidget';
 import { CrisisModal } from './components/CrisisModal';
+import { ActorEffectivenessWidget } from './components/ActorEffectivenessWidget';
 import { useStoryGameState } from './hooks/useStoryGameState';
 import { OfficeScreen } from './OfficeScreen';
 
@@ -339,6 +340,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     addressGrievance,
     resolveCrisis,
     dismissCrisis,
+    calculateActionEffectiveness,
     saveGame,
     loadGame,
     hasSaveGame,
@@ -359,6 +361,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [queueCollapsed, setQueueCollapsed] = useState(false);
   const [batchActionResults, setBatchActionResults] = useState<any[] | null>(null);
   const [selectedGrievanceNpc, setSelectedGrievanceNpc] = useState<string | null>(null);
+  const [showEffectivenessWidget, setShowEffectivenessWidget] = useState(false);
+  const [effectivenessData, setEffectivenessData] = useState<{
+    actionId: string;
+    actionLabel: string;
+  } | null>(null);
 
   // Count world events
   const worldEventCount = state.newsEvents.filter(e => e.type === 'world_event').length;
@@ -593,6 +600,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         onAddToQueue={(actionId) => {
           addToQueue(actionId);
         }}
+        onAnalyzeAction={(actionId, actionLabel) => {
+          setEffectivenessData({ actionId, actionLabel });
+          setShowEffectivenessWidget(true);
+        }}
         onClose={() => {
           setShowActionPanel(false);
           setHighlightActionId(null);
@@ -600,6 +611,18 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         recommendations={state.recommendations}
         highlightActionId={highlightActionId}
       />
+
+      {/* Actor Effectiveness Widget */}
+      {showEffectivenessWidget && effectivenessData && (
+        <ActorEffectivenessWidget
+          actionLabel={effectivenessData.actionLabel}
+          modifiers={calculateActionEffectiveness(effectivenessData.actionId)}
+          onClose={() => {
+            setShowEffectivenessWidget(false);
+            setEffectivenessData(null);
+          }}
+        />
+      )}
 
       {/* News Panel */}
       <NewsPanel
