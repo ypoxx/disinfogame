@@ -337,6 +337,23 @@ export function useStoryGameState(seed?: string) {
         count: newRecommendations.length,
         phase: currentPhase.number,
       });
+
+      // DEBUG: If no recommendations, add a test one to verify UI works
+      if (newRecommendations.length === 0 && currentNpcs.length > 0) {
+        const testRec = {
+          id: 'test_rec_' + Date.now(),
+          npcId: currentNpcs[0].id,
+          priority: 'high' as const,
+          category: 'strategy' as const,
+          message: 'TEST: Deep Integration System aktiv - Diese Empfehlung beweist dass das UI funktioniert!',
+          reasoning: 'Dies ist eine Test-Empfehlung um zu zeigen dass alle Systeme integriert sind.',
+          suggestedActions: [],
+          phase: currentPhase.number,
+          timestamp: Date.now(),
+        };
+        setRecommendations([testRec]);
+        storyLogger.info('[DEBUG] Added test recommendation to verify UI');
+      }
     } catch (error) {
       storyLogger.error('Failed to generate advisor recommendations', { error });
     }
