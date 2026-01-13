@@ -19,6 +19,7 @@ import { AdvisorDetailModal } from './components/AdvisorDetailModal';
 import { BetrayalWarningBadge } from './components/BetrayalWarningBadge';
 import { GrievanceModal } from './components/GrievanceModal';
 import { BetrayalEventModal } from './components/BetrayalEventModal';
+import { ComboHintsWidget } from './components/ComboHintsWidget';
 import { CrisisModal } from './components/CrisisModal';
 import { useStoryGameState } from './hooks/useStoryGameState';
 import { OfficeScreen } from './OfficeScreen';
@@ -774,6 +775,16 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           isCollapsed={queueCollapsed}
           onToggleCollapse={() => setQueueCollapsed(!queueCollapsed)}
         />
+      )}
+
+      {/* Combo Hints Widget */}
+      {state.gamePhase === 'playing' && state.comboHints && state.comboHints.length > 0 && (
+        <div
+          className="fixed bottom-4 left-4 w-80 z-20"
+          style={{ maxHeight: '40vh', overflowY: 'auto' }}
+        >
+          <ComboHintsWidget hints={state.comboHints} />
+        </div>
       )}
 
       {/* Betrayal System Modals */}

@@ -224,6 +224,9 @@ export interface StoryGameState {
     lastFollowed?: number; // phase number
     lastIgnored?: number;  // phase number
   }>;
+
+  // Combo Hints
+  comboHints: import('../engine/StoryComboSystem').ComboHint[];
 }
 
 export interface DialogState {
@@ -324,6 +327,9 @@ export function useStoryGameState(seed?: string) {
     lastFollowed?: number;
     lastIgnored?: number;
   }>>(new Map());
+
+  // Combo Hints
+  const [comboHints, setComboHints] = useState<import('../engine/StoryComboSystem').ComboHint[]>([]);
 
   // ============================================
   // DERIVED STATE
@@ -451,7 +457,10 @@ export function useStoryGameState(seed?: string) {
     setCurrentDialog(null);
     // Generate initial recommendations
     generateRecommendations();
-  }, [generateRecommendations]);
+    // Initialize combo hints
+    const hints = engine.getActiveComboHints();
+    setComboHints(hints);
+  }, [engine, generateRecommendations]);
 
   const continueDialog = useCallback(() => {
     if (gamePhase === 'tutorial') {
@@ -662,6 +671,10 @@ export function useStoryGameState(seed?: string) {
         storyLogger.log(`[CRISIS] Triggered: ${mostUrgent.crisis.name_en}`);
       }
     }
+
+    // Update combo hints
+    const hints = engine.getActiveComboHints();
+    setComboHints(hints);
 
     // Check for game end
     const endState = engine.checkGameEnd();
@@ -877,6 +890,10 @@ export function useStoryGameState(seed?: string) {
         });
       }
 
+      // Update combo hints (fetch active hints from engine)
+      const activeHints = engine.getActiveComboHints();
+      setComboHints(activeHints);
+
       // Check game end conditions
       const endState = engine.checkGameEnd();
       if (endState) {
@@ -889,7 +906,7 @@ export function useStoryGameState(seed?: string) {
       storyLogger.error('Action execution failed:', error);
       return null;
     }
-  }, [engine, npcs, refreshAvailableActions, trustHistory]);
+  }, [engine, npcs, refreshAvailableActions, trustHistory, recommendations]);
 
   // ============================================
   // ACTION QUEUE MANAGEMENT
@@ -1314,6 +1331,9 @@ export function useStoryGameState(seed?: string) {
       betrayalStates,
       activeBetrayalWarnings,
       activeBetrayalEvent,
+      activeCrisis,
+      recommendationTracking,
+      comboHints,
     } as StoryGameState,
 
     // Game Flow
