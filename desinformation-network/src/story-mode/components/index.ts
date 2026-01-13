@@ -19,3 +19,13 @@ export type { TutorialStep } from './TutorialOverlay';
 
 export { GameEndScreen } from './GameEndScreen';
 export type { GameEndData, EndingType } from './GameEndScreen';
+
+export { BetrayalWarningBadge } from './BetrayalWarningBadge';
+export { GrievanceModal } from './GrievanceModal';
+export { BetrayalEventModal } from './BetrayalEventModal';
+
+export { CrisisModal } from './CrisisModal';
+export type { CrisisMoment, CrisisChoice } from '../engine/CrisisMomentSystem';
+
+export { ActorEffectivenessWidget } from './ActorEffectivenessWidget';
+export type { ActorEffectivenessModifier } from '../engine/ExtendedActorLoader';

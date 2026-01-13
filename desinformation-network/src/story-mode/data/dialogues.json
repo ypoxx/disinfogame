@@ -1957,6 +1957,219 @@
         "katja": "So endet unsere Geschichte also. Nicht gerade das Ende, das ich geschrieben hätte.",
         "igor": "Sie haben meine Server gefunden. Das... hätte nicht passieren dürfen."
       }
+    },
+    "recommendation_reactions": {
+      "description": "NPC-Reaktionen auf befolgte oder ignorierte Empfehlungen",
+      "direktor": {
+        "followed": [
+          {
+            "id": "dir_rec_followed_1",
+            "text_de": "*zufriedenes Nicken* Gut. Sie hören auf die, die wissen, was sie tun.",
+            "text_en": "*satisfied nod* Good. You listen to those who know what they're doing.",
+            "mood": "pleased"
+          },
+          {
+            "id": "dir_rec_followed_2",
+            "text_de": "Exzellent. So wünsche ich mir das. Konsequente Umsetzung.",
+            "text_en": "Excellent. That's what I like to see. Consistent execution.",
+            "mood": "approving"
+          },
+          {
+            "id": "dir_rec_followed_3",
+            "text_de": "*klopft kurz auf den Tisch* Effizient. Weiter so.",
+            "text_en": "*taps desk briefly* Efficient. Keep it up.",
+            "mood": "satisfied"
+          }
+        ],
+        "ignored": [
+          {
+            "id": "dir_rec_ignored_1",
+            "text_de": "*kalter Blick* Ich habe Ihnen einen Rat gegeben. Sie haben ihn ignoriert. Korrigieren Sie das.",
+            "text_en": "*cold stare* I gave you advice. You ignored it. Correct this.",
+            "mood": "displeased"
+          },
+          {
+            "id": "dir_rec_ignored_2",
+            "text_de": "Hören Sie auf meine Empfehlungen, oder Sie werden die Konsequenzen tragen.",
+            "text_en": "Listen to my recommendations, or you'll bear the consequences.",
+            "mood": "warning"
+          },
+          {
+            "id": "dir_rec_ignored_3",
+            "text_de": "*seufzt* Sie verschwenden Zeit und Ressourcen. Das ist inakzeptabel.",
+            "text_en": "*sighs* You're wasting time and resources. This is unacceptable.",
+            "mood": "frustrated"
+          }
+        ]
+      },
+      "marina": {
+        "followed": [
+          {
+            "id": "mar_rec_followed_1",
+            "text_de": "Genau! Sehen Sie, die Daten lügen nicht. Gut gemacht!",
+            "text_en": "Exactly! See, the data doesn't lie. Well done!",
+            "mood": "excited"
+          },
+          {
+            "id": "mar_rec_followed_2",
+            "text_de": "*strahlt* Ich wusste, Sie würden es verstehen. Wir machen ein gutes Team!",
+            "text_en": "*beams* I knew you'd understand. We make a good team!",
+            "mood": "happy"
+          },
+          {
+            "id": "mar_rec_followed_3",
+            "text_de": "Perfekt! Diese Analytics waren gold wert, oder?",
+            "text_en": "Perfect! Those analytics were worth gold, right?",
+            "mood": "proud"
+          }
+        ],
+        "ignored": [
+          {
+            "id": "mar_rec_ignored_1",
+            "text_de": "*enttäuscht* Ich hab mir so viel Mühe mit der Analyse gegeben... warum hören Sie nicht auf mich?",
+            "text_en": "*disappointed* I put so much effort into that analysis... why won't you listen?",
+            "mood": "hurt"
+          },
+          {
+            "id": "mar_rec_ignored_2",
+            "text_de": "Die Zahlen waren eindeutig. Ich verstehe nicht, warum Sie anders entschieden haben.",
+            "text_en": "The numbers were clear. I don't understand why you decided differently.",
+            "mood": "confused"
+          },
+          {
+            "id": "mar_rec_ignored_3",
+            "text_de": "*seufzt* Vielleicht... vielleicht sind meine Daten doch nicht so gut, wie ich dachte.",
+            "text_en": "*sighs* Maybe... maybe my data isn't as good as I thought.",
+            "mood": "self-doubt"
+          }
+        ]
+      },
+      "alexei": {
+        "followed": [
+          {
+            "id": "vol_rec_followed_1",
+            "text_de": "Ha! Endlich jemand, der versteht, wie man Druck aufbaut!",
+            "text_en": "Ha! Finally someone who understands how to apply pressure!",
+            "mood": "energized"
+          },
+          {
+            "id": "vol_rec_followed_2",
+            "text_de": "*grinst* Das war genau die richtige Entscheidung. Brutal effektiv.",
+            "text_en": "*grins* That was exactly the right decision. Brutally effective.",
+            "mood": "satisfied"
+          },
+          {
+            "id": "vol_rec_followed_3",
+            "text_de": "So macht man das! Keine halben Sachen!",
+            "text_en": "That's how it's done! No half measures!",
+            "mood": "approving"
+          }
+        ],
+        "ignored": [
+          {
+            "id": "vol_rec_ignored_1",
+            "text_de": "*genervt* Sie sind zu weich. Ich sagte Ihnen, was zu tun ist!",
+            "text_en": "*annoyed* You're too soft. I told you what to do!",
+            "mood": "frustrated"
+          },
+          {
+            "id": "vol_rec_ignored_2",
+            "text_de": "Manchmal frage ich mich, ob Sie überhaupt gewinnen wollen.",
+            "text_en": "Sometimes I wonder if you even want to win.",
+            "mood": "disappointed"
+          },
+          {
+            "id": "vol_rec_ignored_3",
+            "text_de": "*schüttelt den Kopf* Mit dieser Zögerlichkeit werden wir scheitern.",
+            "text_en": "*shakes head* With this hesitation we're going to fail.",
+            "mood": "warning"
+          }
+        ]
+      },
+      "katja": {
+        "followed": [
+          {
+            "id": "kat_rec_followed_1",
+            "text_de": "*lächelt* Ich wusste, Sie würden das Richtige tun. Sie haben ein gutes Herz.",
+            "text_en": "*smiles* I knew you'd do the right thing. You have a good heart.",
+            "mood": "warm"
+          },
+          {
+            "id": "kat_rec_followed_2",
+            "text_de": "Danke, dass Sie auf mich gehört haben. Das... bedeutet mir viel.",
+            "text_en": "Thank you for listening to me. That... means a lot.",
+            "mood": "grateful"
+          },
+          {
+            "id": "kat_rec_followed_3",
+            "text_de": "Genau so! Wir können das auch human gestalten.",
+            "text_en": "Exactly! We can make this humane too.",
+            "mood": "hopeful"
+          }
+        ],
+        "ignored": [
+          {
+            "id": "kat_rec_ignored_1",
+            "text_de": "*leise* Sie hätten... Sie hätten auf mich hören sollen.",
+            "text_en": "*quietly* You should have... you should have listened to me.",
+            "mood": "sad"
+          },
+          {
+            "id": "kat_rec_ignored_2",
+            "text_de": "Ich verstehe. Moralische Bedenken sind hier wohl nicht gefragt.",
+            "text_en": "I understand. Moral concerns aren't welcome here, I guess.",
+            "mood": "resigned"
+          },
+          {
+            "id": "kat_rec_ignored_3",
+            "text_de": "*sieht weg* Ich hoffe, Sie können mit den Konsequenzen leben.",
+            "text_en": "*looks away* I hope you can live with the consequences.",
+            "mood": "worried"
+          }
+        ]
+      },
+      "igor": {
+        "followed": [
+          {
+            "id": "igor_rec_followed_1",
+            "text_de": "*nickt* Logisch. Optimale Entscheidung basierend auf den Parametern.",
+            "text_en": "*nods* Logical. Optimal decision based on parameters.",
+            "mood": "satisfied"
+          },
+          {
+            "id": "igor_rec_followed_2",
+            "text_de": "Gut. Die Systeme laufen stabiler, wenn man die Empfehlungen befolgt.",
+            "text_en": "Good. Systems run more stable when you follow recommendations.",
+            "mood": "pleased"
+          },
+          {
+            "id": "igor_rec_followed_3",
+            "text_de": "*kurzes Lächeln* Effizienz erhöht. Weiter so.",
+            "text_en": "*brief smile* Efficiency increased. Keep going.",
+            "mood": "approving"
+          }
+        ],
+        "ignored": [
+          {
+            "id": "igor_rec_ignored_1",
+            "text_de": "*runzelt die Stirn* Suboptimal. Meine Berechnungen waren eindeutig.",
+            "text_en": "*frowns* Suboptimal. My calculations were clear.",
+            "mood": "puzzled"
+          },
+          {
+            "id": "igor_rec_ignored_2",
+            "text_de": "Warum diese Ineffizienz? Die Daten zeigten den besseren Weg.",
+            "text_en": "Why this inefficiency? The data showed the better path.",
+            "mood": "confused"
+          },
+          {
+            "id": "igor_rec_ignored_3",
+            "text_de": "*tippt auf Laptop* System-Performance sinkt bei ignorierten Empfehlungen.",
+            "text_en": "*types on laptop* System performance drops with ignored recommendations.",
+            "mood": "analytical"
+          }
+        ]
+      }
     }
   }
 }

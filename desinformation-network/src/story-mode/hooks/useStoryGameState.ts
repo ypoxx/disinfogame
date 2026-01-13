@@ -14,10 +14,15 @@ import {
 } from '../../game-logic/StoryEngineAdapter';
 import { playSound } from '../utils/SoundSystem';
 import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
-import type { AdvisorRecommendation } from '../engine/AdvisorRecommendation';
+import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
+import { getBetrayalSystem } from '../engine/BetrayalSystem';
+import type { BetrayalState, BetrayalEvent, BetrayalWarning } from '../engine/BetrayalSystem';
+import { getCrisisMomentSystem } from '../engine/CrisisMomentSystem';
+import type { ActiveCrisis, CrisisResolution } from '../engine/CrisisMomentSystem';
 import { storyLogger } from '../../utils/logger';
 import type { TrustHistoryPoint } from '../../components/TrustEvolutionChart';
-import type { ExtendedActor } from '../engine/ExtendedActorLoader';
+import type { ExtendedActor, ActorEffectivenessModifier } from '../engine/ExtendedActorLoader';
+import dialoguesData from '../data/dialogues.json';
 
 // ============================================
 // TYPES
@@ -78,6 +83,29 @@ function getTopicLabel(topic: string): string {
   return labels[topic] || topic.charAt(0).toUpperCase() + topic.slice(1);
 }
 
+/**
+ * Get recommendation reaction dialogues for an NPC
+ */
+function getRecommendationReaction(
+  npcId: string,
+  type: 'followed' | 'ignored'
+): Array<{ id: string; text_de: string; text_en: string; mood: string }> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dialogues = dialoguesData as any;
+    const reactions = dialogues?.special_dialogues?.recommendation_reactions;
+
+    if (!reactions || !reactions[npcId]) {
+      return [];
+    }
+
+    return reactions[npcId][type] || [];
+  } catch (error) {
+    storyLogger.error('Failed to load recommendation reactions:', error);
+    return [];
+  }
+}
+
 export interface StoryGameState {
   // Engine
   engine: StoryEngineAdapter;
@@ -94,9 +122,11 @@ export interface StoryGameState {
   // Actions
   availableActions: StoryAction[];
   lastActionResult: ActionResult | null;
+  completedActions: string[]; // Track completed action IDs for history
 
   // News & Events
   newsEvents: NewsEvent[];
+  worldEvents: WorldEventSnapshot[]; // World-scale events for crisis system
   unreadNewsCount: number;
 
   // Objectives
@@ -120,6 +150,22 @@ export interface StoryGameState {
   // Trust Evolution Tracking
   trustHistory: TrustHistoryPoint[];
   extendedActors: ExtendedActor[];
+
+  // Betrayal System
+  betrayalStates: Map<string, BetrayalState>;
+  activeBetrayalWarnings: BetrayalWarning[];
+  activeBetrayalEvent: BetrayalEvent | null;
+
+  // Crisis System
+  activeCrisis: ActiveCrisis | null;
+
+  // Recommendation Tracking
+  recommendationTracking: Map<string, {
+    followed: number;
+    ignored: number;
+    lastFollowed?: number; // phase number
+    lastIgnored?: number;  // phase number
+  }>;
 }
 
 export interface DialogState {
@@ -156,9 +202,11 @@ export function useStoryGameState(seed?: string) {
   // Actions
   const [availableActions, setAvailableActions] = useState<StoryAction[]>([]);
   const [lastActionResult, setLastActionResult] = useState<ActionResult | null>(null);
+  const [completedActions, setCompletedActions] = useState<string[]>([]);
 
   // News
   const [newsEvents, setNewsEvents] = useState<NewsEvent[]>(engine.getNewsEvents());
+  const [worldEvents, setWorldEvents] = useState<WorldEventSnapshot[]>([]);
 
   // Objectives
   const [objectives, setObjectives] = useState<Objective[]>(engine.getObjectives());
@@ -201,6 +249,22 @@ export function useStoryGameState(seed?: string) {
     engine.getExtendedActors()
   );
 
+  // Betrayal System
+  const [betrayalStates, setBetrayalStates] = useState<Map<string, BetrayalState>>(new Map());
+  const [activeBetrayalWarnings, setActiveBetrayalWarnings] = useState<BetrayalWarning[]>([]);
+  const [activeBetrayalEvent, setActiveBetrayalEvent] = useState<BetrayalEvent | null>(null);
+
+  // Crisis System
+  const [activeCrisis, setActiveCrisis] = useState<ActiveCrisis | null>(null);
+
+  // Recommendation Tracking
+  const [recommendationTracking, setRecommendationTracking] = useState<Map<string, {
+    followed: number;
+    ignored: number;
+    lastFollowed?: number;
+    lastIgnored?: number;
+  }>>(new Map());
+
   // ============================================
   // DERIVED STATE
   // ============================================
@@ -242,9 +306,9 @@ export function useStoryGameState(seed?: string) {
           },
           npcs: currentNpcs,
           availableActions: engine.getAvailableActions(),
-          completedActions: [], // TODO: Track completed actions
+          completedActions: completedActions,
           newsEvents: engine.getNewsEvents(),
-          worldEvents: [], // TODO: Convert from newsEvents if needed
+          worldEvents: worldEvents,
           objectives: currentObjectives.map(obj => ({
             id: obj.id,
             type: obj.type,
@@ -288,6 +352,13 @@ export function useStoryGameState(seed?: string) {
 
     // Load available actions from engine
     refreshAvailableActions();
+
+    // Initialize Betrayal System for all NPCs
+    const betrayalSystem = getBetrayalSystem();
+    const allNpcs = engine.getAllNPCs();
+    allNpcs.forEach(npc => {
+      betrayalSystem.initializeNPC(npc.id, npc.name, npc.morale);
+    });
 
     // Show intro dialog
     setCurrentDialog({
@@ -397,6 +468,35 @@ export function useStoryGameState(seed?: string) {
     setNewsEvents(engine.getNewsEvents());
     setObjectives(engine.getObjectives());
 
+    // Track ignored recommendations before generating new ones
+    // If phase is ending and there are unexecuted high-priority recommendations, count as "ignored"
+    if (recommendations.length > 0) {
+      recommendations.forEach(rec => {
+        if (rec.priority === 'critical' || rec.priority === 'high') {
+          // Check if any of the suggested actions were executed this phase
+          const wasFollowed = rec.suggestedActions.some(actionId =>
+            completedActions.includes(actionId)
+          );
+
+          if (!wasFollowed) {
+            // Count as ignored
+            setRecommendationTracking(prev => {
+              const newMap = new Map(prev);
+              const existing = newMap.get(rec.npcId) || { followed: 0, ignored: 0 };
+              newMap.set(rec.npcId, {
+                ...existing,
+                ignored: existing.ignored + 1,
+                lastIgnored: result.newPhase.number,
+              });
+              return newMap;
+            });
+
+            storyLogger.info(`[RECOMMENDATION] Player ignored ${rec.priority} advice from ${rec.npcId}`);
+          }
+        }
+      });
+    }
+
     // Generate NPC recommendations
     generateRecommendations();
 
@@ -436,6 +536,33 @@ export function useStoryGameState(seed?: string) {
       }
     }
 
+    // Check Crisis System
+    const crisisSystem = getCrisisMomentSystem();
+    const currentResources = engine.getResources();
+    const currentPhase = result.newPhase.number;
+
+    // Auto-resolve expired crises
+    crisisSystem.cleanupExpiredCrises(currentPhase);
+
+    // Check for new crises to trigger
+    const triggeredCrises = crisisSystem.checkForCrises({
+      phase: currentPhase,
+      risk: currentResources.risk,
+      attention: currentResources.attention,
+      actionCount: completedActions.length,
+      lowTrustActors: actors.filter(a => (a.currentTrust ?? a.baseTrust) < 30).length,
+    });
+
+    // If crises triggered, show the most urgent one
+    if (triggeredCrises.length > 0) {
+      const mostUrgent = crisisSystem.getMostUrgentCrisis();
+      if (mostUrgent) {
+        playSound('warning');
+        setActiveCrisis(mostUrgent);
+        storyLogger.log(`[CRISIS] Triggered: ${mostUrgent.crisis.name_en}`);
+      }
+    }
+
     // Check for game end
     const endState = engine.checkGameEnd();
     if (endState) {
@@ -443,7 +570,7 @@ export function useStoryGameState(seed?: string) {
       setGameEnd(endState);
       setGamePhase('ended');
     }
-  }, [engine, generateRecommendations]);
+  }, [engine, generateRecommendations, completedActions, recommendations]);
 
   // ============================================
   // ACTION EXECUTION
@@ -473,6 +600,164 @@ export function useStoryGameState(seed?: string) {
       setNewsEvents(engine.getNewsEvents());
       setNpcs(engine.getAllNPCs());
       setObjectives(engine.getObjectives());
+
+      // Get action and phase for processing
+      const action = result.action;
+      const currentPhase = engine.getCurrentPhase();
+
+      // Track completed action
+      if (result.success) {
+        setCompletedActions(prev => [...prev, actionId]);
+
+        // Process action through Betrayal System
+        const betrayalSystem = getBetrayalSystem();
+
+        // Check if action has moral weight (triggers betrayal risk)
+        if (action.costs?.moralWeight && action.costs.moralWeight > 0) {
+          const betrayalResult = betrayalSystem.processAction(
+            actionId,
+            action.tags || [],
+            action.costs.moralWeight,
+            currentPhase.number
+          );
+
+          // Store warnings to show later
+          if (betrayalResult.warnings.length > 0) {
+            setActiveBetrayalWarnings(betrayalResult.warnings);
+          }
+
+          // Check if any NPC is at critical betrayal risk
+          const atRisk = betrayalSystem.getNPCsAtRisk();
+          if (atRisk.length > 0) {
+            storyLogger.info(`NPCs at betrayal risk: ${atRisk.join(', ')}`);
+          }
+
+          // Check if betrayal threshold reached (risk > 85%)
+          const updatedNpcs = engine.getAllNPCs();
+          for (const npc of updatedNpcs) {
+            const risk = betrayalSystem.getBetrayalRisk(npc.id);
+            if (risk && risk.risk > 85 && risk.warningLevel >= 4) {
+              // Trigger betrayal event
+              const betrayalEvent = betrayalSystem.checkBetrayalTrigger(
+                npc.id,
+                npc.name,
+                currentPhase.number
+              );
+              if (betrayalEvent) {
+                setActiveBetrayalEvent(betrayalEvent);
+                storyLogger.warn(`BETRAYAL: ${npc.name} has betrayed the operation!`);
+                // Betrayal event will be shown via modal
+                break; // Only one betrayal per action
+              }
+            }
+          }
+
+          // Update betrayal states for UI (build from getBetrayalRisk calls)
+          const newBetrayalStates = new Map<string, BetrayalState>();
+          updatedNpcs.forEach(npc => {
+            const risk = betrayalSystem.getBetrayalRisk(npc.id);
+            if (risk) {
+              // Reconstruct minimal state for UI (we don't have full state access)
+              const state: BetrayalState = {
+                npcId: npc.id,
+                warningLevel: risk.warningLevel,
+                warningsShown: [],
+                betrayalRisk: risk.risk,
+                personalRedLines: [],
+                recentMoralActions: [],
+                lastWarningPhase: currentPhase.number,
+                grievances: risk.grievances,
+                recoveryActions: [],
+              };
+              newBetrayalStates.set(npc.id, state);
+            }
+          });
+          setBetrayalStates(newBetrayalStates);
+        }
+
+        // Track recommendation follow/ignore
+        const actionWasRecommended = recommendations.some(rec =>
+          rec.suggestedActions.includes(actionId)
+        );
+
+        if (actionWasRecommended) {
+          // Find which NPC(s) recommended this action
+          const recommendingNpcs = recommendations
+            .filter(rec => rec.suggestedActions.includes(actionId))
+            .map(rec => rec.npcId);
+
+          // Mark as "followed" for each NPC who recommended it
+          setRecommendationTracking(prev => {
+            const newMap = new Map(prev);
+            recommendingNpcs.forEach(npcId => {
+              const existing = newMap.get(npcId) || { followed: 0, ignored: 0 };
+              newMap.set(npcId, {
+                ...existing,
+                followed: existing.followed + 1,
+                lastFollowed: currentPhase.number,
+              });
+            });
+            return newMap;
+          });
+
+          storyLogger.info(`[RECOMMENDATION] Player followed advice from: ${recommendingNpcs.join(', ')}`);
+        }
+      }
+
+      // Check Defensive AI triggers (platforms/fact-checkers react to high-impact actions)
+      if (result.success) {
+        const actors = engine.getExtendedActors();
+        const previousAverageTrust = trustHistory.length > 0
+          ? trustHistory[trustHistory.length - 1].averageTrust
+          : 1.0;
+
+        // Calculate average trust drop
+        const currentAverageTrust = actors.reduce((sum, a) =>
+          sum + (a.currentTrust ?? a.baseTrust), 0) / actors.length;
+        const averageTrustDrop = previousAverageTrust - currentAverageTrust;
+
+        // If trust drop is significant (> 0.1), check for defensive reactions
+        if (averageTrustDrop > 0.1) {
+          // Get actors with defensive behavior that might respond
+          const defensiveActors = actors.filter(a =>
+            a.behavior?.type === 'defensive' || a.behavior?.type === 'vigilant'
+          );
+
+          // Check if any defender is triggered
+          defensiveActors.forEach(actor => {
+            const threshold = actor.behavior?.triggerThreshold || 0.5;
+            const reactionProb = actor.behavior?.reactionProbability || 0.3;
+
+            if (averageTrustDrop >= threshold && Math.random() < reactionProb) {
+              // Generate defensive counter-action as news event
+              const counterActions = [
+                'Fact-Check-Initiative gestartet',
+                'Verstärkte Moderation angekündigt',
+                'Algorithmus-Anpassung durchgeführt',
+                'Transparenz-Bericht veröffentlicht',
+              ];
+
+              const counterAction = counterActions[Math.floor(Math.random() * counterActions.length)];
+
+              storyLogger.info(`[DEFENSIVE AI] ${actor.name} reagiert: ${counterAction}`);
+
+              // Add as news event (visual feedback)
+              setNewsEvents(prev => [{
+                id: `defensive_${Date.now()}_${actor.id}`,
+                type: 'world_event',
+                phase: currentPhase.number,
+                headline_de: `🛡️ ${actor.name}: ${counterAction}`,
+                headline_en: `🛡️ ${actor.name}: ${counterAction}`,
+                description_de: `Als Reaktion auf verdächtige Aktivitäten hat ${actor.name} Gegenmaßnahmen eingeleitet.`,
+                description_en: `In response to suspicious activity, ${actor.name} has initiated countermeasures.`,
+                severity: 'danger',
+                read: false,
+                pinned: false,
+              }, ...prev]);
+            }
+          });
+        }
+      }
 
       // Refresh available actions (some may be unlocked or used)
       refreshAvailableActions();
@@ -504,7 +789,7 @@ export function useStoryGameState(seed?: string) {
       storyLogger.error('Action execution failed:', error);
       return null;
     }
-  }, [engine, npcs, refreshAvailableActions]);
+  }, [engine, npcs, refreshAvailableActions, trustHistory]);
 
   // ============================================
   // ACTION QUEUE MANAGEMENT
@@ -611,8 +896,40 @@ export function useStoryGameState(seed?: string) {
 
     setActiveNpcId(npcId);
 
-    // TD-006: Get dynamic greeting from JSON data based on relationship level
-    const greeting = engine.getNPCDialogue(npcId, { type: 'greeting' });
+    // Check if NPC has recommendation reaction to show
+    const tracking = recommendationTracking.get(npcId);
+    const currentPhase = engine.getCurrentPhase().number;
+    let greetingText = engine.getNPCDialogue(npcId, { type: 'greeting' }) || 'Was gibt es?';
+    let mood: 'neutral' | 'happy' | 'angry' | 'worried' | 'suspicious' = npc.inCrisis ? 'angry' :
+          npc.currentMood === 'positive' ? 'happy' :
+          npc.currentMood === 'concerned' ? 'worried' :
+          npc.currentMood === 'upset' ? 'angry' : 'neutral';
+
+    // If player recently followed/ignored recommendation (within last 2 phases), show reaction
+    if (tracking) {
+      const recentlyFollowed = tracking.lastFollowed && (currentPhase - tracking.lastFollowed) <= 2;
+      const recentlyIgnored = tracking.lastIgnored && (currentPhase - tracking.lastIgnored) <= 2;
+
+      if (recentlyFollowed && tracking.followed > 0) {
+        // Show positive reaction
+        const reactions = getRecommendationReaction(npcId, 'followed');
+        if (reactions.length > 0) {
+          const reaction = reactions[Math.floor(Math.random() * reactions.length)];
+          greetingText = reaction.text_de;
+          mood = reaction.mood as typeof mood || 'happy';
+          storyLogger.info(`[DIALOG] ${npcId} reacts positively to followed recommendation`);
+        }
+      } else if (recentlyIgnored && tracking.ignored > 0) {
+        // Show negative reaction
+        const reactions = getRecommendationReaction(npcId, 'ignored');
+        if (reactions.length > 0) {
+          const reaction = reactions[Math.floor(Math.random() * reactions.length)];
+          greetingText = reaction.text_de;
+          mood = reaction.mood as typeof mood || 'worried';
+          storyLogger.info(`[DIALOG] ${npcId} reacts negatively to ignored recommendation`);
+        }
+      }
+    }
 
     // Get available topics for conversation choices
     const topics = engine.getNPCTopics(npcId);
@@ -624,17 +941,14 @@ export function useStoryGameState(seed?: string) {
     setCurrentDialog({
       speaker: npc.name,
       speakerTitle: npc.role_de,
-      text: greeting || 'Was gibt es?',
-      mood: npc.inCrisis ? 'angry' :
-            npc.currentMood === 'positive' ? 'happy' :
-            npc.currentMood === 'concerned' ? 'worried' :
-            npc.currentMood === 'upset' ? 'angry' : 'neutral',
+      text: greetingText,
+      mood,
       choices: topicChoices.length > 0 ? [
         ...topicChoices,
         { id: 'dismiss', text: 'Auf Wiedersehen' },
       ] : undefined,
     });
-  }, [engine]);
+  }, [engine, recommendationTracking]);
 
   // ============================================
   // NEWS MANAGEMENT
@@ -651,6 +965,106 @@ export function useStoryGameState(seed?: string) {
       prev.map(e => e.id === newsId ? { ...e, pinned: !e.pinned } : e)
     );
   }, []);
+
+  // ============================================
+  // BETRAYAL SYSTEM HANDLERS
+  // ============================================
+
+  const acknowledgeBetrayal = useCallback(() => {
+    setActiveBetrayalEvent(null);
+  }, []);
+
+  const dismissBetrayalWarnings = useCallback(() => {
+    setActiveBetrayalWarnings([]);
+  }, []);
+
+  const addressGrievance = useCallback((npcId: string, grievanceId: string) => {
+    // Use the built-in addressConcerns method (default to 'talk')
+    const betrayalSystem = getBetrayalSystem();
+    const currentPhase = engine.getCurrentPhase();
+    const result = betrayalSystem.addressConcerns(npcId, 'talk', currentPhase.number);
+
+    storyLogger.info(`Addressed concerns for ${npcId}: ${result.message_de}`);
+
+    // Update UI state
+    const risk = betrayalSystem.getBetrayalRisk(npcId);
+    if (risk) {
+      setBetrayalStates(prev => {
+        const newMap = new Map(prev);
+        const existingState = newMap.get(npcId);
+        if (existingState) {
+          newMap.set(npcId, {
+            ...existingState,
+            betrayalRisk: risk.risk,
+            warningLevel: risk.warningLevel,
+            grievances: risk.grievances,
+          });
+        }
+        return newMap;
+      });
+    }
+  }, [engine]);
+
+  // ============================================
+  // CRISIS SYSTEM HANDLERS
+  // ============================================
+
+  const resolveCrisis = useCallback((choiceId: string) => {
+    if (!activeCrisis) return;
+
+    const crisisSystem = getCrisisMomentSystem();
+    const currentPhase = engine.getCurrentPhase();
+
+    const resolution = crisisSystem.resolveCrisis(
+      activeCrisis.crisisId,
+      choiceId,
+      currentPhase.number
+    );
+
+    if (resolution) {
+      storyLogger.log(`[CRISIS] Resolved: ${activeCrisis.crisis.name_en} with choice ${choiceId}`);
+
+      // Apply effects from the choice
+      resolution.effects.forEach(effect => {
+        if (effect.type === 'resource_bonus' && effect.value) {
+          // Apply resource changes
+          storyLogger.log(`[CRISIS] Effect: ${effect.type} = ${effect.value}`);
+        }
+      });
+
+      // Clear the active crisis
+      setActiveCrisis(null);
+      playSound('success');
+
+      // Refresh game state
+      setResources(engine.getResources());
+      setNpcs(engine.getAllNPCs());
+      setNewsEvents(engine.getNewsEvents());
+
+      // Check if there's a chained crisis
+      if (resolution.triggeredChain) {
+        storyLogger.log(`[CRISIS] Chained to: ${resolution.triggeredChain}`);
+      }
+    }
+  }, [activeCrisis, engine]);
+
+  const dismissCrisis = useCallback(() => {
+    setActiveCrisis(null);
+  }, []);
+
+  // ============================================
+  // ACTOR INTELLIGENCE
+  // ============================================
+
+  const calculateActionEffectiveness = useCallback((actionId: string): ActorEffectivenessModifier[] => {
+    const action = availableActions.find(a => a.id === actionId);
+    if (!action) return [];
+
+    // Use engine's previewActionEffectiveness method
+    const modifiers = engine.previewActionEffectiveness(action.tags);
+
+    return modifiers;
+  }, [engine, availableActions]);
 
   // ============================================
   // SAVE / LOAD
@@ -766,7 +1180,9 @@ export function useStoryGameState(seed?: string) {
       activeNpcId,
       availableActions,
       lastActionResult,
+      completedActions,
       newsEvents,
+      worldEvents,
       unreadNewsCount,
       objectives,
       activeConsequence,
@@ -776,6 +1192,9 @@ export function useStoryGameState(seed?: string) {
       actionQueue,
       trustHistory,
       extendedActors,
+      betrayalStates,
+      activeBetrayalWarnings,
+      activeBetrayalEvent,
     } as StoryGameState,
 
     // Game Flow
@@ -810,6 +1229,18 @@ export function useStoryGameState(seed?: string) {
     // News
     markNewsAsRead,
     toggleNewsPinned,
+
+    // Betrayal System
+    acknowledgeBetrayal,
+    dismissBetrayalWarnings,
+    addressGrievance,
+
+    // Crisis System
+    resolveCrisis,
+    dismissCrisis,
+
+    // Actor Intelligence
+    calculateActionEffectiveness,
 
     // Save/Load
     saveGame,
