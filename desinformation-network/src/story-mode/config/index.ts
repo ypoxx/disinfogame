@@ -4,3 +4,4 @@
 
 export * from './FeatureRegistry';
 export * from './LayoutConfig';
+export * from './PlaytestConfig';
