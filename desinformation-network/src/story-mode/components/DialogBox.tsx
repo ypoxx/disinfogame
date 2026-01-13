@@ -399,7 +399,7 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
 
   const { displayedText, isComplete, skipToEnd } = useTypewriter(
     message?.text || '',
-    25,
+    45, // Slowed down from 25ms to 45ms per character for better readability
     message?.isTyping !== false
   );
 

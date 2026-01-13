@@ -97,12 +97,14 @@ export function NewsPanel({
               Keine Nachrichten vorhanden.
             </div>
           ) : (
-            sortedNews.map(news => (
+            sortedNews.map(news => {
+              const isDefensiveAI = news.id.startsWith('defensive_');
+              return (
               <div
                 key={news.id}
                 className={`border-2 p-4 cursor-pointer transition-all hover:brightness-110 ${
                   !news.read ? 'border-l-4' : ''
-                }`}
+                } ${isDefensiveAI && !news.read ? 'animate-pulse-soft' : ''}`}
                 style={{
                   backgroundColor: news.read
                     ? StoryModeColors.background
@@ -111,19 +113,30 @@ export function NewsPanel({
                     ? StoryModeColors.border
                     : getSeverityColor(news.severity),
                   borderLeftColor: !news.read ? getSeverityColor(news.severity) : undefined,
+                  ...(isDefensiveAI && !news.read ? {
+                    boxShadow: `0 0 10px ${StoryModeColors.danger}40`,
+                  } : {}),
                 }}
                 onClick={() => onMarkAsRead(news.id)}
               >
                 {/* News Header */}
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span>{getTypeIcon(news.type)}</span>
                     <span
-                      className="font-bold text-sm uppercase"
+                      className="font-bold text-xs uppercase"
                       style={{ color: getSeverityColor(news.severity) }}
                     >
                       {news.type.replace('_', ' ')}
                     </span>
+                    {isDefensiveAI && (
+                      <span className="text-xs px-2 py-0.5 font-bold" style={{
+                        backgroundColor: StoryModeColors.sovietRed,
+                        color: '#fff',
+                      }}>
+                        🛡️ DEFENSIVE AI
+                      </span>
+                    )}
                     {news.pinned && (
                       <span className="text-xs px-2 py-0.5" style={{
                         backgroundColor: StoryModeColors.warning,
@@ -189,7 +202,8 @@ export function NewsPanel({
                   </button>
                 </div>
               </div>
-            ))
+            );
+            })
           )}
         </div>
 

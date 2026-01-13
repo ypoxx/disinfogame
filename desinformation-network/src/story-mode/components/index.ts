@@ -29,3 +29,6 @@ export type { CrisisMoment, CrisisChoice } from '../engine/CrisisMomentSystem';
 
 export { ActorEffectivenessWidget } from './ActorEffectivenessWidget';
 export type { ActorEffectivenessModifier } from '../engine/ExtendedActorLoader';
+
+export { ComboHintsWidget } from './ComboHintsWidget';
+export type { ComboHint } from '../engine/StoryComboSystem';

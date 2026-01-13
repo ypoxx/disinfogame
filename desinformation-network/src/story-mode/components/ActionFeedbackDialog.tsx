@@ -773,6 +773,95 @@ export function ActionFeedbackDialog({
             </div>
           )}
 
+          {/* Actor Effectiveness - Modifiers */}
+          {singleResult.actorModifiers && singleResult.actorModifiers.length > 0 && (
+            <div
+              className="border-2 p-4"
+              style={{
+                backgroundColor: StoryModeColors.darkConcrete,
+                borderColor: StoryModeColors.agencyBlue,
+              }}
+            >
+              <h3
+                className="font-bold text-sm mb-3 flex items-center gap-2"
+                style={{ color: StoryModeColors.agencyBlue }}
+              >
+                <span>🎯</span>
+                ZIEL-EFFEKTIVITÄT
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {singleResult.actorModifiers.map((modifier, i) => (
+                  <div
+                    key={i}
+                    className="border p-2 text-xs"
+                    style={{
+                      backgroundColor: StoryModeColors.background,
+                      borderColor: modifier.isVulnerable ? StoryModeColors.success : StoryModeColors.danger,
+                    }}
+                  >
+                    <div className="flex justify-between items-center mb-1">
+                      <span
+                        className="font-bold"
+                        style={{ color: StoryModeColors.textPrimary }}
+                      >
+                        {modifier.isVulnerable ? '✅' : '🛡️'} {modifier.actorName}
+                      </span>
+                      <span
+                        className="font-bold"
+                        style={{
+                          color: modifier.isVulnerable ? StoryModeColors.success : StoryModeColors.danger,
+                        }}
+                      >
+                        {modifier.isVulnerable ? '+' : ''}{Math.round((modifier.modifier - 1) * 100)}%
+                      </span>
+                    </div>
+                    <div style={{ color: StoryModeColors.textSecondary }}>
+                      {modifier.reason_de}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Betrayal Warnings */}
+          {singleResult.betrayalWarnings && singleResult.betrayalWarnings.length > 0 && (
+            <div
+              className="border-2 p-4 animate-pulse-soft"
+              style={{
+                backgroundColor: 'rgba(255, 71, 71, 0.15)',
+                borderColor: StoryModeColors.danger,
+              }}
+            >
+              <h3
+                className="font-bold text-sm mb-3 flex items-center gap-2"
+                style={{ color: StoryModeColors.danger }}
+              >
+                <span>⚠️</span>
+                VERRATS-WARNUNG
+              </h3>
+              <div className="space-y-2">
+                {singleResult.betrayalWarnings.map((warning, i) => (
+                  <div
+                    key={i}
+                    className="border p-3 text-xs"
+                    style={{
+                      backgroundColor: StoryModeColors.background,
+                      borderColor: StoryModeColors.danger,
+                    }}
+                  >
+                    <div className="font-bold mb-1" style={{ color: StoryModeColors.textPrimary }}>
+                      {warning.npcName} (Warnstufe: {warning.level})
+                    </div>
+                    <div style={{ color: StoryModeColors.textSecondary }}>
+                      {warning.narrative_de}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Potential Consequences Warning */}
           {singleResult.potentialConsequences && singleResult.potentialConsequences.length > 0 && (
             <div
