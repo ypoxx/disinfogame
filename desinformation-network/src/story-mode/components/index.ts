@@ -26,3 +26,6 @@ export { BetrayalEventModal } from './BetrayalEventModal';
 
 export { CrisisModal } from './CrisisModal';
 export type { CrisisMoment, CrisisChoice } from '../engine/CrisisMomentSystem';
+
+export { ActorEffectivenessWidget } from './ActorEffectivenessWidget';
+export type { ActorEffectivenessModifier } from '../engine/ExtendedActorLoader';

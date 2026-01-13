@@ -21,7 +21,7 @@ import { getCrisisMomentSystem } from '../engine/CrisisMomentSystem';
 import type { ActiveCrisis, CrisisResolution } from '../engine/CrisisMomentSystem';
 import { storyLogger } from '../../utils/logger';
 import type { TrustHistoryPoint } from '../../components/TrustEvolutionChart';
-import type { ExtendedActor } from '../engine/ExtendedActorLoader';
+import type { ExtendedActor, ActorEffectivenessModifier } from '../engine/ExtendedActorLoader';
 import dialoguesData from '../data/dialogues.json';
 
 // ============================================
@@ -996,6 +996,20 @@ export function useStoryGameState(seed?: string) {
   }, []);
 
   // ============================================
+  // ACTOR INTELLIGENCE
+  // ============================================
+
+  const calculateActionEffectiveness = useCallback((actionId: string): ActorEffectivenessModifier[] => {
+    const action = availableActions.find(a => a.id === actionId);
+    if (!action) return [];
+
+    // Use engine's previewActionEffectiveness method
+    const modifiers = engine.previewActionEffectiveness(action.tags);
+
+    return modifiers;
+  }, [engine, availableActions]);
+
+  // ============================================
   // SAVE / LOAD
   // ============================================
 
@@ -1167,6 +1181,9 @@ export function useStoryGameState(seed?: string) {
     // Crisis System
     resolveCrisis,
     dismissCrisis,
+
+    // Actor Intelligence
+    calculateActionEffectiveness,
 
     // Save/Load
     saveGame,
