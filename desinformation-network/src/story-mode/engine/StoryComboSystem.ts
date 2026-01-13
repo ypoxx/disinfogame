@@ -218,8 +218,8 @@ export class StoryComboSystem {
               this.activeProgress.set(progressKey, progress);
               progressUpdates.push(progress);
 
-              // If more than half done and not discovered, show hint
-              if (progress.progress >= 0.5 && !progress.isDiscovered) {
+              // If more than 1/3 done and not discovered, show hint (lowered from 50% for visibility)
+              if (progress.progress >= 0.33 && !progress.isDiscovered) {
                 progress.isDiscovered = true;
                 this.discoveredCombos.add(combo.id);
                 newHints.push(this.createHint(combo, progress, currentPhase));
