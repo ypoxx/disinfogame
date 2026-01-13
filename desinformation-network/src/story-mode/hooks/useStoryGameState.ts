@@ -601,14 +601,16 @@ export function useStoryGameState(seed?: string) {
       setNpcs(engine.getAllNPCs());
       setObjectives(engine.getObjectives());
 
+      // Get action and phase for processing
+      const action = result.action;
+      const currentPhase = engine.getCurrentPhase();
+
       // Track completed action
       if (result.success) {
         setCompletedActions(prev => [...prev, actionId]);
 
         // Process action through Betrayal System
         const betrayalSystem = getBetrayalSystem();
-        const action = result.action;
-        const currentPhase = engine.getCurrentPhase();
 
         // Check if action has moral weight (triggers betrayal risk)
         if (action.costs?.moralWeight && action.costs.moralWeight > 0) {
@@ -702,6 +704,61 @@ export function useStoryGameState(seed?: string) {
         }
       }
 
+      // Check Defensive AI triggers (platforms/fact-checkers react to high-impact actions)
+      if (result.success) {
+        const actors = engine.getExtendedActors();
+        const previousAverageTrust = trustHistory.length > 0
+          ? trustHistory[trustHistory.length - 1].averageTrust
+          : 1.0;
+
+        // Calculate average trust drop
+        const currentAverageTrust = actors.reduce((sum, a) =>
+          sum + (a.currentTrust ?? a.baseTrust), 0) / actors.length;
+        const averageTrustDrop = previousAverageTrust - currentAverageTrust;
+
+        // If trust drop is significant (> 0.1), check for defensive reactions
+        if (averageTrustDrop > 0.1) {
+          // Get actors with defensive behavior that might respond
+          const defensiveActors = actors.filter(a =>
+            a.behavior?.type === 'defensive' || a.behavior?.type === 'vigilant'
+          );
+
+          // Check if any defender is triggered
+          defensiveActors.forEach(actor => {
+            const threshold = actor.behavior?.triggerThreshold || 0.5;
+            const reactionProb = actor.behavior?.reactionProbability || 0.3;
+
+            if (averageTrustDrop >= threshold && Math.random() < reactionProb) {
+              // Generate defensive counter-action as news event
+              const counterActions = [
+                'Fact-Check-Initiative gestartet',
+                'Verstärkte Moderation angekündigt',
+                'Algorithmus-Anpassung durchgeführt',
+                'Transparenz-Bericht veröffentlicht',
+              ];
+
+              const counterAction = counterActions[Math.floor(Math.random() * counterActions.length)];
+
+              storyLogger.info(`[DEFENSIVE AI] ${actor.name} reagiert: ${counterAction}`);
+
+              // Add as news event (visual feedback)
+              setNewsEvents(prev => [{
+                id: `defensive_${Date.now()}_${actor.id}`,
+                type: 'world_event',
+                phase: currentPhase.number,
+                headline_de: `🛡️ ${actor.name}: ${counterAction}`,
+                headline_en: `🛡️ ${actor.name}: ${counterAction}`,
+                description_de: `Als Reaktion auf verdächtige Aktivitäten hat ${actor.name} Gegenmaßnahmen eingeleitet.`,
+                description_en: `In response to suspicious activity, ${actor.name} has initiated countermeasures.`,
+                severity: 'danger',
+                read: false,
+                pinned: false,
+              }, ...prev]);
+            }
+          });
+        }
+      }
+
       // Refresh available actions (some may be unlocked or used)
       refreshAvailableActions();
 
@@ -732,7 +789,7 @@ export function useStoryGameState(seed?: string) {
       storyLogger.error('Action execution failed:', error);
       return null;
     }
-  }, [engine, npcs, refreshAvailableActions]);
+  }, [engine, npcs, refreshAvailableActions, trustHistory]);
 
   // ============================================
   // ACTION QUEUE MANAGEMENT
