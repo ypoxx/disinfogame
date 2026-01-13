@@ -16,7 +16,7 @@ import { playSound } from '../utils/SoundSystem';
 import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
 import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
 import { getBetrayalSystem } from '../engine/BetrayalSystem';
-import type { BetrayalState, BetrayalEvent, BetrayalWarning } from '../engine/BetrayalSystem';
+import type { BetrayalState, BetrayalEvent, BetrayalWarning, BetrayalGrievance } from '../engine/BetrayalSystem';
 import { getCrisisMomentSystem } from '../engine/CrisisMomentSystem';
 import type { ActiveCrisis, CrisisResolution } from '../engine/CrisisMomentSystem';
 import { storyLogger } from '../../utils/logger';
@@ -81,6 +81,64 @@ function getTopicLabel(topic: string): string {
     flow: 'Über Geldflüsse',
   };
   return labels[topic] || topic.charAt(0).toUpperCase() + topic.slice(1);
+}
+
+/**
+ * Enhance topic response with contextual information
+ * Makes NPC dialogs more dynamic and relevant to current game state
+ */
+function enhanceTopicResponse(
+  baseResponse: string,
+  topic: string,
+  npcId: string,
+  contextData: {
+    recommendations: Array<{ npcId: string; message: string; category: string; priority: string }>;
+    betrayalState?: { warningLevel: number; betrayalRisk: number; grievances: BetrayalGrievance[] };
+    phase: number;
+    budget: number;
+    influence: number;
+  }
+): string {
+  let enhanced = baseResponse;
+
+  // Add context based on topic type
+  if (topic === 'risks' || topic === 'security') {
+    // Check for betrayal risks
+    if (contextData.betrayalState && contextData.betrayalState.warningLevel >= 2) {
+      const riskPercent = Math.round(contextData.betrayalState.betrayalRisk);
+      enhanced += `\n\n*wird ernster* Und zwischen uns gesagt: Ich mache mir Sorgen. Mein Verrats-Risiko liegt bei ${riskPercent}%. `;
+      if (contextData.betrayalState.grievances.length > 0) {
+        enhanced += `Besonders stört mich: ${contextData.betrayalState.grievances[0].description_de}.`;
+      }
+    }
+  }
+
+  if (topic === 'resources' || topic === 'budget') {
+    // Add budget context
+    if (contextData.budget < 3000) {
+      enhanced += '\n\n*schaut besorgt* Unser Budget wird knapp. Wir müssen vorsichtiger planen.';
+    } else if (contextData.budget > 8000) {
+      enhanced += '\n\n*nickt zufrieden* Finanziell stehen wir gut da. Wir haben Spielraum für größere Aktionen.';
+    }
+  }
+
+  if (topic === 'mission' || topic === 'field') {
+    // Add influence/progress context
+    if (contextData.influence > 70) {
+      enhanced += '\n\n*lächelt* Wir machen gute Fortschritte. Unser Einfluss wächst stetig.';
+    } else if (contextData.influence < 30) {
+      enhanced += '\n\n*runzelt die Stirn* Wir müssen unsere Strategie überdenken. Der Fortschritt ist zu langsam.';
+    }
+  }
+
+  // Add relevant recommendations
+  const relevantRecs = contextData.recommendations.filter(rec => rec.npcId === npcId);
+  if (relevantRecs.length > 0 && relevantRecs[0].priority !== 'low') {
+    const rec = relevantRecs[0];
+    enhanced += `\n\n💡 *Übrigens:* ${rec.message}`;
+  }
+
+  return enhanced;
 }
 
 /**
@@ -418,12 +476,35 @@ export function useStoryGameState(seed?: string) {
       const topic = choiceId.replace('topic_', '');
       const npc = engine.getNPCState(activeNpcId);
       if (npc) {
-        const response = engine.getNPCDialogue(activeNpcId, { type: 'topic', subtype: topic });
-        if (response) {
+        const baseResponse = engine.getNPCDialogue(activeNpcId, { type: 'topic', subtype: topic });
+        if (baseResponse) {
+          // Get context data for enhanced response
+          const currentResources = engine.getResources();
+          const betrayalState = betrayalStates.get(activeNpcId);
+          const currentPhase = engine.getCurrentPhase();
+
+          // Enhance response with contextual information
+          const enhancedResponse = enhanceTopicResponse(
+            baseResponse,
+            topic,
+            activeNpcId,
+            {
+              recommendations: recommendations,
+              betrayalState: betrayalState ? {
+                warningLevel: betrayalState.warningLevel,
+                betrayalRisk: betrayalState.betrayalRisk,
+                grievances: betrayalState.grievances,
+              } : undefined,
+              phase: currentPhase.number,
+              budget: currentResources.budget,
+              influence: 100 - currentResources.attention, // Lower attention = higher influence
+            }
+          );
+
           setCurrentDialog({
             speaker: npc.name,
             speakerTitle: npc.role_de,
-            text: response,
+            text: enhancedResponse,
             mood: 'neutral',
             choices: [{ id: 'back_to_npc', text: 'Zurück' }],
           });
@@ -470,7 +551,7 @@ export function useStoryGameState(seed?: string) {
     // Default: close dialog
     playSound('click');
     setCurrentDialog(null);
-  }, [activeNpcId, engine]);
+  }, [activeNpcId, engine, recommendations, betrayalStates]);
 
   // ============================================
   // PHASE ACTIONS
