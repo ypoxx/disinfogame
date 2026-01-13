@@ -443,6 +443,13 @@ export function useStoryGameState(seed?: string) {
       betrayalSystem.initializeNPC(npc.id, npc.name, npc.morale);
     });
 
+    // Generate initial recommendations immediately so UI is populated
+    generateRecommendations();
+
+    // Initialize combo hints
+    const hints = engine.getActiveComboHints();
+    setComboHints(hints);
+
     // Show intro dialog
     setCurrentDialog({
       speaker: 'Direktor',
@@ -450,7 +457,7 @@ export function useStoryGameState(seed?: string) {
       text: 'Willkommen in der Abteilung für Sonderoperationen. Ihre Mission: die politische Landschaft von Westunion zu destabilisieren. Sie haben 10 Jahre Zeit. Nutzen Sie sie weise.',
       mood: 'neutral',
     });
-  }, [refreshAvailableActions]);
+  }, [refreshAvailableActions, generateRecommendations]);
 
   const skipTutorial = useCallback(() => {
     setGamePhase('playing');
