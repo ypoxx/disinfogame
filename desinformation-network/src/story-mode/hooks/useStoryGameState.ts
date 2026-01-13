@@ -180,6 +180,8 @@ export interface DialogState {
     disabled?: boolean;
     disabledReason?: string;
   }[];
+  npcRecommendation?: string;
+  npcBetrayalWarning?: string;
 }
 
 // ============================================
@@ -931,6 +933,23 @@ export function useStoryGameState(seed?: string) {
       }
     }
 
+    // Get active recommendations for this NPC
+    const npcRecommendations = recommendations.filter(rec => rec.npcId === npcId);
+    let recommendationText: string | undefined;
+    if (npcRecommendations.length > 0) {
+      const topRec = npcRecommendations[0]; // Show highest priority
+      recommendationText = `${topRec.message} (Priorität: ${topRec.priority.toUpperCase()})`;
+    }
+
+    // Get betrayal warning for this NPC
+    const betrayalState = betrayalStates.get(npcId);
+    let betrayalWarning: string | undefined;
+    if (betrayalState && betrayalState.warningLevel >= 2) {
+      const riskPercent = Math.round(betrayalState.betrayalRisk);
+      const warningLabels = ['', 'Leicht besorgt', 'Unzufrieden', 'Kritisch', 'GEFAHR!'];
+      betrayalWarning = `${warningLabels[betrayalState.warningLevel]} - Verrats-Risiko: ${riskPercent}%`;
+    }
+
     // Get available topics for conversation choices
     const topics = engine.getNPCTopics(npcId);
     const topicChoices = topics.map(topic => ({
@@ -943,12 +962,14 @@ export function useStoryGameState(seed?: string) {
       speakerTitle: npc.role_de,
       text: greetingText,
       mood,
+      npcRecommendation: recommendationText,
+      npcBetrayalWarning: betrayalWarning,
       choices: topicChoices.length > 0 ? [
         ...topicChoices,
         { id: 'dismiss', text: 'Auf Wiedersehen' },
       ] : undefined,
     });
-  }, [engine, recommendationTracking]);
+  }, [engine, recommendationTracking, recommendations, betrayalStates]);
 
   // ============================================
   // NEWS MANAGEMENT

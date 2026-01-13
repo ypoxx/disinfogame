@@ -22,6 +22,8 @@ export interface DialogMessage {
   mood?: 'neutral' | 'happy' | 'angry' | 'worried' | 'suspicious';
   choices?: DialogChoice[];
   isTyping?: boolean;
+  npcRecommendation?: string; // New: show active recommendation
+  npcBetrayalWarning?: string; // New: show betrayal warning
 }
 
 interface DialogBoxProps {
@@ -487,6 +489,44 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
 
         {/* Message Content */}
         <div className="p-6">
+          {/* Recommendation Banner */}
+          {message.npcRecommendation && (
+            <div
+              className="mb-4 p-3 border-2 flex items-start gap-2"
+              style={{
+                backgroundColor: StoryModeColors.agencyBlue + '20',
+                borderColor: StoryModeColors.agencyBlue,
+              }}
+            >
+              <span className="text-xl">💡</span>
+              <div className="flex-1 text-sm" style={{ color: StoryModeColors.textPrimary }}>
+                <div className="font-bold mb-1" style={{ color: StoryModeColors.agencyBlue }}>
+                  AKTIVE EMPFEHLUNG:
+                </div>
+                {message.npcRecommendation}
+              </div>
+            </div>
+          )}
+
+          {/* Betrayal Warning Banner */}
+          {message.npcBetrayalWarning && (
+            <div
+              className="mb-4 p-3 border-2 flex items-start gap-2 animate-pulse"
+              style={{
+                backgroundColor: StoryModeColors.danger + '20',
+                borderColor: StoryModeColors.danger,
+              }}
+            >
+              <span className="text-xl">⚠️</span>
+              <div className="flex-1 text-sm" style={{ color: StoryModeColors.textPrimary }}>
+                <div className="font-bold mb-1" style={{ color: StoryModeColors.danger }}>
+                  WARNUNG:
+                </div>
+                {message.npcBetrayalWarning}
+              </div>
+            </div>
+          )}
+
           <div
             className="font-mono text-base leading-relaxed min-h-[80px]"
             style={{ color: StoryModeColors.textPrimary }}
