@@ -1,0 +1,31 @@
+{
+  "version": "1.0",
+  "description": "Sammlung von Seeds die gut ausbalancierte Spiele produzieren",
+  "lastUpdated": "2026-01-14",
+  "criteria": {
+    "phasesMin": 15,
+    "phasesMax": 25,
+    "budgetMinimumThreshold": -20,
+    "riskMaximumThreshold": 85,
+    "actionsPerPhaseMin": 1.5
+  },
+  "seeds": {
+    "easy": {
+      "description": "Golden Seeds fuer Easy-Difficulty",
+      "list": []
+    },
+    "normal": {
+      "description": "Golden Seeds fuer Normal-Difficulty",
+      "list": []
+    },
+    "hard": {
+      "description": "Golden Seeds fuer Hard-Difficulty",
+      "list": []
+    }
+  },
+  "notes": [
+    "Seeds werden durch intelligent-playtest.test.ts identifiziert",
+    "Fuehre 'npx vitest run -t \"should identify golden seeds\"' aus um neue Seeds zu finden",
+    "Golden Seeds dienen als Referenz fuer Balance-Vergleiche nach Code-Aenderungen"
+  ]
+}

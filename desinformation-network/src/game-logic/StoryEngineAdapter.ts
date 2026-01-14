@@ -567,6 +567,9 @@ export class StoryEngineAdapter {
 
   private initializeObjectives(): void {
     // TODO: Load from scenario definition
+    // BALANCE 2026-01-14: Adjusted for ~20 phase game length with ~40-60% win rate
+    // - Start trust: 100%
+    // - Target trust: 40% (requires 60 points progress)
     this.objectives = [
       {
         id: 'obj_destabilize',
@@ -578,8 +581,8 @@ export class StoryEngineAdapter {
         completed: false,
         type: 'primary',
         category: 'trust_reduction',
-        targetValue: 40,
-        currentValue: 75,
+        targetValue: 40,      // Target: 40% trust (easier to achieve)
+        currentValue: 100,    // Start: 100% trust
       },
       {
         id: 'obj_survive',
@@ -637,6 +640,8 @@ export class StoryEngineAdapter {
     // P1-4 Fix: Reduce attention decay from 5 to 2
     // P1-5 Fix: Add budget regeneration (+5 per phase)
     // P2-6 Fix: Add risk decay (-2 per phase, min 0)
+    // BALANCE FIX 2026-01-14: Increased risk decay from -2 to -5
+    // Rationale: State actors have resources to manage risk, risk was escalating too fast
     const resourceChanges: Partial<StoryResources> = {
       capacity: Math.min(
         this.storyResources.capacity + this.CAPACITY_REGEN_PER_PHASE,
@@ -648,7 +653,8 @@ export class StoryEngineAdapter {
       // Passive Decay - reduced from 5 to 2
       attention: Math.max(0, this.storyResources.attention - 2),
       // Risk decay - counter-intelligence loses track over time
-      risk: Math.max(0, this.storyResources.risk - 2),
+      // Increased from -2 to -5 for better balance (state actors can manage risk)
+      risk: Math.max(0, this.storyResources.risk - 5),
     };
 
     Object.assign(this.storyResources, resourceChanges);
@@ -2506,10 +2512,19 @@ export class StoryEngineAdapter {
     // Westunion cohesion damage (major success for player)
     if (effects.westunion_cohesion_damage || effects.westunion_division) {
       const damage = (effects.westunion_cohesion_damage || 0) + (effects.westunion_division || 0);
-      // Boost primary objective progress
+      // Boost primary objective progress - DECREASE trust (currentValue goes down)
       const primaryObj = this.objectives.find(o => o.id === 'obj_destabilize');
       if (primaryObj) {
-        primaryObj.currentValue = Math.min(primaryObj.targetValue, primaryObj.currentValue + damage * 0.5);
+        // BALANCE 2026-01-14: Tuned for ~40-60% win rate at 20 phases
+        primaryObj.currentValue = Math.max(0, primaryObj.currentValue - damage * 0.75);
+        // Update progress: (100 - current) / (100 - target) * 100
+        primaryObj.progress = Math.min(100,
+          ((100 - primaryObj.currentValue) / (100 - primaryObj.targetValue)) * 100
+        );
+        if (primaryObj.currentValue <= primaryObj.targetValue) {
+          primaryObj.completed = true;
+          storyLogger.log(`🎯 Objective completed: ${primaryObj.label_de}`);
+        }
       }
     }
 
@@ -2528,10 +2543,16 @@ export class StoryEngineAdapter {
           // These regional tensions contribute to overall destabilization
           const primaryObj = this.objectives.find(o => o.id === 'obj_destabilize');
           if (primaryObj) {
-            primaryObj.currentValue = Math.min(
-              primaryObj.targetValue,
-              primaryObj.currentValue + (value as number) * 0.2
+            // BALANCE 2026-01-14: Tuned for ~40-60% win rate at 20 phases
+            primaryObj.currentValue = Math.max(0, primaryObj.currentValue - (value as number) * 0.25);
+            // Update progress: (100 - current) / (100 - target) * 100
+            primaryObj.progress = Math.min(100,
+              ((100 - primaryObj.currentValue) / (100 - primaryObj.targetValue)) * 100
             );
+            if (primaryObj.currentValue <= primaryObj.targetValue) {
+              primaryObj.completed = true;
+              storyLogger.log(`🎯 Objective completed: ${primaryObj.label_de}`);
+            }
           }
         }
       }
@@ -3415,12 +3436,15 @@ export class StoryEngineAdapter {
       // Update primary objective progress
       const destabilizeObj = this.objectives.find(o => o.id === 'obj_destabilize');
       if (destabilizeObj) {
-        destabilizeObj.currentValue = Math.max(0, destabilizeObj.currentValue - trustErosionValue);
+        // BALANCE 2026-01-14: Tuned for ~40-60% win rate at 20 phases
+        destabilizeObj.currentValue = Math.max(0, destabilizeObj.currentValue - trustErosionValue * 1.25);
+        // Update progress: (100 - current) / (100 - target) * 100
         destabilizeObj.progress = Math.min(100,
-          ((75 - destabilizeObj.currentValue) / (75 - destabilizeObj.targetValue)) * 100
+          ((100 - destabilizeObj.currentValue) / (100 - destabilizeObj.targetValue)) * 100
         );
         if (destabilizeObj.currentValue <= destabilizeObj.targetValue) {
           destabilizeObj.completed = true;
+          storyLogger.log(`🎯 Objective completed: ${destabilizeObj.label_de}`);
         }
       }
     }
@@ -3755,13 +3779,20 @@ export class StoryEngineAdapter {
     const bonus = combo.bonus;
 
     // Trust reduction -> affects primary objective
+    // BALANCE FIX 2026-01-14: Changed + to - (trust goes DOWN) and tuned multiplier
     if (bonus.trustReduction) {
       const trustObj = this.objectives.find(o => o.category === 'trust_reduction');
       if (trustObj) {
-        trustObj.currentValue = Math.min(
-          trustObj.targetValue,
-          trustObj.currentValue + bonus.trustReduction * 100
+        // Decrease trust by combo bonus (multiplier: 50 for ~40-60% win rate at 20 phases)
+        trustObj.currentValue = Math.max(0, trustObj.currentValue - bonus.trustReduction * 50);
+        // Update progress: (100 - current) / (100 - target) * 100
+        trustObj.progress = Math.min(100,
+          ((100 - trustObj.currentValue) / (100 - trustObj.targetValue)) * 100
         );
+        if (trustObj.currentValue <= trustObj.targetValue) {
+          trustObj.completed = true;
+          storyLogger.log(`🎯 Objective completed via combo: ${trustObj.label_de}`);
+        }
       }
     }
 
@@ -3769,10 +3800,16 @@ export class StoryEngineAdapter {
     if (bonus.polarizationBonus) {
       const primaryObj = this.objectives.find(o => o.id === 'obj_destabilize');
       if (primaryObj) {
-        primaryObj.currentValue = Math.min(
-          primaryObj.targetValue,
-          primaryObj.currentValue + bonus.polarizationBonus * 50
+        // BALANCE 2026-01-14: Tuned for ~40-60% win rate at 20 phases
+        primaryObj.currentValue = Math.max(0, primaryObj.currentValue - bonus.polarizationBonus * 25);
+        // Update progress: (100 - current) / (100 - target) * 100
+        primaryObj.progress = Math.min(100,
+          ((100 - primaryObj.currentValue) / (100 - primaryObj.targetValue)) * 100
         );
+        if (primaryObj.currentValue <= primaryObj.targetValue) {
+          primaryObj.completed = true;
+          storyLogger.log(`🎯 Objective completed: ${primaryObj.label_de}`);
+        }
       }
     }
 
@@ -4123,15 +4160,61 @@ export class StoryEngineAdapter {
   checkGameEnd(): GameEndState | null {
     const stats = this.getEndStats();
     const primaryObjectives = this.objectives.filter(o => o.type === 'primary');
+
+    // FIX 2026-01-14: The survival objective is automatically "completed" if player hasn't lost
+    // Update survival objective status based on current risk
+    const survivalObj = this.objectives.find(o => o.id === 'obj_survive');
+    if (survivalObj) {
+      survivalObj.completed = this.storyResources.risk < survivalObj.targetValue;
+      survivalObj.progress = survivalObj.completed ? 100 : Math.max(0, ((survivalObj.targetValue - this.storyResources.risk) / survivalObj.targetValue) * 100);
+    }
+
     const allCompleted = primaryObjectives.every(o => o.completed);
     const npcArray = Array.from(this.npcStates.values());
     const npcsInCrisis = npcArray.filter(npc => npc.inCrisis).length;
     const allNpcsLost = npcsInCrisis >= npcArray.length - 1; // Almost all NPCs in crisis
 
-    // ENDING 1: Exposure/Defeat - Risk too high
+    // PRIORITY 1: VICTORY - Check objectives first!
+    // If player completed all objectives, they win regardless of risk level
+    // This ensures the player can achieve victory through successful play
+    if (allCompleted) {
+      // Determine victory flavor based on moral weight and risk
+      const isDarkVictory = this.storyResources.moralWeight >= 50;
+      const isNarrowEscape = this.storyResources.risk >= 70;
+
+      storyLogger.log(`🏆 Victory achieved! Objectives completed. Risk: ${this.storyResources.risk}%, Moral: ${this.storyResources.moralWeight}`);
+
+      return {
+        type: 'victory',
+        title_de: isDarkVictory ? 'Pyrrhussieg' : (isNarrowEscape ? 'Knapper Sieg' : 'Mission erfüllt'),
+        title_en: isDarkVictory ? 'Pyrrhic Victory' : (isNarrowEscape ? 'Narrow Victory' : 'Mission Accomplished'),
+        description_de: isDarkVictory
+          ? 'Sie haben Ihre Ziele erreicht - aber zu welchem Preis?'
+          : isNarrowEscape
+            ? 'Gerade noch rechtzeitig. Die Ermittler waren Ihnen dicht auf den Fersen.'
+            : 'Sie haben Ihre Ziele erreicht. Westunion ist destabilisiert.',
+        description_en: isDarkVictory
+          ? 'You have achieved your objectives - but at what cost?'
+          : isNarrowEscape
+            ? 'Just in time. The investigators were closing in.'
+            : 'You have achieved your objectives. Westunion is destabilized.',
+        stats,
+        epilogue_de: isDarkVictory
+          ? 'Westunion ist destabilisiert. Moskau ist zufrieden. Doch nachts verfolgen Sie die Gesichter derer, die Sie geopfert haben.'
+          : isNarrowEscape
+            ? 'Sie werden eilig abgezogen. In Moskau werden Sie als Held empfangen - gerade noch rechtzeitig entkommen.'
+            : 'Westunion ist gespalten. Moskau ist zufrieden. Sie werden befördert und kehren als Held heim.',
+        epilogue_en: isDarkVictory
+          ? 'Westunion is destabilized. Moscow is pleased. But at night, the faces of those you sacrificed haunt you.'
+          : isNarrowEscape
+            ? 'You are hastily extracted. In Moscow you are received as a hero - escaped just in time.'
+            : 'Westunion is divided. Moscow is pleased. You are promoted and return home as a hero.',
+      };
+    }
+
+    // PRIORITY 2: Exposure/Defeat - Risk too high (only if objectives NOT completed)
     if (this.storyResources.risk >= 85) {
-      // Check if player chose to flee (escape ending)
-      // This would be set by a specific consequence choice
+      storyLogger.log(`💀 Defeat: Risk ${this.storyResources.risk}% exceeded threshold. Objectives not completed.`);
       return {
         type: 'defeat',
         title_de: 'Enttarnt',
@@ -4148,8 +4231,7 @@ export class StoryEngineAdapter {
       };
     }
 
-    // ENDING 2: Moral Redemption - High moral weight and player turned
-    // Triggered when moral weight is extremely high and specific conditions are met
+    // PRIORITY 3: Moral Redemption - High moral weight and player turned
     if (this.storyResources.moralWeight >= 80 && allNpcsLost) {
       return {
         type: 'moral_redemption',
@@ -4163,10 +4245,8 @@ export class StoryEngineAdapter {
       };
     }
 
-    // ENDING 3: Escape - Risk is critical but player chose to flee
-    // This can be triggered by specific consequence choices or if risk hits 75-84
+    // PRIORITY 4: Escape - Risk is critical but player chose to flee
     if (this.storyResources.risk >= 75 && this.storyResources.risk < 85 && this.storyResources.moralWeight < 50) {
-      // Check if there's an active escape opportunity (from consequence choice)
       const hasEscapeOpportunity = this.exposureCountdown !== null && this.exposureCountdown <= 1;
 
       if (hasEscapeOpportunity) {
@@ -4183,42 +4263,18 @@ export class StoryEngineAdapter {
       }
     }
 
-    // ENDING 4: Victory - Time limit with objectives completed
+    // PRIORITY 5: Time limit - Only if objectives not completed (victory already handled above)
     if (this.storyPhase.number >= this.PHASES_PER_YEAR * this.MAX_YEARS) {
-      if (allCompleted) {
-        // Determine victory flavor based on moral weight
-        const isDarkVictory = this.storyResources.moralWeight >= 50;
-
-        return {
-          type: 'victory',
-          title_de: isDarkVictory ? 'Pyrrhussieg' : 'Mission erfüllt',
-          title_en: isDarkVictory ? 'Pyrrhic Victory' : 'Mission Accomplished',
-          description_de: isDarkVictory
-            ? 'Sie haben Ihre Ziele erreicht - aber zu welchem Preis?'
-            : 'Nach 10 Jahren haben Sie Ihre Ziele erreicht.',
-          description_en: isDarkVictory
-            ? 'You have achieved your objectives - but at what cost?'
-            : 'After 10 years, you have achieved your objectives.',
-          stats,
-          epilogue_de: isDarkVictory
-            ? 'Westunion ist destabilisiert. Moskau ist zufrieden. Doch nachts verfolgen Sie die Gesichter derer, die Sie geopfert haben.'
-            : 'Westunion ist gespalten. Moskau ist zufrieden. Sie werden befördert und kehren als Held heim.',
-          epilogue_en: isDarkVictory
-            ? 'Westunion is destabilized. Moscow is pleased. But at night, the faces of those you sacrificed haunt you.'
-            : 'Westunion is divided. Moscow is pleased. You are promoted and return home as a hero.',
-        };
-      } else {
-        return {
-          type: 'defeat',
-          title_de: 'Zeit abgelaufen',
-          title_en: 'Time\'s Up',
-          description_de: 'Die Zeit ist abgelaufen, ohne dass die Ziele erreicht wurden.',
-          description_en: 'Time has run out without achieving the objectives.',
-          stats,
-          epilogue_de: 'Sie werden abberufen. Ihre Karriere stagniert. Jüngere Agenten überholen Sie.',
-          epilogue_en: 'You are recalled. Your career stagnates. Younger agents surpass you.',
-        };
-      }
+      return {
+        type: 'defeat',
+        title_de: 'Zeit abgelaufen',
+        title_en: 'Time\'s Up',
+        description_de: 'Die Zeit ist abgelaufen, ohne dass die Ziele erreicht wurden.',
+        description_en: 'Time has run out without achieving the objectives.',
+        stats,
+        epilogue_de: 'Sie werden abberufen. Ihre Karriere stagniert. Jüngere Agenten überholen Sie.',
+        epilogue_en: 'You are recalled. Your career stagnates. Younger agents surpass you.',
+      };
     }
 
     return null;
