@@ -190,6 +190,11 @@ export class ConsequenceSystem {
     const newPending: PendingConsequence[] = [];
     const triggerIds = this.actionTriggers.get(actionId) || [];
 
+    // BALANCE FIX 2026-01-14: Log when action has potential consequences
+    if (triggerIds.length > 0) {
+      storyLogger.log(`🎲 [Consequence] Action "${actionId}" has ${triggerIds.length} potential consequences`);
+    }
+
     for (const consequenceId of triggerIds) {
       const def = this.definitions.get(consequenceId);
       if (!def) continue;
@@ -200,13 +205,25 @@ export class ConsequenceSystem {
       const increasePerUse = def.probability.per_use_increase;
       const maxProbability = def.probability.max ?? 1.0;
 
+      // BALANCE FIX 2026-01-14: Apply minimum probability boost
+      // State actors face consequences - ensure meaningful chance of consequences
+      // Boost: First use gets +0.15, repeated use increases faster
+      const probabilityBoost = 0.15;
+      const boostedBase = baseProbability + probabilityBoost;
+      const boostedIncrease = increasePerUse * 1.5;  // 50% faster increase per use
+
       const probability = Math.min(
-        baseProbability + (count - 1) * increasePerUse,
+        boostedBase + (count - 1) * boostedIncrease,
         maxProbability
       );
 
       // Roll for trigger
-      if (rng() < probability) {
+      const roll = rng();
+
+      // BALANCE FIX 2026-01-14: Debug logging for consequence rolls
+      storyLogger.log(`🎲 [Consequence] Rolling for "${def.label_de}": ${roll.toFixed(3)} < ${probability.toFixed(3)} (base: ${baseProbability}, boost: +${probabilityBoost}) = ${roll < probability ? 'TRIGGERED!' : 'miss'}`);
+
+      if (roll < probability) {
         // Calculate activation phase
         const delay = def.delay.min_phases +
           Math.floor(rng() * (def.delay.max_phases - def.delay.min_phases + 1));
