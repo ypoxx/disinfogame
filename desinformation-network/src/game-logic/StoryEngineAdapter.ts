@@ -567,6 +567,9 @@ export class StoryEngineAdapter {
 
   private initializeObjectives(): void {
     // TODO: Load from scenario definition
+    // BALANCE 2026-01-14: Adjusted for ~20 phase game length with ~40-60% win rate
+    // - Start trust: 100%
+    // - Target trust: 40% (requires 60 points progress)
     this.objectives = [
       {
         id: 'obj_destabilize',
@@ -578,8 +581,8 @@ export class StoryEngineAdapter {
         completed: false,
         type: 'primary',
         category: 'trust_reduction',
-        targetValue: 40,
-        currentValue: 75,
+        targetValue: 40,      // Target: 40% trust (easier to achieve)
+        currentValue: 100,    // Start: 100% trust
       },
       {
         id: 'obj_survive',
@@ -2512,11 +2515,11 @@ export class StoryEngineAdapter {
       // Boost primary objective progress - DECREASE trust (currentValue goes down)
       const primaryObj = this.objectives.find(o => o.id === 'obj_destabilize');
       if (primaryObj) {
-        // FIX 2026-01-14: Decrease currentValue (trust goes DOWN when destabilizing)
-        primaryObj.currentValue = Math.max(0, primaryObj.currentValue - damage * 0.5);
-        // Update progress and completion
+        // BALANCE 2026-01-14: Tuned for ~40-60% win rate at 20 phases
+        primaryObj.currentValue = Math.max(0, primaryObj.currentValue - damage * 0.75);
+        // Update progress: (100 - current) / (100 - target) * 100
         primaryObj.progress = Math.min(100,
-          ((75 - primaryObj.currentValue) / (75 - primaryObj.targetValue)) * 100
+          ((100 - primaryObj.currentValue) / (100 - primaryObj.targetValue)) * 100
         );
         if (primaryObj.currentValue <= primaryObj.targetValue) {
           primaryObj.completed = true;
@@ -2540,11 +2543,11 @@ export class StoryEngineAdapter {
           // These regional tensions contribute to overall destabilization
           const primaryObj = this.objectives.find(o => o.id === 'obj_destabilize');
           if (primaryObj) {
-            // FIX 2026-01-14: Decrease currentValue (trust goes DOWN when destabilizing)
-            primaryObj.currentValue = Math.max(0, primaryObj.currentValue - (value as number) * 0.2);
-            // Update progress and completion
+            // BALANCE 2026-01-14: Tuned for ~40-60% win rate at 20 phases
+            primaryObj.currentValue = Math.max(0, primaryObj.currentValue - (value as number) * 0.25);
+            // Update progress: (100 - current) / (100 - target) * 100
             primaryObj.progress = Math.min(100,
-              ((75 - primaryObj.currentValue) / (75 - primaryObj.targetValue)) * 100
+              ((100 - primaryObj.currentValue) / (100 - primaryObj.targetValue)) * 100
             );
             if (primaryObj.currentValue <= primaryObj.targetValue) {
               primaryObj.completed = true;
@@ -3433,12 +3436,15 @@ export class StoryEngineAdapter {
       // Update primary objective progress
       const destabilizeObj = this.objectives.find(o => o.id === 'obj_destabilize');
       if (destabilizeObj) {
-        destabilizeObj.currentValue = Math.max(0, destabilizeObj.currentValue - trustErosionValue);
+        // BALANCE 2026-01-14: Tuned for ~40-60% win rate at 20 phases
+        destabilizeObj.currentValue = Math.max(0, destabilizeObj.currentValue - trustErosionValue * 1.25);
+        // Update progress: (100 - current) / (100 - target) * 100
         destabilizeObj.progress = Math.min(100,
-          ((75 - destabilizeObj.currentValue) / (75 - destabilizeObj.targetValue)) * 100
+          ((100 - destabilizeObj.currentValue) / (100 - destabilizeObj.targetValue)) * 100
         );
         if (destabilizeObj.currentValue <= destabilizeObj.targetValue) {
           destabilizeObj.completed = true;
+          storyLogger.log(`🎯 Objective completed: ${destabilizeObj.label_de}`);
         }
       }
     }
@@ -3773,13 +3779,20 @@ export class StoryEngineAdapter {
     const bonus = combo.bonus;
 
     // Trust reduction -> affects primary objective
+    // BALANCE FIX 2026-01-14: Changed + to - (trust goes DOWN) and tuned multiplier
     if (bonus.trustReduction) {
       const trustObj = this.objectives.find(o => o.category === 'trust_reduction');
       if (trustObj) {
-        trustObj.currentValue = Math.min(
-          trustObj.targetValue,
-          trustObj.currentValue + bonus.trustReduction * 100
+        // Decrease trust by combo bonus (multiplier: 50 for ~40-60% win rate at 20 phases)
+        trustObj.currentValue = Math.max(0, trustObj.currentValue - bonus.trustReduction * 50);
+        // Update progress: (100 - current) / (100 - target) * 100
+        trustObj.progress = Math.min(100,
+          ((100 - trustObj.currentValue) / (100 - trustObj.targetValue)) * 100
         );
+        if (trustObj.currentValue <= trustObj.targetValue) {
+          trustObj.completed = true;
+          storyLogger.log(`🎯 Objective completed via combo: ${trustObj.label_de}`);
+        }
       }
     }
 
@@ -3787,11 +3800,11 @@ export class StoryEngineAdapter {
     if (bonus.polarizationBonus) {
       const primaryObj = this.objectives.find(o => o.id === 'obj_destabilize');
       if (primaryObj) {
-        // FIX 2026-01-14: Decrease currentValue (trust goes DOWN when destabilizing)
-        primaryObj.currentValue = Math.max(0, primaryObj.currentValue - bonus.polarizationBonus * 50);
-        // Update progress and completion
+        // BALANCE 2026-01-14: Tuned for ~40-60% win rate at 20 phases
+        primaryObj.currentValue = Math.max(0, primaryObj.currentValue - bonus.polarizationBonus * 25);
+        // Update progress: (100 - current) / (100 - target) * 100
         primaryObj.progress = Math.min(100,
-          ((75 - primaryObj.currentValue) / (75 - primaryObj.targetValue)) * 100
+          ((100 - primaryObj.currentValue) / (100 - primaryObj.targetValue)) * 100
         );
         if (primaryObj.currentValue <= primaryObj.targetValue) {
           primaryObj.completed = true;
