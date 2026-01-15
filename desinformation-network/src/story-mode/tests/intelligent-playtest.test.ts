@@ -36,7 +36,7 @@ interface ActionCandidate {
     attention?: number;
     moralWeight?: number;
   };
-  npcAffinity?: string;
+  npcAffinity?: string[];
   unlocks?: string[];
   available: boolean;
 }
