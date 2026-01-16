@@ -1,0 +1,904 @@
+.article-notes {
+  margin: 0.6em 0 2em;
+  text-align: left;
+}
+.corresp > img.icon {
+  margin: 0 0.4em;
+  width: 1.4em;
+  vertical-align: bottom;
+}
+.core-biographies {
+  clear: both;
+  margin-bottom: 1em;
+  text-align: justify;
+}
+.core-biographies .core-biography {
+  overflow: auto;
+}
+.core-biographies .core-biography span.inline-graphic:first-of-type > img {
+  float: left;
+  margin: 0 0.75em 0.25em 0;
+  width: 8em;
+}
+.core-biographies .core-biography span.subject {
+  font-family: sans-serif;
+  font-size: 0.95em;
+  font-style: italic;
+  font-weight: 600;
+}
+.core-license {
+  font-size: 0.9em;
+}
+[role='doc-abstract'] {
+  background-color: #eee;
+  font-family: sans-serif;
+  padding: 0.6em;
+}
+[role='doc-abstract'] div[role='paragraph'] {
+  text-indent: 0;
+}
+[role='doc-abstract'].compound {
+  margin-bottom: 0.6em;
+}
+a {
+  color: #10147e;
+  text-decoration: underline;
+}
+a:hover {
+  color: #006db4;
+}
+div[role='list'] {
+  margin: 1em 0 1em 1.4em;
+}
+div[role='paragraph']:first-of-type {
+  text-indent: 0;
+}
+div[role='paragraph'] + section {
+  margin-top: 2em !important;
+}
+div.ahk {
+  font-size: 0.85em;
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 2em 0;
+}
+div.affiliations {
+  font-size: 0.8em;
+  text-align: left;
+}
+div.affiliations > div {
+  display: inline;
+  margin: 0 0.4em 0 0;
+}
+div.copyright {
+  font-size: 0.9em;
+  margin: 0.4em 0 0;
+}
+div[data-has~='label'] > div.label {
+  text-align: right;
+}
+figure > div.table-wrap > table > thead tr > th {
+  font-weight: 100;
+  vertical-align: top;
+}
+figure > div.table-wrap > table td,
+figure > div.table-wrap > table th {
+  padding: 0.3em 0.1em;
+}
+figure > div.table-wrap > table th[colspan]:empty {
+  border-bottom: none;
+}
+figure.statement[data-type='proof'] {
+  font-style: normal;
+}
+figure.statement[data-type='proof'] figcaption {
+  font-style: italic;
+}
+.heading,
+h1:not([data-style-of]),
+[data-style-of='h1'],
+h2:not([data-style-of]),
+[data-style-of='h2'],
+h3:not([data-style-of]),
+[data-style-of='h3'],
+h4:not([data-style-of]),
+[data-style-of='h4'] {
+  font-family: sans-serif;
+  font-weight: 600;
+}
+h1:not([data-style-of]),
+[data-style-of='h1'] {
+  font-size: 1.2em;
+}
+h2:not([data-style-of]),
+[data-style-of='h2'],
+h3:not([data-style-of]),
+[data-style-of='h3'],
+h4:not([data-style-of]),
+[data-style-of='h4'],
+h5:not([data-style-of]),
+[data-style-of='h5'] {
+  font-size: 1em;
+  margin: 0 0 0.5em;
+}
+h3:not([data-style-of]),
+[data-style-of='h3'] {
+  font-style: italic;
+}
+h4:not([data-style-of]),
+[data-style-of='h4'],
+h5:not([data-style-of]),
+[data-style-of='h5'] {
+  font-weight: 400;
+}
+h4:not([data-style-of]),
+[data-style-of='h4'] {
+  display: block;
+  margin: 0;
+}
+h5:not([data-style-of]),
+[data-style-of='h5'] {
+  margin: 0 0.5em 0 0;
+}
+h5:not([data-style-of]) > em,
+[data-style-of='h5'] > em {
+  font-style: normal;
+}
+header {
+  margin: 0;
+}
+header div.core-license.open-access {
+  display: block;
+  text-align: right;
+  padding: 0.5em 0 0;
+}
+header div.core-license.open-access a img {
+  height: 1.5625rem;
+  width: 6.125rem;
+}
+hr {
+  height: 2px;
+  margin: 0;
+  width: 100%;
+}
+section section section section {
+  margin: 0.4em 0 1.5em !important;
+}
+section[role='doc-bibliography'] div[role='list'] {
+  margin: 0.5em 0;
+}
+section[role='doc-bibliography'] div[role='list'] div[role~='listitem'] div.citations {
+  padding: 0 0 0.2em 2em;
+  line-height: 1.1;
+}
+section[data-extent='backmatter'] {
+  text-align: left;
+}
+section[data-extent='backmatter'] h2:not([data-style-of]),
+section[data-extent='backmatter'] [data-style-of='h2'] {
+  font-size: 1.111em;
+}
+section[data-extent='backmatter'] .article-notes {
+  font-size: 0.9em;
+}
+section[data-extent='backmatter'] section[role='doc-acknowledgments'] {
+  text-align: justify;
+}
+section[data-extent='frontmatter'] {
+  font-family: sans-serif;
+}
+section[data-extent='frontmatter'] .heading,
+section[data-extent='frontmatter'] h2:not([data-style-of]),
+section[data-extent='frontmatter'] [data-style-of='h2'],
+section[data-extent='frontmatter'] h3:not([data-style-of]),
+section[data-extent='frontmatter'] [data-style-of='h3'] {
+  font-size: 0.9em;
+  font-style: normal;
+  margin: 0 0 0.2em;
+  text-transform: uppercase;
+}
+body.nonlinear figure figcaption div[role='paragraph'],
+section.media-abstract figure figcaption div[role='paragraph'] {
+  text-indent: 0;
+  display: block;
+  margin: 0.5em 0;
+}
+span.inline-graphic > img {
+  margin: 1em;
+}
+#authors {
+  font-size: 0.9em;
+  text-align: left;
+}
+#masthead {
+  border-bottom: 2px solid #aaa;
+  margin: 0;
+  padding: 0 0 0.5em;
+  text-align: left;
+}
+#masthead > div.citation {
+  text-transform: uppercase;
+}
+#masthead > div.logo {
+  display: none;
+}
+@media only screen and (min-width: 532px) {
+  header div.core-license.open-access {
+    padding: 1em 0 0;
+  }
+  h1:not([data-style-of]),
+  [data-style-of='h1'] {
+    margin-top: 2em;
+  }
+  #masthead > div.logo {
+    display: block;
+  }
+  #masthead > div.logo > img {
+    height: 4em;
+    max-height: 65px;
+    max-width: 260px;
+    width: 16em;
+  }
+}
+@media only screen and (min-width: 768px) {
+  [role='doc-abstract'] {
+    padding: 1em;
+  }
+}
+@media only screen and (min-width: 992px) {
+  [role='doc-abstract'] {
+    padding: 1.2em 1.4em;
+  }
+}
+body[data-design='routledge'] {
+  font-family: serif;
+}
+body[data-design='routledge'] #masthead > div.logo > img {
+  width: 14em;
+  max-width: 227.5px;
+}
+body[data-theme='custom-blue'] [role='doc-abstract'] {
+  background-color: #eef2fd;
+}
+body[data-theme='custom-blue'] .core-biographies span.subject {
+  color: #043b80;
+}
+body[data-theme='custom-blue'] figure > div.table-wrap > table {
+  border-color: #043b80;
+}
+body[data-theme='custom-blue'] figure > div.table-wrap > table > thead {
+  border-bottom: solid 2px #043b80;
+}
+body[data-theme='custom-blue'] figure > div.table-wrap > table tr > th[colspan] {
+  border-color: #043b80;
+}
+body[data-theme='custom-blue'] figure > div.table-wrap > table tr > th[colspan] span {
+  border-color: #043b80;
+}
+body[data-theme='custom-blue'] figure.graphic > figcaption span.heading,
+body[data-theme='custom-blue'] figure.table > figcaption span.heading {
+  color: #043b80;
+}
+body[data-theme='custom-blue'] figure.statement figcaption {
+  color: #043b80;
+}
+body[data-theme='custom-blue'] .heading,
+body[data-theme='custom-blue'] h1:not([data-style-of]),
+body[data-theme='custom-blue'] [data-style-of='h1'],
+body[data-theme='custom-blue'] h2:not([data-style-of]),
+body[data-theme='custom-blue'] [data-style-of='h2'],
+body[data-theme='custom-blue'] h3:not([data-style-of]),
+body[data-theme='custom-blue'] [data-style-of='h3'],
+body[data-theme='custom-blue'] h4:not([data-style-of]),
+body[data-theme='custom-blue'] [data-style-of='h4'],
+body[data-theme='custom-blue'] h5:not([data-style-of]),
+body[data-theme='custom-blue'] [data-style-of='h5'] {
+  color: #043b80;
+}
+body[data-theme='custom-blue'] .heading a,
+body[data-theme='custom-blue'] h1:not([data-style-of]) a,
+body[data-theme='custom-blue'] [data-style-of='h1'] a,
+body[data-theme='custom-blue'] h2:not([data-style-of]) a,
+body[data-theme='custom-blue'] [data-style-of='h2'] a,
+body[data-theme='custom-blue'] h3:not([data-style-of]) a,
+body[data-theme='custom-blue'] [data-style-of='h3'] a,
+body[data-theme='custom-blue'] h4:not([data-style-of]) a,
+body[data-theme='custom-blue'] [data-style-of='h4'] a,
+body[data-theme='custom-blue'] h5:not([data-style-of]) a,
+body[data-theme='custom-blue'] [data-style-of='h5'] a {
+  color: #043b80;
+}
+body[data-theme='custom-blue'] hr {
+  background-color: #043b80;
+}
+body[data-theme='custom-blue'] #masthead {
+  border-color: #043b80;
+  min-height: 5em;
+}
+body[data-theme='custom-blue'] [role='doc-abstract'] {
+  border: solid 1px #ced1e5;
+}
+body[data-theme='custom-blue'] #masthead {
+  border-color: #da1e48;
+  border-width: 4px;
+}
+body[data-theme='custom-darkred'] [role='doc-abstract'] {
+  background-color: #f3e2de;
+}
+body[data-theme='custom-darkred'] .core-biographies span.subject {
+  color: #91372a;
+}
+body[data-theme='custom-darkred'] figure > div.table-wrap > table {
+  border-color: #91372a;
+}
+body[data-theme='custom-darkred'] figure > div.table-wrap > table > thead {
+  border-bottom: solid 2px #91372a;
+}
+body[data-theme='custom-darkred'] figure > div.table-wrap > table tr > th[colspan] {
+  border-color: #91372a;
+}
+body[data-theme='custom-darkred'] figure > div.table-wrap > table tr > th[colspan] span {
+  border-color: #91372a;
+}
+body[data-theme='custom-darkred'] figure.graphic > figcaption span.heading,
+body[data-theme='custom-darkred'] figure.table > figcaption span.heading {
+  color: #91372a;
+}
+body[data-theme='custom-darkred'] figure.statement figcaption {
+  color: #91372a;
+}
+body[data-theme='custom-darkred'] .heading,
+body[data-theme='custom-darkred'] h1:not([data-style-of]),
+body[data-theme='custom-darkred'] [data-style-of='h1'],
+body[data-theme='custom-darkred'] h2:not([data-style-of]),
+body[data-theme='custom-darkred'] [data-style-of='h2'],
+body[data-theme='custom-darkred'] h3:not([data-style-of]),
+body[data-theme='custom-darkred'] [data-style-of='h3'],
+body[data-theme='custom-darkred'] h4:not([data-style-of]),
+body[data-theme='custom-darkred'] [data-style-of='h4'],
+body[data-theme='custom-darkred'] h5:not([data-style-of]),
+body[data-theme='custom-darkred'] [data-style-of='h5'] {
+  color: #91372a;
+}
+body[data-theme='custom-darkred'] .heading a,
+body[data-theme='custom-darkred'] h1:not([data-style-of]) a,
+body[data-theme='custom-darkred'] [data-style-of='h1'] a,
+body[data-theme='custom-darkred'] h2:not([data-style-of]) a,
+body[data-theme='custom-darkred'] [data-style-of='h2'] a,
+body[data-theme='custom-darkred'] h3:not([data-style-of]) a,
+body[data-theme='custom-darkred'] [data-style-of='h3'] a,
+body[data-theme='custom-darkred'] h4:not([data-style-of]) a,
+body[data-theme='custom-darkred'] [data-style-of='h4'] a,
+body[data-theme='custom-darkred'] h5:not([data-style-of]) a,
+body[data-theme='custom-darkred'] [data-style-of='h5'] a {
+  color: #91372a;
+}
+body[data-theme='custom-darkred'] hr {
+  background-color: #91372a;
+}
+body[data-theme='custom-darkred'] #masthead {
+  border-color: #91372a;
+  min-height: 5em;
+}
+body[data-theme='custom-red'] [role='doc-abstract'] {
+  background-color: #f3e2de;
+}
+body[data-theme='custom-red'] .core-biographies span.subject {
+  color: #b30738;
+}
+body[data-theme='custom-red'] figure > div.table-wrap > table {
+  border-color: #b30738;
+}
+body[data-theme='custom-red'] figure > div.table-wrap > table > thead {
+  border-bottom: solid 2px #b30738;
+}
+body[data-theme='custom-red'] figure > div.table-wrap > table tr > th[colspan] {
+  border-color: #b30738;
+}
+body[data-theme='custom-red'] figure > div.table-wrap > table tr > th[colspan] span {
+  border-color: #b30738;
+}
+body[data-theme='custom-red'] figure.graphic > figcaption span.heading,
+body[data-theme='custom-red'] figure.table > figcaption span.heading {
+  color: #b30738;
+}
+body[data-theme='custom-red'] figure.statement figcaption {
+  color: #b30738;
+}
+body[data-theme='custom-red'] .heading,
+body[data-theme='custom-red'] h1:not([data-style-of]),
+body[data-theme='custom-red'] [data-style-of='h1'],
+body[data-theme='custom-red'] h2:not([data-style-of]),
+body[data-theme='custom-red'] [data-style-of='h2'],
+body[data-theme='custom-red'] h3:not([data-style-of]),
+body[data-theme='custom-red'] [data-style-of='h3'],
+body[data-theme='custom-red'] h4:not([data-style-of]),
+body[data-theme='custom-red'] [data-style-of='h4'],
+body[data-theme='custom-red'] h5:not([data-style-of]),
+body[data-theme='custom-red'] [data-style-of='h5'] {
+  color: #b30738;
+}
+body[data-theme='custom-red'] .heading a,
+body[data-theme='custom-red'] h1:not([data-style-of]) a,
+body[data-theme='custom-red'] [data-style-of='h1'] a,
+body[data-theme='custom-red'] h2:not([data-style-of]) a,
+body[data-theme='custom-red'] [data-style-of='h2'] a,
+body[data-theme='custom-red'] h3:not([data-style-of]) a,
+body[data-theme='custom-red'] [data-style-of='h3'] a,
+body[data-theme='custom-red'] h4:not([data-style-of]) a,
+body[data-theme='custom-red'] [data-style-of='h4'] a,
+body[data-theme='custom-red'] h5:not([data-style-of]) a,
+body[data-theme='custom-red'] [data-style-of='h5'] a {
+  color: #b30738;
+}
+body[data-theme='custom-red'] hr {
+  background-color: #b30738;
+}
+body[data-theme='custom-red'] #masthead {
+  border-color: #b30738;
+  min-height: 5em;
+}
+body[data-theme='green'] [role='doc-abstract'] {
+  background-color: #edf3ec;
+}
+body[data-theme='green'] .core-biographies span.subject {
+  color: #4a773c;
+}
+body[data-theme='green'] figure > div.table-wrap > table {
+  border-color: #4a773c;
+}
+body[data-theme='green'] figure > div.table-wrap > table > thead {
+  border-bottom: solid 2px #4a773c;
+}
+body[data-theme='green'] figure > div.table-wrap > table tr > th[colspan] {
+  border-color: #4a773c;
+}
+body[data-theme='green'] figure > div.table-wrap > table tr > th[colspan] span {
+  border-color: #4a773c;
+}
+body[data-theme='green'] figure.graphic > figcaption span.heading,
+body[data-theme='green'] figure.table > figcaption span.heading {
+  color: #4a773c;
+}
+body[data-theme='green'] figure.statement figcaption {
+  color: #4a773c;
+}
+body[data-theme='green'] .heading,
+body[data-theme='green'] h1:not([data-style-of]),
+body[data-theme='green'] [data-style-of='h1'],
+body[data-theme='green'] h2:not([data-style-of]),
+body[data-theme='green'] [data-style-of='h2'],
+body[data-theme='green'] h3:not([data-style-of]),
+body[data-theme='green'] [data-style-of='h3'],
+body[data-theme='green'] h4:not([data-style-of]),
+body[data-theme='green'] [data-style-of='h4'],
+body[data-theme='green'] h5:not([data-style-of]),
+body[data-theme='green'] [data-style-of='h5'] {
+  color: #4a773c;
+}
+body[data-theme='green'] .heading a,
+body[data-theme='green'] h1:not([data-style-of]) a,
+body[data-theme='green'] [data-style-of='h1'] a,
+body[data-theme='green'] h2:not([data-style-of]) a,
+body[data-theme='green'] [data-style-of='h2'] a,
+body[data-theme='green'] h3:not([data-style-of]) a,
+body[data-theme='green'] [data-style-of='h3'] a,
+body[data-theme='green'] h4:not([data-style-of]) a,
+body[data-theme='green'] [data-style-of='h4'] a,
+body[data-theme='green'] h5:not([data-style-of]) a,
+body[data-theme='green'] [data-style-of='h5'] a {
+  color: #4a773c;
+}
+body[data-theme='green'] hr {
+  background-color: #4a773c;
+}
+body[data-theme='green'] #masthead {
+  border-color: #4a773c;
+  min-height: 5em;
+}
+body[data-theme='light-blue'] [role='doc-abstract'] {
+  background-color: #eef1f7;
+}
+body[data-theme='light-blue'] .core-biographies span.subject {
+  color: #5477b3;
+}
+body[data-theme='light-blue'] figure > div.table-wrap > table {
+  border-color: #5477b3;
+}
+body[data-theme='light-blue'] figure > div.table-wrap > table > thead {
+  border-bottom: solid 2px #5477b3;
+}
+body[data-theme='light-blue'] figure > div.table-wrap > table tr > th[colspan] {
+  border-color: #5477b3;
+}
+body[data-theme='light-blue'] figure > div.table-wrap > table tr > th[colspan] span {
+  border-color: #5477b3;
+}
+body[data-theme='light-blue'] figure.graphic > figcaption span.heading,
+body[data-theme='light-blue'] figure.table > figcaption span.heading {
+  color: #5477b3;
+}
+body[data-theme='light-blue'] figure.statement figcaption {
+  color: #5477b3;
+}
+body[data-theme='light-blue'] .heading,
+body[data-theme='light-blue'] h1:not([data-style-of]),
+body[data-theme='light-blue'] [data-style-of='h1'],
+body[data-theme='light-blue'] h2:not([data-style-of]),
+body[data-theme='light-blue'] [data-style-of='h2'],
+body[data-theme='light-blue'] h3:not([data-style-of]),
+body[data-theme='light-blue'] [data-style-of='h3'],
+body[data-theme='light-blue'] h4:not([data-style-of]),
+body[data-theme='light-blue'] [data-style-of='h4'],
+body[data-theme='light-blue'] h5:not([data-style-of]),
+body[data-theme='light-blue'] [data-style-of='h5'] {
+  color: #5477b3;
+}
+body[data-theme='light-blue'] .heading a,
+body[data-theme='light-blue'] h1:not([data-style-of]) a,
+body[data-theme='light-blue'] [data-style-of='h1'] a,
+body[data-theme='light-blue'] h2:not([data-style-of]) a,
+body[data-theme='light-blue'] [data-style-of='h2'] a,
+body[data-theme='light-blue'] h3:not([data-style-of]) a,
+body[data-theme='light-blue'] [data-style-of='h3'] a,
+body[data-theme='light-blue'] h4:not([data-style-of]) a,
+body[data-theme='light-blue'] [data-style-of='h4'] a,
+body[data-theme='light-blue'] h5:not([data-style-of]) a,
+body[data-theme='light-blue'] [data-style-of='h5'] a {
+  color: #5477b3;
+}
+body[data-theme='light-blue'] hr {
+  background-color: #5477b3;
+}
+body[data-theme='light-blue'] #masthead {
+  border-color: #5477b3;
+  min-height: 5em;
+}
+body[data-theme='navy-blue'] [role='doc-abstract'] {
+  background-color: #e9eaed;
+}
+body[data-theme='navy-blue'] .core-biographies span.subject {
+  color: #262c4d;
+}
+body[data-theme='navy-blue'] figure > div.table-wrap > table {
+  border-color: #262c4d;
+}
+body[data-theme='navy-blue'] figure > div.table-wrap > table > thead {
+  border-bottom: solid 2px #262c4d;
+}
+body[data-theme='navy-blue'] figure > div.table-wrap > table tr > th[colspan] {
+  border-color: #262c4d;
+}
+body[data-theme='navy-blue'] figure > div.table-wrap > table tr > th[colspan] span {
+  border-color: #262c4d;
+}
+body[data-theme='navy-blue'] figure.graphic > figcaption span.heading,
+body[data-theme='navy-blue'] figure.table > figcaption span.heading {
+  color: #262c4d;
+}
+body[data-theme='navy-blue'] figure.statement figcaption {
+  color: #262c4d;
+}
+body[data-theme='navy-blue'] .heading,
+body[data-theme='navy-blue'] h1:not([data-style-of]),
+body[data-theme='navy-blue'] [data-style-of='h1'],
+body[data-theme='navy-blue'] h2:not([data-style-of]),
+body[data-theme='navy-blue'] [data-style-of='h2'],
+body[data-theme='navy-blue'] h3:not([data-style-of]),
+body[data-theme='navy-blue'] [data-style-of='h3'],
+body[data-theme='navy-blue'] h4:not([data-style-of]),
+body[data-theme='navy-blue'] [data-style-of='h4'],
+body[data-theme='navy-blue'] h5:not([data-style-of]),
+body[data-theme='navy-blue'] [data-style-of='h5'] {
+  color: #262c4d;
+}
+body[data-theme='navy-blue'] .heading a,
+body[data-theme='navy-blue'] h1:not([data-style-of]) a,
+body[data-theme='navy-blue'] [data-style-of='h1'] a,
+body[data-theme='navy-blue'] h2:not([data-style-of]) a,
+body[data-theme='navy-blue'] [data-style-of='h2'] a,
+body[data-theme='navy-blue'] h3:not([data-style-of]) a,
+body[data-theme='navy-blue'] [data-style-of='h3'] a,
+body[data-theme='navy-blue'] h4:not([data-style-of]) a,
+body[data-theme='navy-blue'] [data-style-of='h4'] a,
+body[data-theme='navy-blue'] h5:not([data-style-of]) a,
+body[data-theme='navy-blue'] [data-style-of='h5'] a {
+  color: #262c4d;
+}
+body[data-theme='navy-blue'] hr {
+  background-color: #262c4d;
+}
+body[data-theme='navy-blue'] #masthead {
+  border-color: #262c4d;
+  min-height: 5em;
+}
+body[data-theme='orange'] [role='doc-abstract'] {
+  background-color: #fdf4f2;
+}
+body[data-theme='orange'] .core-biographies span.subject {
+  color: #c04b11;
+}
+body[data-theme='orange'] figure > div.table-wrap > table {
+  border-color: #c04b11;
+}
+body[data-theme='orange'] figure > div.table-wrap > table > thead {
+  border-bottom: solid 2px #c04b11;
+}
+body[data-theme='orange'] figure > div.table-wrap > table tr > th[colspan] {
+  border-color: #c04b11;
+}
+body[data-theme='orange'] figure > div.table-wrap > table tr > th[colspan] span {
+  border-color: #c04b11;
+}
+body[data-theme='orange'] figure.graphic > figcaption span.heading,
+body[data-theme='orange'] figure.table > figcaption span.heading {
+  color: #c04b11;
+}
+body[data-theme='orange'] figure.statement figcaption {
+  color: #c04b11;
+}
+body[data-theme='orange'] .heading,
+body[data-theme='orange'] h1:not([data-style-of]),
+body[data-theme='orange'] [data-style-of='h1'],
+body[data-theme='orange'] h2:not([data-style-of]),
+body[data-theme='orange'] [data-style-of='h2'],
+body[data-theme='orange'] h3:not([data-style-of]),
+body[data-theme='orange'] [data-style-of='h3'],
+body[data-theme='orange'] h4:not([data-style-of]),
+body[data-theme='orange'] [data-style-of='h4'],
+body[data-theme='orange'] h5:not([data-style-of]),
+body[data-theme='orange'] [data-style-of='h5'] {
+  color: #c04b11;
+}
+body[data-theme='orange'] .heading a,
+body[data-theme='orange'] h1:not([data-style-of]) a,
+body[data-theme='orange'] [data-style-of='h1'] a,
+body[data-theme='orange'] h2:not([data-style-of]) a,
+body[data-theme='orange'] [data-style-of='h2'] a,
+body[data-theme='orange'] h3:not([data-style-of]) a,
+body[data-theme='orange'] [data-style-of='h3'] a,
+body[data-theme='orange'] h4:not([data-style-of]) a,
+body[data-theme='orange'] [data-style-of='h4'] a,
+body[data-theme='orange'] h5:not([data-style-of]) a,
+body[data-theme='orange'] [data-style-of='h5'] a {
+  color: #c04b11;
+}
+body[data-theme='orange'] hr {
+  background-color: #c04b11;
+}
+body[data-theme='orange'] #masthead {
+  border-color: #c04b11;
+  min-height: 5em;
+}
+body[data-theme='purple'] [role='doc-abstract'] {
+  background-color: #f1f0f5;
+}
+body[data-theme='purple'] .core-biographies span.subject {
+  color: #71659f;
+}
+body[data-theme='purple'] figure > div.table-wrap > table {
+  border-color: #71659f;
+}
+body[data-theme='purple'] figure > div.table-wrap > table > thead {
+  border-bottom: solid 2px #71659f;
+}
+body[data-theme='purple'] figure > div.table-wrap > table tr > th[colspan] {
+  border-color: #71659f;
+}
+body[data-theme='purple'] figure > div.table-wrap > table tr > th[colspan] span {
+  border-color: #71659f;
+}
+body[data-theme='purple'] figure.graphic > figcaption span.heading,
+body[data-theme='purple'] figure.table > figcaption span.heading {
+  color: #71659f;
+}
+body[data-theme='purple'] figure.statement figcaption {
+  color: #71659f;
+}
+body[data-theme='purple'] .heading,
+body[data-theme='purple'] h1:not([data-style-of]),
+body[data-theme='purple'] [data-style-of='h1'],
+body[data-theme='purple'] h2:not([data-style-of]),
+body[data-theme='purple'] [data-style-of='h2'],
+body[data-theme='purple'] h3:not([data-style-of]),
+body[data-theme='purple'] [data-style-of='h3'],
+body[data-theme='purple'] h4:not([data-style-of]),
+body[data-theme='purple'] [data-style-of='h4'],
+body[data-theme='purple'] h5:not([data-style-of]),
+body[data-theme='purple'] [data-style-of='h5'] {
+  color: #71659f;
+}
+body[data-theme='purple'] .heading a,
+body[data-theme='purple'] h1:not([data-style-of]) a,
+body[data-theme='purple'] [data-style-of='h1'] a,
+body[data-theme='purple'] h2:not([data-style-of]) a,
+body[data-theme='purple'] [data-style-of='h2'] a,
+body[data-theme='purple'] h3:not([data-style-of]) a,
+body[data-theme='purple'] [data-style-of='h3'] a,
+body[data-theme='purple'] h4:not([data-style-of]) a,
+body[data-theme='purple'] [data-style-of='h4'] a,
+body[data-theme='purple'] h5:not([data-style-of]) a,
+body[data-theme='purple'] [data-style-of='h5'] a {
+  color: #71659f;
+}
+body[data-theme='purple'] hr {
+  background-color: #71659f;
+}
+body[data-theme='purple'] #masthead {
+  border-color: #71659f;
+  min-height: 5em;
+}
+body[data-theme='red'] [role='doc-abstract'] {
+  background-color: #f2e9e9;
+}
+body[data-theme='red'] .core-biographies span.subject {
+  color: #851f29;
+}
+body[data-theme='red'] figure > div.table-wrap > table {
+  border-color: #851f29;
+}
+body[data-theme='red'] figure > div.table-wrap > table > thead {
+  border-bottom: solid 2px #851f29;
+}
+body[data-theme='red'] figure > div.table-wrap > table tr > th[colspan] {
+  border-color: #851f29;
+}
+body[data-theme='red'] figure > div.table-wrap > table tr > th[colspan] span {
+  border-color: #851f29;
+}
+body[data-theme='red'] figure.graphic > figcaption span.heading,
+body[data-theme='red'] figure.table > figcaption span.heading {
+  color: #851f29;
+}
+body[data-theme='red'] figure.statement figcaption {
+  color: #851f29;
+}
+body[data-theme='red'] .heading,
+body[data-theme='red'] h1:not([data-style-of]),
+body[data-theme='red'] [data-style-of='h1'],
+body[data-theme='red'] h2:not([data-style-of]),
+body[data-theme='red'] [data-style-of='h2'],
+body[data-theme='red'] h3:not([data-style-of]),
+body[data-theme='red'] [data-style-of='h3'],
+body[data-theme='red'] h4:not([data-style-of]),
+body[data-theme='red'] [data-style-of='h4'],
+body[data-theme='red'] h5:not([data-style-of]),
+body[data-theme='red'] [data-style-of='h5'] {
+  color: #851f29;
+}
+body[data-theme='red'] .heading a,
+body[data-theme='red'] h1:not([data-style-of]) a,
+body[data-theme='red'] [data-style-of='h1'] a,
+body[data-theme='red'] h2:not([data-style-of]) a,
+body[data-theme='red'] [data-style-of='h2'] a,
+body[data-theme='red'] h3:not([data-style-of]) a,
+body[data-theme='red'] [data-style-of='h3'] a,
+body[data-theme='red'] h4:not([data-style-of]) a,
+body[data-theme='red'] [data-style-of='h4'] a,
+body[data-theme='red'] h5:not([data-style-of]) a,
+body[data-theme='red'] [data-style-of='h5'] a {
+  color: #851f29;
+}
+body[data-theme='red'] hr {
+  background-color: #851f29;
+}
+body[data-theme='red'] #masthead {
+  border-color: #851f29;
+  min-height: 5em;
+}
+body[data-theme='royal-blue'] [role='doc-abstract'] {
+  background-color: #e7e9f3;
+}
+body[data-theme='royal-blue'] .core-biographies span.subject {
+  color: #060c81;
+}
+body[data-theme='royal-blue'] figure > div.table-wrap > table {
+  border-color: #060c81;
+}
+body[data-theme='royal-blue'] figure > div.table-wrap > table > thead {
+  border-bottom: solid 2px #060c81;
+}
+body[data-theme='royal-blue'] figure > div.table-wrap > table tr > th[colspan] {
+  border-color: #060c81;
+}
+body[data-theme='royal-blue'] figure > div.table-wrap > table tr > th[colspan] span {
+  border-color: #060c81;
+}
+body[data-theme='royal-blue'] figure.graphic > figcaption span.heading,
+body[data-theme='royal-blue'] figure.table > figcaption span.heading {
+  color: #060c81;
+}
+body[data-theme='royal-blue'] figure.statement figcaption {
+  color: #060c81;
+}
+body[data-theme='royal-blue'] .heading,
+body[data-theme='royal-blue'] h1:not([data-style-of]),
+body[data-theme='royal-blue'] [data-style-of='h1'],
+body[data-theme='royal-blue'] h2:not([data-style-of]),
+body[data-theme='royal-blue'] [data-style-of='h2'],
+body[data-theme='royal-blue'] h3:not([data-style-of]),
+body[data-theme='royal-blue'] [data-style-of='h3'],
+body[data-theme='royal-blue'] h4:not([data-style-of]),
+body[data-theme='royal-blue'] [data-style-of='h4'],
+body[data-theme='royal-blue'] h5:not([data-style-of]),
+body[data-theme='royal-blue'] [data-style-of='h5'] {
+  color: #060c81;
+}
+body[data-theme='royal-blue'] .heading a,
+body[data-theme='royal-blue'] h1:not([data-style-of]) a,
+body[data-theme='royal-blue'] [data-style-of='h1'] a,
+body[data-theme='royal-blue'] h2:not([data-style-of]) a,
+body[data-theme='royal-blue'] [data-style-of='h2'] a,
+body[data-theme='royal-blue'] h3:not([data-style-of]) a,
+body[data-theme='royal-blue'] [data-style-of='h3'] a,
+body[data-theme='royal-blue'] h4:not([data-style-of]) a,
+body[data-theme='royal-blue'] [data-style-of='h4'] a,
+body[data-theme='royal-blue'] h5:not([data-style-of]) a,
+body[data-theme='royal-blue'] [data-style-of='h5'] a {
+  color: #060c81;
+}
+body[data-theme='royal-blue'] hr {
+  background-color: #060c81;
+}
+body[data-theme='royal-blue'] #masthead {
+  border-color: #060c81;
+  min-height: 5em;
+}
+body[data-theme='turquoise'] [role='doc-abstract'] {
+  background-color: #e6f3f2;
+}
+body[data-theme='turquoise'] .core-biographies span.subject {
+  color: #047771;
+}
+body[data-theme='turquoise'] figure > div.table-wrap > table {
+  border-color: #047771;
+}
+body[data-theme='turquoise'] figure > div.table-wrap > table > thead {
+  border-bottom: solid 2px #047771;
+}
+body[data-theme='turquoise'] figure > div.table-wrap > table tr > th[colspan] {
+  border-color: #047771;
+}
+body[data-theme='turquoise'] figure > div.table-wrap > table tr > th[colspan] span {
+  border-color: #047771;
+}
+body[data-theme='turquoise'] figure.graphic > figcaption span.heading,
+body[data-theme='turquoise'] figure.table > figcaption span.heading {
+  color: #047771;
+}
+body[data-theme='turquoise'] figure.statement figcaption {
+  color: #047771;
+}
+body[data-theme='turquoise'] .heading,
+body[data-theme='turquoise'] h1:not([data-style-of]),
+body[data-theme='turquoise'] [data-style-of='h1'],
+body[data-theme='turquoise'] h2:not([data-style-of]),
+body[data-theme='turquoise'] [data-style-of='h2'],
+body[data-theme='turquoise'] h3:not([data-style-of]),
+body[data-theme='turquoise'] [data-style-of='h3'],
+body[data-theme='turquoise'] h4:not([data-style-of]),
+body[data-theme='turquoise'] [data-style-of='h4'],
+body[data-theme='turquoise'] h5:not([data-style-of]),
+body[data-theme='turquoise'] [data-style-of='h5'] {
+  color: #047771;
+}
+body[data-theme='turquoise'] .heading a,
+body[data-theme='turquoise'] h1:not([data-style-of]) a,
+body[data-theme='turquoise'] [data-style-of='h1'] a,
+body[data-theme='turquoise'] h2:not([data-style-of]) a,
+body[data-theme='turquoise'] [data-style-of='h2'] a,
+body[data-theme='turquoise'] h3:not([data-style-of]) a,
+body[data-theme='turquoise'] [data-style-of='h3'] a,
+body[data-theme='turquoise'] h4:not([data-style-of]) a,
+body[data-theme='turquoise'] [data-style-of='h4'] a,
+body[data-theme='turquoise'] h5:not([data-style-of]) a,
+body[data-theme='turquoise'] [data-style-of='h5'] a {
+  color: #047771;
+}
+body[data-theme='turquoise'] hr {
+  background-color: #047771;
+}
+body[data-theme='turquoise'] #masthead {
+  border-color: #047771;
+  min-height: 5em;
+}
