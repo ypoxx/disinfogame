@@ -110,6 +110,9 @@ function enhanceTopicResponse(
       if (contextData.betrayalState.grievances.length > 0) {
         enhanced += `Besonders stört mich: ${contextData.betrayalState.grievances[0].description_de}.`;
       }
+    } else {
+      // Always add something even if no betrayal risk
+      enhanced += `\n\n*denkt nach* Momentan läuft alles nach Plan. Wir sollten es so beibehalten.`;
     }
   }
 
@@ -119,6 +122,8 @@ function enhanceTopicResponse(
       enhanced += '\n\n*schaut besorgt* Unser Budget wird knapp. Wir müssen vorsichtiger planen.';
     } else if (contextData.budget > 8000) {
       enhanced += '\n\n*nickt zufrieden* Finanziell stehen wir gut da. Wir haben Spielraum für größere Aktionen.';
+    } else {
+      enhanced += `\n\n*überprüft Zahlen* Wir haben aktuell ${Math.round(contextData.budget)}K Budget verfügbar. Solide, aber nicht übermäßig.`;
     }
   }
 
@@ -128,6 +133,48 @@ function enhanceTopicResponse(
       enhanced += '\n\n*lächelt* Wir machen gute Fortschritte. Unser Einfluss wächst stetig.';
     } else if (contextData.influence < 30) {
       enhanced += '\n\n*runzelt die Stirn* Wir müssen unsere Strategie überdenken. Der Fortschritt ist zu langsam.';
+    } else {
+      enhanced += `\n\n*nickt* Wir sind in Phase ${contextData.phase}. Noch viel Arbeit vor uns.`;
+    }
+  }
+
+  // Katja's topics
+  if (topic === 'contacts') {
+    if (contextData.phase < 3) {
+      enhanced += '\n\n*lächelt vielsagend* Ich habe da ein paar interessante Leute kennengelernt. Geben Sie mir noch etwas Zeit, sie aufzubauen.';
+    } else {
+      enhanced += '\n\n*tippt auf Notizbuch* Mein Netzwerk wächst. Jeden Tag neue Verbindungen, neue Möglichkeiten.';
+    }
+  }
+
+  // Marina's topics
+  if (topic === 'content' || topic === 'platforms') {
+    if (contextData.influence > 60) {
+      enhanced += '\n\n*zeigt auf Bildschirm* Unsere letzten Posts haben gut funktioniert. Die Engagement-Rate steigt.';
+    } else {
+      enhanced += '\n\n*scrollt durch Analytics* Wir müssen unsere Inhalte schärfer machen. Mehr Emotion, weniger Fakten.';
+    }
+  }
+
+  if (topic === 'viral') {
+    enhanced += '\n\n*tippt energisch* Das Geheimnis? Empörung. Menschen teilen, was sie wütend macht. Das nutzen wir aus.';
+  }
+
+  // Alexei's topics
+  if (topic === 'infrastructure' || topic === 'bots') {
+    if (contextData.budget > 6000) {
+      enhanced += '\n\n*grinst* Mit unserem aktuellen Budget kann ich die Bot-Armeen gut ausbauen. Mehr Accounts, mehr Reichweite.';
+    } else {
+      enhanced += '\n\n*seufzt* Bots kosten Geld für Server und Proxies. Wenn das Budget knapp wird, müssen wir Prioritäten setzen.';
+    }
+  }
+
+  // Igor's topics
+  if (topic === 'fronts' || topic === 'flow') {
+    if (contextData.phase > 5) {
+      enhanced += '\n\n*blättert durch Papiere* Die Tarnfirmen laufen gut. Niemand kann unsere Geldflüsse mehr nachverfolgen.';
+    } else {
+      enhanced += '\n\n*schiebt Dokumente* Die Strukturen sind komplex, aber notwendig. Je länger wir aktiv sind, desto wichtiger wird Verschleierung.';
     }
   }
 
@@ -443,6 +490,13 @@ export function useStoryGameState(seed?: string) {
       betrayalSystem.initializeNPC(npc.id, npc.name, npc.morale);
     });
 
+    // Generate initial recommendations immediately so UI is populated
+    generateRecommendations();
+
+    // Initialize combo hints
+    const hints = engine.getActiveComboHints();
+    setComboHints(hints);
+
     // Show intro dialog
     setCurrentDialog({
       speaker: 'Direktor',
@@ -450,7 +504,7 @@ export function useStoryGameState(seed?: string) {
       text: 'Willkommen in der Abteilung für Sonderoperationen. Ihre Mission: die politische Landschaft von Westunion zu destabilisieren. Sie haben 10 Jahre Zeit. Nutzen Sie sie weise.',
       mood: 'neutral',
     });
-  }, [refreshAvailableActions]);
+  }, [refreshAvailableActions, generateRecommendations]);
 
   const skipTutorial = useCallback(() => {
     setGamePhase('playing');

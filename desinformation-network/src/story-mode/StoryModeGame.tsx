@@ -709,7 +709,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       />
 
       {/* Advisor Panel */}
-      {state.gamePhase === 'playing' && (
+      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
         <AdvisorPanel
           npcs={state.npcs.map(npc => ({
             id: npc.id,
@@ -778,7 +778,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       )}
 
       {/* Combo Hints Widget */}
-      {state.gamePhase === 'playing' && state.comboHints && state.comboHints.length > 0 && (
+      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && state.comboHints && state.comboHints.length > 0 && (
         <div
           className="fixed bottom-4 left-4 w-80 z-20"
           style={{ maxHeight: '40vh', overflowY: 'auto' }}
