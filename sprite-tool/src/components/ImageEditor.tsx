@@ -19,12 +19,15 @@ export function ImageEditor({ image, onSave, onBack }: ImageEditorProps) {
   const maskCanvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [brushSize, setBrushSize] = useState(20);
+  const [brushMode, setBrushMode] = useState<'paint' | 'erase'>('paint');
   const [inpaintPrompt, setInpaintPrompt] = useState('');
   const [isInpainting, setIsInpainting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentImage, setCurrentImage] = useState(image);
   const [history, setHistory] = useState<GeneratedImage[]>([image]);
   const [historyIndex, setHistoryIndex] = useState(0);
+  const [showMask, setShowMask] = useState(true);
+  const [zoom, setZoom] = useState(1);
 
   // Canvas initialisieren
   useEffect(() => {
@@ -79,7 +82,7 @@ export function ImageEditor({ image, onSave, onBack }: ImageEditorProps) {
     const maskCtx = maskCanvas.getContext('2d');
     if (!maskCtx) return;
 
-    maskCtx.fillStyle = 'white';
+    maskCtx.fillStyle = brushMode === 'paint' ? 'white' : 'black';
     maskCtx.beginPath();
     maskCtx.arc(x, y, brushSize, 0, Math.PI * 2);
     maskCtx.fill();
@@ -212,27 +215,36 @@ export function ImageEditor({ image, onSave, onBack }: ImageEditorProps) {
       </div>
 
       {/* Canvas Area */}
-      <div className="relative bg-gray-900 rounded-lg overflow-hidden">
-        {/* Main Image Canvas */}
-        <canvas
-          ref={canvasRef}
-          className="max-w-full h-auto"
-        />
+      <div className="bg-gray-900 rounded-lg overflow-hidden">
+        <div className="relative overflow-auto max-h-[520px]">
+          <div
+            className="relative origin-top-left"
+            style={{ transform: `scale(${zoom})`, width: 'fit-content' }}
+          >
+            {/* Main Image Canvas */}
+            <canvas
+              ref={canvasRef}
+              className="max-w-full h-auto"
+            />
 
-        {/* Mask Canvas (overlay) */}
-        <canvas
-          ref={maskCanvasRef}
-          onMouseDown={startDrawing}
-          onMouseUp={stopDrawing}
-          onMouseLeave={stopDrawing}
-          onMouseMove={draw}
-          className="absolute inset-0 w-full h-full opacity-40 cursor-crosshair"
-          style={{ mixBlendMode: 'screen' }}
-        />
+            {/* Mask Canvas (overlay) */}
+            <canvas
+              ref={maskCanvasRef}
+              onMouseDown={startDrawing}
+              onMouseUp={stopDrawing}
+              onMouseLeave={stopDrawing}
+              onMouseMove={draw}
+              className={`absolute inset-0 w-full h-full cursor-crosshair ${
+                showMask ? 'opacity-40' : 'opacity-0'
+              }`}
+              style={{ mixBlendMode: 'screen' }}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Brush Controls */}
-      <div className="flex items-center gap-4 p-3 bg-gray-800 rounded-lg">
+      <div className="flex flex-wrap items-center gap-4 p-3 bg-gray-800 rounded-lg">
         <label className="flex items-center gap-2 text-sm text-gray-400">
           <span>Pinsel:</span>
           <input
@@ -245,6 +257,47 @@ export function ImageEditor({ image, onSave, onBack }: ImageEditorProps) {
           />
           <span className="w-8 text-center">{brushSize}px</span>
         </label>
+        <div className="flex items-center gap-2 text-sm text-gray-400">
+          <button
+            onClick={() => setBrushMode('paint')}
+            className={`px-3 py-1 rounded transition-colors ${
+              brushMode === 'paint'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+            }`}
+          >
+            Malen
+          </button>
+          <button
+            onClick={() => setBrushMode('erase')}
+            className={`px-3 py-1 rounded transition-colors ${
+              brushMode === 'erase'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+            }`}
+          >
+            Radierer
+          </button>
+        </div>
+        <label className="flex items-center gap-2 text-sm text-gray-400">
+          <span>Zoom:</span>
+          <input
+            type="range"
+            min="1"
+            max="4"
+            step="0.5"
+            value={zoom}
+            onChange={(e) => setZoom(Number(e.target.value))}
+            className="w-24"
+          />
+          <span className="w-10 text-center">{zoom}x</span>
+        </label>
+        <button
+          onClick={() => setShowMask((prev) => !prev)}
+          className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
+        >
+          {showMask ? 'Maske ausblenden' : 'Maske anzeigen'}
+        </button>
         <button
           onClick={clearMask}
           className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"

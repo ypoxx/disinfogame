@@ -8,6 +8,7 @@ KI-gestütztes Tool zur Erstellung von Spielgrafiken für das Disinfo-Spiel.
 - **Nano Banana Pro Integration** - Google's beste Bild-KI
 - **Inpainting** - Nur Teile eines Bildes ändern
 - **Masken-Editor** - Bereiche zum Bearbeiten markieren
+- **Erweiterte Controls** - Varianten, Seitenverhältnis, Seed, Referenzen
 
 ## Quick Start
 
@@ -94,8 +95,8 @@ Bei Deployment auf Vercel, Netlify o.ä.:
 ```
 1. Asset-Typ wählen (Sprite / Szene / Element)
 2. Prompt eingeben (z.B. "Ein Büroangestellter der läuft")
-3. Claude verbessert den Prompt automatisch
-4. Nano Banana Pro generiert 4 Varianten
+3. (Optional) Prompt mit Claude verbessern oder auto-verbessern lassen
+4. Varianten generieren (Ratio/Seed/Referenzen optional)
 5. Beste Variante auswählen
 6. Bei Bedarf: Bereich markieren und per Inpainting korrigieren
 7. Als PNG exportieren
@@ -120,6 +121,7 @@ sprite-tool/
 │   │   └── ImageEditor.tsx
 │   ├── lib/
 │   │   ├── claude.ts          # Claude API Wrapper
+│   │   ├── constants.ts       # Gemeinsame Konstanten
 │   │   └── nanoBanana.ts      # Google AI Wrapper
 │   └── types/
 │       └── index.ts
