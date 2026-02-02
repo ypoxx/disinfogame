@@ -15,15 +15,16 @@ export default function Home() {
   const [assetType, setAssetType] = useState<AssetType>('sprite');
   const [currentPrompt, setCurrentPrompt] = useState('');
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
+  const [generateToken, setGenerateToken] = useState(0);
 
   function handleAssetTypeSelect(type: AssetType) {
     setAssetType(type);
-    setMode('prompt');
+    setMode('create');
   }
 
   function handlePromptReady(prompt: string) {
     setCurrentPrompt(prompt);
-    setMode('generate');
+    setGenerateToken((prev) => prev + 1);
   }
 
   function handleImageSelect(image: GeneratedImage) {
@@ -46,14 +47,11 @@ export default function Home() {
 
   function handleBack() {
     switch (mode) {
-      case 'prompt':
+      case 'create':
         setMode('select');
         break;
-      case 'generate':
-        setMode('prompt');
-        break;
       case 'edit':
-        setMode('generate');
+        setMode('create');
         break;
       default:
         setMode('select');
@@ -64,6 +62,7 @@ export default function Home() {
     setMode('select');
     setSelectedImage(null);
     setCurrentPrompt('');
+    setGenerateToken(0);
   }
 
   return (
@@ -89,22 +88,11 @@ export default function Home() {
               </button>
               <span>/</span>
               <button
-                onClick={() => mode !== 'prompt' && setMode('prompt')}
-                className={mode === 'prompt' ? 'text-blue-400' : 'hover:text-gray-300'}
+                onClick={() => mode !== 'create' && setMode('create')}
+                className={mode === 'create' ? 'text-blue-400' : 'hover:text-gray-300'}
               >
-                Prompt
+                Erstellen
               </button>
-              {(mode === 'generate' || mode === 'edit') && (
-                <>
-                  <span>/</span>
-                  <button
-                    onClick={() => mode !== 'generate' && setMode('generate')}
-                    className={mode === 'generate' ? 'text-blue-400' : 'hover:text-gray-300'}
-                  >
-                    Generieren
-                  </button>
-                </>
-              )}
               {mode === 'edit' && (
                 <>
                   <span>/</span>
@@ -189,24 +177,24 @@ export default function Home() {
           </div>
         )}
 
-        {/* Prompt Assistant */}
-        {mode === 'prompt' && (
-          <div className="max-w-2xl mx-auto">
-            <PromptAssistant
-              assetType={assetType}
-              onPromptReady={handlePromptReady}
-            />
-          </div>
-        )}
-
-        {/* Image Generator */}
-        {mode === 'generate' && (
-          <div className="max-w-2xl mx-auto">
-            <ImageGenerator
-              prompt={currentPrompt}
-              onImageSelect={handleImageSelect}
-              onBack={handleBack}
-            />
+        {/* Create Flow */}
+        {mode === 'create' && (
+          <div className="space-y-6">
+            <div className="max-w-2xl mx-auto">
+              <PromptAssistant
+                assetType={assetType}
+                onPromptReady={handlePromptReady}
+              />
+            </div>
+            <div className="max-w-2xl mx-auto">
+              <ImageGenerator
+                prompt={currentPrompt}
+                onImageSelect={handleImageSelect}
+                onBack={handleBack}
+                autoGenerateToken={generateToken}
+                assetType={assetType}
+              />
+            </div>
           </div>
         )}
 

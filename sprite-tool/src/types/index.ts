@@ -4,7 +4,7 @@
 
 export type AssetType = 'sprite' | 'scene' | 'element';
 
-export type ProjectMode = 'select' | 'prompt' | 'generate' | 'edit' | 'export';
+export type ProjectMode = 'select' | 'create' | 'edit' | 'export';
 
 export interface Project {
   id: string;
@@ -75,6 +75,7 @@ export interface GenerateImageResponse {
     base64: string;
     seed?: number;
   }[];
+  errors?: string[];
 }
 
 export interface InpaintRequest {

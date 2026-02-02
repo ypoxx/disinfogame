@@ -5,6 +5,7 @@
 
 import { GoogleGenAI } from '@google/genai';
 import type { GenerateImageResponse, InpaintResponse } from '@/types';
+import type { AspectRatio } from '@/lib/constants';
 
 let aiClient: GoogleGenAI | null = null;
 
@@ -19,16 +20,6 @@ function getClient(): GoogleGenAI {
   return aiClient;
 }
 
-// Unterstützte Aspect Ratios
-export const ASPECT_RATIOS = {
-  '1:1': { width: 1024, height: 1024 },
-  '16:9': { width: 1344, height: 768 },
-  '9:16': { width: 768, height: 1344 },
-  '4:3': { width: 1152, height: 896 },
-  '3:4': { width: 896, height: 1152 },
-} as const;
-
-export type AspectRatio = keyof typeof ASPECT_RATIOS;
 
 interface GenerateOptions {
   prompt: string;
@@ -49,6 +40,7 @@ export async function generateImages(options: GenerateOptions): Promise<Generate
   const numImages = Math.min(options.numImages || 4, 4); // Max 4 Bilder
 
   const results: { base64: string; seed?: number }[] = [];
+  const errors: string[] = [];
 
   // Generiere Bilder sequentiell (API-Limit)
   for (let i = 0; i < numImages; i++) {
@@ -94,7 +86,8 @@ export async function generateImages(options: GenerateOptions): Promise<Generate
       }
     } catch (error) {
       console.error(`Fehler bei Bildgenerierung ${i + 1}:`, error);
-      // Weiter mit nächstem Bild
+      const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
+      errors.push(`Variante ${i + 1}: ${errorMessage}`);
     }
   }
 
@@ -102,7 +95,7 @@ export async function generateImages(options: GenerateOptions): Promise<Generate
     throw new Error('Keine Bilder konnten generiert werden');
   }
 
-  return { images: results };
+  return { images: results, errors: errors.length > 0 ? errors : undefined };
 }
 
 interface InpaintOptions {
