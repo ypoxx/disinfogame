@@ -1,0 +1,461 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dialogues.schema.json",
+  "title": "Platinum Dialog System Schema",
+  "description": "Schema for the advanced NPC dialogue system with topics, conditions, and progressive disclosure",
+  "type": "object",
+  "required": ["schemaVersion", "meta"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of the schema"
+    },
+    "meta": {
+      "$ref": "#/$defs/meta"
+    },
+    "topics": {
+      "$ref": "#/$defs/topics"
+    },
+    "greetings": {
+      "$ref": "#/$defs/npcDialogMap"
+    },
+    "briefings": {
+      "$ref": "#/$defs/npcDialogMap"
+    },
+    "reactions": {
+      "$ref": "#/$defs/npcDialogMap"
+    },
+    "crisis": {
+      "$ref": "#/$defs/npcDialogMap"
+    },
+    "ambient": {
+      "$ref": "#/$defs/npcDialogMap"
+    },
+    "debates": {
+      "$ref": "#/$defs/debates"
+    },
+    "response_effects": {
+      "$ref": "#/$defs/responseEffectsMap"
+    },
+    "npcs": {
+      "type": "object",
+      "description": "Legacy NPC dialogue structure for backward compatibility",
+      "additionalProperties": true
+    },
+    "special_dialogues": {
+      "type": "object",
+      "description": "Special dialogues like first meeting and game end",
+      "additionalProperties": true
+    },
+    "dialogue_types": {
+      "type": "object",
+      "description": "Legacy dialogue type definitions",
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "meta": {
+      "type": "object",
+      "required": ["locales"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "locales": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["de", "en"]
+          },
+          "minItems": 1
+        },
+        "insertLibrary": {
+          "type": "string",
+          "description": "Path to the insert library JSON file"
+        },
+        "created": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "topics": {
+      "type": "object",
+      "description": "Topic dialogues organized by topic ID",
+      "additionalProperties": {
+        "$ref": "#/$defs/topicEntry"
+      }
+    },
+    "topicEntry": {
+      "type": "object",
+      "required": ["intro"],
+      "properties": {
+        "intro": {
+          "$ref": "#/$defs/dialogueList"
+        },
+        "deep": {
+          "$ref": "#/$defs/dialogueList"
+        },
+        "options": {
+          "$ref": "#/$defs/dialogueList"
+        },
+        "npc_variants": {
+          "type": "object",
+          "description": "NPC-specific variants for this topic",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "intro": {
+                "$ref": "#/$defs/dialogueList"
+              },
+              "deep": {
+                "$ref": "#/$defs/dialogueList"
+              },
+              "options": {
+                "$ref": "#/$defs/dialogueList"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "npcDialogMap": {
+      "type": "object",
+      "description": "Map of NPC ID to their dialogues",
+      "additionalProperties": {
+        "$ref": "#/$defs/dialogueList"
+      }
+    },
+    "dialogueList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/dialogue"
+      }
+    },
+    "dialogue": {
+      "type": "object",
+      "required": ["id", "text_de"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the dialogue"
+        },
+        "text_de": {
+          "type": "string",
+          "description": "German text with optional {insert} placeholders"
+        },
+        "text_en": {
+          "type": "string",
+          "description": "English text with optional {insert} placeholders"
+        },
+        "tone": {
+          "type": "string",
+          "enum": [
+            "neutral",
+            "serious",
+            "formal",
+            "warm",
+            "cold",
+            "skeptical",
+            "aggressive",
+            "paranoid",
+            "explanatory",
+            "pragmatic",
+            "concerned",
+            "encouraging",
+            "dismissive",
+            "curt",
+            "professional",
+            "friendly",
+            "threatening",
+            "urgent",
+            "cautious",
+            "analytical"
+          ],
+          "description": "Emotional tone of the dialogue"
+        },
+        "probability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Selection weight (0-1)"
+        },
+        "phase_range": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "Phase range [min, max] when dialogue is available"
+        },
+        "condition": {
+          "$ref": "#/$defs/condition",
+          "description": "Condition that must be met for dialogue selection"
+        },
+        "triggered_by_tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tags that trigger this dialogue"
+        },
+        "relationship_bonus": {
+          "type": "integer",
+          "description": "Relationship change when dialogue is shown"
+        },
+        "morale_change": {
+          "type": "integer",
+          "description": "Morale change when dialogue is shown"
+        },
+        "unlocks_info": {
+          "type": "string",
+          "description": "Information key unlocked by this dialogue"
+        },
+        "responses": {
+          "$ref": "#/$defs/responseList"
+        },
+        "leads_to": {
+          "type": "string",
+          "description": "ID of the next dialogue to show"
+        },
+        "core_id": {
+          "type": "string",
+          "description": "Reference to the core message this is a variant of"
+        },
+        "npc_id": {
+          "type": "string",
+          "description": "Optional NPC ID if this dialogue is NPC-specific"
+        }
+      },
+      "additionalProperties": false
+    },
+    "responseList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/response"
+      }
+    },
+    "response": {
+      "type": "object",
+      "required": ["id", "text_de", "effect"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "text_de": {
+          "type": "string"
+        },
+        "text_en": {
+          "type": "string"
+        },
+        "effect": {
+          "type": "string",
+          "enum": [
+            "positive",
+            "neutral",
+            "dismissive",
+            "threatening",
+            "unlock_action",
+            "lock_action",
+            "modify_action_cost",
+            "add_memory_tag",
+            "trigger_event"
+          ],
+          "description": "Effect type of the response"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "actionId": {
+              "type": "string"
+            },
+            "duration_phases": {
+              "type": "integer"
+            },
+            "cost_modifier": {
+              "type": "number"
+            },
+            "memory_tag": {
+              "type": "string"
+            },
+            "event_id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        "leads_to": {
+          "type": "string",
+          "description": "ID of the next dialogue to show"
+        },
+        "consequence": {
+          "type": "string",
+          "description": "Description of the consequence"
+        }
+      },
+      "additionalProperties": false
+    },
+    "condition": {
+      "type": "object",
+      "properties": {
+        "all": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/conditionClause"
+          },
+          "description": "All conditions must be true"
+        },
+        "any": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/conditionClause"
+          },
+          "description": "At least one condition must be true"
+        }
+      },
+      "additionalProperties": false
+    },
+    "conditionClause": {
+      "type": "object",
+      "required": ["var", "op", "value"],
+      "properties": {
+        "var": {
+          "type": "string",
+          "description": "Variable name to check (budget, risk, morale, phase, relationshipLevel, memoryTags, etc.)"
+        },
+        "op": {
+          "type": "string",
+          "enum": ["<", "<=", ">", ">=", "==", "!=", "contains", "notContains", "in", "inRange"],
+          "description": "Comparison operator"
+        },
+        "value": {
+          "description": "Value to compare against (number, string, array, or [min, max] for inRange)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "debates": {
+      "type": "object",
+      "description": "Multi-speaker debate dialogues",
+      "additionalProperties": {
+        "$ref": "#/$defs/debate"
+      }
+    },
+    "debate": {
+      "type": "object",
+      "required": ["id", "dialogue_type", "participants", "turns"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "dialogue_type": {
+          "const": "debate"
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2,
+          "description": "NPC IDs participating in the debate"
+        },
+        "condition": {
+          "$ref": "#/$defs/condition"
+        },
+        "phase_range": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "triggered_by_tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "turns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/debateTurn"
+          },
+          "minItems": 2
+        },
+        "resolution": {
+          "type": "object",
+          "properties": {
+            "choices": {
+              "$ref": "#/$defs/responseList"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "debateTurn": {
+      "type": "object",
+      "required": ["speaker", "text_de"],
+      "properties": {
+        "speaker": {
+          "type": "string",
+          "description": "NPC ID of the speaker"
+        },
+        "text_de": {
+          "type": "string"
+        },
+        "text_en": {
+          "type": "string"
+        },
+        "tone": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "responseEffectsMap": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/responseEffects"
+      }
+    },
+    "responseEffects": {
+      "type": "object",
+      "properties": {
+        "relationship_change": {
+          "type": "integer"
+        },
+        "morale_change": {
+          "type": "integer"
+        },
+        "triggers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}

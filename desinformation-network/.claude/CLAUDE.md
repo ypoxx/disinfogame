@@ -678,6 +678,70 @@ const connections = useMemo(
 - Verify types match expected shapes
 - Use `// @ts-expect-error` with comment if unavoidable
 
+### TypeScript Type Safety - Recurring Bug Prevention
+
+**CRITICAL: Diese Fehler traten beim Netlify-Build auf und müssen vermieden werden:**
+
+1. **Mixed Union Types in Conditions:**
+   ```typescript
+   // ❌ FALSCH: Condition kann string oder Condition-Objekt sein
+   if (!this.evaluateCondition(reaction.condition, context)) continue;
+
+   // ✅ RICHTIG: Separate Methode für gemischte Typen
+   private evaluateMixedCondition(
+     condition: string | Condition,
+     context: Record<string, unknown>
+   ): boolean {
+     if (typeof condition === 'string') {
+       return this.evaluateCondition(condition, context);
+     }
+     // Handle Condition object...
+   }
+   ```
+
+2. **Interface-zu-Record Konvertierung:**
+   ```typescript
+   // ❌ FALSCH: Interface kann nicht direkt zu Record<string, unknown> gecastet werden
+   const result = this.evaluateCondition(cond, context as Record<string, unknown>);
+
+   // ✅ RICHTIG: Explizite Konvertierung der Felder
+   private evaluateLegacyCondition(condition: string, context: DialogueContext): boolean {
+     const contextRecord: Record<string, unknown> = {
+       phase: context.phase,
+       risk: context.risk,
+       // ... alle Felder explizit kopieren
+     };
+     return this.evaluateCondition(condition, contextRecord);
+   }
+   ```
+
+3. **Array.includes() mit union types:**
+   ```typescript
+   // ❌ FALSCH: string | string[] | [number, number] - includes weiß nicht welcher Typ
+   return clause.value.includes(value);
+
+   // ✅ RICHTIG: Expliziter Cast zu unknown[]
+   return (clause.value as unknown[]).includes(value);
+   ```
+
+4. **Nicht-existierende Methoden aufrufen:**
+   ```typescript
+   // ❌ FALSCH: Methode updateNPCRelationship existiert nicht (nur updateNPCRelationships)
+   this.updateNPCRelationship(npcId, delta);
+
+   // ✅ RICHTIG: Logik inline implementieren oder richtige Methode verwenden
+   npc.relationshipProgress += delta;
+   if (npc.relationshipProgress >= 100 && npc.relationshipLevel < 3) {
+     npc.relationshipLevel++;
+     npc.relationshipProgress -= 100;
+   }
+   ```
+
+**Vor jedem Commit prüfen:**
+```bash
+npx tsc --noEmit  # Muss ohne Fehler durchlaufen!
+```
+
 **Netlify build fails:**
 - Check build logs in Netlify dashboard
 - Verify all dependencies in package.json

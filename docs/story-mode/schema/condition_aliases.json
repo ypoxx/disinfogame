@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "condition_aliases.json",
+  "title": "Condition Aliases",
+  "description": "Predefined condition aliases for common game state checks. These are expanded at build-time to full JSON conditions.",
+  "aliases": {
+    "budget_critical": {
+      "var": "budget",
+      "op": "<",
+      "value": 1500
+    },
+    "budget_low": {
+      "var": "budget",
+      "op": "<",
+      "value": 3000
+    },
+    "budget_stable": {
+      "all": [
+        { "var": "budget", "op": ">=", "value": 3000 },
+        { "var": "budget", "op": "<=", "value": 8000 }
+      ]
+    },
+    "budget_high": {
+      "var": "budget",
+      "op": ">",
+      "value": 8000
+    },
+    "risk_low": {
+      "var": "risk",
+      "op": "<",
+      "value": 30
+    },
+    "risk_medium": {
+      "all": [
+        { "var": "risk", "op": ">=", "value": 30 },
+        { "var": "risk", "op": "<", "value": 70 }
+      ]
+    },
+    "risk_high": {
+      "var": "risk",
+      "op": ">=",
+      "value": 70
+    },
+    "risk_critical": {
+      "var": "risk",
+      "op": ">=",
+      "value": 85
+    },
+    "morale_critical": {
+      "var": "morale",
+      "op": "<=",
+      "value": 20
+    },
+    "morale_low": {
+      "var": "morale",
+      "op": "<=",
+      "value": 40
+    },
+    "morale_stable": {
+      "all": [
+        { "var": "morale", "op": ">", "value": 40 },
+        { "var": "morale", "op": "<", "value": 75 }
+      ]
+    },
+    "morale_high": {
+      "var": "morale",
+      "op": ">=",
+      "value": 75
+    },
+    "relationship_stranger": {
+      "var": "relationshipLevel",
+      "op": "==",
+      "value": 0
+    },
+    "relationship_known": {
+      "var": "relationshipLevel",
+      "op": ">=",
+      "value": 1
+    },
+    "relationship_trusted": {
+      "var": "relationshipLevel",
+      "op": ">=",
+      "value": 2
+    },
+    "relationship_loyal": {
+      "var": "relationshipLevel",
+      "op": "==",
+      "value": 3
+    },
+    "early_game": {
+      "var": "phase",
+      "op": "inRange",
+      "value": [1, 20]
+    },
+    "mid_game": {
+      "var": "phase",
+      "op": "inRange",
+      "value": [21, 60]
+    },
+    "late_game": {
+      "var": "phase",
+      "op": "inRange",
+      "value": [61, 120]
+    },
+    "end_game": {
+      "var": "phase",
+      "op": ">=",
+      "value": 100
+    },
+    "attention_low": {
+      "var": "attention",
+      "op": "<",
+      "value": 30
+    },
+    "attention_high": {
+      "var": "attention",
+      "op": ">=",
+      "value": 70
+    },
+    "in_crisis": {
+      "var": "inCrisis",
+      "op": "==",
+      "value": true
+    },
+    "ignored_advice_once": {
+      "var": "memoryTags",
+      "op": "contains",
+      "value": "ignored_advice"
+    },
+    "ignored_advice_repeated": {
+      "all": [
+        { "var": "memoryTags", "op": "contains", "value": "ignored_advice" },
+        { "var": "ignored_advice_count", "op": ">=", "value": 3 }
+      ]
+    },
+    "resource_cut_history": {
+      "var": "memoryTags",
+      "op": "contains",
+      "value": "resource_cut"
+    },
+    "recent_success": {
+      "var": "memoryTags",
+      "op": "contains",
+      "value": "recent_success"
+    },
+    "recent_failure": {
+      "var": "memoryTags",
+      "op": "contains",
+      "value": "recent_failure"
+    }
+  }
+}
