@@ -471,11 +471,27 @@ refactor: Extract ability effects to separate file
 test: Add tests for Network propagation
 ```
 
-**Before pushing:**
+**Before pushing (PFLICHT):**
 ```bash
-npm run build      # Ensure build works
+cd desinformation-network
+npm run build      # KRITISCH: Muss ohne Fehler durchlaufen!
 npm run typecheck  # No TypeScript errors
 npm run lint       # Fix linting issues
+```
+
+⚠️ **WICHTIG:** `npm run build` muss IMMER vor dem Push ausgeführt werden!
+- Netlify-Deployment schlägt bei TypeScript-Fehlern fehl
+- Lokaler `npm run dev` zeigt nicht alle Fehler (nur Hot-Reload)
+- Der Build (`tsc && vite build`) ist strenger als die IDE
+
+**Häufige Fehlerquelle:** Lokale Interface-Kopien in Test-Dateien, die nicht mit
+den Original-Typen übereinstimmen. Typen immer aus Quelldateien importieren:
+```typescript
+// ✅ Korrekt: Import aus Quelldatei
+import { StoryAction } from '@/game-logic/StoryEngineAdapter';
+
+// ❌ Falsch: Lokale Kopie (kann divergieren)
+interface StoryAction { ... }
 ```
 
 ---
