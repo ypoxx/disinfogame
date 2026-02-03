@@ -4255,7 +4255,15 @@ export class StoryEngineAdapter {
     // Process standard effects
     const effects = dialogLoader.getResponseEffects(response.effect);
     if (effects) {
-      this.updateNPCRelationship(npcId, effects.relationship_change);
+      // Apply relationship change (inline implementation)
+      npc.relationshipProgress += effects.relationship_change;
+      if (npc.relationshipProgress >= 100 && npc.relationshipLevel < 3) {
+        npc.relationshipLevel++;
+        npc.relationshipProgress -= 100;
+      } else if (npc.relationshipProgress < 0 && npc.relationshipLevel > 0) {
+        npc.relationshipLevel--;
+        npc.relationshipProgress = 100 + npc.relationshipProgress;
+      }
       npc.morale = Math.max(0, Math.min(100, npc.morale + effects.morale_change));
     }
 

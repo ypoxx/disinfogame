@@ -431,7 +431,7 @@ export class DialogLoader {
 
         // Check condition if present
         if (reaction.condition) {
-          if (!this.evaluateCondition(reaction.condition, conditions)) continue;
+          if (!this.evaluateMixedCondition(reaction.condition, conditions)) continue;
         }
 
         matchingReactions.push(reaction);
@@ -454,7 +454,7 @@ export class DialogLoader {
 
     // Find first matching crisis dialogue
     for (const crisis of npcData.crisis) {
-      if (crisis.condition && this.evaluateCondition(crisis.condition, conditions)) {
+      if (crisis.condition && this.evaluateMixedCondition(crisis.condition, conditions)) {
         return crisis;
       }
     }
@@ -473,7 +473,7 @@ export class DialogLoader {
 
     // Filter by conditions and check probability
     const eligibleAmbient = npcData.ambient.filter(ambient => {
-      if (ambient.condition && !this.evaluateCondition(ambient.condition, conditions)) {
+      if (ambient.condition && !this.evaluateMixedCondition(ambient.condition, conditions)) {
         return false;
       }
       const probability = ambient.probability ?? 0.5;
@@ -554,6 +554,59 @@ export class DialogLoader {
     return !!context[condition];
   }
 
+  /**
+   * Evaluate a legacy string condition with DialogueContext
+   * Converts DialogueContext to a plain object for legacy evaluation
+   */
+  private evaluateLegacyCondition(condition: string, context: DialogueContext): boolean {
+    // Convert DialogueContext to Record<string, unknown> explicitly
+    const contextRecord: Record<string, unknown> = {
+      phase: context.phase,
+      risk: context.risk,
+      morale: context.morale,
+      budget: context.budget,
+      attention: context.attention,
+      capacity: context.capacity,
+      relationshipLevel: context.relationshipLevel,
+      tags: context.tags,
+      memoryTags: context.memoryTags,
+      npcName: context.npcName,
+      inCrisis: context.inCrisis,
+      recentActionName: context.recentActionName,
+      recentActionSuccess: context.recentActionSuccess,
+      objectiveProgress: context.objectiveProgress,
+      year: context.year,
+      availableActionsCount: context.availableActionsCount,
+      crisisType: context.crisisType,
+    };
+    return this.evaluateCondition(condition, contextRecord);
+  }
+
+  /**
+   * Evaluate a condition that can be either string or Condition object (for legacy dialogues)
+   */
+  private evaluateMixedCondition(
+    condition: string | Condition,
+    context: Record<string, unknown>
+  ): boolean {
+    if (typeof condition === 'string') {
+      return this.evaluateCondition(condition, context);
+    }
+    // For Condition objects, convert context and use JSON evaluator
+    const dialogueContext: DialogueContext = {
+      phase: (context.phase as number) ?? 0,
+      risk: (context.risk as number) ?? 0,
+      morale: (context.morale as number) ?? 0,
+      budget: (context.budget as number) ?? 0,
+      relationshipLevel: (context.relationshipLevel as number) ?? 0,
+      attention: context.attention as number | undefined,
+      capacity: context.capacity as number | undefined,
+      tags: context.tags as string[] | undefined,
+      memoryTags: context.memoryTags as string[] | undefined,
+    };
+    return this.evaluateJsonCondition(condition, dialogueContext);
+  }
+
   // ============================================
   // PLATINUM DIALOG SYSTEM - CONDITION EVALUATOR
   // ============================================
@@ -596,7 +649,8 @@ export class DialogLoader {
           return true;
         case 'in':
           if (Array.isArray(clause.value)) {
-            return clause.value.includes(value as string);
+            // Cast to any[] for includes check since clause.value could be string[] or [number, number]
+            return (clause.value as unknown[]).includes(value);
           }
           return false;
         case 'inRange':
@@ -670,7 +724,7 @@ export class DialogLoader {
 
     // Legacy string format
     if (typeof condition === 'string') {
-      return this.evaluateCondition(condition, context as Record<string, unknown>);
+      return this.evaluateLegacyCondition(condition, context);
     }
 
     // New JSON format
