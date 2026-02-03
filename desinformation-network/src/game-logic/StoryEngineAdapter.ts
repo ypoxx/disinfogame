@@ -30,6 +30,11 @@ import {
   DialogLoader,
   type Dialogue,
   type DialogueResponse,
+  type TopicDialogue,
+  type TopicLayer,
+  type DialogueContext,
+  type Debate,
+  type DialogueUIState,
 } from '../story-mode/engine/DialogLoader';
 
 import {
@@ -4069,11 +4074,13 @@ export class StoryEngineAdapter {
   /**
    * Get NPC dialogue based on context
    * TD-006: Dynamic NPC dialogues from JSON (now uses DialogLoader for elaborate dialogues)
+   * PLATINUM: Extended to support new topic system with Progressive Disclosure
    */
   getNPCDialogue(npcId: string, context: {
     type: 'greeting' | 'reaction' | 'topic';
     subtype?: string;  // For reactions: 'success'/'failure'/'crisis', for topics: topic name
     relationshipLevel?: number;
+    layer?: TopicLayer; // PLATINUM: For topics - 'intro', 'deep', 'options'
   }): string | null {
     const npc = this.npcStates.get(npcId);
     if (!npc) return null;
@@ -4113,9 +4120,21 @@ export class StoryEngineAdapter {
         return simpleDialogues?.reactions?.[context.subtype || 'success'] || null;
       }
       case 'topic': {
-        // Topics are still from simple dialogues (npcs.json) - dialogues.json doesn't have topics
+        // PLATINUM: Use new topic dialogue system with Progressive Disclosure
+        const topicId = context.subtype;
+        if (!topicId) return null;
+
+        const layer = context.layer || 'intro';
+        const dialogueContext = this.buildDialogueContext(npcId);
+
+        const topicDialogue = dialogLoader.getTopicDialogue(npcId, topicId, layer, dialogueContext, rng);
+        if (topicDialogue) {
+          return topicDialogue.text_de;
+        }
+
+        // Fallback to simple topics from npcs.json (legacy)
         const simpleDialogues = this.npcDialogues.get(npcId);
-        return simpleDialogues?.topics?.[context.subtype || ''] || null;
+        return simpleDialogues?.topics?.[topicId] || null;
       }
       default:
         return null;
@@ -4123,12 +4142,180 @@ export class StoryEngineAdapter {
   }
 
   /**
+   * PLATINUM: Get full topic dialogue object (for responses and Progressive Disclosure)
+   */
+  getTopicDialogueObject(npcId: string, topicId: string, layer: TopicLayer = 'intro'): TopicDialogue | null {
+    const npc = this.npcStates.get(npcId);
+    if (!npc) return null;
+
+    const rng = () => this.seededRandom(`topic_${npcId}_${topicId}_${layer}_${this.storyPhase.number}`);
+    const dialogueContext = this.buildDialogueContext(npcId);
+
+    return dialogLoader.getTopicDialogue(npcId, topicId, layer, dialogueContext, rng);
+  }
+
+  /**
+   * PLATINUM: Build dialogue context from current game state
+   */
+  private buildDialogueContext(npcId: string): DialogueContext {
+    const npc = this.npcStates.get(npcId);
+
+    return {
+      phase: this.storyPhase.number,
+      risk: this.storyResources.risk,
+      morale: npc?.morale ?? 50,
+      budget: this.storyResources.budget,
+      attention: this.storyResources.attention,
+      capacity: this.storyResources.capacity,
+      relationshipLevel: npc?.relationshipLevel ?? 0,
+      tags: [], // Could be populated from recent actions
+      memoryTags: dialogLoader.getMemoryTags(npcId),
+      npcName: npc?.name,
+      inCrisis: npc?.inCrisis ?? false,
+      objectiveProgress: this.calculateObjectiveProgress(),
+      year: this.storyPhase.year,
+      availableActionsCount: this.getAvailableActionsCount(),
+    };
+  }
+
+  /**
+   * PLATINUM: Calculate overall objective progress (0-100)
+   */
+  private calculateObjectiveProgress(): number {
+    if (this.objectives.length === 0) return 0;
+
+    const totalProgress = this.objectives.reduce((sum, obj) => {
+      return sum + (obj.currentValue / obj.targetValue) * 100;
+    }, 0);
+
+    return Math.min(100, Math.round(totalProgress / this.objectives.length));
+  }
+
+  /**
+   * PLATINUM: Get count of available actions
+   */
+  private getAvailableActionsCount(): number {
+    // This would need to be implemented based on your action system
+    return 10; // Placeholder
+  }
+
+  /**
    * Get available topics for an NPC
+   * PLATINUM: Now uses new topic system with context-aware filtering
    */
   getNPCTopics(npcId: string): string[] {
+    const npc = this.npcStates.get(npcId);
+    if (!npc) return [];
+
+    // PLATINUM: Get topics from new system with context filtering
+    const dialogueContext = this.buildDialogueContext(npcId);
+    const platinumTopics = dialogLoader.getAvailableTopics(npcId, dialogueContext);
+
+    if (platinumTopics.length > 0) {
+      return platinumTopics;
+    }
+
+    // Fallback to legacy topics from npcs.json
     const dialogues = this.npcDialogues.get(npcId);
     if (!dialogues || !dialogues.topics) return [];
     return Object.keys(dialogues.topics);
+  }
+
+  /**
+   * PLATINUM: Check if topic has deeper content
+   */
+  hasTopicDeepContent(npcId: string, topicId: string): boolean {
+    const dialogueContext = this.buildDialogueContext(npcId);
+    return dialogLoader.hasDeepContent(topicId, npcId, dialogueContext);
+  }
+
+  /**
+   * PLATINUM: Check if topic has options/choices
+   */
+  hasTopicOptions(npcId: string, topicId: string): boolean {
+    const dialogueContext = this.buildDialogueContext(npcId);
+    return dialogLoader.hasOptions(topicId, npcId, dialogueContext);
+  }
+
+  /**
+   * PLATINUM: Get debate dialogue if conditions are met
+   */
+  getDebate(tags?: string[]): Debate | null {
+    const dialogueContext = this.buildDialogueContext('direktor'); // Use direktor as reference
+    return dialogLoader.getDebate(dialogueContext, tags);
+  }
+
+  /**
+   * PLATINUM: Process dialogue response with action coupling
+   */
+  processTopicResponse(npcId: string, response: DialogueResponse): void {
+    const npc = this.npcStates.get(npcId);
+    if (!npc) return;
+
+    // Process standard effects
+    const effects = dialogLoader.getResponseEffects(response.effect);
+    if (effects) {
+      this.updateNPCRelationship(npcId, effects.relationship_change);
+      npc.morale = Math.max(0, Math.min(100, npc.morale + effects.morale_change));
+    }
+
+    // PLATINUM: Process extended effects with action coupling
+    switch (response.effect) {
+      case 'unlock_action':
+        if (response.payload?.actionId) {
+          // Mark action as unlocked (would need integration with action system)
+          console.log(`Action unlocked: ${response.payload.actionId} for ${response.payload.duration_phases || 'permanent'} phases`);
+        }
+        break;
+
+      case 'lock_action':
+        if (response.payload?.actionId) {
+          console.log(`Action locked: ${response.payload.actionId}`);
+        }
+        break;
+
+      case 'modify_action_cost':
+        if (response.payload?.actionId && response.payload?.cost_modifier) {
+          console.log(`Action cost modified: ${response.payload.actionId} x${response.payload.cost_modifier}`);
+        }
+        break;
+
+      case 'add_memory_tag':
+        if (response.payload?.memory_tag) {
+          dialogLoader.addMemoryTag(npcId, response.payload.memory_tag);
+        }
+        break;
+
+      case 'trigger_event':
+        if (response.payload?.event_id) {
+          console.log(`Event triggered: ${response.payload.event_id}`);
+        }
+        break;
+    }
+  }
+
+  /**
+   * PLATINUM: Add memory tag to NPC
+   */
+  addNPCMemoryTag(npcId: string, tag: string): void {
+    dialogLoader.addMemoryTag(npcId, tag);
+  }
+
+  /**
+   * PLATINUM: Get NPC memory tags
+   */
+  getNPCMemoryTags(npcId: string): string[] {
+    return dialogLoader.getMemoryTags(npcId);
+  }
+
+  /**
+   * PLATINUM: Get dialogue system metrics
+   */
+  getDialogueMetrics(): { repetitionRate: number; featureFlags: Record<string, boolean> } {
+    return {
+      repetitionRate: dialogLoader.getRepetitionRate(),
+      featureFlags: { ...dialogLoader.getFeatureFlags() }
+    };
   }
 
   getNewsEvents(options?: { unreadOnly?: boolean; limit?: number }): NewsEvent[] {

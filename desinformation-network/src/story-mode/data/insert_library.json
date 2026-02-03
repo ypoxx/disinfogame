@@ -1,0 +1,318 @@
+{
+  "$schema": "../../docs/story-mode/schema/insert_library.schema.json",
+  "meta": {
+    "version": "1.0.0",
+    "description": "Dynamic insert library for dialogue placeholders",
+    "locales": ["de", "en"]
+  },
+  "inserts": {
+    "budget_state": {
+      "conditions": [
+        {
+          "condition": { "var": "budget", "op": "<", "value": 1500 },
+          "text_de": "kritisch niedrig",
+          "text_en": "critically low"
+        },
+        {
+          "condition": { "var": "budget", "op": "<", "value": 3000 },
+          "text_de": "knapp",
+          "text_en": "tight"
+        },
+        {
+          "condition": { "var": "budget", "op": "<=", "value": 8000 },
+          "text_de": "stabil",
+          "text_en": "stable"
+        },
+        {
+          "condition": { "var": "budget", "op": ">", "value": 8000 },
+          "text_de": "komfortabel",
+          "text_en": "comfortable"
+        }
+      ],
+      "default": {
+        "text_de": "unbekannt",
+        "text_en": "unknown"
+      }
+    },
+    "budget_value": {
+      "type": "direct_value",
+      "var": "budget",
+      "format": "{value}",
+      "suffix_de": " Rubel",
+      "suffix_en": " rubles"
+    },
+    "risk_state": {
+      "conditions": [
+        {
+          "condition": { "var": "risk", "op": ">=", "value": 85 },
+          "text_de": "kritisch hoch - wir stehen kurz vor der Entdeckung",
+          "text_en": "critically high - we're close to exposure"
+        },
+        {
+          "condition": { "var": "risk", "op": ">=", "value": 70 },
+          "text_de": "gefährlich hoch",
+          "text_en": "dangerously high"
+        },
+        {
+          "condition": { "var": "risk", "op": ">=", "value": 50 },
+          "text_de": "erhöht",
+          "text_en": "elevated"
+        },
+        {
+          "condition": { "var": "risk", "op": ">=", "value": 30 },
+          "text_de": "moderat",
+          "text_en": "moderate"
+        },
+        {
+          "condition": { "var": "risk", "op": "<", "value": 30 },
+          "text_de": "niedrig",
+          "text_en": "low"
+        }
+      ],
+      "default": {
+        "text_de": "unbekannt",
+        "text_en": "unknown"
+      }
+    },
+    "risk_value": {
+      "type": "direct_value",
+      "var": "risk",
+      "format": "{value}%"
+    },
+    "morale_state": {
+      "conditions": [
+        {
+          "condition": { "var": "morale", "op": "<=", "value": 20 },
+          "text_de": "am Boden",
+          "text_en": "rock bottom"
+        },
+        {
+          "condition": { "var": "morale", "op": "<=", "value": 40 },
+          "text_de": "niedrig",
+          "text_en": "low"
+        },
+        {
+          "condition": { "var": "morale", "op": "<", "value": 75 },
+          "text_de": "stabil",
+          "text_en": "stable"
+        },
+        {
+          "condition": { "var": "morale", "op": ">=", "value": 75 },
+          "text_de": "hoch",
+          "text_en": "high"
+        }
+      ],
+      "default": {
+        "text_de": "unbekannt",
+        "text_en": "unknown"
+      }
+    },
+    "morale_value": {
+      "type": "direct_value",
+      "var": "morale",
+      "format": "{value}%"
+    },
+    "attention_state": {
+      "conditions": [
+        {
+          "condition": { "var": "attention", "op": ">=", "value": 80 },
+          "text_de": "unter massiver öffentlicher Beobachtung",
+          "text_en": "under massive public scrutiny"
+        },
+        {
+          "condition": { "var": "attention", "op": ">=", "value": 60 },
+          "text_de": "hoch - die Medien sind aufmerksam",
+          "text_en": "high - media is paying attention"
+        },
+        {
+          "condition": { "var": "attention", "op": ">=", "value": 40 },
+          "text_de": "moderat",
+          "text_en": "moderate"
+        },
+        {
+          "condition": { "var": "attention", "op": "<", "value": 40 },
+          "text_de": "niedrig - wir fliegen unter dem Radar",
+          "text_en": "low - we're flying under the radar"
+        }
+      ],
+      "default": {
+        "text_de": "unbekannt",
+        "text_en": "unknown"
+      }
+    },
+    "phase_state": {
+      "conditions": [
+        {
+          "condition": { "var": "phase", "op": "<=", "value": 20 },
+          "text_de": "frühen Phase",
+          "text_en": "early phase"
+        },
+        {
+          "condition": { "var": "phase", "op": "<=", "value": 60 },
+          "text_de": "mittleren Phase",
+          "text_en": "mid phase"
+        },
+        {
+          "condition": { "var": "phase", "op": "<=", "value": 100 },
+          "text_de": "späten Phase",
+          "text_en": "late phase"
+        },
+        {
+          "condition": { "var": "phase", "op": ">", "value": 100 },
+          "text_de": "Endphase",
+          "text_en": "end phase"
+        }
+      ],
+      "default": {
+        "text_de": "aktuellen Phase",
+        "text_en": "current phase"
+      }
+    },
+    "phase_value": {
+      "type": "direct_value",
+      "var": "phase",
+      "format": "Phase {value}"
+    },
+    "capacity_state": {
+      "conditions": [
+        {
+          "condition": { "var": "capacity", "op": "<=", "value": 1 },
+          "text_de": "fast erschöpft",
+          "text_en": "nearly exhausted"
+        },
+        {
+          "condition": { "var": "capacity", "op": "<=", "value": 3 },
+          "text_de": "begrenzt",
+          "text_en": "limited"
+        },
+        {
+          "condition": { "var": "capacity", "op": ">", "value": 3 },
+          "text_de": "ausreichend",
+          "text_en": "sufficient"
+        }
+      ],
+      "default": {
+        "text_de": "unbekannt",
+        "text_en": "unknown"
+      }
+    },
+    "relationship_state": {
+      "conditions": [
+        {
+          "condition": { "var": "relationshipLevel", "op": "==", "value": 0 },
+          "text_de": "neutral",
+          "text_en": "neutral"
+        },
+        {
+          "condition": { "var": "relationshipLevel", "op": "==", "value": 1 },
+          "text_de": "bekannt",
+          "text_en": "known"
+        },
+        {
+          "condition": { "var": "relationshipLevel", "op": "==", "value": 2 },
+          "text_de": "vertraut",
+          "text_en": "trusted"
+        },
+        {
+          "condition": { "var": "relationshipLevel", "op": "==", "value": 3 },
+          "text_de": "loyal",
+          "text_en": "loyal"
+        }
+      ],
+      "default": {
+        "text_de": "unbekannt",
+        "text_en": "unknown"
+      }
+    },
+    "npc_name": {
+      "type": "context_value",
+      "var": "npcName"
+    },
+    "player_title": {
+      "conditions": [
+        {
+          "condition": { "var": "relationshipLevel", "op": ">=", "value": 2 },
+          "text_de": "Genosse",
+          "text_en": "Comrade"
+        }
+      ],
+      "default": {
+        "text_de": "Agent",
+        "text_en": "Agent"
+      }
+    },
+    "budget_option_count": {
+      "type": "computed",
+      "formula": "floor(budget / 2000)",
+      "fallback": {
+        "text_de": "einige",
+        "text_en": "some"
+      }
+    },
+    "available_actions_count": {
+      "type": "context_value",
+      "var": "availableActionsCount",
+      "fallback": {
+        "text_de": "mehrere",
+        "text_en": "several"
+      }
+    },
+    "days_remaining": {
+      "type": "computed",
+      "formula": "120 - phase",
+      "suffix_de": " Tage",
+      "suffix_en": " days"
+    },
+    "current_year": {
+      "type": "context_value",
+      "var": "year",
+      "fallback": {
+        "text_de": "dieses Jahr",
+        "text_en": "this year"
+      }
+    },
+    "recent_action_name": {
+      "type": "context_value",
+      "var": "recentActionName",
+      "fallback": {
+        "text_de": "die letzte Aktion",
+        "text_en": "the recent action"
+      }
+    },
+    "recent_action_result": {
+      "conditions": [
+        {
+          "condition": { "var": "recentActionSuccess", "op": "==", "value": true },
+          "text_de": "erfolgreich",
+          "text_en": "successful"
+        },
+        {
+          "condition": { "var": "recentActionSuccess", "op": "==", "value": false },
+          "text_de": "gescheitert",
+          "text_en": "failed"
+        }
+      ],
+      "default": {
+        "text_de": "abgeschlossen",
+        "text_en": "completed"
+      }
+    },
+    "crisis_type": {
+      "type": "context_value",
+      "var": "crisisType",
+      "fallback": {
+        "text_de": "die aktuelle Krise",
+        "text_en": "the current crisis"
+      }
+    },
+    "objective_progress": {
+      "type": "context_value",
+      "var": "objectiveProgress",
+      "format": "{value}%",
+      "fallback": {
+        "text_de": "unbekannt",
+        "text_en": "unknown"
+      }
+    }
+  }
+}

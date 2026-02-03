@@ -1,0 +1,1443 @@
+{
+  "schemaVersion": "1.0.0",
+  "meta": {
+    "id": "story-mode.topics",
+    "version": "1.0.0",
+    "created": "2026-02-03",
+    "description": "Platinum Dialog System - Topic-basierte Dialoge mit Progressive Disclosure",
+    "locales": ["de", "en"],
+    "insertLibrary": "insert_library.json"
+  },
+  "topics": {
+    "mission": {
+      "core_message": "Die Destabilisierung von Westunion ist die oberste Prioritaet",
+      "intro": [
+        {
+          "id": "topic_mission_intro_1",
+          "text_de": "Die Destabilisierung von Westunion ist von hoechster Prioritaet. Wir haben {days_remaining} bis zum Endtermin.",
+          "text_en": "The destabilization of Westunion is our highest priority. We have {days_remaining} until the deadline.",
+          "tone": "serious",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "direktor",
+          "responses": [
+            {
+              "id": "resp_mission_detail",
+              "text_de": "Wie sieht der aktuelle Stand aus?",
+              "text_en": "What's the current status?",
+              "effect": "neutral",
+              "leads_to": "topic_mission_deep_1"
+            },
+            {
+              "id": "resp_mission_ack",
+              "text_de": "Verstanden. Wir werden liefern.",
+              "text_en": "Understood. We will deliver.",
+              "effect": "positive"
+            }
+          ]
+        },
+        {
+          "id": "topic_mission_intro_2",
+          "text_de": "Unsere Mission ist klar definiert. Moskau erwartet Resultate, keine Ausreden.",
+          "text_en": "Our mission is clearly defined. Moscow expects results, not excuses.",
+          "tone": "cold",
+          "probability": 0.4,
+          "phase_range": [1, 60],
+          "npc_id": "direktor",
+          "condition": {
+            "all": [
+              { "var": "relationshipLevel", "op": "<", "value": 2 }
+            ]
+          }
+        },
+        {
+          "id": "topic_mission_intro_3",
+          "text_de": "Die Operation laeuft in der {phase_state}. Wir muessen den Druck aufrechterhalten.",
+          "text_en": "The operation is in the {phase_state}. We must maintain pressure.",
+          "tone": "urgent",
+          "probability": 0.5,
+          "phase_range": [60, 120],
+          "condition": {
+            "all": [
+              { "var": "phase", "op": ">=", "value": 60 }
+            ]
+          }
+        },
+        {
+          "id": "topic_mission_intro_4",
+          "text_de": "*vertraulich* Zwischen uns: Diese Mission ist wichtiger als Moskau zugibt. Erfolg oeffnet Tueren.",
+          "text_en": "*confidentially* Between us: This mission is more important than Moscow admits. Success opens doors.",
+          "tone": "conspiratorial",
+          "probability": 0.3,
+          "phase_range": [1, 120],
+          "npc_id": "direktor",
+          "condition": {
+            "all": [
+              { "var": "relationshipLevel", "op": ">=", "value": 2 }
+            ]
+          }
+        }
+      ],
+      "deep": [
+        {
+          "id": "topic_mission_deep_1",
+          "text_de": "Unser Fortschritt liegt bei {objective_progress}. Das Risiko steht bei {risk_value} - {risk_state}.",
+          "text_en": "Our progress is at {objective_progress}. Risk is at {risk_value} - {risk_state}.",
+          "tone": "analytical",
+          "probability": 0.7,
+          "phase_range": [1, 120]
+        },
+        {
+          "id": "topic_mission_deep_2",
+          "text_de": "Die Kernziele sind: Medienlandschaft infiltrieren, Gesellschaft spalten, Institutionen untergraben. In dieser Reihenfolge.",
+          "text_en": "Core objectives are: Infiltrate media landscape, divide society, undermine institutions. In that order.",
+          "tone": "explanatory",
+          "probability": 0.5,
+          "phase_range": [1, 40]
+        },
+        {
+          "id": "topic_mission_deep_3",
+          "text_de": "Wir haben {budget_value} zur Verfuegung - {budget_state}. Jede Aktion muss sich rechnen.",
+          "text_en": "We have {budget_value} available - {budget_state}. Every action must pay off.",
+          "tone": "pragmatic",
+          "probability": 0.4,
+          "phase_range": [1, 120]
+        }
+      ],
+      "options": [
+        {
+          "id": "topic_mission_option_1",
+          "text_de": "Sollen wir aggressiver vorgehen und das Risiko erhoehen?",
+          "text_en": "Should we be more aggressive and increase the risk?",
+          "tone": "questioning",
+          "condition": {
+            "all": [
+              { "var": "risk", "op": "<", "value": 60 }
+            ]
+          },
+          "responses": [
+            {
+              "id": "resp_aggressive_yes",
+              "text_de": "Ja, wir muessen schneller vorankommen.",
+              "text_en": "Yes, we need to move faster.",
+              "effect": "unlock_action",
+              "payload": { "actionId": "ta_high_risk_ops", "duration_phases": 5 }
+            },
+            {
+              "id": "resp_aggressive_no",
+              "text_de": "Nein, Vorsicht ist besser.",
+              "text_en": "No, caution is better.",
+              "effect": "neutral"
+            }
+          ]
+        },
+        {
+          "id": "topic_mission_option_2",
+          "text_de": "Sollten wir einen Rueckzugsplan vorbereiten?",
+          "text_en": "Should we prepare an exit strategy?",
+          "tone": "cautious",
+          "condition": {
+            "all": [
+              { "var": "risk", "op": ">=", "value": 70 }
+            ]
+          },
+          "responses": [
+            {
+              "id": "resp_exit_yes",
+              "text_de": "Ja, Sicherheit geht vor.",
+              "text_en": "Yes, safety first.",
+              "effect": "unlock_action",
+              "payload": { "actionId": "ta_prepare_exit", "duration_phases": 10 }
+            },
+            {
+              "id": "resp_exit_no",
+              "text_de": "Nein, wir kaempfen bis zum Ende.",
+              "text_en": "No, we fight to the end.",
+              "effect": "add_memory_tag",
+              "payload": { "memory_tag": "rejected_caution" }
+            }
+          ]
+        }
+      ]
+    },
+    "resources": {
+      "core_message": "Budget ist knapp und muss weise genutzt werden",
+      "intro": [
+        {
+          "id": "topic_resources_intro_1",
+          "text_de": "Budget ist {budget_state}. Mit {budget_value} muessen wir priorisieren.",
+          "text_en": "Budget is {budget_state}. With {budget_value} we must prioritize.",
+          "tone": "serious",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "direktor",
+          "responses": [
+            {
+              "id": "resp_resources_detail",
+              "text_de": "Wo koennen wir sparen?",
+              "text_en": "Where can we cut costs?",
+              "effect": "neutral",
+              "leads_to": "topic_resources_deep_1"
+            }
+          ]
+        },
+        {
+          "id": "topic_resources_intro_2",
+          "text_de": "Die Ressourcenlage ist {budget_state}. Moskau wird nicht endlos nachschiessen.",
+          "text_en": "The resource situation is {budget_state}. Moscow won't keep funding indefinitely.",
+          "tone": "warning",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "condition": {
+            "all": [
+              { "var": "budget", "op": "<", "value": 5000 }
+            ]
+          }
+        },
+        {
+          "id": "topic_resources_intro_3",
+          "text_de": "Jeder Rubel muss Rechenschaft ablegen. Keine Verschwendung.",
+          "text_en": "Every ruble must be accounted for. No waste.",
+          "tone": "strict",
+          "probability": 0.4,
+          "phase_range": [1, 120],
+          "npc_id": "igor"
+        },
+        {
+          "id": "topic_resources_intro_4",
+          "text_de": "Mit {budget_value} koennen wir {budget_option_count} groessere Operationen finanzieren.",
+          "text_en": "With {budget_value} we can fund {budget_option_count} major operations.",
+          "tone": "analytical",
+          "probability": 0.5,
+          "phase_range": [1, 120]
+        }
+      ],
+      "deep": [
+        {
+          "id": "topic_resources_deep_1",
+          "text_de": "Die groessten Kostentreiber sind: Bot-Netzwerke (40%), Tarnfirmen (30%), Feldoperationen (30%).",
+          "text_en": "The biggest cost drivers are: Bot networks (40%), front companies (30%), field operations (30%).",
+          "tone": "explanatory",
+          "probability": 0.6,
+          "phase_range": [1, 120]
+        },
+        {
+          "id": "topic_resources_deep_2",
+          "text_de": "Einsparungen sind moeglich bei den Bot-Netzwerken - aber das kostet Reichweite.",
+          "text_en": "Savings are possible on bot networks - but that costs reach.",
+          "tone": "pragmatic",
+          "probability": 0.5,
+          "phase_range": [1, 120]
+        },
+        {
+          "id": "topic_resources_deep_3",
+          "text_de": "Tarnfirmen kosten viel, sind aber unsere Lebensader fuer Geldwaesche und Tarnung.",
+          "text_en": "Front companies cost a lot, but they're our lifeline for money laundering and cover.",
+          "tone": "serious",
+          "probability": 0.4,
+          "phase_range": [1, 120],
+          "npc_id": "igor"
+        }
+      ],
+      "options": [
+        {
+          "id": "topic_resources_option_1",
+          "text_de": "Sollen wir Mittel von anderen Bereichen umschichten?",
+          "text_en": "Should we shift funds from other areas?",
+          "tone": "questioning",
+          "responses": [
+            {
+              "id": "resp_shift_bots",
+              "text_de": "Von Bot-Netzwerken zu Feldoperationen.",
+              "text_en": "From bot networks to field operations.",
+              "effect": "modify_action_cost",
+              "payload": { "actionId": "ta04_social_bots", "cost_modifier": 1.5 }
+            },
+            {
+              "id": "resp_shift_field",
+              "text_de": "Von Feldoperationen zu Bot-Netzwerken.",
+              "text_en": "From field operations to bot networks.",
+              "effect": "modify_action_cost",
+              "payload": { "actionId": "ta08_infiltrate", "cost_modifier": 1.5 }
+            },
+            {
+              "id": "resp_no_shift",
+              "text_de": "Nein, Verteilung beibehalten.",
+              "text_en": "No, keep the distribution.",
+              "effect": "neutral"
+            }
+          ]
+        },
+        {
+          "id": "topic_resources_option_2",
+          "text_de": "Sollten wir Moskau um zusaetzliche Mittel bitten?",
+          "text_en": "Should we ask Moscow for additional funds?",
+          "tone": "cautious",
+          "condition": {
+            "all": [
+              { "var": "budget", "op": "<", "value": 3000 },
+              { "var": "relationshipLevel", "op": ">=", "value": 2 }
+            ]
+          },
+          "responses": [
+            {
+              "id": "resp_ask_moscow",
+              "text_de": "Ja, aber das ist riskant.",
+              "text_en": "Yes, but it's risky.",
+              "effect": "unlock_action",
+              "payload": { "actionId": "ta_request_funds", "duration_phases": 3 }
+            }
+          ]
+        }
+      ]
+    },
+    "risks": {
+      "core_message": "Risiko ist unvermeidlich aber Entdeckung ist inakzeptabel",
+      "intro": [
+        {
+          "id": "topic_risks_intro_1",
+          "text_de": "Das aktuelle Risiko ist {risk_state}. Bei {risk_value} muessen wir vorsichtig sein.",
+          "text_en": "Current risk is {risk_state}. At {risk_value} we must be careful.",
+          "tone": "serious",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "responses": [
+            {
+              "id": "resp_risks_detail",
+              "text_de": "Was treibt das Risiko?",
+              "text_en": "What's driving the risk?",
+              "effect": "neutral",
+              "leads_to": "topic_risks_deep_1"
+            }
+          ]
+        },
+        {
+          "id": "topic_risks_intro_2",
+          "text_de": "Risiko ist unvermeidlich. Aber Entdeckung ist nicht akzeptabel.",
+          "text_en": "Risk is unavoidable. But discovery is not acceptable.",
+          "tone": "cold",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "direktor"
+        },
+        {
+          "id": "topic_risks_intro_3",
+          "text_de": "Jeder Fehler kann zur Entdeckung fuehren. Die Sicherheitsprotokolle muessen eingehalten werden.",
+          "text_en": "Any mistake could lead to discovery. Security protocols must be followed.",
+          "tone": "paranoid",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "alexei"
+        },
+        {
+          "id": "topic_risks_intro_4",
+          "text_de": "Risiko gehoert zum Job. Aber unnoetige Risiken nicht.",
+          "text_en": "Risk is part of the job. But unnecessary risks are not.",
+          "tone": "pragmatic",
+          "probability": 0.4,
+          "phase_range": [1, 120],
+          "npc_id": "katja"
+        },
+        {
+          "id": "topic_risks_intro_5",
+          "text_de": "*besorgt* Bei {risk_value} Risiko stehen wir kurz vor der Katastrophe.",
+          "text_en": "*worried* At {risk_value} risk we're on the brink of disaster.",
+          "tone": "urgent",
+          "probability": 0.8,
+          "phase_range": [1, 120],
+          "condition": {
+            "all": [
+              { "var": "risk", "op": ">=", "value": 80 }
+            ]
+          }
+        }
+      ],
+      "deep": [
+        {
+          "id": "topic_risks_deep_1",
+          "text_de": "Die Hauptrisikofaktoren sind: Aggressive Operationen, mangelhafte Tarnung, und zu viele gleichzeitige Aktionen.",
+          "text_en": "Main risk factors are: Aggressive operations, poor cover, and too many simultaneous actions.",
+          "tone": "analytical",
+          "probability": 0.6,
+          "phase_range": [1, 120]
+        },
+        {
+          "id": "topic_risks_deep_2",
+          "text_de": "Westliche Geheimdienste werden aufmerksamer. Unsere Muster koennten erkannt werden.",
+          "text_en": "Western intelligence is getting more alert. Our patterns could be recognized.",
+          "tone": "paranoid",
+          "probability": 0.5,
+          "phase_range": [40, 120],
+          "npc_id": "alexei"
+        },
+        {
+          "id": "topic_risks_deep_3",
+          "text_de": "Die Aufmerksamkeit der Medien ist {attention_state}. Das beeinflusst unser Risiko direkt.",
+          "text_en": "Media attention is {attention_state}. This directly affects our risk.",
+          "tone": "explanatory",
+          "probability": 0.5,
+          "phase_range": [1, 120]
+        }
+      ],
+      "options": [
+        {
+          "id": "topic_risks_option_1",
+          "text_de": "Sollen wir alle Operationen pausieren, um das Risiko zu senken?",
+          "text_en": "Should we pause all operations to reduce risk?",
+          "tone": "cautious",
+          "condition": {
+            "all": [
+              { "var": "risk", "op": ">=", "value": 70 }
+            ]
+          },
+          "responses": [
+            {
+              "id": "resp_pause_yes",
+              "text_de": "Ja, Sicherheit geht vor.",
+              "text_en": "Yes, safety first.",
+              "effect": "lock_action",
+              "payload": { "actionId": "ta_high_risk_ops", "duration_phases": 3 }
+            },
+            {
+              "id": "resp_pause_no",
+              "text_de": "Nein, weitermachen.",
+              "text_en": "No, continue.",
+              "effect": "add_memory_tag",
+              "payload": { "memory_tag": "ignored_risk_warning" }
+            }
+          ]
+        },
+        {
+          "id": "topic_risks_option_2",
+          "text_de": "Sollten wir unsere Tarnung verstaerken?",
+          "text_en": "Should we strengthen our cover?",
+          "tone": "questioning",
+          "responses": [
+            {
+              "id": "resp_cover_yes",
+              "text_de": "Ja, investieren wir in bessere Tarnung.",
+              "text_en": "Yes, let's invest in better cover.",
+              "effect": "unlock_action",
+              "payload": { "actionId": "ta_improve_cover", "duration_phases": 5 }
+            }
+          ]
+        }
+      ]
+    },
+    "content": {
+      "core_message": "Inhalte muessen emotional sein - Fakten sind nebensaechlich",
+      "intro": [
+        {
+          "id": "topic_content_intro_1",
+          "text_de": "Inhalte muessen emotional sein. Fakten sind nebensaechlich - Gefuehle bewegen Menschen.",
+          "text_en": "Content must be emotional. Facts are secondary - feelings move people.",
+          "tone": "enthusiastic",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "marina",
+          "responses": [
+            {
+              "id": "resp_content_detail",
+              "text_de": "Wie optimieren wir unsere Inhalte?",
+              "text_en": "How do we optimize our content?",
+              "effect": "neutral",
+              "leads_to": "topic_content_deep_1"
+            }
+          ]
+        },
+        {
+          "id": "topic_content_intro_2",
+          "text_de": "Wut, Angst, Empoerung - das sind unsere Werkzeuge. Nuechterne Fakten interessieren niemanden.",
+          "text_en": "Anger, fear, outrage - these are our tools. Dry facts interest no one.",
+          "tone": "cynical",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "marina"
+        },
+        {
+          "id": "topic_content_intro_3",
+          "text_de": "Die besten Inhalte sind die, die geteilt werden ohne nachzudenken.",
+          "text_en": "The best content is the kind that gets shared without thinking.",
+          "tone": "analytical",
+          "probability": 0.4,
+          "phase_range": [1, 120],
+          "npc_id": "marina"
+        }
+      ],
+      "deep": [
+        {
+          "id": "topic_content_deep_1",
+          "text_de": "Wir nutzen das 'Empoerungs-Modell': Identifiziere Feindbilder, uebertreibe, vereinfache, wiederhole.",
+          "text_en": "We use the 'outrage model': Identify enemies, exaggerate, simplify, repeat.",
+          "tone": "explanatory",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "marina"
+        },
+        {
+          "id": "topic_content_deep_2",
+          "text_de": "A/B-Tests zeigen: Negative Inhalte werden 70% mehr geteilt als positive.",
+          "text_en": "A/B tests show: Negative content gets shared 70% more than positive.",
+          "tone": "analytical",
+          "probability": 0.5,
+          "phase_range": [1, 120]
+        },
+        {
+          "id": "topic_content_deep_3",
+          "text_de": "Visuelle Inhalte sind am effektivsten. Memes und kurze Videos schlagen lange Texte.",
+          "text_en": "Visual content is most effective. Memes and short videos beat long texts.",
+          "tone": "enthusiastic",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "marina"
+        }
+      ],
+      "options": [
+        {
+          "id": "topic_content_option_1",
+          "text_de": "Sollen wir mehr auf Desinformation oder Polarisierung setzen?",
+          "text_en": "Should we focus more on disinformation or polarization?",
+          "tone": "questioning",
+          "responses": [
+            {
+              "id": "resp_disinfo",
+              "text_de": "Desinformation - falsche Nachrichten verbreiten.",
+              "text_en": "Disinformation - spread false news.",
+              "effect": "unlock_action",
+              "payload": { "actionId": "ta_disinfo_campaign", "duration_phases": 5 }
+            },
+            {
+              "id": "resp_polarize",
+              "text_de": "Polarisierung - bestehende Konflikte verschaerfen.",
+              "text_en": "Polarization - intensify existing conflicts.",
+              "effect": "unlock_action",
+              "payload": { "actionId": "ta_polarize_campaign", "duration_phases": 5 }
+            }
+          ]
+        }
+      ]
+    },
+    "platforms": {
+      "core_message": "Jede Plattform braucht einen anderen Ansatz",
+      "intro": [
+        {
+          "id": "topic_platforms_intro_1",
+          "text_de": "Jede Plattform braucht einen anderen Ansatz. Was auf Twitter funktioniert, versagt auf Facebook.",
+          "text_en": "Each platform needs a different approach. What works on Twitter fails on Facebook.",
+          "tone": "explanatory",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "marina",
+          "responses": [
+            {
+              "id": "resp_platforms_detail",
+              "text_de": "Welche Plattform ist am wichtigsten?",
+              "text_en": "Which platform is most important?",
+              "effect": "neutral",
+              "leads_to": "topic_platforms_deep_1"
+            }
+          ]
+        },
+        {
+          "id": "topic_platforms_intro_2",
+          "text_de": "Die Algorithmen sind unsere besten Verbuendeten - sie belohnen Engagement, nicht Wahrheit.",
+          "text_en": "The algorithms are our best allies - they reward engagement, not truth.",
+          "tone": "cynical",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "marina"
+        }
+      ],
+      "deep": [
+        {
+          "id": "topic_platforms_deep_1",
+          "text_de": "Facebook fuer aeltere Zielgruppen, Twitter fuer Journalisten und Meinungsmacher, TikTok fuer die Jugend.",
+          "text_en": "Facebook for older demographics, Twitter for journalists and opinion leaders, TikTok for youth.",
+          "tone": "analytical",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "marina"
+        },
+        {
+          "id": "topic_platforms_deep_2",
+          "text_de": "Telegram-Gruppen sind ideal fuer radikale Inhalte - weniger Moderation, mehr Reichweite.",
+          "text_en": "Telegram groups are ideal for radical content - less moderation, more reach.",
+          "tone": "pragmatic",
+          "probability": 0.5,
+          "phase_range": [1, 120]
+        }
+      ],
+      "options": [
+        {
+          "id": "topic_platforms_option_1",
+          "text_de": "Auf welche Plattform sollen wir uns konzentrieren?",
+          "text_en": "Which platform should we focus on?",
+          "tone": "questioning",
+          "responses": [
+            {
+              "id": "resp_focus_facebook",
+              "text_de": "Facebook - breite Masse erreichen.",
+              "text_en": "Facebook - reach the masses.",
+              "effect": "modify_action_cost",
+              "payload": { "actionId": "ta03_amplify_message", "cost_modifier": 0.8 }
+            },
+            {
+              "id": "resp_focus_twitter",
+              "text_de": "Twitter - Meinungsmacher beeinflussen.",
+              "text_en": "Twitter - influence opinion leaders.",
+              "effect": "modify_action_cost",
+              "payload": { "actionId": "ta02_create_content", "cost_modifier": 0.8 }
+            }
+          ]
+        }
+      ]
+    },
+    "viral": {
+      "core_message": "Viralitaet ist keine Kunst - es ist Wissenschaft",
+      "intro": [
+        {
+          "id": "topic_viral_intro_1",
+          "text_de": "Viralitaet ist keine Kunst - es ist Wissenschaft. Wir kennen die Formeln.",
+          "text_en": "Virality isn't art - it's science. We know the formulas.",
+          "tone": "confident",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "marina",
+          "responses": [
+            {
+              "id": "resp_viral_detail",
+              "text_de": "Was macht Inhalte viral?",
+              "text_en": "What makes content viral?",
+              "effect": "neutral",
+              "leads_to": "topic_viral_deep_1"
+            }
+          ]
+        },
+        {
+          "id": "topic_viral_intro_2",
+          "text_de": "Jeder virale Hit folgt dem gleichen Muster: Emotion, Einfachheit, Timing.",
+          "text_en": "Every viral hit follows the same pattern: Emotion, simplicity, timing.",
+          "tone": "enthusiastic",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "marina"
+        }
+      ],
+      "deep": [
+        {
+          "id": "topic_viral_deep_1",
+          "text_de": "Die Formel: Starke Emotion + einfache Botschaft + perfektes Timing + initiale Verstaerkung durch Bots.",
+          "text_en": "The formula: Strong emotion + simple message + perfect timing + initial amplification via bots.",
+          "tone": "explanatory",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "marina"
+        },
+        {
+          "id": "topic_viral_deep_2",
+          "text_de": "Unsere Bot-Netzwerke geben den initialen Push. Danach uebernehmen echte Nutzer.",
+          "text_en": "Our bot networks provide the initial push. Then real users take over.",
+          "tone": "technical",
+          "probability": 0.5,
+          "phase_range": [1, 120]
+        }
+      ],
+      "options": [
+        {
+          "id": "topic_viral_option_1",
+          "text_de": "Sollen wir eine virale Kampagne starten?",
+          "text_en": "Should we start a viral campaign?",
+          "tone": "enthusiastic",
+          "responses": [
+            {
+              "id": "resp_viral_yes",
+              "text_de": "Ja, maximale Reichweite.",
+              "text_en": "Yes, maximum reach.",
+              "effect": "unlock_action",
+              "payload": { "actionId": "ta_viral_campaign", "duration_phases": 3 }
+            }
+          ]
+        }
+      ]
+    },
+    "infrastructure": {
+      "core_message": "Unsere Server sind ueber mehrere Laender verteilt fuer maximale Sicherheit",
+      "intro": [
+        {
+          "id": "topic_infra_intro_1",
+          "text_de": "Unsere Server sind ueber 7 Laender verteilt. Redundanz ist Sicherheit.",
+          "text_en": "Our servers are distributed across 7 countries. Redundancy is security.",
+          "tone": "technical",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "alexei",
+          "responses": [
+            {
+              "id": "resp_infra_detail",
+              "text_de": "Wie sicher ist unsere Infrastruktur?",
+              "text_en": "How secure is our infrastructure?",
+              "effect": "neutral",
+              "leads_to": "topic_infra_deep_1"
+            }
+          ]
+        },
+        {
+          "id": "topic_infra_intro_2",
+          "text_de": "Die technische Basis ist solide, aber braucht staendige Wartung und Updates.",
+          "text_en": "The technical foundation is solid, but needs constant maintenance and updates.",
+          "tone": "serious",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "alexei"
+        }
+      ],
+      "deep": [
+        {
+          "id": "topic_infra_deep_1",
+          "text_de": "Wir nutzen VPNs, Tor-Netzwerke und verschluesselte Kommunikation. Aber absolute Sicherheit gibt es nicht.",
+          "text_en": "We use VPNs, Tor networks and encrypted communications. But absolute security doesn't exist.",
+          "tone": "paranoid",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "alexei"
+        },
+        {
+          "id": "topic_infra_deep_2",
+          "text_de": "Die groesste Schwachstelle ist immer der Mensch. Technik koennen wir kontrollieren, Menschen nicht.",
+          "text_en": "The biggest vulnerability is always the human. We can control technology, not people.",
+          "tone": "cynical",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "alexei"
+        }
+      ],
+      "options": [
+        {
+          "id": "topic_infra_option_1",
+          "text_de": "Sollen wir in bessere Infrastruktur investieren?",
+          "text_en": "Should we invest in better infrastructure?",
+          "tone": "questioning",
+          "responses": [
+            {
+              "id": "resp_infra_yes",
+              "text_de": "Ja, Sicherheit ist wichtiger als Budget.",
+              "text_en": "Yes, security is more important than budget.",
+              "effect": "unlock_action",
+              "payload": { "actionId": "ta_upgrade_infra", "duration_phases": 5 }
+            }
+          ]
+        }
+      ]
+    },
+    "bots": {
+      "core_message": "Die Bot-Netzwerke brauchen staendige Wartung",
+      "intro": [
+        {
+          "id": "topic_bots_intro_1",
+          "text_de": "Die Bot-Netzwerke brauchen staendige Wartung. Plattformen werden immer besser im Erkennen.",
+          "text_en": "The bot networks need constant maintenance. Platforms are getting better at detection.",
+          "tone": "concerned",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "alexei",
+          "responses": [
+            {
+              "id": "resp_bots_detail",
+              "text_de": "Wie viele Bots haben wir aktiv?",
+              "text_en": "How many bots do we have active?",
+              "effect": "neutral",
+              "leads_to": "topic_bots_deep_1"
+            }
+          ]
+        },
+        {
+          "id": "topic_bots_intro_2",
+          "text_de": "Bots sind unser Multiplikator. Ohne sie waeren wir nur eine Stimme unter Millionen.",
+          "text_en": "Bots are our multiplier. Without them we'd be just one voice among millions.",
+          "tone": "explanatory",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "alexei"
+        }
+      ],
+      "deep": [
+        {
+          "id": "topic_bots_deep_1",
+          "text_de": "Aktuell sind etwa 50.000 Accounts aktiv. Davon 30% hochqualitativ mit echtem Verhalten.",
+          "text_en": "Currently about 50,000 accounts are active. 30% are high quality with real behavior patterns.",
+          "tone": "technical",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "alexei"
+        },
+        {
+          "id": "topic_bots_deep_2",
+          "text_de": "Wir verlieren taeglich etwa 2% der Accounts durch Sperren. Nachschub ist essenziell.",
+          "text_en": "We lose about 2% of accounts daily to bans. Replenishment is essential.",
+          "tone": "pragmatic",
+          "probability": 0.5,
+          "phase_range": [1, 120]
+        }
+      ],
+      "options": [
+        {
+          "id": "topic_bots_option_1",
+          "text_de": "Sollen wir mehr in Bot-Qualitaet oder Quantitaet investieren?",
+          "text_en": "Should we invest more in bot quality or quantity?",
+          "tone": "questioning",
+          "responses": [
+            {
+              "id": "resp_bots_quality",
+              "text_de": "Qualitaet - weniger aber bessere Accounts.",
+              "text_en": "Quality - fewer but better accounts.",
+              "effect": "modify_action_cost",
+              "payload": { "actionId": "ta04_social_bots", "cost_modifier": 1.3 }
+            },
+            {
+              "id": "resp_bots_quantity",
+              "text_de": "Quantitaet - Masse statt Klasse.",
+              "text_en": "Quantity - mass over class.",
+              "effect": "modify_action_cost",
+              "payload": { "actionId": "ta04_social_bots", "cost_modifier": 0.7 }
+            }
+          ]
+        }
+      ]
+    },
+    "security": {
+      "core_message": "Jeder Fehler kann zur Entdeckung fuehren",
+      "intro": [
+        {
+          "id": "topic_security_intro_1",
+          "text_de": "Jeder Fehler kann zur Entdeckung fuehren. Sicherheitsprotokolle sind nicht verhandelbar.",
+          "text_en": "Any mistake could lead to discovery. Security protocols are non-negotiable.",
+          "tone": "paranoid",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "alexei",
+          "responses": [
+            {
+              "id": "resp_security_detail",
+              "text_de": "Welche Schwachstellen haben wir?",
+              "text_en": "What vulnerabilities do we have?",
+              "effect": "neutral",
+              "leads_to": "topic_security_deep_1"
+            }
+          ]
+        },
+        {
+          "id": "topic_security_intro_2",
+          "text_de": "Ich schlafe schlecht wegen der Sicherheitslage. Wir sind verwundbar.",
+          "text_en": "I sleep poorly because of the security situation. We are vulnerable.",
+          "tone": "worried",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "alexei",
+          "condition": {
+            "all": [
+              { "var": "risk", "op": ">=", "value": 50 }
+            ]
+          }
+        }
+      ],
+      "deep": [
+        {
+          "id": "topic_security_deep_1",
+          "text_de": "Schwachstellen: Menschliches Versagen (40%), technische Luecken (30%), Insider-Bedrohungen (30%).",
+          "text_en": "Vulnerabilities: Human error (40%), technical gaps (30%), insider threats (30%).",
+          "tone": "analytical",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "alexei"
+        },
+        {
+          "id": "topic_security_deep_2",
+          "text_de": "Die westlichen Dienste werden besser. Sie nutzen KI zur Mustererkennung.",
+          "text_en": "Western agencies are improving. They use AI for pattern recognition.",
+          "tone": "paranoid",
+          "probability": 0.5,
+          "phase_range": [40, 120]
+        }
+      ],
+      "options": [
+        {
+          "id": "topic_security_option_1",
+          "text_de": "Sollen wir die Sicherheitsprotokolle verschaerfen?",
+          "text_en": "Should we tighten security protocols?",
+          "tone": "serious",
+          "responses": [
+            {
+              "id": "resp_security_tight",
+              "text_de": "Ja, maximale Sicherheit.",
+              "text_en": "Yes, maximum security.",
+              "effect": "unlock_action",
+              "payload": { "actionId": "ta_tighten_security", "duration_phases": 10 }
+            },
+            {
+              "id": "resp_security_loose",
+              "text_de": "Nein, das wuerde uns verlangsamen.",
+              "text_en": "No, that would slow us down.",
+              "effect": "add_memory_tag",
+              "payload": { "memory_tag": "rejected_security" }
+            }
+          ]
+        }
+      ]
+    },
+    "field": {
+      "core_message": "Das Feld ist unberechenbar - Plaene halten nie lange",
+      "intro": [
+        {
+          "id": "topic_field_intro_1",
+          "text_de": "Das Feld ist unberechenbar. Plaene halten nie lange - Anpassungsfaehigkeit ist alles.",
+          "text_en": "The field is unpredictable. Plans never last - adaptability is everything.",
+          "tone": "pragmatic",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "katja",
+          "responses": [
+            {
+              "id": "resp_field_detail",
+              "text_de": "Wie ist die Lage vor Ort?",
+              "text_en": "What's the situation on the ground?",
+              "effect": "neutral",
+              "leads_to": "topic_field_deep_1"
+            }
+          ]
+        },
+        {
+          "id": "topic_field_intro_2",
+          "text_de": "Jede Feldoperation hat unvorhergesehene Variablen. Das macht sie gefaehrlich - und wertvoll.",
+          "text_en": "Every field operation has unforeseen variables. That makes them dangerous - and valuable.",
+          "tone": "serious",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "katja"
+        }
+      ],
+      "deep": [
+        {
+          "id": "topic_field_deep_1",
+          "text_de": "Wir haben Operateure in 5 Staedten aktiv. Die lokale Lage variiert stark.",
+          "text_en": "We have operatives active in 5 cities. Local conditions vary significantly.",
+          "tone": "analytical",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "katja"
+        },
+        {
+          "id": "topic_field_deep_2",
+          "text_de": "Die besten Ergebnisse kommen von langfristig eingesetzten Agenten mit echten lokalen Verbindungen.",
+          "text_en": "Best results come from long-term agents with real local connections.",
+          "tone": "explanatory",
+          "probability": 0.5,
+          "phase_range": [1, 120]
+        }
+      ],
+      "options": [
+        {
+          "id": "topic_field_option_1",
+          "text_de": "Sollen wir unsere Feldpraesenz ausbauen?",
+          "text_en": "Should we expand our field presence?",
+          "tone": "questioning",
+          "responses": [
+            {
+              "id": "resp_field_expand",
+              "text_de": "Ja, mehr Praesenz vor Ort.",
+              "text_en": "Yes, more presence on the ground.",
+              "effect": "unlock_action",
+              "payload": { "actionId": "ta_expand_field", "duration_phases": 5 }
+            }
+          ]
+        }
+      ]
+    },
+    "contacts": {
+      "core_message": "Meine Quellen sind mein Lebenswerk",
+      "intro": [
+        {
+          "id": "topic_contacts_intro_1",
+          "text_de": "Meine Quellen sind mein Lebenswerk. Jede Verbindung wurde ueber Jahre aufgebaut.",
+          "text_en": "My sources are my life's work. Each connection was built over years.",
+          "tone": "serious",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "katja",
+          "responses": [
+            {
+              "id": "resp_contacts_detail",
+              "text_de": "Wie zuverlaessig sind unsere Kontakte?",
+              "text_en": "How reliable are our contacts?",
+              "effect": "neutral",
+              "leads_to": "topic_contacts_deep_1"
+            }
+          ]
+        },
+        {
+          "id": "topic_contacts_intro_2",
+          "text_de": "Kontakte sind keine Ressourcen - es sind Menschen. Das vergessen zu viele.",
+          "text_en": "Contacts aren't resources - they're people. Too many forget that.",
+          "tone": "emotional",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "katja"
+        }
+      ],
+      "deep": [
+        {
+          "id": "topic_contacts_deep_1",
+          "text_de": "Wir haben 3 Stufen: Informanten (zuverlaessig 60%), Unterstuetzer (80%), Agenten (95%).",
+          "text_en": "We have 3 tiers: Informants (60% reliable), supporters (80%), agents (95%).",
+          "tone": "analytical",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "katja"
+        },
+        {
+          "id": "topic_contacts_deep_2",
+          "text_de": "Der beste Kontakt ist einer, der glaubt aus Ueberzeugung zu handeln, nicht fuer Geld.",
+          "text_en": "The best contact is one who believes they act from conviction, not for money.",
+          "tone": "cynical",
+          "probability": 0.5,
+          "phase_range": [1, 120]
+        }
+      ],
+      "options": [
+        {
+          "id": "topic_contacts_option_1",
+          "text_de": "Sollen wir neue Kontakte rekrutieren oder bestehende vertiefen?",
+          "text_en": "Should we recruit new contacts or deepen existing ones?",
+          "tone": "questioning",
+          "responses": [
+            {
+              "id": "resp_contacts_new",
+              "text_de": "Neue rekrutieren - breiteres Netzwerk.",
+              "text_en": "Recruit new - wider network.",
+              "effect": "unlock_action",
+              "payload": { "actionId": "ta01_recruit_local", "duration_phases": 3 }
+            },
+            {
+              "id": "resp_contacts_deepen",
+              "text_de": "Bestehende vertiefen - zuverlaessiger.",
+              "text_en": "Deepen existing - more reliable.",
+              "effect": "unlock_action",
+              "payload": { "actionId": "ta_deepen_contacts", "duration_phases": 3 }
+            }
+          ]
+        }
+      ]
+    },
+    "budget": {
+      "core_message": "Jeder Rubel muss Rechenschaft ablegen",
+      "intro": [
+        {
+          "id": "topic_budget_intro_1",
+          "text_de": "Jeder Rubel muss Rechenschaft ablegen. Das Budget ist {budget_state} mit {budget_value}.",
+          "text_en": "Every ruble must be accounted for. Budget is {budget_state} at {budget_value}.",
+          "tone": "strict",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "igor",
+          "responses": [
+            {
+              "id": "resp_budget_detail",
+              "text_de": "Wie sieht die Finanzlage genau aus?",
+              "text_en": "What exactly is the financial situation?",
+              "effect": "neutral",
+              "leads_to": "topic_budget_deep_1"
+            }
+          ]
+        },
+        {
+          "id": "topic_budget_intro_2",
+          "text_de": "*prueft Unterlagen* Die Zahlen luegen nicht. Wir muessen sparsamer werden.",
+          "text_en": "*checks documents* Numbers don't lie. We need to be more frugal.",
+          "tone": "serious",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "igor",
+          "condition": {
+            "all": [
+              { "var": "budget", "op": "<", "value": 4000 }
+            ]
+          }
+        },
+        {
+          "id": "topic_budget_intro_3",
+          "text_de": "Die Finanzlage ist {budget_state}. Mit {budget_value} haben wir Spielraum.",
+          "text_en": "Financial situation is {budget_state}. With {budget_value} we have room to maneuver.",
+          "tone": "satisfied",
+          "probability": 0.4,
+          "phase_range": [1, 120],
+          "npc_id": "igor",
+          "condition": {
+            "all": [
+              { "var": "budget", "op": ">", "value": 7000 }
+            ]
+          }
+        }
+      ],
+      "deep": [
+        {
+          "id": "topic_budget_deep_1",
+          "text_de": "Monatliche Ausgaben: Operationen (50%), Infrastruktur (25%), Personal (25%). Moskaus Zuschuss deckt etwa 70%.",
+          "text_en": "Monthly expenses: Operations (50%), infrastructure (25%), personnel (25%). Moscow's subsidy covers about 70%.",
+          "tone": "analytical",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "igor"
+        },
+        {
+          "id": "topic_budget_deep_2",
+          "text_de": "Die restlichen 30% kommen aus Tarnfirmen. Das ist legal riskant aber notwendig.",
+          "text_en": "The remaining 30% comes from front companies. Legally risky but necessary.",
+          "tone": "pragmatic",
+          "probability": 0.5,
+          "phase_range": [1, 120]
+        }
+      ],
+      "options": [
+        {
+          "id": "topic_budget_option_1",
+          "text_de": "Wie koennen wir die Finanzen optimieren?",
+          "text_en": "How can we optimize finances?",
+          "tone": "questioning",
+          "responses": [
+            {
+              "id": "resp_budget_save",
+              "text_de": "Kostenreduktion - weniger ausgeben.",
+              "text_en": "Cost reduction - spend less.",
+              "effect": "modify_action_cost",
+              "payload": { "actionId": "all", "cost_modifier": 1.2 }
+            },
+            {
+              "id": "resp_budget_earn",
+              "text_de": "Mehr Einnahmen - Tarnfirmen erweitern.",
+              "text_en": "More revenue - expand front companies.",
+              "effect": "unlock_action",
+              "payload": { "actionId": "ta05_establish_front", "duration_phases": 5 }
+            }
+          ]
+        }
+      ]
+    },
+    "fronts": {
+      "core_message": "Tarnfirmen sind unsere Lebensader",
+      "intro": [
+        {
+          "id": "topic_fronts_intro_1",
+          "text_de": "Tarnfirmen sind unsere Lebensader. Ohne sie waeren wir sofort auffaellig.",
+          "text_en": "Front companies are our lifeline. Without them we'd be immediately conspicuous.",
+          "tone": "serious",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "igor",
+          "responses": [
+            {
+              "id": "resp_fronts_detail",
+              "text_de": "Wie viele Tarnfirmen haben wir?",
+              "text_en": "How many front companies do we have?",
+              "effect": "neutral",
+              "leads_to": "topic_fronts_deep_1"
+            }
+          ]
+        },
+        {
+          "id": "topic_fronts_intro_2",
+          "text_de": "Jede Tarnfirma muss profitabel aussehen. Verluste ziehen Aufmerksamkeit auf sich.",
+          "text_en": "Every front company must look profitable. Losses attract attention.",
+          "tone": "pragmatic",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "igor"
+        }
+      ],
+      "deep": [
+        {
+          "id": "topic_fronts_deep_1",
+          "text_de": "Wir betreiben 4 aktive Firmen: Beratung, Import/Export, IT-Dienstleistungen, Medienproduktion.",
+          "text_en": "We operate 4 active companies: Consulting, import/export, IT services, media production.",
+          "tone": "analytical",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "igor"
+        },
+        {
+          "id": "topic_fronts_deep_2",
+          "text_de": "Die Medienproduktionsfirma ist besonders nuetzlich - sie erklaert unsere Content-Aktivitaeten.",
+          "text_en": "The media production company is particularly useful - it explains our content activities.",
+          "tone": "satisfied",
+          "probability": 0.5,
+          "phase_range": [1, 120]
+        }
+      ],
+      "options": [
+        {
+          "id": "topic_fronts_option_1",
+          "text_de": "Sollen wir weitere Tarnfirmen gruenden?",
+          "text_en": "Should we establish more front companies?",
+          "tone": "questioning",
+          "responses": [
+            {
+              "id": "resp_fronts_yes",
+              "text_de": "Ja, mehr Tarnung ist besser.",
+              "text_en": "Yes, more cover is better.",
+              "effect": "unlock_action",
+              "payload": { "actionId": "ta05_establish_front", "duration_phases": 5 }
+            }
+          ]
+        }
+      ]
+    },
+    "flow": {
+      "core_message": "Geldstroeme sind nachverfolgbar - deshalb brauchen wir Schichten",
+      "intro": [
+        {
+          "id": "topic_flow_intro_1",
+          "text_de": "Geldstroeme sind nachverfolgbar. Deshalb brauchen wir Schichten - viele Schichten.",
+          "text_en": "Money flows are traceable. That's why we need layers - many layers.",
+          "tone": "serious",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "igor",
+          "responses": [
+            {
+              "id": "resp_flow_detail",
+              "text_de": "Wie funktioniert unsere Geldwaesche?",
+              "text_en": "How does our money laundering work?",
+              "effect": "neutral",
+              "leads_to": "topic_flow_deep_1"
+            }
+          ]
+        },
+        {
+          "id": "topic_flow_intro_2",
+          "text_de": "Jede Transaktion hinterlaesst Spuren. Unsere Kunst ist es, die Spuren zu verwischen.",
+          "text_en": "Every transaction leaves traces. Our art is to obscure those traces.",
+          "tone": "analytical",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "igor"
+        }
+      ],
+      "deep": [
+        {
+          "id": "topic_flow_deep_1",
+          "text_de": "Wir nutzen 3 Schichten: Offshore-Konten, Kryptowaehrungen, und Bargeldtransfers ueber Mittelsmnaenner.",
+          "text_en": "We use 3 layers: Offshore accounts, cryptocurrencies, and cash transfers via intermediaries.",
+          "tone": "technical",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "igor"
+        },
+        {
+          "id": "topic_flow_deep_2",
+          "text_de": "Krypto ist ein Segen fuer uns - schwer nachverfolgbar, schnell, und international akzeptiert.",
+          "text_en": "Crypto is a blessing for us - hard to trace, fast, and internationally accepted.",
+          "tone": "satisfied",
+          "probability": 0.5,
+          "phase_range": [1, 120]
+        }
+      ],
+      "options": [
+        {
+          "id": "topic_flow_option_1",
+          "text_de": "Sollen wir unsere Geldwaesche-Kanaele diversifizieren?",
+          "text_en": "Should we diversify our money laundering channels?",
+          "tone": "questioning",
+          "responses": [
+            {
+              "id": "resp_flow_diversify",
+              "text_de": "Ja, mehr Sicherheit durch Vielfalt.",
+              "text_en": "Yes, more security through diversity.",
+              "effect": "unlock_action",
+              "payload": { "actionId": "ta_diversify_flow", "duration_phases": 5 }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "debates": {
+    "debate_risk_vs_reach_1": {
+      "id": "debate_risk_vs_reach_1",
+      "dialogue_type": "debate",
+      "participants": ["alexei", "marina"],
+      "phase_range": [20, 100],
+      "condition": {
+        "all": [
+          { "var": "risk", "op": ">=", "value": 50 }
+        ]
+      },
+      "triggered_by_tags": ["high_risk_action", "viral_campaign"],
+      "turns": [
+        {
+          "speaker": "alexei",
+          "text_de": "*besorgt* Diese aggressive Strategie ist zu riskant. Wir exponieren uns.",
+          "text_en": "*worried* This aggressive strategy is too risky. We're exposing ourselves.",
+          "tone": "paranoid"
+        },
+        {
+          "speaker": "marina",
+          "text_de": "*selbstbewusst* Aber die Reichweite ist unschlagbar! Ohne Risiko kein Erfolg.",
+          "text_en": "*confident* But the reach is unbeatable! No risk, no success.",
+          "tone": "enthusiastic"
+        },
+        {
+          "speaker": "alexei",
+          "text_de": "Reichweite nuetzt nichts, wenn wir aufgeflogen sind. Die westlichen Dienste werden aufmerksam.",
+          "text_en": "Reach is useless if we're exposed. Western agencies are getting alert.",
+          "tone": "serious"
+        },
+        {
+          "speaker": "marina",
+          "text_de": "Wir sind staerker durch Schnelligkeit als durch Vorsicht. Opportunitaeten warten nicht.",
+          "text_en": "We're stronger through speed than through caution. Opportunities don't wait.",
+          "tone": "impatient"
+        }
+      ],
+      "resolution": {
+        "choices": [
+          {
+            "id": "choose_safe",
+            "text_de": "Alexei hat recht - Sicherheit priorisieren.",
+            "text_en": "Alexei is right - prioritize security.",
+            "effect": "lock_action",
+            "payload": { "actionId": "ta_high_risk_ops", "duration_phases": 5 }
+          },
+          {
+            "id": "choose_reach",
+            "text_de": "Marina hat recht - Reichweite priorisieren.",
+            "text_en": "Marina is right - prioritize reach.",
+            "effect": "unlock_action",
+            "payload": { "actionId": "ta_viral_campaign", "duration_phases": 3 }
+          },
+          {
+            "id": "choose_balance",
+            "text_de": "Wir brauchen einen Mittelweg.",
+            "text_en": "We need a middle ground.",
+            "effect": "neutral"
+          }
+        ]
+      }
+    },
+    "debate_budget_vs_ops_1": {
+      "id": "debate_budget_vs_ops_1",
+      "dialogue_type": "debate",
+      "participants": ["igor", "katja"],
+      "phase_range": [30, 100],
+      "condition": {
+        "all": [
+          { "var": "budget", "op": "<", "value": 4000 }
+        ]
+      },
+      "triggered_by_tags": ["expensive_action", "field_operation"],
+      "turns": [
+        {
+          "speaker": "igor",
+          "text_de": "*prueft Zahlen* Das Budget ist {budget_state}. Wir koennen uns keine teuren Operationen leisten.",
+          "text_en": "*checking numbers* Budget is {budget_state}. We can't afford expensive operations.",
+          "tone": "strict"
+        },
+        {
+          "speaker": "katja",
+          "text_de": "*frustriert* Aber meine Leute im Feld brauchen Unterstuetzung! Ohne Ressourcen sind sie hilflos.",
+          "text_en": "*frustrated* But my people in the field need support! Without resources they're helpless.",
+          "tone": "emotional"
+        },
+        {
+          "speaker": "igor",
+          "text_de": "Ich verstehe, aber wenn das Geld weg ist, ist es weg. Wir muessen priorisieren.",
+          "text_en": "I understand, but when the money's gone, it's gone. We must prioritize.",
+          "tone": "pragmatic"
+        },
+        {
+          "speaker": "katja",
+          "text_de": "Priorisieren? Meine Kontakte haben Jahre gekostet aufzubauen. Sie zu verlieren waere teurer.",
+          "text_en": "Prioritize? My contacts took years to build. Losing them would be more expensive.",
+          "tone": "passionate"
+        }
+      ],
+      "resolution": {
+        "choices": [
+          {
+            "id": "choose_budget",
+            "text_de": "Igor hat recht - Budget schonen.",
+            "text_en": "Igor is right - protect the budget.",
+            "effect": "add_memory_tag",
+            "payload": { "memory_tag": "budget_over_field" }
+          },
+          {
+            "id": "choose_field",
+            "text_de": "Katja hat recht - Feldoperationen unterstuetzen.",
+            "text_en": "Katja is right - support field operations.",
+            "effect": "unlock_action",
+            "payload": { "actionId": "ta08_infiltrate", "duration_phases": 3 }
+          },
+          {
+            "id": "choose_compromise",
+            "text_de": "Finden wir einen Kompromiss.",
+            "text_en": "Let's find a compromise.",
+            "effect": "neutral"
+          }
+        ]
+      }
+    },
+    "debate_strategy_1": {
+      "id": "debate_strategy_1",
+      "dialogue_type": "debate",
+      "participants": ["direktor", "marina"],
+      "phase_range": [50, 100],
+      "condition": {
+        "any": [
+          { "var": "objectiveProgress", "op": "<", "value": 40 },
+          { "var": "phase", "op": ">=", "value": 60 }
+        ]
+      },
+      "triggered_by_tags": ["strategy_review", "phase_milestone"],
+      "turns": [
+        {
+          "speaker": "direktor",
+          "text_de": "*ernst* Moskau ist ungeduldig. Der Fortschritt bei {objective_progress} ist zu langsam.",
+          "text_en": "*serious* Moscow is impatient. Progress at {objective_progress} is too slow.",
+          "tone": "cold"
+        },
+        {
+          "speaker": "marina",
+          "text_de": "Mit mehr Budget fuer Medienoperationen koennten wir schneller vorankommen.",
+          "text_en": "With more budget for media operations we could move faster.",
+          "tone": "eager"
+        },
+        {
+          "speaker": "direktor",
+          "text_de": "Es geht nicht nur um Budget. Die Strategie muss angepasst werden.",
+          "text_en": "It's not just about budget. The strategy must be adjusted.",
+          "tone": "demanding"
+        },
+        {
+          "speaker": "marina",
+          "text_de": "Eine aggressivere Medien-Offensive wuerde die Gesellschaft schneller spalten.",
+          "text_en": "A more aggressive media offensive would divide society faster.",
+          "tone": "confident"
+        }
+      ],
+      "resolution": {
+        "choices": [
+          {
+            "id": "choose_aggressive",
+            "text_de": "Aggressive Medien-Offensive starten.",
+            "text_en": "Start aggressive media offensive.",
+            "effect": "unlock_action",
+            "payload": { "actionId": "ta_media_blitz", "duration_phases": 5 }
+          },
+          {
+            "id": "choose_steady",
+            "text_de": "Kurs beibehalten - Geduld ist wichtig.",
+            "text_en": "Stay the course - patience is important.",
+            "effect": "neutral"
+          }
+        ]
+      }
+    }
+  }
+}
