@@ -7,6 +7,7 @@ interface NewsPanelProps {
   onMarkAsRead: (newsId: string) => void;
   onTogglePinned: (newsId: string) => void;
   onClose: () => void;
+  variant?: 'modal' | 'sidebar';
 }
 
 export function NewsPanel({
@@ -15,6 +16,7 @@ export function NewsPanel({
   onMarkAsRead,
   onTogglePinned,
   onClose,
+  variant = 'modal',
 }: NewsPanelProps) {
   if (!isVisible) return null;
 
@@ -45,50 +47,8 @@ export function NewsPanel({
     }
   };
 
-  return (
-    <div
-      className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-2xl max-h-[80vh] mx-4 border-4 flex flex-col"
-        style={{
-          backgroundColor: StoryModeColors.surface,
-          borderColor: StoryModeColors.danger,
-          boxShadow: '12px 12px 0px 0px rgba(0,0,0,0.9)',
-        }}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div
-          className="px-6 py-4 border-b-4 flex justify-between items-center"
-          style={{
-            backgroundColor: StoryModeColors.danger,
-            borderColor: StoryModeColors.border,
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">📱</span>
-            <h2 className="font-bold text-xl" style={{ color: '#fff' }}>
-              NACHRICHTEN-FEED
-            </h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="px-4 py-1 font-bold border-2 transition-all hover:brightness-110"
-            style={{
-              backgroundColor: StoryModeColors.darkConcrete,
-              borderColor: StoryModeColors.border,
-              color: StoryModeColors.textPrimary,
-            }}
-          >
-            SCHLIESSEN [ESC]
-          </button>
-        </div>
-
-        {/* News List */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+  const newsListContent = (
+    <div className="flex-1 overflow-y-auto p-3 space-y-2">
           {sortedNews.length === 0 ? (
             <div
               className="text-center py-8"
@@ -207,17 +167,86 @@ export function NewsPanel({
           )}
         </div>
 
-        {/* Footer */}
+  );
+
+  const footerContent = (
+    <div
+      className="px-3 py-2 border-t-4 text-xs"
+      style={{
+        backgroundColor: StoryModeColors.darkConcrete,
+        borderColor: StoryModeColors.border,
+        color: StoryModeColors.textMuted,
+      }}
+    >
+      {newsEvents.filter(n => !n.read).length} ungelesene Nachrichten
+    </div>
+  );
+
+  // Sidebar variant
+  if (variant === 'sidebar') {
+    return (
+      <div className="flex flex-col h-full">
         <div
-          className="px-6 py-3 border-t-4 text-xs"
+          className="px-3 py-2 border-b-2 flex items-center gap-2"
           style={{
-            backgroundColor: StoryModeColors.darkConcrete,
+            backgroundColor: StoryModeColors.danger,
             borderColor: StoryModeColors.border,
-            color: StoryModeColors.textMuted,
           }}
         >
-          {newsEvents.filter(n => !n.read).length} ungelesene Nachrichten
+          <span className="text-lg">📱</span>
+          <h2 className="font-bold text-sm" style={{ color: '#fff' }}>
+            NACHRICHTEN-FEED
+          </h2>
         </div>
+        {newsListContent}
+        {footerContent}
+      </div>
+    );
+  }
+
+  // Modal variant
+  return (
+    <div
+      className="fixed inset-0 flex items-center justify-center z-50"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-2xl max-h-[80vh] mx-4 border-4 flex flex-col"
+        style={{
+          backgroundColor: StoryModeColors.surface,
+          borderColor: StoryModeColors.danger,
+          boxShadow: '12px 12px 0px 0px rgba(0,0,0,0.9)',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div
+          className="px-6 py-4 border-b-4 flex justify-between items-center"
+          style={{
+            backgroundColor: StoryModeColors.danger,
+            borderColor: StoryModeColors.border,
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">📱</span>
+            <h2 className="font-bold text-xl" style={{ color: '#fff' }}>
+              NACHRICHTEN-FEED
+            </h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="px-4 py-1 font-bold border-2 transition-all hover:brightness-110"
+            style={{
+              backgroundColor: StoryModeColors.darkConcrete,
+              borderColor: StoryModeColors.border,
+              color: StoryModeColors.textPrimary,
+            }}
+          >
+            SCHLIESSEN [ESC]
+          </button>
+        </div>
+        {newsListContent}
+        {footerContent}
       </div>
     </div>
   );

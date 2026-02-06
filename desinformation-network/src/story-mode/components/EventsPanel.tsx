@@ -6,6 +6,7 @@ interface EventsPanelProps {
   worldEvents: NewsEvent[];
   currentPhase: number;
   onClose: () => void;
+  variant?: 'modal' | 'sidebar';
 }
 
 export function EventsPanel({
@@ -13,6 +14,7 @@ export function EventsPanel({
   worldEvents,
   currentPhase,
   onClose,
+  variant = 'modal',
 }: EventsPanelProps) {
   if (!isVisible) return null;
 
@@ -89,6 +91,142 @@ export function EventsPanel({
   const categoryOrder = ['political', 'media', 'economic', 'security', 'social', 'diplomatic', 'other'];
   const orderedCategories = categoryOrder.filter(cat => groupedEvents[cat]?.length > 0);
 
+  const content = (
+    <div className={`flex-1 overflow-y-auto ${variant === 'sidebar' ? 'p-3' : 'p-4'}`}>
+      {sortedEvents.length === 0 ? (
+        <div
+          className="text-center py-12"
+          style={{ color: StoryModeColors.textMuted }}
+        >
+          <div className="text-4xl mb-4">🌐</div>
+          <div className="font-bold mb-2">Keine Weltereignisse</div>
+          <div className="text-sm">
+            Die Welt ist ruhig... vorerst.
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {orderedCategories.map(category => (
+            <div key={category}>
+              {/* Category Header */}
+              <div
+                className="flex items-center gap-2 mb-3 pb-2 border-b-2"
+                style={{ borderColor: StoryModeColors.border }}
+              >
+                <span className="text-lg">{getCategoryIcon(category)}</span>
+                <span
+                  className="font-bold text-sm tracking-wider"
+                  style={{ color: StoryModeColors.textSecondary }}
+                >
+                  {getCategoryLabel(category)}
+                </span>
+                <span
+                  className="text-xs px-2 py-0.5"
+                  style={{
+                    backgroundColor: StoryModeColors.darkConcrete,
+                    color: StoryModeColors.textMuted,
+                  }}
+                >
+                  {groupedEvents[category].length}
+                </span>
+              </div>
+
+              {/* Events in Category */}
+              <div className="space-y-3 ml-2">
+                {groupedEvents[category].map(event => (
+                  <div
+                    key={event.id}
+                    className="border-l-4 pl-4 py-3 transition-all"
+                    style={{
+                      borderLeftColor: getSeverityColor(event.severity),
+                      backgroundColor: 'rgba(0,0,0,0.2)',
+                    }}
+                  >
+                    {/* Event Header */}
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span
+                          className="font-bold text-xs px-2 py-0.5"
+                          style={{
+                            backgroundColor: getSeverityColor(event.severity),
+                            color: event.severity === 'warning' ? StoryModeColors.background : '#fff',
+                          }}
+                        >
+                          {getSeverityLabel(event.severity)}
+                        </span>
+                        {!event.read && (
+                          <span
+                            className="text-xs px-2 py-0.5 animate-pulse"
+                            style={{
+                              backgroundColor: StoryModeColors.sovietRed,
+                              color: '#fff',
+                            }}
+                          >
+                            NEU
+                          </span>
+                        )}
+                      </div>
+                      <span
+                        className="text-xs whitespace-nowrap"
+                        style={{ color: StoryModeColors.textMuted }}
+                      >
+                        Phase {event.phase}
+                      </span>
+                    </div>
+
+                    {/* Headline */}
+                    <h3
+                      className="font-bold mb-2"
+                      style={{ color: StoryModeColors.textPrimary }}
+                    >
+                      {event.headline_de}
+                    </h3>
+
+                    {/* Description */}
+                    <p
+                      className="text-sm"
+                      style={{ color: StoryModeColors.textSecondary }}
+                    >
+                      {event.description_de}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  if (variant === 'sidebar') {
+    return (
+      <div className="flex flex-col h-full" style={{ backgroundColor: StoryModeColors.surface }}>
+        {/* Compact Header */}
+        <div
+          className="px-3 py-2 border-b-2 flex items-center gap-2"
+          style={{
+            backgroundColor: StoryModeColors.militaryOlive,
+            borderColor: StoryModeColors.border,
+          }}
+        >
+          <span>🌍</span>
+          <h2 className="font-bold text-sm" style={{ color: StoryModeColors.warning }}>
+            WELT-EREIGNISSE
+          </h2>
+          <span
+            className="text-xs ml-auto"
+            style={{ color: 'rgba(255,255,255,0.7)' }}
+          >
+            Phase {currentPhase}
+          </span>
+        </div>
+
+        {content}
+      </div>
+    );
+  }
+
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
@@ -136,112 +274,7 @@ export function EventsPanel({
           </button>
         </div>
 
-        {/* Events List */}
-        <div className="flex-1 overflow-y-auto p-4">
-          {sortedEvents.length === 0 ? (
-            <div
-              className="text-center py-12"
-              style={{ color: StoryModeColors.textMuted }}
-            >
-              <div className="text-4xl mb-4">🌐</div>
-              <div className="font-bold mb-2">Keine Weltereignisse</div>
-              <div className="text-sm">
-                Die Welt ist ruhig... vorerst.
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {orderedCategories.map(category => (
-                <div key={category}>
-                  {/* Category Header */}
-                  <div
-                    className="flex items-center gap-2 mb-3 pb-2 border-b-2"
-                    style={{ borderColor: StoryModeColors.border }}
-                  >
-                    <span className="text-lg">{getCategoryIcon(category)}</span>
-                    <span
-                      className="font-bold text-sm tracking-wider"
-                      style={{ color: StoryModeColors.textSecondary }}
-                    >
-                      {getCategoryLabel(category)}
-                    </span>
-                    <span
-                      className="text-xs px-2 py-0.5"
-                      style={{
-                        backgroundColor: StoryModeColors.darkConcrete,
-                        color: StoryModeColors.textMuted,
-                      }}
-                    >
-                      {groupedEvents[category].length}
-                    </span>
-                  </div>
-
-                  {/* Events in Category */}
-                  <div className="space-y-3 ml-2">
-                    {groupedEvents[category].map(event => (
-                      <div
-                        key={event.id}
-                        className="border-l-4 pl-4 py-3 transition-all"
-                        style={{
-                          borderLeftColor: getSeverityColor(event.severity),
-                          backgroundColor: 'rgba(0,0,0,0.2)',
-                        }}
-                      >
-                        {/* Event Header */}
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span
-                              className="font-bold text-xs px-2 py-0.5"
-                              style={{
-                                backgroundColor: getSeverityColor(event.severity),
-                                color: event.severity === 'warning' ? StoryModeColors.background : '#fff',
-                              }}
-                            >
-                              {getSeverityLabel(event.severity)}
-                            </span>
-                            {!event.read && (
-                              <span
-                                className="text-xs px-2 py-0.5 animate-pulse"
-                                style={{
-                                  backgroundColor: StoryModeColors.sovietRed,
-                                  color: '#fff',
-                                }}
-                              >
-                                NEU
-                              </span>
-                            )}
-                          </div>
-                          <span
-                            className="text-xs whitespace-nowrap"
-                            style={{ color: StoryModeColors.textMuted }}
-                          >
-                            Phase {event.phase}
-                          </span>
-                        </div>
-
-                        {/* Headline */}
-                        <h3
-                          className="font-bold mb-2"
-                          style={{ color: StoryModeColors.textPrimary }}
-                        >
-                          {event.headline_de}
-                        </h3>
-
-                        {/* Description */}
-                        <p
-                          className="text-sm"
-                          style={{ color: StoryModeColors.textSecondary }}
-                        >
-                          {event.description_de}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        {content}
 
         {/* Footer */}
         <div

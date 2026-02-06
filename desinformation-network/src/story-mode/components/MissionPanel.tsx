@@ -6,6 +6,7 @@ interface MissionPanelProps {
   phase: StoryPhase;
   objectives: Objective[];
   onClose: () => void;
+  variant?: 'modal' | 'sidebar';
 }
 
 export function MissionPanel({
@@ -13,6 +14,7 @@ export function MissionPanel({
   phase,
   objectives,
   onClose,
+  variant = 'modal',
 }: MissionPanelProps) {
   if (!isVisible) return null;
 
@@ -26,6 +28,261 @@ export function MissionPanel({
     if (year <= 8) return 'ESKALATION - Verstarken Sie die Spaltung und destabilisieren Sie das System.';
     return 'ENDSPIEL - Fuhren Sie den finalen Schlag aus.';
   };
+
+  const content = (
+    <div className={`flex-1 overflow-y-auto ${variant === 'sidebar' ? 'p-3 space-y-3' : 'p-6 space-y-6'}`}>
+      {/* Classification Banner */}
+      <div
+        className="p-4 text-center border-4"
+        style={{
+          backgroundColor: StoryModeColors.background,
+          borderColor: StoryModeColors.sovietRed,
+        }}
+      >
+        <div
+          className="text-xs font-bold mb-2"
+          style={{ color: StoryModeColors.sovietRed }}
+        >
+          STRENG GEHEIM - NUR FUR AUTORISIERTES PERSONAL
+        </div>
+        <div className="text-4xl mb-2">☭</div>
+        <h1
+          className="text-2xl font-bold"
+          style={{ color: StoryModeColors.warning }}
+        >
+          OPERATION: WESTUNION
+        </h1>
+        <div
+          className="text-sm mt-2"
+          style={{ color: StoryModeColors.textSecondary }}
+        >
+          Abteilung fur Sonderoperationen
+        </div>
+      </div>
+
+      {/* Current Phase */}
+      <div
+        className="border-4 p-4"
+        style={{
+          backgroundColor: StoryModeColors.darkConcrete,
+          borderColor: StoryModeColors.agencyBlue,
+        }}
+      >
+        <div className="flex justify-between items-center mb-3">
+          <h3
+            className="font-bold"
+            style={{ color: StoryModeColors.agencyBlue }}
+          >
+            AKTUELLE PHASE
+          </h3>
+          <span
+            className="px-3 py-1 font-bold"
+            style={{
+              backgroundColor: StoryModeColors.agencyBlue,
+              color: StoryModeColors.warning,
+            }}
+          >
+            JAHR {phase.year} / MONAT {phase.month}
+          </span>
+        </div>
+        <p style={{ color: StoryModeColors.textPrimary }}>
+          {getPhaseDescription(phase.year)}
+        </p>
+      </div>
+
+      {/* Mission Directive */}
+      <div
+        className="border-4 p-4"
+        style={{
+          backgroundColor: StoryModeColors.document,
+          borderColor: StoryModeColors.border,
+        }}
+      >
+        <h3
+          className="font-bold mb-3"
+          style={{ color: StoryModeColors.sovietRed }}
+        >
+          DIREKTIVE
+        </h3>
+        <p
+          className="mb-4 leading-relaxed"
+          style={{ color: StoryModeColors.textPrimary }}
+        >
+          Sie wurden beauftragt, die demokratischen Institutionen von Westunion
+          systematisch zu untergraben. Nutzen Sie Desinformation, soziale Spaltung
+          und strategische Manipulation, um das Vertrauen der Bevolkerung in ihre
+          Regierung zu zerstoren.
+        </p>
+        <p style={{ color: StoryModeColors.textSecondary }}>
+          Denken Sie daran: Jede Aktion hat Konsequenzen. Handeln Sie klug.
+        </p>
+      </div>
+
+      {/* Primary Objectives */}
+      <div
+        className="border-4 p-4"
+        style={{
+          backgroundColor: StoryModeColors.darkConcrete,
+          borderColor: StoryModeColors.sovietRed,
+        }}
+      >
+        <h3
+          className="font-bold mb-4 flex items-center gap-2"
+          style={{ color: StoryModeColors.sovietRed }}
+        >
+          <span>⭐</span> HAUPTZIELE
+        </h3>
+        <div className="space-y-3">
+          {primaryObjectives.map(obj => (
+            <div
+              key={obj.id}
+              className="flex items-start gap-3 p-3"
+              style={{
+                backgroundColor: obj.completed
+                  ? 'rgba(75, 181, 67, 0.2)'
+                  : StoryModeColors.background,
+                border: `2px solid ${
+                  obj.completed ? StoryModeColors.success : StoryModeColors.border
+                }`,
+              }}
+            >
+              <span
+                className="text-lg"
+                style={{
+                  color: obj.completed
+                    ? StoryModeColors.success
+                    : StoryModeColors.textMuted,
+                }}
+              >
+                {obj.completed ? '✓' : '○'}
+              </span>
+              <div className="flex-1">
+                <div
+                  className="font-bold"
+                  style={{
+                    color: obj.completed
+                      ? StoryModeColors.success
+                      : StoryModeColors.textPrimary,
+                  }}
+                >
+                  {obj.label_de}
+                </div>
+                <div
+                  className="text-sm mt-1"
+                  style={{ color: StoryModeColors.textSecondary }}
+                >
+                  Fortschritt: {obj.currentValue} / {obj.targetValue}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Secondary Objectives */}
+      {secondaryObjectives.length > 0 && (
+        <div
+          className="border-4 p-4"
+          style={{
+            backgroundColor: StoryModeColors.darkConcrete,
+            borderColor: StoryModeColors.militaryOlive,
+          }}
+        >
+          <h3
+            className="font-bold mb-4 flex items-center gap-2"
+            style={{ color: StoryModeColors.militaryOlive }}
+          >
+            <span>◇</span> NEBENZIELE
+          </h3>
+          <div className="space-y-2">
+            {secondaryObjectives.map(obj => (
+              <div
+                key={obj.id}
+                className="flex items-center gap-3 p-2"
+                style={{
+                  backgroundColor: StoryModeColors.background,
+                  border: `1px solid ${StoryModeColors.border}`,
+                }}
+              >
+                <span
+                  className="text-sm"
+                  style={{
+                    color: obj.completed
+                      ? StoryModeColors.success
+                      : StoryModeColors.textMuted,
+                  }}
+                >
+                  {obj.completed ? '✓' : '○'}
+                </span>
+                <span
+                  className="text-sm"
+                  style={{
+                    color: obj.completed
+                      ? StoryModeColors.success
+                      : StoryModeColors.textSecondary,
+                  }}
+                >
+                  {obj.label_de}
+                </span>
+                <span
+                  className="text-xs ml-auto"
+                  style={{ color: StoryModeColors.textMuted }}
+                >
+                  {obj.currentValue}/{obj.targetValue}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Warning */}
+      <div
+        className="border-4 p-4 text-center"
+        style={{
+          backgroundColor: 'rgba(255, 71, 71, 0.1)',
+          borderColor: StoryModeColors.danger,
+        }}
+      >
+        <div
+          className="text-sm font-bold"
+          style={{ color: StoryModeColors.danger }}
+        >
+          ⚠️ WARNUNG
+        </div>
+        <p
+          className="text-sm mt-2"
+          style={{ color: StoryModeColors.textSecondary }}
+        >
+          Dieses Spiel dient Bildungszwecken. Es zeigt die Taktiken,
+          die von staatlichen Akteuren zur Destabilisierung demokratischer
+          Gesellschaften eingesetzt werden.
+        </p>
+      </div>
+    </div>
+  );
+
+  if (variant === 'sidebar') {
+    return (
+      <div className="flex flex-col h-full" style={{ backgroundColor: StoryModeColors.surface }}>
+        {/* Compact Header */}
+        <div
+          className="px-3 py-2 border-b-2 flex items-center gap-2"
+          style={{
+            backgroundColor: StoryModeColors.sovietRed,
+            borderColor: StoryModeColors.border,
+          }}
+        >
+          <span>📁</span>
+          <h2 className="font-bold text-sm" style={{ color: StoryModeColors.warning }}>
+            MISSION BRIEFING
+          </h2>
+        </div>
+
+        {content}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -69,237 +326,7 @@ export function MissionPanel({
           </button>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Classification Banner */}
-          <div
-            className="p-4 text-center border-4"
-            style={{
-              backgroundColor: StoryModeColors.background,
-              borderColor: StoryModeColors.sovietRed,
-            }}
-          >
-            <div
-              className="text-xs font-bold mb-2"
-              style={{ color: StoryModeColors.sovietRed }}
-            >
-              STRENG GEHEIM - NUR FUR AUTORISIERTES PERSONAL
-            </div>
-            <div className="text-4xl mb-2">☭</div>
-            <h1
-              className="text-2xl font-bold"
-              style={{ color: StoryModeColors.warning }}
-            >
-              OPERATION: WESTUNION
-            </h1>
-            <div
-              className="text-sm mt-2"
-              style={{ color: StoryModeColors.textSecondary }}
-            >
-              Abteilung fur Sonderoperationen
-            </div>
-          </div>
-
-          {/* Current Phase */}
-          <div
-            className="border-4 p-4"
-            style={{
-              backgroundColor: StoryModeColors.darkConcrete,
-              borderColor: StoryModeColors.agencyBlue,
-            }}
-          >
-            <div className="flex justify-between items-center mb-3">
-              <h3
-                className="font-bold"
-                style={{ color: StoryModeColors.agencyBlue }}
-              >
-                AKTUELLE PHASE
-              </h3>
-              <span
-                className="px-3 py-1 font-bold"
-                style={{
-                  backgroundColor: StoryModeColors.agencyBlue,
-                  color: StoryModeColors.warning,
-                }}
-              >
-                JAHR {phase.year} / MONAT {phase.month}
-              </span>
-            </div>
-            <p style={{ color: StoryModeColors.textPrimary }}>
-              {getPhaseDescription(phase.year)}
-            </p>
-          </div>
-
-          {/* Mission Directive */}
-          <div
-            className="border-4 p-4"
-            style={{
-              backgroundColor: StoryModeColors.document,
-              borderColor: StoryModeColors.border,
-            }}
-          >
-            <h3
-              className="font-bold mb-3"
-              style={{ color: StoryModeColors.sovietRed }}
-            >
-              DIREKTIVE
-            </h3>
-            <p
-              className="mb-4 leading-relaxed"
-              style={{ color: StoryModeColors.textPrimary }}
-            >
-              Sie wurden beauftragt, die demokratischen Institutionen von Westunion
-              systematisch zu untergraben. Nutzen Sie Desinformation, soziale Spaltung
-              und strategische Manipulation, um das Vertrauen der Bevolkerung in ihre
-              Regierung zu zerstoren.
-            </p>
-            <p style={{ color: StoryModeColors.textSecondary }}>
-              Denken Sie daran: Jede Aktion hat Konsequenzen. Handeln Sie klug.
-            </p>
-          </div>
-
-          {/* Primary Objectives */}
-          <div
-            className="border-4 p-4"
-            style={{
-              backgroundColor: StoryModeColors.darkConcrete,
-              borderColor: StoryModeColors.sovietRed,
-            }}
-          >
-            <h3
-              className="font-bold mb-4 flex items-center gap-2"
-              style={{ color: StoryModeColors.sovietRed }}
-            >
-              <span>⭐</span> HAUPTZIELE
-            </h3>
-            <div className="space-y-3">
-              {primaryObjectives.map(obj => (
-                <div
-                  key={obj.id}
-                  className="flex items-start gap-3 p-3"
-                  style={{
-                    backgroundColor: obj.completed
-                      ? 'rgba(75, 181, 67, 0.2)'
-                      : StoryModeColors.background,
-                    border: `2px solid ${
-                      obj.completed ? StoryModeColors.success : StoryModeColors.border
-                    }`,
-                  }}
-                >
-                  <span
-                    className="text-lg"
-                    style={{
-                      color: obj.completed
-                        ? StoryModeColors.success
-                        : StoryModeColors.textMuted,
-                    }}
-                  >
-                    {obj.completed ? '✓' : '○'}
-                  </span>
-                  <div className="flex-1">
-                    <div
-                      className="font-bold"
-                      style={{
-                        color: obj.completed
-                          ? StoryModeColors.success
-                          : StoryModeColors.textPrimary,
-                      }}
-                    >
-                      {obj.label_de}
-                    </div>
-                    <div
-                      className="text-sm mt-1"
-                      style={{ color: StoryModeColors.textSecondary }}
-                    >
-                      Fortschritt: {obj.currentValue} / {obj.targetValue}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Secondary Objectives */}
-          {secondaryObjectives.length > 0 && (
-            <div
-              className="border-4 p-4"
-              style={{
-                backgroundColor: StoryModeColors.darkConcrete,
-                borderColor: StoryModeColors.militaryOlive,
-              }}
-            >
-              <h3
-                className="font-bold mb-4 flex items-center gap-2"
-                style={{ color: StoryModeColors.militaryOlive }}
-              >
-                <span>◇</span> NEBENZIELE
-              </h3>
-              <div className="space-y-2">
-                {secondaryObjectives.map(obj => (
-                  <div
-                    key={obj.id}
-                    className="flex items-center gap-3 p-2"
-                    style={{
-                      backgroundColor: StoryModeColors.background,
-                      border: `1px solid ${StoryModeColors.border}`,
-                    }}
-                  >
-                    <span
-                      className="text-sm"
-                      style={{
-                        color: obj.completed
-                          ? StoryModeColors.success
-                          : StoryModeColors.textMuted,
-                      }}
-                    >
-                      {obj.completed ? '✓' : '○'}
-                    </span>
-                    <span
-                      className="text-sm"
-                      style={{
-                        color: obj.completed
-                          ? StoryModeColors.success
-                          : StoryModeColors.textSecondary,
-                      }}
-                    >
-                      {obj.label_de}
-                    </span>
-                    <span
-                      className="text-xs ml-auto"
-                      style={{ color: StoryModeColors.textMuted }}
-                    >
-                      {obj.currentValue}/{obj.targetValue}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Warning */}
-          <div
-            className="border-4 p-4 text-center"
-            style={{
-              backgroundColor: 'rgba(255, 71, 71, 0.1)',
-              borderColor: StoryModeColors.danger,
-            }}
-          >
-            <div
-              className="text-sm font-bold"
-              style={{ color: StoryModeColors.danger }}
-            >
-              ⚠️ WARNUNG
-            </div>
-            <p
-              className="text-sm mt-2"
-              style={{ color: StoryModeColors.textSecondary }}
-            >
-              Dieses Spiel dient Bildungszwecken. Es zeigt die Taktiken,
-              die von staatlichen Akteuren zur Destabilisierung demokratischer
-              Gesellschaften eingesetzt werden.
-            </p>
-          </div>
-        </div>
+        {content}
 
         {/* Footer */}
         <div
