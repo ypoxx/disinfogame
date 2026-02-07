@@ -355,6 +355,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     advisorCollapsed, toggleAdvisor,
     queueCollapsed, toggleQueue,
     viewMode, toggleViewMode,
+    resetUI,
   } = usePanelStore();
 
   const [showActionFeedback, setShowActionFeedback] = useState(false);
@@ -423,7 +424,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, activePanel, togglePanel, setActivePanel, toggleViewMode]);
+  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, activePanel, togglePanel, setActivePanel, toggleViewMode, setShowEncyclopedia]);
 
   // Save message timeout
   useEffect(() => {
@@ -491,8 +492,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           trustHistory: state.trustHistory,
           actors: chartActors,
         }}
-        onRestart={resetGame}
-        onMainMenu={onExit}
+        onRestart={() => { resetUI(); resetGame(); }}
+        onMainMenu={() => { resetUI(); onExit(); }}
       />
     );
   }
@@ -555,8 +556,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
       {/* Main Layout: Office + Sidebar (with padding for HUD + sub-HUD) */}
       <div className="pt-[84px] h-full flex">
-        {/* Main content area (Office or Dashboard) */}
-        <div className="flex-1 h-full overflow-hidden">
+        {/* Main content area (Office or Dashboard) - transition prevents layout shift */}
+        <div className="flex-1 h-full overflow-hidden transition-all duration-300">
           {viewMode === 'office' ? (
             <OfficeScreen
               onExit={pauseGame}

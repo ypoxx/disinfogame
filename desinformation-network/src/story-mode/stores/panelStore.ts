@@ -25,6 +25,9 @@ interface PanelState {
   // Action queue widget
   queueCollapsed: boolean;
   toggleQueue: () => void;
+
+  // Reset all UI state (call on game restart)
+  resetUI: () => void;
 }
 
 // ============================================
@@ -53,6 +56,14 @@ export const usePanelStore = create<PanelState>((set) => ({
   queueCollapsed: false,
   toggleQueue: () =>
     set((state) => ({ queueCollapsed: !state.queueCollapsed })),
+
+  resetUI: () =>
+    set({
+      activePanel: null,
+      viewMode: 'office',
+      advisorCollapsed: false,
+      queueCollapsed: false,
+    }),
 }));
 
 // ============================================
