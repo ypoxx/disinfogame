@@ -434,10 +434,8 @@ export function ActionPanel({
     return ids;
   }, [recommendations]);
 
-  // Check if action is recommended
-  const isActionRecommended = (actionId: string) => {
-    return recommendedActionIds.has(actionId);
-  };
+  // Check if action is recommended (stable reference via Set)
+  // NOTE: Do NOT use this function in useMemo deps - use recommendedActionIds instead
 
   // Scroll to highlighted action
   useEffect(() => {
@@ -477,15 +475,15 @@ export function ActionPanel({
 
     // Sort: Recommended actions first
     result.sort((a, b) => {
-      const aRecommended = isActionRecommended(a.id);
-      const bRecommended = isActionRecommended(b.id);
+      const aRecommended = recommendedActionIds.has(a.id);
+      const bRecommended = recommendedActionIds.has(b.id);
       if (aRecommended && !bRecommended) return -1;
       if (!aRecommended && bRecommended) return 1;
       return 0; // Keep original order for same category
     });
 
     return result;
-  }, [actions, currentPhase, activeTab, searchQuery, isActionRecommended]);
+  }, [actions, currentPhase, activeTab, searchQuery, recommendedActionIds]);
 
   const canAffordAction = (action: StoryAction) => {
     if (action.costs.budget && action.costs.budget > availableResources.budget) {
@@ -575,7 +573,7 @@ export function ActionPanel({
                 canAfford={canAffordAction(action)}
                 onSelect={() => onSelectAction(action.id)}
                 onAddToQueue={onAddToQueue ? () => onAddToQueue(action.id) : undefined}
-                isRecommended={isActionRecommended(action.id)}
+                isRecommended={recommendedActionIds.has(action.id)}
                 isHighlighted={isHighlighted}
                 actionRef={isHighlighted ? highlightedActionRef : undefined}
               />

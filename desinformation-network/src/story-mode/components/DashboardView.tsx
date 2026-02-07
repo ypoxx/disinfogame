@@ -78,7 +78,7 @@ function ObjectivesWidget({ objectives }: { objectives: Objective[] }) {
       </div>
       <div className="space-y-2">
         {primary.slice(0, 4).map(obj => {
-          const progress = Math.min(100, (obj.currentValue / obj.targetValue) * 100);
+          const progress = obj.targetValue > 0 ? Math.min(100, (obj.currentValue / obj.targetValue) * 100) : 0;
           return (
             <div key={obj.id}>
               <div className="flex justify-between text-xs mb-0.5">

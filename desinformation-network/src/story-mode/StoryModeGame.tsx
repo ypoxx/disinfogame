@@ -24,6 +24,7 @@ import { CrisisModal } from './components/CrisisModal';
 import { BetrayalIndicators } from './components/BetrayalIndicators';
 import { ConsequenceTimeline } from './components/ConsequenceTimeline';
 import { useStoryGameState } from './hooks/useStoryGameState';
+import type { ActionResult } from '../game-logic/StoryEngineAdapter';
 import { OfficeScreen } from './OfficeScreen';
 import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
@@ -363,7 +364,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [selectedAdvisorNpc, setSelectedAdvisorNpc] = useState<string | null>(null);
   const [highlightActionId, setHighlightActionId] = useState<string | null>(null);
-  const [batchActionResults, setBatchActionResults] = useState<any[] | null>(null);
+  const [batchActionResults, setBatchActionResults] = useState<ActionResult[] | null>(null);
   const [selectedGrievanceNpc, setSelectedGrievanceNpc] = useState<string | null>(null);
 
   // Count world events
@@ -532,30 +533,32 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         onOpenMenu={pauseGame}
       />
 
-      {/* Sub-HUD Bar: Betrayal Indicators + Consequence Timeline */}
-      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
-        <div
-          className="fixed top-[52px] left-0 right-0 z-30 flex items-center gap-2 px-4 py-1"
-          style={{
-            backgroundColor: StoryModeColors.background,
-            borderBottom: `2px solid ${StoryModeColors.border}`,
-          }}
-        >
-          <BetrayalIndicators
-            npcs={state.npcs}
-            betrayalStates={state.betrayalStates}
-          />
-          <div className="flex-1">
-            <ConsequenceTimeline
-              pendingConsequences={state.engine.getPendingConsequences()}
-              currentPhase={state.storyPhase.number}
+      {/* Main Layout (with padding for HUD) */}
+      <div className="pt-[52px] h-full flex flex-col">
+        {/* Sub-HUD Bar: Betrayal Indicators + Consequence Timeline (in-flow, not fixed) */}
+        {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
+          <div
+            className="flex items-center gap-2 px-4 py-1 shrink-0 z-30"
+            style={{
+              backgroundColor: StoryModeColors.background,
+              borderBottom: `2px solid ${StoryModeColors.border}`,
+            }}
+          >
+            <BetrayalIndicators
+              npcs={state.npcs}
+              betrayalStates={state.betrayalStates}
             />
+            <div className="flex-1">
+              <ConsequenceTimeline
+                pendingConsequences={state.engine.getPendingConsequences()}
+                currentPhase={state.storyPhase.number}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Main Layout: Office + Sidebar (with padding for HUD + sub-HUD) */}
-      <div className="pt-[84px] h-full flex">
+        {/* Content area: Office/Dashboard + SidePanel */}
+        <div className="flex-1 flex min-h-0">
         {/* Main content area (Office or Dashboard) - transition prevents layout shift */}
         <div className="flex-1 h-full overflow-hidden transition-all duration-300">
           {viewMode === 'office' ? (
@@ -692,6 +695,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             />
           )}
         </SidePanel>
+      </div>
       </div>
 
       {/* Dialog Box */}
@@ -838,7 +842,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             if (results && results.length > 0) {
               const validResults = results.filter(r => r !== null);
               if (validResults.length > 0) {
-                setBatchActionResults(validResults as any[]);
+                setBatchActionResults(validResults as ActionResult[]);
                 setShowActionFeedback(true);
               }
             }

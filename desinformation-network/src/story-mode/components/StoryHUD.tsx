@@ -193,7 +193,7 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
 
   if (!primaryObjective) return null;
 
-  const progress = (primaryObjective.progress / primaryObjective.target) * 100;
+  const progress = primaryObjective.target > 0 ? (primaryObjective.progress / primaryObjective.target) * 100 : 0;
 
   return (
     <button
