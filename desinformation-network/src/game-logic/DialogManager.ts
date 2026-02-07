@@ -35,14 +35,20 @@ import { storyLogger } from '../utils/logger';
 // Dependency Interface (Constructor Injection)
 // ============================================
 
+/** Legacy NPC dialogue cache (from npcs.json inline dialogues) */
+export interface LegacyNPCDialogueCache {
+  greetings?: Record<string, string>;
+  reactions?: Record<string, string>;
+  topics?: Record<string, string>;
+}
+
 export interface DialogManagerDeps {
   // State access
   getPhase(): StoryPhase;
   getResources(): StoryResources;
   getNPCStates(): Map<string, NPCState>;
   getObjectives(): Objective[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getNPCDialogues(): Map<string, any>;
+  getNPCDialogues(): Map<string, LegacyNPCDialogueCache>;
 
   // Utilities
   seededRandom(input: string): number;

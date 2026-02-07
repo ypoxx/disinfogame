@@ -52,6 +52,10 @@ export interface NewsGeneratorDeps {
   seededRandom(input: string): number;
   playSound(sound: string): void;
 
+  // Constants (from story-balance-config.ts)
+  WORLD_EVENT_COOLDOWN: number;
+  OPPORTUNITY_WINDOW_DURATION: number;
+
   // Data
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   worldEventsData: any;
@@ -62,16 +66,19 @@ export interface NewsGeneratorDeps {
 // ============================================
 
 export class NewsGenerator {
-  // Constants
-  private readonly WORLD_EVENT_COOLDOWN = 12;       // 12 phases = 1 year cooldown
-  private readonly OPPORTUNITY_WINDOW_DURATION = 6;  // Default: 6 phases = 6 months
+  // Constants (injected from story-balance-config via deps)
+  private readonly WORLD_EVENT_COOLDOWN: number;
+  private readonly OPPORTUNITY_WINDOW_DURATION: number;
 
   // Tracking state (owned by NewsGenerator, persists across phases)
   private triggeredEventsThisPhase: Set<string> = new Set();
   private allTriggeredEvents: Map<string, number> = new Map();
   private worldEventCooldowns: Map<string, number> = new Map();
 
-  constructor(private deps: NewsGeneratorDeps) {}
+  constructor(private deps: NewsGeneratorDeps) {
+    this.WORLD_EVENT_COOLDOWN = deps.WORLD_EVENT_COOLDOWN;
+    this.OPPORTUNITY_WINDOW_DURATION = deps.OPPORTUNITY_WINDOW_DURATION;
+  }
 
   // ============================================
   // Public Methods

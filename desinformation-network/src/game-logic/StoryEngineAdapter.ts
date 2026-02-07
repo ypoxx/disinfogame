@@ -108,6 +108,8 @@ import {
   MAX_YEARS,
   ACTION_POINTS_PER_PHASE,
   CAPACITY_REGEN_PER_PHASE,
+  WORLD_EVENT_COOLDOWN,
+  OPPORTUNITY_WINDOW_DURATION,
 } from './story-balance-config';
 
 // Import NPC and World Events data
@@ -442,8 +444,7 @@ export class StoryEngineAdapter {
   private newsEvents: NewsEvent[] = [];
   private objectives: Objective[] = [];
   private npcStates: Map<string, NPCState> = new Map();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private npcDialogues: Map<string, any> = new Map();
+  private npcDialogues: Map<string, import('./DialogManager').LegacyNPCDialogueCache> = new Map();
   private actionHistory: { phase: number; actionId: string; result: ActionResult }[] = [];
   private exposureCountdown: number | null = null;  // Countdown to forced exposure/game end
   // P2-7: Track world event cooldowns (eventId -> last triggered phase)
@@ -559,6 +560,8 @@ export class StoryEngineAdapter {
       seededRandom: (input: string) => adapter.seededRandom(input),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       playSound: (sound: string) => playSound(sound as any),
+      WORLD_EVENT_COOLDOWN,
+      OPPORTUNITY_WINDOW_DURATION,
       worldEventsData: worldEventsData,
     };
   }
