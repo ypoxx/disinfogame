@@ -48,6 +48,7 @@ interface ActionPanelProps {
   isVisible: boolean;
   recommendations?: AdvisorRecommendation[];
   highlightActionId?: string | null;
+  variant?: 'modal' | 'sidebar';
 }
 
 // ============================================
@@ -57,11 +58,11 @@ interface ActionPanelProps {
 type FilterTab = 'all' | 'legal' | 'grey' | 'illegal' | 'unlocked';
 
 const FILTER_TABS: { id: FilterTab; label: string; color: string }[] = [
-  { id: 'all', label: 'ALL', color: StoryModeColors.textPrimary },
+  { id: 'all', label: 'ALLE', color: StoryModeColors.textPrimary },
   { id: 'legal', label: 'LEGAL', color: StoryModeColors.success },
-  { id: 'grey', label: 'GREY', color: StoryModeColors.warning },
+  { id: 'grey', label: 'GRAUZONE', color: StoryModeColors.warning },
   { id: 'illegal', label: 'ILLEGAL', color: StoryModeColors.danger },
-  { id: 'unlocked', label: 'NEW', color: StoryModeColors.agencyBlue },
+  { id: 'unlocked', label: 'NEU', color: StoryModeColors.agencyBlue },
 ];
 
 // ============================================
@@ -87,7 +88,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
 
   const legalityLabels = {
     legal: '✓ LEGAL',
-    grey: '⚠ GREY ZONE',
+    grey: '⚠ GRAUZONE',
     illegal: '✕ ILLEGAL',
   };
 
@@ -296,7 +297,49 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
             className="text-xs mt-1 italic"
             style={{ color: StoryModeColors.textMuted }}
           >
-            Hohere Beziehung = großerer Rabatt (max. 30%)
+            Höhere Beziehung = größerer Rabatt (max. 30%)
+          </div>
+        </div>
+      )}
+
+      {/* Impact Preview (Phase 3.3) */}
+      {!isDisabled && (
+        <div
+          className="mt-2 p-2 border text-xs space-y-1"
+          style={{
+            backgroundColor: StoryModeColors.background,
+            borderColor: StoryModeColors.borderLight,
+          }}
+        >
+          <div className="font-bold mb-1" style={{ color: StoryModeColors.textSecondary }}>
+            AUSWIRKUNG:
+          </div>
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+            {(action.costs.risk ?? 0) > 0 && (
+              <span style={{ color: (action.costs.risk ?? 0) > 10 ? StoryModeColors.danger : StoryModeColors.warning }}>
+                Risiko +{action.costs.risk}%
+              </span>
+            )}
+            {(action.costs.moral_weight ?? 0) > 0 && (
+              <span style={{ color: StoryModeColors.sovietRed }}>
+                Moral +{action.costs.moral_weight}
+              </span>
+            )}
+            {(action.costs.attention ?? 0) > 0 && (
+              <span style={{ color: StoryModeColors.danger }}>
+                Aufmerksamkeit +{action.costs.attention}%
+              </span>
+            )}
+            {action.legality === 'illegal' && (
+              <span style={{ color: StoryModeColors.danger }}>
+                Konsequenz wahrscheinlich
+              </span>
+            )}
+            {action.npc_affinity.length > 0 && (
+              <span style={{ color: StoryModeColors.success }}>
+                {action.npc_affinity.length} NPC-Bonus
+              </span>
+            )}
           </div>
         </div>
       )}
@@ -310,7 +353,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
             color: StoryModeColors.textMuted,
           }}
         >
-          ✓ ALREADY USED
+          ✓ BEREITS VERWENDET
         </div>
       )}
       {!action.isUnlocked && !action.isUsed && (
@@ -321,7 +364,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
             color: StoryModeColors.textMuted,
           }}
         >
-          🔒 LOCKED
+          🔒 GESPERRT
         </div>
       )}
 
@@ -376,6 +419,7 @@ export function ActionPanel({
   isVisible,
   recommendations = [],
   highlightActionId = null,
+  variant = 'modal',
 }: ActionPanelProps) {
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -390,10 +434,8 @@ export function ActionPanel({
     return ids;
   }, [recommendations]);
 
-  // Check if action is recommended
-  const isActionRecommended = (actionId: string) => {
-    return recommendedActionIds.has(actionId);
-  };
+  // Check if action is recommended (stable reference via Set)
+  // NOTE: Do NOT use this function in useMemo deps - use recommendedActionIds instead
 
   // Scroll to highlighted action
   useEffect(() => {
@@ -433,15 +475,15 @@ export function ActionPanel({
 
     // Sort: Recommended actions first
     result.sort((a, b) => {
-      const aRecommended = isActionRecommended(a.id);
-      const bRecommended = isActionRecommended(b.id);
+      const aRecommended = recommendedActionIds.has(a.id);
+      const bRecommended = recommendedActionIds.has(b.id);
       if (aRecommended && !bRecommended) return -1;
       if (!aRecommended && bRecommended) return 1;
       return 0; // Keep original order for same category
     });
 
     return result;
-  }, [actions, currentPhase, activeTab, searchQuery, isActionRecommended]);
+  }, [actions, currentPhase, activeTab, searchQuery, recommendedActionIds]);
 
   const canAffordAction = (action: StoryAction) => {
     if (action.costs.budget && action.costs.budget > availableResources.budget) {
@@ -458,6 +500,144 @@ export function ActionPanel({
 
   if (!isVisible) return null;
 
+  // Shared content: Filter tabs, actions list, footer
+  const filterBar = (
+    <div
+      className={`flex gap-1 ${variant === 'sidebar' ? 'px-2 py-1.5 flex-wrap' : 'px-4 py-2'} border-b-2`}
+      style={{
+        backgroundColor: StoryModeColors.darkConcrete,
+        borderColor: StoryModeColors.borderLight,
+      }}
+    >
+      {FILTER_TABS.map(tab => (
+        <button
+          key={tab.id}
+          onClick={() => setActiveTab(tab.id)}
+          className={`
+            px-2 py-1 text-xs font-bold border-2 transition-all
+            ${activeTab === tab.id ? 'translate-y-0.5' : 'hover:brightness-110'}
+          `}
+          style={{
+            backgroundColor:
+              activeTab === tab.id ? tab.color : StoryModeColors.surface,
+            borderColor:
+              activeTab === tab.id ? StoryModeColors.border : StoryModeColors.borderLight,
+            color:
+              activeTab === tab.id ? '#fff' : tab.color,
+            boxShadow:
+              activeTab === tab.id ? 'none' : '2px 2px 0px 0px rgba(0,0,0,0.5)',
+          }}
+        >
+          {tab.label}
+        </button>
+      ))}
+
+      {/* Search */}
+      <div className={variant === 'sidebar' ? 'w-full mt-1' : 'flex-1 ml-4'}>
+        <input
+          type="text"
+          placeholder="Aktionen suchen..."
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          className="w-full px-3 py-1 text-sm font-mono border-2"
+          style={{
+            backgroundColor: StoryModeColors.background,
+            borderColor: StoryModeColors.borderLight,
+            color: StoryModeColors.textPrimary,
+          }}
+        />
+      </div>
+    </div>
+  );
+
+  const actionsList = (
+    <div
+      className="flex-1 overflow-y-auto p-3"
+      style={{ backgroundColor: StoryModeColors.background }}
+    >
+      {filteredActions.length === 0 ? (
+        <div
+          className="text-center py-8"
+          style={{ color: StoryModeColors.textSecondary }}
+        >
+          Keine Aktionen fur aktuelle Filter verfugbar.
+        </div>
+      ) : (
+        <div className={variant === 'sidebar' ? 'space-y-3' : 'grid grid-cols-2 gap-3'}>
+          {filteredActions.map(action => {
+            const isHighlighted = highlightActionId === action.id;
+            return (
+              <ActionCard
+                key={action.id}
+                action={action}
+                canAfford={canAffordAction(action)}
+                onSelect={() => onSelectAction(action.id)}
+                onAddToQueue={onAddToQueue ? () => onAddToQueue(action.id) : undefined}
+                isRecommended={recommendedActionIds.has(action.id)}
+                isHighlighted={isHighlighted}
+                actionRef={isHighlighted ? highlightedActionRef : undefined}
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+
+  const footer = (
+    <div
+      className="px-3 py-2 border-t-4 flex items-center justify-between"
+      style={{
+        backgroundColor: StoryModeColors.darkConcrete,
+        borderColor: StoryModeColors.border,
+      }}
+    >
+      <div className="flex gap-3 text-xs">
+        <span style={{ color: StoryModeColors.warning }}>
+          💰 ${availableResources.budget}K
+        </span>
+        <span style={{ color: StoryModeColors.agencyBlue }}>
+          ⚡ {availableResources.capacity}
+        </span>
+        <span style={{ color: StoryModeColors.textPrimary }}>
+          🎯 {availableResources.actionPoints} AP
+        </span>
+      </div>
+      <div
+        className="text-[10px]"
+        style={{ color: StoryModeColors.textMuted }}
+      >
+        Grau/Illegal erhoht Risiko
+      </div>
+    </div>
+  );
+
+  // Sidebar variant: render inline (no overlay)
+  if (variant === 'sidebar') {
+    return (
+      <div className="flex flex-col h-full">
+        <div
+          className="px-3 py-2 border-b-2 flex items-center justify-between"
+          style={{
+            backgroundColor: StoryModeColors.sovietRed,
+            borderColor: StoryModeColors.border,
+          }}
+        >
+          <div>
+            <h2 className="font-bold text-sm text-white">AKTIONEN PLANEN</h2>
+            <p className="text-[10px] text-white/70">
+              {currentPhase.toUpperCase()} | {filteredActions.length} verfugbar
+            </p>
+          </div>
+        </div>
+        {filterBar}
+        {actionsList}
+        {footer}
+      </div>
+    );
+  }
+
+  // Modal variant: original fullscreen overlay
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-8"
@@ -480,9 +660,9 @@ export function ActionPanel({
           }}
         >
           <div>
-            <h2 className="font-bold text-xl text-white">AVAILABLE ACTIONS</h2>
+            <h2 className="font-bold text-xl text-white">AKTIONEN PLANEN</h2>
             <p className="text-sm text-white/70">
-              Phase: {currentPhase.toUpperCase()} | {filteredActions.length} actions available
+              Phase: {currentPhase.toUpperCase()} | {filteredActions.length} verfugbar
             </p>
           </div>
           <button
@@ -495,117 +675,13 @@ export function ActionPanel({
               boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',
             }}
           >
-            ✕ CLOSE
+            ✕ SCHLIESSEN
           </button>
         </div>
 
-        {/* Filter Tabs */}
-        <div
-          className="flex gap-1 px-4 py-2 border-b-2"
-          style={{
-            backgroundColor: StoryModeColors.darkConcrete,
-            borderColor: StoryModeColors.borderLight,
-          }}
-        >
-          {FILTER_TABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                px-3 py-1.5 text-xs font-bold border-2 transition-all
-                ${activeTab === tab.id ? 'translate-y-0.5' : 'hover:brightness-110'}
-              `}
-              style={{
-                backgroundColor:
-                  activeTab === tab.id ? tab.color : StoryModeColors.surface,
-                borderColor:
-                  activeTab === tab.id ? StoryModeColors.border : StoryModeColors.borderLight,
-                color:
-                  activeTab === tab.id ? '#fff' : tab.color,
-                boxShadow:
-                  activeTab === tab.id ? 'none' : '2px 2px 0px 0px rgba(0,0,0,0.5)',
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-
-          {/* Search */}
-          <div className="flex-1 ml-4">
-            <input
-              type="text"
-              placeholder="Search actions..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-1.5 text-sm font-mono border-2"
-              style={{
-                backgroundColor: StoryModeColors.background,
-                borderColor: StoryModeColors.borderLight,
-                color: StoryModeColors.textPrimary,
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Actions Grid */}
-        <div
-          className="flex-1 overflow-y-auto p-4"
-          style={{ backgroundColor: StoryModeColors.background }}
-        >
-          {filteredActions.length === 0 ? (
-            <div
-              className="text-center py-12"
-              style={{ color: StoryModeColors.textSecondary }}
-            >
-              No actions available for current filters.
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              {filteredActions.map(action => {
-                const isHighlighted = highlightActionId === action.id;
-                return (
-                  <ActionCard
-                    key={action.id}
-                    action={action}
-                    canAfford={canAffordAction(action)}
-                    onSelect={() => onSelectAction(action.id)}
-                    onAddToQueue={onAddToQueue ? () => onAddToQueue(action.id) : undefined}
-                    isRecommended={isActionRecommended(action.id)}
-                    isHighlighted={isHighlighted}
-                    actionRef={isHighlighted ? highlightedActionRef : undefined}
-                  />
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div
-          className="px-4 py-3 border-t-4 flex items-center justify-between"
-          style={{
-            backgroundColor: StoryModeColors.darkConcrete,
-            borderColor: StoryModeColors.border,
-          }}
-        >
-          <div className="flex gap-4 text-sm">
-            <span style={{ color: StoryModeColors.warning }}>
-              💰 ${availableResources.budget}K
-            </span>
-            <span style={{ color: StoryModeColors.agencyBlue }}>
-              ⚡ {availableResources.capacity}
-            </span>
-            <span style={{ color: StoryModeColors.textPrimary }}>
-              🎯 {availableResources.actionPoints} AP
-            </span>
-          </div>
-          <div
-            className="text-xs"
-            style={{ color: StoryModeColors.textMuted }}
-          >
-            Click an action to execute. Grey/Illegal actions increase risk.
-          </div>
-        </div>
+        {filterBar}
+        {actionsList}
+        {footer}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { StoryModeColors } from './theme';
 import type { StoryResources, StoryPhase, NewsEvent, Objective } from '../game-logic/StoryEngineAdapter';
 
@@ -29,7 +29,7 @@ type HoverArea = 'computer' | 'phone' | 'smartphone' | 'tv' | 'door' | 'folder' 
 // CSS OFFICE FURNITURE COMPONENTS
 // ============================================
 
-function WallTV({ isHovered, onClick, onMouseEnter, onMouseLeave }: { isHovered: boolean; onClick: () => void; onMouseEnter: () => void; onMouseLeave: () => void }) {
+function WallTV({ isHovered, onClick, onMouseEnter, onMouseLeave, resources }: { isHovered: boolean; onClick: () => void; onMouseEnter: () => void; onMouseLeave: () => void; resources?: StoryResources }) {
   return (
     <div
       className="absolute cursor-pointer transition-all duration-200"
@@ -55,28 +55,28 @@ function WallTV({ isHovered, onClick, onMouseEnter, onMouseLeave }: { isHovered:
             : '8px 8px 0 rgba(0,0,0,0.5)',
         }}
       >
-        {/* Screen Content - Stats Bars */}
+        {/* Screen Content - Stats Bars (connected to real game state) */}
         <div className="absolute inset-2 p-2 overflow-hidden" style={{ backgroundColor: '#0a0a0a' }}>
           <div className="text-xs font-bold mb-2" style={{ color: StoryModeColors.agencyBlue }}>
-            CAMPAIGN METRICS
+            KAMPAGNEN-METRIKEN
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs w-16" style={{ color: StoryModeColors.textMuted }}>TRUST</span>
+              <span className="text-xs w-16" style={{ color: StoryModeColors.textMuted }}>BUDGET</span>
               <div className="flex-1 h-3 bg-black">
-                <div className="h-full" style={{ width: '65%', backgroundColor: StoryModeColors.danger }} />
+                <div className="h-full transition-all" style={{ width: `${Math.min(100, (resources?.budget ?? 100) / 2)}%`, backgroundColor: StoryModeColors.warning }} />
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs w-16" style={{ color: StoryModeColors.textMuted }}>REACH</span>
+              <span className="text-xs w-16" style={{ color: StoryModeColors.textMuted }}>KAPAZ.</span>
               <div className="flex-1 h-3 bg-black">
-                <div className="h-full" style={{ width: '45%', backgroundColor: StoryModeColors.agencyBlue }} />
+                <div className="h-full transition-all" style={{ width: `${Math.min(100, (resources?.capacity ?? 5) * 10)}%`, backgroundColor: StoryModeColors.agencyBlue }} />
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs w-16" style={{ color: StoryModeColors.textMuted }}>RISK</span>
+              <span className="text-xs w-16" style={{ color: StoryModeColors.textMuted }}>RISIKO</span>
               <div className="flex-1 h-3 bg-black">
-                <div className="h-full" style={{ width: '25%', backgroundColor: StoryModeColors.warning }} />
+                <div className="h-full transition-all" style={{ width: `${Math.min(100, resources?.risk ?? 0)}%`, backgroundColor: resources && resources.risk > 60 ? StoryModeColors.danger : StoryModeColors.sovietRed }} />
               </div>
             </div>
           </div>
@@ -148,7 +148,7 @@ function DeskComputer({ isHovered, hasNotification, onClick, onMouseEnter, onMou
           }}
         >
           <div className="text-xs font-bold mb-1" style={{ color: StoryModeColors.sovietRed }}>
-            SECURE TERMINAL
+            SICHERES TERMINAL
           </div>
           <div className="text-xs" style={{ color: StoryModeColors.textMuted }}>
             {'>'} AKTIONEN VERFÜGBAR_
@@ -308,10 +308,10 @@ function Smartphone({ isHovered, unreadCount, onClick, onMouseEnter, onMouseLeav
         >
           <div className="p-1">
             <div className="text-[8px] font-bold" style={{ color: StoryModeColors.danger }}>
-              NEWS
+              NACHR.
             </div>
             <div className="text-[6px] mt-1" style={{ color: StoryModeColors.textMuted }}>
-              Breaking...
+              Eilmeldung...
             </div>
           </div>
         </div>
@@ -526,19 +526,7 @@ export function OfficeScreen({
 }: OfficeScreenProps) {
   const [hoverArea, setHoverArea] = useState<HoverArea>(null);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'a' && onOpenActions) onOpenActions();
-      if (e.key === 'n' && onOpenNews) onOpenNews();
-      if (e.key === 's' && onOpenStats) onOpenStats();
-      if (e.key === 'p' && onOpenNpcs) onOpenNpcs();
-      if (e.key === 'm' && onOpenMission) onOpenMission();
-      if (e.key === 'e' && onOpenEvents) onOpenEvents();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onOpenActions, onOpenNews, onOpenStats, onOpenNpcs, onOpenMission, onOpenEvents]);
+  // Keyboard shortcuts removed - centralized in StoryModeGame.tsx
 
   return (
     <div
@@ -548,53 +536,7 @@ export function OfficeScreen({
         color: StoryModeColors.textPrimary,
       }}
     >
-      {/* Header Bar - Status */}
-      <div
-        className="border-b-4 p-3 flex justify-between items-center z-20 relative"
-        style={{
-          backgroundColor: StoryModeColors.darkConcrete,
-          borderColor: StoryModeColors.border,
-        }}
-      >
-        <div className="flex gap-6 text-xs font-bold">
-          <div>
-            <span style={{ color: StoryModeColors.textSecondary }}>PHASE:</span>{' '}
-            <span style={{ color: StoryModeColors.sovietRed }}>
-              {phase ? `Y${phase.year} M${phase.month}` : 'Y1 M1'}
-            </span>
-          </div>
-          <div>
-            <span style={{ color: StoryModeColors.textSecondary }}>AP:</span>{' '}
-            <span style={{ color: StoryModeColors.warning }}>
-              {resources ? `${resources.actionPointsRemaining}/${resources.actionPointsMax}` : '5/5'}
-            </span>
-          </div>
-          <div>
-            <span style={{ color: StoryModeColors.warning }}>💰 ${resources?.budget ?? 100}K</span>
-          </div>
-          <div>
-            <span style={{ color: StoryModeColors.agencyBlue }}>⚡ {resources?.capacity ?? 5}</span>
-          </div>
-          <div>
-            <span style={{ color: StoryModeColors.danger }}>⚠️ {resources?.risk ?? 0}%</span>
-          </div>
-          <div>
-            <span style={{ color: StoryModeColors.sovietRed }}>💀 {resources?.moralWeight ?? 0}</span>
-          </div>
-        </div>
-        <button
-          onClick={onExit}
-          className="px-4 py-1 font-bold border-2 transition-all active:translate-y-0.5"
-          style={{
-            backgroundColor: StoryModeColors.concrete,
-            borderColor: StoryModeColors.borderLight,
-            color: StoryModeColors.textPrimary,
-            boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',
-          }}
-        >
-          MENU [ESC]
-        </button>
-      </div>
+      {/* Status bar removed - info already shown in StoryHUD */}
 
       {/* Main Office Scene */}
       <div
@@ -638,6 +580,7 @@ export function OfficeScreen({
         {/* Interactive Elements */}
         <WallTV
           isHovered={hoverArea === 'tv'}
+          resources={resources}
           onClick={() => {
             setHoverArea(null);
             if (onOpenStats) onOpenStats();

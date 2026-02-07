@@ -297,8 +297,8 @@ export interface DialogState {
 // ============================================
 
 export function useStoryGameState(seed?: string) {
-  // Engine instance (stable reference)
-  const [engine] = useState(() => createStoryEngine(seed));
+  // Engine instance (replaceable on reset)
+  const [engine, setEngine] = useState(() => createStoryEngine(seed));
 
   // UI State
   const [gamePhase, setGamePhase] = useState<GamePhase>('intro');
@@ -1322,6 +1322,7 @@ export function useStoryGameState(seed?: string) {
 
   const resetGame = useCallback(() => {
     const newEngine = createStoryEngine();
+    setEngine(newEngine);
 
     setGamePhase('intro');
     setStoryPhase(newEngine.getCurrentPhase());
