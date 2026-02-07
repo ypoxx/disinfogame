@@ -22,11 +22,11 @@ export function MissionPanel({
   const secondaryObjectives = objectives.filter(o => o.type === 'secondary');
 
   const getPhaseDescription = (year: number) => {
-    if (year <= 2) return 'GRUNDUNG - Bauen Sie Ihr Netzwerk auf und etablieren Sie erste Kanale.';
-    if (year <= 4) return 'EXPANSION - Erweitern Sie Ihren Einfluss und rekrutieren Sie Schlusselfiguren.';
+    if (year <= 2) return 'GRÜNDUNG - Bauen Sie Ihr Netzwerk auf und etablieren Sie erste Kanäle.';
+    if (year <= 4) return 'EXPANSION - Erweitern Sie Ihren Einfluss und rekrutieren Sie Schlüsselfiguren.';
     if (year <= 6) return 'INFILTRATION - Unterwandern Sie Institutionen und verbreiten Sie Narrative.';
-    if (year <= 8) return 'ESKALATION - Verstarken Sie die Spaltung und destabilisieren Sie das System.';
-    return 'ENDSPIEL - Fuhren Sie den finalen Schlag aus.';
+    if (year <= 8) return 'ESKALATION - Verstärken Sie die Spaltung und destabilisieren Sie das System.';
+    return 'ENDSPIEL - Führen Sie den finalen Schlag aus.';
   };
 
   const content = (

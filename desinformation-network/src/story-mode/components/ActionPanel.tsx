@@ -58,11 +58,11 @@ interface ActionPanelProps {
 type FilterTab = 'all' | 'legal' | 'grey' | 'illegal' | 'unlocked';
 
 const FILTER_TABS: { id: FilterTab; label: string; color: string }[] = [
-  { id: 'all', label: 'ALL', color: StoryModeColors.textPrimary },
+  { id: 'all', label: 'ALLE', color: StoryModeColors.textPrimary },
   { id: 'legal', label: 'LEGAL', color: StoryModeColors.success },
-  { id: 'grey', label: 'GREY', color: StoryModeColors.warning },
+  { id: 'grey', label: 'GRAUZONE', color: StoryModeColors.warning },
   { id: 'illegal', label: 'ILLEGAL', color: StoryModeColors.danger },
-  { id: 'unlocked', label: 'NEW', color: StoryModeColors.agencyBlue },
+  { id: 'unlocked', label: 'NEU', color: StoryModeColors.agencyBlue },
 ];
 
 // ============================================
@@ -88,7 +88,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
 
   const legalityLabels = {
     legal: '✓ LEGAL',
-    grey: '⚠ GREY ZONE',
+    grey: '⚠ GRAUZONE',
     illegal: '✕ ILLEGAL',
   };
 
@@ -297,7 +297,49 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
             className="text-xs mt-1 italic"
             style={{ color: StoryModeColors.textMuted }}
           >
-            Hohere Beziehung = großerer Rabatt (max. 30%)
+            Höhere Beziehung = größerer Rabatt (max. 30%)
+          </div>
+        </div>
+      )}
+
+      {/* Impact Preview (Phase 3.3) */}
+      {!isDisabled && (
+        <div
+          className="mt-2 p-2 border text-xs space-y-1"
+          style={{
+            backgroundColor: StoryModeColors.background,
+            borderColor: StoryModeColors.borderLight,
+          }}
+        >
+          <div className="font-bold mb-1" style={{ color: StoryModeColors.textSecondary }}>
+            AUSWIRKUNG:
+          </div>
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+            {(action.costs.risk ?? 0) > 0 && (
+              <span style={{ color: (action.costs.risk ?? 0) > 10 ? StoryModeColors.danger : StoryModeColors.warning }}>
+                Risiko +{action.costs.risk}%
+              </span>
+            )}
+            {(action.costs.moral_weight ?? 0) > 0 && (
+              <span style={{ color: StoryModeColors.sovietRed }}>
+                Moral +{action.costs.moral_weight}
+              </span>
+            )}
+            {(action.costs.attention ?? 0) > 0 && (
+              <span style={{ color: StoryModeColors.danger }}>
+                Aufmerksamkeit +{action.costs.attention}%
+              </span>
+            )}
+            {action.legality === 'illegal' && (
+              <span style={{ color: StoryModeColors.danger }}>
+                Konsequenz wahrscheinlich
+              </span>
+            )}
+            {action.npc_affinity.length > 0 && (
+              <span style={{ color: StoryModeColors.success }}>
+                {action.npc_affinity.length} NPC-Bonus
+              </span>
+            )}
           </div>
         </div>
       )}
@@ -311,7 +353,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
             color: StoryModeColors.textMuted,
           }}
         >
-          ✓ ALREADY USED
+          ✓ BEREITS VERWENDET
         </div>
       )}
       {!action.isUnlocked && !action.isUsed && (
@@ -322,7 +364,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
             color: StoryModeColors.textMuted,
           }}
         >
-          🔒 LOCKED
+          🔒 GESPERRT
         </div>
       )}
 

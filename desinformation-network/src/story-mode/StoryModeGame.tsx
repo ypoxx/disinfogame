@@ -21,8 +21,13 @@ import { GrievanceModal } from './components/GrievanceModal';
 import { BetrayalEventModal } from './components/BetrayalEventModal';
 import { ComboHintsWidget } from './components/ComboHintsWidget';
 import { CrisisModal } from './components/CrisisModal';
+import { BetrayalIndicators } from './components/BetrayalIndicators';
+import { ConsequenceTimeline } from './components/ConsequenceTimeline';
 import { useStoryGameState } from './hooks/useStoryGameState';
 import { OfficeScreen } from './OfficeScreen';
+import { usePanelStore } from './stores/panelStore';
+import { SidePanel } from './components/SidePanel';
+import { DashboardView } from './components/DashboardView';
 
 // ============================================
 // TYPES
@@ -344,19 +349,19 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     hasSaveGame,
   } = useStoryGameState();
 
-  const [showActionPanel, setShowActionPanel] = useState(false);
-  const [showNewsPanel, setShowNewsPanel] = useState(false);
-  const [showStatsPanel, setShowStatsPanel] = useState(false);
-  const [showNpcPanel, setShowNpcPanel] = useState(false);
-  const [showMissionPanel, setShowMissionPanel] = useState(false);
-  const [showEventsPanel, setShowEventsPanel] = useState(false);
+  // Panel state from Zustand store (replaces 8 individual useState hooks)
+  const {
+    activePanel, togglePanel, setActivePanel,
+    advisorCollapsed, toggleAdvisor,
+    queueCollapsed, toggleQueue,
+    viewMode, toggleViewMode,
+  } = usePanelStore();
+
   const [showActionFeedback, setShowActionFeedback] = useState(false);
   const [showEncyclopedia, setShowEncyclopedia] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [selectedAdvisorNpc, setSelectedAdvisorNpc] = useState<string | null>(null);
-  const [advisorCollapsed, setAdvisorCollapsed] = useState(false);
   const [highlightActionId, setHighlightActionId] = useState<string | null>(null);
-  const [queueCollapsed, setQueueCollapsed] = useState(false);
   const [batchActionResults, setBatchActionResults] = useState<any[] | null>(null);
   const [selectedGrievanceNpc, setSelectedGrievanceNpc] = useState<string | null>(null);
 
@@ -373,16 +378,24 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     }
   }, [state.gamePhase, tutorial]);
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts (centralized - replaces OfficeScreen's duplicate handler)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't handle shortcuts when typing in inputs
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
       if (e.key === 'Escape') {
-        // First priority: close dialog if open
+        // First priority: close active sidebar panel
+        if (activePanel) {
+          setActivePanel(null);
+          return;
+        }
+        // Second priority: close dialog if open
         if (state.currentDialog) {
           dismissDialog();
           return;
         }
-        // Second priority: toggle pause
+        // Third priority: toggle pause
         if (state.gamePhase === 'playing') {
           pauseGame();
         } else if (state.gamePhase === 'paused') {
@@ -393,15 +406,24 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         e.preventDefault();
         continueDialog();
       }
-      // Encyclopedia shortcut (i for info)
-      if (e.key === 'i' || e.key === 'I') {
-        setShowEncyclopedia(prev => !prev);
+      // Panel & view shortcuts (only when playing and no dialog open)
+      if (state.gamePhase === 'playing' && !state.currentDialog) {
+        switch (e.key.toLowerCase()) {
+          case 'a': togglePanel('actions'); break;
+          case 'n': togglePanel('news'); break;
+          case 's': togglePanel('stats'); break;
+          case 'p': togglePanel('npcs'); break;
+          case 'm': togglePanel('mission'); break;
+          case 'e': togglePanel('events'); break;
+          case 'v': toggleViewMode(); break;
+          case 'i': setShowEncyclopedia(prev => !prev); break;
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog]);
+  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, activePanel, togglePanel, setActivePanel, toggleViewMode]);
 
   // Save message timeout
   useEffect(() => {
@@ -509,24 +531,166 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         onOpenMenu={pauseGame}
       />
 
-      {/* Office Scene (with padding for HUD) */}
-      <div className="pt-16 h-full">
-        <OfficeScreen
-          onExit={pauseGame}
-          onOpenActions={() => setShowActionPanel(true)}
-          onOpenNews={() => setShowNewsPanel(true)}
-          onOpenStats={() => setShowStatsPanel(true)}
-          onOpenNpcs={() => setShowNpcPanel(true)}
-          onOpenMission={() => setShowMissionPanel(true)}
-          onOpenEvents={() => setShowEventsPanel(true)}
-          onEndPhase={endPhase}
-          resources={state.resources}
-          phase={state.storyPhase}
-          newsEvents={state.newsEvents}
-          objectives={state.objectives}
-          unreadNewsCount={state.unreadNewsCount}
-          worldEventCount={worldEventCount}
-        />
+      {/* Sub-HUD Bar: Betrayal Indicators + Consequence Timeline */}
+      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
+        <div
+          className="fixed top-[52px] left-0 right-0 z-30 flex items-center gap-2 px-4 py-1"
+          style={{
+            backgroundColor: StoryModeColors.background,
+            borderBottom: `2px solid ${StoryModeColors.border}`,
+          }}
+        >
+          <BetrayalIndicators
+            npcs={state.npcs}
+            betrayalStates={state.betrayalStates}
+          />
+          <div className="flex-1">
+            <ConsequenceTimeline
+              pendingConsequences={state.engine.getPendingConsequences()}
+              currentPhase={state.storyPhase.number}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Main Layout: Office + Sidebar (with padding for HUD + sub-HUD) */}
+      <div className="pt-[84px] h-full flex">
+        {/* Main content area (Office or Dashboard) */}
+        <div className="flex-1 h-full overflow-hidden">
+          {viewMode === 'office' ? (
+            <OfficeScreen
+              onExit={pauseGame}
+              onOpenActions={() => togglePanel('actions')}
+              onOpenNews={() => togglePanel('news')}
+              onOpenStats={() => togglePanel('stats')}
+              onOpenNpcs={() => togglePanel('npcs')}
+              onOpenMission={() => togglePanel('mission')}
+              onOpenEvents={() => togglePanel('events')}
+              onEndPhase={endPhase}
+              resources={state.resources}
+              phase={state.storyPhase}
+              newsEvents={state.newsEvents}
+              objectives={state.objectives}
+              unreadNewsCount={state.unreadNewsCount}
+              worldEventCount={worldEventCount}
+            />
+          ) : (
+            <DashboardView
+              resources={state.resources}
+              phase={state.storyPhase}
+              objectives={state.objectives}
+              newsEvents={state.newsEvents}
+              npcs={state.npcs}
+              unreadNewsCount={state.unreadNewsCount}
+              worldEventCount={worldEventCount}
+              onEndPhase={endPhase}
+            />
+          )}
+        </div>
+
+        {/* Sidebar Panel System */}
+        <SidePanel>
+          {activePanel === 'actions' && (
+            <ActionPanel
+              isVisible={true}
+              variant="sidebar"
+              actions={state.availableActions.map(a => ({
+                id: a.id,
+                phase: a.phase,
+                label_de: a.label_de,
+                label_en: a.label_en,
+                narrative_de: a.narrative_de,
+                costs: {
+                  budget: a.costs.budget,
+                  capacity: a.costs.capacity,
+                  risk: a.costs.risk,
+                  attention: a.costs.attention,
+                  moral_weight: a.costs.moralWeight,
+                },
+                npc_affinity: a.npcAffinity,
+                legality: a.legality,
+                tags: a.tags,
+                prerequisites: a.prerequisites,
+                disarm_ref: a.disarmRef,
+                isUnlocked: a.available,
+                isUsed: !a.available && a.unavailableReason === 'Already used',
+              }))}
+              currentPhase={state.storyPhase.year <= 7 ? `ta0${state.storyPhase.year}` : 'targeting'}
+              availableResources={{
+                budget: state.resources.budget,
+                capacity: state.resources.capacity,
+                actionPoints: state.resources.actionPointsRemaining,
+              }}
+              onSelectAction={(actionId) => {
+                const result = executeAction(actionId);
+                setActivePanel(null);
+                setHighlightActionId(null);
+                if (result) {
+                  setShowActionFeedback(true);
+                }
+              }}
+              onAddToQueue={(actionId) => {
+                addToQueue(actionId);
+              }}
+              onClose={() => {
+                setActivePanel(null);
+                setHighlightActionId(null);
+              }}
+              recommendations={state.recommendations}
+              highlightActionId={highlightActionId}
+            />
+          )}
+          {activePanel === 'news' && (
+            <NewsPanel
+              isVisible={true}
+              variant="sidebar"
+              newsEvents={state.newsEvents}
+              onMarkAsRead={markNewsAsRead}
+              onTogglePinned={toggleNewsPinned}
+              onClose={() => setActivePanel(null)}
+            />
+          )}
+          {activePanel === 'stats' && (
+            <StatsPanel
+              isVisible={true}
+              variant="sidebar"
+              resources={state.resources}
+              phase={state.storyPhase}
+              objectives={state.objectives}
+              onClose={() => setActivePanel(null)}
+            />
+          )}
+          {activePanel === 'npcs' && (
+            <NpcPanel
+              isVisible={true}
+              variant="sidebar"
+              npcs={state.npcs}
+              onSelectNpc={(npcId) => {
+                setActivePanel(null);
+                interactWithNpc(npcId);
+              }}
+              onClose={() => setActivePanel(null)}
+            />
+          )}
+          {activePanel === 'mission' && (
+            <MissionPanel
+              isVisible={true}
+              variant="sidebar"
+              phase={state.storyPhase}
+              objectives={state.objectives}
+              onClose={() => setActivePanel(null)}
+            />
+          )}
+          {activePanel === 'events' && (
+            <EventsPanel
+              isVisible={true}
+              variant="sidebar"
+              worldEvents={state.newsEvents}
+              currentPhase={state.storyPhase.number}
+              onClose={() => setActivePanel(null)}
+            />
+          )}
+        </SidePanel>
       </div>
 
       {/* Dialog Box */}
@@ -551,100 +715,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           onClose={dismissDialog}
         />
       )}
-
-      {/* Action Panel */}
-      <ActionPanel
-        isVisible={showActionPanel}
-        actions={state.availableActions.map(a => ({
-          id: a.id,
-          phase: a.phase,
-          label_de: a.label_de,
-          label_en: a.label_en,
-          narrative_de: a.narrative_de,
-          costs: {
-            budget: a.costs.budget,
-            capacity: a.costs.capacity,
-            risk: a.costs.risk,
-            attention: a.costs.attention,
-            moral_weight: a.costs.moralWeight,
-          },
-          npc_affinity: a.npcAffinity,
-          legality: a.legality,
-          tags: a.tags,
-          prerequisites: a.prerequisites,
-          disarm_ref: a.disarmRef,
-          isUnlocked: a.available,
-          isUsed: !a.available && a.unavailableReason === 'Already used',
-        }))}
-        currentPhase={state.storyPhase.year <= 7 ? `ta0${state.storyPhase.year}` : 'targeting'}
-        availableResources={{
-          budget: state.resources.budget,
-          capacity: state.resources.capacity,
-          actionPoints: state.resources.actionPointsRemaining,
-        }}
-        onSelectAction={(actionId) => {
-          const result = executeAction(actionId);
-          setShowActionPanel(false);
-          setHighlightActionId(null);
-          if (result) {
-            setShowActionFeedback(true);
-          }
-        }}
-        onAddToQueue={(actionId) => {
-          addToQueue(actionId);
-        }}
-        onClose={() => {
-          setShowActionPanel(false);
-          setHighlightActionId(null);
-        }}
-        recommendations={state.recommendations}
-        highlightActionId={highlightActionId}
-      />
-
-      {/* News Panel */}
-      <NewsPanel
-        isVisible={showNewsPanel}
-        newsEvents={state.newsEvents}
-        onMarkAsRead={markNewsAsRead}
-        onTogglePinned={toggleNewsPinned}
-        onClose={() => setShowNewsPanel(false)}
-      />
-
-      {/* Stats Panel */}
-      <StatsPanel
-        isVisible={showStatsPanel}
-        resources={state.resources}
-        phase={state.storyPhase}
-        objectives={state.objectives}
-        onClose={() => setShowStatsPanel(false)}
-      />
-
-      {/* NPC Panel */}
-      <NpcPanel
-        isVisible={showNpcPanel}
-        npcs={state.npcs}
-        onSelectNpc={(npcId) => {
-          setShowNpcPanel(false);
-          interactWithNpc(npcId);
-        }}
-        onClose={() => setShowNpcPanel(false)}
-      />
-
-      {/* Mission Panel */}
-      <MissionPanel
-        isVisible={showMissionPanel}
-        phase={state.storyPhase}
-        objectives={state.objectives}
-        onClose={() => setShowMissionPanel(false)}
-      />
-
-      {/* Events Panel (World Events) */}
-      <EventsPanel
-        isVisible={showEventsPanel}
-        worldEvents={state.newsEvents}
-        currentPhase={state.storyPhase.number}
-        onClose={() => setShowEventsPanel(false)}
-      />
 
       {/* Action Feedback Dialog */}
       <ActionFeedbackDialog
@@ -722,7 +792,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           recommendations={state.recommendations}
           onSelectNpc={(npcId) => setSelectedAdvisorNpc(npcId)}
           isCollapsed={advisorCollapsed}
-          onToggleCollapse={() => setAdvisorCollapsed(!advisorCollapsed)}
+          onToggleCollapse={toggleAdvisor}
           betrayalStates={state.betrayalStates}
           onOpenGrievances={(npcId) => setSelectedGrievanceNpc(npcId)}
         />
@@ -745,7 +815,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           onClose={() => setSelectedAdvisorNpc(null)}
           onSelectAction={(actionId) => {
             setHighlightActionId(actionId);
-            setShowActionPanel(true);
+            setActivePanel('actions');
             setSelectedAdvisorNpc(null);
           }}
         />
@@ -773,7 +843,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             }
           }}
           isCollapsed={queueCollapsed}
-          onToggleCollapse={() => setQueueCollapsed(!queueCollapsed)}
+          onToggleCollapse={toggleQueue}
         />
       )}
 

@@ -1,4 +1,5 @@
 import { StoryModeColors } from '../theme';
+import { usePanelStore } from '../stores/panelStore';
 
 // ============================================
 // TYPES
@@ -126,15 +127,15 @@ interface PhaseDisplayProps {
 
 function PhaseDisplay({ phase }: PhaseDisplayProps) {
   const months = [
-    'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
-    'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
+    'JAN', 'FEB', 'MÄR', 'APR', 'MAI', 'JUN',
+    'JUL', 'AUG', 'SEP', 'OKT', 'NOV', 'DEZ'
   ];
 
   return (
     <div className="flex items-center gap-4">
       <div className="text-center">
         <div className="text-xs" style={{ color: StoryModeColors.textSecondary }}>
-          YEAR
+          JAHR
         </div>
         <div
           className="font-bold text-xl"
@@ -149,7 +150,7 @@ function PhaseDisplay({ phase }: PhaseDisplayProps) {
       />
       <div className="text-center">
         <div className="text-xs" style={{ color: StoryModeColors.textSecondary }}>
-          MONTH
+          MONAT
         </div>
         <div
           className="font-bold text-xl"
@@ -210,7 +211,7 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
           className="text-xs font-bold uppercase"
           style={{ color: StoryModeColors.textSecondary }}
         >
-          Current Objective
+          Aktuelles Ziel
         </span>
         <span
           className="text-xs ml-auto"
@@ -237,6 +238,29 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
           }}
         />
       </div>
+    </button>
+  );
+}
+
+// ============================================
+// VIEW TOGGLE BUTTON
+// ============================================
+
+function ViewToggleButton() {
+  const { viewMode, toggleViewMode } = usePanelStore();
+  return (
+    <button
+      onClick={toggleViewMode}
+      className="px-3 py-1.5 border-2 font-bold text-sm transition-all hover:brightness-110 active:translate-y-0.5"
+      style={{
+        backgroundColor: viewMode === 'dashboard' ? StoryModeColors.agencyBlue : StoryModeColors.concrete,
+        borderColor: viewMode === 'dashboard' ? StoryModeColors.darkBlue : StoryModeColors.borderLight,
+        color: viewMode === 'dashboard' ? '#fff' : StoryModeColors.textPrimary,
+        boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',
+      }}
+      title="Ansicht wechseln [V]"
+    >
+      {viewMode === 'office' ? '📊 DASHBOARD' : '🏢 BÜRO'}
     </button>
   );
 }
@@ -280,14 +304,14 @@ export function StoryHUD({
             />
             <ResourceBar
               icon="⚡"
-              label="CAPACITY"
+              label="KAPAZITÄT"
               value={resources.capacity}
               maxValue={100}
               color={StoryModeColors.agencyBlue}
             />
             <ResourceBar
               icon="⚠️"
-              label="RISK"
+              label="RISIKO"
               value={resources.risk}
               format="percent"
               color={StoryModeColors.militaryOlive}
@@ -296,7 +320,7 @@ export function StoryHUD({
             />
             <ResourceBar
               icon="👁️"
-              label="ATTENTION"
+              label="AUFMERKSAMKEIT"
               value={resources.attention}
               format="percent"
               color={StoryModeColors.danger}
@@ -305,7 +329,7 @@ export function StoryHUD({
             />
             <ResourceBar
               icon="💀"
-              label="MORAL"
+              label="MORALISCHE LAST"
               value={resources.moralWeight}
               format="number"
               color={StoryModeColors.sovietRed}
@@ -316,6 +340,7 @@ export function StoryHUD({
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2">
+            <ViewToggleButton />
             {onOpenMenu && (
               <button
                 onClick={onOpenMenu}
@@ -327,7 +352,7 @@ export function StoryHUD({
                   boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',
                 }}
               >
-                ☰ MENU
+                ☰ MENÜ
               </button>
             )}
             {onEndPhase && (
@@ -341,7 +366,7 @@ export function StoryHUD({
                   boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',
                 }}
               >
-                END PHASE →
+                PHASE BEENDEN →
               </button>
             )}
           </div>

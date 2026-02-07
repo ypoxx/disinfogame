@@ -141,7 +141,7 @@ export function StatsPanel({
           <div>
             <div className="flex justify-between mb-1">
               <span style={{ color: StoryModeColors.textSecondary }}>
-                ⚡ KAPAZITAT
+                ⚡ KAPAZITÄT
               </span>
               <span
                 className="font-bold"
