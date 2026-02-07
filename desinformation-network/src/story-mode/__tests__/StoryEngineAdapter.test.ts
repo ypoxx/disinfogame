@@ -91,7 +91,7 @@ describe('StoryEngineAdapter', () => {
       expect(typeof savedState).toBe('string');
 
       const parsed = JSON.parse(savedState);
-      expect(parsed.version).toBe('1.0.0');
+      expect(parsed.version).toBe('2.0.0');
       expect(parsed.storyPhase).toBeDefined();
       expect(parsed.storyResources).toBeDefined();
     });

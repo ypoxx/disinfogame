@@ -240,7 +240,7 @@ describe('Characterization — executeAction', () => {
     // Try expensive action — may or may not be affordable
     const resources = engine.getResources();
     const actions = engine.getAvailableActions();
-    const expensiveAction = actions.find(a => a.costs.budget > resources.budget);
+    const expensiveAction = actions.find(a => (a.costs.budget ?? 0) > resources.budget);
 
     if (expensiveAction) {
       const result = engine.executeAction(expensiveAction.id);
