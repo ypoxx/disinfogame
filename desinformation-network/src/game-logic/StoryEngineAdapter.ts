@@ -101,6 +101,19 @@ import { dialogLoader } from '../story-mode/engine/DialogLoader';
 import { playSound } from '../story-mode/utils/SoundSystem';
 import { storyLogger } from '../utils/logger';
 
+import { ActionExecutor, type ActionExecutorDeps } from './ActionExecutor';
+import { PhaseManager, type PhaseManagerDeps } from './PhaseManager';
+import { NewsGenerator, type NewsGeneratorDeps } from './NewsGenerator';
+import { NPCOrchestrator, type NPCOrchestratorDeps } from './NPCOrchestrator';
+import { StateSerializer, type StateSerializerDeps } from './StateSerializer';
+import { GameEventBus } from './GameEventBus';
+import {
+  PHASES_PER_YEAR,
+  MAX_YEARS,
+  ACTION_POINTS_PER_PHASE,
+  CAPACITY_REGEN_PER_PHASE,
+} from './story-balance-config';
+
 // Import NPC and World Events data
 import npcsData from '../story-mode/data/npcs.json';
 import worldEventsData from '../story-mode/data/world-events.json';
@@ -460,11 +473,19 @@ export class StoryEngineAdapter {
   private extendedActorLoader: ExtendedActorLoader;
   private rngSeed: string;
 
-  // Konfiguration
-  private readonly PHASES_PER_YEAR = 12;
-  private readonly MAX_YEARS = 10;
-  private readonly ACTION_POINTS_PER_PHASE = 5;
-  private readonly CAPACITY_REGEN_PER_PHASE = 2;
+  // Extracted modules (Strangler Fig)
+  private actionExecutor: ActionExecutor;
+  private phaseManager: PhaseManager;
+  private newsGenerator: NewsGenerator;
+  private npcOrchestrator: NPCOrchestrator;
+  private stateSerializer: StateSerializer;
+  private eventBus: GameEventBus;
+
+  // Konfiguration (from story-balance-config.ts)
+  private readonly PHASES_PER_YEAR = PHASES_PER_YEAR;
+  private readonly MAX_YEARS = MAX_YEARS;
+  private readonly ACTION_POINTS_PER_PHASE = ACTION_POINTS_PER_PHASE;
+  private readonly CAPACITY_REGEN_PER_PHASE = CAPACITY_REGEN_PER_PHASE;
 
   constructor(seed?: string) {
     this.rngSeed = seed || Date.now().toString();
@@ -487,9 +508,154 @@ export class StoryEngineAdapter {
     this.initializeNPCs();
     this.initializeObjectives();
 
+    // Initialize extracted modules (Strangler Fig)
+    this.eventBus = new GameEventBus();
+    this.newsGenerator = new NewsGenerator(this.createNewsGeneratorDeps());
+    this.actionExecutor = new ActionExecutor(this.createActionExecutorDeps());
+    this.phaseManager = new PhaseManager(this.createPhaseManagerDeps());
+    this.npcOrchestrator = new NPCOrchestrator(this.createNPCOrchestratorDeps());
+    this.npcOrchestrator.initialize();
+    this.stateSerializer = new StateSerializer(this.createStateSerializerDeps());
+
     storyLogger.log(`✅ StoryEngineAdapter initialized (seed: ${this.rngSeed})`);
   }
 
+  /**
+   * Create dependency bridge for ActionExecutor (Strangler Fig pattern).
+   * The adapter implements the deps interface via closures that access `this`.
+   */
+  private createActionExecutorDeps(): ActionExecutorDeps {
+    const adapter = this;
+    return {
+      getResources: () => adapter.storyResources,
+      getPhase: () => adapter.storyPhase,
+      getNPCStates: () => adapter.npcStates,
+      getObjectives: () => adapter.objectives,
+      getPendingConsequences: () => adapter.pendingConsequences,
+      getNewsEvents: () => adapter.newsEvents,
+      setResources: (r) => { adapter.storyResources = r; },
+      addPendingConsequence: (c) => { adapter.pendingConsequences.push(c); },
+      addNewsEvent: (e) => { adapter.newsEvents.unshift(e); },
+      addActionHistory: (entry) => { adapter.actionHistory.push(entry); },
+      actionLoader: adapter.actionLoader,
+      consequenceSystem: adapter.consequenceSystem,
+      comboSystem: adapter.comboSystem,
+      betrayalSystem: adapter.betrayalSystem,
+      actorAI: adapter.actorAI,
+      extendedActorLoader: adapter.extendedActorLoader,
+      seededRandom: (input) => adapter.seededRandom(input),
+      convertToStoryAction: (loaded) => adapter.convertToStoryAction(loaded),
+      generateActionNews: (action, result) => adapter.newsGenerator.generateActionNews(action, result),
+    };
+  }
+
+  private createNewsGeneratorDeps(): NewsGeneratorDeps {
+    const adapter = this;
+    return {
+      getPhase: () => adapter.storyPhase,
+      getResources: () => adapter.storyResources,
+      getNPCStates: () => adapter.npcStates,
+      getObjectives: () => adapter.objectives,
+      addNewsEvent: (e: NewsEvent) => { adapter.newsEvents.unshift(e); },
+      addOpportunityWindow: (id: string, window: OpportunityWindow) => { adapter.activeOpportunityWindows.set(id, window); },
+      hasOpportunityWindow: (id: string) => adapter.activeOpportunityWindows.has(id),
+      betrayalSystem: adapter.betrayalSystem,
+      seededRandom: (input: string) => adapter.seededRandom(input),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      playSound: (sound: string) => playSound(sound as any),
+      worldEventsData: worldEventsData,
+    };
+  }
+
+  private createPhaseManagerDeps(): PhaseManagerDeps {
+    const adapter = this;
+    return {
+      // State access
+      getPhase: () => adapter.storyPhase,
+      getResources: () => adapter.storyResources,
+      getExposureCountdown: () => adapter.exposureCountdown,
+      getNewsEvents: () => adapter.newsEvents,
+      getActionHistoryLength: () => adapter.actionHistory.length,
+      getRecentActionIds: () => adapter.actionHistory.slice(-3).map(a => a.result?.action?.id || ''),
+      getRecentActionTags: () => adapter.actionHistory.slice(-3).flatMap(a => a.result?.action?.tags || []),
+      // State mutation
+      setPhase: (p: StoryPhase) => { adapter.storyPhase = p; },
+      setResources: (r: StoryResources) => { adapter.storyResources = r; },
+      setExposureCountdown: (c: number | null) => { adapter.exposureCountdown = c; },
+      prependNewsEvent: (e: NewsEvent) => { adapter.newsEvents.unshift(e); },
+      // Subsystem delegations
+      checkConsequences: (phase: number) => adapter.checkConsequences(phase),
+      generateWorldEvents: (phase: number) => adapter.newsGenerator.generateWorldEvents(phase),
+      generateNPCCrisisEvents: (phase: number) => adapter.newsGenerator.generateNPCCrisisEvents(phase),
+      generateResourceTrendEvents: (phase: number) => adapter.newsGenerator.generateResourceTrendEvents(phase),
+      generateNPCEventReactions: (events: NewsEvent[]) => adapter.newsGenerator.generateNPCEventReactions(events),
+      cleanupExpiredOpportunityWindows: () => adapter.cleanupExpiredOpportunityWindows(),
+      // Subsystem refs (narrow)
+      comboSystem: adapter.comboSystem,
+      crisisMomentSystem: adapter.crisisMomentSystem,
+      actorAI: adapter.actorAI,
+      // Utilities
+      createPhase: (n: number) => adapter.createPhase(n),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      playSound: (sound: string) => playSound(sound as any),
+      emitEvent: (event) => adapter.eventBus.emit(event),
+      // Constants
+      PHASES_PER_YEAR: adapter.PHASES_PER_YEAR,
+      MAX_YEARS: adapter.MAX_YEARS,
+      CAPACITY_REGEN_PER_PHASE: adapter.CAPACITY_REGEN_PER_PHASE,
+      ACTION_POINTS_PER_PHASE: adapter.ACTION_POINTS_PER_PHASE,
+    };
+  }
+
+  private createNPCOrchestratorDeps(): NPCOrchestratorDeps {
+    const adapter = this;
+    return {
+      getResources: () => adapter.storyResources,
+      getPhase: () => adapter.storyPhase,
+      getObjectives: () => adapter.objectives,
+      prependNewsEvent: (e: NewsEvent) => { adapter.newsEvents.unshift(e); },
+      betrayalSystem: adapter.betrayalSystem,
+      seededRandom: (input: string) => adapter.seededRandom(input),
+    };
+  }
+
+  private createStateSerializerDeps(): StateSerializerDeps {
+    const adapter = this;
+    return {
+      getRngSeed: () => adapter.rngSeed,
+      getPhase: () => adapter.storyPhase,
+      getResources: () => adapter.storyResources,
+      getPendingConsequences: () => adapter.pendingConsequences,
+      getExposureCountdown: () => adapter.exposureCountdown,
+      getNewsEvents: () => adapter.newsEvents,
+      getObjectives: () => adapter.objectives,
+      getNPCStates: () => adapter.npcStates,
+      getActionHistory: () => adapter.actionHistory,
+      getWorldEventCooldowns: () => adapter.worldEventCooldowns,
+      getActiveOpportunityWindows: () => adapter.activeOpportunityWindows,
+      comboSystem: adapter.comboSystem,
+      crisisMomentSystem: adapter.crisisMomentSystem,
+      actorAI: adapter.actorAI,
+      actionLoader: adapter.actionLoader,
+      consequenceSystem: adapter.consequenceSystem,
+      setRngSeed: (s: string) => { adapter.rngSeed = s; },
+      setPhase: (p) => { adapter.storyPhase = p; },
+      setResources: (r) => { adapter.storyResources = r; },
+      setPendingConsequences: (c) => { adapter.pendingConsequences = c; },
+      setExposureCountdown: (c) => { adapter.exposureCountdown = c; },
+      setNewsEvents: (e) => { adapter.newsEvents = e; },
+      setObjectives: (o) => { adapter.objectives = o; },
+      setNPCStates: (s) => { adapter.npcStates = s; },
+      setActionHistory: (h) => { adapter.actionHistory = h; },
+      setWorldEventCooldowns: (c) => { adapter.worldEventCooldowns = c; },
+      setActiveOpportunityWindows: (w) => { adapter.activeOpportunityWindows = w; },
+      importComboSystemState: (s) => adapter.comboSystem.importState(s),
+      importCrisisMomentSystemState: (s) => adapter.crisisMomentSystem.importState(s),
+      importActorAIState: (s) => adapter.actorAI.importState(s),
+      importActionLoaderState: (s) => adapter.actionLoader.importState(s),
+      importConsequenceSystemState: (s) => adapter.consequenceSystem.importState(s),
+    };
+  }
 
   // ============================================
   // INITIALIZATION
@@ -610,7 +776,7 @@ export class StoryEngineAdapter {
   // ============================================
 
   /**
-   * Fortschritt zur nächsten Phase
+   * Fortschritt zur nächsten Phase — delegates to PhaseManager (Strangler Fig Phase 2)
    */
   advancePhase(): {
     newPhase: StoryPhase;
@@ -621,196 +787,7 @@ export class StoryEngineAdapter {
     aiActions: AIAction[];
     newDefenders: DefensiveActor[];
   } {
-    // Play phase transition sound
-    playSound('phaseEnd');
-
-    const previousPhase = this.storyPhase.number;
-    const newPhaseNumber = previousPhase + 1;
-
-    // Prüfe Spielende
-    if (newPhaseNumber > this.PHASES_PER_YEAR * this.MAX_YEARS) {
-      // Zeit abgelaufen - Spielende
-    }
-
-    // Phase aktualisieren
-    this.storyPhase = this.createPhase(newPhaseNumber);
-
-    // Clean up expired opportunity windows
-    this.cleanupExpiredOpportunityWindows();
-
-    // Clean up expired combo progress
-    this.comboSystem.cleanupExpired(newPhaseNumber);
-
-    // Ressourcen regenerieren
-    // P1-4 Fix: Reduce attention decay from 5 to 2
-    // P1-5 Fix: Add budget regeneration (+5 per phase)
-    // P2-6 Fix: Add risk decay (-2 per phase, min 0)
-    // BALANCE FIX 2026-01-14: Increased risk decay from -2 to -5
-    // Rationale: State actors have resources to manage risk, risk was escalating too fast
-    const resourceChanges: Partial<StoryResources> = {
-      capacity: Math.min(
-        this.storyResources.capacity + this.CAPACITY_REGEN_PER_PHASE,
-        10 // Max Capacity
-      ),
-      actionPointsRemaining: this.ACTION_POINTS_PER_PHASE,
-      // Budget regeneration (operational funding)
-      budget: this.storyResources.budget + 5,
-      // Passive Decay - reduced from 5 to 2
-      attention: Math.max(0, this.storyResources.attention - 2),
-      // Risk decay - counter-intelligence loses track over time
-      // Increased from -2 to -5 for better balance (state actors can manage risk)
-      risk: Math.max(0, this.storyResources.risk - 5),
-    };
-
-    Object.assign(this.storyResources, resourceChanges);
-
-    // Decrement exposure countdown if active
-    if (this.exposureCountdown !== null) {
-      this.exposureCountdown--;
-      if (this.exposureCountdown <= 0) {
-        // Countdown expired - force high risk to trigger game end
-        this.storyResources.risk = 100;
-        storyLogger.log('[ExposureCountdown] Countdown expired - exposure imminent!');
-      }
-    }
-
-    // Konsequenzen prüfen
-    const triggeredConsequences = this.checkConsequences(newPhaseNumber);
-
-    // Welt-Events generieren
-    const worldEvents = this.generateWorldEvents(newPhaseNumber);
-
-    // === PHASE 2: NPC Crisis → World Events ===
-    // NPCs in crisis generate subtle world events (feedback loop!)
-    const npcCrisisEvents = this.generateNPCCrisisEvents(newPhaseNumber);
-    worldEvents.push(...npcCrisisEvents);
-
-    // === PHASE 2: Resource Trends → Dynamic Events ===
-    // Rising/falling resources over time trigger world reactions
-    const resourceTrendEvents = this.generateResourceTrendEvents(newPhaseNumber);
-    worldEvents.push(...resourceTrendEvents);
-
-    // === PIPELINE 2: Events → NPC Reactions ===
-    // NPCs comment on world events and recent action news
-    const recentNews = this.newsEvents.slice(0, 10); // Last 10 news items
-    const npcReactions = this.generateNPCEventReactions([...worldEvents, ...recentNews]);
-    for (const reaction of npcReactions) {
-      this.newsEvents.unshift(reaction);
-    }
-
-    // Check for crisis moments
-    const triggeredCrises = this.crisisMomentSystem.checkForCrises({
-      phase: newPhaseNumber,
-      risk: this.storyResources.risk,
-      attention: this.storyResources.attention,
-      actionCount: this.actionHistory.length,
-      lowTrustActors: 0, // Could be calculated from objectives
-    });
-
-    // Play crisis sound if new crisis
-    if (triggeredCrises.length > 0) {
-      playSound('crisis');
-      for (const crisis of triggeredCrises) {
-        // Add crisis to news
-        this.newsEvents.unshift({
-          id: `news_crisis_${crisis.id}_${Date.now()}`,
-          phase: this.storyPhase.number,
-          headline_de: crisis.name_de,
-          headline_en: crisis.name_en,
-          description_de: crisis.description_de,
-          description_en: crisis.description_en,
-          type: 'consequence',
-          severity: crisis.severity === 'critical' ? 'danger' : crisis.severity === 'high' ? 'warning' : 'info',
-          read: false,
-          pinned: true, // Pin crisis news
-        });
-      }
-    }
-
-    // Cleanup expired crises
-    this.crisisMomentSystem.cleanupExpiredCrises(newPhaseNumber);
-
-    // Process Actor-AI (Arms Race)
-    const recentCrisis = triggeredCrises.length > 0;
-    const newDefenders = this.actorAI.checkSpawnConditions(
-      newPhaseNumber,
-      this.storyResources.risk,
-      recentCrisis
-    );
-
-    // Add news for newly spawned defenders
-    for (const defender of newDefenders) {
-      this.newsEvents.unshift({
-        id: `news_defender_${defender.id}_${Date.now()}`,
-        phase: this.storyPhase.number,
-        headline_de: defender.newsOnSpawn_de,
-        headline_en: defender.newsOnSpawn_en,
-        description_de: `Ein neuer Akteur formiert sich gegen Desinformation.`,
-        description_en: `A new actor mobilizes against disinformation.`,
-        type: 'world_event',
-        severity: 'warning',
-        read: false,
-        pinned: false,
-      });
-      playSound('countermeasure');
-    }
-
-    // Process AI actions
-    const recentActions = this.actionHistory.slice(-3).map(a => a.result?.action?.id || '');
-    const recentTags = this.actionHistory.slice(-3).flatMap(a => a.result?.action?.tags || []);
-    const aiActions = this.actorAI.processPhase(newPhaseNumber, {
-      risk: this.storyResources.risk,
-      attention: this.storyResources.attention,
-      recentActions,
-      recentTags,
-    });
-
-    // Apply AI action effects
-    for (const aiAction of aiActions) {
-      for (const effect of aiAction.effects) {
-        switch (effect.type) {
-          case 'risk_increase':
-            this.storyResources.risk = Math.min(100, this.storyResources.risk + effect.value);
-            break;
-          case 'attention_increase':
-            this.storyResources.attention = Math.min(100, this.storyResources.attention + effect.value);
-            break;
-          case 'reach_reduction':
-            // Affects action effectiveness (tracked in modifiers)
-            break;
-          case 'countdown_start':
-            if (this.exposureCountdown === null) {
-              this.exposureCountdown = effect.value;
-              storyLogger.log(`[ActorAI] Exposure countdown started: ${effect.value} phases`);
-            }
-            break;
-        }
-      }
-
-      // Add AI action to news
-      this.newsEvents.unshift({
-        id: `news_ai_${aiAction.id}`,
-        phase: this.storyPhase.number,
-        headline_de: aiAction.news_de,
-        headline_en: aiAction.news_en,
-        description_de: `Verteidigungsakteur ergreift Maßnahmen.`,
-        description_en: `Defensive actor takes action.`,
-        type: 'world_event',
-        severity: aiAction.type === 'investigation' ? 'danger' : 'warning',
-        read: false,
-        pinned: aiAction.type === 'investigation', // Pin investigations
-      });
-    }
-
-    return {
-      newPhase: this.storyPhase,
-      resourceChanges,
-      triggeredConsequences,
-      worldEvents,
-      triggeredCrises,
-      aiActions,
-      newDefenders,
-    };
+    return this.phaseManager.advance();
   }
 
   /**
@@ -3073,180 +3050,20 @@ export class StoryEngineAdapter {
   /**
    * Führe eine Aktion aus
    */
+  /**
+   * Execute an action — delegates to ActionExecutor (Strangler Fig Phase 1)
+   */
   executeAction(actionId: string, options?: {
     targetId?: string;
     npcAssist?: string;
   }): ActionResult {
-    // TODO: Implement action execution
-
-    const action = this.getActionById(actionId);
-    if (!action) {
-      throw new Error(`Action ${actionId} not found`);
-    }
-
-    // Prüfe Ressourcen
-    if (!this.canAffordAction(action)) {
-      return {
-        success: false,
-        action,
-        effects: [],
-        resourceChanges: {},
-        narrative: {
-          headline_de: 'Nicht genug Ressourcen',
-          headline_en: 'Not enough resources',
-          description_de: 'Diese Aktion kann nicht durchgeführt werden.',
-          description_en: 'This action cannot be performed.',
-        },
-        potentialConsequences: [],
-      };
-    }
-
-    // Kosten abziehen
-    this.deductActionCosts(action, options?.npcAssist);
-
-    // Aktion Points reduzieren
-    this.storyResources.actionPointsRemaining--;
-
-    // Effekte anwenden
-    const effects = this.applyActionEffects(action, options);
-
-    // Konsequenzen registrieren
-    const potentialConsequences = this.registerPotentialConsequences(action);
-
-    // NPC-Reaktionen (now includes betrayal warnings)
-    const { reactions: npcReactions, betrayalWarnings } = this.processNPCReactions(action);
-
-    // P2-8: NPC Relationship Progress - improve relationship with NPCs matching action affinity
-    this.updateNPCRelationships(action, options?.npcAssist);
-
-    // NPC Morale Update - dark actions affect team morale
-    this.updateNPCMorale(action);
-
-    // === EXTENDED ACTORS INTEGRATION ===
-    // Calculate effectiveness modifiers based on actor vulnerabilities
-    const actorModifiers = this.extendedActorLoader.calculateEffectivenessModifiers(
-      action.tags,
-      [action.phase]
-    );
-
-    // Apply trust damage to vulnerable actors
-    for (const mod of actorModifiers) {
-      if (mod.isVulnerable) {
-        this.extendedActorLoader.applyTrustDamage(
-          mod.actorId,
-          5 * (action.costs.moralWeight || 1), // Base damage scaled by moral weight
-          mod.modifier
-        );
-      }
-    }
-
-    // === NARRATIVE GENERATOR INTEGRATION ===
-    // Generate rich narrative for action result
-    const storyNarrative = StoryNarrativeGenerator.generateActionNarrative({
-      actionId: action.id,
-      actionLabel_de: action.label_de,
-      actionLabel_en: action.label_en,
-      phase: action.phase,
-      tags: action.tags,
-      legality: action.legality,
-      targetActors: actorModifiers
-        .filter(m => m.isVulnerable)
-        .slice(0, 3)
-        .map(m => this.extendedActorLoader.getActor(m.actorId)!)
-        .filter(Boolean),
-      npcAssist: options?.npcAssist,
-      effectiveness: Math.min(100, 50 + actorModifiers.reduce((sum, m) => sum + (m.modifier - 1) * 50, 0)),
-      risk: this.storyResources.risk,
-      moralWeight: this.storyResources.moralWeight,
-    });
-
-    // Ergebnis
-    const result: ActionResult = {
-      success: true,
-      action,
-      effects,
-      resourceChanges: action.costs,
-      narrative: {
-        headline_de: storyNarrative.headline_de,
-        headline_en: storyNarrative.headline_en,
-        description_de: storyNarrative.description_de,
-        description_en: storyNarrative.description_en,
-      },
-      potentialConsequences,
-      npcReactions,
-      actorModifiers: actorModifiers.length > 0 ? actorModifiers : undefined,
-      betrayalWarnings: betrayalWarnings.length > 0 ? betrayalWarnings : undefined,
-    };
-
-    // Play appropriate sound based on action type
-    if (action.legality === 'illegal' || (action.costs.moralWeight && action.costs.moralWeight > 5)) {
-      playSound('moralShift'); // Dark action
-    } else {
-      playSound('success'); // Standard success
-    }
-
-    // Mark action as used in ActionLoader
-    this.actionLoader.markAsUsed(actionId);
-
-    // Check for unlocking new actions based on this action's completion
-    this.actionLoader.checkUnlocks(actionId);
-
-    // Process combo progress
-    const comboResult = this.comboSystem.processAction(
-      actionId,
-      action.tags,
-      this.storyPhase.number
-    );
-
-    // Apply combo effects and add to result
-    if (comboResult.completedCombos.length > 0) {
-      result.completedCombos = comboResult.completedCombos;
-
-      for (const combo of comboResult.completedCombos) {
-        // Apply combo bonuses to resources
-        this.applyComboBonus(combo);
-
-        // Play combo sound
-        playSound('combo');
-
-        // Add combo completion news
-        this.newsEvents.unshift({
-          id: `news_combo_${combo.comboId}_${Date.now()}`,
-          phase: this.storyPhase.number,
-          headline_de: `Kombination: ${combo.comboName}`,
-          headline_en: `Combo: ${combo.comboName}`,
-          description_de: combo.description,
-          description_en: combo.description,
-          type: 'action_result',
-          severity: 'success',
-          read: false,
-          pinned: false,
-        });
-      }
-    }
-
-    // Add combo hints to result
-    if (comboResult.newHints.length > 0) {
-      result.comboHints = comboResult.newHints;
-    }
-
-    // Track action for Actor-AI (Arms Race)
-    this.actorAI.trackAction(actionId, action.tags, this.storyPhase.number);
-
-    // Historie
-    this.actionHistory.push({
-      phase: this.storyPhase.number,
+    const result = this.actionExecutor.execute(actionId, options);
+    this.eventBus.emit({
+      type: 'ACTION_EXECUTED',
       actionId,
       result,
+      phase: this.storyPhase.number,
     });
-
-    // === PIPELINE 1: Actions → News ===
-    // Generate contextual news based on action significance
-    const actionNews = this.generateActionNews(action, result);
-    for (const news of actionNews) {
-      this.newsEvents.unshift(news);
-    }
-
     return result;
   }
 
@@ -4490,61 +4307,11 @@ export class StoryEngineAdapter {
   // ============================================
 
   saveState(): string {
-    const state = {
-      version: '1.0.0',
-      rngSeed: this.rngSeed,
-      storyPhase: this.storyPhase,
-      storyResources: this.storyResources,
-      pendingConsequences: this.pendingConsequences,
-      exposureCountdown: this.exposureCountdown,
-      newsEvents: this.newsEvents,
-      objectives: this.objectives,
-      npcStates: Array.from(this.npcStates.entries()),
-      actionHistory: this.actionHistory,
-      worldEventCooldowns: Array.from(this.worldEventCooldowns.entries()),
-      activeOpportunityWindows: Array.from(this.activeOpportunityWindows.entries()),
-      comboSystemState: this.comboSystem.exportState(),
-      crisisMomentSystemState: this.crisisMomentSystem.exportState(),
-      actorAIState: this.actorAI.exportState(),
-      // Engine state
-      actionLoaderState: this.actionLoader.exportState(),
-      consequenceSystemState: this.consequenceSystem.exportState(),
-    };
-
-    return JSON.stringify(state);
+    return this.stateSerializer.save();
   }
 
   loadState(savedState: string): void {
-    const state = JSON.parse(savedState);
-
-    this.rngSeed = state.rngSeed || this.rngSeed;
-    this.storyPhase = state.storyPhase;
-    this.storyResources = state.storyResources;
-    this.pendingConsequences = state.pendingConsequences;
-    this.exposureCountdown = state.exposureCountdown ?? null;
-    this.newsEvents = state.newsEvents;
-    this.objectives = state.objectives;
-    this.npcStates = new Map(state.npcStates);
-    this.actionHistory = state.actionHistory;
-    this.worldEventCooldowns = new Map(state.worldEventCooldowns || []);
-    this.activeOpportunityWindows = new Map(state.activeOpportunityWindows || []);
-    if (state.comboSystemState) {
-      this.comboSystem.importState(state.comboSystemState);
-    }
-    if (state.crisisMomentSystemState) {
-      this.crisisMomentSystem.importState(state.crisisMomentSystemState);
-    }
-    if (state.actorAIState) {
-      this.actorAI.importState(state.actorAIState);
-    }
-
-    // Restore engine state
-    if (state.actionLoaderState) {
-      this.actionLoader.importState(state.actionLoaderState);
-    }
-    if (state.consequenceSystemState) {
-      this.consequenceSystem.importState(state.consequenceSystemState);
-    }
+    this.stateSerializer.load(savedState);
   }
 
   // ============================================
