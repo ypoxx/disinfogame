@@ -1,21 +1,21 @@
 // ===========================================
-// CLAUDE API INTEGRATION
+// OPENAI API INTEGRATION
 // Prompt-Verbesserung mit Spiel-Kontext
 // ===========================================
 
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import type { AssetType, ImprovePromptResponse } from '@/types';
 
 // Client wird server-side initialisiert
-let client: Anthropic | null = null;
+let client: OpenAI | null = null;
 
-function getClient(): Anthropic {
+function getClient(): OpenAI {
   if (!client) {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      throw new Error('ANTHROPIC_API_KEY nicht konfiguriert. Bitte in .env.local eintragen.');
+      throw new Error('OPENAI_API_KEY nicht konfiguriert. Bitte in .env.local eintragen.');
     }
-    client = new Anthropic({ apiKey });
+    client = new OpenAI({ apiKey });
   }
   return client;
 }
@@ -48,7 +48,7 @@ export async function improvePrompt(
   gameContext: string,
   additionalContext?: string
 ): Promise<ImprovePromptResponse> {
-  const anthropic = getClient();
+  const openai = getClient();
 
   const assetTypeInfo = {
     sprite: 'Sprite-Sheet mit mehreren Frames für Animation',
@@ -68,33 +68,31 @@ ${gameContext}
 
 Bitte verbessere den Prompt und gib deine Antwort als JSON zurück.`;
 
-  const response = await anthropic.messages.create({
-    model: process.env.CLAUDE_MODEL || 'claude-sonnet-4-20250514',
+  const response = await openai.chat.completions.create({
+    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
     max_tokens: 1024,
-    system: SYSTEM_PROMPT,
     messages: [
+      {
+        role: 'system',
+        content: SYSTEM_PROMPT,
+      },
       {
         role: 'user',
         content: userMessage,
       },
     ],
+    response_format: { type: 'json_object' },
   });
 
   // Extract text content
-  const textContent = response.content.find((block) => block.type === 'text');
-  if (!textContent || textContent.type !== 'text') {
-    throw new Error('Keine Text-Antwort von Claude erhalten');
+  const textContent = response.choices[0]?.message?.content;
+  if (!textContent) {
+    throw new Error('Keine Text-Antwort von OpenAI erhalten');
   }
 
   // Parse JSON response
   try {
-    // Find JSON in response (might be wrapped in markdown code block)
-    const jsonMatch = textContent.text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error('Kein JSON in der Antwort gefunden');
-    }
-
-    const parsed = JSON.parse(jsonMatch[0]) as ImprovePromptResponse;
+    const parsed = JSON.parse(textContent) as ImprovePromptResponse;
     return {
       improvedPrompt: parsed.improvedPrompt || userPrompt,
       suggestions: parsed.suggestions || [],
@@ -106,7 +104,7 @@ Bitte verbessere den Prompt und gib deine Antwort als JSON zurück.`;
     return {
       improvedPrompt: userPrompt,
       suggestions: [],
-      technicalNotes: 'Fehler beim Parsen der Claude-Antwort',
+      technicalNotes: 'Fehler beim Parsen der OpenAI-Antwort',
     };
   }
 }

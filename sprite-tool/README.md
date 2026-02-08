@@ -4,7 +4,7 @@ KI-gestütztes Tool zur Erstellung von Spielgrafiken für das Disinfo-Spiel.
 
 ## Features
 
-- **Claude-gestützte Prompt-Verbesserung** - Kennt den Spiel-Kontext (Sowjet-Ästhetik)
+- **OpenAI-gestützte Prompt-Verbesserung** - Kennt den Spiel-Kontext (Sowjet-Ästhetik)
 - **Nano Banana Pro Integration** - Google's beste Bild-KI
 - **Inpainting** - Nur Teile eines Bildes ändern
 - **Masken-Editor** - Bereiche zum Bearbeiten markieren
@@ -28,7 +28,7 @@ cp .env.example .env.local
 Dann öffne `.env.local` und füge deine API Keys ein:
 
 ```env
-ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxxxxxxx
+OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxx
 GOOGLE_AI_API_KEY=AIzaSyxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
@@ -44,15 +44,15 @@ npm run dev
 
 ## API Keys beschaffen
 
-### Claude API (Anthropic)
+### OpenAI API
 
-1. Gehe zu [console.anthropic.com](https://console.anthropic.com/)
+1. Gehe zu [platform.openai.com](https://platform.openai.com/)
 2. Erstelle einen Account oder logge dich ein
-3. Navigiere zu **Settings** → **API Keys**
-4. Klicke **Create Key**
-5. Kopiere den Key (beginnt mit `sk-ant-`)
+3. Navigiere zu **API Keys** (oben rechts)
+4. Klicke **Create new secret key**
+5. Kopiere den Key (beginnt mit `sk-`)
 
-**Kosten:** ~$0.003 pro Prompt-Verbesserung (Claude Sonnet)
+**Kosten:** ~$0.00015 pro Prompt-Verbesserung (GPT-4o-mini)
 
 ### Google AI (Nano Banana Pro)
 
@@ -94,7 +94,7 @@ Bei Deployment auf Vercel, Netlify o.ä.:
 ```
 1. Asset-Typ wählen (Sprite / Szene / Element)
 2. Prompt eingeben (z.B. "Ein Büroangestellter der läuft")
-3. Claude verbessert den Prompt automatisch
+3. GPT verbessert den Prompt automatisch
 4. Nano Banana Pro generiert 4 Varianten
 5. Beste Variante auswählen
 6. Bei Bedarf: Bereich markieren und per Inpainting korrigieren
@@ -111,7 +111,7 @@ sprite-tool/
 │   ├── app/
 │   │   ├── page.tsx           # Hauptseite
 │   │   └── api/
-│   │       ├── claude/        # Prompt-Verbesserung
+│   │       ├── claude/        # Prompt-Verbesserung (OpenAI)
 │   │       ├── generate/      # Bildgenerierung
 │   │       └── inpaint/       # Inpainting
 │   ├── components/
@@ -119,13 +119,13 @@ sprite-tool/
 │   │   ├── ImageGenerator.tsx
 │   │   └── ImageEditor.tsx
 │   ├── lib/
-│   │   ├── claude.ts          # Claude API Wrapper
+│   │   ├── claude.ts          # OpenAI API Wrapper
 │   │   └── nanoBanana.ts      # Google AI Wrapper
 │   └── types/
 │       └── index.ts
 ├── public/
 │   └── context/
-│       └── game-style-guide.md  # Spiel-Kontext für Claude
+│       └── game-style-guide.md  # Spiel-Kontext für GPT
 ├── .env.example               # Beispiel für API Keys
 ├── .env.local                 # DEINE Keys (nicht im Git!)
 └── README.md
@@ -154,7 +154,7 @@ sprite-tool/
 
 | Aktion | Kosten (ca.) |
 |--------|--------------|
-| Prompt verbessern (Claude) | $0.003 |
+| Prompt verbessern (GPT-4o-mini) | $0.00015 |
 | 4 Bilder generieren (Nano Banana) | $0.16 |
 | Inpainting (pro Bearbeitung) | $0.04 |
 | **Typisches Asset (mit Iterationen)** | **$0.10 - $0.30** |

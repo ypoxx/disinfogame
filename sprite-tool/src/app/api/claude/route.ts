@@ -1,6 +1,6 @@
 // ===========================================
 // API ROUTE: /api/claude
-// Prompt-Verbesserung mit Claude
+// Prompt-Verbesserung mit OpenAI
 // ===========================================
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     // Lade Spiel-Kontext
     const context = loadGameContext();
 
-    // Claude aufrufen
+    // OpenAI aufrufen
     const result = await improvePrompt(
       body.userPrompt,
       body.assetType,
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result);
 
   } catch (error) {
-    console.error('Claude API Error:', error);
+    console.error('OpenAI API Error:', error);
 
     const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
 
