@@ -597,6 +597,136 @@
           "cost": {"capacity": 1}
         }
       ]
+    },
+    {
+      "id": "cm21",
+      "disarm_ref": "C00089",
+      "label_de": "AI-Content-Erkennung",
+      "label_en": "AI Content Detection",
+      "narrative_de": "Neue AI-Erkennungssoftware identifiziert unsere maschinell generierten Inhalte. Die Plattformen markieren sie als synthetisch.",
+      "severity": "moderate",
+      "trigger": {
+        "type": "action_specific",
+        "triggers_on": ["3.4", "3.5", "3.6"],
+        "probability_base": 0.2,
+        "probability_increase_per_use": 0.08
+      },
+      "effects": {
+        "ai_content_flagged": true,
+        "synthetic_content_reach_reduction": 0.4,
+        "credibility_loss": 0.15
+      },
+      "counter_options": [
+        {
+          "action": "Auf menschlich erstellte Inhalte wechseln",
+          "cost": {"budget": 10, "capacity": 3}
+        },
+        {
+          "action": "AI-Modelle verbessern um Erkennung zu umgehen",
+          "cost": {"budget": 20}
+        },
+        {
+          "action": "Content-Strategie anpassen",
+          "cost": {"capacity": 2}
+        }
+      ]
+    },
+    {
+      "id": "cm22",
+      "disarm_ref": "C00090",
+      "label_de": "Internationale Untersuchungskoalition",
+      "label_en": "International Investigation Coalition",
+      "narrative_de": "Mehrere Westunion-Mitgliedsstaaten haben eine gemeinsame Task Force gegen ausländische Einflussoperationen gebildet.",
+      "severity": "severe",
+      "trigger": {
+        "type": "attention_threshold",
+        "threshold": "critical",
+        "probability_base": 0.3
+      },
+      "effects": {
+        "multi_country_investigation": true,
+        "risk_increase": 12,
+        "cross_border_operations_harder": true,
+        "detection_probability_global_increase": 0.15
+      },
+      "counter_options": [
+        {
+          "action": "Operationen auf ein Land konzentrieren",
+          "effect": "reduced_footprint"
+        },
+        {
+          "action": "Doppelspiel: Koalition infiltrieren",
+          "cost": {"budget": 25, "capacity": 3, "risk": 10}
+        },
+        {
+          "action": "Abwarten und Profil senken",
+          "effect": "all_actions_reduced_3_phases"
+        }
+      ]
+    },
+    {
+      "id": "cm23",
+      "disarm_ref": "C00091",
+      "label_de": "Plattform-Transparenzbericht",
+      "label_en": "Platform Transparency Report",
+      "narrative_de": "Eine große Social-Media-Plattform hat ihren vierteljährlichen Bericht zu koordiniertem unauthentischem Verhalten veröffentlicht. Unsere Netzwerke sind erwähnt.",
+      "severity": "moderate",
+      "trigger": {
+        "type": "time_based",
+        "phases_after_start": 8,
+        "probability_base": 0.15
+      },
+      "effects": {
+        "network_partially_exposed": true,
+        "attention_increase": 6,
+        "academic_scrutiny_increase": true
+      },
+      "counter_options": [
+        {
+          "action": "Schnell neue Netzwerke aufbauen",
+          "cost": {"budget": 12, "capacity": 2}
+        },
+        {
+          "action": "Bericht als politisch motiviert diskreditieren",
+          "action_ref": "8.4"
+        },
+        {
+          "action": "Auf nicht-betroffene Plattformen ausweichen",
+          "effect": "platform_shift"
+        }
+      ]
+    },
+    {
+      "id": "cm24",
+      "disarm_ref": "C00092",
+      "label_de": "Prebunking-Kampagne",
+      "label_en": "Prebunking Campaign",
+      "narrative_de": "Westunion hat eine wissenschaftlich fundierte 'Inoculation'-Kampagne gestartet. Bürger werden gegen Manipulationstechniken geimpft.",
+      "severity": "moderate",
+      "trigger": {
+        "type": "time_based",
+        "phases_after_start": 10,
+        "probability_base": 0.12
+      },
+      "effects": {
+        "population_resistance_increase": 0.2,
+        "emotional_content_effectiveness_reduction": 0.25,
+        "conspiracy_narrative_effectiveness_reduction": 0.3
+      },
+      "counter_options": [
+        {
+          "action": "Subtilere Techniken verwenden",
+          "cost": {"capacity": 2}
+        },
+        {
+          "action": "Prebunking als staatliche Zensur framen",
+          "action_ref": "8.4"
+        },
+        {
+          "action": "Zielgruppe wechseln (weniger gebildete Segmente)",
+          "cost": {"capacity": 1}
+        }
+      ]
     }
   ],
   "event_chains": {
