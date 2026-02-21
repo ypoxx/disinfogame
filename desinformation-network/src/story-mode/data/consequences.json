@@ -892,6 +892,94 @@
         }
       ]
     }
+    ,
+    {
+      "id": "cons_ai_content_backfire",
+      "type": "blowback",
+      "triggered_by": ["3.4", "3.5", "3.6"],
+      "label_de": "AI-Content erzeugt unbeabsichtigtes Narrativ",
+      "narrative_de": "Unser AI-generierter Content hat ein Eigenleben entwickelt. Die Algorithmen haben Muster erkannt und ein Narrativ verstärkt, das nicht in unserem Interesse ist.",
+      "delay": {
+        "min_phases": 2,
+        "max_phases": 5
+      },
+      "probability": {
+        "base": 0.12,
+        "per_use_increase": 0.04,
+        "automation_multiplier": 0.06
+      },
+      "effects": {
+        "narrative_drift": true,
+        "content_off_message": 0.3,
+        "potential_self_damage": true
+      },
+      "player_choices": [
+        {
+          "id": "manual_override",
+          "label_de": "Manuelle Kontrolle übernehmen",
+          "cost": {"capacity": 3},
+          "outcome": "restored_control"
+        },
+        {
+          "id": "let_evolve",
+          "label_de": "Narrativ-Evolution zulassen",
+          "outcome": "unpredictable_but_organic"
+        },
+        {
+          "id": "shutdown_ai",
+          "label_de": "AI-Generierung stoppen",
+          "cost": {"capacity": 1},
+          "outcome": "reduced_output"
+        }
+      ]
+    },
+    {
+      "id": "cons_international_coalition",
+      "type": "escalation",
+      "triggered_by": ["cons_hack_traced", "cons_sanctions"],
+      "label_de": "Internationale Koalition formiert sich",
+      "narrative_de": "Mehrere Westunion-Staaten und internationale Partner haben eine gemeinsame Front gegen unsere Operationen gebildet. Die Schlinge zieht sich zu.",
+      "delay": {
+        "min_phases": 3,
+        "max_phases": 6
+      },
+      "probability": {
+        "base": 0.25,
+        "diplomatic_incident_multiplier": 0.1
+      },
+      "effects": {
+        "multi_state_investigation": true,
+        "budget_reduction_permanent": 0.2,
+        "all_cross_border_operations_restricted": true,
+        "risk_increase": 15
+      },
+      "player_choices": [
+        {
+          "id": "retreat",
+          "label_de": "Operationen auf Kerngebiet beschränken",
+          "effect": "reduced_scope",
+          "outcome": "survival_mode"
+        },
+        {
+          "id": "divide_coalition",
+          "label_de": "Koalition spalten",
+          "cost": {"budget": 30, "capacity": 4},
+          "outcome": "may_weaken_response"
+        },
+        {
+          "id": "accelerate",
+          "label_de": "Jetzt oder nie - Maximaloffensive",
+          "cost": {"budget": 40, "risk": 15},
+          "outcome": "all_in_gamble"
+        },
+        {
+          "id": "diplomatic_backchannel",
+          "label_de": "Geheime diplomatische Kanäle nutzen",
+          "cost": {"budget": 20, "capacity": 2},
+          "outcome": "negotiated_de_escalation"
+        }
+      ]
+    }
   ],
   "consequence_chains": {
     "exposure_chain": {

@@ -235,6 +235,59 @@
 
 ---
 
+### 7. **AI-Native Desinformationskampagnen (2024-2026)** - Die nächste Generation
+
+**Dokumentation:**
+- [NewsGuard: AI-Generated Misinformation Tracking 2025](https://www.newsguard.com/)
+- [Stanford Internet Observatory: Generative AI and Disinformation](https://cyber.fsi.stanford.edu/)
+- [Meta Quarterly Adversarial Threat Report Q3 2025](https://about.fb.com/news/tag/threat-report/)
+- [EU DisinfoLab: Doppelganger 2.0 Analysis](https://www.disinfo.eu/)
+
+**Hauptakteure:**
+- STORM-1679 (Russland, AI-native seit 2024)
+- CopyCop Network (automatisierte News-Klone)
+- Spamouflage 3.0 (China, AI-erweitert)
+- Kommerzielle AI-Desinformations-Dienste ("Disinformation-as-a-Service")
+
+**Kern-Taktiken:**
+1. **Synthetische Journalisten:** AI-generierte Personas mit "Presseausweisen" betreiben Fake-Nachrichtenportale
+2. **LLM Knowledge Poisoning:** Millionen von Artikeln füttern AI-Chatbots mit Falschinformationen (Pravda-Netzwerk: 3.6M Artikel)
+3. **AI-Avatar-Influencer:** Generierte Gesichter, Stimmen und Videos für "authentische" Social-Media-Präsenzen
+4. **Autonomous Disinformation Agents:** AI-Systeme die eigenständig Narrative anpassen, testen und optimieren
+5. **Cross-Modal Content:** Gleicher Inhalt wird simultan als Text, Video, Audio und Bild generiert
+6. **Micro-Targeting at Scale:** AI analysiert individuelle Vulnerabilitäten und passt Narrative in Echtzeit an
+
+**Messbare Impacts:**
+- **33% der AI-Chatbots** wiederholten Pravda-Falschinformationen (NewsGuard 2025)
+- **550% Anstieg** von Deepfake-Inhalten seit 2019
+- **1000+ AI-generierte Nachrichtenportale** identifiziert (NewsGuard Tracking)
+- **Kosten pro Kampagne -90%**: Was früher Tausende kostete, kostet jetzt Hunderte
+
+**Relatable für:**
+- ✅✅✅ JETZT - AI ist das Thema 2025/2026
+- ✅ "Kann mir passieren" (Deepfakes von jedem möglich)
+- ✅ Technologie-Faszination und -Angst gleichzeitig
+- ✅ Paradigmenwechsel: Von menschlicher zu maschineller Desinformation
+
+**Dilemmata:**
+- "AI macht deine Lügen perfekt - aber auch unkontrollierbar"
+- "Du brauchst keine Menschen mehr zum Lügen - aber wer kontrolliert die Maschine?"
+- "Die AI produziert Narrative, die du nie geplant hast - bist du noch der Steuermann?"
+- "Wenn niemand mehr echte von falscher Information unterscheiden kann - gewinnt dann die Wahrheit oder die Lüge?"
+
+**Besondere Relevanz für Ostland-Szenario:**
+- Ostland setzt AI ein, um bei geringerem Budget mehr Output zu erzeugen
+- Alexei (Technical Lead) könnte AI-Systeme entwickeln, die sich verselbständigen
+- Konsequenz: AI-Content-Erkennung durch Westunion als neue Gegenmaßnahme
+- Spielmechanik: AI-Aktionen sind billiger aber riskanter (Kontrollverlust-Mechanik)
+
+**Zynismus + Poesie:**
+- "Du hast eine Maschine gebaut, die besser lügt als du. Jetzt lügt sie auch dich an."
+- "Die Zukunft der Propaganda braucht keine Propagandisten mehr - nur noch Strom."
+- "Deine AI hat 10.000 Versionen der Wahrheit erschaffen. Keine davon ist wahr."
+
+---
+
 ## 🎯 Szenario-Optionen für das Spiel
 
 ### **Option E1: "Der 32-Tage-Zyklus" (HYBRID-ABSTRAKT)**

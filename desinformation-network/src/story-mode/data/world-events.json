@@ -1062,6 +1062,87 @@
       "description_en": "The Westunion criticizes restrictions on press freedom in Eastmark.",
       "effects": { "east_west_tension": 20, "sovereignty_narrative_boost": 1.3 },
       "severity": "success"
+    },
+
+    {
+      "id": "global_deepfake_election_scandal",
+      "type": "technical",
+      "scale": "transnational",
+      "trigger": { "type": "random", "conditions": { "minPhase": 18, "probability": 0.08 } },
+      "probability": 0.08,
+      "headline_de": "Deepfake-Skandal erschüttert Wahlkampf in Nachbarland",
+      "headline_en": "Deepfake Scandal Rocks Election Campaign in Neighboring Country",
+      "description_de": "Ein AI-generiertes Video eines Politikers geht viral. Die Echtheit wird erst nach Tagen widerlegt.",
+      "description_en": "An AI-generated video of a politician goes viral. Its fakeness is only proven days later.",
+      "effects": { "deepfake_awareness": 20, "ai_detection_investment": true, "public_trust_reduction": 10 },
+      "severity": "warning",
+      "cascades_to": ["westunion_disinformation_agency"]
+    },
+    {
+      "id": "global_llm_poisoning_discovered",
+      "type": "technical",
+      "scale": "transnational",
+      "trigger": { "type": "random", "conditions": { "minPhase": 24, "probability": 0.06 } },
+      "probability": 0.06,
+      "headline_de": "Studie: AI-Chatbots verbreiten systematisch Falschinformationen",
+      "headline_en": "Study: AI Chatbots Systematically Spread Misinformation",
+      "description_de": "Forscher entdecken, dass große AI-Modelle mit gezielten Falschinformationen kontaminiert wurden.",
+      "description_en": "Researchers discover that major AI models have been contaminated with targeted misinformation.",
+      "effects": { "ai_trust_crisis": 25, "tech_regulation_pressure": true, "llm_poisoning_awareness": true },
+      "severity": "warning"
+    },
+    {
+      "id": "westunion_ai_content_regulation",
+      "type": "technical",
+      "scale": "national",
+      "trigger": { "type": "random", "conditions": { "minPhase": 26, "probability": 0.12 } },
+      "probability": 0.12,
+      "headline_de": "Westunion führt AI-Content-Kennzeichnungspflicht ein",
+      "headline_en": "Westunion Introduces AI Content Labeling Requirement",
+      "description_de": "Alle AI-generierten Inhalte müssen künftig gekennzeichnet werden. Verstöße werden bestraft.",
+      "description_en": "All AI-generated content must be labeled going forward. Violations will be penalized.",
+      "effects": { "ai_content_detection_risk": 0.3, "synthetic_content_penalty": true, "compliance_cost_increase": 10 },
+      "severity": "danger"
+    },
+    {
+      "id": "nordmark_news_desert",
+      "type": "media",
+      "scale": "regional",
+      "region": "nordmark",
+      "trigger": { "type": "random", "conditions": { "minPhase": 10, "probability": 0.1 } },
+      "probability": 0.1,
+      "headline_de": "Nordmark: Lokale Zeitungen schließen massenhaft",
+      "headline_en": "Nordmark: Local Newspapers Close En Masse",
+      "description_de": "In mehreren nordmärkischen Regionen gibt es keine lokalen Nachrichtenquellen mehr. Ein Informationsvakuum entsteht.",
+      "description_en": "Several Nordmark regions no longer have local news sources. An information vacuum emerges.",
+      "effects": { "local_media_vacuum": { "nordmark": 25 }, "disinformation_vulnerability": 1.4, "community_isolation": 15 },
+      "severity": "success"
+    },
+    {
+      "id": "global_crypto_funding_exposed",
+      "type": "economic",
+      "scale": "transnational",
+      "trigger": { "type": "risk_threshold", "conditions": { "riskAbove": 65, "probability": 0.1 } },
+      "probability": 0.1,
+      "headline_de": "Kryptowährungs-Geldwäsche aufgedeckt",
+      "headline_en": "Cryptocurrency Money Laundering Exposed",
+      "description_de": "Blockchain-Analysten haben verdächtige Zahlungsströme über Kryptowährungen zu Desinformationsnetzwerken aufgedeckt.",
+      "description_en": "Blockchain analysts have uncovered suspicious payment flows via cryptocurrency to disinformation networks.",
+      "effects": { "financial_exposure": true, "budget_reduction_risk": 0.2, "attention_increase": 10 },
+      "severity": "danger"
+    },
+    {
+      "id": "westunion_civil_society_mobilization",
+      "type": "social",
+      "scale": "national",
+      "trigger": { "type": "objective_progress", "conditions": { "objective": "polarization", "progressAbove": 65 } },
+      "probability": 0.5,
+      "headline_de": "Zivilgesellschaft mobilisiert gegen Desinformation",
+      "headline_en": "Civil Society Mobilizes Against Disinformation",
+      "description_de": "Bürgerinitiativen und NGOs schließen sich zu einer koordinierten Gegenbewegung zusammen.",
+      "description_en": "Civic initiatives and NGOs join forces in a coordinated counter-movement.",
+      "effects": { "grassroots_resistance": 20, "content_effectiveness_reduction": 0.85, "community_resilience_boost": 1.3 },
+      "severity": "danger"
     }
   ]
 }
