@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { StoryModeColors } from './theme';
 import type { StoryResources, StoryPhase, NewsEvent, Objective } from '../game-logic/StoryEngineAdapter';
+import { NewsTV } from './components/NewsTV';
 
 // ============================================
 // TYPES
@@ -521,6 +522,7 @@ export function OfficeScreen({
   onEndPhase,
   resources,
   phase,
+  newsEvents = [],
   unreadNewsCount = 0,
   worldEventCount = 0,
 }: OfficeScreenProps) {
@@ -578,9 +580,10 @@ export function OfficeScreen({
         />
 
         {/* Interactive Elements */}
-        <WallTV
+        <NewsTV
           isHovered={hoverArea === 'tv'}
           resources={resources}
+          newsEvents={newsEvents || []}
           onClick={() => {
             setHoverArea(null);
             if (onOpenStats) onOpenStats();

@@ -29,6 +29,10 @@ import { OfficeScreen } from './OfficeScreen';
 import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
 import { DashboardView } from './components/DashboardView';
+import { BreakingNewsOverlay, type BreakingNewsEvent } from './components/BreakingNewsOverlay';
+import { PhaseNewsSummary } from './components/PhaseNewsSummary';
+import { useTVTransition } from './components/TVTransition';
+import { SoundWorkbench } from './components/SoundWorkbench';
 
 // ============================================
 // TYPES
@@ -367,6 +371,14 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [batchActionResults, setBatchActionResults] = useState<ActionResult[] | null>(null);
   const [selectedGrievanceNpc, setSelectedGrievanceNpc] = useState<string | null>(null);
 
+  // New UI features
+  const [breakingNews, setBreakingNews] = useState<BreakingNewsEvent | null>(null);
+  const [showPhaseNewsSummary, setShowPhaseNewsSummary] = useState(false);
+  const [phaseResourcesBefore, setPhaseResourcesBefore] = useState<typeof state.resources | null>(null);
+  const [phaseNewsSnapshot, setPhaseNewsSnapshot] = useState<typeof state.newsEvents>([]);
+  const [showSoundWorkbench, setShowSoundWorkbench] = useState(false);
+  const { transition: tvTransition, trigger: triggerTVTransition, handleComplete: handleTVTransitionComplete, TVTransitionComponent } = useTVTransition();
+
   // Count world events
   const worldEventCount = state.newsEvents.filter(e => e.type === 'world_event').length;
 
@@ -419,6 +431,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           case 'e': togglePanel('events'); break;
           case 'v': toggleViewMode(); break;
           case 'i': setShowEncyclopedia(prev => !prev); break;
+          case 'w': setShowSoundWorkbench(prev => !prev); break;
         }
       }
     };
@@ -443,6 +456,47 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const handleLoad = () => {
     loadGame();
   };
+
+  // Wrapped endPhase: show Tagesschau summary before advancing
+  const handleEndPhase = () => {
+    // Snapshot current resources and news before phase ends
+    setPhaseResourcesBefore({ ...state.resources });
+    setPhaseNewsSnapshot(state.newsEvents.filter(e => e.phase === state.storyPhase.number));
+
+    // Actually end the phase (engine processes)
+    endPhase();
+
+    // Show the news summary overlay
+    setShowPhaseNewsSummary(true);
+  };
+
+  // Continue after phase summary
+  const handlePhaseNewsContinue = () => {
+    setShowPhaseNewsSummary(false);
+    triggerTVTransition('channel-switch', 200);
+  };
+
+  // Trigger breaking news for crisis events
+  const triggerBreakingNews = (headline: string, severity: BreakingNewsEvent['severity'], subtext?: string) => {
+    setBreakingNews({
+      id: `bn_${Date.now()}`,
+      headline,
+      subtext,
+      severity,
+    });
+  };
+
+  // Watch for crisis events to trigger breaking news
+  useEffect(() => {
+    if (state.activeCrisis && !breakingNews) {
+      const crisis = state.activeCrisis.crisis;
+      triggerBreakingNews(
+        crisis.name_de || 'Krise eingetreten',
+        'crisis',
+        crisis.description_de
+      );
+    }
+  }, [state.activeCrisis]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ============================================
   // RENDER
@@ -529,7 +583,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           isCompleted: o.completed,
           isPrimary: o.type === 'primary',
         }))}
-        onEndPhase={endPhase}
+        onEndPhase={handleEndPhase}
         onOpenMenu={pauseGame}
       />
 
@@ -570,7 +624,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               onOpenNpcs={() => togglePanel('npcs')}
               onOpenMission={() => togglePanel('mission')}
               onOpenEvents={() => togglePanel('events')}
-              onEndPhase={endPhase}
+              onEndPhase={handleEndPhase}
               resources={state.resources}
               phase={state.storyPhase}
               newsEvents={state.newsEvents}
@@ -587,7 +641,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               npcs={state.npcs}
               unreadNewsCount={state.unreadNewsCount}
               worldEventCount={worldEventCount}
-              onEndPhase={endPhase}
+              onEndPhase={handleEndPhase}
             />
           )}
         </div>
@@ -903,6 +957,37 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           onDismiss={dismissCrisis}
         />
       )}
+
+      {/* Breaking News Overlay */}
+      <BreakingNewsOverlay
+        event={breakingNews}
+        onDismiss={() => setBreakingNews(null)}
+      />
+
+      {/* Phase News Summary (Tagesschau-style) */}
+      <PhaseNewsSummary
+        isVisible={showPhaseNewsSummary}
+        phase={state.storyPhase}
+        resources={state.resources}
+        resourceDeltas={phaseResourcesBefore ? {
+          budget: state.resources.budget - phaseResourcesBefore.budget,
+          capacity: state.resources.capacity - phaseResourcesBefore.capacity,
+          risk: state.resources.risk - phaseResourcesBefore.risk,
+          attention: state.resources.attention - phaseResourcesBefore.attention,
+          moralWeight: state.resources.moralWeight - phaseResourcesBefore.moralWeight,
+        } : { budget: 0, capacity: 0, risk: 0, attention: 0, moralWeight: 0 }}
+        newsEvents={phaseNewsSnapshot}
+        onContinue={handlePhaseNewsContinue}
+      />
+
+      {/* TV Transition Effects */}
+      {TVTransitionComponent}
+
+      {/* Sound Workbench (Press W) */}
+      <SoundWorkbench
+        isVisible={showSoundWorkbench}
+        onClose={() => setShowSoundWorkbench(false)}
+      />
     </div>
   );
 }
