@@ -2,11 +2,17 @@
 
 // ===========================================
 // PROMPT ASSISTANT COMPONENT
-// OpenAI-gestützte Prompt-Verbesserung
+// OpenAI-gestützte Prompt-Verbesserung mit Preset-Auswahl
 // ===========================================
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { AssetType, ImprovePromptResponse } from '@/types';
+import {
+  PRESET_CATEGORIES,
+  getPresetsByAssetType,
+  type Preset,
+  type PresetCategory,
+} from '@/lib/presets';
 
 interface PromptAssistantProps {
   assetType: AssetType;
@@ -19,6 +25,27 @@ export function PromptAssistant({ assetType, onPromptReady }: PromptAssistantPro
   const [result, setResult] = useState<ImprovePromptResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [useImproved, setUseImproved] = useState(true);
+  const [showPresets, setShowPresets] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Filter presets by current asset type
+  const availablePresets = useMemo(() => {
+    return getPresetsByAssetType(assetType);
+  }, [assetType]);
+
+  // Get categories that have presets for this asset type
+  const availableCategories = useMemo(() => {
+    return PRESET_CATEGORIES.filter(cat =>
+      cat.presets.some(p => p.assetType === assetType)
+    );
+  }, [assetType]);
+
+  // Get presets for selected category or all
+  const displayedPresets = useMemo(() => {
+    if (!selectedCategory) return availablePresets;
+    const category = PRESET_CATEGORIES.find(c => c.id === selectedCategory);
+    return category?.presets.filter(p => p.assetType === assetType) || [];
+  }, [selectedCategory, availablePresets, assetType]);
 
   const assetTypeLabels: Record<AssetType, string> = {
     sprite: 'Sprite-Sheet',
@@ -31,6 +58,12 @@ export function PromptAssistant({ assetType, onPromptReady }: PromptAssistantPro
     scene: 'z.B. "Ein Technik-Büro mit Servern"',
     element: 'z.B. "Ein alter sowjetischer Fernseher"',
   };
+
+  function handlePresetSelect(preset: Preset) {
+    setUserPrompt(preset.prompt);
+    setShowPresets(false);
+    setResult(null);
+  }
 
   async function handleImprove() {
     if (!userPrompt.trim()) return;
@@ -77,25 +110,114 @@ export function PromptAssistant({ assetType, onPromptReady }: PromptAssistantPro
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center gap-2 text-sm text-gray-400">
-        <span className="px-2 py-1 bg-gray-800 rounded">
-          {assetTypeLabels[assetType]}
-        </span>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm text-gray-400">
+          <span className="px-2 py-1 bg-gray-800 rounded">
+            {assetTypeLabels[assetType]}
+          </span>
+        </div>
+        <button
+          onClick={() => setShowPresets(!showPresets)}
+          className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+        >
+          {showPresets ? 'Eigener Prompt' : 'Vorlagen anzeigen'}
+        </button>
       </div>
+
+      {/* Preset Selection */}
+      {showPresets && availablePresets.length > 0 && (
+        <div className="space-y-3">
+          {/* Category Tabs */}
+          {availableCategories.length > 1 && (
+            <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                  selectedCategory === null
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                }`}
+              >
+                Alle
+              </button>
+              {availableCategories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                    selectedCategory === cat.id
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  }`}
+                >
+                  {cat.nameDE}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Preset Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-1">
+            {displayedPresets.map((preset) => (
+              <button
+                key={preset.id}
+                onClick={() => handlePresetSelect(preset)}
+                className="p-3 bg-gray-800 hover:bg-gray-700 rounded-lg text-left
+                           transition-colors border border-gray-700 hover:border-gray-600"
+              >
+                <div className="font-medium text-white text-sm">
+                  {preset.nameDE}
+                </div>
+                <div className="text-xs text-gray-400 mt-1 line-clamp-2">
+                  {preset.description}
+                </div>
+                <div className="flex gap-1 mt-2 flex-wrap">
+                  {preset.tags.slice(0, 3).map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-1.5 py-0.5 text-xs bg-gray-900 text-gray-500 rounded"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <div className="text-center text-sm text-gray-500 pt-2 border-t border-gray-800">
+            Klicke auf eine Vorlage oder schreibe deinen eigenen Prompt
+          </div>
+        </div>
+      )}
 
       {/* User Prompt Input */}
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2">
-          Dein Prompt
+          {showPresets && availablePresets.length > 0 ? 'Oder eigener Prompt:' : 'Dein Prompt'}
         </label>
         <textarea
           value={userPrompt}
           onChange={(e) => setUserPrompt(e.target.value)}
           placeholder={placeholders[assetType]}
-          className="w-full h-24 px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg
+          className="w-full h-32 px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg
                      text-white placeholder-gray-500 focus:border-blue-500 focus:ring-1
-                     focus:ring-blue-500 outline-none resize-none"
+                     focus:ring-blue-500 outline-none resize-none font-mono text-sm"
         />
+        {userPrompt && (
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>{userPrompt.length} Zeichen</span>
+            <button
+              onClick={() => {
+                setUserPrompt('');
+                setResult(null);
+              }}
+              className="text-red-400 hover:text-red-300"
+            >
+              Löschen
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Improve Button */}
