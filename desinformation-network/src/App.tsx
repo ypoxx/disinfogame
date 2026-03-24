@@ -24,6 +24,7 @@ import { NarrativeGenerator } from '@/game-logic/NarrativeGenerator';
 import { createInitialTutorialState } from '@/game-logic/types/tutorial';
 import type { TutorialState } from '@/game-logic/types/tutorial';
 import { StoryModeTest } from '@/story-mode/StoryModeTest';
+import { AdminPanel } from '@/components/AdminPanel';
 import type { Scenario } from '@/game-logic/types';
 import scenariosData from '@/data/game/scenarios.json';
 
@@ -89,6 +90,9 @@ function App() {
 
   // Story Mode Test state
   const [showStoryModeTest, setShowStoryModeTest] = useState(false);
+
+  // Admin Panel state
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   // Apply filters to actors
   const filteredActors = useMemo(
@@ -243,6 +247,11 @@ function App() {
   // SCREENS
   // ============================================
 
+  // Admin Panel (overrides everything)
+  if (showAdminPanel) {
+    return <AdminPanel onExit={() => setShowAdminPanel(false)} />;
+  }
+
   // Story Mode Test (overrides everything)
   if (showStoryModeTest) {
     return <StoryModeTest onExit={() => setShowStoryModeTest(false)} />;
@@ -294,6 +303,13 @@ function App() {
             <p className="text-gray-400 text-sm max-w-md">
               Story Mode is a visual prototype showing how the same game could be played with a narrative, office-simulation interface inspired by Papers Please.
             </p>
+
+            <button
+              onClick={() => setShowAdminPanel(true)}
+              className="mt-4 px-6 py-2 bg-gray-700/50 hover:bg-gray-700 text-gray-500 hover:text-gray-300 text-sm rounded-lg transition-colors border border-gray-700/50"
+            >
+              Admin
+            </button>
           </div>
 
           <p className="mt-6 text-gray-500 text-sm">
