@@ -611,10 +611,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           </div>
         )}
 
-        {/* Content area: Office/Dashboard + SidePanel */}
-        <div className="flex-1 flex min-h-0">
-        {/* Main content area (Office or Dashboard) - transition prevents layout shift */}
-        <div className="flex-1 h-full overflow-hidden transition-all duration-300">
+        {/* Content area: Office/Dashboard (SidePanel is now a centered modal overlay) */}
+        <div className="flex-1 min-h-0 overflow-hidden">
           {viewMode === 'office' ? (
             <OfficeScreen
               onExit={pauseGame}
@@ -624,7 +622,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               onOpenNpcs={() => togglePanel('npcs')}
               onOpenMission={() => togglePanel('mission')}
               onOpenEvents={() => togglePanel('events')}
-              onEndPhase={handleEndPhase}
               resources={state.resources}
               phase={state.storyPhase}
               newsEvents={state.newsEvents}
@@ -645,8 +642,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             />
           )}
         </div>
+      </div>
 
-        {/* Sidebar Panel System */}
+        {/* Panel System — Centered Modal (renders as fixed overlay) */}
         <SidePanel>
           {activePanel === 'actions' && (
             <ActionPanel
@@ -749,8 +747,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             />
           )}
         </SidePanel>
-      </div>
-      </div>
 
       {/* Dialog Box */}
       {state.currentDialog && (

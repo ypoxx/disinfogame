@@ -100,8 +100,8 @@ export function NewsTV({
       className="absolute cursor-pointer transition-all duration-200"
       style={{
         top: '5%',
-        left: '8%',
-        width: '35%',
+        left: '14%',
+        width: '32%',
         height: '28%',
         zIndex: 10,
       }}
@@ -109,19 +109,25 @@ export function NewsTV({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      {/* TV Frame - thick retro border */}
+      {/* TV Frame — transparent hotspot over background image TV */}
       <div
-        className="w-full h-full relative overflow-hidden"
+        className="w-full h-full relative overflow-hidden rounded"
         style={{
-          backgroundColor: '#1a1a1a',
-          border: `8px solid ${isHovered ? StoryModeColors.agencyBlue : '#333'}`,
+          backgroundColor: 'transparent',
+          border: `3px solid ${isHovered ? StoryModeColors.agencyBlue : 'transparent'}`,
           boxShadow: isHovered
-            ? `0 0 30px ${StoryModeColors.agencyBlue}, inset 0 0 20px rgba(74, 157, 255, 0.3)`
-            : '8px 8px 0 rgba(0,0,0,0.5)',
+            ? `0 0 30px ${StoryModeColors.agencyBlue}, inset 0 0 20px rgba(74, 157, 255, 0.2)`
+            : 'none',
         }}
       >
-        {/* Screen content */}
-        <div className="absolute inset-1 overflow-hidden" style={{ backgroundColor: '#0a0a0a' }}>
+        {/* Screen content — overlaid on background image's TV */}
+        <div className="absolute overflow-hidden" style={{
+          backgroundColor: 'rgba(10, 10, 10, 0.88)',
+          top: '10%',
+          left: '8%',
+          right: '8%',
+          bottom: '10%',
+        }}>
           {hasNews ? (
             <>
               {/* Channel/Station Logo */}
@@ -211,32 +217,51 @@ export function NewsTV({
               </div>
             </>
           ) : (
-            /* No news yet - show standby pattern */
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div
-                className="text-[10px] font-bold mb-1"
-                style={{ color: StoryModeColors.agencyBlue }}
-              >
-                DISINFO-TV
-              </div>
-              <div
-                className="text-[8px]"
-                style={{ color: StoryModeColors.textMuted }}
-              >
-                BEREITSCHAFT
-              </div>
-              <div className="flex gap-1 mt-2">
-                {[0, 1, 2].map(i => (
-                  <div
-                    key={i}
-                    className="w-1.5 h-1.5 rounded-full animate-pulse"
-                    style={{
-                      backgroundColor: StoryModeColors.agencyBlue,
-                      animationDelay: `${i * 0.3}s`,
-                    }}
-                  />
+            /* No news yet - Soviet test pattern */
+            <div className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden">
+              {/* Color bars (classic test card) */}
+              <div className="absolute top-0 left-0 right-0 h-[30%] flex">
+                {['#fff', '#ffd700', '#00bfff', '#00ff00', '#ff00ff', '#ff0000', '#0000ff'].map((c, i) => (
+                  <div key={i} className="flex-1 h-full" style={{ backgroundColor: c, opacity: 0.6 }} />
                 ))}
               </div>
+
+              {/* Center circle with station name */}
+              <div
+                className="relative z-10 w-16 h-16 rounded-full border-2 flex flex-col items-center justify-center"
+                style={{
+                  backgroundColor: 'rgba(0,0,0,0.85)',
+                  borderColor: '#555',
+                }}
+              >
+                <div className="text-[8px] font-bold" style={{ color: StoryModeColors.agencyBlue }}>
+                  DISINFO
+                </div>
+                <div className="text-[6px]" style={{ color: StoryModeColors.textMuted }}>
+                  KANAL 1
+                </div>
+              </div>
+
+              {/* Bottom text crawl */}
+              <div
+                className="absolute bottom-1 left-0 right-0 text-center"
+              >
+                <div
+                  className="text-[7px] font-bold tracking-widest animate-pulse"
+                  style={{ color: StoryModeColors.textMuted }}
+                >
+                  SENDEPAUSE — BITTE STANDBY
+                </div>
+              </div>
+
+              {/* Static noise overlay */}
+              <div
+                className="absolute inset-0 pointer-events-none opacity-20"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+                  backgroundSize: '100px 100px',
+                }}
+              />
             </div>
           )}
 

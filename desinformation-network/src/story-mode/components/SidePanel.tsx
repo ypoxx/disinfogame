@@ -48,7 +48,7 @@ function TabBar() {
 }
 
 // ============================================
-// SIDE PANEL CONTAINER
+// SIDE PANEL — CENTERED MODAL (replaces push sidebar)
 // ============================================
 
 interface SidePanelProps {
@@ -61,23 +61,49 @@ export function SidePanel({ children }: SidePanelProps) {
   if (!activePanel) return null;
 
   return (
-    <div
-      className="h-full flex flex-col border-l-4 animate-slide-in-right"
-      style={{
-        width: '420px',
-        minWidth: '420px',
-        backgroundColor: StoryModeColors.surface,
-        borderColor: StoryModeColors.border,
-      }}
-    >
-      {/* Tab Bar */}
-      <TabBar />
+    <>
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 z-50"
+        style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+        onClick={() => setActivePanel(null)}
+      />
 
-      {/* Panel Content */}
-      <div className="flex-1 overflow-hidden flex flex-col">
-        {children}
+      {/* Centered Modal */}
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+      >
+        <div
+          className="w-full max-w-2xl flex flex-col border-4 pointer-events-auto animate-slide-in-right relative"
+          style={{
+            maxHeight: 'calc(100vh - 8rem)',
+            backgroundColor: StoryModeColors.surface,
+            borderColor: StoryModeColors.border,
+            boxShadow: '12px 12px 0px 0px rgba(0,0,0,0.7)',
+          }}
+        >
+          {/* Tab Bar */}
+          <TabBar />
+
+          {/* Close button */}
+          <button
+            onClick={() => setActivePanel(null)}
+            className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center font-bold text-lg hover:brightness-125 transition-all z-10"
+            style={{
+              color: StoryModeColors.textSecondary,
+            }}
+            title="Schließen [ESC]"
+          >
+            ✕
+          </button>
+
+          {/* Panel Content */}
+          <div className="flex-1 overflow-hidden flex flex-col">
+            {children}
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
