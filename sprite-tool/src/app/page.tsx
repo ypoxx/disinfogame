@@ -167,7 +167,7 @@ export default function Home() {
             <div className="p-4 bg-gray-900 border border-gray-800 rounded-lg">
               <h4 className="font-medium text-yellow-400 mb-2">🔑 API Keys erforderlich</h4>
               <p className="text-sm text-gray-400 mb-2">
-                Dieses Tool benötigt API Keys für Claude (Anthropic) und Nano Banana Pro (Google AI).
+                Dieses Tool benötigt API Keys für OpenAI und Nano Banana Pro (Google AI).
               </p>
               <p className="text-sm text-gray-500">
                 Kopiere <code className="px-1 bg-gray-800 rounded">.env.example</code> zu{' '}
@@ -213,7 +213,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-gray-800 mt-auto">
         <div className="max-w-4xl mx-auto px-4 py-4 text-center text-sm text-gray-500">
-          Sprite Studio für das Disinfo-Spiel | Powered by Claude + Nano Banana Pro
+          Sprite Studio für das Disinfo-Spiel | Powered by OpenAI + Nano Banana Pro
         </div>
       </footer>
     </div>
