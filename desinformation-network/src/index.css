@@ -488,6 +488,13 @@
   }
 }
 
+/* Room ambient animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-4px) rotate(2deg); }
+  75% { transform: translateY(2px) rotate(-1deg); }
+}
+
 /* ============================================
    ANIMATION UTILITY CLASSES
    ============================================ */

@@ -1,0 +1,12 @@
+# Story Assets Directory
+# Generated pixel-art assets from the Sprite-Tool go here.
+# Structure matches building.ts + animations.ts config.
+#
+# rooms/{room_id}/background.png  — Room background layer
+# rooms/{room_id}/furniture.png   — Furniture overlay layer
+# rooms/{room_id}/effects.png     — Effects (cables, screens, etc.)
+# figures/player/idle.png          — Player sprite-sheet (4 frames, 64x64)
+# figures/player/walk.png          — Player walk (8 frames, 64x64)
+# figures/npcs/{npc}_idle.png      — NPC idle sprite-sheet
+# building/floor_*.png             — Floor hallway backgrounds
+# building/elevator.png            — Elevator sprite
