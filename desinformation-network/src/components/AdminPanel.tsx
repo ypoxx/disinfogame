@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { SpriteStudio } from '@/admin/SpriteStudio';
 
 // SHA-256 hash of the PIN "1337"
 // To change: run in browser console:
@@ -13,6 +14,8 @@ async function hashPin(pin: string): Promise<string> {
     .join('');
 }
 
+type AdminTab = 'sprite-studio' | 'overview';
+
 type AdminPanelProps = {
   onExit: () => void;
 };
@@ -22,6 +25,7 @@ export function AdminPanel({ onExit }: AdminPanelProps) {
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
   const [checking, setChecking] = useState(false);
+  const [activeTab, setActiveTab] = useState<AdminTab>('sprite-studio');
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Check sessionStorage for existing auth
@@ -46,6 +50,8 @@ export function AdminPanel({ onExit }: AdminPanelProps) {
     const hashed = await hashPin(pin);
     if (hashed === PIN_HASH) {
       sessionStorage.setItem('admin_auth', 'true');
+      // Store token for API auth
+      sessionStorage.setItem('admin_token', hashed);
       setAuthenticated(true);
     } else {
       setError(true);
@@ -107,114 +113,139 @@ export function AdminPanel({ onExit }: AdminPanelProps) {
 
   // Admin Dashboard
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8">
+      <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-white">Admin Panel</h1>
-            <p className="text-gray-400 mt-1">Entwickler-Tools & Übersicht</p>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold text-white">Admin</h1>
+            {/* Tab Navigation */}
+            <div className="flex gap-1 bg-gray-800/50 rounded-lg p-1">
+              <button
+                onClick={() => setActiveTab('sprite-studio')}
+                className={`px-4 py-1.5 text-sm rounded-md transition-colors ${
+                  activeTab === 'sprite-studio'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Sprite Studio
+              </button>
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`px-4 py-1.5 text-sm rounded-md transition-colors ${
+                  activeTab === 'overview'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Übersicht
+              </button>
+            </div>
           </div>
           <button
             onClick={onExit}
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors"
+            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-lg transition-colors"
           >
             Zurück zum Spiel
           </button>
         </div>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Tab Content */}
+        {activeTab === 'sprite-studio' && (
+          <div className="bg-gray-800/30 border border-gray-700/50 rounded-xl p-6">
+            <SpriteStudio />
+          </div>
+        )}
 
-          {/* Sprite Tool */}
-          <div className="bg-gray-800/70 border border-gray-700 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-white mb-2">Sprite Tool</h3>
-            <p className="text-gray-400 text-sm mb-4">
-              Pixel-Art Assets generieren mit KI. Läuft lokal als Next.js App.
-            </p>
-            <div className="bg-gray-900/50 rounded-lg p-4 text-sm text-gray-300 font-mono space-y-1">
-              <p>cd sprite-tool</p>
-              <p>npm install</p>
-              <p>npm run dev</p>
-              <p className="text-blue-400">→ http://localhost:3000</p>
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            {/* API Keys Info */}
+            <div className="bg-yellow-900/20 border border-yellow-800/50 rounded-xl p-4">
+              <h3 className="text-sm font-semibold text-yellow-400 mb-2">API-Keys einrichten</h3>
+              <p className="text-xs text-yellow-300/70 mb-3">
+                Damit das Sprite Studio funktioniert, brauchst du zwei API-Keys als Netlify Environment Variables:
+              </p>
+              <div className="space-y-2 text-xs">
+                <div className="flex items-start gap-2">
+                  <span className="text-yellow-400 font-mono bg-gray-900/50 px-1.5 py-0.5 rounded">OPENAI_API_KEY</span>
+                  <span className="text-gray-400">
+                    Für Prompt-Verbesserung.{' '}
+                    <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+                      Key erstellen
+                    </a>
+                  </span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-yellow-400 font-mono bg-gray-900/50 px-1.5 py-0.5 rounded">GOOGLE_AI_API_KEY</span>
+                  <span className="text-gray-400">
+                    Für Bildgenerierung (kostenlos im Free-Tier).{' '}
+                    <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+                      Key erstellen
+                    </a>
+                  </span>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-3">
+                Eintragen unter: Netlify Dashboard → Site Settings → Environment Variables → Add Variable
+              </p>
+            </div>
+
+            {/* Info Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Build Info */}
+              <div className="bg-gray-800/70 border border-gray-700 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-white mb-3">Build & Deploy</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Platform</span>
+                    <span className="text-white">Netlify</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Build</span>
+                    <span className="text-white font-mono">npm run build</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Node</span>
+                    <span className="text-white">18</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Functions</span>
+                    <span className="text-white">10 aktiv</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="bg-gray-800/70 border border-gray-700 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-white mb-3">Quick Actions</h3>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => {
+                      sessionStorage.clear();
+                      localStorage.clear();
+                      window.location.reload();
+                    }}
+                    className="w-full text-left px-4 py-2 bg-gray-900/50 hover:bg-gray-900 text-gray-300 rounded-lg transition-colors text-sm"
+                  >
+                    Cache leeren & Neuladen
+                  </button>
+                  <button
+                    onClick={() => {
+                      sessionStorage.removeItem('admin_auth');
+                      sessionStorage.removeItem('admin_token');
+                      setAuthenticated(false);
+                      setPin('');
+                    }}
+                    className="w-full text-left px-4 py-2 bg-gray-900/50 hover:bg-gray-900 text-gray-300 rounded-lg transition-colors text-sm"
+                  >
+                    Admin-Session beenden
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* Dev Server */}
-          <div className="bg-gray-800/70 border border-gray-700 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-white mb-2">Dev Server</h3>
-            <p className="text-gray-400 text-sm mb-4">
-              Lokaler Vite-Dev-Server mit Hot Reload.
-            </p>
-            <div className="bg-gray-900/50 rounded-lg p-4 text-sm text-gray-300 font-mono space-y-1">
-              <p>cd desinformation-network</p>
-              <p>npm run dev</p>
-              <p className="text-blue-400">→ http://localhost:5173</p>
-            </div>
-          </div>
-
-          {/* Build Info */}
-          <div className="bg-gray-800/70 border border-gray-700 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-white mb-2">Build & Deploy</h3>
-            <p className="text-gray-400 text-sm mb-4">
-              Netlify Auto-Deploy bei Push auf main.
-            </p>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Platform</span>
-                <span className="text-white">Netlify</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Build</span>
-                <span className="text-white font-mono">npm run build</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Node</span>
-                <span className="text-white">18</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Output</span>
-                <span className="text-white font-mono">dist/</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="bg-gray-800/70 border border-gray-700 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-white mb-2">Quick Actions</h3>
-            <p className="text-gray-400 text-sm mb-4">
-              Nützliche Aktionen für die Entwicklung.
-            </p>
-            <div className="space-y-2">
-              <button
-                onClick={() => {
-                  sessionStorage.clear();
-                  localStorage.clear();
-                  window.location.reload();
-                }}
-                className="w-full text-left px-4 py-2 bg-gray-900/50 hover:bg-gray-900 text-gray-300 rounded-lg transition-colors text-sm"
-              >
-                Cache leeren & Neuladen
-              </button>
-              <button
-                onClick={() => {
-                  sessionStorage.removeItem('admin_auth');
-                  setAuthenticated(false);
-                  setPin('');
-                }}
-                className="w-full text-left px-4 py-2 bg-gray-900/50 hover:bg-gray-900 text-gray-300 rounded-lg transition-colors text-sm"
-              >
-                Admin-Session beenden
-              </button>
-            </div>
-          </div>
-
-        </div>
-
-        {/* Footer hint */}
-        <p className="text-gray-600 text-xs text-center mt-8">
-          PIN ändern: SHA-256-Hash in AdminPanel.tsx ersetzen (Anleitung im Code)
-        </p>
+        )}
       </div>
     </div>
   );
