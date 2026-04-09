@@ -593,19 +593,72 @@ Siehe `docs/CODE_REVIEW_METHODOLOGY.md` für detaillierte Checkliste.
 
 ### Common tasks
 
+#### ⚠️ Cross-Wiring Principle: Game Data is a Connected Graph
+
+Game definitions form a dependency graph. A new ability, event, or actor is
+**not complete** until all references point to it and it points back.
+Orphaned definitions are unreachable in gameplay and silently do nothing.
+
+**Before committing any game data change, verify:**
+1. Every ability ID appears in at least one actor's `abilities` array
+2. Every `spawn_defensive` value in events/event-chains has a matching
+   template in `GameState.ts → spawnDefensiveActor()`
+3. Every combo's `requiredAbilities` reference IDs that exist in
+   `ability-definitions-v2.json`
+4. Every event-chain `chainTo` ID exists as another event-chain entry
+5. Story mode action `prerequisites` and `unlocks` reference valid action IDs
+
+**Quick validation command:**
+```bash
+# Check that all ability IDs used by actors actually exist
+python3 -c "
+import json
+abilities = {a['id'] for a in json.load(open('src/data/game/ability-definitions-v2.json'))}
+actors = json.load(open('src/data/game/actor-definitions-v2.json'))
+for actor in actors:
+    for ab in actor.get('abilities', []):
+        if ab not in abilities:
+            print(f'⚠️  {actor[\"id\"]} references unknown ability: {ab}')
+print('Done.')
+"
+```
+
+---
+
+**Add new ability (Strategy Mode):**
+1. Define in `src/data/game/ability-definitions-v2.json`
+2. **PFLICHT: Assign to at least one actor** in `src/data/game/actor-definitions-v2.json`
+   → An ability without an actor loadout is unreachable in gameplay!
+3. If the ability can be combined, add combos in `src/data/game/combo-definitions.json`
+4. Create effect function in `src/game-logic/abilities/abilityEffects.ts`
+5. Map to persuasion technique in `src/services/persuasion/TechniqueMapper.ts`
+6. Add UI icon/animation
+7. Playtest & balance
+
+**Add new ability (Story Mode):**
+1. Define in `src/story-mode/data/actions.json` with unique ID (`phase.number`)
+2. Set valid `prerequisites` (IDs that exist) and `unlocks` (IDs that exist or will exist)
+3. Assign `npc_affinity` to at least one existing NPC
+
+**Add new event or event-chain:**
+1. Define in `src/data/game/event-definitions.json` or `event-chains.json`
+2. If using `spawn_defensive`: verify the value has a template in
+   `src/game-logic/GameState.ts → spawnDefensiveActor()` — add one if not!
+3. If using `chainTo`: verify the target event ID exists in `event-chains.json`
+4. If conditional: verify the condition fields (`detectionRisk`, `round`,
+   `lowTrustCount`, etc.) match what `GameState` evaluates
+
 **Add new actor type:**
-1. Define in `src/data/game/actor-definitions.json`
-2. Create class in `src/game-logic/actors/`
-3. Update factory in `actorFactory.ts`
-4. Add abilities in `src/data/game/ability-definitions.json`
+1. Define in `src/data/game/actor-definitions-v2.json`
+2. Assign existing abilities from `ability-definitions-v2.json` to its `abilities` array
+3. Create class in `src/game-logic/actors/` if needed
+4. Update factory in `actorFactory.ts` if needed
 5. Test in isolation
 
-**Add new ability:**
-1. Define in `src/data/game/ability-definitions.json`
-2. Create effect function in `src/game-logic/abilities/abilityEffects.ts`
-3. Map to persuasion technique in `src/services/persuasion/TechniqueMapper.ts`
-4. Add UI icon/animation
-5. Playtest & balance
+**Add new defensive actor template:**
+1. Add template to `spawnDefensiveActor()` in `src/game-logic/GameState.ts`
+2. Include `name`, `baseTrust`, `resilience`, and `abilities`
+3. Verify all events/event-chains using this template value in `spawn_defensive`
 
 **Fix bug:**
 1. Reproduce the bug locally
