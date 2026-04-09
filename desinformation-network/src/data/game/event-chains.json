@@ -396,6 +396,78 @@
     ]
   },
   {
+    "id": "llm_poisoning_exposed",
+    "name": "LLM Training Data Contamination Exposed",
+    "description": "Investigative journalists and AI researchers have discovered that major AI chatbots are repeating narratives planted by your fake website network. The story is gaining traction.",
+    "triggerType": "conditional",
+    "condition": "round > 10 && detectionRisk > 0.5",
+    "probability": 0.25,
+    "effects": [],
+    "newsTickerText": "🧬 Investigation reveals AI chatbots contaminated by fake news network",
+    "iconType": "investigation",
+    "playerChoice": [
+      {
+        "text": "Accelerate poisoning - Generate even more content before countermeasures",
+        "cost": { "money": 300, "attention": 40 },
+        "effects": [
+          {
+            "type": "trust_delta",
+            "target": "all",
+            "value": -0.12
+          }
+        ],
+        "consequence": "Massive impact but guarantees exposure"
+      },
+      {
+        "text": "Pivot strategy - Shift to new domains and languages",
+        "cost": { "money": 200 },
+        "effects": [
+          {
+            "type": "trust_delta",
+            "target": "all",
+            "value": -0.05
+          }
+        ],
+        "consequence": "Maintain some capability while evading detection"
+      },
+      {
+        "text": "Burn infrastructure - Delete fake sites and deny everything",
+        "cost": {},
+        "effects": [
+          {
+            "type": "trust_delta",
+            "target": "all",
+            "value": 0.08
+          }
+        ],
+        "consequence": "Lose infrastructure but avoid attribution"
+      }
+    ],
+    "chainTo": "llm_poisoning_aftermath",
+    "studyReference": "Hybrid CoE Paper 29 (2026): Pravda network's LLM training data infiltration and subsequent exposure"
+  },
+  {
+    "id": "llm_poisoning_aftermath",
+    "name": "AI Platform Countermeasures",
+    "description": "Major AI companies announce emergency measures to clean contaminated training data. Tech platforms begin blocking known fake news domains.",
+    "triggerType": "timed",
+    "triggerRound": 3,
+    "effects": [
+      {
+        "type": "trust_delta",
+        "target": "all",
+        "value": 0.10
+      },
+      {
+        "type": "spawn_defensive",
+        "target": "defensive",
+        "value": "ai_safety_researcher"
+      }
+    ],
+    "newsTickerText": "🛡️ AI companies launch emergency cleanup of contaminated training data",
+    "iconType": "enforcement"
+  },
+  {
     "id": "algorithm_change",
     "name": "Social Media Algorithm Update",
     "description": "A major platform updates its recommendation algorithm to demote sensational content. Your reach is affected.",

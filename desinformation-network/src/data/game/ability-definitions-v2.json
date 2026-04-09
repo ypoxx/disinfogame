@@ -476,5 +476,133 @@
     "animationType": "wave",
     "animationColor": "#3B82F6",
     "icon": "🎯📋"
+  },
+  {
+    "id": "deepfake_creation",
+    "name": "Deepfake-Produktion",
+    "category": "content_creation",
+    "description": "Create AI-generated fake audio, video or virtual news anchors",
+    "longDescription": "Use generative AI to create convincing deepfake videos, voice clones of political figures, or virtual news anchors. Produces emotionally powerful content that erodes trust in authentic media.",
+    "resourceCost": 55,
+    "cooldown": 5,
+    "basedOn": ["emotional_appeal", "authority"],
+    "effectType": "direct",
+    "targetType": "any_actor",
+    "effects": {
+      "trustDelta": -0.28,
+      "emotionalDelta": 0.35,
+      "propagates": true,
+      "propagationMultiplier": 2.5,
+      "vulnerableToFactCheck": true
+    },
+    "realExample": "Storm-1516 deepfake of Tom Cruise discrediting Paris Olympics 2024; AI-generated audio impersonating Zelensky; Spamouflage's AI news anchors targeting Taiwan",
+    "reference": "Hybrid CoE Paper 29, March 2026 - Chinese and Russian AI-enabled information manipulation",
+    "tactics": [
+      "Voice cloning of political figures",
+      "AI-generated video testimonials",
+      "Virtual news anchor personas",
+      "Fake whistleblower videos"
+    ],
+    "strategicValue": "Very high - emotionally powerful, hard to debunk in real-time",
+    "diminishingFactor": 0.75,
+    "animationType": "morph",
+    "animationColor": "#7C3AED",
+    "icon": "🎭🤖"
+  },
+  {
+    "id": "llm_data_poisoning",
+    "name": "LLM Training Data Poisoning",
+    "category": "infrastructure",
+    "description": "Flood the web with fake articles to contaminate AI chatbot training data",
+    "longDescription": "Generate thousands of inauthentic articles daily across a network of fake websites. Content is designed not for human readers but to infiltrate web crawlers, Wikipedia citations, and LLM training data - permanently distorting what AI chatbots tell millions of users.",
+    "resourceCost": 65,
+    "cooldown": 6,
+    "basedOn": ["repetition", "manufactured_uncertainty"],
+    "effectType": "infrastructure",
+    "targetType": "network",
+    "effects": {
+      "trustDelta": -0.12,
+      "duration": "permanent",
+      "propagates": true,
+      "globalNarrativeShift": 0.20,
+      "delayedEffect": 3
+    },
+    "realExample": "Russia's Pravda network: 200+ fake websites generating thousands of articles daily, successfully contaminating Wikipedia, X community notes and major AI chatbots (2025)",
+    "reference": "Hybrid CoE Paper 29, March 2026 - Pravda network LLM infiltration",
+    "tactics": [
+      "Mass article generation for fake websites",
+      "SEO manipulation to fool web crawlers",
+      "Wikipedia citation planting",
+      "AI chatbot training data contamination"
+    ],
+    "strategicValue": "Ultra-high - permanently distorts the information ecosystem at its AI foundation",
+    "diminishingFactor": 1.0,
+    "animationType": "infect",
+    "animationColor": "#059669",
+    "icon": "🧬💉"
+  },
+  {
+    "id": "ai_personalized_targeting",
+    "name": "KI-Personalisiertes Targeting",
+    "category": "infrastructure",
+    "description": "Use AI to monitor individual users and engage them with personalized manipulation in real time",
+    "longDescription": "Combine data mining with generative AI to monitor individual users' sentiments across platforms. Generate customized content and engage in adaptive real-time conversations with targets - a 'highly efficient propaganda engine' that moves beyond mass flooding to precision influence.",
+    "resourceCost": 60,
+    "cooldown": 5,
+    "basedOn": ["priming", "emotional_appeal", "social_proof"],
+    "effectType": "precision",
+    "targetType": "single",
+    "effects": {
+      "trustDelta": -0.30,
+      "emotionalDelta": 0.25,
+      "propagates": false,
+      "precisionBonus": 2.0,
+      "resilienceBypass": 0.15
+    },
+    "realExample": "China's GoLaxy technology: AI-powered sentiment monitoring and real-time personalized content generation targeting individual users in Taiwan and Hong Kong (2025)",
+    "reference": "Hybrid CoE Paper 29, March 2026 - Chinese algorithmic cognitive warfare",
+    "tactics": [
+      "Individual sentiment monitoring",
+      "Adaptive real-time AI conversations",
+      "Cross-platform user profiling",
+      "Personalized narrative delivery"
+    ],
+    "strategicValue": "Very high - bypasses mass-media defenses through individual targeting",
+    "diminishingFactor": 0.90,
+    "animationType": "target_lock",
+    "animationColor": "#DC2626",
+    "icon": "🎯🧠"
+  },
+  {
+    "id": "fake_news_network",
+    "name": "Fake-Nachrichtenportal-Netzwerk",
+    "category": "infrastructure",
+    "description": "Create a network of fake news websites with AI-generated journalist personas",
+    "longDescription": "Build hundreds of inauthentic news websites mimicking legitimate media outlets. Staff them with AI-generated fake journalist personas complete with profile photos, bios and publishing histories. Use AI to translate, plagiarize and edit articles from real news sites at industrial scale.",
+    "resourceCost": 70,
+    "cooldown": 7,
+    "basedOn": ["authority", "social_proof", "repetition"],
+    "effectType": "infrastructure",
+    "targetType": "creates_new_actor",
+    "effects": {
+      "spawnsActor": "fake_news_network",
+      "citeableSource": true,
+      "duration": "permanent",
+      "trustBonus": 0.10,
+      "contentProductionMultiplier": 5.0
+    },
+    "realExample": "Russia's Doppelganger: mimicked legitimate EU news sites; CopyCop: hundreds of fake news websites with AI-generated journalist personas; Matryoshka: AI-generated videos mimicking authentic news organizations targeting Germany and the US",
+    "reference": "Hybrid CoE Paper 29, March 2026 - Russian AI-enabled fake news operations",
+    "tactics": [
+      "Clone legitimate news site designs",
+      "AI-generated journalist personas",
+      "Automated article plagiarism and translation",
+      "Cross-language content production"
+    ],
+    "strategicValue": "Very high - creates permanent content production infrastructure",
+    "diminishingFactor": 0.95,
+    "animationType": "build",
+    "animationColor": "#B91C1C",
+    "icon": "📰🕸️"
   }
 ]

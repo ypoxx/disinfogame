@@ -189,5 +189,48 @@
       "timedBonus": "when_resilience_low"
     },
     "category": "opportunistic"
+  },
+  {
+    "id": "reality_collapse",
+    "name": "Reality Collapse",
+    "description": "Combine deepfakes with fake news networks to make truth indistinguishable from fiction",
+    "requiredAbilities": ["deepfake_creation", "fake_news_network"],
+    "windowRounds": 3,
+    "bonusEffect": {
+      "trustReduction": 0.30,
+      "resilienceDamage": 0.20,
+      "permanentPolarization": 0.15
+    },
+    "category": "advanced",
+    "studyReference": "Hybrid CoE Paper 29 (2026): Combined use of deepfake content and fake news infrastructure by Russian operations"
+  },
+  {
+    "id": "ai_information_dominance",
+    "name": "AI Information Dominance",
+    "description": "Poison LLM training data while running personalized targeting - control both the AI ecosystem and individual minds",
+    "requiredAbilities": ["llm_data_poisoning", "ai_personalized_targeting"],
+    "windowRounds": 5,
+    "bonusEffect": {
+      "trustReduction": 0.25,
+      "globalNarrativeShift": 0.30,
+      "infrastructureGain": 3,
+      "permanentPolarization": 0.10
+    },
+    "category": "ultimate",
+    "studyReference": "Hybrid CoE Paper 29 (2026): Convergence of Chinese precision targeting (GoLaxy) and Russian mass data poisoning (Pravda network)"
+  },
+  {
+    "id": "synthetic_media_blitz",
+    "name": "Synthetic Media Blitz",
+    "description": "Deploy deepfakes through bot networks for maximum viral spread of fabricated content",
+    "requiredAbilities": ["deepfake_creation", "amplify_content"],
+    "windowRounds": 2,
+    "bonusEffect": {
+      "trustReduction": 0.22,
+      "emotionalDamage": 0.25,
+      "spreadToConnected": true
+    },
+    "category": "aggressive",
+    "studyReference": "Hybrid CoE Paper 29 (2026): Pro-Russian actors using AI-generated video and deepfake content widely to impersonate influential figures"
   }
 ]
