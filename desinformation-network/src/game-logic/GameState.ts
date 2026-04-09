@@ -1265,6 +1265,30 @@ export class GameStateManager {
         resilience: 0.9,
         abilities: ['regulate', 'expose'],
       },
+      ai_safety_researcher: {
+        name: 'AI Safety Researcher',
+        baseTrust: 0.82,
+        resilience: 0.75,
+        abilities: ['detect_deepfake', 'expose_llm_poisoning'],
+      },
+      disinformation_researcher: {
+        name: 'Disinformation Researcher',
+        baseTrust: 0.80,
+        resilience: 0.7,
+        abilities: ['expose_tactics', 'educate'],
+      },
+      content_moderator: {
+        name: 'Content Moderator',
+        baseTrust: 0.70,
+        resilience: 0.65,
+        abilities: ['flag_content', 'suspend_accounts'],
+      },
+      citizen_journalist: {
+        name: 'Citizen Journalist',
+        baseTrust: 0.72,
+        resilience: 0.55,
+        abilities: ['fact_check', 'crowdsource_verify'],
+      },
     };
     
     const template = defensiveActors[type];

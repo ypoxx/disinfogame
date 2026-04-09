@@ -236,5 +236,48 @@
     ],
     "newsTickerText": "Major platform updates algorithm, reshuffling information landscape",
     "iconType": "settings"
+  },
+  {
+    "id": "deepfake_detection_breakthrough",
+    "name": "Deepfake Detection Breakthrough",
+    "description": "Researchers develop new AI tools that can reliably detect deepfake content, temporarily reducing its effectiveness.",
+    "triggerType": "random",
+    "probability": 0.06,
+    "effects": [
+      {
+        "type": "resilience_delta",
+        "target": "all",
+        "value": 0.08
+      },
+      {
+        "type": "trust_delta",
+        "target": "category",
+        "targetCategory": "expert",
+        "value": 0.06
+      }
+    ],
+    "newsTickerText": "AI researchers announce breakthrough in deepfake detection technology",
+    "iconType": "shield"
+  },
+  {
+    "id": "ai_chatbot_scandal",
+    "name": "AI Chatbot Repeats Propaganda",
+    "description": "A major AI chatbot is caught repeating planted disinformation narratives. Public trust in AI and online information plummets.",
+    "triggerType": "random",
+    "probability": 0.05,
+    "effects": [
+      {
+        "type": "trust_delta",
+        "target": "all",
+        "value": -0.10
+      },
+      {
+        "type": "emotional_delta",
+        "target": "all",
+        "value": 0.15
+      }
+    ],
+    "newsTickerText": "BREAKING: Popular AI chatbot exposed spreading state-linked propaganda narratives",
+    "iconType": "alert"
   }
 ]

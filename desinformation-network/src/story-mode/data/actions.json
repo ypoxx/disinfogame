@@ -799,6 +799,116 @@
       "npc_affinity": ["volkov", "direktor"],
       "legality": "illegal",
       "tags": ["recruitment", "mice", "espionage"]
+    },
+    {
+      "id": "2.21",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "Deepfake-Werkstatt einrichten",
+      "label_en": "Set Up Deepfake Studio",
+      "narrative_de": "KI-generierte Videos, geklonte Stimmen, virtuelle Nachrichtensprecher - wir können jetzt jede Person alles sagen lassen. Das Vertrauen in authentische Medien wird zerstört.",
+      "narrative_en": "AI-generated videos, cloned voices, virtual news anchors - we can now make anyone say anything. Trust in authentic media will be destroyed.",
+      "costs": {
+        "budget": 18,
+        "capacity": 3,
+        "risk": 8,
+        "moral_weight": 3
+      },
+      "effects": {
+        "unlocks_deepfake_actions": true,
+        "content_impact_bonus": 0.35,
+        "media_trust_erosion": 0.15
+      },
+      "prerequisites": ["2.6"],
+      "unlocks": [],
+      "npc_affinity": ["igor", "volkov"],
+      "legality": "illegal",
+      "tags": ["infrastructure", "ai", "deepfake", "content_production"],
+      "study_reference": "Hybrid CoE Paper 29 (2026): Storm-1516 deepfakes, Spamouflage AI news anchors, voice cloning of political figures"
+    },
+    {
+      "id": "2.22",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "Fake-Nachrichtenportal-Netzwerk",
+      "label_en": "Fake News Website Network",
+      "narrative_de": "Hunderte gefälschte Nachrichtenseiten, die wie echte Medien aussehen. Mit KI-generierten Journalisten-Personas, automatischer Artikelproduktion und professionellem Design. Eine Fabrik für Glaubwürdigkeit.",
+      "narrative_en": "Hundreds of fake news sites that look like real media. With AI-generated journalist personas, automated article production and professional design. A factory for credibility.",
+      "costs": {
+        "budget": 22,
+        "capacity": 4,
+        "risk": 7,
+        "moral_weight": 2
+      },
+      "effects": {
+        "fake_news_infrastructure": true,
+        "content_production_multiplier": 5.0,
+        "citeable_sources": true,
+        "legitimacy_boost": 0.2
+      },
+      "prerequisites": ["2.6"],
+      "unlocks": [],
+      "npc_affinity": ["igor", "katja"],
+      "legality": "illegal",
+      "tags": ["infrastructure", "ai", "fake_media", "content_production"],
+      "study_reference": "Hybrid CoE Paper 29 (2026): Russia's Doppelganger, CopyCop with AI journalist personas, Matryoshka mimicking authentic news organizations"
+    },
+    {
+      "id": "2.23",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "LLM-Trainingsdaten vergiften",
+      "label_en": "Poison LLM Training Data",
+      "narrative_de": "Tausende Fake-Artikel täglich generieren - nicht für menschliche Leser, sondern um die Trainingsdaten von KI-Chatbots zu kontaminieren. Wenn Millionen Menschen ChatGPT fragen, bekommen sie unsere Narrative als Antwort.",
+      "narrative_en": "Generate thousands of fake articles daily - not for human readers, but to contaminate AI chatbot training data. When millions ask ChatGPT, they get our narratives as answers.",
+      "costs": {
+        "budget": 25,
+        "capacity": 3,
+        "risk": 4,
+        "attention": 2,
+        "moral_weight": 4
+      },
+      "effects": {
+        "llm_contamination": true,
+        "global_narrative_shift": 0.2,
+        "delayed_effect_rounds": 3,
+        "permanent_influence": true,
+        "wikipedia_infiltration": true
+      },
+      "prerequisites": ["2.6", "2.1"],
+      "unlocks": [],
+      "npc_affinity": ["igor", "volkov"],
+      "legality": "illegal",
+      "tags": ["infrastructure", "ai", "llm_poisoning", "long_term", "strategic"],
+      "study_reference": "Hybrid CoE Paper 29 (2026): Russia's Pravda network - 200+ fake websites contaminating Wikipedia, X community notes and major AI chatbots"
+    },
+    {
+      "id": "2.24",
+      "phase": "ta02",
+      "disarm_ref": null,
+      "label_de": "KI-Personalisiertes Targeting",
+      "label_en": "AI Personalized Targeting",
+      "narrative_de": "Wir überwachen einzelne Nutzer in Echtzeit und generieren maßgeschneiderte Inhalte für jeden. Adaptive KI-Gespräche, die genau die Schwachstellen jeder Person treffen. Eine hocheffiziente Propaganda-Maschine.",
+      "narrative_en": "We monitor individual users in real time and generate tailored content for each one. Adaptive AI conversations that target each person's exact vulnerabilities. A highly efficient propaganda engine.",
+      "costs": {
+        "budget": 20,
+        "capacity": 3,
+        "risk": 6,
+        "moral_weight": 3
+      },
+      "effects": {
+        "precision_targeting": true,
+        "individual_manipulation": true,
+        "resilience_bypass": 0.15,
+        "sentiment_monitoring": true,
+        "adaptive_conversations": true
+      },
+      "prerequisites": ["1.1", "2.1"],
+      "unlocks": [],
+      "npc_affinity": ["marina", "igor"],
+      "legality": "illegal",
+      "tags": ["infrastructure", "ai", "targeting", "precision", "cognitive_warfare"],
+      "study_reference": "Hybrid CoE Paper 29 (2026): China's GoLaxy technology - AI-powered sentiment monitoring and real-time personalized content generation, 'algorithmic cognitive warfare'"
     }
   ]
 }
