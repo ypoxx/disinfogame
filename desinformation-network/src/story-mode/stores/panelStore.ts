@@ -49,7 +49,7 @@ export const usePanelStore = create<PanelState>((set) => ({
       viewMode: state.viewMode === 'office' ? 'dashboard' : 'office',
     })),
 
-  advisorCollapsed: false,
+  advisorCollapsed: true,
   toggleAdvisor: () =>
     set((state) => ({ advisorCollapsed: !state.advisorCollapsed })),
 
