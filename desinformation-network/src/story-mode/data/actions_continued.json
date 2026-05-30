@@ -545,6 +545,43 @@
         "backlash_risk": 0.26,
         "impact_scale": "high"
       }
+    },
+    {
+      "id": "3.19",
+      "phase": "ta03",
+      "disarm_ref": "T0025",
+      "label_de": "KI-Wissensdatenbank vergiften",
+      "label_en": "Poison AI Knowledge Base",
+      "narrative_de": "Eine seriös wirkende Wikipedia-Klon-Datenbank aufbauen und monatlich mit präparierten Artikeln füttern. Ziel: Öffentliche KI-Sprachmodelle (ChatGPT & Co.) übernehmen unsere Narrative, wenn Nutzer Fragen stellen. Langsam, teuer, aber langfristig kaum nachweisbar.",
+      "narrative_en": "Build a legitimate-looking Wikipedia-clone database and feed it manipulated articles every month. Goal: public AI language models (ChatGPT et al.) adopt our narratives when users ask questions. Slow, expensive, but hard to trace long-term.",
+      "costs": {
+        "budget": 22,
+        "capacity": 4,
+        "risk": 6,
+        "moral_weight": 3
+      },
+      "prerequisites": [
+        "2.6",
+        "3.4"
+      ],
+      "npc_affinity": [
+        "igor"
+      ],
+      "legality": "grey",
+      "tags": [
+        "content",
+        "ai",
+        "infrastructure",
+        "long_term"
+      ],
+      "effects": {
+        "content_quality": 0.18,
+        "detection_difficulty": 0.62,
+        "deniability": 0.6,
+        "long_term_influence": 0.55,
+        "ai_contamination": 0.4,
+        "impact_scale": "high"
+      }
     }
   ],
   "actions_phase4": [
@@ -2256,6 +2293,42 @@
       "effects": {
         "targeting_precision": 0.33,
         "deniability": 0.45,
+        "impact_scale": "high"
+      }
+    },
+    {
+      "id": "8.16",
+      "phase": "targeting",
+      "disarm_ref": "T0057",
+      "label_de": "False-Flag-Provokation inszenieren",
+      "label_en": "Stage False-Flag Provocation",
+      "narrative_de": "Eine physische Aktion in der echten Welt inszenieren und einem Gegner anhängen - z.B. Sachbeschädigung mit Bekennerzeichen einer Zielgruppe oder eine schockierende Provokation an einem symbolträchtigen Ort. Spaltet die Gesellschaft und diskreditiert den vermeintlichen Urheber.",
+      "narrative_en": "Stage a physical real-world action and pin it on an opponent - e.g. vandalism bearing a target group's signature, or a shocking provocation at a symbolic location. Divides society and discredits the supposed perpetrator.",
+      "costs": {
+        "budget": 16,
+        "capacity": 4,
+        "risk": 18,
+        "moral_weight": 8
+      },
+      "prerequisites": [
+        "2.20"
+      ],
+      "npc_affinity": [
+        "volkov",
+        "katja"
+      ],
+      "legality": "illegal",
+      "tags": [
+        "targeting",
+        "offline",
+        "false_flag",
+        "high_impact"
+      ],
+      "effects": {
+        "target_damage": 0.4,
+        "social_division": 0.35,
+        "deniability": 0.55,
+        "backlash_risk": 0.4,
         "impact_scale": "high"
       }
     }
