@@ -49,6 +49,20 @@ ANTWORT-FORMAT (JSON):
   "technicalNotes": "Kurze Erklärung der Änderungen"
 }`;
 
+/**
+ * Echter Auth-Check für den Anthropic-Key: listet Modelle (erste Seite).
+ * Macht eine echte, billige Anfrage — bei ungültigem Key wirft sie.
+ */
+export async function testConnection(apiKey?: string): Promise<boolean> {
+  try {
+    const anthropic = getClient(apiKey);
+    await anthropic.models.list({ limit: 1 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function improvePrompt(
   userPrompt: string,
   assetType: AssetType,

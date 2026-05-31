@@ -180,14 +180,14 @@ export async function inpaintImage(options: InpaintOptions): Promise<InpaintResp
 }
 
 /**
- * Prüft ob die API-Verbindung funktioniert.
- * (Echter Auth-Check via models.list folgt mit der Keys-UI; hier zunächst Client-Init.)
+ * Echter Auth-Check für den Google-AI-Key: holt die erste Seite der Modell-Liste.
+ * Das macht eine echte (kostenlose) Anfrage — bei ungültigem Key wirft sie.
  */
 export async function testConnection(apiKey?: string): Promise<boolean> {
   try {
     const client = getClient(apiKey);
-    // Simple test - just check if client initializes
-    return client !== null;
+    await client.models.list({ config: { pageSize: 1 } });
+    return true;
   } catch {
     return false;
   }
