@@ -27,7 +27,7 @@ export { BetrayalEventModal } from './BetrayalEventModal';
 export { CrisisModal } from './CrisisModal';
 export type { CrisisMoment, CrisisChoice } from '../engine/CrisisMomentSystem';
 
-export { ActorEffectivenessWidget } from './ActorEffectivenessWidget';
+// ActorEffectivenessWidget entfernt (verwaist, kein Importeur) — 2026-05-31
 export type { ActorEffectivenessModifier } from '../engine/ExtendedActorLoader';
 
 export { ComboHintsWidget } from './ComboHintsWidget';
