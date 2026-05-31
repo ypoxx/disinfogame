@@ -5,7 +5,7 @@ import { create } from 'zustand';
 // ============================================
 
 export type PanelId = 'actions' | 'npcs' | 'news' | 'events' | 'mission' | 'stats';
-export type ViewMode = 'office' | 'dashboard';
+export type ViewMode = 'office' | 'dashboard' | 'building';
 
 interface PanelState {
   // Active panel in the right sidebar (null = closed)

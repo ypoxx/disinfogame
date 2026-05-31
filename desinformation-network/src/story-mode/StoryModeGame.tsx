@@ -26,6 +26,7 @@ import { ConsequenceTimeline } from './components/ConsequenceTimeline';
 import { useStoryGameState } from './hooks/useStoryGameState';
 import type { ActionResult } from '../game-logic/StoryEngineAdapter';
 import { OfficeScreen } from './OfficeScreen';
+import { BuildingView } from './building/BuildingView';
 import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
 import { DashboardView } from './components/DashboardView';
@@ -355,7 +356,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     activePanel, togglePanel, setActivePanel,
     advisorCollapsed, toggleAdvisor,
     queueCollapsed, toggleQueue,
-    viewMode, toggleViewMode,
+    viewMode, toggleViewMode, setViewMode,
     resetUI,
   } = usePanelStore();
 
@@ -560,8 +561,29 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         {/* Content area: Office/Dashboard + SidePanel */}
         <div className="flex-1 flex min-h-0">
         {/* Main content area (Office or Dashboard) - transition prevents layout shift */}
-        <div className="flex-1 h-full overflow-hidden transition-all duration-300">
-          {viewMode === 'office' ? (
+        <div className="relative flex-1 h-full overflow-hidden transition-all duration-300">
+          {/* View-Umschalter (Abzweigung: Gebäude / Büro / Dashboard) — Track A-1 */}
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-40 flex gap-1 p-1 rounded-lg bg-black/60">
+            {(['building', 'office', 'dashboard'] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setViewMode(mode)}
+                className={`px-2 py-1 text-xs font-semibold rounded text-white transition-colors ${viewMode === mode ? 'bg-red-700' : 'hover:bg-white/10'}`}
+              >
+                {mode === 'building' ? '🏢 Gebäude' : mode === 'office' ? '🗄️ Büro' : '📊 Dashboard'}
+              </button>
+            ))}
+          </div>
+
+          {viewMode === 'building' ? (
+            <BuildingView
+              npcs={state.npcs}
+              onRoomClick={(npcId) => {
+                setActivePanel(null);
+                interactWithNpc(npcId);
+              }}
+            />
+          ) : viewMode === 'office' ? (
             <OfficeScreen
               onExit={pauseGame}
               onOpenActions={() => togglePanel('actions')}
