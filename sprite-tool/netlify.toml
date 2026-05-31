@@ -8,6 +8,10 @@
 
 [build]
   command = "npm run build"
+  # publish (relativ zur Base) auf das Next-Output ".next" — NICHT gleich der
+  # Base, sonst bricht @netlify/plugin-nextjs ab. Überschreibt einen evtl. im
+  # UI gesetzten Publish-Pfad (netlify.toml schlägt UI).
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
