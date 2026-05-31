@@ -2,6 +2,8 @@
 
 > **Ziel:** NPCs von passiven Dekoration-Elementen zu mechanisch relevanten, narrativ tiefgehenden Charakteren mit klarer Funktion machen.
 
+> ⚠️ **Kanonische Roster-Korrektur (2026-05-31).** Maßgeblich ist `src/story-mode/data/npcs.json`, **nicht** dieser Text. Korrekt: `direktor` = Direktor Volkov (Leiter), `marina` = Marina Petrova (Medien), `alexei` = **Alexei Petrov** (Technik), `katja` = Katja Orlova (Feld), `igor` = Igor Smirnov (Finanzen). Bekannte Fehler weiter unten: Alexei steht fälschlich als „(Volkov)"; das Reaktions-Beispiel mit Schlüssel `volkov` ist ein Fehler — es gibt **kein** `volkov`-NPC (der Direktor hat die id `direktor`, Nachname Volkov; die zynische „Chaos"-Stimme gehört zu `alexei`). Siehe [`docs/VISION_LOCK.md`](../../docs/VISION_LOCK.md).
+
 ---
 
 ## 🎯 Executive Summary
@@ -1077,7 +1079,7 @@ describe('NPC System Integration', () => {
 - Zunehmend vulnerabel bei höherer Beziehung
 - Beispiel: "Die Zahlen sind eindeutig... *seufzt* ...auch wenn ich mir wünschte, sie wären es nicht."
 
-#### Alexei (Volkov) - Tech Lead
+#### Alexei Petrov - Tech Lead
 - **Direkt, ungefiltert, zynisch**
 - Vulgäre Sprache, schwarzer Humor
 - Keine moralischen Bedenken
