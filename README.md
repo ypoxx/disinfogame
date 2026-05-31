@@ -2,17 +2,19 @@
 
 An educational strategy game that teaches players about disinformation tactics through interactive gameplay. Players take the role of an Information Operations Strategist to understand vulnerabilities in information ecosystems.
 
+> 📌 **Kanonische Projektwahrheit:** [`docs/VISION_LOCK.md`](docs/VISION_LOCK.md). Bei Widerspruch zwischen Dokumenten gewinnt diese Datei (bzw. die Spieldaten).
+
 ## 🎯 Overview
 
 **Desinformation Network** is a web-based simulation game featuring two distinct game modes:
 
-- **Pro Mode**: A strategic network manipulation game where players use persuasion tactics to influence actors in an information network
-- **Story Mode**: A narrative-driven campaign following an employee at a disinformation agency, featuring moral choices, NPC relationships, and multiple endings
+- **Story Mode** *(primary focus)*: A narrative-driven campaign following an employee at a disinformation agency, featuring moral choices, NPC relationships, and multiple endings
+- **Pro Mode** *(secondary / being archived — see [`docs/VISION_LOCK.md`](docs/VISION_LOCK.md))*: A strategic network manipulation game where players use persuasion tactics to influence actors in an information network
 
 ### Key Features
 
 - 58 unique actors across categories (Media, Experts, Lobby Groups, Organizations)
-- 108 story-mode actions with branching consequences
+- 110 story-mode actions with branching consequences
 - Advanced AI systems: Betrayal tracking, Crisis moments, Arms race mechanics
 - Multiple ending paths based on player choices
 - Real-time network visualization with force-directed graph layout
@@ -90,7 +92,7 @@ A strategic simulation where you manipulate an information network using psychol
 ### Story Mode
 A narrative campaign with moral complexity:
 - Make choices as a disinformation agency employee
-- Build relationships with NPCs (Alex, Viktor, Lena)
+- Build relationships with NPCs (Direktor Volkov, Marina Petrova, Alexei Petrov, Katja Orlova, Igor Smirnov)
 - Face betrayal scenarios based on personal red lines
 - Navigate crisis moments with lasting consequences
 - Unlock 8 ending categories with multiple tones
@@ -116,7 +118,7 @@ A narrative campaign with moral complexity:
 
 The game is in active development with:
 - ✅ Story mode ~75% complete with 4 major engine systems implemented
-- ✅ Pro mode ~80% functional with full actor and ability systems
+- ✅ Pro mode ~80% functional (secondary mode — being archived per [`docs/VISION_LOCK.md`](docs/VISION_LOCK.md))
 - ⚠️ Accessibility improvements in progress (WCAG 2.1 AA compliance)
 - ⚠️ Test coverage expansion ongoing
 
