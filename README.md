@@ -6,10 +6,10 @@ An educational strategy game that teaches players about disinformation tactics t
 
 ## 🎯 Overview
 
-**Desinformation Network** is a web-based simulation game featuring two distinct game modes:
+**Desinformation Network** is a web-based **narrative strategy game** — **Story Mode**:
 
-- **Story Mode** *(primary focus)*: A narrative-driven campaign following an employee at a disinformation agency, featuring moral choices, NPC relationships, and multiple endings
-- **Pro Mode** *(secondary / being archived — see [`docs/VISION_LOCK.md`](docs/VISION_LOCK.md))*: A strategic network manipulation game where players use persuasion tactics to influence actors in an information network
+- **Story Mode** *(the game)*: A narrative-driven campaign following an employee at a disinformation agency, featuring moral choices, NPC relationships, and multiple endings.
+- *Pro Mode — the earlier abstract network-manipulation game — is **archived** under `archive/pro-mode/` (code + backend). See [`docs/VISION_LOCK.md`](docs/VISION_LOCK.md) §6 and [`START_HERE.md`](START_HERE.md).*
 
 ### Key Features
 

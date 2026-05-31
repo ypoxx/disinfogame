@@ -3613,6 +3613,37 @@ export class StoryEngineAdapter {
       }
     }
 
+    // === AUTHORED NPC REACTIONS (Fix 2026-05-31) ===
+    // Vorher wurden die reichen, autorisierten Reaktionen aus dialogues.json NIE gezeigt:
+    // processNPCReactions lieferte nur Verrats-Warnungen + EINE hartkodierte Zeile, und
+    // getReaction war nur über den toten Pfad getNPCDialogue('reaction') erreichbar.
+    // Hier anhand der ECHTEN Aktions-Tags abfragen und einspielen (rein additiv, ohne
+    // zusätzliche Moral-Änderung — das bestehende Moral-System läuft unverändert weiter).
+    for (const npcId of action.npcAffinity) {
+      if (reactions.some(r => r.npcId === npcId)) continue; // hat schon reagiert (Verrat/Krise)
+      const reactingNpc = this.npcStates.get(npcId);
+      if (!reactingNpc) continue;
+      const authored = this.dialogLoader.getReaction(
+        npcId,
+        action.tags,
+        {
+          risk: this.storyResources.risk,
+          morale: reactingNpc.morale,
+          moral_weight: action.costs.moralWeight ?? 0,
+        },
+        () => this.seededRandom(`reaction_${npcId}_${action.id}_${this.storyPhase.number}`),
+      );
+      if (authored) {
+        const moraleDelta = authored.morale_change ?? 0;
+        reactions.push({
+          npcId,
+          reaction: moraleDelta < 0 ? 'negative' : moraleDelta > 0 ? 'positive' : 'neutral',
+          dialogue_de: authored.text_de,
+          dialogue_en: authored.text_en ?? authored.text_de,
+        });
+      }
+    }
+
     return { reactions, betrayalWarnings };
   }
 

@@ -73,9 +73,10 @@ Zahlen künftig nur aus Daten zitieren.
 ## 6. Pro Mode — Rolle  ✅ entschieden: **archivieren mit Spec**
 - **Story Mode = fokussierter Hauptpfad.**
 - **Pro Mode** wird nach `archive/pro-mode/` mit eigener Spezifikation ausgelagert (Status ~80 %, bekannte Bugs).
-- **Wichtig:** Die **Code-Extraktion** (game-logic aus dem laufenden Build lösen) ist ein **separater, späterer**
-  Schritt — der Pro-Code bleibt vorerst in-tree, damit der Build stabil bleibt. Diese Festlegung ist zunächst
-  *dokumentarisch* (Spec + Roadmap-Status), nicht ein Code-Rückbau.
+- **✅ ERLEDIGT (2026-05-31): Code-Extraktion durchgeführt.** Pro-Mode-UI, -Engine und -Backend liegen jetzt
+  unter `archive/pro-mode/` (`code/` + `backend/`). Die App (`App.tsx`) startet direkt Story Mode; Typecheck,
+  88 Unit-Tests und Produktions-Build sind grün. Geteilt **in-tree** bleiben nur Engine-Dateien, die Story
+  tatsächlich nutzt (`actor-ai`, `NarrativeGenerator`, `combo-system`) sowie gemeinsame Typen/Utils.
 
 ---
 

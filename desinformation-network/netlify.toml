@@ -1,7 +1,6 @@
 [build]
   command = "npm run build"
   publish = "dist"
-  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "18"
@@ -11,12 +10,6 @@
   port = 8888
   targetPort = 5173
   autoLaunch = false
-
-# API redirects
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
 
 # SPA fallback
 [[redirects]]

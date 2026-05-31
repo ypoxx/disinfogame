@@ -21,10 +21,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],
-          'game-logic': [
-            './src/game-logic/GameState.ts',
-            './src/game-logic/seed/SeededRandom.ts',
-          ],
         },
       },
     },

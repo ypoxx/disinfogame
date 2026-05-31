@@ -35,7 +35,9 @@ archive/                        ← die ausgemisteten alten Pläne (Doku-Detox)
 ## Wichtigste Befunde
 
 ### A. Story Mode steckt hinter einem „Test"-Knopf  🔎 *[Scan]*
-Story Mode wird über einen Button **„📖 Story Mode Test"** als Overlay gestartet — also technisch wie ein **Prototyp** behandelt, obwohl die meiste inhaltliche Arbeit darin steckt. (Der ältere Prototyp `OfficeScreen.tsx`, 680 Zeilen, wird gar nicht mehr ausgeführt; aktiv ist `StoryModeGame.tsx`.)
+Story Mode wird über einen Button **„📖 Story Mode Test"** als Overlay gestartet — also technisch wie ein **Prototyp** behandelt, obwohl die meiste inhaltliche Arbeit darin steckt. Aktiv ist `StoryModeGame.tsx`; es nutzt `OfficeScreen.tsx` als Büro-Ansicht (umschaltbar mit `DashboardView` über `viewMode`).
+
+> **Korrektur (2026-05-31, per Code-Suche verifiziert):** Eine frühere Fassung dieser Datei behauptete, `OfficeScreen.tsx` werde „gar nicht mehr ausgeführt". Das war falsch (Fehler des ersten Architektur-Scans) — `OfficeScreen` **lebt** und ist die Standard-Büro-Ansicht. Siehe `INVENTORY.md`.
 
 ### B. Eine Datei ist viel zu groß: `StoryEngineAdapter.ts` — 5119 Zeilen  ✅ *[geprüft]*
 Das ist die zentrale „Klebe-Schicht" zwischen Story-Oberfläche und Spiel-Logik — ein 100-Seiten-Alles-Ordner. Genau hier verheddert sich Verdrahtung (auch die der Dialoge), und Fehler verstecken sich gut. Weitere große Brocken: `useStoryGameState.ts` (1447), `GameState.ts` (1528), `DialogLoader.ts` (1336).
