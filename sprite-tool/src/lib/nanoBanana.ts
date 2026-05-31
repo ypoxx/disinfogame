@@ -5,7 +5,7 @@
 
 import { GoogleGenAI } from '@google/genai';
 import type { GenerateImageResponse, InpaintResponse } from '@/types';
-import type { AspectRatio } from '@/lib/constants';
+import { DEFAULT_IMAGE_MODEL, type AspectRatio } from '@/lib/constants';
 
 let aiClient: GoogleGenAI | null = null;
 
@@ -36,7 +36,7 @@ interface GenerateOptions {
 export async function generateImages(options: GenerateOptions): Promise<GenerateImageResponse> {
   const client = getClient();
 
-  const modelName = process.env.NANO_BANANA_MODEL || 'gemini-2.0-flash-exp';
+  const modelName = process.env.NANO_BANANA_MODEL || DEFAULT_IMAGE_MODEL;
   const numImages = Math.min(options.numImages || 4, 4); // Max 4 Bilder
 
   const results: { base64: string; seed?: number }[] = [];
@@ -110,7 +110,7 @@ interface InpaintOptions {
 export async function inpaintImage(options: InpaintOptions): Promise<InpaintResponse> {
   const client = getClient();
 
-  const modelName = process.env.NANO_BANANA_MODEL || 'gemini-2.0-flash-exp';
+  const modelName = process.env.NANO_BANANA_MODEL || DEFAULT_IMAGE_MODEL;
 
   const parts: Array<{ text: string } | { inlineData: { mimeType: string; data: string } }> = [];
 

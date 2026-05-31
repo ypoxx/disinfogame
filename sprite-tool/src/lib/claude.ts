@@ -5,6 +5,7 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import type { AssetType, ImprovePromptResponse } from '@/types';
+import { DEFAULT_CLAUDE_MODEL } from '@/lib/constants';
 
 // Client wird server-side initialisiert
 let client: Anthropic | null = null;
@@ -69,7 +70,7 @@ ${gameContext}
 Bitte verbessere den Prompt und gib deine Antwort als JSON zurück.`;
 
   const response = await anthropic.messages.create({
-    model: process.env.CLAUDE_MODEL || 'claude-sonnet-4-20250514',
+    model: process.env.CLAUDE_MODEL || DEFAULT_CLAUDE_MODEL,
     max_tokens: 1024,
     system: SYSTEM_PROMPT,
     messages: [
