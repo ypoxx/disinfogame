@@ -12,9 +12,12 @@ Ein **eigenständiges, internes Entwickler-Werkzeug**, um **alle Spiel-Assets** 
 
 ## Umfang
 - **Grafik** *(entschieden, Hauptteil):* via `gemini-3-pro-image` (s. u.) — Konsistenz über Stil-Anchor + Master-Referenz + Seed.
-- **Sound** *(NEU im Umfang — eigene Quelle nötig):* SFX und ggf. Musik als **Dateien**. Heute nutzt das Spiel nur
-  **synthetische Web-Audio-Töne** (`src/story-mode/utils/SoundSystem.ts`) — echte Sound-Assets sind also neu. Audio
-  kommt **nicht** von Gemini → Provider **separat entscheiden** (KI-SFX/Musik-Dienst **oder** kuratierte freie Bibliothek). *Offen.*
+- **Sound** *(NEU im Umfang — ✅ entschieden: **ElevenLabs**, Sprache + Musik + Effekte aus einer Hand):*
+  Heute nutzt das Spiel nur synthetische Web-Audio-Töne (`src/story-mode/utils/SoundSystem.ts`) — echte Sound-Dateien sind neu.
+  - **Sprache (TTS):** `eleven_v3` (ausdrucksstark, 70+ Sprachen) für optionale NPC-Stimmen · schnell/günstig: `eleven_flash_v2_5`.
+  - **Effekte (SFX):** `POST /v1/sound-generation` (Text → SFX); Ausgabe z. B. `mp3_22050_32`.
+  - **Musik:** *Eleven Music v2* — `POST /v1/music/compose` (Text-Prompt **oder** Composition-Plan-JSON), bis 44,1 kHz, für Games kommerziell freigegeben (Bezahl-Tarif).
+  - **Gleicher Kurations-Ablauf wie bei Bildern:** erzeugen → **anhören/auswählen** → **editieren** (Trimmen, Loop-Punkte, Normalisieren; Music v2 kann Abschnitte „inpainten") → **finale Entscheidung** → Export (`public/assets/sounds/` + `assets.json`).
 
 ## Kern-Ablauf (Grafik)
 Keys einstellen → erzeugen → **Konsistenz** (Anchor + Referenz + Seed) → Auswahl/Kuratierung →
