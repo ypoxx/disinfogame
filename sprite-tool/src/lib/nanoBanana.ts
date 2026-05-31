@@ -45,6 +45,10 @@ export async function generateImages(options: GenerateOptions): Promise<Generate
   // Generiere Bilder sequentiell (API-Limit)
   for (let i = 0; i < numImages; i++) {
     try {
+      // Seed je Variante versetzen: gleicher Basis-Seed → reproduzierbares Set,
+      // aber die einzelnen Varianten unterscheiden sich (sonst wären alle identisch).
+      const seedForImage = options.seed !== undefined ? options.seed + i : undefined;
+
       const parts: Array<{ text: string } | { inlineData: { mimeType: string; data: string } }> = [];
 
       // Referenz-Bilder hinzufügen (falls vorhanden)
@@ -67,7 +71,10 @@ export async function generateImages(options: GenerateOptions): Promise<Generate
         contents: [{ parts }],
         config: {
           responseModalities: ['image', 'text'],
-          // Note: aspectRatio and other configs may vary by API version
+          // Seed an die API durchreichen (war zuvor nur UI-Feld, ohne Wirkung).
+          ...(seedForImage !== undefined ? { seed: seedForImage } : {}),
+          // Seitenverhältnis via ImageConfig an Nano Banana Pro durchreichen.
+          ...(options.aspectRatio ? { imageConfig: { aspectRatio: options.aspectRatio } } : {}),
         },
       });
 
@@ -78,7 +85,7 @@ export async function generateImages(options: GenerateOptions): Promise<Generate
           if ('inlineData' in part && part.inlineData?.data) {
             results.push({
               base64: part.inlineData.data,
-              seed: options.seed,
+              seed: seedForImage,
             });
             break;
           }
