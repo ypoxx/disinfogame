@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Sprite Studio - Disinfo Game Assets",
-  description: "KI-gestütztes Tool zur Erstellung von Spielgrafiken",
+  title: "Asset Studio — Disinfo Game",
+  description: "Internes Werkzeug: KI-Grafik (Gemini) & Audio (ElevenLabs) für das Spiel",
 };
 
 export default function RootLayout({

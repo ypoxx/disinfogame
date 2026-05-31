@@ -7,6 +7,7 @@
 
 import { useEffect, useState } from 'react';
 import type { AssetType, ImprovePromptResponse } from '@/types';
+import { keyHeaders } from '@/lib/keys';
 
 interface PromptAssistantProps {
   assetType: AssetType;
@@ -53,7 +54,7 @@ export function PromptAssistant({ assetType, onPromptReady }: PromptAssistantPro
     try {
       const response = await fetch('/api/claude', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...keyHeaders() },
         body: JSON.stringify({
           userPrompt: trimmedPrompt,
           assetType,

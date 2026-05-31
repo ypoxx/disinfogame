@@ -8,6 +8,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { AssetType, GeneratedImage } from '@/types';
 import { ASPECT_RATIOS } from '@/lib/constants';
+import { keyHeaders } from '@/lib/keys';
 
 interface ImageGeneratorProps {
   prompt: string;
@@ -93,7 +94,7 @@ export function ImageGenerator({
     try {
       const response = await fetch('/api/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...keyHeaders() },
         body: JSON.stringify({
           prompt,
           numImages,
