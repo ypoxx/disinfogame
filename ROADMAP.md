@@ -17,7 +17,7 @@ Der frühere abstrakte **Pro Mode** ist eingefroren und liegt in `archive/pro-mo
 
 ## Track A — Visuelle Verwandlung zum Gebäude *(Priorität, das eigentliche Ziel)*
 Details & Schritte: **[`docs/BUILDING_AND_ASSETS.md`](docs/BUILDING_AND_ASSETS.md)**.
-1. **Gebäude als Daten + Querschnitt-Ansicht** (klickbar, ohne Figur) — `building.json` + `BuildingView`; OfficeScreen wird ein Raum darin. *Erster sichtbarer TVTower-Schritt.*
+1. **Gebäude als Daten + Querschnitt-Ansicht** (klickbar, ohne Figur) — `building.json` + `BuildingView` als neuer `viewMode`; der heutige `OfficeScreen` bleibt als **„klassische Ansicht"/Referenz** erreichbar (Abzweigung), bis das Gebäude gleichwertig ist (dann ins Archiv). *Erster sichtbarer TVTower-Schritt — zugleich erste Skizze & Doku.*
 2. **Grafik-Pipeline** — `sprite-tool` um Sprite-Sheet-Zusammenbau erweitern; konsistente Assets über den Stil-Guide; `public/assets/` + `assets.json` datengetrieben laden.
 3. **Räume grafisch** statt CSS (je Raum ein Hintergrund-Asset).
 4. **Laufende Figur (Avatar) + NPC-Figuren** — hängt nur an **einem** Lauf-Zyklus-Asset; `useSprite`-Bauplan steht in `BUILDING_CONCEPT.md`.

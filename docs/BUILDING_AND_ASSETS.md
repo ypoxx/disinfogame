@@ -32,6 +32,24 @@
 - Klick auf einen Raum → öffnet die bestehende Raum-/Dialog-UI (NpcPanel, Aktionen).
 - **Ergebnis:** der „klickbare Querschnitt" — der erste sichtbare TVTower-Schritt, ohne neue Grafik nötig.
 
+> **Schritt 1 ist zugleich die erste „Skizze" UND Dokumentation:** Schon mit groben CSS-Kästen (ohne jede
+> Grafik) wird die TVTower-Struktur **sichtbar, klickbar und testbar**. `building.json` beschreibt
+> Etagen/Räume/NPCs **als Daten** — das ist gelebte Dokumentation, an der man die Struktur sofort sieht und ändert.
+>
+> ### Umgang mit dem heutigen `OfficeScreen` (wichtig)
+> Der `OfficeScreen` ist das **alte Einzel-Raum-Konzept**. Sein Funktions-Inhalt (Aktionen, NPCs, News …)
+> liegt ohnehin in **geteilten Panels** rundherum (`ActionPanel`, `NpcPanel`, …), **nicht** im Screen selbst —
+> `StoryModeGame` schaltet schon heute per `viewMode` zwischen `'office'` und `'dashboard'`. Vorgehen:
+> 1. `BuildingView` als **neuer dritter `viewMode: 'building'`** (neben `'office'` / `'dashboard'`).
+> 2. OfficeScreen **nicht löschen**, sondern als **„klassische Ansicht" erreichbar lassen** (Abzweigung über
+>    den bestehenden viewMode-Umschalter) — als **Referenz & Fallback** während des Umbaus. Er ist die
+>    **Parität-Checkliste**: was er kann, muss das Gebäude können.
+> 3. Funktionen **Raum für Raum** ins Gebäude überführen: erst öffnen die Räume die **bestehenden Panels**
+>    (einfach, schnell sichtbar), später zeigt jeder Raum seinen NPC + dessen Aktionen **direkt** (TVTower-typisch).
+> 4. Erst wenn das Gebäude **gleichwertig** ist, wandert `OfficeScreen` ins `archive/`.
+>
+> So gibt es **keinen riskanten Big-Bang**: das Alte bleibt Sicherheitsnetz **und** Spezifikation, bis das Neue steht.
+
 ### Schritt 2 — Grafik-Pipeline (das „Backend" für Assets)
 - **a)** `sprite-tool` um **Sprite-Sheet-Zusammenbau** erweitern: N erzeugte Frames → ein PNG-Raster **plus** `*.json` mit Frame-Koordinaten/Animationen. *(Genau das fehlt heute; Typen dafür sind schon da.)*
 - **b)** Der Stil-Guide `sprite-tool/public/context/game-style-guide.md` ist die **eine Wahrheit** für den Look — **alle** Assets darüber erzeugen ⇒ Konsistenz.
