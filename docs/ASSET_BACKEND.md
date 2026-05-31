@@ -1,13 +1,24 @@
-# 🎛️ Grafik-Backend (Asset-Pipeline) — Spezifikation
+# 🎛️ Asset Studio (Grafik + Sound) — internes Werkzeug
 
-> **Status:** Aktiv (Plan) · **Aktualisiert:** 2026-05-31 · **Scope:** Story / Tooling · Gehört zu **Track A‑2** der `ROADMAP.md`
-> Basis ist das bereits vorhandene **`sprite-tool/`**. Ziel: ein einfaches „Backend", in dem du Keys einstellst,
-> Assets per KI erzeugst (konsistent), auswählst, editierst und ins Spiel exportierst.
+> **Status:** Aktiv (Plan) · **Aktualisiert:** 2026-05-31 · **Scope:** Tooling (Track A‑2) · Basis: `sprite-tool/`
 
-## Ziel (deine Anforderung)
-Ein simples Werkzeug, um **alle Grafiken per API zu erstellen**:
-Keys einstellen → Assets erzeugen (Google **und** OpenAI) → **Konsistenz** über Stil-Beschreibung + Referenzbilder →
-Auswahl/Kuratierung → Editieren (Inpainting, Zuschneiden, Bereiche markieren) → Export ins Spiel (per API zurückspielen).
+## Was es ist (Abgrenzung — wichtig)
+Ein **eigenständiges, internes Entwickler-Werkzeug**, um **alle Spiel-Assets** — **Grafik UND Sound** — per API an
+**einem** Ort zu erzeugen, zu kuratieren und ins Spiel zu exportieren (keine Medienbrüche, keine fremden Tools).
+- **NICHT Teil des ausgelieferten Spiels.** Eigene App (das heutige `sprite-tool/` wird dazu ausgebaut), getrennt deploybar.
+- **Temporär/produktionsseitig:** es erleichtert die Asset-Erstellung; im fertigen Spiel wird es nicht gebraucht.
+- **„Gut-genug"-UX** (klar & schnell): Keys-Einstellungen · Tabs *Grafik*/*Sound* · Galerie mit „fürs Spiel auswählen" · Editor · Export.
+- **Ergebnis:** spielfertige Assets + ein **Manifest** (`assets.json`), das das Spiel datengetrieben lädt.
+
+## Umfang
+- **Grafik** *(entschieden, Hauptteil):* via `gemini-3-pro-image` (s. u.) — Konsistenz über Stil-Anchor + Master-Referenz + Seed.
+- **Sound** *(NEU im Umfang — eigene Quelle nötig):* SFX und ggf. Musik als **Dateien**. Heute nutzt das Spiel nur
+  **synthetische Web-Audio-Töne** (`src/story-mode/utils/SoundSystem.ts`) — echte Sound-Assets sind also neu. Audio
+  kommt **nicht** von Gemini → Provider **separat entscheiden** (KI-SFX/Musik-Dienst **oder** kuratierte freie Bibliothek). *Offen.*
+
+## Kern-Ablauf (Grafik)
+Keys einstellen → erzeugen → **Konsistenz** (Anchor + Referenz + Seed) → Auswahl/Kuratierung →
+Editieren (Inpainting, Zuschneiden, Bereiche markieren) → Export ins Spiel (`public/assets/` + `assets.json`).
 
 ## Was schon existiert (`sprite-tool/`)
 - Next.js-Tool mit **Stil-Guide** (`public/context/game-style-guide.md` = der „Style-Anchor"),
