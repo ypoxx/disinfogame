@@ -51,6 +51,7 @@
 > So gibt es **keinen riskanten Big-Bang**: das Alte bleibt Sicherheitsnetz **und** Spezifikation, bis das Neue steht.
 
 ### Schritt 2 — Grafik-Pipeline (das „Backend" für Assets)
+> 📋 **Detail-Spezifikation: [`docs/ASSET_BACKEND.md`](ASSET_BACKEND.md)** — aktuelle Modelle (Nano Banana / gpt-image-1), Konsistenz-Rezept (Style-Anchor + Referenz + Seed), kompletter Feature-Plan.
 - **a)** `sprite-tool` um **Sprite-Sheet-Zusammenbau** erweitern: N erzeugte Frames → ein PNG-Raster **plus** `*.json` mit Frame-Koordinaten/Animationen. *(Genau das fehlt heute; Typen dafür sind schon da.)*
 - **b)** Der Stil-Guide `sprite-tool/public/context/game-style-guide.md` ist die **eine Wahrheit** für den Look — **alle** Assets darüber erzeugen ⇒ Konsistenz.
 - **c)** Fertige Assets landen in `desinformation-network/public/assets/` (`rooms/`, `figures/`) + eine `assets.json`, die das Spiel **datengetrieben** lädt.
