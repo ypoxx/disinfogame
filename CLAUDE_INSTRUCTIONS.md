@@ -1,7 +1,11 @@
 # Claude Code Anweisungen für dieses Projekt
 
 **Projekt:** Desinformations-Simulations-Spiel (Story Mode)
-**Letzte Aktualisierung:** 2025-12-29
+**Letzte Aktualisierung:** 2026-05-31 *(zuvor 2025-12-29)*
+
+> **Stand 2026-05-31:** Projekt ist **Story-only** (Pro Mode archiviert unter `archive/pro-mode/`).
+> **Aktuelle Richtung & Roadmap:** `ROADMAP.md` + `docs/BUILDING_AND_ASSETS.md` — Ziel: **TVTower-Gebäude** + Grafik-Pipeline.
+> Verbindliche Wahrheit: `docs/VISION_LOCK.md`. Diese Datei bleibt nützlich für **Story-Inhalt** (Lore, Datendateien, Konventionen); einzelne Pfade unten sind historisch.
 
 ---
 
@@ -29,7 +33,7 @@ Existierende Systeme die auf Integration warten:
 | Combo-System | `src/game-logic/combo-system.ts` | Belohnt Aktions-Ketten |
 | Actor-AI | `src/game-logic/actor-ai.ts` | NPCs schlagen zurück |
 | NarrativeGenerator | `src/game-logic/NarrativeGenerator.ts` | Dynamische Texte |
-| Event-Chains | `src/game-logic/event-chain-system.ts` | Spielerentscheidungen |
+| Event-Chains (Daten) | `src/data/game/event-chains.json` → `CrisisMomentSystem` | Krisen-Momente *(Code `event-chain-system.ts` ist archiviert)* |
 | Taxonomy | `src/data/persuasion/taxonomy.json` | 27 Techniken mit Forschung |
 
 ### 3. LORE BEACHTEN
@@ -214,23 +218,15 @@ Trennt Story Mode von der ursprünglichen Sandbox-Engine. Ermöglicht:
 
 ## Offene Aufgaben / Tech Debt
 
-### Hohe Priorität
+> **Aktualisiert 2026-05-31:** Viele frühere TODOs sind **erledigt** — Combo (`StoryComboSystem`),
+> Sound (`SoundSystem`), Actor-AI (`StoryActorAI`), Krisen (`CrisisMomentSystem`) existieren bereits als
+> Story-Systeme; Pro Mode ist archiviert. **Aktuelle Prioritäten stehen in [`ROADMAP.md`](ROADMAP.md) +
+> [`docs/BUILDING_AND_ASSETS.md`](docs/BUILDING_AND_ASSETS.md)** — Schwerpunkt: **TVTower-Gebäude + Grafik-Pipeline**.
 
-- [ ] Combo-System in Story Mode integrieren
-- [ ] Sound-System aktivieren (existiert, nicht genutzt)
-- [ ] Taxonomy mit Aktionen verknüpfen
-
-### Mittlere Priorität
-
-- [ ] Event-Chains als Krisen-Momente
-- [ ] Actor-AI für reaktive NPCs
+### Weiterhin offen / sinnvoll
+- [ ] Taxonomy stärker mit Aktionen verknüpfen (`basedOn`)
 - [ ] Extended Actors für Countermeasures nutzen
-
-### Nice-to-Have
-
-- [ ] Tag/Nacht-Zyklus (VISUAL_DESIGN.md)
-- [ ] Raum-Progression
-- [ ] "Gegenseite spielen" Mode
+- [ ] Gebäude-Querschnitt + Raum-Progression (Track A der Roadmap)
 
 ---
 

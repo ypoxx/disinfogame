@@ -33,6 +33,7 @@ npx vitest run src/story-mode/__tests__
 | Dialog-System erklärt **und behoben** | `docs/DIALOGUE_DIAGNOSIS.md` |
 | Story-Spielcode | `desinformation-network/src/story-mode/` |
 | Brücke zur Engine + geteilte Typen/Utils | `desinformation-network/src/game-logic/` |
+| **Gebäude/TVTower & Grafik-Pipeline (Plan)** | `docs/BUILDING_AND_ASSETS.md` · Bauplan: `…/story-mode/BUILDING_CONCEPT.md` |
 | Archiv (alte Pläne, Pro-Code/Backend) | `archive/` |
 
 ## Was in der Aufräum-Runde gemacht wurde
@@ -41,8 +42,9 @@ npx vitest run src/story-mode/__tests__
 - **Fokussiert:** Pro Mode (UI + Engine + Backend) nach `archive/` ausgelagert → App ist **Story-only**.
 - **Grün:** Typecheck sauber, 88 Story-Unit-Tests bestehen, Produktions-Build läuft (Bündel kleiner).
 
-## Sinnvolle nächste Schritte (in kleinen, geprüften Schritten — mit dir am Steuer)
-1. **Große Dateien zerlegen:** `StoryEngineAdapter.ts` (5119 Z.), `useStoryGameState.ts` (1447 Z.),
-   `DialogLoader.ts` (1336 Z.) — jeweils Stück für Stück, Build/Tests nach jedem Schnitt.
-2. **Story-Inhalt & Balance** ausbauen (mehr Reaktionen/Themen/Endings, Spielgefühl).
-3. **Optional:** laufende Pixel-Figur (Avatar) — technisch klein, braucht nur **ein** Lauf-Zyklus-Bild.
+## Sinnvolle nächste Schritte (mit dir am Steuer)
+**Ziel: MadTV-/TVTower-Optik.** Voller Plan: [`docs/BUILDING_AND_ASSETS.md`](docs/BUILDING_AND_ASSETS.md) + [`ROADMAP.md`](ROADMAP.md).
+1. **Gebäude-Querschnitt** (klickbar, datengetrieben): `building.json` + `BuildingView`; der heutige OfficeScreen wird **ein** Raum darin. *Erster sichtbarer Schritt.*
+2. **Grafik-Pipeline:** `sprite-tool` um Sprite-Sheet-Export erweitern → konsistente Assets ins Spiel.
+3. **Laufende Figur (Avatar):** klein im Code, braucht nur **ein** Lauf-Zyklus-Bild.
+4. *Sekundär:* die großen Dateien **nur bei Bedarf** zerlegen (kein Vorab-Umbau) — siehe ROADMAP Track C.
