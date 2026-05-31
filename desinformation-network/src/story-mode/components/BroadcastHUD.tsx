@@ -17,7 +17,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { StoryModeColors } from '../theme';
-import { reactToEffect, type Channel, type Mood, type SegmentReaction } from '../audience/audienceModel';
+import { detectionDampen, reactToEffect, type Channel, type Mood, type SegmentReaction } from '../audience/audienceModel';
 import { THEME_LABEL, THEME_HEADLINE } from '../audience/themeText';
 import { useBroadcastStore } from '../stores/broadcastStore';
 
@@ -88,11 +88,12 @@ function BroadcastScreen({
   );
 }
 
-export function BroadcastHUD() {
+export function BroadcastHUD({ risk = 0 }: { risk?: number }) {
   const countries = useBroadcastStore((s) => s.countries);
   const activeCountryId = useBroadcastStore((s) => s.activeCountryId);
   const setActiveCountry = useBroadcastStore((s) => s.setActiveCountry);
   const air = useBroadcastStore((s) => s.air);
+  const counter = useBroadcastStore((s) => s.counter);
   const lastAired = useBroadcastStore((s) => s.lastAired);
 
   const country = countries.find((c) => c.id === activeCountryId) ?? countries[0];
@@ -115,9 +116,10 @@ export function BroadcastHUD() {
     return Array.from(set);
   }, [country, theme]);
 
+  const effIntensity = detectionDampen(0.8, risk);
   const preview = useMemo(
-    () => (country ? reactToEffect(country, { themes: [theme], channel, intensity: 0.8 }) : null),
-    [country, theme, channel],
+    () => (country ? reactToEffect(country, { themes: [theme], channel, intensity: effIntensity }) : null),
+    [country, theme, channel, effIntensity],
   );
 
   if (!country || !preview) return null;
@@ -126,7 +128,10 @@ export function BroadcastHUD() {
   const quotePct = Math.round(preview.quote * 100);
   const headline = THEME_HEADLINE[theme] ?? theme;
 
-  const doAir = () => air({ themes: [theme], channel, intensity: 0.8 }, headline, 'Manuelle Sendung');
+  const doAir = () => {
+    air({ themes: [theme], channel, intensity: effIntensity }, headline, 'Manuelle Sendung');
+    if (risk >= 75) counter(((risk - 75) / 25) * 0.5); // sehr hohes Risiko → Gegen-Sendung beißt zurück
+  };
 
   return (
     <div
@@ -137,8 +142,17 @@ export function BroadcastHUD() {
       <div className="relative shrink-0 w-80 flex flex-col p-2" style={{ backgroundColor: StoryModeColors.darkConcrete }}>
         <CornerBadge text="F1" />
         <div className="flex items-center justify-between mb-1 pl-6">
-          <span className="text-[10px] font-bold tracking-wider" style={{ color: StoryModeColors.textSecondary }}>
+          <span className="text-[10px] font-bold tracking-wider flex items-center gap-1" style={{ color: StoryModeColors.textSecondary }}>
             SENDUNG
+            {risk >= 50 && (
+              <span
+                className="px-1 rounded-sm"
+                style={{ backgroundColor: StoryModeColors.danger, color: '#fff' }}
+                title="Faktenchecker aktiv — Wirkung der Sendung gedämpft"
+              >
+                ⚠ FAKTENCHECK
+              </span>
+            )}
           </span>
           <div className="flex gap-0.5">
             {CHANNELS.map((c) => (
@@ -193,8 +207,11 @@ export function BroadcastHUD() {
           {quotePct}
           <span className="text-lg">%</span>
         </div>
-        <div className="text-[9px] mt-1 text-center px-1 truncate max-w-[104px]" style={{ color: StoryModeColors.textMuted }}>
-          {lastAired ? `📡 ${lastAired.source}` : `Vorschau · ${channel.toUpperCase()}`}
+        <div
+          className="text-[9px] mt-1 text-center px-1 truncate max-w-[104px]"
+          style={{ color: risk >= 50 ? StoryModeColors.danger : StoryModeColors.textMuted }}
+        >
+          {risk >= 50 ? 'gedämpft (Risiko)' : lastAired ? `📡 ${lastAired.source}` : `Vorschau · ${channel.toUpperCase()}`}
         </div>
       </div>
 

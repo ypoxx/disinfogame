@@ -34,6 +34,7 @@ import { BroadcastHUD } from './components/BroadcastHUD';
 import { useBroadcastStore } from './stores/broadcastStore';
 import { actionToEffect } from './audience/effectMapping';
 import { THEME_HEADLINE } from './audience/themeText';
+import { detectionDampen } from './audience/audienceModel';
 
 // ============================================
 // TYPES
@@ -371,7 +372,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     const a = state.availableActions.find((x) => x.id === actionId);
     if (!a) return;
     const eff = actionToEffect({ phase: a.phase, tags: a.tags, label_de: a.label_de, narrative_de: a.narrative_de });
-    if (eff) broadcastAir(eff, THEME_HEADLINE[eff.themes[0]] ?? a.label_de, a.label_de);
+    if (eff) {
+      const dampened = { ...eff, intensity: detectionDampen(eff.intensity ?? 0.75, state.resources.risk) };
+      broadcastAir(dampened, THEME_HEADLINE[eff.themes[0]] ?? a.label_de, a.label_de);
+    }
   };
 
   const [showActionFeedback, setShowActionFeedback] = useState(false);
@@ -736,7 +740,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       </div>
 
       {/* Untere MadTV-Leiste: Sendung (F1) · Quote (Q) · Publikum (P) — persistent über allen Views */}
-      <BroadcastHUD />
+      <BroadcastHUD risk={state.resources.risk} />
 
       {/* Dialog Box */}
       {state.currentDialog && (

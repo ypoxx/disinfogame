@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getCountry, loadAudience, reactToEffect, themeResonance } from '../audience/audienceModel';
+import { detectionDampen, getCountry, loadAudience, reactToEffect, themeResonance } from '../audience/audienceModel';
 
 describe('Publikums-Modell (Nordmark)', () => {
   it('lädt Nordmark; Segment-Größen summieren ~1.0', () => {
@@ -55,5 +55,11 @@ describe('Publikums-Modell (Nordmark)', () => {
     expect(nat.reached).toBe(true);
     expect(nat.resonance).toBeCloseTo(1, 5);
     expect(nat.beliefDelta).toBeGreaterThan(0);
+  });
+
+  it('detectionDampen senkt die Wirkung mit steigendem Entdeckungs-Risiko', () => {
+    expect(detectionDampen(0.8, 0)).toBeCloseTo(0.8, 5);
+    expect(detectionDampen(0.8, 50)).toBeLessThan(0.8);
+    expect(detectionDampen(0.8, 100)).toBeCloseTo(0.8 * 0.4, 5);
   });
 });

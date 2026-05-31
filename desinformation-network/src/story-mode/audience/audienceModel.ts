@@ -122,3 +122,9 @@ export function reactToEffect(country: AudienceCountry, effect: Effect): Country
   const quote = clamp01(reactions.reduce((sum, r) => sum + r.reach, 0));
   return { countryId: country.id, reactions, quote };
 }
+
+/** Höheres Entdeckungs-Risiko dämpft die Wirkung (Faktenchecker/Gegen-Sendungen). risk: 0..100. */
+export function detectionDampen(intensity: number, risk: number): number {
+  const r = Math.max(0, Math.min(100, risk)) / 100;
+  return clamp01(intensity * (1 - r * 0.6));
+}
