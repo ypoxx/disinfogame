@@ -7,17 +7,26 @@ import { GoogleGenAI } from '@google/genai';
 import type { GenerateImageResponse, InpaintResponse } from '@/types';
 import { DEFAULT_IMAGE_MODEL, type AspectRatio } from '@/lib/constants';
 
-let aiClient: GoogleGenAI | null = null;
+let envClient: GoogleGenAI | null = null;
 
-function getClient(): GoogleGenAI {
-  if (!aiClient) {
-    const apiKey = process.env.GOOGLE_AI_API_KEY;
-    if (!apiKey) {
-      throw new Error('GOOGLE_AI_API_KEY nicht konfiguriert. Bitte in .env.local eintragen.');
-    }
-    aiClient = new GoogleGenAI({ apiKey });
+/**
+ * Liefert einen Gemini-Client. Ein per-Request übergebener Key (aus der Tool-UI)
+ * hat Vorrang; sonst Fallback auf GOOGLE_AI_API_KEY aus .env.local (gecacht).
+ */
+function getClient(apiKey?: string): GoogleGenAI {
+  if (apiKey) {
+    return new GoogleGenAI({ apiKey });
   }
-  return aiClient;
+  if (!envClient) {
+    const envKey = process.env.GOOGLE_AI_API_KEY;
+    if (!envKey) {
+      throw new Error(
+        'Kein Google-AI-Key: in der UI (Einstellungen) eingeben oder GOOGLE_AI_API_KEY in .env.local setzen.'
+      );
+    }
+    envClient = new GoogleGenAI({ apiKey: envKey });
+  }
+  return envClient;
 }
 
 
@@ -28,13 +37,14 @@ interface GenerateOptions {
   thinkingMode?: boolean;
   seed?: number;
   numImages?: number;
+  apiKey?: string; // optionaler UI-Key; sonst .env.local
 }
 
 /**
  * Generiert Bilder mit Nano Banana Pro (Gemini Image)
  */
 export async function generateImages(options: GenerateOptions): Promise<GenerateImageResponse> {
-  const client = getClient();
+  const client = getClient(options.apiKey);
 
   const modelName = process.env.NANO_BANANA_MODEL || DEFAULT_IMAGE_MODEL;
   const numImages = Math.min(options.numImages || 4, 4); // Max 4 Bilder
@@ -109,13 +119,14 @@ interface InpaintOptions {
   image: string; // base64
   mask?: string; // base64 (optional für mask-free inpainting)
   prompt: string;
+  apiKey?: string; // optionaler UI-Key; sonst .env.local
 }
 
 /**
  * Inpainting: Ändert nur markierte Bereiche eines Bildes
  */
 export async function inpaintImage(options: InpaintOptions): Promise<InpaintResponse> {
-  const client = getClient();
+  const client = getClient(options.apiKey);
 
   const modelName = process.env.NANO_BANANA_MODEL || DEFAULT_IMAGE_MODEL;
 
@@ -169,11 +180,12 @@ export async function inpaintImage(options: InpaintOptions): Promise<InpaintResp
 }
 
 /**
- * Prüft ob die API-Verbindung funktioniert
+ * Prüft ob die API-Verbindung funktioniert.
+ * (Echter Auth-Check via models.list folgt mit der Keys-UI; hier zunächst Client-Init.)
  */
-export async function testConnection(): Promise<boolean> {
+export async function testConnection(apiKey?: string): Promise<boolean> {
   try {
-    const client = getClient();
+    const client = getClient(apiKey);
     // Simple test - just check if client initializes
     return client !== null;
   } catch {

@@ -7,18 +7,24 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { AssetType, ImprovePromptResponse } from '@/types';
 import { DEFAULT_CLAUDE_MODEL } from '@/lib/constants';
 
-// Client wird server-side initialisiert
-let client: Anthropic | null = null;
+// Client wird server-side initialisiert.
+// Per-Request-Key (aus der Tool-UI) hat Vorrang; sonst .env.local-Fallback (gecacht).
+let envClient: Anthropic | null = null;
 
-function getClient(): Anthropic {
-  if (!client) {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      throw new Error('ANTHROPIC_API_KEY nicht konfiguriert. Bitte in .env.local eintragen.');
-    }
-    client = new Anthropic({ apiKey });
+function getClient(apiKey?: string): Anthropic {
+  if (apiKey) {
+    return new Anthropic({ apiKey });
   }
-  return client;
+  if (!envClient) {
+    const envKey = process.env.ANTHROPIC_API_KEY;
+    if (!envKey) {
+      throw new Error(
+        'Kein Anthropic-Key: in der UI (Einstellungen) eingeben oder ANTHROPIC_API_KEY in .env.local setzen.'
+      );
+    }
+    envClient = new Anthropic({ apiKey: envKey });
+  }
+  return envClient;
 }
 
 const SYSTEM_PROMPT = `Du bist ein Experte für Bild-KI-Prompts, spezialisiert auf Pixel-Art für Retro-Spiele.
@@ -47,9 +53,10 @@ export async function improvePrompt(
   userPrompt: string,
   assetType: AssetType,
   gameContext: string,
-  additionalContext?: string
+  additionalContext?: string,
+  apiKey?: string
 ): Promise<ImprovePromptResponse> {
-  const anthropic = getClient();
+  const anthropic = getClient(apiKey);
 
   const assetTypeInfo = {
     sprite: 'Sprite-Sheet mit mehreren Frames für Animation',

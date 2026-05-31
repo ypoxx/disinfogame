@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { generateImages } from '@/lib/nanoBanana';
+import { getKeyFromHeaders } from '@/lib/providers';
 import type { GenerateImageRequest } from '@/types';
 
 export async function POST(request: NextRequest) {
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
     // Anzahl Bilder begrenzen
     const numImages = Math.min(Math.max(body.numImages || 4, 1), 4);
 
-    // Bilder generieren
+    // Bilder generieren (UI-Key aus Header hat Vorrang; sonst .env.local)
     const result = await generateImages({
       prompt: body.prompt,
       referenceImages: body.referenceImages,
@@ -30,6 +31,7 @@ export async function POST(request: NextRequest) {
       thinkingMode: body.thinkingMode,
       seed: body.seed,
       numImages,
+      apiKey: getKeyFromHeaders(request.headers, 'google'),
     });
 
     return NextResponse.json(result);

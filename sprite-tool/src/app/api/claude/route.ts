@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { improvePrompt } from '@/lib/claude';
+import { getKeyFromHeaders } from '@/lib/providers';
 import type { ImprovePromptRequest } from '@/types';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -48,12 +49,13 @@ export async function POST(request: NextRequest) {
     // Lade Spiel-Kontext
     const context = loadGameContext();
 
-    // Claude aufrufen
+    // Claude aufrufen (UI-Key aus Header hat Vorrang; sonst .env.local)
     const result = await improvePrompt(
       body.userPrompt,
       body.assetType,
       context,
-      body.additionalContext
+      body.additionalContext,
+      getKeyFromHeaders(request.headers, 'anthropic')
     );
 
     return NextResponse.json(result);
