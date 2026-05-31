@@ -5,19 +5,28 @@
 
 import { GoogleGenAI } from '@google/genai';
 import type { GenerateImageResponse, InpaintResponse } from '@/types';
-import type { AspectRatio } from '@/lib/constants';
+import { DEFAULT_IMAGE_MODEL, type AspectRatio } from '@/lib/constants';
 
-let aiClient: GoogleGenAI | null = null;
+let envClient: GoogleGenAI | null = null;
 
-function getClient(): GoogleGenAI {
-  if (!aiClient) {
-    const apiKey = process.env.GOOGLE_AI_API_KEY;
-    if (!apiKey) {
-      throw new Error('GOOGLE_AI_API_KEY nicht konfiguriert. Bitte in .env.local eintragen.');
-    }
-    aiClient = new GoogleGenAI({ apiKey });
+/**
+ * Liefert einen Gemini-Client. Ein per-Request übergebener Key (aus der Tool-UI)
+ * hat Vorrang; sonst Fallback auf GOOGLE_AI_API_KEY aus .env.local (gecacht).
+ */
+function getClient(apiKey?: string): GoogleGenAI {
+  if (apiKey) {
+    return new GoogleGenAI({ apiKey });
   }
-  return aiClient;
+  if (!envClient) {
+    const envKey = process.env.GOOGLE_AI_API_KEY;
+    if (!envKey) {
+      throw new Error(
+        'Kein Google-AI-Key: in der UI (Einstellungen) eingeben oder GOOGLE_AI_API_KEY in .env.local setzen.'
+      );
+    }
+    envClient = new GoogleGenAI({ apiKey: envKey });
+  }
+  return envClient;
 }
 
 
@@ -28,15 +37,16 @@ interface GenerateOptions {
   thinkingMode?: boolean;
   seed?: number;
   numImages?: number;
+  apiKey?: string; // optionaler UI-Key; sonst .env.local
 }
 
 /**
  * Generiert Bilder mit Nano Banana Pro (Gemini Image)
  */
 export async function generateImages(options: GenerateOptions): Promise<GenerateImageResponse> {
-  const client = getClient();
+  const client = getClient(options.apiKey);
 
-  const modelName = process.env.NANO_BANANA_MODEL || 'gemini-2.0-flash-exp';
+  const modelName = process.env.NANO_BANANA_MODEL || DEFAULT_IMAGE_MODEL;
   const numImages = Math.min(options.numImages || 4, 4); // Max 4 Bilder
 
   const results: { base64: string; seed?: number }[] = [];
@@ -45,6 +55,10 @@ export async function generateImages(options: GenerateOptions): Promise<Generate
   // Generiere Bilder sequentiell (API-Limit)
   for (let i = 0; i < numImages; i++) {
     try {
+      // Seed je Variante versetzen: gleicher Basis-Seed → reproduzierbares Set,
+      // aber die einzelnen Varianten unterscheiden sich (sonst wären alle identisch).
+      const seedForImage = options.seed !== undefined ? options.seed + i : undefined;
+
       const parts: Array<{ text: string } | { inlineData: { mimeType: string; data: string } }> = [];
 
       // Referenz-Bilder hinzufügen (falls vorhanden)
@@ -67,7 +81,10 @@ export async function generateImages(options: GenerateOptions): Promise<Generate
         contents: [{ parts }],
         config: {
           responseModalities: ['image', 'text'],
-          // Note: aspectRatio and other configs may vary by API version
+          // Seed an die API durchreichen (war zuvor nur UI-Feld, ohne Wirkung).
+          ...(seedForImage !== undefined ? { seed: seedForImage } : {}),
+          // Seitenverhältnis via ImageConfig an Nano Banana Pro durchreichen.
+          ...(options.aspectRatio ? { imageConfig: { aspectRatio: options.aspectRatio } } : {}),
         },
       });
 
@@ -78,7 +95,7 @@ export async function generateImages(options: GenerateOptions): Promise<Generate
           if ('inlineData' in part && part.inlineData?.data) {
             results.push({
               base64: part.inlineData.data,
-              seed: options.seed,
+              seed: seedForImage,
             });
             break;
           }
@@ -102,15 +119,16 @@ interface InpaintOptions {
   image: string; // base64
   mask?: string; // base64 (optional für mask-free inpainting)
   prompt: string;
+  apiKey?: string; // optionaler UI-Key; sonst .env.local
 }
 
 /**
  * Inpainting: Ändert nur markierte Bereiche eines Bildes
  */
 export async function inpaintImage(options: InpaintOptions): Promise<InpaintResponse> {
-  const client = getClient();
+  const client = getClient(options.apiKey);
 
-  const modelName = process.env.NANO_BANANA_MODEL || 'gemini-2.0-flash-exp';
+  const modelName = process.env.NANO_BANANA_MODEL || DEFAULT_IMAGE_MODEL;
 
   const parts: Array<{ text: string } | { inlineData: { mimeType: string; data: string } }> = [];
 
@@ -162,13 +180,14 @@ export async function inpaintImage(options: InpaintOptions): Promise<InpaintResp
 }
 
 /**
- * Prüft ob die API-Verbindung funktioniert
+ * Echter Auth-Check für den Google-AI-Key: holt die erste Seite der Modell-Liste.
+ * Das macht eine echte (kostenlose) Anfrage — bei ungültigem Key wirft sie.
  */
-export async function testConnection(): Promise<boolean> {
+export async function testConnection(apiKey?: string): Promise<boolean> {
   try {
-    const client = getClient();
-    // Simple test - just check if client initializes
-    return client !== null;
+    const client = getClient(apiKey);
+    await client.models.list({ config: { pageSize: 1 } });
+    return true;
   } catch {
     return false;
   }

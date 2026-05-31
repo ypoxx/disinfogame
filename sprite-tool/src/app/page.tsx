@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { PromptAssistant } from '@/components/PromptAssistant';
 import { ImageGenerator } from '@/components/ImageGenerator';
 import { ImageEditor } from '@/components/ImageEditor';
+import { SettingsPanel } from '@/components/SettingsPanel';
 import type { AssetType, GeneratedImage, ProjectMode } from '@/types';
 
 export default function Home() {
@@ -16,6 +17,7 @@ export default function Home() {
   const [currentPrompt, setCurrentPrompt] = useState('');
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
   const [generateToken, setGenerateToken] = useState(0);
+  const [showSettings, setShowSettings] = useState(false);
 
   function handleAssetTypeSelect(type: AssetType) {
     setAssetType(type);
@@ -75,32 +77,38 @@ export default function Home() {
             className="flex items-center gap-2 hover:text-gray-300 transition-colors"
           >
             <span className="text-2xl">🎨</span>
-            <span className="font-bold text-lg">Sprite Studio</span>
+            <span className="font-bold text-lg">Asset Studio</span>
           </button>
 
-          {mode !== 'select' && (
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <button
-                onClick={() => setMode('select')}
-                className="hover:text-gray-300"
-              >
-                Typ
-              </button>
-              <span>/</span>
-              <button
-                onClick={() => mode !== 'create' && setMode('create')}
-                className={mode === 'create' ? 'text-blue-400' : 'hover:text-gray-300'}
-              >
-                Erstellen
-              </button>
-              {mode === 'edit' && (
-                <>
-                  <span>/</span>
-                  <span className="text-blue-400">Bearbeiten</span>
-                </>
-              )}
-            </div>
-          )}
+          <div className="flex items-center gap-4">
+            {mode !== 'select' && (
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <button onClick={() => setMode('select')} className="hover:text-gray-300">
+                  Typ
+                </button>
+                <span>/</span>
+                <button
+                  onClick={() => mode !== 'create' && setMode('create')}
+                  className={mode === 'create' ? 'text-blue-400' : 'hover:text-gray-300'}
+                >
+                  Erstellen
+                </button>
+                {mode === 'edit' && (
+                  <>
+                    <span>/</span>
+                    <span className="text-blue-400">Bearbeiten</span>
+                  </>
+                )}
+              </div>
+            )}
+            <button
+              onClick={() => setShowSettings(true)}
+              className="text-sm text-gray-400 hover:text-white"
+              title="API-Keys einstellen"
+            >
+              ⚙️ Einstellungen
+            </button>
+          </div>
         </div>
       </header>
 
@@ -165,13 +173,14 @@ export default function Home() {
 
             {/* Info Box */}
             <div className="p-4 bg-gray-900 border border-gray-800 rounded-lg">
-              <h4 className="font-medium text-yellow-400 mb-2">🔑 API Keys erforderlich</h4>
+              <h4 className="font-medium text-yellow-400 mb-2">🔑 API-Keys</h4>
               <p className="text-sm text-gray-400 mb-2">
-                Dieses Tool benötigt API Keys für Claude (Anthropic) und Nano Banana Pro (Google AI).
+                Bilder über <strong>Gemini 3 Pro Image</strong> (Google AI), Prompt-Hilfe optional über Claude.
               </p>
               <p className="text-sm text-gray-500">
-                Kopiere <code className="px-1 bg-gray-800 rounded">.env.example</code> zu{' '}
-                <code className="px-1 bg-gray-800 rounded">.env.local</code> und trage deine Keys ein.
+                Keys oben rechts unter <span className="text-gray-300">⚙️ Einstellungen</span> eingeben (lokal
+                gespeichert) — oder <code className="px-1 bg-gray-800 rounded">.env.example</code> nach{' '}
+                <code className="px-1 bg-gray-800 rounded">.env.local</code> kopieren.
               </p>
             </div>
           </div>
@@ -210,10 +219,13 @@ export default function Home() {
         )}
       </main>
 
+      {/* Settings */}
+      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
+
       {/* Footer */}
       <footer className="border-t border-gray-800 mt-auto">
         <div className="max-w-4xl mx-auto px-4 py-4 text-center text-sm text-gray-500">
-          Sprite Studio für das Disinfo-Spiel | Powered by Claude + Nano Banana Pro
+          Asset Studio (internes Werkzeug) · Bilder: Gemini 3 Pro Image · Prompt-Hilfe: Claude
         </div>
       </footer>
     </div>

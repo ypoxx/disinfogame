@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { inpaintImage } from '@/lib/nanoBanana';
+import { getKeyFromHeaders } from '@/lib/providers';
 import type { InpaintRequest } from '@/types';
 
 export async function POST(request: NextRequest) {
@@ -26,11 +27,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Inpainting durchführen
+    // Inpainting durchführen (UI-Key aus Header hat Vorrang; sonst .env.local)
     const result = await inpaintImage({
       image: body.image,
       mask: body.mask,
       prompt: body.prompt,
+      apiKey: getKeyFromHeaders(request.headers, 'google'),
     });
 
     return NextResponse.json(result);

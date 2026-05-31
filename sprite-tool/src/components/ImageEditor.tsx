@@ -7,6 +7,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import type { GeneratedImage } from '@/types';
+import { keyHeaders } from '@/lib/keys';
 
 interface ImageEditorProps {
   image: GeneratedImage;
@@ -117,7 +118,7 @@ export function ImageEditor({ image, onSave, onBack }: ImageEditorProps) {
 
       const response = await fetch('/api/inpaint', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...keyHeaders() },
         body: JSON.stringify({
           image: currentImage.base64,
           mask: maskBase64,
