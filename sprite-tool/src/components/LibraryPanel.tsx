@@ -9,6 +9,7 @@
 import { useEffect, useState } from 'react';
 import { listAssets, putAsset, deleteAsset } from '@/lib/library';
 import { validateForExport, type LibraryAsset, type ManifestAssetType } from '@/lib/assets';
+import { buildExportZip, downloadBlob } from '@/lib/export';
 
 interface LibraryPanelProps {
   onClose: () => void;
@@ -19,6 +20,7 @@ const TYPES: ManifestAssetType[] = ['image', 'sheet', 'sfx', 'voice', 'music'];
 export function LibraryPanel({ onClose }: LibraryPanelProps) {
   const [assets, setAssets] = useState<LibraryAsset[]>([]);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -45,6 +47,16 @@ export function LibraryPanel({ onClose }: LibraryPanelProps) {
   function remove(key: string) {
     setAssets((prev) => prev.filter((a) => a.key !== key));
     void deleteAsset(key);
+  }
+
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const blob = await buildExportZip(assets);
+      downloadBlob(blob, 'assets-export.zip');
+    } finally {
+      setExporting(false);
+    }
   }
 
   const chosenCount = assets.filter((a) => a.chosen).length;
@@ -155,14 +167,26 @@ export function LibraryPanel({ onClose }: LibraryPanelProps) {
         )}
       </div>
 
-      {/* Fuß: Export-Status (Export-Knopf folgt) */}
+      {/* Fuß: Export */}
       {assets.length > 0 && (
-        <div className="border-t border-gray-800 px-4 py-3 text-sm">
-          {errors.length === 0 ? (
-            <span className="text-green-400">✓ {chosenCount} Asset(s) bereit für den Export.</span>
-          ) : (
-            <span className="text-yellow-400">⚠ {errors[0]}</span>
-          )}
+        <div className="flex items-center justify-between gap-3 border-t border-gray-800 px-4 py-3 text-sm">
+          <div className="min-w-0">
+            {errors.length === 0 ? (
+              <span className="text-green-400">✓ {chosenCount} Asset(s) bereit.</span>
+            ) : (
+              <span className="text-yellow-400">⚠ {errors[0]}</span>
+            )}
+            <span className="ml-2 text-gray-600">
+              ZIP entpacken nach desinformation-network/public/assets/
+            </span>
+          </div>
+          <button
+            onClick={handleExport}
+            disabled={errors.length > 0 || exporting}
+            className="flex-shrink-0 rounded bg-blue-600 px-4 py-2 font-medium hover:bg-blue-700 disabled:opacity-50"
+          >
+            {exporting ? 'Exportiere…' : '⬇ Export (ZIP)'}
+          </button>
         </div>
       )}
     </div>
