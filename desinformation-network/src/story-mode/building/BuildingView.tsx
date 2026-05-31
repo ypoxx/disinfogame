@@ -80,10 +80,6 @@ function moraleColor(morale: number): string {
 function ElevatorShaft({ showCoords }: { showCoords: boolean }) {
   return (
     <div className="absolute right-0 top-0 bottom-0 w-12 flex flex-col">
-      <style>{`
-        @keyframes bv-elevator { 0%,12%{top:2%} 30%,42%{top:38%} 60%,72%{top:74%} 90%,100%{top:2%} }
-        @keyframes bv-blink { 0%,100%{opacity:1} 50%{opacity:.2} }
-      `}</style>
       <div className="relative flex-1 border-2" style={{ borderColor: '#2a2a2a', backgroundColor: '#101010' }}>
         {showCoords && (
           <span
@@ -118,12 +114,37 @@ function ElevatorShaft({ showCoords }: { showCoords: boolean }) {
   );
 }
 
+/** Kleine ambiente Animation je Raum (CSS-only). */
+function RoomAmbient({ roomId }: { roomId: string }) {
+  if (roomId === 'medien_zentrum') {
+    return (
+      <span className="text-[9px] font-bold" style={{ color: StoryModeColors.danger, animation: 'bv-blink 1.4s ease-in-out infinite' }} title="Sendung läuft">
+        ● ON AIR
+      </span>
+    );
+  }
+  if (roomId === 'cyber_lab') {
+    return (
+      <span className="text-[10px]" style={{ animation: 'bv-flicker 1.1s steps(2) infinite' }} title="Monitore">
+        🟩
+      </span>
+    );
+  }
+  return null;
+}
+
 export function BuildingView({ npcs, onRoomClick }: BuildingViewProps) {
   const npcById = new Map(npcs.map((n) => [n.id, n]));
   const [showCoords, setShowCoords] = useState(false);
 
   return (
     <div className="h-full w-full overflow-auto p-6" style={{ backgroundColor: '#0d0d0d' }}>
+      <style>{`
+        @keyframes bv-elevator { 0%,12%{top:2%} 30%,42%{top:38%} 60%,72%{top:74%} 90%,100%{top:2%} }
+        @keyframes bv-blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+        @keyframes bv-flicker { 0%,100%{opacity:1} 45%{opacity:.4} 50%{opacity:.9} 55%{opacity:.3} }
+        @keyframes bv-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2px)} }
+      `}</style>
       <div className="max-w-3xl mx-auto">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
@@ -245,6 +266,12 @@ export function BuildingView({ npcs, onRoomClick }: BuildingViewProps) {
                             <span style={{ fontSize: 22 }}>{room.icon}</span>
                             <span className="text-sm font-bold" style={{ color: '#eee' }}>
                               {room.label_de}
+                            </span>
+                            <span className="ml-auto flex items-center gap-1">
+                              <RoomAmbient roomId={room.id} />
+                              <span className="text-base" style={{ animation: 'bv-bob 3s ease-in-out infinite' }} title={npc?.name ?? room.npcId}>
+                                🧍
+                              </span>
                             </span>
                           </div>
                           <div className="text-xs mt-1" style={{ color: '#9aa' }}>
