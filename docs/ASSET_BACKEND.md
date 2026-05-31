@@ -16,10 +16,12 @@ Auswahl/Kuratierung → Editieren (Inpainting, Zuschneiden, Bereiche markieren) 
   Zuschneiden · Bereiche markieren · Export ins Spiel. Außerdem ist der Modellname **veraltet**
   (`gemini-2.0-flash-exp` → auf aktuelles „Nano Banana" heben).
 
-## Aktuelle Modelle (Web-Stand 2026)
-- **Google (Gemini „Nano Banana"):** `gemini-2.5-flash-image` (Nano Banana), `gemini-3-pro-image` (Nano Banana **Pro**,
-  bis zu **14 Referenzbilder**, sehr starke Charakter-Konsistenz), `gemini-3.1-flash-image` (Nano Banana 2).
-- **OpenAI:** `gpt-image-1` (GPT Image). Größen: 1024×1024, 1536×1024, 1024×1536.
+## Aktuelle Modelle (Web-Stand 2026 — API-IDs verifiziert)
+- **OpenAI: `gpt-image-2`** (GPT Image 2, April 2026) — bis **4K**, sehr starke Instruktions-Treue & Konsistenz.
+  ⚠️ **Unterstützt KEINEN transparenten Hintergrund** → für freistehende Sprites den Hintergrund **hinterher** freistellen.
+- **Google: `gemini-3-pro-image`** (Nano Banana Pro) — Top für Konsistenz: bis zu **14 Referenzbilder**,
+  Identitäts-Erhalt, lokale Edits, 2K/4K. Günstiger/schneller: `gemini-2.5-flash-image` (Nano Banana).
+- Das `sprite-tool` nutzt aktuell `gemini-2.0-flash-exp` → **auf `gemini-3-pro-image` (oder `gemini-2.5-flash-image`) heben.**
 
 ## Konsistenz-Rezept (web-bestätigt — genau dein Ansatz)
 1. **Style-Anchor:** ein fester Absatz (Stil, Palette, Verbote, Stimmung) **vor jedem** Prompt — macht `game-style-guide.md` bereits.
