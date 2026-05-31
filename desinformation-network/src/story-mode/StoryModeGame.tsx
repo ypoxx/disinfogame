@@ -30,6 +30,7 @@ import { BuildingView } from './building/BuildingView';
 import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
 import { DashboardView } from './components/DashboardView';
+import { BroadcastHUD } from './components/BroadcastHUD';
 
 // ============================================
 // TYPES
@@ -534,8 +535,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         onOpenMenu={pauseGame}
       />
 
-      {/* Main Layout (with padding for HUD) */}
-      <div className="pt-[52px] h-full flex flex-col">
+      {/* Main Layout (padding: top for StoryHUD, bottom for BroadcastHUD) */}
+      <div className="pt-[52px] pb-32 h-full flex flex-col">
         {/* Sub-HUD Bar: Betrayal Indicators + Consequence Timeline (in-flow, not fixed) */}
         {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
           <div
@@ -720,6 +721,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       </div>
       </div>
 
+      {/* Untere MadTV-Leiste: Sendung (F1) · Quote (Q) · Publikum (P) — persistent über allen Views */}
+      <BroadcastHUD />
+
       {/* Dialog Box */}
       {state.currentDialog && (
         <DialogBox
@@ -775,7 +779,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       {/* Save Message */}
       {saveMessage && (
         <div
-          className="fixed bottom-4 right-4 px-4 py-2 border-2 font-bold animate-fade-in z-50"
+          className="fixed bottom-36 right-4 px-4 py-2 border-2 font-bold animate-fade-in z-50"
           style={{
             backgroundColor: StoryModeColors.militaryOlive,
             borderColor: StoryModeColors.darkOlive,
@@ -877,7 +881,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       {/* Combo Hints Widget */}
       {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && state.comboHints && state.comboHints.length > 0 && (
         <div
-          className="fixed bottom-4 left-4 w-80 z-20"
+          className="fixed bottom-36 left-4 w-80 z-20"
           style={{ maxHeight: '40vh', overflowY: 'auto' }}
         >
           <ComboHintsWidget hints={state.comboHints} />
