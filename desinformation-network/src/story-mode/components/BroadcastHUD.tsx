@@ -3,26 +3,23 @@
  *
  *   ┌── F1 SENDUNG ──┬── Q QUOTE ──┬─────── P PUBLIKUM ───────┐
  *   │ TV/Zeitung/Soc │  Einschalt- │ Segment-Figuren + Stimmung │
- *   │ + Themenwahl   │   quote %   │ (wer springt an?)          │
+ *   │ + Thema + 📡   │   quote %   │ (wer springt an?)          │
  *   └────────────────┴─────────────┴────────────────────────────┘
  *
- * v1 = lebende, LESBARE Vorschau: man wählt Medium + Thema einer „Probe-Sendung",
- * und das Publikum (Nordmark) reagiert sofort über `audienceModel.reactToEffect`.
- * Stats (Budget/Risiko/…) bleiben bewusst oben im StoryHUD — hier kein Doppel.
- * „Besser" (später): F1 spiegelt automatisch die zuletzt gespielte Aktion.
+ * Liest/schreibt den `broadcastStore`:
+ *  - F1 zeigt die zuletzt ausgestrahlte Sendung (manuell ODER aus gespielter Aktion) und lässt eine
+ *    neue „Probe-Sendung" komponieren (Medium + Thema) und mit „📡 Ausstrahlen" senden.
+ *  - P zeigt das PERSISTENTE Publikum (Stimmung/Glaube entwickeln sich) und hebt hervor, wer auf die
+ *    aktuell komponierte Sendung anspringt.
+ * Stats (Budget/Risiko/…) bleiben oben im StoryHUD (keine Doppelung).
  *
- * Koordinaten: F1 = Sendung, Q = Quote, P = Publikum (Badges in den Ecken).
- * Konzept: docs/story-mode/BROADCAST_AND_AUDIENCE_CONCEPT.md
+ * Koordinaten: F1 = Sendung, Q = Quote, P = Publikum. Konzept: docs/story-mode/BROADCAST_AND_AUDIENCE_CONCEPT.md
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { StoryModeColors } from '../theme';
-import {
-  getCountry,
-  reactToEffect,
-  type Channel,
-  type Mood,
-  type SegmentReaction,
-} from '../audience/audienceModel';
+import { reactToEffect, type Channel, type Mood, type SegmentReaction } from '../audience/audienceModel';
+import { THEME_LABEL, THEME_HEADLINE } from '../audience/themeText';
+import { useBroadcastStore } from '../stores/broadcastStore';
 
 const MOOD: Record<Mood, { emoji: string; color: string; label: string }> = {
   ruhig: { emoji: '🙂', color: StoryModeColors.success, label: 'ruhig' },
@@ -36,34 +33,6 @@ const CHANNELS: { id: Channel; icon: string; label: string }[] = [
   { id: 'print', icon: '📰', label: 'Zeitung' },
   { id: 'social', icon: '📱', label: 'Social' },
 ];
-
-const THEME_LABEL: Record<string, string> = {
-  energie_angst: 'Energie-Angst',
-  wirtschafts_sorge: 'Wirtschafts-Sorge',
-  abstiegs_angst: 'Abstiegs-Angst',
-  sicherheits_beduerfnis: 'Sicherheits-Bedürfnis',
-  nostalgie: 'Nostalgie',
-  gesundheits_angst: 'Gesundheits-Angst',
-  klima_sorge: 'Klima-Sorge',
-  soziale_gerechtigkeit: 'Soziale Gerechtigkeit',
-  anti_establishment: 'Anti-Establishment',
-  misstrauen_medien: 'Medien-Misstrauen',
-  maennlichkeit: 'Männlichkeit',
-};
-
-const THEME_HEADLINE: Record<string, string> = {
-  energie_angst: 'ENERGIE-SCHOCK: Preise explodieren — wer profitiert?',
-  wirtschafts_sorge: 'WOHLSTAND IN GEFAHR: Experten warnen vor Abstieg',
-  abstiegs_angst: '„WIR VERLIEREN ALLES" — Reportage aus dem Niedergang',
-  sicherheits_beduerfnis: 'UNSICHERHEIT WÄCHST: Bürger fordern harte Hand',
-  nostalgie: 'FRÜHER WAR ALLES BESSER — was wirklich schieflief',
-  gesundheits_angst: 'NEUE GESUNDHEITSSORGEN: Was verschweigt man uns?',
-  klima_sorge: 'KLIMA-DEBATTE: Hysterie oder echter Notstand?',
-  soziale_gerechtigkeit: 'GERECHTIGKEITSLÜCKE: Wer zahlt die Zeche?',
-  anti_establishment: 'DIE DA OBEN: Eliten gegen das Volk?',
-  misstrauen_medien: 'VERTRAUEN BRÖCKELT: Kann man den Medien noch glauben?',
-  maennlichkeit: 'IDENTITÄT IM KAMPF: Was heißt heute „stark"?',
-};
 
 function CornerBadge({ text }: { text: string }) {
   return (
@@ -94,7 +63,6 @@ function BroadcastScreen({ channel, headline, quotePct }: { channel: Channel; he
       </div>
     );
   }
-  // tv
   return (
     <div
       className="relative flex-1 overflow-hidden p-1 flex items-center"
@@ -108,29 +76,45 @@ function BroadcastScreen({ channel, headline, quotePct }: { channel: Channel; he
   );
 }
 
-export function BroadcastHUD({ countryId = 'nordmark' }: { countryId?: string }) {
-  const country = getCountry(countryId);
+export function BroadcastHUD() {
+  const countries = useBroadcastStore((s) => s.countries);
+  const activeCountryId = useBroadcastStore((s) => s.activeCountryId);
+  const setActiveCountry = useBroadcastStore((s) => s.setActiveCountry);
+  const air = useBroadcastStore((s) => s.air);
+  const lastAired = useBroadcastStore((s) => s.lastAired);
+
+  const country = countries.find((c) => c.id === activeCountryId) ?? countries[0];
+
   const [channel, setChannel] = useState<Channel>('tv');
   const [theme, setTheme] = useState<string>('energie_angst');
 
-  // Verfügbare Themen = Vereinigung der Vulnerabilitäten des Landes.
-  const themes = useMemo(() => {
-    if (!country) return [];
-    const set = new Set<string>();
-    country.segments.forEach((s) => s.vulnerabilities.forEach((v) => set.add(v)));
-    return Array.from(set);
-  }, [country]);
+  // Zuletzt ausgestrahlte Sendung (auch aus Gameplay) in die Komponier-Ansicht spiegeln.
+  useEffect(() => {
+    if (lastAired) {
+      setChannel(lastAired.channel);
+      if (lastAired.themes[0]) setTheme(lastAired.themes[0]);
+    }
+  }, [lastAired]);
 
-  const reaction = useMemo(
+  const themes = useMemo(() => {
+    const set = new Set<string>();
+    country?.segments.forEach((s) => s.vulnerabilities.forEach((v) => set.add(v)));
+    set.add(theme); // aktuelles Thema immer wählbar halten
+    return Array.from(set);
+  }, [country, theme]);
+
+  const preview = useMemo(
     () => (country ? reactToEffect(country, { themes: [theme], channel, intensity: 0.8 }) : null),
     [country, theme, channel],
   );
 
-  if (!country || !reaction) return null;
+  if (!country || !preview) return null;
 
-  const reactionById = new Map<string, SegmentReaction>(reaction.reactions.map((r) => [r.segmentId, r]));
-  const quotePct = Math.round(reaction.quote * 100);
+  const previewById = new Map<string, SegmentReaction>(preview.reactions.map((r) => [r.segmentId, r]));
+  const quotePct = Math.round(preview.quote * 100);
   const headline = THEME_HEADLINE[theme] ?? theme;
+
+  const doAir = () => air({ themes: [theme], channel, intensity: 0.8 }, headline, 'Manuelle Sendung');
 
   return (
     <div
@@ -152,10 +136,7 @@ export function BroadcastHUD({ countryId = 'nordmark' }: { countryId?: string })
                 title={c.label}
                 aria-pressed={channel === c.id}
                 className="px-1 text-sm rounded-sm transition-all"
-                style={{
-                  backgroundColor: channel === c.id ? StoryModeColors.sovietRed : 'transparent',
-                  opacity: channel === c.id ? 1 : 0.5,
-                }}
+                style={{ backgroundColor: channel === c.id ? StoryModeColors.sovietRed : 'transparent', opacity: channel === c.id ? 1 : 0.5 }}
               >
                 {c.icon}
               </button>
@@ -165,19 +146,29 @@ export function BroadcastHUD({ countryId = 'nordmark' }: { countryId?: string })
 
         <BroadcastScreen channel={channel} headline={headline} quotePct={quotePct} />
 
-        <select
-          value={theme}
-          onChange={(e) => setTheme(e.target.value)}
-          className="mt-1 text-[11px] py-0.5 px-1 border rounded-sm"
-          style={{ backgroundColor: StoryModeColors.surface, color: StoryModeColors.textPrimary, borderColor: StoryModeColors.borderLight }}
-          title="Thema der Sendung"
-        >
-          {themes.map((t) => (
-            <option key={t} value={t}>
-              {THEME_LABEL[t] ?? t}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center gap-1 mt-1">
+          <select
+            value={theme}
+            onChange={(e) => setTheme(e.target.value)}
+            className="flex-1 text-[11px] py-0.5 px-1 border rounded-sm"
+            style={{ backgroundColor: StoryModeColors.surface, color: StoryModeColors.textPrimary, borderColor: StoryModeColors.borderLight }}
+            title="Thema der Sendung"
+          >
+            {themes.map((t) => (
+              <option key={t} value={t}>
+                {THEME_LABEL[t] ?? t}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={doAir}
+            className="px-2 py-0.5 text-[11px] font-bold border rounded-sm transition-all hover:brightness-110 active:translate-y-px"
+            style={{ backgroundColor: StoryModeColors.sovietRed, borderColor: StoryModeColors.darkRed, color: '#fff' }}
+            title="Sendung ausstrahlen (wirkt dauerhaft aufs Publikum)"
+          >
+            📡 Ausstrahlen
+          </button>
+        </div>
       </div>
 
       {/* Q — QUOTE */}
@@ -190,8 +181,8 @@ export function BroadcastHUD({ countryId = 'nordmark' }: { countryId?: string })
           {quotePct}
           <span className="text-lg">%</span>
         </div>
-        <div className="text-[9px] mt-1" style={{ color: StoryModeColors.textMuted }}>
-          {country.label_de} · {channel.toUpperCase()}
+        <div className="text-[9px] mt-1 text-center px-1 truncate max-w-[104px]" style={{ color: StoryModeColors.textMuted }}>
+          {lastAired ? `📡 ${lastAired.source}` : `Vorschau · ${channel.toUpperCase()}`}
         </div>
       </div>
 
@@ -200,16 +191,16 @@ export function BroadcastHUD({ countryId = 'nordmark' }: { countryId?: string })
         <CornerBadge text="P" />
         <div className="flex items-end gap-2 pl-6">
           {country.segments.map((seg) => {
-            const r = reactionById.get(seg.id)!;
-            const mood = MOOD[r.newMood];
-            const active = r.reached && r.resonance > 0;
+            const r = previewById.get(seg.id);
+            const mood = MOOD[seg.mood];
+            const active = !!r && r.reached && r.resonance > 0;
             const dim = 30 + Math.round(seg.size * 40);
             return (
               <div
                 key={seg.id}
-                title={`${seg.label_de}\nStimmung: ${mood.label}${r.reached ? '' : ' · nicht erreicht'}\nGlaube: ${Math.round(r.newBelief * 100)}%`}
+                title={`${seg.label_de}\nStimmung: ${mood.label}${r && !r.reached ? ' · nicht erreicht' : ''}\nGlaube: ${Math.round(seg.belief * 100)}%`}
                 className="flex flex-col items-center shrink-0"
-                style={{ opacity: r.reached ? 1 : 0.35 }}
+                style={{ opacity: r && !r.reached ? 0.4 : 1 }}
               >
                 <div
                   className="flex items-center justify-center rounded-full border-2"
@@ -225,14 +216,32 @@ export function BroadcastHUD({ countryId = 'nordmark' }: { countryId?: string })
                   {mood.emoji}
                 </div>
                 <div className="h-1 w-8 mt-1" style={{ backgroundColor: '#333' }}>
-                  <div className="h-full" style={{ width: `${Math.round(r.newBelief * 100)}%`, backgroundColor: mood.color }} />
+                  <div className="h-full" style={{ width: `${Math.round(seg.belief * 100)}%`, backgroundColor: mood.color }} />
                 </div>
               </div>
             );
           })}
         </div>
-        <div className="ml-auto pr-1 text-[9px] max-w-[140px] leading-tight" style={{ color: StoryModeColors.textMuted }}>
-          Wer springt an? Hervorgehobene Figuren resonieren mit „{THEME_LABEL[theme] ?? theme}".
+
+        <div className="ml-auto flex flex-col items-end gap-1 pr-1">
+          {countries.length > 1 && (
+            <select
+              value={activeCountryId}
+              onChange={(e) => setActiveCountry(e.target.value)}
+              className="text-[10px] py-0.5 px-1 border rounded-sm"
+              style={{ backgroundColor: StoryModeColors.surface, color: StoryModeColors.textPrimary, borderColor: StoryModeColors.borderLight }}
+              title="Zielland"
+            >
+              {countries.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.label_de}
+                </option>
+              ))}
+            </select>
+          )}
+          <div className="text-[9px] max-w-[150px] leading-tight text-right" style={{ color: StoryModeColors.textMuted }}>
+            {country.label_de}: Hervorgehobene springen auf „{THEME_LABEL[theme] ?? theme}" an.
+          </div>
         </div>
       </div>
     </div>

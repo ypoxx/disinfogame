@@ -31,6 +31,9 @@ import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
 import { DashboardView } from './components/DashboardView';
 import { BroadcastHUD } from './components/BroadcastHUD';
+import { useBroadcastStore } from './stores/broadcastStore';
+import { actionToEffect } from './audience/effectMapping';
+import { THEME_HEADLINE } from './audience/themeText';
 
 // ============================================
 // TYPES
@@ -361,6 +364,16 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     resetUI,
   } = usePanelStore();
 
+  // Sendung/Publikum-Schicht (entkoppelter Store) — gespielte Content-Aktionen gehen „on air".
+  const broadcastAir = useBroadcastStore((s) => s.air);
+  const resetBroadcast = useBroadcastStore((s) => s.reset);
+  const airFromAction = (actionId: string) => {
+    const a = state.availableActions.find((x) => x.id === actionId);
+    if (!a) return;
+    const eff = actionToEffect({ phase: a.phase, tags: a.tags, label_de: a.label_de, narrative_de: a.narrative_de });
+    if (eff) broadcastAir(eff, THEME_HEADLINE[eff.themes[0]] ?? a.label_de, a.label_de);
+  };
+
   const [showActionFeedback, setShowActionFeedback] = useState(false);
   const [showEncyclopedia, setShowEncyclopedia] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
@@ -495,8 +508,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           trustHistory: state.trustHistory,
           actors: chartActors,
         }}
-        onRestart={() => { resetUI(); resetGame(); }}
-        onMainMenu={() => { resetUI(); onExit(); }}
+        onRestart={() => { resetUI(); resetBroadcast(); resetGame(); }}
+        onMainMenu={() => { resetUI(); resetBroadcast(); onExit(); }}
       />
     );
   }
@@ -650,6 +663,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               }}
               onSelectAction={(actionId) => {
                 const result = executeAction(actionId);
+                airFromAction(actionId);
                 setActivePanel(null);
                 setHighlightActionId(null);
                 if (result) {
