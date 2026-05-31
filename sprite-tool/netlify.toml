@@ -1,0 +1,16 @@
+# Netlify-Konfiguration für das Asset Studio (Next.js).
+#
+# Beim Anlegen der Site im Netlify-Dashboard:
+#   - "Base directory" = sprite-tool   (dann wird diese Datei gelesen,
+#     der Build läuft in sprite-tool/)
+#   - Umgebungsvariable SITE_PASSWORD setzen (optional SITE_USER) — sonst
+#     blockt die App bewusst (kein offenes Deploy). Siehe DEPLOY.md.
+
+[build]
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

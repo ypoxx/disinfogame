@@ -1,6 +1,8 @@
-# Sprite Studio
+# Asset Studio
 
-KI-gestütztes Tool zur Erstellung von Spielgrafiken für das Disinfo-Spiel.
+Internes Werkzeug zur Erstellung von Spiel-Assets (Grafik via Gemini; Audio via ElevenLabs geplant).
+
+> **Im Browser nutzen (gehostet, ohne CLI, passwortgeschützt):** siehe **[DEPLOY.md](DEPLOY.md)** (Netlify).
 
 ## Features
 
@@ -76,9 +78,9 @@ ins Repository hochgeladen. Deine API Keys bleiben lokal.
 
 ### Zusätzliche Sicherheitsmaßnahmen
 
-1. **Keine Keys im Code** - Alle Keys werden über Umgebungsvariablen geladen
-2. **Server-side only** - API Keys werden nur auf dem Server verwendet, nie im Browser
-3. **Rate Limiting** - Das Tool begrenzt Anfragen automatisch
+1. **Keine Keys im Code** - Keys kommen aus `.env.local` oder werden in der UI (⚙️) eingegeben
+2. **Keys nur lokal** - UI-Keys liegen ausschließlich in deinem Browser (localStorage) und gehen pro Anfrage als Header an die lokalen API-Routen; nichts wird ins Repo committet
+3. **Gehostet: passwortgeschützt** - die deploybare Instanz ist per Basic Auth gesperrt (Seiten **und** `/api/*`), siehe [DEPLOY.md](DEPLOY.md)
 4. **Kein Logging** - Keys werden nicht in Logs geschrieben
 
 ### Falls du das Tool deployen willst
