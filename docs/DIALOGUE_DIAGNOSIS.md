@@ -3,6 +3,12 @@
 > **Status:** Referenz · **Aktualisiert:** 2026-05-31 · **Scope:** Story
 > **Wichtig:** Alles hier wurde **selbst im Code/in den Daten geprüft**, nicht aus zweiter Hand übernommen.
 
+> ✅ **GELÖST (2026-05-31):** Der Reaktions-Weg ist jetzt verdrahtet — `processNPCReactions`
+> (in `StoryEngineAdapter.ts`) fragt `getReaction` mit den **echten Aktions-Tags** ab, sodass die
+> autorisierten NPC-Reaktionen wieder erscheinen statt der Notlösung. Beweis-Test:
+> `src/story-mode/__tests__/NPCReactionWiring.test.ts` (grün). Die genaue Ursache unten bleibt
+> als Dokumentation stehen.
+
 ## Kurzfassung (in einfachen Worten)
 Die guten Dialoge sind **nicht verloren** — es wurde sogar sehr viel geschrieben. Das Problem ist:
 Das Dialog-System wurde nur **halb angeschlossen**. Manche Wege funktionieren, einer (der häufigste) nicht —

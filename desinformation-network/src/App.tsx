@@ -288,11 +288,11 @@ function App() {
               onClick={() => setShowStoryModeTest(true)}
               className="px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white text-xl font-semibold rounded-xl transition-colors shadow-lg"
             >
-              📖 Story Mode Test
+              📖 Story Mode
             </button>
 
             <p className="text-gray-400 text-sm max-w-md">
-              Story Mode is a visual prototype showing how the same game could be played with a narrative, office-simulation interface inspired by Papers Please.
+              Story Mode is the narrative campaign: lead an agency employee through moral choices, NPC relationships and lasting consequences — a brutalist office simulation inspired by Papers Please.
             </p>
           </div>
 
