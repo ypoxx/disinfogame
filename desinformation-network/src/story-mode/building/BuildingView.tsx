@@ -76,6 +76,48 @@ function moraleColor(morale: number): string {
   return StoryModeColors.success;
 }
 
+/** Fahrstuhl-Schacht mit ambient animierter Kabine (CSS-only). Adressierbar als „L". */
+function ElevatorShaft({ showCoords }: { showCoords: boolean }) {
+  return (
+    <div className="absolute right-0 top-0 bottom-0 w-12 flex flex-col">
+      <style>{`
+        @keyframes bv-elevator { 0%,12%{top:2%} 30%,42%{top:38%} 60%,72%{top:74%} 90%,100%{top:2%} }
+        @keyframes bv-blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+      `}</style>
+      <div className="relative flex-1 border-2" style={{ borderColor: '#2a2a2a', backgroundColor: '#101010' }}>
+        {showCoords && (
+          <span
+            className="absolute top-0.5 left-1/2 -translate-x-1/2 text-[10px] font-bold z-10"
+            style={{ color: StoryModeColors.warning }}
+          >
+            L
+          </span>
+        )}
+        {/* Status-LED */}
+        <span
+          className="absolute top-1 right-1 rounded-full"
+          style={{ width: 6, height: 6, backgroundColor: StoryModeColors.danger, animation: 'bv-blink 1.4s ease-in-out infinite' }}
+        />
+        {/* Kabine (fährt) */}
+        <div
+          className="absolute left-1/2 -translate-x-1/2"
+          style={{
+            width: 30,
+            height: '26%',
+            top: '2%',
+            backgroundColor: '#2a2a2a',
+            border: '2px solid #444',
+            animation: 'bv-elevator 9s ease-in-out infinite',
+          }}
+          title="Fahrstuhl (L)"
+        >
+          <div className="h-full mx-auto" style={{ width: 1, backgroundColor: '#111' }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function BuildingView({ npcs, onRoomClick }: BuildingViewProps) {
   const npcById = new Map(npcs.map((n) => [n.id, n]));
   const [showCoords, setShowCoords] = useState(false);
@@ -109,7 +151,7 @@ export function BuildingView({ npcs, onRoomClick }: BuildingViewProps) {
 
         {/* Spaltenkopf (A, B, …) — nur mit Overlay; auf die Etagen-Spalten ausgerichtet */}
         {showCoords && (
-          <div className="mb-1 flex gap-2">
+          <div className="mb-1 flex gap-2 pr-14">
             <div className="shrink-0 w-8" />
             <div className="flex-1 px-3" style={gridStyle}>
               {Array.from({ length: colCount }, (_, i) => (
@@ -125,7 +167,7 @@ export function BuildingView({ npcs, onRoomClick }: BuildingViewProps) {
           </div>
         )}
 
-        <div className="flex flex-col gap-3">
+        <div className="relative flex flex-col gap-3 pr-14">
           {floors.map((floor) => {
             const floorRooms = rooms.filter((r) => r.floor === floor.id);
             const byCol = new Map(floorRooms.map((r) => [r.col ?? 1, r]));
@@ -235,6 +277,9 @@ export function BuildingView({ npcs, onRoomClick }: BuildingViewProps) {
               </div>
             );
           })}
+
+          {/* Fahrstuhl-Schacht (L) — ambiente CSS-Animation rechts neben den Etagen */}
+          <ElevatorShaft showCoords={showCoords} />
         </div>
 
         {showCoords && (
