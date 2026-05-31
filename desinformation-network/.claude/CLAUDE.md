@@ -1,5 +1,10 @@
 # Desinformation Network Game - Master Documentation
 
+> ⚠️ **AKTUELLER STAND (2026-05-31): Story-Mode-only.** Dieses Dokument beschreibt größtenteils den
+> **archivierten Pro Mode** (Netzwerk-/Vertrauens-Spiel, „infographic"-Optik, Netlify-Backend) und ist
+> daher historisch. **Verbindlich ist `../../docs/VISION_LOCK.md` + `../../START_HERE.md`.** Pro-Mode-Code
+> und -Backend liegen unter `archive/pro-mode/`; die App startet direkt Story Mode.
+
 ## Project Overview
 
 **Desinformation Network** is an educational strategy game that simulates the spread of disinformation through a network of societal actors (media, experts, lobby groups, and organizations). Players take the role of a disinformation agent, using real-world persuasion techniques to manipulate trust levels across the network.
