@@ -17,6 +17,13 @@ Auswahl/Kuratierung → Editieren (Inpainting, Zuschneiden, Bereiche markieren) 
   (`gemini-2.0-flash-exp` → auf aktuelles „Nano Banana" heben).
 
 ## Aktuelle Modelle (Web-Stand 2026 — API-IDs verifiziert)
+
+> ✅ **Entscheidung (2026-05-31): nur `gemini-3-pro-image` (Nano Banana Pro)** als einziges Bild-Modell.
+> Begründung: **wenige Assets → geringe Kosten**; **Schärfe reicht** (kein 3D-Shooter); **kaum Text in Grafiken**
+> → **Text wird im Code eingefügt** (flexibler, lokalisierbar `_de`/`_en`, gestochen scharf, ohne neu zu generieren).
+> Folge fürs `sprite-tool`: **ein** Provider, **ein** Key → einfacher; der „Anbieter-Auswahl"-Punkt unten **entfällt vorerst**.
+> `gpt-image-2` bleibt nur als **optionale** spätere Alternative notiert.
+
 - **OpenAI: `gpt-image-2`** (GPT Image 2, April 2026) — bis **4K**, sehr starke Instruktions-Treue & Konsistenz.
   ⚠️ **Unterstützt KEINEN transparenten Hintergrund** → für freistehende Sprites den Hintergrund **hinterher** freistellen.
 - **Google: `gemini-3-pro-image`** (Nano Banana Pro) — Top für Konsistenz: bis zu **14 Referenzbilder**,
