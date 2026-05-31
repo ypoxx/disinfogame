@@ -3,6 +3,8 @@
 **Erstellt:** 2026-01-04
 **Zweck:** Systematische Qualitätssicherung bei Code-Analysen und Roadmap-Erstellung
 
+> 📌 **Hinweis (2026-05-31):** Kanonische Quelle ist jetzt `docs/VISION_LOCK.md` + `ROADMAP.md`. Einige unten genannte Pläne (`GAME_REDESIGN.md`, `UI_UX_REDESIGN_PLAN.md`, `DEVELOPMENT_ROADMAP_2026.md` u. a.) liegen jetzt in `archive/docs/` und sind nur noch historisch.
+
 ---
 
 ## PROBLEM: Fehlerhafte Analysen verhindern
