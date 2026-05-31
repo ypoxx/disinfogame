@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getCountry, reactToEffect, themeResonance } from '../audience/audienceModel';
+import { getCountry, loadAudience, reactToEffect, themeResonance } from '../audience/audienceModel';
 
 describe('Publikums-Modell (Nordmark)', () => {
   it('lädt Nordmark; Segment-Größen summieren ~1.0', () => {
@@ -38,5 +38,22 @@ describe('Publikums-Modell (Nordmark)', () => {
   it('Resonanz ist 0 bei leerer Themenliste', () => {
     const nm = getCountry('nordmark')!;
     expect(themeResonance(nm.segments[0], [])).toBe(0);
+  });
+
+  it('unterstützt mehrere Länder; Gallia-Größen summieren ~1.0', () => {
+    const all = loadAudience();
+    expect(all.length).toBeGreaterThanOrEqual(2);
+    const ga = getCountry('gallia');
+    expect(ga).toBeDefined();
+    expect(ga!.segments.reduce((s, x) => s + x.size, 0)).toBeCloseTo(1, 2);
+  });
+
+  it('Nationale-Identität-Sendung (social) resoniert mit Gallias Nationalisten', () => {
+    const ga = getCountry('gallia')!;
+    const r = reactToEffect(ga, { themes: ['nationale_identitaet'], channel: 'social', intensity: 1 });
+    const nat = r.reactions.find((x) => x.segmentId === 'ga_nationalist')!;
+    expect(nat.reached).toBe(true);
+    expect(nat.resonance).toBeCloseTo(1, 5);
+    expect(nat.beliefDelta).toBeGreaterThan(0);
   });
 });

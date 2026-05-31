@@ -45,11 +45,23 @@ function CornerBadge({ text }: { text: string }) {
   );
 }
 
-function BroadcastScreen({ channel, headline, quotePct }: { channel: Channel; headline: string; quotePct: number }) {
+function BroadcastScreen({
+  channel,
+  headline,
+  quotePct,
+  countryLabel,
+  countryId,
+}: {
+  channel: Channel;
+  headline: string;
+  quotePct: number;
+  countryLabel: string;
+  countryId: string;
+}) {
   if (channel === 'print') {
     return (
       <div className="flex-1 overflow-hidden p-1" style={{ backgroundColor: StoryModeColors.oldPaper, color: '#1a1a1a' }}>
-        <div className="text-[8px] font-bold border-b border-black/40 text-center tracking-widest">NORDMARK KURIER</div>
+        <div className="text-[8px] font-bold border-b border-black/40 text-center tracking-widest">{countryLabel.toUpperCase()} KURIER</div>
         <div className="text-[10px] font-bold leading-tight mt-0.5 line-clamp-2">{headline}</div>
       </div>
     );
@@ -57,7 +69,7 @@ function BroadcastScreen({ channel, headline, quotePct }: { channel: Channel; he
   if (channel === 'social') {
     return (
       <div className="flex-1 overflow-hidden p-1 flex flex-col" style={{ backgroundColor: '#15202b', color: '#e7e9ea' }}>
-        <div className="text-[8px]" style={{ color: '#8b98a5' }}>@nordmark_wahrheit · jetzt</div>
+        <div className="text-[8px]" style={{ color: '#8b98a5' }}>@{countryId}_wahrheit · jetzt</div>
         <div className="text-[10px] font-semibold leading-tight line-clamp-2">{headline}</div>
         <div className="text-[8px] mt-auto" style={{ color: '#8b98a5' }}>❤ {quotePct * 12} · 🔁 {quotePct * 3}</div>
       </div>
@@ -144,7 +156,7 @@ export function BroadcastHUD() {
           </div>
         </div>
 
-        <BroadcastScreen channel={channel} headline={headline} quotePct={quotePct} />
+        <BroadcastScreen channel={channel} headline={headline} quotePct={quotePct} countryLabel={country.label_de} countryId={country.id} />
 
         <div className="flex items-center gap-1 mt-1">
           <select

@@ -14,6 +14,7 @@ export const THEME_LABEL: Record<string, string> = {
   anti_establishment: 'Anti-Establishment',
   misstrauen_medien: 'Medien-Misstrauen',
   maennlichkeit: 'Männlichkeit',
+  nationale_identitaet: 'Nationale Identität',
 };
 
 export const THEME_HEADLINE: Record<string, string> = {
@@ -28,4 +29,5 @@ export const THEME_HEADLINE: Record<string, string> = {
   anti_establishment: 'DIE DA OBEN: Eliten gegen das Volk?',
   misstrauen_medien: 'VERTRAUEN BRÖCKELT: Kann man den Medien noch glauben?',
   maennlichkeit: 'IDENTITÄT IM KAMPF: Was heißt heute „stark"?',
+  nationale_identitaet: 'AUSVERKAUF DER NATION? Identität unter Druck',
 };

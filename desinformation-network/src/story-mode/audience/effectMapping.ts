@@ -22,6 +22,7 @@ const THEME_KEYWORDS: { theme: string; rx: RegExp }[] = [
   { theme: 'gesundheits_angst', rx: /gesundheit|impf|pandemie|krank|pharma|virus/i },
   { theme: 'klima_sorge', rx: /klima|umwelt|co2|energiewende/i },
   { theme: 'soziale_gerechtigkeit', rx: /gerecht|gleich|sozial|verteil/i },
+  { theme: 'nationale_identitaet', rx: /nation|identität|souverän|patriot|heimat|tradition/i },
 ];
 
 /** DISARM-Phasen, deren Aktionen öffentlich „on air" gehen. */
