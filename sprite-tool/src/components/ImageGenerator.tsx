@@ -7,8 +7,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import type { AssetType, GeneratedImage } from '@/types';
-import { ASPECT_RATIOS } from '@/lib/constants';
+import { ASPECT_RATIOS, DEFAULT_IMAGE_MODEL } from '@/lib/constants';
 import { keyHeaders } from '@/lib/keys';
+import { putAsset } from '@/lib/library';
+import { createLibraryAsset, defaultIdFromPrompt } from '@/lib/assets';
 
 interface ImageGeneratorProps {
   prompt: string;
@@ -35,6 +37,7 @@ export function ImageGenerator({
   const [seed, setSeed] = useState('');
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [addedMsg, setAddedMsg] = useState<string | null>(null);
 
   const assetDefaults = useMemo(() => {
     switch (assetType) {
@@ -139,6 +142,25 @@ export function ImageGenerator({
     if (selectedIndex !== null && images[selectedIndex]) {
       onImageSelect(images[selectedIndex]);
     }
+  }
+
+  async function handleAddToLibrary() {
+    if (selectedIndex === null || !images[selectedIndex]) return;
+    const img = images[selectedIndex];
+    await putAsset(
+      createLibraryAsset({
+        id: defaultIdFromPrompt(prompt),
+        type: 'image',
+        dataBase64: img.base64,
+        mime: 'image/png',
+        prompt,
+        seed: img.seed,
+        provider: DEFAULT_IMAGE_MODEL,
+        styleVersion: 'v1',
+      })
+    );
+    setAddedMsg('✓ Zur Bibliothek hinzugefügt — über 📚 Bibliothek kuratieren');
+    window.setTimeout(() => setAddedMsg(null), 2500);
   }
 
   return (
@@ -329,7 +351,7 @@ export function ImageGenerator({
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={handleGenerate}
               disabled={isGenerating}
@@ -339,14 +361,23 @@ export function ImageGenerator({
               Neue Varianten
             </button>
             <button
+              onClick={handleAddToLibrary}
+              disabled={selectedIndex === null}
+              className="flex-1 py-3 px-4 bg-green-700 hover:bg-green-600 disabled:bg-gray-700
+                         disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+            >
+              + Bibliothek
+            </button>
+            <button
               onClick={handleConfirm}
               disabled={selectedIndex === null}
               className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700
                          disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
             >
-              Auswahl bestätigen
+              Bearbeiten →
             </button>
           </div>
+          {addedMsg && <p className="text-center text-sm text-green-400">{addedMsg}</p>}
         </>
       )}
     </div>

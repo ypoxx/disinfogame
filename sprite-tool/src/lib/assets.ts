@@ -116,6 +116,19 @@ export function validateForExport(assets: LibraryAsset[]): string[] {
 
 let counter = 0;
 
+/** Leitet eine gültige Default-id aus dem Prompt ab (a–z, 0–9, _). */
+export function defaultIdFromPrompt(prompt: string, fallback = 'asset'): string {
+  const slug = prompt
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .split('_')
+    .filter(Boolean)
+    .slice(0, 5)
+    .join('_');
+  return slug || fallback;
+}
+
 /** Erzeugt ein neues Bibliotheks-Asset mit internem Schlüssel + Defaults. */
 export function createLibraryAsset(
   init: Omit<LibraryAsset, 'key' | 'createdAt' | 'chosen'> & { chosen?: boolean }

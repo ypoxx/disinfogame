@@ -9,6 +9,7 @@ import { PromptAssistant } from '@/components/PromptAssistant';
 import { ImageGenerator } from '@/components/ImageGenerator';
 import { ImageEditor } from '@/components/ImageEditor';
 import { SettingsPanel } from '@/components/SettingsPanel';
+import { LibraryPanel } from '@/components/LibraryPanel';
 import type { AssetType, GeneratedImage, ProjectMode } from '@/types';
 
 export default function Home() {
@@ -18,6 +19,7 @@ export default function Home() {
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
   const [generateToken, setGenerateToken] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
+  const [showLibrary, setShowLibrary] = useState(false);
 
   function handleAssetTypeSelect(type: AssetType) {
     setAssetType(type);
@@ -101,6 +103,13 @@ export default function Home() {
                 )}
               </div>
             )}
+            <button
+              onClick={() => setShowLibrary(true)}
+              className="text-sm text-gray-400 hover:text-white"
+              title="Asset-Bibliothek"
+            >
+              📚 Bibliothek
+            </button>
             <button
               onClick={() => setShowSettings(true)}
               className="text-sm text-gray-400 hover:text-white"
@@ -221,6 +230,9 @@ export default function Home() {
 
       {/* Settings */}
       {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
+
+      {/* Bibliothek */}
+      {showLibrary && <LibraryPanel onClose={() => setShowLibrary(false)} />}
 
       {/* Footer */}
       <footer className="border-t border-gray-800 mt-auto">
