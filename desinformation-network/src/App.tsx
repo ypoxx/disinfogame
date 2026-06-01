@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { StoryModeGame } from '@/story-mode/StoryModeGame';
 import { BlueprintStudio } from '@/studio/BlueprintStudio';
+import { StudioScene } from '@/studio/StudioScene';
 
 /**
  * App entry — Story-Mode-only (2026-05-31).
@@ -18,9 +19,13 @@ function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
-  // Neuanfang-Skizze (eigenständige Fläche, eigenes Design-System): #studio
-  if (hash.startsWith('#studio') || hash.startsWith('#blueprint')) {
+  // Neuanfang-Skizzen (eigenständige Flächen, eigenes Design-System):
+  //   #studio = gezeichneter Gebäude-Schnitt (Szene) · #dash = Blueprint-Dashboard-Variante
+  if (hash.startsWith('#dash')) {
     return <BlueprintStudio />;
+  }
+  if (hash.startsWith('#studio') || hash.startsWith('#blueprint')) {
+    return <StudioScene />;
   }
 
   if (started) {
