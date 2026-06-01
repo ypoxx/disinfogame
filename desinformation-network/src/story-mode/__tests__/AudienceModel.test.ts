@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detectionDampen, getCountry, loadAudience, reactToEffect, themeResonance } from '../audience/audienceModel';
+import { decaySegment, detectionDampen, getCountry, loadAudience, reactToEffect, themeResonance } from '../audience/audienceModel';
 
 describe('Publikums-Modell (Nordmark)', () => {
   it('lädt Nordmark; Segment-Größen summieren ~1.0', () => {
@@ -61,5 +61,21 @@ describe('Publikums-Modell (Nordmark)', () => {
     expect(detectionDampen(0.8, 0)).toBeCloseTo(0.8, 5);
     expect(detectionDampen(0.8, 50)).toBeLessThan(0.8);
     expect(detectionDampen(0.8, 100)).toBeCloseTo(0.8 * 0.4, 5);
+  });
+
+  it('geringere Intensität (= höheres Risiko) senkt auch die Quote/Reichweite', () => {
+    const nm = getCountry('nordmark')!;
+    const hi = reactToEffect(nm, { themes: ['energie_angst'], channel: 'tv', intensity: 1 });
+    const lo = reactToEffect(nm, { themes: ['energie_angst'], channel: 'tv', intensity: 0.4 });
+    expect(lo.quote).toBeLessThan(hi.quote);
+  });
+
+  it('decaySegment zieht den Glauben zur Grundlinie und beruhigt die Stimmung', () => {
+    const a = decaySegment(0.9, 'wuetend', 1);
+    expect(a.belief).toBeCloseTo(0.35, 5);
+    expect(a.mood).toBe('ruhig');
+    const b = decaySegment(0.9, 'wuetend', 0); // keine Zeit -> unverändert
+    expect(b.belief).toBeCloseTo(0.9, 5);
+    expect(b.mood).toBe('wuetend');
   });
 });

@@ -105,7 +105,8 @@ export function reactToEffect(country: AudienceCountry, effect: Effect): Country
     const resonance = themeResonance(seg, effect.themes);
     const effectiveness = reached ? resonance * intensity : 0;
     // Auch wenig resonante Erreichte „sehen" es (Grundreichweite 0.3), Resonanz gewichtet den Rest.
-    const reach = reached ? seg.size * (0.3 + 0.7 * resonance) : 0;
+    // Reichweite hängt auch an der Intensität → Entdeckungs-Risiko (gedämpfte Intensität) senkt die Quote.
+    const reach = reached ? seg.size * (0.3 + 0.7 * resonance) * (0.4 + 0.6 * intensity) : 0;
     const beliefDelta = effectiveness * 0.2;
     return {
       segmentId: seg.id,
@@ -127,4 +128,11 @@ export function reactToEffect(country: AudienceCountry, effect: Effect): Country
 export function detectionDampen(intensity: number, risk: number): number {
   const r = Math.max(0, Math.min(100, risk)) / 100;
   return clamp01(intensity * (1 - r * 0.6));
+}
+
+/** Zeit vergeht: Glaube driftet zur Grundlinie zurück, Stimmung beruhigt sich. rate 0..1. */
+export function decaySegment(belief: number, mood: Mood, rate: number, baseline = 0.35): { belief: number; mood: Mood } {
+  const r = Math.max(0, Math.min(1, rate));
+  const nb = clamp01(belief + (baseline - belief) * r);
+  return { belief: nb, mood: Math.abs(nb - baseline) < 0.08 ? 'ruhig' : mood };
 }
