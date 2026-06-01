@@ -1,6 +1,6 @@
 # 📺 Sendung & Publikum — Konzept (MadTV/MadNews-HUD)
 
-**Status:** Aktiv (Entwurf/Konzept) — als Plan festgehalten, Mechanik-Details bewusst offen
+**Status:** Aktiv — **Entwurf ohne Grafik-Assets umgesetzt** (siehe „✅ Umgesetzt"); tiefere Schichten optional
 **Aktualisiert:** 2026-05-31
 **Scope:** Story
 **Supersedes / Superseded-By:** —
@@ -180,6 +180,29 @@ Legt sich über Gebäude **und** HUD; später über echte Assets.
 
 > Reihenfolge folgt `BUILDING_AND_ASSETS.md`: erst sichtbares Gerüst (CSS), Tiefe iterativ — **kein Big-Bang**,
 > Build/Tests bleiben grün.
+
+---
+
+## ✅ Umgesetzt — Entwurf ohne Grafik-Assets (Branch `claude/building-schematic`)
+
+Alles CSS-only, ohne Grafik-Assets; `typecheck` + Build + **95 Story-Tests** grün.
+
+| Baustein | Stand | Ort |
+|---|---|---|
+| Koordinaten-Raster + „🧭"-Overlay (A2/B2/A0 …, leere Zellen) | ✅ | `building/BuildingView.tsx`, `data/building.json` (`col`) |
+| Publikums-Modell (Resonanz · Quote · Stimmung · Glaube) | ✅ + Tests | `audience/audienceModel.ts`, `data/audience.json` |
+| 2 Länder (Nordmark, Gallia) · erweiterbar auf N | ✅ | `data/audience.json` |
+| HUD-Leiste **F1/Q/P** (persistent, über allen Views) | ✅ | `components/BroadcastHUD.tsx` |
+| Sendung komponieren (Medium+Thema) + „📡 Ausstrahlen" | ✅ | `BroadcastHUD` + `stores/broadcastStore.ts` |
+| **F1 ↔ Gameplay**: Content-Aktion (TA03/04/05/07) geht on air | ✅ | `StoryModeGame.tsx` (`airFromAction`), `audience/effectMapping.ts` |
+| Detection: Risiko dämpft Wirkung + Gegen-Sendung (Faktencheck) | ✅ + Test | `detectionDampen`, `broadcastStore.counter` |
+| Fahrstuhl (L) + Raum-Ambiente (ON AIR / Monitor) + NPC-Präsenz | ✅ | `BuildingView` (CSS-Keyframes) |
+
+**Bewusst noch offen** (= braucht Grafik-Assets oder tiefere Engine-Arbeit, daher außerhalb des Entwurfs):
+- Laufende Figuren zwischen Räumen — braucht **einen** Lauf-Zyklus-Asset (`VISION_LOCK §5`).
+- Quote/Glaube an **OKRs/Enden** (`EndingSystem`) koppeln + Publikums-Stand in Save/Load.
+- Aktionen aus der **Queue** (Auto-Ausführung) ebenfalls „on air" schalten.
+- Echte Sendungs-/Figuren-Grafik statt CSS-Platzhalter (über `sprite-tool`/Asset-Pipeline).
 
 ---
 
