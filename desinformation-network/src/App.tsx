@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StoryModeGame } from '@/story-mode/StoryModeGame';
+import { BlueprintStudio } from '@/studio/BlueprintStudio';
 
 /**
  * App entry — Story-Mode-only (2026-05-31).
@@ -10,6 +11,17 @@ import { StoryModeGame } from '@/story-mode/StoryModeGame';
  */
 function App() {
   const [started, setStarted] = useState(false);
+  const [hash, setHash] = useState(() => (typeof window !== 'undefined' ? window.location.hash : ''));
+  useEffect(() => {
+    const onHash = () => setHash(window.location.hash);
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  // Neuanfang-Skizze (eigenständige Fläche, eigenes Design-System): #studio
+  if (hash.startsWith('#studio') || hash.startsWith('#blueprint')) {
+    return <BlueprintStudio />;
+  }
 
   if (started) {
     return <StoryModeGame onExit={() => setStarted(false)} />;
