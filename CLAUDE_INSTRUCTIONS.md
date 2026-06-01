@@ -1,11 +1,28 @@
 # Claude Code Anweisungen für dieses Projekt
 
 **Projekt:** Desinformations-Simulations-Spiel (Story Mode)
-**Letzte Aktualisierung:** 2026-05-31 *(zuvor 2025-12-29)*
+**Letzte Aktualisierung:** 2026-06-01 *(zuvor 2026-05-31)*
 
 > **Stand 2026-05-31:** Projekt ist **Story-only** (Pro Mode archiviert unter `archive/pro-mode/`).
 > **Aktuelle Richtung & Roadmap:** `ROADMAP.md` + `docs/BUILDING_AND_ASSETS.md` — Ziel: **TVTower-Gebäude** + Grafik-Pipeline.
 > Verbindliche Wahrheit: `docs/VISION_LOCK.md`. Diese Datei bleibt nützlich für **Story-Inhalt** (Lore, Datendateien, Konventionen); einzelne Pfade unten sind historisch.
+
+---
+
+## Repository-Struktur — ZWEI eigenständige Projekte
+
+Dieses Repo enthält **zwei getrennte Projekte** mit je eigener `package.json`, eigenem Build und **eigener Netlify-Site**:
+
+| Projekt | Pfad | Was | Stack | Netlify-Site |
+|---|---|---|---|---|
+| **Das Spiel** | `desinformation-network/` | Story-Mode-Spiel = das eigentliche Produkt | Vite + React + TS, Vitest | **disinfogame** (Base dir = `desinformation-network`) |
+| **Asset Studio** | `sprite-tool/` | **Eigenständiges, backend-artiges Werkzeug** zur KI-Bilderzeugung — klare Funktion + Brücke zum Spiel, **aber nicht das Spiel** | Next.js | separate Site (Base dir = `sprite-tool`), z. B. „thunderous-unicorn…" |
+
+**Konsequenzen:**
+- Build/Tests/CI sind **pro Projekt getrennt**. Ein **roter CI-Check der sprite-tool-Site betrifft NICHT das Spiel** (und umgekehrt).
+- Die sprite-tool-Netlify-Site braucht im **Dashboard** „Base directory = `sprite-tool`" (siehe `sprite-tool/netlify.toml` + `sprite-tool/DEPLOY.md`). Fehlt das, schlägt ihr Deploy fehl, obwohl `next build` lokal grün ist.
+- **Kein Root-`netlify.toml`** anlegen — das würde beide Sites beeinflussen.
+- Beim Arbeiten/Committen immer klarstellen, **welches Projekt** gemeint ist.
 
 ---
 
