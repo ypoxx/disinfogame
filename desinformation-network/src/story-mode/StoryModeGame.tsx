@@ -30,11 +30,6 @@ import { BuildingView } from './building/BuildingView';
 import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
 import { DashboardView } from './components/DashboardView';
-import { BroadcastHUD } from './components/BroadcastHUD';
-import { useBroadcastStore } from './stores/broadcastStore';
-import { actionToEffect } from './audience/effectMapping';
-import { THEME_HEADLINE } from './audience/themeText';
-import { detectionDampen } from './audience/audienceModel';
 
 // ============================================
 // TYPES
@@ -365,19 +360,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     resetUI,
   } = usePanelStore();
 
-  // Sendung/Publikum-Schicht (entkoppelter Store) — gespielte Content-Aktionen gehen „on air".
-  const broadcastAir = useBroadcastStore((s) => s.air);
-  const resetBroadcast = useBroadcastStore((s) => s.reset);
-  const airFromAction = (actionId: string) => {
-    const a = state.availableActions.find((x) => x.id === actionId);
-    if (!a) return;
-    const eff = actionToEffect({ phase: a.phase, tags: a.tags, label_de: a.label_de, narrative_de: a.narrative_de });
-    if (eff) {
-      const dampened = { ...eff, intensity: detectionDampen(eff.intensity ?? 0.75, state.resources.risk) };
-      broadcastAir(dampened, THEME_HEADLINE[eff.themes[0]] ?? a.label_de, a.label_de);
-    }
-  };
-
   const [showActionFeedback, setShowActionFeedback] = useState(false);
   const [showEncyclopedia, setShowEncyclopedia] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
@@ -512,8 +494,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           trustHistory: state.trustHistory,
           actors: chartActors,
         }}
-        onRestart={() => { resetUI(); resetBroadcast(); resetGame(); }}
-        onMainMenu={() => { resetUI(); resetBroadcast(); onExit(); }}
+        onRestart={() => { resetUI(); resetGame(); }}
+        onMainMenu={() => { resetUI(); onExit(); }}
       />
     );
   }
@@ -552,8 +534,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         onOpenMenu={pauseGame}
       />
 
-      {/* Main Layout (padding: top for StoryHUD, bottom for BroadcastHUD) */}
-      <div className="pt-[52px] pb-32 h-full flex flex-col">
+      {/* Main Layout (with padding for HUD) */}
+      <div className="pt-[52px] h-full flex flex-col">
         {/* Sub-HUD Bar: Betrayal Indicators + Consequence Timeline (in-flow, not fixed) */}
         {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
           <div
@@ -667,7 +649,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               }}
               onSelectAction={(actionId) => {
                 const result = executeAction(actionId);
-                airFromAction(actionId);
                 setActivePanel(null);
                 setHighlightActionId(null);
                 if (result) {
@@ -739,9 +720,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       </div>
       </div>
 
-      {/* Untere MadTV-Leiste: Sendung (F1) · Quote (Q) · Publikum (P) — persistent über allen Views */}
-      <BroadcastHUD risk={state.resources.risk} />
-
       {/* Dialog Box */}
       {state.currentDialog && (
         <DialogBox
@@ -797,7 +775,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       {/* Save Message */}
       {saveMessage && (
         <div
-          className="fixed bottom-36 right-4 px-4 py-2 border-2 font-bold animate-fade-in z-50"
+          className="fixed bottom-4 right-4 px-4 py-2 border-2 font-bold animate-fade-in z-50"
           style={{
             backgroundColor: StoryModeColors.militaryOlive,
             borderColor: StoryModeColors.darkOlive,
@@ -899,7 +877,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       {/* Combo Hints Widget */}
       {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && state.comboHints && state.comboHints.length > 0 && (
         <div
-          className="fixed bottom-36 left-4 w-80 z-20"
+          className="fixed bottom-4 left-4 w-80 z-20"
           style={{ maxHeight: '40vh', overflowY: 'auto' }}
         >
           <ComboHintsWidget hints={state.comboHints} />

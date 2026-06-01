@@ -373,8 +373,8 @@ export function StoryHUD({
         </div>
       </div>
 
-      {/* Bottom Left: Objective Tracker (über der BroadcastHUD-Leiste) */}
-      <div className="fixed bottom-36 left-4 z-30">
+      {/* Bottom Left: Objective Tracker */}
+      <div className="fixed bottom-4 left-4 z-30">
         <ObjectiveTracker
           objectives={objectives}
           onClick={onOpenObjectives}
