@@ -4,8 +4,10 @@
 //
 // Keys können in der Tool-UI (Einstellungen) eingegeben und pro Request
 // über einen Header mitgeschickt werden. Fehlt der Header, greifen die
-// Lib-Funktionen auf process.env (.env.local) zurück. Keys werden bewusst
-// per HEADER (nicht im JSON-Body) übertragen und nie geloggt/persistiert.
+// Lib-Funktionen NUR LOKAL auf process.env (.env.local) zurück — im
+// Production-Build ist dieser Fallback deaktiviert (siehe lib/claude.ts /
+// lib/nanoBanana.ts). Keys werden bewusst per HEADER (nicht im JSON-Body)
+// übertragen und nie geloggt/persistiert.
 
 export const KEY_HEADERS = {
   google: 'x-google-ai-key',

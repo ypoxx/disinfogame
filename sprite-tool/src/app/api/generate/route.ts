@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     // Anzahl Bilder begrenzen
     const numImages = Math.min(Math.max(body.numImages || 4, 1), 4);
 
-    // Bilder generieren (UI-Key aus Header hat Vorrang; sonst .env.local)
+    // Bilder generieren (UI-Key aus Header; .env.local-Fallback nur lokal)
     const result = await generateImages({
       prompt: body.prompt,
       referenceImages: body.referenceImages,

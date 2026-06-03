@@ -7,13 +7,18 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { AssetType, ImprovePromptResponse } from '@/types';
 import { DEFAULT_CLAUDE_MODEL } from '@/lib/constants';
 
-// Client wird server-side initialisiert.
-// Per-Request-Key (aus der Tool-UI) hat Vorrang; sonst .env.local-Fallback (gecacht).
+// Client wird server-side initialisiert. Per-Request-Key (aus der Tool-UI) hat
+// Vorrang. Der .env-Fallback gilt BEWUSST nur lokal: In Produktion liegt /api
+// nicht hinter dem Seiten-Passwort (proxy.ts), also wird ohne UI-Key abgelehnt,
+// damit kein Server-Key öffentlich nutzbar ist.
 let envClient: Anthropic | null = null;
 
 function getClient(apiKey?: string): Anthropic {
   if (apiKey) {
     return new Anthropic({ apiKey });
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Kein Anthropic-Key: bitte in der Tool-UI unter ⚙️ Einstellungen eingeben.');
   }
   if (!envClient) {
     const envKey = process.env.ANTHROPIC_API_KEY;

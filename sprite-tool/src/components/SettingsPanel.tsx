@@ -3,8 +3,9 @@
 // ===========================================
 // SETTINGS PANEL — API-Keys eingeben & testen
 // ===========================================
-// Keys nur lokal (localStorage), pro Request als Header an die API-Routen;
-// .env.local bleibt serverseitiger Fallback. Siehe lib/keys.ts + lib/providers.ts.
+// Keys nur lokal (localStorage), pro Request als Header an die API-Routen.
+// Auf der gehosteten Instanz sind sie verpflichtend; .env.local ist nur ein
+// lokaler Dev-Fallback. Siehe lib/keys.ts + lib/providers.ts.
 
 import { useState } from 'react';
 import { loadKeys, saveKeys, type ApiKeys } from '@/lib/keys';
@@ -102,9 +103,10 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
         </div>
 
         <p className="text-xs text-gray-500">
-          Keys werden nur lokal im Browser gespeichert (localStorage) und pro Anfrage an die lokalen
-          API-Routen geschickt. Fehlt ein Key, greift der{' '}
-          <code className="rounded bg-gray-800 px-1">.env.local</code>-Fallback. Nichts wird ins Repo committet.
+          Keys werden nur lokal im Browser gespeichert (localStorage) und pro Anfrage an die eigenen
+          API-Routen geschickt — nichts landet auf dem Server. Auf der gehosteten Instanz sind die Keys
+          hier verpflichtend; ein <code className="rounded bg-gray-800 px-1">.env.local</code>-Fallback gilt
+          nur lokal beim Entwickeln.
         </p>
 
         {PROVIDERS.map((p) => (

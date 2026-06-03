@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     // Lade Spiel-Kontext
     const context = loadGameContext();
 
-    // Claude aufrufen (UI-Key aus Header hat Vorrang; sonst .env.local)
+    // Claude aufrufen (UI-Key aus Header; .env.local-Fallback nur lokal)
     const result = await improvePrompt(
       body.userPrompt,
       body.assetType,
