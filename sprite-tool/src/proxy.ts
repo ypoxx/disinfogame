@@ -1,19 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // ===========================================
-// APP-WEITER PASSWORTSCHUTZ (Basic Auth, Edge)
+// SEITEN-PASSWORTSCHUTZ (Basic Auth, Edge)
 // ===========================================
-// Next.js 16 "proxy"-Konvention (früher "middleware"). Schützt Seiten UND
-// /api/* gleichermaßen — damit niemand sonst die KI-Endpunkte (= deine
-// API-Kosten) nutzen kann.
+// Next.js 16 "proxy"-Konvention (früher "middleware"). Schützt die SEITEN/UI.
+//
+// /api/* ist BEWUSST AUSGENOMMEN: Browser hängen die per Login-Dialog eingegebenen
+// Basic-Auth-Daten nicht zuverlässig an `fetch()` an. Läge /api hinter Basic Auth,
+// bekämen alle internen API-Calls 401 — „Test"/„Claude" erschienen fälschlich als
+// „Key ungültig", und „Generieren" würde den nativen Login-Dialog neu auslösen.
+// Sicher ist das, weil die KI-Endpunkte einen NUTZER-Key (aus der UI, pro Request per
+// Header) brauchen und KEIN Server-Fallback-Key gesetzt sein darf (siehe DEPLOY.md):
+// ohne Key tun die Endpunkte nichts → kein Missbrauch. (Falls je ein Server-Key nötig
+// ist, stattdessen auf ein Cookie-Gate umstellen.)
 //
 // Passwort kommt aus der Host-Umgebung (SITE_PASSWORD), NIE aus dem Repo.
 // - Lokal (npm run dev) ohne SITE_PASSWORD: offen (kein Gate beim Entwickeln).
 // - In Produktion ohne SITE_PASSWORD: bewusst blockiert (kein offenes Deploy).
 
 export const config = {
-  // Alles außer Next-internen, ohnehin öffentlichen Static-Assets.
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  // Alles außer /api und Next-internen, ohnehin öffentlichen Static-Assets.
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
 
 function unauthorized() {

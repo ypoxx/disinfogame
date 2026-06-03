@@ -108,8 +108,8 @@ export function ImageGenerator({
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Fehler bei der Bildgenerierung');
+        const errorData = (await response.json().catch(() => ({}))) as { error?: string };
+        throw new Error(errorData.error || `Fehler bei der Bildgenerierung (HTTP ${response.status})`);
       }
 
       const data = await response.json();

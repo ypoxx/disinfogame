@@ -7,6 +7,12 @@ als Einzelnutzer. Alle Schritte laufen **im Browser** — kein Terminal nötig.
 > `SITE_PASSWORD` ist die Seite **gesperrt** (nicht offen). Deine API-Keys (Gemini usw.)
 > trägst du **in der App** unter ⚙️ ein — sie bleiben in deinem Browser und müssen
 > **nicht** zu Netlify.
+>
+> **`/api` & Server-Keys:** Die API-Routen liegen **nicht** hinter dem Seiten-Passwort
+> (sonst scheitern die internen `fetch()`-Aufrufe an 401 — „Key ungültig"/Passwort-Re-Prompt).
+> Sie sind sicher, weil sie einen **Nutzer-Key** brauchen — **setze daher KEINE
+> Server-Fallback-Keys** (`GEMINI_API_KEY`, `ANTHROPIC_API_KEY` …) in Netlify. Brauchst du je
+> Server-Keys, sag Bescheid → dann auf ein Cookie-Gate umstellen.
 
 ---
 
