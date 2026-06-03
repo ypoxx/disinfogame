@@ -6,11 +6,22 @@ Internes Werkzeug zur Erstellung von Spiel-Assets (Grafik via Gemini; Audio via 
 
 ## Features
 
-- **Claude-gestützte Prompt-Verbesserung** - Kennt den Spiel-Kontext (Sowjet-Ästhetik)
-- **Nano Banana Pro Integration** - Google's beste Bild-KI
-- **Inpainting** - Nur Teile eines Bildes ändern
-- **Masken-Editor** - Bereiche zum Bearbeiten markieren
-- **Erweiterte Controls** - Varianten, Seitenverhältnis, Seed, Referenzen
+**🎬 Regie-Modus (Art-Director-Assistent)** — siehe [`../docs/ASSET_STUDIO_DIRECTOR.md`](../docs/ASSET_STUDIO_DIRECTOR.md)
+- **Kennt das Spielkonzept** (Gebäude/Räume/Personen aus `public/game/`) → macht Vorschläge statt leerer Prompt-Felder
+- **Stil-Findung** - Claude schlägt mehrere Richtungen vor, dasselbe Testmotiv pro Richtung → vergleichen & übernehmen
+- **Stil-Bibel** (versioniert) + **Master-Referenzen** → erzwungene Konsistenz über alle Assets
+- **Shot-Liste** automatisch aus den Spieldaten abgeleitet (neue Räume/Etagen/Personen erscheinen von selbst)
+- **Varianten-Kritik** - Claude *sieht* die generierten Bilder und bewertet sie gegen die Bibel + Regie-Chat
+
+**🖼️ Erzeugen & Bearbeiten**
+- **Nano Banana Pro / Gemini 3 Pro Image** - Bildgenerierung (Varianten, Ratio, Seed, Referenzen)
+- **Inpainting + Masken-Editor** - nur Teile ändern
+- **Pixel-Nachbearbeitung** - Downscale (Nearest), Hintergrund→Transparenz, Paletten-Lock
+- **Hotspot-Regionen** auf Raum-Hintergründen (→ `building.json`)
+
+**🎞️ Sprite-Sheet-Studio** - generiertes Sheet in Frames zerlegen, Animation prüfen, Frames packen → spielfertiges `type:"sheet"`
+
+**📚 Bibliothek & Export** - kuratieren, „fürs Spiel" markieren, als ZIP (`assets.json` + Dateien) exportieren
 
 ## Quick Start
 
@@ -80,7 +91,7 @@ ins Repository hochgeladen. Deine API Keys bleiben lokal.
 
 1. **Keine Keys im Code** - Keys kommen aus `.env.local` oder werden in der UI (⚙️) eingegeben
 2. **Keys nur lokal** - UI-Keys liegen ausschließlich in deinem Browser (localStorage) und gehen pro Anfrage als Header an die lokalen API-Routen; nichts wird ins Repo committet
-3. **Gehostet: passwortgeschützt** - die deploybare Instanz ist per Basic Auth gesperrt (Seiten **und** `/api/*`), siehe [DEPLOY.md](DEPLOY.md)
+3. **Gehostet: passwortgeschützt** - die deploybare Instanz ist per Basic Auth gesperrt (nur die **Seiten/UI**; `/api/*` ist bewusst ausgenommen, aber ohne UI-Key wirkungslos — Server-Key-Fallback ist in Produktion deaktiviert). Siehe [DEPLOY.md](DEPLOY.md)
 4. **Kein Logging** - Keys werden nicht in Logs geschrieben
 
 ### Falls du das Tool deployen willst
@@ -92,17 +103,22 @@ Bei Deployment auf Vercel, Netlify o.ä.:
 
 ---
 
-## Workflow
+## Workflow (Regie-Modus, empfohlen)
 
 ```
-1. Asset-Typ wählen (Sprite / Szene / Element)
-2. Prompt eingeben (z.B. "Ein Büroangestellter der läuft")
-3. (Optional) Prompt mit Claude verbessern oder auto-verbessern lassen
-4. Varianten generieren (Ratio/Seed/Referenzen optional)
-5. Beste Variante auswählen
-6. Bei Bedarf: Bereich markieren und per Inpainting korrigieren
-7. Als PNG exportieren
+1. ⚙️ Keys eintragen (Google = Bilder, Claude = Regie)
+2. 🎬 Regie → Briefing (Studio kennt Gebäude/Cast bereits)
+3. Stil-Findung: Richtungen vorschlagen → Testmotive vergleichen → übernehmen (Stil-Bibel v1)
+4. Shots: Shot wählen → Prompt vorschlagen → Varianten generieren (mit Master-Referenzen)
+5. Bewerten lassen (Claude) → beste wählen → Pixel-Nachbearbeitung → „auch als Stil-Master"
+6. Übernehmen → Bibliothek (Räume: Hotspots markieren)
+7. 🎞️ Sprite-Sheet: Sheet-Bild slicen → Animation prüfen → speichern
+8. 📚 Bibliothek → Export (ZIP) → entpacken nach desinformation-network/public/assets/
 ```
+
+Daneben gibt es **✨ Frei erzeugen** als schnellen Direkt-Weg ohne Regie.
+
+> **Spieldaten aktualisieren:** `npm run sync:game` kopiert `building.json`/`npcs.json` aus dem Spiel nach `public/game/`.
 
 ---
 

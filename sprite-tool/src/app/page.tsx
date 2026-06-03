@@ -1,119 +1,65 @@
 'use client';
 
 // ===========================================
-// SPRITE TOOL - HAUPTSEITE
+// ASSET STUDIO — Shell (Tabs + Provider)
 // ===========================================
+// 🎬 Regie (geführter Art-Director-Workflow) · 🎞️ Sprite-Sheet · ✨ Frei erzeugen ·
+// 📚 Bibliothek · ⚙️ Einstellungen. Zustand (Konzept/Bibel/Shots/Keys) im StudioProvider.
 
 import { useState } from 'react';
-import { PromptAssistant } from '@/components/PromptAssistant';
-import { ImageGenerator } from '@/components/ImageGenerator';
-import { ImageEditor } from '@/components/ImageEditor';
-import { SettingsPanel } from '@/components/SettingsPanel';
+import { StudioProvider, useStudio } from '@/lib/studio/StudioContext';
+import { DirectorPanel } from '@/components/director/DirectorPanel';
+import { SheetStudio } from '@/components/SheetStudio';
+import { FreeCreate } from '@/components/FreeCreate';
 import { LibraryPanel } from '@/components/LibraryPanel';
-import type { AssetType, GeneratedImage, ProjectMode } from '@/types';
+import { SettingsPanel } from '@/components/SettingsPanel';
 
-export default function Home() {
-  const [mode, setMode] = useState<ProjectMode>('select');
-  const [assetType, setAssetType] = useState<AssetType>('sprite');
-  const [currentPrompt, setCurrentPrompt] = useState('');
-  const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
-  const [generateToken, setGenerateToken] = useState(0);
+type Tab = 'director' | 'sheet' | 'free' | 'library';
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'director', label: '🎬 Regie' },
+  { id: 'sheet', label: '🎞️ Sprite-Sheet' },
+  { id: 'free', label: '✨ Frei erzeugen' },
+  { id: 'library', label: '📚 Bibliothek' },
+];
+
+function Shell() {
+  const { keys, refreshKeys } = useStudio();
+  const [tab, setTab] = useState<Tab>('director');
   const [showSettings, setShowSettings] = useState(false);
-  const [showLibrary, setShowLibrary] = useState(false);
 
-  function handleAssetTypeSelect(type: AssetType) {
-    setAssetType(type);
-    setMode('create');
-  }
-
-  function handlePromptReady(prompt: string) {
-    setCurrentPrompt(prompt);
-    setGenerateToken((prev) => prev + 1);
-  }
-
-  function handleImageSelect(image: GeneratedImage) {
-    setSelectedImage(image);
-    setMode('edit');
-  }
-
-  function handleSave(image: GeneratedImage) {
-    // Bild speichern (Download)
-    const link = document.createElement('a');
-    link.download = `${assetType}-${Date.now()}.png`;
-    link.href = `data:image/png;base64,${image.base64}`;
-    link.click();
-
-    // Zurück zur Auswahl
-    setMode('select');
-    setSelectedImage(null);
-    setCurrentPrompt('');
-  }
-
-  function handleBack() {
-    switch (mode) {
-      case 'create':
-        setMode('select');
-        break;
-      case 'edit':
-        setMode('create');
-        break;
-      default:
-        setMode('select');
-    }
-  }
-
-  function handleReset() {
-    setMode('select');
-    setSelectedImage(null);
-    setCurrentPrompt('');
-    setGenerateToken(0);
-  }
+  const noKeys = !keys.google && !keys.anthropic;
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* Header */}
       <header className="border-b border-gray-800">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <button
-            onClick={handleReset}
-            className="flex items-center gap-2 hover:text-gray-300 transition-colors"
-          >
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+          <div className="flex items-center gap-2">
             <span className="text-2xl">🎨</span>
-            <span className="font-bold text-lg">Asset Studio</span>
-          </button>
-
-          <div className="flex items-center gap-4">
-            {mode !== 'select' && (
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <button onClick={() => setMode('select')} className="hover:text-gray-300">
-                  Typ
-                </button>
-                <span>/</span>
-                <button
-                  onClick={() => mode !== 'create' && setMode('create')}
-                  className={mode === 'create' ? 'text-blue-400' : 'hover:text-gray-300'}
-                >
-                  Erstellen
-                </button>
-                {mode === 'edit' && (
-                  <>
-                    <span>/</span>
-                    <span className="text-blue-400">Bearbeiten</span>
-                  </>
-                )}
-              </div>
-            )}
-            <button
-              onClick={() => setShowLibrary(true)}
-              className="text-sm text-gray-400 hover:text-white"
-              title="Asset-Bibliothek"
-            >
-              📚 Bibliothek
-            </button>
+            <span className="text-lg font-bold">Asset Studio</span>
+          </div>
+          <nav className="flex flex-wrap gap-1">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={`rounded px-3 py-1.5 text-sm transition-colors ${
+                  tab === t.id ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </nav>
+          <div className="flex items-center gap-2">
+            <span className="hidden text-xs text-gray-500 sm:inline">
+              <span className={keys.google ? 'text-green-400' : 'text-gray-600'}>● Google</span>{' '}
+              <span className={keys.anthropic ? 'text-green-400' : 'text-gray-600'}>● Claude</span>
+            </span>
             <button
               onClick={() => setShowSettings(true)}
-              className="text-sm text-gray-400 hover:text-white"
-              title="API-Keys einstellen"
+              className="rounded text-sm text-gray-400 hover:text-white"
+              title="API-Keys"
             >
               ⚙️ Einstellungen
             </button>
@@ -121,125 +67,41 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        {/* Asset Type Selection */}
-        {mode === 'select' && (
-          <div className="space-y-8">
-            <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold">Was möchtest du erstellen?</h1>
-              <p className="text-gray-400">
-                Wähle den Asset-Typ für dein Disinfo-Spiel
-              </p>
-            </div>
+      {noKeys && (
+        <div className="border-b border-yellow-800 bg-yellow-900/30 px-4 py-2 text-center text-sm text-yellow-200">
+          Noch keine API-Keys hinterlegt — unter ⚙️ Einstellungen Google- (Bilder) und Claude-Key (Regie) eingeben.
+        </div>
+      )}
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Sprite Sheet */}
-              <button
-                onClick={() => handleAssetTypeSelect('sprite')}
-                className="group p-6 bg-gray-900 hover:bg-gray-800 border border-gray-800
-                           hover:border-blue-500 rounded-xl transition-all text-left"
-              >
-                <div className="text-4xl mb-4">🚶</div>
-                <h3 className="text-lg font-bold mb-2 group-hover:text-blue-400 transition-colors">
-                  Sprite Sheet
-                </h3>
-                <p className="text-sm text-gray-400">
-                  Animierte Charaktere mit mehreren Frames (Walk, Idle, etc.)
-                </p>
-              </button>
-
-              {/* Scene */}
-              <button
-                onClick={() => handleAssetTypeSelect('scene')}
-                className="group p-6 bg-gray-900 hover:bg-gray-800 border border-gray-800
-                           hover:border-green-500 rounded-xl transition-all text-left"
-              >
-                <div className="text-4xl mb-4">🏢</div>
-                <h3 className="text-lg font-bold mb-2 group-hover:text-green-400 transition-colors">
-                  Szene / Hintergrund
-                </h3>
-                <p className="text-sm text-gray-400">
-                  Büro-Räume, Gebäude-Ansichten, Hintergründe
-                </p>
-              </button>
-
-              {/* Element */}
-              <button
-                onClick={() => handleAssetTypeSelect('element')}
-                className="group p-6 bg-gray-900 hover:bg-gray-800 border border-gray-800
-                           hover:border-orange-500 rounded-xl transition-all text-left"
-              >
-                <div className="text-4xl mb-4">🖼️</div>
-                <h3 className="text-lg font-bold mb-2 group-hover:text-orange-400 transition-colors">
-                  Element / Prop
-                </h3>
-                <p className="text-sm text-gray-400">
-                  Möbel, Geräte, Dekorationen, UI-Elemente
-                </p>
-              </button>
-            </div>
-
-            {/* Info Box */}
-            <div className="p-4 bg-gray-900 border border-gray-800 rounded-lg">
-              <h4 className="font-medium text-yellow-400 mb-2">🔑 API-Keys</h4>
-              <p className="text-sm text-gray-400 mb-2">
-                Bilder über <strong>Gemini 3 Pro Image</strong> (Google AI), Prompt-Hilfe optional über Claude.
-              </p>
-              <p className="text-sm text-gray-500">
-                Keys oben rechts unter <span className="text-gray-300">⚙️ Einstellungen</span> eingeben (lokal
-                gespeichert) — oder <code className="px-1 bg-gray-800 rounded">.env.example</code> nach{' '}
-                <code className="px-1 bg-gray-800 rounded">.env.local</code> kopieren.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Create Flow */}
-        {mode === 'create' && (
-          <div className="space-y-6">
-            <div className="max-w-2xl mx-auto">
-              <PromptAssistant
-                assetType={assetType}
-                onPromptReady={handlePromptReady}
-              />
-            </div>
-            <div className="max-w-2xl mx-auto">
-              <ImageGenerator
-                prompt={currentPrompt}
-                onImageSelect={handleImageSelect}
-                onBack={handleBack}
-                autoGenerateToken={generateToken}
-                assetType={assetType}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Image Editor */}
-        {mode === 'edit' && selectedImage && (
-          <div className="max-w-3xl mx-auto">
-            <ImageEditor
-              image={selectedImage}
-              onSave={handleSave}
-              onBack={handleBack}
-            />
-          </div>
-        )}
+      <main className="mx-auto max-w-6xl px-4 py-6">
+        {tab === 'director' && <DirectorPanel />}
+        {tab === 'sheet' && <SheetStudio />}
+        {tab === 'free' && <FreeCreate />}
+        {tab === 'library' && <LibraryPanel embedded />}
       </main>
 
-      {/* Settings */}
-      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
-
-      {/* Bibliothek */}
-      {showLibrary && <LibraryPanel onClose={() => setShowLibrary(false)} />}
-
-      {/* Footer */}
-      <footer className="border-t border-gray-800 mt-auto">
-        <div className="max-w-4xl mx-auto px-4 py-4 text-center text-sm text-gray-500">
-          Asset Studio (internes Werkzeug) · Bilder: Gemini 3 Pro Image · Prompt-Hilfe: Claude
+      <footer className="border-t border-gray-800">
+        <div className="mx-auto max-w-6xl px-4 py-4 text-center text-sm text-gray-500">
+          Asset Studio (internes Werkzeug) · Bilder: Gemini 3 Pro Image · Regie & Prompt-Hilfe: Claude
         </div>
       </footer>
+
+      {showSettings && (
+        <SettingsPanel
+          onClose={() => {
+            setShowSettings(false);
+            refreshKeys();
+          }}
+        />
+      )}
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <StudioProvider>
+      <Shell />
+    </StudioProvider>
   );
 }

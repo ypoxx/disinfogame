@@ -32,6 +32,11 @@ function getClient(apiKey?: string): Anthropic {
   return envClient;
 }
 
+/** Geteilte, gehärtete Client-Erzeugung (auch vom Regie-Assistenten genutzt). */
+export function getAnthropicClient(apiKey?: string): Anthropic {
+  return getClient(apiKey);
+}
+
 const SYSTEM_PROMPT = `Du bist ein Experte für Bild-KI-Prompts, spezialisiert auf Pixel-Art für Retro-Spiele.
 
 DEINE AUFGABE:
