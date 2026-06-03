@@ -127,8 +127,8 @@ export function ImageEditor({ image, onSave, onBack }: ImageEditorProps) {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Inpainting fehlgeschlagen');
+        const errorData = (await response.json().catch(() => ({}))) as { error?: string };
+        throw new Error(errorData.error || `Inpainting fehlgeschlagen (HTTP ${response.status})`);
       }
 
       const data = await response.json();

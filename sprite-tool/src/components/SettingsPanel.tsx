@@ -76,7 +76,9 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
         headers,
         body: JSON.stringify({ provider: id }),
       });
-      const data = (await res.json()) as { ok?: boolean };
+      const data = res.ok
+        ? ((await res.json().catch(() => ({}))) as { ok?: boolean })
+        : { ok: false };
       setTests((prev) => ({ ...prev, [id]: data.ok ? 'ok' : 'fail' }));
     } catch {
       setTests((prev) => ({ ...prev, [id]: 'fail' }));
