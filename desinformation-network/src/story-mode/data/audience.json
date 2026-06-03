@@ -1,0 +1,49 @@
+{
+  "_comment": "Publikum (Track: Sendung & Publikum). v1 = EIN Land: Nordmark (DE-Analog), reich segmentiert (Milieu × Demografie). Struktur erweiterbar auf N Länder (countries[]). Resonanz: Effekt-Themen ↔ segment.vulnerabilities, Kanal ↔ reachedBy. Siehe docs/story-mode/BROADCAST_AND_AUDIENCE_CONCEPT.md.",
+  "meta": {
+    "moods": ["ruhig", "verunsichert", "wuetend", "misstrauisch"],
+    "channels": ["tv", "print", "social"],
+    "vulnerabilities": {
+      "energie_angst": "Sorge um Energieversorgung/-preise",
+      "wirtschafts_sorge": "Wohlstands-/Abstiegssorgen",
+      "abstiegs_angst": "Angst vor sozialem Abstieg",
+      "sicherheits_beduerfnis": "Bedürfnis nach Sicherheit/Ordnung",
+      "nostalgie": "Verklärung der Vergangenheit",
+      "gesundheits_angst": "Sorge um Gesundheit",
+      "klima_sorge": "Sorge um Klima/Umwelt",
+      "soziale_gerechtigkeit": "Fokus auf Gerechtigkeit/Gleichheit",
+      "anti_establishment": "Misstrauen gegen Eliten/Establishment",
+      "misstrauen_medien": "Misstrauen gegen etablierte Medien",
+      "maennlichkeit": "Identitäts-/Männlichkeitsnarrative",
+      "nationale_identitaet": "Nationale Identität / Souveränität"
+    }
+  },
+  "countries": [
+    {
+      "id": "nordmark",
+      "label_de": "Nordmark",
+      "allegory": "Deutschland",
+      "segments": [
+        { "id": "nm_rural_anxious",    "label_de": "Ländlich · älter · verunsichert", "milieu": "traditionell", "demographics": { "age": "55+",   "lean": "skeptisch" },          "vulnerabilities": ["energie_angst", "wirtschafts_sorge", "nostalgie"],       "size": 0.18, "mood": "verunsichert", "belief": 0.50, "reachedBy": ["tv", "print"] },
+        { "id": "nm_pensioners",       "label_de": "Rentner · TV-Stammpublikum",       "milieu": "konservativ",  "demographics": { "age": "65+",   "lean": "konservativ" },        "vulnerabilities": ["sicherheits_beduerfnis", "nostalgie", "gesundheits_angst"], "size": 0.20, "mood": "ruhig",        "belief": 0.45, "reachedBy": ["tv", "print"] },
+        { "id": "nm_suburban_middle",  "label_de": "Vorstadt · Mittelschicht · Familien", "milieu": "buergerlich", "demographics": { "age": "35-55", "lean": "mitte" },             "vulnerabilities": ["wirtschafts_sorge", "sicherheits_beduerfnis"],          "size": 0.22, "mood": "ruhig",        "belief": 0.40, "reachedBy": ["tv", "social", "print"] },
+        { "id": "nm_working_class",    "label_de": "Industriearbeiter · strukturschwach", "milieu": "arbeiter",   "demographics": { "age": "30-60", "lean": "wechselhaft" },       "vulnerabilities": ["wirtschafts_sorge", "abstiegs_angst", "energie_angst"], "size": 0.12, "mood": "wuetend",      "belief": 0.50, "reachedBy": ["tv", "social"] },
+        { "id": "nm_online_young_men", "label_de": "Junge Online-Männer",              "milieu": "digital",      "demographics": { "age": "18-30", "lean": "anti-establishment" }, "vulnerabilities": ["anti_establishment", "misstrauen_medien", "maennlichkeit"], "size": 0.12, "mood": "wuetend",      "belief": 0.55, "reachedBy": ["social"] },
+        { "id": "nm_urban_progressive","label_de": "Urban · jung · progressiv",        "milieu": "progressiv",   "demographics": { "age": "18-35", "lean": "links" },             "vulnerabilities": ["klima_sorge", "soziale_gerechtigkeit"],                 "size": 0.16, "mood": "ruhig",        "belief": 0.28, "reachedBy": ["social"] }
+      ]
+    },
+    {
+      "id": "gallia",
+      "label_de": "Gallia",
+      "allegory": "Frankreich",
+      "segments": [
+        { "id": "ga_rural_traditional", "label_de": "Ländlich · traditionell · stolz",   "milieu": "traditionell", "demographics": { "age": "50+",   "lean": "souveraen" },           "vulnerabilities": ["nationale_identitaet", "wirtschafts_sorge", "nostalgie"],              "size": 0.18, "mood": "ruhig",        "belief": 0.45, "reachedBy": ["tv", "print"] },
+        { "id": "ga_pensioners",        "label_de": "Rentner · TV-Publikum",             "milieu": "konservativ",  "demographics": { "age": "65+",   "lean": "konservativ" },         "vulnerabilities": ["sicherheits_beduerfnis", "nostalgie"],                                 "size": 0.20, "mood": "ruhig",        "belief": 0.40, "reachedBy": ["tv", "print"] },
+        { "id": "ga_yellow_vests",      "label_de": "Protest-Milieu · abgehängt",        "milieu": "protest",      "demographics": { "age": "30-55", "lean": "anti-establishment" },  "vulnerabilities": ["anti_establishment", "abstiegs_angst", "wirtschafts_sorge"],           "size": 0.16, "mood": "wuetend",      "belief": 0.55, "reachedBy": ["social", "tv"] },
+        { "id": "ga_urban_intellectual","label_de": "Urban · intellektuell · links",     "milieu": "progressiv",   "demographics": { "age": "25-45", "lean": "links" },              "vulnerabilities": ["soziale_gerechtigkeit", "klima_sorge"],                                "size": 0.16, "mood": "ruhig",        "belief": 0.25, "reachedBy": ["social", "print"] },
+        { "id": "ga_banlieue_youth",    "label_de": "Vorstädte · jung · distanziert",    "milieu": "digital",      "demographics": { "age": "18-30", "lean": "distanziert" },        "vulnerabilities": ["soziale_gerechtigkeit", "anti_establishment"],                         "size": 0.14, "mood": "verunsichert", "belief": 0.40, "reachedBy": ["social"] },
+        { "id": "ga_nationalist",       "label_de": "Nationalkonservativ · identitär",   "milieu": "national",     "demographics": { "age": "30-60", "lean": "rechts" },             "vulnerabilities": ["nationale_identitaet", "sicherheits_beduerfnis", "misstrauen_medien"], "size": 0.16, "mood": "wuetend",      "belief": 0.55, "reachedBy": ["tv", "social"] }
+      ]
+    }
+  ]
+}
