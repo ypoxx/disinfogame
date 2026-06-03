@@ -47,11 +47,13 @@ erzeugen, zu kuratieren, zu editieren und als spielfertige Dateien + Manifest in
 Style-Anchor **immer** voranstellen · **Master-Referenz + fester Seed** je Asset-Familie · für Figuren **Turnaround-Sheet zuerst**, dann Frames · Abweichungen per Inpainting fixen.
 
 ## Bau-Reihenfolge (Milestones, je grün lassen)
-- **M1** Keys-UI + Provider-Lib; Gemini auf `gemini-3-pro-image`; Bild erzeugen läuft.
-- **M2** Bibliothek + Auswahl + `assets.json` + **Export ins Spiel**.
-- **M3** **Sprite-Sheet-Assembler** (Frames → Raster + JSON).
-- **M4** Editor: **Zuschneiden** + **Bereiche markieren** (Inpainting ist vorhanden).
-- **M5** **Sound** (ElevenLabs TTS/SFX/Musik) + Audition + Trim/Loop/Normalize + Export.
+> Umsetzungsstand 2026-06-03 — Details & Regie-Modus: [`ASSET_STUDIO_DIRECTOR.md`](ASSET_STUDIO_DIRECTOR.md).
+- **M1** ✅ Keys-UI + Provider-Lib; `gemini-3-pro-image`; Bild erzeugen läuft.
+- **M2** ✅ Bibliothek + Auswahl + `assets.json` + Export (als **ZIP**; direkter Repo-Commit bewusst offen).
+- **M3** ✅ **Sprite-Sheet-Studio** (Sheet slicen + Frames packen → Raster + Animations-JSON).
+- **M4** ◑ **Bereiche markieren** (Hotspots) ✅ + Inpainting ✅ + Pixel-Nachbearbeitung ✅; freies **Zuschneiden** offen.
+- **M5** ⬜ **Sound** (ElevenLabs) — Key-Feld vorhanden, noch nicht verdrahtet.
+- **NEU** ✅ **Regie-Modus**: Stil-Findung, Stil-Bibel + Master-Referenzen, abgeleitete Shot-Liste, Varianten-Kritik (Claude sieht die Bilder), Regie-Chat.
 
 ## Qualität
 TypeScript strict · Lint · Keys nur in `.env.local` (Beispiel: `.env.example`) · keine Secrets im Repo.
