@@ -23,6 +23,21 @@ erzeugen, zu kuratieren, zu editieren und als spielfertige Dateien + Manifest in
 4. **Sound:** Typ wählen (Sprache/SFX/Musik) → Prompt bzw. Composition-Plan → *Erzeugen* → **Audition-Liste** (Player) → **Editor** (Trimmen · Loop-Punkte · Normalisieren) → „**fürs Spiel auswählen**".
 5. **Bibliothek:** alle erzeugten Assets mit Metadaten, Filter, `chosen`-Flag, **„Export ins Spiel"**.
 
+## Haltbarkeit (Sicherung/Wiederherstellung) ✅
+**Quelle der Wahrheit = Git/Dateien; IndexedDB ist nur ein Cache.** Damit nach Stunden Arbeit nichts im Browser
+gefangen ist:
+- **Sicherung (⬇)**: verlustfreies `asset-studio-backup-*.json` über *alle* Stores (Assets inkl. Roh-Daten, Stil-Bibel,
+  Shots, kv) — funktioniert in jedem Browser, ins Repo committbar.
+- **Wiederherstellen (↩)**: Backup-Datei zurückspielen (zusammenführend) — auch in eine leere Bibliothek.
+- **`navigator.storage.persist()`** beim Start + Status-Anzeige (🔒 dauerhaft / ⚠ nicht), damit der Browser die DB
+  nicht unter Speicherdruck wegräumt.
+- **Auto-Export ✅**: Spielordner einmal verbinden (File System Access, Chrome/Edge) → nach jeder Änderung schreibt
+  das Studio automatisch `assets.json` + Dateien (debounced; nie mit Leerstand/kaputtem Stand überschreiben). Der
+  Ordner-Handle bleibt über Sitzungen erhalten (1 Klick Re-Freigabe je Sitzung); Handle in eigenem `fs`-Store
+  (aus der Sicherung raus).
+- Logik in `lib/studio/backup.ts` + `lib/export.ts` (DOM-frei). **Getestet** via Vitest + `fake-indexeddb`
+  (`npm test`): Backup-Rundlauf, Berechtigungs-Logik, Schreib-Layout. *Offen:* optional Netlify Blobs für Geräte-Sync.
+
 ## Datenformate
 - **Manifest `assets.json`** (eine Datei, datengetrieben vom Spiel geladen):
   ```jsonc
@@ -47,11 +62,14 @@ erzeugen, zu kuratieren, zu editieren und als spielfertige Dateien + Manifest in
 Style-Anchor **immer** voranstellen · **Master-Referenz + fester Seed** je Asset-Familie · für Figuren **Turnaround-Sheet zuerst**, dann Frames · Abweichungen per Inpainting fixen.
 
 ## Bau-Reihenfolge (Milestones, je grün lassen)
-- **M1** Keys-UI + Provider-Lib; Gemini auf `gemini-3-pro-image`; Bild erzeugen läuft.
-- **M2** Bibliothek + Auswahl + `assets.json` + **Export ins Spiel**.
-- **M3** **Sprite-Sheet-Assembler** (Frames → Raster + JSON).
-- **M4** Editor: **Zuschneiden** + **Bereiche markieren** (Inpainting ist vorhanden).
-- **M5** **Sound** (ElevenLabs TTS/SFX/Musik) + Audition + Trim/Loop/Normalize + Export.
+> Umsetzungsstand 2026-06-03 — Details & Regie-Modus: [`ASSET_STUDIO_DIRECTOR.md`](ASSET_STUDIO_DIRECTOR.md).
+- **M1** ✅ Keys-UI + Provider-Lib; `gemini-3-pro-image`; Bild erzeugen läuft.
+- **M2** ✅ Bibliothek + Auswahl + `assets.json` + Export (als **ZIP**; direkter Repo-Commit bewusst offen).
+- **M3** ✅ **Sprite-Sheet-Studio** (Sheet slicen + Frames packen → Raster + Animations-JSON).
+- **M4** ◑ **Bereiche markieren** (Hotspots) ✅ + Inpainting ✅ + Pixel-Nachbearbeitung ✅; freies **Zuschneiden** offen.
+- **M5** ✅ **Sound** (ElevenLabs): SFX + Musik + NPC-Stimmen (Casting + TTS), Audition/Auswahl. Details: [`ASSET_STUDIO_SOUND.md`](ASSET_STUDIO_SOUND.md).
+- **Export** ✅ einfacher: **direkt in den Spielordner** (File System Access) oder ZIP. Direkter GitHub-Commit weiter offen.
+- **NEU** ✅ **Regie-Modus**: Stil-Findung, Stil-Bibel + Master-Referenzen, abgeleitete Shot-Liste, Varianten-Kritik (Claude sieht die Bilder), Regie-Chat.
 
 ## Qualität
 TypeScript strict · Lint · Keys nur in `.env.local` (Beispiel: `.env.example`) · keine Secrets im Repo.

@@ -11,11 +11,17 @@ let envClient: GoogleGenAI | null = null;
 
 /**
  * Liefert einen Gemini-Client. Ein per-Request übergebener Key (aus der Tool-UI)
- * hat Vorrang; sonst Fallback auf GOOGLE_AI_API_KEY aus .env.local (gecacht).
+ * hat Vorrang. Der .env-Fallback (GOOGLE_AI_API_KEY) gilt BEWUSST nur lokal:
+ * In Produktion liegt /api nicht hinter dem Seiten-Passwort (siehe proxy.ts),
+ * also darf es ohne UI-Key nichts tun — ein Server-Key wäre sonst öffentlich
+ * nutzbar. Daher wird der Env-Fallback im Production-Build hart deaktiviert.
  */
 function getClient(apiKey?: string): GoogleGenAI {
   if (apiKey) {
     return new GoogleGenAI({ apiKey });
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Kein Google-AI-Key: bitte in der Tool-UI unter ⚙️ Einstellungen eingeben.');
   }
   if (!envClient) {
     const envKey = process.env.GOOGLE_AI_API_KEY;

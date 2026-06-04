@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Inpainting durchführen (UI-Key aus Header hat Vorrang; sonst .env.local)
+    // Inpainting durchführen (UI-Key aus Header; .env.local-Fallback nur lokal)
     const result = await inpaintImage({
       image: body.image,
       mask: body.mask,

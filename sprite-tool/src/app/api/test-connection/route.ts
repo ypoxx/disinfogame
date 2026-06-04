@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { testConnection as testGoogle } from '@/lib/nanoBanana';
 import { testConnection as testAnthropic } from '@/lib/claude';
+import { testConnection as testEleven } from '@/lib/studio/elevenlabs';
 import { getKeyFromHeaders, type ProviderId } from '@/lib/providers';
 
 export async function POST(request: NextRequest) {
@@ -29,6 +30,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok });
   }
 
-  // ElevenLabs (Audio) kommt erst mit Milestone M5 — noch kein Test.
-  return NextResponse.json({ ok: false, note: 'ElevenLabs-Test folgt mit M5' });
+  // ElevenLabs (Audio, M5): echter Auth-Check über die Stimmen-Liste.
+  const ok = await testEleven(getKeyFromHeaders(request.headers, 'elevenlabs'));
+  return NextResponse.json({ ok });
 }

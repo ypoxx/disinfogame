@@ -1,0 +1,30 @@
+# Repo-weite Ignores.
+# Jedes Unterprojekt (desinformation-network/, sprite-tool/) hat zusätzlich
+# seine eigene .gitignore — diese hier fängt Artefakte ab, die im Repo-Root
+# entstehen (z. B. ein vitest-Cache unter node_modules/, wenn Tests vom
+# Repo-Root statt aus dem Unterprojekt laufen).
+
+# Dependencies
+node_modules/
+/.pnp
+.pnp.*
+
+# Build-/Tool-Caches
+.next/
+out/
+dist/
+build/
+.vite/
+.turbo/
+coverage/
+*.tsbuildinfo
+
+# Env / Secrets — NIEMALS committen (Beispiel-Datei bleibt erlaubt)
+.env
+.env.*
+!.env.example
+
+# OS / Editor
+.DS_Store
+*.log
+npm-debug.log*

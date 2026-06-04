@@ -10,9 +10,10 @@ als Einzelnutzer. Alle Schritte laufen **im Browser** — kein Terminal nötig.
 >
 > **`/api` & Server-Keys:** Die API-Routen liegen **nicht** hinter dem Seiten-Passwort
 > (sonst scheitern die internen `fetch()`-Aufrufe an 401 — „Key ungültig"/Passwort-Re-Prompt).
-> Sie sind sicher, weil sie einen **Nutzer-Key** brauchen — **setze daher KEINE
-> Server-Fallback-Keys** (`GEMINI_API_KEY`, `ANTHROPIC_API_KEY` …) in Netlify. Brauchst du je
-> Server-Keys, sag Bescheid → dann auf ein Cookie-Gate umstellen.
+> Sie sind sicher, weil sie einen **Nutzer-Key** brauchen: Trag deine Keys **in der App**
+> unter ⚙️ ein. **Setze KEINE Server-Fallback-Keys** (`GOOGLE_AI_API_KEY`, `ANTHROPIC_API_KEY` …)
+> in Netlify — der Production-Build ignoriert sie ohnehin (Server-Key-Fallback ist dort hart
+> deaktiviert). Brauchst du je echte Server-Keys, sag Bescheid → dann auf ein Cookie-Gate umstellen.
 
 ---
 
@@ -51,10 +52,8 @@ Fertig. Ab jetzt: **URL öffnen → Passwort → ⚙️ einmal API-Keys eintrage
 
 ## Hinweise
 
-- **Branch `main` vs. aktueller Feature-Branch:** Der Asset-Studio-Code liegt aktuell auf dem
-  Branch `claude/hopeful-allen-AQMqb`. Für einen stabilen Deploy empfehle ich, ihn nach `main`
-  zu bringen (ich kann dir dafür einen Pull Request öffnen — sag einfach Bescheid). Zum schnellen
-  Ausprobieren kannst du in Schritt 3 auch direkt diesen Branch als „Branch to deploy" wählen.
+- **Branch `main`:** Der Asset-Studio-Code liegt inzwischen auf `main` (PRs #70/#71 gemergt).
+  Für einen stabilen Deploy daher in Schritt 3 `main` als „Branch to deploy" wählen.
 
 - **Updates:** Wenn ich am Tool etwas ändere und pushe, baut Netlify automatisch neu — du musst
   nichts tun.

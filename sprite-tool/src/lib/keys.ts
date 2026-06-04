@@ -4,7 +4,8 @@
 //
 // Die in der UI eingegebenen Keys werden lokal im Browser gespeichert und
 // pro Request als Header an die lokalen API-Routen geschickt (siehe
-// providers.ts). Fehlt ein UI-Key, greift serverseitig der .env.local-Fallback.
+// providers.ts). Fehlt ein UI-Key, greift serverseitig nur lokal der
+// .env.local-Fallback (in Produktion deaktiviert).
 
 import { KEY_HEADERS, type ProviderId } from '@/lib/providers';
 
