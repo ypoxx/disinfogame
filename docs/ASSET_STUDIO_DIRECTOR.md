@@ -65,7 +65,8 @@ public/game/{building.json,npcs.json}  # Snapshot (Refresh: npm run sync:game)
 - **Sicherheit:** `/api/director` nutzt denselben gehärteten Key-Pfad (Prod erzwingt UI-Key, kein Server-Fallback).
 
 ## Bewusst (noch) NICHT umgesetzt
-- **Sound/ElevenLabs (M5):** Key-Feld vorhanden, aber nicht verdrahtet.
-- **Direkter Commit ins Spiel-Repo:** Export bleibt ZIP (Commit-Brücke braucht Token/Scope-Entscheidung) — saubere Naht ist vorhanden.
+- **Direkter Commit ins Spiel-Repo:** Export geht per **Ordner-Schreiber** (File System Access) oder ZIP; ein direkter GitHub-Commit braucht Token/Scope-Entscheidung (saubere Naht ist vorhanden).
 - **Voll-Bibliotheks-Stil-Audit:** aktuell Kritik pro Asset; ein „über alles"-Abgleich kann folgen.
 - **Freies Zuschneiden (Crop):** stattdessen Pixel-Downscale + Hotspot-Regionen (M4 teil-abgedeckt).
+
+> ✅ **Sound/M5** umgesetzt — siehe [`ASSET_STUDIO_SOUND.md`](ASSET_STUDIO_SOUND.md). ✅ **Einfacher Export** via Ordner-Schreiber.

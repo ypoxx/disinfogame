@@ -52,7 +52,8 @@ Style-Anchor **immer** voranstellen · **Master-Referenz + fester Seed** je Asse
 - **M2** ✅ Bibliothek + Auswahl + `assets.json` + Export (als **ZIP**; direkter Repo-Commit bewusst offen).
 - **M3** ✅ **Sprite-Sheet-Studio** (Sheet slicen + Frames packen → Raster + Animations-JSON).
 - **M4** ◑ **Bereiche markieren** (Hotspots) ✅ + Inpainting ✅ + Pixel-Nachbearbeitung ✅; freies **Zuschneiden** offen.
-- **M5** ⬜ **Sound** (ElevenLabs) — Key-Feld vorhanden, noch nicht verdrahtet.
+- **M5** ✅ **Sound** (ElevenLabs): SFX + Musik + NPC-Stimmen (Casting + TTS), Audition/Auswahl. Details: [`ASSET_STUDIO_SOUND.md`](ASSET_STUDIO_SOUND.md).
+- **Export** ✅ einfacher: **direkt in den Spielordner** (File System Access) oder ZIP. Direkter GitHub-Commit weiter offen.
 - **NEU** ✅ **Regie-Modus**: Stil-Findung, Stil-Bibel + Master-Referenzen, abgeleitete Shot-Liste, Varianten-Kritik (Claude sieht die Bilder), Regie-Chat.
 
 ## Qualität
