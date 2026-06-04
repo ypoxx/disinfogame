@@ -7,10 +7,16 @@
 // löschen, exportieren (assets.json + ZIP, inkl. Sheet-/Regionen-Metadaten).
 // Als Modal (onClose) ODER eingebettet (embedded) nutzbar.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { listAssets, putAsset, deleteAsset } from '@/lib/library';
 import { validateForExport, type LibraryAsset, type ManifestAssetType } from '@/lib/assets';
 import { buildExportZip, downloadBlob, exportToDirectory, supportsDirectoryExport } from '@/lib/export';
+import { buildBackup, restoreBackup, storageStatus, type StorageStatus } from '@/lib/studio/backup';
+import { useStudio } from '@/lib/studio/StudioContext';
+
+function fmtMB(bytes: number): string {
+  return `${(bytes / 1048576).toFixed(1)} MB`;
+}
 
 interface LibraryPanelProps {
   onClose?: () => void;
@@ -27,6 +33,15 @@ export function LibraryPanel({ onClose, embedded = false }: LibraryPanelProps) {
   const [dirMsg, setDirMsg] = useState<string | null>(null);
   // LibraryPanel mountet erst nach Tab-Klick (clientseitig) → window ist da, keine SSR-Diskrepanz.
   const canDirExport = supportsDirectoryExport();
+  const { reload } = useStudio();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [storage, setStorage] = useState<StorageStatus | null>(null);
+  const [backupMsg, setBackupMsg] = useState<string | null>(null);
+  const [restoring, setRestoring] = useState(false);
+
+  useEffect(() => {
+    storageStatus().then(setStorage);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -81,6 +96,38 @@ export function LibraryPanel({ onClose, embedded = false }: LibraryPanelProps) {
     }
   }
 
+  async function handleBackup() {
+    setBackupMsg(null);
+    try {
+      const snap = await buildBackup();
+      const blob = new Blob([JSON.stringify(snap)], { type: 'application/json' });
+      const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+      downloadBlob(blob, `asset-studio-backup-${stamp}.json`);
+      setBackupMsg(`✓ Sicherung erstellt: ${snap.library.length} Assets, ${snap.shots.length} Shots. Datei ins Repo committen.`);
+    } catch (e) {
+      setBackupMsg(e instanceof Error ? `⚠ ${e.message}` : '⚠ Sicherung fehlgeschlagen');
+    }
+  }
+
+  async function handleRestoreFile(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // erlaubt erneutes Wählen derselben Datei
+    if (!file) return;
+    setRestoring(true);
+    setBackupMsg(null);
+    try {
+      const summary = await restoreBackup(JSON.parse(await file.text()));
+      setAssets(await listAssets());
+      await reload();
+      setStorage(await storageStatus());
+      setBackupMsg(`✓ Wiederhergestellt: ${summary.library} Assets, ${summary.bible} Bibel, ${summary.shots} Shots.`);
+    } catch (err) {
+      setBackupMsg(err instanceof Error ? `⚠ ${err.message}` : '⚠ Wiederherstellung fehlgeschlagen');
+    } finally {
+      setRestoring(false);
+    }
+  }
+
   const chosenCount = assets.filter((a) => a.chosen).length;
   const errors = validateForExport(assets);
   const isImage = (t: ManifestAssetType) => t === 'image' || t === 'sheet';
@@ -101,6 +148,36 @@ export function LibraryPanel({ onClose, embedded = false }: LibraryPanelProps) {
           </button>
         )}
       </div>
+
+      {/* Sicherung / Wiederherstellung — immer sichtbar (auch leer wiederherstellbar) */}
+      <div className="flex flex-wrap items-center gap-3 border-b border-gray-800 px-1 py-2 text-xs">
+        <span className="text-gray-500">
+          Liegt lokal im Browser — <span className="text-gray-400">Git/Dateien sind die Quelle der Wahrheit</span>. Regelmäßig sichern.
+        </span>
+        <div className="ml-auto flex items-center gap-2">
+          {storage && (
+            <span
+              className={storage.persisted ? 'text-green-500' : 'text-yellow-500'}
+              title={storage.persisted ? 'Browser hält die Daten dauerhaft' : 'Nicht als dauerhaft markiert — bitte sichern'}
+            >
+              {storage.persisted ? '🔒 dauerhaft' : '⚠ nicht dauerhaft'}
+              {storage.usage ? ` · ${fmtMB(storage.usage)}` : ''}
+            </span>
+          )}
+          <button onClick={handleBackup} className="rounded bg-gray-700 px-3 py-1.5 font-medium hover:bg-gray-600">
+            ⬇ Sicherung
+          </button>
+          <button
+            onClick={() => fileRef.current?.click()}
+            disabled={restoring}
+            className="rounded bg-gray-700 px-3 py-1.5 font-medium hover:bg-gray-600 disabled:opacity-50"
+          >
+            {restoring ? 'Stelle wieder her…' : '↩ Wiederherstellen'}
+          </button>
+          <input ref={fileRef} type="file" accept="application/json,.json" onChange={handleRestoreFile} className="hidden" />
+        </div>
+      </div>
+      {backupMsg && <div className="border-b border-gray-800 px-1 py-1.5 text-xs text-gray-300">{backupMsg}</div>}
 
       {/* Inhalt */}
       <div className={embedded ? 'py-4' : 'flex-1 overflow-y-auto p-4'}>

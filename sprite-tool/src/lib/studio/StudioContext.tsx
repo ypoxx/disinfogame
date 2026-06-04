@@ -18,6 +18,7 @@ import {
   type Shot,
 } from './shots';
 import { loadKeys } from '../keys';
+import { requestPersistentStorage } from './backup';
 
 interface KeyStatus {
   google: boolean;
@@ -38,6 +39,8 @@ interface StudioContextValue {
   refreshKeys: () => void;
   libraryVersion: number;
   bumpLibrary: () => void;
+  /** Lädt Konzept/Bibel/Shots neu (z. B. nach Wiederherstellung einer Sicherung). */
+  reload: () => Promise<void>;
 }
 
 const StudioContext = createContext<StudioContextValue | null>(null);
@@ -64,6 +67,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     let active = true;
     (async () => {
       setKeys(readKeyStatus());
+      void requestPersistentStorage(); // Browser bitten, die DB nicht wegzuräumen
       const [loadedConcept, loadedBible, persisted] = await Promise.all([
         loadGameConcept(),
         loadActiveBible(),
@@ -106,6 +110,18 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const refreshKeys = useCallback(() => setKeys(readKeyStatus()), []);
   const bumpLibrary = useCallback(() => setLibraryVersion((v) => v + 1), []);
 
+  const reload = useCallback(async () => {
+    const [loadedConcept, loadedBible, persisted] = await Promise.all([
+      loadGameConcept(),
+      loadActiveBible(),
+      loadPersistedShots(),
+    ]);
+    setConcept(loadedConcept);
+    setBible(loadedBible);
+    setShots(mergeShots(deriveShots(loadedConcept), persisted));
+    setLibraryVersion((v) => v + 1);
+  }, []);
+
   return (
     <StudioContext.Provider
       value={{
@@ -121,6 +137,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         refreshKeys,
         libraryVersion,
         bumpLibrary,
+        reload,
       }}
     >
       {children}

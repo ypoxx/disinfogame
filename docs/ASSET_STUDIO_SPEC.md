@@ -23,6 +23,17 @@ erzeugen, zu kuratieren, zu editieren und als spielfertige Dateien + Manifest in
 4. **Sound:** Typ wählen (Sprache/SFX/Musik) → Prompt bzw. Composition-Plan → *Erzeugen* → **Audition-Liste** (Player) → **Editor** (Trimmen · Loop-Punkte · Normalisieren) → „**fürs Spiel auswählen**".
 5. **Bibliothek:** alle erzeugten Assets mit Metadaten, Filter, `chosen`-Flag, **„Export ins Spiel"**.
 
+## Haltbarkeit (Sicherung/Wiederherstellung) ✅
+**Quelle der Wahrheit = Git/Dateien; IndexedDB ist nur ein Cache.** Damit nach Stunden Arbeit nichts im Browser
+gefangen ist:
+- **Sicherung (⬇)**: verlustfreies `asset-studio-backup-*.json` über *alle* Stores (Assets inkl. Roh-Daten, Stil-Bibel,
+  Shots, kv) — funktioniert in jedem Browser, ins Repo committbar.
+- **Wiederherstellen (↩)**: Backup-Datei zurückspielen (zusammenführend) — auch in eine leere Bibliothek.
+- **`navigator.storage.persist()`** beim Start + Status-Anzeige (🔒 dauerhaft / ⚠ nicht), damit der Browser die DB
+  nicht unter Speicherdruck wegräumt.
+- Logik liegt in `lib/studio/backup.ts` (bewusst DOM-frei, testbar). *Offen:* Ordner-Handle merken + Auto-Export;
+  optional später Netlify Blobs für Geräte-Sync.
+
 ## Datenformate
 - **Manifest `assets.json`** (eine Datei, datengetrieben vom Spiel geladen):
   ```jsonc
