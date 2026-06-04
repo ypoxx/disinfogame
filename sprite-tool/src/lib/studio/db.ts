@@ -5,16 +5,18 @@
 // dieselbe DB mit unterschiedlichen Versionen öffnen, wirft IndexedDB — deshalb
 // geht jeder Zugriff hier durch. Bild-Base64 sprengt localStorage (~5 MB), daher
 // IndexedDB. Stores: library (Assets), bible (Stil-Bibel), shots (Aufgaben),
-// kv (kleine Schlüssel/Wert-Notizen).
+// kv (kleine Schlüssel/Wert-Notizen), fs (Ordner-Handle für Auto-Export —
+// bewusst getrennt, da nicht JSON-serialisierbar und aus der Sicherung raus).
 
 export const DB_NAME = 'asset-studio';
-export const DB_VERSION = 2;
+export const DB_VERSION = 3;
 
 export const STORES = {
   library: 'library',
   bible: 'bible',
   shots: 'shots',
   kv: 'kv',
+  fs: 'fs',
 } as const;
 
 export type StoreName = (typeof STORES)[keyof typeof STORES];
@@ -40,6 +42,9 @@ export function openDB(): Promise<IDBDatabase> {
       }
       if (!db.objectStoreNames.contains(STORES.kv)) {
         db.createObjectStore(STORES.kv, { keyPath: 'k' });
+      }
+      if (!db.objectStoreNames.contains(STORES.fs)) {
+        db.createObjectStore(STORES.fs, { keyPath: 'k' });
       }
     };
     req.onsuccess = () => resolve(req.result);

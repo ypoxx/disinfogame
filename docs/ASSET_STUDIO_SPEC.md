@@ -31,8 +31,12 @@ gefangen ist:
 - **Wiederherstellen (↩)**: Backup-Datei zurückspielen (zusammenführend) — auch in eine leere Bibliothek.
 - **`navigator.storage.persist()`** beim Start + Status-Anzeige (🔒 dauerhaft / ⚠ nicht), damit der Browser die DB
   nicht unter Speicherdruck wegräumt.
-- Logik liegt in `lib/studio/backup.ts` (bewusst DOM-frei, testbar). *Offen:* Ordner-Handle merken + Auto-Export;
-  optional später Netlify Blobs für Geräte-Sync.
+- **Auto-Export ✅**: Spielordner einmal verbinden (File System Access, Chrome/Edge) → nach jeder Änderung schreibt
+  das Studio automatisch `assets.json` + Dateien (debounced; nie mit Leerstand/kaputtem Stand überschreiben). Der
+  Ordner-Handle bleibt über Sitzungen erhalten (1 Klick Re-Freigabe je Sitzung); Handle in eigenem `fs`-Store
+  (aus der Sicherung raus).
+- Logik in `lib/studio/backup.ts` + `lib/export.ts` (DOM-frei). **Getestet** via Vitest + `fake-indexeddb`
+  (`npm test`): Backup-Rundlauf, Berechtigungs-Logik, Schreib-Layout. *Offen:* optional Netlify Blobs für Geräte-Sync.
 
 ## Datenformate
 - **Manifest `assets.json`** (eine Datei, datengetrieben vom Spiel geladen):

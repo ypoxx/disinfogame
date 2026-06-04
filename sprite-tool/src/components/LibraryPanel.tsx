@@ -10,7 +10,7 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { listAssets, putAsset, deleteAsset } from '@/lib/library';
 import { validateForExport, type LibraryAsset, type ManifestAssetType } from '@/lib/assets';
-import { buildExportZip, downloadBlob, exportToDirectory, supportsDirectoryExport } from '@/lib/export';
+import { buildExportZip, downloadBlob, supportsDirectoryExport } from '@/lib/export';
 import { buildBackup, restoreBackup, storageStatus, type StorageStatus } from '@/lib/studio/backup';
 import { useStudio } from '@/lib/studio/StudioContext';
 
@@ -33,7 +33,7 @@ export function LibraryPanel({ onClose, embedded = false }: LibraryPanelProps) {
   const [dirMsg, setDirMsg] = useState<string | null>(null);
   // LibraryPanel mountet erst nach Tab-Klick (clientseitig) → window ist da, keine SSR-Diskrepanz.
   const canDirExport = supportsDirectoryExport();
-  const { reload } = useStudio();
+  const { reload, exportDir, autoExport, lastExport, connectExportDir, disconnectExportDir, exportNow } = useStudio();
   const fileRef = useRef<HTMLInputElement>(null);
   const [storage, setStorage] = useState<StorageStatus | null>(null);
   const [backupMsg, setBackupMsg] = useState<string | null>(null);
@@ -80,15 +80,26 @@ export function LibraryPanel({ onClose, embedded = false }: LibraryPanelProps) {
     }
   }
 
-  async function handleDirExport() {
+  async function handleConnect() {
+    setDirMsg(null);
+    try {
+      await connectExportDir();
+      setDirMsg('✓ Spielordner verbunden — Auto-Export aktiv.');
+      window.setTimeout(() => setDirMsg(null), 4000);
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') return; // Abbruch ist kein Fehler
+      setDirMsg(e instanceof Error ? `⚠ ${e.message}` : '⚠ Verbinden fehlgeschlagen');
+    }
+  }
+
+  async function handleWriteNow() {
     setDirExporting(true);
     setDirMsg(null);
     try {
-      const { files } = await exportToDirectory(assets);
+      const files = await exportNow();
       setDirMsg(`✓ ${files} Datei(en) + assets.json geschrieben.`);
       window.setTimeout(() => setDirMsg(null), 4000);
     } catch (e) {
-      // Abbruch durch den Nutzer ist kein Fehler.
       if (e instanceof DOMException && e.name === 'AbortError') return;
       setDirMsg(e instanceof Error ? `⚠ ${e.message}` : '⚠ Schreiben fehlgeschlagen');
     } finally {
@@ -268,6 +279,16 @@ export function LibraryPanel({ onClose, embedded = false }: LibraryPanelProps) {
             )}
             {dirMsg ? (
               <span className="ml-2 text-gray-300">{dirMsg}</span>
+            ) : autoExport === 'ready' ? (
+              <span className="ml-2 text-green-500">
+                ⚡ Auto-Export → {exportDir}
+                {lastExport ? ` · zuletzt ${new Date(lastExport).toLocaleTimeString()}` : ''}{' · '}
+                <button onClick={() => void disconnectExportDir()} className="underline hover:text-white">
+                  trennen
+                </button>
+              </span>
+            ) : autoExport === 'needs-permission' ? (
+              <span className="ml-2 text-yellow-500">⚠ Ordner „{exportDir}" erneut freigeben (1 Klick/Sitzung)</span>
             ) : (
               <span className="ml-2 text-gray-600">
                 Ziel: <code className="rounded bg-gray-800 px-1">desinformation-network/public/assets</code>
@@ -275,14 +296,23 @@ export function LibraryPanel({ onClose, embedded = false }: LibraryPanelProps) {
             )}
           </div>
           <div className="flex flex-shrink-0 gap-2">
-            {canDirExport && (
+            {canDirExport && autoExport === 'ready' && (
               <button
-                onClick={handleDirExport}
+                onClick={handleWriteNow}
                 disabled={errors.length > 0 || dirExporting}
-                title="Schreibt direkt in einen gewählten Ordner (Chrome/Edge) — kein Entpacken"
+                title="Schreibt sofort den aktuellen Stand (sonst automatisch nach jeder Änderung)"
                 className="rounded bg-green-600 px-4 py-2 font-medium hover:bg-green-700 disabled:opacity-50"
               >
-                {dirExporting ? 'Schreibe…' : '✍️ In Spielordner schreiben'}
+                {dirExporting ? 'Schreibe…' : '✍️ Jetzt schreiben'}
+              </button>
+            )}
+            {canDirExport && autoExport !== 'ready' && (
+              <button
+                onClick={handleConnect}
+                title="Ordner einmal wählen — danach schreibt das Studio automatisch (Chrome/Edge)"
+                className={`rounded px-4 py-2 font-medium ${autoExport === 'needs-permission' ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'}`}
+              >
+                {autoExport === 'needs-permission' ? '🔓 Ordner freigeben' : '🔗 Spielordner verbinden'}
               </button>
             )}
             <button
