@@ -10,7 +10,7 @@
 import { useEffect, useState } from 'react';
 import { listAssets, putAsset, deleteAsset } from '@/lib/library';
 import { validateForExport, type LibraryAsset, type ManifestAssetType } from '@/lib/assets';
-import { buildExportZip, downloadBlob } from '@/lib/export';
+import { buildExportZip, downloadBlob, exportToDirectory, supportsDirectoryExport } from '@/lib/export';
 
 interface LibraryPanelProps {
   onClose?: () => void;
@@ -23,6 +23,10 @@ export function LibraryPanel({ onClose, embedded = false }: LibraryPanelProps) {
   const [assets, setAssets] = useState<LibraryAsset[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [dirExporting, setDirExporting] = useState(false);
+  const [dirMsg, setDirMsg] = useState<string | null>(null);
+  // LibraryPanel mountet erst nach Tab-Klick (clientseitig) → window ist da, keine SSR-Diskrepanz.
+  const canDirExport = supportsDirectoryExport();
 
   useEffect(() => {
     let active = true;
@@ -58,6 +62,22 @@ export function LibraryPanel({ onClose, embedded = false }: LibraryPanelProps) {
       downloadBlob(blob, 'assets-export.zip');
     } finally {
       setExporting(false);
+    }
+  }
+
+  async function handleDirExport() {
+    setDirExporting(true);
+    setDirMsg(null);
+    try {
+      const { files } = await exportToDirectory(assets);
+      setDirMsg(`✓ ${files} Datei(en) + assets.json geschrieben.`);
+      window.setTimeout(() => setDirMsg(null), 4000);
+    } catch (e) {
+      // Abbruch durch den Nutzer ist kein Fehler.
+      if (e instanceof DOMException && e.name === 'AbortError') return;
+      setDirMsg(e instanceof Error ? `⚠ ${e.message}` : '⚠ Schreiben fehlgeschlagen');
+    } finally {
+      setDirExporting(false);
     }
   }
 
@@ -162,22 +182,40 @@ export function LibraryPanel({ onClose, embedded = false }: LibraryPanelProps) {
 
       {/* Fuß: Export */}
       {assets.length > 0 && (
-        <div className="flex items-center justify-between gap-3 border-t border-gray-800 px-1 py-3 text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-800 px-1 py-3 text-sm">
           <div className="min-w-0">
             {errors.length === 0 ? (
               <span className="text-green-400">✓ {chosenCount} Asset(s) bereit.</span>
             ) : (
               <span className="text-yellow-400">⚠ {errors[0]}</span>
             )}
-            <span className="ml-2 text-gray-600">ZIP entpacken nach desinformation-network/public/assets/</span>
+            {dirMsg ? (
+              <span className="ml-2 text-gray-300">{dirMsg}</span>
+            ) : (
+              <span className="ml-2 text-gray-600">
+                Ziel: <code className="rounded bg-gray-800 px-1">desinformation-network/public/assets</code>
+              </span>
+            )}
           </div>
-          <button
-            onClick={handleExport}
-            disabled={errors.length > 0 || exporting}
-            className="flex-shrink-0 rounded bg-blue-600 px-4 py-2 font-medium hover:bg-blue-700 disabled:opacity-50"
-          >
-            {exporting ? 'Exportiere…' : '⬇ Export (ZIP)'}
-          </button>
+          <div className="flex flex-shrink-0 gap-2">
+            {canDirExport && (
+              <button
+                onClick={handleDirExport}
+                disabled={errors.length > 0 || dirExporting}
+                title="Schreibt direkt in einen gewählten Ordner (Chrome/Edge) — kein Entpacken"
+                className="rounded bg-green-600 px-4 py-2 font-medium hover:bg-green-700 disabled:opacity-50"
+              >
+                {dirExporting ? 'Schreibe…' : '✍️ In Spielordner schreiben'}
+              </button>
+            )}
+            <button
+              onClick={handleExport}
+              disabled={errors.length > 0 || exporting}
+              className="rounded bg-blue-600 px-4 py-2 font-medium hover:bg-blue-700 disabled:opacity-50"
+            >
+              {exporting ? 'Exportiere…' : '⬇ ZIP'}
+            </button>
+          </div>
         </div>
       )}
     </div>
