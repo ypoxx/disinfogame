@@ -62,12 +62,15 @@ interface StudioContextValue {
 
 const StudioContext = createContext<StudioContextValue | null>(null);
 
-function readKeyStatus(): KeyStatus {
+// Ein Provider gilt als "verfügbar", wenn ein UI-Key (localStorage) ODER lokal
+// ein .env.local-Fallback da ist (env kommt von /api/key-status; in Prod immer
+// false). So spiegelt die UI den dokumentierten Workflow in beiden Umgebungen.
+function readKeyStatus(env: KeyStatus): KeyStatus {
   const k = loadKeys();
   return {
-    google: Boolean(k.google?.trim()),
-    anthropic: Boolean(k.anthropic?.trim()),
-    elevenlabs: Boolean(k.elevenlabs?.trim()),
+    google: Boolean(k.google?.trim()) || env.google,
+    anthropic: Boolean(k.anthropic?.trim()) || env.anthropic,
+    elevenlabs: Boolean(k.elevenlabs?.trim()) || env.elevenlabs,
   };
 }
 
@@ -83,13 +86,27 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [lastExport, setLastExport] = useState<number | null>(null);
   const handleRef = useRef<FsDirHandle | null>(null);
   const didMountExport = useRef(false);
+  const envKeysRef = useRef<KeyStatus>({ google: false, anthropic: false, elevenlabs: false });
 
   // Initiales Laden (clientseitig).
   useEffect(() => {
     let active = true;
     (async () => {
-      setKeys(readKeyStatus());
+      setKeys(readKeyStatus(envKeysRef.current));
       void requestPersistentStorage(); // Browser bitten, die DB nicht wegzuräumen
+      // Lokalen .env.local-Fallback erfragen (in Prod immer false) und einmischen.
+      fetch('/api/key-status')
+        .then((r) => (r.ok ? r.json() : null))
+        .then((env) => {
+          if (!env || !active) return;
+          envKeysRef.current = {
+            google: Boolean(env.google),
+            anthropic: Boolean(env.anthropic),
+            elevenlabs: Boolean(env.elevenlabs),
+          };
+          setKeys(readKeyStatus(envKeysRef.current));
+        })
+        .catch(() => {});
       const [loadedConcept, loadedBible, persisted] = await Promise.all([
         loadGameConcept(),
         loadActiveBible(),
@@ -167,7 +184,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     await dbDeleteShot(id);
   }, []);
 
-  const refreshKeys = useCallback(() => setKeys(readKeyStatus()), []);
+  const refreshKeys = useCallback(() => setKeys(readKeyStatus(envKeysRef.current)), []);
   const bumpLibrary = useCallback(() => setLibraryVersion((v) => v + 1), []);
 
   const reload = useCallback(async () => {
