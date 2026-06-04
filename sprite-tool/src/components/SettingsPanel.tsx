@@ -40,10 +40,10 @@ const PROVIDERS: {
   },
   {
     id: 'elevenlabs',
-    label: 'ElevenLabs — Audio (ab Milestone M5)',
+    label: 'ElevenLabs — Audio (SFX / Musik / Stimmen)',
     placeholder: '…',
     hint: 'elevenlabs.io/app/settings/api-keys',
-    testable: false,
+    testable: true,
   },
 ];
 

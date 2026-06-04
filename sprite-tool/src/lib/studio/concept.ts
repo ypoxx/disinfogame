@@ -38,6 +38,11 @@ export interface ConceptNpc {
     motivation?: string;
     weakness?: string;
   };
+  dialogues?: {
+    greetings?: Record<string, string>;
+    reactions?: Record<string, string>;
+    topics?: Record<string, string>;
+  };
 }
 
 export interface GameConcept {
@@ -128,4 +133,21 @@ export function describeNpc(npc: ConceptNpc): string {
   ]
     .filter(Boolean)
     .join(' ');
+}
+
+export interface NpcLine {
+  key: string; // stabil, z. B. "greeting_2" → wird Teil der Asset-id
+  category: 'greeting' | 'reaction' | 'topic';
+  text: string;
+}
+
+/** Alle sprechbaren Zeilen eines NPC aus den Dialogdaten (für TTS). */
+export function npcLines(npc: ConceptNpc): NpcLine[] {
+  const out: NpcLine[] = [];
+  const d = npc.dialogues;
+  if (!d) return out;
+  for (const [k, v] of Object.entries(d.greetings ?? {})) if (v) out.push({ key: `greeting_${k}`, category: 'greeting', text: v });
+  for (const [k, v] of Object.entries(d.reactions ?? {})) if (v) out.push({ key: `reaction_${k}`, category: 'reaction', text: v });
+  for (const [k, v] of Object.entries(d.topics ?? {})) if (v) out.push({ key: `topic_${k}`, category: 'topic', text: v });
+  return out;
 }

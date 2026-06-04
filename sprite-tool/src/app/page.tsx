@@ -10,15 +10,17 @@ import { useState } from 'react';
 import { StudioProvider, useStudio } from '@/lib/studio/StudioContext';
 import { DirectorPanel } from '@/components/director/DirectorPanel';
 import { SheetStudio } from '@/components/SheetStudio';
+import { SoundStudio } from '@/components/SoundStudio';
 import { FreeCreate } from '@/components/FreeCreate';
 import { LibraryPanel } from '@/components/LibraryPanel';
 import { SettingsPanel } from '@/components/SettingsPanel';
 
-type Tab = 'director' | 'sheet' | 'free' | 'library';
+type Tab = 'director' | 'sheet' | 'sound' | 'free' | 'library';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'director', label: '🎬 Regie' },
   { id: 'sheet', label: '🎞️ Sprite-Sheet' },
+  { id: 'sound', label: '🔊 Sound' },
   { id: 'free', label: '✨ Frei erzeugen' },
   { id: 'library', label: '📚 Bibliothek' },
 ];
@@ -76,6 +78,7 @@ function Shell() {
       <main className="mx-auto max-w-6xl px-4 py-6">
         {tab === 'director' && <DirectorPanel />}
         {tab === 'sheet' && <SheetStudio />}
+        {tab === 'sound' && <SoundStudio />}
         {tab === 'free' && <FreeCreate />}
         {tab === 'library' && <LibraryPanel embedded />}
       </main>

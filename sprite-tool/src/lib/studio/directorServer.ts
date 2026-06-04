@@ -15,6 +15,7 @@ import type {
   CritiqueResult,
   ShotPromptResult,
   StyleDirectionDraft,
+  VoiceCastSuggestion,
 } from './directorTypes';
 
 function model(): string {
@@ -131,6 +132,32 @@ Antworte NUR mit JSON (alles DEUTSCH): {"perVariant":[{"index","score","note"}],
   return (
     parsed ?? { perVariant: [], bestIndex: 0, questions: [], summary: 'Keine strukturierte Bewertung erhalten.' }
   );
+}
+
+export async function suggestVoiceCast(input: {
+  npc: { name: string; role?: string; traits?: string[] };
+  voices: { voice_id: string; name: string; labels?: Record<string, string>; category?: string }[];
+  apiKey?: string;
+}): Promise<VoiceCastSuggestion> {
+  const client = getAnthropicClient(input.apiKey);
+  const voiceList = input.voices
+    .slice(0, 60)
+    .map(
+      (v) =>
+        `- ${v.name} [${v.voice_id}]${v.category ? ` (${v.category})` : ''}${
+          v.labels ? ` ${Object.values(v.labels).join('/')}` : ''
+        }`
+    )
+    .join('\n');
+  const system = `Du bist Casting-Regisseur für ein Spiel (Kalter-Krieg-Bürokratie, deutsche Sprache). Wähle aus der Liste die EINE Stimme, die am besten zur Figur passt. Antworte NUR mit JSON: {"voiceId","voiceName","rationale"} (rationale kurz, deutsch). voiceId MUSS exakt eine [voice_id] aus der Liste sein.`;
+  const user = `FIGUR: ${input.npc.name} — ${input.npc.role ?? ''} (${(input.npc.traits ?? []).join(', ')})\n\nVERFÜGBARE STIMMEN:\n${voiceList}`;
+  const resp = await client.messages.create({
+    model: model(),
+    max_tokens: 500,
+    system,
+    messages: [{ role: 'user', content: user }],
+  });
+  return parseJson<VoiceCastSuggestion>(textOf(resp)) ?? { voiceId: '', voiceName: '', rationale: 'Keine Empfehlung erhalten.' };
 }
 
 export async function chatTurn(input: {

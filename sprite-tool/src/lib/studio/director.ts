@@ -15,6 +15,7 @@ import type {
   CritiqueResult,
   ShotPromptResult,
   StyleDirectionDraft,
+  VoiceCastSuggestion,
 } from './directorTypes';
 
 async function postDirector<T>(body: Record<string, unknown>): Promise<T> {
@@ -98,6 +99,13 @@ export async function directorChat(
   messages: ChatMessage[]
 ): Promise<ChatResult> {
   return postDirector<ChatResult>({ task: 'chat', context, messages });
+}
+
+export async function voiceCast(
+  npc: { name: string; role?: string; traits?: string[] },
+  voices: { voice_id: string; name: string; labels?: Record<string, string>; category?: string }[]
+): Promise<VoiceCastSuggestion> {
+  return postDirector<VoiceCastSuggestion>({ task: 'voice-cast', npc, voices });
 }
 
 // ----- Deterministische Fallbacks (ohne Claude) -----

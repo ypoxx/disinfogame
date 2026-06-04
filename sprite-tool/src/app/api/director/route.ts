@@ -10,6 +10,7 @@ import {
   writeShotPrompt,
   critiqueVariants,
   chatTurn,
+  suggestVoiceCast,
 } from '@/lib/studio/directorServer';
 import type { ChatMessage } from '@/lib/studio/directorTypes';
 
@@ -59,6 +60,16 @@ export async function POST(request: NextRequest) {
         const result = await chatTurn({
           context: String(body.context ?? ''),
           messages,
+          apiKey,
+        });
+        return NextResponse.json(result);
+      }
+      case 'voice-cast': {
+        const result = await suggestVoiceCast({
+          npc: body.npc as { name: string; role?: string; traits?: string[] },
+          voices: Array.isArray(body.voices)
+            ? (body.voices as { voice_id: string; name: string; labels?: Record<string, string>; category?: string }[])
+            : [],
           apiKey,
         });
         return NextResponse.json(result);

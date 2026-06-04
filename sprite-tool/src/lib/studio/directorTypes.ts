@@ -4,7 +4,13 @@
 // Reine Typen, keine Laufzeit-Abhängigkeiten → von Browser- und Server-Code
 // gleichermaßen importierbar.
 
-export type DirectorTask = 'style-directions' | 'shot-prompt' | 'critique' | 'chat';
+export type DirectorTask = 'style-directions' | 'shot-prompt' | 'critique' | 'chat' | 'voice-cast';
+
+export interface VoiceCastSuggestion {
+  voiceId: string;
+  voiceName: string;
+  rationale: string;
+}
 
 export interface StyleDirectionDraft {
   name: string;
