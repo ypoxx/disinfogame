@@ -301,8 +301,10 @@
       "type": "image",
       "file": "images/room_zentrale.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game background scene, wide interior view. command office of the agency director: large world map on the wall, heavy wooden desk with a red telephone, medals in a display case, plain dark-red banner without any emblem, dim desk lamp. This is the workplace of stern agency director, age 55-65, military-style uniform with medals, piercing gaze, grey hair (no person visible in the scene). Concrete walls, fluorescent ceiling tubes, linoleum floor, old radiator, abstract constructivist-style propaganda poster (geometric shapes only, no emblems, no text). No people, no text, no UI elements. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 622729,
+      "styleVersion": "v1"
     },
     {
       "id": "figure_alexei",

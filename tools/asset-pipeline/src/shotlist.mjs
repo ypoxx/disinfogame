@@ -40,7 +40,7 @@ const ROOM_HINTS = {
   medien_zentrum:
     'propaganda media center: large vintage CRT television showing news, VHS recorders and tapes, stacks of newspapers, microphones, broadcast posters on the wall',
   zentrale:
-    'command office of the agency director: large world map on the wall, heavy wooden desk with a red telephone, medals in a display case, Soviet flag, dim desk lamp',
+    'command office of the agency director: large world map on the wall, heavy wooden desk with a red telephone, medals in a display case, plain dark-red banner without any emblem, dim desk lamp',
   feld_ops:
     'field operations room: metal lockers, pinned maps with routes, radio equipment, duffel bags, harsh fluorescent light',
   finanzen:
@@ -159,7 +159,8 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       prompt:
         `A pixel art game background scene, wide interior view. ${hint}. ` +
         `${npc ? `This is the workplace of ${NPC_HINTS[npc.id] ?? npc.name} (no person visible in the scene). ` : ''}` +
-        `Concrete walls, fluorescent ceiling tubes, linoleum floor, old radiator, soviet propaganda poster. ` +
+        `Concrete walls, fluorescent ceiling tubes, linoleum floor, old radiator, ` +
+        `abstract constructivist-style propaganda poster (geometric shapes only, no emblems, no text). ` +
         `No people, no text, no UI elements. ${style}`,
     });
   }

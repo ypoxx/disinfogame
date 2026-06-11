@@ -28,7 +28,9 @@ export function styleCore(styleGuidePath = STYLE_GUIDE_MD) {
     '16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic ' +
     '(1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, ' +
     'bureaucratic claustrophobic atmosphere. Hard geometric edges. ' +
-    `Muted color palette (${palette}); Soviet-red accents only for important elements. ` +
-    'No modern clean design, no saturated candy colors, no pastel tones.'
+    `Muted color palette (${palette}); dark-red accents only for important elements. ` +
+    'No modern clean design, no saturated candy colors, no pastel tones. ' +
+    'Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, ' +
+    'no real flags, no state emblems or insignia of any actual country, no readable text.'
   );
 }

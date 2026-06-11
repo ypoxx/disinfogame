@@ -11,6 +11,13 @@ mit verschiedenen Spezialisten.
 
 ## Ästhetik: Sowjet-Brutalismus
 
+> **Wichtig — fiktives Setting:** Das Spiel spielt in einem *fiktiven*
+> Ostblock-Staat. Die Ästhetik darf an die Sowjetunion *erinnern*, aber
+> **keine realen Staatssymbole** zeigen: kein Hammer und Sichel, keine
+> echten Flaggen, keine Embleme/Hoheitszeichen realer Länder, kein
+> lesbarer Text. Fahnen nur als schlichte dunkelrote Banner ohne Emblem;
+> Poster nur abstrakt-konstruktivistisch (geometrische Formen).
+
 ### Farbpalette
 
 **Hauptfarben (gedeckt):**
@@ -87,7 +94,7 @@ mit verschiedenen Spezialisten.
 - Schwere Holz- oder Metalltüren
 - Linoleum-Boden
 - Alte Heizkörper
-- Sowjet-Propaganda-Poster als Deko
+- Abstrakte Propaganda-Poster im Konstruktivismus-Stil (ohne reale Symbole/Text)
 
 ### Technik-Büro (Cyber-Lab)
 - Mehrere CRT-Monitore mit grünem Text
@@ -115,7 +122,7 @@ mit verschiedenen Spezialisten.
 - Rotes Telefon auf dem Schreibtisch
 - Militärische Orden in Vitrine
 - Schwerer Holzschreibtisch
-- Sowjet-Flagge
+- Schlichtes dunkelrotes Banner (ohne Emblem)
 
 ## Animationen
 
