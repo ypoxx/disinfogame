@@ -1,0 +1,434 @@
+{
+  "assets": [
+    {
+      "id": "portrait_alexei",
+      "type": "image",
+      "file": "images/portrait_alexei.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_alexei_angry",
+      "type": "image",
+      "file": "images/portrait_alexei_angry.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_alexei_happy",
+      "type": "image",
+      "file": "images/portrait_alexei_happy.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_alexei_suspicious",
+      "type": "image",
+      "file": "images/portrait_alexei_suspicious.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_alexei_worried",
+      "type": "image",
+      "file": "images/portrait_alexei_worried.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_direktor",
+      "type": "image",
+      "file": "images/portrait_direktor.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_direktor_angry",
+      "type": "image",
+      "file": "images/portrait_direktor_angry.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_direktor_happy",
+      "type": "image",
+      "file": "images/portrait_direktor_happy.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_direktor_suspicious",
+      "type": "image",
+      "file": "images/portrait_direktor_suspicious.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_direktor_worried",
+      "type": "image",
+      "file": "images/portrait_direktor_worried.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_igor",
+      "type": "image",
+      "file": "images/portrait_igor.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_igor_angry",
+      "type": "image",
+      "file": "images/portrait_igor_angry.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_igor_happy",
+      "type": "image",
+      "file": "images/portrait_igor_happy.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_igor_suspicious",
+      "type": "image",
+      "file": "images/portrait_igor_suspicious.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_igor_worried",
+      "type": "image",
+      "file": "images/portrait_igor_worried.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_katja",
+      "type": "image",
+      "file": "images/portrait_katja.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_katja_angry",
+      "type": "image",
+      "file": "images/portrait_katja_angry.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_katja_happy",
+      "type": "image",
+      "file": "images/portrait_katja_happy.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_katja_suspicious",
+      "type": "image",
+      "file": "images/portrait_katja_suspicious.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_katja_worried",
+      "type": "image",
+      "file": "images/portrait_katja_worried.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_marina",
+      "type": "image",
+      "file": "images/portrait_marina.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_marina_angry",
+      "type": "image",
+      "file": "images/portrait_marina_angry.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_marina_happy",
+      "type": "image",
+      "file": "images/portrait_marina_happy.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_marina_suspicious",
+      "type": "image",
+      "file": "images/portrait_marina_suspicious.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "portrait_marina_worried",
+      "type": "image",
+      "file": "images/portrait_marina_worried.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "prop_coffee",
+      "type": "image",
+      "file": "images/prop_coffee.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "prop_files",
+      "type": "image",
+      "file": "images/prop_files.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "prop_red_phone",
+      "type": "image",
+      "file": "images/prop_red_phone.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "prop_safe",
+      "type": "image",
+      "file": "images/prop_safe.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "prop_server_rack",
+      "type": "image",
+      "file": "images/prop_server_rack.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "prop_tv",
+      "type": "image",
+      "file": "images/prop_tv.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "prop_typewriter",
+      "type": "image",
+      "file": "images/prop_typewriter.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "prop_world_map",
+      "type": "image",
+      "file": "images/prop_world_map.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "room_cyber_lab",
+      "type": "image",
+      "file": "images/room_cyber_lab.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "room_feld_ops",
+      "type": "image",
+      "file": "images/room_feld_ops.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "room_finanzen",
+      "type": "image",
+      "file": "images/room_finanzen.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "room_medien_zentrum",
+      "type": "image",
+      "file": "images/room_medien_zentrum.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "room_zentrale",
+      "type": "image",
+      "file": "images/room_zentrale.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder"
+    },
+    {
+      "id": "figure_alexei",
+      "type": "sheet",
+      "file": "sheets/figure_alexei.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "frameTime": 260,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "figure_direktor",
+      "type": "sheet",
+      "file": "sheets/figure_direktor.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "frameTime": 260,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "figure_igor",
+      "type": "sheet",
+      "file": "sheets/figure_igor.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "frameTime": 260,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "figure_katja",
+      "type": "sheet",
+      "file": "sheets/figure_katja.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "frameTime": 260,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "figure_marina",
+      "type": "sheet",
+      "file": "sheets/figure_marina.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "frameTime": 260,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "player_idle",
+      "type": "sheet",
+      "file": "sheets/player_idle.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "frameTime": 220,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "player_walk",
+      "type": "sheet",
+      "file": "sheets/player_walk.png",
+      "chosen": true,
+      "provider": "placeholder",
+      "styleVersion": "placeholder",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "animations": {
+        "walkRight": {
+          "row": 0,
+          "frames": 8,
+          "frameTime": 90,
+          "loop": true
+        }
+      }
+    }
+  ]
+}
