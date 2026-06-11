@@ -207,12 +207,29 @@ async function generateImageShot(shot, dir, budget, log, force) {
     seed,
     referenceImagesBase64,
   });
-  let image = sharp(Buffer.from(result.base64, 'base64'));
-  if (shot.size) {
-    // Exakte Zielmaße erzwingen (Sheets brauchen das Frame-Raster pixelgenau).
-    image = image.resize(shot.size.w, shot.size.h, { fit: 'fill', kernel: 'nearest' });
+  let png;
+  if (shot.type === 'sheet') {
+    // Sheets: in nativer Auflösung freistellen, dann erkannte Einzelposen
+    // pixelgenau ins frameWidth×frameHeight-Raster montieren. Erst wenn die
+    // Posen-Erkennung scheitert, hart auf die Zielmaße skalieren.
+    const { keyOutMagenta, repackSheet } = await import('./transparency.mjs');
+    const keyed = await keyOutMagenta(await sharp(Buffer.from(result.base64, 'base64')).png().toBuffer());
+    png =
+      (await repackSheet(keyed, shot)) ??
+      (await sharp(keyed).resize(shot.size.w, shot.size.h, { fit: 'fill', kernel: 'nearest' }).png().toBuffer());
+  } else {
+    let image = sharp(Buffer.from(result.base64, 'base64'));
+    if (shot.size) {
+      // Exakte Zielmaße erzwingen.
+      image = image.resize(shot.size.w, shot.size.h, { fit: 'fill', kernel: 'nearest' });
+    }
+    png = await image.png().toBuffer();
+    if (shot.kind === 'prop') {
+      // Magenta-Hintergrund (CHROMA_PROMPT) zu echtem Alpha ausstanzen.
+      const { keyOutMagenta } = await import('./transparency.mjs');
+      png = await keyOutMagenta(png);
+    }
   }
-  const png = await image.png().toBuffer();
   writeAssetFile(dir, file, png);
   log.write({ shot: shot.id, action: 'generate-image', ok: true, ms: Date.now() - t0, bytes: png.length });
   return {

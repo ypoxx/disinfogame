@@ -14,6 +14,7 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 import { BUILDING_JSON, NPCS_JSON } from './paths.mjs';
 import { styleCore } from './styleguide.mjs';
+import { CHROMA_PROMPT } from './transparency.mjs';
 
 /** Deterministischer Seed je Shot-id (reproduzierbare Läufe). */
 export function seedFor(id) {
@@ -49,14 +50,14 @@ const ROOM_HINTS = {
 
 const NPC_HINTS = {
   direktor:
-    'stern agency director, age 55-65, military-style uniform with medals, piercing gaze, grey hair',
+    'stern male agency director, age 55-65, military-style uniform with medals, piercing gaze, grey hair',
   marina:
-    'confident media specialist, age 30-40, fashionable 1980s suit, groomed appearance, slight smile',
+    'confident woman media specialist, age 30-40, fashionable 1980s skirt suit, groomed appearance, slight smile',
   alexei:
-    'nervous young tech specialist, age 25-35, hoodie, large glasses, messy hair, alert eyes',
+    'nervous young male tech specialist, age 25-35, hoodie, large glasses, messy hair, alert eyes',
   katja:
-    'pragmatic field operative, age 30-40, practical jacket, short tied-back hair, watchful expression',
-  igor: 'cautious financial analyst, age 45-55, worn grey suit, balding, skeptical look, ledger under his arm',
+    'pragmatic woman field operative, age 30-40, practical jacket, short tied-back hair, watchful expression',
+  igor: 'cautious male financial analyst, age 45-55, worn grey suit, balding, skeptical look, ledger under his arm',
 };
 
 const PROPS = [
@@ -212,8 +213,9 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
     seed: seedFor('player_walk'),
     prompt:
       `An 8-frame pixel art sprite sheet of a middle-aged soviet bureaucrat in a grey suit ` +
-      `with a briefcase, walking to the right, side view. Horizontal layout, exactly 8 frames ` +
-      `in one row, each frame exactly 32x32 pixels, total 256x32. Transparent background. ${style}`,
+      `with a briefcase, walking to the right, side view. Horizontal layout, exactly 8 evenly ` +
+      `spaced frames in one row showing the SAME character with identical outfit and colors in ` +
+      `every frame, only the walking pose changes. ${CHROMA_PROMPT} ${style}`,
   });
   shots.push({
     id: 'player_idle',
@@ -229,8 +231,9 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
     seed: seedFor('player_idle'),
     prompt:
       `A 4-frame pixel art sprite sheet of a middle-aged soviet bureaucrat in a grey suit ` +
-      `standing idle and subtly breathing, front view. Horizontal layout, exactly 4 frames ` +
-      `in one row, each frame exactly 32x32 pixels, total 128x32. Transparent background. ${style}`,
+      `standing idle and subtly breathing, front view. Horizontal layout, exactly 4 evenly ` +
+      `spaced frames in one row showing the SAME character with identical outfit and colors in ` +
+      `every frame, only a subtle breathing motion changes. ${CHROMA_PROMPT} ${style}`,
   });
 
   // --- NPC-Figuren im Gebäude (klein, Kür) ---
@@ -249,8 +252,9 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       seed: seedFor(`figure_${npc.id}`),
       prompt:
         `A 4-frame pixel art sprite sheet of ${NPC_HINTS[npc.id] ?? npc.name}, full body, ` +
-        `standing idle with subtle movement, front view. Horizontal layout, exactly 4 frames in one row, ` +
-        `each frame exactly 32x32 pixels, total 128x32. Transparent background. ${style}`,
+        `standing idle with subtle movement, front view. Horizontal layout, exactly 4 evenly ` +
+        `spaced frames in one row showing the SAME character with identical outfit and colors in ` +
+        `every frame, only a subtle idle motion changes. ${CHROMA_PROMPT} ${style}`,
     });
   }
 
@@ -264,7 +268,7 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       aspectRatio: '1:1',
       size: { w: 1024, h: 1024 },
       seed: seedFor(id),
-      prompt: `A pixel art game asset: ${hint}. Single object, centered, transparent background, no text. ${style}`,
+      prompt: `A pixel art game asset: ${hint}. Single object, centered, no text. ${CHROMA_PROMPT} ${style}`,
     });
   }
 

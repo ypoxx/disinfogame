@@ -5,296 +5,370 @@
       "type": "image",
       "file": "images/portrait_alexei.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character portrait, head and shoulders, facing slightly left, neutral expression. nervous young tech specialist, age 25-35, hoodie, large glasses, messy hair, alert eyes. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 914725,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_alexei_angry",
       "type": "image",
       "file": "images/portrait_alexei_angry.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly angry facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 914725,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_alexei_happy",
       "type": "image",
       "file": "images/portrait_alexei_happy.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly happy facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 914725,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_alexei_suspicious",
       "type": "image",
       "file": "images/portrait_alexei_suspicious.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly suspicious facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 914725,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_alexei_worried",
       "type": "image",
       "file": "images/portrait_alexei_worried.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly worried facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 914725,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_direktor",
       "type": "image",
       "file": "images/portrait_direktor.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character portrait, head and shoulders, facing slightly left, neutral expression. stern agency director, age 55-65, military-style uniform with medals, piercing gaze, grey hair. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 752728,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_direktor_angry",
       "type": "image",
       "file": "images/portrait_direktor_angry.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly angry facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 752728,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_direktor_happy",
       "type": "image",
       "file": "images/portrait_direktor_happy.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly happy facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 752728,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_direktor_suspicious",
       "type": "image",
       "file": "images/portrait_direktor_suspicious.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly suspicious facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 752728,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_direktor_worried",
       "type": "image",
       "file": "images/portrait_direktor_worried.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly worried facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 752728,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_igor",
       "type": "image",
       "file": "images/portrait_igor.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character portrait, head and shoulders, facing slightly left, neutral expression. cautious financial analyst, age 45-55, worn grey suit, balding, skeptical look, ledger under his arm. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 114176,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_igor_angry",
       "type": "image",
       "file": "images/portrait_igor_angry.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly angry facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 114176,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_igor_happy",
       "type": "image",
       "file": "images/portrait_igor_happy.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly happy facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 114176,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_igor_suspicious",
       "type": "image",
       "file": "images/portrait_igor_suspicious.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly suspicious facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 114176,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_igor_worried",
       "type": "image",
       "file": "images/portrait_igor_worried.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly worried facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 114176,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_katja",
       "type": "image",
       "file": "images/portrait_katja.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character portrait, head and shoulders, facing slightly left, neutral expression. pragmatic field operative, age 30-40, practical jacket, short tied-back hair, watchful expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 303099,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_katja_angry",
       "type": "image",
       "file": "images/portrait_katja_angry.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly angry facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 303099,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_katja_happy",
       "type": "image",
       "file": "images/portrait_katja_happy.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly happy facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 303099,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_katja_suspicious",
       "type": "image",
       "file": "images/portrait_katja_suspicious.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly suspicious facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 303099,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_katja_worried",
       "type": "image",
       "file": "images/portrait_katja_worried.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly worried facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 303099,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_marina",
       "type": "image",
       "file": "images/portrait_marina.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character portrait, head and shoulders, facing slightly left, neutral expression. confident woman media specialist, age 30-40, fashionable 1980s skirt suit, groomed appearance, slight smile. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 727536,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_marina_angry",
       "type": "image",
       "file": "images/portrait_marina_angry.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly angry facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 727536,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_marina_happy",
       "type": "image",
       "file": "images/portrait_marina_happy.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly happy facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 727536,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_marina_suspicious",
       "type": "image",
       "file": "images/portrait_marina_suspicious.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly suspicious facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 727536,
+      "styleVersion": "v1"
     },
     {
       "id": "portrait_marina_worried",
       "type": "image",
       "file": "images/portrait_marina_worried.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, clothes and framing, but with a clearly worried facial expression. Plain dark concrete wall background. No text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 727536,
+      "styleVersion": "v1"
     },
     {
       "id": "prop_coffee",
       "type": "image",
       "file": "images/prop_coffee.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game asset: steaming coffee cup on a saucer. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 217969,
+      "styleVersion": "v1"
     },
     {
       "id": "prop_files",
       "type": "image",
       "file": "images/prop_files.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game asset: stack of beige paper files and folders. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 308568,
+      "styleVersion": "v1"
     },
     {
       "id": "prop_red_phone",
       "type": "image",
       "file": "images/prop_red_phone.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game asset: red rotary telephone. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 39184,
+      "styleVersion": "v1"
     },
     {
       "id": "prop_safe",
       "type": "image",
       "file": "images/prop_safe.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game asset: heavy steel safe with a rotary dial. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 322745,
+      "styleVersion": "v1"
     },
     {
       "id": "prop_server_rack",
       "type": "image",
       "file": "images/prop_server_rack.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game asset: server rack with blinking red and green LEDs. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 648307,
+      "styleVersion": "v1"
     },
     {
       "id": "prop_tv",
       "type": "image",
       "file": "images/prop_tv.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game asset: old CRT television set on a metal stand, screen glowing. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 950469,
+      "styleVersion": "v1"
     },
     {
       "id": "prop_typewriter",
       "type": "image",
       "file": "images/prop_typewriter.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game asset: soviet-era mechanical typewriter. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 838841,
+      "styleVersion": "v1"
     },
     {
       "id": "prop_world_map",
       "type": "image",
       "file": "images/prop_world_map.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game asset: wall-mounted world map with pins and string. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 257005,
+      "styleVersion": "v1"
     },
     {
       "id": "room_cyber_lab",
       "type": "image",
       "file": "images/room_cyber_lab.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game background scene, wide interior view. underground tech office: several CRT monitors with green text, server racks with blinking LEDs, cable bundles on the floor, dark room lit mostly by monitor glow. This is the workplace of nervous young tech specialist, age 25-35, hoodie, large glasses, messy hair, alert eyes (no person visible in the scene). Concrete walls, fluorescent ceiling tubes, linoleum floor, old radiator, abstract constructivist-style propaganda poster (geometric shapes only, no emblems, no text). No people, no text, no UI elements. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 580139,
+      "styleVersion": "v1"
     },
     {
       "id": "room_feld_ops",
       "type": "image",
       "file": "images/room_feld_ops.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game background scene, wide interior view. field operations room: metal lockers, pinned maps with routes, radio equipment, duffel bags, harsh fluorescent light. This is the workplace of pragmatic field operative, age 30-40, practical jacket, short tied-back hair, watchful expression (no person visible in the scene). Concrete walls, fluorescent ceiling tubes, linoleum floor, old radiator, abstract constructivist-style propaganda poster (geometric shapes only, no emblems, no text). No people, no text, no UI elements. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 887188,
+      "styleVersion": "v1"
     },
     {
       "id": "room_finanzen",
       "type": "image",
       "file": "images/room_finanzen.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game background scene, wide interior view. basement finance vault: heavy vault door, metal filing cabinets, ledgers and stacked banknotes on a desk, counting machine, single hanging lamp. This is the workplace of cautious financial analyst, age 45-55, worn grey suit, balding, skeptical look, ledger under his arm (no person visible in the scene). Concrete walls, fluorescent ceiling tubes, linoleum floor, old radiator, abstract constructivist-style propaganda poster (geometric shapes only, no emblems, no text). No people, no text, no UI elements. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 761480,
+      "styleVersion": "v1"
     },
     {
       "id": "room_medien_zentrum",
       "type": "image",
       "file": "images/room_medien_zentrum.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder"
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game background scene, wide interior view. propaganda media center: large vintage CRT television showing news, VHS recorders and tapes, stacks of newspapers, microphones, broadcast posters on the wall. This is the workplace of confident media specialist, age 30-40, fashionable 1980s suit, groomed appearance, slight smile (no person visible in the scene). Concrete walls, fluorescent ceiling tubes, linoleum floor, old radiator, abstract constructivist-style propaganda poster (geometric shapes only, no emblems, no text). No people, no text, no UI elements. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 289704,
+      "styleVersion": "v1"
     },
     {
       "id": "room_zentrale",
@@ -311,8 +385,10 @@
       "type": "sheet",
       "file": "sheets/figure_alexei.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder",
+      "provider": "gemini-3-pro-image",
+      "prompt": "A 4-frame pixel art sprite sheet of nervous young male tech specialist, age 25-35, hoodie, large glasses, messy hair, alert eyes, full body, standing idle with subtle movement, front view. Horizontal layout, exactly 4 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 767841,
+      "styleVersion": "v1",
       "frameWidth": 32,
       "frameHeight": 32,
       "animations": {
@@ -329,8 +405,10 @@
       "type": "sheet",
       "file": "sheets/figure_direktor.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder",
+      "provider": "gemini-3-pro-image",
+      "prompt": "A 4-frame pixel art sprite sheet of stern male agency director, age 55-65, military-style uniform with medals, piercing gaze, grey hair, full body, standing idle with subtle movement, front view. Horizontal layout, exactly 4 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 13581,
+      "styleVersion": "v1",
       "frameWidth": 32,
       "frameHeight": 32,
       "animations": {
@@ -347,8 +425,10 @@
       "type": "sheet",
       "file": "sheets/figure_igor.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder",
+      "provider": "gemini-3-pro-image",
+      "prompt": "A 4-frame pixel art sprite sheet of cautious male financial analyst, age 45-55, worn grey suit, balding, skeptical look, ledger under his arm, full body, standing idle with subtle movement, front view. Horizontal layout, exactly 4 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 630427,
+      "styleVersion": "v1",
       "frameWidth": 32,
       "frameHeight": 32,
       "animations": {
@@ -365,8 +445,10 @@
       "type": "sheet",
       "file": "sheets/figure_katja.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder",
+      "provider": "gemini-3-pro-image",
+      "prompt": "A 4-frame pixel art sprite sheet of pragmatic woman field operative, age 30-40, practical jacket, short tied-back hair, watchful expression, full body, standing idle with subtle movement, front view. Horizontal layout, exactly 4 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 803398,
+      "styleVersion": "v1",
       "frameWidth": 32,
       "frameHeight": 32,
       "animations": {
@@ -383,8 +465,10 @@
       "type": "sheet",
       "file": "sheets/figure_marina.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder",
+      "provider": "gemini-3-pro-image",
+      "prompt": "A 4-frame pixel art sprite sheet of confident woman media specialist, age 30-40, fashionable 1980s skirt suit, groomed appearance, slight smile, full body, standing idle with subtle movement, front view. Horizontal layout, exactly 4 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 901001,
+      "styleVersion": "v1",
       "frameWidth": 32,
       "frameHeight": 32,
       "animations": {
@@ -401,8 +485,10 @@
       "type": "sheet",
       "file": "sheets/player_idle.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder",
+      "provider": "gemini-3-pro-image",
+      "prompt": "A 4-frame pixel art sprite sheet of a middle-aged soviet bureaucrat in a grey suit standing idle and subtly breathing, front view. Horizontal layout, exactly 4 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle breathing motion changes. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 211324,
+      "styleVersion": "v1",
       "frameWidth": 32,
       "frameHeight": 32,
       "animations": {
@@ -419,8 +505,10 @@
       "type": "sheet",
       "file": "sheets/player_walk.png",
       "chosen": true,
-      "provider": "placeholder",
-      "styleVersion": "placeholder",
+      "provider": "gemini-3-pro-image",
+      "prompt": "An 8-frame pixel art sprite sheet of a middle-aged soviet bureaucrat in a grey suit with a briefcase, walking to the right, side view. Horizontal layout, exactly 8 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only the walking pose changes. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 782795,
+      "styleVersion": "v1",
       "frameWidth": 32,
       "frameHeight": 32,
       "animations": {
