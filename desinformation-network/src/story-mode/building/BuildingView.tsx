@@ -20,6 +20,8 @@
 import { useState } from 'react';
 import buildingData from '../data/building.json';
 import { StoryModeColors } from '../theme';
+import { useAssets } from '../assets/useAssets';
+import { useSprite } from '../assets/useSprite';
 
 interface BuildingFloor {
   id: string;
@@ -114,6 +116,23 @@ function ElevatorShaft({ showCoords }: { showCoords: boolean }) {
   );
 }
 
+/**
+ * Figur im Raum: animiertes Sprite (figure_<npcId>, Animation "idle") aus dem
+ * Asset-Manifest — fehlt es, bleibt das bisherige 🧍-Emoji.
+ */
+function RoomFigure({ npcId, title }: { npcId: string; title: string }) {
+  const assets = useAssets();
+  const sprite = useSprite(assets.sheet(`figure_${npcId}`), 'idle');
+  if (sprite) {
+    return <span style={sprite.style} title={title} aria-label={title} />;
+  }
+  return (
+    <span className="text-base" style={{ animation: 'bv-bob 3s ease-in-out infinite' }} title={title}>
+      🧍
+    </span>
+  );
+}
+
 /** Kleine ambiente Animation je Raum (CSS-only). */
 function RoomAmbient({ roomId }: { roomId: string }) {
   if (roomId === 'medien_zentrum') {
@@ -136,6 +155,7 @@ function RoomAmbient({ roomId }: { roomId: string }) {
 export function BuildingView({ npcs, onRoomClick }: BuildingViewProps) {
   const npcById = new Map(npcs.map((n) => [n.id, n]));
   const [showCoords, setShowCoords] = useState(false);
+  const assets = useAssets();
 
   return (
     <div className="h-full w-full overflow-auto p-6" style={{ backgroundColor: '#0d0d0d' }}>
@@ -240,6 +260,9 @@ export function BuildingView({ npcs, onRoomClick }: BuildingViewProps) {
 
                       const npc = npcById.get(room.npcId);
                       const available = npc?.available ?? true;
+                      // Raum-Hintergrund aus dem Asset-Manifest (room_<id>);
+                      // dunkler Verlauf hält Text/Badges lesbar. Ohne Asset: CSS-Look.
+                      const bgUrl = assets.imageUrl(`room_${room.id}`);
                       return (
                         <button
                           key={room.id}
@@ -249,6 +272,15 @@ export function BuildingView({ npcs, onRoomClick }: BuildingViewProps) {
                           style={{
                             borderColor: npc?.inCrisis ? StoryModeColors.danger : '#3a3a3a',
                             backgroundColor: '#1a1a1a',
+                            ...(bgUrl
+                              ? {
+                                  backgroundImage: `linear-gradient(rgba(10,10,10,0.45), rgba(10,10,10,0.7)), url(${bgUrl})`,
+                                  backgroundSize: 'cover',
+                                  backgroundPosition: 'center',
+                                  imageRendering: 'pixelated',
+                                  minHeight: 120,
+                                }
+                              : {}),
                             opacity: available ? 1 : 0.45,
                             cursor: available ? 'pointer' : 'not-allowed',
                           }}
@@ -269,9 +301,7 @@ export function BuildingView({ npcs, onRoomClick }: BuildingViewProps) {
                             </span>
                             <span className="ml-auto flex items-center gap-1">
                               <RoomAmbient roomId={room.id} />
-                              <span className="text-base" style={{ animation: 'bv-bob 3s ease-in-out infinite' }} title={npc?.name ?? room.npcId}>
-                                🧍
-                              </span>
+                              <RoomFigure npcId={room.npcId} title={npc?.name ?? room.npcId} />
                             </span>
                           </div>
                           <div className="text-xs mt-1" style={{ color: '#9aa' }}>

@@ -30,6 +30,8 @@ import { BuildingView } from './building/BuildingView';
 import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
 import { DashboardView } from './components/DashboardView';
+import { initAssetRegistry } from './assets';
+import { playMusic, stopMusic } from './utils/SoundSystem';
 
 // ============================================
 // TYPES
@@ -373,6 +375,21 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
   // Tutorial system
   const tutorial = useTutorial();
+
+  // Asset-Manifest laden (public/assets/assets.json) — fehlt es, bleibt der CSS-Look.
+  useEffect(() => {
+    void initAssetRegistry();
+  }, []);
+
+  // Hintergrundmusik (music_theme_main), sobald gespielt wird — No-op ohne Asset.
+  // Der Start liegt nach einem Klick (Spielstart), erfüllt also die Autoplay-Policy.
+  useEffect(() => {
+    if (state.gamePhase === 'playing' || state.gamePhase === 'tutorial') {
+      playMusic();
+    } else if (state.gamePhase === 'ended') {
+      stopMusic();
+    }
+  }, [state.gamePhase]);
 
   // Auto-start tutorial on first play
   useEffect(() => {
@@ -729,6 +746,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             speakerTitle: state.currentDialog.speakerTitle,
             text: state.currentDialog.text,
             mood: state.currentDialog.mood,
+            voiceAssetId: state.currentDialog.voiceAssetId,
             choices: state.currentDialog.choices?.map(c => ({
               id: c.id,
               text: c.text,

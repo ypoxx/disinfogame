@@ -290,6 +290,13 @@ export interface DialogState {
   }[];
   npcRecommendation?: string;
   npcBetrayalWarning?: string;
+  /**
+   * Sprachzeile (Asset-id, voice_<npc>_<lineKey>) — nur setzen, wenn der
+   * angezeigte Text exakt der vertonten Zeile entspricht. Begrüßungen/Topics
+   * laufen über dialogues.json und brauchen dafür erst einen Rückgabe-Key aus
+   * dem DialogLoader (siehe tools/asset-pipeline/README.md, Phase 3).
+   */
+  voiceAssetId?: string;
 }
 
 // ============================================
@@ -503,6 +510,7 @@ export function useStoryGameState(seed?: string) {
       speakerTitle: 'Leiter der Agentur',
       text: 'Willkommen in der Abteilung für Sonderoperationen. Ihre Mission: die politische Landschaft von Westunion zu destabilisieren. Sie haben 10 Jahre Zeit. Nutzen Sie sie weise.',
       mood: 'neutral',
+      voiceAssetId: 'voice_direktor_intro',
     });
   }, [refreshAvailableActions, generateRecommendations]);
 
