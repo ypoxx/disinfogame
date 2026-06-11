@@ -1,0 +1,23 @@
+{
+  "name": "asset-pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Headless-Asset-Pipeline: erzeugt Grafiken (Gemini) und Audio (ElevenLabs) direkt in desinformation-network/public/assets/ — Schema identisch mit dem Asset Studio (sprite-tool).",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "shotlist": "node src/cli.mjs shotlist",
+    "status": "node src/cli.mjs status",
+    "placeholders": "node src/cli.mjs placeholders",
+    "validate": "node src/cli.mjs validate",
+    "generate": "node src/cli.mjs generate",
+    "voices": "node src/cli.mjs voices",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@google/genai": "^1.39.0",
+    "sharp": "^0.34.5"
+  }
+}
