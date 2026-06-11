@@ -30,7 +30,7 @@ import { BuildingView } from './building/BuildingView';
 import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
 import { DashboardView } from './components/DashboardView';
-import { initAssetRegistry } from './assets';
+import { initAssetRegistry, useAssets } from './assets';
 import { playMusic, stopMusic } from './utils/SoundSystem';
 
 // ============================================
@@ -383,13 +383,16 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
   // Hintergrundmusik (music_theme_main), sobald gespielt wird — No-op ohne Asset.
   // Der Start liegt nach einem Klick (Spielstart), erfüllt also die Autoplay-Policy.
+  // `assets` in den Deps: Lädt das Manifest erst NACH dem Spielstart, wiederholt
+  // der Effekt den Versuch (sonst bliebe die Musik bis zum Phasenwechsel stumm).
+  const assets = useAssets();
   useEffect(() => {
     if (state.gamePhase === 'playing' || state.gamePhase === 'tutorial') {
       playMusic();
     } else if (state.gamePhase === 'ended') {
       stopMusic();
     }
-  }, [state.gamePhase]);
+  }, [state.gamePhase, assets]);
 
   // Auto-start tutorial on first play
   useEffect(() => {

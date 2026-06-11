@@ -456,11 +456,15 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
   }, [message?.text]);
 
   // Sprachzeile abspielen, wenn das Manifest sie liefert (sonst No-op).
+  // `assets` in den Deps: Erscheint der Dialog VOR dem Manifest-Load (z. B. die
+  // Intro-Zeile direkt nach Spielstart), holt der Effekt die Wiedergabe nach,
+  // sobald die Registry gefüllt ist — die Registry-Instanz wechselt genau einmal.
+  const assets = useAssets();
   const voiceAssetId = message?.voiceAssetId;
   useEffect(() => {
     if (voiceAssetId) playVoiceLine(voiceAssetId);
     return () => stopVoiceLine();
-  }, [voiceAssetId]);
+  }, [voiceAssetId, assets]);
 
   if (!isVisible || !message) return null;
 
