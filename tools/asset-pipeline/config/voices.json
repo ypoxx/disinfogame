@@ -1,6 +1,6 @@
 {
   "_comment": "Stimmen-Besetzung: npcId → ElevenLabs voice_id (stabil je NPC, siehe docs/ASSET_STUDIO_SPEC.md M5). Kandidaten anzeigen: npm run voices (braucht ELEVENLABS_API_KEY). Leer = NPC wird bei voice-Generierung übersprungen.",
-  "direktor": "",
+  "direktor": "MHOybJN5BsVS5H8m3mru",
   "marina": "",
   "alexei": "",
   "katja": "",

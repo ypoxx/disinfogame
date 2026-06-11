@@ -381,6 +381,153 @@
       "styleVersion": "v1"
     },
     {
+      "id": "music_gameplay",
+      "type": "music",
+      "file": "sounds/music_gameplay.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "music_tense",
+      "type": "music",
+      "file": "sounds/music_tense.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "music_theme_main",
+      "type": "music",
+      "file": "sounds/music_theme_main.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "music_victory",
+      "type": "music",
+      "file": "sounds/music_victory.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_betrayal",
+      "type": "sfx",
+      "file": "sounds/sfx_betrayal.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_click",
+      "type": "sfx",
+      "file": "sounds/sfx_click.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_combo",
+      "type": "sfx",
+      "file": "sounds/sfx_combo.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_consequence",
+      "type": "sfx",
+      "file": "sounds/sfx_consequence.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_countermeasure",
+      "type": "sfx",
+      "file": "sounds/sfx_countermeasure.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_crisis",
+      "type": "sfx",
+      "file": "sounds/sfx_crisis.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_door_close",
+      "type": "sfx",
+      "file": "sounds/sfx_door_close.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_door_open",
+      "type": "sfx",
+      "file": "sounds/sfx_door_open.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_elevator",
+      "type": "sfx",
+      "file": "sounds/sfx_elevator.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_error",
+      "type": "sfx",
+      "file": "sounds/sfx_error.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_moral_shift",
+      "type": "sfx",
+      "file": "sounds/sfx_moral_shift.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_notification",
+      "type": "sfx",
+      "file": "sounds/sfx_notification.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_opportunity_open",
+      "type": "sfx",
+      "file": "sounds/sfx_opportunity_open.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_phase_end",
+      "type": "sfx",
+      "file": "sounds/sfx_phase_end.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_success",
+      "type": "sfx",
+      "file": "sounds/sfx_success.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_warning",
+      "type": "sfx",
+      "file": "sounds/sfx_warning.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_world_event",
+      "type": "sfx",
+      "file": "sounds/sfx_world_event.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
       "id": "figure_alexei",
       "type": "sheet",
       "file": "sheets/figure_alexei.png",
@@ -519,6 +666,13 @@
           "loop": true
         }
       }
+    },
+    {
+      "id": "voice_direktor_intro",
+      "type": "voice",
+      "file": "sounds/voice_direktor_intro.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
     }
   ]
 }
