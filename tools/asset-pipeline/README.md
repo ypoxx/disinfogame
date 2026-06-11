@@ -100,3 +100,51 @@ Stil-Kern aus `sprite-tool/public/context/game-style-guide.md`.
    zuerst (ist bereits im Spiel verdrahtet). Für weitere Dialog-Vertonung muss der
    DialogLoader den gewählten Zeilen-Key zurückgeben (kleine Engine-Erweiterung).
 5. **Phase 4 — Abnahme:** `validate` + Spiel-Build + Deploy-Preview.
+
+---
+
+## Agent-Briefing: Übergabe an eine neue Session
+
+> Für eine frische Claude-Code-Session reicht als Prompt sinngemäß:
+> *„Lies `tools/asset-pipeline/README.md` (Abschnitt Agent-Briefing) und führe
+> die Asset-Phasen ab Phase 1 aus. Arbeite auf dem Branch von PR #73."*
+
+**Stand (Phase 0, PR #73):** Spiel lädt `public/assets/assets.json` datengetrieben
+(`src/story-mode/assets/`); BuildingView/DialogBox/SoundSystem sind verdrahtet;
+45 beschriftete Platzhalter liegen committed; Tests grün (Spiel 113, Pipeline 20).
+
+**Vorbedingungen prüfen (sonst beim Nutzer einfordern):**
+- Env: `GOOGLE_AI_API_KEY` (Phase 1–2), `ELEVENLABS_API_KEY` (Phase 3)
+- Netz-Allowlist (exakte Hosts!): `generativelanguage.googleapis.com`, `api.elevenlabs.io`
+
+**Phase 1 — Stil-Lock (Mensch trifft genau EINE Wahl):**
+```bash
+cd tools/asset-pipeline && npm install && npm test
+node src/cli.mjs stylelock --only room_zentrale --limit 3 --live
+# → runs/stylelock/room_zentrale_seed<…>.png: per Vision gegen
+#   sprite-tool/public/context/game-style-guide.md prüfen, dem Nutzer
+#   alle Kandidaten schicken, Wahl abwarten. Dann Gewinner übernehmen:
+PIPELINE_SEED_OVERRIDE=<gewinner-seed> node src/cli.mjs generate --images --only room_zentrale --live --force
+```
+
+**Phase 2 — Grafik-Batch (je Lauf Vision-Review, Budgets beachten):**
+```bash
+node src/cli.mjs generate --images --kind room --live --force        # restliche Räume
+node src/cli.mjs generate --images --kind portrait --live            # 5 Basis-Porträts
+node src/cli.mjs generate --images --kind sheet --priority all --limit 7 --live
+node src/cli.mjs generate --images --kind portrait --priority all --live  # Stimmungen (Referenz = Basis)
+node src/cli.mjs generate --images --kind prop --priority all --live
+```
+Nach jedem Lauf: PNGs per Vision prüfen (Stil-Treue, keine Schrift/Artefakte,
+Sheets: stimmt das Frame-Raster?), Ausreißer mit `--only <id> --force` neu
+ziehen, `node src/cli.mjs validate`, committen, pushen (aktualisiert den PR).
+
+**Phase 3 — Audio:** `voices --live` → Casting-Vorschlag für
+`config/voices.json` machen und vom Nutzer bestätigen lassen →
+`--kind voice --only voice_direktor_intro` zuerst (einzige bereits verdrahtete
+Zeile), dann `--kind sfx`, dann `--kind music` (Budget: 1/Lauf). Audio kann
+Vision nicht prüfen — kurze MP3s dem Nutzer zum Anhören schicken.
+
+**Phase 4 — Abnahme:** `status` (keine fehlenden MUSS-Assets), `validate`,
+im Spiel `npm run typecheck && npx vitest run && npm run build`,
+Deploy-Preview verlinken.

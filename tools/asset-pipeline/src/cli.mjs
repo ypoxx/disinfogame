@@ -16,7 +16,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
-import { OUT_DIR, VOICES_JSON } from './paths.mjs';
+import { OUT_DIR, RUNS_DIR, VOICES_JSON } from './paths.mjs';
 import { buildShotlist } from './shotlist.mjs';
 import {
   buildEntry,
@@ -187,6 +187,10 @@ async function generateImageShot(shot, dir, budget, log, force) {
   if (!force && fs.existsSync(path.join(dir, file))) return { skipped: true };
   budget.takeImage();
 
+  // Gewinner-Seed aus dem Stil-Lock übernehmen (nur zusammen mit --only sinnvoll).
+  const seedOverride = Number.parseInt(process.env.PIPELINE_SEED_OVERRIDE ?? '', 10);
+  const seed = Number.isFinite(seedOverride) ? seedOverride : shot.seed;
+
   // Stimmungs-Varianten referenzieren das Basis-Porträt (gleiches Gesicht).
   const referenceImagesBase64 = [];
   if (shot.referenceId) {
@@ -200,7 +204,7 @@ async function generateImageShot(shot, dir, budget, log, force) {
   const result = await generateImage({
     prompt: shot.prompt,
     aspectRatio: shot.aspectRatio,
-    seed: shot.seed,
+    seed,
     referenceImagesBase64,
   });
   let image = sharp(Buffer.from(result.base64, 'base64'));
@@ -218,7 +222,7 @@ async function generateImageShot(shot, dir, budget, log, force) {
       file,
       provider: DEFAULT_IMAGE_MODEL,
       prompt: shot.prompt,
-      seed: shot.seed,
+      seed,
       styleVersion: 'v1',
       frameWidth: shot.frameWidth,
       frameHeight: shot.frameHeight,
@@ -340,12 +344,60 @@ async function cmdVoices(args) {
   return 0;
 }
 
+async function cmdStylelock(args) {
+  // Phase 1: N Varianten EINES Shots in runs/stylelock/ erzeugen — bewusst
+  // OHNE Manifest/Spielordner. Mensch (oder Agent mit Vision) wählt; der
+  // Gewinner wird danach regulär übernommen (generate --only <id> --live,
+  // Seed des Gewinners via PIPELINE_SEED_<ID> bzw. künftiger Master-Referenz).
+  const id = args.values.only;
+  if (!id) {
+    console.error('stylelock braucht --only <shot-id>, z. B. --only room_zentrale');
+    return 1;
+  }
+  const shot = buildShotlist().find((s) => s.id === id && (s.type === 'image' || s.type === 'sheet'));
+  if (!shot) {
+    console.error(`Unbekannter Bild-Shot: ${id}`);
+    return 1;
+  }
+  const variants = Math.min(Math.max(Number.parseInt(args.values.limit ?? '3', 10) || 3, 1), 4);
+  const targetDir = path.join(RUNS_DIR, 'stylelock');
+
+  if (!args.flags.has('live')) {
+    console.log(`DRY-RUN: würde ${variants} Varianten von „${id}" nach ${targetDir} erzeugen (--live für echt).`);
+    console.log(`Prompt:\n${shot.prompt}`);
+    return 0;
+  }
+
+  const { generateImage } = await import('./gemini.mjs');
+  const budget = new Budget();
+  const log = new RunLog('stylelock');
+  fs.mkdirSync(targetDir, { recursive: true });
+  const written = [];
+  for (let i = 0; i < variants; i++) {
+    budget.takeImage();
+    const seed = shot.seed + i * 1000; // bewusst weit auseinander → echte Alternativen
+    const t0 = Date.now();
+    const result = await generateImage({ prompt: shot.prompt, aspectRatio: shot.aspectRatio, seed });
+    let image = sharp(Buffer.from(result.base64, 'base64'));
+    if (shot.size) image = image.resize(shot.size.w, shot.size.h, { fit: 'fill', kernel: 'nearest' });
+    const file = path.join(targetDir, `${id}_seed${seed}.png`);
+    fs.writeFileSync(file, await image.png().toBuffer());
+    log.write({ shot: id, action: 'stylelock', seed, ok: true, ms: Date.now() - t0 });
+    written.push(file);
+    console.log(`   ✔ Variante ${i + 1}/${variants}: ${file}`);
+  }
+  console.log(`\n${written.length} Kandidaten. Gewinner-Seed merken → Übernahme:`);
+  console.log(`   PIPELINE_SEED_OVERRIDE=<seed> node src/cli.mjs generate --images --only ${id} --live --force`);
+  return 0;
+}
+
 function help() {
   console.log(`Asset-Pipeline — Headless-Erzeugung der Spiel-Assets
 
   node src/cli.mjs shotlist [--json]
   node src/cli.mjs status [--out DIR]
   node src/cli.mjs placeholders [--only id,id] [--force] [--out DIR]
+  node src/cli.mjs stylelock --only <shot-id> [--limit N=3] [--live]
   node src/cli.mjs generate [--images|--audio] [--only id,id] [--kind room,portrait,...]
                             [--priority must|all] [--limit N] [--force] [--live] [--out DIR]
   node src/cli.mjs validate [--out DIR]
@@ -364,6 +416,7 @@ const commands = {
   placeholders: cmdPlaceholders,
   validate: cmdValidate,
   generate: cmdGenerate,
+  stylelock: cmdStylelock,
   voices: cmdVoices,
 };
 
