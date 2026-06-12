@@ -602,6 +602,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 setActivePanel(null);
                 interactWithNpc(npcId);
               }}
+              onEnterOffice={() => setViewMode('office')}
             />
           ) : viewMode === 'office' ? (
             <OfficeScreen

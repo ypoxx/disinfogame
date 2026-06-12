@@ -27,7 +27,17 @@ type SoundType =
   | 'moralShift'      // Significant moral weight change
   | 'opportunityOpen' // Opportunity window opens
   | 'countermeasure'  // Enemy countermeasure activated
-  | 'worldEvent';     // Major world event
+  | 'worldEvent'      // Major world event
+  // Gebäude- und Diegese-Sounds (Asset-first; Synth-Fallback bewusst dezent)
+  | 'doorOpen'
+  | 'doorClose'
+  | 'elevator'
+  | 'footsteps'
+  | 'tvOn'
+  | 'paper'
+  | 'phoneRing'
+  | 'typewriter'
+  | 'applause';
 
 interface SoundConfig {
   frequency: number;
@@ -136,6 +146,16 @@ const SOUND_CONFIGS: Record<SoundType, SoundConfig> = {
     volume: 0.2,
     decay: true,
   },
+  // Gebäude/Diegese — im Normalfall spielen die Asset-Dateien (sfx_door_open, …)
+  doorOpen: { frequency: 160, duration: 0.18, type: 'triangle', volume: 0.12, decay: true },
+  doorClose: { frequency: 110, duration: 0.22, type: 'triangle', volume: 0.15, decay: true },
+  elevator: { frequency: 90, duration: 0.5, type: 'sine', volume: 0.1, secondFreq: 880 },
+  footsteps: { frequency: 130, duration: 0.08, type: 'triangle', volume: 0.08, decay: true },
+  tvOn: { frequency: 1200, duration: 0.12, type: 'sawtooth', volume: 0.08, decay: true },
+  paper: { frequency: 600, duration: 0.07, type: 'triangle', volume: 0.07, decay: true },
+  phoneRing: { frequency: 740, duration: 0.25, type: 'sine', volume: 0.12, secondFreq: 880 },
+  typewriter: { frequency: 950, duration: 0.05, type: 'square', volume: 0.08 },
+  applause: { frequency: 300, duration: 0.3, type: 'triangle', volume: 0.08, decay: true },
 };
 
 /** Lautstärke-Faktor für Hintergrundmusik relativ zum Master-Volume. */

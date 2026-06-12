@@ -42,11 +42,12 @@ export const usePanelStore = create<PanelState>((set) => ({
       activePanel: state.activePanel === panel ? null : panel,
     })),
 
-  viewMode: 'office',
+  viewMode: 'building',
   setViewMode: (mode) => set({ viewMode: mode }),
   toggleViewMode: () =>
     set((state) => ({
-      viewMode: state.viewMode === 'office' ? 'dashboard' : 'office',
+      viewMode:
+        state.viewMode === 'building' ? 'office' : state.viewMode === 'office' ? 'dashboard' : 'building',
     })),
 
   advisorCollapsed: false,
@@ -60,7 +61,7 @@ export const usePanelStore = create<PanelState>((set) => ({
   resetUI: () =>
     set({
       activePanel: null,
-      viewMode: 'office',
+      viewMode: 'building',
       advisorCollapsed: false,
       queueCollapsed: false,
     }),
