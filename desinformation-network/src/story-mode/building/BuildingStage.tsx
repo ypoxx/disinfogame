@@ -10,12 +10,24 @@
  * Kamera weich der Etage des Avatars (CSS-Transition).
  * Konzept: docs/PLAYER_ENTRY_AND_BUILDING_PLAN.md §3.
  */
-import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
+import { NAV_SPEED } from './BuildingNavigator';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
 import { PixelSprite } from '../assets/PixelSprite';
+import { playSound } from '../utils/SoundSystem';
+
+/**
+ * Lauf-Takt an die Navigator-Geschwindigkeit koppeln (kein „Foot Sliding"):
+ * Ein voller 8-Frame-Zyklus = 2 Schritte ≈ 96 Stage-px (32-px-Frames ×2 skaliert).
+ * frameTime = Zyklus-Strecke / Geschwindigkeit / Frames.
+ */
+const WALK_CYCLE_STRIDE_PX = 96;
+const WALK_FRAME_TIME_MS = Math.round(
+  (WALK_CYCLE_STRIDE_PX / NAV_SPEED.walkPxPerSecond) * 1000 / 8
+);
 
 export interface StageNpc {
   id: string;
@@ -85,6 +97,12 @@ export function BuildingStage({ npcs, nav, onRoomClick, interactive = true }: Bu
   const containerRef = useRef<HTMLDivElement>(null);
   const [view, setView] = useState({ scale: 1, h: 600 });
   const [hoverRoom, setHoverRoom] = useState<string | null>(null);
+
+  // Schritt-Sound auf den Kontakt-Frames des Laufzyklus (Ferse trifft Boden:
+  // Frame 0 und 4 des 8er-Sheets) — Godot-Frame-Event-Prinzip.
+  const handleWalkFrame = useCallback((frame: number) => {
+    if (frame === 0 || frame === 4) playSound('footsteps');
+  }, []);
 
   useLayoutEffect(() => {
     const el = containerRef.current;
@@ -480,6 +498,8 @@ export function BuildingStage({ npcs, nav, onRoomClick, interactive = true }: Bu
               fallback="🕵️"
               flip={nav.facing === -1}
               title="Sie"
+              frameTimeMs={nav.mode === 'walk' ? WALK_FRAME_TIME_MS : undefined}
+              onFrame={nav.mode === 'walk' ? handleWalkFrame : undefined}
             />
           </span>
         )}

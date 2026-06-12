@@ -135,8 +135,8 @@ export function useNavigator(initial?: AvatarPosition): UseNavigatorResult {
         if (step.kind === 'walk') {
           const facing: 1 | -1 = step.toX >= step.fromX ? 1 : -1;
           setState((s) => ({ ...s, mode: 'walk', facing }));
-          playSound('footsteps');
-          run.intervals.push(window.setInterval(() => !run.cancelled && playSound('footsteps'), 850));
+          // Schritt-Sounds kommen frame-synchron aus der Stage (Kontakt-Frames),
+          // nicht mehr aus einem Intervall — s. BuildingStage.handleWalkFrame.
           const t0 = performance.now();
           const tick = (now: number) => {
             if (run.cancelled) return;

@@ -20,10 +20,18 @@ export interface SpriteRender {
 /**
  * Animiert ein Sheet. `sheet` darf null sein (Asset fehlt) — dann kommt null
  * zurück und der Aufrufer rendert seinen Fallback (z. B. Emoji).
+ * `frameTimeMsOverride` koppelt die Abspielgeschwindigkeit an die Bewegung
+ * (Godot-speed_scale-Prinzip): Laufgeschwindigkeit ↔ Schrittweite bleiben
+ * synchron, kein „Foot Sliding".
  */
-export function useSprite(sheet: SheetInfo | null, animationName: string): SpriteRender | null {
+export function useSprite(
+  sheet: SheetInfo | null,
+  animationName: string,
+  frameTimeMsOverride?: number
+): SpriteRender | null {
   const animation = sheet?.animations[animationName] ?? null;
   const [frame, setFrame] = useState(0);
+  const frameTime = frameTimeMsOverride ?? animation?.frameTime ?? 120;
 
   useEffect(() => {
     setFrame(0);
@@ -34,9 +42,9 @@ export function useSprite(sheet: SheetInfo | null, animationName: string): Sprit
         if (next < animation.frames) return next;
         return animation.loop ? 0 : f;
       });
-    }, Math.max(30, animation.frameTime));
+    }, Math.max(30, frameTime));
     return () => clearInterval(interval);
-  }, [sheet, animation, animationName]);
+  }, [sheet, animation, animationName, frameTime]);
 
   return useMemo(() => {
     if (!sheet || !animation) return null;
