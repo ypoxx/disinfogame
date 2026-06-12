@@ -34,8 +34,17 @@ Echtzeit ohne Pause war dort auch Frustquelle — das übernehmen wir bewusst NI
   **Tagesfazit** („Lagebericht"): Publikums-Entwicklung, Wirkung der Maßnahmen
   klein/mittel/groß, Schlagzeilen der Gegenseite, Kennzahlen — danach Morgen des
   nächsten Tages (Monat +1, Tag/Nacht- und später Jahreszeiten-Wechsel A6).
-- 💬 **Owner-Punkte zur Abnahme:** Stundenwerte ok? AP=Stunden-Gleichsetzung ok?
-  Automatischer Heimweg um 18:00 oder immer per Klick?
+- **Weitere übertragbare Muster aus der Recherche:**
+  ① *Rollierender Planungshorizont* (MadTV plante 2 Tage voraus): heute gebuchte
+  Kampagnen wirken ab morgen — planbarer Rhythmus statt Deadline-Stress.
+  ② *Wirkungs-Abnutzung*: wiederholte gleiche Maßnahmen verlieren Wirkung
+  („Sendung wird schal") — zwingt zu Variation und provoziert Fehler ganz ohne Knappheit.
+  ③ *Vorladungen*: gelegentlich ein unverschiebbarer Pflichttermin (Direktor,
+  Ministerium) der Stunden kostet — sanfter Druck (MadTVs „Der Boss will Sie sehen",
+  TVTower: 2-Stunden-Frist).
+  ④ *Zahlvorschlag*: 8 Zeitblöcke/Tag, davon ~3 fürs Tagesgeschäft, ~5 frei.
+- 💬 **Owner-Punkte zur Abnahme:** Stundenwerte/8-Blöcke ok? AP=Stunden-Gleichsetzung ok?
+  Automatischer Heimweg um 18:00 oder immer per Klick? Abnutzungs-Mechanik gewünscht?
 
 ### K2 · Spielwelt: Ein großes föderales Land (B12, B13, D28) — Empfehlung liegt vor
 
