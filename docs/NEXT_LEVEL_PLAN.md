@@ -34,6 +34,17 @@ Echtzeit ohne Pause war dort auch Frustquelle — das übernehmen wir bewusst NI
   **Tagesfazit** („Lagebericht"): Publikums-Entwicklung, Wirkung der Maßnahmen
   klein/mittel/groß, Schlagzeilen der Gegenseite, Kennzahlen — danach Morgen des
   nächsten Tages (Monat +1, Tag/Nacht- und später Jahreszeiten-Wechsel A6).
+- **Spät bestätigte MadTV-Details (Quelle: GameFAQs-FAQ/Manual):** ① Tagesende dort =
+  automatischer Fahrstuhl-Abgang, der Folgetag beginnt **beim Boss** → unser Morgen
+  kann analog mit einem 10-Sekunden-Direktor-Briefing starten (Tagesziel + Laune).
+  ② MadTV hatte KEINEN Auswertungs-Bildschirm — Feedback lief kontinuierlich (stündliche
+  Quoten-Pfeile, Image-Punkte als **Nullsummen-Pool von 100** zwischen den drei Sendern;
+  unter 20 = Abwärtsspirale, 0 = Bankrott, 100 = Sieg). Unser Tagesfazit (A4) ist also
+  eine bewusste Verbesserung, kein Zitat — und der Nullsummen-Pool ist ein elegantes
+  Vorbild für „Deutungshoheit": unser Vertrauens-Wettrennen (K14) als Pool zwischen
+  Ministerium und Institutionen denken. ③ MadTVs Live-Quoten-Anzeige war eine
+  **animierte Familie vor dem Fernseher** — exakt unser Publikums-Wohnzimmer; es sollte
+  daher dauerhaft den Live-Zustand spiegeln (tut es), nicht nur Ereignis-Reaktionen.
 - **Weitere übertragbare Muster aus der Recherche:**
   ① *Rollierender Planungshorizont* (MadTV plante 2 Tage voraus): heute gebuchte
   Kampagnen wirken ab morgen — planbarer Rhythmus statt Deadline-Stress.
