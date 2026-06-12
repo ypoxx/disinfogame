@@ -33,12 +33,14 @@ interface BuildingFloor {
 interface BuildingRoom {
   id: string;
   floor: string;
-  npcId: string;
+  /** Räume ohne npcId sind begehbare Orte (Lobby, Spielerbüro) — hier (noch) nicht klickbar. */
+  npcId?: string;
   icon: string;
   label_de: string;
   label_en?: string;
   /** 1-basierte Spalte (1=A) für das Koordinatensystem. */
   col?: number;
+  colSpan?: number;
 }
 
 /** Minimaler NPC-Ausschnitt, den die Ansicht braucht (NPCState ist strukturell kompatibel). */
@@ -258,15 +260,15 @@ export function BuildingView({ npcs, onRoomClick }: BuildingViewProps) {
                         );
                       }
 
-                      const npc = npcById.get(room.npcId);
-                      const available = npc?.available ?? true;
+                      const npc = room.npcId ? npcById.get(room.npcId) : undefined;
+                      const available = room.npcId ? (npc?.available ?? true) : false;
                       // Raum-Hintergrund aus dem Asset-Manifest (room_<id>);
                       // dunkler Verlauf hält Text/Badges lesbar. Ohne Asset: CSS-Look.
                       const bgUrl = assets.imageUrl(`room_${room.id}`);
                       return (
                         <button
                           key={room.id}
-                          onClick={() => onRoomClick(room.npcId)}
+                          onClick={() => room.npcId && onRoomClick(room.npcId)}
                           disabled={!available}
                           className="relative flex flex-col items-start text-left border-2 p-3 transition-transform hover:-translate-y-0.5"
                           style={{
@@ -301,11 +303,11 @@ export function BuildingView({ npcs, onRoomClick }: BuildingViewProps) {
                             </span>
                             <span className="ml-auto flex items-center gap-1">
                               <RoomAmbient roomId={room.id} />
-                              <RoomFigure npcId={room.npcId} title={npc?.name ?? room.npcId} />
+                              {room.npcId && <RoomFigure npcId={room.npcId} title={npc?.name ?? room.npcId} />}
                             </span>
                           </div>
                           <div className="text-xs mt-1" style={{ color: '#9aa' }}>
-                            {npc?.name ?? room.npcId}
+                            {npc?.name ?? room.label_de}
                           </div>
                           <div className="flex items-center gap-2 mt-2 w-full">
                             <div className="flex-1 h-1.5" style={{ backgroundColor: '#333' }}>

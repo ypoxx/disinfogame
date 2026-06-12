@@ -71,7 +71,7 @@ function IntroScreen({ onStart, onLoadGame, hasSave }: {
             borderColor: StoryModeColors.border,
           }}
         >
-          <div className="text-4xl mb-2">☭</div>
+          <div className="text-4xl mb-2">⬢</div>
           <h1
             className="font-bold text-3xl tracking-wider"
             style={{ color: StoryModeColors.warning }}

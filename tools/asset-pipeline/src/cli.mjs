@@ -224,7 +224,7 @@ async function generateImageShot(shot, dir, budget, log, force) {
       image = image.resize(shot.size.w, shot.size.h, { fit: 'fill', kernel: 'nearest' });
     }
     png = await image.png().toBuffer();
-    if (shot.kind === 'prop') {
+    if (shot.kind === 'prop' || shot.chroma) {
       // Magenta-Hintergrund (CHROMA_PROMPT) zu echtem Alpha ausstanzen.
       const { keyOutMagenta } = await import('./transparency.mjs');
       png = await keyOutMagenta(png);

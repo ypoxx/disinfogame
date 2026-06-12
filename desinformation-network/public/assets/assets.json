@@ -1,6 +1,16 @@
 {
   "assets": [
     {
+      "id": "building_exterior",
+      "type": "image",
+      "file": "images/building_exterior.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game asset: night exterior view of a monolithic brutalist government ministry tower, rows of small lit windows, tall antenna on the flat roof, cold dark blue night sky, distant city silhouette with chimneys, light fog at street level, view slightly from below like a movie poster. No people, no readable text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 750518,
+      "styleVersion": "v1"
+    },
+    {
       "id": "portrait_alexei",
       "type": "image",
       "file": "images/portrait_alexei.png",
@@ -361,6 +371,16 @@
       "styleVersion": "v1"
     },
     {
+      "id": "room_lobby",
+      "type": "image",
+      "file": "images/room_lobby.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game background scene, wide interior view. ministry entrance lobby at ground level: polished stone floor, reception desk with a uniformed guard post, two heavy elevator doors with a mechanical floor indicator above, potted plant, notice board, revolving entrance door letting in cold night light. Concrete walls, fluorescent ceiling tubes, linoleum floor, old radiator, abstract constructivist-style propaganda poster (geometric shapes only, no emblems, no text). No people, no text, no UI elements. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 677026,
+      "styleVersion": "v1"
+    },
+    {
       "id": "room_medien_zentrum",
       "type": "image",
       "file": "images/room_medien_zentrum.png",
@@ -368,6 +388,16 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A pixel art game background scene, wide interior view. propaganda media center: large vintage CRT television showing news, VHS recorders and tapes, stacks of newspapers, microphones, broadcast posters on the wall. This is the workplace of confident media specialist, age 30-40, fashionable 1980s suit, groomed appearance, slight smile (no person visible in the scene). Concrete walls, fluorescent ceiling tubes, linoleum floor, old radiator, abstract constructivist-style propaganda poster (geometric shapes only, no emblems, no text). No people, no text, no UI elements. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 289704,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "room_spieler_buero",
+      "type": "image",
+      "file": "images/room_spieler_buero.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game background scene, wide interior view. the player's own modest office: wooden desk with a CRT computer terminal and a red telephone, stack of beige files, corkboard with pinned notes and red string, old CRT television on a side table, coat rack, window with closed blinds. Concrete walls, fluorescent ceiling tubes, linoleum floor, old radiator, abstract constructivist-style propaganda poster (geometric shapes only, no emblems, no text). No people, no text, no UI elements. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 960647,
       "styleVersion": "v1"
     },
     {

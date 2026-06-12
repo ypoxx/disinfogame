@@ -291,7 +291,7 @@ export function DashboardView({
         }}
       >
         <div className="flex items-center gap-4">
-          <span className="text-2xl">☭</span>
+          <span className="text-2xl">⬢</span>
           <div>
             <div className="text-xs" style={{ color: StoryModeColors.textSecondary }}>
               OPERATIONSZENTRALE

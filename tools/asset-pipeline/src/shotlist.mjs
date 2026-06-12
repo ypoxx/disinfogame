@@ -36,6 +36,10 @@ export const INTRO_VOICE_LINE = {
 // Englische Bild-Beschreibungen je Raum/NPC (Inhalts-Hinweise aus dem Style-Guide
 // bzw. BUILDING_CONCEPT.md; Räume/NPCs ohne Eintrag bekommen einen generischen Text).
 const ROOM_HINTS = {
+  lobby:
+    'ministry entrance lobby at ground level: polished stone floor, reception desk with a uniformed guard post, two heavy elevator doors with a mechanical floor indicator above, potted plant, notice board, revolving entrance door letting in cold night light',
+  spieler_buero:
+    "the player's own modest office: wooden desk with a CRT computer terminal and a red telephone, stack of beige files, corkboard with pinned notes and red string, old CRT television on a side table, coat rack, window with closed blinds",
   cyber_lab:
     'underground tech office: several CRT monitors with green text, server racks with blinking LEDs, cable bundles on the floor, dark room lit mostly by monitor glow',
   medien_zentrum:
@@ -71,6 +75,122 @@ const PROPS = [
   ['prop_typewriter', 'soviet-era mechanical typewriter'],
 ];
 
+// Gebäude-Baukasten: Querschnitts-Bausteine für die Stage (BuildingView).
+// [id, aspectRatio, {w,h}, chroma, prompt-Hint, priority]
+const BUILDING_KIT = [
+  [
+    'building_exterior',
+    '16:9',
+    { w: 1344, h: 768 },
+    false,
+    'night exterior view of a monolithic brutalist government ministry tower, rows of small lit windows, tall antenna on the flat roof, cold dark blue night sky, distant city silhouette with chimneys, light fog at street level, view slightly from below like a movie poster',
+    'must',
+  ],
+  [
+    'bld_facade_pillar',
+    '9:16',
+    { w: 384, h: 768 },
+    false,
+    'vertical strip of a brutalist concrete building facade, raw weathered concrete with shallow vertical grooves and water stains, seamlessly tileable from top to bottom, flat frontal view, no windows, no sky',
+    'must',
+  ],
+  [
+    'bld_floor_slab',
+    '21:9',
+    { w: 1344, h: 192 },
+    false,
+    'horizontal concrete floor slab of a building cross-section, raw concrete edge with a thin steel beam line, seamlessly tileable from left to right, flat frontal view, no background',
+    'must',
+  ],
+  [
+    'bld_shaft',
+    '9:16',
+    { w: 256, h: 768 },
+    false,
+    'interior of an elevator shaft in cross-section view, dark concrete walls with two vertical steel guide rails and a hanging cable, dim, seamlessly tileable from top to bottom, flat frontal view',
+    'must',
+  ],
+  [
+    'bld_roof',
+    '21:9',
+    { w: 1344, h: 576 },
+    true,
+    'flat roof line of a brutalist ministry building with a tall steel lattice antenna with a single red warning light and two ventilation pipes, frontal cross-section view',
+    'must',
+  ],
+  [
+    'bld_door_closed',
+    '2:3',
+    { w: 128, h: 192 },
+    true,
+    'a single closed heavy wooden office door with a dark frame and a small nameplate-shaped blank sign, frontal view, single object',
+    'must',
+  ],
+  [
+    'bld_door_open',
+    '2:3',
+    { w: 128, h: 192 },
+    true,
+    'a single heavy wooden office door standing open inward showing warm light from inside, dark door frame, frontal view, single object',
+    'must',
+  ],
+  [
+    'elevator_cabin_closed',
+    '3:4',
+    { w: 168, h: 224 },
+    true,
+    'an old elevator with closed riveted metal double doors and a small round floor indicator light above, frontal view, single object',
+    'must',
+  ],
+  [
+    'elevator_cabin_open',
+    '3:4',
+    { w: 168, h: 224 },
+    true,
+    'an old elevator with open riveted metal double doors revealing an empty cabin lit by a single warm ceiling lamp, wood-panelled cabin walls, frontal view, single object',
+    'must',
+  ],
+];
+
+// Broadcast-HUD: Rahmen + Publikum (docs/story-mode/BROADCAST_AND_AUDIENCE_CONCEPT.md).
+// Rahmen nutzen Magenta auch für das "Loch" (Screen/Bildfläche) → echtes Alpha-Fenster.
+const HUD_KIT = [
+  [
+    'hud_tv_frame',
+    '4:3',
+    { w: 512, h: 384 },
+    true,
+    'front view of an old wooden CRT television set with dials and a small antenna; the entire screen area is filled with the same solid magenta as the background so it can be cut out, single object',
+    'must',
+  ],
+  [
+    'hud_paper_frame',
+    '3:4',
+    { w: 384, h: 512 },
+    true,
+    'front page of a vintage newspaper with abstract scribble lines instead of letters and a large empty rectangular photo area filled with the same solid magenta as the background, slightly yellowed paper, single object, no readable text',
+    'must',
+  ],
+  [
+    'audience_room',
+    '16:9',
+    { w: 1344, h: 768 },
+    false,
+    'cozy but worn 1980s eastern-bloc living room facing the viewer: a long empty sofa centered against patterned wallpaper, small side tables with a doily and a radio, warm lamp light, the unseen television illuminates the scene from the viewer direction with a faint blue glow, no people, no text',
+    'must',
+  ],
+];
+
+// Publikums-Figuren (sitzend, 2-Frame-Idle für Mikro-Animation, Chroma-Sheet).
+const AUDIENCE_FIGURES = [
+  ['audience_worker', 'a tired factory worker in blue overalls, middle-aged man'],
+  ['audience_pensioner', 'an elderly pensioner woman with a headscarf and knitting'],
+  ['audience_youth', 'a young student with a walkman headphones around the neck'],
+  ['audience_intellectual', 'a thin man with round glasses holding a folded newspaper'],
+  ['audience_family', 'a mother with a small child on her lap'],
+  ['audience_official', 'a stiff mid-level official in a grey uniform-like suit'],
+];
+
 // SFX: alle SoundTypes des Spiels (SoundSystem.ts) in snake_case + Gebäude-Sounds.
 const SFX = [
   ['sfx_click', 'short dry mechanical button click, UI sound', 0.6, 'must'],
@@ -90,6 +210,12 @@ const SFX = [
   ['sfx_door_open', 'heavy wooden office door opens with old hinges', 1.2, 'nice'],
   ['sfx_door_close', 'heavy wooden office door closes with a thud', 1.0, 'nice'],
   ['sfx_elevator', 'old soviet elevator hum with a ding on arrival', 2.5, 'nice'],
+  ['sfx_footsteps', 'two or three soft footsteps on a linoleum office floor', 1.0, 'nice'],
+  ['sfx_tv_on', 'old CRT television switching on with a static crackle and hum', 1.0, 'nice'],
+  ['sfx_paper', 'paper shuffle and a single page turn on a wooden desk', 0.8, 'nice'],
+  ['sfx_phone_ring', 'single ring of an old rotary telephone', 1.5, 'nice'],
+  ['sfx_typewriter', 'short mechanical typewriter burst ending with the carriage bell', 1.2, 'nice'],
+  ['sfx_applause', 'small studio audience applause, muffled vintage broadcast quality', 2.0, 'nice'],
 ];
 
 const MUSIC = [
@@ -269,6 +395,56 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       size: { w: 1024, h: 1024 },
       seed: seedFor(id),
       prompt: `A pixel art game asset: ${hint}. Single object, centered, no text. ${CHROMA_PROMPT} ${style}`,
+    });
+  }
+
+  // --- Gebäude-Baukasten + HUD-Rahmen (Stage / Broadcast-Leiste) ---
+  for (const [id, aspectRatio, size, chroma, hint, priority] of BUILDING_KIT) {
+    shots.push({
+      id,
+      type: 'image',
+      kind: 'building',
+      priority,
+      aspectRatio,
+      size,
+      chroma,
+      seed: seedFor(id),
+      prompt: `A pixel art game asset: ${hint}. No people, no readable text. ${chroma ? `${CHROMA_PROMPT} ` : ''}${style}`,
+    });
+  }
+  for (const [id, aspectRatio, size, chroma, hint, priority] of HUD_KIT) {
+    shots.push({
+      id,
+      type: 'image',
+      kind: 'hud',
+      priority,
+      aspectRatio,
+      size,
+      chroma,
+      seed: seedFor(id),
+      prompt: `A pixel art game asset: ${hint}. ${chroma ? `${CHROMA_PROMPT} ` : ''}${style}`,
+    });
+  }
+
+  // --- Publikums-Figuren (sitzend, 2-Frame-Idle, Chroma-Sheet) ---
+  for (const [id, hint] of AUDIENCE_FIGURES) {
+    shots.push({
+      id,
+      type: 'sheet',
+      kind: 'hud',
+      priority: 'must',
+      frameWidth: 48,
+      frameHeight: 48,
+      cols: 2,
+      rows: 1,
+      size: { w: 96, h: 48 },
+      animations: { idle: { row: 0, frames: 2, frameTime: 600, loop: true } },
+      seed: seedFor(id),
+      prompt:
+        `A 2-frame pixel art sprite sheet of ${hint}, sitting and facing the viewer, full body ` +
+        `including the seat. Horizontal layout, exactly 2 evenly spaced frames in one row showing ` +
+        `the SAME character with identical outfit and colors in every frame, only a subtle idle ` +
+        `motion changes (blink, small head turn). ${CHROMA_PROMPT} ${style}`,
     });
   }
 

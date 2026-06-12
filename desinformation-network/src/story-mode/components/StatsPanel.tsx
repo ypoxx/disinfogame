@@ -277,7 +277,7 @@ export function StatsPanel({
           className="font-bold mb-4 text-lg"
           style={{ color: StoryModeColors.sovietRed }}
         >
-          ☭ HAUPTZIELE
+          ⬢ HAUPTZIELE
         </h3>
         <div className="space-y-3">
           {primaryObjectives.map(obj => (

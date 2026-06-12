@@ -45,7 +45,7 @@ export function MissionPanel({
         >
           STRENG GEHEIM - NUR FUR AUTORISIERTES PERSONAL
         </div>
-        <div className="text-4xl mb-2">☭</div>
+        <div className="text-4xl mb-2">⬢</div>
         <h1
           className="text-2xl font-bold"
           style={{ color: StoryModeColors.warning }}

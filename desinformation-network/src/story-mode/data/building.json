@@ -1,15 +1,18 @@
 {
-  "_comment": "TVTower-Gebäude als Daten (Track A-1). Etagen + Räume; jeder Raum verweist auf einen NPC und sitzt in einer Spalte (col, 1=A) für das Koordinatensystem (Zelle = <Spalte><Etage>, z. B. B2 = Medien-Zentrum). CSS-first, keine Grafik nötig. Siehe docs/BUILDING_AND_ASSETS.md + docs/story-mode/BROADCAST_AND_AUDIENCE_CONCEPT.md.",
+  "_comment": "Agentur-Gebäude als Daten (Quelle für BuildingStage + Asset-Shotliste). Etagen + Räume; Räume ohne npcId sind begehbare Orte (Lobby, Spielerbüro). Zelle = <Spalte><Etage>; colSpan lässt einen Raum mehrere Spalten überspannen. Siehe docs/PLAYER_ENTRY_AND_BUILDING_PLAN.md.",
   "floors": [
     { "id": "etage2", "level": 2, "label_de": "Etage 2 — Spezial-Operationen", "label_en": "Floor 2 — Special Operations" },
     { "id": "etage1", "level": 1, "label_de": "Etage 1 — Zentrale", "label_en": "Floor 1 — HQ" },
-    { "id": "keller", "level": 0, "label_de": "Keller — Geheimoperationen", "label_en": "Basement — Covert Ops" }
+    { "id": "erdgeschoss", "level": 0, "label_de": "Erdgeschoss — Empfang", "label_en": "Ground Floor — Lobby" },
+    { "id": "keller", "level": -1, "label_de": "Keller — Geheimoperationen", "label_en": "Basement — Covert Ops" }
   ],
   "rooms": [
     { "id": "cyber_lab", "floor": "etage2", "col": 1, "npcId": "alexei", "icon": "💻", "label_de": "Cyber-Lab", "label_en": "Cyber Lab" },
     { "id": "medien_zentrum", "floor": "etage2", "col": 2, "npcId": "marina", "icon": "📺", "label_de": "Medien-Zentrum", "label_en": "Media Center" },
     { "id": "zentrale", "floor": "etage1", "col": 1, "npcId": "direktor", "icon": "🗄️", "label_de": "Direktor / Zentrale", "label_en": "Director / HQ" },
-    { "id": "feld_ops", "floor": "etage1", "col": 2, "npcId": "katja", "icon": "🎯", "label_de": "Feld-Operationen", "label_en": "Field Operations" },
+    { "id": "spieler_buero", "floor": "etage1", "col": 2, "icon": "🗂️", "label_de": "Ihr Büro", "label_en": "Your Office" },
+    { "id": "feld_ops", "floor": "etage1", "col": 3, "npcId": "katja", "icon": "🎯", "label_de": "Feld-Operationen", "label_en": "Field Operations" },
+    { "id": "lobby", "floor": "erdgeschoss", "col": 1, "colSpan": 3, "icon": "🛎️", "label_de": "Lobby / Empfang", "label_en": "Lobby / Reception" },
     { "id": "finanzen", "floor": "keller", "col": 1, "npcId": "igor", "icon": "💰", "label_de": "Finanzen / Tresor", "label_en": "Finance / Vault" }
   ]
 }
