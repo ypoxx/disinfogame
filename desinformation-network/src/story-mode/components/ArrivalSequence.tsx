@@ -52,7 +52,7 @@ export function ArrivalSequence({ npcs, onDone }: ArrivalSequenceProps): JSX.Ele
   useEffect(() => {
     const id = window.setTimeout(() => {
       nav.goTo('zentrale', () => fireDone());
-    }, 600);
+    }, 1400); // Lobby erst als Bild wirken lassen (Review-Befund B3)
     return () => window.clearTimeout(id);
   // nav.goTo ist stabil (useCallback in useNavigator); onDone über fireDone gekapselt.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -82,6 +82,8 @@ export function ArrivalSequence({ npcs, onDone }: ArrivalSequenceProps): JSX.Ele
 
   return (
     <div
+      role="application"
+      aria-label="Ankunfts-Sequenz — Klick, Escape oder Enter überspringt"
       style={{
         position: 'fixed',
         inset: 0,
@@ -189,17 +191,17 @@ export function ArrivalSequence({ npcs, onDone }: ArrivalSequenceProps): JSX.Ele
 
 function resolveCaption(mode: string, floorLevel: number): string {
   if (mode === 'ride') {
-    return 'Etage 1 — Abteilung für Sonderoperationen.';
+    return 'Der Aufzug ächzt. Irgendwo über Ihnen rattert ein Fernschreiber.';
   }
   if (mode === 'door') {
-    return 'Der Direktor erwartet Sie.';
+    return 'Zimmer 1-01. Der Direktor erwartet Sie.';
   }
   // idle oder walk — Etage 0 = Lobby.
   if (Math.round(floorLevel) === 0) {
-    return 'Ihr erster Arbeitstag im Ministerium.';
+    return 'Ihr erster Arbeitstag. Der Pförtner sieht nicht auf — Ihr Name steht bereits auf der Liste.';
   }
   // Höhere Etagen (walk/idle nach Fahrstuhl).
-  return 'Der Direktor erwartet Sie.';
+  return 'Etage 1 — Abteilung für Sonderoperationen. Der Flur riecht nach kaltem Kaffee.';
 }
 
 export default ArrivalSequence;

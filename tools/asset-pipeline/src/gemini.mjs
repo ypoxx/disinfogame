@@ -10,10 +10,11 @@ import { GoogleGenAI } from '@google/genai';
 export const DEFAULT_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-3-pro-image';
 
 export function requireGoogleKey() {
-  const key = process.env.GOOGLE_AI_API_KEY?.trim();
+  // Beide gängigen Namen akzeptieren (Claude-Code-Umgebungen liefern oft GEMINI_API_KEY).
+  const key = (process.env.GOOGLE_AI_API_KEY || process.env.GEMINI_API_KEY)?.trim();
   if (!key) {
     throw new Error(
-      'GOOGLE_AI_API_KEY fehlt. Als Umgebungsvariable setzen (Allowlist: generativelanguage.googleapis.com).'
+      'GOOGLE_AI_API_KEY (oder GEMINI_API_KEY) fehlt. Als Umgebungsvariable setzen (Allowlist: generativelanguage.googleapis.com).'
     );
   }
   return key;

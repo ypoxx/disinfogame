@@ -28,3 +28,6 @@ coverage/
 .DS_Store
 *.log
 npm-debug.log*
+
+# Harness-Worktrees (Session-flüchtig)
+.claude/

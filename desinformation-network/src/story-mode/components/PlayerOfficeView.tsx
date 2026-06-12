@@ -56,8 +56,8 @@ const KEYFRAMES = `
     50%     { transform: scale(1.18); }
   }
   @keyframes po-hint-pulse {
-    0%,100% { transform: scale(1) translateX(-50%); opacity: 1;    }
-    50%     { transform: scale(1.12) translateX(-44%); opacity: 0.8; }
+    0%,100% { transform: scale(1);    opacity: 1;   }
+    50%     { transform: scale(1.12); opacity: 0.8; }
   }
 `;
 
@@ -79,7 +79,9 @@ const HOTSPOTS: HotspotDef[] = [
   { id: 'files',    label: 'NACHRICHTEN',          left: 54, top: 56, width: 13, height: 13 },
   { id: 'tv',       label: 'KAMPAGNEN-STATISTIK',  left: 83, top: 48, width: 13, height: 26 },
   { id: 'window',   label: 'WELT-EREIGNISSE',      left: 51, top:  4, width: 22, height: 38 },
-  { id: 'exit',     label: '◀ FLUR / GEBÄUDE',    left:  0, top:  0, width:  7, height: 100 },
+  // Kein 'exit'-Hotspot mehr: Der Ausgang läuft ausschließlich über den sichtbaren
+  // „◀ GEBÄUDE"-Button der unteren Leiste (Review-Befund A3: redundante,
+  // unsichtbare Bedienwege verwirren).
 ];
 
 // Tutorial-Marker (Computer, Pinnwand, TV)
@@ -266,8 +268,10 @@ export function PlayerOfficeView({
               cursor: 'pointer',
               padding: 0,
               zIndex: 10,
-              // Hover/Fokus-Optik: Outline + helles Inset
-              outline: isHovered ? `2px solid ${StoryModeColors.warning}` : '2px solid transparent',
+              // Ruhezustand: dezenter Ring, damit Klickflächen ohne Hover erkennbar
+              // bleiben (Review-Befund A2); Hover/Fokus: kräftige Outline + Inset.
+              outline: isHovered ? `2px solid ${StoryModeColors.warning}` : '1px solid rgba(212,160,23,0.28)',
+              outlineOffset: -1,
               boxShadow: isHovered ? 'inset 0 0 0 9999px rgba(255,255,255,0.08)' : 'none',
               transition: 'outline 120ms ease, box-shadow 120ms ease',
             }}

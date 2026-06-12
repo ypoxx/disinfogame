@@ -162,19 +162,16 @@ Konzept und CSS-Implementierung existieren (F1/Q/P). Neu sind nur Assets + Skin:
 
 ## 7. Phasenplan (kleine grüne Schritte, je Schritt Build+Tests grün)
 
-| Phase | Inhalt | Abhängigkeit | Aufwand |
-|---|---|---|---|
-| **V0** | ☭-Ersatz · VISION_LOCK-Amendment | — | XS |
-| **V1 Assets** | Baukasten-Shots in Shot-Liste (`tile_*`, `elevator_cabin`, `room_lobby`, `room_spieler_buero`, `building_exterior`, HUD/Publikum) + Generierung mit Vision-Review | Pipeline (da) | S–M |
-| **V2 Stage** | BuildingView-Umbau: Stage + Baukasten-Komposition aus `building.json`, Raum-Vignetten, Kamera-Pan/Zoom | V1 (Fallback: CSS bleibt) | M |
-| **V3 Navigator** | `BuildingNavigator` (pure TS + Tests) · Avatar-Tween · Fahrstuhl mit Figur · Tür-/Lift-SFX · Zeit-Hook (`timeCostMin=0`) | V2 | M |
-| **V4 Einstieg** | TitleScreen · ArrivalSequence (Navigator-Skript) · Direktor-Dialog mit Voice · Tutorial-Hotspots · `App.tsx`-Intro ersetzt | V2+V3 | M |
-| **V5 Büro** | `spieler_buero` in Daten · Hotspots → bestehende Panels · OfficeScreen → Dev-Fallback | V1 | S–M |
-| **V6 HUD-Skin** | BroadcastHUD-Pixelisierung (TV-Rahmen, Publikums-Figuren) | V1 | S–M |
-| **V7 Politur** | NPC-Wege · Ambiente (LED, Dampf) · Kamera-Feinschliff · ggf. Zeitkosten aktivieren (Owner-Entscheidung mit Balancing) | V3 | S |
-
-Reihenfolge V4 vor/nach V5 ist tauschbar; V6 ist parallel möglich. Kein Big-Bang:
-CSS-Fallbacks bleiben bis zum jeweiligen Paritätsnachweis.
+| Phase | Inhalt | Status |
+|---|---|---|
+| **V0** | ☭-Ersatz · VISION_LOCK-Amendment | ✅ 2026-06-12 (`docs/SYMBOLS_AUDIT.md`) |
+| **V1 Assets** | Baukasten/HUD/Publikum in Shot-Liste + Generierung mit Vision-Review | ✅ 26 Bilder, 6 SFX, 50 Stimmen — 143/143 |
+| **V2 Stage** | `BuildingStage`: Komposition aus `building.json`, Raum-Vignetten, Kamera | ✅ (`building/BuildingStage.tsx`) |
+| **V3 Navigator** | `BuildingNavigator` (pure TS, 12 Tests) · Avatar · Fahrstuhl mit Figur · Tür-/Lift-SFX · Zeit-Hook (`timeCostMin=0`) | ✅ |
+| **V4 Einstieg** | TitleScreen · ArrivalSequence · Direktor-Dialog mit Voice · `App.tsx`-Intro ersetzt | ✅ |
+| **V5 Büro** | `spieler_buero` in Daten · `PlayerOfficeView` (Hotspots → Panels) · OfficeScreen archiviert | ✅ (`archive/story-mode-drafts/`) |
+| **V6 HUD-Skin** | BroadcastBar (Taste B): TV-/Zeitungs-Rahmen, Publikums-Wohnzimmer | ✅ — Konzept-Diskussion offen: `story-mode/MINISTRY_BROADCAST_CONCEPT.md` |
+| **V7 Politur** | Mikro-Animationen · situative Musik · Dialog-Vertonung/Mimik · Erstbesuch-Hinweise | ✅ Kern; offen: NPC-Wege, Zeitkosten-Aktivierung (s. §8) |
 
 ---
 

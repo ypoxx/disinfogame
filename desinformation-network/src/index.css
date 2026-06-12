@@ -551,3 +551,13 @@
 ::selection {
   @apply bg-blue-100 text-blue-900;
 }
+
+/* Accessibility: Animationen für Nutzer mit Bewegungs-Empfindlichkeit stilllegen
+   (deckt auch alle Inline-style-Animationen der Pixel-Bühne/HUD ab). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

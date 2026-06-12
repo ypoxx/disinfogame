@@ -21,6 +21,7 @@ interface PanelState {
   // Broadcast-Leiste (Taste B): „Ministerium sendet" + Publikum
   broadcastOpen: boolean;
   toggleBroadcast: () => void;
+  setBroadcastOpen: (open: boolean) => void;
 
   // Advisor panel (already exists as floating, keep independent)
   advisorCollapsed: boolean;
@@ -56,6 +57,7 @@ export const usePanelStore = create<PanelState>((set) => ({
 
   broadcastOpen: false,
   toggleBroadcast: () => set((state) => ({ broadcastOpen: !state.broadcastOpen })),
+  setBroadcastOpen: (open) => set({ broadcastOpen: open }),
 
   advisorCollapsed: false,
   toggleAdvisor: () =>

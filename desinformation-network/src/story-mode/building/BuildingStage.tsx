@@ -288,8 +288,10 @@ export function BuildingStage({ npcs, nav, onRoomClick, interactive = true }: Bu
                 border: `3px solid ${npc?.inCrisis ? StoryModeColors.danger : hovered || isTarget ? StoryModeColors.warning : '#2c2d35'}`,
                 boxSizing: 'border-box',
                 cursor: clickable ? 'pointer' : 'default',
-                transition: 'border-color 160ms ease',
-                zIndex: 2,
+                // Leichte Tiefengeste beim Hover, damit „aktiver Raum" spürbar ist
+                transform: hovered && clickable ? 'scale(1.006)' : 'scale(1)',
+                transition: 'border-color 160ms ease, transform 120ms ease',
+                zIndex: hovered ? 3 : 2,
               }}
             >
               {/* Raum-Schild */}
@@ -332,7 +334,14 @@ export function BuildingStage({ npcs, nav, onRoomClick, interactive = true }: Bu
                   }}
                 >
                   <PixelSprite sheetId={`figure_${room.npcId}`} animation="idle" fallback="🧍" title={npc?.name} />
-                  <span style={{ width: 44, height: 4, backgroundColor: '#222' }}>
+                  <span
+                    role="progressbar"
+                    aria-valuenow={Math.max(0, Math.min(100, Math.round(npc?.morale ?? 0)))}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label={`${npc?.name ?? room.label_de}: Moral ${Math.round(npc?.morale ?? 0)}%`}
+                    style={{ width: 44, height: 4, backgroundColor: '#222' }}
+                  >
                     <span
                       style={{
                         display: 'block',

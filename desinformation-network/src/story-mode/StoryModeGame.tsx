@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { StoryModeColors } from './theme';
 import { DialogBox } from './components/DialogBox';
 import { StoryHUD } from './components/StoryHUD';
@@ -234,7 +234,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   // Panel state from Zustand store (replaces 8 individual useState hooks)
   const {
     activePanel, togglePanel, setActivePanel,
-    broadcastOpen, toggleBroadcast,
+    broadcastOpen, toggleBroadcast, setBroadcastOpen,
     advisorCollapsed, toggleAdvisor,
     queueCollapsed, toggleQueue,
     viewMode, toggleViewMode, setViewMode,
@@ -264,6 +264,18 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
   // Publikum/Broadcast (Taste B) — reine Anzeige-Schicht über audienceModel.
   const audience = useAudienceBroadcast(state.lastActionResult, state.storyPhase.number, state.resources.risk);
+
+  // Auto-Peek: Jede neue „Sendung" blendet die Leiste kurz ein, damit der zentrale
+  // Feedback-Loop (Tat → Publikum reagiert) sichtbar ist, ohne dass der Spieler B
+  // kennen muss (Review-Befund A1). Manuelles Öffnen/Schließen gewinnt immer.
+  const lastPeekedItem = useRef<string | null>(null);
+  useEffect(() => {
+    if (!audience.lastItem || audience.lastItem.id === lastPeekedItem.current) return;
+    lastPeekedItem.current = audience.lastItem.id;
+    setBroadcastOpen(true);
+    const timer = window.setTimeout(() => setBroadcastOpen(false), 4500);
+    return () => window.clearTimeout(timer);
+  }, [audience.lastItem, setBroadcastOpen]);
 
   // Tutorial system
   const tutorial = useTutorial();
@@ -298,12 +310,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     }
   }, [viewMode]);
 
-  // Auto-start tutorial on first play
-  useEffect(() => {
-    if (state.gamePhase === 'playing' && tutorial.shouldShowTutorial() && !tutorial.isActive) {
-      tutorial.start();
-    }
-  }, [state.gamePhase, tutorial]);
+  // Kein Auto-Start des 13-Schritt-Text-Tutorials mehr: Das Onboarding ist jetzt
+  // diegetisch (Ankunfts-Sequenz → Direktor-Dialog → Büro-Hotspot-Hinweise ①②③).
+  // Das Overlay bleibt über das Pausenmenü/Hilfe erreichbar (tutorial.start()).
+  // Review-Befund: Doppel-Onboarding zerstörte den Einstieg (Game-Design-Gutachten B1).
 
   // Keyboard shortcuts (centralized - replaces OfficeScreen's duplicate handler)
   useEffect(() => {
@@ -333,6 +343,14 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         e.preventDefault();
         continueDialog();
       }
+      // Dialog-Antworten per Zifferntaste (die Optionen zeigen [1]–[4])
+      if (state.currentDialog?.choices && /^[1-9]$/.test(e.key)) {
+        const choice = state.currentDialog.choices[Number(e.key) - 1];
+        if (choice) {
+          e.preventDefault();
+          handleDialogChoice(choice.id);
+        }
+      }
       // Panel & view shortcuts (only when playing and no dialog open)
       if (state.gamePhase === 'playing' && !state.currentDialog) {
         switch (e.key.toLowerCase()) {
@@ -351,7 +369,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, activePanel, togglePanel, setActivePanel, toggleViewMode, toggleBroadcast, setShowEncyclopedia]);
+  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleViewMode, toggleBroadcast, setShowEncyclopedia]);
 
   // Save message timeout
   useEffect(() => {

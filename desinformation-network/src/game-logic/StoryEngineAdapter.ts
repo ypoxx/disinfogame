@@ -4173,6 +4173,118 @@ export class StoryEngineAdapter {
   }
 
   /**
+   * Liefert Begrüßungs-, Reaktions- oder Topic-Text PLUS voiceAssetId/mood.
+   * voiceAssetId wird NUR gesetzt, wenn der angezeigte Text 1:1 der vertonten
+   * npcs.json-Zeile entspricht (Platinum-/dialogues-Pfad hat nichts geliefert,
+   * Fallback auf den simplen Datensatz). Silently-is-better-than-wrong-sync.
+   */
+  getNPCDialogueWithVoice(
+    npcId: string,
+    context: {
+      type: 'greeting' | 'reaction' | 'topic';
+      subtype?: string;
+      relationshipLevel?: number;
+      layer?: TopicLayer;
+    },
+  ): { text: string | null; voiceAssetId?: string; mood?: 'neutral' | 'happy' | 'angry' | 'worried' | 'suspicious' } {
+    const npc = this.npcStates.get(npcId);
+    if (!npc) return { text: null };
+
+    const rng = () => this.seededRandom(`dialog_${npcId}_${context.type}_${this.storyPhase.number}`);
+
+    // Stimmung aus NPC-Zustand ableiten (Krisenlogik hat Vorrang)
+    const deriveMood = (): 'neutral' | 'happy' | 'angry' | 'worried' | 'suspicious' => {
+      if (npc.inCrisis) return 'angry';
+      if (npc.morale < 30) return 'worried';
+      if (npc.currentMood === 'positive') return 'happy';
+      if (npc.currentMood === 'concerned') return 'worried';
+      if (npc.currentMood === 'upset') return 'angry';
+      return 'neutral';
+    };
+
+    switch (context.type) {
+      case 'greeting': {
+        const level = context.relationshipLevel ?? npc.relationshipLevel;
+        // Platinum-Pfad (dialogues.json): mehrere Texte pro Level → kein 1:1-Match zur Tonspur
+        const platinumDialogue = dialogLoader.getGreeting(npcId, level, rng);
+        if (platinumDialogue) {
+          return { text: platinumDialogue.text_de, mood: deriveMood() };
+        }
+        // Fallback-Pfad (npcs.json): genau EIN Text pro Level → voiceAssetId setzen
+        const simpleDialogues = this.npcDialogues.get(npcId);
+        if (simpleDialogues?.greetings) {
+          const effectiveLevel = simpleDialogues.greetings[level.toString()] !== undefined ? level : 0;
+          const text = simpleDialogues.greetings[effectiveLevel.toString()] || null;
+          if (text) {
+            return {
+              text,
+              voiceAssetId: `voice_${npcId}_greeting_${effectiveLevel}`,
+              mood: deriveMood(),
+            };
+          }
+        }
+        return { text: null };
+      }
+
+      case 'reaction': {
+        const subtype = context.subtype || 'success';
+        // Platinum-Pfad (dialogues.json): abweichender Text → kein voiceAssetId
+        const actionTags = context.subtype ? [context.subtype] : [];
+        const conditions = {
+          risk: this.storyResources.risk,
+          morale: npc.morale,
+          moral_weight: this.storyResources.moralWeight,
+        };
+        const platinumDialogue = dialogLoader.getReaction(npcId, actionTags, conditions, rng);
+        if (platinumDialogue) {
+          const reactionMood: 'neutral' | 'happy' | 'angry' | 'worried' | 'suspicious' =
+            subtype === 'success' ? 'happy' : subtype === 'crisis' ? 'worried' : 'neutral';
+          return { text: platinumDialogue.text_de, mood: reactionMood };
+        }
+        // Fallback-Pfad (npcs.json): 1:1-Match → voiceAssetId setzen
+        const simpleDialogues = this.npcDialogues.get(npcId);
+        const text = simpleDialogues?.reactions?.[subtype] || null;
+        if (text) {
+          const reactionMood: 'neutral' | 'happy' | 'angry' | 'worried' | 'suspicious' =
+            subtype === 'success' ? 'happy' : subtype === 'crisis' ? 'worried' : 'neutral';
+          return {
+            text,
+            voiceAssetId: `voice_${npcId}_reaction_${subtype}`,
+            mood: reactionMood,
+          };
+        }
+        return { text: null };
+      }
+
+      case 'topic': {
+        const topicId = context.subtype;
+        if (!topicId) return { text: null };
+        const layer = context.layer || 'intro';
+        const dialogueContext = this.buildDialogueContext(npcId);
+        // Platinum-Pfad (topics_dialogues.json): abweichender Text → kein voiceAssetId
+        const platinumDialogue = dialogLoader.getTopicDialogue(npcId, topicId, layer, dialogueContext, rng);
+        if (platinumDialogue) {
+          return { text: platinumDialogue.text_de, mood: deriveMood() };
+        }
+        // Fallback-Pfad (npcs.json): 1:1-Match → voiceAssetId setzen
+        const simpleDialogues = this.npcDialogues.get(npcId);
+        const text = simpleDialogues?.topics?.[topicId] || null;
+        if (text) {
+          return {
+            text,
+            voiceAssetId: `voice_${npcId}_topic_${topicId}`,
+            mood: deriveMood(),
+          };
+        }
+        return { text: null };
+      }
+
+      default:
+        return { text: null };
+    }
+  }
+
+  /**
    * PLATINUM: Get full topic dialogue object (for responses and Progressive Disclosure)
    */
   getTopicDialogueObject(npcId: string, topicId: string, layer: TopicLayer = 'intro'): TopicDialogue | null {

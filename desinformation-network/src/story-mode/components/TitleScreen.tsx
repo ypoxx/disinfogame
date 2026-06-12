@@ -306,10 +306,25 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
           </span>
         </div>
 
-        {/* Versionshinweis */}
+        {/* Bildungszweck + Versionshinweis */}
         <p
           style={{
-            marginTop: 20,
+            marginTop: 16,
+            padding: '6px 12px',
+            border: `1px solid ${StoryModeColors.warning}`,
+            color: StoryModeColors.warning,
+            fontSize: '0.68rem',
+            letterSpacing: '0.04em',
+            textAlign: 'center',
+            maxWidth: 480,
+          }}
+        >
+          ⚠️ BILDUNGSZWECK: Dieses Spiel dient dem Verständnis von
+          Desinformationstaktiken und deren Gegenmaßnahmen.
+        </p>
+        <p
+          style={{
+            marginTop: 10,
             color: StoryModeColors.textMuted,
             fontSize: '0.68rem',
             letterSpacing: '0.06em',

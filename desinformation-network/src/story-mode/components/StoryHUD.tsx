@@ -248,6 +248,9 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
 
 function ViewToggleButton() {
   const { viewMode, toggleViewMode } = usePanelStore();
+  // Zeigt das JEWEILS NÄCHSTE Ziel des V-Zyklus (Gebäude → Büro → Dashboard → …).
+  const nextLabel =
+    viewMode === 'building' ? '🗂️ BÜRO' : viewMode === 'office' ? '📊 DASHBOARD' : '🏢 GEBÄUDE';
   return (
     <button
       onClick={toggleViewMode}
@@ -260,7 +263,7 @@ function ViewToggleButton() {
       }}
       title="Ansicht wechseln [V]"
     >
-      {viewMode === 'office' ? '📊 DASHBOARD' : '🏢 BÜRO'}
+      {nextLabel}
     </button>
   );
 }

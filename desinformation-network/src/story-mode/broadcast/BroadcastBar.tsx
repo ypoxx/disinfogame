@@ -52,6 +52,25 @@ const TIER_COLOR: Record<BroadcastTier, string> = {
   gross: StoryModeColors.danger,
 };
 
+/**
+ * Betroffenen-Zitate je Stimmung: macht den menschlichen Preis der eigenen
+ * „Effizienz" sichtbar (Empathie-Korrektiv, Psychologie-Gutachten C2).
+ */
+const MOOD_QUOTES: Record<Mood, string[]> = {
+  ruhig: ['Mal sehen, was die Nachrichten sagen.'],
+  verunsichert: ['Was soll man denn noch glauben…', 'Irgendwas stimmt da doch nicht.'],
+  wuetend: ['Die lügen uns alle an!', 'Das lasse ich mir nicht mehr gefallen!'],
+  misstrauisch: ['Den Nachbarn glaube ich nichts mehr.', 'Wer steckt da wohl dahinter?'],
+};
+
+/** Deterministische Zitat-Wahl (kein Re-Render-Flackern). */
+function quoteFor(segmentId: string, mood: Mood): string {
+  const list = MOOD_QUOTES[mood];
+  let h = 0;
+  for (const ch of segmentId) h = (h * 31 + ch.charCodeAt(0)) % 997;
+  return list[h % list.length];
+}
+
 interface BroadcastBarProps {
   audience: AudienceBroadcastState;
   onClose: () => void;
@@ -181,22 +200,35 @@ function AudienceRoom({ audience }: { audience: AudienceBroadcastState }) {
                 <span
                   style={{
                     position: 'absolute',
-                    top: -26,
-                    fontSize: 13,
-                    backgroundColor: 'rgba(10,10,14,0.85)',
+                    top: -30,
+                    fontSize: 10,
+                    lineHeight: 1.25,
+                    maxWidth: 120,
+                    whiteSpace: 'nowrap',
+                    color: '#ddd',
+                    backgroundColor: 'rgba(10,10,14,0.88)',
                     border: '1px solid #3a3b43',
-                    padding: '0 4px',
-                    animation: 'bb-bubble 2.8s ease-out forwards',
+                    padding: '1px 5px',
+                    animation: 'bb-bubble 3.4s ease-out forwards',
+                    zIndex: 4,
                   }}
                 >
-                  {seg.mood === 'wuetend' ? '💢' : seg.mood === 'misstrauisch' ? '🤨' : reaction!.beliefDelta > 0 ? '❗' : '…'}
+                  {seg.mood === 'wuetend' ? '💢 ' : seg.mood === 'misstrauisch' ? '🤨 ' : ''}
+                  {quoteFor(seg.id, seg.mood)}
                 </span>
               )}
               <span style={{ filter: MOOD_FILTER[seg.mood], transition: 'filter 600ms ease' }}>
                 <PixelSprite sheetId={figure} animation="idle" fallback="🧍" scale={1.6} title={seg.label_de} />
               </span>
               {/* Überzeugungs-Sockel: füllt sich mit der Wirkung der Desinformation */}
-              <span style={{ width: 40, height: 4, marginTop: 2, backgroundColor: 'rgba(0,0,0,0.55)' }}>
+              <span
+                role="progressbar"
+                aria-valuenow={Math.round(seg.belief * 100)}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`${seg.label_de}: Überzeugung ${Math.round(seg.belief * 100)}%, Stimmung ${MOOD_LABEL[seg.mood]}`}
+                style={{ width: 40, height: 4, marginTop: 2, backgroundColor: 'rgba(0,0,0,0.55)' }}
+              >
                 <span
                   style={{
                     display: 'block',
@@ -249,8 +281,8 @@ export function BroadcastBar({ audience, onClose }: BroadcastBarProps) {
           )}
           <button
             onClick={onClose}
-            aria-label="Broadcast-Leiste schließen"
-            style={{ marginLeft: 'auto', fontSize: 11, color: '#aaa', border: '1px solid #3a3b43', padding: '1px 8px', background: 'transparent', cursor: 'pointer' }}
+            aria-label="Broadcast-Leiste schließen (Taste B)"
+            style={{ marginLeft: 'auto', fontSize: 12, color: '#ccc', border: '2px solid #555', padding: '6px 14px', minHeight: 32, background: 'transparent', cursor: 'pointer' }}
           >
             B ✕
           </button>
