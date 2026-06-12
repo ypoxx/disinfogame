@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { StoryModeColors } from './theme';
+import { GAME_VERSION } from './version';
 import { DialogBox } from './components/DialogBox';
 import { StoryHUD } from './components/StoryHUD';
 import { ActionPanel } from './components/ActionPanel';
@@ -189,6 +190,14 @@ function PauseMenu({ onResume, onSave, onExit }: {
           >
             BEENDEN
           </button>
+
+          {/* Versionsnummer unten im Pausemenü */}
+          <div
+            className="text-center text-xs"
+            style={{ color: StoryModeColors.textMuted, letterSpacing: '0.06em' }}
+          >
+            v{GAME_VERSION}
+          </div>
         </div>
       </div>
     </div>
@@ -370,6 +379,34 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleViewMode, toggleBroadcast, setShowEncyclopedia]);
+
+  // K9 Stufe 1: Autosave bei jedem Phasenwechsel (nur während 'playing').
+  // saveGame kommt aus useStoryGameState und wird auch im Pausemenü genutzt.
+  useEffect(() => {
+    if (state.gamePhase !== 'playing') return;
+    const success = saveGame();
+    setSaveMessage(success ? 'Automatisch gespeichert' : null);
+  // storyPhase.number als einzige Dep — kein Loop durch saveMessage-Änderung.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.storyPhase.number]);
+
+  // K9 Stufe 1: Verlassen-Schutz — Browser-Standard-Dialog bei aktivem Spiel.
+  useEffect(() => {
+    const aktivePhase =
+      state.gamePhase === 'playing' ||
+      state.gamePhase === 'tutorial' ||
+      state.gamePhase === 'consequence';
+
+    if (!aktivePhase) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent): void => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [state.gamePhase]);
 
   // Save message timeout
   useEffect(() => {

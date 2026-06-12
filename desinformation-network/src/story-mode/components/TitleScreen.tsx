@@ -9,6 +9,126 @@ import { useEffect, useRef, useState } from 'react';
 import { useAssets } from '../assets/useAssets';
 import { StoryModeColors } from '../theme';
 import { isSoundEnabled, setSoundEnabled, playMusic } from '../utils/SoundSystem';
+import { GAME_VERSION, CHANGELOG } from '../version';
+
+// ---------------------------------------------------------------------------
+// Changelog-Overlay (H48) — Pixel/Brutalist-Stil, aria-modal, Escape-schließt.
+// ---------------------------------------------------------------------------
+
+function ChangelogOverlay({ onClose }: { onClose: () => void }): JSX.Element {
+  // Escape schließt das Overlay.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Changelog"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 200,
+        backgroundColor: 'rgba(0,0,0,0.82)',
+      }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        style={{
+          backgroundColor: StoryModeColors.surface,
+          border: `4px solid ${StoryModeColors.border}`,
+          boxShadow: '8px 8px 0px 0px rgba(0,0,0,0.9)',
+          minWidth: 340,
+          maxWidth: 480,
+          width: '90%',
+          fontFamily: 'monospace',
+        }}
+      >
+        {/* Kopfzeile */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '10px 16px',
+            borderBottom: `4px solid ${StoryModeColors.border}`,
+            backgroundColor: StoryModeColors.agencyBlue,
+          }}
+        >
+          <span
+            style={{
+              color: StoryModeColors.warning,
+              fontWeight: 700,
+              letterSpacing: '0.1em',
+              fontSize: '0.9rem',
+            }}
+          >
+            CHANGELOG
+          </span>
+          <button
+            onClick={onClose}
+            aria-label="Changelog schließen"
+            style={{
+              background: 'none',
+              border: `2px solid ${StoryModeColors.borderLight}`,
+              color: StoryModeColors.textSecondary,
+              cursor: 'pointer',
+              fontFamily: 'monospace',
+              fontSize: '1rem',
+              lineHeight: 1,
+              padding: '2px 8px',
+              transition: 'color 120ms, border-color 120ms',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.color = '#fff';
+              (e.currentTarget as HTMLButtonElement).style.borderColor = '#fff';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.color = StoryModeColors.textSecondary;
+              (e.currentTarget as HTMLButtonElement).style.borderColor = StoryModeColors.borderLight;
+            }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Einträge */}
+        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 16, maxHeight: '60vh', overflowY: 'auto' }}>
+          {CHANGELOG.map((entry) => (
+            <div key={entry.version}>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'baseline', marginBottom: 6 }}>
+                <span style={{ color: StoryModeColors.warning, fontWeight: 700, fontSize: '0.85rem' }}>
+                  v{entry.version}
+                </span>
+                <span style={{ color: StoryModeColors.textMuted, fontSize: '0.75rem' }}>
+                  {entry.date}
+                </span>
+              </div>
+              <ul style={{ margin: 0, paddingLeft: 18, listStyle: 'disc' }}>
+                {entry.points.map((point, i) => (
+                  <li
+                    key={i}
+                    style={{ color: StoryModeColors.textPrimary, fontSize: '0.8rem', lineHeight: 1.6 }}
+                  >
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export interface TitleScreenProps {
   onNewGame: () => void;
@@ -62,6 +182,8 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
 
   // Lokaler Spiegel des Sound-Zustands (SoundSystem ist kein React-Store).
   const [soundOn, setSoundOn] = useState<boolean>(() => isSoundEnabled());
+  // H48: Changelog-Overlay-Zustand.
+  const [showChangelog, setShowChangelog] = useState(false);
 
   // Musik nur EINMAL beim ersten Klick auf den Container starten.
   const musicStarted = useRef(false);
@@ -322,18 +444,37 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
           ⚠️ BILDUNGSZWECK: Dieses Spiel dient dem Verständnis von
           Desinformationstaktiken und deren Gegenmaßnahmen.
         </p>
-        <p
+        {/* H48: Versionsnummer klickbar → Changelog-Overlay */}
+        <button
+          onClick={() => setShowChangelog(true)}
+          aria-label="Changelog öffnen"
           style={{
             marginTop: 10,
+            background: 'none',
+            border: 'none',
             color: StoryModeColors.textMuted,
             fontSize: '0.68rem',
             letterSpacing: '0.06em',
             textAlign: 'center',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+            padding: 0,
+            textDecoration: 'underline dotted',
+            transition: 'color 150ms',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color = StoryModeColors.textSecondary;
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color = StoryModeColors.textMuted;
           }}
         >
-          v0.9 — Vorabversion für Testspieler
-        </p>
+          v{GAME_VERSION} — Vorabversion für Testspieler
+        </button>
       </div>
+
+      {/* Changelog-Overlay */}
+      {showChangelog && <ChangelogOverlay onClose={() => setShowChangelog(false)} />}
     </div>
   );
 }

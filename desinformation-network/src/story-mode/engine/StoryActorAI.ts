@@ -555,6 +555,28 @@ export class StoryActorAI {
   }
 
   /**
+   * Vertrauens-Regeneration durch Verteidiger pro Phase.
+   * Balancing K14 2026-06-12: Verteidiger (Faktenchecker/Moderation/…) holen
+   * pro Phase Vertrauen zurück und erzeugen so das Wettrennen Erosion vs.
+   * Aufklärung. Skaliert mit Anzahl aktiver Verteidiger, deren Stärke und der
+   * Eskalationsstufe (armsRaceLevel). Rückgabe = Punkte, um die obj_destabilize
+   * .currentValue (= Vertrauen) wieder STEIGT.
+   */
+  getTrustRegeneration(): number {
+    if (this.spawnedActors.length === 0) return 0;
+    // Summierte (aktuelle) Stärke aller Verteidiger
+    let strengthSum = 0;
+    for (const actor of this.spawnedActors) {
+      strengthSum += this.actorStrengths.get(actor.id) || actor.strength;
+    }
+    // Grundwert pro Verteidiger-Stärke + Eskalations-Bonus.
+    // Bewusst moderat gehalten: gewinnbar, aber spürbar (≈0.6–3.5/Phase).
+    const base = strengthSum * 0.9;
+    const escalation = 1 + this.armsRaceLevel * 0.25;
+    return base * escalation;
+  }
+
+  /**
    * Get AI status for display
    */
   getStatus(): {
