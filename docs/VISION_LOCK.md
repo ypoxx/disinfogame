@@ -67,6 +67,10 @@ Zahlen künftig nur aus Daten zitieren.
   - **(B) Pixel-Avatar / mehrstöckiges Gebäude** (`BUILDING_CONCEPT.md`) = **spätere, optionale Schicht**,
     datengetrieben angedockt. **Einzige echte Abhängigkeit = ein konsistenter Lauf-Zyklus** (Sprite-Tool-Asset
     oder 2-Frame-Bob). Kein Engine-Umbau, kein PixiJS, kein Pathfinding nötig.
+  - **AMENDMENT 2026-06-12 (Owner-Entscheidung):** (B) ist jetzt **aktiver Track** — das CSS-Skelett war
+    Hilfsmittel, nicht Zielbild. Lauf-Zyklus existiert (`player_walk`/`player_idle`, PR #73). Plan + Phasen:
+    **`docs/PLAYER_ENTRY_AND_BUILDING_PLAN.md`** (kanonisch für Einstieg/Gebäude-Optik/Avatar/Zeit-Hook).
+    Zusatz-Stilregel (Stil-Lock PR #73): **keine realen Staatssymbole** (kein ☭, keine echten Flaggen/Embleme).
 
 ---
 
