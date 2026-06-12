@@ -205,10 +205,10 @@ Vor jedem Batch: Kostenabschätzung an Owner (Budget-Leitplanke G43).
 
 | Welle | Inhalt | Hängt ab von | Größe |
 |---|---|---|---|
-| **W1 Sofort** | K9-Stufe-1 (Autosave/Warnung) · Versionsnummer+Changelog sichtbar (H48) · HUD-Hierarchie (E29) · Laufzyklus-Fix (K6.6: neues Walk-Sheet + Speed-Kopplung + Schritt-Sounds) · `ministryRed` ✅ erledigt | — | S–M |
+| **W1 Sofort** | ✅ ERLEDIGT 2026-06-12: Autosave je Phase + Verlassen-Schutz · Version 0.9.0 + Changelog-Overlay · HUD-Hierarchie mit Risiko-Puls · Laufzyklus (neues Walk-Sheet, Speed-Kopplung, Kontakt-Frame-Sounds) · `ministryRed` | — | ✅ |
 | **W2 Konzept-Paket** | K1-Feinschliff, K2, K3 als Owner-Vorlagen (je 1–2 Seiten, einfache Sprache); Balancing-Analyse liegt bei | Recherchen ✅ | M |
 | **W3 Gebäude-Rework** | K6.1–6.5 (Stadt, Etagen, Fassade statt Röntgenblick, Proportionen, Raum-Nahsicht) + neue Assets | W2-Abnahme nicht nötig (rein visuell beschlossen) | L |
-| **W4 Spannung & Tagesschleife** | ERST K14-Balancing (Stellschrauben 1–4: Regeneration, Risiko-Decay, Multiplikatoren, Sieg-Halten) mit Simulations-Nachweis, DANN K1 (Uhr, Zeitkosten, Redaktionsschluss, Tagesfazit) | K1-Abnahme + K14-Freigabe | L |
+| **W4 Spannung & Tagesschleife** | K14-Hälfte ✅ ERLEDIGT 2026-06-12 (Stellschrauben 1–4 mit Simulations-Nachweis, s. BALANCING_ANALYSIS „Umsetzungs-Nachweis"; 5–8 = späterer Pass). OFFEN: K1 (Uhr, Zeitkosten, Redaktionsschluss, Tagesfazit) — Abnahme liegt vor | K1 ✅ abgenommen | M |
 | **W5 Welt & Publikum** | K2 umsetzen (audience.json, 8 Milieus + neue Figuren) · K4 Fokusgruppe · Gegenseite medial (K3-Stufe 1: Faktencheck-/Pressevielfalt in Schlagzeilen) | K2/K3-Abnahme | L |
 | **W6 Stil-Vollendung** | K11 (Rahmen, Icons, Panels) · K5 Social-Feed · K12 Audio | W3 (Stil-Kern) | M–L |
 | **W7 Tiefe** | K7 NPC-Dialoge/Aktionen-aus-Dialog · K10 Avatar-Wahl + Feinheiten · K13-Stufe-2 Vertonung | W4 (Situationsbezug braucht Tagesschleife) | L |

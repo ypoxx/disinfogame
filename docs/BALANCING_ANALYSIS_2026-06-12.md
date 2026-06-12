@@ -44,6 +44,22 @@ Spannung; genau hier liegt der größte Hebel für „spannend wie MadTV".
 8. **Endsysteme zusammenführen**: `EndingSystem.evaluateEnding` als primäre
    Auswertung verdrahten, damit alle 8 Enden real erreichbar sind.
 
+## ✅ Umsetzungs-Nachweis (Stellschrauben 1–4, 2026-06-12 spät)
+
+Nach Owner-Freigabe umgesetzt (Commit `2074a12`). Gleiche Simulation, 36 Partien:
+
+| Metrik | Vorher | Nachher |
+|---|---|---|
+| Siege / Niederlagen | 33 / 3 | **19 / 17** |
+| Enttarnungs-Niederlagen | 0 | **5** (alle bei riskanter Strategie, Risiko bis 100) |
+| Frühester Sieg | Phase 7 | **Phase 24** (risikoarm: 38) |
+| Median-Siegphase | 46 | **55** |
+| Dominanz „risikoarm" | strikt dominant | gebrochen (8 vs. 6 vs. 5 Siege) |
+
+Verlieren ist real: 12 Zeit-Niederlagen entstehen, weil die Verteidiger-Regeneration
+das Wettrennen gewinnt. Stellschrauben 5–8 bleiben offen für den nächsten Balancing-Pass
+(nach K1-Tagesschleife, mit menschlichem Spielgefühl statt nur KI-Strategien).
+
 ## Einordnung für K1 (Tagesschleife)
 
 Die Tagesschleife allein erzeugt KEINE Spannung, wenn die Mathematik dahinter
