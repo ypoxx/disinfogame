@@ -26,28 +26,33 @@ gebaut, Entwürfe archiviert, Experten-Reviews orchestriert. Was dabei auffiel:
 
 ## Reibungen (Prozess-Fixes empfohlen)
 
-1. **Agenten, die ankündigen statt arbeiten:** Zwei Anläufe für die Dialog-Vertonung
-   endeten nach 1 Werkzeugaufruf mit „Ich werde …". Wirksam war erst eine harte
-   Abschluss-Klausel („Antwort MUSS mit BERICHT: beginnen, niemals ankündigen,
-   tsc/vitest-Ausgabe anhängen"). → In Agenten-Briefings standardisieren.
-2. **Env-Namens-Drift:** Pipeline erwartet `GOOGLE_AI_API_KEY`, Umgebung liefert
-   `GEMINI_API_KEY`. → Pipeline sollte beide akzeptieren (1-Zeilen-Fix in
-   `gemini.mjs`).
-3. **Stilles Überspringen beim Stimmen-Casting:** 40 Voice-Shots wurden mangels
+1. **Agenten, die ankündigen statt arbeiten (wiederholt bestätigt):** Auch bei
+   Recherche-Aufträgen starten Standard-Agenten gern eigene Hintergrund-Sub-Agenten
+   und beenden ihren Turn mit „Ich warte auf Ergebnisse". Wirksames Gegenmittel,
+   jetzt Standard für ALLE Agenten-Briefings: ① „Führe alles SELBST und SEQUENZIELL
+   aus, starte KEINE eigenen Agenten/Hintergrund-Tasks", ② „Antwort MUSS mit
+   BERICHT: beginnen", ③ messbares Abgabe-Artefakt nennen (tsc-/vitest-Ausgabe,
+   Quellen-URLs). Kurios: Die verwaisten Sub-Agenten liefern ihre Ergebnisse
+   trotzdem ab — Befunde nicht wegwerfen, sondern einsammeln.
+2. **Verständliche Sprache gegenüber dem Owner (neu, 2026-06-12):** Fachwörter wie
+   „Diegese" haben eine Owner-Frage unnötig blockiert. Regel: Konzepte und Fragen
+   in einfacher Sprache; Fachbegriff höchstens in Klammern mit Erklärung.
+3. **Env-Namens-Drift:** behoben — `gemini.mjs` akzeptiert jetzt auch `GEMINI_API_KEY`.
+4. **Stilles Überspringen beim Stimmen-Casting:** 40 Voice-Shots wurden mangels
    `voices.json`-Einträgen kommentarlos übersprungen; `status` wies nicht darauf
    hin. → `status` sollte „blockiert durch fehlendes Casting" getrennt ausweisen.
-4. **Browser-Verifikation im Container:** `playwright install` schlägt fehl
+5. **Browser-Verifikation im Container:** `playwright install` schlägt fehl
    (Netz-Policy); es liegt aber ein Chromium unter
    `/opt/pw-browsers/chromium-1194/...` bereit → `executablePath` nutzen.
-   → Kandidat für ein Projekt-Skill (`/run-skill-generator`), damit die nächste
-   Session nicht neu rätselt. Smoke-Skripte: `/tmp/smoke*.mjs` (Session-flüchtig).
-5. **Dialog-Texte vs. Vertonung zweigleisig:** `npcs.json` (Quelle der Voice-Shots)
+   → Kandidat für ein Projekt-Skill (`/run-skill-generator`).
+6. **Dialog-Texte vs. Vertonung zweigleisig:** `npcs.json` (Quelle der Voice-Shots)
    und `dialogues.json` (Quelle der angezeigten Texte) können divergieren; die
    Vertonung darf nur die exakte Text-Schnittmenge verdrahten. → Mittelfristig EINE
    Dialog-Quelle mit `voiceKey`-Feld pro Zeile (Schema-Änderung, kleiner Migrator).
-6. **Veraltetes CLAUDE.md:** `desinformation-network/.claude/CLAUDE.md` beschreibt
-   den archivierten Pro-Mode und verwirrt jede neue Session. → Neuschreiben auf
-   Story-Mode-Realität (Verweis auf VISION_LOCK/START_HERE genügt).
+7. **CLAUDE.md aktuell halten:** war auf Pro-Mode-Stand, neu geschrieben 2026-06-12.
+8. **Webrecherche hinter 403-Mauern:** Viele Retro-/Fach-Seiten blocken WebFetch
+   (HTTP 403). Such-Snippets reichen oft — Agenten anweisen, bei 403 nicht
+   aufzugeben, sondern Snippet-Synthese mit Quellenliste zu liefern.
 
 ## Roadmap-Ergänzungen (aus Funden dieser Session)
 
@@ -78,7 +83,7 @@ Offen für die Roadmap (priorisiert nach Gutachten):
 | **Technik-Enttarnung** nach jeder Aktion: eingesetzte Persuasions-Technik benennen + 1 Erkennungsmerkmal (Taxonomie + Encyclopedia existieren) — Kern des Bildungszwecks | Psychologie C1 | M |
 | **Wochenschau/Debrief am Phasen-Ende** („3 Techniken eingesetzt, X verunsichert") statt Reflexion nur im Abspann | Psychologie C3 | M |
 | **Zeitdruck aktivieren**: sichtbare Uhr + sanfte Bewegungskosten (Zeit-Hook liegt bereit) — Owner-/Balancing-Entscheidung | Game-Design A2 | M |
-| **Besuchs-Belohnung**: NPC-Räume physisch aufsuchen schaltet günstigere Aktionen/Neues frei, sonst umgeht jeder das Gebäude per Tastenkürzel | Game-Design A4 | M |
+| ~~Besuchs-Belohnung: NPC-Räume aufsuchen schaltet günstigere Aktionen frei~~ **GESTRICHEN** per Owner-Entscheidung A3 (2026-06-12): keine mechanischen Belohnungen für Bewegung; stattdessen K7 NPC-Tiefe | Game-Design A4 → `DECISIONS_2026-06-12_NEXT_LEVEL.md` | — |
 | **Eskalations-Inszenierung** klein/mittel/groß differenzieren (Ticker → Schlagzeile → Vollbild-Sondersendung; Assets/SFX vorhanden) | Game-Design A5 | S–M |
 | Konsequenz-/Gegenreaktions-Badge am Fenster-Hotspot (drohende Enttarnung sichtbar machen) | Game-Design D5 | S |
 | HUD-Hierarchie: RISIKO/KAPAZITÄT visuell priorisieren | UX A5 | S |

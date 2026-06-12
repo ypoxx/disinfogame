@@ -296,7 +296,7 @@ export function DashboardView({
             <div className="text-xs" style={{ color: StoryModeColors.textSecondary }}>
               OPERATIONSZENTRALE
             </div>
-            <div className="font-bold" style={{ color: StoryModeColors.sovietRed }}>
+            <div className="font-bold" style={{ color: StoryModeColors.ministryRed }}>
               JAHR {phase.year} — MONAT {phase.month} — PHASE {phase.number}
             </div>
           </div>
@@ -314,7 +314,7 @@ export function DashboardView({
             onClick={onEndPhase}
             className="px-4 py-2 border-4 font-bold hover:brightness-110 transition-all active:translate-y-0.5"
             style={{
-              backgroundColor: StoryModeColors.sovietRed,
+              backgroundColor: StoryModeColors.ministryRed,
               borderColor: StoryModeColors.darkRed,
               color: '#fff',
               boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
@@ -329,9 +329,9 @@ export function DashboardView({
       <div className="grid grid-cols-5 gap-2 mb-4">
         <ResourceCard icon="💰" label="BUDGET" value={resources.budget} format="currency" color={StoryModeColors.warning} danger={resources.budget < 20} />
         <ResourceCard icon="⚡" label="KAPAZITÄT" value={resources.capacity} format="number" color={StoryModeColors.agencyBlue} />
-        <ResourceCard icon="⚠️" label="RISIKO" value={resources.risk} format="percent" color={StoryModeColors.sovietRed} danger={resources.risk > 60} />
+        <ResourceCard icon="⚠️" label="RISIKO" value={resources.risk} format="percent" color={StoryModeColors.ministryRed} danger={resources.risk > 60} />
         <ResourceCard icon="👁️" label="AUFMERKSAMKEIT" value={resources.attention} format="percent" color={StoryModeColors.danger} danger={resources.attention > 70} />
-        <ResourceCard icon="💀" label="MORAL" value={resources.moralWeight} format="number" color={StoryModeColors.sovietRed} danger={resources.moralWeight > 60} />
+        <ResourceCard icon="💀" label="MORAL" value={resources.moralWeight} format="number" color={StoryModeColors.ministryRed} danger={resources.moralWeight > 60} />
       </div>
 
       {/* Main Dashboard Grid */}

@@ -78,7 +78,7 @@ export function ActionQueueWidget({
             <span
               className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold border"
               style={{
-                backgroundColor: StoryModeColors.sovietRed,
+                backgroundColor: StoryModeColors.ministryRed,
                 borderColor: StoryModeColors.darkRed,
                 color: '#fff',
               }}
@@ -347,7 +347,7 @@ export function ActionQueueWidget({
               onClick={onClear}
               className="px-3 py-2 border-2 font-bold text-sm transition-all hover:brightness-110 active:translate-y-0.5"
               style={{
-                backgroundColor: StoryModeColors.sovietRed,
+                backgroundColor: StoryModeColors.ministryRed,
                 borderColor: StoryModeColors.darkRed,
                 color: '#fff',
                 boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',

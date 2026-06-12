@@ -262,7 +262,7 @@ export function BroadcastBar({ audience, onClose }: BroadcastBarProps) {
         alignItems: 'stretch',
         padding: '10px 12px',
         backgroundColor: 'rgba(8,8,12,0.94)',
-        borderTop: `3px solid ${StoryModeColors.sovietRed}`,
+        borderTop: `3px solid ${StoryModeColors.ministryRed}`,
         animation: 'bb-slide-up 240ms ease-out',
       }}
       data-testid="broadcast-bar"

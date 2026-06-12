@@ -3,7 +3,7 @@
 
 export const StoryModeColors = {
   // Soviet Red (Communist flags, propaganda posters)
-  sovietRed: '#C41E3A',
+  ministryRed: '#C41E3A',
   darkRed: '#8B0000',
 
   // Brutalist Concrete (raw, industrial)

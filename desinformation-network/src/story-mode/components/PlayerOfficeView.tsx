@@ -155,7 +155,7 @@ export function PlayerOfficeView({
   // Label-Chip-Farbe je Hotspot
   const chipColor = (id: string): string => {
     switch (id) {
-      case 'computer': return StoryModeColors.sovietRed;
+      case 'computer': return StoryModeColors.ministryRed;
       case 'phone':    return StoryModeColors.warning;
       case 'board':    return StoryModeColors.agencyBlue;
       case 'files':    return StoryModeColors.danger;
@@ -449,7 +449,7 @@ export function PlayerOfficeView({
         <button
           onClick={onEndPhase}
           style={{
-            backgroundColor: StoryModeColors.sovietRed,
+            backgroundColor: StoryModeColors.ministryRed,
             border: `2px solid ${StoryModeColors.darkRed}`,
             color: '#fff',
             padding: '6px 20px',

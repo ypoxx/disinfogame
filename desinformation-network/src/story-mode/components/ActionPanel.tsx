@@ -220,8 +220,8 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
             className="text-xs px-2 py-0.5 border"
             style={{
               backgroundColor: StoryModeColors.background,
-              borderColor: StoryModeColors.sovietRed,
-              color: StoryModeColors.sovietRed,
+              borderColor: StoryModeColors.ministryRed,
+              color: StoryModeColors.ministryRed,
             }}
           >
             💀 +{action.costs.moral_weight}
@@ -321,7 +321,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
               </span>
             )}
             {(action.costs.moral_weight ?? 0) > 0 && (
-              <span style={{ color: StoryModeColors.sovietRed }}>
+              <span style={{ color: StoryModeColors.ministryRed }}>
                 Moral +{action.costs.moral_weight}
               </span>
             )}
@@ -619,7 +619,7 @@ export function ActionPanel({
         <div
           className="px-3 py-2 border-b-2 flex items-center justify-between"
           style={{
-            backgroundColor: StoryModeColors.sovietRed,
+            backgroundColor: StoryModeColors.ministryRed,
             borderColor: StoryModeColors.border,
           }}
         >
@@ -655,7 +655,7 @@ export function ActionPanel({
         <div
           className="flex items-center justify-between px-6 py-4 border-b-4"
           style={{
-            backgroundColor: StoryModeColors.sovietRed,
+            backgroundColor: StoryModeColors.ministryRed,
             borderColor: StoryModeColors.border,
           }}
         >

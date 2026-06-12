@@ -101,7 +101,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
             onClick={onResume}
             className="w-full py-3 border-2 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
             style={{
-              backgroundColor: StoryModeColors.sovietRed,
+              backgroundColor: StoryModeColors.ministryRed,
               borderColor: StoryModeColors.darkRed,
               color: '#fff',
               boxShadow: '3px 3px 0px 0px rgba(0,0,0,0.8)',
@@ -165,7 +165,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
                   value={volume}
                   onChange={handleVolumeChange}
                   className="flex-1"
-                  style={{ accentColor: StoryModeColors.sovietRed }}
+                  style={{ accentColor: StoryModeColors.ministryRed }}
                 />
                 <span
                   className="text-xs"

@@ -291,7 +291,7 @@ export function TutorialOverlay({
         style={{
           ...positionStyles[step.position],
           backgroundColor: StoryModeColors.surface,
-          borderColor: StoryModeColors.sovietRed,
+          borderColor: StoryModeColors.ministryRed,
           boxShadow: '8px 8px 0px 0px rgba(0,0,0,0.9)',
         }}
       >
@@ -299,7 +299,7 @@ export function TutorialOverlay({
         <div
           className="px-6 py-3 border-b-4 flex items-center justify-between"
           style={{
-            backgroundColor: StoryModeColors.sovietRed,
+            backgroundColor: StoryModeColors.ministryRed,
             borderColor: StoryModeColors.border,
           }}
         >

@@ -87,7 +87,7 @@ export function AdvisorPanel({
         className="fixed right-0 top-16 bottom-0 w-12 border-l-4 flex flex-col items-center py-4 gap-2"
         style={{
           backgroundColor: StoryModeColors.surface,
-          borderColor: StoryModeColors.sovietRed,
+          borderColor: StoryModeColors.ministryRed,
           zIndex: 40,
         }}
       >
@@ -132,7 +132,7 @@ export function AdvisorPanel({
       className="fixed right-0 top-16 bottom-0 w-80 border-l-4 flex flex-col"
       style={{
         backgroundColor: StoryModeColors.surface,
-        borderColor: StoryModeColors.sovietRed,
+        borderColor: StoryModeColors.ministryRed,
         zIndex: 40,
       }}
     >

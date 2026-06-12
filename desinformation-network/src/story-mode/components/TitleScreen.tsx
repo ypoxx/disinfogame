@@ -181,11 +181,11 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
           aria-hidden
           style={{
             fontSize: 64,
-            color: StoryModeColors.sovietRed,
+            color: StoryModeColors.ministryRed,
             lineHeight: 1,
             marginBottom: 12,
             animation: 'ts-emblem-in .9s cubic-bezier(.22,1,.36,1) both',
-            textShadow: `0 0 24px ${StoryModeColors.sovietRed}88`,
+            textShadow: `0 0 24px ${StoryModeColors.ministryRed}88`,
           }}
         >
           ⬢
@@ -252,7 +252,7 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
             onClick={onNewGame}
             delay={hasSave ? 0.85 : 0.7}
             ariaLabel="Neue Mission starten"
-            accent={StoryModeColors.sovietRed}
+            accent={StoryModeColors.ministryRed}
           />
         </div>
 

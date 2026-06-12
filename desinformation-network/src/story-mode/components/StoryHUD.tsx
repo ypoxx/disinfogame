@@ -139,7 +139,7 @@ function PhaseDisplay({ phase }: PhaseDisplayProps) {
         </div>
         <div
           className="font-bold text-xl"
-          style={{ color: StoryModeColors.sovietRed }}
+          style={{ color: StoryModeColors.ministryRed }}
         >
           {phase.year}
         </div>
@@ -335,7 +335,7 @@ export function StoryHUD({
               label="MORALISCHE LAST"
               value={resources.moralWeight}
               format="number"
-              color={StoryModeColors.sovietRed}
+              color={StoryModeColors.ministryRed}
               warningThreshold={50}
               dangerThreshold={75}
             />
@@ -363,7 +363,7 @@ export function StoryHUD({
                 onClick={onEndPhase}
                 className="px-4 py-1.5 border-2 font-bold text-sm transition-all hover:brightness-110 active:translate-y-0.5"
                 style={{
-                  backgroundColor: StoryModeColors.sovietRed,
+                  backgroundColor: StoryModeColors.ministryRed,
                   borderColor: StoryModeColors.darkRed,
                   color: '#fff',
                   boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',

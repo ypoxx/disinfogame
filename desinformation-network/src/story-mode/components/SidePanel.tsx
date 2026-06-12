@@ -27,7 +27,7 @@ function TabBar() {
             className="flex-1 py-2 px-1 text-center transition-all hover:brightness-125 relative"
             style={{
               backgroundColor: isActive ? StoryModeColors.surface : 'transparent',
-              borderBottom: isActive ? `3px solid ${StoryModeColors.sovietRed}` : '3px solid transparent',
+              borderBottom: isActive ? `3px solid ${StoryModeColors.ministryRed}` : '3px solid transparent',
             }}
             title={`${meta.label} [${meta.shortcut}]`}
           >

@@ -19,7 +19,7 @@ export function ConsequenceModal({
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical': return StoryModeColors.danger;
-      case 'severe': return StoryModeColors.sovietRed;
+      case 'severe': return StoryModeColors.ministryRed;
       case 'moderate': return StoryModeColors.warning;
       case 'minor': return StoryModeColors.textSecondary;
       default: return StoryModeColors.textMuted;
@@ -155,7 +155,7 @@ export function ConsequenceModal({
                           </span>
                         )}
                         {choice.cost.moralWeight && (
-                          <span style={{ color: StoryModeColors.sovietRed }}>
+                          <span style={{ color: StoryModeColors.ministryRed }}>
                             +{choice.cost.moralWeight} Moral
                           </span>
                         )}

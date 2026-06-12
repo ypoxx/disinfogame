@@ -108,7 +108,7 @@ function NPCPortrait({ npc, mood, size = 48 }: PortraitProps) {
     switch (npc.toLowerCase()) {
       case 'direktor':
         return {
-          borderColor: StoryModeColors.sovietRed,
+          borderColor: StoryModeColors.ministryRed,
           faceColor: '#d4a574',
           hairColor: '#2d2d2d',
           hairStyle: 'slicked', // slicked back
@@ -388,7 +388,7 @@ const FALLBACK_PORTRAITS: Record<string, Record<string, string>> = {
 };
 
 const NPC_COLORS: Record<string, string> = {
-  direktor: StoryModeColors.sovietRed,
+  direktor: StoryModeColors.ministryRed,
   marina: StoryModeColors.agencyBlue,
   alexei: StoryModeColors.militaryOlive,
   volkov: StoryModeColors.militaryOlive,
@@ -618,7 +618,7 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
                   `}
                   style={{
                     backgroundColor: selectedChoice === choice.id
-                      ? StoryModeColors.sovietRed
+                      ? StoryModeColors.ministryRed
                       : StoryModeColors.surfaceLight,
                     borderColor: choice.disabled
                       ? StoryModeColors.borderLight
