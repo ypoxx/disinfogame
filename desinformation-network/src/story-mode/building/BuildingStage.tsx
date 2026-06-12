@@ -10,12 +10,12 @@
  * Kamera weich der Etage des Avatars (CSS-Transition).
  * Konzept: docs/PLAYER_ENTRY_AND_BUILDING_PLAN.md §3.
  */
-import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
-import { useSprite } from '../assets/useSprite';
+import { PixelSprite } from '../assets/PixelSprite';
 
 export interface StageNpc {
   id: string;
@@ -49,43 +49,6 @@ function moraleColor(morale: number): string {
   if (morale < 30) return StoryModeColors.danger;
   if (morale < 60) return StoryModeColors.warning;
   return StoryModeColors.success;
-}
-
-/** Animiertes Sprite (Sheet ×2 skaliert) mit Emoji-Fallback. */
-function PixelSprite({
-  sheetId,
-  animation,
-  fallback,
-  flip = false,
-  title,
-}: {
-  sheetId: string;
-  animation: string;
-  fallback: ReactNode;
-  flip?: boolean;
-  title?: string;
-}) {
-  const assets = useAssets();
-  const sprite = useSprite(assets.sheet(sheetId), animation);
-  if (!sprite) {
-    return (
-      <span style={{ fontSize: 28, animation: 'bs-bob 2.6s ease-in-out infinite' }} title={title}>
-        {fallback}
-      </span>
-    );
-  }
-  return (
-    <span
-      style={{
-        ...sprite.style,
-        imageRendering: 'pixelated',
-        transform: `scale(2) ${flip ? 'scaleX(-1)' : ''}`,
-        transformOrigin: 'bottom center',
-      }}
-      title={title}
-      aria-label={title}
-    />
-  );
 }
 
 /** Tür eines Raums (offen/zu) — Bild-Asset oder CSS-Fallback. */

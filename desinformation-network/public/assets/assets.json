@@ -970,9 +970,359 @@
       }
     },
     {
+      "id": "voice_alexei_greeting_0",
+      "type": "voice",
+      "file": "sounds/voice_alexei_greeting_0.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_alexei_greeting_1",
+      "type": "voice",
+      "file": "sounds/voice_alexei_greeting_1.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_alexei_greeting_2",
+      "type": "voice",
+      "file": "sounds/voice_alexei_greeting_2.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_alexei_greeting_3",
+      "type": "voice",
+      "file": "sounds/voice_alexei_greeting_3.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_alexei_reaction_crisis",
+      "type": "voice",
+      "file": "sounds/voice_alexei_reaction_crisis.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_alexei_reaction_failure",
+      "type": "voice",
+      "file": "sounds/voice_alexei_reaction_failure.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_alexei_reaction_success",
+      "type": "voice",
+      "file": "sounds/voice_alexei_reaction_success.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_alexei_topic_bots",
+      "type": "voice",
+      "file": "sounds/voice_alexei_topic_bots.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_alexei_topic_infrastructure",
+      "type": "voice",
+      "file": "sounds/voice_alexei_topic_infrastructure.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_alexei_topic_security",
+      "type": "voice",
+      "file": "sounds/voice_alexei_topic_security.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_direktor_greeting_0",
+      "type": "voice",
+      "file": "sounds/voice_direktor_greeting_0.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_direktor_greeting_1",
+      "type": "voice",
+      "file": "sounds/voice_direktor_greeting_1.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_direktor_greeting_2",
+      "type": "voice",
+      "file": "sounds/voice_direktor_greeting_2.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_direktor_greeting_3",
+      "type": "voice",
+      "file": "sounds/voice_direktor_greeting_3.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
       "id": "voice_direktor_intro",
       "type": "voice",
       "file": "sounds/voice_direktor_intro.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_direktor_reaction_crisis",
+      "type": "voice",
+      "file": "sounds/voice_direktor_reaction_crisis.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_direktor_reaction_failure",
+      "type": "voice",
+      "file": "sounds/voice_direktor_reaction_failure.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_direktor_reaction_success",
+      "type": "voice",
+      "file": "sounds/voice_direktor_reaction_success.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_direktor_topic_mission",
+      "type": "voice",
+      "file": "sounds/voice_direktor_topic_mission.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_direktor_topic_resources",
+      "type": "voice",
+      "file": "sounds/voice_direktor_topic_resources.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_direktor_topic_risks",
+      "type": "voice",
+      "file": "sounds/voice_direktor_topic_risks.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_igor_greeting_0",
+      "type": "voice",
+      "file": "sounds/voice_igor_greeting_0.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_igor_greeting_1",
+      "type": "voice",
+      "file": "sounds/voice_igor_greeting_1.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_igor_greeting_2",
+      "type": "voice",
+      "file": "sounds/voice_igor_greeting_2.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_igor_greeting_3",
+      "type": "voice",
+      "file": "sounds/voice_igor_greeting_3.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_igor_reaction_crisis",
+      "type": "voice",
+      "file": "sounds/voice_igor_reaction_crisis.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_igor_reaction_failure",
+      "type": "voice",
+      "file": "sounds/voice_igor_reaction_failure.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_igor_reaction_success",
+      "type": "voice",
+      "file": "sounds/voice_igor_reaction_success.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_igor_topic_budget",
+      "type": "voice",
+      "file": "sounds/voice_igor_topic_budget.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_igor_topic_flow",
+      "type": "voice",
+      "file": "sounds/voice_igor_topic_flow.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_igor_topic_fronts",
+      "type": "voice",
+      "file": "sounds/voice_igor_topic_fronts.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_katja_greeting_0",
+      "type": "voice",
+      "file": "sounds/voice_katja_greeting_0.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_katja_greeting_1",
+      "type": "voice",
+      "file": "sounds/voice_katja_greeting_1.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_katja_greeting_2",
+      "type": "voice",
+      "file": "sounds/voice_katja_greeting_2.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_katja_greeting_3",
+      "type": "voice",
+      "file": "sounds/voice_katja_greeting_3.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_katja_reaction_crisis",
+      "type": "voice",
+      "file": "sounds/voice_katja_reaction_crisis.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_katja_reaction_failure",
+      "type": "voice",
+      "file": "sounds/voice_katja_reaction_failure.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_katja_reaction_success",
+      "type": "voice",
+      "file": "sounds/voice_katja_reaction_success.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_katja_topic_contacts",
+      "type": "voice",
+      "file": "sounds/voice_katja_topic_contacts.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_katja_topic_field",
+      "type": "voice",
+      "file": "sounds/voice_katja_topic_field.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_katja_topic_risks",
+      "type": "voice",
+      "file": "sounds/voice_katja_topic_risks.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_marina_greeting_0",
+      "type": "voice",
+      "file": "sounds/voice_marina_greeting_0.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_marina_greeting_1",
+      "type": "voice",
+      "file": "sounds/voice_marina_greeting_1.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_marina_greeting_2",
+      "type": "voice",
+      "file": "sounds/voice_marina_greeting_2.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_marina_greeting_3",
+      "type": "voice",
+      "file": "sounds/voice_marina_greeting_3.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_marina_reaction_crisis",
+      "type": "voice",
+      "file": "sounds/voice_marina_reaction_crisis.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_marina_reaction_failure",
+      "type": "voice",
+      "file": "sounds/voice_marina_reaction_failure.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_marina_reaction_success",
+      "type": "voice",
+      "file": "sounds/voice_marina_reaction_success.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_marina_topic_content",
+      "type": "voice",
+      "file": "sounds/voice_marina_topic_content.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_marina_topic_platforms",
+      "type": "voice",
+      "file": "sounds/voice_marina_topic_platforms.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_marina_topic_viral",
+      "type": "voice",
+      "file": "sounds/voice_marina_topic_viral.mp3",
       "chosen": true,
       "provider": "elevenlabs"
     }

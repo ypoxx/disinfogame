@@ -18,6 +18,10 @@ interface PanelState {
   setViewMode: (mode: ViewMode) => void;
   toggleViewMode: () => void;
 
+  // Broadcast-Leiste (Taste B): „Ministerium sendet" + Publikum
+  broadcastOpen: boolean;
+  toggleBroadcast: () => void;
+
   // Advisor panel (already exists as floating, keep independent)
   advisorCollapsed: boolean;
   toggleAdvisor: () => void;
@@ -50,6 +54,9 @@ export const usePanelStore = create<PanelState>((set) => ({
         state.viewMode === 'building' ? 'office' : state.viewMode === 'office' ? 'dashboard' : 'building',
     })),
 
+  broadcastOpen: false,
+  toggleBroadcast: () => set((state) => ({ broadcastOpen: !state.broadcastOpen })),
+
   advisorCollapsed: false,
   toggleAdvisor: () =>
     set((state) => ({ advisorCollapsed: !state.advisorCollapsed })),
@@ -62,6 +69,7 @@ export const usePanelStore = create<PanelState>((set) => ({
     set({
       activePanel: null,
       viewMode: 'building',
+      broadcastOpen: false,
       advisorCollapsed: false,
       queueCollapsed: false,
     }),
