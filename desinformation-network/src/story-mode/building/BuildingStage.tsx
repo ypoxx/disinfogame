@@ -14,6 +14,7 @@
 import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { NAV_SPEED } from './BuildingNavigator';
+import { useDayClockStore } from '../stores/dayClockStore';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
@@ -502,7 +503,39 @@ export function BuildingStage({ npcs, nav, onRoomClick, interactive = true }: Bu
           </span>
         )}
       </div>
+
+      {/* Tag/Nacht-Tönung (H30): aus der Tages-Uhr — kühler Morgen, neutraler Mittag,
+          zum Redaktionsschluss hin tiefblaue Abend-/Nacht-Stimmung über der Stadt. */}
+      <DayNightTint />
     </div>
+  );
+}
+
+/** Sanfte Tag/Nacht-Tönung der Bühne, gesteuert von der Tages-Uhr (09:00–18:00). */
+function DayNightTint() {
+  const minutes = useDayClockStore((s) => s.minutes);
+  const t = Math.max(0, Math.min(1, minutes / 540)); // 0 = 09:00, 1 = 18:00
+  let alpha = 0;
+  let rgb = '14,22,48'; // Nacht-Blau
+  if (t < 0.15) {
+    alpha = 0.14 * (1 - t / 0.15); // kühler Morgen-Hauch
+    rgb = '44,74,120';
+  } else if (t >= 0.6) {
+    alpha = ((t - 0.6) / 0.4) * 0.52; // Abend → Nacht
+    rgb = '14,22,48';
+  }
+  if (alpha <= 0.005) return null;
+  return (
+    <div
+      aria-hidden
+      style={{
+        position: 'absolute',
+        inset: 0,
+        backgroundColor: `rgba(${rgb},${alpha.toFixed(3)})`,
+        pointerEvents: 'none',
+        transition: 'background-color 600ms linear',
+      }}
+    />
   );
 }
 
