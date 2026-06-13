@@ -66,7 +66,7 @@ export function ActionFeedbackDialog({
           style={{
             backgroundColor: StoryModeColors.surface,
             borderColor: getOutcomeColor(),
-            boxShadow: '10px 10px 0px 0px rgba(0,0,0,0.9)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
           }}
           onClick={e => e.stopPropagation()}
         >
@@ -378,7 +378,7 @@ export function ActionFeedbackDialog({
                 backgroundColor: StoryModeColors.ministryRed,
                 borderColor: StoryModeColors.darkRed,
                 color: '#fff',
-                boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
               }}
             >
               VERSTANDEN
@@ -403,7 +403,7 @@ export function ActionFeedbackDialog({
         style={{
           backgroundColor: StoryModeColors.surface,
           borderColor: getOutcomeColor(singleResult),
-          boxShadow: '10px 10px 0px 0px rgba(0,0,0,0.9)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
         }}
         onClick={e => e.stopPropagation()}
       >
@@ -893,7 +893,7 @@ export function ActionFeedbackDialog({
               backgroundColor: StoryModeColors.ministryRed,
               borderColor: StoryModeColors.darkRed,
               color: '#fff',
-              boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
             }}
           >
             VERSTANDEN

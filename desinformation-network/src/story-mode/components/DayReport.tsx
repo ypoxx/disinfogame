@@ -42,7 +42,7 @@ function ReportColumn({
       style={{
         backgroundColor: StoryModeColors.surface,
         borderColor: StoryModeColors.border,
-        boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
         // Stagger: jeder Block 120ms später.
         animationDelay: `${index * 0.12}s`,
         opacity: 0,
@@ -262,7 +262,7 @@ export function DayReport({
                 backgroundColor: StoryModeColors.ministryRed,
                 borderColor: StoryModeColors.darkRed,
                 color: '#fff',
-                boxShadow: '6px 6px 0px 0px rgba(0,0,0,0.9)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
               }}
             >
               Nächster Tag ▸

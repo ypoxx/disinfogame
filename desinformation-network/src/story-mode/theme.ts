@@ -44,6 +44,8 @@ export const StoryModeColors = {
   textMuted: '#828A95',
 };
 
+// v2: ohne harten Brutalismus-Schlagschatten (Verbotsliste) — klare Pixel-Kante,
+// dezenter Press-Effekt bleibt über active:translate.
 export const createBrutalistButton = (baseColor: string) => ({
-  base: `bg-[${baseColor}] border-2 border-black hover:brightness-110 transition-all active:translate-y-0.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.8)]`,
+  base: `bg-[${baseColor}] border-2 hover:brightness-110 transition-all active:translate-y-0.5`,
 });

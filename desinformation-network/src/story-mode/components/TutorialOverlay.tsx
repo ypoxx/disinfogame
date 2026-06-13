@@ -291,7 +291,7 @@ export function TutorialOverlay({
           ...positionStyles[step.position],
           backgroundColor: StoryModeColors.surface,
           borderColor: StoryModeColors.ministryRed,
-          boxShadow: '8px 8px 0px 0px rgba(0,0,0,0.9)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
         }}
       >
         {/* Header */}
@@ -341,7 +341,7 @@ export function TutorialOverlay({
                 backgroundColor: isLastStep ? StoryModeColors.militaryOlive : StoryModeColors.agencyBlue,
                 borderColor: StoryModeColors.border,
                 color: StoryModeColors.warning,
-                boxShadow: '3px 3px 0px 0px rgba(0,0,0,0.8)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
               }}
             >
               {step.requiresAction ? step.actionLabel : isLastStep ? 'ABSCHLIESSEN' : 'WEITER →'}

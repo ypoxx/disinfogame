@@ -358,7 +358,7 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
                       : StoryModeColors.textPrimary,
                     boxShadow: selectedChoice === choice.id
                       ? 'none'
-                      : '3px 3px 0px 0px rgba(0,0,0,0.8)',
+                      : 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
                   }}
                 >
                   <div className="flex justify-between items-start gap-4">

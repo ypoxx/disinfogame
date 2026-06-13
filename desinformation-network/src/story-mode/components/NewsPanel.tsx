@@ -217,7 +217,7 @@ export function NewsPanel({
         style={{
           backgroundColor: StoryModeColors.surface,
           borderColor: StoryModeColors.danger,
-          boxShadow: '12px 12px 0px 0px rgba(0,0,0,0.9)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
         }}
         onClick={e => e.stopPropagation()}
       >

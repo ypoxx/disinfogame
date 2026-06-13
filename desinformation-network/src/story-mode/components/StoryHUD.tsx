@@ -244,7 +244,7 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
       style={{
         backgroundColor: StoryModeColors.surfaceLight,
         borderColor: StoryModeColors.border,
-        boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.5)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
       }}
     >
       <div className="flex items-center gap-2 mb-1">
@@ -301,7 +301,7 @@ function ViewToggleButton() {
         backgroundColor: viewMode === 'dashboard' ? StoryModeColors.agencyBlue : StoryModeColors.concrete,
         borderColor: viewMode === 'dashboard' ? StoryModeColors.darkBlue : StoryModeColors.borderLight,
         color: viewMode === 'dashboard' ? '#fff' : StoryModeColors.textPrimary,
-        boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
       }}
       title="Ansicht wechseln [V]"
     >
@@ -404,7 +404,7 @@ export function StoryHUD({
                   backgroundColor: StoryModeColors.concrete,
                   borderColor: StoryModeColors.borderLight,
                   color: StoryModeColors.textPrimary,
-                  boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
                 }}
               >
                 ☰ MENÜ
@@ -418,7 +418,7 @@ export function StoryHUD({
                   backgroundColor: StoryModeColors.ministryRed,
                   borderColor: StoryModeColors.darkRed,
                   color: '#fff',
-                  boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
                 }}
               >
                 PHASE BEENDEN →

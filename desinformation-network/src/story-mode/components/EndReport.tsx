@@ -678,7 +678,7 @@ export function EndReport({
           width: '100%',
           backgroundColor: StoryModeColors.surface,
           border: `3px solid ${StoryModeColors.agencyBlue}`,
-          boxShadow: '8px 8px 0px 0px rgba(0,0,0,0.9)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
           fontFamily: 'monospace',
         }}
       >
@@ -957,7 +957,7 @@ export function EndReport({
                 fontWeight: 'bold',
                 letterSpacing: '0.08em',
                 cursor: 'pointer',
-                boxShadow: '3px 3px 0px 0px rgba(0,0,0,0.8)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
                 fontFamily: 'monospace',
               }}
             >

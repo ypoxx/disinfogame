@@ -249,7 +249,7 @@ function QuickActions() {
             style={{
               backgroundColor: StoryModeColors.surface,
               borderColor: StoryModeColors.border,
-              boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.5)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
             }}
           >
             <div className="text-xl">{meta.icon}</div>
@@ -319,7 +319,7 @@ export function DashboardView({
               backgroundColor: StoryModeColors.ministryRed,
               borderColor: StoryModeColors.darkRed,
               color: '#fff',
-              boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
             }}
           >
             PHASE BEENDEN →

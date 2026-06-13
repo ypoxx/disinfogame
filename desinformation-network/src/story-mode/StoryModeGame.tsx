@@ -103,7 +103,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
         style={{
           backgroundColor: StoryModeColors.surface,
           borderColor: StoryModeColors.border,
-          boxShadow: '8px 8px 0px 0px rgba(0,0,0,0.9)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
         }}
       >
         <div
@@ -125,7 +125,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
               backgroundColor: StoryModeColors.ministryRed,
               borderColor: StoryModeColors.darkRed,
               color: '#fff',
-              boxShadow: '3px 3px 0px 0px rgba(0,0,0,0.8)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
             }}
           >
             FORTSETZEN
@@ -137,7 +137,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
               backgroundColor: StoryModeColors.militaryOlive,
               borderColor: StoryModeColors.darkOlive,
               color: StoryModeColors.warning,
-              boxShadow: '3px 3px 0px 0px rgba(0,0,0,0.8)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
             }}
           >
             SPEICHERN
@@ -218,7 +218,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
               backgroundColor: StoryModeColors.concrete,
               borderColor: StoryModeColors.borderLight,
               color: StoryModeColors.textPrimary,
-              boxShadow: '3px 3px 0px 0px rgba(0,0,0,0.8)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
             }}
           >
             BEENDEN
@@ -601,7 +601,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             backgroundColor: StoryModeColors.agencyBlue,
             borderColor: StoryModeColors.darkBlue,
             color: StoryModeColors.warning,
-            boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
           }}
         >
           VOLLSTÄNDIGER LAGEBERICHT ▸
@@ -1029,7 +1029,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             backgroundColor: StoryModeColors.militaryOlive,
             borderColor: StoryModeColors.darkOlive,
             color: StoryModeColors.warning,
-            boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
           }}
         >
           {saveMessage}

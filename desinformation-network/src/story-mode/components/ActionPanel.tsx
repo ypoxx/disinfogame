@@ -526,7 +526,7 @@ export function ActionPanel({
             color:
               activeTab === tab.id ? '#fff' : tab.color,
             boxShadow:
-              activeTab === tab.id ? 'none' : '2px 2px 0px 0px rgba(0,0,0,0.5)',
+              activeTab === tab.id ? 'none' : 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
           }}
         >
           {tab.label}
@@ -649,7 +649,7 @@ export function ActionPanel({
         style={{
           backgroundColor: StoryModeColors.surface,
           borderColor: StoryModeColors.border,
-          boxShadow: '12px 12px 0px 0px rgba(0,0,0,0.9)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
         }}
       >
         {/* Header */}
@@ -673,7 +673,7 @@ export function ActionPanel({
               backgroundColor: StoryModeColors.darkRed,
               borderColor: StoryModeColors.border,
               color: '#fff',
-              boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
             }}
           >
             ✕ SCHLIESSEN

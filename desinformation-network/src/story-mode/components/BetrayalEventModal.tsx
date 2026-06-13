@@ -238,7 +238,7 @@ export function BetrayalEventModal({
               backgroundColor: getSeverityColor(),
               borderColor: StoryModeColors.border,
               color: '#fff',
-              boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
             }}
           >
             VERSTANDEN • FORTFAHREN
