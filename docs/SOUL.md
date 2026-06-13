@@ -58,8 +58,15 @@ Ganzes (v. a. den End-Report), nicht durch Belehrung. Pixel-Art **aus einem Guss
 
 ## 4. Arbeitsmodus der KI-Sessions
 
-- **Erst lesen:** SOUL.md → DECISIONS_* (neuestes) → NEXT_LEVEL_PLAN.md →
-  betroffene Konzept-Docs. CLAUDE.md im Spielordner für Technik-Regeln.
+> **AKTUELLER STAND (2026-06-13):** main = c86fc9e (PR #74+#75 gemerged — Gebäude,
+> Tagesschleife, End-Report, Westunion-Milieus, Newsroom, Fokusgruppe, Sound, Avatar).
+> **Nächster Schritt = großes visuelles + Dialog-Mega-Update.** Auftrag vollständig
+> destilliert in `DECISIONS_2026-06-13B_TRANSCRIPT.md` (8 Arbeitsstränge). Dort
+> beginnen.
+
+- **Erst lesen:** SOUL.md → **`DECISIONS_2026-06-13B_TRANSCRIPT.md`** (neuestes) →
+  `DECISIONS_2026-06-12_NEXT_LEVEL.md` → `GESAMTKONZEPT_VISUELL.md` →
+  `NEXT_LEVEL_PLAN.md`. CLAUDE.md im Spielordner für Technik-Regeln.
 - **Orchestrierung:** Großes parallelisieren (Recherche/Reviews/Implementierung
   auf disjunkten Dateien), Integration zentral halten. Agenten-Briefings IMMER
   mit harter Abschluss-Klausel („Antwort MUSS mit BERICHT: beginnen, keine
