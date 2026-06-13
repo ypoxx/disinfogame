@@ -53,7 +53,12 @@ function NPCPortrait({ npc, mood, size = 48 }: PortraitProps) {
   // Echtes Porträt aus dem Asset-Manifest (portrait_<npc>_<mood>, sonst
   // portrait_<npc>) hat Vorrang vor dem CSS-Gesicht.
   const assets = useAssets();
+  // v2-Kohärenz: die transmoderne, transparente Halbfigur (npc_half_*) als Kopf-
+  // Ausschnitt bevorzugen; sonst die (Stimmungs-)Porträts. So passt der Dialog-
+  // Sprecher zum großen Raum-Auftritt — ohne Neugenerierung.
+  const halfUrl = assets.imageUrl(`npc_half_${npc.toLowerCase()}`);
   const assetUrl =
+    halfUrl ??
     assets.imageUrl(`portrait_${npc.toLowerCase()}_${mood}`) ??
     assets.imageUrl(`portrait_${npc.toLowerCase()}`);
   if (assetUrl) {
@@ -67,9 +72,11 @@ function NPCPortrait({ npc, mood, size = 48 }: PortraitProps) {
           width: size,
           height: size,
           objectFit: 'cover',
+          // Halbfigur: Kopf zeigen (oben); fertige Porträts füllen ohnehin das Quadrat.
+          objectPosition: halfUrl ? 'top' : 'center',
           border: '3px solid',
           borderColor: NPC_COLORS[npc.toLowerCase()] || StoryModeColors.warning,
-          backgroundColor: '#1a1a1a',
+          backgroundColor: StoryModeColors.surface,
           imageRendering: 'pixelated',
         }}
       />
