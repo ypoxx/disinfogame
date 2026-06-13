@@ -208,7 +208,6 @@ function PostCard({ post, isFirst = false }: PostCardProps): React.JSX.Element {
         border: `2px solid ${borderColor}`,
         backgroundColor: bg,
         borderRadius: 0, // Brutalist: keine runden Ecken
-        boxShadow: post.isOurs ? `0 0 6px rgba(196,30,58,0.25)` : 'none',
         animation: isFirst ? 'nr-fade-in 0.35s ease-out' : 'none',
         flexShrink: 0,
       }}
@@ -539,7 +538,6 @@ export function NewsroomView({
               width: 10,
               height: 10,
               backgroundColor: StoryModeColors.ministryRed,
-              boxShadow: `0 0 6px ${StoryModeColors.ministryRed}`,
               imageRendering: 'pixelated',
             }}
           />
@@ -583,7 +581,6 @@ export function NewsroomView({
             justifyContent: 'center',
             cursor: 'pointer',
             animation: 'nr-close-pulse 2.5s ease-in-out infinite',
-            boxShadow: '2px 2px 0 #000',
           }}
         >
           ✕
@@ -613,8 +610,7 @@ export function NewsroomView({
             gap: 0,
             // Brutalist-Rahmen: dicker Außenrand + Inset-Schatten
             border: `4px solid ${StoryModeColors.concrete}`,
-            boxShadow:
-              `inset 0 0 0 2px rgba(0,0,0,0.9), 6px 6px 0 rgba(0,0,0,0.7)`,
+            boxShadow: `inset 0 0 0 2px rgba(0,0,0,0.9)`,
             backgroundColor: 'rgba(5,5,5,0.92)',
             overflow: 'hidden',
           }}

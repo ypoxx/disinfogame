@@ -122,11 +122,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
           ? 'rgba(255, 215, 0, 0.05)' // Slight gold tint for recommended
           : StoryModeColors.surfaceLight,
         border: `${getBorderWidth()} solid ${getBorderColor()}`,
-        boxShadow: isDisabled
-          ? 'none'
-          : isRecommended
-          ? '0 0 8px rgba(255, 215, 0, 0.3), 3px 3px 0px rgba(0,0,0,0.6)'
-          : '3px 3px 0px rgba(0,0,0,0.6)',
+        boxShadow: 'none',
       }}
     >
       {/* Header */}
@@ -379,7 +375,6 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
               backgroundColor: StoryModeColors.success,
               borderColor: '#15803d',
               color: '#fff',
-              boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',
             }}
             title="Sofort ausführen"
           >
@@ -393,7 +388,6 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
                 backgroundColor: StoryModeColors.militaryOlive,
                 borderColor: StoryModeColors.darkOlive,
                 color: StoryModeColors.warning,
-                boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',
               }}
               title="Zur Warteschlange hinzufügen"
             >
@@ -587,7 +581,7 @@ export function ActionPanel({
 
   const footer = (
     <div
-      className="px-3 py-2 border-t-4 flex items-center justify-between"
+      className="px-3 py-2 border-t-2 flex items-center justify-between"
       style={{
         backgroundColor: StoryModeColors.darkConcrete,
         borderColor: StoryModeColors.border,
@@ -645,7 +639,7 @@ export function ActionPanel({
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
     >
       <div
-        className="w-full max-w-4xl max-h-[90vh] flex flex-col border-4"
+        className="w-full max-w-4xl max-h-[90vh] flex flex-col border-2"
         style={{
           backgroundColor: StoryModeColors.surface,
           borderColor: StoryModeColors.border,
@@ -654,7 +648,7 @@ export function ActionPanel({
       >
         {/* Header */}
         <div
-          className="flex items-center justify-between px-6 py-4 border-b-4"
+          className="flex items-center justify-between px-6 py-4 border-b-2"
           style={{
             backgroundColor: StoryModeColors.ministryRed,
             borderColor: StoryModeColors.border,

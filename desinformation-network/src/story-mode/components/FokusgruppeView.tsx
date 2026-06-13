@@ -242,7 +242,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
         flexDirection: 'column',
         border: `2px solid ${borderColor}`,
         backgroundColor: 'rgba(10,10,14,0.88)',
-        boxShadow: `0 0 8px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.04)`,
+        boxShadow: `inset 0 0 0 1px rgba(255,255,255,0.04)`,
         animation: `fg-tile-in 0.4s ease-out ${delay}ms both`,
         overflow: 'hidden',
         minWidth: 0,
@@ -572,7 +572,6 @@ export function FokusgruppeView({
             justifyContent: 'center',
             cursor: 'pointer',
             animation: 'fg-close-pulse 2.5s ease-in-out infinite',
-            boxShadow: '2px 2px 0 #000',
           }}
         >
           ✕
