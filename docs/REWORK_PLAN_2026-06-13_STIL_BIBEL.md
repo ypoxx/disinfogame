@@ -323,6 +323,32 @@ großem Puffer. Der **Transparenz-Start (PR 1b) kostet ~1 €** (vernachlässigb
 
 ---
 
-## Nächster Schritt (nach Abnahme dieses Plans + Antwort auf E1/E2)
-PR 1b starten: 5 NPC-Halbfiguren v2 + Transparenz (Budget ~1 €), in Raum-Nahsicht
-komponiert, CSS-Gesicht entfernt — `tsc`/Tests/Build grün, Vision-Review angehängt.
+## FORTSCHRITT (2026-06-13, laufend — alles auf `claude/stoic-hamilton-8kx6k5`, PR #77)
+
+**✅ Erledigt & grün (tsc/build/vitest), je mit Vision-Review:**
+- Planung + beide Mini-Entscheidungen (keine Randleiste; Narrative max 3, Start 2).
+- v2-Stil-Anker in der Pipeline (`styleguide.mjs`, `game-style-guide.md`).
+- **Alle 9 Räume v2** (modern, Zonen-Licht, untere Bilddrittel als Standfläche frei).
+- **5 NPC-Halbfiguren v2** (pur, transparent) in `NpcRoomView` — Briefmarken-/
+  „halber-Tisch"-Effekt gelöst (Owner-Hinweis).
+- **Gebäude/Welt-Baukasten v2** (12 Teile) inkl. Browser-Smoke (BuildingStage-Kachel-CSS).
+- **8 Publikums-Milieus v2** (pur, transparent) — K38-Defekt „kaputte Sheets" behoben.
+- Bild-KI-Budget bisher: ~6–7 € von +30 €.
+
+**🧠 Learnings (in den Stil-Bibel-Regeln verankert):**
+- **Pur-Figuren-Regel:** frei platzierte Figuren (NPC, Publikum) NIE mit mitgemaltem
+  Möbel/Hintergrund — sonst „halber Tisch"/Briefmarke. Tisch kommt aus dem Raum;
+  Sitzende in Sitzhaltung OHNE Stuhl.
+- **Opake Kachel-Strips** (`bld_floor_slab`, `bld_facade_pillar`): Prompt muss „füllt
+  das ganze Bild opak, KEIN Schachbrett/keine Transparenz" sagen, sonst malt das
+  Modell ein Transparenz-Schachbrett.
+- Verifikations-Skripte unter `tools/asset-pipeline/scripts/` (Composite/Naht/Smoke).
+
+**▶ Offen in Strang 1 (nächste Batches):**
+- Dialog-Porträts v2 + transparent, **CSS-Gesicht raus** (Verbot) in `DialogBox`.
+- Props v2 · `audience_room`/HUD-Rahmen ggf. v2.
+- **PR 1c (Code-Fundament):** Pixel-Font (Pixel Operator), ein Palette-Modul,
+  9-Slice-`PixelFrame` (heilt ~14 Modals), Emoji→Pixel-Icons (19 vorhanden).
+- **PR 1f:** Proportionen 60 %, Avatar-Feinschliff, Tag/Nacht + Jahreszeiten.
+- Dann Strang 2–8 (Diegese, Aktionen, Dialog-Mega-Update, Atmosphäre, Gegenseite,
+  Sound, Inhalt).
