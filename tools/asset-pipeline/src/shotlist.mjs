@@ -480,7 +480,7 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
     animations: { walkRight: { row: 0, frames: 8, frameTime: 90, loop: true } },
     seed: seedFor('player_walk'),
     prompt:
-      `An 8-frame pixel art sprite sheet of a middle-aged bureaucrat in a grey suit ` +
+      `An 8-frame pixel art sprite sheet of a middle-aged government official in a modern grey suit ` +
       `with a briefcase in his left hand, walking to the right, strict side view. ` +
       `Horizontal layout, exactly 8 evenly spaced frames in one row, SAME character with ` +
       `identical suit and colors in every frame. The frames form one full walk cycle with ` +
@@ -495,7 +495,11 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       `frame 8 body at its highest, right foot reaching forward, only left toes touch ground. ` +
       `The head moves up and down by 2 pixels across the cycle (lowest in frames 1 and 5, ` +
       `highest in frames 4 and 8); the free right arm swings opposite to the legs. ` +
-      `Adjacent frames MUST differ visibly, especially the legs. ${CHROMA_PROMPT} ${style}`,
+      `Adjacent frames MUST differ visibly, especially the legs. ` +
+      `CRITICAL: in EVERY one of the 8 frames the figure walks on the spot against the SAME ` +
+      `single flat solid magenta (#FF00FF) fill — absolutely NO corridor, NO office, NO room, ` +
+      `NO doors, NO windows, NO floor line, NO shadow, NO scenery of any kind behind or under ` +
+      `the figure; only the walking man floating on pure uniform magenta. ${CHROMA_PROMPT} ${style}`,
   });
   shots.push({
     id: 'player_idle',
@@ -510,7 +514,7 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
     animations: { idle: { row: 0, frames: 4, frameTime: 220, loop: true } },
     seed: seedFor('player_idle'),
     prompt:
-      `A 4-frame pixel art sprite sheet of a middle-aged soviet bureaucrat in a grey suit ` +
+      `A 4-frame pixel art sprite sheet of a middle-aged government official in a modern grey suit ` +
       `standing idle and subtly breathing, front view. Horizontal layout, exactly 4 evenly ` +
       `spaced frames in one row showing the SAME character with identical outfit and colors in ` +
       `every frame, only a subtle breathing motion changes. ${CHROMA_PROMPT} ${style}`,
