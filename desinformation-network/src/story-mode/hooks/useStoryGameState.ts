@@ -182,7 +182,7 @@ function enhanceTopicResponse(
   const relevantRecs = contextData.recommendations.filter(rec => rec.npcId === npcId);
   if (relevantRecs.length > 0 && relevantRecs[0].priority !== 'low') {
     const rec = relevantRecs[0];
-    enhanced += `\n\n💡 *Übrigens:* ${rec.message}`;
+    enhanced += `\n\n*Übrigens:* ${rec.message}`;
   }
 
   return enhanced;
@@ -930,8 +930,8 @@ export function useStoryGameState(seed?: string) {
                 id: `defensive_${Date.now()}_${actor.id}`,
                 type: 'world_event',
                 phase: currentPhase.number,
-                headline_de: `🛡️ ${actor.name}: ${counterAction}`,
-                headline_en: `🛡️ ${actor.name}: ${counterAction}`,
+                headline_de: `${actor.name}: ${counterAction}`,
+                headline_en: `${actor.name}: ${counterAction}`,
                 description_de: `Als Reaktion auf verdächtige Aktivitäten hat ${actor.name} Gegenmaßnahmen eingeleitet.`,
                 description_en: `In response to suspicious activity, ${actor.name} has initiated countermeasures.`,
                 severity: 'danger',

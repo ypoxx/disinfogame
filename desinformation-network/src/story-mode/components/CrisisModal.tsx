@@ -1,5 +1,7 @@
 import { StoryModeColors } from '../theme';
 import type { CrisisMoment, CrisisChoice } from '../engine/CrisisMomentSystem';
+import { Icon } from './Icon';
+import { PixelFrame } from './PixelFrame';
 
 // ============================================
 // TYPES
@@ -34,9 +36,9 @@ export function CrisisModal({
 
   const getSeverityColor = () => {
     switch (crisis.severity) {
-      case 'critical': return '#8B0000';  // Dark red
+      case 'critical': return StoryModeColors.darkRed;
       case 'high': return StoryModeColors.danger;
-      case 'medium': return '#FF8C00';  // Orange
+      case 'medium': return StoryModeColors.warning;
       case 'low': return StoryModeColors.warning;
       default: return StoryModeColors.warning;
     }
@@ -49,6 +51,15 @@ export function CrisisModal({
       case 'medium': return 'MITTEL';
       case 'low': return 'NIEDRIG';
       default: return 'WARNUNG';
+    }
+  };
+
+  // Liefert ein kurzes Text-Label für den Icon-Typ (kein Emoji).
+  const getIconLabel = () => {
+    switch (crisis.iconType) {
+      case 'warning': return 'WARNUNG';
+      case 'urgent': return 'DRINGEND';
+      default: return 'KRISE';
     }
   };
 
@@ -65,22 +76,21 @@ export function CrisisModal({
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.95)' }}
       onClick={onDismiss}
     >
-      <div
-        className="w-full max-w-5xl max-h-[90vh] mx-4 border-8 flex flex-col overflow-hidden"
+      <PixelFrame
+        variant="alarm"
+        className="w-full max-w-5xl max-h-[90vh] mx-4 flex flex-col overflow-hidden"
         style={{
-          backgroundColor: StoryModeColors.background,
           borderColor: getSeverityColor(),
-          boxShadow: `0 0 60px ${getSeverityColor()}`,
           animation: crisis.severity === 'critical' ? 'pulse 2s ease-in-out infinite' : undefined,
         }}
-        onClick={e => e.stopPropagation()}
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
       >
         {/* HEADER */}
         <div
-          className="px-8 py-6 border-b-8 relative"
+          className="px-8 py-6 border-b-4 relative"
           style={{
             backgroundColor: getSeverityColor(),
-            borderColor: '#000',
+            borderColor: StoryModeColors.border,
           }}
         >
           {/* Deadline Warning */}
@@ -94,7 +104,13 @@ export function CrisisModal({
           )}
 
           <div className="text-center">
-            <div className="text-5xl mb-2">{crisis.iconType === 'warning' ? '⚠️' : crisis.iconType === 'urgent' ? '🔥' : '⚡'}</div>
+            {/* Kein Emoji: Icon-Typ als Text-Label */}
+            <div
+              className="text-xs font-bold mb-2 px-3 py-1 inline-block border"
+              style={{ borderColor: 'rgba(255,255,255,0.4)', color: 'rgba(255,255,255,0.9)' }}
+            >
+              {getIconLabel()}
+            </div>
             <div className="text-xs font-bold mb-1" style={{ color: 'rgba(255,255,255,0.8)' }}>
               KRISEN-MOMENT • {getSeverityLabel()}
             </div>
@@ -113,7 +129,7 @@ export function CrisisModal({
                 color: '#fff',
               }}
             >
-              ✕
+              X
             </button>
           )}
         </div>
@@ -138,8 +154,9 @@ export function CrisisModal({
 
           {/* Choices */}
           <div className="space-y-4">
-            <div className="text-lg font-bold mb-4" style={{ color: StoryModeColors.textPrimary }}>
-              🎯 IHRE ENTSCHEIDUNG
+            <div className="flex items-center gap-2 text-lg font-bold mb-4" style={{ color: StoryModeColors.textPrimary }}>
+              <Icon name="mission" size={16} title="Entscheidung" fallback="Z" />
+              IHRE ENTSCHEIDUNG
             </div>
 
             {crisis.choices.map((choice, index) => {
@@ -163,7 +180,7 @@ export function CrisisModal({
                     className="absolute -left-4 top-6 w-8 h-8 flex items-center justify-center font-bold border-4"
                     style={{
                       backgroundColor: getSeverityColor(),
-                      borderColor: '#000',
+                      borderColor: StoryModeColors.border,
                       color: '#fff',
                       borderRadius: '50%',
                     }}
@@ -185,69 +202,73 @@ export function CrisisModal({
                   <div className="flex flex-wrap gap-3 text-xs">
                     {choice.cost.budget !== undefined && choice.cost.budget > 0 && (
                       <div
-                        className="px-2 py-1 border"
+                        className="flex items-center gap-1 px-2 py-1 border"
                         style={{
                           backgroundColor: currentResources.budget >= choice.cost.budget ? StoryModeColors.background : StoryModeColors.danger,
                           borderColor: StoryModeColors.border,
                           color: currentResources.budget >= choice.cost.budget ? StoryModeColors.warning : '#fff',
                         }}
                       >
-                        💰 ${choice.cost.budget}K
+                        <Icon name="budget" size={12} title="Budget" fallback="$" />
+                        ${choice.cost.budget}K
                       </div>
                     )}
                     {choice.cost.attention !== undefined && choice.cost.attention > 0 && (
                       <div
-                        className="px-2 py-1 border"
+                        className="flex items-center gap-1 px-2 py-1 border"
                         style={{
                           backgroundColor: StoryModeColors.background,
                           borderColor: StoryModeColors.danger,
                           color: StoryModeColors.danger,
                         }}
                       >
-                        👁️ +{choice.cost.attention} Attention
+                        <Icon name="attention" size={12} title="Aufmerksamkeit" fallback="A" />
+                        +{choice.cost.attention} Attention
                       </div>
                     )}
                     {choice.cost.risk !== undefined && choice.cost.risk > 0 && (
                       <div
-                        className="px-2 py-1 border"
+                        className="flex items-center gap-1 px-2 py-1 border"
                         style={{
                           backgroundColor: StoryModeColors.background,
                           borderColor: StoryModeColors.danger,
                           color: StoryModeColors.danger,
                         }}
                       >
-                        ⚠️ +{choice.cost.risk} Risk
+                        <Icon name="risk" size={12} title="Risiko" fallback="R" />
+                        +{choice.cost.risk} Risk
                       </div>
                     )}
                     {isRisky && (
                       <div
-                        className="px-2 py-1 border animate-pulse"
+                        className="px-2 py-1 border animate-pulse font-bold"
                         style={{
                           backgroundColor: StoryModeColors.danger,
-                          borderColor: '#8B0000',
+                          borderColor: StoryModeColors.darkRed,
                           color: '#fff',
                         }}
                       >
-                        🔥 RISKANT
+                        RISKANT
                       </div>
                     )}
                     {choice.requiresNPC && (
                       <div
-                        className="px-2 py-1 border"
+                        className="flex items-center gap-1 px-2 py-1 border"
                         style={{
                           backgroundColor: StoryModeColors.agencyBlue,
                           borderColor: StoryModeColors.darkBlue,
                           color: '#fff',
                         }}
                       >
-                        👤 Benötigt NPC
+                        <Icon name="npcs" size={12} title="NPC" fallback="N" />
+                        Benötigt NPC
                       </div>
                     )}
                   </div>
 
                   {!affordable && (
                     <div className="mt-2 text-xs font-bold" style={{ color: StoryModeColors.danger }}>
-                      ❌ NICHT VERFÜGBAR - Unzureichende Ressourcen
+                      NICHT VERFÜGBAR - Unzureichende Ressourcen
                     </div>
                   )}
                 </button>
@@ -265,7 +286,7 @@ export function CrisisModal({
               }}
             >
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{phasesRemaining <= 2 ? '⏰' : '⏳'}</span>
+                <Icon name="clock" size={20} title="Zeitdruck" fallback="T" />
                 <div className="flex-1">
                   <div className="text-xs font-bold" style={{ color: phasesRemaining <= 2 ? StoryModeColors.danger : StoryModeColors.warning }}>
                     ZEITDRUCK
@@ -278,7 +299,7 @@ export function CrisisModal({
             </div>
           )}
         </div>
-      </div>
+      </PixelFrame>
 
       <style>{`
         @keyframes pulse {

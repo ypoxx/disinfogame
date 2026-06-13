@@ -168,7 +168,7 @@ export class ConsequenceSystem {
       }
     }
 
-    storyLogger.log(`✅ ConsequenceSystem: Loaded ${this.definitions.size} consequences`);
+    storyLogger.log(`ConsequenceSystem: Loaded ${this.definitions.size} consequences`);
   }
 
   // ============================================
@@ -192,7 +192,7 @@ export class ConsequenceSystem {
 
     // BALANCE FIX 2026-01-14: Log when action has potential consequences
     if (triggerIds.length > 0) {
-      storyLogger.log(`🎲 [Consequence] Action "${actionId}" has ${triggerIds.length} potential consequences`);
+      storyLogger.log(`[Consequence] Action "${actionId}" has ${triggerIds.length} potential consequences`);
     }
 
     for (const consequenceId of triggerIds) {
@@ -221,7 +221,7 @@ export class ConsequenceSystem {
       const roll = rng();
 
       // BALANCE FIX 2026-01-14: Debug logging for consequence rolls
-      storyLogger.log(`🎲 [Consequence] Rolling for "${def.label_de}": ${roll.toFixed(3)} < ${probability.toFixed(3)} (base: ${baseProbability}, boost: +${probabilityBoost}) = ${roll < probability ? 'TRIGGERED!' : 'miss'}`);
+      storyLogger.log(`[Consequence] Rolling for "${def.label_de}": ${roll.toFixed(3)} < ${probability.toFixed(3)} (base: ${baseProbability}, boost: +${probabilityBoost}) = ${roll < probability ? 'TRIGGERED!' : 'miss'}`);
 
       if (roll < probability) {
         // Calculate activation phase
@@ -241,7 +241,7 @@ export class ConsequenceSystem {
         this.pendingConsequences.push(pending);
         newPending.push(pending);
 
-        storyLogger.log(`⚠️ Consequence scheduled: ${def.label_de} (activates phase ${pending.activatesAtPhase})`);
+        storyLogger.log(`Consequence scheduled: ${def.label_de} (activates phase ${pending.activatesAtPhase})`);
       }
     }
 
@@ -274,7 +274,7 @@ export class ConsequenceSystem {
           deadline: currentPhase + 2,  // 2 phases to decide
         };
 
-        storyLogger.log(`🚨 Consequence activated: ${def.label_de}`);
+        storyLogger.log(`Consequence activated: ${def.label_de}`);
         return this.activeConsequence;
       }
     }
@@ -330,7 +330,7 @@ export class ConsequenceSystem {
 
     this.pendingConsequences.push(pending);
 
-    storyLogger.log(`🔗 Chain consequence triggered: ${def.label_de} (activates phase ${pending.activatesAtPhase})`);
+    storyLogger.log(`Chain consequence triggered: ${def.label_de} (activates phase ${pending.activatesAtPhase})`);
     return pending;
   }
 
@@ -368,7 +368,7 @@ export class ConsequenceSystem {
     // Clear active
     this.activeConsequence = null;
 
-    storyLogger.log(`✅ Consequence resolved: ${choice.label_de}`);
+    storyLogger.log(`Consequence resolved: ${choice.label_de}`);
     return result;
   }
 
@@ -397,7 +397,7 @@ export class ConsequenceSystem {
     // Clear active
     this.activeConsequence = null;
 
-    storyLogger.log(`❌ Consequence ignored: ${consequence.label_de}`);
+    storyLogger.log(`Consequence ignored: ${consequence.label_de}`);
     return { consequence, effects };
   }
 

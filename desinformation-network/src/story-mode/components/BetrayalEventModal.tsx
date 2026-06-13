@@ -1,5 +1,7 @@
 import { StoryModeColors } from '../theme';
 import type { BetrayalEvent } from '../engine/BetrayalSystem';
+import { PixelFrame } from './PixelFrame';
+import { Icon } from './Icon';
 
 // ============================================
 // TYPES
@@ -22,18 +24,7 @@ export function BetrayalEventModal({
 }: BetrayalEventModalProps) {
   if (!isVisible || !event) return null;
 
-  const getBetrayalTypeIcon = () => {
-    switch (event.type) {
-      case 'whistleblower': return '📢';
-      case 'defection': return '🏃';
-      case 'sabotage': return '💣';
-      case 'evidence_leak': return '📄';
-      case 'testimony': return '⚖️';
-      case 'disappearance': return '👻';
-      default: return '💀';
-    }
-  };
-
+  // Kein Emoji — kurzes Text-Label je Verrats-Typ.
   const getBetrayalTypeLabel = () => {
     switch (event.type) {
       case 'whistleblower': return 'WHISTLEBLOWER';
@@ -48,9 +39,9 @@ export function BetrayalEventModal({
 
   const getSeverityColor = () => {
     switch (event.severity) {
-      case 'catastrophic': return '#8B0000';  // Dark red
+      case 'catastrophic': return StoryModeColors.darkRed;
       case 'major': return StoryModeColors.danger;
-      case 'minor': return '#FF8C00';
+      case 'minor': return StoryModeColors.warning;
       default: return StoryModeColors.danger;
     }
   };
@@ -64,29 +55,35 @@ export function BetrayalEventModal({
     }
   };
 
+  // Liefert ein passendes Effekt-Icon ohne Emoji.
+  const getEffectIconName = (type: string): 'risk' | 'attention' | 'npcs' | 'stats' => {
+    if (type.includes('increase')) return 'risk';
+    if (type.includes('lost')) return 'npcs';
+    return 'stats';
+  };
+
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-[60]"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.95)' }}
     >
-      <div
-        className="w-full max-w-4xl max-h-[90vh] mx-4 border-8 flex flex-col overflow-hidden animate-pulse"
+      <PixelFrame
+        variant="alarm"
+        className="w-full max-w-4xl max-h-[90vh] mx-4 flex flex-col overflow-hidden"
         style={{
-          backgroundColor: StoryModeColors.background,
           borderColor: getSeverityColor(),
-          boxShadow: `0 0 60px ${getSeverityColor()}, inset 0 0 30px rgba(139, 0, 0, 0.3)`,
           animation: 'pulse 1.5s ease-in-out 3',
         }}
       >
         {/* ALERT HEADER */}
         <div
-          className="relative px-8 py-6 border-b-8"
+          className="relative px-8 py-6 border-b-4"
           style={{
             backgroundColor: getSeverityColor(),
-            borderColor: '#000',
+            borderColor: StoryModeColors.border,
           }}
         >
-          {/* Flashing Alert */}
+          {/* Blinkende Warnlampen (CSS-only, kein Emoji) */}
           <div className="absolute top-2 left-2 flex gap-2 animate-pulse">
             <div className="w-3 h-3 rounded-full bg-white" />
             <div className="w-3 h-3 rounded-full bg-white" style={{ animationDelay: '0.5s' }} />
@@ -94,16 +91,26 @@ export function BetrayalEventModal({
           </div>
 
           <div className="text-center">
-            <div className="text-6xl mb-2">{getBetrayalTypeIcon()}</div>
+            {/* Typ-Badge statt Emoji */}
+            <div
+              className="inline-block mb-3 px-4 py-1 text-sm font-bold border-2"
+              style={{ borderColor: 'rgba(255,255,255,0.5)', color: '#fff' }}
+            >
+              {getBetrayalTypeLabel()}
+            </div>
             <h1 className="text-4xl font-bold mb-2 tracking-wider" style={{ color: '#fff', textShadow: '3px 3px 6px rgba(0,0,0,0.8)' }}>
-              ⚠️ SICHERHEITSVERLETZUNG ⚠️
+              SICHERHEITSVERLETZUNG
             </h1>
-            <div className="text-xl font-bold" style={{ color: 'rgba(255,255,255,0.95)' }}>
-              {getBetrayalTypeLabel()} • {getSeverityLabel()}
+            <div className="flex items-center justify-center gap-2">
+              <Icon name="risk" size={16} title="Warnung" fallback="!" />
+              <span className="text-xl font-bold" style={{ color: 'rgba(255,255,255,0.95)' }}>
+                {getBetrayalTypeLabel()} • {getSeverityLabel()}
+              </span>
+              <Icon name="risk" size={16} title="Warnung" fallback="!" />
             </div>
           </div>
 
-          {/* Flashing Alert */}
+          {/* Blinkende Warnlampen rechts */}
           <div className="absolute top-2 right-2 flex gap-2 animate-pulse">
             <div className="w-3 h-3 rounded-full bg-white" />
             <div className="w-3 h-3 rounded-full bg-white" style={{ animationDelay: '0.5s' }} />
@@ -117,7 +124,7 @@ export function BetrayalEventModal({
           <div
             className="mb-6 p-4 border-4 text-center"
             style={{
-              backgroundColor: '#000',
+              backgroundColor: StoryModeColors.background,
               borderColor: getSeverityColor(),
             }}
           >
@@ -159,8 +166,9 @@ export function BetrayalEventModal({
               borderColor: getSeverityColor(),
             }}
           >
-            <div className="text-sm font-bold mb-3" style={{ color: getSeverityColor() }}>
-              ⚠️ UNMITTELBARE KONSEQUENZEN
+            <div className="flex items-center gap-2 text-sm font-bold mb-3" style={{ color: getSeverityColor() }}>
+              <Icon name="risk" size={14} title="Konsequenzen" fallback="!" />
+              UNMITTELBARE KONSEQUENZEN
             </div>
             <div className="text-base mb-4" style={{ color: StoryModeColors.textPrimary }}>
               {event.consequence_de}
@@ -177,7 +185,7 @@ export function BetrayalEventModal({
                     borderColor: StoryModeColors.border,
                   }}
                 >
-                  <div className="text-2xl">{effect.type.includes('increase') ? '📈' : effect.type.includes('lost') ? '👤' : '🔓'}</div>
+                  <Icon name={getEffectIconName(effect.type)} size={20} title={effect.type} fallback="!" />
                   <div className="flex-1">
                     <div className="text-sm font-bold mb-1" style={{ color: StoryModeColors.danger }}>
                       {effect.description_de}
@@ -193,7 +201,7 @@ export function BetrayalEventModal({
             </div>
           </div>
 
-          {/* Warning Box */}
+          {/* Warning Box — nur bei katastrophalem Verrat */}
           {event.severity === 'catastrophic' && (
             <div
               className="p-4 border-4 text-center animate-pulse"
@@ -202,7 +210,9 @@ export function BetrayalEventModal({
                 borderColor: getSeverityColor(),
               }}
             >
-              <div className="text-2xl mb-2">💀</div>
+              <div className="flex justify-center mb-2">
+                <Icon name="moral" size={28} title="Kritisch" fallback="KR" />
+              </div>
               <div className="text-lg font-bold" style={{ color: getSeverityColor() }}>
                 KRITISCHER SCHADEN AN DER OPERATION
               </div>
@@ -215,7 +225,7 @@ export function BetrayalEventModal({
 
         {/* ACKNOWLEDGE BUTTON */}
         <div
-          className="p-6 border-t-8 flex justify-center"
+          className="p-6 border-t-4 flex justify-center"
           style={{
             backgroundColor: StoryModeColors.darkConcrete,
             borderColor: getSeverityColor(),
@@ -226,15 +236,15 @@ export function BetrayalEventModal({
             className="px-12 py-4 font-bold text-xl border-4 hover:brightness-90 transition active:translate-y-1"
             style={{
               backgroundColor: getSeverityColor(),
-              borderColor: '#000',
+              borderColor: StoryModeColors.border,
               color: '#fff',
-              boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
             }}
           >
             VERSTANDEN • FORTFAHREN
           </button>
         </div>
-      </div>
+      </PixelFrame>
 
       <style>{`
         @keyframes pulse {

@@ -21,7 +21,7 @@ export interface SpriteRender {
  * Animiert ein Sheet. `sheet` darf null sein (Asset fehlt) — dann kommt null
  * zurück und der Aufrufer rendert seinen Fallback (z. B. Emoji).
  * `frameTimeMsOverride` koppelt die Abspielgeschwindigkeit an die Bewegung
- * (Godot-speed_scale-Prinzip): Laufgeschwindigkeit ↔ Schrittweite bleiben
+ * (Godot-speed_scale-Prinzip): Laufgeschwindigkeit Schrittweite bleiben
  * synchron, kein „Foot Sliding".
  */
 export function useSprite(

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { StoryModeColors } from '../theme';
+import { Icon } from './Icon';
+import { PixelFrame } from './PixelFrame';
 import type { NPCState } from '../../game-logic/StoryEngineAdapter';
 
 interface NpcPanelProps {
@@ -21,16 +23,7 @@ export function NpcPanel({
 
   if (!isVisible) return null;
 
-  const getRelationshipIcon = (level: number) => {
-    switch (level) {
-      case 0: return '😐';
-      case 1: return '🤝';
-      case 2: return '🙂';
-      case 3: return '😊';
-      default: return '❓';
-    }
-  };
-
+  // Beziehungs-Icon entfällt; stattdessen gefärbter Text-Label (keine Emojis).
   const getRelationshipLabel = (level: number) => {
     switch (level) {
       case 0: return 'Neutral';
@@ -69,6 +62,35 @@ export function NpcPanel({
       case 'upset': return 'Aufgebracht';
       default: return 'Unbekannt';
     }
+  };
+
+  // Kleiner farbiger Punkt für Morale-Zustand (kein Emoji).
+  const getMoraleDot = (morale: number) => {
+    const color =
+      morale >= 70 ? StoryModeColors.success :
+      morale >= 50 ? StoryModeColors.agencyBlue :
+      morale >= 30 ? StoryModeColors.warning :
+      StoryModeColors.danger;
+    const label =
+      morale >= 70 ? 'Stabil' :
+      morale >= 50 ? 'Neutral' :
+      morale >= 30 ? 'Besorgt' :
+      'KRISE';
+    return (
+      <span className="inline-flex items-center gap-1">
+        <span
+          style={{
+            display: 'inline-block',
+            width: 8,
+            height: 8,
+            borderRadius: 0,
+            backgroundColor: color,
+            flexShrink: 0,
+          }}
+        />
+        <span style={{ color }}>{label}</span>
+      </span>
+    );
   };
 
   const handleNpcClick = (npc: NPCState) => {
@@ -111,16 +133,24 @@ export function NpcPanel({
           >
             <div className="flex items-center gap-3">
               {/* Avatar */}
-              <div
-                className="w-12 h-12 flex items-center justify-center border-2 text-xl font-bold"
+              <PixelFrame
+                variant="standard"
                 style={{
+                  width: 48,
+                  height: 48,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: `2px solid ${getRelationshipColor(npc.relationshipLevel)}`,
                   backgroundColor: StoryModeColors.background,
-                  borderColor: getRelationshipColor(npc.relationshipLevel),
+                  fontWeight: 'bold',
+                  fontSize: '1.25rem',
                   color: StoryModeColors.textPrimary,
+                  flexShrink: 0,
                 }}
               >
                 {npc.name.charAt(0)}
-              </div>
+              </PixelFrame>
 
               {/* Info */}
               <div className="flex-1">
@@ -131,7 +161,12 @@ export function NpcPanel({
                   >
                     {npc.name}
                   </span>
-                  <span>{getRelationshipIcon(npc.relationshipLevel)}</span>
+                  <span
+                    className="text-xs font-bold"
+                    style={{ color: getRelationshipColor(npc.relationshipLevel) }}
+                  >
+                    {getRelationshipLabel(npc.relationshipLevel)}
+                  </span>
                 </div>
                 <div
                   className="text-xs"
@@ -191,16 +226,24 @@ export function NpcPanel({
         <div className="space-y-4">
           {/* Header */}
           <div className="text-center mb-6">
-            <div
-              className="w-20 h-20 mx-auto flex items-center justify-center border-4 text-3xl font-bold mb-3"
+            <PixelFrame
+              variant="standard"
               style={{
+                width: 80,
+                height: 80,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 12px',
+                border: `3px solid ${getRelationshipColor(selectedNpc.relationshipLevel)}`,
                 backgroundColor: StoryModeColors.background,
-                borderColor: getRelationshipColor(selectedNpc.relationshipLevel),
+                fontWeight: 'bold',
+                fontSize: '1.875rem',
                 color: StoryModeColors.textPrimary,
               }}
             >
               {selectedNpc.name.charAt(0)}
-            </div>
+            </PixelFrame>
             <h3
               className="font-bold text-xl"
               style={{ color: StoryModeColors.textPrimary }}
@@ -213,11 +256,11 @@ export function NpcPanel({
           </div>
 
           {/* Status */}
-          <div
-            className="border-2 p-4"
+          <PixelFrame
+            variant="standard"
             style={{
+              padding: 16,
               backgroundColor: StoryModeColors.background,
-              borderColor: StoryModeColors.border,
             }}
           >
             <h4
@@ -261,13 +304,14 @@ export function NpcPanel({
               {selectedNpc.inCrisis && (
                 <div className="col-span-2">
                   <span
-                    className="px-2 py-1 text-xs font-bold"
+                    className="px-2 py-1 text-xs font-bold inline-flex items-center gap-1"
                     style={{
                       backgroundColor: StoryModeColors.ministryRed,
                       color: '#fff',
                     }}
                   >
-                    ⚠️ IN KRISE - GESPRACH NOTIG!
+                    <Icon name="risk" size={12} title="Risiko" />
+                    IN KRISE - GESPRACH NOTIG!
                   </span>
                 </div>
               )}
@@ -282,24 +326,9 @@ export function NpcPanel({
                 >
                   Morale
                 </span>
-                <span
-                  className="text-xs font-bold"
-                  style={{
-                    color: selectedNpc.morale >= 70
-                      ? StoryModeColors.success
-                      : selectedNpc.morale >= 50
-                      ? StoryModeColors.agencyBlue
-                      : selectedNpc.morale >= 30
-                      ? StoryModeColors.warning
-                      : StoryModeColors.danger
-                  }}
-                >
-                  {selectedNpc.morale}/100 {
-                    selectedNpc.morale >= 70 ? '💚 Stabil' :
-                    selectedNpc.morale >= 50 ? '🟡 Neutral' :
-                    selectedNpc.morale >= 30 ? '🟠 Besorgt' :
-                    '🔴 KRISE'
-                  }
+                <span className="text-xs font-bold">
+                  {selectedNpc.morale}/100{' '}
+                  {getMoraleDot(selectedNpc.morale)}
                 </span>
               </div>
               <div
@@ -332,14 +361,14 @@ export function NpcPanel({
                 )}
               </div>
             </div>
-          </div>
+          </PixelFrame>
 
           {/* Relationship Progress */}
-          <div
-            className="border-2 p-4"
+          <PixelFrame
+            variant="standard"
             style={{
+              padding: 16,
               backgroundColor: StoryModeColors.background,
-              borderColor: StoryModeColors.border,
             }}
           >
             <h4
@@ -381,15 +410,16 @@ export function NpcPanel({
                 <>Maximales Level erreicht!</>
               )}
             </div>
-          </div>
+          </PixelFrame>
 
           {/* Specialty Areas */}
           {selectedNpc.specialtyAreas && selectedNpc.specialtyAreas.length > 0 && (
-            <div
-              className="border-2 p-4"
+            <PixelFrame
+              variant="standard"
               style={{
+                padding: 16,
                 backgroundColor: StoryModeColors.background,
-                borderColor: StoryModeColors.agencyBlue,
+                border: `2px solid ${StoryModeColors.agencyBlue}`,
               }}
             >
               <h4
@@ -413,7 +443,7 @@ export function NpcPanel({
                   </span>
                 ))}
               </div>
-            </div>
+            </PixelFrame>
           )}
 
           {/* Actions */}
@@ -429,7 +459,6 @@ export function NpcPanel({
                 ? StoryModeColors.darkRed
                 : StoryModeColors.border,
               color: selectedNpc.available ? '#fff' : StoryModeColors.textMuted,
-              boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
             }}
           >
             {selectedNpc.available ? 'INTERAGIEREN' : 'NICHT VERFUGBAR'}
@@ -441,7 +470,9 @@ export function NpcPanel({
           style={{ color: StoryModeColors.textMuted }}
         >
           <div>
-            <div className="text-4xl mb-4">👤</div>
+            <div className="mb-4 flex justify-center">
+              <Icon name="npcs" size={40} title="Kontakte" fallback="NPC" />
+            </div>
             <p>Wahlen Sie einen Kontakt aus der Liste</p>
           </div>
         </div>
@@ -460,7 +491,7 @@ export function NpcPanel({
             borderColor: StoryModeColors.border,
           }}
         >
-          <span>📞</span>
+          <Icon name="npcs" size={16} title="Kontakte" />
           <h2 className="font-bold text-sm" style={{ color: StoryModeColors.background }}>
             KONTAKTE & NETZWERK
           </h2>
@@ -488,61 +519,66 @@ export function NpcPanel({
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
       onClick={onClose}
     >
-      <div
-        className="w-full max-w-4xl max-h-[85vh] mx-4 border-4 flex flex-col"
+      <PixelFrame
+        variant="standard"
+        className="w-full max-w-4xl max-h-[85vh] mx-4 flex flex-col"
         style={{
+          border: `4px solid ${StoryModeColors.warning}`,
           backgroundColor: StoryModeColors.surface,
-          borderColor: StoryModeColors.warning,
-          boxShadow: '12px 12px 0px 0px rgba(0,0,0,0.9)',
         }}
-        onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
+        {/* Stoppt Klick-Propagation zum Overlay */}
         <div
-          className="px-6 py-4 border-b-4 flex justify-between items-center"
-          style={{
-            backgroundColor: StoryModeColors.warning,
-            borderColor: StoryModeColors.border,
-          }}
+          className="flex flex-col max-h-[85vh] overflow-hidden"
+          onClick={e => e.stopPropagation()}
         >
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">📞</span>
-            <h2 className="font-bold text-xl" style={{ color: StoryModeColors.background }}>
-              KONTAKTE & NETZWERK
-            </h2>
+          {/* Header */}
+          <div
+            className="px-6 py-4 border-b-4 flex justify-between items-center"
+            style={{
+              backgroundColor: StoryModeColors.warning,
+              borderColor: StoryModeColors.border,
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <Icon name="npcs" size={24} title="Kontakte" />
+              <h2 className="font-bold text-xl" style={{ color: StoryModeColors.background }}>
+                KONTAKTE & NETZWERK
+              </h2>
+            </div>
+            <button
+              onClick={onClose}
+              className="px-4 py-1 font-bold border-2 transition-all hover:brightness-110"
+              style={{
+                backgroundColor: StoryModeColors.darkConcrete,
+                borderColor: StoryModeColors.border,
+                color: StoryModeColors.textPrimary,
+              }}
+            >
+              SCHLIESSEN [ESC]
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="px-4 py-1 font-bold border-2 transition-all hover:brightness-110"
+
+          {/* Content - side by side */}
+          <div className="flex-1 flex overflow-hidden">
+            {npcList}
+            {npcDetails}
+          </div>
+
+          {/* Footer */}
+          <div
+            className="px-6 py-3 border-t-4 text-xs flex justify-between"
             style={{
               backgroundColor: StoryModeColors.darkConcrete,
               borderColor: StoryModeColors.border,
-              color: StoryModeColors.textPrimary,
+              color: StoryModeColors.textMuted,
             }}
           >
-            SCHLIESSEN [ESC]
-          </button>
+            <span>{npcs.length} Kontakte verfugbar</span>
+            <span>{npcs.filter(n => n.relationshipLevel >= 2).length} vertraut</span>
+          </div>
         </div>
-
-        {/* Content - side by side */}
-        <div className="flex-1 flex overflow-hidden">
-          {npcList}
-          {npcDetails}
-        </div>
-
-        {/* Footer */}
-        <div
-          className="px-6 py-3 border-t-4 text-xs flex justify-between"
-          style={{
-            backgroundColor: StoryModeColors.darkConcrete,
-            borderColor: StoryModeColors.border,
-            color: StoryModeColors.textMuted,
-          }}
-        >
-          <span>{npcs.length} Kontakte verfugbar</span>
-          <span>{npcs.filter(n => n.relationshipLevel >= 2).length} vertraut</span>
-        </div>
-      </div>
+      </PixelFrame>
     </div>
   );
 }

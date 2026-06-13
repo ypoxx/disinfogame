@@ -1,5 +1,6 @@
 import { StoryModeColors } from '../theme';
 import { usePanelStore } from '../stores/panelStore';
+import { Icon, type IconName } from './Icon';
 
 // E29: Keyframe für pulsierendes RISIKO bei ≥70 — einmalig injiziert.
 const HUD_PULSE_STYLE = `
@@ -52,7 +53,7 @@ interface StoryHUDProps {
 // ============================================
 
 interface ResourceBarProps {
-  icon: string;
+  icon: IconName;
   label: string;
   value: number;
   maxValue?: number;
@@ -114,7 +115,7 @@ function ResourceBar({
       className="flex items-center gap-2"
       style={isSecondary ? { opacity: 0.75 } : undefined}
     >
-      <span className={isPrimary ? 'text-xl' : 'text-lg'}>{icon}</span>
+      <Icon name={icon} size={isPrimary ? 20 : 16} title={label} fallback={label[0]} />
       <div className="flex-1" style={pulseStyle}>
         <div className="flex justify-between mb-0.5" style={{ fontSize: isPrimary ? '0.8rem' : '0.7rem' }}>
           <span
@@ -243,11 +244,11 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
       style={{
         backgroundColor: StoryModeColors.surfaceLight,
         borderColor: StoryModeColors.border,
-        boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.5)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
       }}
     >
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-sm">🎯</span>
+        <Icon name="mission" size={14} title="Aktuelles Ziel" fallback="Z" />
         <span
           className="text-xs font-bold uppercase"
           style={{ color: StoryModeColors.textSecondary }}
@@ -290,21 +291,22 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
 function ViewToggleButton() {
   const { viewMode, toggleViewMode } = usePanelStore();
   // Zeigt das JEWEILS NÄCHSTE Ziel des V-Zyklus (Gebäude → Büro → Dashboard → …).
-  const nextLabel =
-    viewMode === 'building' ? '🗂️ BÜRO' : viewMode === 'office' ? '📊 DASHBOARD' : '🏢 GEBÄUDE';
+  const nextIcon: IconName = viewMode === 'building' ? 'office' : viewMode === 'office' ? 'dashboard' : 'building';
+  const nextText = viewMode === 'building' ? 'BÜRO' : viewMode === 'office' ? 'DASHBOARD' : 'GEBÄUDE';
   return (
     <button
       onClick={toggleViewMode}
-      className="px-3 py-1.5 border-2 font-bold text-sm transition-all hover:brightness-110 active:translate-y-0.5"
+      className="flex items-center gap-1.5 px-3 py-1.5 border-2 font-bold text-sm transition-all hover:brightness-110 active:translate-y-0.5"
       style={{
         backgroundColor: viewMode === 'dashboard' ? StoryModeColors.agencyBlue : StoryModeColors.concrete,
         borderColor: viewMode === 'dashboard' ? StoryModeColors.darkBlue : StoryModeColors.borderLight,
         color: viewMode === 'dashboard' ? '#fff' : StoryModeColors.textPrimary,
-        boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
       }}
       title="Ansicht wechseln [V]"
     >
-      {nextLabel}
+      <Icon name={nextIcon} size={14} title={nextText} fallback={nextText[0]} />
+      {nextText}
     </button>
   );
 }
@@ -341,7 +343,7 @@ export function StoryHUD({
           {/* Center: Resources */}
           <div className="flex items-center gap-6">
             <ResourceBar
-              icon="💰"
+              icon="budget"
               label="BUDGET"
               value={resources.budget}
               format="currency"
@@ -351,7 +353,7 @@ export function StoryHUD({
             />
             {/* E29: KAPAZITÄT primär — zentrale Spielressource */}
             <ResourceBar
-              icon="⚡"
+              icon="capacity"
               label="KAPAZITÄT"
               value={resources.capacity}
               maxValue={100}
@@ -360,7 +362,7 @@ export function StoryHUD({
             />
             {/* E29: RISIKO primär — kritischster Indikator, pulsiert bei ≥70 */}
             <ResourceBar
-              icon="⚠️"
+              icon="risk"
               label="RISIKO"
               value={resources.risk}
               format="percent"
@@ -370,7 +372,7 @@ export function StoryHUD({
               priority="primary"
             />
             <ResourceBar
-              icon="👁️"
+              icon="attention"
               label="AUFMERKSAMKEIT"
               value={resources.attention}
               format="percent"
@@ -380,7 +382,7 @@ export function StoryHUD({
             />
             {/* E29: MORALISCHE LAST sekundär — ethischer Indikator, weniger sofort-kritisch */}
             <ResourceBar
-              icon="💀"
+              icon="moral"
               label="MORALISCHE LAST"
               value={resources.moralWeight}
               format="number"
@@ -402,7 +404,7 @@ export function StoryHUD({
                   backgroundColor: StoryModeColors.concrete,
                   borderColor: StoryModeColors.borderLight,
                   color: StoryModeColors.textPrimary,
-                  boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
                 }}
               >
                 ☰ MENÜ
@@ -416,7 +418,7 @@ export function StoryHUD({
                   backgroundColor: StoryModeColors.ministryRed,
                   borderColor: StoryModeColors.darkRed,
                   color: '#fff',
-                  boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
                 }}
               >
                 PHASE BEENDEN →

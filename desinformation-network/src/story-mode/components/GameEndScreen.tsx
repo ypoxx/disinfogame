@@ -50,28 +50,28 @@ const ENDING_CONFIGS: Record<EndingType, {
   showMoralReflection: boolean;
 }> = {
   victory: {
-    icon: '🎖️',
+    icon: '',
     color: StoryModeColors.militaryOlive,
     borderColor: StoryModeColors.darkOlive,
     accentColor: StoryModeColors.warning,
     showMoralReflection: true,
   },
   defeat: {
-    icon: '💀',
+    icon: '✕',
     color: StoryModeColors.danger,
     borderColor: '#8B0000',
     accentColor: '#fff',
     showMoralReflection: false,
   },
   escape: {
-    icon: '🏃',
+    icon: '→',
     color: StoryModeColors.agencyBlue,
     borderColor: StoryModeColors.darkBlue,
     accentColor: StoryModeColors.warning,
     showMoralReflection: true,
   },
   moral_redemption: {
-    icon: '🕊️',
+    icon: '',
     color: StoryModeColors.document,
     borderColor: StoryModeColors.oldPaper,
     accentColor: StoryModeColors.background,
@@ -207,7 +207,7 @@ export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenP
         style={{
           backgroundColor: StoryModeColors.surface,
           borderColor: config.color,
-          boxShadow: '16px 16px 0px 0px rgba(0,0,0,0.9)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
         }}
       >
         {/* Header */}
@@ -290,7 +290,7 @@ export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenP
                 color: StoryModeColors.warning,
               }}
             >
-              {showEducation ? '▼ LERNEFFEKT VERBERGEN' : '▶ LERNEFFEKT ANZEIGEN'}
+              {showEducation ? '▼ LERNEFFEKT VERBERGEN' : 'LERNEFFEKT ANZEIGEN'}
             </button>
 
             {showEducation && (
@@ -319,7 +319,7 @@ export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenP
                   color: StoryModeColors.warning,
                 }}
               >
-                {showTrustChart ? '▼ VERTRAUENSANALYSE VERBERGEN' : '▶ VERTRAUENSANALYSE ANZEIGEN'}
+                {showTrustChart ? '▼ VERTRAUENSANALYSE VERBERGEN' : 'VERTRAUENSANALYSE ANZEIGEN'}
               </button>
 
               {showTrustChart && endData.trustHistory && endData.actors && (
@@ -349,7 +349,7 @@ export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenP
                 backgroundColor: StoryModeColors.ministryRed,
                 borderColor: StoryModeColors.darkRed,
                 color: '#fff',
-                boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
               }}
             >
               NOCHMAL SPIELEN
@@ -361,7 +361,7 @@ export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenP
                 backgroundColor: StoryModeColors.concrete,
                 borderColor: StoryModeColors.borderLight,
                 color: StoryModeColors.textPrimary,
-                boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
               }}
             >
               HAUPTMENÜ

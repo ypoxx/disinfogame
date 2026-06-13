@@ -1,5 +1,6 @@
 import { StoryModeColors } from '../theme';
 import { useDayClockStore, clockLabel, isAfterWarn } from '../stores/dayClockStore';
+import { Icon } from './Icon';
 
 // ============================================
 // DAY CLOCK (K1) — kleine HUD-Uhr im Pixel/Brutalist-Stil
@@ -41,12 +42,12 @@ export function DayClock() {
           backgroundColor: StoryModeColors.darkConcrete,
           borderColor: StoryModeColors.border,
           color,
-          boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
           ...pulse,
         }}
         title="Arbeitstag 09:00–18:00 — Handlungen kosten Zeit"
       >
-        <span className="text-base">🕘</span>
+        <Icon name="clock" size={16} title="Uhr" fallback="[T]" />
         <span className="text-sm tracking-wider">
           {dayEnded ? 'FEIERABEND' : clockLabel(minutes)}
         </span>

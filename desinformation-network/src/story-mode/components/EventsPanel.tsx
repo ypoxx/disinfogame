@@ -1,4 +1,6 @@
 import { StoryModeColors } from '../theme';
+import { Icon } from './Icon';
+import { PixelFrame } from './PixelFrame';
 import type { NewsEvent } from '../../game-logic/StoryEngineAdapter';
 
 interface EventsPanelProps {
@@ -36,15 +38,10 @@ export function EventsPanel({
     return 'other';
   };
 
-  const getCategoryIcon = (category: string): string => {
+  const getCategoryIconEl = (category: string): JSX.Element => {
     switch (category) {
-      case 'political': return '🏛️';
-      case 'media': return '📺';
-      case 'economic': return '📉';
-      case 'security': return '🔒';
-      case 'social': return '✊';
-      case 'diplomatic': return '🌐';
-      default: return '🌍';
+      case 'media': return <Icon name="broadcast" size={16} title="Medien" fallback="TV" />;
+      default: return <Icon name="events" size={16} title="Ereignis" fallback="E" />;
     }
   };
 
@@ -98,7 +95,9 @@ export function EventsPanel({
           className="text-center py-12"
           style={{ color: StoryModeColors.textMuted }}
         >
-          <div className="text-4xl mb-4">🌐</div>
+          <div className="mb-4 flex justify-center">
+            <Icon name="events" size={40} title="Keine Ereignisse" fallback="E" />
+          </div>
           <div className="font-bold mb-2">Keine Weltereignisse</div>
           <div className="text-sm">
             Die Welt ist ruhig... vorerst.
@@ -113,7 +112,7 @@ export function EventsPanel({
                 className="flex items-center gap-2 mb-3 pb-2 border-b-2"
                 style={{ borderColor: StoryModeColors.border }}
               >
-                <span className="text-lg">{getCategoryIcon(category)}</span>
+                {getCategoryIconEl(category)}
                 <span
                   className="font-bold text-sm tracking-wider"
                   style={{ color: StoryModeColors.textSecondary }}
@@ -210,7 +209,7 @@ export function EventsPanel({
             borderColor: StoryModeColors.border,
           }}
         >
-          <span>🌍</span>
+          <Icon name="events" size={16} title="Welt-Ereignisse" fallback="E" />
           <h2 className="font-bold text-sm" style={{ color: StoryModeColors.warning }}>
             WELT-EREIGNISSE
           </h2>
@@ -233,68 +232,71 @@ export function EventsPanel({
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
       onClick={onClose}
     >
-      <div
-        className="w-full max-w-3xl max-h-[85vh] mx-4 border-4 flex flex-col"
+      <PixelFrame
+        variant="standard"
+        className="w-full max-w-3xl max-h-[85vh] mx-4 flex flex-col"
         style={{
-          backgroundColor: StoryModeColors.surface,
-          borderColor: StoryModeColors.militaryOlive,
-          boxShadow: '12px 12px 0px 0px rgba(0,0,0,0.9)',
+          border: `3px solid ${StoryModeColors.militaryOlive}`,
         }}
-        onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
         <div
-          className="px-6 py-4 border-b-4 flex justify-between items-center"
-          style={{
-            backgroundColor: StoryModeColors.militaryOlive,
-            borderColor: StoryModeColors.border,
-          }}
+          className="flex flex-col max-h-[85vh] overflow-hidden"
+          onClick={e => e.stopPropagation()}
         >
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🌍</span>
-            <div>
-              <h2 className="font-bold text-xl" style={{ color: StoryModeColors.warning }}>
-                WELT-EREIGNISSE
-              </h2>
-              <span className="text-xs" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                Phase {currentPhase} - Externe Faktoren
-              </span>
+          {/* Header */}
+          <div
+            className="px-6 py-4 border-b-4 flex justify-between items-center"
+            style={{
+              backgroundColor: StoryModeColors.militaryOlive,
+              borderColor: StoryModeColors.border,
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <Icon name="events" size={24} title="Welt-Ereignisse" fallback="E" />
+              <div>
+                <h2 className="font-bold text-xl" style={{ color: StoryModeColors.warning }}>
+                  WELT-EREIGNISSE
+                </h2>
+                <span className="text-xs" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                  Phase {currentPhase} - Externe Faktoren
+                </span>
+              </div>
             </div>
+            <button
+              onClick={onClose}
+              className="px-4 py-1 font-bold border-2 transition-all hover:brightness-110"
+              style={{
+                backgroundColor: StoryModeColors.darkConcrete,
+                borderColor: StoryModeColors.border,
+                color: StoryModeColors.textPrimary,
+              }}
+            >
+              SCHLIESSEN [ESC]
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="px-4 py-1 font-bold border-2 transition-all hover:brightness-110"
+
+          {content}
+
+          {/* Footer */}
+          <div
+            className="px-6 py-3 border-t-4 flex justify-between items-center"
             style={{
               backgroundColor: StoryModeColors.darkConcrete,
               borderColor: StoryModeColors.border,
-              color: StoryModeColors.textPrimary,
             }}
           >
-            SCHLIESSEN [ESC]
-          </button>
-        </div>
-
-        {content}
-
-        {/* Footer */}
-        <div
-          className="px-6 py-3 border-t-4 flex justify-between items-center"
-          style={{
-            backgroundColor: StoryModeColors.darkConcrete,
-            borderColor: StoryModeColors.border,
-          }}
-        >
-          <div className="text-xs" style={{ color: StoryModeColors.textMuted }}>
-            {events.length} Ereignis{events.length !== 1 ? 'se' : ''} insgesamt
-          </div>
-          <div className="flex gap-4 text-xs">
-            <span style={{ color: StoryModeColors.success }}>● Vorteil</span>
-            <span style={{ color: StoryModeColors.warning }}>● Warnung</span>
-            <span style={{ color: StoryModeColors.danger }}>● Gefahr</span>
-            <span style={{ color: StoryModeColors.agencyBlue }}>● Info</span>
+            <div className="text-xs" style={{ color: StoryModeColors.textMuted }}>
+              {events.length} Ereignis{events.length !== 1 ? 'se' : ''} insgesamt
+            </div>
+            <div className="flex gap-4 text-xs">
+              <span style={{ color: StoryModeColors.success }}>● Vorteil</span>
+              <span style={{ color: StoryModeColors.warning }}>● Warnung</span>
+              <span style={{ color: StoryModeColors.danger }}>● Gefahr</span>
+              <span style={{ color: StoryModeColors.agencyBlue }}>● Info</span>
+            </div>
           </div>
         </div>
-      </div>
+      </PixelFrame>
     </div>
   );
 }

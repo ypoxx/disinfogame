@@ -97,8 +97,7 @@ export function AdvisorPanel({
           style={{ color: StoryModeColors.warning }}
           title="Berater öffnen"
         >
-          ◀
-        </button>
+                  </button>
 
         {/* Mini NPC indicators */}
         {npcs.filter(npc => npc.available).map(npc => {
@@ -165,8 +164,7 @@ export function AdvisorPanel({
             style={{ color: StoryModeColors.warning }}
             title="Einklappen"
           >
-            ▶
-          </button>
+                      </button>
         )}
       </div>
 

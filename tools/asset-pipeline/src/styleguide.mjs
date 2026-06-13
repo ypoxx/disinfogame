@@ -21,16 +21,22 @@ export function loadPalette(styleGuidePath = STYLE_GUIDE_MD) {
   }
 }
 
-/** Englischer Stil-Kern, der jedem Bild-Prompt vorangestellt wird. */
-export function styleCore(styleGuidePath = STYLE_GUIDE_MD) {
-  const palette = loadPalette(styleGuidePath).join(', ');
+/** Englischer Stil-Kern (v2 — modern 2026 statt 70er-Klischee, E16/E17).
+ * Enthält bewusst die Marker „16-bit pixel art" und „brutalist" (Stil-Lock +
+ * Pipeline-Tests). Feine Pixel statt grob; kühl-cleaner Neutral-Kern + dosierte
+ * Akzente; Zonen-Licht kommt je Shot aus dem konkreten Prompt. */
+export function styleCore() {
   return (
-    '16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic ' +
-    '(1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, ' +
-    'bureaucratic claustrophobic atmosphere. Hard geometric edges. ' +
-    `Muted color palette (${palette}); dark-red accents only for important elements. ` +
-    'No modern clean design, no saturated candy colors, no pastel tones. ' +
-    'Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, ' +
-    'no real flags, no state emblems or insignia of any actual country, no readable text.'
+    'Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution ' +
+    'pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. ' +
+    'Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with ' +
+    'restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, ' +
+    'NOT 1970s brown, NOT dark and empty. ' +
+    'Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, ' +
+    '#9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and ' +
+    'soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, ' +
+    'no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, ' +
+    'no hammer and sickle, no real flags, no state emblems or insignia of any actual country, ' +
+    'no readable text.'
   );
 }

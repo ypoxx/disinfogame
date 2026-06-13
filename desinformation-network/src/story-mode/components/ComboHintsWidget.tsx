@@ -1,4 +1,5 @@
 import { StoryModeColors } from '../theme';
+import { Icon } from './Icon';
 import type { ComboHint } from '../engine/StoryComboSystem';
 
 // ============================================
@@ -28,7 +29,7 @@ export function ComboHintsWidget({ hints }: ComboHintsWidgetProps) {
     >
       {/* Header */}
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-lg">🎯</span>
+        <Icon name="mission" size={18} title="Aktive Kombinationen" />
         <div className="flex-1">
           <div className="text-sm font-bold" style={{ color: StoryModeColors.agencyBlue }}>
             AKTIVE KOMBINATIONEN
@@ -77,7 +78,7 @@ export function ComboHintsWidget({ hints }: ComboHintsWidgetProps) {
             {/* Next Action Hint */}
             {hint.nextAction_de && (
               <div className="text-xs mb-1" style={{ color: StoryModeColors.textSecondary }}>
-                💡 Nächster Schritt: <span style={{ color: StoryModeColors.textPrimary }}>{hint.nextAction_de}</span>
+                Tipp: Nächster Schritt: <span style={{ color: StoryModeColors.textPrimary }}>{hint.nextAction_de}</span>
               </div>
             )}
 
@@ -87,7 +88,7 @@ export function ComboHintsWidget({ hints }: ComboHintsWidgetProps) {
                 className="text-xs flex items-center gap-1"
                 style={{ color: hint.expiresIn <= 1 ? StoryModeColors.danger : StoryModeColors.warning }}
               >
-                ⚠️ Läuft in {hint.expiresIn} {hint.expiresIn === 1 ? 'Phase' : 'Phasen'} ab
+                <Icon name="risk" size={14} title="Warnung" /> Läuft in {hint.expiresIn} {hint.expiresIn === 1 ? 'Phase' : 'Phasen'} ab
               </div>
             )}
           </div>

@@ -3,7 +3,7 @@
  *
  * Bildet ab, wie eine ausgespielte Desinformations-Maßnahme („Effekt") beim Publikum wirkt:
  *   - Resonanz  = Treffer zwischen Effekt-Themen und den Vulnerabilitäten eines Segments.
- *   - Kanal     = ob der Effekt das Segment überhaupt erreicht (tv/print/social ↔ reachedBy).
+ *   - Kanal     = ob der Effekt das Segment überhaupt erreicht (tv/print/social reachedBy).
  *   - Wirkung   = Resonanz × Intensität → Glaubens-/Stimmungs-Verschiebung + Reichweite (Quote).
  *
  * Bewusst LESBAR/deterministisch gehalten (Bildungs-/Inokulations-Zweck): gleiche Eingabe → gleiche

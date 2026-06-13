@@ -35,25 +35,27 @@ export const INTRO_VOICE_LINE = {
 
 // Englische Bild-Beschreibungen je Raum/NPC (Inhalts-Hinweise aus dem Style-Guide
 // bzw. BUILDING_CONCEPT.md; Räume/NPCs ohne Eintrag bekommen einen generischen Text).
+// v2 (modern 2026): jede Zeile endet mit dem Zonen-Licht (E16). CRT→Flachbild,
+// Sowjet-Möbel→moderne, gepflegte Einrichtung; bewusst NICHT 70er-braun.
 const ROOM_HINTS = {
   analyse:
-    'audience research room: a one-way mirror window showing a focus group of modern western citizens sitting in a bright room beyond, on this side a dark observation space with clipboards, a tape recorder, monitors showing demographic charts, two office chairs',
+    'audience research / focus-group observation room: a large one-way mirror window showing a focus group of modern western citizens in a bright room beyond, on this side a clean observation desk with tablets, slim monitors showing demographic charts, ergonomic chairs. Zone lighting: clean, cool, fairly bright',
   newsroom:
-    'social media monitoring newsroom: a wall of mounted CRT monitors showing scrolling feeds and trending charts, a long desk with keyboards and coffee cups, pinned printouts of posts on a board, cable trays, cool blue monitor glow',
+    'modern social-media monitoring newsroom: a wall of slim flat-panel monitors showing scrolling feeds, trend charts and maps, a long clean desk with keyboards and coffee cups, a pinboard of printouts, cable management. Zone lighting: cool blue-white screen glow, fairly bright',
   lobby:
-    'ministry entrance lobby at ground level: polished stone floor, reception desk with a uniformed guard post, two heavy elevator doors with a mechanical floor indicator above, potted plant, notice board, revolving entrance door letting in cold night light',
+    'modern ministry entrance lobby at ground level: polished stone-and-glass floor, a clean reception counter with a small guard post, two metal elevator doors with a digital floor indicator above, large potted plants, a backlit notice wall, a glass revolving entrance door letting in cool city light. Zone lighting: bright, airy',
   spieler_buero:
-    "the player's own modest office: wooden desk with a CRT computer terminal and a red telephone, stack of beige files, corkboard with pinned notes and red string, old CRT television on a side table, coat rack, window with closed blinds",
+    "the player's own modest modern office: a clean desk with a flat computer monitor and a slim telephone, a small stack of files, a corkboard with pinned notes and red string, a wall-mounted flat screen, a chair, a window with city light. Zone lighting: neutral, slightly warm, comfortable",
   cyber_lab:
-    'underground tech office: several CRT monitors with green text, server racks with blinking LEDs, cable bundles on the floor, dark room lit mostly by monitor glow',
+    'underground cyber operations room: several slim multi-monitor workstations with cyan and blue screen glow, server racks with status LEDs, tidy overhead cable trays, a dark room lit mostly by the screens. Zone lighting: dark, cool, cyan-tinted',
   medien_zentrum:
-    'propaganda media center: large vintage CRT television showing news, VHS recorders and tapes, stacks of newspapers, microphones, broadcast posters on the wall',
+    'modern media / broadcast monitoring center: a wall of flat screens showing abstract news graphics, a long clean desk, a soft seating corner, a large window with city light, plants, an abstract constructivist poster. Zone lighting: one of the brighter, warmer rooms',
   zentrale:
-    'command office of the agency director: large world map on the wall, heavy wooden desk with a red telephone, medals in a display case, plain dark-red banner without any emblem, dim desk lamp',
+    "the agency director's command office: a large screen-and-map wall, a substantial clean desk with a slim telephone, a glass display cabinet, a plain dark-red banner without any emblem, indirect lighting. Zone lighting: stern, cool-neutral with a single dark-red accent, medium brightness",
   feld_ops:
-    'field operations room: metal lockers, pinned maps with routes, radio equipment, duffel bags, harsh fluorescent light',
+    'field operations room: metal lockers, wall screens with route maps, radio and comms equipment, gear bags, a planning table. Zone lighting: neutral, focused task lighting',
   finanzen:
-    'basement finance vault: heavy vault door, metal filing cabinets, ledgers and stacked banknotes on a desk, counting machine, single hanging lamp',
+    'a secure modern finance office: a heavy secure door, metal filing cabinets, ledgers and a counting machine on a clean desk, a monitor with figures, a single pendant lamp. Zone lighting: cool, clean, slightly dim and serious',
 };
 
 const NPC_HINTS = {
@@ -66,6 +68,22 @@ const NPC_HINTS = {
   katja:
     'pragmatic woman field operative, age 30-40, practical jacket, short tied-back hair, watchful expression',
   igor: 'cautious male financial analyst, age 45-55, worn grey suit, balding, skeptical look, ledger under his arm',
+};
+
+// v2-Beschreibungen für die GROSSE Raum-Halbfigur (modern 2026). Bewusst PUR
+// (nur Person, kein Möbel) — verhindert den "halber Schreibtisch"-/Briefmarken-
+// Effekt beim Einsetzen (Owner-Hinweis 2026-06-13): der Tisch kommt aus dem Raum.
+const HALF_HINTS = {
+  direktor:
+    'a stern agency director in his early 60s, grey hair, sharp authoritative face, dark formal high-collar service suit with a single subtle plain insignia bar (no real emblem)',
+  marina:
+    'a confident woman media strategist in her late 30s, short dark hair, smart modern dark blazer, a slight knowing smile',
+  alexei:
+    'a nervous young male cyber specialist in his late 20s, messy hair, large glasses, a dark hoodie over a shirt, alert eyes',
+  katja:
+    'a pragmatic woman field operative in her late 30s, short tied-back hair, a practical dark field jacket, a watchful steady expression',
+  igor:
+    'a cautious male financial analyst in his early 50s, balding, glasses, a plain dark suit, a skeptical look',
 };
 
 const PROPS = [
@@ -95,7 +113,7 @@ const BUILDING_KIT = [
     '9:16',
     { w: 384, h: 768 },
     false,
-    'vertical strip of a brutalist concrete building facade, raw weathered concrete with shallow vertical grooves and water stains, seamlessly tileable from top to bottom, flat frontal view, no windows, no sky',
+    'vertical strip of a modern brutalist concrete building facade that COMPLETELY FILLS the image as one solid opaque concrete surface, raw weathered concrete with shallow vertical grooves and faint water stains, uniform concrete with NO colored lights, NO colored reflections, NO glass, seamlessly tileable from top to bottom, flat frontal view, no windows, no sky',
     'must',
   ],
   [
@@ -103,7 +121,7 @@ const BUILDING_KIT = [
     '21:9',
     { w: 1344, h: 192 },
     false,
-    'horizontal concrete floor slab of a building cross-section, raw concrete edge with a thin steel beam line, seamlessly tileable from left to right, flat frontal view, no background',
+    'a horizontal concrete floor-and-ceiling slab band of a building cross-section that COMPLETELY FILLS the image from top to bottom as one solid opaque concrete band (no empty area, NO checkerboard pattern, NO transparency), raw concrete with a thin steel beam edge line near the top, seamlessly tileable from left to right, flat frontal view',
     'must',
   ],
   [
@@ -163,6 +181,22 @@ const BUILDING_KIT = [
     'must',
   ],
   [
+    'bld_corridor_2',
+    '16:9',
+    { w: 1344, h: 768 },
+    false,
+    'interior corridor wall of a modern ministry, cross-section view: clean concrete-and-glass wall with a glass-fronted notice board, a wall-mounted flat info screen, a tall potted plant and a water cooler, ceiling with recessed light strips, polished floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people',
+    'must',
+  ],
+  [
+    'bld_corridor_3',
+    '16:9',
+    { w: 1344, h: 768 },
+    false,
+    'interior corridor wall of a modern ministry, cross-section view: clean concrete wall with a small coffee station, two framed abstract constructivist posters (geometric shapes only, no text), a low waiting bench, a wall clock, ceiling recessed light strips, polished floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people',
+    'must',
+  ],
+  [
     'bld_city_far',
     '21:9',
     { w: 1344, h: 576 },
@@ -175,7 +209,7 @@ const BUILDING_KIT = [
     '21:9',
     { w: 1344, h: 192 },
     false,
-    'empty night street in front of a government building, cross-section view: asphalt with a curb, one street lamp pool of light, a parked boxy 1980s sedan in dark colors, seamlessly tileable from left to right, flat frontal view',
+    'empty night street in front of a government building, cross-section view: asphalt with a curb, one street lamp pool of light, a parked modern dark sedan, seamlessly tileable from left to right, flat frontal view',
     'must',
   ],
 ];
@@ -368,8 +402,11 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       prompt:
         `A pixel art game background scene, wide interior view. ${hint}. ` +
         `${npc ? `This is the workplace of ${NPC_HINTS[npc.id] ?? npc.name} (no person visible in the scene). ` : ''}` +
-        `Concrete walls, fluorescent ceiling tubes, linoleum floor, old radiator, ` +
-        `abstract constructivist-style propaganda poster (geometric shapes only, no emblems, no text). ` +
+        `Concrete and glass walls, a clean floor, an abstract constructivist-style poster ` +
+        `(geometric shapes only, no emblems, no text). ` +
+        // Proportions-Realitätscheck (Teil C): Möbel klein halten, Standfläche frei lassen.
+        `Furniture and desks are modest in size and clearly smaller than a standing adult; ` +
+        `keep the lower third of the scene as clear floor space for a character to stand. ` +
         `No people, no text, no UI elements. ${style}`,
     });
   }
@@ -404,6 +441,29 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
           `but with a clearly ${mood} facial expression. Plain dark concrete wall background. No text. ${style}`,
       });
     }
+  }
+
+  // --- NPC-Halbfiguren für die Raum-Nahsicht (groß "hinter dem Schreibtisch") ---
+  // PUR: nur die Person, kein Möbel/Tisch/Boden → sauberes Alpha, kein Briefmarken-
+  // Effekt. Hüfthoch beschnitten; im Spiel bodenbündig (Schnitt läuft aus dem Bild).
+  for (const npc of npcs) {
+    const desc = HALF_HINTS[npc.id] ?? NPC_HINTS[npc.id] ?? npc.name;
+    shots.push({
+      id: `npc_half_${npc.id}`,
+      type: 'image',
+      kind: 'npc_half',
+      priority: 'must',
+      aspectRatio: '3:4',
+      size: { w: 768, h: 1024 },
+      chroma: true,
+      seed: seedFor(`npc_half_${npc.id}`),
+      prompt:
+        `A pixel art character: a single person shown from the hips up, large like a ` +
+        `visual-novel / adventure-game character. ${desc}. Calm, natural posture, facing ` +
+        `slightly toward the centre. Full head and both shoulders inside the frame, NOT ` +
+        `cropped at the top. ONLY the person — absolutely NO desk, NO table, NO chair, NO ` +
+        `furniture, NO props, NO floor, nothing in front of the body. ${CHROMA_PROMPT} ${style}`,
+    });
   }
 
   // --- Spielfigur-Sheets (Bauplan: BUILDING_CONCEPT.md, 32×32 je Frame) ---
@@ -568,10 +628,11 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       animations: { idle: { row: 0, frames: 2, frameTime: 600, loop: true } },
       seed: seedFor(id),
       prompt:
-        `A 2-frame pixel art sprite sheet of ${hint}, sitting and facing the viewer, full body ` +
-        `including the seat. Horizontal layout, exactly 2 evenly spaced frames in one row showing ` +
-        `the SAME character with identical outfit and colors in every frame, only a subtle idle ` +
-        `motion changes (blink, small head turn). ${CHROMA_PROMPT} ${style}`,
+        `A 2-frame pixel art sprite sheet of ${hint}, in a seated posture facing the viewer ` +
+        `(as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO ` +
+        `background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in ` +
+        `one row, the SAME character with identical outfit and colors in every frame, only a ` +
+        `subtle idle motion changes (blink, small head turn). ${CHROMA_PROMPT} ${style}`,
     });
   }
 

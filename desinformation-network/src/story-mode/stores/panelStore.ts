@@ -81,11 +81,12 @@ export const usePanelStore = create<PanelState>((set) => ({
 // PANEL METADATA
 // ============================================
 
+// icon-Felder sind jetzt IconName-Strings (kein Emoji) — SidePanel rendert sie via <Icon>.
 export const PANEL_META: Record<PanelId, { icon: string; label: string; shortcut: string }> = {
-  actions: { icon: '📋', label: 'AKTIONEN', shortcut: 'A' },
-  npcs: { icon: '👥', label: 'KONTAKTE', shortcut: 'P' },
-  news: { icon: '📰', label: 'NACHRICHTEN', shortcut: 'N' },
-  events: { icon: '🌍', label: 'EREIGNISSE', shortcut: 'E' },
-  mission: { icon: '📁', label: 'MISSION', shortcut: 'M' },
-  stats: { icon: '📊', label: 'STATISTIK', shortcut: 'S' },
+  actions: { icon: 'actions', label: 'AKTIONEN', shortcut: 'A' },
+  npcs: { icon: 'npcs', label: 'KONTAKTE', shortcut: 'P' },
+  news: { icon: 'news', label: 'NACHRICHTEN', shortcut: 'N' },
+  events: { icon: 'events', label: 'EREIGNISSE', shortcut: 'E' },
+  mission: { icon: 'mission', label: 'MISSION', shortcut: 'M' },
+  stats: { icon: 'stats', label: 'STATISTIK', shortcut: 'S' },
 };

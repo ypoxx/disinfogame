@@ -217,26 +217,26 @@ export class CrisisMomentSystem {
 
   private translateNewsTicker(text: string): string {
     const translations: Record<string, string> = {
-      '🔍 Anonymous tip received by investigative journalist':
-        '🔍 Investigativjournalist erhält anonymen Hinweis',
-      '📰 Investigation report published - Fact-checkers mobilizing':
-        '📰 Ermittlungsbericht veröffentlicht – Faktenchecker mobilisieren',
-      '🔥 Controversial content trending #1':
-        '🔥 Kontroverser Inhalt auf Platz 1 der Trends',
-      '🛡️ Tech platforms tighten content policies':
-        '🛡️ Tech-Plattformen verschärfen Inhaltsrichtlinien',
-      '🚫 Wave of account suspensions - Network disrupted':
-        '🚫 Welle von Kontosperrungen – Netzwerk gestört',
-      '🌍 Foreign interference suspected by authorities':
-        '🌍 Behörden vermuten ausländische Einmischung',
-      '📚 Academic study exposes disinformation playbook':
-        '📚 Wissenschaftler enthüllen Desinformations-Handbuch',
-      '⭐ High-profile figure joins conversation':
-        '⭐ Prominente Persönlichkeit schaltet sich ein',
-      '👥 Grassroots fact-checking movement gains momentum':
-        '👥 Bürger-Faktenchecker gewinnen an Dynamik',
-      '🔄 Algorithm changes reduce viral misinformation':
-        '🔄 Algorithmus-Änderungen reduzieren virale Falschinformationen',
+      'Anonymous tip received by investigative journalist':
+        'Investigativjournalist erhält anonymen Hinweis',
+      'Investigation report published - Fact-checkers mobilizing':
+        'Ermittlungsbericht veröffentlicht – Faktenchecker mobilisieren',
+      'Controversial content trending #1':
+        'Kontroverser Inhalt auf Platz 1 der Trends',
+      'Tech platforms tighten content policies':
+        'Tech-Plattformen verschärfen Inhaltsrichtlinien',
+      'Wave of account suspensions - Network disrupted':
+        'Welle von Kontosperrungen – Netzwerk gestört',
+      'Foreign interference suspected by authorities':
+        'Behörden vermuten ausländische Einmischung',
+      'Academic study exposes disinformation playbook':
+        'Wissenschaftler enthüllen Desinformations-Handbuch',
+      'High-profile figure joins conversation':
+        'Prominente Persönlichkeit schaltet sich ein',
+      'Grassroots fact-checking movement gains momentum':
+        'Bürger-Faktenchecker gewinnen an Dynamik',
+      'Algorithm changes reduce viral misinformation':
+        'Algorithmus-Änderungen reduzieren virale Falschinformationen',
     };
     return translations[text] || text;
   }

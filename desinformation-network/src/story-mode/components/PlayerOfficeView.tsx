@@ -6,6 +6,7 @@
  * die bestehenden Seiten-Panels öffnen. Kein CSS-Nachbau der Möbel.
  */
 import { useState, useCallback } from 'react';
+import { Icon } from './Icon';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
 import { playSound } from '../utils/SoundSystem';
@@ -81,7 +82,7 @@ const HOTSPOTS: HotspotDef[] = [
   { id: 'tv',       label: 'KAMPAGNEN-STATISTIK',  left: 83, top: 48, width: 13, height: 26 },
   { id: 'window',   label: 'WELT-EREIGNISSE',      left: 51, top:  4, width: 22, height: 38 },
   // Kein 'exit'-Hotspot mehr: Der Ausgang läuft ausschließlich über den sichtbaren
-  // „◀ GEBÄUDE"-Button der unteren Leiste (Review-Befund A3: redundante,
+  // „GEBÄUDE"-Button der unteren Leiste (Review-Befund A3: redundante,
   // unsichtbare Bedienwege verwirren).
 ];
 
@@ -443,7 +444,7 @@ export function PlayerOfficeView({
             letterSpacing: 1,
           }}
         >
-          ◀ GEBÄUDE
+          GEBÄUDE
         </button>
 
         {/* Dienstausweis — gewähltes Spieler-Porträt + Name (K10/D27) */}
@@ -506,7 +507,7 @@ function Dienstausweis(): React.JSX.Element {
         {url ? (
           <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'pixelated' }} />
         ) : (
-          <span style={{ fontSize: 16 }}>🕵️</span>
+          <Icon name="npcs" size={16} />
         )}
       </span>
       <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>

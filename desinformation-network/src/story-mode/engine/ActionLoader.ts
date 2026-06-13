@@ -116,7 +116,7 @@ export class ActionLoader {
       }
     }
 
-    storyLogger.log(`✅ ActionLoader: Loaded ${this.actions.size} actions`);
+    storyLogger.log(`ActionLoader: Loaded ${this.actions.size} actions`);
   }
 
   /**
@@ -230,7 +230,7 @@ export class ActionLoader {
       if (this.arePrerequisitesMet(action)) {
         action.isUnlocked = true;
         this.unlockedActionIds.add(actionId);
-        storyLogger.log(`🔓 Action unlocked: ${action.label_de}`);
+        storyLogger.log(`Action unlocked: ${action.label_de}`);
         return true;
       }
     }
@@ -263,7 +263,7 @@ export class ActionLoader {
           action.isUnlocked = true;
           this.unlockedActionIds.add(action.id);
           newlyUnlocked.push(action.id);
-          storyLogger.log(`🔓 Action unlocked: ${action.label_de}`);
+          storyLogger.log(`Action unlocked: ${action.label_de}`);
         }
       }
     }

@@ -109,8 +109,8 @@ const DEFENSIVE_ACTORS: DefensiveActor[] = [
     awareness: 0.3,
     resilience: 0.6,
     tactics: ['debunk', 'source_verification', 'network_analysis'],
-    newsOnSpawn_de: '📰 Neues Faktenchecker-Kollektiv nimmt Arbeit auf',
-    newsOnSpawn_en: '📰 New fact-checking collective begins operations',
+    newsOnSpawn_de: 'Neues Faktenchecker-Kollektiv nimmt Arbeit auf',
+    newsOnSpawn_en: 'New fact-checking collective begins operations',
   },
   {
     id: 'platform_trust_safety',
@@ -126,8 +126,8 @@ const DEFENSIVE_ACTORS: DefensiveActor[] = [
     awareness: 0.4,
     resilience: 0.8,
     tactics: ['account_suspension', 'content_removal', 'reach_reduction'],
-    newsOnSpawn_de: '🛡️ Social-Media-Plattform verstärkt Moderation',
-    newsOnSpawn_en: '🛡️ Social media platform strengthens moderation',
+    newsOnSpawn_de: 'Social-Media-Plattform verstärkt Moderation',
+    newsOnSpawn_en: 'Social media platform strengthens moderation',
   },
   {
     id: 'university_research_group',
@@ -142,8 +142,8 @@ const DEFENSIVE_ACTORS: DefensiveActor[] = [
     awareness: 0.6,
     resilience: 0.7,
     tactics: ['pattern_analysis', 'academic_exposure', 'media_literacy'],
-    newsOnSpawn_de: '🎓 Universität gründet Forschungsgruppe zu Desinformation',
-    newsOnSpawn_en: '🎓 University establishes disinformation research group',
+    newsOnSpawn_de: 'Universität gründet Forschungsgruppe zu Desinformation',
+    newsOnSpawn_en: 'University establishes disinformation research group',
   },
   {
     id: 'ngo_watchdog',
@@ -158,8 +158,8 @@ const DEFENSIVE_ACTORS: DefensiveActor[] = [
     awareness: 0.5,
     resilience: 0.5,
     tactics: ['public_awareness', 'policy_advocacy', 'international_coordination'],
-    newsOnSpawn_de: '👁️ NGO startet Beobachtungsmission zu Online-Manipulation',
-    newsOnSpawn_en: '👁️ NGO launches monitoring mission for online manipulation',
+    newsOnSpawn_de: 'NGO startet Beobachtungsmission zu Online-Manipulation',
+    newsOnSpawn_en: 'NGO launches monitoring mission for online manipulation',
   },
   {
     id: 'government_investigation',
@@ -174,8 +174,8 @@ const DEFENSIVE_ACTORS: DefensiveActor[] = [
     awareness: 0.8,
     resilience: 0.9,
     tactics: ['formal_investigation', 'subpoena_power', 'public_hearings'],
-    newsOnSpawn_de: '⚖️ Parlament setzt Untersuchungsausschuss zu Desinformation ein',
-    newsOnSpawn_en: '⚖️ Parliament establishes investigation committee on disinformation',
+    newsOnSpawn_de: 'Parlament setzt Untersuchungsausschuss zu Desinformation ein',
+    newsOnSpawn_en: 'Parliament establishes investigation committee on disinformation',
   },
   {
     id: 'counter_influencer_coalition',
@@ -191,8 +191,8 @@ const DEFENSIVE_ACTORS: DefensiveActor[] = [
     awareness: 0.3,
     resilience: 0.4,
     tactics: ['counter_narrative', 'reach_competition', 'audience_building'],
-    newsOnSpawn_de: '⭐ Prominente Influencer formieren sich gegen Desinformation',
-    newsOnSpawn_en: '⭐ Prominent influencers unite against disinformation',
+    newsOnSpawn_de: 'Prominente Influencer formieren sich gegen Desinformation',
+    newsOnSpawn_en: 'Prominent influencers unite against disinformation',
   },
   {
     id: 'citizen_fact_check_army',
@@ -206,8 +206,8 @@ const DEFENSIVE_ACTORS: DefensiveActor[] = [
     awareness: 0.4,
     resilience: 0.3,
     tactics: ['crowdsourced_verification', 'rapid_response', 'community_education'],
-    newsOnSpawn_de: '👥 Bürgerinitiative zur Bekämpfung von Falschinformationen gegründet',
-    newsOnSpawn_en: '👥 Citizens organize grassroots fact-checking initiative',
+    newsOnSpawn_de: 'Bürgerinitiative zur Bekämpfung von Falschinformationen gegründet',
+    newsOnSpawn_en: 'Citizens organize grassroots fact-checking initiative',
   },
 ];
 
@@ -421,8 +421,8 @@ export class StoryActorAI {
             { type: 'reach_reduction', value: strength * 10 },
             { type: 'attention_increase', value: strength * 5 },
           ],
-          news_de: `🔍 ${actor.name_de}: Faktencheck widerlegt virale Falschmeldung`,
-          news_en: `🔍 ${actor.name_en}: Fact-check debunks viral misinformation`,
+          news_de: `${actor.name_de}: Faktencheck widerlegt virale Falschmeldung`,
+          news_en: `${actor.name_en}: Fact-check debunks viral misinformation`,
         };
 
       case 'platform_moderator':
@@ -440,8 +440,8 @@ export class StoryActorAI {
               { type: 'action_disabled', value: 3, targetActionId: targetAction },
               { type: 'reach_reduction', value: strength * 15 },
             ],
-            news_de: `🛡️ ${actor.name_de}: Koordinierte unechte Aktivitäten eingeschränkt`,
-            news_en: `🛡️ ${actor.name_en}: Coordinated inauthentic behavior restricted`,
+            news_de: `${actor.name_de}: Koordinierte unechte Aktivitäten eingeschränkt`,
+            news_en: `${actor.name_en}: Coordinated inauthentic behavior restricted`,
           };
         }
         return null;
@@ -456,8 +456,8 @@ export class StoryActorAI {
             { type: 'risk_increase', value: strength * 8 },
             { type: 'attention_increase', value: strength * 10 },
           ],
-          news_de: `📚 ${actor.name_de}: Neue Studie identifiziert Manipulationsmuster`,
-          news_en: `📚 ${actor.name_en}: New study identifies manipulation patterns`,
+          news_de: `${actor.name_de}: Neue Studie identifiziert Manipulationsmuster`,
+          news_en: `${actor.name_en}: New study identifies manipulation patterns`,
         };
 
       case 'watchdog':
@@ -470,8 +470,8 @@ export class StoryActorAI {
             { type: 'risk_increase', value: strength * 5 },
             { type: 'attention_increase', value: strength * 8 },
           ],
-          news_de: `👁️ ${actor.name_de}: Öffentlicher Bericht zu Online-Manipulation`,
-          news_en: `👁️ ${actor.name_en}: Public report on online manipulation`,
+          news_de: `${actor.name_de}: Öffentlicher Bericht zu Online-Manipulation`,
+          news_en: `${actor.name_en}: Public report on online manipulation`,
         };
 
       case 'investigator':
@@ -485,8 +485,8 @@ export class StoryActorAI {
               { type: 'risk_increase', value: strength * 15 },
               { type: 'countdown_start', value: 12 }, // Start exposure countdown
             ],
-            news_de: `⚖️ ${actor.name_de}: Formelle Ermittlungen eingeleitet`,
-            news_en: `⚖️ ${actor.name_en}: Formal investigation launched`,
+            news_de: `${actor.name_de}: Formelle Ermittlungen eingeleitet`,
+            news_en: `${actor.name_en}: Formal investigation launched`,
           };
         }
         return null;
@@ -501,8 +501,8 @@ export class StoryActorAI {
             { type: 'reach_reduction', value: strength * 12 },
             { type: 'network_boost', value: strength * 5 },
           ],
-          news_de: `⭐ ${actor.name_de}: Prominente sprechen sich gegen Falschinformationen aus`,
-          news_en: `⭐ ${actor.name_en}: Celebrities speak out against misinformation`,
+          news_de: `${actor.name_de}: Prominente sprechen sich gegen Falschinformationen aus`,
+          news_en: `${actor.name_en}: Celebrities speak out against misinformation`,
         };
 
       case 'citizen_network':
@@ -515,8 +515,8 @@ export class StoryActorAI {
             { type: 'network_boost', value: strength * 8 },
             { type: 'reach_reduction', value: strength * 5 },
           ],
-          news_de: `👥 ${actor.name_de}: Grassroots-Bewegung wächst`,
-          news_en: `👥 ${actor.name_en}: Grassroots movement grows`,
+          news_de: `${actor.name_de}: Grassroots-Bewegung wächst`,
+          news_en: `${actor.name_en}: Grassroots movement grows`,
         };
 
       default:

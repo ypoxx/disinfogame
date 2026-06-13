@@ -105,7 +105,7 @@ export function MorningBriefing({ phase, risk, trustProgress, onDone }: MorningB
         style={{
           backgroundColor: StoryModeColors.surface,
           borderColor: StoryModeColors.border,
-          boxShadow: '8px 8px 0px 0px rgba(0,0,0,0.9)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
         }}
       >
         {/* Porträt links */}
@@ -130,7 +130,7 @@ export function MorningBriefing({ phase, risk, trustProgress, onDone }: MorningB
               }}
             />
           ) : (
-            <span className="text-4xl">🧑‍💼</span>
+            <span className="text-sm font-bold" style={{ color: StoryModeColors.textSecondary }}>DIR.</span>
           )}
         </div>
 
@@ -160,7 +160,7 @@ export function MorningBriefing({ phase, risk, trustProgress, onDone }: MorningB
                 backgroundColor: StoryModeColors.surfaceLight,
                 borderColor: StoryModeColors.border,
                 color: StoryModeColors.textPrimary,
-                boxShadow: '3px 3px 0px 0px rgba(0,0,0,0.8)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
               }}
             >
               Verstanden ▸

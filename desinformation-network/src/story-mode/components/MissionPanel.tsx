@@ -1,4 +1,6 @@
 import { StoryModeColors } from '../theme';
+import { Icon } from './Icon';
+import { PixelFrame } from './PixelFrame';
 import type { StoryPhase, Objective } from '../../game-logic/StoryEngineAdapter';
 
 interface MissionPanelProps {
@@ -130,7 +132,7 @@ export function MissionPanel({
           className="font-bold mb-4 flex items-center gap-2"
           style={{ color: StoryModeColors.ministryRed }}
         >
-          <span>⭐</span> HAUPTZIELE
+          <Icon name="mission" size={16} title="Hauptziele" fallback="*" /> HAUPTZIELE
         </h3>
         <div className="space-y-3">
           {primaryObjectives.map(obj => (
@@ -192,7 +194,7 @@ export function MissionPanel({
             className="font-bold mb-4 flex items-center gap-2"
             style={{ color: StoryModeColors.militaryOlive }}
           >
-            <span>◇</span> NEBENZIELE
+            <Icon name="mission" size={16} title="Nebenziele" fallback="-" /> NEBENZIELE
           </h3>
           <div className="space-y-2">
             {secondaryObjectives.map(obj => (
@@ -245,10 +247,10 @@ export function MissionPanel({
         }}
       >
         <div
-          className="text-sm font-bold"
+          className="text-sm font-bold flex items-center justify-center gap-2"
           style={{ color: StoryModeColors.danger }}
         >
-          ⚠️ WARNUNG
+          <Icon name="risk" size={14} title="Warnung" fallback="!" /> WARNUNG
         </div>
         <p
           className="text-sm mt-2"
@@ -273,7 +275,7 @@ export function MissionPanel({
             borderColor: StoryModeColors.border,
           }}
         >
-          <span>📁</span>
+          <Icon name="mission" size={16} title="Mission" fallback="M" />
           <h2 className="font-bold text-sm" style={{ color: StoryModeColors.warning }}>
             MISSION BRIEFING
           </h2>
@@ -290,57 +292,60 @@ export function MissionPanel({
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
       onClick={onClose}
     >
-      <div
-        className="w-full max-w-2xl max-h-[85vh] mx-4 border-4 flex flex-col overflow-hidden"
+      <PixelFrame
+        variant="alarm"
+        className="w-full max-w-2xl max-h-[85vh] mx-4 flex flex-col overflow-hidden"
         style={{
-          backgroundColor: StoryModeColors.surface,
-          borderColor: StoryModeColors.ministryRed,
-          boxShadow: '12px 12px 0px 0px rgba(0,0,0,0.9)',
+          border: `3px solid ${StoryModeColors.ministryRed}`,
         }}
-        onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
         <div
-          className="px-6 py-4 border-b-4 flex justify-between items-center"
-          style={{
-            backgroundColor: StoryModeColors.ministryRed,
-            borderColor: StoryModeColors.border,
-          }}
+          className="flex flex-col max-h-[85vh] overflow-hidden"
+          onClick={e => e.stopPropagation()}
         >
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">📁</span>
-            <h2 className="font-bold text-xl" style={{ color: StoryModeColors.warning }}>
-              MISSION BRIEFING
-            </h2>
+          {/* Header */}
+          <div
+            className="px-6 py-4 border-b-4 flex justify-between items-center"
+            style={{
+              backgroundColor: StoryModeColors.ministryRed,
+              borderColor: StoryModeColors.border,
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <Icon name="mission" size={24} title="Mission" fallback="M" />
+              <h2 className="font-bold text-xl" style={{ color: StoryModeColors.warning }}>
+                MISSION BRIEFING
+              </h2>
+            </div>
+            <button
+              onClick={onClose}
+              className="px-4 py-1 font-bold border-2 transition-all hover:brightness-110"
+              style={{
+                backgroundColor: StoryModeColors.darkConcrete,
+                borderColor: StoryModeColors.border,
+                color: StoryModeColors.textPrimary,
+              }}
+            >
+              SCHLIESSEN [ESC]
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="px-4 py-1 font-bold border-2 transition-all hover:brightness-110"
+
+          {content}
+
+          {/* Footer */}
+          <div
+            className="px-6 py-3 border-t-4 flex justify-between text-xs"
             style={{
               backgroundColor: StoryModeColors.darkConcrete,
               borderColor: StoryModeColors.border,
-              color: StoryModeColors.textPrimary,
+              color: StoryModeColors.textMuted,
             }}
           >
-            SCHLIESSEN [ESC]
-          </button>
+            <span>Dokument: OP-WU-{phase.year.toString().padStart(2, '0')}{phase.month.toString().padStart(2, '0')}</span>
+            <span>Freigabestufe: GAMMA</span>
+          </div>
         </div>
-
-        {content}
-
-        {/* Footer */}
-        <div
-          className="px-6 py-3 border-t-4 flex justify-between text-xs"
-          style={{
-            backgroundColor: StoryModeColors.darkConcrete,
-            borderColor: StoryModeColors.border,
-            color: StoryModeColors.textMuted,
-          }}
-        >
-          <span>Dokument: OP-WU-{phase.year.toString().padStart(2, '0')}{phase.month.toString().padStart(2, '0')}</span>
-          <span>Freigabestufe: GAMMA</span>
-        </div>
-      </div>
+      </PixelFrame>
     </div>
   );
 }

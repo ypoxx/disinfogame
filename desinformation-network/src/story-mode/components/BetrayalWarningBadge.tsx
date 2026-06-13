@@ -1,4 +1,5 @@
 import { StoryModeColors } from '../theme';
+import { Icon } from './Icon';
 import type { BetrayalWarningLevel } from '../engine/BetrayalSystem';
 
 // ============================================
@@ -33,13 +34,13 @@ export function BetrayalWarningBadge({
     }
   };
 
-  const getWarningIcon = () => {
+  const getWarningIcon = (): JSX.Element => {
     switch (warningLevel) {
-      case 1: return '⚠️';
-      case 2: return '⚠️';
-      case 3: return '🔥';
-      case 4: return '💀';
-      default: return '⚠️';
+      case 1: return <Icon name="risk" size={14} title="Warnung" />;
+      case 2: return <Icon name="risk" size={14} title="Warnung" />;
+      case 3: return <Icon name="risk" size={14} title="Kritisch" />;
+      case 4: return <Icon name="moral" size={14} title="Gefahr" />;
+      default: return <Icon name="risk" size={14} title="Warnung" />;
     }
   };
 

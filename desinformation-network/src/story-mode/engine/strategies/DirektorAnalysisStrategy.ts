@@ -256,9 +256,9 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
       const crisisNames = crisisNPCs.map(n => n.name).join(', ');
 
       const message = playerRelationship > 1
-        ? `⚠️ KRITISCH: ${crisisNPCs.length} Berater gleichzeitig in Krise (${crisisNames}). ` +
+        ? `KRITISCH: ${crisisNPCs.length} Berater gleichzeitig in Krise (${crisisNames}). ` +
           `Das Team zerfällt. Operation-Sicherheit stark gefährdet. Sofortige Intervention erforderlich.`
-        : `⚠️ ${crisisNPCs.length} NPCs in crisis. Team cohesion critical.`;
+        : `${crisisNPCs.length} NPCs in crisis. Team cohesion critical.`;
 
       recommendations.push({
         id: generateRecommendationId('direktor', 'threat'),

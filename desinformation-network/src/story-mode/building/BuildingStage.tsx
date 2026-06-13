@@ -14,6 +14,7 @@
 import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { NAV_SPEED } from './BuildingNavigator';
+import { useDayClockStore } from '../stores/dayClockStore';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
@@ -45,6 +46,8 @@ export interface BuildingStageProps {
   onRoomClick?: (roomId: string) => void;
   /** Raum-Interaktion sperren (z. B. während Ankunfts-Sequenz). */
   interactive?: boolean;
+  /** Aktueller Monat (1–12 oder kumulativ) für die Jahreszeiten-Stimmung. */
+  month?: number;
 }
 
 const layout = getBuildingLayout();
@@ -83,7 +86,7 @@ function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
   );
 }
 
-export function BuildingStage({ npcs, nav, onRoomClick, interactive = true }: BuildingStageProps) {
+export function BuildingStage({ npcs, nav, onRoomClick, interactive = true, month }: BuildingStageProps) {
   const assets = useAssets();
   const npcById = new Map(npcs.map((n) => [n.id, n]));
   const containerRef = useRef<HTMLDivElement>(null);
@@ -122,6 +125,10 @@ export function BuildingStage({ npcs, nav, onRoomClick, interactive = true }: Bu
   const shaftUrl = assets.imageUrl('bld_shaft');
   const roofUrl = assets.imageUrl('bld_roof');
   const corridorUrl = assets.imageUrl('bld_corridor');
+  // Mehr Abwechslung statt 1 Flur ×N: Variante je Etage (Owner-Hinweis).
+  const corridorIds = ['bld_corridor', 'bld_corridor_2', 'bld_corridor_3'] as const;
+  const corridorUrlFor = (level: number) =>
+    assets.imageUrl(corridorIds[(((level % 3) + 3) % 3)]) ?? corridorUrl;
   const lobbyUrl = assets.imageUrl('room_lobby');
   const cityUrl = assets.imageUrl('bld_city_far');
   const streetUrl = assets.imageUrl('bld_street');
@@ -275,7 +282,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, interactive = true }: Bu
         {/* Etagen: Flure (kein Röntgenblick) — EG zeigt die Lobby als Eingangshalle */}
         {layout.floors.map((floor) => {
           const isLobby = floor.level === layout.entryFloorLevel;
-          const bgUrl = isLobby ? lobbyUrl : corridorUrl;
+          const bgUrl = isLobby ? lobbyUrl : corridorUrlFor(floor.level);
           return (
             <div key={floor.id}>
               {/* Flur-Hintergrund über die volle Etagen-Breite */}
@@ -498,7 +505,70 @@ export function BuildingStage({ npcs, nav, onRoomClick, interactive = true }: Bu
           </span>
         )}
       </div>
+
+      {/* Tag/Nacht-Tönung (H30): aus der Tages-Uhr — kühler Morgen, neutraler Mittag,
+          zum Redaktionsschluss hin tiefblaue Abend-/Nacht-Stimmung über der Stadt. */}
+      <DayNightTint />
+      <SeasonOverlay month={month} />
     </div>
+  );
+}
+
+/** Jahreszeiten-Stimmung (D15, „sanft lebendig"): Schnee im Winter, Regen im Herbst. */
+function SeasonOverlay({ month }: { month?: number }) {
+  if (month == null) return null;
+  const m = (((Math.floor(month) - 1) % 12) + 12) % 12 + 1; // → 1..12
+  const winter = m === 12 || m === 1 || m === 2;
+  const autumn = m >= 9 && m <= 11;
+  if (!winter && !autumn) return null;
+  const css = winter
+    ? {
+        backgroundImage:
+          'radial-gradient(1.5px 1.5px at 20px 30px, rgba(255,255,255,0.85), transparent),' +
+          'radial-gradient(1.5px 1.5px at 80px 70px, rgba(255,255,255,0.65), transparent),' +
+          'radial-gradient(1px 1px at 50px 130px, rgba(255,255,255,0.75), transparent)',
+        backgroundSize: '130px 170px',
+        animation: 'bs-snow 9s linear infinite',
+      }
+    : {
+        backgroundImage:
+          'repeating-linear-gradient(74deg, rgba(170,190,220,0.16) 0 1px, transparent 1px 9px)',
+        backgroundSize: '120px 120px',
+        animation: 'bs-rain 0.55s linear infinite',
+      };
+  return (
+    <>
+      <style>{`@keyframes bs-snow{from{background-position:0 0,0 0,0 0}to{background-position:18px 170px,-14px 170px,8px 170px}}@keyframes bs-rain{from{background-position:0 0}to{background-position:-26px 120px}}`}</style>
+      <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', ...css }} />
+    </>
+  );
+}
+
+/** Sanfte Tag/Nacht-Tönung der Bühne, gesteuert von der Tages-Uhr (09:00–18:00). */
+function DayNightTint() {
+  const minutes = useDayClockStore((s) => s.minutes);
+  const t = Math.max(0, Math.min(1, minutes / 540)); // 0 = 09:00, 1 = 18:00
+  let alpha = 0;
+  let rgb = '14,22,48'; // Nacht-Blau
+  if (t < 0.15) {
+    alpha = 0.14 * (1 - t / 0.15); // kühler Morgen-Hauch
+    rgb = '44,74,120';
+  } else if (t >= 0.6) {
+    alpha = ((t - 0.6) / 0.4) * 0.52; // Abend → Nacht
+    rgb = '14,22,48';
+  }
+  if (alpha <= 0.005) return null;
+  return (
+    <div
+      aria-hidden
+      style={{
+        position: 'absolute',
+        inset: 0,
+        backgroundColor: `rgba(${rgb},${alpha.toFixed(3)})`,
+        pointerEvents: 'none',
+        transition: 'background-color 600ms linear',
+      }}
+    />
   );
 }
 
