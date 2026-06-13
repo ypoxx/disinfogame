@@ -36,16 +36,16 @@ export function MissionPanel({
         className="p-4 text-center border-4"
         style={{
           backgroundColor: StoryModeColors.background,
-          borderColor: StoryModeColors.sovietRed,
+          borderColor: StoryModeColors.ministryRed,
         }}
       >
         <div
           className="text-xs font-bold mb-2"
-          style={{ color: StoryModeColors.sovietRed }}
+          style={{ color: StoryModeColors.ministryRed }}
         >
           STRENG GEHEIM - NUR FUR AUTORISIERTES PERSONAL
         </div>
-        <div className="text-4xl mb-2">☭</div>
+        <div className="text-4xl mb-2">⬢</div>
         <h1
           className="text-2xl font-bold"
           style={{ color: StoryModeColors.warning }}
@@ -100,7 +100,7 @@ export function MissionPanel({
       >
         <h3
           className="font-bold mb-3"
-          style={{ color: StoryModeColors.sovietRed }}
+          style={{ color: StoryModeColors.ministryRed }}
         >
           DIREKTIVE
         </h3>
@@ -123,12 +123,12 @@ export function MissionPanel({
         className="border-4 p-4"
         style={{
           backgroundColor: StoryModeColors.darkConcrete,
-          borderColor: StoryModeColors.sovietRed,
+          borderColor: StoryModeColors.ministryRed,
         }}
       >
         <h3
           className="font-bold mb-4 flex items-center gap-2"
-          style={{ color: StoryModeColors.sovietRed }}
+          style={{ color: StoryModeColors.ministryRed }}
         >
           <span>⭐</span> HAUPTZIELE
         </h3>
@@ -269,7 +269,7 @@ export function MissionPanel({
         <div
           className="px-3 py-2 border-b-2 flex items-center gap-2"
           style={{
-            backgroundColor: StoryModeColors.sovietRed,
+            backgroundColor: StoryModeColors.ministryRed,
             borderColor: StoryModeColors.border,
           }}
         >
@@ -294,7 +294,7 @@ export function MissionPanel({
         className="w-full max-w-2xl max-h-[85vh] mx-4 border-4 flex flex-col overflow-hidden"
         style={{
           backgroundColor: StoryModeColors.surface,
-          borderColor: StoryModeColors.sovietRed,
+          borderColor: StoryModeColors.ministryRed,
           boxShadow: '12px 12px 0px 0px rgba(0,0,0,0.9)',
         }}
         onClick={e => e.stopPropagation()}
@@ -303,7 +303,7 @@ export function MissionPanel({
         <div
           className="px-6 py-4 border-b-4 flex justify-between items-center"
           style={{
-            backgroundColor: StoryModeColors.sovietRed,
+            backgroundColor: StoryModeColors.ministryRed,
             borderColor: StoryModeColors.border,
           }}
         >

@@ -158,7 +158,7 @@ export function EventsPanel({
                           <span
                             className="text-xs px-2 py-0.5 animate-pulse"
                             style={{
-                              backgroundColor: StoryModeColors.sovietRed,
+                              backgroundColor: StoryModeColors.ministryRed,
                               color: '#fff',
                             }}
                           >

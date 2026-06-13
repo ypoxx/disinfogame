@@ -85,11 +85,11 @@ Klicken Sie auf die verschiedenen Bereiche, um zu interagieren.`,
     title: 'Ihr Team',
     content: `Fünf Spezialisten unterstützen Sie:
 
-👔 DIREKTOR - Strategie, Druck von oben
-🖥️ MARINA - Analyse, Targeting
-🤖 VOLKOV - Bot-Netzwerke, Automatisierung
-📊 KATJA - Content, Narrative
-🔒 IGOR - IT-Sicherheit, Deepfakes
+👔 DIREKTOR VOLKOV - Strategie, Druck von oben
+📺 MARINA - Medien, Content, Narrative
+🖥️ ALEXEI - Bot-Netzwerke, Infrastruktur
+🎯 KATJA - Feld-Operationen, Kontakte
+💰 IGOR - Finanzen, Tarnfirmen
 
 Je besser Ihre Beziehung zu einem NPC, desto günstiger werden dessen Aktionen.`,
     position: 'center',
@@ -156,7 +156,7 @@ BATCH-AUSFÜHRUNG:
   {
     id: 'actions',
     title: 'Aktionen',
-    content: `Aktionen sind Ihre Werkzeuge. Es gibt 108 verschiedene Aktionen in 8 Kategorien:
+    content: `Aktionen sind Ihre Werkzeuge. Es gibt 110 verschiedene Aktionen in 8 Kategorien:
 
 • Analyse & Strategie (legal)
 • Infrastruktur aufbauen (teils legal)
@@ -200,7 +200,7 @@ Aber bedenken Sie: Es gibt verschiedene Enden - manche besser als andere.`,
   {
     id: 'endings',
     title: 'Mögliche Enden',
-    content: `Es gibt vier mögliche Enden:
+    content: `Es gibt acht Ending-Kategorien — unter anderem:
 
 🏆 SIEG - Ziele erreicht, nicht enttarnt
 💀 ENTTARNUNG - Risiko zu hoch, Game Over
@@ -217,7 +217,7 @@ Ihre Entscheidungen bestimmen Ihr Schicksal.`,
 
 Klicken Sie auf den Computer, um Ihre erste E-Mail zu lesen und Ihre erste Aktion auszuwählen.
 
-Viel Erfolg - oder wie man hier sagt: "Для Родины!"`,
+Viel Erfolg, Genosse Direktor der Sonderoperationen.`,
     position: 'center',
     requiresAction: true,
     actionLabel: 'MISSION STARTEN',
@@ -291,7 +291,7 @@ export function TutorialOverlay({
         style={{
           ...positionStyles[step.position],
           backgroundColor: StoryModeColors.surface,
-          borderColor: StoryModeColors.sovietRed,
+          borderColor: StoryModeColors.ministryRed,
           boxShadow: '8px 8px 0px 0px rgba(0,0,0,0.9)',
         }}
       >
@@ -299,7 +299,7 @@ export function TutorialOverlay({
         <div
           className="px-6 py-3 border-b-4 flex items-center justify-between"
           style={{
-            backgroundColor: StoryModeColors.sovietRed,
+            backgroundColor: StoryModeColors.ministryRed,
             borderColor: StoryModeColors.border,
           }}
         >

@@ -437,6 +437,10 @@ export class StoryEngineAdapter {
   private npcDialogues: Map<string, any> = new Map();
   private actionHistory: { phase: number; actionId: string; result: ActionResult }[] = [];
   private exposureCountdown: number | null = null;  // Countdown to forced exposure/game end
+  // Stellschraube 4 (Balancing K14 2026-06-12): Zählt aufeinanderfolgende Phasen,
+  // in denen das Vertrauens-Ziel gehalten wurde. Sieg erst nach REQUIRED_HOLD_PHASES.
+  private trustTargetHeldPhases = 0;
+  private readonly REQUIRED_HOLD_PHASES = 3;  // Ziel muss 3 Phasen gehalten werden
   // P2-7: Track world event cooldowns (eventId -> last triggered phase)
   private worldEventCooldowns: Map<string, number> = new Map();
   private readonly WORLD_EVENT_COOLDOWN = 12;  // 12 phases = 1 year cooldown
@@ -647,6 +651,15 @@ export class StoryEngineAdapter {
     // P2-6 Fix: Add risk decay (-2 per phase, min 0)
     // BALANCE FIX 2026-01-14: Increased risk decay from -2 to -5
     // Rationale: State actors have resources to manage risk, risk was escalating too fast
+    //
+    // Stellschraube 2 — Risiko-Abbau senken (Balancing K14 2026-06-12):
+    // −5 war zu stark und neutralisierte jeden Risiko-Aufbau (Enttarnung nie real).
+    // Neu: nur −1 bis −2/Phase, UND kein Abbau, solange eine Untersuchung läuft
+    // (exposureCountdown aktiv) oder eine Konsequenz offen ist. So bleibt
+    // Enttarnung (risk ≥ 85) eine echte Gefahr und risikoreiches Spiel hat Folgen.
+    const investigationActive = this.exposureCountdown !== null || this.activeConsequence !== null;
+    // Höheres Risiko ⇒ langsamerer „Abkühl"-Effekt (Ermittler bleiben dran).
+    const riskDecay = investigationActive ? 0 : (this.storyResources.risk >= 50 ? 1 : 2);
     const resourceChanges: Partial<StoryResources> = {
       capacity: Math.min(
         this.storyResources.capacity + this.CAPACITY_REGEN_PER_PHASE,
@@ -657,9 +670,8 @@ export class StoryEngineAdapter {
       budget: this.storyResources.budget + 5,
       // Passive Decay - reduced from 5 to 2
       attention: Math.max(0, this.storyResources.attention - 2),
-      // Risk decay - counter-intelligence loses track over time
-      // Increased from -2 to -5 for better balance (state actors can manage risk)
-      risk: Math.max(0, this.storyResources.risk - 5),
+      // Risk decay - gedämpft, pausiert während aktiver Untersuchung (s.o.)
+      risk: Math.max(0, this.storyResources.risk - riskDecay),
     };
 
     Object.assign(this.storyResources, resourceChanges);
@@ -800,6 +812,35 @@ export class StoryEngineAdapter {
         read: false,
         pinned: aiAction.type === 'investigation', // Pin investigations
       });
+    }
+
+    // Stellschraube 1 — Vertrauens-Regeneration durch Verteidiger.
+    // Balancing K14 2026-06-12: Aktive Verteidiger holen pro Phase Vertrauen
+    // zurück (obj_destabilize.currentValue steigt wieder Richtung 100). Das
+    // erzeugt das Wettrennen Erosion vs. Aufklärung. Skaliert mit Verteidiger-
+    // Stärke + Eskalationsstufe; gedeckelt bei 100 (Startvertrauen).
+    const trustRegen = this.actorAI.getTrustRegeneration();
+    if (trustRegen > 0) {
+      const destabilizeObj = this.objectives.find(o => o.id === 'obj_destabilize');
+      if (destabilizeObj) {
+        destabilizeObj.currentValue = Math.min(100, destabilizeObj.currentValue + trustRegen);
+        destabilizeObj.progress = Math.min(100,
+          ((100 - destabilizeObj.currentValue) / (100 - destabilizeObj.targetValue)) * 100
+        );
+        // Ziel kann durch Regeneration wieder „un-erfüllt" werden → kein Auto-Win.
+        destabilizeObj.completed = destabilizeObj.currentValue <= destabilizeObj.targetValue;
+      }
+    }
+
+    // Stellschraube 4 — „Sieg erst nach Halten" (Balancing K14 2026-06-12):
+    // Zähle, wie viele Phasen in Folge das primäre Vertrauens-Ziel gehalten wird.
+    // Steigt das Vertrauen (Verteidiger) wieder über die Schwelle, beginnt das
+    // Halten von vorn. checkGameEnd verlangt REQUIRED_HOLD_PHASES für den Sieg.
+    const holdObj = this.objectives.find(o => o.id === 'obj_destabilize');
+    if (holdObj && holdObj.currentValue <= holdObj.targetValue) {
+      this.trustTargetHeldPhases++;
+    } else {
+      this.trustTargetHeldPhases = 0;
     }
 
     return {
@@ -3442,7 +3483,9 @@ export class StoryEngineAdapter {
       const destabilizeObj = this.objectives.find(o => o.id === 'obj_destabilize');
       if (destabilizeObj) {
         // BALANCE 2026-01-14: Tuned for ~40-60% win rate at 20 phases
-        destabilizeObj.currentValue = Math.max(0, destabilizeObj.currentValue - trustErosionValue * 1.25);
+        // Stellschraube 3 (Balancing K14 2026-06-12): Faktor ×1.25 → ×0.625
+        // (halbiert) — verhindert Frühsieg, lässt Raum fürs Verteidiger-Wettrennen.
+        destabilizeObj.currentValue = Math.max(0, destabilizeObj.currentValue - trustErosionValue * 0.625);
         // Update progress: (100 - current) / (100 - target) * 100
         destabilizeObj.progress = Math.min(100,
           ((100 - destabilizeObj.currentValue) / (100 - destabilizeObj.targetValue)) * 100
@@ -3820,7 +3863,9 @@ export class StoryEngineAdapter {
       const trustObj = this.objectives.find(o => o.category === 'trust_reduction');
       if (trustObj) {
         // Decrease trust by combo bonus (multiplier: 50 for ~40-60% win rate at 20 phases)
-        trustObj.currentValue = Math.max(0, trustObj.currentValue - bonus.trustReduction * 50);
+        // Stellschraube 3 (Balancing K14 2026-06-12): ×50 → ×25 (halbiert) —
+        // Combos bleiben stark, treiben aber keinen Insta-Win mehr.
+        trustObj.currentValue = Math.max(0, trustObj.currentValue - bonus.trustReduction * 25);
         // Update progress: (100 - current) / (100 - target) * 100
         trustObj.progress = Math.min(100,
           ((100 - trustObj.currentValue) / (100 - trustObj.targetValue)) * 100
@@ -4173,6 +4218,118 @@ export class StoryEngineAdapter {
   }
 
   /**
+   * Liefert Begrüßungs-, Reaktions- oder Topic-Text PLUS voiceAssetId/mood.
+   * voiceAssetId wird NUR gesetzt, wenn der angezeigte Text 1:1 der vertonten
+   * npcs.json-Zeile entspricht (Platinum-/dialogues-Pfad hat nichts geliefert,
+   * Fallback auf den simplen Datensatz). Silently-is-better-than-wrong-sync.
+   */
+  getNPCDialogueWithVoice(
+    npcId: string,
+    context: {
+      type: 'greeting' | 'reaction' | 'topic';
+      subtype?: string;
+      relationshipLevel?: number;
+      layer?: TopicLayer;
+    },
+  ): { text: string | null; voiceAssetId?: string; mood?: 'neutral' | 'happy' | 'angry' | 'worried' | 'suspicious' } {
+    const npc = this.npcStates.get(npcId);
+    if (!npc) return { text: null };
+
+    const rng = () => this.seededRandom(`dialog_${npcId}_${context.type}_${this.storyPhase.number}`);
+
+    // Stimmung aus NPC-Zustand ableiten (Krisenlogik hat Vorrang)
+    const deriveMood = (): 'neutral' | 'happy' | 'angry' | 'worried' | 'suspicious' => {
+      if (npc.inCrisis) return 'angry';
+      if (npc.morale < 30) return 'worried';
+      if (npc.currentMood === 'positive') return 'happy';
+      if (npc.currentMood === 'concerned') return 'worried';
+      if (npc.currentMood === 'upset') return 'angry';
+      return 'neutral';
+    };
+
+    switch (context.type) {
+      case 'greeting': {
+        const level = context.relationshipLevel ?? npc.relationshipLevel;
+        // Platinum-Pfad (dialogues.json): mehrere Texte pro Level → kein 1:1-Match zur Tonspur
+        const platinumDialogue = dialogLoader.getGreeting(npcId, level, rng);
+        if (platinumDialogue) {
+          return { text: platinumDialogue.text_de, mood: deriveMood() };
+        }
+        // Fallback-Pfad (npcs.json): genau EIN Text pro Level → voiceAssetId setzen
+        const simpleDialogues = this.npcDialogues.get(npcId);
+        if (simpleDialogues?.greetings) {
+          const effectiveLevel = simpleDialogues.greetings[level.toString()] !== undefined ? level : 0;
+          const text = simpleDialogues.greetings[effectiveLevel.toString()] || null;
+          if (text) {
+            return {
+              text,
+              voiceAssetId: `voice_${npcId}_greeting_${effectiveLevel}`,
+              mood: deriveMood(),
+            };
+          }
+        }
+        return { text: null };
+      }
+
+      case 'reaction': {
+        const subtype = context.subtype || 'success';
+        // Platinum-Pfad (dialogues.json): abweichender Text → kein voiceAssetId
+        const actionTags = context.subtype ? [context.subtype] : [];
+        const conditions = {
+          risk: this.storyResources.risk,
+          morale: npc.morale,
+          moral_weight: this.storyResources.moralWeight,
+        };
+        const platinumDialogue = dialogLoader.getReaction(npcId, actionTags, conditions, rng);
+        if (platinumDialogue) {
+          const reactionMood: 'neutral' | 'happy' | 'angry' | 'worried' | 'suspicious' =
+            subtype === 'success' ? 'happy' : subtype === 'crisis' ? 'worried' : 'neutral';
+          return { text: platinumDialogue.text_de, mood: reactionMood };
+        }
+        // Fallback-Pfad (npcs.json): 1:1-Match → voiceAssetId setzen
+        const simpleDialogues = this.npcDialogues.get(npcId);
+        const text = simpleDialogues?.reactions?.[subtype] || null;
+        if (text) {
+          const reactionMood: 'neutral' | 'happy' | 'angry' | 'worried' | 'suspicious' =
+            subtype === 'success' ? 'happy' : subtype === 'crisis' ? 'worried' : 'neutral';
+          return {
+            text,
+            voiceAssetId: `voice_${npcId}_reaction_${subtype}`,
+            mood: reactionMood,
+          };
+        }
+        return { text: null };
+      }
+
+      case 'topic': {
+        const topicId = context.subtype;
+        if (!topicId) return { text: null };
+        const layer = context.layer || 'intro';
+        const dialogueContext = this.buildDialogueContext(npcId);
+        // Platinum-Pfad (topics_dialogues.json): abweichender Text → kein voiceAssetId
+        const platinumDialogue = dialogLoader.getTopicDialogue(npcId, topicId, layer, dialogueContext, rng);
+        if (platinumDialogue) {
+          return { text: platinumDialogue.text_de, mood: deriveMood() };
+        }
+        // Fallback-Pfad (npcs.json): 1:1-Match → voiceAssetId setzen
+        const simpleDialogues = this.npcDialogues.get(npcId);
+        const text = simpleDialogues?.topics?.[topicId] || null;
+        if (text) {
+          return {
+            text,
+            voiceAssetId: `voice_${npcId}_topic_${topicId}`,
+            mood: deriveMood(),
+          };
+        }
+        return { text: null };
+      }
+
+      default:
+        return { text: null };
+    }
+  }
+
+  /**
    * PLATINUM: Get full topic dialogue object (for responses and Progressive Disclosure)
    */
   getTopicDialogueObject(npcId: string, topicId: string, layer: TopicLayer = 'intro'): TopicDialogue | null {
@@ -4395,20 +4552,46 @@ export class StoryEngineAdapter {
       survivalObj.progress = survivalObj.completed ? 100 : Math.max(0, ((survivalObj.targetValue - this.storyResources.risk) / survivalObj.targetValue) * 100);
     }
 
+    // Stellschraube 4 (Balancing K14 2026-06-12): Sieg erst, wenn ALLE primären
+    // Ziele erfüllt sind UND das Vertrauens-Ziel REQUIRED_HOLD_PHASES Phasen in
+    // Folge gehalten wurde. Verhindert Insta-Win in Phase 2–8 — das Vertrauen
+    // muss gegen die Verteidiger-Regeneration dauerhaft gedrückt bleiben.
     const allCompleted = primaryObjectives.every(o => o.completed);
+    const trustHeld = this.trustTargetHeldPhases >= this.REQUIRED_HOLD_PHASES;
     const npcArray = Array.from(this.npcStates.values());
     const npcsInCrisis = npcArray.filter(npc => npc.inCrisis).length;
     const allNpcsLost = npcsInCrisis >= npcArray.length - 1; // Almost all NPCs in crisis
 
-    // PRIORITY 1: VICTORY - Check objectives first!
-    // If player completed all objectives, they win regardless of risk level
-    // This ensures the player can achieve victory through successful play
-    if (allCompleted) {
-      // Determine victory flavor based on moral weight and risk
-      const isDarkVictory = this.storyResources.moralWeight >= 50;
-      const isNarrowEscape = this.storyResources.risk >= 70;
+    // PRIORITY 0: ENTTARNUNG schlägt einen noch nicht „gehaltenen" Sieg.
+    // Balancing K14: Wer das Ziel erst seit Kurzem hält, kann bei risk ≥ 85
+    // trotzdem auffliegen — Enttarnung bleibt bis zum gesicherten Sieg gefährlich.
+    if (this.storyResources.risk >= 85 && !(allCompleted && trustHeld)) {
+      storyLogger.log(`💀 Defeat: Risk ${this.storyResources.risk}% exceeded threshold before victory secured.`);
+      return {
+        type: 'defeat',
+        title_de: 'Enttarnt',
+        title_en: 'Exposed',
+        description_de: this.exposureCountdown === 0
+          ? 'Die Untersuchung hat Sie erreicht. Es gibt kein Entkommen mehr.'
+          : 'Ihre Operationen wurden aufgedeckt. Die Verbindung zu Ostland ist bewiesen.',
+        description_en: this.exposureCountdown === 0
+          ? 'The investigation has caught up with you. There is no escape.'
+          : 'Your operations have been uncovered. The connection to Ostland is proven.',
+        stats,
+        epilogue_de: 'Sie werden zur persona non grata erklärt. Diplomatische Beziehungen werden eingefroren. Ihre Karriere endet in Schande.',
+        epilogue_en: 'You are declared persona non grata. Diplomatic relations are frozen. Your career ends in disgrace.',
+      };
+    }
 
-      storyLogger.log(`🏆 Victory achieved! Objectives completed. Risk: ${this.storyResources.risk}%, Moral: ${this.storyResources.moralWeight}`);
+    // PRIORITY 1: VICTORY - nur nach gehaltenem Vertrauens-Ziel.
+    if (allCompleted && trustHeld) {
+      // Determine victory flavor based on moral weight and risk
+      // Balancing K14: hohes Risiko beim Sieg (≥ 70) ⇒ eingeschränktes/pyrrhisches Ende.
+      const isHighRisk = this.storyResources.risk >= 70;
+      const isDarkVictory = this.storyResources.moralWeight >= 50 || isHighRisk;
+      const isNarrowEscape = isHighRisk;
+
+      storyLogger.log(`🏆 Victory achieved! Objectives held ${this.trustTargetHeldPhases} phases. Risk: ${this.storyResources.risk}%, Moral: ${this.storyResources.moralWeight}`);
 
       return {
         type: 'victory',
@@ -4438,24 +4621,8 @@ export class StoryEngineAdapter {
       };
     }
 
-    // PRIORITY 2: Exposure/Defeat - Risk too high (only if objectives NOT completed)
-    if (this.storyResources.risk >= 85) {
-      storyLogger.log(`💀 Defeat: Risk ${this.storyResources.risk}% exceeded threshold. Objectives not completed.`);
-      return {
-        type: 'defeat',
-        title_de: 'Enttarnt',
-        title_en: 'Exposed',
-        description_de: this.exposureCountdown === 0
-          ? 'Die Untersuchung hat Sie erreicht. Es gibt kein Entkommen mehr.'
-          : 'Ihre Operationen wurden aufgedeckt. Die Verbindung zu Ostland ist bewiesen.',
-        description_en: this.exposureCountdown === 0
-          ? 'The investigation has caught up with you. There is no escape.'
-          : 'Your operations have been uncovered. The connection to Ostland is proven.',
-        stats,
-        epilogue_de: 'Sie werden zur persona non grata erklärt. Diplomatische Beziehungen werden eingefroren. Ihre Karriere endet in Schande.',
-        epilogue_en: 'You are declared persona non grata. Diplomatic relations are frozen. Your career ends in disgrace.',
-      };
-    }
+    // PRIORITY 2: Enttarnung (risk ≥ 85) wird bereits oben in PRIORITY 0 behandelt
+    // (Balancing K14 2026-06-12 — Enttarnung schlägt einen noch nicht gesicherten Sieg).
 
     // PRIORITY 3: Moral Redemption - High moral weight and player turned
     if (this.storyResources.moralWeight >= 80 && allNpcsLost) {

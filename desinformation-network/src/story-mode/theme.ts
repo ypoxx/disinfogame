@@ -3,7 +3,7 @@
 
 export const StoryModeColors = {
   // Soviet Red (Communist flags, propaganda posters)
-  sovietRed: '#C41E3A',
+  ministryRed: '#C41E3A',
   darkRed: '#8B0000',
 
   // Brutalist Concrete (raw, industrial)
@@ -35,10 +35,10 @@ export const StoryModeColors = {
   border: '#1A1A1A',
   borderLight: '#555555',
 
-  // Text
+  // Text — Sekundär/Muted auf WCAG-AA-Mindestkontrast gegen #2A2A2A angehoben
   textPrimary: '#D4D4D4',
-  textSecondary: '#888888',
-  textMuted: '#666666',
+  textSecondary: '#909090',
+  textMuted: '#767676',
 };
 
 export const createBrutalistButton = (baseColor: string) => ({

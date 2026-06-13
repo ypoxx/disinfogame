@@ -1,0 +1,5 @@
+# Abhängigkeiten
+node_modules/
+
+# Laufprotokolle (JSONL je Lauf — lokal, nicht versionieren)
+runs/

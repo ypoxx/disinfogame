@@ -290,6 +290,13 @@ export interface DialogState {
   }[];
   npcRecommendation?: string;
   npcBetrayalWarning?: string;
+  /**
+   * Sprachzeile (Asset-id, voice_<npc>_<lineKey>) — nur setzen, wenn der
+   * angezeigte Text exakt der vertonten Zeile entspricht. Begrüßungen/Topics
+   * laufen über dialogues.json und brauchen dafür erst einen Rückgabe-Key aus
+   * dem DialogLoader (siehe tools/asset-pipeline/README.md, Phase 3).
+   */
+  voiceAssetId?: string;
 }
 
 // ============================================
@@ -539,7 +546,9 @@ export function useStoryGameState(seed?: string) {
       const topic = choiceId.replace('topic_', '');
       const npc = engine.getNPCState(activeNpcId);
       if (npc) {
-        const baseResponse = engine.getNPCDialogue(activeNpcId, { type: 'topic', subtype: topic });
+        // voiceAssetId nur setzen, wenn Text exakt dem vertonten npcs.json-Text entspricht
+        const topicResult = engine.getNPCDialogueWithVoice(activeNpcId, { type: 'topic', subtype: topic });
+        const baseResponse = topicResult.text;
         if (baseResponse) {
           // Get context data for enhanced response
           const currentResources = engine.getResources();
@@ -564,11 +573,15 @@ export function useStoryGameState(seed?: string) {
             }
           );
 
+          // voiceAssetId nur, wenn Text nicht durch enhanceTopicResponse verändert wurde
+          const isTextUnchanged = enhancedResponse === baseResponse;
           setCurrentDialog({
             speaker: npc.name,
             speakerTitle: npc.role_de,
             text: enhancedResponse,
-            mood: 'neutral',
+            mood: topicResult.mood ?? 'neutral',
+            // Sprachzeile nur bei unveränderten Texten — sonst falsche Lippensynchronität
+            voiceAssetId: isTextUnchanged ? topicResult.voiceAssetId : undefined,
             choices: [{ id: 'back_to_npc', text: 'Zurück' }],
           });
           return;
@@ -580,7 +593,8 @@ export function useStoryGameState(seed?: string) {
     if (choiceId === 'back_to_npc' && activeNpcId) {
       const npc = engine.getNPCState(activeNpcId);
       if (npc) {
-        const greeting = engine.getNPCDialogue(activeNpcId, { type: 'greeting' });
+        // Begrüßung mit optionaler Sprachzeile (nur bei npcs.json-Fallback gesetzt)
+        const greetingResult = engine.getNPCDialogueWithVoice(activeNpcId, { type: 'greeting' });
         const topics = engine.getNPCTopics(activeNpcId);
         const topicChoices = topics.map(topic => ({
           id: `topic_${topic}`,
@@ -590,11 +604,14 @@ export function useStoryGameState(seed?: string) {
         setCurrentDialog({
           speaker: npc.name,
           speakerTitle: npc.role_de,
-          text: greeting || 'Was gibt es?',
-          mood: npc.inCrisis ? 'angry' :
-                npc.currentMood === 'positive' ? 'happy' :
-                npc.currentMood === 'concerned' ? 'worried' :
-                npc.currentMood === 'upset' ? 'angry' : 'neutral',
+          text: greetingResult.text || 'Was gibt es?',
+          mood: greetingResult.mood ?? (
+            npc.inCrisis ? 'angry' :
+            npc.currentMood === 'positive' ? 'happy' :
+            npc.currentMood === 'concerned' ? 'worried' :
+            npc.currentMood === 'upset' ? 'angry' : 'neutral'
+          ),
+          voiceAssetId: greetingResult.voiceAssetId,
           choices: topicChoices.length > 0 ? [
             ...topicChoices,
             { id: 'dismiss', text: 'Auf Wiedersehen' },
@@ -1070,11 +1087,17 @@ export function useStoryGameState(seed?: string) {
     // Check if NPC has recommendation reaction to show
     const tracking = recommendationTracking.get(npcId);
     const currentPhase = engine.getCurrentPhase().number;
-    let greetingText = engine.getNPCDialogue(npcId, { type: 'greeting' }) || 'Was gibt es?';
-    let mood: 'neutral' | 'happy' | 'angry' | 'worried' | 'suspicious' = npc.inCrisis ? 'angry' :
-          npc.currentMood === 'positive' ? 'happy' :
-          npc.currentMood === 'concerned' ? 'worried' :
-          npc.currentMood === 'upset' ? 'angry' : 'neutral';
+    // Begrüßung mit optionaler Sprachzeile (nur bei npcs.json-Fallback gesetzt)
+    const greetingResult = engine.getNPCDialogueWithVoice(npcId, { type: 'greeting' });
+    let greetingText = greetingResult.text || 'Was gibt es?';
+    let greetingVoiceId: string | undefined = greetingResult.voiceAssetId;
+    let mood: 'neutral' | 'happy' | 'angry' | 'worried' | 'suspicious' =
+      greetingResult.mood ?? (
+        npc.inCrisis ? 'angry' :
+        npc.currentMood === 'positive' ? 'happy' :
+        npc.currentMood === 'concerned' ? 'worried' :
+        npc.currentMood === 'upset' ? 'angry' : 'neutral'
+      );
 
     // If player recently followed/ignored recommendation (within last 2 phases), show reaction
     if (tracking) {
@@ -1082,20 +1105,22 @@ export function useStoryGameState(seed?: string) {
       const recentlyIgnored = tracking.lastIgnored && (currentPhase - tracking.lastIgnored) <= 2;
 
       if (recentlyFollowed && tracking.followed > 0) {
-        // Show positive reaction
+        // Reaktion auf Empfehlung (dialogues.json-Text) → kein voiceAssetId (abweichend)
         const reactions = getRecommendationReaction(npcId, 'followed');
         if (reactions.length > 0) {
           const reaction = reactions[Math.floor(Math.random() * reactions.length)];
           greetingText = reaction.text_de;
+          greetingVoiceId = undefined; // Empfehlungsreaktionen sind nicht vertont
           mood = reaction.mood as typeof mood || 'happy';
           storyLogger.info(`[DIALOG] ${npcId} reacts positively to followed recommendation`);
         }
       } else if (recentlyIgnored && tracking.ignored > 0) {
-        // Show negative reaction
+        // Reaktion auf ignorierte Empfehlung → kein voiceAssetId
         const reactions = getRecommendationReaction(npcId, 'ignored');
         if (reactions.length > 0) {
           const reaction = reactions[Math.floor(Math.random() * reactions.length)];
           greetingText = reaction.text_de;
+          greetingVoiceId = undefined; // Empfehlungsreaktionen sind nicht vertont
           mood = reaction.mood as typeof mood || 'worried';
           storyLogger.info(`[DIALOG] ${npcId} reacts negatively to ignored recommendation`);
         }
@@ -1131,6 +1156,7 @@ export function useStoryGameState(seed?: string) {
       speakerTitle: npc.role_de,
       text: greetingText,
       mood,
+      voiceAssetId: greetingVoiceId,
       npcRecommendation: recommendationText,
       npcBetrayalWarning: betrayalWarning,
       choices: topicChoices.length > 0 ? [

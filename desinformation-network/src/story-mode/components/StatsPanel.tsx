@@ -43,7 +43,7 @@ export function StatsPanel({
       >
         <h3
           className="font-bold mb-3 text-lg"
-          style={{ color: StoryModeColors.sovietRed }}
+          style={{ color: StoryModeColors.ministryRed }}
         >
           AKTUELLER STATUS
         </h3>
@@ -51,7 +51,7 @@ export function StatsPanel({
           <div className="text-center">
             <div
               className="text-3xl font-bold"
-              style={{ color: StoryModeColors.sovietRed }}
+              style={{ color: StoryModeColors.ministryRed }}
             >
               {phase.year}
             </div>
@@ -244,7 +244,7 @@ export function StatsPanel({
               </span>
               <span
                 className="font-bold"
-                style={{ color: StoryModeColors.sovietRed }}
+                style={{ color: StoryModeColors.ministryRed }}
               >
                 {resources.moralWeight}
               </span>
@@ -257,7 +257,7 @@ export function StatsPanel({
                 className="h-full transition-all"
                 style={{
                   width: `${Math.min(resources.moralWeight, 100)}%`,
-                  backgroundColor: StoryModeColors.sovietRed,
+                  backgroundColor: StoryModeColors.ministryRed,
                 }}
               />
             </div>
@@ -270,14 +270,14 @@ export function StatsPanel({
         className="border-4 p-4"
         style={{
           backgroundColor: StoryModeColors.darkConcrete,
-          borderColor: StoryModeColors.sovietRed,
+          borderColor: StoryModeColors.ministryRed,
         }}
       >
         <h3
           className="font-bold mb-4 text-lg"
-          style={{ color: StoryModeColors.sovietRed }}
+          style={{ color: StoryModeColors.ministryRed }}
         >
-          ☭ HAUPTZIELE
+          ⬢ HAUPTZIELE
         </h3>
         <div className="space-y-3">
           {primaryObjectives.map(obj => (

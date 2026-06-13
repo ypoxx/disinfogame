@@ -3,7 +3,14 @@
  * TD-017: Sound feedback implementation
  *
  * Uses synthesized tones instead of audio files for simplicity and small bundle size.
+ *
+ * Asset-Erweiterung (Track A-5): Liegt im Asset-Manifest eine echte Audiodatei
+ * (`sfx_<type>`), wird sie statt des Synth-Tons gespielt. Zusätzlich gibt es
+ * Musik-Loops (`music_<name>`) und NPC-Sprachzeilen (`voice_<npc>_<lineKey>`).
+ * Ohne Manifest bleibt alles exakt beim bisherigen Synth-Verhalten.
  */
+
+import { getAssetRegistry } from '../assets/AssetRegistry';
 
 type SoundType =
   | 'click'
@@ -20,7 +27,17 @@ type SoundType =
   | 'moralShift'      // Significant moral weight change
   | 'opportunityOpen' // Opportunity window opens
   | 'countermeasure'  // Enemy countermeasure activated
-  | 'worldEvent';     // Major world event
+  | 'worldEvent'      // Major world event
+  // Gebäude- und Diegese-Sounds (Asset-first; Synth-Fallback bewusst dezent)
+  | 'doorOpen'
+  | 'doorClose'
+  | 'elevator'
+  | 'footsteps'
+  | 'tvOn'
+  | 'paper'
+  | 'phoneRing'
+  | 'typewriter'
+  | 'applause';
 
 interface SoundConfig {
   frequency: number;
@@ -129,16 +146,66 @@ const SOUND_CONFIGS: Record<SoundType, SoundConfig> = {
     volume: 0.2,
     decay: true,
   },
+  // Gebäude/Diegese — im Normalfall spielen die Asset-Dateien (sfx_door_open, …)
+  doorOpen: { frequency: 160, duration: 0.18, type: 'triangle', volume: 0.12, decay: true },
+  doorClose: { frequency: 110, duration: 0.22, type: 'triangle', volume: 0.15, decay: true },
+  elevator: { frequency: 90, duration: 0.5, type: 'sine', volume: 0.1, secondFreq: 880 },
+  footsteps: { frequency: 130, duration: 0.08, type: 'triangle', volume: 0.08, decay: true },
+  tvOn: { frequency: 1200, duration: 0.12, type: 'sawtooth', volume: 0.08, decay: true },
+  paper: { frequency: 600, duration: 0.07, type: 'triangle', volume: 0.07, decay: true },
+  phoneRing: { frequency: 740, duration: 0.25, type: 'sine', volume: 0.12, secondFreq: 880 },
+  typewriter: { frequency: 950, duration: 0.05, type: 'square', volume: 0.08 },
+  applause: { frequency: 300, duration: 0.3, type: 'triangle', volume: 0.08, decay: true },
 };
+
+/** Lautstärke-Faktor für Hintergrundmusik relativ zum Master-Volume. */
+const MUSIC_VOLUME_FACTOR = 0.4;
+/** Dateibasierte SFX dürfen lauter sein als die (bewusst leisen) Synth-Töne. */
+const SFX_FILE_VOLUME_FACTOR = 2;
 
 class SoundSystem {
   private audioContext: AudioContext | null = null;
   private enabled: boolean = true;
   private masterVolume: number = 0.5;
+  private sfxCache: Map<string, HTMLAudioElement> = new Map();
+  private musicElement: HTMLAudioElement | null = null;
+  private musicAssetId: string | null = null;
+  private voiceElement: HTMLAudioElement | null = null;
 
   constructor() {
     // Load settings from localStorage
     this.loadSettings();
+  }
+
+  /** Erzeugt ein Audio-Element; null außerhalb des Browsers / ohne Audio-Support. */
+  private createAudio(url: string): HTMLAudioElement | null {
+    if (typeof Audio === 'undefined') return null;
+    try {
+      return new Audio(url);
+    } catch {
+      return null;
+    }
+  }
+
+  /** Spielt eine Asset-Datei ab (überlappend via cloneNode). true = übernommen. */
+  private playFile(url: string, volume: number): boolean {
+    let base = this.sfxCache.get(url);
+    if (!base) {
+      const created = this.createAudio(url);
+      if (!created) return false;
+      base = created;
+      this.sfxCache.set(url, base);
+    }
+    try {
+      const instance = base.cloneNode(true) as HTMLAudioElement;
+      instance.volume = Math.max(0, Math.min(1, volume));
+      void instance.play().catch(() => {
+        /* Autoplay-Policy o. Ä. — Synth-Pfad ist bereits gelaufen bzw. egal */
+      });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   private getContext(): AudioContext | null {
@@ -166,6 +233,18 @@ class SoundSystem {
    * Play a sound effect
    */
   play(type: SoundType): void {
+    if (!this.enabled) return;
+
+    // Asset-Datei (sfx_<type>) hat Vorrang vor dem Synth-Ton. Manifest-ids
+    // erlauben nur [a-z0-9_], daher camelCase → snake_case (phaseEnd → phase_end).
+    const assetId = `sfx_${type.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`)}`;
+    const fileUrl = getAssetRegistry().soundUrl(assetId);
+    if (fileUrl) {
+      const config = SOUND_CONFIGS[type];
+      const volume = (config?.volume ?? 0.2) * SFX_FILE_VOLUME_FACTOR * this.masterVolume;
+      if (this.playFile(fileUrl, volume)) return;
+    }
+
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -217,10 +296,84 @@ class SoundSystem {
   }
 
   /**
+   * Hintergrundmusik (Loop) aus dem Asset-Manifest starten.
+   * Ohne passendes Asset: stiller No-op. Gleiche id erneut => läuft weiter.
+   */
+  playMusic(assetId: string = 'music_theme_main'): boolean {
+    if (!this.enabled) return false;
+    if (this.musicAssetId === assetId && this.musicElement && !this.musicElement.paused) {
+      return true;
+    }
+    const url = getAssetRegistry().soundUrl(assetId);
+    if (!url) return false;
+    this.stopMusic();
+    const element = this.createAudio(url);
+    if (!element) return false;
+    element.loop = true;
+    element.volume = Math.max(0, Math.min(1, this.masterVolume * MUSIC_VOLUME_FACTOR));
+    this.musicElement = element;
+    this.musicAssetId = assetId;
+    void element.play().catch(() => {
+      // Autoplay-Policy: bis zur nächsten Nutzer-Interaktion still bleiben.
+    });
+    return true;
+  }
+
+  stopMusic(): void {
+    if (this.musicElement) {
+      try {
+        this.musicElement.pause();
+      } catch {
+        // ignore
+      }
+    }
+    this.musicElement = null;
+    this.musicAssetId = null;
+  }
+
+  getCurrentMusicId(): string | null {
+    return this.musicAssetId;
+  }
+
+  /**
+   * NPC-Sprachzeile abspielen (voice_<npc>_<lineKey>); stoppt eine laufende.
+   * true = Asset vorhanden und Wiedergabe gestartet.
+   */
+  playVoiceLine(assetId: string): boolean {
+    if (!this.enabled) return false;
+    const url = getAssetRegistry().soundUrl(assetId);
+    if (!url) return false;
+    this.stopVoice();
+    const element = this.createAudio(url);
+    if (!element) return false;
+    element.volume = Math.max(0, Math.min(1, this.masterVolume));
+    this.voiceElement = element;
+    void element.play().catch(() => {
+      /* Autoplay-Policy */
+    });
+    return true;
+  }
+
+  stopVoice(): void {
+    if (this.voiceElement) {
+      try {
+        this.voiceElement.pause();
+      } catch {
+        // ignore
+      }
+    }
+    this.voiceElement = null;
+  }
+
+  /**
    * Enable/disable sounds
    */
   setEnabled(enabled: boolean): void {
     this.enabled = enabled;
+    if (!enabled) {
+      this.stopMusic();
+      this.stopVoice();
+    }
     this.saveSettings();
   }
 
@@ -233,6 +386,9 @@ class SoundSystem {
    */
   setVolume(volume: number): void {
     this.masterVolume = Math.max(0, Math.min(1, volume));
+    if (this.musicElement) {
+      this.musicElement.volume = Math.max(0, Math.min(1, this.masterVolume * MUSIC_VOLUME_FACTOR));
+    }
     this.saveSettings();
   }
 
@@ -294,4 +450,20 @@ export function setSoundVolume(volume: number): void {
 
 export function getSoundVolume(): number {
   return getSoundSystem().getVolume();
+}
+
+export function playMusic(assetId?: string): boolean {
+  return getSoundSystem().playMusic(assetId);
+}
+
+export function stopMusic(): void {
+  getSoundSystem().stopMusic();
+}
+
+export function playVoiceLine(assetId: string): boolean {
+  return getSoundSystem().playVoiceLine(assetId);
+}
+
+export function stopVoiceLine(): void {
+  getSoundSystem().stopVoice();
 }

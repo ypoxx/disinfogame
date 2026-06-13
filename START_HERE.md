@@ -34,6 +34,7 @@ npx vitest run src/story-mode/__tests__
 | Story-Spielcode | `desinformation-network/src/story-mode/` |
 | Brücke zur Engine + geteilte Typen/Utils | `desinformation-network/src/game-logic/` |
 | **Gebäude/TVTower & Grafik-Pipeline (Plan)** | `docs/BUILDING_AND_ASSETS.md` · Bauplan: `…/story-mode/BUILDING_CONCEPT.md` |
+| **Headless-Asset-Pipeline** (Shot-Liste, Platzhalter, KI-Läufe mit Budget) | `tools/asset-pipeline/README.md` |
 | Archiv (alte Pläne, Pro-Code/Backend) | `archive/` |
 
 ## Was in der Aufräum-Runde gemacht wurde

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { StoryModeColors } from '../theme';
+import { useAssets } from '../assets/useAssets';
+import { playVoiceLine, stopVoiceLine } from '../utils/SoundSystem';
 
 // ============================================
 // TYPES
@@ -24,6 +26,8 @@ export interface DialogMessage {
   isTyping?: boolean;
   npcRecommendation?: string; // New: show active recommendation
   npcBetrayalWarning?: string; // New: show betrayal warning
+  /** Asset-id einer Sprachzeile (voice_<npc>_<lineKey>) — wird abgespielt, wenn vorhanden. */
+  voiceAssetId?: string;
 }
 
 interface DialogBoxProps {
@@ -45,6 +49,32 @@ interface PortraitProps {
 }
 
 function NPCPortrait({ npc, mood, size = 48 }: PortraitProps) {
+  // Echtes Porträt aus dem Asset-Manifest (portrait_<npc>_<mood>, sonst
+  // portrait_<npc>) hat Vorrang vor dem CSS-Gesicht.
+  const assets = useAssets();
+  const assetUrl =
+    assets.imageUrl(`portrait_${npc.toLowerCase()}_${mood}`) ??
+    assets.imageUrl(`portrait_${npc.toLowerCase()}`);
+  if (assetUrl) {
+    return (
+      <img
+        src={assetUrl}
+        alt={npc}
+        width={size}
+        height={size}
+        style={{
+          width: size,
+          height: size,
+          objectFit: 'cover',
+          border: '3px solid',
+          borderColor: NPC_COLORS[npc.toLowerCase()] || StoryModeColors.warning,
+          backgroundColor: '#1a1a1a',
+          imageRendering: 'pixelated',
+        }}
+      />
+    );
+  }
+
   // Base styles for all portraits
   const baseStyle: React.CSSProperties = {
     width: size,
@@ -78,7 +108,7 @@ function NPCPortrait({ npc, mood, size = 48 }: PortraitProps) {
     switch (npc.toLowerCase()) {
       case 'direktor':
         return {
-          borderColor: StoryModeColors.sovietRed,
+          borderColor: StoryModeColors.ministryRed,
           faceColor: '#d4a574',
           hairColor: '#2d2d2d',
           hairStyle: 'slicked', // slicked back
@@ -329,6 +359,23 @@ function NPCPortrait({ npc, mood, size = 48 }: PortraitProps) {
   );
 }
 
+const KNOWN_NPC_IDS = ['direktor', 'marina', 'alexei', 'volkov', 'katja', 'igor'];
+
+/**
+ * Leitet die NPC-id aus dem Sprecher ab. Dialoge setzen meist den vollen Namen
+ * („Marina Petrova"), die Porträt-/Farb-Logik arbeitet aber mit Kurz-ids —
+ * deshalb tokenweise matchen statt nur exakt (behebt: Porträts erschienen
+ * bisher nur beim Intro-„Direktor").
+ */
+function resolveSpeakerKey(speaker: string): string {
+  const lower = speaker.toLowerCase();
+  if (KNOWN_NPC_IDS.includes(lower)) return lower;
+  for (const token of lower.split(/\s+/)) {
+    if (KNOWN_NPC_IDS.includes(token)) return token;
+  }
+  return lower;
+}
+
 // Fallback emoji portraits for system/unknown
 const FALLBACK_PORTRAITS: Record<string, Record<string, string>> = {
   system: {
@@ -341,7 +388,7 @@ const FALLBACK_PORTRAITS: Record<string, Record<string, string>> = {
 };
 
 const NPC_COLORS: Record<string, string> = {
-  direktor: StoryModeColors.sovietRed,
+  direktor: StoryModeColors.ministryRed,
   marina: StoryModeColors.agencyBlue,
   alexei: StoryModeColors.militaryOlive,
   volkov: StoryModeColors.militaryOlive,
@@ -408,10 +455,21 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
     setSelectedChoice(null);
   }, [message?.text]);
 
+  // Sprachzeile abspielen, wenn das Manifest sie liefert (sonst No-op).
+  // `assets` in den Deps: Erscheint der Dialog VOR dem Manifest-Load (z. B. die
+  // Intro-Zeile direkt nach Spielstart), holt der Effekt die Wiedergabe nach,
+  // sobald die Registry gefüllt ist — die Registry-Instanz wechselt genau einmal.
+  const assets = useAssets();
+  const voiceAssetId = message?.voiceAssetId;
+  useEffect(() => {
+    if (voiceAssetId) playVoiceLine(voiceAssetId);
+    return () => stopVoiceLine();
+  }, [voiceAssetId, assets]);
+
   if (!isVisible || !message) return null;
 
-  const speakerKey = message.speaker.toLowerCase();
-  const isKnownNPC = ['direktor', 'marina', 'alexei', 'volkov', 'katja', 'igor'].includes(speakerKey);
+  const speakerKey = resolveSpeakerKey(message.speaker);
+  const isKnownNPC = KNOWN_NPC_IDS.includes(speakerKey);
   const fallbackEmoji = FALLBACK_PORTRAITS[speakerKey]?.[message.mood || 'neutral'] || '👤';
   const speakerColor = NPC_COLORS[speakerKey] || StoryModeColors.textPrimary;
 
@@ -560,7 +618,7 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
                   `}
                   style={{
                     backgroundColor: selectedChoice === choice.id
-                      ? StoryModeColors.sovietRed
+                      ? StoryModeColors.ministryRed
                       : StoryModeColors.surfaceLight,
                     borderColor: choice.disabled
                       ? StoryModeColors.borderLight

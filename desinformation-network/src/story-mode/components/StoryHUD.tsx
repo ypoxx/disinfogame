@@ -1,6 +1,14 @@
 import { StoryModeColors } from '../theme';
 import { usePanelStore } from '../stores/panelStore';
 
+// E29: Keyframe für pulsierendes RISIKO bei ≥70 — einmalig injiziert.
+const HUD_PULSE_STYLE = `
+  @keyframes hud-risk-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.55; }
+  }
+`;
+
 // ============================================
 // TYPES
 // ============================================
@@ -52,6 +60,8 @@ interface ResourceBarProps {
   color: string;
   warningThreshold?: number;
   dangerThreshold?: number;
+  /** E29: 'primary' = größere Schrift/fett, 'secondary' = kleiner/gedimmt */
+  priority?: 'primary' | 'secondary';
 }
 
 function ResourceBar({
@@ -63,6 +73,7 @@ function ResourceBar({
   color,
   warningThreshold,
   dangerThreshold,
+  priority,
 }: ResourceBarProps) {
   const formatValue = () => {
     switch (format) {
@@ -88,20 +99,50 @@ function ResourceBar({
   const statusColor = getStatusColor();
   const percentage = maxValue ? (value / maxValue) * 100 : undefined;
 
+  // E29: Primäre Indikatoren fett + etwas größer; Sekundär dezent verkleinert.
+  const isPrimary = priority === 'primary';
+  const isSecondary = priority === 'secondary';
+
+  // E29: RISIKO pulsiert bei ≥70 (danger).
+  const isDanger = dangerThreshold !== undefined && value >= dangerThreshold;
+  const pulseStyle: React.CSSProperties = isDanger && isPrimary
+    ? { animation: 'hud-risk-pulse 1.2s ease-in-out infinite' }
+    : {};
+
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-lg">{icon}</span>
-      <div className="flex-1">
-        <div className="flex justify-between text-xs mb-0.5">
-          <span style={{ color: StoryModeColors.textSecondary }}>{label}</span>
-          <span className="font-bold" style={{ color: statusColor }}>
+    <div
+      className="flex items-center gap-2"
+      style={isSecondary ? { opacity: 0.75 } : undefined}
+    >
+      <span className={isPrimary ? 'text-xl' : 'text-lg'}>{icon}</span>
+      <div className="flex-1" style={pulseStyle}>
+        <div className="flex justify-between mb-0.5" style={{ fontSize: isPrimary ? '0.8rem' : '0.7rem' }}>
+          <span
+            style={{
+              color: StoryModeColors.textSecondary,
+              fontWeight: isPrimary ? 700 : 400,
+              letterSpacing: isPrimary ? '0.05em' : undefined,
+            }}
+          >
+            {label}
+          </span>
+          <span
+            style={{
+              color: statusColor,
+              fontWeight: isPrimary ? 800 : 700,
+              fontSize: isPrimary ? '0.85rem' : undefined,
+            }}
+          >
             {formatValue()}
           </span>
         </div>
         {percentage !== undefined && (
           <div
-            className="h-1.5 rounded-sm overflow-hidden"
-            style={{ backgroundColor: StoryModeColors.border }}
+            className="rounded-sm overflow-hidden"
+            style={{
+              height: isPrimary ? '4px' : '3px',
+              backgroundColor: StoryModeColors.border,
+            }}
           >
             <div
               className="h-full transition-all duration-300"
@@ -139,7 +180,7 @@ function PhaseDisplay({ phase }: PhaseDisplayProps) {
         </div>
         <div
           className="font-bold text-xl"
-          style={{ color: StoryModeColors.sovietRed }}
+          style={{ color: StoryModeColors.ministryRed }}
         >
           {phase.year}
         </div>
@@ -248,6 +289,9 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
 
 function ViewToggleButton() {
   const { viewMode, toggleViewMode } = usePanelStore();
+  // Zeigt das JEWEILS NÄCHSTE Ziel des V-Zyklus (Gebäude → Büro → Dashboard → …).
+  const nextLabel =
+    viewMode === 'building' ? '🗂️ BÜRO' : viewMode === 'office' ? '📊 DASHBOARD' : '🏢 GEBÄUDE';
   return (
     <button
       onClick={toggleViewMode}
@@ -260,7 +304,7 @@ function ViewToggleButton() {
       }}
       title="Ansicht wechseln [V]"
     >
-      {viewMode === 'office' ? '📊 DASHBOARD' : '🏢 BÜRO'}
+      {nextLabel}
     </button>
   );
 }
@@ -279,6 +323,9 @@ export function StoryHUD({
 }: StoryHUDProps) {
   return (
     <>
+      {/* E29: Puls-Keyframe einmalig ins DOM */}
+      <style>{HUD_PULSE_STYLE}</style>
+
       {/* Top Bar */}
       <div
         className="fixed top-0 left-0 right-0 z-40 border-b-4"
@@ -302,13 +349,16 @@ export function StoryHUD({
               warningThreshold={20}
               dangerThreshold={10}
             />
+            {/* E29: KAPAZITÄT primär — zentrale Spielressource */}
             <ResourceBar
               icon="⚡"
               label="KAPAZITÄT"
               value={resources.capacity}
               maxValue={100}
               color={StoryModeColors.agencyBlue}
+              priority="primary"
             />
+            {/* E29: RISIKO primär — kritischster Indikator, pulsiert bei ≥70 */}
             <ResourceBar
               icon="⚠️"
               label="RISIKO"
@@ -316,7 +366,8 @@ export function StoryHUD({
               format="percent"
               color={StoryModeColors.militaryOlive}
               warningThreshold={50}
-              dangerThreshold={75}
+              dangerThreshold={70}
+              priority="primary"
             />
             <ResourceBar
               icon="👁️"
@@ -327,14 +378,16 @@ export function StoryHUD({
               warningThreshold={60}
               dangerThreshold={80}
             />
+            {/* E29: MORALISCHE LAST sekundär — ethischer Indikator, weniger sofort-kritisch */}
             <ResourceBar
               icon="💀"
               label="MORALISCHE LAST"
               value={resources.moralWeight}
               format="number"
-              color={StoryModeColors.sovietRed}
+              color={StoryModeColors.ministryRed}
               warningThreshold={50}
               dangerThreshold={75}
+              priority="secondary"
             />
           </div>
 
@@ -360,7 +413,7 @@ export function StoryHUD({
                 onClick={onEndPhase}
                 className="px-4 py-1.5 border-2 font-bold text-sm transition-all hover:brightness-110 active:translate-y-0.5"
                 style={{
-                  backgroundColor: StoryModeColors.sovietRed,
+                  backgroundColor: StoryModeColors.ministryRed,
                   borderColor: StoryModeColors.darkRed,
                   color: '#fff',
                   boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.8)',

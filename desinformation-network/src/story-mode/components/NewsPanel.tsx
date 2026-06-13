@@ -91,7 +91,7 @@ export function NewsPanel({
                     </span>
                     {isDefensiveAI && (
                       <span className="text-xs px-2 py-0.5 font-bold" style={{
-                        backgroundColor: StoryModeColors.sovietRed,
+                        backgroundColor: StoryModeColors.ministryRed,
                         color: '#fff',
                       }}>
                         🛡️ DEFENSIVE AI

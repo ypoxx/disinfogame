@@ -145,8 +145,8 @@ function StatsGrid({ stats }: { stats: GameEndData['stats'] }) {
     { label: 'Phasen', value: stats.phasesPlayed, color: StoryModeColors.textPrimary },
     { label: 'Aktionen', value: stats.actionsExecuted, color: StoryModeColors.agencyBlue },
     { label: 'Konsequenzen', value: stats.consequencesTriggered, color: StoryModeColors.danger },
-    { label: 'NPCs in Krise', value: stats.npcsCrisis, color: StoryModeColors.sovietRed },
-    { label: 'Moralische Last', value: stats.moralWeight, color: StoryModeColors.sovietRed },
+    { label: 'NPCs in Krise', value: stats.npcsCrisis, color: StoryModeColors.ministryRed },
+    { label: 'Moralische Last', value: stats.moralWeight, color: StoryModeColors.ministryRed },
   ];
 
   if (stats.finalTrust !== undefined) {
@@ -264,7 +264,7 @@ export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenP
               className="mt-4 p-4 border-2 text-center"
               style={{
                 backgroundColor: StoryModeColors.darkConcrete,
-                borderColor: StoryModeColors.sovietRed,
+                borderColor: StoryModeColors.ministryRed,
               }}
             >
               <div className="text-xs mb-2" style={{ color: StoryModeColors.textMuted }}>
@@ -346,7 +346,7 @@ export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenP
               onClick={onRestart}
               className="flex-1 py-4 border-4 font-bold text-lg transition-all hover:brightness-110 active:translate-y-1"
               style={{
-                backgroundColor: StoryModeColors.sovietRed,
+                backgroundColor: StoryModeColors.ministryRed,
                 borderColor: StoryModeColors.darkRed,
                 color: '#fff',
                 boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',

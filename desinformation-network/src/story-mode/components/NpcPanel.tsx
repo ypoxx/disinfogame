@@ -154,7 +154,7 @@ export function NpcPanel({
                   <span
                     className="text-xs px-2 py-0.5 mt-1 inline-block ml-1"
                     style={{
-                      backgroundColor: StoryModeColors.sovietRed,
+                      backgroundColor: StoryModeColors.ministryRed,
                       color: '#fff',
                     }}
                   >
@@ -263,7 +263,7 @@ export function NpcPanel({
                   <span
                     className="px-2 py-1 text-xs font-bold"
                     style={{
-                      backgroundColor: StoryModeColors.sovietRed,
+                      backgroundColor: StoryModeColors.ministryRed,
                       color: '#fff',
                     }}
                   >
@@ -423,7 +423,7 @@ export function NpcPanel({
             className="w-full py-3 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               backgroundColor: selectedNpc.available
-                ? StoryModeColors.sovietRed
+                ? StoryModeColors.ministryRed
                 : StoryModeColors.concrete,
               borderColor: selectedNpc.available
                 ? StoryModeColors.darkRed

@@ -173,7 +173,7 @@ export function ActionFeedbackDialog({
                     <span style={{ color: StoryModeColors.textMuted }}>Moral. Last:</span>
                     <span
                       className="font-bold"
-                      style={{ color: StoryModeColors.sovietRed }}
+                      style={{ color: StoryModeColors.ministryRed }}
                     >
                       +{cumulativeChanges.moralWeight}
                     </span>
@@ -374,7 +374,7 @@ export function ActionFeedbackDialog({
               onClick={onClose}
               className="px-6 py-2 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
               style={{
-                backgroundColor: StoryModeColors.sovietRed,
+                backgroundColor: StoryModeColors.ministryRed,
                 borderColor: StoryModeColors.darkRed,
                 color: '#fff',
                 boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
@@ -547,7 +547,7 @@ export function ActionFeedbackDialog({
                     <span style={{ color: StoryModeColors.textMuted }}>Moral. Last:</span>
                     <span
                       className="font-bold"
-                      style={{ color: StoryModeColors.sovietRed }}
+                      style={{ color: StoryModeColors.ministryRed }}
                     >
                       +{singleResult.resourceChanges.moralWeight}
                     </span>
@@ -889,7 +889,7 @@ export function ActionFeedbackDialog({
             onClick={onClose}
             className="px-6 py-2 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
             style={{
-              backgroundColor: StoryModeColors.sovietRed,
+              backgroundColor: StoryModeColors.ministryRed,
               borderColor: StoryModeColors.darkRed,
               color: '#fff',
               boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',

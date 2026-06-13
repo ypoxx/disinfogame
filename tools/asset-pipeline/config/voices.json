@@ -1,0 +1,8 @@
+{
+  "_comment": "Stimmen-Besetzung: npcId → ElevenLabs voice_id (stabil je NPC, siehe docs/ASSET_STUDIO_SPEC.md M5). Kandidaten anzeigen: npm run voices (braucht ELEVENLABS_API_KEY). Modell eleven_multilingual_v2 spricht Deutsch mit allen Stimmen. Casting 2026-06-12 nach npcs.json-Profilen.",
+  "direktor": "MHOybJN5BsVS5H8m3mru",
+  "marina": "pFZP5JQG7iQjIQuC4Bku",
+  "alexei": "bIHbv24MWmeRgasZH58o",
+  "katja": "Xb7hH8MSUJpSbSDYk0k2",
+  "igor": "wGD81UtSGECIRSWQjH8X"
+}

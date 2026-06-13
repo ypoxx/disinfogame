@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { StoryModeColors } from './theme';
+import { GAME_VERSION } from './version';
 import { DialogBox } from './components/DialogBox';
 import { StoryHUD } from './components/StoryHUD';
 import { ActionPanel } from './components/ActionPanel';
@@ -25,11 +26,17 @@ import { BetrayalIndicators } from './components/BetrayalIndicators';
 import { ConsequenceTimeline } from './components/ConsequenceTimeline';
 import { useStoryGameState } from './hooks/useStoryGameState';
 import type { ActionResult } from '../game-logic/StoryEngineAdapter';
-import { OfficeScreen } from './OfficeScreen';
+import { PlayerOfficeView } from './components/PlayerOfficeView';
+import { TitleScreen } from './components/TitleScreen';
+import { ArrivalSequence } from './components/ArrivalSequence';
 import { BuildingView } from './building/BuildingView';
+import { BroadcastBar } from './broadcast/BroadcastBar';
+import { useAudienceBroadcast } from './broadcast/useAudienceBroadcast';
 import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
 import { DashboardView } from './components/DashboardView';
+import { initAssetRegistry, useAssets } from './assets';
+import { playMusic, stopMusic, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound } from './utils/SoundSystem';
 
 // ============================================
 // TYPES
@@ -40,142 +47,16 @@ interface StoryModeGameProps {
 }
 
 // ============================================
-// INTRO SCREEN
-// ============================================
-
-function IntroScreen({ onStart, onLoadGame, hasSave }: {
-  onStart: () => void;
-  onLoadGame: () => void;
-  hasSave: boolean;
-}) {
-  return (
-    <div
-      className="fixed inset-0 flex items-center justify-center"
-      style={{ backgroundColor: StoryModeColors.background }}
-    >
-      <div
-        className="max-w-2xl w-full mx-4 border-8"
-        style={{
-          backgroundColor: StoryModeColors.surface,
-          borderColor: StoryModeColors.sovietRed,
-          boxShadow: '16px 16px 0px 0px rgba(0,0,0,0.9)',
-        }}
-      >
-        {/* Header */}
-        <div
-          className="px-8 py-6 border-b-4 text-center"
-          style={{
-            backgroundColor: StoryModeColors.sovietRed,
-            borderColor: StoryModeColors.border,
-          }}
-        >
-          <div className="text-4xl mb-2">☭</div>
-          <h1
-            className="font-bold text-3xl tracking-wider"
-            style={{ color: StoryModeColors.warning }}
-          >
-            OPERATION: WESTUNION
-          </h1>
-          <p className="text-white/80 mt-2 text-sm">
-            Ein Desinformations-Planspiel
-          </p>
-        </div>
-
-        {/* Content */}
-        <div className="p-8">
-          <div
-            className="mb-6 text-center font-mono text-sm"
-            style={{ color: StoryModeColors.textSecondary }}
-          >
-            <p className="mb-4">
-              Sie sind der neue Leiter der Abteilung für Sonderoperationen.
-            </p>
-            <p className="mb-4">
-              Ihre Mission: Die politische Landschaft von Westunion
-              zu destabilisieren und das Vertrauen in demokratische
-              Institutionen zu untergraben.
-            </p>
-            <p>
-              Sie haben <span style={{ color: StoryModeColors.warning }}>10 Jahre</span> Zeit.
-              Wählen Sie weise.
-            </p>
-          </div>
-
-          {/* Warning */}
-          <div
-            className="border-2 p-4 mb-6 text-center text-xs"
-            style={{
-              backgroundColor: StoryModeColors.background,
-              borderColor: StoryModeColors.warning,
-              color: StoryModeColors.warning,
-            }}
-          >
-            ⚠️ BILDUNGSZWECK: Dieses Spiel dient dem Verständnis von
-            Desinformationstaktiken und deren Gegenmaßnahmen.
-          </div>
-
-          {/* Buttons */}
-          <div className="flex flex-col gap-3">
-            <button
-              onClick={onStart}
-              className="w-full py-4 border-4 font-bold text-lg transition-all hover:brightness-110 active:translate-y-1"
-              style={{
-                backgroundColor: StoryModeColors.sovietRed,
-                borderColor: StoryModeColors.darkRed,
-                color: '#fff',
-                boxShadow: '6px 6px 0px 0px rgba(0,0,0,0.8)',
-              }}
-            >
-              NEUE MISSION STARTEN
-            </button>
-
-            {hasSave && (
-              <button
-                onClick={onLoadGame}
-                className="w-full py-3 border-4 font-bold transition-all hover:brightness-110 active:translate-y-1"
-                style={{
-                  backgroundColor: StoryModeColors.agencyBlue,
-                  borderColor: StoryModeColors.darkBlue,
-                  color: StoryModeColors.warning,
-                  boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
-                }}
-              >
-                SPEICHERSTAND LADEN
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div
-          className="px-8 py-3 border-t-4 text-center text-xs"
-          style={{
-            backgroundColor: StoryModeColors.darkConcrete,
-            borderColor: StoryModeColors.border,
-            color: StoryModeColors.textMuted,
-          }}
-        >
-          Basierend auf dem DISARM-Framework | Propaganda-Simulation
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ============================================
 // PAUSE MENU
 // ============================================
-
-import { useState as usePauseState } from 'react';
-import { isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound } from './utils/SoundSystem';
 
 function PauseMenu({ onResume, onSave, onExit }: {
   onResume: () => void;
   onSave: () => void;
   onExit: () => void;
 }) {
-  const [soundOn, setSoundOn] = usePauseState(isSoundEnabled());
-  const [volume, setVolume] = usePauseState(getSoundVolume());
+  const [soundOn, setSoundOn] = useState(isSoundEnabled());
+  const [volume, setVolume] = useState(getSoundVolume());
 
   const handleSoundToggle = () => {
     const newValue = !soundOn;
@@ -221,7 +102,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
             onClick={onResume}
             className="w-full py-3 border-2 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
             style={{
-              backgroundColor: StoryModeColors.sovietRed,
+              backgroundColor: StoryModeColors.ministryRed,
               borderColor: StoryModeColors.darkRed,
               color: '#fff',
               boxShadow: '3px 3px 0px 0px rgba(0,0,0,0.8)',
@@ -285,7 +166,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
                   value={volume}
                   onChange={handleVolumeChange}
                   className="flex-1"
-                  style={{ accentColor: StoryModeColors.sovietRed }}
+                  style={{ accentColor: StoryModeColors.ministryRed }}
                 />
                 <span
                   className="text-xs"
@@ -309,6 +190,14 @@ function PauseMenu({ onResume, onSave, onExit }: {
           >
             BEENDEN
           </button>
+
+          {/* Versionsnummer unten im Pausemenü */}
+          <div
+            className="text-center text-xs"
+            style={{ color: StoryModeColors.textMuted, letterSpacing: '0.06em' }}
+          >
+            v{GAME_VERSION}
+          </div>
         </div>
       </div>
     </div>
@@ -354,6 +243,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   // Panel state from Zustand store (replaces 8 individual useState hooks)
   const {
     activePanel, togglePanel, setActivePanel,
+    broadcastOpen, toggleBroadcast, setBroadcastOpen,
     advisorCollapsed, toggleAdvisor,
     queueCollapsed, toggleQueue,
     viewMode, toggleViewMode, setViewMode,
@@ -367,19 +257,72 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [highlightActionId, setHighlightActionId] = useState<string | null>(null);
   const [batchActionResults, setBatchActionResults] = useState<ActionResult[] | null>(null);
   const [selectedGrievanceNpc, setSelectedGrievanceNpc] = useState<string | null>(null);
+  // Geführter Einstieg: Title → Ankunfts-Sequenz (Lobby/Fahrstuhl/Zentrale) → Direktor-Dialog.
+  const [showArrival, setShowArrival] = useState(false);
+  // Büro-Hotspot-Hinweise nur beim allerersten Besuch (über Sessions persistiert).
+  const [showOfficeHints] = useState<boolean>(() => {
+    try {
+      return !window.localStorage.getItem('storyMode_officeHintsSeen');
+    } catch {
+      return true;
+    }
+  });
 
   // Count world events
   const worldEventCount = state.newsEvents.filter(e => e.type === 'world_event').length;
 
+  // Publikum/Broadcast (Taste B) — reine Anzeige-Schicht über audienceModel.
+  const audience = useAudienceBroadcast(state.lastActionResult, state.storyPhase.number, state.resources.risk);
+
+  // Auto-Peek: Jede neue „Sendung" blendet die Leiste kurz ein, damit der zentrale
+  // Feedback-Loop (Tat → Publikum reagiert) sichtbar ist, ohne dass der Spieler B
+  // kennen muss (Review-Befund A1). Manuelles Öffnen/Schließen gewinnt immer.
+  const lastPeekedItem = useRef<string | null>(null);
+  useEffect(() => {
+    if (!audience.lastItem || audience.lastItem.id === lastPeekedItem.current) return;
+    lastPeekedItem.current = audience.lastItem.id;
+    setBroadcastOpen(true);
+    const timer = window.setTimeout(() => setBroadcastOpen(false), 4500);
+    return () => window.clearTimeout(timer);
+  }, [audience.lastItem, setBroadcastOpen]);
+
   // Tutorial system
   const tutorial = useTutorial();
 
-  // Auto-start tutorial on first play
+  // Asset-Manifest laden (public/assets/assets.json) — fehlt es, bleibt der CSS-Look.
   useEffect(() => {
-    if (state.gamePhase === 'playing' && tutorial.shouldShowTutorial() && !tutorial.isActive) {
-      tutorial.start();
+    void initAssetRegistry();
+  }, []);
+
+  // Hintergrundmusik (music_theme_main), sobald gespielt wird — No-op ohne Asset.
+  // Der Start liegt nach einem Klick (Spielstart), erfüllt also die Autoplay-Policy.
+  // `assets` in den Deps: Lädt das Manifest erst NACH dem Spielstart, wiederholt
+  // der Effekt den Versuch (sonst bliebe die Musik bis zum Phasenwechsel stumm).
+  const assets = useAssets();
+  useEffect(() => {
+    if (state.gamePhase === 'playing' || state.gamePhase === 'tutorial') {
+      // Situative Musik: Krise → angespannter Loop, sonst Büro-Ambience.
+      playMusic(state.activeCrisis ? 'music_tense' : 'music_gameplay');
+    } else if (state.gamePhase === 'ended') {
+      stopMusic();
     }
-  }, [state.gamePhase, tutorial]);
+  }, [state.gamePhase, state.activeCrisis, assets]);
+
+  // Erster Büro-Besuch gesehen → Hinweise künftig nicht mehr zeigen.
+  useEffect(() => {
+    if (viewMode === 'office') {
+      try {
+        window.localStorage.setItem('storyMode_officeHintsSeen', '1');
+      } catch {
+        // localStorage nicht verfügbar — Hinweise erscheinen dann erneut.
+      }
+    }
+  }, [viewMode]);
+
+  // Kein Auto-Start des 13-Schritt-Text-Tutorials mehr: Das Onboarding ist jetzt
+  // diegetisch (Ankunfts-Sequenz → Direktor-Dialog → Büro-Hotspot-Hinweise ①②③).
+  // Das Overlay bleibt über das Pausenmenü/Hilfe erreichbar (tutorial.start()).
+  // Review-Befund: Doppel-Onboarding zerstörte den Einstieg (Game-Design-Gutachten B1).
 
   // Keyboard shortcuts (centralized - replaces OfficeScreen's duplicate handler)
   useEffect(() => {
@@ -409,6 +352,14 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         e.preventDefault();
         continueDialog();
       }
+      // Dialog-Antworten per Zifferntaste (die Optionen zeigen [1]–[4])
+      if (state.currentDialog?.choices && /^[1-9]$/.test(e.key)) {
+        const choice = state.currentDialog.choices[Number(e.key) - 1];
+        if (choice) {
+          e.preventDefault();
+          handleDialogChoice(choice.id);
+        }
+      }
       // Panel & view shortcuts (only when playing and no dialog open)
       if (state.gamePhase === 'playing' && !state.currentDialog) {
         switch (e.key.toLowerCase()) {
@@ -419,6 +370,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           case 'm': togglePanel('mission'); break;
           case 'e': togglePanel('events'); break;
           case 'v': toggleViewMode(); break;
+          case 'b': toggleBroadcast(); break;
           case 'i': setShowEncyclopedia(prev => !prev); break;
         }
       }
@@ -426,7 +378,35 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, activePanel, togglePanel, setActivePanel, toggleViewMode, setShowEncyclopedia]);
+  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleViewMode, toggleBroadcast, setShowEncyclopedia]);
+
+  // K9 Stufe 1: Autosave bei jedem Phasenwechsel (nur während 'playing').
+  // saveGame kommt aus useStoryGameState und wird auch im Pausemenü genutzt.
+  useEffect(() => {
+    if (state.gamePhase !== 'playing') return;
+    const success = saveGame();
+    setSaveMessage(success ? 'Automatisch gespeichert' : null);
+  // storyPhase.number als einzige Dep — kein Loop durch saveMessage-Änderung.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.storyPhase.number]);
+
+  // K9 Stufe 1: Verlassen-Schutz — Browser-Standard-Dialog bei aktivem Spiel.
+  useEffect(() => {
+    const aktivePhase =
+      state.gamePhase === 'playing' ||
+      state.gamePhase === 'tutorial' ||
+      state.gamePhase === 'consequence';
+
+    if (!aktivePhase) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent): void => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [state.gamePhase]);
 
   // Save message timeout
   useEffect(() => {
@@ -449,12 +429,23 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   // RENDER
   // ============================================
 
-  // Intro Screen
+  // Einstieg: Title-Screen → überspringbare Ankunfts-Sequenz → Direktor-Dialog (startGame).
   if (state.gamePhase === 'intro') {
+    if (showArrival) {
+      return (
+        <ArrivalSequence
+          npcs={state.npcs}
+          onDone={() => {
+            setShowArrival(false);
+            startGame();
+          }}
+        />
+      );
+    }
     return (
-      <IntroScreen
-        onStart={startGame}
-        onLoadGame={handleLoad}
+      <TitleScreen
+        onNewGame={() => setShowArrival(true)}
+        onContinue={handleLoad}
         hasSave={hasSaveGame()}
       />
     );
@@ -562,7 +553,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         <div className="flex-1 flex min-h-0">
         {/* Main content area (Office or Dashboard) - transition prevents layout shift */}
         <div className="relative flex-1 h-full overflow-hidden transition-all duration-300">
-          {/* View-Umschalter (Abzweigung: Gebäude / Büro / Dashboard) — Track A-1 */}
+          {/* View-Umschalter: Gebäude / Büro / Dashboard + Broadcast-Leiste */}
           <div className="absolute top-2 left-1/2 -translate-x-1/2 z-40 flex gap-1 p-1 rounded-lg bg-black/60">
             {(['building', 'office', 'dashboard'] as const).map((mode) => (
               <button
@@ -570,9 +561,18 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 onClick={() => setViewMode(mode)}
                 className={`px-2 py-1 text-xs font-semibold rounded text-white transition-colors ${viewMode === mode ? 'bg-red-700' : 'hover:bg-white/10'}`}
               >
-                {mode === 'building' ? '🏢 Gebäude' : mode === 'office' ? '🗄️ Büro' : '📊 Dashboard'}
+                {mode === 'building' ? '🏢 Gebäude (V)' : mode === 'office' ? '🗂️ Büro' : '📊 Dashboard'}
               </button>
             ))}
+            <span className="w-px self-stretch bg-white/20" aria-hidden />
+            <button
+              onClick={toggleBroadcast}
+              aria-pressed={broadcastOpen}
+              className={`px-2 py-1 text-xs font-semibold rounded text-white transition-colors ${broadcastOpen ? 'bg-red-700' : 'hover:bg-white/10'}`}
+              title="Sendung & Publikum (B)"
+            >
+              📡 Sendung (B)
+            </button>
           </div>
 
           {viewMode === 'building' ? (
@@ -582,10 +582,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 setActivePanel(null);
                 interactWithNpc(npcId);
               }}
+              onEnterOffice={() => setViewMode('office')}
             />
           ) : viewMode === 'office' ? (
-            <OfficeScreen
-              onExit={pauseGame}
+            <PlayerOfficeView
               onOpenActions={() => togglePanel('actions')}
               onOpenNews={() => togglePanel('news')}
               onOpenStats={() => togglePanel('stats')}
@@ -593,12 +593,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               onOpenMission={() => togglePanel('mission')}
               onOpenEvents={() => togglePanel('events')}
               onEndPhase={endPhase}
-              resources={state.resources}
-              phase={state.storyPhase}
-              newsEvents={state.newsEvents}
-              objectives={state.objectives}
+              onExitToBuilding={() => setViewMode('building')}
               unreadNewsCount={state.unreadNewsCount}
               worldEventCount={worldEventCount}
+              showTutorialHints={showOfficeHints}
             />
           ) : (
             <DashboardView
@@ -612,6 +610,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               onEndPhase={endPhase}
             />
           )}
+
+          {/* Broadcast-Leiste (B): Sendung + Publikum, reine Anzeige-Schicht */}
+          {broadcastOpen && <BroadcastBar audience={audience} onClose={toggleBroadcast} />}
         </div>
 
         {/* Sidebar Panel System */}
@@ -729,6 +730,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             speakerTitle: state.currentDialog.speakerTitle,
             text: state.currentDialog.text,
             mood: state.currentDialog.mood,
+            voiceAssetId: state.currentDialog.voiceAssetId,
             choices: state.currentDialog.choices?.map(c => ({
               id: c.id,
               text: c.text,

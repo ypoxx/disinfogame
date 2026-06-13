@@ -86,7 +86,7 @@ export function AdvisorDetailModal({
         className="w-full max-w-3xl max-h-[90vh] flex flex-col border-4"
         style={{
           backgroundColor: StoryModeColors.surface,
-          borderColor: StoryModeColors.sovietRed,
+          borderColor: StoryModeColors.ministryRed,
           boxShadow: '0 0 40px rgba(0, 0, 0, 0.9)',
         }}
         onClick={(e: React.MouseEvent) => e.stopPropagation()}
@@ -299,7 +299,7 @@ export function AdvisorDetailModal({
             onClick={onClose}
             className="px-4 py-2 border-2 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
             style={{
-              backgroundColor: StoryModeColors.sovietRed,
+              backgroundColor: StoryModeColors.ministryRed,
               borderColor: StoryModeColors.darkRed,
               color: '#fff',
               boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',
