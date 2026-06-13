@@ -504,6 +504,10 @@ export function useStoryGameState(seed?: string) {
     const hints = engine.getActiveComboHints();
     setComboHints(hints);
 
+    // Begrüßung beim Direktor: aktiver NPC setzen, damit die Raum-Nahsicht
+    // (NpcRoomView, „Direktor groß hinter dem Schreibtisch", §4.3/K6.5) erscheint —
+    // sonst läuft der Eröffnungsdialog ohne Raum-Eintritt im bloßen Dialogband.
+    setActiveNpcId('direktor');
     // Show intro dialog
     setCurrentDialog({
       speaker: 'Direktor',
@@ -528,6 +532,7 @@ export function useStoryGameState(seed?: string) {
       // Move to next tutorial step or start playing
       setGamePhase('playing');
       setCurrentDialog(null);
+      setActiveNpcId(null); // Eröffnungs-Direktor wieder freigeben (Raum-Nahsicht aus)
       // Generate initial recommendations when starting game
       generateRecommendations();
     } else {
