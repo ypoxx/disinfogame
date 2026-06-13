@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
+import { Icon } from './Icon';
 import { playVoiceLine, stopVoiceLine, playSound } from '../utils/SoundSystem';
 
 // ============================================
@@ -75,286 +76,26 @@ function NPCPortrait({ npc, mood, size = 48 }: PortraitProps) {
     );
   }
 
-  // Base styles for all portraits
-  const baseStyle: React.CSSProperties = {
-    width: size,
-    height: size,
-    position: 'relative',
-    backgroundColor: '#1a1a1a',
-    border: '3px solid',
-    overflow: 'hidden',
-  };
-
-  // Mood-based expressions (eye and mouth positions)
-  const getMoodExpression = () => {
-    switch (mood) {
-      case 'happy':
-        return { eyeY: '30%', mouthCurve: 'up', eyeSize: 6 };
-      case 'angry':
-        return { eyeY: '35%', mouthCurve: 'down', eyeSize: 5, eyebrowAngle: -15 };
-      case 'worried':
-        return { eyeY: '32%', mouthCurve: 'flat', eyeSize: 7, eyebrowAngle: 10 };
-      case 'suspicious':
-        return { eyeY: '35%', mouthCurve: 'flat', eyeSize: 4, eyeSquint: true };
-      default:
-        return { eyeY: '33%', mouthCurve: 'flat', eyeSize: 5 };
-    }
-  };
-
-  const expr = getMoodExpression();
-
-  // NPC-specific styling
-  const getNPCStyle = () => {
-    switch (npc.toLowerCase()) {
-      case 'direktor':
-        return {
-          borderColor: StoryModeColors.ministryRed,
-          faceColor: '#d4a574',
-          hairColor: '#2d2d2d',
-          hairStyle: 'slicked', // slicked back
-          accessory: 'glasses',
-          accessoryColor: '#333',
-        };
-      case 'marina':
-        return {
-          borderColor: StoryModeColors.agencyBlue,
-          faceColor: '#e8c4a0',
-          hairColor: '#8B4513',
-          hairStyle: 'long',
-          accessory: 'headset',
-          accessoryColor: StoryModeColors.agencyBlue,
-        };
-      case 'alexei':
-      case 'volkov':
-        return {
-          borderColor: StoryModeColors.militaryOlive,
-          faceColor: '#c9a87c',
-          hairColor: '#1a1a1a',
-          hairStyle: 'short',
-          accessory: 'cap',
-          accessoryColor: StoryModeColors.militaryOlive,
-        };
-      case 'katja':
-        return {
-          borderColor: StoryModeColors.document,
-          faceColor: '#f5deb3',
-          hairColor: '#daa520',
-          hairStyle: 'bob',
-          accessory: 'earrings',
-          accessoryColor: '#gold',
-        };
-      case 'igor':
-        return {
-          borderColor: StoryModeColors.darkBlue,
-          faceColor: '#c4a882',
-          hairColor: '#4a4a4a',
-          hairStyle: 'bald',
-          accessory: 'scar',
-          accessoryColor: '#8b0000',
-        };
-      default:
-        return {
-          borderColor: StoryModeColors.warning,
-          faceColor: '#888',
-          hairColor: '#444',
-          hairStyle: 'none',
-          accessory: 'none',
-          accessoryColor: '#fff',
-        };
-    }
-  };
-
-  const npcStyle = getNPCStyle();
-
+  // Kein echtes Porträt vorhanden → neutraler Pixel-Platzhalter (kein CSS-Gesicht,
+  // kein Emoji): gerahmtes Kästchen mit der Initiale des NPC.
   return (
-    <div style={{ ...baseStyle, borderColor: npcStyle.borderColor }}>
-      {/* Face base */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: '10%',
-          right: '10%',
-          height: '75%',
-          backgroundColor: npcStyle.faceColor,
-          borderRadius: '45% 45% 40% 40%',
-        }}
-      />
-
-      {/* Hair */}
-      {npcStyle.hairStyle !== 'bald' && npcStyle.hairStyle !== 'none' && (
-        <div
-          style={{
-            position: 'absolute',
-            top: npcStyle.hairStyle === 'cap' ? '5%' : '8%',
-            left: npcStyle.hairStyle === 'long' ? '5%' : '15%',
-            right: npcStyle.hairStyle === 'long' ? '5%' : '15%',
-            height: npcStyle.hairStyle === 'long' ? '45%' : '25%',
-            backgroundColor: npcStyle.hairColor,
-            borderRadius: npcStyle.hairStyle === 'slicked'
-              ? '50% 50% 0 0'
-              : npcStyle.hairStyle === 'bob'
-                ? '40% 40% 30% 30%'
-                : '50% 50% 20% 20%',
-          }}
-        />
-      )}
-
-      {/* Cap for Alexei */}
-      {npcStyle.accessory === 'cap' && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '2%',
-            left: '5%',
-            right: '5%',
-            height: '28%',
-            backgroundColor: npcStyle.accessoryColor,
-            borderRadius: '50% 50% 0 0',
-            borderBottom: '3px solid #333',
-          }}
-        />
-      )}
-
-      {/* Left eye */}
-      <div
-        style={{
-          position: 'absolute',
-          top: expr.eyeY,
-          left: '25%',
-          width: expr.eyeSize,
-          height: expr.eyeSquint ? expr.eyeSize / 2 : expr.eyeSize,
-          backgroundColor: '#1a1a1a',
-          borderRadius: '50%',
-          transform: expr.eyebrowAngle ? `rotate(${expr.eyebrowAngle}deg)` : undefined,
-        }}
-      />
-
-      {/* Right eye */}
-      <div
-        style={{
-          position: 'absolute',
-          top: expr.eyeY,
-          right: '25%',
-          width: expr.eyeSize,
-          height: expr.eyeSquint ? expr.eyeSize / 2 : expr.eyeSize,
-          backgroundColor: '#1a1a1a',
-          borderRadius: '50%',
-          transform: expr.eyebrowAngle ? `rotate(${-expr.eyebrowAngle}deg)` : undefined,
-        }}
-      />
-
-      {/* Glasses for Direktor */}
-      {npcStyle.accessory === 'glasses' && (
-        <>
-          <div
-            style={{
-              position: 'absolute',
-              top: 'calc(' + expr.eyeY + ' - 3px)',
-              left: '18%',
-              width: 14,
-              height: 10,
-              border: '2px solid ' + npcStyle.accessoryColor,
-              borderRadius: '20%',
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              top: 'calc(' + expr.eyeY + ' - 3px)',
-              right: '18%',
-              width: 14,
-              height: 10,
-              border: '2px solid ' + npcStyle.accessoryColor,
-              borderRadius: '20%',
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              top: 'calc(' + expr.eyeY + ' + 2px)',
-              left: '46%',
-              width: '8%',
-              height: 2,
-              backgroundColor: npcStyle.accessoryColor,
-            }}
-          />
-        </>
-      )}
-
-      {/* Headset for Marina */}
-      {npcStyle.accessory === 'headset' && (
-        <>
-          <div
-            style={{
-              position: 'absolute',
-              top: '5%',
-              left: '0',
-              right: '0',
-              height: 4,
-              backgroundColor: npcStyle.accessoryColor,
-              borderRadius: '50% 50% 0 0',
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              top: '5%',
-              left: '-5%',
-              width: 8,
-              height: 12,
-              backgroundColor: npcStyle.accessoryColor,
-              borderRadius: 2,
-            }}
-          />
-        </>
-      )}
-
-      {/* Scar for Igor */}
-      {npcStyle.accessory === 'scar' && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '25%',
-            right: '20%',
-            width: 3,
-            height: 15,
-            backgroundColor: npcStyle.accessoryColor,
-            transform: 'rotate(-20deg)',
-          }}
-        />
-      )}
-
-      {/* Mouth */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '20%',
-          left: '35%',
-          right: '35%',
-          height: expr.mouthCurve === 'up' ? 6 : 3,
-          backgroundColor: '#8b0000',
-          borderRadius: expr.mouthCurve === 'up'
-            ? '0 0 50% 50%'
-            : expr.mouthCurve === 'down'
-              ? '50% 50% 0 0'
-              : '2px',
-        }}
-      />
-
-      {/* Mood indicator border glow */}
-      {(mood === 'angry' || mood === 'worried') && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: -3,
-            border: '2px solid',
-            borderColor: mood === 'angry' ? StoryModeColors.danger : StoryModeColors.warning,
-            animation: 'pulse 2s infinite',
-            pointerEvents: 'none',
-          }}
-        />
-      )}
+    <div
+      aria-label={npc}
+      style={{
+        width: size,
+        height: size,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: StoryModeColors.surfaceLight,
+        border: `3px solid ${NPC_COLORS[npc.toLowerCase()] || StoryModeColors.warning}`,
+        color: StoryModeColors.textPrimary,
+        fontWeight: 'bold',
+        fontSize: Math.round(size * 0.5),
+        imageRendering: 'pixelated',
+      }}
+    >
+      {(npc[0] ?? '?').toUpperCase()}
     </div>
   );
 }
@@ -375,17 +116,6 @@ function resolveSpeakerKey(speaker: string): string {
   }
   return lower;
 }
-
-// Fallback emoji portraits for system/unknown
-const FALLBACK_PORTRAITS: Record<string, Record<string, string>> = {
-  system: {
-    neutral: '⚙️',
-    happy: '✅',
-    angry: '⚠️',
-    worried: '❓',
-    suspicious: '🔍',
-  },
-};
 
 const NPC_COLORS: Record<string, string> = {
   direktor: StoryModeColors.ministryRed,
@@ -479,8 +209,6 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
   if (!isVisible || !message) return null;
 
   const speakerKey = resolveSpeakerKey(message.speaker);
-  const isKnownNPC = KNOWN_NPC_IDS.includes(speakerKey);
-  const fallbackEmoji = FALLBACK_PORTRAITS[speakerKey]?.[message.mood || 'neutral'] || '👤';
   const speakerColor = NPC_COLORS[speakerKey] || StoryModeColors.textPrimary;
 
   const handleClick = () => {
@@ -508,11 +236,11 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
       }}
     >
       <div
-        className="mx-4 mb-4 border-4 cursor-pointer"
+        className="mx-4 mb-4 cursor-pointer"
         style={{
           backgroundColor: StoryModeColors.surface,
-          borderColor: StoryModeColors.border,
-          boxShadow: '8px 8px 0px 0px rgba(0,0,0,0.9)',
+          border: `2px solid ${StoryModeColors.borderLight}`,
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
         }}
         onClick={handleClick}
       >
@@ -524,15 +252,7 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
             borderColor: StoryModeColors.border,
           }}
         >
-          {isKnownNPC ? (
-            <NPCPortrait
-              npc={speakerKey}
-              mood={message.mood || 'neutral'}
-              size={48}
-            />
-          ) : (
-            <span className="text-2xl">{fallbackEmoji}</span>
-          )}
+          <NPCPortrait npc={speakerKey} mood={message.mood || 'neutral'} size={48} />
           <div className="flex-1">
             <div className="font-bold text-white text-lg">{message.speaker}</div>
             {message.speakerTitle && (
@@ -566,7 +286,7 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
                 borderColor: StoryModeColors.agencyBlue,
               }}
             >
-              <span className="text-xl">💡</span>
+              <Icon name="actions" size={18} title="Empfehlung" />
               <div className="flex-1 text-sm" style={{ color: StoryModeColors.textPrimary }}>
                 <div className="font-bold mb-1" style={{ color: StoryModeColors.agencyBlue }}>
                   AKTIVE EMPFEHLUNG:
@@ -585,7 +305,7 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
                 borderColor: StoryModeColors.danger,
               }}
             >
-              <span className="text-xl">⚠️</span>
+              <Icon name="risk" size={18} title="Warnung" />
               <div className="flex-1 text-sm" style={{ color: StoryModeColors.textPrimary }}>
                 <div className="font-bold mb-1" style={{ color: StoryModeColors.danger }}>
                   WARNUNG:
@@ -655,9 +375,9 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
                     </div>
                     {choice.cost && (
                       <div className="text-xs whitespace-nowrap" style={{ color: StoryModeColors.textSecondary }}>
-                        {choice.cost.ap && <span>⚡{choice.cost.ap} AP</span>}
+                        {choice.cost.ap ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}><Icon name="capacity" size={12} />{choice.cost.ap} AP</span> : null}
                         {choice.cost.ap && choice.cost.budget && <span> | </span>}
-                        {choice.cost.budget && <span>💰${choice.cost.budget}K</span>}
+                        {choice.cost.budget ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}><Icon name="budget" size={12} />${choice.cost.budget}K</span> : null}
                       </div>
                     )}
                   </div>
