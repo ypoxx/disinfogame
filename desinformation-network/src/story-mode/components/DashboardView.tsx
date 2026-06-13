@@ -360,7 +360,7 @@ export function DashboardView({
         className="mt-4 text-center text-xs py-2"
         style={{ color: StoryModeColors.textMuted }}
       >
-        [V] Büro-Ansicht | [ESC] Panel schließen | Tastenkürzel: A/N/S/P/M/E
+        [G] Übersicht schließen | [ESC] Panel schließen | Tastenkürzel: A/N/S/P/M/E
       </div>
     </div>
   );

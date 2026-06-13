@@ -1,5 +1,4 @@
 import { StoryModeColors } from '../theme';
-import { usePanelStore } from '../stores/panelStore';
 import { Icon, type IconName } from './Icon';
 
 // E29: Keyframe für pulsierendes RISIKO bei ≥70 — einmalig injiziert.
@@ -285,33 +284,6 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
 }
 
 // ============================================
-// VIEW TOGGLE BUTTON
-// ============================================
-
-function ViewToggleButton() {
-  const { viewMode, toggleViewMode } = usePanelStore();
-  // Zeigt das JEWEILS NÄCHSTE Ziel des V-Zyklus (Gebäude → Büro → Dashboard → …).
-  const nextIcon: IconName = viewMode === 'building' ? 'office' : viewMode === 'office' ? 'dashboard' : 'building';
-  const nextText = viewMode === 'building' ? 'BÜRO' : viewMode === 'office' ? 'DASHBOARD' : 'GEBÄUDE';
-  return (
-    <button
-      onClick={toggleViewMode}
-      className="flex items-center gap-1.5 px-3 py-1.5 border-2 font-bold text-sm transition-all hover:brightness-110 active:translate-y-0.5"
-      style={{
-        backgroundColor: viewMode === 'dashboard' ? StoryModeColors.agencyBlue : StoryModeColors.concrete,
-        borderColor: viewMode === 'dashboard' ? StoryModeColors.darkBlue : StoryModeColors.borderLight,
-        color: viewMode === 'dashboard' ? '#fff' : StoryModeColors.textPrimary,
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-      }}
-      title="Ansicht wechseln [V]"
-    >
-      <Icon name={nextIcon} size={14} title={nextText} fallback={nextText[0]} />
-      {nextText}
-    </button>
-  );
-}
-
-// ============================================
 // MAIN STORY HUD COMPONENT
 // ============================================
 
@@ -393,9 +365,8 @@ export function StoryHUD({
             />
           </div>
 
-          {/* Right: Actions */}
+          {/* Right: Actions — kein View-Umschalter mehr (§4.4, Strang 2/2c) */}
           <div className="flex items-center gap-2">
-            <ViewToggleButton />
             {onOpenMenu && (
               <button
                 onClick={onOpenMenu}

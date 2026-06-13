@@ -279,7 +279,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     broadcastOpen, toggleBroadcast, setBroadcastOpen,
     advisorCollapsed, toggleAdvisor,
     queueCollapsed, toggleQueue,
-    viewMode, toggleViewMode, setViewMode,
+    viewMode, setViewMode,
     resetUI,
   } = usePanelStore();
 
@@ -470,16 +470,21 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           case 'p': togglePanel('npcs'); break;
           case 'm': togglePanel('mission'); break;
           case 'e': togglePanel('events'); break;
-          case 'v': toggleViewMode(); break;
           case 'b': toggleBroadcast(); break;
           case 'i': setShowEncyclopedia(prev => !prev); break;
+          case 'g': {
+            // Übergangs-Zugang zur Dashboard-Übersicht bis 2e (Auflösung in Büro-Objekte).
+            const vm = usePanelStore.getState().viewMode;
+            setViewMode(vm === 'dashboard' ? 'building' : 'dashboard');
+            break;
+          }
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleViewMode, toggleBroadcast, setShowEncyclopedia]);
+  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, setViewMode, toggleBroadcast, setShowEncyclopedia]);
 
   // K9 Stufe 1: Autosave bei jedem Phasenwechsel (nur während 'playing').
   // saveGame kommt aus useStoryGameState und wird auch im Pausemenü genutzt.
@@ -695,39 +700,13 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         <div className="flex-1 flex min-h-0">
         {/* Main content area (Office or Dashboard) - transition prevents layout shift */}
         <div className="relative flex-1 h-full overflow-hidden transition-all duration-300">
-          {/* View-Umschalter: Gebäude / Büro / Dashboard + Broadcast-Leiste */}
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-40 flex gap-1 p-1 rounded-lg bg-black/60">
-            {(['building', 'office', 'dashboard'] as const).map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
-                className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded text-white transition-colors ${viewMode === mode ? 'bg-red-700' : 'hover:bg-white/10'}`}
-              >
-                <Icon
-                  name={mode === 'building' ? 'building' : mode === 'office' ? 'office' : 'dashboard'}
-                  size={12}
-                  title={mode === 'building' ? 'Gebäude' : mode === 'office' ? 'Büro' : 'Dashboard'}
-                  fallback={mode === 'building' ? 'GEB' : mode === 'office' ? 'BRO' : 'DSH'}
-                />
-                {mode === 'building' ? 'Gebäude (V)' : mode === 'office' ? 'Büro' : 'Dashboard'}
-              </button>
-            ))}
-            <span className="w-px self-stretch bg-white/20" aria-hidden />
-            <button
-              onClick={toggleBroadcast}
-              aria-pressed={broadcastOpen}
-              className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded text-white transition-colors ${broadcastOpen ? 'bg-red-700' : 'hover:bg-white/10'}`}
-              title="Sendung & Publikum (B)"
-            >
-              <Icon name="broadcast" size={12} title="Sendung" fallback="SND" />
-              Sendung (B)
-            </button>
-          </div>
-
+          {/* Strang 2 / 2c: Kein View-Umschalter mehr (§4.4) — Ortswechsel diegetisch
+              über Türen (Büro) und das Fahrstuhl-/Etagen-Tableau in der Gebäude-Ansicht. */}
           {viewMode === 'building' ? (
             <BuildingView
               npcs={state.npcs}
               month={state.storyPhase.month}
+              locked={!!state.currentDialog}
               onRoomClick={(npcId) => {
                 setActivePanel(null);
                 interactWithNpc(npcId);
