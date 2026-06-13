@@ -73,7 +73,65 @@ function quoteFor(segmentId: string, mood: Mood): string {
 
 interface BroadcastBarProps {
   audience: AudienceBroadcastState;
-  onClose: () => void;
+  /** Voll ausgeklappt (Wohnzimmer sichtbar) vs. kompakter Dauer-Streifen. */
+  expanded: boolean;
+  /** Taste B / Klick: zwischen kompakt und voll umschalten. */
+  onToggle: () => void;
+}
+
+/**
+ * Kompakter Dauer-Streifen (2d): immer sichtbar am unteren Welt-Rand, zeigt
+ * „läuft gerade" + Lauftext der letzten Sendung. Klick/Taste B klappt das volle
+ * Wohnzimmer aus. So bleibt der Feedback-Loop (Tat → Publikum) permanent präsent,
+ * ohne den Bildschirm zu belegen (Schicht-2-Diegese, kein Spiel-UI-Randbalken).
+ */
+function CollapsedStrip({ audience, onToggle }: { audience: AudienceBroadcastState; onToggle: () => void }) {
+  const item = audience.lastItem;
+  return (
+    <button
+      onClick={onToggle}
+      aria-label="Sendung & Publikum ausklappen (Taste B)"
+      title="Sendung & Publikum (B)"
+      className="relative w-full flex items-center gap-3 px-3 text-left"
+      style={{
+        height: 34,
+        flexShrink: 0,
+        backgroundColor: 'rgba(8,8,12,0.94)',
+        borderTop: `3px solid ${StoryModeColors.ministryRed}`,
+        cursor: 'pointer',
+        fontFamily: 'monospace',
+      }}
+      data-testid="broadcast-strip"
+    >
+      <style>{KEYFRAMES}</style>
+      <span
+        style={{
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: 1,
+          color: item ? StoryModeColors.danger : '#6a7',
+          animation: item ? 'bb-blink 1.4s ease-in-out infinite' : undefined,
+          flexShrink: 0,
+        }}
+      >
+        {item ? '◉ ON AIR' : '○ STANDBY'}
+      </span>
+      <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: '#c8c8b8', flexShrink: 0 }}>
+        MINISTERIUM SENDET
+      </span>
+      {item && (
+        <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', color: '#0d0d0d', backgroundColor: TIER_COLOR[item.tier], flexShrink: 0 }}>
+          {TIER_LABEL[item.tier]}
+        </span>
+      )}
+      <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', fontSize: 11, color: '#9aa' }}>
+        {item ? item.headline : 'Noch keine Maßnahme ausgespielt — geplante Aktionen erscheinen hier als Sendung.'}
+      </span>
+      <span style={{ fontSize: 11, color: '#ccc', border: `2px solid #555`, padding: '2px 10px', flexShrink: 0 }}>
+        PUBLIKUM ▴ B
+      </span>
+    </button>
+  );
 }
 
 /** Röhren-TV bzw. Zeitung mit der aktuellen „Sendung". */
@@ -247,16 +305,20 @@ function AudienceRoom({ audience }: { audience: AudienceBroadcastState }) {
   );
 }
 
-export function BroadcastBar({ audience, onClose }: BroadcastBarProps) {
+export function BroadcastBar({ audience, expanded, onToggle }: BroadcastBarProps) {
   const item = audience.lastItem;
   const quote = audience.lastReaction?.quote ?? 0;
   const reach = audience.lastReaction ? audience.lastReaction.reactions.reduce((s, r) => s + r.reach, 0) : 0;
 
+  // Dauer-Streifen, solange nicht ausgeklappt (permanent sichtbar, 2d).
+  if (!expanded) return <CollapsedStrip audience={audience} onToggle={onToggle} />;
+
   return (
     <div
-      className="absolute bottom-0 left-0 right-0 z-30"
+      className="relative w-full z-30"
       style={{
         height: 188,
+        flexShrink: 0,
         display: 'flex',
         gap: 12,
         alignItems: 'stretch',
@@ -280,11 +342,12 @@ export function BroadcastBar({ audience, onClose }: BroadcastBarProps) {
             </span>
           )}
           <button
-            onClick={onClose}
-            aria-label="Broadcast-Leiste schließen (Taste B)"
+            onClick={onToggle}
+            aria-label="Wohnzimmer einklappen (Taste B)"
+            title="Einklappen (B)"
             style={{ marginLeft: 'auto', fontSize: 12, color: '#ccc', border: '2px solid #555', padding: '6px 14px', minHeight: 32, background: 'transparent', cursor: 'pointer' }}
           >
-            B ✕
+            ▾ B
           </button>
         </div>
         <div style={{ display: 'flex', gap: 16, fontSize: 11, color: '#9aa' }}>

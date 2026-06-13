@@ -276,7 +276,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   // Panel state from Zustand store (replaces 8 individual useState hooks)
   const {
     activePanel, togglePanel, setActivePanel,
-    broadcastOpen, toggleBroadcast, setBroadcastOpen,
+    broadcastExpanded, toggleBroadcast, setBroadcastExpanded,
     advisorCollapsed, toggleAdvisor,
     queueCollapsed, toggleQueue,
     viewMode, setViewMode,
@@ -315,17 +315,17 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   // Publikum/Broadcast (Taste B) — reine Anzeige-Schicht über audienceModel.
   const audience = useAudienceBroadcast(state.lastActionResult, state.storyPhase.number, state.resources.risk);
 
-  // Auto-Peek: Jede neue „Sendung" blendet die Leiste kurz ein, damit der zentrale
-  // Feedback-Loop (Tat → Publikum reagiert) sichtbar ist, ohne dass der Spieler B
-  // kennen muss (Review-Befund A1). Manuelles Öffnen/Schließen gewinnt immer.
+  // Auto-Peek (2d): Der Streifen ist permanent sichtbar; jede neue „Sendung" klappt
+  // kurz das volle Wohnzimmer aus, damit der Feedback-Loop (Tat → Publikum reagiert)
+  // sichtbar wird, und klappt dann wieder ein. Manuelles Umschalten (B) gewinnt.
   const lastPeekedItem = useRef<string | null>(null);
   useEffect(() => {
     if (!audience.lastItem || audience.lastItem.id === lastPeekedItem.current) return;
     lastPeekedItem.current = audience.lastItem.id;
-    setBroadcastOpen(true);
-    const timer = window.setTimeout(() => setBroadcastOpen(false), 4500);
+    setBroadcastExpanded(true);
+    const timer = window.setTimeout(() => setBroadcastExpanded(false), 4500);
     return () => window.clearTimeout(timer);
-  }, [audience.lastItem, setBroadcastOpen]);
+  }, [audience.lastItem, setBroadcastExpanded]);
 
   // K1: Aktionen und Gespräche kosten Spielzeit (Ereignis-Uhr, kein Echtzeit-Ticken).
   const lastActionCountRef = useRef(state.completedActions.length);
@@ -699,9 +699,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         {/* Content area: Office/Dashboard + SidePanel */}
         <div className="flex-1 flex min-h-0">
         {/* Main content area (Office or Dashboard) - transition prevents layout shift */}
-        <div className="relative flex-1 h-full overflow-hidden transition-all duration-300">
-          {/* Strang 2 / 2c: Kein View-Umschalter mehr (§4.4) — Ortswechsel diegetisch
-              über Türen (Büro) und das Fahrstuhl-/Etagen-Tableau in der Gebäude-Ansicht. */}
+        <div className="relative flex-1 h-full overflow-hidden flex flex-col transition-all duration-300">
+          {/* Welt-Ansicht + Overlays; darunter der permanente Broadcast-Streifen (2d).
+              Strang 2/2c: kein View-Umschalter (§4.4) — Ortswechsel diegetisch über
+              Türen (Büro) und das Fahrstuhl-/Etagen-Tableau (Gebäude). */}
+          <div className="relative flex-1 min-h-0">
           {viewMode === 'building' ? (
             <BuildingView
               npcs={state.npcs}
@@ -749,7 +751,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             />
           )}
 
-          {/* Broadcast-Leiste (B): Sendung + Publikum, reine Anzeige-Schicht */}
           {/* Raum-Nahsicht: NPC groß im Raum, sobald ein Gespräch läuft (K6.5) */}
           {state.currentDialog && state.activeNpcId && viewMode === 'building' && (
             <NpcRoomView npcId={state.activeNpcId} mood={state.currentDialog.mood} />
@@ -761,8 +762,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               <DayClock />
             </div>
           )}
+          </div>
 
-          {broadcastOpen && <BroadcastBar audience={audience} onClose={toggleBroadcast} />}
+          {/* Broadcast permanent (2d): Dauer-Streifen am Welt-Rand, per B ausklappbar */}
+          {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
+            <BroadcastBar audience={audience} expanded={broadcastExpanded} onToggle={toggleBroadcast} />
+          )}
         </div>
 
         {/* Sidebar Panel System */}

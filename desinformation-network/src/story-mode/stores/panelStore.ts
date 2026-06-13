@@ -18,10 +18,11 @@ interface PanelState {
   setViewMode: (mode: ViewMode) => void;
   toggleViewMode: () => void;
 
-  // Broadcast-Leiste (Taste B): „Ministerium sendet" + Publikum
-  broadcastOpen: boolean;
+  // Broadcast-Leiste (Taste B): permanent sichtbar (Strang 2/2d) — der Streifen
+  // ist immer da; `broadcastExpanded` schaltet nur zwischen Kompakt und Vollbild.
+  broadcastExpanded: boolean;
   toggleBroadcast: () => void;
-  setBroadcastOpen: (open: boolean) => void;
+  setBroadcastExpanded: (open: boolean) => void;
 
   // Advisor panel (already exists as floating, keep independent)
   advisorCollapsed: boolean;
@@ -55,9 +56,9 @@ export const usePanelStore = create<PanelState>((set) => ({
         state.viewMode === 'building' ? 'office' : state.viewMode === 'office' ? 'dashboard' : 'building',
     })),
 
-  broadcastOpen: false,
-  toggleBroadcast: () => set((state) => ({ broadcastOpen: !state.broadcastOpen })),
-  setBroadcastOpen: (open) => set({ broadcastOpen: open }),
+  broadcastExpanded: false,
+  toggleBroadcast: () => set((state) => ({ broadcastExpanded: !state.broadcastExpanded })),
+  setBroadcastExpanded: (open) => set({ broadcastExpanded: open }),
 
   advisorCollapsed: false,
   toggleAdvisor: () =>
@@ -71,7 +72,7 @@ export const usePanelStore = create<PanelState>((set) => ({
     set({
       activePanel: null,
       viewMode: 'building',
-      broadcastOpen: false,
+      broadcastExpanded: false,
       advisorCollapsed: false,
       queueCollapsed: false,
     }),
