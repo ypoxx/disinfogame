@@ -44,6 +44,8 @@ export interface BuildingStageProps {
   nav: NavigatorState;
   /** Klick auf eine Tür (roomId). Fehlt der Handler, ist die Bühne passiv (Sequenz-Modus). */
   onRoomClick?: (roomId: string) => void;
+  /** Klick auf den Fahrstuhl öffnet das Etagen-Tableau (diegetische Navigation, 2c). */
+  onOpenDirectory?: () => void;
   /** Raum-Interaktion sperren (z. B. während Ankunfts-Sequenz). */
   interactive?: boolean;
   /** Aktueller Monat (1–12 oder kumulativ) für die Jahreszeiten-Stimmung. */
@@ -86,12 +88,13 @@ function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
   );
 }
 
-export function BuildingStage({ npcs, nav, onRoomClick, interactive = true, month }: BuildingStageProps) {
+export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interactive = true, month }: BuildingStageProps) {
   const assets = useAssets();
   const npcById = new Map(npcs.map((n) => [n.id, n]));
   const containerRef = useRef<HTMLDivElement>(null);
   const [view, setView] = useState({ scale: 1, h: 600, w: 800 });
   const [hoverRoom, setHoverRoom] = useState<string | null>(null);
+  const [hoverShaft, setHoverShaft] = useState(false);
 
   // Schritt-Sound auf den Kontakt-Frames des Laufzyklus (Frame 0 und 4).
   const handleWalkFrame = useCallback((frame: number) => {
@@ -474,6 +477,48 @@ export function BuildingStage({ npcs, nav, onRoomClick, interactive = true, mont
             </span>
           )}
         </div>
+
+        {/* Fahrstuhl-Ruf: Klick öffnet das Etagen-Tableau (diegetische Navigation, 2c) */}
+        {interactive && onOpenDirectory && (
+          <button
+            onClick={onOpenDirectory}
+            onMouseEnter={() => setHoverShaft(true)}
+            onMouseLeave={() => setHoverShaft(false)}
+            aria-label="Etagen-Tableau öffnen (Taste F)"
+            title="Etagen wählen (F)"
+            style={{
+              position: 'absolute',
+              left: layout.shaft.x,
+              top: layout.shaft.topY - STAGE.slabHeight,
+              width: layout.shaft.w,
+              height: layout.shaft.bottomY - layout.shaft.topY + STAGE.slabHeight,
+              background: hoverShaft ? 'rgba(240,180,41,0.06)' : 'transparent',
+              border: `2px solid ${hoverShaft ? StoryModeColors.warning : 'transparent'}`,
+              cursor: 'pointer',
+              zIndex: 5,
+            }}
+          >
+            {/* Ruf-Plakette oben am Schacht — macht den Fahrstuhl als Bedienelement kenntlich */}
+            <span
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: 6,
+                transform: 'translateX(-50%)',
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: 1,
+                padding: '2px 6px',
+                color: hoverShaft ? '#0d0d0d' : '#c8c8b8',
+                backgroundColor: hoverShaft ? StoryModeColors.warning : 'rgba(10,10,14,0.8)',
+                border: `1px solid ${StoryModeColors.borderLight}`,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              ETAGEN ▲▼
+            </span>
+          </button>
+        )}
 
         {/* Avatar (läuft/steht) */}
         {!nav.avatarInCabin && (

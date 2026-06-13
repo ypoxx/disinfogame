@@ -5,7 +5,6 @@
  * Displays total costs and provides queue management controls.
  */
 
-import React from 'react';
 import { StoryModeColors } from '../theme';
 import { Icon } from './Icon';
 import type { QueuedAction } from '../hooks/useStoryGameState';
@@ -67,7 +66,6 @@ export function ActionQueueWidget({
         style={{
           backgroundColor: StoryModeColors.militaryOlive,
           borderColor: StoryModeColors.darkOlive,
-          boxShadow: '4px 4px 0px rgba(0,0,0,0.7)',
           zIndex: 45,
         }}
         onClick={onToggleCollapse}
@@ -95,11 +93,10 @@ export function ActionQueueWidget({
   // Full view
   return (
     <div
-      className="fixed bottom-4 right-4 w-96 max-h-[60vh] border-4 flex flex-col"
+      className="fixed bottom-4 right-4 w-96 max-h-[60vh] border-2 flex flex-col"
       style={{
         backgroundColor: StoryModeColors.surface,
         borderColor: StoryModeColors.darkOlive,
-        boxShadow: '8px 8px 0px rgba(0,0,0,0.7)',
         zIndex: 45,
       }}
     >
@@ -166,7 +163,6 @@ export function ActionQueueWidget({
                     : action.legality === 'grey'
                     ? StoryModeColors.warning
                     : StoryModeColors.success,
-                boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',
               }}
             >
               {/* Action Header */}
@@ -338,7 +334,6 @@ export function ActionQueueWidget({
                 backgroundColor: canAfford ? StoryModeColors.success : StoryModeColors.border,
                 borderColor: canAfford ? '#15803d' : StoryModeColors.borderLight,
                 color: '#fff',
-                boxShadow: canAfford ? '2px 2px 0px rgba(0,0,0,0.5)' : 'none',
               }}
               title={canAfford ? 'Alle Aktionen ausführen' : 'Nicht genügend Ressourcen'}
             >
@@ -351,7 +346,6 @@ export function ActionQueueWidget({
                 backgroundColor: StoryModeColors.ministryRed,
                 borderColor: StoryModeColors.darkRed,
                 color: '#fff',
-                boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',
               }}
               title="Warteschlange leeren"
             >

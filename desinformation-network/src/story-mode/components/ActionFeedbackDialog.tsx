@@ -3,6 +3,7 @@ import { StoryModeColors } from '../theme';
 import type { ActionResult } from '../../game-logic/StoryEngineAdapter';
 import { COMBO_COLORS } from '../../utils/colors';
 import { Icon } from './Icon';
+import { PixelModal } from './PixelModal';
 
 interface ActionFeedbackDialogProps {
   isVisible: boolean;
@@ -56,20 +57,30 @@ export function ActionFeedbackDialog({
   // Batch Mode - Multi-Step Results View
   if (isBatchMode) {
     return (
-      <div
-        className="fixed inset-0 flex items-center justify-center z-50"
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
-        onClick={onClose}
+      <PixelModal
+        open
+        onClose={onClose}
+        variant="standard"
+        maxWidthClass="max-w-4xl"
+        style={{ borderColor: getOutcomeColor() }}
+        footer={
+          <div className="flex justify-end">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
+              style={{
+                backgroundColor: StoryModeColors.ministryRed,
+                borderColor: StoryModeColors.darkRed,
+                color: '#fff',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
+              }}
+            >
+              VERSTANDEN
+            </button>
+          </div>
+        }
       >
-        <div
-          className="w-full max-w-4xl mx-4 max-h-[90vh] flex flex-col border-4 animate-fade-in"
-          style={{
-            backgroundColor: StoryModeColors.surface,
-            borderColor: getOutcomeColor(),
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-          }}
-          onClick={e => e.stopPropagation()}
-        >
+        <div className="flex flex-col animate-fade-in">
           {/* Batch Header */}
           <div
             className="px-6 py-4 border-b-4"
@@ -193,7 +204,6 @@ export function ActionFeedbackDialog({
                 style={{
                   backgroundColor: StoryModeColors.background,
                   borderColor: getOutcomeColor(actionResult),
-                  boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',
                 }}
               >
                 {/* Action Step Header */}
@@ -362,30 +372,8 @@ export function ActionFeedbackDialog({
               </div>
             ))}
           </div>
-
-          {/* Batch Footer */}
-          <div
-            className="px-6 py-4 border-t-4 flex justify-end"
-            style={{
-              backgroundColor: StoryModeColors.darkConcrete,
-              borderColor: StoryModeColors.border,
-            }}
-          >
-            <button
-              onClick={onClose}
-              className="px-6 py-2 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
-              style={{
-                backgroundColor: StoryModeColors.ministryRed,
-                borderColor: StoryModeColors.darkRed,
-                color: '#fff',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-              }}
-            >
-              VERSTANDEN
-            </button>
-          </div>
         </div>
-      </div>
+      </PixelModal>
     );
   }
 
@@ -393,20 +381,30 @@ export function ActionFeedbackDialog({
   const singleResult = results[0];
 
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
-      onClick={onClose}
+    <PixelModal
+      open
+      onClose={onClose}
+      variant="standard"
+      maxWidthClass="max-w-lg"
+      style={{ borderColor: getOutcomeColor(singleResult) }}
+      footer={
+        <div className="flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-6 py-2 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
+            style={{
+              backgroundColor: StoryModeColors.ministryRed,
+              borderColor: StoryModeColors.darkRed,
+              color: '#fff',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
+            }}
+          >
+            VERSTANDEN
+          </button>
+        </div>
+      }
     >
-      <div
-        className="w-full max-w-lg mx-4 border-4 animate-fade-in"
-        style={{
-          backgroundColor: StoryModeColors.surface,
-          borderColor: getOutcomeColor(singleResult),
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-        }}
-        onClick={e => e.stopPropagation()}
-      >
+      <div className="animate-fade-in">
         {/* Header */}
         <div
           className="px-6 py-4 border-b-4 flex items-center gap-3"
@@ -641,7 +639,6 @@ export function ActionFeedbackDialog({
               style={{
                 backgroundColor: 'rgba(139, 92, 246, 0.15)',
                 borderColor: COMBO_COLORS.ready,
-                boxShadow: `0 0 20px ${COMBO_COLORS.glow}`,
               }}
             >
               <div
@@ -877,30 +874,8 @@ export function ActionFeedbackDialog({
             </div>
           )}
         </div>
-
-        {/* Footer */}
-        <div
-          className="px-6 py-4 border-t-4 flex justify-end"
-          style={{
-            backgroundColor: StoryModeColors.darkConcrete,
-            borderColor: StoryModeColors.border,
-          }}
-        >
-          <button
-            onClick={onClose}
-            className="px-6 py-2 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
-            style={{
-              backgroundColor: StoryModeColors.ministryRed,
-              borderColor: StoryModeColors.darkRed,
-              color: '#fff',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-            }}
-          >
-            VERSTANDEN
-          </button>
-        </div>
       </div>
-    </div>
+    </PixelModal>
   );
 }
 

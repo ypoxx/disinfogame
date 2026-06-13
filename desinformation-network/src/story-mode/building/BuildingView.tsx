@@ -8,8 +8,9 @@
  * Das frühere CSS-Skelett (Track A-1) liegt unter
  * archive/story-mode-drafts/ — Konzept: docs/PLAYER_ENTRY_AND_BUILDING_PLAN.md.
  */
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { BuildingStage, type StageNpc } from './BuildingStage';
+import { FloorDirectory } from './FloorDirectory';
 import { useNavigator } from './useNavigator';
 import { roomById } from './buildingLayout';
 
@@ -26,10 +27,13 @@ interface BuildingViewProps {
   onArrivedHome?: () => void;
   /** Aktueller Monat für die Jahreszeiten-Stimmung. */
   month?: number;
+  /** Interaktion gesperrt (z. B. während ein Dialog läuft): kein Etagen-Tableau. */
+  locked?: boolean;
 }
 
-export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, walkHome = false, onArrivedHome, month }: BuildingViewProps) {
+export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, walkHome = false, onArrivedHome, month, locked = false }: BuildingViewProps) {
   const nav = useNavigator();
+  const [directoryOpen, setDirectoryOpen] = useState(false);
 
   // Heimweg-Ritual (Redaktionsschluss): einmalig zur Lobby laufen.
   const walkingHomeRef = useRef(false);
@@ -63,9 +67,42 @@ export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, wa
     [nav, onRoomClick, onEnterOffice, onEnterRoom]
   );
 
+  // Tastatur-Einstieg ins Etagen-Tableau (E33): Taste F — nur wenn nicht gesperrt
+  // (kein Dialog) und nicht in einem Textfeld.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key.toLowerCase() === 'f' && !locked && !directoryOpen) {
+        e.preventDefault();
+        setDirectoryOpen(true);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [locked, directoryOpen]);
+
+  // Sperrt der Dialog die Interaktion, schließt sich ein offenes Tableau.
+  useEffect(() => {
+    if (locked && directoryOpen) setDirectoryOpen(false);
+  }, [locked, directoryOpen]);
+
   return (
     <div className="h-full w-full" data-testid="building-view">
-      <BuildingStage npcs={npcs} nav={nav} onRoomClick={handleRoomClick} month={month} />
+      <BuildingStage
+        npcs={npcs}
+        nav={nav}
+        onRoomClick={handleRoomClick}
+        onOpenDirectory={locked ? undefined : () => setDirectoryOpen(true)}
+        month={month}
+      />
+      {directoryOpen && (
+        <FloorDirectory
+          npcs={npcs}
+          currentFloorLevel={Math.round(nav.pos.floorLevel)}
+          onSelect={(roomId) => handleRoomClick(roomId)}
+          onClose={() => setDirectoryOpen(false)}
+        />
+      )}
     </div>
   );
 }

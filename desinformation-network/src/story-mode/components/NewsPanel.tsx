@@ -74,9 +74,6 @@ export function NewsPanel({
                     ? StoryModeColors.border
                     : getSeverityColor(news.severity),
                   borderLeftColor: !news.read ? getSeverityColor(news.severity) : undefined,
-                  ...(isDefensiveAI && !news.read ? {
-                    boxShadow: `0 0 10px ${StoryModeColors.danger}40`,
-                  } : {}),
                 }}
                 onClick={() => onMarkAsRead(news.id)}
               >
@@ -172,7 +169,7 @@ export function NewsPanel({
 
   const footerContent = (
     <div
-      className="px-3 py-2 border-t-4 text-xs"
+      className="px-3 py-2 border-t-2 text-xs"
       style={{
         backgroundColor: StoryModeColors.darkConcrete,
         borderColor: StoryModeColors.border,
@@ -213,7 +210,7 @@ export function NewsPanel({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl max-h-[80vh] mx-4 border-4 flex flex-col"
+        className="w-full max-w-2xl max-h-[80vh] mx-4 border-2 flex flex-col"
         style={{
           backgroundColor: StoryModeColors.surface,
           borderColor: StoryModeColors.danger,
@@ -222,7 +219,7 @@ export function NewsPanel({
         onClick={e => e.stopPropagation()}
       >
         <div
-          className="px-6 py-4 border-b-4 flex justify-between items-center"
+          className="px-6 py-4 border-b-2 flex justify-between items-center"
           style={{
             backgroundColor: StoryModeColors.danger,
             borderColor: StoryModeColors.border,

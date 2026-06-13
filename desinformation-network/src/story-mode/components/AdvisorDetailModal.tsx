@@ -5,12 +5,12 @@
  * reasoning, and suggested actions.
  */
 
-import React from 'react';
 import { StoryModeColors } from '../theme';
 import type { AdvisorRecommendation } from '../engine/AdvisorRecommendation';
 import { getPriorityColor } from '../engine/AdvisorRecommendation';
 import type { NPC } from './AdvisorPanel';
 import { Icon } from './Icon';
+import { PixelModal } from './PixelModal';
 
 // ============================================
 // TYPES
@@ -75,26 +75,36 @@ export function AdvisorDetailModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center p-4"
-      style={{
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        zIndex: 100,
-      }}
-      onClick={onClose}
+    <PixelModal
+      open
+      onClose={onClose}
+      variant="alarm"
+      maxWidthClass="max-w-3xl"
+      footer={
+        <div className="flex justify-between items-center">
+          <div className="text-xs" style={{ color: StoryModeColors.textSecondary }}>
+            {sortedRecommendations.length > 0
+              ? `${sortedRecommendations.length} Empfehlung${sortedRecommendations.length > 1 ? 'en' : ''}`
+              : 'Keine Empfehlungen'}
+          </div>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border-2 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
+            style={{
+              backgroundColor: StoryModeColors.ministryRed,
+              borderColor: StoryModeColors.darkRed,
+              color: '#fff',
+            }}
+          >
+            SCHLIESSEN
+          </button>
+        </div>
+      }
     >
-      <div
-        className="w-full max-w-3xl max-h-[90vh] flex flex-col border-4"
-        style={{
-          backgroundColor: StoryModeColors.surface,
-          borderColor: StoryModeColors.ministryRed,
-          boxShadow: '0 0 40px rgba(0, 0, 0, 0.9)',
-        }}
-        onClick={(e: React.MouseEvent) => e.stopPropagation()}
-      >
+      <div className="flex flex-col">
         {/* Header */}
         <div
-          className="border-b-4 p-4 flex items-center justify-between"
+          className="border-b-2 p-4 flex items-center justify-between"
           style={{
             backgroundColor: StoryModeColors.militaryOlive,
             borderColor: StoryModeColors.darkOlive,
@@ -156,9 +166,6 @@ export function AdvisorDetailModal({
                 style={{
                   backgroundColor: StoryModeColors.background,
                   borderColor: getPriorityColor(rec.priority),
-                  boxShadow: rec.priority === 'critical'
-                    ? `0 0 8px ${getPriorityColor(rec.priority)}`
-                    : '2px 2px 0px rgba(0,0,0,0.5)',
                 }}
               >
                 {/* Recommendation Header */}
@@ -247,7 +254,6 @@ export function AdvisorDetailModal({
                             backgroundColor: StoryModeColors.militaryOlive,
                             borderColor: StoryModeColors.darkOlive,
                             color: StoryModeColors.warning,
-                            boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',
                           }}
                           title="Zum Terminal"
                         >
@@ -279,38 +285,7 @@ export function AdvisorDetailModal({
             ))
           )}
         </div>
-
-        {/* Footer */}
-        <div
-          className="border-t-2 p-4 flex justify-between items-center"
-          style={{
-            backgroundColor: StoryModeColors.concrete,
-            borderColor: StoryModeColors.borderLight,
-          }}
-        >
-          <div
-            className="text-xs"
-            style={{ color: StoryModeColors.textSecondary }}
-          >
-            {sortedRecommendations.length > 0
-              ? `${sortedRecommendations.length} Empfehlung${sortedRecommendations.length > 1 ? 'en' : ''}`
-              : 'Keine Empfehlungen'}
-          </div>
-
-          <button
-            onClick={onClose}
-            className="px-4 py-2 border-2 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
-            style={{
-              backgroundColor: StoryModeColors.ministryRed,
-              borderColor: StoryModeColors.darkRed,
-              color: '#fff',
-              boxShadow: '2px 2px 0px rgba(0,0,0,0.5)',
-            }}
-          >
-            SCHLIESSEN
-          </button>
-        </div>
       </div>
-    </div>
+    </PixelModal>
   );
 }

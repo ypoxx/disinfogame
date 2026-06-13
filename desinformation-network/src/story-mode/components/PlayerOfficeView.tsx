@@ -17,9 +17,11 @@ import { usePlayerProfile, playerPortraitAssetId } from '../stores/playerProfile
 interface PlayerOfficeViewProps {
   onOpenActions: () => void;
   onOpenNews: () => void;
-  onOpenStats: () => void;
+  /** Wand-Monitor → Lagebild-Übersicht (Strang 2/2e). */
+  onOpenLagebild: () => void;
   onOpenNpcs: () => void;
-  onOpenMission: () => void;
+  /** Pinnwand → Narrativ-Tafel (Sendeplan, Strang 2/2f). */
+  onOpenBoard: () => void;
   onOpenEvents: () => void;
   onEndPhase: () => void;
   onExitToBuilding: () => void;
@@ -77,13 +79,13 @@ const KEYFRAMES = `
 const HOTSPOTS: HotspotDef[] = [
   { id: 'computer', label: 'AKTIONEN PLANEN',     left: 33, top: 35, width: 24, height: 31 },
   { id: 'phone',    label: 'KONTAKTE',             left: 22, top: 56, width: 10, height: 16 },
-  { id: 'board',    label: 'MISSION BRIEFING',     left: 15, top:  7, width: 27, height: 43 },
+  { id: 'board',    label: 'NARRATIV-TAFEL',        left: 15, top:  7, width: 27, height: 43 },
   { id: 'files',    label: 'NACHRICHTEN',          left: 54, top: 56, width: 13, height: 13 },
-  { id: 'tv',       label: 'KAMPAGNEN-STATISTIK',  left: 83, top: 48, width: 13, height: 26 },
+  { id: 'tv',       label: 'LAGEBILD',               left: 83, top: 48, width: 13, height: 26 },
   { id: 'window',   label: 'WELT-EREIGNISSE',      left: 51, top:  4, width: 22, height: 38 },
-  // Kein 'exit'-Hotspot mehr: Der Ausgang läuft ausschließlich über den sichtbaren
-  // „GEBÄUDE"-Button der unteren Leiste (Review-Befund A3: redundante,
-  // unsichtbare Bedienwege verwirren).
+  // 2g: Diegetischer Ausgang über die Tür am linken Bildrand (ersetzt den
+  // „GEBÄUDE"-Web-Button der Unterleiste — Bedienung diegetisch).
+  { id: 'exit',     label: '← GEBÄUDE',             left:  0, top:  0, width:  6, height: 100 },
 ];
 
 // Tutorial-Marker (Computer, Pinnwand, TV)
@@ -94,8 +96,8 @@ interface TutorialMarker {
 }
 const TUTORIAL_MARKERS: TutorialMarker[] = [
   { hotspotId: 'computer', num: '①', text: 'Aktionen planen' },
-  { hotspotId: 'board',    num: '②', text: 'Mission lesen'   },
-  { hotspotId: 'tv',       num: '③', text: 'Stats prüfen'    },
+  { hotspotId: 'board',    num: '②', text: 'Tafel planen'    },
+  { hotspotId: 'tv',       num: '③', text: 'Lagebild'       },
 ];
 
 // ─── Hilfsfunktionen ──────────────────────────────────────────────────────────
@@ -109,9 +111,9 @@ function hotspotByIdPos(id: string): HotspotDef | undefined {
 export function PlayerOfficeView({
   onOpenActions,
   onOpenNews,
-  onOpenStats,
+  onOpenLagebild,
   onOpenNpcs,
-  onOpenMission,
+  onOpenBoard,
   onOpenEvents,
   onEndPhase,
   onExitToBuilding,
@@ -137,14 +139,14 @@ export function PlayerOfficeView({
       switch (id) {
         case 'computer': playSound('typewriter'); onOpenActions();   break;
         case 'phone':    playSound('click');      onOpenNpcs();      break;
-        case 'board':    playSound('paper');      onOpenMission();   break;
+        case 'board':    playSound('paper');      onOpenBoard();     break;
         case 'files':    playSound('paper');      onOpenNews();      break;
-        case 'tv':       playSound('tvOn');       onOpenStats();     break;
+        case 'tv':       playSound('tvOn');       onOpenLagebild();  break;
         case 'window':   playSound('click');      onOpenEvents();    break;
         case 'exit':     playSound('doorOpen');   onExitToBuilding();break;
       }
     },
-    [dismissTutorial, onOpenActions, onOpenNpcs, onOpenMission, onOpenNews, onOpenStats, onOpenEvents, onExitToBuilding],
+    [dismissTutorial, onOpenActions, onOpenNpcs, onOpenBoard, onOpenNews, onOpenLagebild, onOpenEvents, onExitToBuilding],
   );
 
   // Badge-Zähler je Hotspot
@@ -298,7 +300,6 @@ export function PlayerOfficeView({
                   pointerEvents: 'none',
                   zIndex: 20,
                   imageRendering: 'pixelated',
-                  boxShadow: `2px 2px 0 #000, 0 0 6px ${color}55`,
                 }}
               >
                 {hs.label}
@@ -405,7 +406,6 @@ export function PlayerOfficeView({
             fontWeight: 700,
             cursor: 'pointer',
             zIndex: 40,
-            boxShadow: '2px 2px 0 #000',
           }}
         >
           Verstanden ✓
@@ -428,29 +428,12 @@ export function PlayerOfficeView({
           zIndex: 15,
         }}
       >
-        {/* Gebäude-Verlassen-Button */}
-        <button
-          onClick={() => { playSound('doorOpen'); onExitToBuilding(); }}
-          style={{
-            backgroundColor: StoryModeColors.darkConcrete,
-            border: `2px solid ${StoryModeColors.borderLight}`,
-            color: StoryModeColors.textPrimary,
-            padding: '5px 14px',
-            fontSize: 12,
-            fontFamily: 'monospace',
-            fontWeight: 700,
-            cursor: 'pointer',
-            boxShadow: '3px 3px 0 #000',
-            letterSpacing: 1,
-          }}
-        >
-          GEBÄUDE
-        </button>
+        {/* Ausgang ist jetzt diegetisch: Tür-Hotspot am linken Bildrand (2g). */}
 
         {/* Dienstausweis — gewähltes Spieler-Porträt + Name (K10/D27) */}
         <Dienstausweis />
 
-        {/* Phase-Beenden-Button */}
+        {/* Feierabend: Tag beenden (diegetischer Heimweg-Auslöser) */}
         <button
           onClick={onEndPhase}
           style={{
@@ -462,11 +445,11 @@ export function PlayerOfficeView({
             fontFamily: 'monospace',
             fontWeight: 900,
             cursor: 'pointer',
-            boxShadow: '4px 4px 0 rgba(0,0,0,0.8)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
             letterSpacing: 2,
           }}
         >
-          PHASE BEENDEN →
+          FEIERABEND →
         </button>
       </div>
     </div>

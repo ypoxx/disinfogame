@@ -1,6 +1,7 @@
 import { StoryModeColors } from '../theme';
 import { Icon } from './Icon';
 import type { BetrayalState, BetrayalGrievance } from '../engine/BetrayalSystem';
+import { PixelModal } from './PixelModal';
 
 // ============================================
 // TYPES
@@ -57,21 +58,14 @@ export function GrievanceModal({
   const totalRisk = betrayalState.betrayalRisk;
 
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.9)' }}
-      onClick={onClose}
+    <PixelModal
+      open
+      onClose={onClose}
+      variant={totalRisk >= 70 ? 'alarm' : 'standard'}
+      maxWidthClass="max-w-3xl"
     >
-      <div
-        className="w-full max-w-3xl max-h-[85vh] mx-4 border-4 flex flex-col overflow-hidden"
-        style={{
-          backgroundColor: StoryModeColors.background,
-          borderColor: totalRisk >= 70 ? StoryModeColors.danger : StoryModeColors.warning,
-          boxShadow: `0 0 30px ${totalRisk >= 70 ? StoryModeColors.danger : StoryModeColors.warning}`,
-        }}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Header */}
+      <div className="flex flex-col">
+        {/* Header — eigener farbiger Kopf */}
         <div
           className="px-6 py-4 border-b-4"
           style={{
@@ -278,7 +272,7 @@ export function GrievanceModal({
           )}
         </div>
       </div>
-    </div>
+    </PixelModal>
   );
 }
 

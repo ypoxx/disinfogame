@@ -36,7 +36,7 @@ export function StatsPanel({
     <div className={`flex-1 overflow-y-auto ${variant === 'sidebar' ? 'p-3 space-y-3' : 'p-6 space-y-6'}`}>
       {/* Phase Info */}
       <div
-        className="border-4 p-4"
+        className="border-2 p-4"
         style={{
           backgroundColor: StoryModeColors.darkConcrete,
           borderColor: StoryModeColors.border,
@@ -98,7 +98,7 @@ export function StatsPanel({
 
       {/* Resources */}
       <div
-        className="border-4 p-4"
+        className="border-2 p-4"
         style={{
           backgroundColor: StoryModeColors.darkConcrete,
           borderColor: StoryModeColors.border,
@@ -268,7 +268,7 @@ export function StatsPanel({
 
       {/* Primary Objectives */}
       <div
-        className="border-4 p-4"
+        className="border-2 p-4"
         style={{
           backgroundColor: StoryModeColors.darkConcrete,
           borderColor: StoryModeColors.ministryRed,
@@ -323,7 +323,7 @@ export function StatsPanel({
       {/* Secondary Objectives */}
       {secondaryObjectives.length > 0 && (
         <div
-          className="border-4 p-4"
+          className="border-2 p-4"
           style={{
             backgroundColor: StoryModeColors.darkConcrete,
             borderColor: StoryModeColors.militaryOlive,
@@ -407,7 +407,7 @@ export function StatsPanel({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-3xl max-h-[85vh] mx-4 border-4 flex flex-col overflow-hidden"
+        className="w-full max-w-3xl max-h-[85vh] mx-4 border-2 flex flex-col overflow-hidden"
         style={{
           backgroundColor: StoryModeColors.surface,
           borderColor: StoryModeColors.agencyBlue,
@@ -417,7 +417,7 @@ export function StatsPanel({
       >
         {/* Header */}
         <div
-          className="px-6 py-4 border-b-4 flex justify-between items-center"
+          className="px-6 py-4 border-b-2 flex justify-between items-center"
           style={{
             backgroundColor: StoryModeColors.agencyBlue,
             borderColor: StoryModeColors.border,
@@ -446,7 +446,7 @@ export function StatsPanel({
 
         {/* Footer */}
         <div
-          className="px-6 py-3 border-t-4 text-xs text-center"
+          className="px-6 py-3 border-t-2 text-xs text-center"
           style={{
             backgroundColor: StoryModeColors.darkConcrete,
             borderColor: StoryModeColors.border,

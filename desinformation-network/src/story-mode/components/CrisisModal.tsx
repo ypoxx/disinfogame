@@ -172,7 +172,6 @@ export function CrisisModal({
                   style={{
                     backgroundColor: affordable ? StoryModeColors.surface : StoryModeColors.darkConcrete,
                     borderColor: isRisky ? StoryModeColors.danger : StoryModeColors.border,
-                    boxShadow: affordable ? '4px 4px 0px rgba(0,0,0,0.5)' : 'none',
                   }}
                 >
                   {/* Choice Number Badge */}

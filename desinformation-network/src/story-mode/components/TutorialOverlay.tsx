@@ -277,8 +277,6 @@ export function TutorialOverlay({
           style={{
             ...getHighlightPosition(step.highlight),
             border: `3px solid ${StoryModeColors.warning}`,
-            boxShadow: `0 0 30px ${StoryModeColors.warning}`,
-            borderRadius: '8px',
             animation: 'pulse 2s infinite',
           }}
         />

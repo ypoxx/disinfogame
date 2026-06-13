@@ -44,7 +44,8 @@ import { EndReport } from './components/EndReport';
 import { useDayClockStore, TIME_COST } from './stores/dayClockStore';
 import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
-import { DashboardView } from './components/DashboardView';
+import { LagebildView } from './components/LagebildView';
+import { NarrativeBoard } from './components/NarrativeBoard';
 import { initAssetRegistry, useAssets } from './assets';
 import { playMusic, stopMusic, playAmbience, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound, setChannelVolume, getChannelVolume, type SoundChannel } from './utils/SoundSystem';
 
@@ -276,10 +277,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   // Panel state from Zustand store (replaces 8 individual useState hooks)
   const {
     activePanel, togglePanel, setActivePanel,
-    broadcastOpen, toggleBroadcast, setBroadcastOpen,
+    broadcastExpanded, toggleBroadcast, setBroadcastExpanded,
     advisorCollapsed, toggleAdvisor,
     queueCollapsed, toggleQueue,
-    viewMode, toggleViewMode, setViewMode,
+    viewMode, setViewMode,
     resetUI,
   } = usePanelStore();
 
@@ -300,6 +301,13 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showEndReport, setShowEndReport] = useState(false);
   const [showNewsroom, setShowNewsroom] = useState(false);
   const [showFokusgruppe, setShowFokusgruppe] = useState(false);
+  // 2f: Narrativ-Tafel (Korkbrett) — diegetisches Planungs-Herzstück, Pinnwand im Büro.
+  const [showBoard, setShowBoard] = useState(false);
+  // 2e: Lagebild — „auf einen Blick"-Übersicht am Wand-Monitor (löst das Dashboard ab).
+  const [showLagebild, setShowLagebild] = useState(false);
+  // 2g/E1/I32: HUD nicht dauerhaft — nur auf Knopfdruck (Taste H). Standard aus;
+  // ein dezenter, immer auffindbarer Einstieg (Pause + HUD) bleibt sichtbar.
+  const [hudVisible, setHudVisible] = useState(false);
   // Büro-Hotspot-Hinweise nur beim allerersten Besuch (über Sessions persistiert).
   const [showOfficeHints] = useState<boolean>(() => {
     try {
@@ -315,17 +323,17 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   // Publikum/Broadcast (Taste B) — reine Anzeige-Schicht über audienceModel.
   const audience = useAudienceBroadcast(state.lastActionResult, state.storyPhase.number, state.resources.risk);
 
-  // Auto-Peek: Jede neue „Sendung" blendet die Leiste kurz ein, damit der zentrale
-  // Feedback-Loop (Tat → Publikum reagiert) sichtbar ist, ohne dass der Spieler B
-  // kennen muss (Review-Befund A1). Manuelles Öffnen/Schließen gewinnt immer.
+  // Auto-Peek (2d): Der Streifen ist permanent sichtbar; jede neue „Sendung" klappt
+  // kurz das volle Wohnzimmer aus, damit der Feedback-Loop (Tat → Publikum reagiert)
+  // sichtbar wird, und klappt dann wieder ein. Manuelles Umschalten (B) gewinnt.
   const lastPeekedItem = useRef<string | null>(null);
   useEffect(() => {
     if (!audience.lastItem || audience.lastItem.id === lastPeekedItem.current) return;
     lastPeekedItem.current = audience.lastItem.id;
-    setBroadcastOpen(true);
-    const timer = window.setTimeout(() => setBroadcastOpen(false), 4500);
+    setBroadcastExpanded(true);
+    const timer = window.setTimeout(() => setBroadcastExpanded(false), 4500);
     return () => window.clearTimeout(timer);
-  }, [audience.lastItem, setBroadcastOpen]);
+  }, [audience.lastItem, setBroadcastExpanded]);
 
   // K1: Aktionen und Gespräche kosten Spielzeit (Ereignis-Uhr, kein Echtzeit-Ticken).
   const lastActionCountRef = useRef(state.completedActions.length);
@@ -470,16 +478,16 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           case 'p': togglePanel('npcs'); break;
           case 'm': togglePanel('mission'); break;
           case 'e': togglePanel('events'); break;
-          case 'v': toggleViewMode(); break;
           case 'b': toggleBroadcast(); break;
           case 'i': setShowEncyclopedia(prev => !prev); break;
+          case 'h': setHudVisible(v => !v); break;
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleViewMode, toggleBroadcast, setShowEncyclopedia]);
+  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleBroadcast, setShowEncyclopedia]);
 
   // K9 Stufe 1: Autosave bei jedem Phasenwechsel (nur während 'playing').
   // saveGame kommt aus useStoryGameState und wird auch im Pausemenü genutzt.
@@ -639,7 +647,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       className="fixed inset-0 font-mono"
       style={{ backgroundColor: StoryModeColors.background }}
     >
-      {/* HUD */}
+      {/* HUD (E1/I32): nur auf Knopfdruck — Taste H, Standard aus, „nicht dauerhaft" */}
+      {hudVisible && (
       <StoryHUD
         resources={{
           budget: state.resources.budget,
@@ -665,12 +674,38 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         }))}
         onEndPhase={requestEndDay}
         onOpenMenu={pauseGame}
+        onHideHud={() => setHudVisible(false)}
       />
+      )}
 
-      {/* Main Layout (with padding for HUD) */}
-      <div className="pt-[52px] h-full flex flex-col">
-        {/* Sub-HUD Bar: Betrayal Indicators + Consequence Timeline (in-flow, not fixed) */}
-        {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
+      {/* Dezenter, IMMER auffindbarer Einstieg (E1): Pause + HUD einblenden, wenn HUD aus */}
+      {!hudVisible && (state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
+        <div className="fixed top-1.5 right-1.5 z-50 flex gap-1">
+          <button
+            onClick={pauseGame}
+            aria-label="Pause / Menü"
+            title="Pause / Menü (Esc)"
+            className="w-8 h-8 flex items-center justify-center border-2 font-bold hover:brightness-125"
+            style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.textPrimary }}
+          >
+            ☰
+          </button>
+          <button
+            onClick={() => setHudVisible(true)}
+            aria-label="HUD einblenden"
+            title="HUD einblenden (H)"
+            className="h-8 px-2 flex items-center gap-1 border-2 text-xs font-bold hover:brightness-125"
+            style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.textSecondary }}
+          >
+            <Icon name="stats" size={12} title="HUD" fallback="HUD" /> HUD · H
+          </button>
+        </div>
+      )}
+
+      {/* Main Layout (Padding nur, wenn HUD sichtbar) */}
+      <div className={`${hudVisible ? 'pt-[52px]' : ''} h-full flex flex-col`}>
+        {/* Sub-HUD Bar: Betrayal + Consequence — Teil des HUD-Rands, nur mit HUD sichtbar */}
+        {hudVisible && (state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
           <div
             className="flex items-center gap-2 px-4 py-1 shrink-0 z-30"
             style={{
@@ -694,40 +729,16 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         {/* Content area: Office/Dashboard + SidePanel */}
         <div className="flex-1 flex min-h-0">
         {/* Main content area (Office or Dashboard) - transition prevents layout shift */}
-        <div className="relative flex-1 h-full overflow-hidden transition-all duration-300">
-          {/* View-Umschalter: Gebäude / Büro / Dashboard + Broadcast-Leiste */}
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-40 flex gap-1 p-1 rounded-lg bg-black/60">
-            {(['building', 'office', 'dashboard'] as const).map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
-                className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded text-white transition-colors ${viewMode === mode ? 'bg-red-700' : 'hover:bg-white/10'}`}
-              >
-                <Icon
-                  name={mode === 'building' ? 'building' : mode === 'office' ? 'office' : 'dashboard'}
-                  size={12}
-                  title={mode === 'building' ? 'Gebäude' : mode === 'office' ? 'Büro' : 'Dashboard'}
-                  fallback={mode === 'building' ? 'GEB' : mode === 'office' ? 'BRO' : 'DSH'}
-                />
-                {mode === 'building' ? 'Gebäude (V)' : mode === 'office' ? 'Büro' : 'Dashboard'}
-              </button>
-            ))}
-            <span className="w-px self-stretch bg-white/20" aria-hidden />
-            <button
-              onClick={toggleBroadcast}
-              aria-pressed={broadcastOpen}
-              className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded text-white transition-colors ${broadcastOpen ? 'bg-red-700' : 'hover:bg-white/10'}`}
-              title="Sendung & Publikum (B)"
-            >
-              <Icon name="broadcast" size={12} title="Sendung" fallback="SND" />
-              Sendung (B)
-            </button>
-          </div>
-
+        <div className="relative flex-1 h-full overflow-hidden flex flex-col transition-all duration-300">
+          {/* Welt-Ansicht + Overlays; darunter der permanente Broadcast-Streifen (2d).
+              Strang 2/2c: kein View-Umschalter (§4.4) — Ortswechsel diegetisch über
+              Türen (Büro) und das Fahrstuhl-/Etagen-Tableau (Gebäude). */}
+          <div className="relative flex-1 min-h-0">
           {viewMode === 'building' ? (
             <BuildingView
               npcs={state.npcs}
               month={state.storyPhase.month}
+              locked={!!state.currentDialog}
               onRoomClick={(npcId) => {
                 setActivePanel(null);
                 interactWithNpc(npcId);
@@ -743,13 +754,13 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 setShowDayReport(true);
               }}
             />
-          ) : viewMode === 'office' ? (
+          ) : (
             <PlayerOfficeView
               onOpenActions={() => togglePanel('actions')}
               onOpenNews={() => togglePanel('news')}
-              onOpenStats={() => togglePanel('stats')}
+              onOpenLagebild={() => setShowLagebild(true)}
               onOpenNpcs={() => togglePanel('npcs')}
-              onOpenMission={() => togglePanel('mission')}
+              onOpenBoard={() => setShowBoard(true)}
               onOpenEvents={() => togglePanel('events')}
               onEndPhase={requestEndDay}
               onExitToBuilding={() => setViewMode('building')}
@@ -757,20 +768,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               worldEventCount={worldEventCount}
               showTutorialHints={showOfficeHints}
             />
-          ) : (
-            <DashboardView
-              resources={state.resources}
-              phase={state.storyPhase}
-              objectives={state.objectives}
-              newsEvents={state.newsEvents}
-              npcs={state.npcs}
-              unreadNewsCount={state.unreadNewsCount}
-              worldEventCount={worldEventCount}
-              onEndPhase={requestEndDay}
-            />
           )}
 
-          {/* Broadcast-Leiste (B): Sendung + Publikum, reine Anzeige-Schicht */}
           {/* Raum-Nahsicht: NPC groß im Raum, sobald ein Gespräch läuft (K6.5) */}
           {state.currentDialog && state.activeNpcId && viewMode === 'building' && (
             <NpcRoomView npcId={state.activeNpcId} mood={state.currentDialog.mood} />
@@ -782,8 +781,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               <DayClock />
             </div>
           )}
+          </div>
 
-          {broadcastOpen && <BroadcastBar audience={audience} onClose={toggleBroadcast} />}
+          {/* Broadcast permanent (2d): Dauer-Streifen am Welt-Rand, per B ausklappbar */}
+          {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
+            <BroadcastBar audience={audience} expanded={broadcastExpanded} onToggle={toggleBroadcast} />
+          )}
         </div>
 
         {/* Sidebar Panel System */}
@@ -922,6 +925,74 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             }))}
             lastHeadline={audience.lastItem?.headline ?? null}
             onClose={() => setShowFokusgruppe(false)}
+          />
+        )}
+
+        {/* Narrativ-Tafel (2f): Sendeplan — Maßnahmen anheften, Gelegenheits-Fäden, ausspielen */}
+        {showBoard && (
+          <NarrativeBoard
+            objectives={state.objectives.map((o) => ({
+              id: o.id,
+              label_de: o.label_de,
+              currentValue: o.currentValue,
+              targetValue: o.targetValue,
+              completed: o.completed,
+              isPrimary: o.type === 'primary',
+            }))}
+            actions={state.availableActions.map((a) => ({
+              id: a.id,
+              label_de: a.label_de,
+              narrative_de: a.narrative_de,
+              costs: { budget: a.costs.budget, capacity: a.costs.capacity },
+              legality: a.legality,
+              available: a.available,
+              unavailableReason: a.unavailableReason,
+            }))}
+            queue={state.actionQueue}
+            threads={(state.comboHints ?? []).map((h) => ({
+              id: h.comboId,
+              name: h.comboName,
+              hint: h.hint_de,
+              progress: h.progress,
+              expiresIn: h.expiresIn,
+            }))}
+            resources={{
+              budget: state.resources.budget,
+              capacity: state.resources.capacity,
+              actionPoints: state.resources.actionPointsRemaining,
+            }}
+            onPin={(actionId) => addToQueue(actionId)}
+            onUnpin={(queueItemId) => removeFromQueue(queueItemId)}
+            onExecuteNow={(actionId) => {
+              const result = executeAction(actionId);
+              if (result) setShowActionFeedback(true);
+            }}
+            onPlay={async () => {
+              const results = await executeQueue();
+              if (results && results.length > 0) {
+                const valid = results.filter((r) => r !== null);
+                if (valid.length > 0) {
+                  setBatchActionResults(valid as ActionResult[]);
+                  setShowActionFeedback(true);
+                }
+              }
+            }}
+            onClear={clearQueue}
+            onClose={() => setShowBoard(false)}
+          />
+        )}
+
+        {/* Lagebild (2e): „auf einen Blick"-Übersicht am Wand-Monitor (Dashboard abgelöst) */}
+        {showLagebild && (
+          <LagebildView
+            resources={state.resources}
+            phase={state.storyPhase}
+            objectives={state.objectives}
+            newsEvents={state.newsEvents}
+            npcs={state.npcs}
+            unreadNewsCount={state.unreadNewsCount}
+            worldEventCount={worldEventCount}
+            onClose={() => setShowLagebild(false)}
           />
         )}
 
