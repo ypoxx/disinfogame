@@ -70,6 +70,22 @@ const NPC_HINTS = {
   igor: 'cautious male financial analyst, age 45-55, worn grey suit, balding, skeptical look, ledger under his arm',
 };
 
+// v2-Beschreibungen für die GROSSE Raum-Halbfigur (modern 2026). Bewusst PUR
+// (nur Person, kein Möbel) — verhindert den "halber Schreibtisch"-/Briefmarken-
+// Effekt beim Einsetzen (Owner-Hinweis 2026-06-13): der Tisch kommt aus dem Raum.
+const HALF_HINTS = {
+  direktor:
+    'a stern agency director in his early 60s, grey hair, sharp authoritative face, dark formal high-collar service suit with a single subtle plain insignia bar (no real emblem)',
+  marina:
+    'a confident woman media strategist in her late 30s, short dark hair, smart modern dark blazer, a slight knowing smile',
+  alexei:
+    'a nervous young male cyber specialist in his late 20s, messy hair, large glasses, a dark hoodie over a shirt, alert eyes',
+  katja:
+    'a pragmatic woman field operative in her late 30s, short tied-back hair, a practical dark field jacket, a watchful steady expression',
+  igor:
+    'a cautious male financial analyst in his early 50s, balding, glasses, a plain dark suit, a skeptical look',
+};
+
 const PROPS = [
   ['prop_tv', 'old CRT television set on a metal stand, screen glowing'],
   ['prop_server_rack', 'server rack with blinking red and green LEDs'],
@@ -409,6 +425,29 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
           `but with a clearly ${mood} facial expression. Plain dark concrete wall background. No text. ${style}`,
       });
     }
+  }
+
+  // --- NPC-Halbfiguren für die Raum-Nahsicht (groß "hinter dem Schreibtisch") ---
+  // PUR: nur die Person, kein Möbel/Tisch/Boden → sauberes Alpha, kein Briefmarken-
+  // Effekt. Hüfthoch beschnitten; im Spiel bodenbündig (Schnitt läuft aus dem Bild).
+  for (const npc of npcs) {
+    const desc = HALF_HINTS[npc.id] ?? NPC_HINTS[npc.id] ?? npc.name;
+    shots.push({
+      id: `npc_half_${npc.id}`,
+      type: 'image',
+      kind: 'npc_half',
+      priority: 'must',
+      aspectRatio: '3:4',
+      size: { w: 768, h: 1024 },
+      chroma: true,
+      seed: seedFor(`npc_half_${npc.id}`),
+      prompt:
+        `A pixel art character: a single person shown from the hips up, large like a ` +
+        `visual-novel / adventure-game character. ${desc}. Calm, natural posture, facing ` +
+        `slightly toward the centre. Full head and both shoulders inside the frame, NOT ` +
+        `cropped at the top. ONLY the person — absolutely NO desk, NO table, NO chair, NO ` +
+        `furniture, NO props, NO floor, nothing in front of the body. ${CHROMA_PROMPT} ${style}`,
+    });
   }
 
   // --- Spielfigur-Sheets (Bauplan: BUILDING_CONCEPT.md, 32×32 je Frame) ---

@@ -17,7 +17,11 @@ export function NpcRoomView({ npcId, mood = 'neutral' }: NpcRoomViewProps) {
   const assets = useAssets();
   const room = getBuildingLayout().rooms.find((r) => r.npcId === npcId);
   const bgUrl = room ? assets.imageUrl(`room_${room.id}`) : null;
-  const portraitUrl =
+  // Bevorzugt die PURE, transparente Halbfigur (npc_half_*): kein mitgemaltes Möbel,
+  // bodenbündig eingesetzt → der Hüftschnitt läuft aus dem Bild, der Schreibtisch
+  // kommt aus dem Raum (kein "Briefmarken"-Effekt). Fallback: das alte Porträt.
+  const figureUrl =
+    assets.imageUrl(`npc_half_${npcId}`) ??
     (mood !== 'neutral' ? assets.imageUrl(`portrait_${npcId}_${mood}`) : null) ??
     assets.imageUrl(`portrait_${npcId}`);
 
@@ -49,18 +53,18 @@ export function NpcRoomView({ npcId, mood = 'neutral' }: NpcRoomViewProps) {
           background: 'linear-gradient(transparent, rgba(5,7,13,0.82))',
         }}
       />
-      {/* NPC groß im Raum (Halbfigur rechts der Mitte) */}
-      {portraitUrl && (
+      {/* NPC groß im Raum (Halbfigur, bodenbündig rechts der Mitte) */}
+      {figureUrl && (
         <img
-          src={portraitUrl}
+          src={figureUrl}
           alt=""
           style={{
             position: 'absolute',
-            right: '12%',
-            bottom: '18%',
-            height: '52%',
+            right: '8%',
+            bottom: 0,
+            height: '74%',
             imageRendering: 'pixelated',
-            filter: 'drop-shadow(0 10px 24px rgba(0,0,0,0.6))',
+            filter: 'drop-shadow(0 6px 14px rgba(0,0,0,0.5))',
           }}
         />
       )}
