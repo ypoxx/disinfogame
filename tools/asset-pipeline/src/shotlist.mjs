@@ -36,6 +36,10 @@ export const INTRO_VOICE_LINE = {
 // Englische Bild-Beschreibungen je Raum/NPC (Inhalts-Hinweise aus dem Style-Guide
 // bzw. BUILDING_CONCEPT.md; Räume/NPCs ohne Eintrag bekommen einen generischen Text).
 const ROOM_HINTS = {
+  analyse:
+    'audience research room: a one-way mirror window showing a focus group of modern western citizens sitting in a bright room beyond, on this side a dark observation space with clipboards, a tape recorder, monitors showing demographic charts, two office chairs',
+  newsroom:
+    'social media monitoring newsroom: a wall of mounted CRT monitors showing scrolling feeds and trending charts, a long desk with keyboards and coffee cups, pinned printouts of posts on a board, cable trays, cool blue monitor glow',
   lobby:
     'ministry entrance lobby at ground level: polished stone floor, reception desk with a uniformed guard post, two heavy elevator doors with a mechanical floor indicator above, potted plant, notice board, revolving entrance door letting in cold night light',
   spieler_buero:
@@ -148,6 +152,30 @@ const BUILDING_KIT = [
     { w: 168, h: 224 },
     true,
     'an old elevator with open riveted metal double doors revealing an empty cabin lit by a single warm ceiling lamp, wood-panelled cabin walls, frontal view, single object',
+    'must',
+  ],
+  [
+    'bld_corridor',
+    '16:9',
+    { w: 1344, h: 768 },
+    false,
+    'interior corridor wall of a brutalist ministry, cross-section view: plain concrete wall with a painted dado line, a notice board, a wall clock, ceiling with one fluorescent tube, linoleum floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people',
+    'must',
+  ],
+  [
+    'bld_city_far',
+    '21:9',
+    { w: 1344, h: 576 },
+    true,
+    'distant city skyline silhouette at night for a side-scrolling pixel game background: dark block buildings with small lit windows, chimneys with faint smoke, a thin TV tower, cool blue-grey night haze, flat layered silhouette, seamlessly tileable from left to right',
+    'must',
+  ],
+  [
+    'bld_street',
+    '21:9',
+    { w: 1344, h: 192 },
+    false,
+    'empty night street in front of a government building, cross-section view: asphalt with a curb, one street lamp pool of light, a parked boxy 1980s sedan in dark colors, seamlessly tileable from left to right, flat frontal view',
     'must',
   ],
 ];

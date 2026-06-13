@@ -32,6 +32,12 @@ import { ArrivalSequence } from './components/ArrivalSequence';
 import { BuildingView } from './building/BuildingView';
 import { BroadcastBar } from './broadcast/BroadcastBar';
 import { useAudienceBroadcast } from './broadcast/useAudienceBroadcast';
+import { NpcRoomView } from './building/NpcRoomView';
+import { DayClock } from './components/DayClock';
+import { MorningBriefing } from './components/MorningBriefing';
+import { DayReport } from './components/DayReport';
+import { EndReport } from './components/EndReport';
+import { useDayClockStore, TIME_COST } from './stores/dayClockStore';
 import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
 import { DashboardView } from './components/DashboardView';
@@ -259,6 +265,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [selectedGrievanceNpc, setSelectedGrievanceNpc] = useState<string | null>(null);
   // Geführter Einstieg: Title → Ankunfts-Sequenz (Lobby/Fahrstuhl/Zentrale) → Direktor-Dialog.
   const [showArrival, setShowArrival] = useState(false);
+  // K1-Tagesschleife: Heimweg-Ritual, Tagesfazit, Morgenbriefing; K8: End-Report.
+  const [walkHome, setWalkHome] = useState(false);
+  const [showDayReport, setShowDayReport] = useState(false);
+  const [briefedPhase, setBriefedPhase] = useState<number | null>(null);
+  const [showEndReport, setShowEndReport] = useState(false);
   // Büro-Hotspot-Hinweise nur beim allerersten Besuch (über Sessions persistiert).
   const [showOfficeHints] = useState<boolean>(() => {
     try {
@@ -285,6 +296,45 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     const timer = window.setTimeout(() => setBroadcastOpen(false), 4500);
     return () => window.clearTimeout(timer);
   }, [audience.lastItem, setBroadcastOpen]);
+
+  // K1: Aktionen und Gespräche kosten Spielzeit (Ereignis-Uhr, kein Echtzeit-Ticken).
+  const lastActionCountRef = useRef(state.completedActions.length);
+  useEffect(() => {
+    const n = state.completedActions.length;
+    if (n > lastActionCountRef.current && state.gamePhase === 'playing') {
+      useDayClockStore.getState().advance(TIME_COST.action * (n - lastActionCountRef.current));
+    }
+    lastActionCountRef.current = n;
+  }, [state.completedActions.length, state.gamePhase]);
+  const dialogWasOpenRef = useRef(false);
+  useEffect(() => {
+    const open = !!state.currentDialog;
+    if (open && !dialogWasOpenRef.current && state.gamePhase === 'playing') {
+      useDayClockStore.getState().advance(TIME_COST.dialog);
+    }
+    dialogWasOpenRef.current = open;
+  }, [state.currentDialog, state.gamePhase]);
+
+  // K1: Tagesende → diegetischer Heimweg (Avatar zur Lobby) → Tagesfazit.
+  const dayEnded = useDayClockStore((s) => s.dayEnded);
+  const requestEndDay = () => {
+    if (showDayReport || walkHome) return;
+    setActivePanel(null);
+    setViewMode('building');
+    setWalkHome(true);
+  };
+  useEffect(() => {
+    if (dayEnded && state.gamePhase === 'playing' && !state.currentDialog && !showDayReport && !walkHome) {
+      requestEndDay();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dayEnded, state.gamePhase, state.currentDialog]);
+
+  // Vertrauens-Fortschritt (Ministerium ↔ Institutionen) fürs Briefing/Fazit.
+  const destabObjective = state.objectives.find((o) => o.type === 'primary');
+  const trustProgress = destabObjective
+    ? Math.max(0, Math.min(1, (100 - destabObjective.currentValue) / Math.max(1, 100 - destabObjective.targetValue)))
+    : 0;
 
   // Tutorial system
   const tutorial = useTutorial();
@@ -479,15 +529,53 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     }));
 
     return (
-      <GameEndScreen
-        endData={{
-          ...state.gameEnd,
-          trustHistory: state.trustHistory,
-          actors: chartActors,
-        }}
-        onRestart={() => { resetUI(); resetGame(); }}
-        onMainMenu={() => { resetUI(); onExit(); }}
-      />
+      <>
+        <GameEndScreen
+          endData={{
+            ...state.gameEnd,
+            trustHistory: state.trustHistory,
+            actors: chartActors,
+          }}
+          onRestart={() => { resetUI(); resetGame(); }}
+          onMainMenu={() => { resetUI(); onExit(); }}
+        />
+        {/* K8: Zugang zum vollständigen End-Report — „der größte edukative Teil" */}
+        <button
+          onClick={() => setShowEndReport(true)}
+          className="fixed bottom-4 right-4 z-50 px-4 py-3 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
+          style={{
+            backgroundColor: StoryModeColors.agencyBlue,
+            borderColor: StoryModeColors.darkBlue,
+            color: StoryModeColors.warning,
+            boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.8)',
+          }}
+        >
+          VOLLSTÄNDIGER LAGEBERICHT ▸
+        </button>
+        {showEndReport && (
+          <EndReport
+            endType={state.gameEnd.type}
+            endTitle={state.gameEnd.title_de}
+            endNarrative={state.gameEnd.description_de}
+            phasesPlayed={state.storyPhase.number}
+            completedActionIds={state.completedActions}
+            actionsCatalog={state.availableActions.map((act) => ({
+              id: act.id,
+              label: act.label_de,
+              legality: act.legality,
+              phase: act.phase,
+              tags: act.tags,
+            }))}
+            trustHistory={state.trustHistory}
+            finalResources={{
+              budget: state.resources.budget,
+              risk: state.resources.risk,
+              moralWeight: state.resources.moralWeight,
+            }}
+            onClose={() => setShowEndReport(false)}
+          />
+        )}
+      </>
     );
   }
 
@@ -521,7 +609,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           isCompleted: o.completed,
           isPrimary: o.type === 'primary',
         }))}
-        onEndPhase={endPhase}
+        onEndPhase={requestEndDay}
         onOpenMenu={pauseGame}
       />
 
@@ -583,6 +671,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 interactWithNpc(npcId);
               }}
               onEnterOffice={() => setViewMode('office')}
+              walkHome={walkHome}
+              onArrivedHome={() => {
+                setWalkHome(false);
+                setShowDayReport(true);
+              }}
             />
           ) : viewMode === 'office' ? (
             <PlayerOfficeView
@@ -592,7 +685,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               onOpenNpcs={() => togglePanel('npcs')}
               onOpenMission={() => togglePanel('mission')}
               onOpenEvents={() => togglePanel('events')}
-              onEndPhase={endPhase}
+              onEndPhase={requestEndDay}
               onExitToBuilding={() => setViewMode('building')}
               unreadNewsCount={state.unreadNewsCount}
               worldEventCount={worldEventCount}
@@ -607,11 +700,23 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               npcs={state.npcs}
               unreadNewsCount={state.unreadNewsCount}
               worldEventCount={worldEventCount}
-              onEndPhase={endPhase}
+              onEndPhase={requestEndDay}
             />
           )}
 
           {/* Broadcast-Leiste (B): Sendung + Publikum, reine Anzeige-Schicht */}
+          {/* Raum-Nahsicht: NPC groß im Raum, sobald ein Gespräch läuft (K6.5) */}
+          {state.currentDialog && state.activeNpcId && viewMode === 'building' && (
+            <NpcRoomView npcId={state.activeNpcId} mood={state.currentDialog.mood} />
+          )}
+
+          {/* Tagesuhr (K1): Handlungen kosten Zeit, 18:00 = Redaktionsschluss */}
+          {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
+            <div className="absolute top-2 right-2 z-40">
+              <DayClock />
+            </div>
+          )}
+
           {broadcastOpen && <BroadcastBar audience={audience} onClose={toggleBroadcast} />}
         </div>
 
@@ -720,6 +825,50 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         </SidePanel>
       </div>
       </div>
+
+        {/* Tagesfazit (A4-Pflichtmoment): erscheint nach dem Heimweg */}
+        {showDayReport && (
+          <DayReport
+            phase={state.storyPhase.number}
+            headline={audience.lastItem?.headline ?? null}
+            tierLabel={audience.lastItem ? audience.lastItem.tier.toUpperCase() : null}
+            audienceSegments={audience.country.segments.map((seg) => ({
+              label: seg.label_de,
+              belief: seg.belief,
+              mood: seg.mood,
+            }))}
+            counterHeadlines={state.newsEvents
+              .filter((e) => e.type === 'world_event' || e.type === 'consequence')
+              .slice(0, 3)
+              .map((e) => e.headline_de)}
+            resources={{
+              risk: state.resources.risk,
+              budget: state.resources.budget,
+              attention: state.resources.attention,
+            }}
+            trustProgress={trustProgress}
+            onNextDay={() => {
+              endPhase();
+              useDayClockStore.getState().resetDay();
+              setShowDayReport(false);
+            }}
+          />
+        )}
+
+        {/* Morgenbriefing beim Direktor (K1) — einmal je Tag, ab Tag 2 */}
+        {state.gamePhase === 'playing' &&
+          !showDayReport &&
+          !walkHome &&
+          !state.currentDialog &&
+          state.storyPhase.number > 1 &&
+          briefedPhase !== state.storyPhase.number && (
+            <MorningBriefing
+              phase={state.storyPhase.number}
+              risk={state.resources.risk}
+              trustProgress={trustProgress}
+              onDone={() => setBriefedPhase(state.storyPhase.number)}
+            />
+          )}
 
       {/* Dialog Box */}
       {state.currentDialog && (

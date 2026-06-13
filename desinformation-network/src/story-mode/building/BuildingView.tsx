@@ -8,7 +8,7 @@
  * Das frühere CSS-Skelett (Track A-1) liegt unter
  * archive/story-mode-drafts/ — Konzept: docs/PLAYER_ENTRY_AND_BUILDING_PLAN.md.
  */
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { BuildingStage, type StageNpc } from './BuildingStage';
 import { useNavigator } from './useNavigator';
 import { roomById } from './buildingLayout';
@@ -19,10 +19,27 @@ interface BuildingViewProps {
   onRoomClick: (npcId: string) => void;
   /** Ankunft am Spielerbüro (öffnet die Büro-Ansicht). */
   onEnterOffice?: () => void;
+  /** K1-Heimweg: Avatar geht sichtbar zur Lobby, dann feuert onArrivedHome. */
+  walkHome?: boolean;
+  onArrivedHome?: () => void;
 }
 
-export function BuildingView({ npcs, onRoomClick, onEnterOffice }: BuildingViewProps) {
+export function BuildingView({ npcs, onRoomClick, onEnterOffice, walkHome = false, onArrivedHome }: BuildingViewProps) {
   const nav = useNavigator();
+
+  // Heimweg-Ritual (Redaktionsschluss): einmalig zur Lobby laufen.
+  const walkingHomeRef = useRef(false);
+  useEffect(() => {
+    if (walkHome && !walkingHomeRef.current) {
+      walkingHomeRef.current = true;
+      nav.goTo('lobby', () => {
+        walkingHomeRef.current = false;
+        onArrivedHome?.();
+      });
+    }
+    if (!walkHome) walkingHomeRef.current = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walkHome]);
 
   const handleRoomClick = useCallback(
     (roomId: string) => {
