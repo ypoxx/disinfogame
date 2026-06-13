@@ -207,13 +207,16 @@ Vor jedem Batch: Kostenabschätzung an Owner (Budget-Leitplanke G43).
 |---|---|---|---|
 | **W1 Sofort** | ✅ ERLEDIGT 2026-06-12: Autosave je Phase + Verlassen-Schutz · Version 0.9.0 + Changelog-Overlay · HUD-Hierarchie mit Risiko-Puls · Laufzyklus (neues Walk-Sheet, Speed-Kopplung, Kontakt-Frame-Sounds) · `ministryRed` | — | ✅ |
 | **W2 Konzept-Paket** | K1-Feinschliff, K2, K3 als Owner-Vorlagen (je 1–2 Seiten, einfache Sprache); Balancing-Analyse liegt bei | Recherchen ✅ | M |
-| **W3 Gebäude-Rework** | K6.1–6.5 (Stadt, Etagen, Fassade statt Röntgenblick, Proportionen, Raum-Nahsicht) + neue Assets | W2-Abnahme nicht nötig (rein visuell beschlossen) | L |
-| **W4 Spannung & Tagesschleife** | K14-Hälfte ✅ ERLEDIGT 2026-06-12 (Stellschrauben 1–4 mit Simulations-Nachweis, s. BALANCING_ANALYSIS „Umsetzungs-Nachweis"; 5–8 = späterer Pass). OFFEN: K1 (Uhr, Zeitkosten, Redaktionsschluss, Tagesfazit) — Abnahme liegt vor | K1 ✅ abgenommen | M |
-| **W5 Welt & Publikum** | K2 umsetzen (audience.json, 8 Milieus + neue Figuren) · K4 Fokusgruppe · Gegenseite medial (K3-Stufe 1: Faktencheck-/Pressevielfalt in Schlagzeilen) | K2/K3-Abnahme | L |
-| **W6 Stil-Vollendung** | K11 (Rahmen, Icons, Panels) · K5 Social-Feed · K12 Audio | W3 (Stil-Kern) | M–L |
-| **W7 Tiefe** | K7 NPC-Dialoge/Aktionen-aus-Dialog · K10 Avatar-Wahl + Feinheiten · K13-Stufe-2 Vertonung | W4 (Situationsbezug braucht Tagesschleife) | L |
-| **W8 Abschluss 0.9** | K8 End-Report · K9-Stufe-2 Login/Cloud-Save · Balancing-Pass (Engine-Analyse-Empfehlungen) · Test-URL/Domain (H47) · Playwright-CI (G41, nach Owner-Ok) | alles | M–L |
+| **W3 Gebäude-Rework** | ✅ ERLEDIGT 2026-06-13 (PR #75): kein Röntgenblick (Flure+Türen), Stadt-Silhouette, 6 Etagen, Proportionssystem (Avatar ×4), Raum-Nahsicht (NpcRoomView), reparierter Laufzyklus | — | ✅ |
+| **W4 Spannung & Tagesschleife** | ✅ ERLEDIGT 2026-06-13: K14-Stellschrauben 1–4 (Simulations-Nachweis) + K1 vollständig (Ereignis-Uhr, Zeitkosten, Redaktionsschluss→Heimweg→Tagesfazit, Morgenbriefing). OFFEN: K14-Stellschrauben 5–8 (späterer Balancing-Pass mit Spielertests) | ✅ | ✅ Kern |
+| **W5 Welt & Publikum** | ✅ K2 (1 föderales Land Westunion, 8 moderne Milieus + Figuren) · ✅ K4 Fokusgruppe · OFFEN K3-Stufe-1 (Gegenseite medial: Faktencheck-/Pressevielfalt) — braucht K3-Konzept-Abnahme | K2 ✅ | teils ✅ |
+| **W6 Stil-Vollendung** | ✅ K5 Social-Feed (Newsroom) · ✅ K12 Audio (Mixer, Raum-Ambiences, Dialog-Endton, 2 Musik-Loops) · OFFEN K11 (3-Schichten-UI, Pixel-Rahmen, Icon-Einbau) — **blockiert durch Owner-Fragen 1–3** (UI-Schichten) | Fragen 1–3 | teils ✅ |
+| **W7 Tiefe** | ✅ K10 Avatar-Wahl + Dienstausweis · OFFEN K7 NPC-Dialoge/Aktionen-aus-Dialog (**Fragen 38–41**) · K13-Stufe-2 Vertonung | Fragen 38–41 | teils ✅ |
+| **W8 Abschluss 0.9** | ✅ K8 End-Report · OFFEN: K9-Stufe-2 Login/Cloud-Save · Balancing-Pass · Test-URL/Domain (H47) · Playwright-CI (G41) | alles | teils ✅ |
 
-Reihenfolge-Logik: W1 sichert die Spielbarkeit der JETZT-Version für Tester;
-W2 holt die drei Owner-Abnahmen ein, ohne die W3 visuell schon arbeiten kann;
-W5/W7 sind die inhaltlich großen Brocken und brauchen die Konzept-Abnahmen.
+**Stand 2026-06-13:** Alle ohne Owner-Rückfrage umsetzbaren, beschlossenen Punkte sind
+gebaut (W1–W4 komplett; W5/W6/W7/W8 so weit, wie ohne die offenen Fragen möglich).
+Die verbleibenden Brocken **hängen an `FRAGEN_2026-06-13.md`**: K11/E30-Icon-Einbau
+(Fragen 1–3, UI-Schichten) und K7-Dialogtiefe (Fragen 38–41). K3 (gestützte Stimmen)
+braucht die Konzept-Abnahme. Diese drei sind der nächste Schritt, sobald das
+Transkript vorliegt.

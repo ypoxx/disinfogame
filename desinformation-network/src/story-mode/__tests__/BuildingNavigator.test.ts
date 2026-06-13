@@ -85,14 +85,14 @@ describe('BuildingNavigator.planRoute', () => {
     expect(() => planRoute(defaultPosition(), 'sauna')).toThrow(/unbekannter Raum/);
   });
 
-  it('hat positive Animationsdauer und v1-Zeitkosten von 0 (Zeit-Hook vorhanden)', () => {
+  it('hat positive Animationsdauer und aktivierte Zeitkosten (K1: Wege kosten Spielminuten)', () => {
     const steps = planRoute(entryPosition(), 'finanzen');
     expect(routeDurationMs(steps)).toBeGreaterThan(0);
-    expect(routeTimeCostMin(steps)).toBe(0);
-    for (const s of steps) {
-      expect(s.durationMs).toBeGreaterThan(0);
-      expect(s.timeCostMin).toBe(0);
-    }
+    expect(routeTimeCostMin(steps)).toBeGreaterThan(0);
+    const door = steps.find((s) => s.kind === 'door')!;
+    expect(door.timeCostMin).toBe(2);
+    const ride = steps.find((s) => s.kind === 'elevator')!;
+    expect(ride.timeCostMin).toBe(5 * Math.abs((ride.kind === 'elevator' ? ride.toLevel - ride.fromLevel : 0)));
   });
 
   it('skaliert die Fahrstuhl-Dauer mit der Etagen-Distanz', () => {

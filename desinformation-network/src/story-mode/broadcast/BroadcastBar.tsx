@@ -180,14 +180,14 @@ function AudienceRoom({ audience }: { audience: AudienceBroadcastState }) {
           ? { backgroundImage: `url(${roomUrl})`, backgroundSize: 'cover', backgroundPosition: 'center 65%', imageRendering: 'pixelated' }
           : {}),
       }}
-      title="Publikum: Nordmark"
+      title="Publikum: Westunion"
     >
       <span style={{ position: 'absolute', top: 4, left: 8, fontSize: 10, fontWeight: 700, letterSpacing: 1, color: '#c8c8b8', backgroundColor: 'rgba(10,10,14,0.7)', padding: '1px 6px', zIndex: 3 }}>
-        PUBLIKUM — NORDMARK
+        PUBLIKUM — WESTUNION
       </span>
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 12, display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 14, zIndex: 2 }}>
         {audience.country.segments.map((seg) => {
-          const figure = FIGURE_BY_SEGMENT[seg.id] ?? 'audience_worker';
+          const figure = FIGURE_BY_SEGMENT[seg.id] ?? 'audience_besorgte_mitte';
           const reaction = reactionBySegment.get(seg.id);
           const showBubble = reaction && Math.abs(reaction.beliefDelta) >= 0.04;
           return (

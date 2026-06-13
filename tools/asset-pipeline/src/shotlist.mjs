@@ -36,6 +36,10 @@ export const INTRO_VOICE_LINE = {
 // Englische Bild-Beschreibungen je Raum/NPC (Inhalts-Hinweise aus dem Style-Guide
 // bzw. BUILDING_CONCEPT.md; Räume/NPCs ohne Eintrag bekommen einen generischen Text).
 const ROOM_HINTS = {
+  analyse:
+    'audience research room: a one-way mirror window showing a focus group of modern western citizens sitting in a bright room beyond, on this side a dark observation space with clipboards, a tape recorder, monitors showing demographic charts, two office chairs',
+  newsroom:
+    'social media monitoring newsroom: a wall of mounted CRT monitors showing scrolling feeds and trending charts, a long desk with keyboards and coffee cups, pinned printouts of posts on a board, cable trays, cool blue monitor glow',
   lobby:
     'ministry entrance lobby at ground level: polished stone floor, reception desk with a uniformed guard post, two heavy elevator doors with a mechanical floor indicator above, potted plant, notice board, revolving entrance door letting in cold night light',
   spieler_buero:
@@ -150,6 +154,30 @@ const BUILDING_KIT = [
     'an old elevator with open riveted metal double doors revealing an empty cabin lit by a single warm ceiling lamp, wood-panelled cabin walls, frontal view, single object',
     'must',
   ],
+  [
+    'bld_corridor',
+    '16:9',
+    { w: 1344, h: 768 },
+    false,
+    'interior corridor wall of a brutalist ministry, cross-section view: plain concrete wall with a painted dado line, a notice board, a wall clock, ceiling with one fluorescent tube, linoleum floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people',
+    'must',
+  ],
+  [
+    'bld_city_far',
+    '21:9',
+    { w: 1344, h: 576 },
+    true,
+    'distant city skyline silhouette at night for a side-scrolling pixel game background: dark block buildings with small lit windows, chimneys with faint smoke, a thin TV tower, cool blue-grey night haze, flat layered silhouette, seamlessly tileable from left to right',
+    'must',
+  ],
+  [
+    'bld_street',
+    '21:9',
+    { w: 1344, h: 192 },
+    false,
+    'empty night street in front of a government building, cross-section view: asphalt with a curb, one street lamp pool of light, a parked boxy 1980s sedan in dark colors, seamlessly tileable from left to right, flat frontal view',
+    'must',
+  ],
 ];
 
 // Broadcast-HUD: Rahmen + Publikum (docs/story-mode/BROADCAST_AND_AUDIENCE_CONCEPT.md).
@@ -181,14 +209,49 @@ const HUD_KIT = [
   ],
 ];
 
-// Publikums-Figuren (sitzend, 2-Frame-Idle für Mikro-Animation, Chroma-Sheet).
+// Publikums-Figuren: 8 moderne WESTLICHE Milieus (B13/K2, sitzend, 2-Frame-Idle, Chroma).
 const AUDIENCE_FIGURES = [
-  ['audience_worker', 'a tired factory worker in blue overalls, middle-aged man'],
-  ['audience_pensioner', 'an elderly pensioner woman with a headscarf and knitting'],
-  ['audience_youth', 'a young student with a walkman headphones around the neck'],
-  ['audience_intellectual', 'a thin man with round glasses holding a folded newspaper'],
-  ['audience_family', 'a mother with a small child on her lap'],
-  ['audience_official', 'a stiff mid-level official in a grey uniform-like suit'],
+  ['audience_optimiererin', 'a career woman in her mid 30s in a white blazer, holding a smoothie cup, sitting upright'],
+  ['audience_macher', 'a hands-on tradesman in his mid 40s in a fleece jacket and jeans, beer bottle on his knee'],
+  ['audience_bohemien', 'a young creative in an oversized hoodie with headphones around the neck, slouched with a smartphone'],
+  ['audience_besorgte_mitte', 'a woman around 55 in a polo shirt with a tablet on her lap, reading glasses'],
+  ['audience_zorniger', 'a frustrated man in a faded t-shirt, arms crossed, cigarette behind the ear'],
+  ['audience_idealistin', 'a woman in her mid 30s in a linen shirt with a tote bag leaning against the sofa'],
+  ['audience_eigenheimer', 'a retired man in a knitted cardigan with a cat on his lap and a tablet'],
+  ['audience_liberale', 'a woman around 60 with round glasses, folded quality newspaper, podcast earphones around the neck'],
+];
+
+// Spieler-Porträts zur Avatar-Wahl (K10/D27: m/w × jung/mittel/erfahren).
+const PLAYER_PORTRAITS = [
+  ['portrait_player_m1', 'a young ambitious man in his late 20s, grey suit, neatly combed hair, alert eyes'],
+  ['portrait_player_m2', 'a middle-aged man in his 40s, grey suit, briefcase posture, tired but determined look'],
+  ['portrait_player_m3', 'an experienced man around 60, grey suit, silver hair, calm calculating gaze'],
+  ['portrait_player_f1', 'a young ambitious woman in her late 20s, grey blazer, tied-back hair, alert eyes'],
+  ['portrait_player_f2', 'a middle-aged woman in her 40s, grey blazer, short practical haircut, determined look'],
+  ['portrait_player_f3', 'an experienced woman around 60, grey blazer, silver bun, calm calculating gaze'],
+];
+
+// Pixel-Icon-Set (E30: ersetzt Emojis; einzelne Objekte, Chroma, 1:1).
+const ICONS = [
+  ['icon_budget', 'a small stack of banknotes with a coin'],
+  ['icon_capacity', 'a lightning bolt over a small gear'],
+  ['icon_risk', 'a warning triangle with an exclamation mark'],
+  ['icon_attention', 'a wide open eye'],
+  ['icon_moral', 'a small balance scale tilted to one side'],
+  ['icon_actions', 'a clipboard with a checked list'],
+  ['icon_news', 'a folded newspaper'],
+  ['icon_stats', 'a small bar chart with three rising bars'],
+  ['icon_npcs', 'two simple person silhouettes side by side'],
+  ['icon_mission', 'a beige dossier folder with a red seal'],
+  ['icon_events', 'a small globe with a signal arc'],
+  ['icon_building', 'a small brutalist office tower'],
+  ['icon_office', 'a wooden desk with a tiny CRT monitor'],
+  ['icon_dashboard', 'a small control panel with gauges'],
+  ['icon_broadcast', 'a small CRT television with antenna'],
+  ['icon_sound_on', 'a loudspeaker with sound waves'],
+  ['icon_sound_off', 'a loudspeaker crossed out'],
+  ['icon_save', 'an old floppy disk'],
+  ['icon_clock', 'a round wall clock face'],
 ];
 
 // SFX: alle SoundTypes des Spiels (SoundSystem.ts) in snake_case + Gebäude-Sounds.
@@ -216,6 +279,13 @@ const SFX = [
   ['sfx_phone_ring', 'single ring of an old rotary telephone', 1.5, 'nice'],
   ['sfx_typewriter', 'short mechanical typewriter burst ending with the carriage bell', 1.2, 'nice'],
   ['sfx_applause', 'small studio audience applause, muffled vintage broadcast quality', 2.0, 'nice'],
+  ['sfx_dialog_end', 'single very soft short low typewriter thock, gentle, quiet', 0.3, 'nice'],
+  ['sfx_amb_lobby', 'large echoing entrance hall room tone with distant footsteps and a revolving door swoosh, loopable', 10.0, 'nice'],
+  ['sfx_amb_buero', 'quiet office room tone with a ticking wall clock and faint radiator hum, loopable', 10.0, 'nice'],
+  ['sfx_amb_keller', 'deep basement room tone with low electrical hum and occasional pipe knock, loopable', 10.0, 'nice'],
+  ['sfx_amb_newsroom', 'busy newsroom room tone with soft keyboard typing and CRT monitor hum, loopable', 10.0, 'nice'],
+  ['sfx_amb_cyber', 'server room tone with computer fans and soft electronic beeps, loopable', 10.0, 'nice'],
+  ['sfx_amb_zentrale', 'stately office room tone with a slow pendulum clock and distant telephone ring, loopable', 10.0, 'nice'],
 ];
 
 const MUSIC = [
@@ -235,6 +305,18 @@ const MUSIC = [
     'music_victory',
     'restrained somber triumph, brass swell over minor piano, cold-war era, short instrumental sting',
     20_000,
+    'nice',
+  ],
+  [
+    'music_calm_archive',
+    'very calm contemplative cold-war office ambience, soft vibraphone and warm tape pads, sparse, loopable instrumental',
+    60_000,
+    'nice',
+  ],
+  [
+    'music_night_city',
+    'slow nocturnal cold-war city mood, distant saxophone, soft rain texture, muted upright bass, loopable instrumental',
+    60_000,
     'nice',
   ],
   [
@@ -407,6 +489,39 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       size: { w: 1024, h: 1024 },
       seed: seedFor(id),
       prompt: `A pixel art game asset: ${hint}. Single object, centered, no text. ${CHROMA_PROMPT} ${style}`,
+    });
+  }
+
+  // --- Spieler-Porträts (K10: Avatar-Wahl) ---
+  for (const [id, hint] of PLAYER_PORTRAITS) {
+    shots.push({
+      id,
+      type: 'image',
+      kind: 'portrait',
+      priority: 'must',
+      aspectRatio: '1:1',
+      size: { w: 1024, h: 1024 },
+      seed: seedFor(id),
+      prompt:
+        `A pixel art character portrait, head and shoulders, facing slightly left, neutral expression. ` +
+        `${hint}. Plain dark concrete wall background. No text. ${style}`,
+    });
+  }
+
+  // --- Pixel-Icons (E30: ein Icon-Vokabular statt Emojis) ---
+  for (const [id, hint] of ICONS) {
+    shots.push({
+      id,
+      type: 'image',
+      kind: 'icon',
+      priority: 'must',
+      aspectRatio: '1:1',
+      size: { w: 256, h: 256 },
+      chroma: true,
+      seed: seedFor(id),
+      prompt:
+        `A tiny pixel art game icon: ${hint}. Bold readable silhouette, 2px dark outline, ` +
+        `flat shading, single object centered, no text. ${CHROMA_PROMPT} ${style}`,
     });
   }
 

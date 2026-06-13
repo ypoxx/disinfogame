@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
-import { playVoiceLine, stopVoiceLine } from '../utils/SoundSystem';
+import { playVoiceLine, stopVoiceLine, playSound } from '../utils/SoundSystem';
 
 // ============================================
 // TYPES
@@ -454,6 +454,16 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
   useEffect(() => {
     setSelectedChoice(null);
   }, [message?.text]);
+
+  // F39: genau EIN dezenter Ton, wenn der Text fertig getippt ist (kein Tippgeräusch
+  // je Buchstabe). Ref-Guard verhindert Mehrfach-Auslösung pro Nachricht.
+  const dialogEndFiredRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (isComplete && message?.text && dialogEndFiredRef.current !== message.text) {
+      dialogEndFiredRef.current = message.text;
+      playSound('dialogEnd');
+    }
+  }, [isComplete, message?.text]);
 
   // Sprachzeile abspielen, wenn das Manifest sie liefert (sonst No-op).
   // `assets` in den Deps: Erscheint der Dialog VOR dem Manifest-Load (z. B. die

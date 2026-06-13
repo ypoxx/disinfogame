@@ -2,7 +2,7 @@
  * BuildingNavigator — plant Wege des Avatars durch das Gebäude.
  *
  * Pure TS, testbar ohne React. Jeder Schritt trägt `durationMs` (Animation)
- * UND `timeCostMin` (Spielzeit-Hook, v1 = 0 — Bewegung ist atmosphärisch;
+ * UND `timeCostMin` (Spielzeit-Hook — seit K1 aktiv: Wege kosten Spielminuten;
  * Zeitkosten sind später nur ein Parameter). Owner-Entscheidung 2026-06-12,
  * siehe docs/PLAYER_ENTRY_AND_BUILDING_PLAN.md.
  */
@@ -20,7 +20,7 @@ export type NavStep =
 
 /** Geschwindigkeiten (Stage-px bzw. ms je Etage). */
 export const NAV_SPEED = {
-  walkPxPerSecond: 220,
+  walkPxPerSecond: 300,
   elevatorMsPerFloor: 1100,
   elevatorDoorMs: 500,
   doorMs: 650,
@@ -34,7 +34,7 @@ function walkStep(floorLevel: number, fromX: number, toX: number): NavStep {
     fromX,
     toX,
     durationMs: Math.max(120, Math.round((dist / NAV_SPEED.walkPxPerSecond) * 1000)),
-    timeCostMin: 0,
+    timeCostMin: 10, // K1: Gang über den Flur ≈ 10 Spielminuten
   };
 }
 
@@ -63,7 +63,7 @@ export function planRoute(from: AvatarPosition, toRoomId: string, layout: Buildi
       x,
       durationMs:
         NAV_SPEED.elevatorDoorMs * 2 + Math.abs(room.floorLevel - level) * NAV_SPEED.elevatorMsPerFloor,
-      timeCostMin: 0,
+      timeCostMin: 5 * Math.abs(room.floorLevel - level), // K1: 5 min je Etage
     });
     level = room.floorLevel;
   }
@@ -73,7 +73,7 @@ export function planRoute(from: AvatarPosition, toRoomId: string, layout: Buildi
     x = room.doorX;
   }
 
-  steps.push({ kind: 'door', roomId: room.id, floorLevel: level, x, durationMs: NAV_SPEED.doorMs, timeCostMin: 0 });
+  steps.push({ kind: 'door', roomId: room.id, floorLevel: level, x, durationMs: NAV_SPEED.doorMs, timeCostMin: 2 });
   return steps;
 }
 

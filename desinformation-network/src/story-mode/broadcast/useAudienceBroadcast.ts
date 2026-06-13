@@ -1,6 +1,6 @@
 /**
  * useAudienceBroadcast — hält den Anzeige-Zustand des Publikums (Westunion-Land
- * „Nordmark") und lässt es auf ausgeführte Aktionen reagieren.
+ * „Westunion") und lässt es auf ausgeführte Aktionen reagieren.
  *
  * Reine Anzeige-Schicht über audienceModel (Leitprinzip aus
  * BROADCAST_AND_AUDIENCE_CONCEPT.md §1): keinerlei Rückwirkung auf die
@@ -28,8 +28,8 @@ const DECAY_RATE_PER_PHASE = 0.12;
 const HISTORY_LIMIT = 5;
 
 function cloneCountry(): AudienceCountry {
-  const source = getCountry('nordmark');
-  if (!source) throw new Error('audience.json: Land "nordmark" fehlt');
+  const source = getCountry('westunion');
+  if (!source) throw new Error('audience.json: Land "westunion" fehlt');
   return JSON.parse(JSON.stringify(source)) as AudienceCountry;
 }
 

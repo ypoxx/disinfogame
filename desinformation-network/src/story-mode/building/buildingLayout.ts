@@ -25,18 +25,23 @@ export interface RoomDef {
   colSpan?: number;
 }
 
-/** Stage-Maße (1 Stage-px = 1 CSS-px vor Kamera-Skalierung). */
+/**
+ * Stage-Maße (1 Stage-px = 1 CSS-px vor Kamera-Skalierung).
+ * Proportionssystem (GESAMTKONZEPT_VISUELL.md §4.2): Bezug = Avatar-Höhe H.
+ * Avatar ≈ 57 % der Etagenhöhe (Ziel ~60 %, K6.4), Tür ≈ 1,15 H — der Avatar
+ * ist damit IMMER größer als Mobiliar (Owner-Regel „Avatar > Schreibtisch").
+ */
 export const STAGE = {
   colWidth: 448,
   floorHeight: 224,
   slabHeight: 24,
   pillarWidth: 48,
-  shaftWidth: 112,
+  shaftWidth: 184,
   roofHeight: 160,
-  groundHeight: 32,
-  doorWidth: 64,
-  doorHeight: 96,
-  avatarSize: 64, // 32px-Frames ×2
+  groundHeight: 96,
+  doorWidth: 96,
+  doorHeight: 144,
+  avatarSize: 128, // 32px-Frames ×4 (Proportionsregel)
 } as const;
 
 export interface FloorLayout extends FloorDef {

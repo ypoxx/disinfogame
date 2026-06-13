@@ -1,60 +1,58 @@
 import { describe, it, expect } from 'vitest';
 import { decaySegment, detectionDampen, getCountry, loadAudience, reactToEffect, themeResonance } from '../audience/audienceModel';
 
-describe('Publikums-Modell (Nordmark)', () => {
-  it('lädt Nordmark; Segment-Größen summieren ~1.0', () => {
-    const nm = getCountry('nordmark');
-    expect(nm).toBeDefined();
-    const total = nm!.segments.reduce((s, x) => s + x.size, 0);
+// K2 (2026-06-13): EIN föderales Zielland „Westunion" mit 8 modernen Milieus.
+describe('Publikums-Modell (Westunion)', () => {
+  it('lädt Westunion; Segment-Größen summieren ~1.0', () => {
+    const wu = getCountry('westunion');
+    expect(wu).toBeDefined();
+    const total = wu!.segments.reduce((s, x) => s + x.size, 0);
     expect(total).toBeCloseTo(1, 2);
   });
 
-  it('Energie-Angst über TV resoniert mit ländlichem Segment, erreicht aber Urban-Progressiv nicht', () => {
-    const nm = getCountry('nordmark')!;
-    const r = reactToEffect(nm, { themes: ['energie_angst'], channel: 'tv', intensity: 1 });
+  it('Energie-Angst über TV resoniert mit den „Machern", erreicht aber die social-only Bohemiens nicht', () => {
+    const wu = getCountry('westunion')!;
+    const r = reactToEffect(wu, { themes: ['energie_angst'], channel: 'tv', intensity: 1 });
 
-    const rural = r.reactions.find((x) => x.segmentId === 'nm_rural_anxious')!;
-    expect(rural.resonance).toBeCloseTo(1, 5);
-    expect(rural.reached).toBe(true);
-    expect(rural.beliefDelta).toBeGreaterThan(0);
-    expect(rural.newMood).toBe('wuetend'); // effectiveness = 1 → höchste Stufe
+    const macher = r.reactions.find((x) => x.segmentId === 'wu_macher')!;
+    expect(macher.resonance).toBeGreaterThan(0); // energie_angst ist eine ihrer Verwundbarkeiten
+    expect(macher.reached).toBe(true); // über tv erreichbar
+    expect(macher.beliefDelta).toBeGreaterThan(0);
 
-    const urban = r.reactions.find((x) => x.segmentId === 'nm_urban_progressive')!;
-    expect(urban.reached).toBe(false); // urban-progressiv nur über social erreichbar
-    expect(urban.beliefDelta).toBe(0);
+    const bohemien = r.reactions.find((x) => x.segmentId === 'wu_bohemien')!;
+    expect(bohemien.reached).toBe(false); // Bohemiens nur über social erreichbar
+    expect(bohemien.beliefDelta).toBe(0);
 
     expect(r.quote).toBeGreaterThan(0);
     expect(r.quote).toBeLessThanOrEqual(1);
   });
 
   it('thematisch irrelevanter TV-Inhalt verschiebt keinen Glauben', () => {
-    const nm = getCountry('nordmark')!;
-    // klima_sorge betrifft nur urban_progressive — und das ist nur über social erreichbar.
-    const r = reactToEffect(nm, { themes: ['klima_sorge'], channel: 'tv', intensity: 1 });
+    const wu = getCountry('westunion')!;
+    // klima_sorge betrifft nur die Idealisten — und die sind nur über social/print erreichbar.
+    const r = reactToEffect(wu, { themes: ['klima_sorge'], channel: 'tv', intensity: 1 });
     const moved = r.reactions.filter((x) => x.beliefDelta > 0);
     expect(moved.length).toBe(0);
   });
 
+  it('Klima-Sorge über social resoniert mit den grünen Idealisten', () => {
+    const wu = getCountry('westunion')!;
+    const r = reactToEffect(wu, { themes: ['klima_sorge'], channel: 'social', intensity: 1 });
+    const ideal = r.reactions.find((x) => x.segmentId === 'wu_idealistin')!;
+    expect(ideal.reached).toBe(true);
+    expect(ideal.resonance).toBeGreaterThan(0);
+    expect(ideal.beliefDelta).toBeGreaterThan(0);
+  });
+
   it('Resonanz ist 0 bei leerer Themenliste', () => {
-    const nm = getCountry('nordmark')!;
-    expect(themeResonance(nm.segments[0], [])).toBe(0);
+    const wu = getCountry('westunion')!;
+    expect(themeResonance(wu.segments[0], [])).toBe(0);
   });
 
-  it('unterstützt mehrere Länder; Gallia-Größen summieren ~1.0', () => {
+  it('loadAudience liefert mindestens das Zielland', () => {
     const all = loadAudience();
-    expect(all.length).toBeGreaterThanOrEqual(2);
-    const ga = getCountry('gallia');
-    expect(ga).toBeDefined();
-    expect(ga!.segments.reduce((s, x) => s + x.size, 0)).toBeCloseTo(1, 2);
-  });
-
-  it('Nationale-Identität-Sendung (social) resoniert mit Gallias Nationalisten', () => {
-    const ga = getCountry('gallia')!;
-    const r = reactToEffect(ga, { themes: ['nationale_identitaet'], channel: 'social', intensity: 1 });
-    const nat = r.reactions.find((x) => x.segmentId === 'ga_nationalist')!;
-    expect(nat.reached).toBe(true);
-    expect(nat.resonance).toBeCloseTo(1, 5);
-    expect(nat.beliefDelta).toBeGreaterThan(0);
+    expect(all.length).toBeGreaterThanOrEqual(1);
+    expect(all.some((c) => c.id === 'westunion')).toBe(true);
   });
 
   it('detectionDampen senkt die Wirkung mit steigendem Entdeckungs-Risiko', () => {
@@ -64,9 +62,9 @@ describe('Publikums-Modell (Nordmark)', () => {
   });
 
   it('geringere Intensität (= höheres Risiko) senkt auch die Quote/Reichweite', () => {
-    const nm = getCountry('nordmark')!;
-    const hi = reactToEffect(nm, { themes: ['energie_angst'], channel: 'tv', intensity: 1 });
-    const lo = reactToEffect(nm, { themes: ['energie_angst'], channel: 'tv', intensity: 0.4 });
+    const wu = getCountry('westunion')!;
+    const hi = reactToEffect(wu, { themes: ['energie_angst'], channel: 'tv', intensity: 1 });
+    const lo = reactToEffect(wu, { themes: ['energie_angst'], channel: 'tv', intensity: 0.4 });
     expect(lo.quote).toBeLessThan(hi.quote);
   });
 

@@ -7,9 +7,10 @@
  * Die Position überlebt View-Wechsel (modulweiter Speicher).
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { planRoute, defaultPosition, type AvatarPosition, type NavStep, NAV_SPEED } from './BuildingNavigator';
+import { planRoute, routeTimeCostMin, defaultPosition, type AvatarPosition, type NavStep, NAV_SPEED } from './BuildingNavigator';
 import { roomById } from './buildingLayout';
 import { playSound } from '../utils/SoundSystem';
+import { useDayClockStore } from '../stores/dayClockStore';
 
 export type NavigatorMode = 'idle' | 'walk' | 'ride' | 'door';
 
@@ -116,6 +117,9 @@ export function useNavigator(initial?: AvatarPosition): UseNavigatorResult {
       runRef.current = run;
       arriveRef.current = { roomId, cb: onArrive };
       setState((s) => ({ ...s, targetRoomId: roomId }));
+      // K1: Wege kosten Spielzeit — die Route bucht ihre Minuten auf die Tagesuhr
+      // (auch bei Skip korrekt, da vorab gebucht).
+      useDayClockStore.getState().advance(routeTimeCostMin(steps));
 
       const later = (ms: number, fn: () => void) => {
         run.timeouts.push(window.setTimeout(() => !run.cancelled && fn(), ms));

@@ -95,10 +95,12 @@ export function mapActionToBroadcast(result: ActionResult, riskLevel: number): B
  * Visuelle Kurzschrift fürs Wohnzimmer — bewusst grob, s. Konzept-Doc.
  */
 export const FIGURE_BY_SEGMENT: Record<string, string> = {
-  nm_working_class: 'audience_worker',
-  nm_pensioners: 'audience_pensioner',
-  nm_online_young_men: 'audience_youth',
-  nm_urban_progressive: 'audience_intellectual',
-  nm_suburban_middle: 'audience_family',
-  nm_rural_anxious: 'audience_official',
+  wu_optimiererin: 'audience_optimiererin',
+  wu_macher: 'audience_macher',
+  wu_bohemien: 'audience_bohemien',
+  wu_besorgte_mitte: 'audience_besorgte_mitte',
+  wu_zorniger: 'audience_zorniger',
+  wu_idealistin: 'audience_idealistin',
+  wu_eigenheimer: 'audience_eigenheimer',
+  wu_liberale: 'audience_liberale',
 };
