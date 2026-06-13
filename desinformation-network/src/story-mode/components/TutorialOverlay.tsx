@@ -55,11 +55,11 @@ Oben links sehen Sie das aktuelle Jahr und den Monat.`,
     title: 'Ressourcen',
     content: `Sie verwalten fünf Ressourcen:
 
-💰 BUDGET - Geld für Operationen
-⚡ KAPAZITÄT - Operative Bandbreite (regeneriert)
-⚠️ RISIKO - Entdeckungsgefahr (Game Over bei 85%+)
-👁️ AUFMERKSAMKEIT - Zieht Gegner an
-💀 MORALISCHE LAST - Beeinflusst NPCs und Enden
+[B] BUDGET - Geld für Operationen
+[K] KAPAZITÄT - Operative Bandbreite (regeneriert)
+[R] RISIKO - Entdeckungsgefahr (Game Over bei 85%+)
+[A] AUFMERKSAMKEIT - Zieht Gegner an
+[M] MORALISCHE LAST - Beeinflusst NPCs und Enden
 
 Halten Sie das Risiko niedrig!`,
     position: 'top',
@@ -70,11 +70,11 @@ Halten Sie das Risiko niedrig!`,
     title: 'Ihr Büro',
     content: `Dies ist Ihr Arbeitsplatz. Hier starten Sie Operationen.
 
-💻 COMPUTER - E-Mails und Aktionen auswählen
-☎️ TELEFON - Mit Ihrem Team sprechen
-📺 BILDSCHIRM - Kampagnen-Statistiken
-📱 SMARTPHONE - Nachrichten-Feed
-🚪 TÜR - Besucher und Events
+[PC] COMPUTER - E-Mails und Aktionen auswählen
+[Tel] TELEFON - Mit Ihrem Team sprechen
+[TV] BILDSCHIRM - Kampagnen-Statistiken
+[Mob] SMARTPHONE - Nachrichten-Feed
+[Tür] TÜR - Besucher und Events
 
 Klicken Sie auf die verschiedenen Bereiche, um zu interagieren.`,
     position: 'center',
@@ -85,11 +85,11 @@ Klicken Sie auf die verschiedenen Bereiche, um zu interagieren.`,
     title: 'Ihr Team',
     content: `Fünf Spezialisten unterstützen Sie:
 
-👔 DIREKTOR VOLKOV - Strategie, Druck von oben
-📺 MARINA - Medien, Content, Narrative
-🖥️ ALEXEI - Bot-Netzwerke, Infrastruktur
-🎯 KATJA - Feld-Operationen, Kontakte
-💰 IGOR - Finanzen, Tarnfirmen
+[Dir] DIREKTOR VOLKOV - Strategie, Druck von oben
+[TV] MARINA - Medien, Content, Narrative
+[PC] ALEXEI - Bot-Netzwerke, Infrastruktur
+[Feld] KATJA - Feld-Operationen, Kontakte
+[Fin] IGOR - Finanzen, Tarnfirmen
 
 Je besser Ihre Beziehung zu einem NPC, desto günstiger werden dessen Aktionen.`,
     position: 'center',
@@ -99,17 +99,17 @@ Je besser Ihre Beziehung zu einem NPC, desto günstiger werden dessen Aktionen.`
     title: 'Berater-System',
     content: `Rechts sehen Sie das BERATER-PANEL.
 
-⭐ Ihre NPCs analysieren die Situation kontinuierlich
-📊 Sie erhalten kontextuelle Empfehlungen basierend auf:
+[★] Ihre NPCs analysieren die Situation kontinuierlich
+[Stats] Sie erhalten kontextuelle Empfehlungen basierend auf:
    • Aktuellem Spielfortschritt
    • Ressourcenlage
    • Bedrohungen und Chancen
    • NPC-Expertise
 
-🔴 CRITICAL - Sofort handeln!
-🟠 HIGH - Wichtig, bald umsetzen
-🟡 MEDIUM - Sollte beachtet werden
-⚪ LOW - Optional, aber sinnvoll
+[Rot] CRITICAL - Sofort handeln!
+[Orange] HIGH - Wichtig, bald umsetzen
+[Gelb] MEDIUM - Sollte beachtet werden
+[Grau] LOW - Optional, aber sinnvoll
 
 Klicken Sie auf einen NPC für Details.`,
     position: 'right',
@@ -120,9 +120,9 @@ Klicken Sie auf einen NPC für Details.`,
     title: 'NPC-Empfehlungen nutzen',
     content: `Empfehlungen helfen Ihnen, strategisch zu spielen:
 
-⭐ EMPFOHLENE AKTIONEN werden im Terminal golden markiert
-📋 Sie werden automatisch an den Anfang sortiert
-🎯 Klicken Sie auf eine Empfehlung → sie wird im Terminal hervorgehoben
+[★] EMPFOHLENE AKTIONEN werden im Terminal golden markiert
+[Liste] Sie werden automatisch an den Anfang sortiert
+[Ziel] Klicken Sie auf eine Empfehlung → sie wird im Terminal hervorgehoben
 
 NPCs passen ihre Empfehlungen dynamisch an:
 • Phase im Spielverlauf
@@ -139,17 +139,17 @@ Nutzen Sie die Expertise Ihres Teams!`,
     title: 'Aktionen-Warteschlange',
     content: `Planen Sie mehrere Aktionen im Voraus!
 
-📋 WARTESCHLANGE (unten rechts):
+[Liste] WARTESCHLANGE (unten rechts):
 ▶ AUSFÜHREN - Aktion sofort starten
 + EINREIHEN - Zur Warteschlange hinzufügen
 
 BATCH-AUSFÜHRUNG:
-1️⃣ Mehrere Aktionen einreihen
-2️⃣ Gesamtkosten überprüfen
-3️⃣ Alle auf einmal ausführen
-4️⃣ Detaillierte Gesamt-Bilanz sehen
+1. Mehrere Aktionen einreihen
+2. Gesamtkosten überprüfen
+3. Alle auf einmal ausführen
+4. Detaillierte Gesamt-Bilanz sehen
 
-💡 TIPP: Kombinieren Sie komplementäre Aktionen für maximalen Effekt!`,
+Tipp: Kombinieren Sie komplementäre Aktionen für maximalen Effekt!`,
     position: 'right',
     highlight: 'queue',
   },
@@ -202,10 +202,10 @@ Aber bedenken Sie: Es gibt verschiedene Enden - manche besser als andere.`,
     title: 'Mögliche Enden',
     content: `Es gibt acht Ending-Kategorien — unter anderem:
 
-🏆 SIEG - Ziele erreicht, nicht enttarnt
-💀 ENTTARNUNG - Risiko zu hoch, Game Over
-🏃 FLUCHT - Sie können aussteigen (mit Konsequenzen)
-🕊️ MORAL. ERLÖSUNG - Whistleblower werden
+[Sieg] SIEG - Ziele erreicht, nicht enttarnt
+[Tod] ENTTARNUNG - Risiko zu hoch, Game Over
+[Flucht] FLUCHT - Sie können aussteigen (mit Konsequenzen)
+[Moral] MORAL. ERLÖSUNG - Whistleblower werden
 
 Ihre Entscheidungen bestimmen Ihr Schicksal.`,
     position: 'center',

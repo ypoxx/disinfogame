@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { StoryModeColors } from '../theme';
 import type { ActionResult } from '../../game-logic/StoryEngineAdapter';
 import { COMBO_COLORS } from '../../utils/colors';
+import { Icon } from './Icon';
 
 interface ActionFeedbackDialogProps {
   isVisible: boolean;
@@ -46,10 +47,10 @@ export function ActionFeedbackDialog({
 
   const getOutcomeIcon = (singleResult?: ActionResult) => {
     if (singleResult) {
-      return singleResult.success ? '✓' : '❌';
+      return singleResult.success ? '✓' : '×';
     }
     if (allSuccess) return '✓';
-    return '⚠';
+    return '!';
   };
 
   // Batch Mode - Multi-Step Results View
@@ -98,10 +99,10 @@ export function ActionFeedbackDialog({
               }}
             >
               <h3
-                className="font-bold mb-3 text-sm"
+                className="font-bold mb-3 text-sm flex items-center gap-1"
                 style={{ color: StoryModeColors.textSecondary }}
               >
-                📊 GESAMT-BILANZ
+                <Icon name="stats" size={14} title="Statistik" fallback="Stat" /> GESAMT-BILANZ
               </h3>
               <div className="grid grid-cols-3 gap-3 text-sm">
                 {cumulativeChanges.budget !== 0 && (
@@ -346,9 +347,9 @@ export function ActionFeedbackDialog({
                                 {reaction.npcId}:
                               </span>
                               <span style={{ color: StoryModeColors.textSecondary }}>
-                                {reaction.reaction === 'positive' ? '👍' :
-                                 reaction.reaction === 'negative' ? '👎' :
-                                 reaction.reaction === 'crisis' ? '😱' : '😐'}
+                                {reaction.reaction === 'positive' ? 'OK' :
+                                 reaction.reaction === 'negative' ? 'Nein' :
+                                 reaction.reaction === 'crisis' ? 'Alarm' : '–'}
                                 {' '}{reaction.dialogue_de}
                               </span>
                             </div>
@@ -622,9 +623,9 @@ export function ActionFeedbackDialog({
                       {reaction.npcId}:
                     </span>
                     <span style={{ color: StoryModeColors.textSecondary }}>
-                      {reaction.reaction === 'positive' ? '👍' :
-                       reaction.reaction === 'negative' ? '👎' :
-                       reaction.reaction === 'crisis' ? '😱' : '😐'}
+                      {reaction.reaction === 'positive' ? 'OK' :
+                       reaction.reaction === 'negative' ? 'Nein' :
+                       reaction.reaction === 'crisis' ? 'Alarm' : '–'}
                       {' '}{reaction.dialogue_de}
                     </span>
                   </div>
@@ -644,10 +645,10 @@ export function ActionFeedbackDialog({
               }}
             >
               <div
-                className="text-center font-bold text-xl mb-3"
+                className="text-center font-bold text-xl mb-3 flex items-center justify-center gap-2"
                 style={{ color: COMBO_COLORS.ready }}
               >
-                🎯 COMBO ABGESCHLOSSEN!
+                <Icon name="mission" size={20} title="Combo" fallback="*" /> COMBO ABGESCHLOSSEN!
               </div>
               {singleResult.completedCombos.map((combo, i) => (
                 <div
@@ -676,19 +677,19 @@ export function ActionFeedbackDialog({
                       style={{ color: StoryModeColors.success }}
                     >
                       {combo.bonus.trustReduction && (
-                        <span>📉 Trust -{combo.bonus.trustReduction}%</span>
+                        <span>–Trust -{combo.bonus.trustReduction}%</span>
                       )}
                       {combo.bonus.bonusAttention && (
-                        <span>📢 Attention +{combo.bonus.bonusAttention}%</span>
+                        <span><Icon name="attention" size={14} title="Aufmerksamkeit" fallback="Aufm." /> +{combo.bonus.bonusAttention}%</span>
                       )}
                       {combo.bonus.propagationBonus && (
-                        <span>🌐 Verbreitung +{combo.bonus.propagationBonus}%</span>
+                        <span><Icon name="events" size={14} title="Verbreitung" fallback="Verb." /> +{combo.bonus.propagationBonus}%</span>
                       )}
                       {combo.bonus.emotionalDamage && (
-                        <span>💔 Emotional -{combo.bonus.emotionalDamage}</span>
+                        <span><Icon name="moral" size={14} title="Emotional" fallback="Emot." /> -{combo.bonus.emotionalDamage}</span>
                       )}
                       {combo.bonus.moneyRefund && (
-                        <span>💰 Rückzahlung ${combo.bonus.moneyRefund}K</span>
+                        <span><Icon name="budget" size={14} title="Rückzahlung" fallback="$" /> ${combo.bonus.moneyRefund}K</span>
                       )}
                     </div>
                   )}
@@ -710,7 +711,7 @@ export function ActionFeedbackDialog({
                 className="font-bold mb-3 text-sm flex items-center gap-2"
                 style={{ color: COMBO_COLORS.building }}
               >
-                <span>🔗</span>
+                <Icon name="actions" size={14} title="Combo-Fortschritt" fallback="▸" />
                 COMBO-FORTSCHRITT
               </h3>
               <div className="space-y-3">
@@ -786,7 +787,7 @@ export function ActionFeedbackDialog({
                 className="font-bold text-sm mb-3 flex items-center gap-2"
                 style={{ color: StoryModeColors.agencyBlue }}
               >
-                <span>🎯</span>
+                <Icon name="mission" size={14} title="Ziel-Effektivität" fallback="Ziel" />
                 ZIEL-EFFEKTIVITÄT
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -804,7 +805,7 @@ export function ActionFeedbackDialog({
                         className="font-bold"
                         style={{ color: StoryModeColors.textPrimary }}
                       >
-                        {modifier.isVulnerable ? '✅' : '🛡️'} {modifier.actorName}
+                        {modifier.isVulnerable ? 'OK' : 'Schutz'} {modifier.actorName}
                       </span>
                       <span
                         className="font-bold"
@@ -837,7 +838,7 @@ export function ActionFeedbackDialog({
                 className="font-bold text-sm mb-3 flex items-center gap-2"
                 style={{ color: StoryModeColors.danger }}
               >
-                <span>⚠️</span>
+                <Icon name="risk" size={14} title="Verrats-Warnung" fallback="!" />
                 VERRATS-WARNUNG
               </h3>
               <div className="space-y-2">
@@ -872,7 +873,7 @@ export function ActionFeedbackDialog({
                 color: StoryModeColors.danger,
               }}
             >
-              ⚠️ Diese Aktion könnte zukünftige Konsequenzen auslösen
+              <Icon name="risk" size={14} title="Warnung" fallback="!" /> Diese Aktion könnte zukünftige Konsequenzen auslösen
             </div>
           )}
         </div>

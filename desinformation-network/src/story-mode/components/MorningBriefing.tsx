@@ -130,7 +130,7 @@ export function MorningBriefing({ phase, risk, trustProgress, onDone }: MorningB
               }}
             />
           ) : (
-            <span className="text-4xl">🧑‍💼</span>
+            <span className="text-sm font-bold" style={{ color: StoryModeColors.textSecondary }}>DIR.</span>
           )}
         </div>
 

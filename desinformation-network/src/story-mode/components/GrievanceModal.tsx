@@ -1,4 +1,5 @@
 import { StoryModeColors } from '../theme';
+import { Icon } from './Icon';
 import type { BetrayalState, BetrayalGrievance } from '../engine/BetrayalSystem';
 
 // ============================================
@@ -42,12 +43,12 @@ export function GrievanceModal({
 
   const getGrievanceTypeLabel = (type: BetrayalGrievance['type']) => {
     switch (type) {
-      case 'moral_action': return '⚖️ Moralische Bedenken';
-      case 'red_line_crossed': return '🔴 Rote Linie überschritten';
-      case 'low_morale': return '😞 Niedrige Moral';
-      case 'overwork': return '😰 Überlastung';
-      case 'ignored': return '🚫 Ignoriert';
-      default: return '❓ Unbekannt';
+      case 'moral_action': return 'Moralische Bedenken';
+      case 'red_line_crossed': return 'Rote Linie überschritten';
+      case 'low_morale': return 'Niedrige Moral';
+      case 'overwork': return 'Überlastung';
+      case 'ignored': return 'Ignoriert';
+      default: return 'Unbekannt';
     }
   };
 
@@ -81,7 +82,7 @@ export function GrievanceModal({
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold" style={{ color: '#fff' }}>
-                🔥 LOYALITÄTS-STATUS: {npcName.toUpperCase()}
+                LOYALITÄTS-STATUS: {npcName.toUpperCase()}
               </h2>
               <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.9)' }}>
                 Verrats-Risiko: {totalRisk}% | Warnstufe: {betrayalState.warningLevel}/4
@@ -131,8 +132,8 @@ export function GrievanceModal({
               </div>
             </div>
             {totalRisk >= 70 && (
-              <div className="mt-2 text-xs font-bold animate-pulse" style={{ color: StoryModeColors.danger }}>
-                ⚠️ WARNUNG: VERRAT STEHT UNMITTELBAR BEVOR!
+              <div className="mt-2 text-xs font-bold animate-pulse flex items-center gap-1" style={{ color: StoryModeColors.danger }}>
+                <Icon name="risk" size={14} title="Warnung" fallback="!" /> WARNUNG: VERRAT STEHT UNMITTELBAR BEVOR!
               </div>
             )}
           </div>
@@ -140,8 +141,8 @@ export function GrievanceModal({
           {/* Active Grievances */}
           {activeGrievances.length > 0 && (
             <div className="mb-6">
-              <div className="text-lg font-bold mb-3" style={{ color: StoryModeColors.textPrimary }}>
-                🔴 AKTIVE BESCHWERDEN ({activeGrievances.length})
+              <div className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: StoryModeColors.textPrimary }}>
+                <span style={{ display: 'inline-block', width: 8, height: 8, backgroundColor: StoryModeColors.danger }} /> AKTIVE BESCHWERDEN ({activeGrievances.length})
               </div>
               <div className="space-y-3">
                 {activeGrievances.map(grievance => (
@@ -202,8 +203,8 @@ export function GrievanceModal({
           {/* Addressed Grievances */}
           {addressedGrievances.length > 0 && (
             <div>
-              <div className="text-lg font-bold mb-3" style={{ color: StoryModeColors.textSecondary }}>
-                ✅ BEHANDELTE BESCHWERDEN ({addressedGrievances.length})
+              <div className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: StoryModeColors.textSecondary }}>
+                <span style={{ display: 'inline-block', width: 8, height: 8, backgroundColor: StoryModeColors.success }} /> BEHANDELTE BESCHWERDEN ({addressedGrievances.length})
               </div>
               <div className="space-y-2">
                 {addressedGrievances.map(grievance => (
@@ -236,7 +237,7 @@ export function GrievanceModal({
                 borderColor: StoryModeColors.border,
               }}
             >
-              <div className="text-lg mb-2" style={{ color: StoryModeColors.success }}>✅</div>
+              <div className="text-lg mb-2"><span style={{ display: 'inline-block', width: 8, height: 8, backgroundColor: StoryModeColors.success }} /></div>
               <div className="text-sm" style={{ color: StoryModeColors.textSecondary }}>
                 Keine aktiven Beschwerden. {npcName} scheint zufrieden zu sein.
               </div>
@@ -252,8 +253,8 @@ export function GrievanceModal({
                 borderColor: StoryModeColors.border,
               }}
             >
-              <div className="text-xs font-bold mb-2" style={{ color: StoryModeColors.danger }}>
-                🔴 PERSÖNLICHE ROTE LINIEN
+              <div className="text-xs font-bold mb-2 flex items-center gap-1" style={{ color: StoryModeColors.danger }}>
+                <span style={{ display: 'inline-block', width: 8, height: 8, backgroundColor: StoryModeColors.danger }} /> PERSÖNLICHE ROTE LINIEN
               </div>
               <div className="text-xs" style={{ color: StoryModeColors.textSecondary }}>
                 {npcName} hat starke moralische Grenzen in diesen Bereichen:

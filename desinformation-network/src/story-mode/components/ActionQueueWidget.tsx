@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { StoryModeColors } from '../theme';
+import { Icon } from './Icon';
 import type { QueuedAction } from '../hooks/useStoryGameState';
 
 // ============================================
@@ -73,7 +74,7 @@ export function ActionQueueWidget({
         title={`${queue.length} Aktion${queue.length !== 1 ? 'en' : ''} in Warteschlange`}
       >
         <div className="relative">
-          <span className="text-2xl">📋</span>
+          <span className="text-2xl"><Icon name="actions" size={24} title="Warteschlange" /></span>
           {queue.length > 0 && (
             <span
               className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold border"
@@ -115,7 +116,7 @@ export function ActionQueueWidget({
             className="font-bold text-sm tracking-wider"
             style={{ color: StoryModeColors.warning }}
           >
-            📋 AKTIONEN-WARTESCHLANGE
+            <Icon name="actions" size={16} title="Aktionen" /> AKTIONEN-WARTESCHLANGE
           </h3>
           <p
             className="text-xs mt-0.5"
@@ -146,7 +147,7 @@ export function ActionQueueWidget({
             className="text-center py-8"
             style={{ color: StoryModeColors.textSecondary }}
           >
-            <div className="text-3xl mb-2">📋</div>
+            <div className="text-3xl mb-2"><Icon name="actions" size={28} title="Aktionen" /></div>
             <p className="text-sm">Keine Aktionen geplant</p>
             <p className="text-xs mt-1">
               Wähle Aktionen im Terminal
@@ -210,7 +211,7 @@ export function ActionQueueWidget({
                       color: StoryModeColors.warning,
                     }}
                   >
-                    💰 ${action.costs.budget}K
+                    <Icon name="budget" size={14} title="Budget" /> ${action.costs.budget}K
                   </span>
                 )}
                 {action.costs.capacity && action.costs.capacity > 0 && (
@@ -222,7 +223,7 @@ export function ActionQueueWidget({
                       color: StoryModeColors.agencyBlue,
                     }}
                   >
-                    ⚡ {action.costs.capacity}
+                    <Icon name="capacity" size={14} title="Kapazität" /> {action.costs.capacity}
                   </span>
                 )}
                 {action.costs.actionPoints && action.costs.actionPoints > 0 && (
@@ -234,7 +235,7 @@ export function ActionQueueWidget({
                       color: StoryModeColors.textPrimary,
                     }}
                   >
-                    🎯 {action.costs.actionPoints} AP
+                    <Icon name="mission" size={14} title="Aktionspunkte" /> {action.costs.actionPoints} AP
                   </span>
                 )}
               </div>
@@ -279,7 +280,7 @@ export function ActionQueueWidget({
                   fontWeight: 'bold',
                 }}
               >
-                💰 ${totalCosts.budget}K / ${currentResources.budget}K
+                <Icon name="budget" size={14} title="Budget" /> ${totalCosts.budget}K / ${currentResources.budget}K
               </span>
               <span
                 className="text-xs px-2 py-1 border"
@@ -299,7 +300,7 @@ export function ActionQueueWidget({
                   fontWeight: 'bold',
                 }}
               >
-                ⚡ {totalCosts.capacity} / {currentResources.capacity}
+                <Icon name="capacity" size={14} title="Kapazität" /> {totalCosts.capacity} / {currentResources.capacity}
               </span>
               <span
                 className="text-xs px-2 py-1 border"
@@ -319,7 +320,7 @@ export function ActionQueueWidget({
                   fontWeight: 'bold',
                 }}
               >
-                🎯 {totalCosts.actionPoints} / {currentResources.actionPoints} AP
+                <Icon name="mission" size={14} title="Aktionspunkte" /> {totalCosts.actionPoints} / {currentResources.actionPoints} AP
               </span>
             </div>
           </div>
@@ -354,7 +355,7 @@ export function ActionQueueWidget({
               }}
               title="Warteschlange leeren"
             >
-              🗑 LEEREN
+              LEEREN
             </button>
           </div>
         </div>

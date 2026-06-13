@@ -1,4 +1,5 @@
 import { StoryModeColors } from '../theme';
+import { Icon } from './Icon';
 import type { StoryResources, StoryPhase, Objective } from '../../game-logic/StoryEngineAdapter';
 
 interface StatsPanelProps {
@@ -114,7 +115,7 @@ export function StatsPanel({
           <div>
             <div className="flex justify-between mb-1">
               <span style={{ color: StoryModeColors.textSecondary }}>
-                💰 BUDGET
+                <Icon name="budget" size={14} title="Budget" /> BUDGET
               </span>
               <span
                 className="font-bold"
@@ -141,7 +142,7 @@ export function StatsPanel({
           <div>
             <div className="flex justify-between mb-1">
               <span style={{ color: StoryModeColors.textSecondary }}>
-                ⚡ KAPAZITÄT
+                <Icon name="capacity" size={14} title="Kapazität" /> KAPAZITÄT
               </span>
               <span
                 className="font-bold"
@@ -168,7 +169,7 @@ export function StatsPanel({
           <div>
             <div className="flex justify-between mb-1">
               <span style={{ color: StoryModeColors.textSecondary }}>
-                ⚠️ RISIKO
+                <Icon name="risk" size={14} title="Risiko" /> RISIKO
               </span>
               <span
                 className="font-bold"
@@ -206,7 +207,7 @@ export function StatsPanel({
           <div>
             <div className="flex justify-between mb-1">
               <span style={{ color: StoryModeColors.textSecondary }}>
-                👁️ AUFMERKSAMKEIT
+                <Icon name="attention" size={14} title="Aufmerksamkeit" /> AUFMERKSAMKEIT
               </span>
               <span
                 className="font-bold"
@@ -240,7 +241,7 @@ export function StatsPanel({
           <div>
             <div className="flex justify-between mb-1">
               <span style={{ color: StoryModeColors.textSecondary }}>
-                💀 MORALISCHE LAST
+                <Icon name="moral" size={14} title="Moralische Last" /> MORALISCHE LAST
               </span>
               <span
                 className="font-bold"
@@ -388,7 +389,7 @@ export function StatsPanel({
             borderColor: StoryModeColors.border,
           }}
         >
-          <span>📺</span>
+          <Icon name="stats" size={16} title="Statistik" />
           <h2 className="font-bold text-sm" style={{ color: StoryModeColors.warning }}>
             KAMPAGNEN-STATISTIK
           </h2>
@@ -423,7 +424,7 @@ export function StatsPanel({
           }}
         >
           <div className="flex items-center gap-3">
-            <span className="text-2xl">📺</span>
+            <Icon name="broadcast" size={24} title="Statistik" />
             <h2 className="font-bold text-xl" style={{ color: StoryModeColors.warning }}>
               KAMPAGNEN-STATISTIK
             </h2>

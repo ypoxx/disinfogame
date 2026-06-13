@@ -1,4 +1,5 @@
 import { StoryModeColors } from '../theme';
+import { Icon } from './Icon';
 import type { NewsEvent } from '../../game-logic/StoryEngineAdapter';
 
 interface NewsPanelProps {
@@ -27,13 +28,13 @@ export function NewsPanel({
     return b.phase - a.phase;
   });
 
-  const getTypeIcon = (type: NewsEvent['type']) => {
+  const getTypeIcon = (type: NewsEvent['type']): JSX.Element => {
     switch (type) {
-      case 'action_result': return '📰';
-      case 'consequence': return '⚡';
-      case 'world_event': return '🌍';
-      case 'npc_event': return '👤';
-      default: return '📰';
+      case 'action_result': return <Icon name="news" size={16} title="Aktionsergebnis" />;
+      case 'consequence': return <Icon name="capacity" size={16} title="Konsequenz" />;
+      case 'world_event': return <Icon name="events" size={16} title="Weltereignis" />;
+      case 'npc_event': return <Icon name="npcs" size={16} title="NPC-Ereignis" />;
+      default: return <Icon name="news" size={16} title="Nachricht" />;
     }
   };
 
@@ -94,7 +95,7 @@ export function NewsPanel({
                         backgroundColor: StoryModeColors.ministryRed,
                         color: '#fff',
                       }}>
-                        🛡️ DEFENSIVE AI
+                        DEFENSIVE AI
                       </span>
                     )}
                     {news.pinned && (
@@ -193,7 +194,7 @@ export function NewsPanel({
             borderColor: StoryModeColors.border,
           }}
         >
-          <span className="text-lg">📱</span>
+          <Icon name="news" size={18} title="Nachrichten" />
           <h2 className="font-bold text-sm" style={{ color: '#fff' }}>
             NACHRICHTEN-FEED
           </h2>
@@ -228,7 +229,7 @@ export function NewsPanel({
           }}
         >
           <div className="flex items-center gap-3">
-            <span className="text-2xl">📱</span>
+            <Icon name="news" size={24} title="Nachrichten" />
             <h2 className="font-bold text-xl" style={{ color: '#fff' }}>
               NACHRICHTEN-FEED
             </h2>

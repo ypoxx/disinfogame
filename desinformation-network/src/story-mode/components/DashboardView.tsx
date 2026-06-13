@@ -1,4 +1,6 @@
+import type { ReactNode } from 'react';
 import { StoryModeColors } from '../theme';
+import { Icon } from './Icon';
 import { usePanelStore, PANEL_META, type PanelId } from '../stores/panelStore';
 import type { StoryResources, StoryPhase, NewsEvent, Objective, NPCState } from '../../game-logic/StoryEngineAdapter';
 
@@ -22,7 +24,7 @@ interface DashboardViewProps {
 // ============================================
 
 function ResourceCard({ icon, label, value, format, color, danger }: {
-  icon: string;
+  icon: ReactNode;
   label: string;
   value: number;
   format: 'currency' | 'percent' | 'number';
@@ -114,13 +116,13 @@ function NewsFeedWidget({ newsEvents, unreadCount }: { newsEvents: NewsEvent[]; 
   const { togglePanel } = usePanelStore();
   const recent = [...newsEvents].sort((a, b) => b.phase - a.phase).slice(0, 5);
 
-  const getTypeIcon = (type: NewsEvent['type']) => {
+  const getTypeIcon = (type: NewsEvent['type']): JSX.Element => {
     switch (type) {
-      case 'action_result': return '📰';
-      case 'consequence': return '⚡';
-      case 'world_event': return '🌍';
-      case 'npc_event': return '👤';
-      default: return '📰';
+      case 'action_result': return <Icon name="news" size={14} title="Aktionsergebnis" />;
+      case 'consequence': return <Icon name="capacity" size={14} title="Konsequenz" />;
+      case 'world_event': return <Icon name="events" size={14} title="Weltereignis" />;
+      case 'npc_event': return <Icon name="npcs" size={14} title="NPC-Ereignis" />;
+      default: return <Icon name="news" size={14} title="Nachricht" />;
     }
   };
 
@@ -327,11 +329,11 @@ export function DashboardView({
 
       {/* Resource Cards Grid */}
       <div className="grid grid-cols-5 gap-2 mb-4">
-        <ResourceCard icon="💰" label="BUDGET" value={resources.budget} format="currency" color={StoryModeColors.warning} danger={resources.budget < 20} />
-        <ResourceCard icon="⚡" label="KAPAZITÄT" value={resources.capacity} format="number" color={StoryModeColors.agencyBlue} />
-        <ResourceCard icon="⚠️" label="RISIKO" value={resources.risk} format="percent" color={StoryModeColors.ministryRed} danger={resources.risk > 60} />
-        <ResourceCard icon="👁️" label="AUFMERKSAMKEIT" value={resources.attention} format="percent" color={StoryModeColors.danger} danger={resources.attention > 70} />
-        <ResourceCard icon="💀" label="MORAL" value={resources.moralWeight} format="number" color={StoryModeColors.ministryRed} danger={resources.moralWeight > 60} />
+        <ResourceCard icon={<Icon name="budget" size={18} title="Budget" />} label="BUDGET" value={resources.budget} format="currency" color={StoryModeColors.warning} danger={resources.budget < 20} />
+        <ResourceCard icon={<Icon name="capacity" size={18} title="Kapazität" />} label="KAPAZITÄT" value={resources.capacity} format="number" color={StoryModeColors.agencyBlue} />
+        <ResourceCard icon={<Icon name="risk" size={18} title="Risiko" />} label="RISIKO" value={resources.risk} format="percent" color={StoryModeColors.ministryRed} danger={resources.risk > 60} />
+        <ResourceCard icon={<Icon name="attention" size={18} title="Aufmerksamkeit" />} label="AUFMERKSAMKEIT" value={resources.attention} format="percent" color={StoryModeColors.danger} danger={resources.attention > 70} />
+        <ResourceCard icon={<Icon name="moral" size={18} title="Moral" />} label="MORAL" value={resources.moralWeight} format="number" color={StoryModeColors.ministryRed} danger={resources.moralWeight > 60} />
       </div>
 
       {/* Main Dashboard Grid */}

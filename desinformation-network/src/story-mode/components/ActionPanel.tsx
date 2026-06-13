@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { StoryModeColors } from '../theme';
+import { Icon } from './Icon';
 import type { AdvisorRecommendation } from '../engine/AdvisorRecommendation';
 
 // ============================================
@@ -88,7 +89,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
 
   const legalityLabels = {
     legal: '✓ LEGAL',
-    grey: '⚠ GRAUZONE',
+    grey: '! GRAUZONE',
     illegal: '✕ ILLEGAL',
   };
 
@@ -144,7 +145,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
                 style={{ color: '#FFD700' }}
                 title="Von NPCs empfohlen"
               >
-                ⭐
+                ★
               </span>
             )}
           </div>
@@ -188,7 +189,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
               color: StoryModeColors.warning,
             }}
           >
-            💰 ${action.costs.budget}K
+            <Icon name="budget" size={14} title="Budget" /> ${action.costs.budget}K
           </span>
         )}
         {action.costs.capacity && action.costs.capacity > 0 && (
@@ -200,7 +201,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
               color: StoryModeColors.agencyBlue,
             }}
           >
-            ⚡ {action.costs.capacity}
+            <Icon name="capacity" size={14} title="Kapazität" /> {action.costs.capacity}
           </span>
         )}
         {action.costs.risk && action.costs.risk > 0 && (
@@ -212,7 +213,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
               color: StoryModeColors.danger,
             }}
           >
-            ⚠️ +{action.costs.risk}%
+            <Icon name="risk" size={14} title="Risiko" /> +{action.costs.risk}%
           </span>
         )}
         {action.costs.moral_weight && action.costs.moral_weight > 0 && (
@@ -224,7 +225,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
               color: StoryModeColors.ministryRed,
             }}
           >
-            💀 +{action.costs.moral_weight}
+            <Icon name="moral" size={14} title="Moralische Last" /> +{action.costs.moral_weight}
           </span>
         )}
       </div>
@@ -263,7 +264,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
             className="font-bold mb-1"
             style={{ color: StoryModeColors.textSecondary }}
           >
-            👥 NPC-Vorteile:
+            <Icon name="npcs" size={14} title="NPCs" /> NPC-Vorteile:
           </div>
           <div className="space-y-1">
             {action.npc_affinity.map(npcId => (
@@ -364,7 +365,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
             color: StoryModeColors.textMuted,
           }}
         >
-          🔒 GESPERRT
+          GESPERRT
         </div>
       )}
 
@@ -594,13 +595,13 @@ export function ActionPanel({
     >
       <div className="flex gap-3 text-xs">
         <span style={{ color: StoryModeColors.warning }}>
-          💰 ${availableResources.budget}K
+          <Icon name="budget" size={14} title="Budget" /> ${availableResources.budget}K
         </span>
         <span style={{ color: StoryModeColors.agencyBlue }}>
-          ⚡ {availableResources.capacity}
+          <Icon name="capacity" size={14} title="Kapazität" /> {availableResources.capacity}
         </span>
         <span style={{ color: StoryModeColors.textPrimary }}>
-          🎯 {availableResources.actionPoints} AP
+          <Icon name="mission" size={14} title="Aktionspunkte" /> {availableResources.actionPoints} AP
         </span>
       </div>
       <div

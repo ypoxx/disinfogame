@@ -8,8 +8,9 @@
 import React from 'react';
 import { StoryModeColors } from '../theme';
 import type { AdvisorRecommendation } from '../engine/AdvisorRecommendation';
-import { getPriorityEmoji, getPriorityColor } from '../engine/AdvisorRecommendation';
+import { getPriorityColor } from '../engine/AdvisorRecommendation';
 import type { NPC } from './AdvisorPanel';
+import { Icon } from './Icon';
 
 // ============================================
 // TYPES
@@ -141,7 +142,7 @@ export function AdvisorDetailModal({
               className="text-center py-12"
               style={{ color: StoryModeColors.textSecondary }}
             >
-              <div className="text-4xl mb-4">📝</div>
+              <div className="text-4xl mb-4" style={{ color: StoryModeColors.textSecondary }}>–</div>
               <p className="text-lg">Keine Empfehlungen verfügbar</p>
               <p className="text-sm mt-2">
                 {npc.name} hat aktuell keine Hinweise für Sie.
@@ -165,14 +166,15 @@ export function AdvisorDetailModal({
                   <div className="flex items-center gap-2">
                     {/* Priority Indicator */}
                     <span
-                      className="text-2xl"
                       style={{
-                        color: getPriorityColor(rec.priority),
+                        display: 'inline-block',
+                        width: 12,
+                        height: 12,
+                        backgroundColor: getPriorityColor(rec.priority),
                         animation: rec.priority === 'critical' ? 'pulse 2s infinite' : undefined,
+                        flexShrink: 0,
                       }}
-                    >
-                      {getPriorityEmoji(rec.priority)}
-                    </span>
+                    />
 
                     {/* Category Badge */}
                     <span
@@ -249,7 +251,7 @@ export function AdvisorDetailModal({
                           }}
                           title="Zum Terminal"
                         >
-                          ⭐ {actionId.split('_').slice(1).join(' ').toUpperCase()}
+                          <Icon name="mission" size={14} title="Empfohlen" fallback="★" />{' '}{actionId.split('_').slice(1).join(' ').toUpperCase()}
                         </button>
                       ))}
                     </div>
@@ -265,8 +267,8 @@ export function AdvisorDetailModal({
                 >
                   <span>Phase: {rec.phase}</span>
                   {rec.expiresPhase && (
-                    <span className="font-bold" style={{ color: StoryModeColors.warning }}>
-                      ⏰ Läuft ab: Phase {rec.expiresPhase}
+                    <span className="font-bold flex items-center gap-1" style={{ color: StoryModeColors.warning }}>
+                      <Icon name="clock" size={14} title="Läuft ab" fallback="Uhr" /> Läuft ab: Phase {rec.expiresPhase}
                     </span>
                   )}
                   {rec.confidence !== undefined && (
