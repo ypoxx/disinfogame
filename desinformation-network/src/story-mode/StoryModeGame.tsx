@@ -29,6 +29,7 @@ import type { ActionResult } from '../game-logic/StoryEngineAdapter';
 import { PlayerOfficeView } from './components/PlayerOfficeView';
 import { TitleScreen } from './components/TitleScreen';
 import { ArrivalSequence } from './components/ArrivalSequence';
+import { AvatarChoice } from './components/AvatarChoice';
 import { BuildingView } from './building/BuildingView';
 import { BroadcastBar } from './broadcast/BroadcastBar';
 import { useAudienceBroadcast } from './broadcast/useAudienceBroadcast';
@@ -299,6 +300,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [selectedGrievanceNpc, setSelectedGrievanceNpc] = useState<string | null>(null);
   // Geführter Einstieg: Title → Ankunfts-Sequenz (Lobby/Fahrstuhl/Zentrale) → Direktor-Dialog.
   const [showArrival, setShowArrival] = useState(false);
+  const [showAvatarChoice, setShowAvatarChoice] = useState(false);
   // K1-Tagesschleife: Heimweg-Ritual, Tagesfazit, Morgenbriefing; K8: End-Report.
   const [walkHome, setWalkHome] = useState(false);
   const [showDayReport, setShowDayReport] = useState(false);
@@ -514,7 +516,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   // RENDER
   // ============================================
 
-  // Einstieg: Title-Screen → überspringbare Ankunfts-Sequenz → Direktor-Dialog (startGame).
+  // Einstieg: Title → Avatar-Wahl → überspringbare Ankunfts-Sequenz → Direktor-Dialog.
   if (state.gamePhase === 'intro') {
     if (showArrival) {
       return (
@@ -527,9 +529,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         />
       );
     }
+    if (showAvatarChoice) {
+      return <AvatarChoice onConfirm={() => { setShowAvatarChoice(false); setShowArrival(true); }} />;
+    }
     return (
       <TitleScreen
-        onNewGame={() => setShowArrival(true)}
+        onNewGame={() => setShowAvatarChoice(true)}
         onContinue={handleLoad}
         hasSave={hasSaveGame()}
       />

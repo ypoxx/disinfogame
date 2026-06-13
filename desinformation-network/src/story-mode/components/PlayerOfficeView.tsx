@@ -9,6 +9,7 @@ import { useState, useCallback } from 'react';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
 import { playSound } from '../utils/SoundSystem';
+import { usePlayerProfile, playerPortraitAssetId } from '../stores/playerProfileStore';
 
 // ─── Typen ────────────────────────────────────────────────────────────────────
 
@@ -445,6 +446,9 @@ export function PlayerOfficeView({
           ◀ GEBÄUDE
         </button>
 
+        {/* Dienstausweis — gewähltes Spieler-Porträt + Name (K10/D27) */}
+        <Dienstausweis />
+
         {/* Phase-Beenden-Button */}
         <button
           onClick={onEndPhase}
@@ -464,6 +468,51 @@ export function PlayerOfficeView({
           PHASE BEENDEN →
         </button>
       </div>
+    </div>
+  );
+}
+
+/** Kleiner Dienstausweis in der Schreibtischkante: „das bin ich". */
+function Dienstausweis(): React.JSX.Element {
+  const assets = useAssets();
+  const name = usePlayerProfile((s) => s.name);
+  const portraitId = usePlayerProfile((s) => s.portraitId);
+  const url = assets.imageUrl(playerPortraitAssetId(portraitId));
+  return (
+    <div
+      title="Dienstausweis"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        padding: '3px 10px 3px 3px',
+        backgroundColor: 'rgba(10,10,14,0.6)',
+        border: `1px solid ${StoryModeColors.borderLight}`,
+      }}
+    >
+      <span
+        style={{
+          width: 28,
+          height: 28,
+          flexShrink: 0,
+          backgroundColor: StoryModeColors.background,
+          border: `1px solid ${StoryModeColors.border}`,
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {url ? (
+          <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'pixelated' }} />
+        ) : (
+          <span style={{ fontSize: 16 }}>🕵️</span>
+        )}
+      </span>
+      <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
+        <span style={{ fontSize: 9, color: StoryModeColors.textSecondary, letterSpacing: 1 }}>SONDEROPERATIONEN</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: StoryModeColors.textPrimary, fontFamily: 'monospace' }}>{name}</span>
+      </span>
     </div>
   );
 }
