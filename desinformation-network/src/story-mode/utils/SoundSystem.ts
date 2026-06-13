@@ -167,6 +167,8 @@ const SOUND_CONFIGS: Record<SoundType, SoundConfig> = {
 
 /** Lautstärke-Faktor für Hintergrundmusik relativ zum Master-Volume. */
 const MUSIC_VOLUME_FACTOR = 0.4;
+/** Raum-Klangkulisse noch dezenter als Musik (liegt unter allem). */
+const AMBIENCE_VOLUME_FACTOR = 0.25;
 /** Dateibasierte SFX dürfen lauter sein als die (bewusst leisen) Synth-Töne. */
 const SFX_FILE_VOLUME_FACTOR = 2;
 
@@ -180,6 +182,9 @@ class SoundSystem {
   private musicElement: HTMLAudioElement | null = null;
   private musicAssetId: string | null = null;
   private voiceElement: HTMLAudioElement | null = null;
+  // F36: Raum-Klangkulisse als zweiter Loop (leiser als Musik), läuft auf dem sfx-Kanal.
+  private ambienceElement: HTMLAudioElement | null = null;
+  private ambienceAssetId: string | null = null;
 
   constructor() {
     // Load settings from localStorage
@@ -340,6 +345,42 @@ class SoundSystem {
     this.musicAssetId = null;
   }
 
+  /**
+   * F36: Raum-Klangkulisse (Loop) starten — z. B. sfx_amb_buero. Läuft parallel
+   * zur Musik, bewusst leise (× AMBIENCE_FACTOR), auf dem sfx-Kanal. Gleiche id
+   * erneut => läuft weiter; null/fehlt => still.
+   */
+  playAmbience(assetId: string | null): void {
+    if (assetId === this.ambienceAssetId && (!assetId || (this.ambienceElement && !this.ambienceElement.paused))) {
+      return;
+    }
+    this.stopAmbience();
+    if (!assetId || !this.enabled) return;
+    const url = getAssetRegistry().soundUrl(assetId);
+    if (!url) return;
+    const element = this.createAudio(url);
+    if (!element) return;
+    element.loop = true;
+    element.volume = Math.max(0, Math.min(1, this.masterVolume * AMBIENCE_VOLUME_FACTOR * this.channelVolume.sfx));
+    this.ambienceElement = element;
+    this.ambienceAssetId = assetId;
+    void element.play().catch(() => {
+      /* Autoplay-Policy */
+    });
+  }
+
+  stopAmbience(): void {
+    if (this.ambienceElement) {
+      try {
+        this.ambienceElement.pause();
+      } catch {
+        // ignore
+      }
+    }
+    this.ambienceElement = null;
+    this.ambienceAssetId = null;
+  }
+
   getCurrentMusicId(): string | null {
     return this.musicAssetId;
   }
@@ -382,6 +423,7 @@ class SoundSystem {
     if (!enabled) {
       this.stopMusic();
       this.stopVoice();
+      this.stopAmbience();
     }
     this.saveSettings();
   }
@@ -413,6 +455,9 @@ class SoundSystem {
     }
     if (channel === 'voice' && this.voiceElement) {
       this.voiceElement.volume = Math.max(0, Math.min(1, this.masterVolume * this.channelVolume.voice));
+    }
+    if (channel === 'sfx' && this.ambienceElement) {
+      this.ambienceElement.volume = Math.max(0, Math.min(1, this.masterVolume * AMBIENCE_VOLUME_FACTOR * this.channelVolume.sfx));
     }
     this.saveSettings();
   }
@@ -500,6 +545,14 @@ export function playMusic(assetId?: string): boolean {
 
 export function stopMusic(): void {
   getSoundSystem().stopMusic();
+}
+
+export function playAmbience(assetId: string | null): void {
+  getSoundSystem().playAmbience(assetId);
+}
+
+export function stopAmbience(): void {
+  getSoundSystem().stopAmbience();
 }
 
 export function playVoiceLine(assetId: string): boolean {

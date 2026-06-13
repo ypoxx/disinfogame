@@ -44,7 +44,7 @@ import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
 import { DashboardView } from './components/DashboardView';
 import { initAssetRegistry, useAssets } from './assets';
-import { playMusic, stopMusic, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound, setChannelVolume, getChannelVolume, type SoundChannel } from './utils/SoundSystem';
+import { playMusic, stopMusic, playAmbience, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound, setChannelVolume, getChannelVolume, type SoundChannel } from './utils/SoundSystem';
 
 // ============================================
 // TYPES
@@ -394,6 +394,27 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       stopMusic();
     }
   }, [state.gamePhase, state.activeCrisis, assets]);
+
+  // F36: Raum-Klangkulisse je nach aktuellem Ort (zweiter, leiser Loop unter der Musik).
+  useEffect(() => {
+    if (state.gamePhase !== 'playing' && state.gamePhase !== 'tutorial') {
+      playAmbience(null);
+      return;
+    }
+    // NPC-Räume mit eigener Kulisse (Mapping NPC → Ambience-Asset).
+    const npcAmbience: Record<string, string> = {
+      alexei: 'sfx_amb_cyber',
+      igor: 'sfx_amb_keller',
+      direktor: 'sfx_amb_zentrale',
+    };
+    let ambience: string | null = null;
+    if (showNewsroom) ambience = 'sfx_amb_newsroom';
+    else if (viewMode === 'office') ambience = 'sfx_amb_buero';
+    else if (state.currentDialog && state.activeNpcId && npcAmbience[state.activeNpcId]) {
+      ambience = npcAmbience[state.activeNpcId];
+    }
+    playAmbience(ambience);
+  }, [state.gamePhase, viewMode, showNewsroom, state.currentDialog, state.activeNpcId, assets]);
 
   // Erster Büro-Besuch gesehen → Hinweise künftig nicht mehr zeigen.
   useEffect(() => {
