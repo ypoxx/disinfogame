@@ -139,8 +139,7 @@ Nutzen Sie die Expertise Ihres Teams!`,
     title: 'Aktionen-Warteschlange',
     content: `Planen Sie mehrere Aktionen im Voraus!
 
-[Liste] WARTESCHLANGE (unten rechts):
-▶ AUSFÜHREN - Aktion sofort starten
+[Liste] WARTESCHLANGE (unten rechts): AUSFÜHREN - Aktion sofort starten
 + EINREIHEN - Zur Warteschlange hinzufügen
 
 BATCH-AUSFÜHRUNG:

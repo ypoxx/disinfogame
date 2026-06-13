@@ -342,7 +342,7 @@ export function ActionQueueWidget({
               }}
               title={canAfford ? 'Alle Aktionen ausführen' : 'Nicht genügend Ressourcen'}
             >
-              ▶ AUSFÜHREN
+              AUSFÜHREN
             </button>
             <button
               onClick={onClear}

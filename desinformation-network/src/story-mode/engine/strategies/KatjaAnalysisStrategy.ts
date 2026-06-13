@@ -221,10 +221,10 @@ export class KatjaAnalysisStrategy implements NPCAnalysisStrategy {
       const agentNames = compromisedAgents.map(a => a.name).join(', ');
 
       const message = playerRelationship > 1
-        ? `⚠️ ${compromisedAgents.length} unserer Kontakte stehen unter Verdacht: ${agentNames}. ` +
+        ? `${compromisedAgents.length} unserer Kontakte stehen unter Verdacht: ${agentNames}. ` +
           `Suspicion-Levels kritisch. Empfehle sofortigen Kontaktabbruch oder Exfiltration. ` +
           `Ein kompromittierter Agent kann das gesamte Netzwerk auffliegen lassen.`
-        : `⚠️ ${compromisedAgents.length} Agents kompromittiert: ${agentNames}. Defensive Aktion erforderlich.`;
+        : `${compromisedAgents.length} Agents kompromittiert: ${agentNames}. Defensive Aktion erforderlich.`;
 
       const reasoning = `Agent Compromise Analysis:` +
         `\nKompromittierte Assets: ${compromisedAgents.length}` +

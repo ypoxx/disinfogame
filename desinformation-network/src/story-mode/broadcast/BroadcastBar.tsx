@@ -123,7 +123,7 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
               paddingLeft: 4,
             }}
           >
-            {item.kind === 'gegenreaktion' ? '⚠ GEGENWIND: ' : '⬢ '}
+            {item.kind === 'gegenreaktion' ? 'GEGENWIND: ' : '⬢ '}
             {item.headline}
           </span>
         ) : (
@@ -213,12 +213,12 @@ function AudienceRoom({ audience }: { audience: AudienceBroadcastState }) {
                     zIndex: 4,
                   }}
                 >
-                  {seg.mood === 'wuetend' ? '💢 ' : seg.mood === 'misstrauisch' ? '🤨 ' : ''}
+                  {seg.mood === 'wuetend' ? '' : seg.mood === 'misstrauisch' ? '' : ''}
                   {quoteFor(seg.id, seg.mood)}
                 </span>
               )}
               <span style={{ filter: MOOD_FILTER[seg.mood], transition: 'filter 600ms ease' }}>
-                <PixelSprite sheetId={figure} animation="idle" fallback="🧍" scale={1.6} title={seg.label_de} />
+                <PixelSprite sheetId={figure} animation="idle" fallback="" scale={1.6} title={seg.label_de} />
               </span>
               {/* Überzeugungs-Sockel: füllt sich mit der Wirkung der Desinformation */}
               <span
@@ -308,7 +308,7 @@ export function BroadcastBar({ audience, onClose }: BroadcastBarProps) {
           ) : (
             audience.history.slice(0, 3).map((h) => (
               <div key={h.id} style={{ fontSize: 11, color: h.kind === 'gegenreaktion' ? StoryModeColors.danger : '#9aa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {h.kind === 'gegenreaktion' ? '⚠' : '⬢'} [{h.tier.toUpperCase()}] {h.headline}
+                {h.kind === 'gegenreaktion' ? '' : '⬢'} [{h.tier.toUpperCase()}] {h.headline}
               </div>
             ))
           )}

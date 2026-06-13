@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
+import { Icon } from './Icon';
 import { PLAYER_PORTRAITS, playerPortraitAssetId, usePlayerProfile } from '../stores/playerProfileStore';
 
 export interface AvatarChoiceProps {
@@ -83,7 +84,7 @@ export function AvatarChoice({ onConfirm }: AvatarChoiceProps): React.JSX.Elemen
                   {url ? (
                     <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'pixelated' }} />
                   ) : (
-                    <span style={{ fontSize: 32 }}>🕵️</span>
+                    <Icon name="npcs" size={32} />
                   )}
                   <span
                     className="absolute bottom-0 inset-x-0 text-[10px] py-0.5 text-center"

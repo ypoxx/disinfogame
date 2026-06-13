@@ -1,7 +1,7 @@
 /**
  * broadcastMapping — PROVISORISCHE Brücke zwischen Spiel-Aktionen und Publikums-Modell.
  *
- * ⚠️ Die Aktions-Tags sind operativ (infrastructure, recruitment, …), die
+ * Die Aktions-Tags sind operativ (infrastructure, recruitment, …), die
  * Publikums-Themen soziologisch (energie_angst, misstrauen_medien, …) — eine
  * inhaltlich saubere Zuordnung braucht das breitere „Ministerium sendet"-Konzept
  * (Schlagzeilen, Talkshows mit Agenten, Zeitungen) und eine Owner-Diskussion.

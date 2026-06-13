@@ -15,35 +15,35 @@
       "id": "budget",
       "label_de": "Budget",
       "label_en": "Budget",
-      "icon": "💰",
+      "icon": "",
       "description": "Direkter Geldaufwand in Tausend Euro"
     },
     "capacity": {
       "id": "capacity",
       "label_de": "Kapazität",
       "label_en": "Capacity",
-      "icon": "⚡",
+      "icon": "",
       "description": "Operative Bandbreite, regeneriert pro Phase"
     },
     "risk": {
       "id": "risk",
       "label_de": "Risiko",
       "label_en": "Risk",
-      "icon": "⚠️",
+      "icon": "",
       "description": "Kumulatives Entdeckungsrisiko (passiv)"
     },
     "attention": {
       "id": "attention",
       "label_de": "Aufmerksamkeit",
       "label_en": "Attention",
-      "icon": "👁️",
+      "icon": "",
       "description": "Zieht Gegner-Ressourcen an (passiv)"
     },
     "moral_weight": {
       "id": "moral_weight",
       "label_de": "Moralische Last",
       "label_en": "Moral Weight",
-      "icon": "💀",
+      "icon": "",
       "description": "Beeinflusst NPCs und Enden (passiv)"
     }
   },

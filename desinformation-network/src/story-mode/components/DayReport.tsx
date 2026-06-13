@@ -22,7 +22,7 @@ interface DayReportProps {
   audienceSegments: AudienceSegment[];
   counterHeadlines: string[];
   resources: { risk: number; budget: number; attention: number };
-  trustProgress: number; // 0–100 (Ministerium ↔ Institutionen)
+  trustProgress: number; // 0–100 (Ministerium Institutionen)
   onNextDay: () => void;
 }
 
@@ -197,7 +197,7 @@ export function DayReport({
                         backgroundColor: StoryModeColors.surfaceLight,
                       }}
                     >
-                      📰 {line}
+                      {line}
                     </li>
                   ))}
                 </ul>
@@ -234,7 +234,7 @@ export function DayReport({
               />
             </div>
 
-            {/* Vertrauens-Wettrennen: Ministerium ↔ Institutionen */}
+            {/* Vertrauens-Wettrennen: Ministerium Institutionen */}
             <div>
               <div className="flex justify-between text-xs mb-1">
                 <span style={{ color: StoryModeColors.ministryRed }}>Ministerium</span>

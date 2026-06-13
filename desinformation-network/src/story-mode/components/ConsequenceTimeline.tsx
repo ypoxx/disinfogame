@@ -26,13 +26,13 @@ function getSeverityColor(severity: PendingConsequence['severity']): string {
 
 function getTypeIcon(type: PendingConsequence['type']): string {
   switch (type) {
-    case 'exposure': return '🔍';
-    case 'blowback': return '💥';
-    case 'escalation': return '📈';
-    case 'internal': return '🏠';
-    case 'collateral': return '💔';
-    case 'opportunity': return '🌟';
-    default: return '⚡';
+    case 'exposure': return '▲';
+    case 'blowback': return '✷';
+    case 'escalation': return '↑';
+    case 'internal': return '⌂';
+    case 'collateral': return '✕';
+    case 'opportunity': return '★';
+    default: return '•';
   }
 }
 
@@ -56,7 +56,7 @@ export function ConsequenceTimeline({ pendingConsequences, currentPhase }: Conse
       }}
     >
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-sm">⏳</span>
+        <span className="text-sm"></span>
         <span className="text-xs font-bold" style={{ color: StoryModeColors.textSecondary }}>
           AUSSTEHENDE KONSEQUENZEN
         </span>

@@ -383,7 +383,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
             }}
             title="Sofort ausführen"
           >
-            ▶ AUSFÜHREN
+            AUSFÜHREN
           </button>
           {onAddToQueue && (
             <button

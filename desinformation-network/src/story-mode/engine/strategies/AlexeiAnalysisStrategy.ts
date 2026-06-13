@@ -84,10 +84,10 @@ export class AlexeiAnalysisStrategy implements NPCAnalysisStrategy {
       );
 
       const message = playerRelationship > 1
-        ? `⚠️ KRITISCH! Risiko bei ${currentRisk.toFixed(0)}%! ` +
+        ? `KRITISCH! Risiko bei ${currentRisk.toFixed(0)}%! ` +
           `Entdeckung wahrscheinlich in ${phasesUntilDetection} Phasen. ` +
           `Empfehle SOFORTIGE Sicherheitsmaßnahmen - das ist kein Spiel mehr!`
-        : `⚠️ Risiko kritisch: ${currentRisk.toFixed(0)}%. Sofortige Aktion erforderlich.`;
+        : `Risiko kritisch: ${currentRisk.toFixed(0)}%. Sofortige Aktion erforderlich.`;
 
       const reasoning = `Risk-Schwelle überschritten (>70%). ` +
         `Bei diesem Level sind Verteidiger aktiv auf der Suche nach Beweisen. ` +

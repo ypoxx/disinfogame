@@ -401,10 +401,10 @@ export function getPriorityColor(priority: RecommendationPriority): string {
  */
 export function getPriorityEmoji(priority: RecommendationPriority): string {
   const emojis: Record<RecommendationPriority, string> = {
-    critical: '🔴',
-    high: '🟡',
-    medium: '🟢',
-    low: '⚪',
+    critical: '',
+    high: '',
+    medium: '',
+    low: '',
   };
   return emojis[priority];
 }

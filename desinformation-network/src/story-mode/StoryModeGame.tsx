@@ -360,7 +360,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dayEnded, state.gamePhase, state.currentDialog]);
 
-  // Vertrauens-Fortschritt (Ministerium ↔ Institutionen) fürs Briefing/Fazit.
+  // Vertrauens-Fortschritt (Ministerium Institutionen) fürs Briefing/Fazit.
   const destabObjective = state.objectives.find((o) => o.type === 'primary');
   const trustProgress = destabObjective
     ? Math.max(0, Math.min(1, (100 - destabObjective.currentValue) / Math.max(1, 100 - destabObjective.targetValue)))

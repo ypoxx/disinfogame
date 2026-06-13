@@ -309,7 +309,7 @@ function PostCard({ post, isFirst = false }: PostCardProps): React.JSX.Element {
         >
           <span>
             {/* Herz-Glyphe — kein Emoji */}
-            <span style={{ color: StoryModeColors.danger }}>♥</span>
+            <span style={{ color: StoryModeColors.danger }}></span>
             {' '}
             {post.likes.toLocaleString('de-DE')}
           </span>
