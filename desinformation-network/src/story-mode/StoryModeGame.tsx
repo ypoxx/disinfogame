@@ -35,6 +35,7 @@ import { BroadcastBar } from './broadcast/BroadcastBar';
 import { useAudienceBroadcast } from './broadcast/useAudienceBroadcast';
 import { NpcRoomView } from './building/NpcRoomView';
 import { NewsroomView, derivePosts } from './components/NewsroomView';
+import { FokusgruppeView } from './components/FokusgruppeView';
 import { DayClock } from './components/DayClock';
 import { MorningBriefing } from './components/MorningBriefing';
 import { DayReport } from './components/DayReport';
@@ -307,6 +308,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [briefedPhase, setBriefedPhase] = useState<number | null>(null);
   const [showEndReport, setShowEndReport] = useState(false);
   const [showNewsroom, setShowNewsroom] = useState(false);
+  const [showFokusgruppe, setShowFokusgruppe] = useState(false);
   // Büro-Hotspot-Hinweise nur beim allerersten Besuch (über Sessions persistiert).
   const [showOfficeHints] = useState<boolean>(() => {
     try {
@@ -734,7 +736,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               onEnterOffice={() => setViewMode('office')}
               onEnterRoom={(roomId) => {
                 if (roomId === 'newsroom') setShowNewsroom(true);
-                // analyse (Fokusgruppe K4) folgt in einer späteren Welle
+                else if (roomId === 'analyse') setShowFokusgruppe(true);
               }}
               walkHome={walkHome}
               onArrivedHome={() => {
@@ -905,6 +907,22 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 rising: seg.mood === 'wuetend' || seg.mood === 'misstrauisch',
               }))}
             onClose={() => setShowNewsroom(false)}
+          />
+        )}
+
+        {/* Fokusgruppe (K4/B14): benannte Personas kommentieren die letzte Kampagne */}
+        {showFokusgruppe && (
+          <FokusgruppeView
+            segments={audience.country.segments.map((seg) => ({
+              id: seg.id,
+              label_de: seg.label_de,
+              milieu: seg.milieu,
+              mood: seg.mood,
+              belief: seg.belief,
+              vulnerabilities: seg.vulnerabilities,
+            }))}
+            lastHeadline={audience.lastItem?.headline ?? null}
+            onClose={() => setShowFokusgruppe(false)}
           />
         )}
 
