@@ -46,6 +46,8 @@ export interface BuildingStageProps {
   onRoomClick?: (roomId: string) => void;
   /** Raum-Interaktion sperren (z. B. während Ankunfts-Sequenz). */
   interactive?: boolean;
+  /** Aktueller Monat (1–12 oder kumulativ) für die Jahreszeiten-Stimmung. */
+  month?: number;
 }
 
 const layout = getBuildingLayout();
@@ -84,7 +86,7 @@ function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
   );
 }
 
-export function BuildingStage({ npcs, nav, onRoomClick, interactive = true }: BuildingStageProps) {
+export function BuildingStage({ npcs, nav, onRoomClick, interactive = true, month }: BuildingStageProps) {
   const assets = useAssets();
   const npcById = new Map(npcs.map((n) => [n.id, n]));
   const containerRef = useRef<HTMLDivElement>(null);
@@ -507,7 +509,38 @@ export function BuildingStage({ npcs, nav, onRoomClick, interactive = true }: Bu
       {/* Tag/Nacht-Tönung (H30): aus der Tages-Uhr — kühler Morgen, neutraler Mittag,
           zum Redaktionsschluss hin tiefblaue Abend-/Nacht-Stimmung über der Stadt. */}
       <DayNightTint />
+      <SeasonOverlay month={month} />
     </div>
+  );
+}
+
+/** Jahreszeiten-Stimmung (D15, „sanft lebendig"): Schnee im Winter, Regen im Herbst. */
+function SeasonOverlay({ month }: { month?: number }) {
+  if (month == null) return null;
+  const m = (((Math.floor(month) - 1) % 12) + 12) % 12 + 1; // → 1..12
+  const winter = m === 12 || m === 1 || m === 2;
+  const autumn = m >= 9 && m <= 11;
+  if (!winter && !autumn) return null;
+  const css = winter
+    ? {
+        backgroundImage:
+          'radial-gradient(1.5px 1.5px at 20px 30px, rgba(255,255,255,0.85), transparent),' +
+          'radial-gradient(1.5px 1.5px at 80px 70px, rgba(255,255,255,0.65), transparent),' +
+          'radial-gradient(1px 1px at 50px 130px, rgba(255,255,255,0.75), transparent)',
+        backgroundSize: '130px 170px',
+        animation: 'bs-snow 9s linear infinite',
+      }
+    : {
+        backgroundImage:
+          'repeating-linear-gradient(74deg, rgba(170,190,220,0.16) 0 1px, transparent 1px 9px)',
+        backgroundSize: '120px 120px',
+        animation: 'bs-rain 0.55s linear infinite',
+      };
+  return (
+    <>
+      <style>{`@keyframes bs-snow{from{background-position:0 0,0 0,0 0}to{background-position:18px 170px,-14px 170px,8px 170px}}@keyframes bs-rain{from{background-position:0 0}to{background-position:-26px 120px}}`}</style>
+      <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', ...css }} />
+    </>
   );
 }
 

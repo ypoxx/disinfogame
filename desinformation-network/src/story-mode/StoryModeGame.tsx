@@ -727,6 +727,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           {viewMode === 'building' ? (
             <BuildingView
               npcs={state.npcs}
+              month={state.storyPhase.month}
               onRoomClick={(npcId) => {
                 setActivePanel(null);
                 interactWithNpc(npcId);

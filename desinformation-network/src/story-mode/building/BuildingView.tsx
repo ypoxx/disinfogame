@@ -24,9 +24,11 @@ interface BuildingViewProps {
   /** K1-Heimweg: Avatar geht sichtbar zur Lobby, dann feuert onArrivedHome. */
   walkHome?: boolean;
   onArrivedHome?: () => void;
+  /** Aktueller Monat für die Jahreszeiten-Stimmung. */
+  month?: number;
 }
 
-export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, walkHome = false, onArrivedHome }: BuildingViewProps) {
+export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, walkHome = false, onArrivedHome, month }: BuildingViewProps) {
   const nav = useNavigator();
 
   // Heimweg-Ritual (Redaktionsschluss): einmalig zur Lobby laufen.
@@ -63,7 +65,7 @@ export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, wa
 
   return (
     <div className="h-full w-full" data-testid="building-view">
-      <BuildingStage npcs={npcs} nav={nav} onRoomClick={handleRoomClick} />
+      <BuildingStage npcs={npcs} nav={nav} onRoomClick={handleRoomClick} month={month} />
     </div>
   );
 }
