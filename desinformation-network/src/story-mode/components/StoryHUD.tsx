@@ -45,6 +45,8 @@ interface StoryHUDProps {
   onEndPhase?: () => void;
   onOpenMenu?: () => void;
   onOpenObjectives?: () => void;
+  /** E1/2g: HUD wieder ausblenden (nur auf Knopfdruck sichtbar). */
+  onHideHud?: () => void;
 }
 
 // ============================================
@@ -294,6 +296,7 @@ export function StoryHUD({
   onEndPhase,
   onOpenMenu,
   onOpenObjectives,
+  onHideHud,
 }: StoryHUDProps) {
   return (
     <>
@@ -367,6 +370,17 @@ export function StoryHUD({
 
           {/* Right: Actions — kein View-Umschalter mehr (§4.4, Strang 2/2c) */}
           <div className="flex items-center gap-2">
+            {onHideHud && (
+              <button
+                onClick={onHideHud}
+                aria-label="HUD ausblenden"
+                title="HUD ausblenden (H)"
+                className="px-2 py-1.5 border-2 font-bold text-sm transition-all hover:brightness-110"
+                style={{ backgroundColor: StoryModeColors.concrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.textSecondary }}
+              >
+                ▴ H
+              </button>
+            )}
             {onOpenMenu && (
               <button
                 onClick={onOpenMenu}

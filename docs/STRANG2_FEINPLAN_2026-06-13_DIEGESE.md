@@ -253,3 +253,47 @@ Dieses Dokument + die Owner-Entscheidungen (Abschnitt 7). Nach Abnahme starten 2
 (`vite preview` + `app-smoke.mjs`, Screenshots per Read visuell prüfen) · neue Bilder Vision-Review
 gegen die Stil-Bibel · **A1-Checkliste je PR** (Affordanz → diegetisches Zuhause) · Commit auf
 Deutsch mit Session-Footer; nach Push **Draft-PR**.
+
+---
+
+## FORTSCHRITT & ABSCHLUSS (2026-06-13 — Strang 2 umgesetzt)
+
+**Branch:** `claude/amazing-noether-4arm99` · PR #78. Alle Schritte je grün
+(`tsc` 0 · `npm run build` 0 · `vitest` 214/214) + Browser-Smoke (Screenshots
+unter `tools/asset-pipeline/runs/smoke-2*`).
+
+| Schritt | Inhalt | Commit |
+|---|---|---|
+| 2b | EIN Rahmen-System: `PixelModal`-Overlay + Modal-Migration, Verbots-Schatten raus | 2e2761c |
+| 2c | Diegetische Navigation: View-Umschalter weg (Leiste + HUD-Toggle), `FloorDirectory` (Fahrstuhl/Etagen-Tableau, Taste F) | 894bb0e |
+| 2d | Broadcast permanent: Dauer-Streifen + Ausklappen (B) statt versteckter Toggle | f4b58fa |
+| 2f | Narrativ-Tafel (Korkbrett): Spuren, Karten anheften (Drag/Enter), rote Verfalls-Fäden, Ausspielen | f28a0d8 |
+| 2e | Dashboard aufgelöst → diegetisches `LagebildView` am Wand-Monitor | 10b5978 |
+| 2g | Aufräumen: HUD nur auf Knopfdruck (E1/I32, Taste H), Büro-Ausgang als Tür-Hotspot, Verbots-Schatten-Reste | (dieser) |
+
+### A1-Gesamtaudit — „keine Funktion fällt weg"
+
+| Vor-Strang-2-Bedienweg | Diegetisches Zuhause jetzt |
+|---|---|
+| View-Tabs Gebäude/Büro/Dashboard | Bürotür (Büro), Etagen-Tableau/Fahrstuhl + Türen (Räume), Dashboard aufgelöst |
+| HUD-View-Toggle (BÜRO/DASHBOARD…) | entfällt (diegetischer Wechsel) |
+| Broadcast-Toggle (versteckt, Taste B) | permanenter Streifen, B = aus-/einklappen |
+| Pinnwand → MissionPanel | Pinnwand → Narrativ-Tafel (Ziele als Notizen); volle Mission weiter per Taste M |
+| Aktions-Panel (Planen/Queue) | Tafel: Anheften=Queue, Sofort=Ausführen, Ausspielen=Queue; Terminal/Taste A weiter da |
+| Dashboard (Ressourcen/Ziele/News/Team) | Wand-Monitor → Lagebild; Ressourcen/Phase im HUD; Ziele=Tafel/M; News=Akten/N; Team=Telefon/P |
+| HUD dauerhaft sichtbar | HUD auf Knopfdruck (Taste H) + immer sichtbarer Pause-/HUD-Einstieg (E1) |
+| Büro „GEBÄUDE"-Web-Button | Tür-Hotspot am linken Bildrand |
+| „PHASE BEENDEN"-Web-Button (Büro) | „FEIERABEND" (Desk) + HUD + Redaktionsschluss-Heimweg (K1) |
+| ~14 Modals, je eigenes Idiom | `PixelModal`/`PixelFrame`, ein Rahmen, keine Verbots-Schatten |
+
+**Tastatur (E33):** A/N/S/P/M/E/B/I bleiben · neu F (Etagen-Tableau) · neu H (HUD) ·
+entfernt V (View-Zyklus → diegetisch) und G (Übergangs-Dashboard). Tafel, Etagen-
+Tableau und Lagebild sind tastaturbedienbar; Esc schließt Overlays.
+
+### Offen / Folgearbeiten (nicht Strang-2-Scope)
+- **Asset-Politur:** Korkbrett/Pin/Karte derzeit CSS-komponiert (kein Spend) —
+  optionales echtes Pixel-Asset später (Budget-Schätzung vorab).
+- **Pixel-Font** weiter blockiert (Netz-Policy) — `font-mono`-Reste bleiben, bis
+  eine lizenzfreie Font-Datei vorliegt.
+- **Berater-Panel überlappt** den rechten Büro-Hotspot (Monitor/Lagebild) leicht —
+  vorbestehend; in Strang 5 (Atmosphäre/Hotspot-Feinlage) mitnehmen.

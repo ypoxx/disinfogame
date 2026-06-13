@@ -83,9 +83,9 @@ const HOTSPOTS: HotspotDef[] = [
   { id: 'files',    label: 'NACHRICHTEN',          left: 54, top: 56, width: 13, height: 13 },
   { id: 'tv',       label: 'LAGEBILD',               left: 83, top: 48, width: 13, height: 26 },
   { id: 'window',   label: 'WELT-EREIGNISSE',      left: 51, top:  4, width: 22, height: 38 },
-  // Kein 'exit'-Hotspot mehr: Der Ausgang läuft ausschließlich über den sichtbaren
-  // „GEBÄUDE"-Button der unteren Leiste (Review-Befund A3: redundante,
-  // unsichtbare Bedienwege verwirren).
+  // 2g: Diegetischer Ausgang über die Tür am linken Bildrand (ersetzt den
+  // „GEBÄUDE"-Web-Button der Unterleiste — Bedienung diegetisch).
+  { id: 'exit',     label: '← GEBÄUDE',             left:  0, top:  0, width:  6, height: 100 },
 ];
 
 // Tutorial-Marker (Computer, Pinnwand, TV)
@@ -300,7 +300,6 @@ export function PlayerOfficeView({
                   pointerEvents: 'none',
                   zIndex: 20,
                   imageRendering: 'pixelated',
-                  boxShadow: `2px 2px 0 #000, 0 0 6px ${color}55`,
                 }}
               >
                 {hs.label}
@@ -407,7 +406,6 @@ export function PlayerOfficeView({
             fontWeight: 700,
             cursor: 'pointer',
             zIndex: 40,
-            boxShadow: '2px 2px 0 #000',
           }}
         >
           Verstanden ✓
@@ -430,29 +428,12 @@ export function PlayerOfficeView({
           zIndex: 15,
         }}
       >
-        {/* Gebäude-Verlassen-Button */}
-        <button
-          onClick={() => { playSound('doorOpen'); onExitToBuilding(); }}
-          style={{
-            backgroundColor: StoryModeColors.darkConcrete,
-            border: `2px solid ${StoryModeColors.borderLight}`,
-            color: StoryModeColors.textPrimary,
-            padding: '5px 14px',
-            fontSize: 12,
-            fontFamily: 'monospace',
-            fontWeight: 700,
-            cursor: 'pointer',
-            boxShadow: '3px 3px 0 #000',
-            letterSpacing: 1,
-          }}
-        >
-          GEBÄUDE
-        </button>
+        {/* Ausgang ist jetzt diegetisch: Tür-Hotspot am linken Bildrand (2g). */}
 
         {/* Dienstausweis — gewähltes Spieler-Porträt + Name (K10/D27) */}
         <Dienstausweis />
 
-        {/* Phase-Beenden-Button */}
+        {/* Feierabend: Tag beenden (diegetischer Heimweg-Auslöser) */}
         <button
           onClick={onEndPhase}
           style={{
@@ -464,11 +445,11 @@ export function PlayerOfficeView({
             fontFamily: 'monospace',
             fontWeight: 900,
             cursor: 'pointer',
-            boxShadow: '4px 4px 0 rgba(0,0,0,0.8)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
             letterSpacing: 2,
           }}
         >
-          PHASE BEENDEN →
+          FEIERABEND →
         </button>
       </div>
     </div>

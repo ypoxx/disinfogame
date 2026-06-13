@@ -305,6 +305,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showBoard, setShowBoard] = useState(false);
   // 2e: Lagebild — „auf einen Blick"-Übersicht am Wand-Monitor (löst das Dashboard ab).
   const [showLagebild, setShowLagebild] = useState(false);
+  // 2g/E1/I32: HUD nicht dauerhaft — nur auf Knopfdruck (Taste H). Standard aus;
+  // ein dezenter, immer auffindbarer Einstieg (Pause + HUD) bleibt sichtbar.
+  const [hudVisible, setHudVisible] = useState(false);
   // Büro-Hotspot-Hinweise nur beim allerersten Besuch (über Sessions persistiert).
   const [showOfficeHints] = useState<boolean>(() => {
     try {
@@ -477,6 +480,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           case 'e': togglePanel('events'); break;
           case 'b': toggleBroadcast(); break;
           case 'i': setShowEncyclopedia(prev => !prev); break;
+          case 'h': setHudVisible(v => !v); break;
         }
       }
     };
@@ -643,7 +647,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       className="fixed inset-0 font-mono"
       style={{ backgroundColor: StoryModeColors.background }}
     >
-      {/* HUD */}
+      {/* HUD (E1/I32): nur auf Knopfdruck — Taste H, Standard aus, „nicht dauerhaft" */}
+      {hudVisible && (
       <StoryHUD
         resources={{
           budget: state.resources.budget,
@@ -669,12 +674,38 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         }))}
         onEndPhase={requestEndDay}
         onOpenMenu={pauseGame}
+        onHideHud={() => setHudVisible(false)}
       />
+      )}
 
-      {/* Main Layout (with padding for HUD) */}
-      <div className="pt-[52px] h-full flex flex-col">
-        {/* Sub-HUD Bar: Betrayal Indicators + Consequence Timeline (in-flow, not fixed) */}
-        {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
+      {/* Dezenter, IMMER auffindbarer Einstieg (E1): Pause + HUD einblenden, wenn HUD aus */}
+      {!hudVisible && (state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
+        <div className="fixed top-1.5 right-1.5 z-50 flex gap-1">
+          <button
+            onClick={pauseGame}
+            aria-label="Pause / Menü"
+            title="Pause / Menü (Esc)"
+            className="w-8 h-8 flex items-center justify-center border-2 font-bold hover:brightness-125"
+            style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.textPrimary }}
+          >
+            ☰
+          </button>
+          <button
+            onClick={() => setHudVisible(true)}
+            aria-label="HUD einblenden"
+            title="HUD einblenden (H)"
+            className="h-8 px-2 flex items-center gap-1 border-2 text-xs font-bold hover:brightness-125"
+            style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.textSecondary }}
+          >
+            <Icon name="stats" size={12} title="HUD" fallback="HUD" /> HUD · H
+          </button>
+        </div>
+      )}
+
+      {/* Main Layout (Padding nur, wenn HUD sichtbar) */}
+      <div className={`${hudVisible ? 'pt-[52px]' : ''} h-full flex flex-col`}>
+        {/* Sub-HUD Bar: Betrayal + Consequence — Teil des HUD-Rands, nur mit HUD sichtbar */}
+        {hudVisible && (state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
           <div
             className="flex items-center gap-2 px-4 py-1 shrink-0 z-30"
             style={{
