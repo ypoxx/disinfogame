@@ -271,17 +271,20 @@ gegen Stil-Bibel · Proportions-Mess-Overlay · keine Funktion fällt weg (A1-Be
 
 # TEIL E — OFFENE MINI-FRAGEN (mit Empfehlung)
 
-## E1 · A1 — Was ist in der „kleinen Randleiste"? (Schicht 3)
-**Empfehlung:** Die Randleiste = **nur** die dünne **Spiel-UI-Kante** (Schicht 3 aus
-§4.4): ein einklappbares **„Dienstmenü"-Symbol** in einer Ecke mit ausschließlich
-**System-Funktionen** — Pause · Ton/Mixer · Speichern/Laden · Version · Beenden. Dazu
-der **auf Knopfdruck** einblendbare HUD-Rand (Zeit/Risiko/Budget — I32). **Alles
-Spielrelevante bleibt diegetisch** (an Möbeln). Kein Inhalts-Menü, kein zweites
-Bedien-Idiom. → *Knapp: ja, minimal & einklappbar, nur Systemkram.*
+## E1 · A1 — „kleine Randleiste"? → ✅ ENTSCHIEDEN: **GAR KEINE Randleiste**
+**Owner-Entscheidung (2026-06-13):** Keine persistente Randleiste. **Alles
+diegetisch** (an Möbeln); das **System-Menü** (Pause · Ton/Mixer · Speichern/Laden ·
+Version · Beenden) ist **nur über die Pause-Taste** erreichbar. Der HUD-Rand
+(Zeit/Risiko/Budget) bleibt **auf Knopfdruck** einblendbar (I32), nicht dauerhaft.
+→ *Folge für §4.4: Schicht 3 schrumpft auf „Pause-Overlay + optionaler HUD" — kein
+ständig sichtbares Rand-UI. Puristischste Variante, maximal „aus einem Guss".*
+→ *Umsetzungs-Hinweis: Pause-Taste (Esc) + ein dezenter, IMMER auffindbarer
+Einstieg (z. B. kleines Pause-Glyph), damit Systemfunktionen ohne Randleiste
+nicht „verschwinden".*
 
-## E2 · B6 — Anzahl gleichzeitiger Narrative (Mehr-Perspektiven-Empfehlung)
-**Empfehlung: maximal 3 gleichzeitig, Spielstart bei 2, 3. Slot schaltet mit dem
-Gebäude-Wachstum frei (K40).** Begründung aus vier Blickwinkeln:
+## E2 · B6 — Anzahl Narrative → ✅ ENTSCHIEDEN: **max 3, Start 2 → 3**
+**Owner-Entscheidung (2026-06-13):** maximal 3 gleichzeitig, Spielstart bei 2,
+der 3. Slot schaltet mit dem Gebäude-Wachstum frei (K40). Begründung (4 Blickwinkel):
 - *Game-Design:* 2–3 parallele „Sendungen" sind anfassbar; mehr verwässert jede
   Entscheidung (MadTV-Lehre: begrenzte Slots erzeugen interessante Konflikte).
 - *Inhalt/Realismus:* echte Operationen fahren wenige **koordinierte** Narrative
