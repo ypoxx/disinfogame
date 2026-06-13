@@ -333,7 +333,14 @@ großem Puffer. Der **Transparenz-Start (PR 1b) kostet ~1 €** (vernachlässigb
   „halber-Tisch"-Effekt gelöst (Owner-Hinweis).
 - **Gebäude/Welt-Baukasten v2** (12 Teile) inkl. Browser-Smoke (BuildingStage-Kachel-CSS).
 - **8 Publikums-Milieus v2** (pur, transparent) — K38-Defekt „kaputte Sheets" behoben.
-- Bild-KI-Budget bisher: ~6–7 € von +30 €.
+- **v2-Palette** (`theme.ts`, ein Token-Satz) + Primitive `Icon` / `PixelFrame`.
+- **Emojis komplett raus** (Verbotsliste): HUD/Panels/Modals/Dialog + News-/Krisen-/
+  Konsequenz-Texte + Daten → Pixel-Icons/Text; nur monochrome Glyphen (★ ☰ ✓ ▶) bleiben.
+  Verifiziert: `rg \p{Extended_Pictographic}` = 0 farbige Emojis (außer TitleScreen/Tests).
+- **DialogBox CSS-Gesicht entfernt** → neutraler Pixel-Platzhalter.
+- **Deploy-Cache-Bug behoben** (`netlify.toml`: immutable→revalidate) — v2-Assets
+  erschienen sonst nie (1-Jahr-Cache auf stabilen Dateinamen).
+- Bild-KI-Budget bisher: ~7 € von +30 €.
 
 **🧠 Learnings (in den Stil-Bibel-Regeln verankert):**
 - **Pur-Figuren-Regel:** frei platzierte Figuren (NPC, Publikum) NIE mit mitgemaltem
@@ -344,11 +351,18 @@ großem Puffer. Der **Transparenz-Start (PR 1b) kostet ~1 €** (vernachlässigb
   Modell ein Transparenz-Schachbrett.
 - Verifikations-Skripte unter `tools/asset-pipeline/scripts/` (Composite/Naht/Smoke).
 
-**▶ Offen in Strang 1 (nächste Batches):**
-- Dialog-Porträts v2 + transparent, **CSS-Gesicht raus** (Verbot) in `DialogBox`.
-- Props v2 · `audience_room`/HUD-Rahmen ggf. v2.
-- **PR 1c (Code-Fundament):** Pixel-Font (Pixel Operator), ein Palette-Modul,
-  9-Slice-`PixelFrame` (heilt ~14 Modals), Emoji→Pixel-Icons (19 vorhanden).
-- **PR 1f:** Proportionen 60 %, Avatar-Feinschliff, Tag/Nacht + Jahreszeiten.
+**▶ Offen in Strang 1:**
+- **Pixel-Font** (Pixel Operator, CC0): **BLOCKIERT** — Font-CDNs sind per Netz-Policy
+  gesperrt (403). Braucht eine lizenzfreie Font-Datei in `public/fonts/` (Owner-Upload
+  oder Allowlist-Freigabe für einen Font-Host); Wiring/`@font-face` ist vorbereitbar.
+- **PixelFrame auf ALLE Modals/Panels** durchziehen (erledigt: Crisis/Betrayal/
+  Consequence + DialogBox; offen: Grievance/AdvisorDetail/Npc/Mission/Events/Tutorial/
+  GameEndScreen/DayReport — noch `border-4/8` + harte Schatten).
+- Optional echte **9-Slice-Rahmen-Assets** + **Terminal/Scrollbalken**-Asset (F20).
+- **Gebäude-Modul-Vielfalt** (Owner-Hinweis): mehr Korridor-/Poster-/Uhr-Varianten
+  statt Wiederholung; **Tür-Platzierung** bodenbündig prüfen (kein Schweben/Boden-Überschnitt).
+- **Props v2** · **Dialog-Porträts v2** (transparent, gleiche Gesichter wie Halbfiguren).
+- **PR 1f:** Proportionen 60 %, Avatar-Laufanim-Feinschliff, Tag/Nacht + Jahreszeiten (H30).
+- **Echter In-App-Browser-Smoke** (HUD/Dialog/Räume) via Intro-Flow-Automatisierung.
 - Dann Strang 2–8 (Diegese, Aktionen, Dialog-Mega-Update, Atmosphäre, Gegenseite,
   Sound, Inhalt).
