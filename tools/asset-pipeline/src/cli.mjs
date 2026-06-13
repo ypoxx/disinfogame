@@ -240,7 +240,7 @@ async function generateImageShot(shot, dir, budget, log, force) {
       provider: DEFAULT_IMAGE_MODEL,
       prompt: shot.prompt,
       seed,
-      styleVersion: 'v1',
+      styleVersion: process.env.PIPELINE_STYLE_VERSION || 'v1',
       frameWidth: shot.frameWidth,
       frameHeight: shot.frameHeight,
       animations: shot.animations,

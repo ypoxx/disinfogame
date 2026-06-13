@@ -35,25 +35,27 @@ export const INTRO_VOICE_LINE = {
 
 // Englische Bild-Beschreibungen je Raum/NPC (Inhalts-Hinweise aus dem Style-Guide
 // bzw. BUILDING_CONCEPT.md; Räume/NPCs ohne Eintrag bekommen einen generischen Text).
+// v2 (modern 2026): jede Zeile endet mit dem Zonen-Licht (E16). CRT→Flachbild,
+// Sowjet-Möbel→moderne, gepflegte Einrichtung; bewusst NICHT 70er-braun.
 const ROOM_HINTS = {
   analyse:
-    'audience research room: a one-way mirror window showing a focus group of modern western citizens sitting in a bright room beyond, on this side a dark observation space with clipboards, a tape recorder, monitors showing demographic charts, two office chairs',
+    'audience research / focus-group observation room: a large one-way mirror window showing a focus group of modern western citizens in a bright room beyond, on this side a clean observation desk with tablets, slim monitors showing demographic charts, ergonomic chairs. Zone lighting: clean, cool, fairly bright',
   newsroom:
-    'social media monitoring newsroom: a wall of mounted CRT monitors showing scrolling feeds and trending charts, a long desk with keyboards and coffee cups, pinned printouts of posts on a board, cable trays, cool blue monitor glow',
+    'modern social-media monitoring newsroom: a wall of slim flat-panel monitors showing scrolling feeds, trend charts and maps, a long clean desk with keyboards and coffee cups, a pinboard of printouts, cable management. Zone lighting: cool blue-white screen glow, fairly bright',
   lobby:
-    'ministry entrance lobby at ground level: polished stone floor, reception desk with a uniformed guard post, two heavy elevator doors with a mechanical floor indicator above, potted plant, notice board, revolving entrance door letting in cold night light',
+    'modern ministry entrance lobby at ground level: polished stone-and-glass floor, a clean reception counter with a small guard post, two metal elevator doors with a digital floor indicator above, large potted plants, a backlit notice wall, a glass revolving entrance door letting in cool city light. Zone lighting: bright, airy',
   spieler_buero:
-    "the player's own modest office: wooden desk with a CRT computer terminal and a red telephone, stack of beige files, corkboard with pinned notes and red string, old CRT television on a side table, coat rack, window with closed blinds",
+    "the player's own modest modern office: a clean desk with a flat computer monitor and a slim telephone, a small stack of files, a corkboard with pinned notes and red string, a wall-mounted flat screen, a chair, a window with city light. Zone lighting: neutral, slightly warm, comfortable",
   cyber_lab:
-    'underground tech office: several CRT monitors with green text, server racks with blinking LEDs, cable bundles on the floor, dark room lit mostly by monitor glow',
+    'underground cyber operations room: several slim multi-monitor workstations with cyan and blue screen glow, server racks with status LEDs, tidy overhead cable trays, a dark room lit mostly by the screens. Zone lighting: dark, cool, cyan-tinted',
   medien_zentrum:
-    'propaganda media center: large vintage CRT television showing news, VHS recorders and tapes, stacks of newspapers, microphones, broadcast posters on the wall',
+    'modern media / broadcast monitoring center: a wall of flat screens showing abstract news graphics, a long clean desk, a soft seating corner, a large window with city light, plants, an abstract constructivist poster. Zone lighting: one of the brighter, warmer rooms',
   zentrale:
-    'command office of the agency director: large world map on the wall, heavy wooden desk with a red telephone, medals in a display case, plain dark-red banner without any emblem, dim desk lamp',
+    "the agency director's command office: a large screen-and-map wall, a substantial clean desk with a slim telephone, a glass display cabinet, a plain dark-red banner without any emblem, indirect lighting. Zone lighting: stern, cool-neutral with a single dark-red accent, medium brightness",
   feld_ops:
-    'field operations room: metal lockers, pinned maps with routes, radio equipment, duffel bags, harsh fluorescent light',
+    'field operations room: metal lockers, wall screens with route maps, radio and comms equipment, gear bags, a planning table. Zone lighting: neutral, focused task lighting',
   finanzen:
-    'basement finance vault: heavy vault door, metal filing cabinets, ledgers and stacked banknotes on a desk, counting machine, single hanging lamp',
+    'a secure modern finance office: a heavy secure door, metal filing cabinets, ledgers and a counting machine on a clean desk, a monitor with figures, a single pendant lamp. Zone lighting: cool, clean, slightly dim and serious',
 };
 
 const NPC_HINTS = {
@@ -368,8 +370,11 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       prompt:
         `A pixel art game background scene, wide interior view. ${hint}. ` +
         `${npc ? `This is the workplace of ${NPC_HINTS[npc.id] ?? npc.name} (no person visible in the scene). ` : ''}` +
-        `Concrete walls, fluorescent ceiling tubes, linoleum floor, old radiator, ` +
-        `abstract constructivist-style propaganda poster (geometric shapes only, no emblems, no text). ` +
+        `Concrete and glass walls, a clean floor, an abstract constructivist-style poster ` +
+        `(geometric shapes only, no emblems, no text). ` +
+        // Proportions-Realitätscheck (Teil C): Möbel klein halten, Standfläche frei lassen.
+        `Furniture and desks are modest in size and clearly smaller than a standing adult; ` +
+        `keep the lower third of the scene as clear floor space for a character to stand. ` +
         `No people, no text, no UI elements. ${style}`,
     });
   }

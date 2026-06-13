@@ -9,40 +9,43 @@ Ein Strategie-Spiel über Desinformationskampagnen. Der Spieler leitet
 eine Abteilung für "Sonderoperationen" und navigiert durch ein Gebäude
 mit verschiedenen Spezialisten.
 
-## Ästhetik: Sowjet-Brutalismus
+## Ästhetik: Moderner Brutalismus (v2 — Stand 2026-06-13)
+
+> **v2-Wechsel (Owner E16/E17):** weg vom 70er-Klischee, hin zu einem **heutigen
+> (2020er) Ministeriums-/Geheimdienst-Look**: zurückhaltender Brutalismus aus
+> Beton, Glas und Stahl — gepflegt und belebt, **nicht 70er-braun, nicht dunkel/leer**.
+> Pixel-Art **fein und scharf** (kein grobes 1990-Simulat). „Evil Cold War" nur dosiert.
 
 > **Wichtig — fiktives Setting:** Das Spiel spielt in einem *fiktiven*
-> Ostblock-Staat. Die Ästhetik darf an die Sowjetunion *erinnern*, aber
-> **keine realen Staatssymbole** zeigen: kein Hammer und Sichel, keine
-> echten Flaggen, keine Embleme/Hoheitszeichen realer Länder, kein
-> lesbarer Text. Fahnen nur als schlichte dunkelrote Banner ohne Emblem;
-> Poster nur abstrakt-konstruktivistisch (geometrische Formen).
+> ostblock-inspirierten Staat. Die Ästhetik darf *erinnern*, aber **keine realen
+> Staatssymbole** zeigen: kein Hammer und Sichel, keine echten Flaggen, keine
+> Embleme/Hoheitszeichen realer Länder, kein lesbarer Text. Fahnen nur als schlichte
+> dunkelrote Banner ohne Emblem; Poster nur abstrakt-konstruktivistisch (geometrisch).
 
-### Farbpalette
+### Farbpalette (v2)
 
-**Hauptfarben (gedeckt):**
-- Beton-Grau: #6B7280, #9CA3AF
-- Militär-Olive: #4A5D23, #6B8E23
-- Rost-Braun: #8B4513, #A0522D
-- Beige/Creme: #D2B48C, #DEB887
+**Neutral-Kern (kühl, clean, leicht entsättigt):**
+- Tiefe/Schatten: #1B1E24 · Flächen: #262A31, #3A3F47
+- Beton hell: #9AA1AC · Licht/Glas: #E7EAEF
 
-**Akzentfarben:**
-- Sowjet-Rot: #B22234 (für wichtige Elemente)
-- Warnung-Gelb: #FFD700 (für Hinweise)
-- Neon-Grün: #00FF00 (für Monitore/Tech)
+**Akzentfarben (dosiert):**
+- Marke-Rot: #C2253B (wichtige Elemente, Alarm)
+- Warn-Amber: #F0B429 (Hinweise)
+- Tech-Cyan: #34C6D8 (Monitore/Screens — ersetzt das alte Neon-Grün)
+
+**Zonen-Licht je Raum (Kontext schlägt Einheits-Grau):**
+- Keller/Cyber: dunkel, kühl, cyan-getönt · Direktor/Zentrale: streng cool-neutral + 1 Rot-Akzent
+- Medien/Marina: wärmer & heller · Finanzen/Analyse: clean-kühl · Lobby/Newsroom: hell
 
 **Vermeiden:**
-- Knallige, gesättigte Farben
-- Pastelltöne
-- Moderne, cleane Ästhetik
+- 70er-Braun & schlammige Erdtöne · grobe Einzelpixel (zu klotzig) · dunkle, leere Räume
+- knallige/gesättigte Farben · Pastelltöne
 
 ### Stil-Merkmale
 
-- **Pixel-Art**: 16-bit Retro-Stil (wie SNES-Ära)
-- **Kanten**: Hart, geometrisch
-- **Beleuchtung**: Fluoreszierend, kalt
-- **Texturen**: Beton, Metall, Holz (abgenutzt)
-- **Atmosphäre**: Klaustrophobisch, bürokratisch
+- **Pixel-Art**: fein, detailliert, scharf (16-bit-Geist, moderne Auflösung)
+- **Kanten**: hart, geometrisch · **Beleuchtung**: weiches Kontext-Licht je Zone
+- **Texturen**: Beton, Glas, Stahl (gepflegt) · **Atmosphäre**: modern, ruhig-ernst, belebt
 
 ## Charaktere
 
