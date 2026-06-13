@@ -113,7 +113,7 @@ const BUILDING_KIT = [
     '9:16',
     { w: 384, h: 768 },
     false,
-    'vertical strip of a brutalist concrete building facade, raw weathered concrete with shallow vertical grooves and water stains, seamlessly tileable from top to bottom, flat frontal view, no windows, no sky',
+    'vertical strip of a modern brutalist concrete building facade that COMPLETELY FILLS the image as one solid opaque concrete surface, raw weathered concrete with shallow vertical grooves and faint water stains, uniform concrete with NO colored lights, NO colored reflections, NO glass, seamlessly tileable from top to bottom, flat frontal view, no windows, no sky',
     'must',
   ],
   [
@@ -121,7 +121,7 @@ const BUILDING_KIT = [
     '21:9',
     { w: 1344, h: 192 },
     false,
-    'horizontal concrete floor slab of a building cross-section, raw concrete edge with a thin steel beam line, seamlessly tileable from left to right, flat frontal view, no background',
+    'a horizontal concrete floor-and-ceiling slab band of a building cross-section that COMPLETELY FILLS the image from top to bottom as one solid opaque concrete band (no empty area, NO checkerboard pattern, NO transparency), raw concrete with a thin steel beam edge line near the top, seamlessly tileable from left to right, flat frontal view',
     'must',
   ],
   [
@@ -193,7 +193,7 @@ const BUILDING_KIT = [
     '21:9',
     { w: 1344, h: 192 },
     false,
-    'empty night street in front of a government building, cross-section view: asphalt with a curb, one street lamp pool of light, a parked boxy 1980s sedan in dark colors, seamlessly tileable from left to right, flat frontal view',
+    'empty night street in front of a government building, cross-section view: asphalt with a curb, one street lamp pool of light, a parked modern dark sedan, seamlessly tileable from left to right, flat frontal view',
     'must',
   ],
 ];
