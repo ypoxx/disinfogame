@@ -1,44 +1,47 @@
-// Brutalist / Soviet / Intelligence Agency Color Scheme
-// Inspired by: USSR aesthetics, Brutalist architecture, CIA/KGB/MI6 imagery, Imperial flags
+// Farbwelt v2 (2026-06-13, Stil-Bibel): modern statt 70er-Klischee — kühl-cleaner
+// Neutral-Kern (Beton/Glas/Stahl) + dosierte Akzente. Schlüssel bleiben gleich, nur
+// die Werte sind v2 → alle Komponenten, die StoryModeColors nutzen, kippen auf einmal
+// in den neuen Look. (Frühere Werte: Sowjet/Brutalismus, s. Git-Historie.)
 
 export const StoryModeColors = {
-  // Soviet Red (Communist flags, propaganda posters)
-  ministryRed: '#C41E3A',
-  darkRed: '#8B0000',
+  // Marke-Rot (wichtige Elemente, Alarm) — etwas klarer als das alte Sowjet-Rot
+  ministryRed: '#C2253B',
+  darkRed: '#8E1B2C',
 
-  // Brutalist Concrete (raw, industrial)
-  concrete: '#5A5A5A',
-  darkConcrete: '#3D3D3D',
-  lightConcrete: '#7A7A7A',
+  // Beton/Stahl (kühl, modern)
+  concrete: '#9AA1AC',
+  darkConcrete: '#3A3F47',
+  lightConcrete: '#B7BDC6',
 
-  // Intelligence Agency Blue (CIA, FBI, official seals)
-  agencyBlue: '#003366',
-  darkBlue: '#1C3A70',
+  // Kühles Slate-Blau (ersetzt das dunkle Agency-Blau)
+  agencyBlue: '#2B5572',
+  darkBlue: '#1F3A4D',
 
-  // Military Olive/Green (uniforms, equipment)
-  militaryOlive: '#4A5D23',
-  darkOlive: '#3A4A1A',
+  // Gedämpftes Olive bleibt nutzbar (Tech-Cyan separat unten)
+  militaryOlive: '#5E6B43',
+  darkOlive: '#3D4630',
 
-  // Document/Paper colors (folders, files, stamps)
-  document: '#C4A676',
-  oldPaper: '#B8956A',
+  // Dokument/Papier (heller, sauberer)
+  document: '#D8C9A8',
+  oldPaper: '#C7B690',
 
-  // Accent colors
-  warning: '#D4A017', // Gold/brass (medals, insignia)
-  danger: '#FF4444',
-  success: '#4A7023',
+  // Akzentfarben (v2, dosiert)
+  warning: '#F0B429', // Amber (Hinweise)
+  danger: '#E5484D',
+  success: '#5BA66A',
+  tech: '#34C6D8', // Cyan für Bildschirme/Tech (neu)
 
-  // UI Base
-  background: '#2A2A2A',
-  surface: '#3D3D3D',
-  surfaceLight: '#4A4A4A',
-  border: '#1A1A1A',
-  borderLight: '#555555',
+  // UI-Basis (kühl-modern)
+  background: '#23262B',
+  surface: '#2B2F36',
+  surfaceLight: '#3A3F47',
+  border: '#1B1E24',
+  borderLight: '#4A515B',
 
-  // Text — Sekundär/Muted auf WCAG-AA-Mindestkontrast gegen #2A2A2A angehoben
-  textPrimary: '#D4D4D4',
-  textSecondary: '#909090',
-  textMuted: '#767676',
+  // Text (heller Neutral-Kern auf dunklem Grund, WCAG-AA)
+  textPrimary: '#E7EAEF',
+  textSecondary: '#A7AEB8',
+  textMuted: '#828A95',
 };
 
 export const createBrutalistButton = (baseColor: string) => ({
