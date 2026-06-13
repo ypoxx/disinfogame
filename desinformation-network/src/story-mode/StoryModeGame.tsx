@@ -37,6 +37,7 @@ import { NpcRoomView } from './building/NpcRoomView';
 import { NewsroomView, derivePosts } from './components/NewsroomView';
 import { FokusgruppeView } from './components/FokusgruppeView';
 import { DayClock } from './components/DayClock';
+import { Icon } from './components/Icon';
 import { MorningBriefing } from './components/MorningBriefing';
 import { DayReport } from './components/DayReport';
 import { EndReport } from './components/EndReport';
@@ -171,12 +172,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
             </div>
             {soundOn && (
               <div className="flex items-center gap-2">
-                <span
-                  className="text-xs"
-                  style={{ color: StoryModeColors.textSecondary }}
-                >
-                  🔈
-                </span>
+                <Icon name="soundOff" size={14} title="Leise" fallback="-" />
                 <input
                   type="range"
                   min="0"
@@ -187,12 +183,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
                   className="flex-1"
                   style={{ accentColor: StoryModeColors.ministryRed }}
                 />
-                <span
-                  className="text-xs"
-                  style={{ color: StoryModeColors.textSecondary }}
-                >
-                  🔊
-                </span>
+                <Icon name="soundOn" size={14} title="Laut" fallback="+" />
               </div>
             )}
             {/* F37: Mixer — getrennte Lautstärke für Musik / Effekte / Stimmen */}
@@ -710,19 +701,26 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
-                className={`px-2 py-1 text-xs font-semibold rounded text-white transition-colors ${viewMode === mode ? 'bg-red-700' : 'hover:bg-white/10'}`}
+                className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded text-white transition-colors ${viewMode === mode ? 'bg-red-700' : 'hover:bg-white/10'}`}
               >
-                {mode === 'building' ? '🏢 Gebäude (V)' : mode === 'office' ? '🗂️ Büro' : '📊 Dashboard'}
+                <Icon
+                  name={mode === 'building' ? 'building' : mode === 'office' ? 'office' : 'dashboard'}
+                  size={12}
+                  title={mode === 'building' ? 'Gebäude' : mode === 'office' ? 'Büro' : 'Dashboard'}
+                  fallback={mode === 'building' ? 'GEB' : mode === 'office' ? 'BRO' : 'DSH'}
+                />
+                {mode === 'building' ? 'Gebäude (V)' : mode === 'office' ? 'Büro' : 'Dashboard'}
               </button>
             ))}
             <span className="w-px self-stretch bg-white/20" aria-hidden />
             <button
               onClick={toggleBroadcast}
               aria-pressed={broadcastOpen}
-              className={`px-2 py-1 text-xs font-semibold rounded text-white transition-colors ${broadcastOpen ? 'bg-red-700' : 'hover:bg-white/10'}`}
+              className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded text-white transition-colors ${broadcastOpen ? 'bg-red-700' : 'hover:bg-white/10'}`}
               title="Sendung & Publikum (B)"
             >
-              📡 Sendung (B)
+              <Icon name="broadcast" size={12} title="Sendung" fallback="SND" />
+              Sendung (B)
             </button>
           </div>
 

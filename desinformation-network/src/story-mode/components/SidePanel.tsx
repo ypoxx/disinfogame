@@ -1,5 +1,6 @@
 import { StoryModeColors } from '../theme';
 import { usePanelStore, PANEL_META, type PanelId } from '../stores/panelStore';
+import { Icon, type IconName } from './Icon';
 
 // ============================================
 // TAB BAR
@@ -31,7 +32,9 @@ function TabBar() {
             }}
             title={`${meta.label} [${meta.shortcut}]`}
           >
-            <div className="text-lg leading-none">{meta.icon}</div>
+            <div className="flex justify-center leading-none">
+              <Icon name={meta.icon as IconName} size={18} title={meta.label} fallback={meta.label[0]} />
+            </div>
             <div
               className="text-[9px] font-bold mt-0.5 tracking-wider"
               style={{

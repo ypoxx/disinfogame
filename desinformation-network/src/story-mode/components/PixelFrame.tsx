@@ -8,7 +8,7 @@
  * sofort auf alle Modals/Panels anwendbar. Ein echtes 9-Slice-Asset kann später
  * transparent darunter gelegt werden, ohne die API zu ändern.
  */
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
 import { StoryModeColors } from '../theme';
 
 export type FrameVariant = 'standard' | 'alarm' | 'light';
@@ -19,14 +19,14 @@ const VARIANT: Record<FrameVariant, { border: string; bg: string; width: number 
   light: { border: StoryModeColors.borderLight, bg: StoryModeColors.surfaceLight, width: 1 },
 };
 
-export interface PixelFrameProps {
+export interface PixelFrameProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   variant?: FrameVariant;
   className?: string;
   style?: CSSProperties;
 }
 
-export function PixelFrame({ children, variant = 'standard', className, style }: PixelFrameProps): JSX.Element {
+export function PixelFrame({ children, variant = 'standard', className, style, ...rest }: PixelFrameProps): JSX.Element {
   const v = VARIANT[variant];
   return (
     <div
@@ -40,6 +40,7 @@ export function PixelFrame({ children, variant = 'standard', className, style }:
         imageRendering: 'pixelated',
         ...style,
       }}
+      {...rest}
     >
       {children}
     </div>
@@ -47,3 +48,4 @@ export function PixelFrame({ children, variant = 'standard', className, style }:
 }
 
 export default PixelFrame;
+

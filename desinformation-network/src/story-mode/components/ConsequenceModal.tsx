@@ -1,5 +1,8 @@
 import { StoryModeColors } from '../theme';
 import type { ActiveConsequence } from '../../game-logic/StoryEngineAdapter';
+import { PixelFrame } from './PixelFrame';
+import { Icon } from './Icon';
+import type { IconName } from './Icon';
 
 interface ConsequenceModalProps {
   isVisible: boolean;
@@ -26,13 +29,14 @@ export function ConsequenceModal({
     }
   };
 
-  const getSeverityIcon = (severity: string) => {
+  // Kein Emoji — semantisches Icon aus dem Pixel-Vokabular.
+  const getSeverityIcon = (severity: string): { name: IconName; fallback: string } => {
     switch (severity) {
-      case 'critical': return '🚨';
-      case 'severe': return '⚠️';
-      case 'moderate': return '⚡';
-      case 'minor': return '💡';
-      default: return '❓';
+      case 'critical': return { name: 'risk', fallback: 'KR' };
+      case 'severe': return { name: 'risk', fallback: 'SW' };
+      case 'moderate': return { name: 'attention', fallback: 'MD' };
+      case 'minor': return { name: 'stats', fallback: 'MI' };
+      default: return { name: 'stats', fallback: '?' };
     }
   };
 
@@ -52,17 +56,18 @@ export function ConsequenceModal({
     ? consequence.deadline - currentPhase
     : null;
 
+  const { name: iconName, fallback: iconFallback } = getSeverityIcon(consequence.severity);
+
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.9)' }}
     >
-      <div
-        className="w-full max-w-xl mx-4 border-4 animate-shake"
+      <PixelFrame
+        variant="alarm"
+        className="w-full max-w-xl mx-4 animate-shake"
         style={{
-          backgroundColor: StoryModeColors.surface,
           borderColor: getSeverityColor(consequence.severity),
-          boxShadow: `0 0 40px ${getSeverityColor(consequence.severity)}, 12px 12px 0px 0px rgba(0,0,0,0.9)`,
         }}
       >
         {/* Header */}
@@ -74,7 +79,7 @@ export function ConsequenceModal({
           }}
         >
           <div className="flex items-center gap-3">
-            <span className="text-2xl">{getSeverityIcon(consequence.severity)}</span>
+            <Icon name={iconName} size={24} title={consequence.severity} fallback={iconFallback} />
             <div>
               <h2 className="font-bold text-xl" style={{ color: '#fff' }}>
                 KONSEQUENZ
@@ -185,7 +190,7 @@ export function ConsequenceModal({
         >
           Jede Entscheidung hat langfristige Auswirkungen
         </div>
-      </div>
+      </PixelFrame>
 
       <style>{`
         @keyframes shake {
