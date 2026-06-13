@@ -122,6 +122,10 @@ export function BuildingStage({ npcs, nav, onRoomClick, interactive = true }: Bu
   const shaftUrl = assets.imageUrl('bld_shaft');
   const roofUrl = assets.imageUrl('bld_roof');
   const corridorUrl = assets.imageUrl('bld_corridor');
+  // Mehr Abwechslung statt 1 Flur ×N: Variante je Etage (Owner-Hinweis).
+  const corridorIds = ['bld_corridor', 'bld_corridor_2', 'bld_corridor_3'] as const;
+  const corridorUrlFor = (level: number) =>
+    assets.imageUrl(corridorIds[(((level % 3) + 3) % 3)]) ?? corridorUrl;
   const lobbyUrl = assets.imageUrl('room_lobby');
   const cityUrl = assets.imageUrl('bld_city_far');
   const streetUrl = assets.imageUrl('bld_street');
@@ -275,7 +279,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, interactive = true }: Bu
         {/* Etagen: Flure (kein Röntgenblick) — EG zeigt die Lobby als Eingangshalle */}
         {layout.floors.map((floor) => {
           const isLobby = floor.level === layout.entryFloorLevel;
-          const bgUrl = isLobby ? lobbyUrl : corridorUrl;
+          const bgUrl = isLobby ? lobbyUrl : corridorUrlFor(floor.level);
           return (
             <div key={floor.id}>
               {/* Flur-Hintergrund über die volle Etagen-Breite */}

@@ -31,6 +31,26 @@
       "styleVersion": "v2"
     },
     {
+      "id": "bld_corridor_2",
+      "type": "image",
+      "file": "images/bld_corridor_2.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game asset: interior corridor wall of a modern ministry, cross-section view: clean concrete-and-glass wall with a glass-fronted notice board, a wall-mounted flat info screen, a tall potted plant and a water cooler, ceiling with recessed light strips, polished floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people. No people, no readable text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 776352,
+      "styleVersion": "v2"
+    },
+    {
+      "id": "bld_corridor_3",
+      "type": "image",
+      "file": "images/bld_corridor_3.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game asset: interior corridor wall of a modern ministry, cross-section view: clean concrete wall with a small coffee station, two framed abstract constructivist posters (geometric shapes only, no text), a low waiting bench, a wall clock, ceiling recessed light strips, polished floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people. No people, no readable text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 124325,
+      "styleVersion": "v2"
+    },
+    {
       "id": "bld_door_closed",
       "type": "image",
       "file": "images/bld_door_closed.png",

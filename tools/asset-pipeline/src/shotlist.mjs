@@ -181,6 +181,22 @@ const BUILDING_KIT = [
     'must',
   ],
   [
+    'bld_corridor_2',
+    '16:9',
+    { w: 1344, h: 768 },
+    false,
+    'interior corridor wall of a modern ministry, cross-section view: clean concrete-and-glass wall with a glass-fronted notice board, a wall-mounted flat info screen, a tall potted plant and a water cooler, ceiling with recessed light strips, polished floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people',
+    'must',
+  ],
+  [
+    'bld_corridor_3',
+    '16:9',
+    { w: 1344, h: 768 },
+    false,
+    'interior corridor wall of a modern ministry, cross-section view: clean concrete wall with a small coffee station, two framed abstract constructivist posters (geometric shapes only, no text), a low waiting bench, a wall clock, ceiling recessed light strips, polished floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people',
+    'must',
+  ],
+  [
     'bld_city_far',
     '21:9',
     { w: 1344, h: 576 },
