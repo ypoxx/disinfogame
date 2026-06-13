@@ -44,7 +44,7 @@ import { EndReport } from './components/EndReport';
 import { useDayClockStore, TIME_COST } from './stores/dayClockStore';
 import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
-import { DashboardView } from './components/DashboardView';
+import { LagebildView } from './components/LagebildView';
 import { NarrativeBoard } from './components/NarrativeBoard';
 import { initAssetRegistry, useAssets } from './assets';
 import { playMusic, stopMusic, playAmbience, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound, setChannelVolume, getChannelVolume, type SoundChannel } from './utils/SoundSystem';
@@ -303,6 +303,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showFokusgruppe, setShowFokusgruppe] = useState(false);
   // 2f: Narrativ-Tafel (Korkbrett) — diegetisches Planungs-Herzstück, Pinnwand im Büro.
   const [showBoard, setShowBoard] = useState(false);
+  // 2e: Lagebild — „auf einen Blick"-Übersicht am Wand-Monitor (löst das Dashboard ab).
+  const [showLagebild, setShowLagebild] = useState(false);
   // Büro-Hotspot-Hinweise nur beim allerersten Besuch (über Sessions persistiert).
   const [showOfficeHints] = useState<boolean>(() => {
     try {
@@ -475,19 +477,13 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           case 'e': togglePanel('events'); break;
           case 'b': toggleBroadcast(); break;
           case 'i': setShowEncyclopedia(prev => !prev); break;
-          case 'g': {
-            // Übergangs-Zugang zur Dashboard-Übersicht bis 2e (Auflösung in Büro-Objekte).
-            const vm = usePanelStore.getState().viewMode;
-            setViewMode(vm === 'dashboard' ? 'building' : 'dashboard');
-            break;
-          }
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, setViewMode, toggleBroadcast, setShowEncyclopedia]);
+  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleBroadcast, setShowEncyclopedia]);
 
   // K9 Stufe 1: Autosave bei jedem Phasenwechsel (nur während 'playing').
   // saveGame kommt aus useStoryGameState und wird auch im Pausemenü genutzt.
@@ -727,11 +723,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 setShowDayReport(true);
               }}
             />
-          ) : viewMode === 'office' ? (
+          ) : (
             <PlayerOfficeView
               onOpenActions={() => togglePanel('actions')}
               onOpenNews={() => togglePanel('news')}
-              onOpenStats={() => togglePanel('stats')}
+              onOpenLagebild={() => setShowLagebild(true)}
               onOpenNpcs={() => togglePanel('npcs')}
               onOpenBoard={() => setShowBoard(true)}
               onOpenEvents={() => togglePanel('events')}
@@ -740,17 +736,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               unreadNewsCount={state.unreadNewsCount}
               worldEventCount={worldEventCount}
               showTutorialHints={showOfficeHints}
-            />
-          ) : (
-            <DashboardView
-              resources={state.resources}
-              phase={state.storyPhase}
-              objectives={state.objectives}
-              newsEvents={state.newsEvents}
-              npcs={state.npcs}
-              unreadNewsCount={state.unreadNewsCount}
-              worldEventCount={worldEventCount}
-              onEndPhase={requestEndDay}
             />
           )}
 
@@ -963,6 +948,20 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             }}
             onClear={clearQueue}
             onClose={() => setShowBoard(false)}
+          />
+        )}
+
+        {/* Lagebild (2e): „auf einen Blick"-Übersicht am Wand-Monitor (Dashboard abgelöst) */}
+        {showLagebild && (
+          <LagebildView
+            resources={state.resources}
+            phase={state.storyPhase}
+            objectives={state.objectives}
+            newsEvents={state.newsEvents}
+            npcs={state.npcs}
+            unreadNewsCount={state.unreadNewsCount}
+            worldEventCount={worldEventCount}
+            onClose={() => setShowLagebild(false)}
           />
         )}
 

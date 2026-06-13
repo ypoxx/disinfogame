@@ -5,7 +5,8 @@ import { create } from 'zustand';
 // ============================================
 
 export type PanelId = 'actions' | 'npcs' | 'news' | 'events' | 'mission' | 'stats';
-export type ViewMode = 'office' | 'dashboard' | 'building';
+// Strang 2/2e: kein Dashboard mehr — nur noch Welt (Gebäude) und Raum-Nahsicht (Büro).
+export type ViewMode = 'office' | 'building';
 
 interface PanelState {
   // Active panel in the right sidebar (null = closed)
@@ -13,10 +14,9 @@ interface PanelState {
   setActivePanel: (panel: PanelId | null) => void;
   togglePanel: (panel: PanelId) => void;
 
-  // View mode: Office scene or Dashboard
+  // View mode: Gebäude-Querschnitt oder Büro-Nahsicht (diegetischer Wechsel, 2c)
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
-  toggleViewMode: () => void;
 
   // Broadcast-Leiste (Taste B): permanent sichtbar (Strang 2/2d) — der Streifen
   // ist immer da; `broadcastExpanded` schaltet nur zwischen Kompakt und Vollbild.
@@ -50,11 +50,6 @@ export const usePanelStore = create<PanelState>((set) => ({
 
   viewMode: 'building',
   setViewMode: (mode) => set({ viewMode: mode }),
-  toggleViewMode: () =>
-    set((state) => ({
-      viewMode:
-        state.viewMode === 'building' ? 'office' : state.viewMode === 'office' ? 'dashboard' : 'building',
-    })),
 
   broadcastExpanded: false,
   toggleBroadcast: () => set((state) => ({ broadcastExpanded: !state.broadcastExpanded })),

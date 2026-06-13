@@ -17,7 +17,8 @@ import { usePlayerProfile, playerPortraitAssetId } from '../stores/playerProfile
 interface PlayerOfficeViewProps {
   onOpenActions: () => void;
   onOpenNews: () => void;
-  onOpenStats: () => void;
+  /** Wand-Monitor → Lagebild-Übersicht (Strang 2/2e). */
+  onOpenLagebild: () => void;
   onOpenNpcs: () => void;
   /** Pinnwand → Narrativ-Tafel (Sendeplan, Strang 2/2f). */
   onOpenBoard: () => void;
@@ -80,7 +81,7 @@ const HOTSPOTS: HotspotDef[] = [
   { id: 'phone',    label: 'KONTAKTE',             left: 22, top: 56, width: 10, height: 16 },
   { id: 'board',    label: 'NARRATIV-TAFEL',        left: 15, top:  7, width: 27, height: 43 },
   { id: 'files',    label: 'NACHRICHTEN',          left: 54, top: 56, width: 13, height: 13 },
-  { id: 'tv',       label: 'KAMPAGNEN-STATISTIK',  left: 83, top: 48, width: 13, height: 26 },
+  { id: 'tv',       label: 'LAGEBILD',               left: 83, top: 48, width: 13, height: 26 },
   { id: 'window',   label: 'WELT-EREIGNISSE',      left: 51, top:  4, width: 22, height: 38 },
   // Kein 'exit'-Hotspot mehr: Der Ausgang läuft ausschließlich über den sichtbaren
   // „GEBÄUDE"-Button der unteren Leiste (Review-Befund A3: redundante,
@@ -96,7 +97,7 @@ interface TutorialMarker {
 const TUTORIAL_MARKERS: TutorialMarker[] = [
   { hotspotId: 'computer', num: '①', text: 'Aktionen planen' },
   { hotspotId: 'board',    num: '②', text: 'Tafel planen'    },
-  { hotspotId: 'tv',       num: '③', text: 'Stats prüfen'    },
+  { hotspotId: 'tv',       num: '③', text: 'Lagebild'       },
 ];
 
 // ─── Hilfsfunktionen ──────────────────────────────────────────────────────────
@@ -110,7 +111,7 @@ function hotspotByIdPos(id: string): HotspotDef | undefined {
 export function PlayerOfficeView({
   onOpenActions,
   onOpenNews,
-  onOpenStats,
+  onOpenLagebild,
   onOpenNpcs,
   onOpenBoard,
   onOpenEvents,
@@ -140,12 +141,12 @@ export function PlayerOfficeView({
         case 'phone':    playSound('click');      onOpenNpcs();      break;
         case 'board':    playSound('paper');      onOpenBoard();     break;
         case 'files':    playSound('paper');      onOpenNews();      break;
-        case 'tv':       playSound('tvOn');       onOpenStats();     break;
+        case 'tv':       playSound('tvOn');       onOpenLagebild();  break;
         case 'window':   playSound('click');      onOpenEvents();    break;
         case 'exit':     playSound('doorOpen');   onExitToBuilding();break;
       }
     },
-    [dismissTutorial, onOpenActions, onOpenNpcs, onOpenBoard, onOpenNews, onOpenStats, onOpenEvents, onExitToBuilding],
+    [dismissTutorial, onOpenActions, onOpenNpcs, onOpenBoard, onOpenNews, onOpenLagebild, onOpenEvents, onExitToBuilding],
   );
 
   // Badge-Zähler je Hotspot
