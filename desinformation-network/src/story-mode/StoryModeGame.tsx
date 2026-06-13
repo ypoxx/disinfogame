@@ -33,6 +33,7 @@ import { BuildingView } from './building/BuildingView';
 import { BroadcastBar } from './broadcast/BroadcastBar';
 import { useAudienceBroadcast } from './broadcast/useAudienceBroadcast';
 import { NpcRoomView } from './building/NpcRoomView';
+import { NewsroomView, derivePosts } from './components/NewsroomView';
 import { DayClock } from './components/DayClock';
 import { MorningBriefing } from './components/MorningBriefing';
 import { DayReport } from './components/DayReport';
@@ -42,7 +43,7 @@ import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
 import { DashboardView } from './components/DashboardView';
 import { initAssetRegistry, useAssets } from './assets';
-import { playMusic, stopMusic, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound } from './utils/SoundSystem';
+import { playMusic, stopMusic, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound, setChannelVolume, getChannelVolume, type SoundChannel } from './utils/SoundSystem';
 
 // ============================================
 // TYPES
@@ -63,6 +64,16 @@ function PauseMenu({ onResume, onSave, onExit }: {
 }) {
   const [soundOn, setSoundOn] = useState(isSoundEnabled());
   const [volume, setVolume] = useState(getSoundVolume());
+  // F37: Mixer-Kanäle (lokaler Spiegel des SoundSystem-Zustands).
+  const [channels, setChannels] = useState<Record<SoundChannel, number>>({
+    music: getChannelVolume('music'),
+    sfx: getChannelVolume('sfx'),
+    voice: getChannelVolume('voice'),
+  });
+  const handleChannel = (ch: SoundChannel, v: number) => {
+    setChannels((prev) => ({ ...prev, [ch]: v }));
+    setChannelVolume(ch, v);
+  };
 
   const handleSoundToggle = () => {
     const newValue = !soundOn;
@@ -182,6 +193,29 @@ function PauseMenu({ onResume, onSave, onExit }: {
                 </span>
               </div>
             )}
+            {/* F37: Mixer — getrennte Lautstärke für Musik / Effekte / Stimmen */}
+            {soundOn && (
+              <div className="mt-3 pt-2 flex flex-col gap-1.5" style={{ borderTop: `1px solid ${StoryModeColors.borderLight}` }}>
+                {([['music', 'MUSIK'], ['sfx', 'EFFEKTE'], ['voice', 'STIMMEN']] as Array<[SoundChannel, string]>).map(([ch, label]) => (
+                  <div key={ch} className="flex items-center gap-2">
+                    <span className="text-[10px] w-16 shrink-0" style={{ color: StoryModeColors.textSecondary }}>
+                      {label}
+                    </span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={channels[ch]}
+                      onChange={(e) => handleChannel(ch, parseFloat(e.target.value))}
+                      aria-label={`Lautstärke ${label}`}
+                      className="flex-1"
+                      style={{ accentColor: StoryModeColors.agencyBlue }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <button
@@ -270,6 +304,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showDayReport, setShowDayReport] = useState(false);
   const [briefedPhase, setBriefedPhase] = useState<number | null>(null);
   const [showEndReport, setShowEndReport] = useState(false);
+  const [showNewsroom, setShowNewsroom] = useState(false);
   // Büro-Hotspot-Hinweise nur beim allerersten Besuch (über Sessions persistiert).
   const [showOfficeHints] = useState<boolean>(() => {
     try {
@@ -671,6 +706,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 interactWithNpc(npcId);
               }}
               onEnterOffice={() => setViewMode('office')}
+              onEnterRoom={(roomId) => {
+                if (roomId === 'newsroom') setShowNewsroom(true);
+                // analyse (Fokusgruppe K4) folgt in einer späteren Welle
+              }}
               walkHome={walkHome}
               onArrivedHome={() => {
                 setWalkHome(false);
@@ -825,6 +864,23 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         </SidePanel>
       </div>
       </div>
+
+        {/* Newsroom (K5/B15): Social-Feed-Monitor, betreten über den Newsroom-Raum */}
+        {showNewsroom && (
+          <NewsroomView
+            posts={derivePosts(state.newsEvents, audience.history)}
+            trending={audience.country.segments
+              .slice()
+              .sort((a, b) => b.belief - a.belief)
+              .slice(0, 5)
+              .map((seg) => ({
+                topic: seg.label_de,
+                volume: Math.round(seg.belief * 100),
+                rising: seg.mood === 'wuetend' || seg.mood === 'misstrauisch',
+              }))}
+            onClose={() => setShowNewsroom(false)}
+          />
+        )}
 
         {/* Tagesfazit (A4-Pflichtmoment): erscheint nach dem Heimweg */}
         {showDayReport && (

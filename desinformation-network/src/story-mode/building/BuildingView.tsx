@@ -19,12 +19,14 @@ interface BuildingViewProps {
   onRoomClick: (npcId: string) => void;
   /** Ankunft am Spielerbüro (öffnet die Büro-Ansicht). */
   onEnterOffice?: () => void;
+  /** Ankunft an einem begehbaren Spezial-Raum ohne NPC (Newsroom, Analyse …). */
+  onEnterRoom?: (roomId: string) => void;
   /** K1-Heimweg: Avatar geht sichtbar zur Lobby, dann feuert onArrivedHome. */
   walkHome?: boolean;
   onArrivedHome?: () => void;
 }
 
-export function BuildingView({ npcs, onRoomClick, onEnterOffice, walkHome = false, onArrivedHome }: BuildingViewProps) {
+export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, walkHome = false, onArrivedHome }: BuildingViewProps) {
   const nav = useNavigator();
 
   // Heimweg-Ritual (Redaktionsschluss): einmalig zur Lobby laufen.
@@ -51,10 +53,12 @@ export function BuildingView({ npcs, onRoomClick, onEnterOffice, walkHome = fals
           onRoomClick(arrived.npcId);
         } else if (arrivedId === 'spieler_buero') {
           onEnterOffice?.();
+        } else {
+          onEnterRoom?.(arrivedId);
         }
       });
     },
-    [nav, onRoomClick, onEnterOffice]
+    [nav, onRoomClick, onEnterOffice, onEnterRoom]
   );
 
   return (

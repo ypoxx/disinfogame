@@ -37,7 +37,12 @@ type SoundType =
   | 'paper'
   | 'phoneRing'
   | 'typewriter'
-  | 'applause';
+  | 'applause'
+  // F39: dezenter Einzelton nach fertig getipptem Dialog-Text (kein Typing-Sound!)
+  | 'dialogEnd';
+
+/** Mixer-Kanäle (F37): getrennte Lautstärken über dem Master-Volume. */
+export type SoundChannel = 'music' | 'sfx' | 'voice';
 
 interface SoundConfig {
   frequency: number;
@@ -156,6 +161,8 @@ const SOUND_CONFIGS: Record<SoundType, SoundConfig> = {
   phoneRing: { frequency: 740, duration: 0.25, type: 'sine', volume: 0.12, secondFreq: 880 },
   typewriter: { frequency: 950, duration: 0.05, type: 'square', volume: 0.08 },
   applause: { frequency: 300, duration: 0.3, type: 'triangle', volume: 0.08, decay: true },
+  // F39: kurzer, weicher Sinus — bewusst unauffällig (Endmarke, kein Tippgeräusch)
+  dialogEnd: { frequency: 520, duration: 0.06, type: 'sine', volume: 0.05 },
 };
 
 /** Lautstärke-Faktor für Hintergrundmusik relativ zum Master-Volume. */
@@ -167,6 +174,8 @@ class SoundSystem {
   private audioContext: AudioContext | null = null;
   private enabled: boolean = true;
   private masterVolume: number = 0.5;
+  // F37: Kanal-Lautstärken (0..1) über dem Master-Volume; Default 1 = keine Änderung.
+  private channelVolume: Record<SoundChannel, number> = { music: 1, sfx: 1, voice: 1 };
   private sfxCache: Map<string, HTMLAudioElement> = new Map();
   private musicElement: HTMLAudioElement | null = null;
   private musicAssetId: string | null = null;
@@ -241,7 +250,7 @@ class SoundSystem {
     const fileUrl = getAssetRegistry().soundUrl(assetId);
     if (fileUrl) {
       const config = SOUND_CONFIGS[type];
-      const volume = (config?.volume ?? 0.2) * SFX_FILE_VOLUME_FACTOR * this.masterVolume;
+      const volume = (config?.volume ?? 0.2) * SFX_FILE_VOLUME_FACTOR * this.masterVolume * this.channelVolume.sfx;
       if (this.playFile(fileUrl, volume)) return;
     }
 
@@ -260,7 +269,7 @@ class SoundSystem {
 
     // Create gain node for volume control
     const gainNode = ctx.createGain();
-    const volume = config.volume * this.masterVolume;
+    const volume = config.volume * this.masterVolume * this.channelVolume.sfx;
     gainNode.gain.value = volume;
 
     // Apply decay if specified
@@ -310,7 +319,7 @@ class SoundSystem {
     const element = this.createAudio(url);
     if (!element) return false;
     element.loop = true;
-    element.volume = Math.max(0, Math.min(1, this.masterVolume * MUSIC_VOLUME_FACTOR));
+    element.volume = Math.max(0, Math.min(1, this.masterVolume * MUSIC_VOLUME_FACTOR * this.channelVolume.music));
     this.musicElement = element;
     this.musicAssetId = assetId;
     void element.play().catch(() => {
@@ -346,7 +355,7 @@ class SoundSystem {
     this.stopVoice();
     const element = this.createAudio(url);
     if (!element) return false;
-    element.volume = Math.max(0, Math.min(1, this.masterVolume));
+    element.volume = Math.max(0, Math.min(1, this.masterVolume * this.channelVolume.voice));
     this.voiceElement = element;
     void element.play().catch(() => {
       /* Autoplay-Policy */
@@ -396,11 +405,30 @@ class SoundSystem {
     return this.masterVolume;
   }
 
+  /** F37: Kanal-Lautstärke setzen (0..1, geklemmt); wirkt sofort auf laufende Musik. */
+  setChannelVolume(channel: SoundChannel, v: number): void {
+    this.channelVolume[channel] = Math.max(0, Math.min(1, v));
+    if (channel === 'music' && this.musicElement) {
+      this.musicElement.volume = Math.max(0, Math.min(1, this.masterVolume * MUSIC_VOLUME_FACTOR * this.channelVolume.music));
+    }
+    if (channel === 'voice' && this.voiceElement) {
+      this.voiceElement.volume = Math.max(0, Math.min(1, this.masterVolume * this.channelVolume.voice));
+    }
+    this.saveSettings();
+  }
+
+  getChannelVolume(channel: SoundChannel): number {
+    return this.channelVolume[channel];
+  }
+
   private saveSettings(): void {
     try {
       localStorage.setItem('storyMode_sound', JSON.stringify({
         enabled: this.enabled,
         volume: this.masterVolume,
+        musicVolume: this.channelVolume.music,
+        sfxVolume: this.channelVolume.sfx,
+        voiceVolume: this.channelVolume.voice,
       }));
     } catch (e) {
       // Ignore storage errors
@@ -414,6 +442,12 @@ class SoundSystem {
         const settings = JSON.parse(saved);
         this.enabled = settings.enabled ?? true;
         this.masterVolume = settings.volume ?? 0.5;
+        // Migration: alte Saves ohne Kanal-Felder → Default 1.
+        this.channelVolume = {
+          music: settings.musicVolume ?? 1,
+          sfx: settings.sfxVolume ?? 1,
+          voice: settings.voiceVolume ?? 1,
+        };
       }
     } catch (e) {
       // Use defaults
@@ -450,6 +484,14 @@ export function setSoundVolume(volume: number): void {
 
 export function getSoundVolume(): number {
   return getSoundSystem().getVolume();
+}
+
+export function setChannelVolume(channel: SoundChannel, v: number): void {
+  getSoundSystem().setChannelVolume(channel, v);
+}
+
+export function getChannelVolume(channel: SoundChannel): number {
+  return getSoundSystem().getChannelVolume(channel);
 }
 
 export function playMusic(assetId?: string): boolean {
