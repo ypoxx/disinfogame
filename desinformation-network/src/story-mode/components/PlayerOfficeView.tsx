@@ -19,7 +19,8 @@ interface PlayerOfficeViewProps {
   onOpenNews: () => void;
   onOpenStats: () => void;
   onOpenNpcs: () => void;
-  onOpenMission: () => void;
+  /** Pinnwand → Narrativ-Tafel (Sendeplan, Strang 2/2f). */
+  onOpenBoard: () => void;
   onOpenEvents: () => void;
   onEndPhase: () => void;
   onExitToBuilding: () => void;
@@ -77,7 +78,7 @@ const KEYFRAMES = `
 const HOTSPOTS: HotspotDef[] = [
   { id: 'computer', label: 'AKTIONEN PLANEN',     left: 33, top: 35, width: 24, height: 31 },
   { id: 'phone',    label: 'KONTAKTE',             left: 22, top: 56, width: 10, height: 16 },
-  { id: 'board',    label: 'MISSION BRIEFING',     left: 15, top:  7, width: 27, height: 43 },
+  { id: 'board',    label: 'NARRATIV-TAFEL',        left: 15, top:  7, width: 27, height: 43 },
   { id: 'files',    label: 'NACHRICHTEN',          left: 54, top: 56, width: 13, height: 13 },
   { id: 'tv',       label: 'KAMPAGNEN-STATISTIK',  left: 83, top: 48, width: 13, height: 26 },
   { id: 'window',   label: 'WELT-EREIGNISSE',      left: 51, top:  4, width: 22, height: 38 },
@@ -94,7 +95,7 @@ interface TutorialMarker {
 }
 const TUTORIAL_MARKERS: TutorialMarker[] = [
   { hotspotId: 'computer', num: '①', text: 'Aktionen planen' },
-  { hotspotId: 'board',    num: '②', text: 'Mission lesen'   },
+  { hotspotId: 'board',    num: '②', text: 'Tafel planen'    },
   { hotspotId: 'tv',       num: '③', text: 'Stats prüfen'    },
 ];
 
@@ -111,7 +112,7 @@ export function PlayerOfficeView({
   onOpenNews,
   onOpenStats,
   onOpenNpcs,
-  onOpenMission,
+  onOpenBoard,
   onOpenEvents,
   onEndPhase,
   onExitToBuilding,
@@ -137,14 +138,14 @@ export function PlayerOfficeView({
       switch (id) {
         case 'computer': playSound('typewriter'); onOpenActions();   break;
         case 'phone':    playSound('click');      onOpenNpcs();      break;
-        case 'board':    playSound('paper');      onOpenMission();   break;
+        case 'board':    playSound('paper');      onOpenBoard();     break;
         case 'files':    playSound('paper');      onOpenNews();      break;
         case 'tv':       playSound('tvOn');       onOpenStats();     break;
         case 'window':   playSound('click');      onOpenEvents();    break;
         case 'exit':     playSound('doorOpen');   onExitToBuilding();break;
       }
     },
-    [dismissTutorial, onOpenActions, onOpenNpcs, onOpenMission, onOpenNews, onOpenStats, onOpenEvents, onExitToBuilding],
+    [dismissTutorial, onOpenActions, onOpenNpcs, onOpenBoard, onOpenNews, onOpenStats, onOpenEvents, onExitToBuilding],
   );
 
   // Badge-Zähler je Hotspot

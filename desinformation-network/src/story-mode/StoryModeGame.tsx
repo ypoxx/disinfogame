@@ -45,6 +45,7 @@ import { useDayClockStore, TIME_COST } from './stores/dayClockStore';
 import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
 import { DashboardView } from './components/DashboardView';
+import { NarrativeBoard } from './components/NarrativeBoard';
 import { initAssetRegistry, useAssets } from './assets';
 import { playMusic, stopMusic, playAmbience, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound, setChannelVolume, getChannelVolume, type SoundChannel } from './utils/SoundSystem';
 
@@ -300,6 +301,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showEndReport, setShowEndReport] = useState(false);
   const [showNewsroom, setShowNewsroom] = useState(false);
   const [showFokusgruppe, setShowFokusgruppe] = useState(false);
+  // 2f: Narrativ-Tafel (Korkbrett) — diegetisches Planungs-Herzstück, Pinnwand im Büro.
+  const [showBoard, setShowBoard] = useState(false);
   // Büro-Hotspot-Hinweise nur beim allerersten Besuch (über Sessions persistiert).
   const [showOfficeHints] = useState<boolean>(() => {
     try {
@@ -730,7 +733,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               onOpenNews={() => togglePanel('news')}
               onOpenStats={() => togglePanel('stats')}
               onOpenNpcs={() => togglePanel('npcs')}
-              onOpenMission={() => togglePanel('mission')}
+              onOpenBoard={() => setShowBoard(true)}
               onOpenEvents={() => togglePanel('events')}
               onEndPhase={requestEndDay}
               onExitToBuilding={() => setViewMode('building')}
@@ -906,6 +909,60 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             }))}
             lastHeadline={audience.lastItem?.headline ?? null}
             onClose={() => setShowFokusgruppe(false)}
+          />
+        )}
+
+        {/* Narrativ-Tafel (2f): Sendeplan — Maßnahmen anheften, Gelegenheits-Fäden, ausspielen */}
+        {showBoard && (
+          <NarrativeBoard
+            objectives={state.objectives.map((o) => ({
+              id: o.id,
+              label_de: o.label_de,
+              currentValue: o.currentValue,
+              targetValue: o.targetValue,
+              completed: o.completed,
+              isPrimary: o.type === 'primary',
+            }))}
+            actions={state.availableActions.map((a) => ({
+              id: a.id,
+              label_de: a.label_de,
+              narrative_de: a.narrative_de,
+              costs: { budget: a.costs.budget, capacity: a.costs.capacity },
+              legality: a.legality,
+              available: a.available,
+              unavailableReason: a.unavailableReason,
+            }))}
+            queue={state.actionQueue}
+            threads={(state.comboHints ?? []).map((h) => ({
+              id: h.comboId,
+              name: h.comboName,
+              hint: h.hint_de,
+              progress: h.progress,
+              expiresIn: h.expiresIn,
+            }))}
+            resources={{
+              budget: state.resources.budget,
+              capacity: state.resources.capacity,
+              actionPoints: state.resources.actionPointsRemaining,
+            }}
+            onPin={(actionId) => addToQueue(actionId)}
+            onUnpin={(queueItemId) => removeFromQueue(queueItemId)}
+            onExecuteNow={(actionId) => {
+              const result = executeAction(actionId);
+              if (result) setShowActionFeedback(true);
+            }}
+            onPlay={async () => {
+              const results = await executeQueue();
+              if (results && results.length > 0) {
+                const valid = results.filter((r) => r !== null);
+                if (valid.length > 0) {
+                  setBatchActionResults(valid as ActionResult[]);
+                  setShowActionFeedback(true);
+                }
+              }
+            }}
+            onClear={clearQueue}
+            onClose={() => setShowBoard(false)}
           />
         )}
 
