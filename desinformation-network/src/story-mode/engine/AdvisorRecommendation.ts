@@ -387,11 +387,12 @@ export function getPriorityWeight(priority: RecommendationPriority): number {
  * Get color for priority level
  */
 export function getPriorityColor(priority: RecommendationPriority): string {
+  // v2-Palette (Stil-Bibel) statt generischer Tailwind-Hexwerte — kohärent mit StoryModeColors.
   const colors: Record<RecommendationPriority, string> = {
-    critical: '#DC2626', // red-600
-    high: '#F59E0B', // amber-500
-    medium: '#10B981', // green-500
-    low: '#6B7280', // gray-500
+    critical: '#E5484D', // danger
+    high: '#F0B429', // warning
+    medium: '#5BA66A', // success
+    low: '#828A95', // textMuted
   };
   return colors[priority];
 }

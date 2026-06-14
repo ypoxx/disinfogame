@@ -58,15 +58,15 @@ Ganzes (v. a. den End-Report), nicht durch Belehrung. Pixel-Art **aus einem Guss
 
 ## 4. Arbeitsmodus der KI-Sessions
 
-> **AKTUELLER STAND (2026-06-13):** main = c86fc9e (PR #74+#75 gemerged — Gebäude,
-> Tagesschleife, End-Report, Westunion-Milieus, Newsroom, Fokusgruppe, Sound, Avatar).
-> **Nächster Schritt = großes visuelles + Dialog-Mega-Update.** Auftrag vollständig
-> destilliert in `DECISIONS_2026-06-13B_TRANSCRIPT.md` (8 Arbeitsstränge). Dort
-> beginnen.
+> **AKTUELLER STAND (2026-06-14):** Strang 1 (#77) + Strang 2 (#78) + Feinplan 3+4 (#79)
+> gemerged. Strang 3+4 **P0** (Aktions-Überschriften + Direktor-Hinweise) + erste Visual-
+> Politur in Draft-PR **#80**. **Zentraler Einstieg für den Bau-Stand jetzt: `STATUS.md`**
+> (erledigt/offen/TODO, je Session aktualisiert). Auftrag/Entscheidungen weiter in
+> `DECISIONS_2026-06-13B_TRANSCRIPT.md`; Feinplan in `STRANG34_FEINPLAN_2026-06-13_AKTIONEN_DIALOGE.md`.
 
-- **Erst lesen:** SOUL.md → **`DECISIONS_2026-06-13B_TRANSCRIPT.md`** (neuestes) →
-  `DECISIONS_2026-06-12_NEXT_LEVEL.md` → `GESAMTKONZEPT_VISUELL.md` →
-  `NEXT_LEVEL_PLAN.md`. CLAUDE.md im Spielordner für Technik-Regeln.
+- **Erst lesen:** SOUL.md → **`STATUS.md`** (aktueller Bau-Stand: erledigt/offen/TODO) →
+  **`DECISIONS_2026-06-13B_TRANSCRIPT.md`** (neuestes) → `DECISIONS_2026-06-12_NEXT_LEVEL.md` →
+  `GESAMTKONZEPT_VISUELL.md` → `NEXT_LEVEL_PLAN.md`. CLAUDE.md im Spielordner für Technik-Regeln.
 - **Orchestrierung:** Großes parallelisieren (Recherche/Reviews/Implementierung
   auf disjunkten Dateien), Integration zentral halten. Agenten-Briefings IMMER
   mit harter Abschluss-Klausel („Antwort MUSS mit BERICHT: beginnen, keine
