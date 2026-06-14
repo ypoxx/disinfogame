@@ -7,6 +7,7 @@
 
 import { StoryModeColors } from '../theme';
 import { Icon } from './Icon';
+import { isQueueBudgetFeasible } from '../utils/queueAffordability';
 import type { QueuedAction } from '../hooks/useStoryGameState';
 
 // ============================================
@@ -50,9 +51,10 @@ export function ActionQueueWidget({
     { budget: 0, capacity: 0, actionPoints: 0 }
   );
 
-  // Check if player can afford the queue
+  // Check if player can afford the queue — Budget prefix-genau (Kredite zählen erst an
+  // ihrer Position; reine Summe wäre bei negativen Budget-Kosten falsch, Codex-Review #80).
   const canAfford =
-    totalCosts.budget <= currentResources.budget &&
+    isQueueBudgetFeasible(queue, currentResources.budget) &&
     totalCosts.capacity <= currentResources.capacity &&
     totalCosts.actionPoints <= currentResources.actionPoints;
 

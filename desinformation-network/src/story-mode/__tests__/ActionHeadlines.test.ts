@@ -65,6 +65,18 @@ describe('Aktions-Überschriften (B5)', () => {
     expect(item.headline).toBe('Zielgruppe durchleuchtet');
   });
 
+  it('fehlgeschlagene Aktion zeigt im Broadcast die Fehler-Überschrift (nicht die Erfolgs-Headline)', () => {
+    // Codex-Review #80: bei Misserfolg darf NICHT die plakative Erfolgs-Überschrift erscheinen.
+    const failed = {
+      success: false,
+      action: { id: '2.1', label_de: 'Bot-Netzwerk aufbauen', headline_de: 'Bot-Netzwerk gestartet', tags: ['infrastructure'], costs: {} },
+      narrative: { headline_de: 'Nicht genug Ressourcen' },
+    } as unknown as Parameters<typeof mapActionToBroadcast>[0];
+    const item = mapActionToBroadcast(failed, 10);
+    expect(item.kind).toBe('gegenreaktion');
+    expect(item.headline).toBe('Nicht genug Ressourcen');
+  });
+
   it('keine initial verfügbare Aktion fällt auf den Default „Aktion durchgeführt" zurück', () => {
     // Jede verfügbare Aktion auf einer FRISCHEN Engine ausführen (volle Ressourcen,
     // Prerequisites erfüllt), damit der Erfolgs-Pfad zuverlässig erreicht wird.

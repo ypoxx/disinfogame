@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState, type DragEvent } from 'react';
 import { StoryModeColors } from '../theme';
 import { Icon } from './Icon';
 import { playSound } from '../utils/SoundSystem';
+import { isQueueBudgetFeasible } from '../utils/queueAffordability';
 import type { QueuedAction } from '../hooks/useStoryGameState';
 
 // ─── Typen ────────────────────────────────────────────────────────────────────
@@ -158,8 +159,9 @@ export function NarrativeBoard({
     }),
     { budget: 0, capacity: 0, actionPoints: 0 },
   );
+  // Budget prefix-genau prüfen (Kredite zählen erst an ihrer Position, Codex-Review #80).
   const canPlay = queue.length > 0 &&
-    planCost.budget <= resources.budget &&
+    isQueueBudgetFeasible(queue, resources.budget) &&
     planCost.capacity <= resources.capacity &&
     planCost.actionPoints <= resources.actionPoints;
 

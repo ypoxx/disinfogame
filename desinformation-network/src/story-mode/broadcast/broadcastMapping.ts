@@ -84,8 +84,9 @@ export function mapActionToBroadcast(result: ActionResult, riskLevel: number): B
     channel,
     themes: themes.length > 0 ? themes : DEFAULT_THEMES,
     intensity,
-    // B5: die plakative Aktions-Überschrift zuerst; narrative_de/Label nur als Fallback.
-    headline: result.action.headline_de || result.narrative?.headline_de || result.action.label_de,
+    // B5: plakative Aktions-Überschrift NUR bei Erfolg; bei Misserfolg/Gegenreaktion die
+    // narrative Überschrift (Fehler-/Rückschlag-Text wie „Nicht genug Ressourcen"), Codex-Review #80.
+    headline: (result.success && result.action.headline_de) || result.narrative?.headline_de || result.action.label_de,
     tier: tierForIntensity(intensity),
     kind: result.success ? 'eigen' : 'gegenreaktion',
   };
