@@ -97,6 +97,13 @@ import {
 
 import { StoryNarrativeGenerator } from '../story-mode/engine/StoryNarrativeGenerator';
 import { dialogLoader } from '../story-mode/engine/DialogLoader';
+import {
+  evaluateOperationParams,
+  resolveOperationParams,
+  isOperationComplete,
+  type OperationParams,
+  type OperationResult,
+} from '../story-mode/battlefield/BattlefieldChain';
 
 import { playSound } from '../story-mode/utils/SoundSystem';
 import { storyLogger } from '../utils/logger';
@@ -188,6 +195,9 @@ export interface StoryAction {
   // Engine-Referenz
   engineAbilityId?: string;
   disarmRef?: string;
+
+  /** P2 Verbreiter×Plattform-Auswahl (ids, additiv/heute leer) — s. BattlefieldChain. */
+  params?: OperationParams;
 }
 
 /**
@@ -236,6 +246,19 @@ export interface ActionResult {
 
   // Betrayal warnings triggered
   betrayalWarnings?: BetrayalWarning[];
+}
+
+/**
+ * Ergebnis einer ausgespielten „Operation" (P2 Kommunikations-Schlachtfeld).
+ * Trägt das pure Engine-Resultat plus ein ActionResult-förmiges Objekt, damit der
+ * bestehende Broadcast-Streifen (mapActionToBroadcast) ohne Sonderweg reagiert.
+ */
+export interface OperationOutcome {
+  success: boolean;
+  reason?: string;
+  params: OperationParams;
+  result: OperationResult | null;
+  broadcastResult: ActionResult | null;
 }
 
 /**
@@ -2926,6 +2949,7 @@ export class StoryEngineAdapter {
       npcBonus,
       engineAbilityId: loaded.disarm_ref || undefined,
       disarmRef: loaded.disarm_ref || undefined,
+      params: loaded.params,
     };
   }
 
@@ -3296,6 +3320,94 @@ export class StoryEngineAdapter {
     }
 
     return result;
+  }
+
+  /**
+   * P2 „Operations-Akte": eine aus {Ziel, Schwäche, Verbreiter, Plattform-Mix}
+   * zusammengesetzte Operation ausspielen. Reiner params-Durchstich:
+   *   ids → BattlefieldChain (pure Bewertung) → Nachricht + Broadcast + Risiko/Aufmerksamkeit.
+   *
+   * Bewusst eigener Pfad neben executeAction (keine Aktion-Karte, kein actionPoint):
+   * die Akte ist ein additives Werkzeug. Faktencheck/Sättigung speisen sich aus dem
+   * aktuellen Spielstand (attention/risk), damit die Bewertung mit der Lage atmet.
+   * Ressourcen-Effekt bewusst moderat (P2-Erststufe; Aufbau-/Budget-Ökonomie folgt, §9.4).
+   */
+  playOperation(params: OperationParams): OperationOutcome {
+    const resolved = resolveOperationParams(params);
+    if (!isOperationComplete(resolved)) {
+      return { success: false, reason: 'Operation unvollständig', params, result: null, broadcastResult: null };
+    }
+
+    const result = evaluateOperationParams(params, {
+      factcheckPressure: this.storyResources.attention / 100,
+      saturation: this.storyResources.risk / 100,
+    });
+    if (!result) {
+      return { success: false, reason: 'Operation unvollständig', params, result: null, broadcastResult: null };
+    }
+
+    // Moderater Lage-Effekt: Enttarnungs-Risiko hebt das Entdeckungsrisiko, Wirkung
+    // erzeugt Gegner-Aufmerksamkeit. Beides geklammert in 0..100.
+    const clamp100 = (x: number) => Math.max(0, Math.min(100, x));
+    const riskAdd = Math.round(result.exposureRisk * 8);
+    const attentionAdd = Math.round(result.impact * 6);
+    this.storyResources.risk = clamp100(this.storyResources.risk + riskAdd);
+    this.storyResources.attention = clamp100(this.storyResources.attention + attentionAdd);
+
+    // Synthetische StoryAction → der Broadcast-Streifen liest nur tags/headline_de/costs.
+    const synthAction: StoryAction = {
+      id: `op_${resolved.carrier!.id}_${this.storyPhase.number}_${this.actionHistory.length}`,
+      label_de: result.headline_de,
+      label_en: result.headline_de,
+      headline_de: result.headline_de,
+      narrative_de: '',
+      narrative_en: '',
+      phase: 'targeting',
+      tags: ['targeting', 'operation'],
+      legality: 'grey',
+      costs: { risk: riskAdd, attention: attentionAdd },
+      available: false,
+      prerequisites: [],
+      prerequisitesMet: true,
+      npcAffinity: [],
+      params,
+    };
+
+    const wirkungPct = Math.round(result.impact * 100);
+    const reichweitePct = Math.round(result.reach * 100);
+    const broadcastResult: ActionResult = {
+      success: true,
+      action: synthAction,
+      effects: [],
+      resourceChanges: { risk: riskAdd, attention: attentionAdd },
+      narrative: {
+        headline_de: result.headline_de,
+        headline_en: result.headline_de,
+        description_de: `Reichweite ${reichweitePct}% · Wirkung ${wirkungPct}% gegen ${resolved.target!.name}.`,
+        description_en: `Reach ${reichweitePct}% · impact ${wirkungPct}% against ${resolved.target!.name}.`,
+      },
+      potentialConsequences: [],
+    };
+
+    // Sichtbar in Nachrichten/Lagebild.
+    this.newsEvents.unshift({
+      id: `news_op_${synthAction.id}_${Date.now()}`,
+      phase: this.storyPhase.number,
+      headline_de: result.headline_de,
+      headline_en: result.headline_de,
+      description_de: `Verbreiter ${resolved.carrier!.label_de} · Reichweite ${reichweitePct}% · Enttarnungs-Risiko ${Math.round(result.exposureRisk * 100)}%.`,
+      description_en: `Carrier ${resolved.carrier!.label_de} · reach ${reichweitePct}% · exposure ${Math.round(result.exposureRisk * 100)}%.`,
+      type: 'action_result',
+      severity: result.exposureRisk >= 0.66 ? 'warning' : 'success',
+      read: false,
+      pinned: false,
+    });
+
+    this.actionHistory.push({ phase: this.storyPhase.number, actionId: synthAction.id, result: broadcastResult });
+
+    playSound(result.exposureRisk >= 0.66 ? 'warning' : 'success');
+
+    return { success: true, params, result, broadcastResult };
   }
 
   private getActionById(id: string): StoryAction | null {

@@ -7,6 +7,7 @@
 import actionsData from '../data/actions.json';
 import actionsContinuedData from '../data/actions_continued.json';
 import actionsP1cData from '../data/actions_p1c.json';
+import type { OperationParams } from '../battlefield/BattlefieldChain';
 import { storyLogger } from '../../utils/logger';
 
 // ============================================
@@ -37,6 +38,12 @@ export interface RawAction {
   npc_affinity: string[];
   legality: 'legal' | 'grey' | 'illegal';
   tags: string[];
+  /**
+   * P2 „Kommunikations-Schlachtfeld" — Verbreiter×Plattform-Auswahl als ids (additiv,
+   * rückwärtskompatibel/heute leer). Die Engine löst sie über BattlefieldChain auf.
+   * Schema: docs/STRANG34_P2_VERBREITER_PLATTFORM_KONZEPT.md §6.
+   */
+  params?: OperationParams;
 }
 
 export interface LoadedAction extends RawAction {

@@ -138,3 +138,88 @@ export function loadCarriers(): Carrier[] {
 export function loadPlatforms(): Platform[] {
   return (platformsData as { platforms: Platform[] }).platforms;
 }
+
+// ─── params-Durchstich (Aktion → Operation) ───────────────────────────────────
+//
+// Die Aktion trägt die Auswahl rein als ids (rückwärtskompatibel, heute leer); die
+// Engine löst sie über die Daten-Loader zu Objekten auf und bewertet. So bleibt der
+// Spielstand serialisierbar (nur ids) und die UI kann live rechnen, ohne State zu
+// duplizieren. Siehe docs/STRANG34_P2_VERBREITER_PLATTFORM_KONZEPT.md §5/§6.
+
+/** Auswahl einer Operation als ids (additiv an der Aktion, `kompromat` reserviert für P2b). */
+export interface OperationParams {
+  target?: string;
+  vulnerability?: string;
+  carrier?: string;
+  platforms?: string[];
+  kompromat?: string;
+}
+
+/** Aufgelöste Operation — null, wo eine Auswahl (noch) fehlt; `platforms` immer Array. */
+export interface ResolvedOperation {
+  target: Target | null;
+  vulnerability: Vulnerability | null;
+  carrier: Carrier | null;
+  platforms: Platform[];
+}
+
+/** Optionaler Datensatz-Override (Tests) + Spielstand-Kontext für die Bewertung. */
+export interface OperationContext {
+  targets?: Target[];
+  carriers?: Carrier[];
+  platforms?: Platform[];
+  factcheckPressure?: number;
+  saturation?: number;
+}
+
+export function findTargetById(id: string | undefined, targets: Target[] = loadTargets()): Target | null {
+  if (!id) return null;
+  return targets.find((t) => t.id === id) ?? null;
+}
+export function findCarrierById(id: string | undefined, carriers: Carrier[] = loadCarriers()): Carrier | null {
+  if (!id) return null;
+  return carriers.find((c) => c.id === id) ?? null;
+}
+export function findPlatformById(id: string | undefined, platforms: Platform[] = loadPlatforms()): Platform | null {
+  if (!id) return null;
+  return platforms.find((p) => p.id === id) ?? null;
+}
+/** Schwäche wird im Kontext ihres Ziels gesucht (vuln-ids sind zielgebunden). */
+export function findVulnerability(target: Target | null, id: string | undefined): Vulnerability | null {
+  if (!target || !id) return null;
+  return target.vulnerabilities.find((v) => v.id === id) ?? null;
+}
+
+/** ids → Objekte. Unbekannte/fehlende ids werden zu null bzw. übersprungen. */
+export function resolveOperationParams(params: OperationParams, ctx: OperationContext = {}): ResolvedOperation {
+  const target = findTargetById(params.target, ctx.targets);
+  const vulnerability = findVulnerability(target, params.vulnerability);
+  const carrier = findCarrierById(params.carrier, ctx.carriers);
+  const platforms = (params.platforms ?? [])
+    .map((id) => findPlatformById(id, ctx.platforms))
+    .filter((p): p is Platform => p !== null);
+  return { target, vulnerability, carrier, platforms };
+}
+
+/** Vollständig = Ziel + Schwäche + Verbreiter + mindestens eine Plattform aufgelöst. */
+export function isOperationComplete(resolved: ResolvedOperation): boolean {
+  return Boolean(resolved.target && resolved.vulnerability && resolved.carrier && resolved.platforms.length > 0);
+}
+
+/**
+ * params-getriebene Bewertung: löst ids auf und bewertet. Gibt `null` zurück,
+ * solange die Operation unvollständig ist (UI zeigt dann „—"). Rückwärtskompatibel:
+ * leere params ⇒ null, keine Annahmen über die Aktion.
+ */
+export function evaluateOperationParams(params: OperationParams, ctx: OperationContext = {}): OperationResult | null {
+  const resolved = resolveOperationParams(params, ctx);
+  if (!isOperationComplete(resolved)) return null;
+  return evaluateOperation({
+    target: resolved.target!,
+    vulnerability: resolved.vulnerability!,
+    carrier: resolved.carrier!,
+    platforms: resolved.platforms,
+    factcheckPressure: ctx.factcheckPressure,
+    saturation: ctx.saturation,
+  });
+}
