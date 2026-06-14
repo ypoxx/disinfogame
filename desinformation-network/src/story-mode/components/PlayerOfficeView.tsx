@@ -106,6 +106,20 @@ function hotspotByIdPos(id: string): HotspotDef | undefined {
   return HOTSPOTS.find((h) => h.id === id);
 }
 
+/** Vier dezente Eck-Marken (┌ ┐ └ ┘) als Ruhe-Hinweis für eine Klickfläche —
+ *  ersetzt das durchgehende Rechteck, das wie ein Drahtgitter über den Möbeln wirkte. */
+function CornerTicks({ color }: { color: string }): React.JSX.Element {
+  const base: React.CSSProperties = { position: 'absolute', width: 9, height: 9, pointerEvents: 'none' };
+  return (
+    <>
+      <span aria-hidden style={{ ...base, top: 3, left: 3, borderTop: `2px solid ${color}`, borderLeft: `2px solid ${color}` }} />
+      <span aria-hidden style={{ ...base, top: 3, right: 3, borderTop: `2px solid ${color}`, borderRight: `2px solid ${color}` }} />
+      <span aria-hidden style={{ ...base, bottom: 3, left: 3, borderBottom: `2px solid ${color}`, borderLeft: `2px solid ${color}` }} />
+      <span aria-hidden style={{ ...base, bottom: 3, right: 3, borderBottom: `2px solid ${color}`, borderRight: `2px solid ${color}` }} />
+    </>
+  );
+}
+
 // ─── Komponente ───────────────────────────────────────────────────────────────
 
 export function PlayerOfficeView({
@@ -272,14 +286,17 @@ export function PlayerOfficeView({
               cursor: 'pointer',
               padding: 0,
               zIndex: 10,
-              // Ruhezustand: dezenter Ring, damit Klickflächen ohne Hover erkennbar
-              // bleiben (Review-Befund A2); Hover/Fokus: kräftige Outline + Inset.
-              outline: isHovered ? `2px solid ${StoryModeColors.warning}` : '1px solid rgba(212,160,23,0.28)',
+              // Ruhezustand: KEIN Rechteck-Ring mehr (wirkte wie Drahtgitter über den
+              // Möbeln, „zwei Welten"); stattdessen dezente Eck-Marken (s. CornerTicks).
+              // Hover/Fokus: kräftige Outline + Inset-Highlight.
+              outline: isHovered ? `2px solid ${StoryModeColors.warning}` : 'none',
               outlineOffset: -1,
               boxShadow: isHovered ? 'inset 0 0 0 9999px rgba(255,255,255,0.08)' : 'none',
               transition: 'outline 120ms ease, box-shadow 120ms ease',
             }}
           >
+            {/* Ruhe-Hinweis: nur vier kleine Ecken statt voller Rahmen */}
+            {!isHovered && <CornerTicks color="rgba(240,180,41,0.45)" />}
             {/* Label-Chip (erscheint bei Hover/Fokus) */}
             {isHovered && (
               <span
