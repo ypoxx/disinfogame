@@ -70,6 +70,18 @@ export const FLOOR_WALKERS: Record<string, AmbientWalker[]> = {
   etage3: [{ figureWalk: 'figure_cleaner_walk', xFracA: 0.34, xFracB: 0.62 }],
 };
 
+/** Strang 5 (Bewegung): Tür-Dummies — an Nicht-Spieler-Türen taucht periodisch jemand
+ *  auf und verschwindet wieder (ein-/ausgehen, D13). `delayS` versetzt die Zyklen. */
+export interface DoorDummy {
+  figure: string;
+  xFrac: number;
+  delayS: number;
+}
+export const DOOR_TRAFFIC: Record<string, DoorDummy[]> = {
+  etage4: [{ figure: 'figure_clerk', xFrac: 0.5, delayS: 1 }],   // Operationszentrale-Tür
+  etage3: [{ figure: 'figure_clerk', xFrac: 0.83, delayS: 8 }],  // Newsroom-Tür
+};
+
 export const FLOOR_DECOR: Record<string, DecorPlacement[]> = {
   etage4: [
     { id: 'prop_plant_tall', xFrac: 0.04, mount: 'floor' },

@@ -16,7 +16,7 @@ import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
 import { skyGradientForMinutes } from './skyTime';
-import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, FLOOR_WALKERS, type AmbientFigure } from './corridorDecor';
+import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, FLOOR_WALKERS, DOOR_TRAFFIC, type AmbientFigure } from './corridorDecor';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
@@ -65,7 +65,9 @@ const STAGE_KEYFRAMES = `
   /* Strang 5: Statist pendelt im Flur (Bewegung), Sprite klappt am Wendepunkt. */
   @keyframes bs-walk-move { 0%{transform:translateX(0)} 50%{transform:translateX(var(--bs-walk-d))} 100%{transform:translateX(0)} }
   @keyframes bs-walk-flip { 0%,49%{transform:scaleX(1)} 50%,99%{transform:scaleX(-1)} 100%{transform:scaleX(1)} }
-  @media (prefers-reduced-motion: reduce) { [data-bs-walker]{animation:none !important} [data-bs-walker] *{animation:none !important} }
+  /* Strang 5: Tür-Dummy taucht kurz auf (ein-/ausgehen) und verschwindet wieder. */
+  @keyframes bs-door-traffic { 0%,7%{opacity:0} 13%,40%{opacity:1} 47%,100%{opacity:0} }
+  @media (prefers-reduced-motion: reduce) { [data-bs-walker]{animation:none !important} [data-bs-walker] *{animation:none !important} [data-bs-dummy]{opacity:0 !important;animation:none !important} }
 `;
 
 /** Tür eines Raums (offen/zu) — Bild-Asset oder CSS-Fallback. */
@@ -137,6 +139,22 @@ function AmbientWalker({ figureWalk, leftA, d, top, height }: { figureWalk: stri
       <div style={{ animation: `bs-walk-flip ${dur}s linear infinite` }}>
         <PixelSprite sheetId={figureWalk} animation="walk" fallback="" scale={height / 96} title="" />
       </div>
+    </div>
+  );
+}
+
+/** Strang 5 (Bewegung): Tür-Dummy, der periodisch an einer Tür auftaucht und verschwindet. */
+function DoorDummy({ figure, left, top, height, delayS }: { figure: string; left: number; top: number; height: number; delayS: number }) {
+  return (
+    <div
+      data-bs-dummy=""
+      aria-hidden
+      style={{
+        position: 'absolute', left, top, transform: 'translateX(-50%)', zIndex: 2, pointerEvents: 'none',
+        animation: `bs-door-traffic 17s ease-in-out ${delayS}s infinite`, opacity: 0,
+      }}
+    >
+      <PixelSprite sheetId={figure} animation="idle" fallback="" scale={height / 96} title="" />
     </div>
   );
 }
@@ -434,6 +452,13 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                     height={AMBIENT_HEIGHT}
                   />
                 );
+              })}
+              {/* Strang 5 (Bewegung): Tür-Dummies — taucht periodisch an einer Tür auf. */}
+              {!isLobby && (DOOR_TRAFFIC[floor.id] ?? []).map((dm, i) => {
+                if (!assets.imageUrl(dm.figure)) return null;
+                const cx = STAGE.pillarWidth + dm.xFrac * (layout.shaft.x - STAGE.pillarWidth);
+                const top = floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT;
+                return <DoorDummy key={`${floor.id}-dummy-${i}`} figure={dm.figure} left={cx} top={top} height={AMBIENT_HEIGHT} delayS={dm.delayS} />;
               })}
               {/* Decken-Platte über der Etage */}
               <div
