@@ -39,6 +39,20 @@ export const DECOR_HEIGHT: Record<string, number> = {
  * über den Lücken. Jede Etage bekommt eine andere Mischung → kein Einheitsbrei.
  * Lobby (Eingangshalle) bleibt bewusst leer (eigenes Raumbild).
  */
+/** Strang 5: stehende Flavor-Statisten je Etage (Reinigung/Kollege) — populieren das
+ *  Gebäude. 2-Frame-Idle (subtile Bewegung), stehen in Tür-/Deko-Lücken auf der
+ *  Wand-Fuß-Linie. Bewusst KEINE Mechanik, reine Lebendigkeit. */
+export interface AmbientFigure {
+  figure: string;
+  xFrac: number;
+}
+export const FLOOR_AMBIENT: Record<string, AmbientFigure[]> = {
+  etage3: [{ figure: 'figure_cleaner', xFrac: 0.66 }],
+  etage1: [{ figure: 'figure_clerk', xFrac: 0.33 }],
+};
+/** Anzeigehöhe der Statisten (px) — etwas kleiner als der Avatar (128). */
+export const AMBIENT_HEIGHT = 112;
+
 export const FLOOR_DECOR: Record<string, DecorPlacement[]> = {
   etage4: [
     { id: 'prop_plant_tall', xFrac: 0.04, mount: 'floor' },

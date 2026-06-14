@@ -1593,6 +1593,46 @@
       }
     },
     {
+      "id": "figure_cleaner",
+      "type": "sheet",
+      "file": "sheets/figure_cleaner.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A 2-frame pixel art sprite sheet of a middle-aged cleaner in a plain work tabard over casual clothes, holding a cloth, standing, full body from head to feet, STANDING upright facing the viewer, strict flat front view (no isometric). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, tiny sway). Draw NO background, NO floor, NO furniture — ONLY the person. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 734374,
+      "styleVersion": "v1",
+      "frameWidth": 48,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "figure_clerk",
+      "type": "sheet",
+      "file": "sheets/figure_clerk.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A 2-frame pixel art sprite sheet of a young office clerk in a grey shirt carrying a beige folder under one arm, standing, full body from head to feet, STANDING upright facing the viewer, strict flat front view (no isometric). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, tiny sway). Draw NO background, NO floor, NO furniture — ONLY the person. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 743633,
+      "styleVersion": "v1",
+      "frameWidth": 48,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
       "id": "figure_direktor",
       "type": "sheet",
       "file": "sheets/figure_direktor.png",

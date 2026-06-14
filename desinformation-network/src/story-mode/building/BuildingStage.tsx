@@ -16,7 +16,7 @@ import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
 import { skyGradientForMinutes } from './skyTime';
-import { FLOOR_DECOR, DECOR_HEIGHT } from './corridorDecor';
+import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT } from './corridorDecor';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
@@ -359,6 +359,17 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                       zIndex: 2,
                     }}
                   />
+                );
+              })}
+              {/* Strang 5: stehende Flavor-Statisten (Reinigung/Kollege) — Lebendigkeit. */}
+              {!isLobby && (FLOOR_AMBIENT[floor.id] ?? []).map((a, i) => {
+                if (!assets.imageUrl(a.figure)) return null;
+                const cx = STAGE.pillarWidth + a.xFrac * (layout.shaft.x - STAGE.pillarWidth);
+                const top = floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT;
+                return (
+                  <div key={`${floor.id}-amb-${i}`} aria-hidden style={{ position: 'absolute', left: cx, top, transform: 'translateX(-50%)', zIndex: 2, pointerEvents: 'none' }}>
+                    <PixelSprite sheetId={a.figure} animation="idle" fallback="" scale={AMBIENT_HEIGHT / 96} title="" />
+                  </div>
                 );
               })}
               {/* Decken-Platte über der Etage */}
