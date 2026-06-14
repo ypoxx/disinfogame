@@ -16,7 +16,7 @@ import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
 import { skyGradientForMinutes } from './skyTime';
-import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT } from './corridorDecor';
+import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, type AmbientFigure } from './corridorDecor';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
@@ -89,6 +89,35 @@ function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
         boxSizing: 'border-box',
       }}
     />
+  );
+}
+
+/** Strang 5: anklickbarer Flur-Statist mit Flavor-Sprechblase (Mini-Dialog, D13). */
+function AmbientPerson({ a, left, top, height }: { a: AmbientFigure; left: number; top: number; height: number }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ position: 'absolute', left, top, transform: 'translateX(-50%)', zIndex: 5 }}>
+      {open && (
+        <div
+          style={{
+            position: 'absolute', bottom: height + 6, left: '50%', transform: 'translateX(-50%)',
+            width: 230, backgroundColor: 'rgba(12,12,16,0.94)', border: `1px solid ${StoryModeColors.borderLight}`,
+            color: '#e8e4d8', fontFamily: 'monospace', fontSize: 11, lineHeight: 1.4, padding: '6px 8px', zIndex: 7,
+          }}
+        >
+          <span style={{ display: 'block', fontSize: 8, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 2 }}>{a.who}</span>
+          {a.line}
+        </div>
+      )}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        aria-label={`${a.who} ansprechen`}
+        title={`${a.who} ansprechen`}
+        style={{ width: (height / 96) * 48, height, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+      >
+        <PixelSprite sheetId={a.figure} animation="idle" fallback="" scale={height / 96} title={a.who} />
+      </button>
+    </div>
   );
 }
 
@@ -366,11 +395,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 if (!assets.imageUrl(a.figure)) return null;
                 const cx = STAGE.pillarWidth + a.xFrac * (layout.shaft.x - STAGE.pillarWidth);
                 const top = floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT;
-                return (
-                  <div key={`${floor.id}-amb-${i}`} aria-hidden style={{ position: 'absolute', left: cx, top, transform: 'translateX(-50%)', zIndex: 2, pointerEvents: 'none' }}>
-                    <PixelSprite sheetId={a.figure} animation="idle" fallback="" scale={AMBIENT_HEIGHT / 96} title="" />
-                  </div>
-                );
+                return <AmbientPerson key={`${floor.id}-amb-${i}`} a={a} left={cx} top={top} height={AMBIENT_HEIGHT} />;
               })}
               {/* Decken-Platte über der Etage */}
               <div

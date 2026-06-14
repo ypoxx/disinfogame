@@ -45,10 +45,20 @@ export const DECOR_HEIGHT: Record<string, number> = {
 export interface AmbientFigure {
   figure: string;
   xFrac: number;
+  /** Flavor-Satz beim Anklicken (Mini-Dialog, D13). */
+  line: string;
+  /** Kurzer Rollen-Name über der Sprechblase. */
+  who: string;
 }
 export const FLOOR_AMBIENT: Record<string, AmbientFigure[]> = {
-  etage3: [{ figure: 'figure_cleaner', xFrac: 0.66 }],
-  etage1: [{ figure: 'figure_clerk', xFrac: 0.33 }],
+  etage3: [{
+    figure: 'figure_cleaner', xFrac: 0.66, who: 'REINIGUNG',
+    line: 'Gleich mach ich hier sauber — bald schließt das Gebäude. Sie sollten auch mal nach Hause.',
+  }],
+  etage1: [{
+    figure: 'figure_clerk', xFrac: 0.33, who: 'KOLLEGE',
+    line: 'Viel los heute oben. Ich bring nur die Akten rum, von dem anderen halt ich mich fern.',
+  }],
 };
 /** Anzeigehöhe der Statisten (px) — etwas kleiner als der Avatar (128). */
 export const AMBIENT_HEIGHT = 112;
