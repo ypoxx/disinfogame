@@ -37,13 +37,17 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 - **Skill** `.claude/skills/pixel-asset-pipeline` + Planungs-Hygiene (ROADMAP/TECHNICAL_DEBT/Konzept-Docs).
 
 ### ▶ Für die NÄCHSTE Session — großes Paket (frische Session wg. Token-Budget)
-**✅ „Loop schließen" ist erledigt** (PR #82, s. o.): P2 an Sieg/Niederlage gekoppelt, Kompromat ↔
-Moral ↔ Enden, End-Report benennt reale Methoden, Sim end-to-end belegt. **Empfehlung jetzt:**
-- **P3 — Gebäude-Wachstum + Pfad-Tiefe:** `unlocksRoom`/`unlocksNpc` (Bot-Netz aufgebaut → neues
-  Büro/NPC), **100–500-Pfade-Simulation** (Thema×Verbreiter×Plattform×Ziel×Timing, s. P2-Konzept §10.4).
-  Operationen in die `trustHistory`-Kurve einspeisen (heute getrennt: Akteurs-Trust vs. `obj_destabilize`).
-- **Alternativen:** **Story/Vertonung** (Topic-Texte in Stimme + ElevenLabs-Batch) · diegetische
-  **Kompromat-/Akten-UI** (Asset, Budget-Ansage) · reichere Broadcast-Themen aus dem Ziel-Milieu.
+**✅ „Loop schließen" ist erledigt** (PR #82). **Neues Herzstück-Konzept abgenommen-in-Diskussion
+(2026-06-14):** `KONZEPT_2026-06-14_HERZSTUECK_EPISODEN_WERTE.md` — das wichtigste *inhaltliche* Update:
+- **Episoden/Vignetten** (Wirbelsäule, „Warum"): situierte Mini-Geschichten mit erfundenen Namen, die
+  Aktionen/NPCs/Ziele verknüpfen (emergent-kuratiert, NPC bietet an).
+- **Mehrere Gesellschaftswerte** (Polarisierung/Fragmentierung/Informationslast/Zynismus … statt nur
+  „Vertrauen") → echte Pfad-Vielfalt + reiche Enden.
+- **Neue Angriffs-Phänomene** (Überflutung, Gerüchte-Mutation, Zermürbung, Krisenfenster …).
+- **Vernetzung**: wertet Dialoge, Broadcast/Publikum, Fernseher, Fokusgruppe, Gebäude-Wachstum auf.
+- Bau-Reihenfolge §9.3 (B2a→B2b→B3→B1→Vernetzung→B4), Risiko-Register §10, **offene Owner-Fragen F1–F6 §12**.
+**Status:** wartet auf Owner-Transkript zu F1–F6, dann detaillierter Bau-Plan. **Vorher kein Code.**
+**Frühere Alternativen** (P3 Gebäude-Wachstum, Story-Vertonung) sind in dieses Konzept integriert bzw. nachgeordnet.
 
 ### 🔎 Aus dieser Session offen / nur im Preview zu prüfen (nicht in-Container verifizierbar)
 - **Fernsehfamilie ausgeklappt** (Taste B): Sitzlinie/Köpfe — Preview prüfen, ggf. Skala/Position nachziehen.
