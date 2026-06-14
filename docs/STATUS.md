@@ -37,6 +37,7 @@ Sweep hat dauerhaft eingeblendete Seiten-Widgets übersehen (s. Visual-Backlog &
 | **P1b (Pilot)** | **Marina-Stimme**: alle 16 Begrüßungen (Level 0–3) nach Steckbrief neu (selbstbewusst, bildreich, trockener Biss); keine Vertonung berührt | ✅ |
 | **P1b (Skaliert)** | **Begrüßungen aller NPCs** (Direktor, Alexei, Katja, Igor) nach Steckbrief neu (je 16, Level 0–3); bereinigt zugleich Alt-Persona-/Reale-Orts-Reste (Moskau/Kreml/Wodka) im Direktor | ✅ |
 | **Deck-Gruppierung** | Narrativ-Tafel zeigt Maßnahmen **nach zuständigem Büro/NPC** statt flacher Liste (Entscheidung 1) | ✅ |
+| **P1c (Affinitäten)** | **Alle 110 Aktions-Affinitäten** auf den kanonischen Roster (Owner: „Rollen wie Stimme") umgemappt → Orphan `volkov` weg, Dialog-Angebote je Büro stimmig | ✅ |
 
 Gate je Push grün: `tsc` · `npm run build` · `vitest` (231). Smoke: `npm run smoke` (Playwright,
 s. unten).
@@ -70,7 +71,7 @@ V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
 | Phase | Inhalt | Status |
 |---|---|---|
 | **P0** | Aktions-Überschriften + Direktor-Hinweise | ✅ (PR #80) |
-| **P1** | Aktion-aus-Dialog · Menü→Gespräch · granularere Aktionen · Sprach-Steckbriefe · NPC-Vorschläge im Gespräch (löst V2) | **in Arbeit** — ✅ P1a (Aktion aus Dialog), ✅ P1d (Steckbriefe), ✅ Declutter, ✅ P1b-Pilot (Marina-Begrüßungen), ✅ Deck nach NPC gruppiert. **Offen:** P1b auf restliche NPCs + Topics/Reactions skalieren (nach Marina-Abnahme), situative Eröffnungen; P1c granularere Aktionen (60–100, großes Content-Paket + Balancing-Sim) |
+| **P1** | Aktion-aus-Dialog · Menü→Gespräch · granularere Aktionen · Sprach-Steckbriefe · NPC-Vorschläge im Gespräch (löst V2) | **in Arbeit** — ✅ P1a, ✅ P1d, ✅ Declutter, ✅ P1b (Begrüßungen ALLER NPCs), ✅ Deck nach NPC gruppiert, ✅ P1c-Affinitäten umgemappt. **Offen:** P1b Topics/Reactions skalieren + situative Eröffnungen; **P1c-Content** (30 → 60–100 granulare Aktionen, je Büro ein Paket + Balancing-Sim; v. a. Igor/Finanz ausbauen — aktuell nur 3 Aktionen) |
 | **P2** | Kommunikations-Schlachtfeld (Ziel→Dossier→Kompromat→Verbreiter+Plattform-Mix). **Erst nach Exa-Recherche** (§10.1) | offen |
 | **P3** | Gebäude-Wachstum (`unlocksRoom`/`unlocksNpc`) + 100–500-Pfade-Simulation | offen |
 
@@ -83,8 +84,10 @@ V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
   igor=Technik, katja=Content, direktor=Strategie), (c) alte `dialogues.json`-Personas (Direktor
   sowjetisch, „alexei"-Block = `vol_greet_*`-Chaos-Op, Katja=Content-Künstlerin, Igor=Hacker).
   **Folge:** manche Maßnahmen (volkov-Affinität) haben kein Büro, das sie im Dialog anbietet
-  (P1a-Lücke). Begrüßungen sind jetzt auf die `npcs.json`-Rollen (sichtbare Identität) vereinheitlicht;
-  **Affinitäten/Funktionen in P1c angleichen** (Roster-Entscheidung des Owners nötig).
+  (P1a-Lücke). **GELÖST (2026-06-14):** Begrüßungen auf `npcs.json`-Rollen vereinheitlicht; Owner-Roster
+  „Rollen wie Stimme" gelockt; alle 110 Affinitäten umgemappt (marina=Medien&Aufklärung · alexei=Technik ·
+  katja=Feld · igor=Finanz · direktor=Strategie/Politik). **Rest:** Verteilung schief (marina 49 / igor 3)
+  → in P1c-Content rebalancieren (Igor/Finanz-Aktionen ergänzen, Marina entlasten).
 - **`npm run lint` defekt** — keine ESLint-Config im Repo; Gate stützt sich auf tsc/build/vitest.
 - **Pixel-Font** blockiert (Netz-Policy) — `font-mono`-Reste bis lizenzfreie Datei vorliegt.
 

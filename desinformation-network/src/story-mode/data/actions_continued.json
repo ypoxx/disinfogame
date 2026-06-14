@@ -17,9 +17,7 @@
         "capacity": 1,
         "risk": 3
       },
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "illegal",
       "tags": [
         "content",
@@ -47,10 +45,7 @@
         "capacity": 1,
         "risk": 1
       },
-      "npc_affinity": [
-        "katja",
-        "igor"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "content",
@@ -77,9 +72,7 @@
         "capacity": 2,
         "risk": 4
       },
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "content",
@@ -109,9 +102,7 @@
       "prerequisites": [
         "2.6"
       ],
-      "npc_affinity": [
-        "igor"
-      ],
+      "npc_affinity": ["alexei"],
       "legality": "grey",
       "tags": [
         "content",
@@ -142,9 +133,7 @@
       "prerequisites": [
         "2.6"
       ],
-      "npc_affinity": [
-        "igor"
-      ],
+      "npc_affinity": ["alexei"],
       "legality": "illegal",
       "tags": [
         "content",
@@ -177,9 +166,7 @@
       "prerequisites": [
         "2.6"
       ],
-      "npc_affinity": [
-        "igor"
-      ],
+      "npc_affinity": ["alexei"],
       "legality": "illegal",
       "tags": [
         "content",
@@ -211,9 +198,7 @@
       "prerequisites": [
         "2.6"
       ],
-      "npc_affinity": [
-        "igor"
-      ],
+      "npc_affinity": ["alexei"],
       "legality": "illegal",
       "tags": [
         "content",
@@ -243,10 +228,7 @@
         "risk": 8,
         "moral_weight": 3
       },
-      "npc_affinity": [
-        "igor",
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "illegal",
       "tags": [
         "content",
@@ -273,9 +255,7 @@
         "capacity": 1,
         "risk": 5
       },
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "content",
@@ -305,10 +285,7 @@
       "prerequisites": [
         "1.7"
       ],
-      "npc_affinity": [
-        "katja",
-        "marina"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "content",
@@ -335,9 +312,7 @@
         "capacity": 1,
         "risk": 2
       },
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "content",
@@ -363,10 +338,7 @@
         "capacity": 2,
         "risk": 6
       },
-      "npc_affinity": [
-        "katja",
-        "direktor"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "content",
@@ -393,9 +365,7 @@
         "capacity": 1,
         "risk": 3
       },
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "content",
@@ -425,10 +395,7 @@
       "prerequisites": [
         "2.15"
       ],
-      "npc_affinity": [
-        "katja",
-        "direktor"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": [
         "content",
@@ -457,10 +424,7 @@
       "prerequisites": [
         "2.10"
       ],
-      "npc_affinity": [
-        "marina",
-        "direktor"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "illegal",
       "tags": [
         "content",
@@ -487,9 +451,7 @@
         "capacity": 3,
         "risk": 8
       },
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "content",
@@ -518,9 +480,7 @@
       "prerequisites": [
         "2.8"
       ],
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": [
         "content",
@@ -547,10 +507,7 @@
         "risk": 12,
         "moral_weight": 4
       },
-      "npc_affinity": [
-        "katja",
-        "volkov"
-      ],
+      "npc_affinity": ["katja"],
       "legality": "illegal",
       "tags": [
         "content",
@@ -583,9 +540,7 @@
         "2.6",
         "3.4"
       ],
-      "npc_affinity": [
-        "igor"
-      ],
+      "npc_affinity": ["alexei"],
       "legality": "grey",
       "tags": [
         "content",
@@ -617,10 +572,7 @@
         "capacity": 1,
         "risk": 1
       },
-      "npc_affinity": [
-        "katja",
-        "volkov"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": [
         "distribution",
@@ -648,9 +600,7 @@
       "prerequisites": [
         "2.6"
       ],
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "distribution",
@@ -676,9 +626,7 @@
         "capacity": 1,
         "risk": 1
       },
-      "npc_affinity": [
-        "volkov"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": [
         "distribution",
@@ -703,9 +651,7 @@
         "capacity": 1,
         "risk": 2
       },
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": [
         "distribution",
@@ -731,9 +677,7 @@
         "capacity": 1,
         "risk": 1
       },
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": [
         "distribution",
@@ -761,9 +705,7 @@
       "prerequisites": [
         "2.17"
       ],
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "distribution",
@@ -788,10 +730,7 @@
         "capacity": 2,
         "risk": 8
       },
-      "npc_affinity": [
-        "katja",
-        "direktor"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "distribution",
@@ -817,9 +756,7 @@
         "capacity": 1,
         "risk": 2
       },
-      "npc_affinity": [
-        "direktor"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": [
         "distribution",
@@ -847,9 +784,7 @@
       "prerequisites": [
         "2.4"
       ],
-      "npc_affinity": [
-        "volkov"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "distribution",
@@ -874,10 +809,7 @@
         "capacity": 2,
         "risk": 10
       },
-      "npc_affinity": [
-        "katja",
-        "marina"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "distribution",
@@ -905,9 +837,7 @@
       "prerequisites": [
         "2.3"
       ],
-      "npc_affinity": [
-        "volkov"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "distribution",
@@ -935,10 +865,7 @@
       "prerequisites": [
         "2.15"
       ],
-      "npc_affinity": [
-        "katja",
-        "direktor"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "distribution",
@@ -968,9 +895,7 @@
       "prerequisites": [
         "2.8"
       ],
-      "npc_affinity": [
-        "volkov"
-      ],
+      "npc_affinity": ["katja"],
       "legality": "legal",
       "tags": [
         "distribution",
@@ -998,10 +923,7 @@
       "prerequisites": [
         "2.9"
       ],
-      "npc_affinity": [
-        "katja",
-        "direktor"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": [
         "distribution",
@@ -1030,9 +952,7 @@
       "prerequisites": [
         "2.10"
       ],
-      "npc_affinity": [
-        "direktor"
-      ],
+      "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": [
         "distribution",
@@ -1063,9 +983,7 @@
       "prerequisites": [
         "2.1"
       ],
-      "npc_affinity": [
-        "volkov"
-      ],
+      "npc_affinity": ["alexei"],
       "legality": "illegal",
       "tags": [
         "amplification",
@@ -1093,10 +1011,7 @@
         "capacity": 1,
         "risk": 3
       },
-      "npc_affinity": [
-        "volkov",
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "amplification",
@@ -1126,9 +1041,7 @@
       "prerequisites": [
         "2.3"
       ],
-      "npc_affinity": [
-        "volkov"
-      ],
+      "npc_affinity": ["alexei"],
       "legality": "illegal",
       "tags": [
         "amplification",
@@ -1159,10 +1072,7 @@
       "prerequisites": [
         "2.4"
       ],
-      "npc_affinity": [
-        "volkov",
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "amplification",
@@ -1191,9 +1101,7 @@
         "2.1",
         "2.3"
       ],
-      "npc_affinity": [
-        "volkov"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "amplification",
@@ -1219,9 +1127,7 @@
         "capacity": 2,
         "risk": 10
       },
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "amplification",
@@ -1247,9 +1153,7 @@
         "capacity": 1,
         "risk": 2
       },
-      "npc_affinity": [
-        "volkov"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "amplification",
@@ -1277,10 +1181,7 @@
       "prerequisites": [
         "2.1"
       ],
-      "npc_affinity": [
-        "volkov",
-        "igor"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "amplification",
@@ -1309,9 +1210,7 @@
       "prerequisites": [
         "2.4"
       ],
-      "npc_affinity": [
-        "volkov"
-      ],
+      "npc_affinity": ["alexei"],
       "legality": "grey",
       "tags": [
         "amplification",
@@ -1337,9 +1236,7 @@
         "capacity": 2,
         "risk": 4
       },
-      "npc_affinity": [
-        "igor"
-      ],
+      "npc_affinity": ["alexei"],
       "legality": "grey",
       "tags": [
         "amplification",
@@ -1368,10 +1265,7 @@
       "prerequisites": [
         "2.17"
       ],
-      "npc_affinity": [
-        "katja",
-        "direktor"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "amplification",
@@ -1397,9 +1291,7 @@
         "capacity": 2,
         "risk": 4
       },
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": [
         "amplification",
@@ -1429,9 +1321,7 @@
       "prerequisites": [
         "2.12"
       ],
-      "npc_affinity": [
-        "direktor"
-      ],
+      "npc_affinity": ["direktor"],
       "legality": "illegal",
       "tags": [
         "political",
@@ -1456,10 +1346,7 @@
         "capacity": 2,
         "risk": 8
       },
-      "npc_affinity": [
-        "marina",
-        "katja"
-      ],
+      "npc_affinity": ["direktor"],
       "legality": "grey",
       "tags": [
         "political",
@@ -1488,9 +1375,7 @@
         "2.9",
         "2.18"
       ],
-      "npc_affinity": [
-        "direktor"
-      ],
+      "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": [
         "political",
@@ -1518,9 +1403,7 @@
       "prerequisites": [
         "6.3"
       ],
-      "npc_affinity": [
-        "direktor"
-      ],
+      "npc_affinity": ["direktor"],
       "legality": "grey",
       "tags": [
         "political",
@@ -1544,9 +1427,7 @@
         "capacity": 2,
         "risk": 5
       },
-      "npc_affinity": [
-        "direktor"
-      ],
+      "npc_affinity": ["direktor"],
       "legality": "grey",
       "tags": [
         "political",
@@ -1570,9 +1451,7 @@
         "capacity": 2,
         "risk": 6
       },
-      "npc_affinity": [
-        "direktor"
-      ],
+      "npc_affinity": ["direktor"],
       "legality": "grey",
       "tags": [
         "political",
@@ -1602,9 +1481,7 @@
         "2.11",
         "2.18"
       ],
-      "npc_affinity": [
-        "direktor"
-      ],
+      "npc_affinity": ["igor"],
       "legality": "illegal",
       "tags": [
         "political",
@@ -1629,10 +1506,7 @@
         "capacity": 2,
         "risk": 6
       },
-      "npc_affinity": [
-        "marina",
-        "volkov"
-      ],
+      "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": [
         "political",
@@ -1659,9 +1533,7 @@
       "prerequisites": [
         "2.8"
       ],
-      "npc_affinity": [
-        "volkov"
-      ],
+      "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": [
         "political",
@@ -1688,9 +1560,7 @@
       "prerequisites": [
         "2.14"
       ],
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": [
         "political",
@@ -1716,9 +1586,7 @@
         "capacity": 1,
         "risk": 3
       },
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": [
         "society",
@@ -1742,9 +1610,7 @@
         "capacity": 1,
         "risk": 4
       },
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "society",
@@ -1769,9 +1635,7 @@
         "capacity": 2,
         "risk": 8
       },
-      "npc_affinity": [
-        "direktor"
-      ],
+      "npc_affinity": ["direktor"],
       "legality": "grey",
       "tags": [
         "society",
@@ -1796,10 +1660,7 @@
         "capacity": 2,
         "risk": 4
       },
-      "npc_affinity": [
-        "katja",
-        "volkov"
-      ],
+      "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": [
         "society",
@@ -1823,9 +1684,7 @@
         "capacity": 1,
         "risk": 3
       },
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "society",
@@ -1853,10 +1712,7 @@
       "prerequisites": [
         "1.7"
       ],
-      "npc_affinity": [
-        "marina",
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "society",
@@ -1881,9 +1737,7 @@
         "capacity": 1,
         "risk": 3
       },
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "society",
@@ -1907,9 +1761,7 @@
         "capacity": 4,
         "risk": 5
       },
-      "npc_affinity": [
-        "direktor"
-      ],
+      "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": [
         "society",
@@ -1937,9 +1789,7 @@
         "risk": 10,
         "moral_weight": 3
       },
-      "npc_affinity": [
-        "volkov"
-      ],
+      "npc_affinity": ["katja"],
       "legality": "illegal",
       "tags": [
         "targeting",
@@ -1967,10 +1817,7 @@
         "risk": 8,
         "moral_weight": 3
       },
-      "npc_affinity": [
-        "katja",
-        "marina"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "targeting",
@@ -1999,10 +1846,7 @@
       "prerequisites": [
         "1.8"
       ],
-      "npc_affinity": [
-        "katja",
-        "volkov"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "targeting",
@@ -2027,9 +1871,7 @@
         "capacity": 2,
         "risk": 6
       },
-      "npc_affinity": [
-        "katja"
-      ],
+      "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
         "targeting",
@@ -2055,9 +1897,7 @@
         "risk": 12,
         "moral_weight": 3
       },
-      "npc_affinity": [
-        "igor"
-      ],
+      "npc_affinity": ["alexei"],
       "legality": "illegal",
       "tags": [
         "targeting",
@@ -2084,9 +1924,7 @@
         "risk": 15,
         "moral_weight": 4
       },
-      "npc_affinity": [
-        "igor"
-      ],
+      "npc_affinity": ["alexei"],
       "legality": "illegal",
       "tags": [
         "targeting",
@@ -2117,10 +1955,7 @@
         "1.4",
         "8.6"
       ],
-      "npc_affinity": [
-        "volkov",
-        "direktor"
-      ],
+      "npc_affinity": ["katja"],
       "legality": "illegal",
       "tags": [
         "targeting",
@@ -2150,10 +1985,7 @@
       "prerequisites": [
         "2.18"
       ],
-      "npc_affinity": [
-        "marina",
-        "direktor"
-      ],
+      "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": [
         "targeting",
@@ -2179,10 +2011,7 @@
         "risk": 12,
         "moral_weight": 4
       },
-      "npc_affinity": [
-        "volkov",
-        "direktor"
-      ],
+      "npc_affinity": ["katja"],
       "legality": "illegal",
       "tags": [
         "targeting",
@@ -2211,10 +2040,7 @@
       "prerequisites": [
         "2.20"
       ],
-      "npc_affinity": [
-        "volkov",
-        "marina"
-      ],
+      "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": [
         "targeting",
@@ -2243,9 +2069,7 @@
       "prerequisites": [
         "2.6"
       ],
-      "npc_affinity": [
-        "igor"
-      ],
+      "npc_affinity": ["alexei"],
       "legality": "illegal",
       "tags": [
         "targeting",
@@ -2271,9 +2095,7 @@
         "capacity": 2,
         "risk": 5
       },
-      "npc_affinity": [
-        "igor"
-      ],
+      "npc_affinity": ["alexei"],
       "legality": "grey",
       "tags": [
         "targeting",
@@ -2298,10 +2120,7 @@
         "capacity": 2,
         "risk": 10
       },
-      "npc_affinity": [
-        "igor",
-        "katja"
-      ],
+      "npc_affinity": ["alexei"],
       "legality": "illegal",
       "tags": [
         "targeting",
@@ -2330,9 +2149,7 @@
       "prerequisites": [
         "2.3"
       ],
-      "npc_affinity": [
-        "volkov"
-      ],
+      "npc_affinity": ["alexei"],
       "legality": "grey",
       "tags": [
         "targeting",
@@ -2360,9 +2177,7 @@
       "prerequisites": [
         "2.3"
       ],
-      "npc_affinity": [
-        "volkov"
-      ],
+      "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": [
         "targeting",
@@ -2393,10 +2208,7 @@
       "prerequisites": [
         "2.20"
       ],
-      "npc_affinity": [
-        "volkov",
-        "katja"
-      ],
+      "npc_affinity": ["katja"],
       "legality": "illegal",
       "tags": [
         "targeting",

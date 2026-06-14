@@ -174,7 +174,7 @@
       },
       "prerequisites": ["1.2"],
       "unlocks": [],
-      "npc_affinity": ["direktor", "katja"],
+      "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": ["strategy", "framework"]
     },
@@ -198,7 +198,7 @@
       },
       "prerequisites": [],
       "unlocks": ["8.7"],
-      "npc_affinity": ["marina"],
+      "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": ["analysis", "targeting", "intelligence"]
     },
@@ -222,7 +222,7 @@
       },
       "prerequisites": [],
       "unlocks": ["5.2"],
-      "npc_affinity": ["marina", "igor"],
+      "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": ["analysis", "monitoring"]
     },
@@ -270,7 +270,7 @@
       },
       "prerequisites": ["1.1"],
       "unlocks": ["3.10", "7.6"],
-      "npc_affinity": ["marina", "katja"],
+      "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": ["analysis", "division", "strategy"]
     },
@@ -294,7 +294,7 @@
       },
       "prerequisites": [],
       "unlocks": ["8.3"],
-      "npc_affinity": ["marina", "volkov"],
+      "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": ["intelligence", "defense"]
     },
@@ -318,7 +318,7 @@
       },
       "prerequisites": ["1.1"],
       "unlocks": [],
-      "npc_affinity": ["marina", "katja"],
+      "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": ["analysis", "optimization"]
     },
@@ -366,7 +366,7 @@
       },
       "prerequisites": [],
       "unlocks": ["2.2", "5.1", "5.5"],
-      "npc_affinity": ["volkov", "igor"],
+      "npc_affinity": ["alexei"],
       "legality": "illegal",
       "tags": ["infrastructure", "automation", "digital"]
     },
@@ -389,7 +389,7 @@
       },
       "prerequisites": ["2.1"],
       "unlocks": [],
-      "npc_affinity": ["volkov"],
+      "npc_affinity": ["alexei"],
       "legality": "illegal",
       "tags": ["infrastructure", "automation", "upgrade"]
     },
@@ -413,7 +413,7 @@
       },
       "prerequisites": [],
       "unlocks": ["5.3"],
-      "npc_affinity": ["volkov"],
+      "npc_affinity": ["alexei"],
       "legality": "illegal",
       "tags": ["infrastructure", "human_operators"]
     },
@@ -437,7 +437,7 @@
       },
       "prerequisites": [],
       "unlocks": ["5.4", "5.9"],
-      "npc_affinity": ["volkov", "igor"],
+      "npc_affinity": ["alexei"],
       "legality": "illegal",
       "tags": ["infrastructure", "personas"]
     },
@@ -461,7 +461,7 @@
       },
       "prerequisites": [],
       "unlocks": [],
-      "npc_affinity": ["igor"],
+      "npc_affinity": ["alexei"],
       "legality": "legal",
       "tags": ["infrastructure", "security", "defense"]
     },
@@ -485,7 +485,7 @@
       },
       "prerequisites": [],
       "unlocks": ["3.5", "3.7"],
-      "npc_affinity": ["igor"],
+      "npc_affinity": ["alexei"],
       "legality": "grey",
       "tags": ["infrastructure", "technical"]
     },
@@ -509,7 +509,7 @@
       },
       "prerequisites": [],
       "unlocks": [],
-      "npc_affinity": ["igor", "volkov"],
+      "npc_affinity": ["alexei"],
       "legality": "legal",
       "tags": ["infrastructure", "automation", "efficiency"]
     },
@@ -533,7 +533,7 @@
       },
       "prerequisites": [],
       "unlocks": ["4.13", "6.9"],
-      "npc_affinity": ["katja"],
+      "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": ["infrastructure", "institutional", "cover"]
     },
@@ -557,7 +557,7 @@
       },
       "prerequisites": [],
       "unlocks": ["4.14", "6.8"],
-      "npc_affinity": ["katja", "direktor"],
+      "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": ["infrastructure", "institutional", "legitimacy"]
     },
@@ -606,7 +606,7 @@
       },
       "prerequisites": [],
       "unlocks": ["6.7"],
-      "npc_affinity": ["direktor"],
+      "npc_affinity": ["igor"],
       "legality": "grey",
       "tags": ["infrastructure", "financial", "cover"]
     },
@@ -630,7 +630,7 @@
       },
       "prerequisites": [],
       "unlocks": ["6.1", "6.3"],
-      "npc_affinity": ["direktor"],
+      "npc_affinity": ["igor"],
       "legality": "illegal",
       "tags": ["infrastructure", "political", "funding"]
     },
@@ -679,7 +679,7 @@
       },
       "prerequisites": [],
       "unlocks": ["6.10"],
-      "npc_affinity": ["katja"],
+      "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": ["infrastructure", "institutional", "education", "long_term"]
     },
@@ -703,7 +703,7 @@
       },
       "prerequisites": [],
       "unlocks": ["4.12", "3.14"],
-      "npc_affinity": ["katja", "direktor"],
+      "npc_affinity": ["marina"],
       "legality": "illegal",
       "tags": ["infrastructure", "persona", "expert"]
     },
@@ -728,7 +728,7 @@
       },
       "prerequisites": [],
       "unlocks": ["4.12", "3.15"],
-      "npc_affinity": ["marina", "direktor"],
+      "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": ["recruitment", "expert", "mice"]
     },
@@ -752,7 +752,7 @@
       },
       "prerequisites": [],
       "unlocks": ["4.6", "4.10"],
-      "npc_affinity": ["katja", "direktor"],
+      "npc_affinity": ["katja"],
       "legality": "illegal",
       "tags": ["recruitment", "media", "mice"]
     },
@@ -800,7 +800,7 @@
       },
       "prerequisites": ["1.6"],
       "unlocks": ["5.6"],
-      "npc_affinity": ["marina"],
+      "npc_affinity": ["katja"],
       "legality": "legal",
       "tags": ["recruitment", "amplification", "organic"]
     },
@@ -826,7 +826,7 @@
       },
       "prerequisites": ["1.4"],
       "unlocks": ["8.10"],
-      "npc_affinity": ["volkov", "direktor"],
+      "npc_affinity": ["katja"],
       "legality": "illegal",
       "tags": ["recruitment", "mice", "espionage"]
     }
