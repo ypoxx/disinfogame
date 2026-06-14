@@ -941,6 +941,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             targets={loadTargets()}
             carriers={loadCarriers()}
             platforms={loadPlatforms()}
+            backdropUrl={assets.imageUrl('room_operations') ?? undefined}
             factcheckPressure={state.resources.attention / 100}
             saturation={state.resources.risk / 100}
             onAusspielen={(params) => {

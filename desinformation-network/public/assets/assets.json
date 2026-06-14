@@ -871,6 +871,16 @@
       "styleVersion": "v2"
     },
     {
+      "id": "room_operations",
+      "type": "image",
+      "file": "images/room_operations.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game background scene, wide interior view. office room \"Operations Room\". Concrete and glass walls, a clean floor, an abstract constructivist-style poster (geometric shapes only, no emblems, no text). Furniture and desks are modest in size and clearly smaller than a standing adult; keep the lower third of the scene as clear floor space for a character to stand. No people, no text, no UI elements. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 949119,
+      "styleVersion": "v1"
+    },
+    {
       "id": "room_spieler_buero",
       "type": "image",
       "file": "images/room_spieler_buero.png",

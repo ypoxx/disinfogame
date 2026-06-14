@@ -34,6 +34,8 @@ export interface OperationsAkteViewProps {
   factcheckPressure?: number;
   /** Sättigung des Informationsraums (0..1, z. B. risk/100). */
   saturation?: number;
+  /** Optionales Raum-Hintergrundbild (Operationszentrale) hinter dem abgedunkelten Deckel. */
+  backdropUrl?: string;
   /** Auswahl als params + bewertetes Resultat — der Orchestrator spielt aus. */
   onAusspielen: (params: OperationParams, result: OperationResult) => void;
   onClose: () => void;
@@ -244,6 +246,7 @@ export function OperationsAkteView({
   platforms,
   factcheckPressure,
   saturation,
+  backdropUrl,
   onAusspielen,
   onClose,
 }: OperationsAkteViewProps): React.JSX.Element {
@@ -298,7 +301,16 @@ export function OperationsAkteView({
         justifyContent: 'center',
         padding: 16,
         fontFamily: 'monospace',
-        backgroundColor: 'rgba(8,8,10,0.82)',
+        // Diegetisch: Operationszentrale-Raum durchscheinend hinter dem Aktendeckel.
+        backgroundColor: '#08080a',
+        ...(backdropUrl
+          ? {
+              backgroundImage: `linear-gradient(rgba(8,8,10,0.86), rgba(8,8,10,0.86)), url(${backdropUrl})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              imageRendering: 'pixelated' as const,
+            }
+          : { backgroundColor: 'rgba(8,8,10,0.82)' }),
       }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
