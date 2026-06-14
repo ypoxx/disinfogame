@@ -365,19 +365,30 @@ detaillierter Bau-Plan. **Vorher kein Code** — dieses Dokument bleibt der verl
 man **erreicht bestimmte Ziele**. Also: **Vertrauenserosion ist das Mittel, der Auftrag ist das Ziel.** Das
 löst die „mehrere Sieg-Pfade"-Frage elegant und gibt Replay-Wert (wie Plague Inc.: verschiedene Strategien).
 
-**Vier Auftrags-Archetypen (fiktiv gerahmt, je eigene Wert-Signatur + eigenes Ende):**
-1. **„Zermürbung" — Unterstützung entziehen.** Westunion soll die Unterstützung für einen Verbündeten / die
-   eigene Wehrhaftigkeit aufgeben (Kriegsmüdigkeit). *Signatur:* Wert **Wehrhaftigkeit/Unterstützungsbereitschaft↓**
-   + Zynismus/Erschöpfung↑. *Reales Muster (fiktiv):* Untergrabung der Hilfe für ein angegriffenes Land.
-2. **„Stillstand" — Lähmung durch Polarisierung.** So spalten, dass das Land politisch handlungsunfähig und
-   wirtschaftlich geschwächt ist. *Signatur:* **Polarisierung↑↑ + Kompromiss-/Reformfähigkeit↓ + Diskursqualität↓.**
-3. **„Seitenwechsel" — geopolitische Verschiebung.** Eine bestimmte politische Kraft so stärken, dass sich das
-   Land vom europäischen Bündnis ab- und unserem Block zuwendet. *Signatur:* **Fraktions-Stärke (uns nahe)↑**
-   über Schwelle + Vertrauen in etablierte Kräfte↓. *Reales Muster (fiktiv):* Drift wie Ungarn/Slowakei.
-4. **„Abstieg" — Niedergangsspirale.** Selbstschädigung/Isolation (Innovationsverlust, Abschottung, „Brexit"-
-   artige Entscheidung; alte Mächte neigen sich ihrem Ende). *Signatur:* **Fragmentierung↑ + Reformfähigkeit↓
-   + eine langfristige Selbstschädigungs-Entscheidung.**
-*(Optional/später, vom Owner als „nicht im Fokus" markiert: gegnerische Länder stärken.)*
+**Fünf Auftrags-Archetypen v2 (heute-anschlussfähig, Westunion-fiktiv, KEIN expliziter Krieg —
+Owner-Korrektur: „Kriegsmüdigkeit war nur Beispiel"). Je eigene Wert-Signatur + eigenes Ende:**
+1. **„Der Keil" — Gesellschaft an einem Reizthema spalten** *(Default/Tutorial-Auftrag)*. Ein Reizthema
+   (Migration, Energie, Identität, Stadt↔Land) so aufladen, dass der Kulturkampf den Diskurs frisst.
+   *Signatur:* Polarisierung↑↑, Diskursqualität↓, Fragmentierung↑. *Lehrt den Kern-Loop.* *Heute:* jede
+   vergiftete Dauerdebatte.
+2. **„Der Stillstand" — Lähmung & Reformblockade.** Kompromiss delegitimieren, bis das Land politisch
+   handlungsunfähig und wirtschaftlich träge ist. *Signatur:* Polarisierung↑ + Reform-/Governance-Fähigkeit↓
+   + Kompromissfähigkeit↓. *Heute:* „die da oben kriegen nichts geregelt".
+3. **„Die Wahl" — eine politische Kraft kippen.** Eine uns genehme/radikale Kraft stärken, die Beteiligung
+   der anderen drücken; das Land driftet. *Signatur:* Fraktions-Stärke (uns nah)↑ + Vertrauen in etablierte
+   Kräfte↓ + Beteiligung der Gegenseite↓. *Heute:* Wahlbeeinflussung, Aufstieg der Ränder.
+4. **„Der Rückzug" — Bündnis- & Solidaritätsmüdigkeit** *(ersetzt „Kriegsmüdigkeit", ohne Krieg)*. Das Land
+   nach innen drehen — gegen das Bündnis, gegen Hilfe für andere, „wir zuerst", Austritts-Stimmung.
+   *Signatur:* Bündnis-/Solidaritätsbereitschaft↓ + Nationalismus↑ + Vertrauen in „die Eliten"↓. *Heute:*
+   Anti-EU/Austritt, Sanktions-/Hilfsmüdigkeit, Isolationismus.
+5. **„Der Zweifel" — Wahlen/Fakten/Institutionen delegitimieren.** Nicht eine Lüge durchsetzen, sondern dass
+   man *nichts* mehr glaubt — Wahlen „manipuliert", Experten „gekauft", Medien „Lügen" → Zynismus & Rückzug.
+   *Signatur:* Vertrauen↓↓ + Zynismus/Erschöpfung↑ + Medienkompetenz↓. *Heute:* „gestohlene Wahl",
+   Wissenschaftsleugnung, „Lügenpresse".
+
+*„Abstieg/Niedergangsspirale" (alte #4) ist kein eigener Start-Auftrag mehr, sondern ein mögliches
+**Langzeit-Ende** aus Stillstand+Rückzug (Selbstschädigung/Abschottung) — als Ende vorgemerkt.*
+*(Optional/später, vom Owner als „nicht im Fokus": gegnerische Länder stärken.)*
 
 **Gemeinsames Substrat:** Vertrauenserosion ist Voraussetzung für ALLE Aufträge; jeder Auftrag hat zusätzlich
 seine **Signatur-Achse(n)** und ein **eigenes Ende**. v1 darf „Vertrauen erodieren" als einzigen *spielbaren*
@@ -408,6 +419,12 @@ in **Formeln** (z. B. hohe Informationslast dämpft Korrektur; hohe Polarisierun
 „schöne, gute Komplexität hinten, niedrigschwellig vorn" (Owner-Leitsatz). HUD-Balken = Schnell-Anzeige; Umfragen
 = das erzählerische Gesicht desselben Zustands.
 
+**Instrument ↔ Auftrag (B-Check, damit erzählerisch keine Lücke entsteht):** jeder Auftrag (§14.1) hat ein
+sichtbar-machendes Instrument — *Keil* → Stimmungsbarometer (Lager-Abstand wächst) · *Stillstand* → „Reform-/
+Zufriedenheits-Monitor" (es geht nichts voran) · *Die Wahl* → „Westunion-Wahltrend/Politbarometer" · *Rückzug*
+→ „Bündnis-/Außen-Barometer" (Zustimmung zum Bündnis sinkt) · *Zweifel* → „Vertrauensindex" (Institutionen/
+Medien/Wahlen). So liest man den Fortschritt seines Auftrags an einer Umfrage ab.
+
 ### 14.3 F5 vertieft — Die erzählerische Gegenseite (Newsroom + wahrnehmbare Akteure)
 **Owner:** Die Gegenseite soll greifbar werden — aber **nicht im Gebäude** (nicht Pförtner/Putzkraft). Weg:
 über die **Medienflächen**, v. a. einen **Newsroom**:
@@ -437,6 +454,25 @@ Humor lebt in der **Welt**, nicht im Plot; trocken, entdeckbar, nie platt:
 5. **Schwarzes Brett / Aktennotizen** mit absurden Dienstanweisungen („Memo: ‚Spontane Bürgerinitiativen' bitte
    bis Freitag einreichen.").
 6. **Versionsanzeige/Easter-Egg** beim Klick auf bestimmte Details (s. 14.6).
+
+**Weitere Beispiele (NEU, nicht vom Owner) — je mit Spielbezug, denn Feinheiten sollen auf das Spiel
+verweisen, nicht beliebige Gags sein (SOUL §9):**
+7. **Der Reißwolf, der nie leer wird** — neben dem Schreibtisch quillt der Aktenvernichter über; je höher dein
+   Entdeckungsdruck/Risiko, desto voller. *Warum:* macht „Spuren verwischen/OPSEC" beiläufig sichtbar — Humor,
+   der direkt am Risiko-Stand hängt.
+8. **Wand der „Mitarbeiter des Monats"** — Porträts, aber alle mit demselben generischen Gesicht; bei Klick
+   wechselt nur der Deckname. *Warum:* trockener Kommentar zur Austauschbarkeit von Sockenpuppen — spiegelt die
+   Verbreiter-Mechanik.
+9. **Getränkeautomat „Volksbrause"** — eine einzige Sorte, deren Etikett auf dein laufendes Narrativ reagiert
+   („Jetzt mit Heimat-Geschmack!"). *Warum:* Selbst-Propaganda im eigenen Haus, gekoppelt an die aktive Kampagne.
+10. **Bürger-Beschwerde-Telefon „dauerhaft in Wartung".** *Warum:* dezenter Hinweis auf die Einbahn-Kommunikation
+    des Regimes — Atmosphäre statt Plot.
+11. **Weltkarte im Direktor-Büro**, auf der „Westunion" je nach Deutungshoheit mehr/weniger eingefärbt ist, mit
+    handschriftlichen Rand-Notizen. *Warum:* macht den abstrakten Fortschritt diegetisch greifbar + zeichnet den
+    Direktor.
+12. **Pförtner liest täglich „dieselbe" Zeitung — mit deiner letzten Broadcast-Schlagzeile.** *Warum:* verbindet
+    die Umgebung mit der Broadcast-Mechanik: der kleine Mann konsumiert, was du produzierst.
+
 Dosis: Episoden bleiben überwiegend ernst/sachlich; die **Leichtigkeit kommt aus der Umgebung**.
 
 ### 14.5 F2/F4 Nachträge
@@ -451,10 +487,11 @@ Startseite zeigt statisch „0.9". **Wunsch:** Mechanismus, der die Versionsanze
 fortschreibt (ggf. mit Bild/Build-Stempel), damit man den ausgelieferten Stand **direkt sieht** — hilft auch,
 **Cache-Probleme** zu erkennen. *(Eigenständiger kleiner Technik-Task, unabhängig vom Konzept; hier nur notiert.)*
 
-### 14.7 Was an Owner zurückgeht (zu vertiefen)
-- **A — F1-Aufträge:** Welche 2–3 Archetypen zuerst? Auftrag wählbar am Start (Plague-Inc.) oder emergent?
-- **B — F3-Instrumente:** Sind die vier fiktiven Umfrage-Instrumente die richtigen? Namen ok? Takt (jede Phase /
-  bei Ereignissen)?
-- **C — F5-Newsroom:** eigene Fläche oder erweiterte Broadcast-Ansicht?
-- **D — F6-Dosis:** passt die „Humor in der Umgebung, Ernst im Plot"-Linie + die sechs Beispiele?
+### 14.7 Stand der Rückfragen (Owner-Transkript 2)
+- **A — F1-Aufträge:** ✅ Default-Auftrag als Einstieg/Tutorial, danach emergent. „Kriegsmüdigkeit" verworfen →
+  **Archetypen v2** (§14.1: Keil/Stillstand/Wahl/Rückzug/Zweifel, heute-anschlussfähig). *Offen:* Owner-Abnahme
+  des v2-Sets + welche 2–3 zuerst (Empfehlung: „Der Keil" als Default-Einstieg, dann „Die Wahl" + „Der Zweifel").
+- **B — F3-Instrumente:** ✅ + jetzt **gegen die Archetypen gemappt** (§14.2), keine erzählerische Lücke.
+- **C — F5-Newsroom:** ✅ **gelockt** — Broadcast unten = Schnellansicht, Newsroom = Vertiefung (NPC deutet).
+- **D — F6:** ✅ Linie + Beispiele (§14.4, jetzt inkl. 6 neue mit Begründung). Owner-Abnahme der Dosis offen.
 
