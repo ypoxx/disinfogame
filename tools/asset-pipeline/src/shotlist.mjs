@@ -223,7 +223,7 @@ const BUILDING_KIT = [
     '21:9',
     { w: 2016, h: 864 },
     true,
-    'distant city skyline for a side-scrolling pixel game background, several depth layers of block buildings: nearer buildings darker and sharper, buildings further back progressively lighter as they recede into cool blue-grey atmospheric haze; small warm lit windows scattered across the buildings, a few slim chimneys with faint smoke, one thin TV tower; the UPPER parts of the skyline gradually dissolve into the hazy distance so there is NO hard top edge; flat layered silhouette, crisp clean high-resolution pixel art, seamlessly tileable from left to right, on a single flat solid magenta (#FF00FF) background above and between the gaps so the sky can be cut out',
+'distant city skyline for a side-scrolling pixel game background, a DENSE CONTINUOUS row of many block buildings of varied heights packed close together with NO large empty gaps between building clusters (no missing-tooth gaps), several depth layers: nearer buildings darker and sharper, buildings further back progressively lighter as they recede into cool blue-grey atmospheric haze; small warm lit windows scattered across the buildings, a few slim chimneys with faint smoke, one thin TV tower; the UPPER parts of the skyline gradually dissolve into the hazy distance so there is NO hard top edge; flat layered silhouette; PERFECTLY seamless horizontal tile — the LEFT and RIGHT edges must continue each other exactly with buildings crossing the seam so it repeats with no visible break; crisp clean high-resolution pixel art, on a single flat solid magenta (#FF00FF) background above and between the gaps so the sky can be cut out',
     'must',
   ],
   [
