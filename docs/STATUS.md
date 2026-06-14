@@ -52,6 +52,8 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
   ID-Kopplung, tote Hooks) · Ethik-Geländer mitgedacht (niedrige Prio).
 **Nächster Schritt:** detaillierter **Bau-Plan** ableiten (PR-Schnitt nach §9.3, je grün + simuliert), dann bauen —
 am besten **frische Session** (Token-Budget). **Technik-Nebentask:** dynamische Versionsanzeige je Commit (Cache-Diagnose, §14.6).
+> ✅ **Bau-Plan liegt vor:** `BAUPLAN_2026-06-14_HERZSTUECK.md` (P0 Hygiene → P1 Werte → P2 Splitting → P3 Phänomene →
+> P4 Episoden/Korkbrett → P5 Aufträge/Enden → P6 Vernetzung → P7 Humor/Ethik). **Einstieg für die frische Session: P0+P1.**
 
 ### 🔎 Aus dieser Session offen / nur im Preview zu prüfen (nicht in-Container verifizierbar)
 - **Fernsehfamilie ausgeklappt** (Taste B): Sitzlinie/Köpfe — Preview prüfen, ggf. Skala/Position nachziehen.
