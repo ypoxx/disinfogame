@@ -16,6 +16,7 @@ import { StoryModeColors } from '../theme';
 import {
   evaluateOperationParams,
   resolveOperationParams,
+  kompromatCost,
   type Carrier,
   type OperationParams,
   type OperationResult,
@@ -36,6 +37,15 @@ export interface OperationsAkteViewProps {
   saturation?: number;
   /** Optionales Raum-Hintergrundbild (Operationszentrale) hinter dem abgedunkelten Deckel. */
   backdropUrl?: string;
+  // ── Operations-Ökonomie (optional; ohne diese Props keine Aufbau-/Beschaffungs-Pflicht) ──
+  /** Verbreiter-Zustände (`verfügbar`/`aufbau`/`aktiv`/`verbrannt`) je carrier-id. */
+  carrierStates?: Record<string, string>;
+  /** Beschaffte Kompromat-Schlüssel `targetId:vulnId`. */
+  acquiredKompromat?: string[];
+  /** Verbreiter aufbauen (kostet Budget/Kapazität). */
+  onBuildCarrier?: (carrierId: string) => void;
+  /** Kompromat beschaffen (kostet Budget ~ Heikelheit). */
+  onAcquireKompromat?: (targetId: string, vulnId: string) => void;
   /** Auswahl als params + bewertetes Resultat — der Orchestrator spielt aus. */
   onAusspielen: (params: OperationParams, result: OperationResult) => void;
   onClose: () => void;
@@ -92,6 +102,21 @@ export function gaugeColor(value: number, invert = false): string {
   if (v >= 0.33) return StoryModeColors.warning;
   return StoryModeColors.danger;
 }
+
+/** Kleiner „Dossier-Aktion"-Knopf (Aufbauen/Beschaffen) im Papier-Look. */
+const dossierBtnStyle: React.CSSProperties = {
+  alignSelf: 'flex-start',
+  marginLeft: 19,
+  padding: '2px 8px',
+  fontSize: 9,
+  fontFamily: 'monospace',
+  fontWeight: 700,
+  letterSpacing: 0.5,
+  color: '#1a1a1a',
+  backgroundColor: '#c9b27a',
+  border: '1px solid #8a7c5a',
+  cursor: 'pointer',
+};
 
 // ─── CSS-Keyframes (Präfix oa-) ───────────────────────────────────────────────
 
@@ -247,10 +272,23 @@ export function OperationsAkteView({
   factcheckPressure,
   saturation,
   backdropUrl,
+  carrierStates,
+  acquiredKompromat,
+  onBuildCarrier,
+  onAcquireKompromat,
   onAusspielen,
   onClose,
 }: OperationsAkteViewProps): React.JSX.Element {
   const [sel, setSel] = useState<AkteSelection>(EMPTY_SELECTION);
+
+  // Ökonomie-Helfer: ohne Props (Standalone/Test) gilt alles als nutzbar.
+  const economy = Boolean(carrierStates || acquiredKompromat);
+  const carrierStateOf = (id: string): string => carrierStates?.[id] ?? 'aktiv';
+  const carrierActive = (id: string): boolean => !carrierStates || carrierStateOf(id) === 'aktiv';
+  const carrierBurned = (id: string): boolean => carrierStateOf(id) === 'verbrannt';
+  const kompromatKey = (targetId: string, vulnId: string) => `${targetId}:${vulnId}`;
+  const vulnAcquired = (targetId: string, vulnId: string): boolean =>
+    !acquiredKompromat || acquiredKompromat.includes(kompromatKey(targetId, vulnId));
 
   // Escape schließt die Akte.
   const handleKeyDown = useCallback((e: KeyboardEvent): void => {
@@ -281,11 +319,25 @@ export function OperationsAkteView({
   const resolved = useMemo(() => resolveOperationParams(params, ctx), [params, ctx]);
   const result = useMemo(() => evaluateOperationParams(params, ctx), [params, ctx]);
   const missing = useMemo(() => missingSteps(resolved), [resolved]);
-  const complete = missing.length === 0 && result !== null;
+  // Ökonomie-Reife: gewählter Verbreiter aktiv UND Kompromat beschafft.
+  const economyReady =
+    !economy ||
+    ((sel.carrierId ? carrierActive(sel.carrierId) : false) &&
+      (sel.targetId && sel.vulnId ? vulnAcquired(sel.targetId, sel.vulnId) : false));
+  const complete = missing.length === 0 && result !== null && economyReady;
+
+  // Zusatz-Hinweis, wenn Auswahl komplett aber Ökonomie fehlt.
+  const economyHint = (() => {
+    if (!economy || missing.length > 0) return null;
+    if (sel.carrierId && carrierBurned(sel.carrierId)) return 'Verbreiter verbrannt — anderen wählen.';
+    if (sel.carrierId && !carrierActive(sel.carrierId)) return 'Verbreiter erst aufbauen.';
+    if (sel.targetId && sel.vulnId && !vulnAcquired(sel.targetId, sel.vulnId)) return 'Kompromat erst beschaffen.';
+    return null;
+  })();
 
   const ausspielen = useCallback(() => {
-    if (result) onAusspielen(params, result);
-  }, [result, params, onAusspielen]);
+    if (result && economyReady) onAusspielen(params, result);
+  }, [result, economyReady, params, onAusspielen]);
 
   return (
     <div
@@ -408,17 +460,31 @@ export function OperationsAkteView({
               <StepHeader num="2" title="SCHWÄCHE" hint={selectedTarget ? 'Angriffsfläche' : 'erst Ziel wählen'} />
               {selectedTarget ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  {selectedTarget.vulnerabilities.map((v) => (
-                    <OptionRow
-                      key={v.id}
-                      testid={`oa-vuln-${v.id}`}
-                      selected={sel.vulnId === v.id}
-                      onClick={() => pickVuln(v.id)}
-                      title={v.label_de}
-                      subtitle={`Heikelheit ${formatPct(v.heikelheit)}`}
-                      stats={<MiniStat label="GLB" value={v.glaubwuerdigkeit} />}
-                    />
-                  ))}
+                  {selectedTarget.vulnerabilities.map((v) => {
+                    const acquired = vulnAcquired(selectedTarget.id, v.id);
+                    return (
+                      <div key={v.id} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <OptionRow
+                          testid={`oa-vuln-${v.id}`}
+                          selected={sel.vulnId === v.id}
+                          onClick={() => pickVuln(v.id)}
+                          title={v.label_de}
+                          subtitle={`Heikelheit ${formatPct(v.heikelheit)}${economy ? (acquired ? ' · beschafft ✓' : '') : ''}`}
+                          stats={<MiniStat label="GLB" value={v.glaubwuerdigkeit} />}
+                        />
+                        {economy && !acquired && (
+                          <button
+                            type="button"
+                            data-testid={`oa-acquire-${v.id}`}
+                            onClick={() => onAcquireKompromat?.(selectedTarget.id, v.id)}
+                            style={dossierBtnStyle}
+                          >
+                            ▸ Kompromat beschaffen ({kompromatCost(v)}k)
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <div style={{ fontSize: 10, fontStyle: 'italic', color: '#7a6e54', padding: '4px 2px' }}>— Kein Ziel gewählt —</div>
@@ -429,23 +495,40 @@ export function OperationsAkteView({
             <section>
               <StepHeader num="3" title="VERBREITER" hint="WER trägt die Botschaft" />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {carriers.map((c) => (
-                  <OptionRow
-                    key={c.id}
-                    testid={`oa-carrier-${c.id}`}
-                    selected={sel.carrierId === c.id}
-                    onClick={() => pickCarrier(c.id)}
-                    title={c.label_de}
-                    subtitle={`Aufbau ${c.buildCost.budget}k · ${c.buildCost.phases} Phase(n)`}
-                    stats={
-                      <>
-                        <MiniStat label="RW" value={c.reach} />
-                        <MiniStat label="GLB" value={c.credibility} />
-                        <MiniStat label="RISK" value={c.exposure} invert />
-                      </>
-                    }
-                  />
-                ))}
+                {carriers.map((c) => {
+                  const state = carrierStateOf(c.id);
+                  const active = carrierActive(c.id);
+                  const burned = carrierBurned(c.id);
+                  const stateLabel = !economy ? '' : burned ? ' · VERBRANNT' : active ? ' · aktiv ✓' : ' · verfügbar';
+                  return (
+                    <div key={c.id} style={{ display: 'flex', flexDirection: 'column', gap: 2, opacity: burned ? 0.55 : 1 }}>
+                      <OptionRow
+                        testid={`oa-carrier-${c.id}`}
+                        selected={sel.carrierId === c.id}
+                        onClick={() => pickCarrier(c.id)}
+                        title={`${c.label_de}${stateLabel}`}
+                        subtitle={`Aufbau ${c.buildCost.budget}k · ${c.buildCost.phases} Phase(n)`}
+                        stats={
+                          <>
+                            <MiniStat label="RW" value={c.reach} />
+                            <MiniStat label="GLB" value={c.credibility} />
+                            <MiniStat label="RISK" value={c.exposure} invert />
+                          </>
+                        }
+                      />
+                      {economy && !active && !burned && (
+                        <button
+                          type="button"
+                          data-testid={`oa-build-${c.id}`}
+                          onClick={() => onBuildCarrier?.(c.id)}
+                          style={dossierBtnStyle}
+                        >
+                          ▸ Verbreiter aufbauen ({c.buildCost.budget}k · {c.buildCost.capacity} Kap.)
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </section>
 
@@ -520,8 +603,8 @@ export function OperationsAkteView({
               }}
             >
               <div style={{ fontSize: 8, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 3 }}>VORSCHAU — AUSSPIELUNG</div>
-              <div data-testid="oa-headline" style={{ fontSize: 11, color: result ? StoryModeColors.warning : StoryModeColors.textMuted, lineHeight: 1.4 }}>
-                {result ? result.headline_de : `Es fehlt noch: ${missing.join(', ')}.`}
+              <div data-testid="oa-headline" style={{ fontSize: 11, color: result ? (economyHint ? StoryModeColors.danger : StoryModeColors.warning) : StoryModeColors.textMuted, lineHeight: 1.4 }}>
+                {economyHint ? economyHint : result ? result.headline_de : `Es fehlt noch: ${missing.join(', ')}.`}
               </div>
             </div>
 

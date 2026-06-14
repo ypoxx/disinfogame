@@ -42,6 +42,9 @@ export interface Carrier {
   buildCost: { budget: number; capacity: number; phases: number };
 }
 
+/** Laufzeit-Zustand eines Verbreiters (P2 §2): aufbauen → nutzen → kann auffliegen. */
+export type CarrierState = 'verfügbar' | 'aufbau' | 'aktiv' | 'verbrannt';
+
 export interface Platform {
   id: string;
   label_de: string;
@@ -204,6 +207,11 @@ export function resolveOperationParams(params: OperationParams, ctx: OperationCo
 /** Vollständig = Ziel + Schwäche + Verbreiter + mindestens eine Plattform aufgelöst. */
 export function isOperationComplete(resolved: ResolvedOperation): boolean {
   return Boolean(resolved.target && resolved.vulnerability && resolved.carrier && resolved.platforms.length > 0);
+}
+
+/** Beschaffungskosten (Budget) für Kompromat — heikleres Material ist teurer (P2 §5). */
+export function kompromatCost(vuln: Vulnerability): number {
+  return Math.max(2, Math.round(vuln.heikelheit * 18 + 4));
 }
 
 /**

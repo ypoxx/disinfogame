@@ -258,6 +258,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     endPhase,
     executeAction,
     playOperation,
+    buildCarrier,
+    acquireKompromat,
     addToQueue,
     removeFromQueue,
     clearQueue,
@@ -944,6 +946,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             backdropUrl={assets.imageUrl('room_operations') ?? undefined}
             factcheckPressure={state.resources.attention / 100}
             saturation={state.resources.risk / 100}
+            carrierStates={state.carrierStates}
+            acquiredKompromat={state.acquiredKompromat}
+            onBuildCarrier={(id) => buildCarrier(id)}
+            onAcquireKompromat={(targetId, vulnId) => acquireKompromat(targetId, vulnId)}
             onAusspielen={(params) => {
               playOperation(params);
               setShowOperationsAkte(false);

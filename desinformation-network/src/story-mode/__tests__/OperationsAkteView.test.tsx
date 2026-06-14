@@ -118,3 +118,60 @@ describe('OperationsAkteView — Render + Durchstich', () => {
     expect(onClose).toHaveBeenCalled();
   });
 });
+
+describe('OperationsAkteView — Ökonomie-Gate (Aufbauen/Beschaffen)', () => {
+  const targets = loadTargets();
+  const carriers = loadCarriers();
+  const platforms = loadPlatforms();
+  const t = targets[0];
+  const v = t.vulnerabilities[0];
+  const c = carriers[0];
+  const p = platforms[0];
+
+  it('Ausspielen bleibt gesperrt, bis Verbreiter aufgebaut UND Kompromat beschafft ist', () => {
+    const onBuildCarrier = vi.fn();
+    const onAcquireKompromat = vi.fn();
+    const onAusspielen = vi.fn();
+    const { rerender } = render(
+      <OperationsAkteView
+        targets={targets} carriers={carriers} platforms={platforms}
+        carrierStates={{ [c.id]: 'verfügbar' }}
+        acquiredKompromat={[]}
+        onBuildCarrier={onBuildCarrier}
+        onAcquireKompromat={onAcquireKompromat}
+        onAusspielen={onAusspielen}
+        onClose={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByTestId(`oa-target-${t.id}`));
+    fireEvent.click(screen.getByTestId(`oa-vuln-${v.id}`));
+    fireEvent.click(screen.getByTestId(`oa-carrier-${c.id}`));
+    fireEvent.click(screen.getByTestId(`oa-platform-${p.id}`));
+
+    // vollständige Auswahl, aber Ökonomie fehlt → Ausspielen gesperrt, Hinweis sichtbar
+    expect((screen.getByTestId('oa-ausspielen') as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByTestId('oa-headline').textContent).toMatch(/aufbauen|beschaffen/i);
+
+    // Aktions-Knöpfe lösen die Callbacks aus
+    fireEvent.click(screen.getByTestId(`oa-build-${c.id}`));
+    expect(onBuildCarrier).toHaveBeenCalledWith(c.id);
+    fireEvent.click(screen.getByTestId(`oa-acquire-${v.id}`));
+    expect(onAcquireKompromat).toHaveBeenCalledWith(t.id, v.id);
+
+    // Nach Aufbau + Beschaffung (Props aktualisiert) → Ausspielen frei
+    rerender(
+      <OperationsAkteView
+        targets={targets} carriers={carriers} platforms={platforms}
+        carrierStates={{ [c.id]: 'aktiv' }}
+        acquiredKompromat={[`${t.id}:${v.id}`]}
+        onBuildCarrier={onBuildCarrier}
+        onAcquireKompromat={onAcquireKompromat}
+        onAusspielen={onAusspielen}
+        onClose={vi.fn()}
+      />,
+    );
+    expect((screen.getByTestId('oa-ausspielen') as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByTestId('oa-ausspielen'));
+    expect(onAusspielen).toHaveBeenCalledTimes(1);
+  });
+});
