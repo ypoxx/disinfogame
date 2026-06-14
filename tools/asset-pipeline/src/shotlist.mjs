@@ -13,7 +13,7 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import { BUILDING_JSON, NPCS_JSON } from './paths.mjs';
-import { styleCore, styleObject } from './styleguide.mjs';
+import { styleCore, styleObject, styleHome } from './styleguide.mjs';
 import { CHROMA_PROMPT } from './transparency.mjs';
 
 /** Deterministischer Seed je Shot-id (reproduzierbare Läufe). */
@@ -268,7 +268,7 @@ const HUD_KIT = [
     '16:9',
     { w: 1344, h: 768 },
     false,
-    'a clean contemporary (2020s) western middle-class living room facing the viewer: a long empty modern fabric sofa with clean lines centered against a smooth painted wall with two framed abstract prints, a floor lamp and a slim side table with a small potted plant, a soft area rug, light wooden floor, the unseen television illuminates the scene from the viewer direction with a faint cool glow, tidy bright and modern, no people, no text',
+'a warm, bright, cozy contemporary western family living room facing the viewer: a LONG empty comfy fabric sofa with soft cushions spanning almost the full width, placed LOW in the lower third of the frame so people could sit along it, against a warm cream wall with two framed friendly prints, a warm floor lamp glowing, a small potted plant and a side table, a cozy area rug on a warm wooden floor; soft warm homely daylight, inviting and lived-in; the unseen television casts a soft warm glow from the viewer direction; no people, no text',
     'must',
   ],
 ];
@@ -650,7 +650,8 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       size,
       chroma,
       seed: seedFor(id),
-      prompt: `A pixel art game asset: ${hint}. ${chroma ? `${CHROMA_PROMPT} ` : ''}${style}`,
+      // Wohnzimmer der Fernsehfamilie = HEIM-Stil (warm/hell), nicht Ministeriums-Grau.
+      prompt: `A pixel art game asset: ${hint}. ${chroma ? `${CHROMA_PROMPT} ` : ''}${id === 'audience_room' ? styleHome() : style}`,
     });
   }
 

@@ -41,6 +41,24 @@ export function styleObject() {
   );
 }
 
+/**
+ * Heim-Stil (Fernsehfamilie/Westunion-Wohnzimmer): WARM, hell, freundlich —
+ * bewusst NICHT die kühl-graue Ministeriums-Anmutung (Owner: „nicht wie die
+ * Propaganda-Fabrik, viel freundlicher, heller, eben die Westunion").
+ */
+export function styleHome() {
+  return (
+    'Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution ' +
+    'pixel art, SNES-to-modern-indie game style). A WARM, BRIGHT, COZY contemporary ' +
+    '(2020s) western middle-class HOME interior — friendly, lived-in and welcoming, ' +
+    'absolutely NOT institutional, NOT a ministry, NOT grim, NOT a cold concrete office. ' +
+    'Warm inviting palette: warm wood floor, cream and soft-beige walls, warm lamp glow ' +
+    'and soft daylight, gentle warm highlights, only a few cool accents. Soft homely ' +
+    'lighting, cozy and bright. No saturated candy colors, no pastel-only look. ' +
+    'No real-world national symbols, no readable text.'
+  );
+}
+
 export function styleCore() {
   return (
     'Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution ' +
