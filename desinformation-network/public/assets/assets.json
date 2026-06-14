@@ -131,6 +131,16 @@
       "styleVersion": "v2"
     },
     {
+      "id": "bld_underground",
+      "type": "image",
+      "file": "images/bld_underground.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game asset: underground cross-section of soil and bedrock behind a building basement, for a side-scrolling pixel game background: horizontal layered earth strata in dark cool browns and slate-greys, a few horizontal embedded pipes, cables and concrete foundation slabs with rebar, scattered small rocks and roots, getting darker toward the bottom; cool dark earthy palette, crisp clean high-resolution pixel art, seamlessly tileable from left to right, flat frontal view, no people, no text. No people, no readable text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 140586,
+      "styleVersion": "v1"
+    },
+    {
       "id": "building_exterior",
       "type": "image",
       "file": "images/building_exterior.png",

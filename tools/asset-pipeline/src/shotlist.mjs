@@ -227,6 +227,14 @@ const BUILDING_KIT = [
     'must',
   ],
   [
+    'bld_underground',
+    '21:9',
+    { w: 2016, h: 864 },
+    false,
+    'underground cross-section of soil and bedrock behind a building basement, for a side-scrolling pixel game background: horizontal layered earth strata in dark cool browns and slate-greys, a few horizontal embedded pipes, cables and concrete foundation slabs with rebar, scattered small rocks and roots, getting darker toward the bottom; cool dark earthy palette, crisp clean high-resolution pixel art, seamlessly tileable from left to right, flat frontal view, no people, no text',
+    'must',
+  ],
+  [
     'bld_street',
     '21:9',
     { w: 1344, h: 192 },

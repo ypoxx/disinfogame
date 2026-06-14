@@ -137,6 +137,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   const lobbyUrl = assets.imageUrl('room_lobby');
   const cityUrl = assets.imageUrl('bld_city_far');
   const streetUrl = assets.imageUrl('bld_street');
+  const undergroundUrl = assets.imageUrl('bld_underground');
   // Tageszeit-Himmel (gegen „schwarzer Himmel zu groß"): Verlauf folgt der Tagesuhr,
   // die chroma-freigestellte Skyline liegt davor.
   const skyMinutes = useDayClockStore((s) => s.minutes);
@@ -155,6 +156,10 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
 
   // Stadt-Geometrie (im Container-Maß, hinter der skalierten Bühne).
   const groundScreenY = (layout.height - STAGE.groundHeight) * view.scale - cameraY;
+  // Untergrund: Erde/Rohre hinter & unter dem Keller (unterste Etage), damit die
+  // Skyline nicht „hängt" und der Keller als unterirdisch lesbar wird (Owner-Befund).
+  const lowestFloorY = layout.floors.length > 0 ? layout.floors[layout.floors.length - 1].y : layout.height - STAGE.floorHeight;
+  const undergroundTopY = (lowestFloorY - STAGE.slabHeight) * view.scale - cameraY;
 
   return (
     <div
@@ -189,20 +194,21 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           }}
         />
       )}
+      {/* Untergrund: Erde/Rohre hinter dem Keller und darunter (statt „nichts"/Straße). */}
       <div
         aria-hidden
         style={{
           position: 'absolute',
           left: 0,
           right: 0,
-          top: groundScreenY,
-          height: Math.max(STAGE.groundHeight * view.scale, view.h - groundScreenY),
-          backgroundColor: '#101116',
-          ...(streetUrl
+          top: undergroundTopY,
+          height: Math.max(0, view.h - undergroundTopY),
+          backgroundColor: '#1a1510',
+          ...((undergroundUrl || streetUrl)
             ? {
-                backgroundImage: `url(${streetUrl})`,
+                backgroundImage: `url(${undergroundUrl ?? streetUrl})`,
                 backgroundRepeat: 'repeat-x',
-                backgroundSize: `auto ${STAGE.groundHeight * view.scale}px`,
+                backgroundSize: 'auto 100%',
                 backgroundPosition: 'center top',
                 imageRendering: 'pixelated',
               }
