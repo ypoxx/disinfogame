@@ -1,0 +1,176 @@
+{
+  "meta": {
+    "note": "Bildungs-Atlas (SOUL §5 / G22): die REALEN Desinfo-Methoden hinter den Spiel-Mechaniken. Wird vom End-Report genutzt, um aus dem, WAS der Spieler getan hat, den Lernmoment zu machen. Bewusst BREIT angelegt — das Kommunikations-Schlachtfeld/Kompromat ist nur EINE von vielen Familien (Owner-Hinweis: Beispiel ist Anker, keine Grenze). Reale Fälle dürfen hier (außerhalb der Spielfiktion, F21) benannt werden.",
+    "version": "1.0.0"
+  },
+  "methods": [
+    {
+      "id": "bot_amplification",
+      "label_de": "Bot-Verstärkung & koordiniertes Verhalten",
+      "real_method_de": "Coordinated Inauthentic Behavior (CIB)",
+      "what_de": "Automatisierte oder ferngesteuerte Konten erzeugen künstliche Reichweite: Sie liken, teilen und kommentieren im Gleichtakt, bis ein Beitrag „beliebt\" wirkt und der Algorithmus ihn weiterträgt.",
+      "real_case_de": "Bei der „Doppelgänger\"-Kampagne verbreiteten tausende Wegwerf-Konten geklonte Artikel im großen Stil. Plattformen nennen dieses Muster „koordiniertes unauthentisches Verhalten\".",
+      "severity": "hoch",
+      "matchTags": ["bots", "automation", "amplification", "flooding", "coordinated", "trending", "network", "scale", "viral", "multi_platform", "engagement", "algorithm"],
+      "matchCarriers": ["botnetz"],
+      "matchPlatforms": [],
+      "matchKinds": []
+    },
+    {
+      "id": "sockpuppets",
+      "label_de": "Sockenpuppen & Astroturfing",
+      "real_method_de": "Sockpuppet-Netzwerke / falsche Graswurzelbewegung",
+      "what_de": "Erfundene Personas mit Profilbild und Lebenslauf täuschen echte Bürger vor. Viele „normale Leute\", die scheinbar unabhängig dasselbe sagen, wirken überzeugender als eine offene Kampagne.",
+      "real_case_de": "Die „Internet Research Agency\" betrieb hunderte erfundene US-Bürger-Konten, die als echte Aktivisten auftraten und sogar reale Demonstrationen organisierten.",
+      "severity": "hoch",
+      "matchTags": ["astroturf", "fake_grassroots", "personas", "persona", "organic", "community", "trolling", "human_operators"],
+      "matchCarriers": ["useful_idiots"],
+      "matchPlatforms": [],
+      "matchKinds": []
+    },
+    {
+      "id": "clone_front_media",
+      "label_de": "Klon- & Frontmedien",
+      "real_method_de": "Imitierte Nachrichtenseiten / verdeckte Staatsmedien",
+      "what_de": "Gefälschte Nachrichtenseiten kopieren das Aussehen seriöser Medien, oder ein eigenes „Medium\" verschweigt seine Geldgeber. Die Botschaft borgt sich die Glaubwürdigkeit echten Journalismus.",
+      "real_case_de": "„Doppelgänger\" klonte über 17 echte Medien auf 50+ Domains. „Voice of Europe\" trat als unabhängiges Portal auf, während es verdeckt finanziert wurde — bis zur Abschaltung per Sanktion.",
+      "severity": "hoch",
+      "matchTags": ["impersonation", "forgery", "false_flag", "tabloid", "blogs", "official", "traditional_media", "mainstream", "media"],
+      "matchCarriers": ["klonmedien", "frontmedium"],
+      "matchPlatforms": [],
+      "matchKinds": []
+    },
+    {
+      "id": "paid_influencers",
+      "label_de": "Bezahlte Influencer & „nützliche Idioten\"",
+      "real_method_de": "Verdeckt finanzierte Content-Creator",
+      "what_de": "Reichweitenstarke Creator werden — oft über Tarnfirmen — bezahlt, ohne die Quelle offenzulegen. Daneben verbreiten ideologisch Überzeugte die Botschaft freiwillig und gratis weiter.",
+      "real_case_de": "Im „Tenet Media\"-Fall flossen 9,7 Mio. $ über eine Tarnfirma an US-Influencer (16 Mio. Views). Die Creator gaben an, die Geldquelle nicht gekannt zu haben — als die Quelle aufflog, fiel das Asset.",
+      "severity": "hoch",
+      "matchTags": ["influencer", "paid", "recruitment", "mice", "youth"],
+      "matchCarriers": ["creator"],
+      "matchPlatforms": [],
+      "matchKinds": []
+    },
+    {
+      "id": "fake_experts",
+      "label_de": "Pseudo-Experten & Schein-Institute (Narrative-Laundering)",
+      "real_method_de": "Narrative Laundering über Schein-Thinktanks & Rand-„Experten\"",
+      "what_de": "Eine Behauptung wird über scheinbar seriöse Institute, NGOs oder „Experten\" gewaschen: Was als bezahlte Studie beginnt, zitieren später echte Medien — die Herkunft verschwindet unterwegs.",
+      "real_case_de": "Regierungsnahe „NGOs\" (GONGOs) und Pseudo-Thinktanks produzieren Studien, die echten Diskurs imitieren. So erhält Propaganda den Anstrich unabhängiger Wissenschaft.",
+      "severity": "mittel",
+      "matchTags": ["academic", "expert", "legitimacy", "pr", "institutional", "ngo", "research", "education", "professional", "framework"],
+      "matchCarriers": ["akademiker", "thinktank", "expolitiker"],
+      "matchPlatforms": ["etablierte_medien"],
+      "matchKinds": []
+    },
+    {
+      "id": "divisive_narratives",
+      "label_de": "Emotionalisierung & Spaltungsnarrative",
+      "real_method_de": "Wedge-Issue-Framing / emotionale Manipulation",
+      "what_de": "Gezielt werden Reizthemen (Migration, Identität, Religion, Wirtschaft) emotional aufgeladen, um eine Gesellschaft entlang bestehender Bruchlinien zu spalten. Wut und Angst verbreiten sich schneller als Fakten.",
+      "real_case_de": "Ausländische Operationen bespielten gleichzeitig beide Seiten hitziger Debatten — nicht um eine Seite zu stärken, sondern um den Riss zu vertiefen und Vertrauen in den Diskurs selbst zu zerstören.",
+      "severity": "hoch",
+      "matchTags": ["emotional", "division", "polarization", "fear", "conspiracy", "identity", "nationalism", "religion", "culture", "values", "society", "narrative", "confusion", "destabilization"],
+      "matchCarriers": [],
+      "matchPlatforms": [],
+      "matchKinds": []
+    },
+    {
+      "id": "synthetic_media",
+      "label_de": "Deepfakes & Fälschungen",
+      "real_method_de": "Synthetische Medien (KI-Bild/-Audio/-Video)",
+      "what_de": "KI erzeugt täuschend echte Bilder, Stimmen oder Videos. Schon der bloße Verdacht, etwas könnte gefälscht sein, untergräbt das Vertrauen in echte Beweise („Lügner-Dividende\").",
+      "real_case_de": "Gefälschte Audio-Clips von Politikern kurz vor Wahlen und KI-Bilder „aktueller Ereignisse\" sind dokumentiert. Der Schaden entsteht oft, bevor die Fälschung widerlegt ist.",
+      "severity": "hoch",
+      "matchTags": ["deepfake", "ai", "video", "audio", "visual"],
+      "matchCarriers": [],
+      "matchPlatforms": ["kurzvideo", "video"],
+      "matchKinds": []
+    },
+    {
+      "id": "character_assassination",
+      "label_de": "Rufmord & Kompromat",
+      "real_method_de": "Charaktermord / Kompromat (kompromittierendes Material)",
+      "what_de": "Statt Argumente anzugreifen, wird die Person zerstört: echte, verzerrte oder erfundene Schwächen werden zum Skandal aufgebaut, um eine unbequeme Stimme zum Schweigen zu bringen. Genau das modelliert das „Kommunikations-Schlachtfeld\" — als EINE Methode unter vielen.",
+      "real_case_de": "„Kompromat\" hat eine lange Tradition: belastendes Material wird gesammelt und im richtigen Moment gestreut. Heute mischt sich das mit Doxxing und koordinierten Belästigungs-Kampagnen.",
+      "severity": "hoch",
+      "matchTags": ["blackmail", "scandal", "reputation", "attack", "harassment", "coercion", "intimidation", "threat", "targeting"],
+      "matchCarriers": [],
+      "matchPlatforms": [],
+      "matchKinds": ["kompromat", "operation"]
+    },
+    {
+      "id": "hack_and_leak",
+      "label_de": "Hack-and-Leak",
+      "real_method_de": "Hack-and-Leak-Operationen",
+      "what_de": "Gestohlene Dokumente werden — oft selektiv, manchmal mit untergeschobenen Fälschungen — zum richtigen Zeitpunkt geleakt. Echte Daten verleihen auch der Manipulation Glaubwürdigkeit.",
+      "real_case_de": "Geleakte E-Mails wurden mehrfach kurz vor Wahlen veröffentlicht und über willige Mittler weiterverbreitet — die Echtheit eines Teils machte das Ganze glaubwürdig.",
+      "severity": "hoch",
+      "matchTags": ["hacking", "leak", "espionage", "intelligence", "evidence", "security"],
+      "matchCarriers": [],
+      "matchPlatforms": [],
+      "matchKinds": []
+    },
+    {
+      "id": "platform_gaming",
+      "label_de": "Plattform- & Algorithmus-Manipulation",
+      "real_method_de": "Gaming von Empfehlungs- und Such-Algorithmen",
+      "what_de": "Inhalte werden so gebaut und verteilt, dass Empfehlungs-, Trend- und Suchsysteme sie bevorzugen. Wer den Algorithmus versteht, kauft Reichweite, ohne sie zu kaufen.",
+      "real_case_de": "Koordinierte Kampagnen pushten Hashtags in Trends und besetzten Suchergebnisse, sodass selbst neutrale Nutzer zuerst die manipulierte Version sahen.",
+      "severity": "mittel",
+      "matchTags": ["seo", "platform", "optimization", "distribution", "advertising", "messaging", "email", "text", "social_media", "digital"],
+      "matchCarriers": [],
+      "matchPlatforms": ["feed", "messenger"],
+      "matchKinds": []
+    },
+    {
+      "id": "covert_financing",
+      "label_de": "Verdeckte Finanzierung & Geldwäsche",
+      "real_method_de": "Tarnfirmen, Krypto & verdeckte Zahlungen",
+      "what_de": "Geld ist die unsichtbare Infrastruktur jeder Operation: Tarnfirmen, Mittelsmänner und Krypto verschleiern, wer wirklich zahlt — und damit, wer wirklich spricht.",
+      "real_case_de": "„Voice of Europe\" soll Politiker verdeckt (bar/krypto) bezahlt haben; „Tenet\" lief über eine Tarnfirma. Die Geldspur ist oft das, was Ermittler am Ende doch zur Quelle führt.",
+      "severity": "mittel",
+      "matchTags": ["financial", "funding", "crypto", "fraud", "business", "corruption", "acquisition"],
+      "matchCarriers": [],
+      "matchPlatforms": [],
+      "matchKinds": []
+    },
+    {
+      "id": "firehose_undermining",
+      "label_de": "Faktencheck untergraben & „Firehose of Falsehood\"",
+      "real_method_de": "Firehose of Falsehood / Vertrauen in Institutionen erodieren",
+      "what_de": "Statt einer überzeugenden Lüge wird ein Dauerfeuer widersprüchlicher Behauptungen abgefeuert — schnell, wiederholt, ohne Rücksicht auf Konsistenz. Ziel ist nicht Glauben, sondern Erschöpfung: Wenn nichts mehr sicher ist, gewinnt der Zweifel.",
+      "real_case_de": "Die RAND-Forschung beschrieb dieses Modell als „Firehose of Falsehood\". Parallel werden Faktenchecker als „voreingenommen\" diffamiert, um die Korrektur selbst zu entwerten.",
+      "severity": "hoch",
+      "matchTags": ["counter", "fact_checkers", "institutions", "trust", "disruption", "deplatforming"],
+      "matchCarriers": [],
+      "matchPlatforms": [],
+      "matchKinds": []
+    },
+    {
+      "id": "offline_mobilization",
+      "label_de": "Infiltration & Mobilisierung offline",
+      "real_method_de": "Reale Einflussnahme: Lobbying, Veranstaltungen, Amtsträger",
+      "what_de": "Desinformation bleibt nicht online: Über Lobbying, finanzierte Veranstaltungen, infiltrierte Vereine und gekaufte Amtsträger wirkt die Operation direkt in Politik und Gesellschaft hinein.",
+      "real_case_de": "Ferngesteuerte Konten organisierten reale Kundgebungen; verdeckt finanzierte Politiker trugen Botschaften in Parlamente. Online-Narrativ und Offline-Handlung greifen ineinander.",
+      "severity": "mittel",
+      "matchTags": ["infiltration", "offline", "events", "mobilization", "field", "direct", "lobbying", "election", "legislation", "political", "networking"],
+      "matchCarriers": [],
+      "matchPlatforms": [],
+      "matchKinds": []
+    },
+    {
+      "id": "opsec_tradecraft",
+      "label_de": "Tarnung & operative Sicherheit",
+      "real_method_de": "Tradecraft zur Verschleierung der Urheberschaft",
+      "what_de": "Verschleierung ist Teil der Methode: Wegwerf-Konten, Mittelsmänner, plausible Abstreitbarkeit und langfristiger Aufbau sollen verhindern, dass eine Operation zur Quelle zurückverfolgt wird.",
+      "real_case_de": "Der größte Aufwand vieler Kampagnen steckt nicht in der Botschaft, sondern im Verbergen der Spuren — was die Aufdeckung durch Plattformen, Behörden und Recherche-Netzwerke so wertvoll macht.",
+      "severity": "niedrig",
+      "matchTags": ["opsec", "cover", "maintenance", "persistence", "monitoring", "evaluation", "efficiency", "upgrade", "foundation", "basic", "long_term", "disinformation", "history"],
+      "matchCarriers": [],
+      "matchPlatforms": [],
+      "matchKinds": []
+    }
+  ]
+}

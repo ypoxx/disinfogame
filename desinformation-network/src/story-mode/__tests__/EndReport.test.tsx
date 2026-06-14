@@ -160,6 +160,50 @@ describe('EndReport Komponente', () => {
 // TESTS: topTags
 // ============================================
 
+// ============================================
+// TESTS: Bildungs-Abschnitt (reale Methoden)
+// ============================================
+
+describe('EndReport — reale Methoden (Bildungs-Kern)', () => {
+  const methodsUsed = [
+    {
+      id: 'bot_amplification',
+      label_de: 'Bot-Verstärkung & koordiniertes Verhalten',
+      real_method_de: 'Coordinated Inauthentic Behavior (CIB)',
+      what_de: 'Automatisierte Konten erzeugen künstliche Reichweite und täuschen Beliebtheit vor.',
+      real_case_de: 'Bei „Doppelgänger" verbreiteten tausende Wegwerf-Konten geklonte Artikel.',
+      severity: 'hoch' as const,
+      count: 12,
+      evidence_de: '12 Maßnahmen · Verbreiter genutzt',
+    },
+  ];
+  const operationsSummary = {
+    operationsPlayed: 4,
+    carriersUsed: ['botnetz'],
+    platformsUsed: ['kurzvideo'],
+    kompromatAcquired: 2,
+    carriersBurned: 1,
+  };
+
+  it('blendet den Methoden-Abschnitt aus, wenn keine Methoden übergeben werden', () => {
+    render(<EndReport {...defaultProps} />);
+    expect(screen.queryByText(/Reale Methoden hinter Ihren Mechaniken/)).toBeNull();
+  });
+
+  it('benennt die reale Methode hinter der Mechanik (Lernmoment)', () => {
+    render(<EndReport {...defaultProps} methodsUsed={methodsUsed} operationsSummary={operationsSummary} />);
+    expect(screen.getByText(/Reale Methoden hinter Ihren Mechaniken/)).toBeTruthy();
+    expect(screen.getByText(/Coordinated Inauthentic Behavior/)).toBeTruthy();
+    expect(screen.getByText(/Bot-Verstärkung/)).toBeTruthy();
+  });
+
+  it('zeigt die Schlachtfeld-Bilanz, wenn Operationen gespielt wurden', () => {
+    render(<EndReport {...defaultProps} methodsUsed={methodsUsed} operationsSummary={operationsSummary} />);
+    expect(screen.getByText(/Schlachtfeld-Bilanz/)).toBeTruthy();
+    expect(screen.getByText(/aufgeflogen/)).toBeTruthy();
+  });
+});
+
 describe('topTags', () => {
   it('zählt Tags und sortiert absteigend', () => {
     // 'media' erscheint in a1, a2, a4, a5 = 4× (wenn alle genutzt)

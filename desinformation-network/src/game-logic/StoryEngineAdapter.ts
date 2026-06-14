@@ -264,6 +264,21 @@ export interface OperationOutcome {
   params: OperationParams;
   result: OperationResult | null;
   broadcastResult: ActionResult | null;
+  /** „Loop schließen": Wirkung auf das Institutionen-Vertrauen (negativ = Erosion Richtung Sieg). */
+  trustDelta?: number;
+  /** Zusätzliche moralische Last durch das Ausspielen dieser Operation. */
+  moralAdded?: number;
+  /** Verbreiter in dieser Operation aufgeflogen → öffentlicher Rückschlag. */
+  carrierBurned?: boolean;
+}
+
+/** Bilanz der P2-Operationen über die Partie — speist End-Report + Methoden-Atlas. */
+export interface OperationsSummary {
+  operationsPlayed: number;
+  carriersUsed: string[];
+  platformsUsed: string[];
+  kompromatAcquired: number;
+  carriersBurned: number;
 }
 
 /**
@@ -3343,8 +3358,67 @@ export class StoryEngineAdapter {
   private carrierStates = new Map<string, CarrierState>();
   private acquiredKompromat = new Set<string>();
 
+  // ── „Loop schließen": Operationen koppeln an Sieg/Niederlage (Konzept §4) ──────
+  // Bisher waren P2-Operationen reine Kosten (Risiko/Aufmerksamkeit) ohne Ertrag —
+  // damit konnte das Schlachtfeld nie Teil einer Gewinn-Strategie sein. Jetzt:
+  //  · gelungene Operation → erodiert Institutionen-Vertrauen (Richtung Sieg),
+  //  · Enttarnung (verbrannt) → öffentlicher Rückschlag: Vertrauen der Gegenseite ↑,
+  //  · Kompromat-Heikelheit → moralische Last (↔ moral_weight ↔ Enden).
+  private readonly OP_TRUST_EROSION = 11;      // result.impact (0..1) × Faktor → Vertrauenserosion
+  private readonly OP_BURN_TRUST_REBOUND = 9;  // Enttarnung: Institutionen gewinnen Vertrauen zurück
+  private readonly OP_BURN_RISK_SPIKE = 12;    // Enttarnung hebt das Entdeckungsrisiko sprunghaft
+  private readonly OP_BURN_ATTENTION_SPIKE = 8;
+  private readonly KOMPROMAT_MORAL = 12;       // Beschaffung heiklen Materials = moralische Last
+  private readonly OP_DEPLOY_MORAL = 7;        // Ausspielen des Kompromats = zusätzliche Last
+  private readonly OP_BURN_MORAL = 5;          // verbranntes Asset / öffentlicher Schaden
+
+  // Operations-Bilanz (für End-Report + Methoden-Atlas).
+  private operationsPlayed = 0;
+  private carriersUsed = new Set<string>();
+  private platformsUsed = new Set<string>();
+
   private kompromatKey(targetId: string, vulnId: string): string {
     return `${targetId}:${vulnId}`;
+  }
+
+  /**
+   * Verschiebt das Institutionen-Vertrauen (obj_destabilize.currentValue) und rechnet
+   * Fortschritt/Erfüllung neu. delta<0 = Erosion (Richtung Sieg), delta>0 = Rückschlag.
+   * Eine Stelle für alle Trust-Bewegungen außerhalb der regulären Aktions-/Regen-Logik.
+   */
+  private applyInstitutionalTrustDelta(delta: number): void {
+    const obj = this.objectives.find((o) => o.id === 'obj_destabilize');
+    if (!obj) return;
+    obj.currentValue = Math.max(0, Math.min(100, obj.currentValue + delta));
+    obj.progress = Math.min(100, ((100 - obj.currentValue) / (100 - obj.targetValue)) * 100);
+    obj.completed = obj.currentValue <= obj.targetValue;
+  }
+
+  /** Bilanz der bisherigen P2-Operationen (End-Report/Atlas). */
+  getOperationsSummary(): OperationsSummary {
+    let carriersBurned = 0;
+    for (const c of loadCarriers()) if (this.getCarrierState(c.id) === 'verbrannt') carriersBurned++;
+    return {
+      operationsPlayed: this.operationsPlayed,
+      carriersUsed: Array.from(this.carriersUsed),
+      platformsUsed: Array.from(this.platformsUsed),
+      kompromatAcquired: this.acquiredKompromat.size,
+      carriersBurned,
+    };
+  }
+
+  /**
+   * Vollständiger Aktions-Katalog (id→Tags/Legalität) — für End-Report (Legalitäts-
+   * Bilanz + Methoden-Atlas), auch für bereits gespielte/nicht mehr verfügbare Aktionen.
+   */
+  getActionCatalog(): Array<{ id: string; label: string; legality: 'legal' | 'grey' | 'illegal'; phase: string; tags: string[] }> {
+    return this.actionLoader.getAllActions().map((a) => ({
+      id: a.id,
+      label: a.label_de,
+      legality: a.legality,
+      phase: a.phase,
+      tags: a.tags ?? [],
+    }));
   }
 
   /** Verbreiter-Zustand (Default verfügbar = bekannt, aber noch nicht aufgebaut). */
@@ -3391,6 +3465,9 @@ export class StoryEngineAdapter {
     this.storyResources.budget -= cost;
     // Beschaffung heiklen Materials zieht selbst etwas Aufmerksamkeit/Risiko nach sich.
     this.storyResources.risk = Math.max(0, Math.min(100, this.storyResources.risk + Math.round(vuln.heikelheit * 4)));
+    // „Loop schließen": Heikelheit ↔ moralische Last ↔ Enden. Je brisanter das
+    // Material, desto schwerer wiegt seine Beschaffung (feedet pyrrhic/redemption).
+    this.storyResources.moralWeight += Math.round(vuln.heikelheit * this.KOMPROMAT_MORAL);
     this.acquiredKompromat.add(this.kompromatKey(targetId, vulnId));
     return { ok: true };
   }
@@ -3428,6 +3505,21 @@ export class StoryEngineAdapter {
     const attentionAdd = Math.round(result.impact * 6);
     this.storyResources.risk = clamp100(this.storyResources.risk + riskAdd);
     this.storyResources.attention = clamp100(this.storyResources.attention + attentionAdd);
+
+    // ── „Loop schließen" (1/2): der ERTRAG einer gelungenen Operation ──────────────
+    // Wirkung gegen das Ziel erodiert das Institutionen-Vertrauen (das Sieg-Ziel) —
+    // erst dadurch lohnt sich der Aufwand (Verbreiter aufbauen + Kompromat) überhaupt.
+    let trustDelta = -(result.impact * this.OP_TRUST_EROSION);
+    this.applyInstitutionalTrustDelta(trustDelta);
+
+    // Ausspielen heiklen Kompromats wiegt moralisch (zusätzlich zur Beschaffung).
+    let moralAdded = Math.round(resolved.vulnerability!.heikelheit * this.OP_DEPLOY_MORAL);
+    this.storyResources.moralWeight += moralAdded;
+
+    // Bilanz fortschreiben (End-Report/Methoden-Atlas).
+    this.operationsPlayed++;
+    this.carriersUsed.add(resolved.carrier!.id);
+    for (const p of resolved.platforms) this.platformsUsed.add(p.id);
 
     // Synthetische StoryAction → der Broadcast-Streifen liest nur tags/headline_de/costs.
     const synthAction: StoryAction = {
@@ -3480,19 +3572,32 @@ export class StoryEngineAdapter {
 
     this.actionHistory.push({ phase: this.storyPhase.number, actionId: synthAction.id, result: broadcastResult });
 
-    // Enttarnung: hohe Exposure in einem bereits heißen Informationsraum verbrennt das
-    // Asset (Reichweite weg, einmalig) — deterministisch, nachvollziehbar (Konzept §4).
+    // ── „Loop schließen" (2/2): Enttarnung = echter öffentlicher Rückschlag ────────
+    // Hohe Exposure in einem bereits heißen Informationsraum verbrennt das Asset
+    // (Reichweite weg, einmalig) UND schlägt zurück: die Gegenseite (Institutionen,
+    // Faktenchecker, Presse) gewinnt Vertrauen zurück, Risiko/Aufmerksamkeit
+    // springen, die moralische Last steigt. Deterministisch, nachvollziehbar (§4).
     let carrierBurned = false;
     if (result.exposureRisk >= 0.66 && this.storyResources.risk >= 60) {
       this.carrierStates.set(resolved.carrier!.id, 'verbrannt');
       carrierBurned = true;
+
+      // Vertrauen der Gegenseite ↑ (macht erkämpfte Erosion teilweise zunichte).
+      this.applyInstitutionalTrustDelta(this.OP_BURN_TRUST_REBOUND);
+      trustDelta += this.OP_BURN_TRUST_REBOUND;
+      // Öffentliche Aufdeckung heizt die Ermittlung an.
+      this.storyResources.risk = clamp100(this.storyResources.risk + this.OP_BURN_RISK_SPIKE);
+      this.storyResources.attention = clamp100(this.storyResources.attention + this.OP_BURN_ATTENTION_SPIKE);
+      this.storyResources.moralWeight += this.OP_BURN_MORAL;
+      moralAdded += this.OP_BURN_MORAL;
+
       this.newsEvents.unshift({
         id: `news_burn_${resolved.carrier!.id}_${Date.now()}`,
         phase: this.storyPhase.number,
         headline_de: `Verbreiter aufgeflogen: ${resolved.carrier!.label_de}`,
         headline_en: `Carrier exposed: ${resolved.carrier!.label_de}`,
-        description_de: 'Das Asset ist verbrannt — Reichweite verloren, öffentlicher Rückschlag.',
-        description_en: 'The asset is burned — reach lost, public blowback.',
+        description_de: 'Das Asset ist verbrannt — Reichweite verloren. Die Gegenseite gewinnt Vertrauen zurück.',
+        description_en: 'The asset is burned — reach lost. The other side regains public trust.',
         type: 'consequence',
         severity: 'danger',
         read: false,
@@ -3502,7 +3607,7 @@ export class StoryEngineAdapter {
 
     playSound(carrierBurned || result.exposureRisk >= 0.66 ? 'warning' : 'success');
 
-    return { success: true, params, result, broadcastResult };
+    return { success: true, params, result, broadcastResult, trustDelta, moralAdded, carrierBurned };
   }
 
   private getActionById(id: string): StoryAction | null {

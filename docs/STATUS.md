@@ -8,8 +8,22 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `STRANG34_FEINPLAN_2026-06-13_AKTIONEN_DIALOGE.md` → `GESAMTKONZEPT_VISUELL.md` →
 > dieses Dokument für den aktuellen Bau-Stand. Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
-**Stand:** 2026-06-14 · **PR #81 (Draft, Branch `claude/blissful-bardeen-vqf70z`)** — große Session.
-**Geliefert (alles grün, Gate je Commit `tsc`·`vitest ~290`·`build`):**
+**Stand:** 2026-06-14 · **PR #82 (Draft, Branch `claude/trusting-keller-5e1o0f`)** — „Loop schließen".
+**Geliefert PR #82 (alles grün, Gate je Commit `tsc`·`vitest 300`·`build`):**
+- **P2-Loop geschlossen (Engine):** `playOperation` koppelt jetzt an Sieg/Niederlage — gelungene
+  Operation erodiert das Institutionen-Vertrauen (Sieg-Ziel), Enttarnung (Verbreiter verbrannt) =
+  echter öffentlicher Rückschlag (Vertrauen der Gegenseite↑, Risiko/Last springen). **Kompromat-
+  Heikelheit ↔ `moral_weight` ↔ Enden** (Beschaffung + Ausspielen). `applyInstitutionalTrustDelta`-Helfer.
+- **Bildungs-Kern (breit, SOUL §5):** `data/disinfo_methods.json` (**14 reale Methoden-Familien** —
+  Kompromat/Schlachtfeld ist nur EINE) + pure `DisinfoMethodAtlas.classifyMethods` (Spielverhalten →
+  reale Methode + dokumentierter Fall). **End-Report**-Abschnitt „Reale Methoden hinter Ihren Mechaniken"
+  + Schlachtfeld-Bilanz; `getActionCatalog` für korrekte Legalitäts-Bilanz. Atlas deckt 99,2 % der Aktionen ab.
+- **Balancing-Sim end-to-end** (`balance-sim-p2.test.ts`): gewinn- UND verlierbar mit den neuen Systemen
+  (24 Partien 8/16; aggressiver Operator 7/8, rücksichtsloser 0/8 + 8 verbrannte Assets). Reguläre Balance unverändert (18/18).
+- **Operations-Akte:** „FOLGEN"-Box macht den Loop am Entscheidungspunkt sichtbar. Detail: `STRANG34_P2_…KONZEPT.md` §10.
+- **Owner-Hinweis** („Kompromat/Schlachtfeld nicht zu wörtlich") berücksichtigt: Konsequenz- & Bildungs-Schicht **generell**, nicht auf die Kompromat-Kette verengt.
+
+**Geliefert PR #81 (gemerged-Stand, Gate je Commit `tsc`·`vitest ~290`·`build`):**
 - **P2 abgerundet:** `OperationsAkteView` (diegetische Akte, Operationszentrale Etage 4) + `playOperation`
   + `params`-Durchstich; **Operations-Ökonomie** (Verbreiter-Aufbau/Budget, Kompromat-Beschaffung,
   Enttarnung→verbrannt) → kein Spam mehr.
@@ -23,15 +37,23 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 - **Skill** `.claude/skills/pixel-asset-pipeline` + Planungs-Hygiene (ROADMAP/TECHNICAL_DEBT/Konzept-Docs).
 
 ### ▶ Für die NÄCHSTE Session — großes Paket (frische Session wg. Token-Budget)
-**Empfehlung: „Loop schließen" — P2 + Konsequenzen + End-Report** (macht aus den Systemen *ein*
-durchspielbares, bildendes Spiel):
-- P2-Operationen an **Sieg/Niederlage** koppeln (Enttarnung = echter öffentlicher Rückschlag,
-  Vertrauen der Gegenseite↑); **Kompromat-Heikelheit ↔ `moral_weight` ↔ Enden**.
-- **End-Report** so bauen, dass er die **realen Desinfo-Methoden hinter jeder Mechanik benennt**
-  (SOUL §5: Bildung = der Lernmoment) — das eigentliche Ziel.
-- **Balancing-Sim end-to-end** (gewinn- UND verlierbar mit allen neuen Systemen).
-**Alternativen:** **P3** (Gebäude wächst: `unlocksRoom`/`unlocksNpc` + 100–500-Pfade-Sim) ·
-**Story/Vertonung** (Topic-Texte in Stimme + ElevenLabs-Batch).
+**✅ „Loop schließen" erledigt (PR #82).** **✅ Herzstück-Konzept ABGENOMMEN (2026-06-14, 3 Transkript-Runden):**
+`KONZEPT_2026-06-14_HERZSTUECK_EPISODEN_WERTE.md` — das wichtigste *inhaltliche* Update. Kernpunkte gelockt:
+- **Episoden/Vignetten** als Wirbelsäule (emergent-kuratiert, NPC bietet an) · **Korkbrett = Kampagnen-Planer**
+  (Spuren = aktive Episoden-Stränge).
+- **Strategische Aufträge statt generischer Destabilisierung** (Vertrauen = Mittel, Auftrag = Ziel): 5 heute-
+  anschlussfähige Archetypen (Keil [Default], Stillstand, Wahl, Rückzug, Zweifel). **Zuerst bauen: Keil + Wahl + Zweifel.**
+- **Mehrere Gesellschaftswerte** (4 sichtbar + interne Auftrags-Achsen Wehrhaftigkeit/Reformfähigkeit/Fraktions-Stärke
+  von Anfang an im Datenmodell vorsehen) · erzählerisch via **fiktive Umfragen/Barometer als News** (verzögert/nicht-linear).
+- **Neue Angriffs-Phänomene** (Überflutung, Gerüchte-Mutation, Zermürbung, Krisenfenster).
+- **Vernetzung**: Broadcast = Schnellansicht, **Newsroom = Vertiefung** (erzählerische Gegenseite C9, NPC deutet),
+  Fokusgruppe reagiert auf Episoden/Werte, Fernseher spiegelt Episoden-Schlagzeilen (Asset-Paket nötig), Umgebungshumor.
+- **Bau-Reihenfolge §9.3** (B2a→B2b→B3→B1→Vernetzung→B4) · **Risiko-Register §10** (save/load-Migration, K14-Balance,
+  ID-Kopplung, tote Hooks) · Ethik-Geländer mitgedacht (niedrige Prio).
+**Nächster Schritt:** detaillierter **Bau-Plan** ableiten (PR-Schnitt nach §9.3, je grün + simuliert), dann bauen —
+am besten **frische Session** (Token-Budget). **Technik-Nebentask:** dynamische Versionsanzeige je Commit (Cache-Diagnose, §14.6).
+> ✅ **Bau-Plan liegt vor:** `BAUPLAN_2026-06-14_HERZSTUECK.md` (P0 Hygiene → P1 Werte → P2 Splitting → P3 Phänomene →
+> P4 Episoden/Korkbrett → P5 Aufträge/Enden → P6 Vernetzung → P7 Humor/Ethik). **Einstieg für die frische Session: P0+P1.**
 
 ### 🔎 Aus dieser Session offen / nur im Preview zu prüfen (nicht in-Container verifizierbar)
 - **Fernsehfamilie ausgeklappt** (Taste B): Sitzlinie/Köpfe — Preview prüfen, ggf. Skala/Position nachziehen.
@@ -113,8 +135,8 @@ V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
 |---|---|---|
 | **P0** | Aktions-Überschriften + Direktor-Hinweise | ✅ (PR #80) |
 | **P1** | Aktion-aus-Dialog · Menü→Gespräch · granularere Aktionen · Sprach-Steckbriefe · NPC-Vorschläge im Gespräch (löst V2) | **Kern fertig** (PR #80) — ✅ P1a, ✅ P1b (Begrüßungen ALLER NPCs), ✅ P1c (Affinitäten + 15 neue Aktionen, 125 gesamt, Balance 18/18), ✅ P1d, ✅ Declutter, ✅ Deck nach NPC. **Rest-Politur (laufend):** P1b Topics/Reaktionen in Steckbrief-Stimme; weitere Aktions-Pakete + Marina (50) entlasten; situative Eröffnungen |
-| **P2** | Kommunikations-Schlachtfeld (Ziel→Dossier→Kompromat→Verbreiter+Plattform-Mix). | **Erststufe fertig:** Engine (`BattlefieldChain`) + Daten + `params`-Durchstich (`playOperation`) + diegetische **Operations-Akte** (`OperationsAkteView`, Operationszentrale Etage 4). Offen: Verbreiter-Aufbau/Budget, Kompromat-Schritt, Balancing-Sim |
-| **P3** | Gebäude-Wachstum (`unlocksRoom`/`unlocksNpc`) + 100–500-Pfade-Simulation | offen |
+| **P2** | Kommunikations-Schlachtfeld (Ziel→Dossier→Kompromat→Verbreiter+Plattform-Mix). | **✅ fertig (Loop geschlossen, PR #82):** Engine (`BattlefieldChain`) + Daten + `playOperation` + Ökonomie (Aufbau/Kompromat/verbrannt) + **an Sieg/Niederlage gekoppelt** (Trust-Erosion/Rückschlag, Moral↔Enden) + **End-Report-Bildung** (`DisinfoMethodAtlas`) + **Sim end-to-end**. Detail: P2-Konzept §10 |
+| **P3** | Gebäude-Wachstum (`unlocksRoom`/`unlocksNpc`) + 100–500-Pfade-Simulation | **offen — Empfehlung nächste Session** |
 
 ## 🪲 Bekannte Bugs / Altlasten
 

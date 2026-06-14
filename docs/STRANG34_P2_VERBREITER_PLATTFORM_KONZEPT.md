@@ -117,3 +117,51 @@ Bildungszweck: Muster sichtbar machen (End-Report benennt die reale Methode hint
    Verbreiter→Plattform-Mix → Live-Wirkungs-Analyse → „Ausspielen"), erreichbar über die **Operations-
    zentrale** (Etage 4, NPC-loser Raum, wie Newsroom/Analyse). Folge: Kompromat-UI, reichere Broadcast-
    Themen aus dem Ziel-Milieu, optionales Akten-Raumbild (Asset).
+
+---
+
+## 10. „Loop schließen" + konzeptionelle Breite (2026-06-14)
+
+> **Owner-Hinweis ernst genommen:** „Mein Beispiel mit dem Kompromat und dem Schlachtfeld
+> wurde etwas zu wörtlich genommen und konzeptionell nicht weiter/breiter gedacht."
+> → Konsequenz: Das Schlachtfeld/Kompromat ist **EINE Methoden-Familie unter vielen**, und
+> die Konsequenz- **und** die Bildungs-Schicht sind **generell** angelegt, nicht auf die
+> Kompromat-Kette verengt (SOUL §2 „Beispiele sind Anker, keine Grenzen").
+
+### 10.1 Der geschlossene Loop (Engine)
+Bisher waren P2-Operationen **reine Kosten** (Risiko/Aufmerksamkeit) ohne Ertrag → das
+Schlachtfeld konnte nie Teil einer Gewinn-Strategie sein. Jetzt koppelt **jede** Operation
+generell an Sieg/Niederlage (`StoryEngineAdapter.playOperation`):
+- **Ertrag:** gelungene Operation erodiert das **Institutionen-Vertrauen** (`obj_destabilize`,
+  das Sieg-Ziel) ~ Wirkung — `applyInstitutionalTrustDelta(-impact·11)`.
+- **Niederlage-Kopplung:** Enttarnung (Verbreiter **verbrannt**) ist ein **echter öffentlicher
+  Rückschlag**: das Vertrauen der Gegenseite steigt **zurück** (Rebound +9), Risiko/Aufmerksamkeit
+  springen, moralische Last steigt. Verbrannte Assets **wirken** (Reichweite dauerhaft weg).
+- **Moral ↔ Enden:** Kompromat-**Heikelheit** hebt die `moral_weight` (Beschaffung + Ausspielen)
+  → speist `pyrrhic`/`redemption`/`dark`-Enden (EndingSystem). Generisch über die Heikelheit,
+  nicht an einzelne Ziele gebunden.
+- Belegt durch `balance-sim-p2.test.ts` (end-to-end **gewinn- UND verlierbar**: 24 Partien
+  8 Sieg/16 Niederlage; aggressiver Operator 7/8, rücksichtsloser 0/8 mit 8 verbrannten Assets).
+
+### 10.2 Der Bildungs-Kern (breit) — `data/disinfo_methods.json` + `DisinfoMethodAtlas`
+Der End-Report benennt die **reale Methode hinter jeder Mechanik** (SOUL §5, G22). Statt das
+Schlachtfeld zu verabsolutieren, deckt der Atlas **14 reale Methoden-Familien** ab — Kompromat/
+Rufmord ist nur **eine** davon:
+Bot-Verstärkung (CIB) · Sockenpuppen/Astroturfing · Klon-/Frontmedien · bezahlte Influencer/
+„nützliche Idioten" · Pseudo-Experten/Narrative-Laundering · Emotionalisierung/Spaltung ·
+Deepfakes/Fälschungen · **Rufmord/Kompromat** · Hack-and-Leak · Plattform-/Algorithmus-
+Manipulation · verdeckte Finanzierung · „Firehose of Falsehood"/Faktencheck untergraben ·
+Offline-Mobilisierung · Tarnung/OPSEC. Jede Familie: reale Methode + Erklärung + **dokumentierter
+Fall** (Tenet Media, Voice of Europe, Doppelgänger, IRA, RAND-Firehose …). `classifyMethods()`
+ordnet das **tatsächliche** Spielverhalten (Aktions-Tags + Verbreiter/Plattformen/Operationen/
+Kompromat) diesen Familien zu — Abdeckung der echten 125 Aktionen: **99,2 %**.
+
+### 10.3 Sichtbar im Spiel
+- **Operations-Akte:** „FOLGEN"-Box am Entscheidungspunkt (Wirkung→Vertrauen↓ = Sieg; Enttarnung→Rückschlag).
+- **End-Report:** Abschnitt „Reale Methoden hinter Ihren Mechaniken" + Schlachtfeld-Bilanz.
+
+### 10.4 Offen / nächste Ausbaustufe
+- Pfad-Vielfalt §4 (Thema×Verbreiter×Plattform×Ziel×Timing) Richtung 100–500 (P3).
+- Eigene Operationen in die `trustHistory`-Kurve einspeisen (heute getrennt: Akteurs-Trust vs.
+  Missions-Ziel `obj_destabilize`).
+- Diegetische Kompromat-UI/Asset (Akten-Raumbild), reichere Broadcast-Themen aus dem Ziel-Milieu.
