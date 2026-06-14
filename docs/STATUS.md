@@ -54,7 +54,7 @@ Prinzip (SOUL): visuelle Kohärenz ist das Erste, was Nutzer beurteilen.
 |---|---|---|---|---|
 | V1 | **Berater-Panel** (rechts) im alten Stil, „floating" | Verbots-Schatten/Glow + Off-Palette-Farben | **übersehen** (Strang 1 verfehlt) | **in #80 behoben** (Schatten/Farben); diegetische Auflösung = P1 |
 | V2 | Berater als **dauerhafte Floating-Sidebar** statt diegetisch | widerspricht A2/A4 | **entschärft** (standard eingeklappt + im Gespräch ganz aus; Empfehlungen jetzt im Dialog) | Rest: Berater-Inhalt ganz in KONTAKTE-Panel verlagern → schmaler Rand-Tab entfällt |
-| V3 | **Direktor-DialogBox** (roter Balken) wirkt legacy | nutzt v2-Farben + inset-Rahmen, aber **flach-CSS** (kein Pixel-Frame-Asset) | **Kohärenz-Lücke** | Stil-Audit DialogBox; ggf. echtes 9-Slice-Pixel-Asset |
+| V3 | **Direktor-DialogBox** (roter Balken) wirkt legacy | v2-Farben + inset-Rahmen, aber flach | **Audit erledigt:** „Click to continue…" → „Weiter ▸" (war englisch), Auswahl-Liste gedeckelt+scrollbar (deckt den Raum nicht mehr zu, A3), Padding gestrafft | optional echtes 9-Slice-Pixel-Asset (Budget) |
 | V4 | **Büro-Panels** (Kontakte etc.) „andere CSS-Sachen" | Modals sind auf `PixelModal`, aber flach; einzelne Panels evtl. nicht migriert | **Audit nötig** | Mounted-Component-Audit (alle Panels gegen Stil-Bibel) |
 | V5 | **HUD** teils alter Stil | `StoryHUD` nutzt v2-inset; Knopfdruck (H) da | **gering** | Feinpolitur im Stil-Audit |
 | V6 | **Floating-Element links unten** (Auftrag/Hinweise) | `ComboHintsWidget` (`fixed bottom-4 left-4`), nicht-diegetisch | **übersehen** | diegetisch verorten oder in HUD/Tafel ziehen |
