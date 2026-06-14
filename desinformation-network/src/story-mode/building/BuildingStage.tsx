@@ -69,7 +69,7 @@ function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
   const style: CSSProperties = {
     position: 'absolute',
     left: room.doorX - STAGE.doorWidth / 2,
-    top: room.y + room.h - STAGE.doorHeight,
+    top: room.y + room.h - STAGE.doorHeight - STAGE.floorStrip,
     width: STAGE.doorWidth,
     height: STAGE.doorHeight,
     pointerEvents: 'none',
@@ -151,7 +151,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   const avatarFloorLayout = layout.floors.find((f) => f.level === nav.pos.floorLevel) ?? avatarFloor;
   const avatarY = nav.avatarInCabin
     ? cabinTopY + STAGE.floorHeight - STAGE.avatarSize - 10
-    : (avatarFloorLayout?.walkY ?? 0);
+    : (avatarFloorLayout?.walkY ?? 0) - STAGE.floorStrip; // Füße auf der Wand-Fuß-Linie
 
   // Stadt-Geometrie (im Container-Maß, hinter der skalierten Bühne).
   const groundScreenY = (layout.height - STAGE.groundHeight) * view.scale - cameraY;
@@ -328,7 +328,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 const h = DECOR_HEIGHT[d.id] ?? 48;
                 const playableW = layout.shaft.x - STAGE.pillarWidth;
                 const cx = STAGE.pillarWidth + d.xFrac * playableW;
-                const baseline = floor.y + STAGE.floorHeight; // Bodenlinie (= Tür-Unterkante)
+                const baseline = floor.y + STAGE.floorHeight - STAGE.floorStrip; // Wand-Fuß-Linie
                 const top = d.mount === 'floor'
                   ? baseline - h
                   : floor.y + STAGE.floorHeight * 0.36 - h / 2; // Wand-Objekte oberes Drittel
@@ -416,7 +416,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                   position: 'absolute',
                   left: room.doorX - 110,
                   width: 220,
-                  top: room.y + room.h - STAGE.doorHeight - 34,
+                  top: room.y + room.h - STAGE.doorHeight - STAGE.floorStrip - 34,
                   textAlign: 'center',
                   fontSize: 13,
                   fontWeight: 700,
@@ -437,7 +437,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 style={{
                   position: 'absolute',
                   left: room.doorX + STAGE.doorWidth / 2 + 8,
-                  top: room.y + room.h - STAGE.doorHeight + 10,
+                  top: room.y + room.h - STAGE.doorHeight - STAGE.floorStrip + 10,
                   width: 10,
                   height: 10,
                   borderRadius: 10,
@@ -459,7 +459,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 style={{
                   position: 'absolute',
                   left: room.doorX - STAGE.doorWidth / 2 - 24,
-                  top: room.y + room.h - STAGE.doorHeight - 40,
+                  top: room.y + room.h - STAGE.doorHeight - STAGE.floorStrip - 40,
                   width: STAGE.doorWidth + 48,
                   height: STAGE.doorHeight + 40,
                   background: 'transparent',

@@ -96,18 +96,19 @@ const PROPS = [
   ['prop_coffee', 'steaming coffee cup on a saucer'],
   ['prop_typewriter', 'soviet-era mechanical typewriter'],
   // --- Korridor-Deko (R4-Entkachelung): einzelne, frei platzierbare Objekte ---
-  ['prop_plant_tall', 'a tall potted indoor rubber-tree plant in a simple modern dark pot, standing on the floor, full plant from pot to top'],
-  ['prop_plant_small', 'a small round potted plant in a pot, standing on the floor'],
-  ['prop_trashcan', 'a cylindrical brushed-metal office waste bin standing on the floor'],
-  ['prop_bench', 'a low modern padded waiting bench with metal legs, plain side view, standing on the floor'],
-  ['prop_chairs', 'two simple modern grey waiting chairs side by side, standing on the floor'],
-  ['prop_watercooler', 'an office water cooler dispenser with a blue water bottle on top, standing on the floor'],
-  ['prop_vending', 'a modern drinks vending machine with a dark glass front and softly lit shelves, standing on the floor'],
-  ['prop_clock_wall', 'a round minimalist wall clock with a thin frame, hanging flat'],
-  ['prop_noticeboard', 'a glass-fronted office notice board with a few pinned papers, hanging flat on a wall'],
-  ['prop_poster_a', 'a framed abstract constructivist poster, geometric dark-red and grey shapes only, no text, hanging flat'],
-  ['prop_poster_b', 'a framed abstract poster with cyan and grey diagonal geometric shapes only, no text, hanging flat'],
-  ['prop_poster_c', 'a framed abstract poster with muted concentric geometric shapes only, no text, hanging flat'],
+  // FLACH-FRONTAL (keine Isometrie) — passt zum flachen Korridor-Querschnitt (R4-Befund).
+  ['prop_plant_tall', 'a tall potted indoor rubber-tree plant in a simple modern dark pot, full plant from pot to top, strict flat front elevation view, orthographic, NO isometric, NO 3/4 or top-down perspective'],
+  ['prop_plant_small', 'a small round potted plant in a pot, strict flat front elevation view, orthographic, NO isometric, NO 3/4 or top-down perspective'],
+  ['prop_trashcan', 'a cylindrical brushed-metal office waste bin, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective, do NOT show the rim opening from above'],
+  ['prop_bench', 'a low modern padded waiting bench with metal legs, strict flat side elevation view, orthographic, seen straight from the side, NO isometric, NO 3/4 or top-down perspective'],
+  ['prop_chairs', 'two simple modern grey waiting chairs side by side, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective, do NOT show the seats from above'],
+  ['prop_watercooler', 'an office water cooler dispenser with a blue water bottle on top, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective'],
+  ['prop_vending', 'a modern drinks vending machine with a dark glass front and softly lit shelves, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective'],
+  ['prop_clock_wall', 'a round minimalist wall clock with a thin frame, strict flat front view, orthographic'],
+  ['prop_noticeboard', 'a glass-fronted office notice board with a few pinned papers, strict flat front view, orthographic'],
+  ['prop_poster_a', 'a framed abstract constructivist poster, geometric dark-red and grey shapes only, no text, strict flat front view'],
+  ['prop_poster_b', 'a framed abstract poster with cyan and grey diagonal geometric shapes only, no text, strict flat front view'],
+  ['prop_poster_c', 'a framed abstract poster with muted concentric geometric shapes only, no text, strict flat front view'],
 ];
 
 // Gebäude-Baukasten: Querschnitts-Bausteine für die Stage (BuildingView).
