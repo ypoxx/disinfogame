@@ -97,6 +97,18 @@ import {
 
 import { StoryNarrativeGenerator } from '../story-mode/engine/StoryNarrativeGenerator';
 import { dialogLoader } from '../story-mode/engine/DialogLoader';
+import {
+  evaluateOperationParams,
+  resolveOperationParams,
+  isOperationComplete,
+  loadCarriers,
+  findTargetById,
+  findVulnerability,
+  kompromatCost,
+  type OperationParams,
+  type OperationResult,
+  type CarrierState,
+} from '../story-mode/battlefield/BattlefieldChain';
 
 import { playSound } from '../story-mode/utils/SoundSystem';
 import { storyLogger } from '../utils/logger';
@@ -188,6 +200,9 @@ export interface StoryAction {
   // Engine-Referenz
   engineAbilityId?: string;
   disarmRef?: string;
+
+  /** P2 Verbreiter×Plattform-Auswahl (ids, additiv/heute leer) — s. BattlefieldChain. */
+  params?: OperationParams;
 }
 
 /**
@@ -236,6 +251,19 @@ export interface ActionResult {
 
   // Betrayal warnings triggered
   betrayalWarnings?: BetrayalWarning[];
+}
+
+/**
+ * Ergebnis einer ausgespielten „Operation" (P2 Kommunikations-Schlachtfeld).
+ * Trägt das pure Engine-Resultat plus ein ActionResult-förmiges Objekt, damit der
+ * bestehende Broadcast-Streifen (mapActionToBroadcast) ohne Sonderweg reagiert.
+ */
+export interface OperationOutcome {
+  success: boolean;
+  reason?: string;
+  params: OperationParams;
+  result: OperationResult | null;
+  broadcastResult: ActionResult | null;
 }
 
 /**
@@ -2926,6 +2954,7 @@ export class StoryEngineAdapter {
       npcBonus,
       engineAbilityId: loaded.disarm_ref || undefined,
       disarmRef: loaded.disarm_ref || undefined,
+      params: loaded.params,
     };
   }
 
@@ -3296,6 +3325,184 @@ export class StoryEngineAdapter {
     }
 
     return result;
+  }
+
+  /**
+   * P2 „Operations-Akte": eine aus {Ziel, Schwäche, Verbreiter, Plattform-Mix}
+   * zusammengesetzte Operation ausspielen. Reiner params-Durchstich:
+   *   ids → BattlefieldChain (pure Bewertung) → Nachricht + Broadcast + Risiko/Aufmerksamkeit.
+   *
+   * Bewusst eigener Pfad neben executeAction (keine Aktion-Karte, kein actionPoint):
+   * die Akte ist ein additives Werkzeug. Faktencheck/Sättigung speisen sich aus dem
+   * aktuellen Spielstand (attention/risk), damit die Bewertung mit der Lage atmet.
+   * Ressourcen-Effekt bewusst moderat (P2-Erststufe; Aufbau-/Budget-Ökonomie folgt, §9.4).
+   */
+  // ── P2 Operations-Ökonomie: Verbreiter-Aufbau + Kompromat-Beschaffung ──────────
+  // Laufzeit-Zustand neben den Ressourcen: macht Operationen kostenpflichtig (kein
+  // Spam) und bildet die Kette Ziel→Dossier→Kompromat→Verbreiter ab (Konzept §2/§5).
+  private carrierStates = new Map<string, CarrierState>();
+  private acquiredKompromat = new Set<string>();
+
+  private kompromatKey(targetId: string, vulnId: string): string {
+    return `${targetId}:${vulnId}`;
+  }
+
+  /** Verbreiter-Zustand (Default verfügbar = bekannt, aber noch nicht aufgebaut). */
+  getCarrierState(carrierId: string): CarrierState {
+    return this.carrierStates.get(carrierId) ?? 'verfügbar';
+  }
+  getCarrierStates(): Record<string, CarrierState> {
+    const out: Record<string, CarrierState> = {};
+    for (const c of loadCarriers()) out[c.id] = this.getCarrierState(c.id);
+    return out;
+  }
+
+  /** Verbreiter aufbauen: kostet buildCost (Budget+Kapazität), dann „aktiv". */
+  buildCarrier(carrierId: string): { ok: boolean; reason?: string } {
+    const carrier = loadCarriers().find((c) => c.id === carrierId);
+    if (!carrier) return { ok: false, reason: 'Verbreiter unbekannt' };
+    const state = this.getCarrierState(carrierId);
+    if (state === 'aktiv') return { ok: true };
+    if (state === 'verbrannt') return { ok: false, reason: 'Verbreiter verbrannt' };
+    const { budget, capacity } = carrier.buildCost;
+    if (this.storyResources.budget < budget) return { ok: false, reason: `Budget zu gering (${budget}k)` };
+    if (this.storyResources.capacity < capacity) return { ok: false, reason: `Kapazität zu gering (${capacity})` };
+    this.storyResources.budget -= budget;
+    this.storyResources.capacity -= capacity;
+    this.carrierStates.set(carrierId, 'aktiv');
+    return { ok: true };
+  }
+
+  isKompromatAcquired(targetId: string, vulnId: string): boolean {
+    return this.acquiredKompromat.has(this.kompromatKey(targetId, vulnId));
+  }
+  kompromatCostFor(targetId: string, vulnId: string): number | null {
+    const vuln = findVulnerability(findTargetById(targetId), vulnId);
+    return vuln ? kompromatCost(vuln) : null;
+  }
+
+  /** Kompromat beschaffen (Dossier→Kompromat): kostet Budget ~ Heikelheit, hebt Risiko. */
+  acquireKompromat(targetId: string, vulnId: string): { ok: boolean; reason?: string } {
+    if (this.isKompromatAcquired(targetId, vulnId)) return { ok: true };
+    const vuln = findVulnerability(findTargetById(targetId), vulnId);
+    if (!vuln) return { ok: false, reason: 'Schwäche unbekannt' };
+    const cost = kompromatCost(vuln);
+    if (this.storyResources.budget < cost) return { ok: false, reason: `Budget zu gering (${cost}k)` };
+    this.storyResources.budget -= cost;
+    // Beschaffung heiklen Materials zieht selbst etwas Aufmerksamkeit/Risiko nach sich.
+    this.storyResources.risk = Math.max(0, Math.min(100, this.storyResources.risk + Math.round(vuln.heikelheit * 4)));
+    this.acquiredKompromat.add(this.kompromatKey(targetId, vulnId));
+    return { ok: true };
+  }
+
+  playOperation(params: OperationParams): OperationOutcome {
+    const resolved = resolveOperationParams(params);
+    if (!isOperationComplete(resolved)) {
+      return { success: false, reason: 'Operation unvollständig', params, result: null, broadcastResult: null };
+    }
+
+    // Ökonomie-Gate: Verbreiter muss aufgebaut, Kompromat beschafft sein.
+    const carrierState = this.getCarrierState(resolved.carrier!.id);
+    if (carrierState === 'verbrannt') {
+      return { success: false, reason: `Verbreiter „${resolved.carrier!.label_de}" ist verbrannt`, params, result: null, broadcastResult: null };
+    }
+    if (carrierState !== 'aktiv') {
+      return { success: false, reason: `Verbreiter „${resolved.carrier!.label_de}" noch nicht aufgebaut`, params, result: null, broadcastResult: null };
+    }
+    if (!this.isKompromatAcquired(resolved.target!.id, resolved.vulnerability!.id)) {
+      return { success: false, reason: `Kompromat „${resolved.vulnerability!.label_de}" noch nicht beschafft`, params, result: null, broadcastResult: null };
+    }
+
+    const result = evaluateOperationParams(params, {
+      factcheckPressure: this.storyResources.attention / 100,
+      saturation: this.storyResources.risk / 100,
+    });
+    if (!result) {
+      return { success: false, reason: 'Operation unvollständig', params, result: null, broadcastResult: null };
+    }
+
+    // Moderater Lage-Effekt: Enttarnungs-Risiko hebt das Entdeckungsrisiko, Wirkung
+    // erzeugt Gegner-Aufmerksamkeit. Beides geklammert in 0..100.
+    const clamp100 = (x: number) => Math.max(0, Math.min(100, x));
+    const riskAdd = Math.round(result.exposureRisk * 8);
+    const attentionAdd = Math.round(result.impact * 6);
+    this.storyResources.risk = clamp100(this.storyResources.risk + riskAdd);
+    this.storyResources.attention = clamp100(this.storyResources.attention + attentionAdd);
+
+    // Synthetische StoryAction → der Broadcast-Streifen liest nur tags/headline_de/costs.
+    const synthAction: StoryAction = {
+      id: `op_${resolved.carrier!.id}_${this.storyPhase.number}_${this.actionHistory.length}`,
+      label_de: result.headline_de,
+      label_en: result.headline_de,
+      headline_de: result.headline_de,
+      narrative_de: '',
+      narrative_en: '',
+      phase: 'targeting',
+      tags: ['targeting', 'operation'],
+      legality: 'grey',
+      costs: { risk: riskAdd, attention: attentionAdd },
+      available: false,
+      prerequisites: [],
+      prerequisitesMet: true,
+      npcAffinity: [],
+      params,
+    };
+
+    const wirkungPct = Math.round(result.impact * 100);
+    const reichweitePct = Math.round(result.reach * 100);
+    const broadcastResult: ActionResult = {
+      success: true,
+      action: synthAction,
+      effects: [],
+      resourceChanges: { risk: riskAdd, attention: attentionAdd },
+      narrative: {
+        headline_de: result.headline_de,
+        headline_en: result.headline_de,
+        description_de: `Reichweite ${reichweitePct}% · Wirkung ${wirkungPct}% gegen ${resolved.target!.name}.`,
+        description_en: `Reach ${reichweitePct}% · impact ${wirkungPct}% against ${resolved.target!.name}.`,
+      },
+      potentialConsequences: [],
+    };
+
+    // Sichtbar in Nachrichten/Lagebild.
+    this.newsEvents.unshift({
+      id: `news_op_${synthAction.id}_${Date.now()}`,
+      phase: this.storyPhase.number,
+      headline_de: result.headline_de,
+      headline_en: result.headline_de,
+      description_de: `Verbreiter ${resolved.carrier!.label_de} · Reichweite ${reichweitePct}% · Enttarnungs-Risiko ${Math.round(result.exposureRisk * 100)}%.`,
+      description_en: `Carrier ${resolved.carrier!.label_de} · reach ${reichweitePct}% · exposure ${Math.round(result.exposureRisk * 100)}%.`,
+      type: 'action_result',
+      severity: result.exposureRisk >= 0.66 ? 'warning' : 'success',
+      read: false,
+      pinned: false,
+    });
+
+    this.actionHistory.push({ phase: this.storyPhase.number, actionId: synthAction.id, result: broadcastResult });
+
+    // Enttarnung: hohe Exposure in einem bereits heißen Informationsraum verbrennt das
+    // Asset (Reichweite weg, einmalig) — deterministisch, nachvollziehbar (Konzept §4).
+    let carrierBurned = false;
+    if (result.exposureRisk >= 0.66 && this.storyResources.risk >= 60) {
+      this.carrierStates.set(resolved.carrier!.id, 'verbrannt');
+      carrierBurned = true;
+      this.newsEvents.unshift({
+        id: `news_burn_${resolved.carrier!.id}_${Date.now()}`,
+        phase: this.storyPhase.number,
+        headline_de: `Verbreiter aufgeflogen: ${resolved.carrier!.label_de}`,
+        headline_en: `Carrier exposed: ${resolved.carrier!.label_de}`,
+        description_de: 'Das Asset ist verbrannt — Reichweite verloren, öffentlicher Rückschlag.',
+        description_en: 'The asset is burned — reach lost, public blowback.',
+        type: 'consequence',
+        severity: 'danger',
+        read: false,
+        pinned: false,
+      });
+    }
+
+    playSound(carrierBurned || result.exposureRisk >= 0.66 ? 'warning' : 'success');
+
+    return { success: true, params, result, broadcastResult };
   }
 
   private getActionById(id: string): StoryAction | null {

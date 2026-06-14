@@ -6,7 +6,7 @@
       "file": "images/audience_room.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: cozy but worn 1980s eastern-bloc living room facing the viewer: a long empty sofa centered against patterned wallpaper, small side tables with a doily and a radio, warm lamp light, the unseen television illuminates the scene from the viewer direction with a faint blue glow, no people, no text. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A pixel art game asset: a warm, bright, cozy contemporary western family living room facing the viewer: a LONG empty comfy fabric sofa with soft cushions spanning almost the full width, placed LOW in the lower third of the frame so people could sit along it, against a warm cream wall with two framed friendly prints, a warm floor lamp glowing, a small potted plant and a side table, a cozy area rug on a warm wooden floor; soft warm homely daylight, inviting and lived-in; the unseen television casts a soft warm glow from the viewer direction; no people, no text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style). A WARM, BRIGHT, COZY contemporary (2020s) western middle-class HOME interior — friendly, lived-in and welcoming, absolutely NOT institutional, NOT a ministry, NOT grim, NOT a cold concrete office. Warm inviting palette: warm wood floor, cream and soft-beige walls, warm lamp glow and soft daylight, gentle warm highlights, only a few cool accents. Soft homely lighting, cozy and bright. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
       "seed": 736974,
       "styleVersion": "v1"
     },
@@ -16,9 +16,9 @@
       "file": "images/bld_city_far.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: distant city skyline silhouette at night for a side-scrolling pixel game background: dark block buildings with small lit windows, chimneys with faint smoke, a thin TV tower, cool blue-grey night haze, flat layered silhouette, seamlessly tileable from left to right. No people, no readable text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A pixel art game asset: distant city skyline for a side-scrolling pixel game background, a DENSE CONTINUOUS row of many block buildings of varied heights packed close together with NO large empty gaps between building clusters (no missing-tooth gaps), several depth layers: nearer buildings darker and sharper, buildings further back progressively lighter as they recede into cool blue-grey atmospheric haze; small warm lit windows scattered across the buildings, a few slim chimneys with faint smoke, one thin TV tower; the UPPER parts of the skyline gradually dissolve into the hazy distance so there is NO hard top edge; flat layered silhouette; PERFECTLY seamless horizontal tile — the LEFT and RIGHT edges must continue each other exactly with buildings crossing the seam so it repeats with no visible break; crisp clean high-resolution pixel art, on a single flat solid magenta (#FF00FF) background above and between the gaps so the sky can be cut out. No people, no readable text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 858121,
-      "styleVersion": "v2"
+      "styleVersion": "v1"
     },
     {
       "id": "bld_corridor",
@@ -26,9 +26,9 @@
       "file": "images/bld_corridor.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: interior corridor wall of a brutalist ministry, cross-section view: plain concrete wall with a painted dado line, a notice board, a wall clock, ceiling with one fluorescent tube, linoleum floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people. No people, no readable text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A pixel art game asset: EMPTY interior corridor wall of a brutalist ministry, cross-section view: plain smooth concrete wall with a painted dado line at hip height, a ceiling with one long fluorescent tube, a linoleum floor strip at the bottom; the wall is COMPLETELY EMPTY — absolutely NO notice board, NO clock, NO posters, NO plants, NO bench, NO furniture, NO objects of any kind on the wall or floor; seamlessly tileable from left to right, flat frontal view, NO doors, no people. No people, no readable text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 960861,
-      "styleVersion": "v2"
+      "styleVersion": "v1"
     },
     {
       "id": "bld_corridor_2",
@@ -36,9 +36,9 @@
       "file": "images/bld_corridor_2.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: interior corridor wall of a modern ministry, cross-section view: clean concrete-and-glass wall with a glass-fronted notice board, a wall-mounted flat info screen, a tall potted plant and a water cooler, ceiling with recessed light strips, polished floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people. No people, no readable text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A pixel art game asset: EMPTY interior corridor wall of a modern ministry, cross-section view: clean concrete-and-glass wall with slim vertical glass panels and a brushed-metal dado strip, ceiling with recessed light strips, a polished floor strip at the bottom; the wall is COMPLETELY EMPTY — absolutely NO notice board, NO screen, NO plants, NO water cooler, NO furniture, NO objects of any kind; seamlessly tileable from left to right, flat frontal view, NO doors, no people. No people, no readable text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 776352,
-      "styleVersion": "v2"
+      "styleVersion": "v1"
     },
     {
       "id": "bld_corridor_3",
@@ -46,9 +46,19 @@
       "file": "images/bld_corridor_3.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: interior corridor wall of a modern ministry, cross-section view: clean concrete wall with a small coffee station, two framed abstract constructivist posters (geometric shapes only, no text), a low waiting bench, a wall clock, ceiling recessed light strips, polished floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people. No people, no readable text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A pixel art game asset: EMPTY interior corridor wall of a modern ministry, cross-section view: warm-grey plastered wall with a darker wainscot panel below the dado line, ceiling with recessed light strips, a polished floor strip at the bottom; the wall is COMPLETELY EMPTY — absolutely NO coffee station, NO posters, NO bench, NO clock, NO furniture, NO objects of any kind; seamlessly tileable from left to right, flat frontal view, NO doors, no people. No people, no readable text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 124325,
-      "styleVersion": "v2"
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bld_corridor_keller",
+      "type": "image",
+      "file": "images/bld_corridor_keller.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game asset: EMPTY basement vault-level corridor wall of a brutalist ministry, cross-section view: rough raw exposed-concrete wall, a row of metal conduits and pipes running horizontally near the ceiling with a few small red status lights, a bare sealed-concrete floor strip at the bottom, cooler and slightly darker utilitarian lighting; the wall is COMPLETELY EMPTY — absolutely NO furniture, NO posters, NO objects of any kind; seamlessly tileable from left to right, flat frontal view, NO doors, no people. No people, no readable text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 503995,
+      "styleVersion": "v1"
     },
     {
       "id": "bld_door_closed",
@@ -56,9 +66,9 @@
       "file": "images/bld_door_closed.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: a single closed heavy wooden office door with a dark frame and a small nameplate-shaped blank sign, frontal view, single object. No people, no readable text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A pixel art game asset: a single CLOSED modern office door: a light-grey door panel in a slim dark metal frame, a small blank nameplate and a red handle on the right, strict flat frontal view, the door panel and frame fill the whole image identically. Single object — NO wall around it, NO room, NO floor, ONLY the door and its frame on magenta. No people, no readable text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 734562,
-      "styleVersion": "v2"
+      "styleVersion": "v1"
     },
     {
       "id": "bld_door_open",
@@ -66,9 +76,9 @@
       "file": "images/bld_door_open.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: a single heavy wooden office door standing open inward showing warm light from inside, dark door frame, frontal view, single object. No people, no readable text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A pixel art game asset: the SAME single modern office door but OPEN: the light-grey door panel swung inward to the left, revealing only a DARK DIM interior behind it (just shadow, no detailed room, no warm light). The slim dark metal frame stays at the SAME size and position as the closed version. Strict flat frontal view. Single object — NO wall around it, NO floor, ONLY the door and its frame on magenta. No people, no readable text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 567052,
-      "styleVersion": "v2"
+      "styleVersion": "v1"
     },
     {
       "id": "bld_facade_pillar",
@@ -121,6 +131,16 @@
       "styleVersion": "v2"
     },
     {
+      "id": "bld_underground",
+      "type": "image",
+      "file": "images/bld_underground.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game asset: underground cross-section of soil and bedrock behind a building basement, for a side-scrolling pixel game background: horizontal layered earth strata in dark cool browns and slate-greys, a few horizontal embedded pipes, cables and concrete foundation slabs with rebar, scattered small rocks and roots, getting darker toward the bottom; cool dark earthy palette, crisp clean high-resolution pixel art, seamlessly tileable from left to right, flat frontal view, no people, no text. No people, no readable text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 140586,
+      "styleVersion": "v1"
+    },
+    {
       "id": "building_exterior",
       "type": "image",
       "file": "images/building_exterior.png",
@@ -136,9 +156,9 @@
       "file": "images/elevator_cabin_closed.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: an old elevator with closed riveted metal double doors and a small round floor indicator light above, frontal view, single object. No people, no readable text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A pixel art game asset: ONLY the front of a modern elevator car: a pair of CLOSED brushed-metal sliding doors with a thin seam down the middle, set in a slim metal door frame, a small round floor-indicator light above. Strict flat frontal view, fills the image. Single object — absolutely NO surrounding shaft, NO walls beside or above, NO scenery, ONLY the elevator doors and their frame on magenta. No people, no readable text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 854521,
-      "styleVersion": "v2"
+      "styleVersion": "v1"
     },
     {
       "id": "elevator_cabin_open",
@@ -146,9 +166,9 @@
       "file": "images/elevator_cabin_open.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: an old elevator with open riveted metal double doors revealing an empty cabin lit by a single warm ceiling lamp, wood-panelled cabin walls, frontal view, single object. No people, no readable text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A pixel art game asset: ONLY the front of the SAME modern elevator car with the brushed-metal sliding doors fully OPEN to the sides, revealing a clean empty cabin interior softly lit by a ceiling light. The SAME slim metal door frame at the SAME size and position as the closed version. Strict flat frontal view. Single object — absolutely NO surrounding shaft, NO walls beside it, ONLY the elevator and its frame on magenta. No people, no readable text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 769267,
-      "styleVersion": "v2"
+      "styleVersion": "v1"
     },
     {
       "id": "hud_paper_frame",
@@ -721,6 +741,36 @@
       "styleVersion": "v2"
     },
     {
+      "id": "prop_bench",
+      "type": "image",
+      "file": "images/prop_bench.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a low modern padded waiting bench with metal legs, strict flat side elevation view, orthographic, seen straight from the side, NO isometric, NO 3/4 or top-down perspective. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 920619,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_chairs",
+      "type": "image",
+      "file": "images/prop_chairs.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: two simple modern grey waiting chairs side by side, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective, do NOT show the seats from above. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 714852,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_clock_wall",
+      "type": "image",
+      "file": "images/prop_clock_wall.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a round minimalist wall clock with a thin frame, hanging flat. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 999709,
+      "styleVersion": "v1"
+    },
+    {
       "id": "prop_coffee",
       "type": "image",
       "file": "images/prop_coffee.png",
@@ -738,6 +788,66 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A pixel art game asset: stack of beige paper files and folders. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 308568,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_noticeboard",
+      "type": "image",
+      "file": "images/prop_noticeboard.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a glass-fronted office notice board with a few pinned papers, hanging flat on a wall. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 236717,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_plant_small",
+      "type": "image",
+      "file": "images/prop_plant_small.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a small round potted plant in a pot, strict flat front elevation view, orthographic, NO isometric, NO 3/4 or top-down perspective. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 756993,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_plant_tall",
+      "type": "image",
+      "file": "images/prop_plant_tall.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a tall potted indoor rubber-tree plant in a simple modern dark pot, full plant from pot to top, strict flat front elevation view, orthographic, NO isometric, NO 3/4 or top-down perspective. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 526689,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_poster_a",
+      "type": "image",
+      "file": "images/prop_poster_a.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a framed abstract constructivist poster, geometric dark-red and grey shapes only, no text, hanging flat. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 425111,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_poster_b",
+      "type": "image",
+      "file": "images/prop_poster_b.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a framed abstract poster with cyan and grey diagonal geometric shapes only, no text, hanging flat. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 972857,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_poster_c",
+      "type": "image",
+      "file": "images/prop_poster_c.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a framed abstract poster with muted concentric geometric shapes only, no text, hanging flat. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 729640,
       "styleVersion": "v1"
     },
     {
@@ -771,6 +881,16 @@
       "styleVersion": "v1"
     },
     {
+      "id": "prop_trashcan",
+      "type": "image",
+      "file": "images/prop_trashcan.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a cylindrical brushed-metal office waste bin, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective, do NOT show the rim opening from above. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 494860,
+      "styleVersion": "v1"
+    },
+    {
       "id": "prop_tv",
       "type": "image",
       "file": "images/prop_tv.png",
@@ -788,6 +908,26 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A pixel art game asset: soviet-era mechanical typewriter. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 838841,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_vending",
+      "type": "image",
+      "file": "images/prop_vending.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a modern drinks vending machine with a dark glass front and softly lit shelves, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 308471,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_watercooler",
+      "type": "image",
+      "file": "images/prop_watercooler.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: an office water cooler dispenser with a blue water bottle on top, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 775131,
       "styleVersion": "v1"
     },
     {
@@ -869,6 +1009,16 @@
       "prompt": "A pixel art game background scene, wide interior view. modern social-media monitoring newsroom: a wall of slim flat-panel monitors showing scrolling feeds, trend charts and maps, a long clean desk with keyboards and coffee cups, a pinboard of printouts, cable management. Zone lighting: cool blue-white screen glow, fairly bright. Concrete and glass walls, a clean floor, an abstract constructivist-style poster (geometric shapes only, no emblems, no text). Furniture and desks are modest in size and clearly smaller than a standing adult; keep the lower third of the scene as clear floor space for a character to stand. No people, no text, no UI elements. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 358160,
       "styleVersion": "v2"
+    },
+    {
+      "id": "room_operations",
+      "type": "image",
+      "file": "images/room_operations.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game background scene, wide interior view. office room \"Operations Room\". Concrete and glass walls, a clean floor, an abstract constructivist-style poster (geometric shapes only, no emblems, no text). Furniture and desks are modest in size and clearly smaller than a standing adult; keep the lower third of the scene as clear floor space for a character to stand. No people, no text, no UI elements. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 949119,
+      "styleVersion": "v1"
     },
     {
       "id": "room_spieler_buero",
@@ -1150,7 +1300,7 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A 2-frame pixel art sprite sheet of a woman around 55 in a polo shirt with a tablet on her lap, reading glasses, in a seated posture facing the viewer (as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 74014,
-      "styleVersion": "v2",
+      "styleVersion": "v1",
       "frameWidth": 48,
       "frameHeight": 48,
       "animations": {
@@ -1170,7 +1320,7 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A 2-frame pixel art sprite sheet of a young creative in an oversized hoodie with headphones around the neck, slouched with a smartphone, in a seated posture facing the viewer (as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 808892,
-      "styleVersion": "v2",
+      "styleVersion": "v1",
       "frameWidth": 48,
       "frameHeight": 48,
       "animations": {
@@ -1190,7 +1340,7 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A 2-frame pixel art sprite sheet of a retired man in a knitted cardigan with a cat on his lap and a tablet, in a seated posture facing the viewer (as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 53128,
-      "styleVersion": "v2",
+      "styleVersion": "v1",
       "frameWidth": 48,
       "frameHeight": 48,
       "animations": {
@@ -1230,7 +1380,7 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A 2-frame pixel art sprite sheet of a woman in her mid 30s in a linen shirt with a tote bag leaning against the sofa, in a seated posture facing the viewer (as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 832249,
-      "styleVersion": "v2",
+      "styleVersion": "v1",
       "frameWidth": 48,
       "frameHeight": 48,
       "animations": {
@@ -1270,7 +1420,7 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A 2-frame pixel art sprite sheet of a woman around 60 with round glasses, folded quality newspaper, podcast earphones around the neck, in a seated posture facing the viewer (as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 275642,
-      "styleVersion": "v2",
+      "styleVersion": "v1",
       "frameWidth": 48,
       "frameHeight": 48,
       "animations": {
@@ -1290,7 +1440,7 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A 2-frame pixel art sprite sheet of a hands-on tradesman in his mid 40s in a fleece jacket and jeans, beer bottle on his knee, in a seated posture facing the viewer (as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 260936,
-      "styleVersion": "v2",
+      "styleVersion": "v1",
       "frameWidth": 48,
       "frameHeight": 48,
       "animations": {
@@ -1330,7 +1480,7 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A 2-frame pixel art sprite sheet of a career woman in her mid 30s in a white blazer, holding a smoothie cup, sitting upright, in a seated posture facing the viewer (as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 350343,
-      "styleVersion": "v2",
+      "styleVersion": "v1",
       "frameWidth": 48,
       "frameHeight": 48,
       "animations": {
@@ -1410,7 +1560,7 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A 2-frame pixel art sprite sheet of a frustrated man in a faded t-shirt, arms crossed, cigarette behind the ear, in a seated posture facing the viewer (as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 179953,
-      "styleVersion": "v2",
+      "styleVersion": "v1",
       "frameWidth": 48,
       "frameHeight": 48,
       "animations": {
@@ -1438,6 +1588,66 @@
           "row": 0,
           "frames": 4,
           "frameTime": 260,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "figure_cleaner",
+      "type": "sheet",
+      "file": "sheets/figure_cleaner.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A 2-frame pixel art sprite sheet of a middle-aged cleaner in a plain work tabard over casual clothes, holding a cloth, standing, full body from head to feet, STANDING upright facing the viewer, strict flat front view (no isometric). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, tiny sway). Draw NO background, NO floor, NO furniture — ONLY the person. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 734374,
+      "styleVersion": "v1",
+      "frameWidth": 48,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "figure_cleaner_walk",
+      "type": "sheet",
+      "file": "sheets/figure_cleaner_walk.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "An 8-frame pixel art sprite sheet of a middle-aged cleaner in a plain work tabard over casual clothes, holding a cloth, walking to the right, strict side view, full body from head to feet. Horizontal layout, exactly 8 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, forming one full walk cycle with clearly DIFFERENT leg poses (heel strike, weight sink, swing-through, reach — for both legs), arms swinging opposite to the legs, head bobbing about 2 pixels. Adjacent frames MUST differ visibly, especially the legs. CRITICAL: EVERY frame on the SAME flat solid magenta (#FF00FF) fill — NO background, NO floor, NO scenery, ONLY the walking cleaner. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 674718,
+      "styleVersion": "v1",
+      "frameWidth": 48,
+      "frameHeight": 96,
+      "animations": {
+        "walk": {
+          "row": 0,
+          "frames": 8,
+          "frameTime": 100,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "figure_clerk",
+      "type": "sheet",
+      "file": "sheets/figure_clerk.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A 2-frame pixel art sprite sheet of a young office clerk in a grey shirt carrying a beige folder under one arm, standing, full body from head to feet, STANDING upright facing the viewer, strict flat front view (no isometric). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, tiny sway). Draw NO background, NO floor, NO furniture — ONLY the person. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 743633,
+      "styleVersion": "v1",
+      "frameWidth": 48,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
           "loop": true
         }
       }
@@ -1518,6 +1728,26 @@
           "row": 0,
           "frames": 4,
           "frameTime": 260,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "figure_pfoertner",
+      "type": "sheet",
+      "file": "sheets/figure_pfoertner.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A 2-frame pixel art sprite sheet of a friendly older male reception porter in his late 50s in a simple dark uniform jacket over a light shirt, calm kind face, standing upright with hands relaxed at his sides, full body from head to feet, STANDING upright facing the viewer, strict flat front view (no isometric). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, tiny sway). Draw NO background, NO floor, NO furniture — ONLY the person. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 314461,
+      "styleVersion": "v1",
+      "frameWidth": 48,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
           "loop": true
         }
       }

@@ -31,11 +31,14 @@ import { TitleScreen } from './components/TitleScreen';
 import { ArrivalSequence } from './components/ArrivalSequence';
 import { AvatarChoice } from './components/AvatarChoice';
 import { BuildingView } from './building/BuildingView';
+import { pfoertnerLine as computePfoertnerLine, dominantMood } from './building/pfoertner';
 import { BroadcastBar } from './broadcast/BroadcastBar';
 import { useAudienceBroadcast } from './broadcast/useAudienceBroadcast';
 import { NpcRoomView } from './building/NpcRoomView';
 import { NewsroomView, derivePosts } from './components/NewsroomView';
 import { FokusgruppeView } from './components/FokusgruppeView';
+import { OperationsAkteView } from './components/OperationsAkteView';
+import { loadTargets, loadCarriers, loadPlatforms } from './battlefield/BattlefieldChain';
 import { DayClock } from './components/DayClock';
 import { Icon } from './components/Icon';
 import { MorningBriefing } from './components/MorningBriefing';
@@ -47,7 +50,8 @@ import { SidePanel } from './components/SidePanel';
 import { LagebildView } from './components/LagebildView';
 import { NarrativeBoard } from './components/NarrativeBoard';
 import { initAssetRegistry, useAssets } from './assets';
-import { playMusic, stopMusic, playAmbience, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound, setChannelVolume, getChannelVolume, type SoundChannel } from './utils/SoundSystem';
+import { playMusic, playAmbience, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound, setChannelVolume, getChannelVolume, type SoundChannel } from './utils/SoundSystem';
+import { ambienceForContext, musicForState } from './utils/soundDirector';
 
 // ============================================
 // TYPES
@@ -255,6 +259,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     resetGame,
     endPhase,
     executeAction,
+    playOperation,
+    buildCarrier,
+    acquireKompromat,
     addToQueue,
     removeFromQueue,
     clearQueue,
@@ -301,6 +308,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showEndReport, setShowEndReport] = useState(false);
   const [showNewsroom, setShowNewsroom] = useState(false);
   const [showFokusgruppe, setShowFokusgruppe] = useState(false);
+  // P2: Operations-Akte (Operationszentrale, Etage 4) — Verbreiter×Plattform-Operation.
+  const [showOperationsAkte, setShowOperationsAkte] = useState(false);
   // 2f: Narrativ-Tafel (Korkbrett) — diegetisches Planungs-Herzstück, Pinnwand im Büro.
   const [showBoard, setShowBoard] = useState(false);
   // 2e: Lagebild — „auf einen Blick"-Übersicht am Wand-Monitor (löst das Dashboard ab).
@@ -389,33 +398,32 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const assets = useAssets();
   useEffect(() => {
     if (state.gamePhase === 'playing' || state.gamePhase === 'tutorial') {
-      // Situative Musik: Krise → angespannter Loop, sonst Büro-Ambience.
-      playMusic(state.activeCrisis ? 'music_tense' : 'music_gameplay');
+      // Adaptive Musik (J34/J35): Krise immer angespannt, sonst nach Lage (Risiko).
+      const track = state.activeCrisis ? 'music_tense' : musicForState({ risk: state.resources.risk });
+      playMusic(track);
     } else if (state.gamePhase === 'ended') {
-      stopMusic();
+      // Ende: hoffnungsvolle Enden hell, sonst düster.
+      const won = state.gameEnd?.type === 'victory' || state.gameEnd?.type === 'moral_redemption';
+      playMusic(musicForState({ risk: state.resources.risk, gameEnded: true, won }));
     }
-  }, [state.gamePhase, state.activeCrisis, assets]);
+  }, [state.gamePhase, state.activeCrisis, state.resources.risk, state.gameEnd, assets]);
 
-  // F36: Raum-Klangkulisse je nach aktuellem Ort (zweiter, leiser Loop unter der Musik).
+  // F36: Raum-Klangkulisse je nach aktuellem Ort (zweiter, leiser Loop unter der Musik; Ducking aktiv).
+  const ambienceOverlay = showNewsroom ? 'newsroom'
+    : showFokusgruppe ? 'fokusgruppe'
+    : showOperationsAkte ? 'akte'
+    : showLagebild ? 'lagebild'
+    : showBoard ? 'board'
+    : null;
   useEffect(() => {
-    if (state.gamePhase !== 'playing' && state.gamePhase !== 'tutorial') {
-      playAmbience(null);
-      return;
-    }
-    // NPC-Räume mit eigener Kulisse (Mapping NPC → Ambience-Asset).
-    const npcAmbience: Record<string, string> = {
-      alexei: 'sfx_amb_cyber',
-      igor: 'sfx_amb_keller',
-      direktor: 'sfx_amb_zentrale',
-    };
-    let ambience: string | null = null;
-    if (showNewsroom) ambience = 'sfx_amb_newsroom';
-    else if (viewMode === 'office') ambience = 'sfx_amb_buero';
-    else if (state.currentDialog && state.activeNpcId && npcAmbience[state.activeNpcId]) {
-      ambience = npcAmbience[state.activeNpcId];
-    }
-    playAmbience(ambience);
-  }, [state.gamePhase, viewMode, showNewsroom, state.currentDialog, state.activeNpcId, assets]);
+    const active = state.gamePhase === 'playing' || state.gamePhase === 'tutorial';
+    playAmbience(ambienceForContext({
+      viewMode,
+      overlay: ambienceOverlay,
+      dialogNpcId: state.currentDialog ? state.activeNpcId : null,
+      active,
+    }));
+  }, [state.gamePhase, viewMode, ambienceOverlay, state.currentDialog, state.activeNpcId, assets]);
 
   // Erster Büro-Besuch gesehen → Hinweise künftig nicht mehr zeigen.
   useEffect(() => {
@@ -739,6 +747,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               npcs={state.npcs}
               month={state.storyPhase.month}
               locked={!!state.currentDialog}
+              pfoertnerLine={computePfoertnerLine({
+                risk: state.resources.risk,
+                publicMood: dominantMood(audience.country.segments.map((s) => s.mood)),
+                lastHeadline: audience.lastItem?.headline ?? null,
+              })}
               onRoomClick={(npcId) => {
                 setActivePanel(null);
                 interactWithNpc(npcId);
@@ -747,6 +760,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               onEnterRoom={(roomId) => {
                 if (roomId === 'newsroom') setShowNewsroom(true);
                 else if (roomId === 'analyse') setShowFokusgruppe(true);
+                else if (roomId === 'operations') setShowOperationsAkte(true);
               }}
               walkHome={walkHome}
               onArrivedHome={() => {
@@ -925,6 +939,29 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             }))}
             lastHeadline={audience.lastItem?.headline ?? null}
             onClose={() => setShowFokusgruppe(false)}
+          />
+        )}
+
+        {/* Operations-Akte (P2): Verbreiter×Plattform-Operation gegen ein fiktives Ziel.
+            Faktencheck/Sättigung speisen sich aus der Lage (attention/risk → 0..1). */}
+        {showOperationsAkte && (
+          <OperationsAkteView
+            targets={loadTargets()}
+            carriers={loadCarriers()}
+            platforms={loadPlatforms()}
+            backdropUrl={assets.imageUrl('room_operations') ?? undefined}
+            factcheckPressure={state.resources.attention / 100}
+            saturation={state.resources.risk / 100}
+            carrierStates={state.carrierStates}
+            acquiredKompromat={state.acquiredKompromat}
+            onBuildCarrier={(id) => buildCarrier(id)}
+            onAcquireKompromat={(targetId, vulnId) => acquireKompromat(targetId, vulnId)}
+            onAusspielen={(params) => {
+              playOperation(params);
+              setShowOperationsAkte(false);
+              setBroadcastExpanded(true);
+            }}
+            onClose={() => setShowOperationsAkte(false)}
           />
         )}
 

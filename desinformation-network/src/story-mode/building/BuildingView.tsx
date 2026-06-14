@@ -29,9 +29,11 @@ interface BuildingViewProps {
   month?: number;
   /** Interaktion gesperrt (z. B. während ein Dialog läuft): kein Etagen-Tableau. */
   locked?: boolean;
+  /** Strang 5: Stimmungs-Hinweis des Pförtners (Lobby). */
+  pfoertnerLine?: string;
 }
 
-export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, walkHome = false, onArrivedHome, month, locked = false }: BuildingViewProps) {
+export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, walkHome = false, onArrivedHome, month, locked = false, pfoertnerLine }: BuildingViewProps) {
   const nav = useNavigator();
   const [directoryOpen, setDirectoryOpen] = useState(false);
 
@@ -94,6 +96,7 @@ export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, wa
         onRoomClick={handleRoomClick}
         onOpenDirectory={locked ? undefined : () => setDirectoryOpen(true)}
         month={month}
+        pfoertnerLine={pfoertnerLine}
       />
       {directoryOpen && (
         <FloorDirectory

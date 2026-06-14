@@ -106,8 +106,14 @@ Bildungszweck: Muster sichtbar machen (End-Report benennt die reale Methode hint
   Empfehlung: **ja** (vitest-first, dann diegetische Oberfläche).
 
 ## 9. Bau-Plan P2 (kleine grüne Schritte)
-1. Daten: `targets.json` (Entwurf) · `carriers.json` · `platforms.json`.
-2. Engine: `battlefield/BattlefieldChain.ts` (pure) + `__tests__` (Wirkung/Risiko/Enttarnung deterministisch).
-3. `params`-Durchstich (Action → Result → Broadcast) additiv.
-4. Balancing-Sim erweitern (Pfad-Vielfalt §4: Thema×Verbreiter×Plattform×Ziel×Timing).
-5. UI: diegetische „Schlachtfeld"-Ansicht (nach Owner-Abnahme der Mechanik).
+1. ✅ Daten: `targets.json` · `carriers.json` · `platforms.json` (fiktiver Roster: 6×8×5).
+2. ✅ Engine: `battlefield/BattlefieldChain.ts` (pure) + `__tests__` (Wirkung/Risiko/Enttarnung deterministisch).
+3. ✅ `params`-Durchstich (ids → Engine → Result → Broadcast/Nachricht): `OperationParams` +
+   `resolveOperationParams`/`evaluateOperationParams`; `StoryEngineAdapter.playOperation` (eigener Pfad
+   neben `executeAction`, moderater Risiko-/Aufmerksamkeits-Effekt). Aktion trägt `params` additiv/leer.
+4. ⬜ Balancing-Sim erweitern (Pfad-Vielfalt §4: Thema×Verbreiter×Plattform×Ziel×Timing) + Verbreiter-
+   Aufbau-/Budget-Ökonomie (§2 „aufbauen", state verfügbar/aufbau/aktiv/verbrannt) + Kompromat-Schritt (§5).
+5. ✅ UI (Erststufe): `OperationsAkteView` — kompaktes diegetisches Aktendeckblatt (Ziel→Schwäche→
+   Verbreiter→Plattform-Mix → Live-Wirkungs-Analyse → „Ausspielen"), erreichbar über die **Operations-
+   zentrale** (Etage 4, NPC-loser Raum, wie Newsroom/Analyse). Folge: Kompromat-UI, reichere Broadcast-
+   Themen aus dem Ziel-Milieu, optionales Akten-Raumbild (Asset).

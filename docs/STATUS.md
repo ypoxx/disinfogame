@@ -8,18 +8,37 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `STRANG34_FEINPLAN_2026-06-13_AKTIONEN_DIALOGE.md` → `GESAMTKONZEPT_VISUELL.md` →
 > dieses Dokument für den aktuellen Bau-Stand. Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
-**Stand:** 2026-06-14 · **main nach PR #80** (Strang 3+4 P0 + P1 komplett + P2-Konzept/Engine
-+ Politur/Konsistenz — gemerged). Branch `claude/laughing-curie-jn0sff` aufgegangen.
+**Stand:** 2026-06-14 · **PR #81 (Draft, Branch `claude/blissful-bardeen-vqf70z`)** — große Session.
+**Geliefert (alles grün, Gate je Commit `tsc`·`vitest ~290`·`build`):**
+- **P2 abgerundet:** `OperationsAkteView` (diegetische Akte, Operationszentrale Etage 4) + `playOperation`
+  + `params`-Durchstich; **Operations-Ökonomie** (Verbreiter-Aufbau/Budget, Kompromat-Beschaffung,
+  Enttarnung→verbrannt) → kein Spam mehr.
+- **Visual-Politur (Owner-Screenshots R1–R8):** Skyline (hi-res + Tageszeit-Himmel + natürlicher Übergang +
+  dichter/keine Baulücke), **Entkachelung** der Etagen (saubere Korridore + datengetriebene Deko an der
+  **Wand-Fuß-Linie**, `STAGE.floorStrip`), **Untergrund** unter dem Keller, **Fernsehfamilie** (warmes
+  `styleHome`-Wohnzimmer + Sitzkomposition), Büro-Hotspots entrechteckt, Tür-/Fahrstuhl-Animationen sauber.
+- **Sound:** adaptive Musik (J34/J35) + Ducking (J36) + Ambience je Raum/Overlay (`soundDirector`).
+- **Strang 5 (6 Slices):** Pförtner (state-aware „Stimme des Landes"), stehende **+ anklickbare**
+  Statisten, **laufende Reinigung**, **Tür-Dummies**, saubere Tür-/Fahrstuhl-Animation.
+- **Skill** `.claude/skills/pixel-asset-pipeline` + Planungs-Hygiene (ROADMAP/TECHNICAL_DEBT/Konzept-Docs).
 
-### ▶ Für die NÄCHSTE Session — hier weitermachen
-1. **Owner-Entscheidung offen — P2-„Akte"-UI:** *Akte (eine kompakte diegetische Ansicht)*
-   **oder** *dialog-only*? Konzept + Skizze: `STRANG34_P2_VERBREITER_PLATTFORM_KONZEPT.md`.
-   Engine (`battlefield/BattlefieldChain.ts`) + Daten (targets/carriers/platforms) stehen schon,
-   nur die Oberfläche + `params`-Durchstich fehlen.
-2. **Topic-Texte in Stimme** (`topics_dialogues.json`, 14 Themen × NPC-Varianten) — letzter Dialog-Block;
-   Begrüßungen + Reaktionen sind bereits in Stimme.
-3. **Visual-Backlog:** V4 (Büro-Panel-Audit), V5 (HUD-Feinpolitur), V6 (ComboHints diegetisch), V8 (Strang 5 Atmosphäre).
-4. **P1c-Content** weiter (mehr granulare Aktionen, Marina mit 50 entlasten) + Balancing-Sim.
+### ▶ Für die NÄCHSTE Session — großes Paket (frische Session wg. Token-Budget)
+**Empfehlung: „Loop schließen" — P2 + Konsequenzen + End-Report** (macht aus den Systemen *ein*
+durchspielbares, bildendes Spiel):
+- P2-Operationen an **Sieg/Niederlage** koppeln (Enttarnung = echter öffentlicher Rückschlag,
+  Vertrauen der Gegenseite↑); **Kompromat-Heikelheit ↔ `moral_weight` ↔ Enden**.
+- **End-Report** so bauen, dass er die **realen Desinfo-Methoden hinter jeder Mechanik benennt**
+  (SOUL §5: Bildung = der Lernmoment) — das eigentliche Ziel.
+- **Balancing-Sim end-to-end** (gewinn- UND verlierbar mit allen neuen Systemen).
+**Alternativen:** **P3** (Gebäude wächst: `unlocksRoom`/`unlocksNpc` + 100–500-Pfade-Sim) ·
+**Story/Vertonung** (Topic-Texte in Stimme + ElevenLabs-Batch).
+
+### 🔎 Aus dieser Session offen / nur im Preview zu prüfen (nicht in-Container verifizierbar)
+- **Fernsehfamilie ausgeklappt** (Taste B): Sitzlinie/Köpfe — Preview prüfen, ggf. Skala/Position nachziehen.
+- **Wand-Fuß-Linie** `STAGE.floorStrip`=40 + Strang-5-Tempo/Positionen — Owner-Feinjustage abwarten.
+- **Avatar:** zu pixelig + Lauf-Figur **nicht** an Avatar-Wahl gekoppelt (Bugs) → hi-res + m/w-Lauf offen.
+- Kleinkram: V4-Büro-Audit weiter, Lampen-abends-an, „2"-Welt-Badge diegetisch verorten.
+- **PR #81 ist Draft** → reviewen/mergen, wenn Owner mit dem Preview zufrieden ist.
 
 ---
 
@@ -50,8 +69,8 @@ Sweep hat dauerhaft eingeblendete Seiten-Widgets übersehen (s. Visual-Backlog &
 | **P1c (Affinitäten)** | **Alle 110 Aktions-Affinitäten** auf den kanonischen Roster (Owner: „Rollen wie Stimme") umgemappt → Orphan `volkov` weg, Dialog-Angebote je Büro stimmig | ✅ |
 | **P1c (Content)** | **+15 granulare Aktionen** (`actions_p1c.json`, 110→125): **Igor/Finanz 3→10** inkl. **Kredit-Mechanik** (negative Budget-Kosten = Geldspritze, einmalig) + **Fokusgruppe** (K40), je Büro ergänzt. Balance-Sim: **18 Sieg / 18 Niederlage** (gewinn- UND verlierbar) | ✅ |
 
-Gate je Push grün: `tsc` · `npm run build` · `vitest` (231). Smoke: `npm run smoke` (Playwright,
-s. unten).
+Gate je Push grün: `tsc` · `npm run build` · `vitest` (262, inkl. P2-Akte/Engine). Smoke: `npm run smoke`
+(Playwright, s. unten).
 
 ---
 
@@ -77,6 +96,15 @@ Prinzip (SOUL): visuelle Kohärenz ist das Erste, was Nutzer beurteilen.
 **Empfohlene Reihenfolge:** V1 (✅) → V4-Audit (klein, klärt Umfang) → **P1** (löst V2 strukturell) →
 V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
 
+### 🆕 Runde 2 — Owner-Screenshots 2026-06-14 (Detail: `VISUAL_AUDIO_BACKLOG_2026-06-14.md`)
+| # | Beobachtung | Aktion | Kosten |
+|---|---|---|---|
+| V12 | **Skyline zu klein, schwarzer Himmel zu groß**, kaum Tageszeit-Abwechslung | Himmel als tagesuhr-Verlauf (7 Stops) + Skyline-Band höher; später 2–3 Skyline-Varianten cross-faden; Jahreszeit bleibt Overlay | erst gratis/Code, dann moderat |
+| V13 | **Büro-Hotspots = orange Rechteck-Drahtgitter** über den Möbeln („platt") | Ruhe-Ring weg, Hover-Glow folgt der Objektform; „2"-Welt-Badge diegetisch verorten; ggf. Büro-Neuaufbau | gratis/Code (+ggf. Highlight-Assets) |
+| V14 | **Seitenleiste** (Nachrichten/Queue) wirkt als flache Web-Sidebar (zwei Welten) | ins diegetische System (Papier/Klemmbrett oder PixelModal wie Akte); Rand-Tab weg (V2-Rest) | Code |
+| V15 | **TV/Wohnzimmer:** Publikums-Figuren kaputt, Raum/Sofa altbacken; Leiste zu niedrig | Audience-Figuren + Wohnzimmer/Sofa neu (Asset); **Broadcast-Leiste höher** (Code) | Code + Asset-Paket |
+| V16 | **Avatar** zu pixelig + nicht an Wahl gekoppelt (s. Bugs) | höher auflösen; m/w-Lauf-Variante passend zum Porträt | Asset/Budget |
+
 ---
 
 ## 🗺️ Roadmap Strang 3+4 (Feinplan §3, abgenommen §10)
@@ -85,12 +113,17 @@ V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
 |---|---|---|
 | **P0** | Aktions-Überschriften + Direktor-Hinweise | ✅ (PR #80) |
 | **P1** | Aktion-aus-Dialog · Menü→Gespräch · granularere Aktionen · Sprach-Steckbriefe · NPC-Vorschläge im Gespräch (löst V2) | **Kern fertig** (PR #80) — ✅ P1a, ✅ P1b (Begrüßungen ALLER NPCs), ✅ P1c (Affinitäten + 15 neue Aktionen, 125 gesamt, Balance 18/18), ✅ P1d, ✅ Declutter, ✅ Deck nach NPC. **Rest-Politur (laufend):** P1b Topics/Reaktionen in Steckbrief-Stimme; weitere Aktions-Pakete + Marina (50) entlasten; situative Eröffnungen |
-| **P2** | Kommunikations-Schlachtfeld (Ziel→Dossier→Kompromat→Verbreiter+Plattform-Mix). **Erst nach Exa-Recherche** (§10.1) | offen |
+| **P2** | Kommunikations-Schlachtfeld (Ziel→Dossier→Kompromat→Verbreiter+Plattform-Mix). | **Erststufe fertig:** Engine (`BattlefieldChain`) + Daten + `params`-Durchstich (`playOperation`) + diegetische **Operations-Akte** (`OperationsAkteView`, Operationszentrale Etage 4). Offen: Verbreiter-Aufbau/Budget, Kompromat-Schritt, Balancing-Sim |
 | **P3** | Gebäude-Wachstum (`unlocksRoom`/`unlocksNpc`) + 100–500-Pfade-Simulation | offen |
 
 ## 🪲 Bekannte Bugs / Altlasten
 
-- **Avatar-Beine starr** (V7) — Schwebe-Eindruck.
+- **Avatar läuft NICHT mit der Avatar-Wahl mit** (neu 2026-06-14): die Lauf-/Idle-Figur ist ein
+  einziges festes Sheet (`player_walk`/`player_idle`, `BuildingStage.tsx:543`); die Avatar-Wahl
+  ändert nur das **Porträt** (`portrait_player_<id>`). Entscheidung nötig (Porträt-only vs. m/w-Lauf).
+- **Avatar zu pixelig** (Owner 2026-06-14) — 32 px nativ ×4; Neu-Generierung höher aufgelöst (Asset).
+- ~~**Avatar-Beine starr** (V7)~~ — **✅ behoben** (Sheet referenz-stabil memoisiert, Strang-1-Bug);
+  Schweben weg. (Frühere Doppel-Listung korrigiert.)
 - **NPC-Rollen-Inkonsistenz (3-fach, wichtig für P1c):** drei Quellen widersprechen sich —
   (a) `npcs.json` Rollen-Labels (Direktor=Leiter, Alexei=Technik, Katja=Feld, Igor=Finanz,
   Marina=Medien), (b) Aktions-`npc_affinity` (marina=Analyse, **volkov**=Ops/Infra [keine NPC-Id!],

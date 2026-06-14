@@ -11,7 +11,9 @@ import {
   Objective,
   ActiveConsequence,
   GameEndState,
+  OperationOutcome,
 } from '../../game-logic/StoryEngineAdapter';
+import type { OperationParams } from '../battlefield/BattlefieldChain';
 import { playSound } from '../utils/SoundSystem';
 import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
 import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
@@ -318,6 +320,10 @@ export interface StoryGameState {
 
   // Combo Hints
   comboHints: import('../engine/StoryComboSystem').ComboHint[];
+
+  // P2 Operations-Ökonomie (Verbreiter-Zustände, beschaffte Kompromat-Schlüssel `targetId:vulnId`)
+  carrierStates: Record<string, string>;
+  acquiredKompromat: string[];
 }
 
 export interface DialogState {
@@ -1056,6 +1062,63 @@ export function useStoryGameState(seed?: string) {
   }, [engine, npcs, refreshAvailableActions, trustHistory, recommendations]);
 
   // ============================================
+  // P2 OPERATIONS-AKTE (params-Durchstich)
+  // ============================================
+
+  /**
+   * Spielt eine aus der Operations-Akte zusammengesetzte Operation aus.
+   * Eigener Pfad neben executeAction: die Engine bewertet rein (BattlefieldChain),
+   * setzt Nachricht + Risiko/Aufmerksamkeit und liefert ein Broadcast-Item, das wir
+   * als lastActionResult durchreichen → der Publikums-Streifen reagiert wie gewohnt.
+   */
+  // Laufzeit-Zustand der Operations-Ökonomie (für die Akte reaktiv gespiegelt).
+  const [carrierStates, setCarrierStates] = useState<Record<string, string>>(() => engine.getCarrierStates());
+  const [acquiredKompromat, setAcquiredKompromat] = useState<string[]>([]);
+
+  const playOperation = useCallback((params: OperationParams): OperationOutcome => {
+    const outcome = engine.playOperation(params);
+    if (outcome.success && outcome.broadcastResult) {
+      setLastActionResult(outcome.broadcastResult);
+      setResources(engine.getResources());
+      setNewsEvents(engine.getNewsEvents());
+      setCarrierStates(engine.getCarrierStates()); // Verbrennen sichtbar machen
+
+      const endState = engine.checkGameEnd();
+      if (endState) {
+        setGameEnd(endState);
+        setGamePhase('ended');
+      }
+    }
+    return outcome;
+  }, [engine]);
+
+  /** Verbreiter aufbauen (kostet Budget/Kapazität). */
+  const buildCarrier = useCallback((carrierId: string) => {
+    const res = engine.buildCarrier(carrierId);
+    if (res.ok) {
+      setResources(engine.getResources());
+      setCarrierStates(engine.getCarrierStates());
+      playSound('paper');
+    } else {
+      playSound('error');
+    }
+    return res;
+  }, [engine]);
+
+  /** Kompromat beschaffen (Dossier→Kompromat, kostet Budget ~ Heikelheit). */
+  const acquireKompromat = useCallback((targetId: string, vulnId: string) => {
+    const res = engine.acquireKompromat(targetId, vulnId);
+    if (res.ok) {
+      setResources(engine.getResources());
+      setAcquiredKompromat((prev) => prev.includes(`${targetId}:${vulnId}`) ? prev : [...prev, `${targetId}:${vulnId}`]);
+      playSound('paper');
+    } else {
+      playSound('error');
+    }
+    return res;
+  }, [engine]);
+
+  // ============================================
   // ACTION QUEUE MANAGEMENT
   // ============================================
 
@@ -1481,6 +1544,8 @@ export function useStoryGameState(seed?: string) {
       activeCrisis,
       recommendationTracking,
       comboHints,
+      carrierStates,
+      acquiredKompromat,
     } as StoryGameState,
 
     // Game Flow
@@ -1498,6 +1563,9 @@ export function useStoryGameState(seed?: string) {
 
     // Actions
     executeAction,
+    playOperation,
+    buildCarrier,
+    acquireKompromat,
 
     // Action Queue
     addToQueue,

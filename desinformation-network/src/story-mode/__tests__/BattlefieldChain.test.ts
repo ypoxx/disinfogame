@@ -11,6 +11,10 @@ import {
   loadTargets,
   loadCarriers,
   loadPlatforms,
+  resolveOperationParams,
+  isOperationComplete,
+  evaluateOperationParams,
+  findVulnerability,
   type Carrier,
   type Platform,
   type Target,
@@ -84,5 +88,54 @@ describe('BattlefieldChain (P2c Zustandsmaschine)', () => {
     expect(loadCarriers().length).toBe(8);
     expect(loadPlatforms().length).toBe(5);
     expect(loadTargets().every((t) => t.fiktiv === true)).toBe(true);
+  });
+});
+
+describe('params-Durchstich (ids → Operation)', () => {
+  const aTarget = loadTargets()[0];
+  const aVuln = aTarget.vulnerabilities[0];
+  const aCarrier = loadCarriers()[0];
+  const aPlatform = loadPlatforms()[0];
+
+  it('löst vollständige ids zu Objekten auf', () => {
+    const resolved = resolveOperationParams({
+      target: aTarget.id,
+      vulnerability: aVuln.id,
+      carrier: aCarrier.id,
+      platforms: [aPlatform.id],
+    });
+    expect(resolved.target?.id).toBe(aTarget.id);
+    expect(resolved.vulnerability?.id).toBe(aVuln.id);
+    expect(resolved.carrier?.id).toBe(aCarrier.id);
+    expect(resolved.platforms.map((p) => p.id)).toEqual([aPlatform.id]);
+    expect(isOperationComplete(resolved)).toBe(true);
+  });
+
+  it('unbekannte/fehlende ids → null bzw. übersprungen, unvollständig', () => {
+    const resolved = resolveOperationParams({ target: aTarget.id, platforms: ['gibtsnicht', aPlatform.id] });
+    expect(resolved.vulnerability).toBeNull();
+    expect(resolved.carrier).toBeNull();
+    expect(resolved.platforms.map((p) => p.id)).toEqual([aPlatform.id]); // unbekannte gefiltert
+    expect(isOperationComplete(resolved)).toBe(false);
+  });
+
+  it('Schwäche wird nur im Kontext ihres Ziels gefunden', () => {
+    expect(findVulnerability(aTarget, aVuln.id)?.id).toBe(aVuln.id);
+    expect(findVulnerability(aTarget, 'fremde_schwaeche')).toBeNull();
+    expect(findVulnerability(null, aVuln.id)).toBeNull();
+  });
+
+  it('evaluateOperationParams: null bei unvollständig, Resultat bei vollständig', () => {
+    expect(evaluateOperationParams({})).toBeNull();
+    expect(evaluateOperationParams({ target: aTarget.id, carrier: aCarrier.id })).toBeNull();
+    const r = evaluateOperationParams({
+      target: aTarget.id,
+      vulnerability: aVuln.id,
+      carrier: aCarrier.id,
+      platforms: [aPlatform.id],
+    });
+    expect(r).not.toBeNull();
+    expect(r!.impact).toBeGreaterThan(0);
+    expect(r!.headline_de).toContain(aTarget.name);
   });
 });

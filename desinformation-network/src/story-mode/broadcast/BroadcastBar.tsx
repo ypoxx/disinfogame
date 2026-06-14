@@ -94,7 +94,7 @@ function CollapsedStrip({ audience, onToggle }: { audience: AudienceBroadcastSta
       title="Sendung & Publikum (B)"
       className="relative w-full flex items-center gap-3 px-3 text-left"
       style={{
-        height: 34,
+        height: 40,
         flexShrink: 0,
         backgroundColor: 'rgba(8,8,12,0.94)',
         borderTop: `3px solid ${StoryModeColors.ministryRed}`,
@@ -229,7 +229,7 @@ function AudienceRoom({ audience }: { audience: AudienceBroadcastState }) {
     <div
       style={{
         position: 'relative',
-        flex: '0 0 420px',
+        flex: '0 0 500px',
         height: '100%',
         overflow: 'hidden',
         border: '3px solid #2c2d35',
@@ -243,8 +243,10 @@ function AudienceRoom({ audience }: { audience: AudienceBroadcastState }) {
       <span style={{ position: 'absolute', top: 4, left: 8, fontSize: 10, fontWeight: 700, letterSpacing: 1, color: '#c8c8b8', backgroundColor: 'rgba(10,10,14,0.7)', padding: '1px 6px', zIndex: 3 }}>
         PUBLIKUM — WESTUNION
       </span>
-      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 12, display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 14, zIndex: 2 }}>
-        {audience.country.segments.map((seg) => {
+      {/* Repräsentative Teilmenge (das Sofa fasst nicht alle 8 — Owner: nicht alle sitzen);
+          mittig, Rand-Polster, kleinere Skala → Köpfe werden oben NICHT abgeschnitten. */}
+      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 10, display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 8, padding: '0 18px', zIndex: 2 }}>
+        {audience.country.segments.slice(0, 5).map((seg) => {
           const figure = FIGURE_BY_SEGMENT[seg.id] ?? 'audience_besorgte_mitte';
           const reaction = reactionBySegment.get(seg.id);
           const showBubble = reaction && Math.abs(reaction.beliefDelta) >= 0.04;
@@ -276,7 +278,7 @@ function AudienceRoom({ audience }: { audience: AudienceBroadcastState }) {
                 </span>
               )}
               <span style={{ filter: MOOD_FILTER[seg.mood], transition: 'filter 600ms ease' }}>
-                <PixelSprite sheetId={figure} animation="idle" fallback="" scale={1.6} title={seg.label_de} />
+                <PixelSprite sheetId={figure} animation="idle" fallback="" scale={1.35} title={seg.label_de} />
               </span>
               {/* Überzeugungs-Sockel: füllt sich mit der Wirkung der Desinformation */}
               <span
@@ -317,7 +319,7 @@ export function BroadcastBar({ audience, expanded, onToggle }: BroadcastBarProps
     <div
       className="relative w-full z-30"
       style={{
-        height: 188,
+        height: 224,
         flexShrink: 0,
         display: 'flex',
         gap: 12,

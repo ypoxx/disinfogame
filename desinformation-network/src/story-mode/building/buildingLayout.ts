@@ -42,6 +42,9 @@ export const STAGE = {
   doorWidth: 96,
   doorHeight: 144,
   avatarSize: 128, // 32px-Frames ×4 (Proportionsregel)
+  /** Höhe des Boden-Streifens unten im Flur: Türen/Deko/Avatar stehen auf der
+   *  WAND-FUSS-Linie (Oberkante dieses Streifens), nicht auf der vorderen Bodenkante. */
+  floorStrip: 40,
 } as const;
 
 export interface FloorLayout extends FloorDef {

@@ -13,7 +13,7 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import { BUILDING_JSON, NPCS_JSON } from './paths.mjs';
-import { styleCore } from './styleguide.mjs';
+import { styleCore, styleObject, styleHome } from './styleguide.mjs';
 import { CHROMA_PROMPT } from './transparency.mjs';
 
 /** Deterministischer Seed je Shot-id (reproduzierbare Läufe). */
@@ -95,6 +95,20 @@ const PROPS = [
   ['prop_safe', 'heavy steel safe with a rotary dial'],
   ['prop_coffee', 'steaming coffee cup on a saucer'],
   ['prop_typewriter', 'soviet-era mechanical typewriter'],
+  // --- Korridor-Deko (R4-Entkachelung): einzelne, frei platzierbare Objekte ---
+  // FLACH-FRONTAL (keine Isometrie) — passt zum flachen Korridor-Querschnitt (R4-Befund).
+  ['prop_plant_tall', 'a tall potted indoor rubber-tree plant in a simple modern dark pot, full plant from pot to top, strict flat front elevation view, orthographic, NO isometric, NO 3/4 or top-down perspective'],
+  ['prop_plant_small', 'a small round potted plant in a pot, strict flat front elevation view, orthographic, NO isometric, NO 3/4 or top-down perspective'],
+  ['prop_trashcan', 'a cylindrical brushed-metal office waste bin, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective, do NOT show the rim opening from above'],
+  ['prop_bench', 'a low modern padded waiting bench with metal legs, strict flat side elevation view, orthographic, seen straight from the side, NO isometric, NO 3/4 or top-down perspective'],
+  ['prop_chairs', 'two simple modern grey waiting chairs side by side, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective, do NOT show the seats from above'],
+  ['prop_watercooler', 'an office water cooler dispenser with a blue water bottle on top, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective'],
+  ['prop_vending', 'a modern drinks vending machine with a dark glass front and softly lit shelves, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective'],
+  ['prop_clock_wall', 'a round minimalist wall clock with a thin frame, strict flat front view, orthographic'],
+  ['prop_noticeboard', 'a glass-fronted office notice board with a few pinned papers, strict flat front view, orthographic'],
+  ['prop_poster_a', 'a framed abstract constructivist poster, geometric dark-red and grey shapes only, no text, strict flat front view'],
+  ['prop_poster_b', 'a framed abstract poster with cyan and grey diagonal geometric shapes only, no text, strict flat front view'],
+  ['prop_poster_c', 'a framed abstract poster with muted concentric geometric shapes only, no text, strict flat front view'],
 ];
 
 // Gebäude-Baukasten: Querschnitts-Bausteine für die Stage (BuildingView).
@@ -145,7 +159,7 @@ const BUILDING_KIT = [
     '2:3',
     { w: 128, h: 192 },
     true,
-    'a single closed heavy wooden office door with a dark frame and a small nameplate-shaped blank sign, frontal view, single object',
+    'a single CLOSED modern office door: a light-grey door panel in a slim dark metal frame, a small blank nameplate and a red handle on the right, strict flat frontal view, the door panel and frame fill the whole image identically. Single object — NO wall around it, NO room, NO floor, ONLY the door and its frame on magenta',
     'must',
   ],
   [
@@ -153,7 +167,7 @@ const BUILDING_KIT = [
     '2:3',
     { w: 128, h: 192 },
     true,
-    'a single heavy wooden office door standing open inward showing warm light from inside, dark door frame, frontal view, single object',
+    'the SAME single modern office door but OPEN: the light-grey door panel swung inward to the left, revealing only a DARK DIM interior behind it (just shadow, no detailed room, no warm light). The slim dark metal frame stays at the SAME size and position as the closed version. Strict flat frontal view. Single object — NO wall around it, NO floor, ONLY the door and its frame on magenta',
     'must',
   ],
   [
@@ -161,7 +175,7 @@ const BUILDING_KIT = [
     '3:4',
     { w: 168, h: 224 },
     true,
-    'an old elevator with closed riveted metal double doors and a small round floor indicator light above, frontal view, single object',
+    'ONLY the front of a modern elevator car: a pair of CLOSED brushed-metal sliding doors with a thin seam down the middle, set in a slim metal door frame, a small round floor-indicator light above. Strict flat frontal view, fills the image. Single object — absolutely NO surrounding shaft, NO walls beside or above, NO scenery, ONLY the elevator doors and their frame on magenta',
     'must',
   ],
   [
@@ -169,7 +183,7 @@ const BUILDING_KIT = [
     '3:4',
     { w: 168, h: 224 },
     true,
-    'an old elevator with open riveted metal double doors revealing an empty cabin lit by a single warm ceiling lamp, wood-panelled cabin walls, frontal view, single object',
+    'ONLY the front of the SAME modern elevator car with the brushed-metal sliding doors fully OPEN to the sides, revealing a clean empty cabin interior softly lit by a ceiling light. The SAME slim metal door frame at the SAME size and position as the closed version. Strict flat frontal view. Single object — absolutely NO surrounding shaft, NO walls beside it, ONLY the elevator and its frame on magenta',
     'must',
   ],
   [
@@ -177,7 +191,7 @@ const BUILDING_KIT = [
     '16:9',
     { w: 1344, h: 768 },
     false,
-    'interior corridor wall of a brutalist ministry, cross-section view: plain concrete wall with a painted dado line, a notice board, a wall clock, ceiling with one fluorescent tube, linoleum floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people',
+    'EMPTY interior corridor wall of a brutalist ministry, cross-section view: plain smooth concrete wall with a painted dado line at hip height, a ceiling with one long fluorescent tube, a linoleum floor strip at the bottom; the wall is COMPLETELY EMPTY — absolutely NO notice board, NO clock, NO posters, NO plants, NO bench, NO furniture, NO objects of any kind on the wall or floor; seamlessly tileable from left to right, flat frontal view, NO doors, no people',
     'must',
   ],
   [
@@ -185,7 +199,7 @@ const BUILDING_KIT = [
     '16:9',
     { w: 1344, h: 768 },
     false,
-    'interior corridor wall of a modern ministry, cross-section view: clean concrete-and-glass wall with a glass-fronted notice board, a wall-mounted flat info screen, a tall potted plant and a water cooler, ceiling with recessed light strips, polished floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people',
+    'EMPTY interior corridor wall of a modern ministry, cross-section view: clean concrete-and-glass wall with slim vertical glass panels and a brushed-metal dado strip, ceiling with recessed light strips, a polished floor strip at the bottom; the wall is COMPLETELY EMPTY — absolutely NO notice board, NO screen, NO plants, NO water cooler, NO furniture, NO objects of any kind; seamlessly tileable from left to right, flat frontal view, NO doors, no people',
     'must',
   ],
   [
@@ -193,15 +207,31 @@ const BUILDING_KIT = [
     '16:9',
     { w: 1344, h: 768 },
     false,
-    'interior corridor wall of a modern ministry, cross-section view: clean concrete wall with a small coffee station, two framed abstract constructivist posters (geometric shapes only, no text), a low waiting bench, a wall clock, ceiling recessed light strips, polished floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people',
+    'EMPTY interior corridor wall of a modern ministry, cross-section view: warm-grey plastered wall with a darker wainscot panel below the dado line, ceiling with recessed light strips, a polished floor strip at the bottom; the wall is COMPLETELY EMPTY — absolutely NO coffee station, NO posters, NO bench, NO clock, NO furniture, NO objects of any kind; seamlessly tileable from left to right, flat frontal view, NO doors, no people',
+    'must',
+  ],
+  [
+    'bld_corridor_keller',
+    '16:9',
+    { w: 1344, h: 768 },
+    false,
+    'EMPTY basement vault-level corridor wall of a brutalist ministry, cross-section view: rough raw exposed-concrete wall, a row of metal conduits and pipes running horizontally near the ceiling with a few small red status lights, a bare sealed-concrete floor strip at the bottom, cooler and slightly darker utilitarian lighting; the wall is COMPLETELY EMPTY — absolutely NO furniture, NO posters, NO objects of any kind; seamlessly tileable from left to right, flat frontal view, NO doors, no people',
     'must',
   ],
   [
     'bld_city_far',
     '21:9',
-    { w: 1344, h: 576 },
+    { w: 2016, h: 864 },
     true,
-    'distant city skyline silhouette at night for a side-scrolling pixel game background: dark block buildings with small lit windows, chimneys with faint smoke, a thin TV tower, cool blue-grey night haze, flat layered silhouette, seamlessly tileable from left to right',
+'distant city skyline for a side-scrolling pixel game background, a DENSE CONTINUOUS row of many block buildings of varied heights packed close together with NO large empty gaps between building clusters (no missing-tooth gaps), several depth layers: nearer buildings darker and sharper, buildings further back progressively lighter as they recede into cool blue-grey atmospheric haze; small warm lit windows scattered across the buildings, a few slim chimneys with faint smoke, one thin TV tower; the UPPER parts of the skyline gradually dissolve into the hazy distance so there is NO hard top edge; flat layered silhouette; PERFECTLY seamless horizontal tile — the LEFT and RIGHT edges must continue each other exactly with buildings crossing the seam so it repeats with no visible break; crisp clean high-resolution pixel art, on a single flat solid magenta (#FF00FF) background above and between the gaps so the sky can be cut out',
+    'must',
+  ],
+  [
+    'bld_underground',
+    '21:9',
+    { w: 2016, h: 864 },
+    false,
+    'underground cross-section of soil and bedrock behind a building basement, for a side-scrolling pixel game background: horizontal layered earth strata in dark cool browns and slate-greys, a few horizontal embedded pipes, cables and concrete foundation slabs with rebar, scattered small rocks and roots, getting darker toward the bottom; cool dark earthy palette, crisp clean high-resolution pixel art, seamlessly tileable from left to right, flat frontal view, no people, no text',
     'must',
   ],
   [
@@ -238,7 +268,7 @@ const HUD_KIT = [
     '16:9',
     { w: 1344, h: 768 },
     false,
-    'cozy but worn 1980s eastern-bloc living room facing the viewer: a long empty sofa centered against patterned wallpaper, small side tables with a doily and a radio, warm lamp light, the unseen television illuminates the scene from the viewer direction with a faint blue glow, no people, no text',
+'a warm, bright, cozy contemporary western family living room facing the viewer: a LONG empty comfy fabric sofa with soft cushions spanning almost the full width, placed LOW in the lower third of the frame so people could sit along it, against a warm cream wall with two framed friendly prints, a warm floor lamp glowing, a small potted plant and a side table, a cozy area rug on a warm wooden floor; soft warm homely daylight, inviting and lived-in; the unseen television casts a soft warm glow from the viewer direction; no people, no text',
     'must',
   ],
 ];
@@ -253,6 +283,14 @@ const AUDIENCE_FIGURES = [
   ['audience_idealistin', 'a woman in her mid 30s in a linen shirt with a tote bag leaning against the sofa'],
   ['audience_eigenheimer', 'a retired man in a knitted cardigan with a cat on his lap and a tablet'],
   ['audience_liberale', 'a woman around 60 with round glasses, folded quality newspaper, podcast earphones around the neck'],
+];
+
+// Flavor-Figuren (Strang 5 — Atmosphäre): STEHENDE Statisten im Gebäude (Pförtner,
+// Reinigung, Kollege). 2-Frame-Idle, freistehend (Chroma), flach-frontal.
+const FLAVOR_FIGURES = [
+  ['figure_pfoertner', 'a friendly older male reception porter in his late 50s in a simple dark uniform jacket over a light shirt, calm kind face, standing upright with hands relaxed at his sides'],
+  ['figure_cleaner', 'a middle-aged cleaner in a plain work tabard over casual clothes, holding a cloth, standing'],
+  ['figure_clerk', 'a young office clerk in a grey shirt carrying a beige folder under one arm, standing'],
 ];
 
 // Spieler-Porträts zur Avatar-Wahl (K10/D27: m/w × jung/mittel/erfahren).
@@ -552,7 +590,14 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       aspectRatio: '1:1',
       size: { w: 1024, h: 1024 },
       seed: seedFor(id),
-      prompt: `A pixel art game asset: ${hint}. Single object, centered, no text. ${CHROMA_PROMPT} ${style}`,
+      // Strenge Isolation: das Objekt steht ALLEIN auf Magenta (kein Raum/Boden/Wand),
+      // sonst malt das Modell eine Mini-Szene drumherum (R4). styleObject() ohne „Setting interior".
+      prompt:
+        `A single isolated pixel-art object for a game: ${hint}. ` +
+        `The object stands completely ALONE, centered, floating on one flat solid magenta ` +
+        `(#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, ` +
+        `NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on ` +
+        `pure uniform magenta everywhere around it. No text. ${CHROMA_PROMPT} ${styleObject()}`,
     });
   }
 
@@ -613,7 +658,8 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       size,
       chroma,
       seed: seedFor(id),
-      prompt: `A pixel art game asset: ${hint}. ${chroma ? `${CHROMA_PROMPT} ` : ''}${style}`,
+      // Wohnzimmer der Fernsehfamilie = HEIM-Stil (warm/hell), nicht Ministeriums-Grau.
+      prompt: `A pixel art game asset: ${hint}. ${chroma ? `${CHROMA_PROMPT} ` : ''}${id === 'audience_room' ? styleHome() : style}`,
     });
   }
 
@@ -639,6 +685,58 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
         `subtle idle motion changes (blink, small head turn). ${CHROMA_PROMPT} ${style}`,
     });
   }
+
+  // --- Flavor-Figuren (Strang 5): STEHENDE Statisten, 2-Frame-Idle ---
+  for (const [id, hint] of FLAVOR_FIGURES) {
+    shots.push({
+      id,
+      type: 'sheet',
+      kind: 'figure',
+      priority: 'nice',
+      aspectRatio: '1:1',
+      chroma: true,
+      frameWidth: 48,
+      frameHeight: 96,
+      cols: 2,
+      rows: 1,
+      size: { w: 96, h: 96 },
+      animations: { idle: { row: 0, frames: 2, frameTime: 600, loop: true } },
+      seed: seedFor(id),
+      prompt:
+        `A 2-frame pixel art sprite sheet of ${hint}, full body from head to feet, ` +
+        `STANDING upright facing the viewer, strict flat front view (no isometric). ` +
+        `Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character ` +
+        `with identical outfit and colors in every frame, only a subtle idle motion changes ` +
+        `(blink, tiny sway). Draw NO background, NO floor, NO furniture — ONLY the person. ` +
+        `${CHROMA_PROMPT} ${styleObject()}`,
+    });
+  }
+
+  // Lauf-Zyklus für die Reinigungskraft (Strang 5 Bewegung).
+  shots.push({
+    id: 'figure_cleaner_walk',
+    type: 'sheet',
+    kind: 'figure',
+    priority: 'nice',
+    chroma: true,
+    frameWidth: 48,
+    frameHeight: 96,
+    cols: 8,
+    rows: 1,
+    size: { w: 384, h: 96 },
+    animations: { walk: { row: 0, frames: 8, frameTime: 100, loop: true } },
+    seed: seedFor('figure_cleaner_walk'),
+    prompt:
+      `An 8-frame pixel art sprite sheet of a middle-aged cleaner in a plain work tabard over ` +
+      `casual clothes, holding a cloth, walking to the right, strict side view, full body from ` +
+      `head to feet. Horizontal layout, exactly 8 evenly spaced frames in one row, the SAME ` +
+      `character with identical outfit and colors in every frame, forming one full walk cycle ` +
+      `with clearly DIFFERENT leg poses (heel strike, weight sink, swing-through, reach — for ` +
+      `both legs), arms swinging opposite to the legs, head bobbing about 2 pixels. Adjacent ` +
+      `frames MUST differ visibly, especially the legs. CRITICAL: EVERY frame on the SAME flat ` +
+      `solid magenta (#FF00FF) fill — NO background, NO floor, NO scenery, ONLY the walking ` +
+      `cleaner. ${CHROMA_PROMPT} ${styleObject()}`,
+  });
 
   // --- SFX / Musik ---
   for (const [id, text, durationSeconds, priority] of SFX) {

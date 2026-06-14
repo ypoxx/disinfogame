@@ -15,6 +15,8 @@ import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties } fr
 import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
+import { skyGradientForMinutes } from './skyTime';
+import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, FLOOR_WALKERS, DOOR_TRAFFIC, type AmbientFigure } from './corridorDecor';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
@@ -50,6 +52,8 @@ export interface BuildingStageProps {
   interactive?: boolean;
   /** Aktueller Monat (1–12 oder kumulativ) für die Jahreszeiten-Stimmung. */
   month?: number;
+  /** Strang 5: aktueller Stimmungs-Hinweis des Pförtners (Lobby), klickbar. */
+  pfoertnerLine?: string;
 }
 
 const layout = getBuildingLayout();
@@ -58,43 +62,113 @@ const layout = getBuildingLayout();
 const STAGE_KEYFRAMES = `
   @keyframes bs-blink { 0%,100%{opacity:1} 50%{opacity:.15} }
   @keyframes bs-glow { 0%,100%{box-shadow:0 0 6px 2px rgba(255,200,80,.25)} 50%{box-shadow:0 0 10px 3px rgba(255,200,80,.5)} }
+  /* Strang 5: Statist pendelt im Flur (Bewegung), Sprite klappt am Wendepunkt. */
+  @keyframes bs-walk-move { 0%{transform:translateX(0)} 50%{transform:translateX(var(--bs-walk-d))} 100%{transform:translateX(0)} }
+  @keyframes bs-walk-flip { 0%,49%{transform:scaleX(1)} 50%,99%{transform:scaleX(-1)} 100%{transform:scaleX(1)} }
+  /* Strang 5: Tür-Dummy taucht kurz auf (ein-/ausgehen) und verschwindet wieder. */
+  @keyframes bs-door-traffic { 0%,7%{opacity:0} 13%,40%{opacity:1} 47%,100%{opacity:0} }
+  @media (prefers-reduced-motion: reduce) { [data-bs-walker]{animation:none !important} [data-bs-walker] *{animation:none !important} [data-bs-dummy]{opacity:0 !important;animation:none !important} }
 `;
 
-/** Tür eines Raums (offen/zu) — Bild-Asset oder CSS-Fallback. */
+/** Tür eines Raums — sanftes Überblenden zwischen Zu/Auf (R2: kein harter Bild-Tausch). */
 function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
   const assets = useAssets();
-  const url = assets.imageUrl(open ? 'bld_door_open' : 'bld_door_closed');
-  const style: CSSProperties = {
+  const closedUrl = assets.imageUrl('bld_door_closed');
+  const openUrl = assets.imageUrl('bld_door_open');
+  const base: CSSProperties = {
     position: 'absolute',
     left: room.doorX - STAGE.doorWidth / 2,
-    top: room.y + room.h - STAGE.doorHeight,
+    top: room.y + room.h - STAGE.doorHeight - STAGE.floorStrip,
     width: STAGE.doorWidth,
     height: STAGE.doorHeight,
     pointerEvents: 'none',
     zIndex: 4,
   };
-  if (url) {
-    return <img src={url} alt="" style={{ ...style, imageRendering: 'pixelated', objectFit: 'fill' }} />;
+  if (closedUrl && openUrl) {
+    const img = (url: string, vis: boolean): CSSProperties => ({
+      ...base, imageRendering: 'pixelated', objectFit: 'fill', opacity: vis ? 1 : 0, transition: 'opacity 240ms ease',
+    });
+    return (
+      <>
+        <img src={closedUrl} alt="" style={img(closedUrl, !open)} />
+        <img src={openUrl} alt="" style={img(openUrl, open)} />
+      </>
+    );
   }
   return (
-    <div
-      style={{
-        ...style,
-        backgroundColor: open ? '#3b2a17' : '#241a0f',
-        border: '4px solid #111',
-        boxSizing: 'border-box',
-      }}
-    />
+    <div style={{ ...base, backgroundColor: open ? '#3b2a17' : '#241a0f', border: '4px solid #111', boxSizing: 'border-box' }} />
   );
 }
 
-export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interactive = true, month }: BuildingStageProps) {
+/** Strang 5: anklickbarer Flur-Statist mit Flavor-Sprechblase (Mini-Dialog, D13). */
+function AmbientPerson({ a, left, top, height }: { a: AmbientFigure; left: number; top: number; height: number }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ position: 'absolute', left, top, transform: 'translateX(-50%)', zIndex: 5 }}>
+      {open && (
+        <div
+          style={{
+            position: 'absolute', bottom: height + 6, left: '50%', transform: 'translateX(-50%)',
+            width: 230, backgroundColor: 'rgba(12,12,16,0.94)', border: `1px solid ${StoryModeColors.borderLight}`,
+            color: '#e8e4d8', fontFamily: 'monospace', fontSize: 11, lineHeight: 1.4, padding: '6px 8px', zIndex: 7,
+          }}
+        >
+          <span style={{ display: 'block', fontSize: 8, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 2 }}>{a.who}</span>
+          {a.line}
+        </div>
+      )}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        aria-label={`${a.who} ansprechen`}
+        title={`${a.who} ansprechen`}
+        style={{ width: (height / 96) * 48, height, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+      >
+        <PixelSprite sheetId={a.figure} animation="idle" fallback="" scale={height / 96} title={a.who} />
+      </button>
+    </div>
+  );
+}
+
+/** Strang 5 (Bewegung): ein Statist, der zwischen zwei Punkten im Flur hin- und herläuft. */
+function AmbientWalker({ figureWalk, leftA, d, top, height }: { figureWalk: string; leftA: number; d: number; top: number; height: number }) {
+  const dur = Math.max(6, Math.round(d / 26)); // ~26 px/s, ruhiges Tempo
+  const outer = {
+    position: 'absolute', left: leftA, top, zIndex: 2, pointerEvents: 'none',
+    animation: `bs-walk-move ${dur}s linear infinite`, '--bs-walk-d': `${d}px`,
+  } as CSSProperties;
+  return (
+    <div data-bs-walker="" aria-hidden style={outer}>
+      <div style={{ animation: `bs-walk-flip ${dur}s linear infinite` }}>
+        <PixelSprite sheetId={figureWalk} animation="walk" fallback="" scale={height / 96} title="" />
+      </div>
+    </div>
+  );
+}
+
+/** Strang 5 (Bewegung): Tür-Dummy, der periodisch an einer Tür auftaucht und verschwindet. */
+function DoorDummy({ figure, left, top, height, delayS }: { figure: string; left: number; top: number; height: number; delayS: number }) {
+  return (
+    <div
+      data-bs-dummy=""
+      aria-hidden
+      style={{
+        position: 'absolute', left, top, transform: 'translateX(-50%)', zIndex: 2, pointerEvents: 'none',
+        animation: `bs-door-traffic 17s ease-in-out ${delayS}s infinite`, opacity: 0,
+      }}
+    >
+      <PixelSprite sheetId={figure} animation="idle" fallback="" scale={height / 96} title="" />
+    </div>
+  );
+}
+
+export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interactive = true, month, pfoertnerLine }: BuildingStageProps) {
   const assets = useAssets();
   const npcById = new Map(npcs.map((n) => [n.id, n]));
   const containerRef = useRef<HTMLDivElement>(null);
   const [view, setView] = useState({ scale: 1, h: 600, w: 800 });
   const [hoverRoom, setHoverRoom] = useState<string | null>(null);
   const [hoverShaft, setHoverShaft] = useState(false);
+  const [pfoertnerOpen, setPfoertnerOpen] = useState(false); // Strang 5: Pförtner-Sprechblase
 
   // Schritt-Sound auf den Kontakt-Frames des Laufzyklus (Frame 0 und 4).
   const handleWalkFrame = useCallback((frame: number) => {
@@ -131,31 +205,40 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   // Mehr Abwechslung statt 1 Flur ×N: Variante je Etage (Owner-Hinweis).
   const corridorIds = ['bld_corridor', 'bld_corridor_2', 'bld_corridor_3'] as const;
   const corridorUrlFor = (level: number) =>
-    assets.imageUrl(corridorIds[(((level % 3) + 3) % 3)]) ?? corridorUrl;
+    assets.imageUrl(level === -1 ? 'bld_corridor_keller' : corridorIds[(((level % 3) + 3) % 3)]) ?? corridorUrl;
   const lobbyUrl = assets.imageUrl('room_lobby');
   const cityUrl = assets.imageUrl('bld_city_far');
   const streetUrl = assets.imageUrl('bld_street');
-  const cabinUrl = assets.imageUrl(nav.cabinDoorsOpen ? 'elevator_cabin_open' : 'elevator_cabin_closed');
+  const undergroundUrl = assets.imageUrl('bld_underground');
+  // Tageszeit-Himmel (gegen „schwarzer Himmel zu groß"): Verlauf folgt der Tagesuhr,
+  // die chroma-freigestellte Skyline liegt davor.
+  const skyMinutes = useDayClockStore((s) => s.minutes);
+  const cabinClosedUrl = assets.imageUrl('elevator_cabin_closed');
+  const cabinOpenUrl = assets.imageUrl('elevator_cabin_open');
 
-  // Kabinen-Geometrie: groß genug für den ×3-Avatar.
-  const cabinH = 208;
-  const cabinW = 156;
+  // Kabinen-Geometrie: füllt den Schacht (R5: keine „Briefmarke"); Höhe = Etagenhöhe.
+  const cabinH = STAGE.floorHeight;
+  const cabinW = 170;
   const topFloor = layout.floors[0];
   const cabinTopY = topFloor.y + (topFloor.level - nav.cabinLevel) * (STAGE.floorHeight + STAGE.slabHeight);
 
   const avatarFloorLayout = layout.floors.find((f) => f.level === nav.pos.floorLevel) ?? avatarFloor;
   const avatarY = nav.avatarInCabin
     ? cabinTopY + STAGE.floorHeight - STAGE.avatarSize - 10
-    : (avatarFloorLayout?.walkY ?? 0);
+    : (avatarFloorLayout?.walkY ?? 0) - STAGE.floorStrip; // Füße auf der Wand-Fuß-Linie
 
   // Stadt-Geometrie (im Container-Maß, hinter der skalierten Bühne).
   const groundScreenY = (layout.height - STAGE.groundHeight) * view.scale - cameraY;
+  // Untergrund: Erde/Rohre hinter & unter dem Keller (unterste Etage), damit die
+  // Skyline nicht „hängt" und der Keller als unterirdisch lesbar wird (Owner-Befund).
+  const lowestFloorY = layout.floors.length > 0 ? layout.floors[layout.floors.length - 1].y : layout.height - STAGE.floorHeight;
+  const undergroundTopY = (lowestFloorY - STAGE.slabHeight) * view.scale - cameraY;
 
   return (
     <div
       ref={containerRef}
       className="relative h-full w-full overflow-hidden"
-      style={{ background: 'linear-gradient(#05070d 0%, #0a0f1c 55%, #11131c 100%)' }}
+      style={{ background: skyGradientForMinutes(skyMinutes), transition: 'background 800ms linear' }}
       data-testid="building-stage"
     >
       <style>{STAGE_KEYFRAMES}</style>
@@ -169,31 +252,36 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             left: 0,
             right: 0,
             bottom: Math.max(0, view.h - groundScreenY),
-            height: Math.min(view.h * 0.55, 576 * view.scale * 1.6),
+            // Skyline groß, aber Anzeige unter Native-Höhe (864) → scharf statt hochskaliert.
+            height: Math.min(view.h * 0.72, 760),
             backgroundImage: `url(${cityUrl})`,
             backgroundRepeat: 'repeat-x',
             backgroundSize: 'auto 100%',
             backgroundPosition: 'center bottom',
             imageRendering: 'pixelated',
-            opacity: 0.85,
+            opacity: 0.95,
+            // Natürlicher Übergang Stadt → Himmel: oberer Rand sanft ausblenden (kein harter Schnitt).
+            WebkitMaskImage: 'linear-gradient(to top, #000 62%, transparent 100%)',
+            maskImage: 'linear-gradient(to top, #000 62%, transparent 100%)',
             pointerEvents: 'none',
           }}
         />
       )}
+      {/* Untergrund: Erde/Rohre hinter dem Keller und darunter (statt „nichts"/Straße). */}
       <div
         aria-hidden
         style={{
           position: 'absolute',
           left: 0,
           right: 0,
-          top: groundScreenY,
-          height: Math.max(STAGE.groundHeight * view.scale, view.h - groundScreenY),
-          backgroundColor: '#101116',
-          ...(streetUrl
+          top: undergroundTopY,
+          height: Math.max(0, view.h - undergroundTopY),
+          backgroundColor: '#1a1510',
+          ...((undergroundUrl || streetUrl)
             ? {
-                backgroundImage: `url(${streetUrl})`,
+                backgroundImage: `url(${undergroundUrl ?? streetUrl})`,
                 backgroundRepeat: 'repeat-x',
-                backgroundSize: `auto ${STAGE.groundHeight * view.scale}px`,
+                backgroundSize: 'auto 100%',
                 backgroundPosition: 'center top',
                 imageRendering: 'pixelated',
               }
@@ -311,6 +399,70 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                   zIndex: 1,
                 }}
               />
+              {/* Frei platzierte Flur-Deko (R4): Bodensteher auf der Bodenlinie,
+                  Wand-Objekte auf Wandhöhe — datengetrieben, reale Proportionen. */}
+              {!isLobby && (FLOOR_DECOR[floor.id] ?? []).map((d, i) => {
+                const url = assets.imageUrl(d.id);
+                if (!url) return null;
+                const h = DECOR_HEIGHT[d.id] ?? 48;
+                const playableW = layout.shaft.x - STAGE.pillarWidth;
+                const cx = STAGE.pillarWidth + d.xFrac * playableW;
+                const baseline = floor.y + STAGE.floorHeight - STAGE.floorStrip; // Wand-Fuß-Linie
+                const top = d.mount === 'floor'
+                  ? baseline - h
+                  : floor.y + STAGE.floorHeight * 0.36 - h / 2; // Wand-Objekte oberes Drittel
+                return (
+                  <img
+                    key={`${floor.id}-decor-${i}`}
+                    src={url}
+                    alt=""
+                    aria-hidden
+                    style={{
+                      position: 'absolute',
+                      left: cx,
+                      top,
+                      height: h,
+                      width: 'auto',
+                      transform: 'translateX(-50%)',
+                      imageRendering: 'pixelated',
+                      pointerEvents: 'none',
+                      zIndex: 2,
+                    }}
+                  />
+                );
+              })}
+              {/* Strang 5: stehende Flavor-Statisten (Reinigung/Kollege) — Lebendigkeit. */}
+              {!isLobby && (FLOOR_AMBIENT[floor.id] ?? []).map((a, i) => {
+                if (!assets.imageUrl(a.figure)) return null;
+                const cx = STAGE.pillarWidth + a.xFrac * (layout.shaft.x - STAGE.pillarWidth);
+                const top = floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT;
+                return <AmbientPerson key={`${floor.id}-amb-${i}`} a={a} left={cx} top={top} height={AMBIENT_HEIGHT} />;
+              })}
+              {/* Strang 5 (Bewegung): hin- und herlaufender Statist (z. B. Reinigung). */}
+              {!isLobby && (FLOOR_WALKERS[floor.id] ?? []).map((w, i) => {
+                if (!assets.imageUrl(w.figureWalk)) return null;
+                const playableW = layout.shaft.x - STAGE.pillarWidth;
+                const xA = STAGE.pillarWidth + w.xFracA * playableW;
+                const xB = STAGE.pillarWidth + w.xFracB * playableW;
+                const top = floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT;
+                return (
+                  <AmbientWalker
+                    key={`${floor.id}-walk-${i}`}
+                    figureWalk={w.figureWalk}
+                    leftA={Math.min(xA, xB)}
+                    d={Math.abs(xB - xA)}
+                    top={top}
+                    height={AMBIENT_HEIGHT}
+                  />
+                );
+              })}
+              {/* Strang 5 (Bewegung): Tür-Dummies — taucht periodisch an einer Tür auf. */}
+              {!isLobby && (DOOR_TRAFFIC[floor.id] ?? []).map((dm, i) => {
+                if (!assets.imageUrl(dm.figure)) return null;
+                const cx = STAGE.pillarWidth + dm.xFrac * (layout.shaft.x - STAGE.pillarWidth);
+                const top = floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT;
+                return <DoorDummy key={`${floor.id}-dummy-${i}`} figure={dm.figure} left={cx} top={top} height={AMBIENT_HEIGHT} delayS={dm.delayS} />;
+              })}
               {/* Decken-Platte über der Etage */}
               <div
                 style={{
@@ -375,7 +527,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                   position: 'absolute',
                   left: room.doorX - 110,
                   width: 220,
-                  top: room.y + room.h - STAGE.doorHeight - 34,
+                  top: room.y + room.h - STAGE.doorHeight - STAGE.floorStrip - 34,
                   textAlign: 'center',
                   fontSize: 13,
                   fontWeight: 700,
@@ -396,7 +548,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 style={{
                   position: 'absolute',
                   left: room.doorX + STAGE.doorWidth / 2 + 8,
-                  top: room.y + room.h - STAGE.doorHeight + 10,
+                  top: room.y + room.h - STAGE.doorHeight - STAGE.floorStrip + 10,
                   width: 10,
                   height: 10,
                   borderRadius: 10,
@@ -418,7 +570,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 style={{
                   position: 'absolute',
                   left: room.doorX - STAGE.doorWidth / 2 - 24,
-                  top: room.y + room.h - STAGE.doorHeight - 40,
+                  top: room.y + room.h - STAGE.doorHeight - STAGE.floorStrip - 40,
                   width: STAGE.doorWidth + 48,
                   height: STAGE.doorHeight + 40,
                   background: 'transparent',
@@ -430,6 +582,40 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             </div>
           );
         })}
+
+        {/* Strang 5: Pförtner in der Lobby — „Stimme des eigenen Landes", klickbar. */}
+        {(() => {
+          const lobby = layout.floors.find((f) => f.level === layout.entryFloorLevel);
+          if (!lobby || !assets.imageUrl('figure_pfoertner')) return null;
+          const pH = 116; // Pförtner etwas kleiner als der Avatar (älterer Mann)
+          const px = STAGE.pillarWidth + 0.13 * (layout.shaft.x - STAGE.pillarWidth);
+          const pBottom = lobby.y + STAGE.floorHeight - STAGE.floorStrip;
+          return (
+            <div style={{ position: 'absolute', left: px, top: pBottom - pH, transform: 'translateX(-50%)', zIndex: 5 }}>
+              {pfoertnerOpen && pfoertnerLine && (
+                <div
+                  style={{
+                    position: 'absolute', bottom: pH + 6, left: '50%', transform: 'translateX(-50%)',
+                    width: 240, maxWidth: 240, backgroundColor: 'rgba(12,12,16,0.94)',
+                    border: `1px solid ${StoryModeColors.borderLight}`, color: '#e8e4d8',
+                    fontFamily: 'monospace', fontSize: 11, lineHeight: 1.4, padding: '6px 8px', zIndex: 7,
+                  }}
+                >
+                  <span style={{ display: 'block', fontSize: 8, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 2 }}>PFÖRTNER</span>
+                  {pfoertnerLine}
+                </div>
+              )}
+              <button
+                onClick={() => setPfoertnerOpen((o) => !o)}
+                aria-label="Pförtner ansprechen"
+                title="Pförtner ansprechen"
+                style={{ width: 48 * 1.2, height: pH, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+              >
+                <PixelSprite sheetId="figure_pfoertner" animation="idle" fallback="" scale={1.2} title="Pförtner" />
+              </button>
+            </div>
+          );
+        })()}
 
         {/* Fahrstuhl-Schacht + Kabine */}
         <div
@@ -464,12 +650,12 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             zIndex: 3,
           }}
         >
-          {cabinUrl ? (
-            <img
-              src={cabinUrl}
-              alt=""
-              style={{ width: '100%', height: '100%', objectFit: 'fill', imageRendering: 'pixelated' }}
-            />
+          {cabinClosedUrl && cabinOpenUrl ? (
+            <>
+              {/* R5: sanftes Überblenden Türen auf/zu statt hartem Bild-Tausch */}
+              <img src={cabinClosedUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill', imageRendering: 'pixelated', opacity: nav.cabinDoorsOpen ? 0 : 1, transition: 'opacity 300ms ease' }} />
+              <img src={cabinOpenUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill', imageRendering: 'pixelated', opacity: nav.cabinDoorsOpen ? 1 : 0, transition: 'opacity 300ms ease' }} />
+            </>
           ) : (
             <div style={{ width: '100%', height: '100%', backgroundColor: '#2a2b33', border: '3px solid #44454d', boxSizing: 'border-box' }} />
           )}
