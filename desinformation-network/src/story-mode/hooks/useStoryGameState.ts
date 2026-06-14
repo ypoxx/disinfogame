@@ -12,6 +12,7 @@ import {
   ActiveConsequence,
   GameEndState,
   OperationOutcome,
+  OperationsSummary,
 } from '../../game-logic/StoryEngineAdapter';
 import type { OperationParams } from '../battlefield/BattlefieldChain';
 import { playSound } from '../utils/SoundSystem';
@@ -324,6 +325,8 @@ export interface StoryGameState {
   // P2 Operations-Ökonomie (Verbreiter-Zustände, beschaffte Kompromat-Schlüssel `targetId:vulnId`)
   carrierStates: Record<string, string>;
   acquiredKompromat: string[];
+  /** Bilanz der P2-Operationen (für End-Report/Methoden-Atlas). */
+  getOperationsSummary: () => OperationsSummary;
 }
 
 export interface DialogState {
@@ -1082,6 +1085,9 @@ export function useStoryGameState(seed?: string) {
       setResources(engine.getResources());
       setNewsEvents(engine.getNewsEvents());
       setCarrierStates(engine.getCarrierStates()); // Verbrennen sichtbar machen
+      // „Loop schließen": Operationen bewegen jetzt das Sieg-Ziel (Vertrauen) →
+      // Zielfortschritt/HUD muss mitziehen.
+      setObjectives(engine.getObjectives());
 
       const endState = engine.checkGameEnd();
       if (endState) {
@@ -1546,6 +1552,7 @@ export function useStoryGameState(seed?: string) {
       comboHints,
       carrierStates,
       acquiredKompromat,
+      getOperationsSummary: () => engine.getOperationsSummary(),
     } as StoryGameState,
 
     // Game Flow
