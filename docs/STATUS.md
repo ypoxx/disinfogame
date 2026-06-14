@@ -37,17 +37,21 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 - **Skill** `.claude/skills/pixel-asset-pipeline` + Planungs-Hygiene (ROADMAP/TECHNICAL_DEBT/Konzept-Docs).
 
 ### ▶ Für die NÄCHSTE Session — großes Paket (frische Session wg. Token-Budget)
-**✅ „Loop schließen" ist erledigt** (PR #82). **Neues Herzstück-Konzept abgenommen-in-Diskussion
-(2026-06-14):** `KONZEPT_2026-06-14_HERZSTUECK_EPISODEN_WERTE.md` — das wichtigste *inhaltliche* Update:
-- **Episoden/Vignetten** (Wirbelsäule, „Warum"): situierte Mini-Geschichten mit erfundenen Namen, die
-  Aktionen/NPCs/Ziele verknüpfen (emergent-kuratiert, NPC bietet an).
-- **Mehrere Gesellschaftswerte** (Polarisierung/Fragmentierung/Informationslast/Zynismus … statt nur
-  „Vertrauen") → echte Pfad-Vielfalt + reiche Enden.
-- **Neue Angriffs-Phänomene** (Überflutung, Gerüchte-Mutation, Zermürbung, Krisenfenster …).
-- **Vernetzung**: wertet Dialoge, Broadcast/Publikum, Fernseher, Fokusgruppe, Gebäude-Wachstum auf.
-- Bau-Reihenfolge §9.3 (B2a→B2b→B3→B1→Vernetzung→B4), Risiko-Register §10, **offene Owner-Fragen F1–F6 §12**.
-**Status:** wartet auf Owner-Transkript zu F1–F6, dann detaillierter Bau-Plan. **Vorher kein Code.**
-**Frühere Alternativen** (P3 Gebäude-Wachstum, Story-Vertonung) sind in dieses Konzept integriert bzw. nachgeordnet.
+**✅ „Loop schließen" erledigt (PR #82).** **✅ Herzstück-Konzept ABGENOMMEN (2026-06-14, 3 Transkript-Runden):**
+`KONZEPT_2026-06-14_HERZSTUECK_EPISODEN_WERTE.md` — das wichtigste *inhaltliche* Update. Kernpunkte gelockt:
+- **Episoden/Vignetten** als Wirbelsäule (emergent-kuratiert, NPC bietet an) · **Korkbrett = Kampagnen-Planer**
+  (Spuren = aktive Episoden-Stränge).
+- **Strategische Aufträge statt generischer Destabilisierung** (Vertrauen = Mittel, Auftrag = Ziel): 5 heute-
+  anschlussfähige Archetypen (Keil [Default], Stillstand, Wahl, Rückzug, Zweifel). **Zuerst bauen: Keil + Wahl + Zweifel.**
+- **Mehrere Gesellschaftswerte** (4 sichtbar + interne Auftrags-Achsen Wehrhaftigkeit/Reformfähigkeit/Fraktions-Stärke
+  von Anfang an im Datenmodell vorsehen) · erzählerisch via **fiktive Umfragen/Barometer als News** (verzögert/nicht-linear).
+- **Neue Angriffs-Phänomene** (Überflutung, Gerüchte-Mutation, Zermürbung, Krisenfenster).
+- **Vernetzung**: Broadcast = Schnellansicht, **Newsroom = Vertiefung** (erzählerische Gegenseite C9, NPC deutet),
+  Fokusgruppe reagiert auf Episoden/Werte, Fernseher spiegelt Episoden-Schlagzeilen (Asset-Paket nötig), Umgebungshumor.
+- **Bau-Reihenfolge §9.3** (B2a→B2b→B3→B1→Vernetzung→B4) · **Risiko-Register §10** (save/load-Migration, K14-Balance,
+  ID-Kopplung, tote Hooks) · Ethik-Geländer mitgedacht (niedrige Prio).
+**Nächster Schritt:** detaillierter **Bau-Plan** ableiten (PR-Schnitt nach §9.3, je grün + simuliert), dann bauen —
+am besten **frische Session** (Token-Budget). **Technik-Nebentask:** dynamische Versionsanzeige je Commit (Cache-Diagnose, §14.6).
 
 ### 🔎 Aus dieser Session offen / nur im Preview zu prüfen (nicht in-Container verifizierbar)
 - **Fernsehfamilie ausgeklappt** (Taste B): Sitzlinie/Köpfe — Preview prüfen, ggf. Skala/Position nachziehen.

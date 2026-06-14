@@ -1,6 +1,6 @@
 # 🎭 KONZEPT — Herzstück-Update: Episoden · Gesellschaftswerte · Vernetzung
 
-**Status:** Konzept zur Owner-Abnahme (Diskussionsstand). **KEIN Bau.** **Datum:** 2026-06-14
+**Status:** **Konzept ABGENOMMEN (Owner, 2026-06-14, 2 Transkript-Runden).** **KEIN Bau bis zum Bau-Plan.** **Datum:** 2026-06-14
 **Zweck:** Das inhaltliche Herzstück des wichtigsten kommenden Updates — verbindlich festgehalten,
 mit Nuancen, Abhängigkeiten und Problemen, damit es danach technisch sauber, effizient und
 fehlerfrei geplant/gebaut werden kann.
@@ -487,11 +487,11 @@ Startseite zeigt statisch „0.9". **Wunsch:** Mechanismus, der die Versionsanze
 fortschreibt (ggf. mit Bild/Build-Stempel), damit man den ausgelieferten Stand **direkt sieht** — hilft auch,
 **Cache-Probleme** zu erkennen. *(Eigenständiger kleiner Technik-Task, unabhängig vom Konzept; hier nur notiert.)*
 
-### 14.7 Stand der Rückfragen (Owner-Transkript 2)
-- **A — F1-Aufträge:** ✅ Default-Auftrag als Einstieg/Tutorial, danach emergent. „Kriegsmüdigkeit" verworfen →
-  **Archetypen v2** (§14.1: Keil/Stillstand/Wahl/Rückzug/Zweifel, heute-anschlussfähig). *Offen:* Owner-Abnahme
-  des v2-Sets + welche 2–3 zuerst (Empfehlung: „Der Keil" als Default-Einstieg, dann „Die Wahl" + „Der Zweifel").
-- **B — F3-Instrumente:** ✅ + jetzt **gegen die Archetypen gemappt** (§14.2), keine erzählerische Lücke.
-- **C — F5-Newsroom:** ✅ **gelockt** — Broadcast unten = Schnellansicht, Newsroom = Vertiefung (NPC deutet).
-- **D — F6:** ✅ Linie + Beispiele (§14.4, jetzt inkl. 6 neue mit Begründung). Owner-Abnahme der Dosis offen.
+### 14.7 Stand der Rückfragen (Owner-Transkript 2 + 3)
+- **A — F1-Aufträge:** ✅ **abgenommen.** Default-Auftrag als Einstieg/Tutorial, danach emergent.
+  **Archetypen v2 (§14.1) abgenommen** („Archetypenset passt sehr gut"). *Bau-Reihenfolge:* zuerst
+  **„Der Keil" (Default) + „Die Wahl" + „Der Zweifel"** (Empfehlung; Owner widersprach nicht).
+- **B — F3-Instrumente:** ✅ abgenommen + gegen die Archetypen gemappt (§14.2).
+- **C — F5-Newsroom:** ✅ gelockt — Broadcast unten = Schnellansicht, Newsroom = Vertiefung (NPC deutet).
+- **D — F6:** ✅ **abgenommen** („Humorbeispiele sind super") — Linie + 12 Beispiele (§14.4).
 
