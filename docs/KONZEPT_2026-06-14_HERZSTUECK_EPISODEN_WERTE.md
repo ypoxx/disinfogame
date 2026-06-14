@@ -341,6 +341,120 @@ Wirbelsäulen-Operation; B1/B3 hängen daran.
 ---
 
 ## 13. Was als Nächstes passiert
-Nach deinen Antworten (F1–F6) leite ich daraus den **detaillierten Bau-Plan** ab (PR-Schnitt entlang der
-Reihenfolge §9.3, je grün + simuliert, Draft-PR). Bis dahin: **kein Code** — dieses Dokument ist der
-verlustfreie Übergabepunkt für die (frische) Bau-Session.
+Owner-Antworten zu F1–F7 sind da (Transkript 2026-06-14 Abend) — destilliert + vertieft in **§14**.
+Noch in konzeptioneller Vertiefung (Owner-Wunsch: F1/F3/F5 tiefer denken, bevor codiert wird). Erst danach
+detaillierter Bau-Plan. **Vorher kein Code** — dieses Dokument bleibt der verlustfreie Übergabepunkt.
+
+---
+
+## 14. Owner-Transkript 2026-06-14 (Abend) — Entscheidungen & Vertiefung F1–F7
+
+### 14.0 Entscheidungs-Destillat
+| F | Thema | Entscheidung |
+|---|---|---|
+| F1 | Mehrere Sieg-Pfade | **Ja, es gibt sie** — aber Vertrauenserosion bleibt das gemeinsame *Mittel*; die Pfade sind unterschiedliche **strategische Aufträge** (§14.1). Implementierung gestaffelt, **Konzept aber JETZT** (Abhängigkeiten). |
+| F2 | Publikum-Rückwirkung | ✅ wie besprochen: **Broadcast/TV/Feed = Schaufenster** (Spaß, plakativ); Beratung/Hinweise in Fokusgruppe/NPC/Bericht. Später optional eine schöne **Datenansicht** („Glücksatlas", §14.2). |
+| F3 | Sichtbare Werte | ✅ 4 sichtbar — aber **stärker erzählerisch** über fiktive **Umfragen/Barometer als Nachrichten**, verzögerte/nicht-lineare Effekte, intern reich (Formeln) (§14.2). |
+| F4 | Schauplätze/Figuren | **Orte sekundär**: Westunion = **EIN komplexes Land** (föderal/kommunal + europäische Ebene). Ziel: **größte erzählerische Breite**, diverse Figuren, **Replay** (Plague-Inc.-Vorbild). Nicht alle Inhalte je Durchlauf (§14.5). |
+| F5 | Erzählerische Gegenseite | **Ausbauen** — Einzelpersonen der Gegenseite hör-/sichtbar via **Newsroom** (Interview/Talkshow/Bericht), spiegeln deren Wissensstand; Publikum reagiert (Feedback-Schleife) (§14.3). |
+| F6 | Humor-Dosis | **Feiner, entdeckbarer Umgebungshumor** (Plakate/Kaffeeküche/Pförtner …), **nicht** im Plot; Justier-Beispiele in §14.4. |
+| F7 | Korkbrett | ✅ **Variante A**: Brett = Kampagnen-Planer, Spuren = aktive Episoden-Stränge (ggf. später noch vertiefen). |
+
+### 14.1 F1 vertieft — Strategische Aufträge statt generischer „Destabilisierung"
+**Kern-Reframe (Owner):** In der Realität bricht eine Gesellschaft durch Desinfo nicht einfach „zusammen" —
+man **erreicht bestimmte Ziele**. Also: **Vertrauenserosion ist das Mittel, der Auftrag ist das Ziel.** Das
+löst die „mehrere Sieg-Pfade"-Frage elegant und gibt Replay-Wert (wie Plague Inc.: verschiedene Strategien).
+
+**Vier Auftrags-Archetypen (fiktiv gerahmt, je eigene Wert-Signatur + eigenes Ende):**
+1. **„Zermürbung" — Unterstützung entziehen.** Westunion soll die Unterstützung für einen Verbündeten / die
+   eigene Wehrhaftigkeit aufgeben (Kriegsmüdigkeit). *Signatur:* Wert **Wehrhaftigkeit/Unterstützungsbereitschaft↓**
+   + Zynismus/Erschöpfung↑. *Reales Muster (fiktiv):* Untergrabung der Hilfe für ein angegriffenes Land.
+2. **„Stillstand" — Lähmung durch Polarisierung.** So spalten, dass das Land politisch handlungsunfähig und
+   wirtschaftlich geschwächt ist. *Signatur:* **Polarisierung↑↑ + Kompromiss-/Reformfähigkeit↓ + Diskursqualität↓.**
+3. **„Seitenwechsel" — geopolitische Verschiebung.** Eine bestimmte politische Kraft so stärken, dass sich das
+   Land vom europäischen Bündnis ab- und unserem Block zuwendet. *Signatur:* **Fraktions-Stärke (uns nahe)↑**
+   über Schwelle + Vertrauen in etablierte Kräfte↓. *Reales Muster (fiktiv):* Drift wie Ungarn/Slowakei.
+4. **„Abstieg" — Niedergangsspirale.** Selbstschädigung/Isolation (Innovationsverlust, Abschottung, „Brexit"-
+   artige Entscheidung; alte Mächte neigen sich ihrem Ende). *Signatur:* **Fragmentierung↑ + Reformfähigkeit↓
+   + eine langfristige Selbstschädigungs-Entscheidung.**
+*(Optional/später, vom Owner als „nicht im Fokus" markiert: gegnerische Länder stärken.)*
+
+**Gemeinsames Substrat:** Vertrauenserosion ist Voraussetzung für ALLE Aufträge; jeder Auftrag hat zusätzlich
+seine **Signatur-Achse(n)** und ein **eigenes Ende**. v1 darf „Vertrauen erodieren" als einzigen *spielbaren*
+Sieg implementieren — aber die Enden/Signaturen werden schon mitgedacht.
+
+**⚠ Abhängigkeit JETZT bedenken (Owner-Punkt):** Das **Werte-Set muss die Auftrags-Signaturen von Anfang an
+abdecken**, auch wenn manche Werte zunächst nur intern laufen — sonst muss später umgebaut werden. Konkret
+braucht das Modell (über §4 hinaus) zusätzlich **intern**: *Wehrhaftigkeit/Unterstützungsbereitschaft ·
+Reform-/Innovationsfähigkeit (Governance) · Fraktions-Stärke (block-nah).* Diese drei jetzt im Datenmodell
+vorsehen (nicht zwingend im HUD).
+
+→ **Offen/zu vertiefen:** Welche 2–3 Aufträge bauen wir zuerst aus? Wählt der Spieler den Auftrag am Anfang
+(Plague-Inc.-Stil) oder ergibt er sich emergent? *(Empfehlung: 1 Auftrag als „Tutorial"-Default + Wahl beim
+Neustart; emergente Enden ab v1.)*
+
+### 14.2 F3 vertieft — Den Gesellschaftszustand erzählerisch zeigen
+**Problem (Owner):** Reine Werte/Balken bleiben „nur Spiel". **Lösung:** denselben Zustand zusätzlich über
+**fiktive, wiederkehrende Mess-Instrumente als Nachrichten** zeigen — greifbar, alltagsnah, mit erkennbarer Frage:
+- **„Westunion-Stimmungsbarometer"** (allg. Stimmung, periodisch als News): zeigt *die Frage* + wie Segmente
+  antworten. Macht den Mechanismus lesbar („Vertrauen in die Verwaltung: 41 % — Tendenz fallend").
+- **„Glücksatlas der Westunion"** (Wohlbefinden je Region/Milieu) — die spätere, schönere **Datenansicht** (F2).
+- **„Westunion-Wahltrend / Politbarometer"** (Fraktions-Stärken über Zeit) — speist den Auftrag „Seitenwechsel".
+- **„Vertrauensindex"** (Institutionen/Medien).
+Je mit erfundenem Institut-Namen; kommt **als Nachricht**, nicht nur als Dauer-Zahl (MadTV-Einschaltquoten-Logik:
+darf trotzdem regelmäßig erscheinen). **Effekte verzögert/nicht-linear:** eine Aktion sät, das Ergebnis zeigt
+sich in der nächsten Umfrage; Weltereignisse drücken unabhängig. **Intern reich:** Werte beeinflussen einander
+in **Formeln** (z. B. hohe Informationslast dämpft Korrektur; hohe Polarisierung beschleunigt Fragmentierung) —
+„schöne, gute Komplexität hinten, niedrigschwellig vorn" (Owner-Leitsatz). HUD-Balken = Schnell-Anzeige; Umfragen
+= das erzählerische Gesicht desselben Zustands.
+
+### 14.3 F5 vertieft — Die erzählerische Gegenseite (Newsroom + wahrnehmbare Akteure)
+**Owner:** Die Gegenseite soll greifbar werden — aber **nicht im Gebäude** (nicht Pförtner/Putzkraft). Weg:
+über die **Medienflächen**, v. a. einen **Newsroom**:
+- **Formate:** „Im Gespräch" (Interview mit einer Faktencheckerin/Journalistin) · „Talk am Abend" (Talkshow,
+  mehrere Stimmen, *unterschiedliches Framing*) · „Westunion-Bericht" (Magazin/Doku: Wie weit ist die Aufklärung?).
+- **Spiegelt den Wissensstand der Gegenseite** — genau das, was die Maschine schon berechnet (Aufmerksamkeit/
+  Entdeckungsdruck/verbrannte Assets, s. „Loop schließen"): aus der Zahl wird eine kleine Geschichte/Vignette.
+  Manchmal weiß die Gegenseite viel, manchmal (noch) nichts.
+- **Feedback-Schleife mit dem Publikum:** Taucht im Broadcast „Faktencheckerin enttarnt Kampagne" auf, reagiert
+  das Publikum sichtbar (resigniert „wussten wir eh" / aufgeschreckt / will demonstrieren). Die Gegenseite wird
+  *wahrgenommen* — das macht sie real.
+- **Bezug:** realisiert C9; nutzt `actor-ai.ts` (Wettrüsten) + die bestehende Enttarnungs-/Resilienz-Mechanik.
+
+→ **Offen/zu vertiefen:** Ist der **Newsroom** eine eigene neue Fläche (Etage/Raum) oder eine erweiterte
+Broadcast-Ansicht? *(Empfehlung: Broadcast unten = Schnell-Spiegel; Newsroom = vertiefende Fläche, dort
+interpretiert ein NPC — deckt sich mit deiner F1-Newsroom-Idee.)*
+
+### 14.4 F6 — Umgebungshumor (Feinheiten mit Spielbezug) — Justier-Beispiele
+Humor lebt in der **Welt**, nicht im Plot; trocken, entdeckbar, nie platt:
+1. **Klickbare Propaganda-Plakate** im Flur (Vergrößerung): „Einigkeit durch Meinungsvielfalt — abweichende
+   Meinungen ausgenommen." / „Die Wahrheit ist, was alle teilen."
+2. **Kaffeeküche** (Tür ohne Spiel-Funktion): die **Anzahl/Vielfalt der Kaffeesorten** spiegelt den Wirtschafts-
+   /Sanktionsstand des Landes (gute Zeiten: exotische Sorten; schlechte: nur noch „Zichorie, Ersatz").
+3. **Pförtner/Putzkraft/Statisten** mit situativen Einzeilern, die auf den Kampagnen-Stand reagieren („Ruhig
+   heute. Zu ruhig." · Putzkraft: „Die da oben machen auch nur ihren Job. Wie ich.").
+4. **Büropflanze** gegossen/vertrocknet je nach Moral/Stand (SOUL-Beispiel).
+5. **Schwarzes Brett / Aktennotizen** mit absurden Dienstanweisungen („Memo: ‚Spontane Bürgerinitiativen' bitte
+   bis Freitag einreichen.").
+6. **Versionsanzeige/Easter-Egg** beim Klick auf bestimmte Details (s. 14.6).
+Dosis: Episoden bleiben überwiegend ernst/sachlich; die **Leichtigkeit kommt aus der Umgebung**.
+
+### 14.5 F2/F4 Nachträge
+- **Westunion = EIN komplexes Land** (föderal/kommunal/ländlich + europäische Kontext-Ebene), nicht mehrere
+  Länder. Schauplätze sind **sekundär**; Priorität = **erzählerische Breite + Diversität + Replay**. Vorbild
+  **Plague Inc.**: verschiedene Start-/Vorgehensweisen (langsam-heimlich vs. große Welle) → Variation ab Beginn.
+  Nicht alle Inhalte je Durchlauf sichtbar (Wiederspielwert).
+- **Glücksatlas-Datenansicht** (F2): spätere, schönere datengetriebene Darstellung — als Option vorgemerkt.
+
+### 14.6 Technische Nebennotiz — Versionsanzeige dynamisch
+Startseite zeigt statisch „0.9". **Wunsch:** Mechanismus, der die Versionsanzeige **automatisch je PR/Commit**
+fortschreibt (ggf. mit Bild/Build-Stempel), damit man den ausgelieferten Stand **direkt sieht** — hilft auch,
+**Cache-Probleme** zu erkennen. *(Eigenständiger kleiner Technik-Task, unabhängig vom Konzept; hier nur notiert.)*
+
+### 14.7 Was an Owner zurückgeht (zu vertiefen)
+- **A — F1-Aufträge:** Welche 2–3 Archetypen zuerst? Auftrag wählbar am Start (Plague-Inc.) oder emergent?
+- **B — F3-Instrumente:** Sind die vier fiktiven Umfrage-Instrumente die richtigen? Namen ok? Takt (jede Phase /
+  bei Ereignissen)?
+- **C — F5-Newsroom:** eigene Fläche oder erweiterte Broadcast-Ansicht?
+- **D — F6-Dosis:** passt die „Humor in der Umgebung, Ernst im Plot"-Linie + die sechs Beispiele?
+
