@@ -159,7 +159,7 @@ const BUILDING_KIT = [
     '2:3',
     { w: 128, h: 192 },
     true,
-    'a single closed heavy wooden office door with a dark frame and a small nameplate-shaped blank sign, frontal view, single object',
+    'a single CLOSED modern office door: a light-grey door panel in a slim dark metal frame, a small blank nameplate and a red handle on the right, strict flat frontal view, the door panel and frame fill the whole image identically. Single object — NO wall around it, NO room, NO floor, ONLY the door and its frame on magenta',
     'must',
   ],
   [
@@ -167,7 +167,7 @@ const BUILDING_KIT = [
     '2:3',
     { w: 128, h: 192 },
     true,
-    'a single heavy wooden office door standing open inward showing warm light from inside, dark door frame, frontal view, single object',
+    'the SAME single modern office door but OPEN: the light-grey door panel swung inward to the left, revealing only a DARK DIM interior behind it (just shadow, no detailed room, no warm light). The slim dark metal frame stays at the SAME size and position as the closed version. Strict flat frontal view. Single object — NO wall around it, NO floor, ONLY the door and its frame on magenta',
     'must',
   ],
   [
@@ -175,7 +175,7 @@ const BUILDING_KIT = [
     '3:4',
     { w: 168, h: 224 },
     true,
-    'an old elevator with closed riveted metal double doors and a small round floor indicator light above, frontal view, single object',
+    'ONLY the front of a modern elevator car: a pair of CLOSED brushed-metal sliding doors with a thin seam down the middle, set in a slim metal door frame, a small round floor-indicator light above. Strict flat frontal view, fills the image. Single object — absolutely NO surrounding shaft, NO walls beside or above, NO scenery, ONLY the elevator doors and their frame on magenta',
     'must',
   ],
   [
@@ -183,7 +183,7 @@ const BUILDING_KIT = [
     '3:4',
     { w: 168, h: 224 },
     true,
-    'an old elevator with open riveted metal double doors revealing an empty cabin lit by a single warm ceiling lamp, wood-panelled cabin walls, frontal view, single object',
+    'ONLY the front of the SAME modern elevator car with the brushed-metal sliding doors fully OPEN to the sides, revealing a clean empty cabin interior softly lit by a ceiling light. The SAME slim metal door frame at the SAME size and position as the closed version. Strict flat frontal view. Single object — absolutely NO surrounding shaft, NO walls beside it, ONLY the elevator and its frame on magenta',
     'must',
   ],
   [

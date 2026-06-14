@@ -70,11 +70,12 @@ const STAGE_KEYFRAMES = `
   @media (prefers-reduced-motion: reduce) { [data-bs-walker]{animation:none !important} [data-bs-walker] *{animation:none !important} [data-bs-dummy]{opacity:0 !important;animation:none !important} }
 `;
 
-/** Tür eines Raums (offen/zu) — Bild-Asset oder CSS-Fallback. */
+/** Tür eines Raums — sanftes Überblenden zwischen Zu/Auf (R2: kein harter Bild-Tausch). */
 function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
   const assets = useAssets();
-  const url = assets.imageUrl(open ? 'bld_door_open' : 'bld_door_closed');
-  const style: CSSProperties = {
+  const closedUrl = assets.imageUrl('bld_door_closed');
+  const openUrl = assets.imageUrl('bld_door_open');
+  const base: CSSProperties = {
     position: 'absolute',
     left: room.doorX - STAGE.doorWidth / 2,
     top: room.y + room.h - STAGE.doorHeight - STAGE.floorStrip,
@@ -83,18 +84,19 @@ function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
     pointerEvents: 'none',
     zIndex: 4,
   };
-  if (url) {
-    return <img src={url} alt="" style={{ ...style, imageRendering: 'pixelated', objectFit: 'fill' }} />;
+  if (closedUrl && openUrl) {
+    const img = (url: string, vis: boolean): CSSProperties => ({
+      ...base, imageRendering: 'pixelated', objectFit: 'fill', opacity: vis ? 1 : 0, transition: 'opacity 240ms ease',
+    });
+    return (
+      <>
+        <img src={closedUrl} alt="" style={img(closedUrl, !open)} />
+        <img src={openUrl} alt="" style={img(openUrl, open)} />
+      </>
+    );
   }
   return (
-    <div
-      style={{
-        ...style,
-        backgroundColor: open ? '#3b2a17' : '#241a0f',
-        border: '4px solid #111',
-        boxSizing: 'border-box',
-      }}
-    />
+    <div style={{ ...base, backgroundColor: open ? '#3b2a17' : '#241a0f', border: '4px solid #111', boxSizing: 'border-box' }} />
   );
 }
 
@@ -211,11 +213,12 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   // Tageszeit-Himmel (gegen „schwarzer Himmel zu groß"): Verlauf folgt der Tagesuhr,
   // die chroma-freigestellte Skyline liegt davor.
   const skyMinutes = useDayClockStore((s) => s.minutes);
-  const cabinUrl = assets.imageUrl(nav.cabinDoorsOpen ? 'elevator_cabin_open' : 'elevator_cabin_closed');
+  const cabinClosedUrl = assets.imageUrl('elevator_cabin_closed');
+  const cabinOpenUrl = assets.imageUrl('elevator_cabin_open');
 
-  // Kabinen-Geometrie: groß genug für den ×3-Avatar.
-  const cabinH = 208;
-  const cabinW = 156;
+  // Kabinen-Geometrie: füllt den Schacht (R5: keine „Briefmarke"); Höhe = Etagenhöhe.
+  const cabinH = STAGE.floorHeight;
+  const cabinW = 170;
   const topFloor = layout.floors[0];
   const cabinTopY = topFloor.y + (topFloor.level - nav.cabinLevel) * (STAGE.floorHeight + STAGE.slabHeight);
 
@@ -647,12 +650,12 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             zIndex: 3,
           }}
         >
-          {cabinUrl ? (
-            <img
-              src={cabinUrl}
-              alt=""
-              style={{ width: '100%', height: '100%', objectFit: 'fill', imageRendering: 'pixelated' }}
-            />
+          {cabinClosedUrl && cabinOpenUrl ? (
+            <>
+              {/* R5: sanftes Überblenden Türen auf/zu statt hartem Bild-Tausch */}
+              <img src={cabinClosedUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill', imageRendering: 'pixelated', opacity: nav.cabinDoorsOpen ? 0 : 1, transition: 'opacity 300ms ease' }} />
+              <img src={cabinOpenUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill', imageRendering: 'pixelated', opacity: nav.cabinDoorsOpen ? 1 : 0, transition: 'opacity 300ms ease' }} />
+            </>
           ) : (
             <div style={{ width: '100%', height: '100%', backgroundColor: '#2a2b33', border: '3px solid #44454d', boxSizing: 'border-box' }} />
           )}
