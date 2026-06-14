@@ -3,6 +3,13 @@
 > Dokumentation technischer Schulden für Nachvollziehbarkeit und Priorisierung.
 > Erstellt: 2025-12-28
 
+> ⚠️ **VERALTET (Hinweis 2026-06-14):** Dieses Register stammt aus 2025-12 und **vor** Strang 1–4.
+> Mehrere `[OFFEN]`-Posten sind inzwischen **erledigt** und nur hier nicht nachgezogen, u. a.:
+> „NPC_PORTRAITS nutzt Emojis" (→ Strang 1: echte Porträts/Halbfiguren), „Audio nur console.log"
+> (→ vollwertiges `SoundSystem` mit 3 Kanälen), teils „hardcoded NPC-Antworten" (Dialog-Reaktions-Fix).
+> **Live-Wahrheit zum Bau-Stand = `docs/STATUS.md`.** Eine zeilenweise Revalidierung dieses Dokuments
+> ist **offen** (Track D in `ROADMAP.md`); bis dahin einzelne `[OFFEN]` mit Vorsicht lesen.
+
 ---
 
 ## Legende

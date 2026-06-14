@@ -12,17 +12,25 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 + Politur/Konsistenz — gemerged). Branch `claude/laughing-curie-jn0sff` aufgegangen.
 
 ### ▶ Für die NÄCHSTE Session — hier weitermachen
-1. **P2-„Akte"-UI — ✅ Erststufe gebaut** (Owner-Entscheidung *Akte* getroffen): `OperationsAkteView`
-   (kompaktes diegetisches Aktendeckblatt), erreichbar über die **Operationszentrale (Etage 4, NPC-los)**.
-   Vier Schritte (Ziel→Schwäche→Verbreiter→Plattform-Mix) → Live-Wirkungs-Analyse aus `BattlefieldChain`;
-   „Ausspielen" → `engine.playOperation` (Nachricht + Broadcast + moderates Risiko/Aufmerksamkeit).
-   `params`-Durchstich steht (target/carrier/platforms). **Offen (P2-Folge):** Aufbau-/Budget-Ökonomie
-   der Verbreiter (§2 „aufbauen"), Kompromat-Schritt (§5), Balancing-Sim der Pfad-Vielfalt (§9.4),
-   reichere Broadcast-Themen aus Ziel-Milieu, optionales Akten-Raumbild (Asset).
-2. **Topic-Texte in Stimme** (`topics_dialogues.json`, 14 Themen × NPC-Varianten) — letzter Dialog-Block;
-   Begrüßungen + Reaktionen sind bereits in Stimme.
-3. **Visual-Backlog:** V4 (Büro-Panel-Audit), V5 (HUD-Feinpolitur), V6 (ComboHints diegetisch), V8 (Strang 5 Atmosphäre).
-4. **P1c-Content** weiter (mehr granulare Aktionen, Marina mit 50 entlasten) + Balancing-Sim.
+1. **P2 abrunden** (Owner: „ganz klar und sehr wichtig"): **Verbreiter-Aufbau/Budget-Ökonomie**
+   (Carrier `state` verfügbar/aufbau/aktiv/verbrannt + `buildCost`-Spend + Enttarnung→verbrannt) und
+   **Kompromat-Schritt** (§5: Ziel→Dossier→Kompromat; `params.kompromat` reserviert). Macht die Akte
+   „echt" (behebt Spam-bar). Dann Balancing-Sim (§9.4) + reichere Broadcast-Themen aus Ziel-Milieu.
+   *Erststufe steht:* `OperationsAkteView` (Akte) + `playOperation` + `params`-Durchstich (PR #81).
+2. **Visual gratis-Politur (Code, kein Asset-Spend):** Skyline/Himmel **Tageszeit-Schichten**
+   (zu klein/zu dunkel, Owner-Screenshot), Büro-Hotspots „aus einem Guss" (Rechteck-Ringe weg),
+   „2"-Welt-Badge diegetisch verorten, **Broadcast-Leiste höher**, Ambience je Raum verdrahten.
+   Detailplan: **`VISUAL_AUDIO_BACKLOG_2026-06-14.md`**.
+3. **Topic-Texte in Stimme** (`topics_dialogues.json`, 14 Themen × NPC) — letzter Dialog-Block.
+4. **Asset-Pakete (mit Budget-Ansage):** `room_operations`, **Audience-Figuren + Wohnzimmer neu**
+   (Owner: „Figuren kaputt, moderner"), **2–3 Skyline-Varianten**, **Avatar höher auflösen**.
+5. **Strang 5 — Atmosphäre/Feinheiten:** Dummy-Figuren, Pförtner (Stimmungs-Hinweise), lebendige
+   Flure — jetzt als Feinplan **`STRANG5_FEINPLAN_ATMOSPHAERE.md`** (Owner: „echt wichtig").
+6. **Sound-Erweiterung:** adaptive Musik (J34/J35), Ducking (J36), Ambience-Verdrahtung, Topic-Vertonung
+   — Plan in `VISUAL_AUDIO_BACKLOG_2026-06-14.md` §6.
+7. **P3 (Roadmap):** Gebäude-Wachstum (`unlocksRoom`/`unlocksNpc`) + 100–500-Pfade-Sim.
+8. **Planungs-Hygiene:** `ROADMAP.md` aufgefrischt (2026-06-14); `story-mode/TECHNICAL_DEBT.md`
+   (Stand 2025-12) **Revalidierung offen** — mehrere Posten obsolet (z. B. „Emoji-Porträts").
 
 ---
 
@@ -80,6 +88,15 @@ Prinzip (SOUL): visuelle Kohärenz ist das Erste, was Nutzer beurteilen.
 **Empfohlene Reihenfolge:** V1 (✅) → V4-Audit (klein, klärt Umfang) → **P1** (löst V2 strukturell) →
 V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
 
+### 🆕 Runde 2 — Owner-Screenshots 2026-06-14 (Detail: `VISUAL_AUDIO_BACKLOG_2026-06-14.md`)
+| # | Beobachtung | Aktion | Kosten |
+|---|---|---|---|
+| V12 | **Skyline zu klein, schwarzer Himmel zu groß**, kaum Tageszeit-Abwechslung | Himmel als tagesuhr-Verlauf (7 Stops) + Skyline-Band höher; später 2–3 Skyline-Varianten cross-faden; Jahreszeit bleibt Overlay | erst gratis/Code, dann moderat |
+| V13 | **Büro-Hotspots = orange Rechteck-Drahtgitter** über den Möbeln („platt") | Ruhe-Ring weg, Hover-Glow folgt der Objektform; „2"-Welt-Badge diegetisch verorten; ggf. Büro-Neuaufbau | gratis/Code (+ggf. Highlight-Assets) |
+| V14 | **Seitenleiste** (Nachrichten/Queue) wirkt als flache Web-Sidebar (zwei Welten) | ins diegetische System (Papier/Klemmbrett oder PixelModal wie Akte); Rand-Tab weg (V2-Rest) | Code |
+| V15 | **TV/Wohnzimmer:** Publikums-Figuren kaputt, Raum/Sofa altbacken; Leiste zu niedrig | Audience-Figuren + Wohnzimmer/Sofa neu (Asset); **Broadcast-Leiste höher** (Code) | Code + Asset-Paket |
+| V16 | **Avatar** zu pixelig + nicht an Wahl gekoppelt (s. Bugs) | höher auflösen; m/w-Lauf-Variante passend zum Porträt | Asset/Budget |
+
 ---
 
 ## 🗺️ Roadmap Strang 3+4 (Feinplan §3, abgenommen §10)
@@ -93,7 +110,12 @@ V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
 
 ## 🪲 Bekannte Bugs / Altlasten
 
-- **Avatar-Beine starr** (V7) — Schwebe-Eindruck.
+- **Avatar läuft NICHT mit der Avatar-Wahl mit** (neu 2026-06-14): die Lauf-/Idle-Figur ist ein
+  einziges festes Sheet (`player_walk`/`player_idle`, `BuildingStage.tsx:543`); die Avatar-Wahl
+  ändert nur das **Porträt** (`portrait_player_<id>`). Entscheidung nötig (Porträt-only vs. m/w-Lauf).
+- **Avatar zu pixelig** (Owner 2026-06-14) — 32 px nativ ×4; Neu-Generierung höher aufgelöst (Asset).
+- ~~**Avatar-Beine starr** (V7)~~ — **✅ behoben** (Sheet referenz-stabil memoisiert, Strang-1-Bug);
+  Schweben weg. (Frühere Doppel-Listung korrigiert.)
 - **NPC-Rollen-Inkonsistenz (3-fach, wichtig für P1c):** drei Quellen widersprechen sich —
   (a) `npcs.json` Rollen-Labels (Direktor=Leiter, Alexei=Technik, Katja=Feld, Igor=Finanz,
   Marina=Medien), (b) Aktions-`npc_affinity` (marina=Analyse, **volkov**=Ops/Infra [keine NPC-Id!],
