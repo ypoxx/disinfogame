@@ -89,6 +89,46 @@ Budget-Ansage. Ergebnis: reiche Tageszeit-Atmosphäre bei **2–3** statt 28 Ass
 **Offen:** reichen 6 Tracks für „beides gleichmäßig"? Klang-Referenzen (Frage 37) — Owner überlässt
 es uns. Raum-Kulissen unter Musik balancieren (Frage 36).
 
+## 6a. Owner-Feedback Runde 3 (2026-06-14, Detail-Screenshots) — Bau-Programm
+
+Leitsatz Owner: **Hintergrund und Figuren/Möbel müssen zusammengedacht, in realen
+Größenverhältnissen, pixelgenau platziert und getestet werden.** Reihenfolge: erst
+analysieren, dann Assets, dann platzieren.
+
+| # | Befund | Ursache (Code) | Fix-Ansatz | Status |
+|---|---|---|---|---|
+| R1 | **Avatar > Tür** (falsches Verhältnis) | Avatar 128px (32×4) vs `doorHeight` 144px, aber sichtbare Tür-Grafik < 144; Figur füllt die 128 fast ganz | Sichtbare Türöffnung messen; Avatar-Anzeige so skalieren, dass Figur ≈ 0,8× Türöffnung (real: Mensch ~1,7 m, Tür ~2 m) | offen |
+| R2 | **Tür-Animation hässlich**, offene Tür teils klein | `RoomDoor` tauscht nur `bld_door_open/closed` (kein Zwischenschritt); Asset-Größen passen nicht | Tür-Assets neu/sauber (gleiche Maße offen/zu) + echte Öffnen/Schließen-Phasen; alle Zustände (mit/ohne Avatar) prüfen | offen |
+| R3 | **Tür ragt in Boden / überschneidet Sofa** | Tür sitzt `bottom = room.y+room.h-doorHeight`; Korridor-Boden­linie ≠ Tür­unterkante; **gebackene** Wand-Elemente kollidieren | **Entkachelung** (R4) entfernt die Kollision; Tür­unterkante exakt auf die Bodenlinie legen | offen |
+| **R4** | **Etagen zu gleichförmig** (Tiling wiederholt Sofa/Poster/Uhr) | `bld_corridor[_2/_3]` **backen** Notizbrett/Uhr/Pflanze/Bank/Poster ein und kacheln (`repeat-x`) | **Saubere Basis-Korridore** (nur Wand+Dado+Decke+Boden, je Etage etwas anders) **+ platzierte Deko** (Liste unten), datengetrieben, pixelgenau | **Hauptaufgabe** |
+| R5 | **Fahrstuhl-Kabine wie Briefmarke**, Animation | Kabine 156×208 **hartkodiert** ≠ Schacht­breite; Öffnen/Schließen nur Asset-Tausch | Kabine an Schacht­maße; sauber zuschneiden/neu generieren; alle Zustände (offen/zu, mit/ohne Avatar) prüfen | offen |
+| R6 | **Fernsehfamilie: einige sitzen „in der Luft"** + halb abgeschnitten | Alle 8 Segmente werden gezeigt; Sofa fasst ~3–4; Figuren auf Bodenlinie statt Sitz­linie | **Repräsentative Teilmenge** zeigen (Konzept: nicht alle sitzen), auf die Sofa-Sitzlinie setzen, keine abgeschnitten; volle 8-Segment-Daten in Lagebild/Newsroom | offen |
+| R7 | **Keller-Hintergrund inkohärent** („war mal ein Boden") | Keller nutzt `bld_corridor_3` (per `level%3`) — passt nicht zum Tresor/Keller | Im Zuge R4: eigener Keller-Basis-Korridor (Beton/Tresor-Anmutung) | offen |
+| R8 | **Skyline unscharf + harter Schnitt** | mein Hochskalieren des 576px-Assets; harte Oberkante | ✅ **behoben:** Neu-Gen 2016×864 + Dunst-Tiefe + Mask-Ausblendung (natürlicher Übergang) | ✅ |
+
+### Deko-Element-Liste (R4) — Assets + reale Größen + Platzierung
+Maßstab: Avatar ≈ 1,7 m ≈ 128 px ⇒ **~75 px/Meter**. Bodensteher stehen auf der
+Korridor-Bodenlinie (unten), Wand-Objekte hängen auf Wand-Mitte/-Höhe.
+
+**Boden-stehend** (datengetrieben platziert, NICHT in der Basis gebacken):
+- `prop_plant_tall` (Gummibaum, ~1,4 m → ~105 px) · `prop_plant_small` (~0,5 m → ~40 px)
+- `prop_trashcan` (~0,7 m → ~52 px) · `prop_bench` (Wartebank, ~0,8 m hoch, breit → ~60 px)
+- `prop_chairs` (2 Stühle, ~0,9 m → ~68 px) · `prop_watercooler` (~1,3 m → ~98 px)
+- `prop_vending` (Getränkeautomat, ~1,8 m → ~135 px)
+
+**Wand-hängend:**
+- `prop_clock_wall` (~0,4 m → ~30 px) · `prop_noticeboard` (~1,0 m → ~75 px)
+- `prop_poster1` · `prop_poster2` · `prop_poster3` (gerahmt, abstrakt/konstruktivistisch, ~0,7 m → ~52 px)
+
+### Platzierungs-Architektur (R4)
+1. **Saubere Basis** `bld_corridor[_2/_3]` neu (ohne Wand-Elemente, je Etage andere Wand/Palette);
+   eigener Keller-Basis (R7).
+2. `building.json` bekommt je Etage ein `decor: [{ id, x, mount:'floor'|'wall' }]` — Positionen
+   so gewählt, dass sie **nicht** mit Türen/Schacht kollidieren und **realistisch** wirken
+   (Pflanze in der Ecke, Bank zwischen zwei Türen, Poster auf Wandlücken, Uhr hoch).
+3. `BuildingStage` rendert Deko an berechnetem y (Boden-Linie bzw. Wandhöhe) + Größe aus der
+   Maßstabs-Tabelle. **Atomar mit der sauberen Basis** ausliefern (kein leerer Zwischenstand).
+
 ## 7. Empfohlene Reihenfolge (günstig→teuer)
 1. **Gratis/Code zuerst:** Himmel-Verlauf+Skyline-Komposition (§2.1–2), Broadcast-Leiste höher,
    Ambience-Verdrahtung, „2"-Badge verorten, Hotspot-Ringe weg.
