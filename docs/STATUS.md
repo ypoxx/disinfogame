@@ -32,6 +32,8 @@ Sweep hat dauerhaft eingeblendete Seiten-Widgets übersehen (s. Visual-Backlog &
 | **P0b** | `MorningBriefing`: konkreter Tageshinweis (Zahl + zuständiges Büro, nicht klickbar, D-4) | ✅ |
 | **Visual-Politur** | `AdvisorPanel`: Verbots-Schlagschatten/Glow raus → Pixel-Innenrand; Prioritätsfarben auf v2-Palette | ✅ |
 | **P1a (Slice 1)** | **Aktion aus Dialog:** NPC bietet im Gespräch kontextuelle Maßnahmen an (Filter `npc_affinity` + verfügbar) → Wahl heftet auf den Sendeplan (Narrativ-Tafel). Entscheidung 1. | ✅ |
+| **Declutter** | Floating-Overlays (Berater/Queue/Combo) **im Gespräch ausgeblendet** + Berater standard eingeklappt → Maßnahmen-Optionen erreichbar, Konversation frei (Smoke-belegt) | ✅ |
+| **P1d** | **Sprach-Steckbriefe** je NPC (`docs/NPC_VOICE_PROFILES.md`) — Schreib-Gate für alle Dialog-Texte (K41) | ✅ |
 
 Gate je Push grün: `tsc` · `npm run build` · `vitest` (231). Smoke: `npm run smoke` (Playwright,
 s. unten).
@@ -46,7 +48,7 @@ Prinzip (SOUL): visuelle Kohärenz ist das Erste, was Nutzer beurteilen.
 | # | Beobachtung | Befund | Verdikt | Wohin |
 |---|---|---|---|---|
 | V1 | **Berater-Panel** (rechts) im alten Stil, „floating" | Verbots-Schatten/Glow + Off-Palette-Farben | **übersehen** (Strang 1 verfehlt) | **in #80 behoben** (Schatten/Farben); diegetische Auflösung = P1 |
-| V2 | Berater als **dauerhafte Floating-Sidebar** statt diegetisch | widerspricht A2/A4; nur „Überlappung" war in Strang 2 als „→ Strang 5" notiert | **teils geplant** | **P1** (NPCs schlagen im Gespräch vor → Sidebar entfällt) |
+| V2 | Berater als **dauerhafte Floating-Sidebar** statt diegetisch | widerspricht A2/A4 | **entschärft** (standard eingeklappt + im Gespräch ganz aus; Empfehlungen jetzt im Dialog) | Rest: Berater-Inhalt ganz in KONTAKTE-Panel verlagern → schmaler Rand-Tab entfällt |
 | V3 | **Direktor-DialogBox** (roter Balken) wirkt legacy | nutzt v2-Farben + inset-Rahmen, aber **flach-CSS** (kein Pixel-Frame-Asset) | **Kohärenz-Lücke** | Stil-Audit DialogBox; ggf. echtes 9-Slice-Pixel-Asset |
 | V4 | **Büro-Panels** (Kontakte etc.) „andere CSS-Sachen" | Modals sind auf `PixelModal`, aber flach; einzelne Panels evtl. nicht migriert | **Audit nötig** | Mounted-Component-Audit (alle Panels gegen Stil-Bibel) |
 | V5 | **HUD** teils alter Stil | `StoryHUD` nutzt v2-inset; Knopfdruck (H) da | **gering** | Feinpolitur im Stil-Audit |
@@ -65,7 +67,7 @@ V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
 | Phase | Inhalt | Status |
 |---|---|---|
 | **P0** | Aktions-Überschriften + Direktor-Hinweise | ✅ (PR #80) |
-| **P1** | Aktion-aus-Dialog · Menü→Gespräch · granularere Aktionen · Sprach-Steckbriefe · NPC-Vorschläge im Gespräch (löst V2) | **in Arbeit** — Slice 1 (Aktion aus Dialog) ✅; offen: P1b Menü→Gespräch (situative Eröffnungen statt „worüber willst du sprechen?"), P1c granularere Aktionen, P1d Sprach-Steckbriefe, Tafel-Deck-Quelle = NPC-Angebote |
+| **P1** | Aktion-aus-Dialog · Menü→Gespräch · granularere Aktionen · Sprach-Steckbriefe · NPC-Vorschläge im Gespräch (löst V2) | **in Arbeit** — ✅ P1a (Aktion aus Dialog), ✅ P1d (Sprach-Steckbriefe), ✅ Declutter. **Offen:** P1b Menü→Gespräch (situative Eröffnungen + Dialog-Texte gegen die Steckbriefe überarbeiten, dialogues.json), Tafel-Deck nach NPC gruppieren (R1: frische NarrativeBoard), P1c granularere Aktionen (60–100, großes Content-Paket) |
 | **P2** | Kommunikations-Schlachtfeld (Ziel→Dossier→Kompromat→Verbreiter+Plattform-Mix). **Erst nach Exa-Recherche** (§10.1) | offen |
 | **P3** | Gebäude-Wachstum (`unlocksRoom`/`unlocksNpc`) + 100–500-Pfade-Simulation | offen |
 
