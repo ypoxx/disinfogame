@@ -49,7 +49,8 @@ import { SidePanel } from './components/SidePanel';
 import { LagebildView } from './components/LagebildView';
 import { NarrativeBoard } from './components/NarrativeBoard';
 import { initAssetRegistry, useAssets } from './assets';
-import { playMusic, stopMusic, playAmbience, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound, setChannelVolume, getChannelVolume, type SoundChannel } from './utils/SoundSystem';
+import { playMusic, playAmbience, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound, setChannelVolume, getChannelVolume, type SoundChannel } from './utils/SoundSystem';
+import { ambienceForContext, musicForState } from './utils/soundDirector';
 
 // ============================================
 // TYPES
@@ -396,33 +397,32 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const assets = useAssets();
   useEffect(() => {
     if (state.gamePhase === 'playing' || state.gamePhase === 'tutorial') {
-      // Situative Musik: Krise → angespannter Loop, sonst Büro-Ambience.
-      playMusic(state.activeCrisis ? 'music_tense' : 'music_gameplay');
+      // Adaptive Musik (J34/J35): Krise immer angespannt, sonst nach Lage (Risiko).
+      const track = state.activeCrisis ? 'music_tense' : musicForState({ risk: state.resources.risk });
+      playMusic(track);
     } else if (state.gamePhase === 'ended') {
-      stopMusic();
+      // Ende: hoffnungsvolle Enden hell, sonst düster.
+      const won = state.gameEnd?.type === 'victory' || state.gameEnd?.type === 'moral_redemption';
+      playMusic(musicForState({ risk: state.resources.risk, gameEnded: true, won }));
     }
-  }, [state.gamePhase, state.activeCrisis, assets]);
+  }, [state.gamePhase, state.activeCrisis, state.resources.risk, state.gameEnd, assets]);
 
-  // F36: Raum-Klangkulisse je nach aktuellem Ort (zweiter, leiser Loop unter der Musik).
+  // F36: Raum-Klangkulisse je nach aktuellem Ort (zweiter, leiser Loop unter der Musik; Ducking aktiv).
+  const ambienceOverlay = showNewsroom ? 'newsroom'
+    : showFokusgruppe ? 'fokusgruppe'
+    : showOperationsAkte ? 'akte'
+    : showLagebild ? 'lagebild'
+    : showBoard ? 'board'
+    : null;
   useEffect(() => {
-    if (state.gamePhase !== 'playing' && state.gamePhase !== 'tutorial') {
-      playAmbience(null);
-      return;
-    }
-    // NPC-Räume mit eigener Kulisse (Mapping NPC → Ambience-Asset).
-    const npcAmbience: Record<string, string> = {
-      alexei: 'sfx_amb_cyber',
-      igor: 'sfx_amb_keller',
-      direktor: 'sfx_amb_zentrale',
-    };
-    let ambience: string | null = null;
-    if (showNewsroom) ambience = 'sfx_amb_newsroom';
-    else if (viewMode === 'office') ambience = 'sfx_amb_buero';
-    else if (state.currentDialog && state.activeNpcId && npcAmbience[state.activeNpcId]) {
-      ambience = npcAmbience[state.activeNpcId];
-    }
-    playAmbience(ambience);
-  }, [state.gamePhase, viewMode, showNewsroom, state.currentDialog, state.activeNpcId, assets]);
+    const active = state.gamePhase === 'playing' || state.gamePhase === 'tutorial';
+    playAmbience(ambienceForContext({
+      viewMode,
+      overlay: ambienceOverlay,
+      dialogNpcId: state.currentDialog ? state.activeNpcId : null,
+      active,
+    }));
+  }, [state.gamePhase, viewMode, ambienceOverlay, state.currentDialog, state.activeNpcId, assets]);
 
   // Erster Büro-Besuch gesehen → Hinweise künftig nicht mehr zeigen.
   useEffect(() => {

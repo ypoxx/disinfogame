@@ -185,6 +185,8 @@ class SoundSystem {
   // F36: Raum-Klangkulisse als zweiter Loop (leiser als Musik), läuft auf dem sfx-Kanal.
   private ambienceElement: HTMLAudioElement | null = null;
   private ambienceAssetId: string | null = null;
+  /** Ducking (J36): Musik leiser, solange eine Raum-Kulisse läuft (1 = voll, <1 = gedämpft). */
+  private musicDuck: number = 1;
 
   constructor() {
     // Load settings from localStorage
@@ -324,13 +326,20 @@ class SoundSystem {
     const element = this.createAudio(url);
     if (!element) return false;
     element.loop = true;
-    element.volume = Math.max(0, Math.min(1, this.masterVolume * MUSIC_VOLUME_FACTOR * this.channelVolume.music));
     this.musicElement = element;
     this.musicAssetId = assetId;
+    this.applyMusicVolume();
     void element.play().catch(() => {
       // Autoplay-Policy: bis zur nächsten Nutzer-Interaktion still bleiben.
     });
     return true;
+  }
+
+  /** Musik-Lautstärke neu setzen (berücksichtigt Master, Kanal und Ducking). */
+  private applyMusicVolume(): void {
+    if (!this.musicElement) return;
+    this.musicElement.volume = Math.max(0, Math.min(1,
+      this.masterVolume * MUSIC_VOLUME_FACTOR * this.channelVolume.music * this.musicDuck));
   }
 
   stopMusic(): void {
@@ -364,6 +373,9 @@ class SoundSystem {
     element.volume = Math.max(0, Math.min(1, this.masterVolume * AMBIENCE_VOLUME_FACTOR * this.channelVolume.sfx));
     this.ambienceElement = element;
     this.ambienceAssetId = assetId;
+    // Ducking: Musik dämpfen, damit die Kulisse durchkommt (J36).
+    this.musicDuck = 0.55;
+    this.applyMusicVolume();
     void element.play().catch(() => {
       /* Autoplay-Policy */
     });
@@ -379,6 +391,9 @@ class SoundSystem {
     }
     this.ambienceElement = null;
     this.ambienceAssetId = null;
+    // Kein Ducking mehr ohne Kulisse → Musik zurück auf voll.
+    this.musicDuck = 1;
+    this.applyMusicVolume();
   }
 
   getCurrentMusicId(): string | null {
@@ -437,9 +452,7 @@ class SoundSystem {
    */
   setVolume(volume: number): void {
     this.masterVolume = Math.max(0, Math.min(1, volume));
-    if (this.musicElement) {
-      this.musicElement.volume = Math.max(0, Math.min(1, this.masterVolume * MUSIC_VOLUME_FACTOR));
-    }
+    this.applyMusicVolume();
     this.saveSettings();
   }
 
@@ -450,8 +463,8 @@ class SoundSystem {
   /** F37: Kanal-Lautstärke setzen (0..1, geklemmt); wirkt sofort auf laufende Musik. */
   setChannelVolume(channel: SoundChannel, v: number): void {
     this.channelVolume[channel] = Math.max(0, Math.min(1, v));
-    if (channel === 'music' && this.musicElement) {
-      this.musicElement.volume = Math.max(0, Math.min(1, this.masterVolume * MUSIC_VOLUME_FACTOR * this.channelVolume.music));
+    if (channel === 'music') {
+      this.applyMusicVolume();
     }
     if (channel === 'voice' && this.voiceElement) {
       this.voiceElement.volume = Math.max(0, Math.min(1, this.masterVolume * this.channelVolume.voice));
