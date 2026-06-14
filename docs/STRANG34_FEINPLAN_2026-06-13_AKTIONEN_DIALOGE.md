@@ -191,3 +191,36 @@ Systemen, viele Kombinationen.)
 `tsc` + `npm run build` + `vitest` grün vor Push · Pfad-Charakterisierungs-/Balancing-Tests
 für Engine-Änderungen · Browser-Smoke für Bedien-Pfade · neue Bilder Vision-Review · **A1-
 Checkliste** (keine Funktion verloren) · Commit deutsch + Session-Footer · Draft-PR.
+
+---
+
+## 10. Owner-Abnahme (2026-06-14)
+
+**D-1** ✅ wie empfohlen — schrittweise aus 30 → ~60–100 benannte Einzelaktionen, je Büro/Thema ein Paket.
+**D-2** ✅ wie empfohlen (Start **6–8** Ziele), **aber bewusst erweiterbar** halten — Roster **daten­getrieben** (JSON wie die Milieus), neue Ziele ohne Code-Änderung ergänzbar.
+**D-3** 🔁 **neu zu fassen** (s. §10.1) — „Kanal" ist zu eng; mehr realistische Breite, weil Content-Creator mehrere Plattformen gleichzeitig bespielen.
+**D-4** ✅ wie empfohlen — Direktor-Hinweise **nicht klickbar**: warnen + sagen, **wo** man die Empfehlung holt (zuständiger NPC), diegetisch.
+**D-5** ✅ wie empfohlen — Vertonung erst, wenn Texte stabil (D24/Budget).
+
+### 10.1 D-3 neu: Verbreitungs-/Verstärkungs-Modell (statt „Kanal")
+Zwei getrennte Achsen statt eines einzelnen „Kanals" — das bildet die Realität ab und gibt
+Anfangs-Breite:
+
+- **Achse A — Verbreiter/Asset (WER trägt die Botschaft):** baut auf K3 „gestützte Stimmen"
+  auf und erweitert sie: Content-Creator/Influencer · Ex-Politiker/„Experten" · Rand-Akademiker ·
+  Schein-NGO · Pseudo-Thinktank · ideologisch Überzeugte · **eigene Frontmedien** (RT-Analogon) ·
+  **Bot-/Sockpuppet-Netzwerke** (Verstärkung). Ein Asset wird auf-/ausgebaut, wächst, kann auffliegen.
+- **Achse B — Plattform/Oberfläche (WO es landet):** je eigene Dynamik — Kurzvideo (TikTok-artig) ·
+  Video (YouTube-artig) · Text/Feed (X-artig) · Messenger/geschlossene Gruppen (Telegram-artig) ·
+  **Platzierung in etablierten Medien** (über gestützte Stimmen/Gastbeiträge).
+- **Kern-Realismus (Owner-Punkt):** ein **Verbreiter bespielt MEHRERE Plattformen** gleichzeitig —
+  Asset ≠ einzelner Kanal. Eine Maßnahme wählt also *Verbreiter* **und** *Plattform-Mix*.
+- **Trade-offs je Kombination:** Reichweite · Glaubwürdigkeit/Milieu-Passung · Aufbaukosten/-zeit ·
+  Enttarnungs-Risiko/Abschaltbarkeit. → ersetzt das simple „eigener Kanal vs. YouTuber".
+- **Detaillierung:** reale Muster (China/RU/Iran/NK, Tenet-Media-/„Voice of Europe"-Fälle) per
+  **Exa-Recherche VOR P2**; Ergebnis als eigenes Konzept-Kapitel + Daten-Schema.
+
+→ **§3 Phase 2 (P2b)** wird entsprechend von „Kanal wählen" auf „**Verbreiter + Plattform-Mix wählen**"
+gehoben; Datenmodell `params` erhält `carrier` (Asset-Id) + `platforms[]` statt eines einzelnen `channel`.
+
+**Stand:** Plan inhaltlich abgenommen; Bau kann mit **P0** starten (P0 berührt D-3 nicht).
