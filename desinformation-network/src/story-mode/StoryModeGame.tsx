@@ -947,6 +947,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               legality: a.legality,
               available: a.available,
               unavailableReason: a.unavailableReason,
+              // Zuständiges Büro für die Gruppierung (Entscheidung 1). Fallback „Ministerium",
+              // u. a. für die bekannte Affinitäts-Inkonsistenz (volkov≠NPC-Id, s. STATUS.md).
+              npc: state.npcs.find((n) => n.id === a.npcAffinity?.[0])?.name ?? 'Ministerium',
             }))}
             queue={state.actionQueue}
             threads={(state.comboHints ?? []).map((h) => ({
