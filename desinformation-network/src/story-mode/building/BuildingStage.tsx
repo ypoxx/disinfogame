@@ -16,7 +16,7 @@ import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
 import { skyGradientForMinutes } from './skyTime';
-import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, type AmbientFigure } from './corridorDecor';
+import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, FLOOR_WALKERS, type AmbientFigure } from './corridorDecor';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
@@ -62,6 +62,10 @@ const layout = getBuildingLayout();
 const STAGE_KEYFRAMES = `
   @keyframes bs-blink { 0%,100%{opacity:1} 50%{opacity:.15} }
   @keyframes bs-glow { 0%,100%{box-shadow:0 0 6px 2px rgba(255,200,80,.25)} 50%{box-shadow:0 0 10px 3px rgba(255,200,80,.5)} }
+  /* Strang 5: Statist pendelt im Flur (Bewegung), Sprite klappt am Wendepunkt. */
+  @keyframes bs-walk-move { 0%{transform:translateX(0)} 50%{transform:translateX(var(--bs-walk-d))} 100%{transform:translateX(0)} }
+  @keyframes bs-walk-flip { 0%,49%{transform:scaleX(1)} 50%,99%{transform:scaleX(-1)} 100%{transform:scaleX(1)} }
+  @media (prefers-reduced-motion: reduce) { [data-bs-walker]{animation:none !important} [data-bs-walker] *{animation:none !important} }
 `;
 
 /** Tür eines Raums (offen/zu) — Bild-Asset oder CSS-Fallback. */
@@ -117,6 +121,22 @@ function AmbientPerson({ a, left, top, height }: { a: AmbientFigure; left: numbe
       >
         <PixelSprite sheetId={a.figure} animation="idle" fallback="" scale={height / 96} title={a.who} />
       </button>
+    </div>
+  );
+}
+
+/** Strang 5 (Bewegung): ein Statist, der zwischen zwei Punkten im Flur hin- und herläuft. */
+function AmbientWalker({ figureWalk, leftA, d, top, height }: { figureWalk: string; leftA: number; d: number; top: number; height: number }) {
+  const dur = Math.max(6, Math.round(d / 26)); // ~26 px/s, ruhiges Tempo
+  const outer = {
+    position: 'absolute', left: leftA, top, zIndex: 2, pointerEvents: 'none',
+    animation: `bs-walk-move ${dur}s linear infinite`, '--bs-walk-d': `${d}px`,
+  } as CSSProperties;
+  return (
+    <div data-bs-walker="" aria-hidden style={outer}>
+      <div style={{ animation: `bs-walk-flip ${dur}s linear infinite` }}>
+        <PixelSprite sheetId={figureWalk} animation="walk" fallback="" scale={height / 96} title="" />
+      </div>
     </div>
   );
 }
@@ -396,6 +416,24 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 const cx = STAGE.pillarWidth + a.xFrac * (layout.shaft.x - STAGE.pillarWidth);
                 const top = floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT;
                 return <AmbientPerson key={`${floor.id}-amb-${i}`} a={a} left={cx} top={top} height={AMBIENT_HEIGHT} />;
+              })}
+              {/* Strang 5 (Bewegung): hin- und herlaufender Statist (z. B. Reinigung). */}
+              {!isLobby && (FLOOR_WALKERS[floor.id] ?? []).map((w, i) => {
+                if (!assets.imageUrl(w.figureWalk)) return null;
+                const playableW = layout.shaft.x - STAGE.pillarWidth;
+                const xA = STAGE.pillarWidth + w.xFracA * playableW;
+                const xB = STAGE.pillarWidth + w.xFracB * playableW;
+                const top = floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT;
+                return (
+                  <AmbientWalker
+                    key={`${floor.id}-walk-${i}`}
+                    figureWalk={w.figureWalk}
+                    leftA={Math.min(xA, xB)}
+                    d={Math.abs(xB - xA)}
+                    top={top}
+                    height={AMBIENT_HEIGHT}
+                  />
+                );
               })}
               {/* Decken-Platte über der Etage */}
               <div

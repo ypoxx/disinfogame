@@ -51,10 +51,6 @@ export interface AmbientFigure {
   who: string;
 }
 export const FLOOR_AMBIENT: Record<string, AmbientFigure[]> = {
-  etage3: [{
-    figure: 'figure_cleaner', xFrac: 0.66, who: 'REINIGUNG',
-    line: 'Gleich mach ich hier sauber — bald schließt das Gebäude. Sie sollten auch mal nach Hause.',
-  }],
   etage1: [{
     figure: 'figure_clerk', xFrac: 0.33, who: 'KOLLEGE',
     line: 'Viel los heute oben. Ich bring nur die Akten rum, von dem anderen halt ich mich fern.',
@@ -62,6 +58,17 @@ export const FLOOR_AMBIENT: Record<string, AmbientFigure[]> = {
 };
 /** Anzeigehöhe der Statisten (px) — etwas kleiner als der Avatar (128). */
 export const AMBIENT_HEIGHT = 112;
+
+/** Strang 5 (Bewegung): ein hin- und herlaufender Statist je Etage (Lauf-Zyklus),
+ *  pendelt zwischen xFracA und xFracB im Flur. Reine Atmosphäre, keine Mechanik. */
+export interface AmbientWalker {
+  figureWalk: string;
+  xFracA: number;
+  xFracB: number;
+}
+export const FLOOR_WALKERS: Record<string, AmbientWalker[]> = {
+  etage3: [{ figureWalk: 'figure_cleaner_walk', xFracA: 0.34, xFracB: 0.62 }],
+};
 
 export const FLOOR_DECOR: Record<string, DecorPlacement[]> = {
   etage4: [

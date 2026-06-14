@@ -712,6 +712,32 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
     });
   }
 
+  // Lauf-Zyklus für die Reinigungskraft (Strang 5 Bewegung).
+  shots.push({
+    id: 'figure_cleaner_walk',
+    type: 'sheet',
+    kind: 'figure',
+    priority: 'nice',
+    chroma: true,
+    frameWidth: 48,
+    frameHeight: 96,
+    cols: 8,
+    rows: 1,
+    size: { w: 384, h: 96 },
+    animations: { walk: { row: 0, frames: 8, frameTime: 100, loop: true } },
+    seed: seedFor('figure_cleaner_walk'),
+    prompt:
+      `An 8-frame pixel art sprite sheet of a middle-aged cleaner in a plain work tabard over ` +
+      `casual clothes, holding a cloth, walking to the right, strict side view, full body from ` +
+      `head to feet. Horizontal layout, exactly 8 evenly spaced frames in one row, the SAME ` +
+      `character with identical outfit and colors in every frame, forming one full walk cycle ` +
+      `with clearly DIFFERENT leg poses (heel strike, weight sink, swing-through, reach — for ` +
+      `both legs), arms swinging opposite to the legs, head bobbing about 2 pixels. Adjacent ` +
+      `frames MUST differ visibly, especially the legs. CRITICAL: EVERY frame on the SAME flat ` +
+      `solid magenta (#FF00FF) fill — NO background, NO floor, NO scenery, ONLY the walking ` +
+      `cleaner. ${CHROMA_PROMPT} ${styleObject()}`,
+  });
+
   // --- SFX / Musik ---
   for (const [id, text, durationSeconds, priority] of SFX) {
     shots.push({ id, type: 'sfx', kind: 'sfx', priority, sfx: { text, durationSeconds } });
