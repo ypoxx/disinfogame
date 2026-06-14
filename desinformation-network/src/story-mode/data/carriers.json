@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "note": "P2 Achse A — Verbreiter/Assets (WER trägt die Botschaft). Werte 0..1. Erweiterbar.",
+    "version": "0.1.0"
+  },
+  "carriers": [
+    {
+      "id": "creator", "label_de": "Content-Creator / Influencer",
+      "reach": 0.8, "credibility": 0.75, "exposure": 0.5,
+      "milieus": ["wu_bohemien", "wu_optimiererin", "wu_zorniger"],
+      "buildCost": { "budget": 12, "capacity": 2, "phases": 1 }
+    },
+    {
+      "id": "expolitiker", "label_de": "Ex-Politiker / „Experte\"",
+      "reach": 0.55, "credibility": 0.9, "exposure": 0.85,
+      "milieus": ["wu_besorgte_mitte", "wu_eigenheimer"],
+      "buildCost": { "budget": 25, "capacity": 3, "phases": 2 }
+    },
+    {
+      "id": "akademiker", "label_de": "Rand-Akademiker",
+      "reach": 0.35, "credibility": 0.8, "exposure": 0.4,
+      "milieus": ["wu_liberale", "wu_idealistin"],
+      "buildCost": { "budget": 10, "capacity": 2, "phases": 1 }
+    },
+    {
+      "id": "thinktank", "label_de": "Schein-NGO / Pseudo-Thinktank",
+      "reach": 0.5, "credibility": 0.85, "exposure": 0.35,
+      "milieus": ["wu_liberale", "wu_besorgte_mitte"],
+      "buildCost": { "budget": 20, "capacity": 4, "phases": 3 }
+    },
+    {
+      "id": "frontmedium", "label_de": "Eigenes Frontmedium",
+      "reach": 0.8, "credibility": 0.55, "exposure": 0.7,
+      "milieus": ["wu_zorniger", "wu_eigenheimer", "wu_besorgte_mitte"],
+      "buildCost": { "budget": 22, "capacity": 3, "phases": 2 }
+    },
+    {
+      "id": "klonmedien", "label_de": "Klon-Medien",
+      "reach": 0.6, "credibility": 0.3, "exposure": 0.75,
+      "milieus": ["wu_zorniger", "wu_besorgte_mitte"],
+      "buildCost": { "budget": 6, "capacity": 1, "phases": 1 }
+    },
+    {
+      "id": "botnetz", "label_de": "Bot- / Sockpuppet-Netz",
+      "reach": 0.9, "credibility": 0.15, "exposure": 0.85,
+      "milieus": [],
+      "buildCost": { "budget": 12, "capacity": 2, "phases": 1 }
+    },
+    {
+      "id": "useful_idiots", "label_de": "Ideologisch Überzeugte",
+      "reach": 0.45, "credibility": 0.6, "exposure": 0.2,
+      "milieus": ["wu_idealistin", "wu_zorniger"],
+      "buildCost": { "budget": 4, "capacity": 1, "phases": 0 }
+    }
+  ]
+}
