@@ -342,7 +342,7 @@ function MethodsSection({ methods, operationsSummary }: MethodsSectionProps) {
         >
           <span style={{ color: StoryModeColors.warning, fontWeight: 'bold' }}>Schlachtfeld-Bilanz: </span>
           {ops!.operationsPlayed} Operation{ops!.operationsPlayed !== 1 ? 'en' : ''} ·{' '}
-          {ops!.carriersUsed.length} Verbreiter aufgebaut ·{' '}
+          {ops!.carriersUsed.length} Verbreiter genutzt ·{' '}
           {ops!.kompromatAcquired}× Kompromat beschafft
           {ops!.carriersBurned > 0 && (
             <span style={{ color: StoryModeColors.danger }}>
