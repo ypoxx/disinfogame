@@ -55,6 +55,50 @@ export interface QueuedAction {
 // ============================================
 
 /**
+ * Baut ein Sendeplan-Element (Queue) aus einer Aktion. Gemeinsam genutzt von
+ * `addToQueue` (Tafel/Terminal) und „Aktion aus Dialog" (P1a), damit beide Wege
+ * identisch auf den Sendeplan heften.
+ */
+function buildQueuedAction(
+  action: StoryAction,
+  options?: { targetId?: string; npcAssist?: string },
+): QueuedAction {
+  return {
+    id: `queue_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    actionId: action.id,
+    label: action.label_de || action.label_en || action.id,
+    costs: {
+      budget: action.costs.budget,
+      capacity: action.costs.capacity,
+      actionPoints: 1, // jede Aktion kostet 1 AP
+    },
+    legality: action.legality,
+    options,
+  };
+}
+
+/**
+ * Kontextuelle Maßnahmen-Angebote eines NPCs als Dialog-Optionen (Aktion aus Dialog, P1a).
+ * Gefiltert nach `npc_affinity` + Verfügbarkeit (freigeschaltet & ungenutzt). Owner-Entscheidung 1:
+ * Maßnahmen entstehen im Gespräch beim zuständigen NPC, nicht aus einer flachen Liste am Brett.
+ * Beschriftung mit der plakativen Überschrift (B5), Präfix ▸ grenzt sie von Gesprächsthemen ab.
+ */
+export function buildActionOfferChoices(
+  actions: StoryAction[],
+  npcId: string,
+  max = 3,
+): { id: string; text: string; cost?: { ap?: number; budget?: number } }[] {
+  return actions
+    .filter((a) => a.available && a.npcAffinity?.includes(npcId))
+    .slice(0, max)
+    .map((a) => ({
+      id: `action_${a.id}`,
+      text: `▸ ${a.headline_de || a.label_de}`,
+      cost: { ap: 1, budget: a.costs.budget },
+    }));
+}
+
+/**
  * Convert topic key to human-readable label
  * TD-006: Part of dynamic NPC dialogue system
  */
@@ -546,6 +590,30 @@ export function useStoryGameState(seed?: string) {
   }, []);
 
   const handleDialogChoice = useCallback((choiceId: string) => {
+    // P1a: „Aktion aus Dialog" — die im Gespräch angebotene Maßnahme auf den
+    // Sendeplan (Narrativ-Tafel) heften und das im Dialog bestätigen.
+    if (choiceId.startsWith('action_') && activeNpcId) {
+      const actionId = choiceId.slice('action_'.length);
+      const action = availableActions.find(a => a.id === actionId);
+      const npc = engine.getNPCState(activeNpcId);
+      if (action) {
+        setActionQueue(prev => [...prev, buildQueuedAction(action)]);
+        playSound('click');
+        const headline = action.headline_de || action.label_de;
+        setCurrentDialog({
+          speaker: npc?.name || activeNpcId,
+          speakerTitle: npc?.role_de,
+          text: `Gut. „${headline}" liegt jetzt auf dem Sendeplan. An der Narrativ-Tafel ordnen Sie die Maßnahme ein und spielen sie aus.`,
+          mood: 'neutral',
+          choices: [
+            { id: 'back_to_npc', text: 'Weitere Maßnahme besprechen' },
+            { id: 'dismiss', text: 'Erledigt' },
+          ],
+        });
+      }
+      return;
+    }
+
     // TD-006: Handle NPC topic choices
     if (choiceId.startsWith('topic_') && activeNpcId) {
       const topic = choiceId.replace('topic_', '');
@@ -605,6 +673,8 @@ export function useStoryGameState(seed?: string) {
           id: `topic_${topic}`,
           text: getTopicLabel(topic),
         }));
+        // P1a: kontextuelle Maßnahmen-Angebote dieses NPCs zuerst.
+        const actionOffers = buildActionOfferChoices(availableActions, activeNpcId);
 
         setCurrentDialog({
           speaker: npc.name,
@@ -617,7 +687,8 @@ export function useStoryGameState(seed?: string) {
             npc.currentMood === 'upset' ? 'angry' : 'neutral'
           ),
           voiceAssetId: greetingResult.voiceAssetId,
-          choices: topicChoices.length > 0 ? [
+          choices: (actionOffers.length > 0 || topicChoices.length > 0) ? [
+            ...actionOffers,
             ...topicChoices,
             { id: 'dismiss', text: 'Auf Wiedersehen' },
           ] : undefined,
@@ -636,7 +707,7 @@ export function useStoryGameState(seed?: string) {
     // Default: close dialog
     playSound('click');
     setCurrentDialog(null);
-  }, [activeNpcId, engine, recommendations, betrayalStates]);
+  }, [activeNpcId, engine, recommendations, betrayalStates, availableActions]);
 
   // ============================================
   // PHASE ACTIONS
@@ -998,20 +1069,7 @@ export function useStoryGameState(seed?: string) {
       return;
     }
 
-    const queuedAction: QueuedAction = {
-      id: `queue_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      actionId: action.id,
-      label: action.label_de || action.label_en || actionId,
-      costs: {
-        budget: action.costs.budget,
-        capacity: action.costs.capacity,
-        actionPoints: 1, // Each action costs 1 AP
-      },
-      legality: action.legality,
-      options,
-    };
-
-    setActionQueue(prev => [...prev, queuedAction]);
+    setActionQueue(prev => [...prev, buildQueuedAction(action, options)]);
     playSound('click');
   }, [availableActions]);
 
@@ -1155,6 +1213,8 @@ export function useStoryGameState(seed?: string) {
       id: `topic_${topic}`,
       text: getTopicLabel(topic),
     }));
+    // P1a: kontextuelle Maßnahmen-Angebote dieses NPCs zuerst (Aktion aus Dialog).
+    const actionOffers = buildActionOfferChoices(availableActions, npcId);
 
     setCurrentDialog({
       speaker: npc.name,
@@ -1164,12 +1224,13 @@ export function useStoryGameState(seed?: string) {
       voiceAssetId: greetingVoiceId,
       npcRecommendation: recommendationText,
       npcBetrayalWarning: betrayalWarning,
-      choices: topicChoices.length > 0 ? [
+      choices: (actionOffers.length > 0 || topicChoices.length > 0) ? [
+        ...actionOffers,
         ...topicChoices,
         { id: 'dismiss', text: 'Auf Wiedersehen' },
       ] : undefined,
     });
-  }, [engine, recommendationTracking, recommendations, betrayalStates]);
+  }, [engine, recommendationTracking, recommendations, betrayalStates, availableActions]);
 
   // ============================================
   // NEWS MANAGEMENT

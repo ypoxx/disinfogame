@@ -31,8 +31,9 @@ Sweep hat dauerhaft eingeblendete Seiten-Widgets übersehen (s. Visual-Backlog &
 | **P0a** | `headline_de` an alle **110** Aktionen; Generator/Broadcast nutzen sie → „Aktion durchgeführt" weg | ✅ |
 | **P0b** | `MorningBriefing`: konkreter Tageshinweis (Zahl + zuständiges Büro, nicht klickbar, D-4) | ✅ |
 | **Visual-Politur** | `AdvisorPanel`: Verbots-Schlagschatten/Glow raus → Pixel-Innenrand; Prioritätsfarben auf v2-Palette | ✅ |
+| **P1a (Slice 1)** | **Aktion aus Dialog:** NPC bietet im Gespräch kontextuelle Maßnahmen an (Filter `npc_affinity` + verfügbar) → Wahl heftet auf den Sendeplan (Narrativ-Tafel). Entscheidung 1. | ✅ |
 
-Gate je Push grün: `tsc` · `npm run build` · `vitest` (226). Smoke: `npm run smoke` (Playwright,
+Gate je Push grün: `tsc` · `npm run build` · `vitest` (231). Smoke: `npm run smoke` (Playwright,
 s. unten).
 
 ---
@@ -52,6 +53,7 @@ Prinzip (SOUL): visuelle Kohärenz ist das Erste, was Nutzer beurteilen.
 | V6 | **Floating-Element links unten** (Auftrag/Hinweise) | `ComboHintsWidget` (`fixed bottom-4 left-4`), nicht-diegetisch | **übersehen** | diegetisch verorten oder in HUD/Tafel ziehen |
 | V7 | **Avatar läuft, Beine bewegen sich nicht** (Schweben) | bekannter Bug (DECISIONS A2); „reparierter Laufzyklus" (#75) griff nicht durchgängig | **bekannt, offen** | Walk-Sprite-Sheet (Asset) + Animations-Wiring; Größe/Schärfe (E17) |
 | V8 | „viele Feinheiten" aus Gesprächen fehlen | Atmosphäre (Dummies/Pförtner/Tür-Anim, D13) = **Strang 5**, bewusst später | **geplant** | Strang 5 (Atmosphäre) |
+| V9 | **Lobby** = dasselbe Bild 3× nebeneinander → wirkt wie ein Bug, keine ganze Halle | im Querschnitt werden identische Module gekachelt; Strang 1 (#77) meldete „Lobby als echte Eingangshalle", greift im Gebäude-Querschnitt aber nicht | **bekannt** (DECISIONS A2), Fix unscheduled | durchgehende Lobby-Komposition: ein breites Asset ODER variierte Module (wie die 3 Flur-Varianten) + Pförtner-Figur |
 
 **Empfohlene Reihenfolge:** V1 (✅) → V4-Audit (klein, klärt Umfang) → **P1** (löst V2 strukturell) →
 V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
@@ -63,7 +65,7 @@ V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
 | Phase | Inhalt | Status |
 |---|---|---|
 | **P0** | Aktions-Überschriften + Direktor-Hinweise | ✅ (PR #80) |
-| **P1** | Aktion-aus-Dialog · Menü→Gespräch · granularere Aktionen · Sprach-Steckbriefe · NPC-Vorschläge im Gespräch (löst V2) | offen — **nächster großer Schritt** |
+| **P1** | Aktion-aus-Dialog · Menü→Gespräch · granularere Aktionen · Sprach-Steckbriefe · NPC-Vorschläge im Gespräch (löst V2) | **in Arbeit** — Slice 1 (Aktion aus Dialog) ✅; offen: P1b Menü→Gespräch (situative Eröffnungen statt „worüber willst du sprechen?"), P1c granularere Aktionen, P1d Sprach-Steckbriefe, Tafel-Deck-Quelle = NPC-Angebote |
 | **P2** | Kommunikations-Schlachtfeld (Ziel→Dossier→Kompromat→Verbreiter+Plattform-Mix). **Erst nach Exa-Recherche** (§10.1) | offen |
 | **P3** | Gebäude-Wachstum (`unlocksRoom`/`unlocksNpc`) + 100–500-Pfade-Simulation | offen |
 
