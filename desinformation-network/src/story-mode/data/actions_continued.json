@@ -9,6 +9,7 @@
       "phase": "ta03",
       "disarm_ref": "T0023",
       "label_de": "Fake-News-Artikel erstellen",
+      "headline_de": "Falschmeldung in Umlauf gebracht",
       "label_en": "Create Fake News Article",
       "narrative_de": "Ein gut geschriebener Artikel mit einer erfundenen Geschichte. Sieht echt aus, ist aber komplett konstruiert.",
       "costs": {
@@ -38,6 +39,7 @@
       "phase": "ta03",
       "disarm_ref": "T0141",
       "label_de": "Meme-Serie erstellen",
+      "headline_de": "Meme-Welle losgetreten",
       "label_en": "Create Meme Series",
       "narrative_de": "Bilder sagen mehr als Worte. Memes verbreiten sich wie ein Virus und sind schwer zu bekämpfen.",
       "costs": {
@@ -67,6 +69,7 @@
       "phase": "ta03",
       "disarm_ref": null,
       "label_de": "Emotionales Video erstellen",
+      "headline_de": "Empörungs-Video veröffentlicht",
       "label_en": "Create Emotional Video",
       "narrative_de": "Wut, Angst, Empörung - Emotionen bewegen Menschen. Ein gut gemachtes Video kann Massen mobilisieren.",
       "costs": {
@@ -95,6 +98,7 @@
       "phase": "ta03",
       "disarm_ref": "T0025",
       "label_de": "AI-generierte Texte",
+      "headline_de": "KI-Textflut produziert",
       "label_en": "AI-Generated Texts",
       "narrative_de": "Massenhaft Content mit KI produzieren. Schnell, billig, skalierbar.",
       "costs": {
@@ -126,6 +130,7 @@
       "phase": "ta03",
       "disarm_ref": "T0086",
       "label_de": "Deep Fake Video",
+      "headline_de": "Deepfake-Video in Umlauf",
       "label_en": "Deep Fake Video",
       "narrative_de": "Eine Person sagt oder tut Dinge, die sie nie gesagt oder getan hat. Mächtig und gefährlich.",
       "costs": {
@@ -160,6 +165,7 @@
       "phase": "ta03",
       "disarm_ref": "T0086",
       "label_de": "Deep Fake Audio",
+      "headline_de": "Gefälschte Tonaufnahme gestreut",
       "label_en": "Deep Fake Audio",
       "narrative_de": "Gefälschte Aufnahmen. Leichter zu produzieren als Video, schwerer zu widerlegen.",
       "costs": {
@@ -194,6 +200,7 @@
       "phase": "ta03",
       "disarm_ref": "T0003",
       "label_de": "Fake-News-Website klonen",
+      "headline_de": "Nachrichtenportal gefälscht",
       "label_en": "Clone Fake News Website",
       "narrative_de": "Eine Website, die wie ein echtes Nachrichtenportal aussieht. Typosquatting inklusive.",
       "costs": {
@@ -227,6 +234,7 @@
       "phase": "ta03",
       "disarm_ref": null,
       "label_de": "Gefälschte Dokumente erstellen",
+      "headline_de": "Gefälschte „Beweise“ geleakt",
       "label_en": "Create Forged Documents",
       "narrative_de": "Offizielle aussehende Dokumente, Briefe, E-Mails. 'Geleakte' Beweise für unsere Narrative.",
       "costs": {
@@ -257,6 +265,7 @@
       "phase": "ta03",
       "disarm_ref": "T0082",
       "label_de": "Verschwörungsnarrativ entwickeln",
+      "headline_de": "Verschwörungserzählung lanciert",
       "label_en": "Develop Conspiracy Narrative",
       "narrative_de": "Die Wahrheit ist da draußen - und wir erfinden sie. Verschwörungstheorien haben loyale Anhänger.",
       "costs": {
@@ -285,6 +294,7 @@
       "phase": "ta03",
       "disarm_ref": "T0083",
       "label_de": "Spaltungsnarrativ entwickeln",
+      "headline_de": "Spaltungs-Narrativ ausgerollt",
       "label_en": "Develop Division Narrative",
       "narrative_de": "Links gegen Rechts, Alt gegen Jung, Stadt gegen Land. Wir verstärken bestehende Konflikte.",
       "costs": {
@@ -317,6 +327,7 @@
       "phase": "ta03",
       "disarm_ref": "T0081",
       "label_de": "Gegennarrativ zu Fakten",
+      "headline_de": "Fakten verwässert",
       "label_en": "Counter-Narrative to Facts",
       "narrative_de": "Die Wahrheit verwässern. Alternative Erklärungen, Zweifel säen, 'beide Seiten' darstellen.",
       "costs": {
@@ -344,6 +355,7 @@
       "phase": "ta03",
       "disarm_ref": null,
       "label_de": "Historien-Revision",
+      "headline_de": "Geschichte umgeschrieben",
       "label_en": "History Revision",
       "narrative_de": "Die Vergangenheit umschreiben. Wer die Geschichte kontrolliert, kontrolliert die Gegenwart.",
       "costs": {
@@ -373,6 +385,7 @@
       "phase": "ta03",
       "disarm_ref": "T0063",
       "label_de": "Polarisierender Content",
+      "headline_de": "Empörung als Reichweite gezüchtet",
       "label_en": "Polarizing Content",
       "narrative_de": "Kontroverse Inhalte, die Reaktionen provozieren. Engagement durch Empörung.",
       "costs": {
@@ -401,6 +414,7 @@
       "phase": "ta03",
       "disarm_ref": null,
       "label_de": "Buch veröffentlichen",
+      "headline_de": "„Enthüllungsbuch“ erschienen",
       "label_en": "Publish Book",
       "narrative_de": "Ein Buch verleiht Autorität. 'Laut dem Buch...' klingt seriöser als 'Laut Facebook...'",
       "costs": {
@@ -432,6 +446,7 @@
       "phase": "ta03",
       "disarm_ref": null,
       "label_de": "Studie fabrizieren",
+      "headline_de": "Gefällige Studie fabriziert",
       "label_en": "Fabricate Study",
       "narrative_de": "Pseudo-wissenschaftliche Studien mit vorbestimmten Ergebnissen. 'Die Wissenschaft sagt...'",
       "costs": {
@@ -464,6 +479,7 @@
       "phase": "ta03",
       "disarm_ref": null,
       "label_de": "Pseudo-Dokumentation",
+      "headline_de": "Pseudo-Doku abgedreht",
       "label_en": "Pseudo-Documentary",
       "narrative_de": "Ein 'Dokumentarfilm', der unsere Version der Ereignisse als Wahrheit präsentiert.",
       "costs": {
@@ -491,6 +507,7 @@
       "phase": "ta03",
       "disarm_ref": null,
       "label_de": "Pressemitteilung verfassen",
+      "headline_de": "Pressemitteilung verschickt",
       "label_en": "Write Press Release",
       "narrative_de": "Offizielle Kommunikation von unseren Tarnorganisationen. Sieht legitim aus.",
       "costs": {
@@ -521,6 +538,7 @@
       "phase": "ta03",
       "disarm_ref": null,
       "label_de": "Fake-Whistleblower inszenieren",
+      "headline_de": "Schein-Whistleblower präsentiert",
       "label_en": "Stage Fake Whistleblower",
       "narrative_de": "Ein 'Insider' enthüllt 'geheime Informationen'. Alles inszeniert, aber überzeugend.",
       "costs": {
@@ -551,6 +569,7 @@
       "phase": "ta03",
       "disarm_ref": "T0025",
       "label_de": "KI-Wissensdatenbank vergiften",
+      "headline_de": "KI-Modelle vergiftet",
       "label_en": "Poison AI Knowledge Base",
       "narrative_de": "Eine seriös wirkende Wikipedia-Klon-Datenbank aufbauen und monatlich mit präparierten Artikeln füttern. Ziel: Öffentliche KI-Sprachmodelle (ChatGPT & Co.) übernehmen unsere Narrative, wenn Nutzer Fragen stellen. Langsam, teuer, aber langfristig kaum nachweisbar.",
       "narrative_en": "Build a legitimate-looking Wikipedia-clone database and feed it manipulated articles every month. Goal: public AI language models (ChatGPT et al.) adopt our narratives when users ask questions. Slow, expensive, but hard to trace long-term.",
@@ -590,6 +609,7 @@
       "phase": "ta04",
       "disarm_ref": null,
       "label_de": "Social Media Post",
+      "headline_de": "Botschaft in die Timeline gespült",
       "label_en": "Social Media Post",
       "narrative_de": "Ein einzelner Post auf den großen Plattformen. Der Anfang jeder Kampagne.",
       "costs": {
@@ -617,6 +637,7 @@
       "phase": "ta04",
       "disarm_ref": null,
       "label_de": "Blog-Netzwerk nutzen",
+      "headline_de": "Blog-Netzwerk in Gang gesetzt",
       "label_en": "Use Blog Network",
       "narrative_de": "Verbreitung über scheinbar unabhängige Blogs. Verschiedene Stimmen, gleiche Botschaft.",
       "costs": {
@@ -647,6 +668,7 @@
       "phase": "ta04",
       "disarm_ref": null,
       "label_de": "Telegram-Kanal bespielen",
+      "headline_de": "Telegram-Kanal befeuert",
       "label_en": "Use Telegram Channel",
       "narrative_de": "Telegram - wenig Moderation, treue Follower. Perfekt für radikalere Inhalte.",
       "costs": {
@@ -673,6 +695,7 @@
       "phase": "ta04",
       "disarm_ref": null,
       "label_de": "YouTube-Video hochladen",
+      "headline_de": "Video auf YouTube platziert",
       "label_en": "Upload YouTube Video",
       "narrative_de": "Video-Content auf der größten Plattform. Algorithmus kann Freund oder Feind sein.",
       "costs": {
@@ -700,6 +723,7 @@
       "phase": "ta04",
       "disarm_ref": null,
       "label_de": "Newsletter versenden",
+      "headline_de": "Newsletter in die Postfächer",
       "label_en": "Send Newsletter",
       "narrative_de": "Direkt in die Inbox. Persönlich, vertrauenswürdig, schwer zu filtern.",
       "costs": {
@@ -726,6 +750,7 @@
       "phase": "ta04",
       "disarm_ref": null,
       "label_de": "Boulevardblatt füttern",
+      "headline_de": "Boulevard mit Skandal gefüttert",
       "label_en": "Feed Tabloid",
       "narrative_de": "Die Boulevardpresse liebt Skandale. Wir liefern, sie drucken.",
       "costs": {
@@ -755,6 +780,7 @@
       "phase": "ta04",
       "disarm_ref": null,
       "label_de": "Redakteur kontaktieren",
+      "headline_de": "Redakteur eingewickelt",
       "label_en": "Contact Editor",
       "narrative_de": "Persönlicher Kontakt zu Entscheidern in Redaktionen. Subtile Beeinflussung.",
       "costs": {
@@ -783,6 +809,7 @@
       "phase": "ta04",
       "disarm_ref": null,
       "label_de": "Anzeigen schalten",
+      "headline_de": "Werbekampagne geschaltet",
       "label_en": "Place Advertisements",
       "narrative_de": "Bezahlte Werbung für unsere Botschaften. Legal, aber teuer.",
       "costs": {
@@ -809,6 +836,7 @@
       "phase": "ta04",
       "disarm_ref": null,
       "label_de": "Leserbrief-Kampagne",
+      "headline_de": "Leserbrief-Flut organisiert",
       "label_en": "Letter Campaign",
       "narrative_de": "Koordinierte Leserbriefe an Zeitungen. Viele Stimmen, eine Meinung.",
       "costs": {
@@ -838,6 +866,7 @@
       "phase": "ta04",
       "disarm_ref": "T0039",
       "label_de": "Journalist ködern",
+      "headline_de": "Journalist mit Exklusivstory geködert",
       "label_en": "Bait Journalist",
       "narrative_de": "Einem Journalisten eine 'exklusive Story' unterschieben. Funktioniert es, haben wir Mainstream-Reichweite.",
       "costs": {
@@ -865,6 +894,7 @@
       "phase": "ta04",
       "disarm_ref": null,
       "label_de": "Radio-Talkshow infiltrieren",
+      "headline_de": "Talkradio mit Anrufern geflutet",
       "label_en": "Infiltrate Radio Talkshow",
       "narrative_de": "Koordinierte Anrufer in Talkshows. Scheinbar spontane Bürgermeinungen.",
       "costs": {
@@ -894,6 +924,7 @@
       "phase": "ta04",
       "disarm_ref": null,
       "label_de": "Talkshow-Gast platzieren",
+      "headline_de": "Unser „Experte“ im TV-Studio",
       "label_en": "Place Talkshow Guest",
       "narrative_de": "Unser 'Experte' in einer TV-Talkshow. Millionen Zuschauer, unsere Narrative.",
       "costs": {
@@ -925,6 +956,7 @@
       "phase": "ta04",
       "disarm_ref": "T0057",
       "label_de": "Demonstration organisieren",
+      "headline_de": "Demonstranten auf die Straße gebracht",
       "label_en": "Organize Demonstration",
       "narrative_de": "Menschen auf die Straße bringen. Sichtbare Unterstützung für unsere Sache.",
       "costs": {
@@ -955,6 +987,7 @@
       "phase": "ta04",
       "disarm_ref": null,
       "label_de": "Pressekonferenz inszenieren",
+      "headline_de": "Pressekonferenz inszeniert",
       "label_en": "Stage Press Conference",
       "narrative_de": "Eine offizielle Pressekonferenz unserer Tarnorganisation. Medien kommen, berichten.",
       "costs": {
@@ -986,6 +1019,7 @@
       "phase": "ta04",
       "disarm_ref": null,
       "label_de": "Konferenz sponsern",
+      "headline_de": "Fachkonferenz gekapert",
       "label_en": "Sponsor Conference",
       "narrative_de": "Akademische Konferenzen mit unserer Agenda. Legitimität durch Wissenschaft.",
       "costs": {
@@ -1018,6 +1052,7 @@
       "phase": "ta05",
       "disarm_ref": "T0035",
       "label_de": "Bot-Schwarm aktivieren",
+      "headline_de": "Bot-Schwarm losgelassen",
       "label_en": "Activate Bot Swarm",
       "narrative_de": "Tausende Bots verbreiten unseren Content gleichzeitig. Künstliche Viralität.",
       "costs": {
@@ -1050,6 +1085,7 @@
       "phase": "ta05",
       "disarm_ref": "T0034",
       "label_de": "Hashtag-Kampagne",
+      "headline_de": "Hashtag zum Trend gepusht",
       "label_en": "Hashtag Campaign",
       "narrative_de": "Ein Hashtag zum Trending Topic machen. Sichtbarkeit erzwingen.",
       "costs": {
@@ -1078,6 +1114,7 @@
       "phase": "ta05",
       "disarm_ref": null,
       "label_de": "Troll-Attacke",
+      "headline_de": "Troll-Sturm entfesselt",
       "label_en": "Troll Attack",
       "narrative_de": "Koordinierter Angriff auf eine Person oder ein Thema. Diskussion dominieren, Gegner einschüchtern.",
       "costs": {
@@ -1111,6 +1148,7 @@
       "phase": "ta05",
       "disarm_ref": "T0053",
       "label_de": "Astroturfing",
+      "headline_de": "Künstliche Graswurzelbewegung gestartet",
       "label_en": "Astroturfing",
       "narrative_de": "Eine Graswurzelbewegung simulieren. Künstlich, aber überzeugend organisch wirkend.",
       "costs": {
@@ -1141,6 +1179,7 @@
       "phase": "ta05",
       "disarm_ref": null,
       "label_de": "Cross-Platform-Push",
+      "headline_de": "Plattformübergreifender Großangriff",
       "label_en": "Cross-Platform Push",
       "narrative_de": "Gleichzeitig auf allen Plattformen. Koordinierter, überwältigender Effekt.",
       "costs": {
@@ -1172,6 +1211,7 @@
       "phase": "ta05",
       "disarm_ref": null,
       "label_de": "Influencer kaufen",
+      "headline_de": "Influencer eingekauft",
       "label_en": "Buy Influencer",
       "narrative_de": "Reichweite leihen. Ein Influencer verbreitet unsere Botschaft an sein Publikum.",
       "costs": {
@@ -1199,6 +1239,7 @@
       "phase": "ta05",
       "disarm_ref": "T0060",
       "label_de": "Kampagne fortsetzen",
+      "headline_de": "Kampagne am Köcheln gehalten",
       "label_en": "Continue Campaign",
       "narrative_de": "Momentum aufrechterhalten. Nicht nachlassen, bevor die Botschaft sitzt.",
       "costs": {
@@ -1225,6 +1266,7 @@
       "phase": "ta05",
       "disarm_ref": "T0049",
       "label_de": "Information Flooding",
+      "headline_de": "Informationsraum geflutet",
       "label_en": "Information Flooding",
       "narrative_de": "Die Zone mit Informationen fluten. Wahrheit und Lüge ununterscheidbar machen.",
       "costs": {
@@ -1256,6 +1298,7 @@
       "phase": "ta05",
       "disarm_ref": "T0062",
       "label_de": "Persona-Pflege",
+      "headline_de": "Fake-Personas aufpoliert",
       "label_en": "Maintain Personas",
       "narrative_de": "Fake-Accounts müssen gepflegt werden. Geschichte aufbauen, glaubwürdig bleiben.",
       "costs": {
@@ -1286,6 +1329,7 @@
       "phase": "ta05",
       "disarm_ref": "T0046",
       "label_de": "SEO-Manipulation",
+      "headline_de": "Suchergebnisse manipuliert",
       "label_en": "SEO Manipulation",
       "narrative_de": "Suchergebnisse manipulieren. Unsere Inhalte ganz oben, auf lange Sicht.",
       "costs": {
@@ -1313,6 +1357,7 @@
       "phase": "ta05",
       "disarm_ref": null,
       "label_de": "Mainstream-Einschleusung",
+      "headline_de": "Narrativ im Mainstream angekommen",
       "label_en": "Mainstream Infiltration",
       "narrative_de": "Narrative in etablierte Medien einschleusen. Der heilige Gral der Verstärkung.",
       "costs": {
@@ -1344,6 +1389,7 @@
       "phase": "ta05",
       "disarm_ref": "T0142",
       "label_de": "Community aufbauen",
+      "headline_de": "Treue Anhängerschaft aufgebaut",
       "label_en": "Build Community",
       "narrative_de": "Langfristige Bindung von Followern. Eine treue Basis, die für uns kämpft.",
       "costs": {
@@ -1372,6 +1418,7 @@
       "id": "6.1",
       "phase": "ta06",
       "label_de": "Wahlkampf unterstützen",
+      "headline_de": "Wahlkampf heimlich befeuert",
       "label_en": "Support Election Campaign",
       "narrative_de": "Kandidaten mit Geld und Ressourcen unterstützen. Einfluss durch Wahlhilfe.",
       "costs": {
@@ -1401,6 +1448,7 @@
       "id": "6.2",
       "phase": "ta06",
       "label_de": "Partei-Spaltung fördern",
+      "headline_de": "Partei von innen gespalten",
       "label_en": "Promote Party Split",
       "narrative_de": "Interne Konflikte in einer Partei anheizen. Schwache Parteien, schwache Demokratie.",
       "costs": {
@@ -1428,6 +1476,7 @@
       "id": "6.3",
       "phase": "ta06",
       "label_de": "Lobbying betreiben",
+      "headline_de": "Lobby-Maschine angeworfen",
       "label_en": "Conduct Lobbying",
       "narrative_de": "Offizielles Lobbying über unsere Tarnorganisationen. Einfluss auf Gesetzgebung.",
       "costs": {
@@ -1458,6 +1507,7 @@
       "id": "6.4",
       "phase": "ta06",
       "label_de": "Gesetzgebung beeinflussen",
+      "headline_de": "Gesetzentwurf in unserem Sinne gedreht",
       "label_en": "Influence Legislation",
       "narrative_de": "Konkrete Gesetzesentwürfe beeinflussen. Langfristiger, struktureller Einfluss.",
       "costs": {
@@ -1486,6 +1536,7 @@
       "id": "6.5",
       "phase": "ta06",
       "label_de": "Berufsverband infiltrieren",
+      "headline_de": "Berufsverband unterwandert",
       "label_en": "Infiltrate Professional Association",
       "narrative_de": "Einfluss in Berufsverbänden gewinnen. Branchenweite Meinungsführerschaft.",
       "costs": {
@@ -1511,6 +1562,7 @@
       "id": "6.6",
       "phase": "ta06",
       "label_de": "Wirtschaftslobby beeinflussen",
+      "headline_de": "Wirtschaftslobby auf Linie gebracht",
       "label_en": "Influence Business Lobby",
       "narrative_de": "Kammern, Verbände, Wirtschaftsvereinigungen - alle können unsere Botschaften tragen.",
       "costs": {
@@ -1537,6 +1589,7 @@
       "id": "6.7",
       "phase": "ta06",
       "label_de": "Korruption / Bestechung",
+      "headline_de": "Schmiergeld geflossen",
       "label_en": "Corruption / Bribery",
       "narrative_de": "Direkte Käuflichkeit. Riskant, aber effektiv. Manche Menschen haben ihren Preis.",
       "costs": {
@@ -1568,6 +1621,7 @@
       "id": "6.8",
       "phase": "ta06",
       "label_de": "NGO infiltrieren",
+      "headline_de": "NGO von innen gekapert",
       "label_en": "Infiltrate NGO",
       "narrative_de": "Bestehende NGOs unterwandern. Ihre Glaubwürdigkeit für unsere Zwecke nutzen.",
       "costs": {
@@ -1594,6 +1648,7 @@
       "id": "6.9",
       "phase": "ta06",
       "label_de": "Offline-Astroturfing",
+      "headline_de": "Schein-Bürgerinitiative gegründet",
       "label_en": "Offline Astroturfing",
       "narrative_de": "Fake-Graswurzelbewegung im echten Leben. Bürgerinitiativen, die keine sind.",
       "costs": {
@@ -1622,6 +1677,7 @@
       "id": "6.10",
       "phase": "ta06",
       "label_de": "Jugendorganisation aufbauen",
+      "headline_de": "Jugendorganisation ins Leben gerufen",
       "label_en": "Build Youth Organization",
       "narrative_de": "Die Jugend ist die Zukunft. Langfristige Investition in kommende Generationen.",
       "costs": {
@@ -1652,6 +1708,7 @@
       "id": "7.1",
       "phase": "ta07",
       "label_de": "Religiöse Gruppen ansprechen",
+      "headline_de": "Gläubige ins Boot geholt",
       "label_en": "Engage Religious Groups",
       "narrative_de": "Wertkonservative Narrative für religiöse Gemeinschaften. Gemeinsame Feinde verbinden.",
       "costs": {
@@ -1677,6 +1734,7 @@
       "id": "7.2",
       "phase": "ta07",
       "label_de": "Kulturkrieg befeuern",
+      "headline_de": "Kulturkampf angeheizt",
       "label_en": "Fuel Culture War",
       "narrative_de": "Tradition gegen Moderne, Werte gegen Liberalismus. Kulturelle Spaltung vertiefen.",
       "costs": {
@@ -1703,6 +1761,7 @@
       "id": "7.3",
       "phase": "ta07",
       "label_de": "Religionsführer beeinflussen",
+      "headline_de": "Prediger auf unsere Seite gezogen",
       "label_en": "Influence Religious Leaders",
       "narrative_de": "Prediger, Priester, Imame - ihre Worte erreichen Millionen gläubiger Menschen.",
       "costs": {
@@ -1729,6 +1788,7 @@
       "id": "7.4",
       "phase": "ta07",
       "label_de": "Kulturveranstaltung kapern",
+      "headline_de": "Kulturevent gekapert",
       "label_en": "Hijack Cultural Event",
       "narrative_de": "Festivals, Konzerte, Messen - Gelegenheiten, unsere Narrative zu verbreiten.",
       "costs": {
@@ -1755,6 +1815,7 @@
       "id": "7.5",
       "phase": "ta07",
       "label_de": "Nationalismus fördern",
+      "headline_de": "Nationale Ressentiments geschürt",
       "label_en": "Promote Nationalism",
       "narrative_de": "'Volkskultur' und nationale Identität instrumentalisieren. Uns gegen die Anderen.",
       "costs": {
@@ -1781,6 +1842,7 @@
       "phase": "ta07",
       "disarm_ref": "T0083",
       "label_de": "Polarisierung ausnutzen",
+      "headline_de": "Gesellschaftliche Mitte ausgehöhlt",
       "label_en": "Exploit Polarization",
       "narrative_de": "Bestehende gesellschaftliche Spannungen verstärken. Die Mitte aushöhlen.",
       "costs": {
@@ -1811,6 +1873,7 @@
       "id": "7.7",
       "phase": "ta07",
       "label_de": "Wirtschaftsnarrativ verbreiten",
+      "headline_de": "Wirtschaftsangst geschürt",
       "label_en": "Spread Economic Narrative",
       "narrative_de": "'Die Wirtschaft leidet unter...' - Ökonomische Ängste schüren und kanalisieren.",
       "costs": {
@@ -1836,6 +1899,7 @@
       "id": "7.8",
       "phase": "ta07",
       "label_de": "Medienunternehmen kaufen",
+      "headline_de": "Medienhaus übernommen",
       "label_en": "Buy Media Company",
       "narrative_de": "Kontrolle über ein bestehendes Medienunternehmen übernehmen. Teuer, aber mächtig.",
       "costs": {
@@ -1864,6 +1928,7 @@
       "id": "8.1",
       "phase": "targeting",
       "label_de": "Person einschüchtern",
+      "headline_de": "Zielperson eingeschüchtert",
       "label_en": "Intimidate Person",
       "narrative_de": "Online-Druck, Drohungen, Belästigung. Die Person soll verstummen.",
       "costs": {
@@ -1893,6 +1958,7 @@
       "id": "8.2",
       "phase": "targeting",
       "label_de": "Person diskreditieren",
+      "headline_de": "Rufmord-Kampagne gestartet",
       "label_en": "Discredit Person",
       "narrative_de": "Rufmord. Wahre, halbwahre oder erfundene Geschichten, die den Ruf zerstören.",
       "costs": {
@@ -1922,6 +1988,7 @@
       "id": "8.3",
       "phase": "targeting",
       "label_de": "Fact-Checker angreifen",
+      "headline_de": "Faktenchecker diskreditiert",
       "label_en": "Attack Fact-Checker",
       "narrative_de": "Wer unsere Lügen aufdeckt, muss selbst diskreditiert werden. Vorwürfe der Parteilichkeit.",
       "costs": {
@@ -1952,6 +2019,7 @@
       "id": "8.4",
       "phase": "targeting",
       "label_de": "Institution delegitimieren",
+      "headline_de": "Vertrauen in Institution untergraben",
       "label_en": "Delegitimize Institution",
       "narrative_de": "'Ausländische Agenten', 'Lügenpresse', 'Systemmedien' - Vertrauen in Institutionen untergraben.",
       "costs": {
@@ -1978,6 +2046,7 @@
       "id": "8.5",
       "phase": "targeting",
       "label_de": "Social-Media-Account hacken",
+      "headline_de": "Fremder Account gekapert",
       "label_en": "Hack Social Media Account",
       "narrative_de": "Zugang zu einem fremden Account. Peinliche Posts, 'Enthüllungen', Übernahme.",
       "costs": {
@@ -2006,6 +2075,7 @@
       "id": "8.6",
       "phase": "targeting",
       "label_de": "E-Mails hacken",
+      "headline_de": "Privatmails erbeutet",
       "label_en": "Hack Emails",
       "narrative_de": "Private Kommunikation stehlen. Für Erpressung, Leaks oder Kompromat.",
       "costs": {
@@ -2034,6 +2104,7 @@
       "id": "8.7",
       "phase": "targeting",
       "label_de": "Person erpressen",
+      "headline_de": "Zielperson erpresst",
       "label_en": "Blackmail Person",
       "narrative_de": "Mit Kompromat drohen. Die dunkelste aller Taktiken, aber effektiv.",
       "costs": {
@@ -2067,6 +2138,7 @@
       "id": "8.8",
       "phase": "targeting",
       "label_de": "Politiker kompromittieren",
+      "headline_de": "Politiker im Skandal versenkt",
       "label_en": "Compromise Politician",
       "narrative_de": "Einen Skandal inszenieren oder aufdecken. Die Karriere eines Politikers zerstören.",
       "costs": {
@@ -2098,6 +2170,7 @@
       "id": "8.9",
       "phase": "targeting",
       "label_de": "Whistleblower neutralisieren",
+      "headline_de": "Whistleblower mundtot gemacht",
       "label_en": "Neutralize Whistleblower",
       "narrative_de": "Jemand will über uns reden? Das muss verhindert werden. Mit allen Mitteln.",
       "costs": {
@@ -2127,6 +2200,7 @@
       "id": "8.10",
       "phase": "targeting",
       "label_de": "Informant rekrutieren",
+      "headline_de": "Informant angeworben",
       "label_en": "Recruit Informant",
       "narrative_de": "Einen Insider gewinnen. Informationen sind Macht.",
       "costs": {
@@ -2158,6 +2232,7 @@
       "id": "8.11",
       "phase": "targeting",
       "label_de": "DDoS-Ablenkung",
+      "headline_de": "Gegner-Website lahmgelegt",
       "label_en": "DDoS Distraction",
       "narrative_de": "Die Website eines Gegners offline nehmen. Temporär, aber effektiv.",
       "costs": {
@@ -2188,6 +2263,7 @@
       "id": "8.12",
       "phase": "targeting",
       "label_de": "Algorithmus manipulieren",
+      "headline_de": "Algorithmus ausgetrickst",
       "label_en": "Manipulate Algorithm",
       "narrative_de": "Social-Media-Algorithmen zu unserem Vorteil ausnutzen. Sichtbarkeit kaufen.",
       "costs": {
@@ -2214,6 +2290,7 @@
       "id": "8.13",
       "phase": "targeting",
       "label_de": "Fake-Datenbank-Leak",
+      "headline_de": "Gefälschtes Daten-Leak gestreut",
       "label_en": "Fake Database Leak",
       "narrative_de": "Gefälschte 'geleakte' Dokumente. Sieht echt aus, ist aber konstruiert.",
       "costs": {
@@ -2242,6 +2319,7 @@
       "id": "8.14",
       "phase": "targeting",
       "label_de": "Kommentar-Flooding",
+      "headline_de": "Kommentarspalten geflutet",
       "label_en": "Comment Flooding",
       "narrative_de": "Diskussionen mit unseren Kommentaren fluten. Die echten Stimmen übertönen.",
       "costs": {
@@ -2271,6 +2349,7 @@
       "id": "8.15",
       "phase": "targeting",
       "label_de": "Gegner-Account sperren lassen",
+      "headline_de": "Gegner von der Plattform gefegt",
       "label_en": "Get Opponent Account Banned",
       "narrative_de": "Koordinierte Meldungen, um Gegner von Plattformen zu entfernen. Ihre eigenen Regeln gegen sie nutzen.",
       "costs": {
@@ -2301,6 +2380,7 @@
       "phase": "targeting",
       "disarm_ref": "T0057",
       "label_de": "False-Flag-Provokation inszenieren",
+      "headline_de": "False-Flag-Aktion inszeniert",
       "label_en": "Stage False-Flag Provocation",
       "narrative_de": "Eine physische Aktion in der echten Welt inszenieren und einem Gegner anhängen - z.B. Sachbeschädigung mit Bekennerzeichen einer Zielgruppe oder eine schockierende Provokation an einem symbolträchtigen Ort. Spaltet die Gesellschaft und diskreditiert den vermeintlichen Urheber.",
       "narrative_en": "Stage a physical real-world action and pin it on an opponent - e.g. vandalism bearing a target group's signature, or a shocking provocation at a symbolic location. Divides society and discredits the supposed perpetrator.",

@@ -84,7 +84,8 @@ export function mapActionToBroadcast(result: ActionResult, riskLevel: number): B
     channel,
     themes: themes.length > 0 ? themes : DEFAULT_THEMES,
     intensity,
-    headline: result.narrative?.headline_de || result.action.label_de,
+    // B5: die plakative Aktions-Überschrift zuerst; narrative_de/Label nur als Fallback.
+    headline: result.action.headline_de || result.narrative?.headline_de || result.action.label_de,
     tier: tierForIntensity(intensity),
     kind: result.success ? 'eigen' : 'gegenreaktion',
   };

@@ -18,6 +18,9 @@ export interface RawAction {
   disarm_ref?: string | null;
   label_de: string;
   label_en?: string;
+  /** Plakative Maßnahmen-Überschrift fürs Ausspielen (B5): „Bot-Netzwerk gestartet". */
+  headline_de?: string;
+  headline_en?: string;
   narrative_de?: string;
   narrative_en?: string;
   costs: {

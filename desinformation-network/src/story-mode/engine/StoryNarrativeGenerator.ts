@@ -29,6 +29,9 @@ export interface ActionNarrativeContext {
   actionId: string;
   actionLabel_de: string;
   actionLabel_en: string;
+  /** Plakative Maßnahmen-Überschrift der Aktion (B5) — hat Vorrang vor den Templates. */
+  headline_de?: string;
+  headline_en?: string;
   phase: string;  // ta01-ta07
   tags: string[];
   legality: 'legal' | 'grey' | 'illegal';
@@ -181,12 +184,14 @@ export class StoryNarrativeGenerator {
       template = this.getPhaseTemplate(context.phase, context.tags);
     }
 
-    const headline_de = template.headline(targetNames);
+    // B5: Die plakative Überschrift der Aktion hat Vorrang vor den Tag-/Phasen-Templates.
+    // Behebt „Aktion durchgeführt" in Broadcast/Tagesfazit/End-Report durchgehend.
+    const headline_de = context.headline_de?.trim() || template.headline(targetNames);
     const description_de = template.description(targetNames, context.effectiveness);
     const examples_de = template.examples();
 
     // Generate English version using core NarrativeGenerator as fallback
-    const headline_en = `Operation ${context.actionLabel_en} executed`;
+    const headline_en = context.headline_en?.trim() || `Operation ${context.actionLabel_en} executed`;
     const description_en = `The action targeted ${targetNames.join(', ') || 'the network'} with ${context.effectiveness}% effectiveness.`;
     const examples_en = [
       'Information spread through network connections',

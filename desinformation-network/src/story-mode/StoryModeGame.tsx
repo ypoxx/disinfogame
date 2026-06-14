@@ -1036,6 +1036,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               phase={state.storyPhase.number}
               risk={state.resources.risk}
               trustProgress={trustProgress}
+              budget={state.resources.budget}
+              attention={state.resources.attention}
               onDone={() => setBriefedPhase(state.storyPhase.number)}
             />
           )}
