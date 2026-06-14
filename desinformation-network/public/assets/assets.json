@@ -721,6 +721,36 @@
       "styleVersion": "v2"
     },
     {
+      "id": "prop_bench",
+      "type": "image",
+      "file": "images/prop_bench.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a low modern padded waiting bench with metal legs, plain side view, standing on the floor. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 920619,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_chairs",
+      "type": "image",
+      "file": "images/prop_chairs.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: two simple modern grey waiting chairs side by side, standing on the floor. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 714852,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_clock_wall",
+      "type": "image",
+      "file": "images/prop_clock_wall.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a round minimalist wall clock with a thin frame, hanging flat. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 999709,
+      "styleVersion": "v1"
+    },
+    {
       "id": "prop_coffee",
       "type": "image",
       "file": "images/prop_coffee.png",
@@ -738,6 +768,66 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A pixel art game asset: stack of beige paper files and folders. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 308568,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_noticeboard",
+      "type": "image",
+      "file": "images/prop_noticeboard.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a glass-fronted office notice board with a few pinned papers, hanging flat on a wall. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 236717,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_plant_small",
+      "type": "image",
+      "file": "images/prop_plant_small.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a small round potted plant in a pot, standing on the floor. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 756993,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_plant_tall",
+      "type": "image",
+      "file": "images/prop_plant_tall.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a tall potted indoor rubber-tree plant in a simple modern dark pot, standing on the floor, full plant from pot to top. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 526689,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_poster_a",
+      "type": "image",
+      "file": "images/prop_poster_a.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a framed abstract constructivist poster, geometric dark-red and grey shapes only, no text, hanging flat. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 425111,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_poster_b",
+      "type": "image",
+      "file": "images/prop_poster_b.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a framed abstract poster with cyan and grey diagonal geometric shapes only, no text, hanging flat. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 972857,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_poster_c",
+      "type": "image",
+      "file": "images/prop_poster_c.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a framed abstract poster with muted concentric geometric shapes only, no text, hanging flat. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 729640,
       "styleVersion": "v1"
     },
     {
@@ -771,6 +861,16 @@
       "styleVersion": "v1"
     },
     {
+      "id": "prop_trashcan",
+      "type": "image",
+      "file": "images/prop_trashcan.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a cylindrical brushed-metal office waste bin standing on the floor. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 494860,
+      "styleVersion": "v1"
+    },
+    {
       "id": "prop_tv",
       "type": "image",
       "file": "images/prop_tv.png",
@@ -788,6 +888,26 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A pixel art game asset: soviet-era mechanical typewriter. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 838841,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_vending",
+      "type": "image",
+      "file": "images/prop_vending.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a modern drinks vending machine with a dark glass front and softly lit shelves, standing on the floor. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 308471,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_watercooler",
+      "type": "image",
+      "file": "images/prop_watercooler.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: an office water cooler dispenser with a blue water bottle on top, standing on the floor. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 775131,
       "styleVersion": "v1"
     },
     {

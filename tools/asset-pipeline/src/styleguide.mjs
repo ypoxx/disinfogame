@@ -25,6 +25,22 @@ export function loadPalette(styleGuidePath = STYLE_GUIDE_MD) {
  * Enthält bewusst die Marker „16-bit pixel art" und „brutalist" (Stil-Lock +
  * Pipeline-Tests). Feine Pixel statt grob; kühl-cleaner Neutral-Kern + dosierte
  * Akzente; Zonen-Licht kommt je Shot aus dem konkreten Prompt. */
+/**
+ * Objekt-Stil (für freistehende Props/Deko): WIE styleCore, aber OHNE den
+ * „Setting: … interior"-Satz — der verleitet das Modell sonst dazu, ein ganzes
+ * Raum-Szenario um das Objekt zu malen (R4-Befund: Deko kam als Mini-Szene).
+ */
+export function styleObject() {
+  return (
+    'Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution ' +
+    'pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. ' +
+    'Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, ' +
+    '#9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. ' +
+    'Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. ' +
+    'No real-world national symbols, no readable text.'
+  );
+}
+
 export function styleCore() {
   return (
     'Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution ' +

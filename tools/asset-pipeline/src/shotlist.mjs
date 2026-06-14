@@ -13,7 +13,7 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import { BUILDING_JSON, NPCS_JSON } from './paths.mjs';
-import { styleCore } from './styleguide.mjs';
+import { styleCore, styleObject } from './styleguide.mjs';
 import { CHROMA_PROMPT } from './transparency.mjs';
 
 /** Deterministischer Seed je Shot-id (reproduzierbare Läufe). */
@@ -95,6 +95,19 @@ const PROPS = [
   ['prop_safe', 'heavy steel safe with a rotary dial'],
   ['prop_coffee', 'steaming coffee cup on a saucer'],
   ['prop_typewriter', 'soviet-era mechanical typewriter'],
+  // --- Korridor-Deko (R4-Entkachelung): einzelne, frei platzierbare Objekte ---
+  ['prop_plant_tall', 'a tall potted indoor rubber-tree plant in a simple modern dark pot, standing on the floor, full plant from pot to top'],
+  ['prop_plant_small', 'a small round potted plant in a pot, standing on the floor'],
+  ['prop_trashcan', 'a cylindrical brushed-metal office waste bin standing on the floor'],
+  ['prop_bench', 'a low modern padded waiting bench with metal legs, plain side view, standing on the floor'],
+  ['prop_chairs', 'two simple modern grey waiting chairs side by side, standing on the floor'],
+  ['prop_watercooler', 'an office water cooler dispenser with a blue water bottle on top, standing on the floor'],
+  ['prop_vending', 'a modern drinks vending machine with a dark glass front and softly lit shelves, standing on the floor'],
+  ['prop_clock_wall', 'a round minimalist wall clock with a thin frame, hanging flat'],
+  ['prop_noticeboard', 'a glass-fronted office notice board with a few pinned papers, hanging flat on a wall'],
+  ['prop_poster_a', 'a framed abstract constructivist poster, geometric dark-red and grey shapes only, no text, hanging flat'],
+  ['prop_poster_b', 'a framed abstract poster with cyan and grey diagonal geometric shapes only, no text, hanging flat'],
+  ['prop_poster_c', 'a framed abstract poster with muted concentric geometric shapes only, no text, hanging flat'],
 ];
 
 // Gebäude-Baukasten: Querschnitts-Bausteine für die Stage (BuildingView).
@@ -552,7 +565,14 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       aspectRatio: '1:1',
       size: { w: 1024, h: 1024 },
       seed: seedFor(id),
-      prompt: `A pixel art game asset: ${hint}. Single object, centered, no text. ${CHROMA_PROMPT} ${style}`,
+      // Strenge Isolation: das Objekt steht ALLEIN auf Magenta (kein Raum/Boden/Wand),
+      // sonst malt das Modell eine Mini-Szene drumherum (R4). styleObject() ohne „Setting interior".
+      prompt:
+        `A single isolated pixel-art object for a game: ${hint}. ` +
+        `The object stands completely ALONE, centered, floating on one flat solid magenta ` +
+        `(#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, ` +
+        `NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on ` +
+        `pure uniform magenta everywhere around it. No text. ${CHROMA_PROMPT} ${styleObject()}`,
     });
   }
 
