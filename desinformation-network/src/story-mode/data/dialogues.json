@@ -66,104 +66,104 @@
         "level_0": [
           {
             "id": "dir_greet_0_1",
-            "text_de": "Was gibt es?",
-            "text_en": "What is it?",
+            "text_de": "Sie sind also der neue Operateur. Reden Sie. Ich habe keine Zeit für Aufwärmrunden.",
+            "text_en": "So you are the new operative. Talk. I have no time for warm-ups.",
             "tone": "curt"
           },
           {
             "id": "dir_greet_0_2",
-            "text_de": "Berichten Sie.",
-            "text_en": "Report.",
+            "text_de": "Berichten Sie. Und verschwenden Sie nicht meine Minuten mit Befindlichkeiten.",
+            "text_en": "Report. And do not waste my minutes on feelings.",
             "tone": "commanding"
           },
           {
             "id": "dir_greet_0_3",
-            "text_de": "*blickt kalt* Sie verschwenden meine Zeit. Machen Sie es kurz.",
-            "text_en": "*cold stare* You're wasting my time. Make it brief.",
+            "text_de": "*mustert Sie kühl* Zeigen Sie mir, dass die Personalabteilung sich nicht geirrt hat.",
+            "text_en": "*studies you coldly* Show me HR did not make a mistake.",
             "tone": "hostile"
           },
           {
             "id": "dir_greet_0_4",
-            "text_de": "Hmm. *mustert Sie* Zeigen Sie mir, dass ich mich nicht in Ihnen geirrt habe.",
-            "text_en": "Hmm. *scrutinizes you* Show me I wasn't wrong about you.",
+            "text_de": "Sie stehen in meinem Büro. Das heißt, Sie haben etwas. Also?",
+            "text_en": "You are standing in my office. That means you have something. Well?",
             "tone": "skeptical"
           }
         ],
         "level_1": [
           {
             "id": "dir_greet_1_1",
-            "text_de": "Ah, Sie. Was bringen Sie mir?",
-            "text_en": "Ah, you. What do you bring me?",
+            "text_de": "Ah, Sie. Ihre letzten Zahlen waren brauchbar. Weiter, bevor ich mich daran gewöhne.",
+            "text_en": "Ah, you. Your last numbers were usable. Keep going before I get used to it.",
             "tone": "expectant"
           },
           {
             "id": "dir_greet_1_2",
-            "text_de": "*nickt knapp* Ihre letzten Ergebnisse waren... akzeptabel. Weiter so.",
-            "text_en": "*nods briefly* Your recent results were... acceptable. Continue.",
+            "text_de": "*legt die Akte beiseite* Sie zeigen Initiative. Selten hier. Was brauchen Sie?",
+            "text_en": "*sets the file aside* You show initiative. Rare here. What do you need?",
             "tone": "grudging_approval"
           },
           {
             "id": "dir_greet_1_3",
-            "text_de": "Kommen Sie. *deutet auf Stuhl* Ich habe eine neue Aufgabe für Sie.",
-            "text_en": "Come. *gestures to chair* I have a new assignment for you.",
+            "text_de": "Setzen Sie sich. Ich habe eine Aufgabe, die Fingerspitzengefühl verlangt — und Diskretion.",
+            "text_en": "Sit. I have a task that needs a delicate touch — and discretion.",
             "tone": "businesslike"
           },
           {
             "id": "dir_greet_1_4",
-            "text_de": "*legt Akte zur Seite* Sie haben Initiative gezeigt. Das gefällt mir.",
-            "text_en": "*sets file aside* You've shown initiative. I like that.",
+            "text_de": "Kein Tadel heute. Das ist das Lob, das Sie von mir bekommen. Weiter.",
+            "text_en": "No reprimand today. That is the praise you get from me. Carry on.",
             "tone": "impressed"
           }
         ],
         "level_2": [
           {
             "id": "dir_greet_2_1",
-            "text_de": "Guten Tag. Ich hoffe, Sie haben Fortschritte zu berichten.",
-            "text_en": "Good day. I hope you have progress to report.",
+            "text_de": "Gut, dass Sie da sind. Die Lage verlangt jemanden, der nicht zittert. Das sind Sie.",
+            "text_en": "Good that you are here. This needs someone who does not flinch. That is you.",
             "tone": "professional"
           },
           {
             "id": "dir_greet_2_2",
-            "text_de": "*lächelt leicht* Ausgezeichnet, dass Sie da sind. Moskau ist... zufrieden mit unserer Zusammenarbeit.",
-            "text_en": "*slight smile* Excellent that you're here. Moscow is... satisfied with our collaboration.",
+            "text_de": "*nickt* Die Oberen sind zufrieden. Ich auch — was bei mir mehr heißt.",
+            "text_en": "*nods* The higher-ups are satisfied. So am I — which means more.",
             "tone": "pleased"
           },
           {
             "id": "dir_greet_2_3",
-            "text_de": "Ah, mein zuverlässigster Operateur. *schenkt Wodka ein* Auf unseren Erfolg.",
-            "text_en": "Ah, my most reliable operative. *pours vodka* To our success.",
+            "text_de": "Mein verlässlichster Operateur. Enttäuschen Sie mich nicht; ich habe Sie ungern verteidigt.",
+            "text_en": "My most reliable operative. Do not disappoint me; I defended you reluctantly.",
             "tone": "collegial"
           },
           {
             "id": "dir_greet_2_4",
-            "text_de": "Gut, dass Sie kommen. Ich habe einen delikaten Auftrag - nur Sie können das erledigen.",
-            "text_en": "Good that you're here. I have a delicate assignment - only you can handle this.",
+            "text_de": "Ein heikler Auftrag. Ich gebe ihn niemandem sonst. Verstehen Sie das richtig.",
+            "text_en": "A delicate job. I give it to no one else. Understand that correctly.",
             "tone": "trusting"
           }
         ],
         "level_3": [
           {
             "id": "dir_greet_3_1",
-            "text_de": "Willkommen. Moskau hat nach Ihnen gefragt - positiv, wohlgemerkt.",
-            "text_en": "Welcome. Moscow has been asking about you - positively, mind you.",
+            "text_de": "Da sind Sie. Man hat oben Ihren Namen genannt — wohlwollend. Das ist mir zu verdanken. Vergessen Sie das nicht.",
+            "text_en": "There you are. Your name was mentioned upstairs — favorably. You owe that to me. Do not forget it.",
             "tone": "approving"
           },
           {
             "id": "dir_greet_3_2",
-            "text_de": "*steht auf, schüttelt Hand* Genosse. Sie haben sich als unentbehrlich erwiesen. Das Vaterland wird sich erinnern.",
-            "text_en": "*stands up, shakes hand* Comrade. You have proven indispensable. The motherland will remember.",
+            "text_de": "*steht auf, reicht die Hand* Sie haben sich unentbehrlich gemacht. Wenige schaffen das.",
+            "text_en": "*stands, offers a hand* You have made yourself indispensable. Few manage that.",
             "tone": "respectful"
           },
           {
             "id": "dir_greet_3_3",
-            "text_de": "*vertraulich* Zwischen uns gesagt: Sie sind der Grund, warum diese Operation funktioniert. Ich habe große Pläne für uns beide.",
-            "text_en": "*confidentially* Between you and me: you're the reason this operation works. I have big plans for both of us.",
+            "text_de": "*halblaut* Unter uns: Diese Operation läuft, weil Sie sie tragen. Ich habe Pläne — für uns beide.",
+            "text_en": "*low voice* Between us: this operation runs because you carry it. I have plans — for us both.",
             "tone": "conspiratorial"
           },
           {
             "id": "dir_greet_3_4",
-            "text_de": "Da sind Sie. *lächelt echt* Ich habe Nachrichten aus dem Kreml. Sehr gute Nachrichten für Sie und mich.",
-            "text_en": "There you are. *genuine smile* I have news from the Kremlin. Very good news for you and me.",
+            "text_de": "Setzen Sie sich. Ich habe Neuigkeiten, die Ihre Position festigen. Und meine. Hören Sie gut zu.",
+            "text_en": "Sit. I have news that secures your position. And mine. Listen closely.",
             "tone": "triumphant"
           }
         ]
@@ -874,104 +874,104 @@
         "level_0": [
           {
             "id": "vol_greet_0_1",
-            "text_de": "Was?",
-            "text_en": "What?",
+            "text_de": "Was? *blickt vom Terminal auf* Wenn es nicht dringend ist, ist es eine Lücke in meiner Zeit.",
+            "text_en": "What? *looks up from the terminal* If it is not urgent, it is a hole in my time.",
             "tone": "abrupt"
           },
           {
             "id": "vol_greet_0_2",
-            "text_de": "*blickt nicht auf* Beschäftigt. Später.",
-            "text_en": "*doesn't look up* Busy. Later.",
+            "text_de": "*tippt weiter* Sie sind neu. Dann zuerst eines: Jede Spur ist eine Spur.",
+            "text_en": "*keeps typing* You are new. So first: every trace is a trace.",
             "tone": "dismissive"
           },
           {
             "id": "vol_greet_0_3",
-            "text_de": "Hmm? *kaut an Energyriegel* Sie sind...?",
-            "text_en": "Hmm? *chews on energy bar* You are...?",
+            "text_de": "Hmm. Sie treffen die Entscheidungen, ich räume die Risiken weg. Schöne Arbeitsteilung.",
+            "text_en": "Hmm. You make the calls, I clean up the risks. Neat division of labor.",
             "tone": "indifferent"
           },
           {
             "id": "vol_greet_0_4",
-            "text_de": "*tippt aggressiv* Wenn Sie mich unterbrechen wollen, sollte es wichtig sein.",
-            "text_en": "*types aggressively* If you want to interrupt me, it better be important.",
+            "text_de": "Bevor Sie etwas anfassen: Haben Sie Ihre Verbindung anonymisiert? Nein? Dachte ich mir.",
+            "text_en": "Before you touch anything: did you anonymize your connection? No? Thought so.",
             "tone": "annoyed"
           }
         ],
         "level_1": [
           {
             "id": "vol_greet_1_1",
-            "text_de": "Ah, der Chef. Was kann ich für Sie kaputtmachen heute?",
-            "text_en": "Ah, the boss. What can I break for you today?",
+            "text_de": "Ah, der Chef. Was soll ich absichern — oder wieder geradebiegen?",
+            "text_en": "Ah, the boss. What should I secure — or straighten out again?",
             "tone": "sardonic"
           },
           {
             "id": "vol_greet_1_2",
-            "text_de": "*grinst schief* Sie haben endlich erkannt, dass ich der Beste bin? Gute Entscheidung.",
-            "text_en": "*grins crookedly* You finally realized I'm the best? Good decision.",
+            "text_de": "*dreht den Stuhl* Ihr letzter Lauf war sauber. Selten. Was brauchen Sie?",
+            "text_en": "*turns the chair* Your last run was clean. Rare. What do you need?",
             "tone": "cocky"
           },
           {
             "id": "vol_greet_1_3",
-            "text_de": "*dreht Stuhl um* Na? Bereit für echte Arbeit oder wieder nur Kindergarten-Kram?",
-            "text_en": "*spins chair around* Well? Ready for real work or just kindergarten stuff again?",
+            "text_de": "Die Systeme stehen. Überdrehen Sie sie, und jeder Praktikant mit Logzugang sieht es.",
+            "text_en": "The systems are up. Push them too hard and any intern with log access sees it.",
             "tone": "provocative"
           },
           {
             "id": "vol_greet_1_4",
-            "text_de": "Oh. Sie. *legt Füße hoch* Ihr letzter Job war nicht total schrecklich. Was jetzt?",
-            "text_en": "Oh. You. *puts feet up* Your last job wasn't totally terrible. What now?",
+            "text_de": "Sie hören wenigstens zu, wenn ich von Risiken rede. Das ist mehr als bei den meisten.",
+            "text_en": "At least you listen when I talk risk. That is more than most.",
             "tone": "grudging_respect"
           }
         ],
         "level_2": [
           {
             "id": "vol_greet_2_1",
-            "text_de": "Sie! Perfektes Timing. Ich habe eine Idee, die Sie lieben werden.",
-            "text_en": "You! Perfect timing. I have an idea you'll love.",
+            "text_de": "Gutes Timing. Ich habe etwas gebaut, das hält — vorerst. Nichts hält ewig.",
+            "text_en": "Good timing. I built something that holds — for now. Nothing holds forever.",
             "tone": "enthusiastic"
           },
           {
             "id": "vol_greet_2_2",
-            "text_de": "*reibt sich die Hände* Endlich! Jemand, der versteht, was echte Disruptionarbeit bedeutet.",
-            "text_en": "*rubs hands* Finally! Someone who understands what real disruption work means.",
+            "text_de": "*zeigt aufs Dashboard* Grün. Alles grün. Genau das macht mich nervös.",
+            "text_en": "*points at the dashboard* Green. All green. That is exactly what makes me nervous.",
             "tone": "excited"
           },
           {
             "id": "vol_greet_2_3",
-            "text_de": "Da ist mein Lieblingspartner für schmutzige Arbeit. *zeigt Bildschirm* Sehen Sie das? Chaos in Echtzeit!",
-            "text_en": "There's my favorite partner for dirty work. *shows screen* See this? Chaos in real-time!",
+            "text_de": "Sie sind der Einzige, der versteht, dass Vorsicht keine Schwäche ist. Setzen Sie sich.",
+            "text_en": "You are the only one who gets that caution is not weakness. Sit.",
             "tone": "gleeful"
           },
           {
             "id": "vol_greet_2_4",
-            "text_de": "*lacht laut* Haben Sie die Nachrichten gesehen? DAS haben WIR gemacht! Ist das nicht großartig?",
-            "text_en": "*laughs loudly* Did you see the news? WE did that! Isn't that amazing?",
+            "text_de": "Ich habe Ihre letzte Operation durchgespielt. Drei Lücken. Zwei geschlossen. Die dritte: Ihre Entscheidung.",
+            "text_en": "I ran your last operation through. Three gaps. Closed two. The third: your call.",
             "tone": "proud"
           }
         ],
         "level_3": [
           {
             "id": "vol_greet_3_1",
-            "text_de": "*grinst* Mein Lieblingskomplize. Was für ein Chaos stiften wir heute?",
-            "text_en": "*grins* My favorite accomplice. What chaos are we causing today?",
+            "text_de": "*schließt die Tür leise* Nur wir. Ich habe Ihnen ein System gebaut, das niemand sonst aufmacht. Auch ich kaum.",
+            "text_en": "*closes the door quietly* Just us. I built you a system no one else opens. Barely even me.",
             "tone": "conspiratorial"
           },
           {
             "id": "vol_greet_3_2",
-            "text_de": "*umarmt Sie grob* Bruder! Niemand versteht das Spiel so wie Sie. Lass uns die Welt brennen sehen!",
-            "text_en": "*rough hug* Brother! Nobody understands the game like you do. Let's watch the world burn!",
+            "text_de": "Sie vertrauen mir, ich Ihnen. In diesem Geschäft ist das fast Wahnsinn. Mir gefällt es.",
+            "text_en": "You trust me, I trust you. In this business that is almost madness. I like it.",
             "tone": "brotherly"
           },
           {
             "id": "vol_greet_3_3",
-            "text_de": "*flüstert verschwörerisch* Ich habe etwas... *grinst böse* ...unglaublich Destruktives vorbereitet. Nur für Sie.",
-            "text_en": "*whispers conspiratorially* I've prepared something... *grins evilly* ...incredibly destructive. Just for you.",
+            "text_de": "Alle Ihre Spuren laufen jetzt über meine Server. Wenn wir auffliegen, dann nicht durch Technik. Dafür stehe ich.",
+            "text_en": "All your traces run through my servers now. If we get caught, it will not be through tech. I guarantee that.",
             "tone": "devious"
           },
           {
             "id": "vol_greet_3_4",
-            "text_de": "*schenkt Wodka ein* Auf uns. Die besten Chaos-Architekten, die es je gab. *prostet*",
-            "text_en": "*pours vodka* To us. The best chaos architects that ever existed. *toasts*",
+            "text_de": "*schiebt einen verschlüsselten Stick rüber* Notfall-Protokoll. Wenn es brennt, ziehen Sie das. Kein Zögern.",
+            "text_en": "*slides over an encrypted stick* Emergency protocol. If it burns, pull this. No hesitation.",
             "tone": "celebratory"
           }
         ]
@@ -1227,104 +1227,104 @@
         "level_0": [
           {
             "id": "kat_greet_0_1",
-            "text_de": "Oh, hallo! Haben Sie eine Minute?",
-            "text_en": "Oh, hello! Do you have a minute?",
+            "text_de": "Ja? *blickt knapp auf* Machen Sie es kurz, ich hab Leute im Feld.",
+            "text_en": "Yes? *glances up briefly* Make it short, I have people in the field.",
             "tone": "enthusiastic"
           },
           {
             "id": "kat_greet_0_2",
-            "text_de": "*lächelt freundlich* Guten Tag! Ich bin Katja. Content & Narrative. Sie sind...?",
-            "text_en": "*smiles friendly* Good day! I'm Katja. Content & Narrative. You are...?",
+            "text_de": "Neu hier? Gut. Eine Regel: Im Feld hält kein Plan länger als zehn Minuten.",
+            "text_en": "New here? Good. One rule: in the field no plan lasts longer than ten minutes.",
             "tone": "welcoming"
           },
           {
             "id": "kat_greet_0_3",
-            "text_de": "*skizziert auf Whiteboard* Oh! Entschuldigung, ich war in Gedanken. Wie kann ich helfen?",
-            "text_en": "*sketching on whiteboard* Oh! Sorry, I was lost in thought. How can I help?",
+            "text_de": "Katja. Ich erledige, was draußen erledigt werden muss. Sie wollen…?",
+            "text_en": "Katja. I handle what has to be handled out there. You want…?",
             "tone": "distracted_friendly"
           },
           {
             "id": "kat_greet_0_4",
-            "text_de": "Hallo! *ordnet Notizen* Haben Sie schon die neue Kampagne gesehen? Ich bin gespannt auf Feedback.",
-            "text_en": "Hello! *organizing notes* Have you seen the new campaign? I'm curious about feedback.",
+            "text_de": "*lehnt am Tisch* Sagen Sie mir das Ziel. Den Rest machen meine Leute.",
+            "text_en": "*leans on the desk* Give me the target. My people do the rest.",
             "tone": "professional_eager"
           }
         ],
         "level_1": [
           {
             "id": "kat_greet_1_1",
-            "text_de": "Perfekt! Ich arbeite an etwas und brauche Ihre Meinung.",
-            "text_en": "Perfect! I'm working on something and need your opinion.",
+            "text_de": "Ah, Sie. Sagen Sie an — sauber oder schmutzig?",
+            "text_en": "Ah, you. Say the word — clean or dirty?",
             "tone": "creative"
           },
           {
             "id": "kat_greet_1_2",
-            "text_de": "*zeigt begeistert Skizzen* Schauen Sie! Ich habe drei Narrative-Varianten entwickelt. Welche spricht Sie an?",
-            "text_en": "*excitedly shows sketches* Look! I developed three narrative variants. Which speaks to you?",
+            "text_de": "Ihr letzter Auftrag lief. Keine Verluste. So mag ich das. Was jetzt?",
+            "text_en": "Your last job ran. No losses. That is how I like it. What now?",
             "tone": "collaborative"
           },
           {
             "id": "kat_greet_1_3",
-            "text_de": "Oh, gut dass Sie kommen! *macht Platz* Setzen Sie sich. Ich hab Ideen zu Ihrer letzten Anfrage.",
-            "text_en": "Oh, good that you're here! *makes space* Sit down. I have ideas about your last request.",
+            "text_de": "*räumt einen Stuhl frei* Setzen Sie sich. Ich hab Kontakte, die Sie interessieren.",
+            "text_en": "*clears a chair* Sit. I have contacts that will interest you.",
             "tone": "helpful"
           },
           {
             "id": "kat_greet_1_4",
-            "text_de": "*lächelt warm* Sie verstehen wirklich, wie Geschichten funktionieren. Das schätze ich sehr.",
-            "text_en": "*smiles warmly* You really understand how stories work. I appreciate that.",
+            "text_de": "Sie reden nicht lang, Sie entscheiden. Das respektiere ich. Also?",
+            "text_en": "You do not talk long, you decide. I respect that. So?",
             "tone": "appreciative"
           }
         ],
         "level_2": [
           {
             "id": "kat_greet_2_1",
-            "text_de": "Sie werden nicht glauben, welche Idee ich gerade hatte!",
-            "text_en": "You won't believe the idea I just had!",
+            "text_de": "Gut, dass Sie kommen. Ich hab eine Gelegenheit — aber sie hat ein Zeitfenster.",
+            "text_en": "Good that you come. I have an opening — but it has a window.",
             "tone": "excited"
           },
           {
             "id": "kat_greet_2_2",
-            "text_de": "*springt auf* Endlich! Ich hab die GANZE Nacht an dieser Story gearbeitet. *zeigt Storyboard* Was sagen Sie?",
-            "text_en": "*jumps up* Finally! I worked on this story ALL night. *shows storyboard* What do you think?",
+            "text_de": "*kurzer Blick* Meine Quellen vertrauen mir. Ich vertraue Ihnen. Das ist hier die ganze Währung.",
+            "text_en": "*a short look* My sources trust me. I trust you. That is the whole currency here.",
             "tone": "passionate"
           },
           {
             "id": "kat_greet_2_3",
-            "text_de": "*umarmt Sie* Sie sind der Einzige hier, der versteht, dass wir Künstler sind, nicht nur... Propagandisten.",
-            "text_en": "*hugs you* You're the only one here who understands we're artists, not just... propagandists.",
+            "text_de": "Sie verheizen meine Leute nicht. Deshalb kriegen Sie von mir, was andere nicht kriegen.",
+            "text_en": "You do not burn my people. That is why you get from me what others do not.",
             "tone": "emotional"
           },
           {
             "id": "kat_greet_2_4",
-            "text_de": "Ich wollte gerade zu Ihnen! *wedelt mit Papieren* Unsere letzte Kampagne - sehen Sie diese Resonanz? WIR haben das erschaffen!",
-            "text_en": "I was just about to come to you! *waves papers* Our last campaign - see this resonance? WE created that!",
+            "text_de": "Den Job da draußen erledige ich. Aber wenn es brennt, hole ich meine Leute zuerst raus. Klar?",
+            "text_en": "I will do the job out there. But if it burns, my people come out first. Clear?",
             "tone": "proud_excited"
           }
         ],
         "level_3": [
           {
             "id": "kat_greet_3_1",
-            "text_de": "*strahlt* Da sind Sie ja! Ich habe unseren nächsten viralen Hit.",
-            "text_en": "*beams* There you are! I have our next viral hit.",
+            "text_de": "*nickt knapp, fast ein Lächeln* Sie. Auf Sie kann ich mich verlassen. Das sage ich vielleicht zwei Menschen.",
+            "text_en": "*a brief nod, almost a smile* You. I can rely on you. I say that to maybe two people.",
             "tone": "confident"
           },
           {
             "id": "kat_greet_3_2",
-            "text_de": "*nimmt Ihre Hände* Sie sind nicht nur mein Partner - Sie sind meine Muse. Ihre Visionen inspirieren mich jeden Tag.",
-            "text_en": "*takes your hands* You're not just my partner - you're my muse. Your visions inspire me every day.",
+            "text_de": "Ich hab eine Operation, die heikel ist. Riskant. Genau Ihr Kaliber — und meins.",
+            "text_en": "I have an operation that is delicate. Risky. Exactly your caliber — and mine.",
             "tone": "deeply_connected"
           },
           {
             "id": "kat_greet_3_3",
-            "text_de": "*flüstert verschwörerisch* Ich habe eine Geschichte entwickelt, die... *Augen leuchten* ...die Welt verändern wird. Nur Sie können sie verstehen.",
-            "text_en": "*whispers conspiratorially* I developed a story that... *eyes gleaming* ...will change the world. Only you can understand it.",
+            "text_de": "*leise* Was ich Ihnen jetzt zeige, weiß sonst niemand. Auch nicht der Direktor. Bleibt unter uns.",
+            "text_en": "*quietly* What I show you now, no one else knows. Not even the Director. Stays between us.",
             "tone": "visionary"
           },
           {
             "id": "kat_greet_3_4",
-            "text_de": "*tanzt leicht* Haben Sie gesehen? Unsere Narrative dominieren die Timeline! Wir sind die besten Geschichtenerzähler dieser Operation!",
-            "text_en": "*dances lightly* Did you see? Our narratives dominate the timeline! We're the best storytellers in this operation!",
+            "text_de": "Sagen Sie das Ziel. Ich hab das Team, ich hab den Plan. Wir holen das — und alle kommen zurück.",
+            "text_en": "Give me the target. I have the team, I have the plan. We get it — and everyone comes back.",
             "tone": "triumphant_joyful"
           }
         ]
@@ -1575,104 +1575,104 @@
         "level_0": [
           {
             "id": "igor_greet_0_1",
-            "text_de": "*nickt kurz*",
-            "text_en": "*nods briefly*",
+            "text_de": "*nickt knapp* Geht es um Geld, setzen Sie sich. Wenn nicht, auch — aber kürzer.",
+            "text_en": "*a short nod* If it is about money, sit. If not, also — but shorter.",
             "tone": "minimal"
           },
           {
             "id": "igor_greet_0_2",
-            "text_de": "*blickt kurz auf, dann zurück zum Bildschirm*",
-            "text_en": "*glances up briefly, then back at screen*",
+            "text_de": "Sie sind neu. Dann eine Zahl vorweg: Jeder Rubel, den Sie ausgeben, hat einen Namen.",
+            "text_en": "You are new. So one number first: every ruble you spend has a name.",
             "tone": "minimal"
           },
           {
             "id": "igor_greet_0_3",
-            "text_de": "Beschäftigt.",
-            "text_en": "Busy.",
+            "text_de": "Igor. Ich verwalte, was die anderen verbrennen. Was brauchen Sie?",
+            "text_en": "Igor. I manage what the others burn. What do you need?",
             "tone": "terse"
           },
           {
             "id": "igor_greet_0_4",
-            "text_de": "*tippt weiter, keine Reaktion*",
-            "text_en": "*keeps typing, no reaction*",
+            "text_de": "*blickt vom Kontoauszug auf* Sie kosten mich gerade Zeit. Zeit ist auch eine Position. Reden Sie.",
+            "text_en": "*looks up from the statement* You are costing me time right now. Time is a line item too. Talk.",
             "tone": "minimal"
           }
         ],
         "level_1": [
           {
             "id": "igor_greet_1_1",
-            "text_de": "Brauchen Sie etwas Technisches?",
-            "text_en": "Need something technical?",
+            "text_de": "Ah, Sie. Brauchen Sie Budget — oder eine ehrliche Zahl?",
+            "text_en": "Ah, you. Do you need a budget — or an honest number?",
             "tone": "direct"
           },
           {
             "id": "igor_greet_1_2",
-            "text_de": "Server sind online. Was brauchen Sie?",
-            "text_en": "Servers are online. What do you need?",
+            "text_de": "Ihr letzter Posten ist aufgegangen. Knapp. Aber aufgegangen. Was jetzt?",
+            "text_en": "Your last position broke even. Barely. But it did. What now?",
             "tone": "direct"
           },
           {
             "id": "igor_greet_1_3",
-            "text_de": "*dreht sich um* Hack oder Infra?",
-            "text_en": "*turns around* Hack or infra?",
+            "text_de": "*schiebt den Taschenrechner weg* Setzen Sie sich. Vorschläge bitte mit Gegenfinanzierung.",
+            "text_en": "*pushes the calculator aside* Sit. Proposals with funding attached, please.",
             "tone": "direct"
           },
           {
             "id": "igor_greet_1_4",
-            "text_de": "Neue Encryption läuft. Sie können anfangen.",
-            "text_en": "New encryption running. You can start.",
+            "text_de": "Sie fragen, bevor Sie ausgeben. Das ist selten. Das gefällt mir. Was steht an?",
+            "text_en": "You ask before you spend. That is rare. I like it. What is on?",
             "tone": "informative"
           }
         ],
         "level_2": [
           {
             "id": "igor_greet_2_1",
-            "text_de": "Gutes Timing. Ich habe gerade ein neues Tool fertig.",
-            "text_en": "Good timing. I just finished a new tool.",
+            "text_de": "Gutes Timing. Ich hab eine Reserve aufgetan, von der niemand weiß. Noch nicht.",
+            "text_en": "Good timing. I found a reserve no one knows about. Not yet.",
             "tone": "informative"
           },
           {
             "id": "igor_greet_2_2",
-            "text_de": "*zeigt auf Dashboard* Alle Systeme grün. Wir haben 99,7% Uptime.",
-            "text_en": "*points at dashboard* All systems green. We have 99.7% uptime.",
+            "text_de": "*tippt* Drei Tarnfirmen, sauber gestaffelt. Das Geld ist da, wenn Sie es brauchen — und unsichtbar.",
+            "text_en": "*types* Three shell companies, cleanly layered. The money is there when you need it — and invisible.",
             "tone": "proud"
           },
           {
             "id": "igor_greet_2_3",
-            "text_de": "Ich habe Ihre letzte Operation analysiert. *schiebt USB-Stick rüber* Optimierungen.",
-            "text_en": "I analyzed your last operation. *slides USB stick over* Optimizations.",
+            "text_de": "Sie verstehen, dass Geld Fingerabdrücke hinterlässt. Deshalb arbeite ich mit Ihnen.",
+            "text_en": "You understand money leaves fingerprints. That is why I work with you.",
             "tone": "collaborative"
           },
           {
             "id": "igor_greet_2_4",
-            "text_de": "Server-Kapazität verdoppelt. Kosten halbiert. *nickt zufrieden*",
-            "text_en": "Server capacity doubled. Costs halved. *nods with satisfaction*",
+            "text_de": "Ihre letzte Operation: solide finanziert, kaum nachverfolgbar. Lehrbuch. So weiter.",
+            "text_en": "Your last operation: solidly funded, barely traceable. Textbook. Keep it up.",
             "tone": "proud"
           }
         ],
         "level_3": [
           {
             "id": "igor_greet_3_1",
-            "text_de": "*zeigt auf Bildschirm* Schauen Sie sich das an. Das habe ich für Sie gebaut.",
-            "text_en": "*points to screen* Look at this. I built this for you.",
+            "text_de": "*schließt das Hauptbuch* Nur wir. Ich hab Konten angelegt, die offiziell nicht existieren. Für Sie.",
+            "text_en": "*closes the ledger* Just us. I set up accounts that officially do not exist. For you.",
             "tone": "proud"
           },
           {
             "id": "igor_greet_3_2",
-            "text_de": "*dreht Monitor zu Ihnen* Custom exploit. Funktioniert nur mit Ihrem Fingerprint. Niemand sonst kann es nutzen.",
-            "text_en": "*turns monitor to you* Custom exploit. Works only with your fingerprint. Nobody else can use it.",
+            "text_de": "Ich vertraue keiner runden Zahl und kaum einem Menschen. Ihnen schon. Beunruhigend.",
+            "text_en": "I trust no round number and almost no person. You, I do. Unsettling.",
             "tone": "loyal"
           },
           {
             "id": "igor_greet_3_3",
-            "text_de": "Ich habe alle Ihre Systeme auf meine privaten Server gespiegelt. Backup läuft alle 10 Minuten. Sie sind sicher.",
-            "text_en": "I mirrored all your systems to my private servers. Backup runs every 10 minutes. You're safe.",
+            "text_de": "Wenn alles auffliegt, ist das Geld längst weg — sauber, in Schichten. Dafür sorge ich. Schlafen Sie ruhig.",
+            "text_en": "If it all blows up, the money is long gone — clean, in layers. I see to that. Sleep well.",
             "tone": "protective"
           },
           {
             "id": "igor_greet_3_4",
-            "text_de": "*schiebt Laptop rüber* Root-Zugriff zu allem. Nur für Sie. Passwort ist... *flüstert*",
-            "text_en": "*slides laptop over* Root access to everything. Only for you. Password is... *whispers*",
+            "text_de": "*schiebt einen Zettel rüber* Ein Konto, ein Code. Notgroschen. Müssen Sie verschwinden, verschwinden Sie liquide.",
+            "text_en": "*slides over a note* One account, one code. A nest egg. If you must vanish, vanish liquid.",
             "tone": "trusted"
           }
         ]

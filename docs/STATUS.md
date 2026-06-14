@@ -35,6 +35,7 @@ Sweep hat dauerhaft eingeblendete Seiten-Widgets übersehen (s. Visual-Backlog &
 | **Declutter** | Floating-Overlays (Berater/Queue/Combo) **im Gespräch ausgeblendet** + Berater standard eingeklappt → Maßnahmen-Optionen erreichbar, Konversation frei (Smoke-belegt) | ✅ |
 | **P1d** | **Sprach-Steckbriefe** je NPC (`docs/NPC_VOICE_PROFILES.md`) — Schreib-Gate für alle Dialog-Texte (K41) | ✅ |
 | **P1b (Pilot)** | **Marina-Stimme**: alle 16 Begrüßungen (Level 0–3) nach Steckbrief neu (selbstbewusst, bildreich, trockener Biss); keine Vertonung berührt | ✅ |
+| **P1b (Skaliert)** | **Begrüßungen aller NPCs** (Direktor, Alexei, Katja, Igor) nach Steckbrief neu (je 16, Level 0–3); bereinigt zugleich Alt-Persona-/Reale-Orts-Reste (Moskau/Kreml/Wodka) im Direktor | ✅ |
 | **Deck-Gruppierung** | Narrativ-Tafel zeigt Maßnahmen **nach zuständigem Büro/NPC** statt flacher Liste (Entscheidung 1) | ✅ |
 
 Gate je Push grün: `tsc` · `npm run build` · `vitest` (231). Smoke: `npm run smoke` (Playwright,
@@ -76,9 +77,14 @@ V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
 ## 🪲 Bekannte Bugs / Altlasten
 
 - **Avatar-Beine starr** (V7) — Schwebe-Eindruck.
-- **NPC-Daten-Inkonsistenz:** Aktionen referenzieren Affinität `volkov` (= Direktor-Nachname),
-  während die Tech-Rolle NPC-`alexei` ist; `igor` ist „Finanz-Analyst", macht in Aktionen aber
-  Technik. Sauber zu ziehen in P1 (Steckbriefe/Affinitäten).
+- **NPC-Rollen-Inkonsistenz (3-fach, wichtig für P1c):** drei Quellen widersprechen sich —
+  (a) `npcs.json` Rollen-Labels (Direktor=Leiter, Alexei=Technik, Katja=Feld, Igor=Finanz,
+  Marina=Medien), (b) Aktions-`npc_affinity` (marina=Analyse, **volkov**=Ops/Infra [keine NPC-Id!],
+  igor=Technik, katja=Content, direktor=Strategie), (c) alte `dialogues.json`-Personas (Direktor
+  sowjetisch, „alexei"-Block = `vol_greet_*`-Chaos-Op, Katja=Content-Künstlerin, Igor=Hacker).
+  **Folge:** manche Maßnahmen (volkov-Affinität) haben kein Büro, das sie im Dialog anbietet
+  (P1a-Lücke). Begrüßungen sind jetzt auf die `npcs.json`-Rollen (sichtbare Identität) vereinheitlicht;
+  **Affinitäten/Funktionen in P1c angleichen** (Roster-Entscheidung des Owners nötig).
 - **`npm run lint` defekt** — keine ESLint-Config im Repo; Gate stützt sich auf tsc/build/vitest.
 - **Pixel-Font** blockiert (Netz-Policy) — `font-mono`-Reste bis lizenzfreie Datei vorliegt.
 
