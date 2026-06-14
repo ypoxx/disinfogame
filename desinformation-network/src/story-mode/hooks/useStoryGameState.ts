@@ -11,7 +11,9 @@ import {
   Objective,
   ActiveConsequence,
   GameEndState,
+  OperationOutcome,
 } from '../../game-logic/StoryEngineAdapter';
+import type { OperationParams } from '../battlefield/BattlefieldChain';
 import { playSound } from '../utils/SoundSystem';
 import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
 import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
@@ -1056,6 +1058,32 @@ export function useStoryGameState(seed?: string) {
   }, [engine, npcs, refreshAvailableActions, trustHistory, recommendations]);
 
   // ============================================
+  // P2 OPERATIONS-AKTE (params-Durchstich)
+  // ============================================
+
+  /**
+   * Spielt eine aus der Operations-Akte zusammengesetzte Operation aus.
+   * Eigener Pfad neben executeAction: die Engine bewertet rein (BattlefieldChain),
+   * setzt Nachricht + Risiko/Aufmerksamkeit und liefert ein Broadcast-Item, das wir
+   * als lastActionResult durchreichen → der Publikums-Streifen reagiert wie gewohnt.
+   */
+  const playOperation = useCallback((params: OperationParams): OperationOutcome => {
+    const outcome = engine.playOperation(params);
+    if (outcome.success && outcome.broadcastResult) {
+      setLastActionResult(outcome.broadcastResult);
+      setResources(engine.getResources());
+      setNewsEvents(engine.getNewsEvents());
+
+      const endState = engine.checkGameEnd();
+      if (endState) {
+        setGameEnd(endState);
+        setGamePhase('ended');
+      }
+    }
+    return outcome;
+  }, [engine]);
+
+  // ============================================
   // ACTION QUEUE MANAGEMENT
   // ============================================
 
@@ -1498,6 +1526,7 @@ export function useStoryGameState(seed?: string) {
 
     // Actions
     executeAction,
+    playOperation,
 
     // Action Queue
     addToQueue,

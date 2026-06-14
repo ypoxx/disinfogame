@@ -36,6 +36,8 @@ import { useAudienceBroadcast } from './broadcast/useAudienceBroadcast';
 import { NpcRoomView } from './building/NpcRoomView';
 import { NewsroomView, derivePosts } from './components/NewsroomView';
 import { FokusgruppeView } from './components/FokusgruppeView';
+import { OperationsAkteView } from './components/OperationsAkteView';
+import { loadTargets, loadCarriers, loadPlatforms } from './battlefield/BattlefieldChain';
 import { DayClock } from './components/DayClock';
 import { Icon } from './components/Icon';
 import { MorningBriefing } from './components/MorningBriefing';
@@ -255,6 +257,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     resetGame,
     endPhase,
     executeAction,
+    playOperation,
     addToQueue,
     removeFromQueue,
     clearQueue,
@@ -301,6 +304,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showEndReport, setShowEndReport] = useState(false);
   const [showNewsroom, setShowNewsroom] = useState(false);
   const [showFokusgruppe, setShowFokusgruppe] = useState(false);
+  // P2: Operations-Akte (Operationszentrale, Etage 4) — Verbreiter×Plattform-Operation.
+  const [showOperationsAkte, setShowOperationsAkte] = useState(false);
   // 2f: Narrativ-Tafel (Korkbrett) — diegetisches Planungs-Herzstück, Pinnwand im Büro.
   const [showBoard, setShowBoard] = useState(false);
   // 2e: Lagebild — „auf einen Blick"-Übersicht am Wand-Monitor (löst das Dashboard ab).
@@ -747,6 +752,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               onEnterRoom={(roomId) => {
                 if (roomId === 'newsroom') setShowNewsroom(true);
                 else if (roomId === 'analyse') setShowFokusgruppe(true);
+                else if (roomId === 'operations') setShowOperationsAkte(true);
               }}
               walkHome={walkHome}
               onArrivedHome={() => {
@@ -925,6 +931,24 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             }))}
             lastHeadline={audience.lastItem?.headline ?? null}
             onClose={() => setShowFokusgruppe(false)}
+          />
+        )}
+
+        {/* Operations-Akte (P2): Verbreiter×Plattform-Operation gegen ein fiktives Ziel.
+            Faktencheck/Sättigung speisen sich aus der Lage (attention/risk → 0..1). */}
+        {showOperationsAkte && (
+          <OperationsAkteView
+            targets={loadTargets()}
+            carriers={loadCarriers()}
+            platforms={loadPlatforms()}
+            factcheckPressure={state.resources.attention / 100}
+            saturation={state.resources.risk / 100}
+            onAusspielen={(params) => {
+              playOperation(params);
+              setShowOperationsAkte(false);
+              setBroadcastExpanded(true);
+            }}
+            onClose={() => setShowOperationsAkte(false)}
           />
         )}
 

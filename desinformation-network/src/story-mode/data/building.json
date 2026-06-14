@@ -10,6 +10,7 @@
   ],
   "rooms": [
     { "id": "cyber_lab", "floor": "etage4", "col": 1, "npcId": "alexei", "icon": "", "label_de": "Cyber-Lab", "label_en": "Cyber Lab" },
+    { "id": "operations", "floor": "etage4", "col": 2, "icon": "", "label_de": "Operationszentrale", "label_en": "Operations Room" },
     { "id": "medien_zentrum", "floor": "etage4", "col": 3, "npcId": "marina", "icon": "", "label_de": "Medien-Zentrum", "label_en": "Media Center" },
     { "id": "analyse", "floor": "etage3", "col": 1, "icon": "", "label_de": "Zielgruppen-Analyse", "label_en": "Audience Analysis" },
     { "id": "newsroom", "floor": "etage3", "col": 3, "icon": "", "label_de": "Newsroom", "label_en": "Newsroom" },

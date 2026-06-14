@@ -12,10 +12,13 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 + Politur/Konsistenz — gemerged). Branch `claude/laughing-curie-jn0sff` aufgegangen.
 
 ### ▶ Für die NÄCHSTE Session — hier weitermachen
-1. **Owner-Entscheidung offen — P2-„Akte"-UI:** *Akte (eine kompakte diegetische Ansicht)*
-   **oder** *dialog-only*? Konzept + Skizze: `STRANG34_P2_VERBREITER_PLATTFORM_KONZEPT.md`.
-   Engine (`battlefield/BattlefieldChain.ts`) + Daten (targets/carriers/platforms) stehen schon,
-   nur die Oberfläche + `params`-Durchstich fehlen.
+1. **P2-„Akte"-UI — ✅ Erststufe gebaut** (Owner-Entscheidung *Akte* getroffen): `OperationsAkteView`
+   (kompaktes diegetisches Aktendeckblatt), erreichbar über die **Operationszentrale (Etage 4, NPC-los)**.
+   Vier Schritte (Ziel→Schwäche→Verbreiter→Plattform-Mix) → Live-Wirkungs-Analyse aus `BattlefieldChain`;
+   „Ausspielen" → `engine.playOperation` (Nachricht + Broadcast + moderates Risiko/Aufmerksamkeit).
+   `params`-Durchstich steht (target/carrier/platforms). **Offen (P2-Folge):** Aufbau-/Budget-Ökonomie
+   der Verbreiter (§2 „aufbauen"), Kompromat-Schritt (§5), Balancing-Sim der Pfad-Vielfalt (§9.4),
+   reichere Broadcast-Themen aus Ziel-Milieu, optionales Akten-Raumbild (Asset).
 2. **Topic-Texte in Stimme** (`topics_dialogues.json`, 14 Themen × NPC-Varianten) — letzter Dialog-Block;
    Begrüßungen + Reaktionen sind bereits in Stimme.
 3. **Visual-Backlog:** V4 (Büro-Panel-Audit), V5 (HUD-Feinpolitur), V6 (ComboHints diegetisch), V8 (Strang 5 Atmosphäre).
@@ -50,8 +53,8 @@ Sweep hat dauerhaft eingeblendete Seiten-Widgets übersehen (s. Visual-Backlog &
 | **P1c (Affinitäten)** | **Alle 110 Aktions-Affinitäten** auf den kanonischen Roster (Owner: „Rollen wie Stimme") umgemappt → Orphan `volkov` weg, Dialog-Angebote je Büro stimmig | ✅ |
 | **P1c (Content)** | **+15 granulare Aktionen** (`actions_p1c.json`, 110→125): **Igor/Finanz 3→10** inkl. **Kredit-Mechanik** (negative Budget-Kosten = Geldspritze, einmalig) + **Fokusgruppe** (K40), je Büro ergänzt. Balance-Sim: **18 Sieg / 18 Niederlage** (gewinn- UND verlierbar) | ✅ |
 
-Gate je Push grün: `tsc` · `npm run build` · `vitest` (231). Smoke: `npm run smoke` (Playwright,
-s. unten).
+Gate je Push grün: `tsc` · `npm run build` · `vitest` (262, inkl. P2-Akte/Engine). Smoke: `npm run smoke`
+(Playwright, s. unten).
 
 ---
 
@@ -85,7 +88,7 @@ V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
 |---|---|---|
 | **P0** | Aktions-Überschriften + Direktor-Hinweise | ✅ (PR #80) |
 | **P1** | Aktion-aus-Dialog · Menü→Gespräch · granularere Aktionen · Sprach-Steckbriefe · NPC-Vorschläge im Gespräch (löst V2) | **Kern fertig** (PR #80) — ✅ P1a, ✅ P1b (Begrüßungen ALLER NPCs), ✅ P1c (Affinitäten + 15 neue Aktionen, 125 gesamt, Balance 18/18), ✅ P1d, ✅ Declutter, ✅ Deck nach NPC. **Rest-Politur (laufend):** P1b Topics/Reaktionen in Steckbrief-Stimme; weitere Aktions-Pakete + Marina (50) entlasten; situative Eröffnungen |
-| **P2** | Kommunikations-Schlachtfeld (Ziel→Dossier→Kompromat→Verbreiter+Plattform-Mix). **Erst nach Exa-Recherche** (§10.1) | offen |
+| **P2** | Kommunikations-Schlachtfeld (Ziel→Dossier→Kompromat→Verbreiter+Plattform-Mix). | **Erststufe fertig:** Engine (`BattlefieldChain`) + Daten + `params`-Durchstich (`playOperation`) + diegetische **Operations-Akte** (`OperationsAkteView`, Operationszentrale Etage 4). Offen: Verbreiter-Aufbau/Budget, Kompromat-Schritt, Balancing-Sim |
 | **P3** | Gebäude-Wachstum (`unlocksRoom`/`unlocksNpc`) + 100–500-Pfade-Simulation | offen |
 
 ## 🪲 Bekannte Bugs / Altlasten

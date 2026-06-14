@@ -28,6 +28,14 @@ describe('buildingLayout', () => {
     }
   });
 
+  it('hat die Operationszentrale (P2) als NPC-losen Raum auf Etage 4', () => {
+    // NPC-los ⇒ BuildingView routet das Betreten über onEnterRoom → Operations-Akte.
+    const ops = roomById('operations');
+    expect(ops).toBeDefined();
+    expect(ops!.npcId).toBeUndefined();
+    expect(ops!.floor).toBe('etage4');
+  });
+
   it('lässt die Lobby per colSpan die volle Breite überspannen', () => {
     const lobby = roomById('lobby');
     const layout = getBuildingLayout();

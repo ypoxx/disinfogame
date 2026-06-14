@@ -64,9 +64,12 @@ Ganzes (v. a. den End-Report), nicht durch Belehrung. Pixel-Art **aus einem Guss
 > Steckbriefe in `NPC_VOICE_PROFILES.md`), 125 Aktionen (Igor/Finanz inkl. Kredit, Fokusgruppe),
 > Affinitäten auf kanonischem Roster, G23/G24 sauber, Avatar-Lauf/Lobby/DialogBox/Floating-Declutter
 > behoben, Balance 18:18. **Zentraler Einstieg für den Bau-Stand: `STATUS.md`.**
-> **Nächste Schritte (offen):** P2-„Akte"-UI — Owner-Entscheidung *Akte vs. dialog-only*
-> (Konzept + Skizze in `STRANG34_P2_VERBREITER_PLATTFORM_KONZEPT.md`); Topic-Texte in Stimme;
-> Visual-Backlog V4–V6/V8. Auftrag/Entscheidungen: `DECISIONS_2026-06-13B_TRANSCRIPT.md`.
+> **P2-Fortschritt (neu):** Die **Operations-Akte** ist gebaut — `OperationsAkteView` (kompaktes
+> diegetisches Aktendeckblatt) auf der `BattlefieldChain`-Engine, erreichbar über die Operationszentrale
+> (Etage 4), inkl. `params`-Durchstich (target/carrier/platforms) und `playOperation` (Nachricht +
+> Broadcast + Risiko). Owner-Entscheidung *Akte* damit umgesetzt.
+> **Nächste Schritte (offen):** P2-Folge (Verbreiter-Aufbau/Budget, Kompromat-Schritt, Balancing-Sim);
+> Topic-Texte in Stimme; Visual-Backlog V4–V6/V8. Auftrag/Entscheidungen: `DECISIONS_2026-06-13B_TRANSCRIPT.md`.
 
 - **Erst lesen:** SOUL.md → **`STATUS.md`** (aktueller Bau-Stand: erledigt/offen/TODO) →
   **`DECISIONS_2026-06-13B_TRANSCRIPT.md`** (neuestes) → `DECISIONS_2026-06-12_NEXT_LEVEL.md` →
