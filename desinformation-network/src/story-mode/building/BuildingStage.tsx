@@ -52,6 +52,8 @@ export interface BuildingStageProps {
   interactive?: boolean;
   /** Aktueller Monat (1–12 oder kumulativ) für die Jahreszeiten-Stimmung. */
   month?: number;
+  /** Strang 5: aktueller Stimmungs-Hinweis des Pförtners (Lobby), klickbar. */
+  pfoertnerLine?: string;
 }
 
 const layout = getBuildingLayout();
@@ -90,13 +92,14 @@ function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
   );
 }
 
-export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interactive = true, month }: BuildingStageProps) {
+export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interactive = true, month, pfoertnerLine }: BuildingStageProps) {
   const assets = useAssets();
   const npcById = new Map(npcs.map((n) => [n.id, n]));
   const containerRef = useRef<HTMLDivElement>(null);
   const [view, setView] = useState({ scale: 1, h: 600, w: 800 });
   const [hoverRoom, setHoverRoom] = useState<string | null>(null);
   const [hoverShaft, setHoverShaft] = useState(false);
+  const [pfoertnerOpen, setPfoertnerOpen] = useState(false); // Strang 5: Pförtner-Sprechblase
 
   // Schritt-Sound auf den Kontakt-Frames des Laufzyklus (Frame 0 und 4).
   const handleWalkFrame = useCallback((frame: number) => {
@@ -477,6 +480,40 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             </div>
           );
         })}
+
+        {/* Strang 5: Pförtner in der Lobby — „Stimme des eigenen Landes", klickbar. */}
+        {(() => {
+          const lobby = layout.floors.find((f) => f.level === layout.entryFloorLevel);
+          if (!lobby || !assets.imageUrl('figure_pfoertner')) return null;
+          const pH = 116; // Pförtner etwas kleiner als der Avatar (älterer Mann)
+          const px = STAGE.pillarWidth + 0.13 * (layout.shaft.x - STAGE.pillarWidth);
+          const pBottom = lobby.y + STAGE.floorHeight - STAGE.floorStrip;
+          return (
+            <div style={{ position: 'absolute', left: px, top: pBottom - pH, transform: 'translateX(-50%)', zIndex: 5 }}>
+              {pfoertnerOpen && pfoertnerLine && (
+                <div
+                  style={{
+                    position: 'absolute', bottom: pH + 6, left: '50%', transform: 'translateX(-50%)',
+                    width: 240, maxWidth: 240, backgroundColor: 'rgba(12,12,16,0.94)',
+                    border: `1px solid ${StoryModeColors.borderLight}`, color: '#e8e4d8',
+                    fontFamily: 'monospace', fontSize: 11, lineHeight: 1.4, padding: '6px 8px', zIndex: 7,
+                  }}
+                >
+                  <span style={{ display: 'block', fontSize: 8, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 2 }}>PFÖRTNER</span>
+                  {pfoertnerLine}
+                </div>
+              )}
+              <button
+                onClick={() => setPfoertnerOpen((o) => !o)}
+                aria-label="Pförtner ansprechen"
+                title="Pförtner ansprechen"
+                style={{ width: 48 * 1.2, height: pH, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+              >
+                <PixelSprite sheetId="figure_pfoertner" animation="idle" fallback="" scale={1.2} title="Pförtner" />
+              </button>
+            </div>
+          );
+        })()}
 
         {/* Fahrstuhl-Schacht + Kabine */}
         <div

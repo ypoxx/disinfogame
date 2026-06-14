@@ -1673,6 +1673,26 @@
       }
     },
     {
+      "id": "figure_pfoertner",
+      "type": "sheet",
+      "file": "sheets/figure_pfoertner.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A 2-frame pixel art sprite sheet of a friendly older male reception porter in his late 50s in a simple dark uniform jacket over a light shirt, calm kind face, standing upright with hands relaxed at his sides, full body from head to feet, STANDING upright facing the viewer, strict flat front view (no isometric). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, tiny sway). Draw NO background, NO floor, NO furniture — ONLY the person. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 314461,
+      "styleVersion": "v1",
+      "frameWidth": 48,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
       "id": "player_idle",
       "type": "sheet",
       "file": "sheets/player_idle.png",

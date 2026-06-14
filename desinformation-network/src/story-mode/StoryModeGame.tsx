@@ -31,6 +31,7 @@ import { TitleScreen } from './components/TitleScreen';
 import { ArrivalSequence } from './components/ArrivalSequence';
 import { AvatarChoice } from './components/AvatarChoice';
 import { BuildingView } from './building/BuildingView';
+import { pfoertnerLine as computePfoertnerLine, dominantMood } from './building/pfoertner';
 import { BroadcastBar } from './broadcast/BroadcastBar';
 import { useAudienceBroadcast } from './broadcast/useAudienceBroadcast';
 import { NpcRoomView } from './building/NpcRoomView';
@@ -746,6 +747,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               npcs={state.npcs}
               month={state.storyPhase.month}
               locked={!!state.currentDialog}
+              pfoertnerLine={computePfoertnerLine({
+                risk: state.resources.risk,
+                publicMood: dominantMood(audience.country.segments.map((s) => s.mood)),
+                lastHeadline: audience.lastItem?.headline ?? null,
+              })}
               onRoomClick={(npcId) => {
                 setActivePanel(null);
                 interactWithNpc(npcId);

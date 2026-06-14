@@ -285,6 +285,14 @@ const AUDIENCE_FIGURES = [
   ['audience_liberale', 'a woman around 60 with round glasses, folded quality newspaper, podcast earphones around the neck'],
 ];
 
+// Flavor-Figuren (Strang 5 — Atmosphäre): STEHENDE Statisten im Gebäude (Pförtner,
+// Reinigung, Kollege). 2-Frame-Idle, freistehend (Chroma), flach-frontal.
+const FLAVOR_FIGURES = [
+  ['figure_pfoertner', 'a friendly older male reception porter in his late 50s in a simple dark uniform jacket over a light shirt, calm kind face, standing upright with hands relaxed at his sides'],
+  ['figure_cleaner', 'a middle-aged cleaner in a plain work tabard over casual clothes, holding a cloth, standing'],
+  ['figure_clerk', 'a young office clerk in a grey shirt carrying a beige folder under one arm, standing'],
+];
+
 // Spieler-Porträts zur Avatar-Wahl (K10/D27: m/w × jung/mittel/erfahren).
 const PLAYER_PORTRAITS = [
   ['portrait_player_m1', 'a young ambitious man in his late 20s, grey suit, neatly combed hair, alert eyes'],
@@ -675,6 +683,32 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
         `background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in ` +
         `one row, the SAME character with identical outfit and colors in every frame, only a ` +
         `subtle idle motion changes (blink, small head turn). ${CHROMA_PROMPT} ${style}`,
+    });
+  }
+
+  // --- Flavor-Figuren (Strang 5): STEHENDE Statisten, 2-Frame-Idle ---
+  for (const [id, hint] of FLAVOR_FIGURES) {
+    shots.push({
+      id,
+      type: 'sheet',
+      kind: 'figure',
+      priority: 'nice',
+      aspectRatio: '1:1',
+      chroma: true,
+      frameWidth: 48,
+      frameHeight: 96,
+      cols: 2,
+      rows: 1,
+      size: { w: 96, h: 96 },
+      animations: { idle: { row: 0, frames: 2, frameTime: 600, loop: true } },
+      seed: seedFor(id),
+      prompt:
+        `A 2-frame pixel art sprite sheet of ${hint}, full body from head to feet, ` +
+        `STANDING upright facing the viewer, strict flat front view (no isometric). ` +
+        `Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character ` +
+        `with identical outfit and colors in every frame, only a subtle idle motion changes ` +
+        `(blink, tiny sway). Draw NO background, NO floor, NO furniture — ONLY the person. ` +
+        `${CHROMA_PROMPT} ${styleObject()}`,
     });
   }
 
