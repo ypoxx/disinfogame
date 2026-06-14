@@ -18,6 +18,11 @@ import type { AssetsManifest, ManifestAssetType, ManifestEntry, SheetInfo } from
 export class AssetRegistry {
   private readonly byId: Map<string, ManifestEntry>;
   private readonly baseUrl: string;
+  // Stabiler SheetInfo-Cache: useSprite/PixelSprite rufen sheet() in JEDEM Render auf.
+  // Ohne Cache wäre das Ergebnis jedes Mal ein neues Objekt → der Animations-Effekt
+  // setzte den Frame bei jedem Re-Render auf 0 zurück (laufender Avatar „fror" ein,
+  // v. a. beim Gehen, weil die Bühne dann ständig neu rendert).
+  private readonly sheetCache: Map<string, SheetInfo | null> = new Map();
 
   constructor(manifest: AssetsManifest | null, baseUrl: string = '/assets') {
     this.baseUrl = baseUrl.replace(/\/+$/, '');
@@ -66,16 +71,22 @@ export class AssetRegistry {
 
   /** Sheet-Metadaten inkl. URL — nur wenn Frame-Maße vollständig sind. */
   sheet(id: string): SheetInfo | null {
+    const cached = this.sheetCache.get(id);
+    if (cached !== undefined) return cached; // stabile Objekt-Identität (s. sheetCache)
+
     const entry = this.byId.get(id);
-    if (!entry || entry.type !== 'sheet') return null;
-    if (entry.frameWidth === undefined || entry.frameHeight === undefined) return null;
-    return {
-      id: entry.id,
-      url: `${this.baseUrl}/${entry.file}`,
-      frameWidth: entry.frameWidth,
-      frameHeight: entry.frameHeight,
-      animations: entry.animations ?? {},
-    };
+    let info: SheetInfo | null = null;
+    if (entry && entry.type === 'sheet' && entry.frameWidth !== undefined && entry.frameHeight !== undefined) {
+      info = {
+        id: entry.id,
+        url: `${this.baseUrl}/${entry.file}`,
+        frameWidth: entry.frameWidth,
+        frameHeight: entry.frameHeight,
+        animations: entry.animations ?? {},
+      };
+    }
+    this.sheetCache.set(id, info);
+    return info;
   }
 
   idsByType(type: ManifestAssetType): string[] {

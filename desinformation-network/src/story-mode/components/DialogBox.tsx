@@ -283,7 +283,7 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
         </div>
 
         {/* Message Content */}
-        <div className="p-6">
+        <div className="p-5">
           {/* Recommendation Banner */}
           {message.npcRecommendation && (
             <div
@@ -337,9 +337,13 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
             )}
           </div>
 
-          {/* Choices */}
+          {/* Choices — Höhe gedeckelt + scrollbar, damit der Dialog bei vielen
+              Optionen (Maßnahmen + Themen) nicht den ganzen Raum zudeckt (A3). */}
           {isComplete && message.choices && message.choices.length > 0 && (
-            <div className="mt-4 space-y-2 border-t-4 pt-4" style={{ borderColor: StoryModeColors.borderLight }}>
+            <div
+              className="mt-4 space-y-2 border-t-4 pt-4 overflow-y-auto"
+              style={{ borderColor: StoryModeColors.borderLight, maxHeight: '40vh' }}
+            >
               {message.choices.map((choice, index) => (
                 <button
                   key={choice.id}
@@ -399,7 +403,7 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
               className="text-center mt-4 text-sm animate-pulse"
               style={{ color: StoryModeColors.textSecondary }}
             >
-              Click to continue...
+              Weiter ▸
             </div>
           )}
         </div>

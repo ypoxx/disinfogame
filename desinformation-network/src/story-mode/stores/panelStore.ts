@@ -55,7 +55,9 @@ export const usePanelStore = create<PanelState>((set) => ({
   toggleBroadcast: () => set((state) => ({ broadcastExpanded: !state.broadcastExpanded })),
   setBroadcastExpanded: (open) => set({ broadcastExpanded: open }),
 
-  advisorCollapsed: false,
+  // Standard eingeklappt (schmaler Rand-Tab statt großer Floating-Sidebar): Empfehlungen
+  // kommen jetzt diegetisch im NPC-Gespräch (P1a). Auf Knopfdruck wieder ausklappbar (A1).
+  advisorCollapsed: true,
   toggleAdvisor: () =>
     set((state) => ({ advisorCollapsed: !state.advisorCollapsed })),
 
@@ -68,7 +70,7 @@ export const usePanelStore = create<PanelState>((set) => ({
       activePanel: null,
       viewMode: 'building',
       broadcastExpanded: false,
-      advisorCollapsed: false,
+      advisorCollapsed: true,
       queueCollapsed: false,
     }),
 }));

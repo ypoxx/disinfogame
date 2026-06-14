@@ -46,4 +46,20 @@ describe('NPC-Reaktions-Verdrahtung (autorisierte Reaktionen erreichen den Live-
     expect(authoredReactionTexts('marina').has(marinaReaction!.dialogue_de)).toBe(true);
     expect(marinaReaction!.reaction).not.toBe('crisis'); // eine Analyse ist keine Krise
   });
+
+  it('Alexei (Technik) reagiert auf eine Tech-Aktion (2.1 Bot-Netzwerk) — nach dem Re-Theme', () => {
+    // Nach Affinitäts-Remap ist 2.1 (tags infrastructure/automation) Alexeis Aktion.
+    // Vor dem Reaktions-Re-Theme hätte Alexei (Chaos-Trigger) GESCHWIEGEN.
+    const result = engine.executeAction('2.1');
+    const r = result.npcReactions?.find(x => x.npcId === 'alexei');
+    expect(r, 'Alexei sollte auf eine Tech-Aktion reagieren').toBeDefined();
+    expect(authoredReactionTexts('alexei').has(r!.dialogue_de)).toBe(true);
+  });
+
+  it('Igor (Finanz) reagiert auf eine Finanz-Aktion (9.3 Krypto-Spenden) — nach dem Re-Theme', () => {
+    const result = engine.executeAction('9.3');
+    const r = result.npcReactions?.find(x => x.npcId === 'igor');
+    expect(r, 'Igor sollte auf eine Finanz-Aktion reagieren').toBeDefined();
+    expect(authoredReactionTexts('igor').has(r!.dialogue_de)).toBe(true);
+  });
 });

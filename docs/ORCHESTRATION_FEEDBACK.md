@@ -90,3 +90,24 @@ Offen für die Roadmap (priorisiert nach Gutachten):
 | Broadcast-Leiste bei offenem Dialog automatisch schließen (Überlagerung) | UX A8 | XS |
 | Emojis in der Tab-Leiste durch Pixel-Icons ersetzen (Ästhetik-Bruch) | UX A6 | S |
 | Fokus-Ring per `:focus-visible` statt JS-Hover-State (TitleScreen/Hotspots) | UX B2 | S |
+
+---
+
+## Lehren 2026-06-14 (Strang 3+4 P0 + Owner-Visual-Feedback)
+
+1. **Visuelle Sweeps brauchen ein Mounted-Component-Audit, keine Modal-Liste.** Strang 1
+   meldete „Emojis 241→0 / Schatten 37→0", aber das dauerhaft sichtbare `AdvisorPanel`
+   (Berater-Sidebar) behielt Verbots-Schlagschatten/Glow + Off-Palette-Farben. Lehre: bei
+   „X überall entfernt"-Aufträgen ALLE im Spielerpfad gemounteten Komponenten auflisten und
+   abhaken — nicht nur die offensichtlichen Modals. Erfolgsmeldungen entsprechend vorsichtig
+   formulieren („geprüft: Dateien A–Z").
+2. **Daten-Inventur gegen ALLE Quell-Dateien.** Der Strang-3+4-Feinplan zählte „30 Aktionen",
+   tatsächlich sind es **110** (`actions_continued.json` mit 80 war übersehen). Vor Mengen-
+   Aussagen den Loader-Pfad prüfen (`ActionLoader` lädt beide Dateien), nicht nur die
+   Hauptdatei. P0 hat alle 110 abgedeckt.
+3. **Zentrales `STATUS.md` eingeführt.** Viele verstreute Plan-/Decision-Docs erschwerten
+   den „wo stehen wir?"-Blick. `docs/STATUS.md` ist jetzt der eine lebende Einstieg
+   (erledigt/offen/TODO) und wird je Session aktualisiert.
+4. **Browser-Smoke reproduzierbar gemacht.** `playwright-core` als devDep + `npm run smoke`
+   (`scripts/app-smoke.mjs`) gegen `vite preview`; Chromium-Binary liegt im Container
+   (`/opt/pw-browsers/chromium-1194`). Bestätigte das Owner-Feedback am echten Build.

@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "note": "P2 Ziel-Roster — fiktive Archetypen (D-2, erweiterbar). KEINE echten Personen (G23).",
+    "version": "0.1.0"
+  },
+  "targets": [
+    {
+      "id": "t_influencer",
+      "name": "Mika Sand",
+      "role_de": "Populärer Oppositions-Influencer",
+      "milieu": "wu_bohemien",
+      "fiktiv": true,
+      "standing": 0.8,
+      "vulnerabilities": [
+        { "id": "alte_posts", "label_de": "Peinliche Altposts", "heikelheit": 0.3, "glaubwuerdigkeit": 0.7, "beschafft": false },
+        { "id": "geldquelle", "label_de": "Undurchsichtige Geldquelle", "heikelheit": 0.6, "glaubwuerdigkeit": 0.6, "beschafft": false }
+      ]
+    },
+    {
+      "id": "t_faktencheckerin",
+      "name": "Dr. Lena Ferro",
+      "role_de": "Integre Faktencheckerin",
+      "milieu": "wu_idealistin",
+      "fiktiv": true,
+      "standing": 0.9,
+      "vulnerabilities": [
+        { "id": "fehleinschaetzung", "label_de": "Frühere Fehleinschätzung", "heikelheit": 0.4, "glaubwuerdigkeit": 0.5, "beschafft": false },
+        { "id": "ueberlastung", "label_de": "Sichtbare Überlastung", "heikelheit": 0.2, "glaubwuerdigkeit": 0.4, "beschafft": false }
+      ]
+    },
+    {
+      "id": "t_hinterbaenkler",
+      "name": "Rolf Veen",
+      "role_de": "Wankelmütiger Hinterbänkler",
+      "milieu": "wu_besorgte_mitte",
+      "fiktiv": true,
+      "standing": 0.5,
+      "vulnerabilities": [
+        { "id": "spielschulden", "label_de": "Spielschulden", "heikelheit": 0.7, "glaubwuerdigkeit": 0.7, "beschafft": false },
+        { "id": "affaere", "label_de": "Verdeckte Affäre", "heikelheit": 0.6, "glaubwuerdigkeit": 0.6, "beschafft": false }
+      ]
+    },
+    {
+      "id": "t_lokalpolitikerin",
+      "name": "Ina Brandt",
+      "role_de": "Aufstrebende Lokalpolitikerin",
+      "milieu": "wu_eigenheimer",
+      "fiktiv": true,
+      "standing": 0.6,
+      "vulnerabilities": [
+        { "id": "plagiat", "label_de": "Plagiat in der Abschlussarbeit", "heikelheit": 0.4, "glaubwuerdigkeit": 0.8, "beschafft": false },
+        { "id": "spende", "label_de": "Fragwürdige Spendenannahme", "heikelheit": 0.6, "glaubwuerdigkeit": 0.6, "beschafft": false }
+      ]
+    },
+    {
+      "id": "t_wirtschaftsexperte",
+      "name": "Prof. Adam Kort",
+      "role_de": "Respektierter Wirtschaftsexperte",
+      "milieu": "wu_liberale",
+      "fiktiv": true,
+      "standing": 0.85,
+      "vulnerabilities": [
+        { "id": "interessenkonflikt", "label_de": "Verschwiegener Interessenkonflikt", "heikelheit": 0.5, "glaubwuerdigkeit": 0.7, "beschafft": false },
+        { "id": "altberatung", "label_de": "Alte Beraterrolle", "heikelheit": 0.3, "glaubwuerdigkeit": 0.5, "beschafft": false }
+      ]
+    },
+    {
+      "id": "t_aktivist",
+      "name": "Sami Roth",
+      "role_de": "Viraler Klima-Aktivist",
+      "milieu": "wu_idealistin",
+      "fiktiv": true,
+      "standing": 0.7,
+      "vulnerabilities": [
+        { "id": "altzitate", "label_de": "Radikale Altzitate", "heikelheit": 0.5, "glaubwuerdigkeit": 0.7, "beschafft": false },
+        { "id": "gruppenstreit", "label_de": "Interner Gruppenstreit", "heikelheit": 0.3, "glaubwuerdigkeit": 0.5, "beschafft": false }
+      ]
+    }
+  ]
+}

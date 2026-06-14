@@ -9,11 +9,18 @@ import { useAssets } from '../assets/useAssets';
 // Porträt mit Mimik je Laune + 1–2 Sätze Tagesziel/Laune. Texte regelbasiert
 // aus 3 Lagen (gut/mittel/kritisch) mit je 3 Varianten, DETERMINISTISCH per
 // phase gewählt — kein Math.random im Render. KEIN voiceAssetId (dynamisch).
+//
+// P0b/B5/D-4: Dazu ein KONKRETER Tageshinweis — er benennt das drängendste Problem
+// mit echter Zahl und verweist DIEGETISCH auf das zuständige Büro (kein klickbarer
+// Shortcut; der Spieler geht selbst hin). Owner-Abnahme: warnen + sagen, wo man die
+// Empfehlung holt.
 
 interface MorningBriefingProps {
   phase: number;
   risk: number;
-  trustProgress: number;
+  trustProgress: number;   // 0..1 — Fortschritt Richtung Destabilisierungs-Ziel
+  budget: number;          // verbleibendes Budget in Tausend Euro
+  attention: number;       // 0..100 — Aufmerksamkeit der Gegenseite
   onDone: () => void;
 }
 
@@ -64,7 +71,59 @@ function deriveLaune(risk: number, trustProgress: number): Laune {
   return 'mittel';
 }
 
-export function MorningBriefing({ phase, risk, trustProgress, onDone }: MorningBriefingProps) {
+export interface BriefingHint {
+  /** Konkret benanntes Problem inkl. echter Zahl (B5: nicht mehr vage). */
+  problem: string;
+  /** Wohin der Spieler für die Empfehlung geht — diegetisch, nicht klickbar (D-4). */
+  pointer: string;
+}
+
+export interface BriefingState {
+  risk: number;          // 0..100
+  attention: number;     // 0..100
+  budget: number;        // Tausend Euro
+  trustProgress: number; // 0..1
+}
+
+/**
+ * Den drängendsten Tageshinweis deterministisch ableiten.
+ * Priorität nach Dringlichkeit: drohende Enttarnung (Verlust) > leere Kasse
+ * (handlungsunfähig) > erwachende Gegenseite > stockender Fortschritt > gute Lage.
+ * Verweist je Lage auf das ZUSTÄNDIGE Büro (Büro-Labels aus building.json).
+ */
+export function deriveBriefingHint(s: BriefingState): BriefingHint {
+  const trustPct = Math.round(Math.max(0, Math.min(1, s.trustProgress)) * 100);
+  if (s.risk >= 60) {
+    return {
+      problem: `Das Entdeckungsrisiko steht bei ${Math.round(s.risk)} % — noch ein unsauberer Zug und die Ermittler haben uns.`,
+      pointer: 'Gehen Sie zu Alexei ins Cyber-Lab; er soll unsere Spuren verwischen, bevor wir auffliegen.',
+    };
+  }
+  if (s.budget <= 15) {
+    return {
+      problem: `Die Kasse ist fast leer — nur noch ${Math.round(s.budget)} k stehen bereit.`,
+      pointer: 'Sprechen Sie mit Igor in Finanzen / Tresor, ehe Sie die nächste Operation bezahlen.',
+    };
+  }
+  if (s.attention >= 55) {
+    return {
+      problem: `Die Gegenseite wird wach — ihre Aufmerksamkeit liegt bei ${Math.round(s.attention)} %.`,
+      pointer: 'Lassen Sie sich von Katja in den Feld-Operationen sagen, wer da gegen uns ermittelt.',
+    };
+  }
+  if (s.trustProgress < 0.4) {
+    return {
+      problem: `Beim Vertrauensbruch kommen wir kaum voran — erst ${trustPct} % des Ziels.`,
+      pointer: 'Holen Sie sich bei Marina im Medien-Zentrum eine schärfere Linie für unsere Narrative.',
+    };
+  }
+  return {
+    problem: `Die Lage läuft für uns — ${trustPct} % des Ziels sind erreicht.`,
+    pointer: 'Halten Sie das Tempo. Marina im Medien-Zentrum hat sicher schon den nächsten Hebel.',
+  };
+}
+
+export function MorningBriefing({ phase, risk, trustProgress, budget, attention, onDone }: MorningBriefingProps) {
   const assets = useAssets();
   const laune = deriveLaune(risk, trustProgress);
   const mood = MOOD_BY_LAUNE[laune];
@@ -72,6 +131,9 @@ export function MorningBriefing({ phase, risk, trustProgress, onDone }: MorningB
   // Deterministische Variantenwahl: gleiche Phase → gleicher Text.
   const variants = BRIEFINGS[laune];
   const variant = variants[Math.abs(phase) % variants.length];
+
+  // Konkreter, diegetischer Tageshinweis (B5/D-4).
+  const hint = deriveBriefingHint({ risk, attention, budget, trustProgress });
 
   // Porträt: mood-spezifisch, sonst Basis-Porträt; null → CSS-Fallback unten.
   const portraitUrl =
@@ -153,6 +215,27 @@ export function MorningBriefing({ phase, risk, trustProgress, onDone }: MorningB
           >
             {variant.text}
           </p>
+
+          {/* Konkreter Tageshinweis: Problem mit Zahl + Verweis aufs zuständige Büro (B5/D-4). */}
+          <div
+            className="mt-3 pt-3 border-t-2"
+            style={{ borderColor: StoryModeColors.border }}
+          >
+            <span
+              className="text-xs font-bold uppercase tracking-wider"
+              style={{ color: StoryModeColors.warning }}
+            >
+              Tageshinweis
+            </span>
+            <p
+              className="font-mono text-sm leading-relaxed mt-1"
+              style={{ color: StoryModeColors.textPrimary }}
+            >
+              {hint.problem}{' '}
+              <span style={{ color: StoryModeColors.textSecondary }}>{hint.pointer}</span>
+            </p>
+          </div>
+
           <div className="mt-3 text-right">
             <span
               className="inline-block px-4 py-1.5 border-2 font-bold text-sm"

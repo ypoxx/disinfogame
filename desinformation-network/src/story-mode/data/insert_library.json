@@ -232,8 +232,8 @@
       "conditions": [
         {
           "condition": { "var": "relationshipLevel", "op": ">=", "value": 2 },
-          "text_de": "Genosse",
-          "text_en": "Comrade"
+          "text_de": "Kollege",
+          "text_en": "Colleague"
         }
       ],
       "default": {

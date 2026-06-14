@@ -60,6 +60,14 @@ describe('AssetRegistry (Auflösung von Asset-ids)', () => {
     expect(reg.imageUrl('player_walk')).toBe('/assets/sheets/player_walk.png');
   });
 
+  it('sheet() ist referenz-stabil (verhindert Frame-Reset der Lauf-Animation)', () => {
+    const reg = new AssetRegistry(MANIFEST);
+    // Gleiche Objekt-Identität über mehrere Aufrufe → useSprite-Effekt läuft NICHT
+    // bei jedem Re-Render neu (sonst springt der laufende Avatar zurück auf Frame 0).
+    expect(reg.sheet('player_walk')).toBe(reg.sheet('player_walk'));
+    expect(reg.sheet('broken_sheet')).toBe(reg.sheet('broken_sheet')); // auch null stabil
+  });
+
   it('idsByType filtert und sortiert', () => {
     const reg = new AssetRegistry(MANIFEST);
     expect(reg.idsByType('sheet')).toEqual(['broken_sheet', 'player_walk']);

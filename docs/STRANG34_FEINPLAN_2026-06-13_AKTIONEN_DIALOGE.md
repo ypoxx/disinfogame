@@ -94,13 +94,20 @@ Texte gemessen werden (Qualitäts-Gate, ggf. starke Schreib-Agenten).
 > Verschränkt: jede Phase enthält einen Aktions- UND einen Dialog-Anteil. Reihenfolge nach
 > Risiko (klein/sicher zuerst). Branch je Phase auf aktuellem `main`, Draft-PR.
 
-### Phase 0 — Klare Kleinfixes (sofort-fähig, kein neues System)
-- **P0a Aktions-Überschriften durchziehen (B5 ⚠️):** `headline_de` an alle 30 Aktionen;
-  Broadcast/Tagesfazit/End-Report zeigen „Bot-Netzwerk gestartet" statt „Aktion durchgeführt".
-  `broadcastMapping.ts` aus dem Provisorium auf das neue Feld heben.
-- **P0b Direktor-Tageshinweise verständlicher (B5 ⚠️):** Hinweis nennt **konkret** Risiko/
-  Problem/Empfehlung statt vager Sätze (`MorningBriefing`-Texte).
-- *Test:* tsc/build/vitest grün; Smoke: Aktion ausführen → Überschrift erscheint in Broadcast/Fazit.
+### Phase 0 — Klare Kleinfixes (sofort-fähig, kein neues System) — ✅ GEBAUT (2026-06-14)
+- **P0a Aktions-Überschriften durchziehen (B5 ⚠️):** `headline_de` an **alle 110 Aktionen**
+  (Korrektur der IST-Inventur: `actions_continued.json` mit 80 Aktionen war übersehen → nicht 30,
+  sondern 110). Der Narrative-Generator (`StoryNarrativeGenerator`) bevorzugt jetzt die plakative
+  Aktions-Überschrift vor den Tag-/Phasen-Templates; `broadcastMapping.ts` liest zuerst das neue
+  Feld. Broadcast/Tagesfazit/End-Report/ActionFeedback zeigen „Bot-Netzwerk gestartet" statt
+  „Aktion durchgeführt". (Plumbing: `RawAction`→`StoryAction`→`convertToStoryAction`→`executeAction`.)
+- **P0b Direktor-Tageshinweise verständlicher (B5 ⚠️ / D-4):** `MorningBriefing` zeigt einen
+  deterministischen **Tageshinweis** — benennt das drängendste Problem **mit Zahl** (Risiko/Budget/
+  Aufmerksamkeit/Fortschritt) und verweist **diegetisch aufs zuständige Büro** (Alexei/Cyber-Lab,
+  Igor/Finanzen, Katja/Feld-Operationen, Marina/Medien-Zentrum) — **nicht klickbar** (D-4).
+- *Test:* tsc/build/vitest grün (**226/226**, +12). Neue Tests: `ActionHeadlines.test.ts` (B5-Pfad
+  über die echte Engine + Broadcast-Schicht), `BriefingHint.test.ts` (Prioritätslogik),
+  `MorningBriefing.test.tsx` (Render). Daten-Skript: `scripts/add-headlines.mjs`.
 
 ### Phase 1 — Basis verbreitern (verschränkt: NPC-Angebot ↔ echtes Gespräch)
 - **P1a Aktion aus Dialog (Engine + Daten):** Dialog-Knoten `offersActions`/`runAction`;
@@ -224,3 +231,12 @@ Anfangs-Breite:
 gehoben; Datenmodell `params` erhält `carrier` (Asset-Id) + `platforms[]` statt eines einzelnen `channel`.
 
 **Stand:** Plan inhaltlich abgenommen; Bau kann mit **P0** starten (P0 berührt D-3 nicht).
+
+### 10.2 Bau-Status (2026-06-14)
+- **P0 ✅ gebaut** (s. §3 Phase 0): 110 Aktions-Überschriften + konkrete Direktor-Tageshinweise.
+  Gate grün (tsc · `npm run build` · vitest 226/226). Rückwärtskompatibel, A1 gewahrt (kein
+  Bedienweg entfernt; `headline_de` ist additiv, Templates bleiben als Fallback).
+  - *Hinweis Repo-Hygiene:* `npm run lint` ist projektweit defekt (keine ESLint-Config im Repo) —
+    vorbestehend, unabhängig von P0. Gate stützt sich daher auf tsc/build/vitest (SOUL §4).
+- **Nächster Schritt:** P1 (Aktion-aus-Dialog + Menü→Gespräch + granularere Aktionen + Sprach-
+  Steckbriefe). P2 erst nach Exa-Recherche zum Verbreitungs-/Verstärkungs-Modell (§10.1).
