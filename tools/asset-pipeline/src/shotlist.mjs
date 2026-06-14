@@ -238,7 +238,7 @@ const HUD_KIT = [
     '16:9',
     { w: 1344, h: 768 },
     false,
-    'cozy but worn 1980s eastern-bloc living room facing the viewer: a long empty sofa centered against patterned wallpaper, small side tables with a doily and a radio, warm lamp light, the unseen television illuminates the scene from the viewer direction with a faint blue glow, no people, no text',
+    'a clean contemporary (2020s) western middle-class living room facing the viewer: a long empty modern fabric sofa with clean lines centered against a smooth painted wall with two framed abstract prints, a floor lamp and a slim side table with a small potted plant, a soft area rug, light wooden floor, the unseen television illuminates the scene from the viewer direction with a faint cool glow, tidy bright and modern, no people, no text',
     'must',
   ],
 ];
