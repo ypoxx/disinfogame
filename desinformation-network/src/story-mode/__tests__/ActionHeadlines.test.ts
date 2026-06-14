@@ -13,13 +13,17 @@ import { createStoryEngine, type StoryEngineAdapter } from '../../game-logic/Sto
 import { mapActionToBroadcast } from '../broadcast/broadcastMapping';
 import actionsData from '../data/actions.json';
 import actionsContinued from '../data/actions_continued.json';
+import actionsP1c from '../data/actions_p1c.json';
 
-function allRawActions(): Array<{ id: string; label_de: string; headline_de?: string }> {
-  const out = [...(actionsData.actions as Array<{ id: string; label_de: string; headline_de?: string }>)];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const c = actionsContinued as any;
-  for (const key of Object.keys(c)) {
-    if (Array.isArray(c[key])) out.push(...c[key]);
+type RawA = { id: string; label_de: string; headline_de?: string };
+function allRawActions(): RawA[] {
+  const out = [...(actionsData.actions as RawA[])];
+  for (const src of [actionsContinued, actionsP1c]) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const c = src as any;
+    for (const key of Object.keys(c)) {
+      if (Array.isArray(c[key])) out.push(...c[key]);
+    }
   }
   return out;
 }
@@ -31,11 +35,20 @@ describe('Aktions-Überschriften (B5)', () => {
     engine = createStoryEngine('headline-seed');
   });
 
-  it('jede der 110 Aktionen hat ein nicht-leeres headline_de in den Daten', () => {
+  it('jede Aktion hat ein nicht-leeres headline_de in den Daten', () => {
     const actions = allRawActions();
-    expect(actions.length).toBe(110);
+    expect(actions.length).toBeGreaterThanOrEqual(110); // 110 Bestand + P1c-Content
     const without = actions.filter((a) => !a.headline_de || a.headline_de.trim() === '');
     expect(without.map((a) => a.id)).toEqual([]);
+  });
+
+  it('Finanz-Maßnahme mit negativen Budget-Kosten spült Budget in die Kasse (Kredit-Mechanik)', () => {
+    // 9.3 „Krypto-Spendenkampagne" (budget: -22, keine Prerequisites) → Budget steigt.
+    const before = engine.getResources().budget;
+    const result = engine.executeAction('9.3');
+    expect(result.success).toBe(true);
+    expect(engine.getResources().budget).toBeGreaterThan(before);
+    expect(result.narrative.headline_de).toBe('Krypto-Spenden eingesammelt');
   });
 
   it('eine ausgeführte Aktion liefert ihre plakative Überschrift (nicht „Aktion durchgeführt")', () => {

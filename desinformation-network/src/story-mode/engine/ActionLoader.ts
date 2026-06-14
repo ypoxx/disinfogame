@@ -6,6 +6,7 @@
 // Import action data directly (bundled with the app)
 import actionsData from '../data/actions.json';
 import actionsContinuedData from '../data/actions_continued.json';
+import actionsP1cData from '../data/actions_p1c.json';
 import { storyLogger } from '../../utils/logger';
 
 // ============================================
@@ -95,6 +96,13 @@ export class ActionLoader {
       if (continued[key]) {
         allRawActions.push(...continued[key]);
       }
+    }
+
+    // P1c-Content (granulare Maßnahmen je Büro, separat geladen — kein Churn an den Bestandsdateien)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const p1c = actionsP1cData as any;
+    if (Array.isArray(p1c.actions_p1c)) {
+      allRawActions.push(...p1c.actions_p1c);
     }
 
     // Process and store actions

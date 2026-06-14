@@ -38,6 +38,7 @@ Sweep hat dauerhaft eingeblendete Seiten-Widgets übersehen (s. Visual-Backlog &
 | **P1b (Skaliert)** | **Begrüßungen aller NPCs** (Direktor, Alexei, Katja, Igor) nach Steckbrief neu (je 16, Level 0–3); bereinigt zugleich Alt-Persona-/Reale-Orts-Reste (Moskau/Kreml/Wodka) im Direktor | ✅ |
 | **Deck-Gruppierung** | Narrativ-Tafel zeigt Maßnahmen **nach zuständigem Büro/NPC** statt flacher Liste (Entscheidung 1) | ✅ |
 | **P1c (Affinitäten)** | **Alle 110 Aktions-Affinitäten** auf den kanonischen Roster (Owner: „Rollen wie Stimme") umgemappt → Orphan `volkov` weg, Dialog-Angebote je Büro stimmig | ✅ |
+| **P1c (Content)** | **+15 granulare Aktionen** (`actions_p1c.json`, 110→125): **Igor/Finanz 3→10** inkl. **Kredit-Mechanik** (negative Budget-Kosten = Geldspritze, einmalig) + **Fokusgruppe** (K40), je Büro ergänzt. Balance-Sim: **18 Sieg / 18 Niederlage** (gewinn- UND verlierbar) | ✅ |
 
 Gate je Push grün: `tsc` · `npm run build` · `vitest` (231). Smoke: `npm run smoke` (Playwright,
 s. unten).
@@ -71,7 +72,7 @@ V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
 | Phase | Inhalt | Status |
 |---|---|---|
 | **P0** | Aktions-Überschriften + Direktor-Hinweise | ✅ (PR #80) |
-| **P1** | Aktion-aus-Dialog · Menü→Gespräch · granularere Aktionen · Sprach-Steckbriefe · NPC-Vorschläge im Gespräch (löst V2) | **in Arbeit** — ✅ P1a, ✅ P1d, ✅ Declutter, ✅ P1b (Begrüßungen ALLER NPCs), ✅ Deck nach NPC gruppiert, ✅ P1c-Affinitäten umgemappt. **Offen:** P1b Topics/Reactions skalieren + situative Eröffnungen; **P1c-Content** (30 → 60–100 granulare Aktionen, je Büro ein Paket + Balancing-Sim; v. a. Igor/Finanz ausbauen — aktuell nur 3 Aktionen) |
+| **P1** | Aktion-aus-Dialog · Menü→Gespräch · granularere Aktionen · Sprach-Steckbriefe · NPC-Vorschläge im Gespräch (löst V2) | **Kern fertig** (PR #80) — ✅ P1a, ✅ P1b (Begrüßungen ALLER NPCs), ✅ P1c (Affinitäten + 15 neue Aktionen, 125 gesamt, Balance 18/18), ✅ P1d, ✅ Declutter, ✅ Deck nach NPC. **Rest-Politur (laufend):** P1b Topics/Reaktionen in Steckbrief-Stimme; weitere Aktions-Pakete + Marina (50) entlasten; situative Eröffnungen |
 | **P2** | Kommunikations-Schlachtfeld (Ziel→Dossier→Kompromat→Verbreiter+Plattform-Mix). **Erst nach Exa-Recherche** (§10.1) | offen |
 | **P3** | Gebäude-Wachstum (`unlocksRoom`/`unlocksNpc`) + 100–500-Pfade-Simulation | offen |
 
