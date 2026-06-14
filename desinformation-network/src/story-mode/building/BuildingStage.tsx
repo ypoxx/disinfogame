@@ -15,6 +15,7 @@ import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties } fr
 import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
+import { skyGradientForMinutes } from './skyTime';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
@@ -135,6 +136,9 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   const lobbyUrl = assets.imageUrl('room_lobby');
   const cityUrl = assets.imageUrl('bld_city_far');
   const streetUrl = assets.imageUrl('bld_street');
+  // Tageszeit-Himmel (gegen „schwarzer Himmel zu groß"): Verlauf folgt der Tagesuhr,
+  // die chroma-freigestellte Skyline liegt davor.
+  const skyMinutes = useDayClockStore((s) => s.minutes);
   const cabinUrl = assets.imageUrl(nav.cabinDoorsOpen ? 'elevator_cabin_open' : 'elevator_cabin_closed');
 
   // Kabinen-Geometrie: groß genug für den ×3-Avatar.
@@ -155,7 +159,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
     <div
       ref={containerRef}
       className="relative h-full w-full overflow-hidden"
-      style={{ background: 'linear-gradient(#05070d 0%, #0a0f1c 55%, #11131c 100%)' }}
+      style={{ background: skyGradientForMinutes(skyMinutes), transition: 'background 800ms linear' }}
       data-testid="building-stage"
     >
       <style>{STAGE_KEYFRAMES}</style>
@@ -169,13 +173,14 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             left: 0,
             right: 0,
             bottom: Math.max(0, view.h - groundScreenY),
-            height: Math.min(view.h * 0.55, 576 * view.scale * 1.6),
+            // Größeres Skyline-Band füllt den Himmel (weniger „schwarz oben"): bis ~72% der Höhe.
+            height: Math.min(view.h * 0.72, 576 * view.scale * 2.0),
             backgroundImage: `url(${cityUrl})`,
             backgroundRepeat: 'repeat-x',
             backgroundSize: 'auto 100%',
             backgroundPosition: 'center bottom',
             imageRendering: 'pixelated',
-            opacity: 0.85,
+            opacity: 0.92,
             pointerEvents: 'none',
           }}
         />
