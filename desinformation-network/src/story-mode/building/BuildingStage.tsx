@@ -173,14 +173,17 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             left: 0,
             right: 0,
             bottom: Math.max(0, view.h - groundScreenY),
-            // Größeres Skyline-Band füllt den Himmel (weniger „schwarz oben"): bis ~72% der Höhe.
-            height: Math.min(view.h * 0.72, 576 * view.scale * 2.0),
+            // Skyline groß, aber Anzeige unter Native-Höhe (864) → scharf statt hochskaliert.
+            height: Math.min(view.h * 0.72, 760),
             backgroundImage: `url(${cityUrl})`,
             backgroundRepeat: 'repeat-x',
             backgroundSize: 'auto 100%',
             backgroundPosition: 'center bottom',
             imageRendering: 'pixelated',
-            opacity: 0.92,
+            opacity: 0.95,
+            // Natürlicher Übergang Stadt → Himmel: oberer Rand sanft ausblenden (kein harter Schnitt).
+            WebkitMaskImage: 'linear-gradient(to top, #000 62%, transparent 100%)',
+            maskImage: 'linear-gradient(to top, #000 62%, transparent 100%)',
             pointerEvents: 'none',
           }}
         />

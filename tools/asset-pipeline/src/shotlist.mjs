@@ -199,9 +199,9 @@ const BUILDING_KIT = [
   [
     'bld_city_far',
     '21:9',
-    { w: 1344, h: 576 },
+    { w: 2016, h: 864 },
     true,
-    'distant city skyline silhouette at night for a side-scrolling pixel game background: dark block buildings with small lit windows, chimneys with faint smoke, a thin TV tower, cool blue-grey night haze, flat layered silhouette, seamlessly tileable from left to right',
+    'distant city skyline for a side-scrolling pixel game background, several depth layers of block buildings: nearer buildings darker and sharper, buildings further back progressively lighter as they recede into cool blue-grey atmospheric haze; small warm lit windows scattered across the buildings, a few slim chimneys with faint smoke, one thin TV tower; the UPPER parts of the skyline gradually dissolve into the hazy distance so there is NO hard top edge; flat layered silhouette, crisp clean high-resolution pixel art, seamlessly tileable from left to right, on a single flat solid magenta (#FF00FF) background above and between the gaps so the sky can be cut out',
     'must',
   ],
   [
