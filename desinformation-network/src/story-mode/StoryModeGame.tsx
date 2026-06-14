@@ -1128,8 +1128,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         onClose={() => setShowEncyclopedia(false)}
       />
 
-      {/* Advisor Panel */}
-      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
+      {/* Advisor Panel — während eines Gesprächs ausgeblendet (freie Sicht aufs NPC-Gespräch
+          + dessen Maßnahmen-Optionen; Empfehlungen erscheinen jetzt diegetisch im Dialog). */}
+      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !state.currentDialog && (
         <AdvisorPanel
           npcs={state.npcs.map(npc => ({
             id: npc.id,
@@ -1171,8 +1172,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         />
       )}
 
-      {/* Action Queue Widget */}
-      {state.gamePhase === 'playing' && (
+      {/* Action Queue Widget — im Gespräch ausgeblendet (kein Overlay über dem Dialog) */}
+      {state.gamePhase === 'playing' && !state.currentDialog && (
         <ActionQueueWidget
           queue={state.actionQueue}
           currentResources={{
@@ -1197,8 +1198,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         />
       )}
 
-      {/* Combo Hints Widget */}
-      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && state.comboHints && state.comboHints.length > 0 && (
+      {/* Combo Hints Widget — im Gespräch ausgeblendet (kein Floating über dem Dialog) */}
+      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !state.currentDialog && state.comboHints && state.comboHints.length > 0 && (
         <div
           className="fixed bottom-4 left-4 w-80 z-20"
           style={{ maxHeight: '40vh', overflowY: 'auto' }}
