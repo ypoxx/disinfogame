@@ -8,8 +8,18 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `STRANG34_FEINPLAN_2026-06-13_AKTIONEN_DIALOGE.md` → `GESAMTKONZEPT_VISUELL.md` →
 > dieses Dokument für den aktuellen Bau-Stand. Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
-**Stand:** 2026-06-14 · main nach #79 (Feinplan Strang 3+4) · offener Draft-PR **#80**
-(Strang 3+4 P0 + Visual-Politur), Branch `claude/laughing-curie-jn0sff`.
+**Stand:** 2026-06-14 · **main nach PR #80** (Strang 3+4 P0 + P1 komplett + P2-Konzept/Engine
++ Politur/Konsistenz — gemerged). Branch `claude/laughing-curie-jn0sff` aufgegangen.
+
+### ▶ Für die NÄCHSTE Session — hier weitermachen
+1. **Owner-Entscheidung offen — P2-„Akte"-UI:** *Akte (eine kompakte diegetische Ansicht)*
+   **oder** *dialog-only*? Konzept + Skizze: `STRANG34_P2_VERBREITER_PLATTFORM_KONZEPT.md`.
+   Engine (`battlefield/BattlefieldChain.ts`) + Daten (targets/carriers/platforms) stehen schon,
+   nur die Oberfläche + `params`-Durchstich fehlen.
+2. **Topic-Texte in Stimme** (`topics_dialogues.json`, 14 Themen × NPC-Varianten) — letzter Dialog-Block;
+   Begrüßungen + Reaktionen sind bereits in Stimme.
+3. **Visual-Backlog:** V4 (Büro-Panel-Audit), V5 (HUD-Feinpolitur), V6 (ComboHints diegetisch), V8 (Strang 5 Atmosphäre).
+4. **P1c-Content** weiter (mehr granulare Aktionen, Marina mit 50 entlasten) + Balancing-Sim.
 
 ---
 

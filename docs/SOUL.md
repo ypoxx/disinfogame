@@ -58,11 +58,15 @@ Ganzes (v. a. den End-Report), nicht durch Belehrung. Pixel-Art **aus einem Guss
 
 ## 4. Arbeitsmodus der KI-Sessions
 
-> **AKTUELLER STAND (2026-06-14):** Strang 1 (#77) + Strang 2 (#78) + Feinplan 3+4 (#79)
-> gemerged. Strang 3+4 **P0** (Aktions-Überschriften + Direktor-Hinweise) + erste Visual-
-> Politur in Draft-PR **#80**. **Zentraler Einstieg für den Bau-Stand jetzt: `STATUS.md`**
-> (erledigt/offen/TODO, je Session aktualisiert). Auftrag/Entscheidungen weiter in
-> `DECISIONS_2026-06-13B_TRANSCRIPT.md`; Feinplan in `STRANG34_FEINPLAN_2026-06-13_AKTIONEN_DIALOGE.md`.
+> **AKTUELLER STAND (2026-06-14):** Strang 1 (#77) + 2 (#78) + Feinplan 3+4 (#79) **und PR #80**
+> gemerged: Strang 3+4 **P0 + P1 (komplett) + P2 (Konzept + Engine, noch ohne UI)** plus umfangreiche
+> Politur/Konsistenz. Im Spiel: Aktion-aus-Dialog, NPC-Stimmen (Begrüßungen + Reaktionen aller 5,
+> Steckbriefe in `NPC_VOICE_PROFILES.md`), 125 Aktionen (Igor/Finanz inkl. Kredit, Fokusgruppe),
+> Affinitäten auf kanonischem Roster, G23/G24 sauber, Avatar-Lauf/Lobby/DialogBox/Floating-Declutter
+> behoben, Balance 18:18. **Zentraler Einstieg für den Bau-Stand: `STATUS.md`.**
+> **Nächste Schritte (offen):** P2-„Akte"-UI — Owner-Entscheidung *Akte vs. dialog-only*
+> (Konzept + Skizze in `STRANG34_P2_VERBREITER_PLATTFORM_KONZEPT.md`); Topic-Texte in Stimme;
+> Visual-Backlog V4–V6/V8. Auftrag/Entscheidungen: `DECISIONS_2026-06-13B_TRANSCRIPT.md`.
 
 - **Erst lesen:** SOUL.md → **`STATUS.md`** (aktueller Bau-Stand: erledigt/offen/TODO) →
   **`DECISIONS_2026-06-13B_TRANSCRIPT.md`** (neuestes) → `DECISIONS_2026-06-12_NEXT_LEVEL.md` →
