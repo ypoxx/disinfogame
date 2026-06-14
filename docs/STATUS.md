@@ -8,29 +8,37 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `STRANG34_FEINPLAN_2026-06-13_AKTIONEN_DIALOGE.md` → `GESAMTKONZEPT_VISUELL.md` →
 > dieses Dokument für den aktuellen Bau-Stand. Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
-**Stand:** 2026-06-14 · **main nach PR #80** (Strang 3+4 P0 + P1 komplett + P2-Konzept/Engine
-+ Politur/Konsistenz — gemerged). Branch `claude/laughing-curie-jn0sff` aufgegangen.
+**Stand:** 2026-06-14 · **PR #81 (Draft, Branch `claude/blissful-bardeen-vqf70z`)** — große Session.
+**Geliefert (alles grün, Gate je Commit `tsc`·`vitest ~290`·`build`):**
+- **P2 abgerundet:** `OperationsAkteView` (diegetische Akte, Operationszentrale Etage 4) + `playOperation`
+  + `params`-Durchstich; **Operations-Ökonomie** (Verbreiter-Aufbau/Budget, Kompromat-Beschaffung,
+  Enttarnung→verbrannt) → kein Spam mehr.
+- **Visual-Politur (Owner-Screenshots R1–R8):** Skyline (hi-res + Tageszeit-Himmel + natürlicher Übergang +
+  dichter/keine Baulücke), **Entkachelung** der Etagen (saubere Korridore + datengetriebene Deko an der
+  **Wand-Fuß-Linie**, `STAGE.floorStrip`), **Untergrund** unter dem Keller, **Fernsehfamilie** (warmes
+  `styleHome`-Wohnzimmer + Sitzkomposition), Büro-Hotspots entrechteckt, Tür-/Fahrstuhl-Animationen sauber.
+- **Sound:** adaptive Musik (J34/J35) + Ducking (J36) + Ambience je Raum/Overlay (`soundDirector`).
+- **Strang 5 (6 Slices):** Pförtner (state-aware „Stimme des Landes"), stehende **+ anklickbare**
+  Statisten, **laufende Reinigung**, **Tür-Dummies**, saubere Tür-/Fahrstuhl-Animation.
+- **Skill** `.claude/skills/pixel-asset-pipeline` + Planungs-Hygiene (ROADMAP/TECHNICAL_DEBT/Konzept-Docs).
 
-### ▶ Für die NÄCHSTE Session — hier weitermachen
-1. **P2 abrunden** (Owner: „ganz klar und sehr wichtig"): **Verbreiter-Aufbau/Budget-Ökonomie**
-   (Carrier `state` verfügbar/aufbau/aktiv/verbrannt + `buildCost`-Spend + Enttarnung→verbrannt) und
-   **Kompromat-Schritt** (§5: Ziel→Dossier→Kompromat; `params.kompromat` reserviert). Macht die Akte
-   „echt" (behebt Spam-bar). Dann Balancing-Sim (§9.4) + reichere Broadcast-Themen aus Ziel-Milieu.
-   *Erststufe steht:* `OperationsAkteView` (Akte) + `playOperation` + `params`-Durchstich (PR #81).
-2. **Visual gratis-Politur (Code, kein Asset-Spend):** Skyline/Himmel **Tageszeit-Schichten**
-   (zu klein/zu dunkel, Owner-Screenshot), Büro-Hotspots „aus einem Guss" (Rechteck-Ringe weg),
-   „2"-Welt-Badge diegetisch verorten, **Broadcast-Leiste höher**, Ambience je Raum verdrahten.
-   Detailplan: **`VISUAL_AUDIO_BACKLOG_2026-06-14.md`**.
-3. **Topic-Texte in Stimme** (`topics_dialogues.json`, 14 Themen × NPC) — letzter Dialog-Block.
-4. **Asset-Pakete (mit Budget-Ansage):** `room_operations`, **Audience-Figuren + Wohnzimmer neu**
-   (Owner: „Figuren kaputt, moderner"), **2–3 Skyline-Varianten**, **Avatar höher auflösen**.
-5. **Strang 5 — Atmosphäre/Feinheiten:** Dummy-Figuren, Pförtner (Stimmungs-Hinweise), lebendige
-   Flure — jetzt als Feinplan **`STRANG5_FEINPLAN_ATMOSPHAERE.md`** (Owner: „echt wichtig").
-6. **Sound-Erweiterung:** adaptive Musik (J34/J35), Ducking (J36), Ambience-Verdrahtung, Topic-Vertonung
-   — Plan in `VISUAL_AUDIO_BACKLOG_2026-06-14.md` §6.
-7. **P3 (Roadmap):** Gebäude-Wachstum (`unlocksRoom`/`unlocksNpc`) + 100–500-Pfade-Sim.
-8. **Planungs-Hygiene:** `ROADMAP.md` aufgefrischt (2026-06-14); `story-mode/TECHNICAL_DEBT.md`
-   (Stand 2025-12) **Revalidierung offen** — mehrere Posten obsolet (z. B. „Emoji-Porträts").
+### ▶ Für die NÄCHSTE Session — großes Paket (frische Session wg. Token-Budget)
+**Empfehlung: „Loop schließen" — P2 + Konsequenzen + End-Report** (macht aus den Systemen *ein*
+durchspielbares, bildendes Spiel):
+- P2-Operationen an **Sieg/Niederlage** koppeln (Enttarnung = echter öffentlicher Rückschlag,
+  Vertrauen der Gegenseite↑); **Kompromat-Heikelheit ↔ `moral_weight` ↔ Enden**.
+- **End-Report** so bauen, dass er die **realen Desinfo-Methoden hinter jeder Mechanik benennt**
+  (SOUL §5: Bildung = der Lernmoment) — das eigentliche Ziel.
+- **Balancing-Sim end-to-end** (gewinn- UND verlierbar mit allen neuen Systemen).
+**Alternativen:** **P3** (Gebäude wächst: `unlocksRoom`/`unlocksNpc` + 100–500-Pfade-Sim) ·
+**Story/Vertonung** (Topic-Texte in Stimme + ElevenLabs-Batch).
+
+### 🔎 Aus dieser Session offen / nur im Preview zu prüfen (nicht in-Container verifizierbar)
+- **Fernsehfamilie ausgeklappt** (Taste B): Sitzlinie/Köpfe — Preview prüfen, ggf. Skala/Position nachziehen.
+- **Wand-Fuß-Linie** `STAGE.floorStrip`=40 + Strang-5-Tempo/Positionen — Owner-Feinjustage abwarten.
+- **Avatar:** zu pixelig + Lauf-Figur **nicht** an Avatar-Wahl gekoppelt (Bugs) → hi-res + m/w-Lauf offen.
+- Kleinkram: V4-Büro-Audit weiter, Lampen-abends-an, „2"-Welt-Badge diegetisch verorten.
+- **PR #81 ist Draft** → reviewen/mergen, wenn Owner mit dem Preview zufrieden ist.
 
 ---
 
