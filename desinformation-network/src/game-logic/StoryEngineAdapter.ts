@@ -3407,6 +3407,20 @@ export class StoryEngineAdapter {
     };
   }
 
+  /**
+   * Vollständiger Aktions-Katalog (id→Tags/Legalität) — für End-Report (Legalitäts-
+   * Bilanz + Methoden-Atlas), auch für bereits gespielte/nicht mehr verfügbare Aktionen.
+   */
+  getActionCatalog(): Array<{ id: string; label: string; legality: 'legal' | 'grey' | 'illegal'; phase: string; tags: string[] }> {
+    return this.actionLoader.getAllActions().map((a) => ({
+      id: a.id,
+      label: a.label_de,
+      legality: a.legality,
+      phase: a.phase,
+      tags: a.tags ?? [],
+    }));
+  }
+
   /** Verbreiter-Zustand (Default verfügbar = bekannt, aber noch nicht aufgebaut). */
   getCarrierState(carrierId: string): CarrierState {
     return this.carrierStates.get(carrierId) ?? 'verfügbar';

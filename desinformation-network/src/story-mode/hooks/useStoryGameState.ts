@@ -327,7 +327,11 @@ export interface StoryGameState {
   acquiredKompromat: string[];
   /** Bilanz der P2-Operationen (für End-Report/Methoden-Atlas). */
   getOperationsSummary: () => OperationsSummary;
+  /** Vollständiger Aktions-Katalog (id→Tags/Legalität) für den End-Report. */
+  getActionCatalog: () => ReturnType<StoryGameStateEngine['getActionCatalog']>;
 }
+
+type StoryGameStateEngine = import('../../game-logic/StoryEngineAdapter').StoryEngineAdapter;
 
 export interface DialogState {
   speaker: string;
@@ -1553,6 +1557,7 @@ export function useStoryGameState(seed?: string) {
       carrierStates,
       acquiredKompromat,
       getOperationsSummary: () => engine.getOperationsSummary(),
+      getActionCatalog: () => engine.getActionCatalog(),
     } as StoryGameState,
 
     // Game Flow

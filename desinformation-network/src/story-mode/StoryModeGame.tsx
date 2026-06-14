@@ -44,6 +44,7 @@ import { Icon } from './components/Icon';
 import { MorningBriefing } from './components/MorningBriefing';
 import { DayReport } from './components/DayReport';
 import { EndReport } from './components/EndReport';
+import { classifyMethods } from './engine/DisinfoMethodAtlas';
 import { useDayClockStore, TIME_COST } from './stores/dayClockStore';
 import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
@@ -622,29 +623,39 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         >
           VOLLSTÄNDIGER LAGEBERICHT ▸
         </button>
-        {showEndReport && (
-          <EndReport
-            endType={state.gameEnd.type}
-            endTitle={state.gameEnd.title_de}
-            endNarrative={state.gameEnd.description_de}
-            phasesPlayed={state.storyPhase.number}
-            completedActionIds={state.completedActions}
-            actionsCatalog={state.availableActions.map((act) => ({
-              id: act.id,
-              label: act.label_de,
-              legality: act.legality,
-              phase: act.phase,
-              tags: act.tags,
-            }))}
-            trustHistory={state.trustHistory}
-            finalResources={{
-              budget: state.resources.budget,
-              risk: state.resources.risk,
-              moralWeight: state.resources.moralWeight,
-            }}
-            onClose={() => setShowEndReport(false)}
-          />
-        )}
+        {showEndReport && (() => {
+          // Vollständiger Katalog (auch bereits gespielte Aktionen) → korrekte
+          // Legalitäts-Bilanz UND der Bildungs-Kern: reale Methoden hinter den Mechaniken.
+          const actionCatalog = state.getActionCatalog();
+          const opsSummary = state.getOperationsSummary();
+          const methodsUsed = classifyMethods({
+            completedActionIds: state.completedActions,
+            catalog: actionCatalog,
+            carriersUsed: opsSummary.carriersUsed,
+            platformsUsed: opsSummary.platformsUsed,
+            operationsPlayed: opsSummary.operationsPlayed,
+            kompromatAcquired: opsSummary.kompromatAcquired,
+          });
+          return (
+            <EndReport
+              endType={state.gameEnd.type}
+              endTitle={state.gameEnd.title_de}
+              endNarrative={state.gameEnd.description_de}
+              phasesPlayed={state.storyPhase.number}
+              completedActionIds={state.completedActions}
+              actionsCatalog={actionCatalog}
+              trustHistory={state.trustHistory}
+              finalResources={{
+                budget: state.resources.budget,
+                risk: state.resources.risk,
+                moralWeight: state.resources.moralWeight,
+              }}
+              methodsUsed={methodsUsed}
+              operationsSummary={opsSummary}
+              onClose={() => setShowEndReport(false)}
+            />
+          );
+        })()}
       </>
     );
   }

@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { StoryModeColors } from '../theme';
 import type { TrustHistoryPoint } from '../../components/TrustEvolutionChart';
 import type { EndingCategory } from '../engine/EndingSystem';
+import type { MethodInsight } from '../engine/DisinfoMethodAtlas';
 
 // ============================================
 // TYPEN
@@ -43,6 +44,19 @@ export interface EndReportProps {
     budget: number;
     risk: number;
     moralWeight: number;
+  };
+  /**
+   * Bildungs-Kern (SOUL §5): die realen Desinfo-Methoden hinter den genutzten
+   * Mechaniken — aus DisinfoMethodAtlas.classifyMethods(). Optional/rückwärtskompatibel.
+   */
+  methodsUsed?: MethodInsight[];
+  /** Bilanz der P2-Operationen (Schlachtfeld) — optional. */
+  operationsSummary?: {
+    operationsPlayed: number;
+    carriersUsed: string[];
+    platformsUsed: string[];
+    kompromatAcquired: number;
+    carriersBurned: number;
   };
   /** Schließen-Callback */
   onClose: () => void;
@@ -274,6 +288,117 @@ export function generateCommentParagraphs(params: {
   }
 
   return paragraphs;
+}
+
+/** Ampelfarbe für die Methoden-Schwere. */
+export function severityColor(severity: string): string {
+  if (severity === 'hoch') return StoryModeColors.danger;
+  if (severity === 'mittel') return StoryModeColors.warning;
+  return StoryModeColors.militaryOlive;
+}
+
+// ============================================
+// BILDUNGS-ABSCHNITT — reale Methoden hinter den Mechaniken (SOUL §5)
+// ============================================
+
+interface MethodsSectionProps {
+  methods: MethodInsight[];
+  operationsSummary?: EndReportProps['operationsSummary'];
+}
+
+/**
+ * Der eigentliche Lernmoment: was der Spieler tat → die reale Desinfo-Methode
+ * dahinter, samt dokumentiertem Fall. Bewusst breit (das Kompromat-Schlachtfeld
+ * ist nur eine von vielen Familien).
+ */
+function MethodsSection({ methods, operationsSummary }: MethodsSectionProps) {
+  const ops = operationsSummary;
+  const hasOps = !!ops && ops.operationsPlayed > 0;
+
+  return (
+    <>
+      <p
+        style={{
+          fontSize: '12px',
+          lineHeight: '1.6',
+          color: StoryModeColors.textSecondary,
+          margin: '0 0 12px',
+        }}
+      >
+        Jede Mechanik in diesem Spiel bildet eine reale Methode der Desinformation ab.
+        Das ist der eigentliche Zweck: Wer die Muster hier erkennt, erkennt sie auch draußen.
+      </p>
+
+      {hasOps && (
+        <div
+          style={{
+            backgroundColor: StoryModeColors.darkConcrete,
+            border: `1px solid ${StoryModeColors.borderLight}`,
+            padding: '8px 12px',
+            marginBottom: '12px',
+            fontSize: '11px',
+            color: StoryModeColors.textSecondary,
+          }}
+        >
+          <span style={{ color: StoryModeColors.warning, fontWeight: 'bold' }}>Schlachtfeld-Bilanz: </span>
+          {ops!.operationsPlayed} Operation{ops!.operationsPlayed !== 1 ? 'en' : ''} ·{' '}
+          {ops!.carriersUsed.length} Verbreiter aufgebaut ·{' '}
+          {ops!.kompromatAcquired}× Kompromat beschafft
+          {ops!.carriersBurned > 0 && (
+            <span style={{ color: StoryModeColors.danger }}>
+              {' '}· {ops!.carriersBurned} Verbreiter aufgeflogen
+            </span>
+          )}
+        </div>
+      )}
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {methods.map((m) => (
+          <div
+            key={m.id}
+            style={{
+              backgroundColor: StoryModeColors.background,
+              border: `1px solid ${StoryModeColors.borderLight}`,
+              borderLeft: `3px solid ${severityColor(m.severity)}`,
+              padding: '10px 12px',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 'bold', color: StoryModeColors.textPrimary }}>
+                {m.label_de}
+              </span>
+              <span
+                style={{
+                  fontSize: '9px',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: severityColor(m.severity),
+                  border: `1px solid ${severityColor(m.severity)}`,
+                  padding: '1px 5px',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {m.severity}
+              </span>
+            </div>
+            <div style={{ fontSize: '11px', color: StoryModeColors.warning, margin: '3px 0 6px', fontStyle: 'italic' }}>
+              Reale Methode: {m.real_method_de}
+            </div>
+            <p style={{ fontSize: '12px', lineHeight: '1.55', color: StoryModeColors.textPrimary, margin: '0 0 6px' }}>
+              {m.what_de}
+            </p>
+            <p style={{ fontSize: '11px', lineHeight: '1.5', color: StoryModeColors.textSecondary, margin: '0 0 4px' }}>
+              <span style={{ color: StoryModeColors.textMuted }}>Dokumentiert: </span>
+              {m.real_case_de}
+            </p>
+            <div style={{ fontSize: '10px', color: StoryModeColors.textMuted }}>
+              Erkannt an: {m.evidence_de}
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
 }
 
 // ============================================
@@ -629,6 +754,8 @@ export function EndReport({
   actionsCatalog,
   trustHistory,
   finalResources,
+  methodsUsed,
+  operationsSummary,
   onClose,
 }: EndReportProps) {
   const [expanded, setExpanded] = useState(true);
@@ -908,7 +1035,15 @@ export function EndReport({
             })}
           </div>
 
-          {/* ── 6. KOMMENTAR ── */}
+          {/* ── 6. REALE METHODEN (Bildungs-Kern, SOUL §5) ── */}
+          {methodsUsed && methodsUsed.length > 0 && (
+            <>
+              <SectionHeading>Reale Methoden hinter Ihren Mechaniken</SectionHeading>
+              <MethodsSection methods={methodsUsed} operationsSummary={operationsSummary} />
+            </>
+          )}
+
+          {/* ── 7. KOMMENTAR ── */}
           <SectionHeading>Einordnung</SectionHeading>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {comments.map((para, i) => (

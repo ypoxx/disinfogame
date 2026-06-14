@@ -592,6 +592,30 @@ export function OperationsAkteView({
             <Gauge label="Milieu-Passung" value={result?.milieuFit ?? null} />
             <Gauge label="Enttarnungs-Risiko" value={result?.exposureRisk ?? null} invert />
 
+            {/* FOLGEN — der Loop sichtbar machen: Wirkung ↔ Sieg, Enttarnung ↔ Rückschlag */}
+            {result && (
+              <div
+                style={{
+                  marginTop: 4,
+                  padding: '7px 9px',
+                  backgroundColor: StoryModeColors.background,
+                  border: `1px solid ${StoryModeColors.border}`,
+                  fontSize: 10,
+                  lineHeight: 1.45,
+                }}
+              >
+                <div style={{ fontSize: 8, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 3 }}>FOLGEN</div>
+                <div style={{ color: StoryModeColors.success }}>
+                  ▼ Wirkung senkt das Institutionen-Vertrauen (Ihr Sieg-Ziel).
+                </div>
+                {result.exposureRisk >= 0.5 && (
+                  <div style={{ color: StoryModeColors.danger, marginTop: 2 }}>
+                    ⚠ Enttarnungs-Gefahr: Verbreiter kann verbrennen → Vertrauen der Gegenseite steigt zurück, Risiko + moralische Last springen.
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Schlagzeilen-Vorschau */}
             <div
               style={{
