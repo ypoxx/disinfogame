@@ -858,7 +858,7 @@
       "type": "internal",
       "triggered_by": ["budget_stress", "multiple_failures"],
       "label_de": "Interner Machtkampf",
-      "narrative_de": "Der Direktor ist unter Druck von Moskau. Es gibt Gerüchte über Ihre Position.",
+      "narrative_de": "Der Direktor ist unter Druck von der Zentrale. Es gibt Gerüchte über Ihre Position.",
       "delay": {
         "min_phases": 5,
         "max_phases": 10

@@ -300,9 +300,11 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                   ...(bgUrl
                     ? {
                         backgroundImage: `linear-gradient(rgba(8,8,12,0.12), rgba(8,8,12,0.22)), url(${bgUrl})`,
-                        backgroundRepeat: 'repeat-x',
-                        backgroundSize: 'auto 100%',
-                        backgroundPosition: 'left bottom',
+                        // EG/Lobby = EINE durchgehende Eingangshalle (kein Kacheln, sah aus wie ein Bug);
+                        // Flure dürfen weiter horizontal kacheln (3 Varianten je Etage).
+                        backgroundRepeat: isLobby ? 'no-repeat' : 'repeat-x',
+                        backgroundSize: isLobby ? 'cover' : 'auto 100%',
+                        backgroundPosition: isLobby ? 'center bottom' : 'left bottom',
                         imageRendering: 'pixelated',
                       }
                     : { borderBottom: '2px solid #2c2d35' }),

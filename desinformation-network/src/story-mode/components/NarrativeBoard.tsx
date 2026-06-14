@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState, type DragEvent } from 'react';
 import { StoryModeColors } from '../theme';
 import { Icon } from './Icon';
 import { playSound } from '../utils/SoundSystem';
+import { isQueueBudgetFeasible } from '../utils/queueAffordability';
 import type { QueuedAction } from '../hooks/useStoryGameState';
 
 // ─── Typen ────────────────────────────────────────────────────────────────────
@@ -28,6 +29,8 @@ export interface BoardAction {
   legality: 'legal' | 'grey' | 'illegal';
   available: boolean;
   unavailableReason?: string;
+  /** Zuständiger NPC/Büro (Anzeige) — gruppiert das Deck (Entscheidung 1). */
+  npc?: string;
 }
 
 export interface BoardObjective {
@@ -122,6 +125,19 @@ export function NarrativeBoard({
     [objectives],
   );
 
+  // Deck nach zuständigem NPC/Büro gruppieren (Entscheidung 1: Maßnahmen je Büro,
+  // nicht als flache Gesamtliste). Reihenfolge stabil nach erstem Auftreten.
+  const actionsByNpc = useMemo(() => {
+    const groups = new Map<string, BoardAction[]>();
+    for (const a of actions) {
+      const key = a.npc || 'Ministerium';
+      const list = groups.get(key);
+      if (list) list.push(a);
+      else groups.set(key, [a]);
+    }
+    return Array.from(groups.entries());
+  }, [actions]);
+
   const pin = (actionId: string, spur: number) => {
     setFocusSpur(spur);
     playSound('paper');
@@ -143,8 +159,9 @@ export function NarrativeBoard({
     }),
     { budget: 0, capacity: 0, actionPoints: 0 },
   );
+  // Budget prefix-genau prüfen (Kredite zählen erst an ihrer Position, Codex-Review #80).
   const canPlay = queue.length > 0 &&
-    planCost.budget <= resources.budget &&
+    isQueueBudgetFeasible(queue, resources.budget) &&
     planCost.capacity <= resources.capacity &&
     planCost.actionPoints <= resources.actionPoints;
 
@@ -296,23 +313,33 @@ export function NarrativeBoard({
             )}
           </div>
 
-          {/* Karten-Deck: verfügbare Maßnahmen */}
+          {/* Karten-Deck: verfügbare Maßnahmen, nach zuständigem Büro/NPC gruppiert */}
           <div className="text-[10px] font-bold tracking-widest mb-1" style={{ color: '#e6d3ad' }}>
-            MASSNAHMEN — auf eine Spur ziehen oder „Anheften"
+            MASSNAHMEN — je Büro; auf eine Spur ziehen oder „Anheften"
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-            {actions.length === 0 && (
-              <span className="text-[11px]" style={{ color: '#c9b48f' }}>Aktuell keine Maßnahmen verfügbar.</span>
-            )}
-            {actions.map((a) => (
-              <ActionCard
-                key={a.id}
-                action={a}
-                onPin={() => pin(a.id, focusSpur)}
-                onExecuteNow={() => a.available && onExecuteNow(a.id)}
-              />
-            ))}
-          </div>
+          {actions.length === 0 && (
+            <span className="text-[11px]" style={{ color: '#c9b48f' }}>Aktuell keine Maßnahmen verfügbar.</span>
+          )}
+          {actionsByNpc.map(([npc, list]) => (
+            <div key={npc} className="mb-3">
+              <div
+                className="text-[11px] font-bold mb-1 px-1 inline-block"
+                style={{ color: '#241a0f', backgroundColor: '#c9b48f' }}
+              >
+                {npc}
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {list.map((a) => (
+                  <ActionCard
+                    key={a.id}
+                    action={a}
+                    onPin={() => pin(a.id, focusSpur)}
+                    onExecuteNow={() => a.available && onExecuteNow(a.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Fuß: Plan-Kosten + Ausspielen/Leeren */}

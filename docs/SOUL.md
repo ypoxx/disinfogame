@@ -58,15 +58,19 @@ Ganzes (v. a. den End-Report), nicht durch Belehrung. Pixel-Art **aus einem Guss
 
 ## 4. Arbeitsmodus der KI-Sessions
 
-> **AKTUELLER STAND (2026-06-13):** main = c86fc9e (PR #74+#75 gemerged — Gebäude,
-> Tagesschleife, End-Report, Westunion-Milieus, Newsroom, Fokusgruppe, Sound, Avatar).
-> **Nächster Schritt = großes visuelles + Dialog-Mega-Update.** Auftrag vollständig
-> destilliert in `DECISIONS_2026-06-13B_TRANSCRIPT.md` (8 Arbeitsstränge). Dort
-> beginnen.
+> **AKTUELLER STAND (2026-06-14):** Strang 1 (#77) + 2 (#78) + Feinplan 3+4 (#79) **und PR #80**
+> gemerged: Strang 3+4 **P0 + P1 (komplett) + P2 (Konzept + Engine, noch ohne UI)** plus umfangreiche
+> Politur/Konsistenz. Im Spiel: Aktion-aus-Dialog, NPC-Stimmen (Begrüßungen + Reaktionen aller 5,
+> Steckbriefe in `NPC_VOICE_PROFILES.md`), 125 Aktionen (Igor/Finanz inkl. Kredit, Fokusgruppe),
+> Affinitäten auf kanonischem Roster, G23/G24 sauber, Avatar-Lauf/Lobby/DialogBox/Floating-Declutter
+> behoben, Balance 18:18. **Zentraler Einstieg für den Bau-Stand: `STATUS.md`.**
+> **Nächste Schritte (offen):** P2-„Akte"-UI — Owner-Entscheidung *Akte vs. dialog-only*
+> (Konzept + Skizze in `STRANG34_P2_VERBREITER_PLATTFORM_KONZEPT.md`); Topic-Texte in Stimme;
+> Visual-Backlog V4–V6/V8. Auftrag/Entscheidungen: `DECISIONS_2026-06-13B_TRANSCRIPT.md`.
 
-- **Erst lesen:** SOUL.md → **`DECISIONS_2026-06-13B_TRANSCRIPT.md`** (neuestes) →
-  `DECISIONS_2026-06-12_NEXT_LEVEL.md` → `GESAMTKONZEPT_VISUELL.md` →
-  `NEXT_LEVEL_PLAN.md`. CLAUDE.md im Spielordner für Technik-Regeln.
+- **Erst lesen:** SOUL.md → **`STATUS.md`** (aktueller Bau-Stand: erledigt/offen/TODO) →
+  **`DECISIONS_2026-06-13B_TRANSCRIPT.md`** (neuestes) → `DECISIONS_2026-06-12_NEXT_LEVEL.md` →
+  `GESAMTKONZEPT_VISUELL.md` → `NEXT_LEVEL_PLAN.md`. CLAUDE.md im Spielordner für Technik-Regeln.
 - **Orchestrierung:** Großes parallelisieren (Recherche/Reviews/Implementierung
   auf disjunkten Dateien), Integration zentral halten. Agenten-Briefings IMMER
   mit harter Abschluss-Klausel („Antwort MUSS mit BERICHT: beginnen, keine

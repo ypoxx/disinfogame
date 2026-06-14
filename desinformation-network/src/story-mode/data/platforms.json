@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "note": "P2 Achse B — Plattformen/Oberflächen (WO es landet). Werte 0..1. Erweiterbar.",
+    "version": "0.1.0"
+  },
+  "platforms": [
+    {
+      "id": "kurzvideo", "label_de": "Kurzvideo (TikTok-artig)",
+      "reach": 0.85, "decay": 0.8, "moderation": 0.35,
+      "milieus": ["wu_bohemien", "wu_zorniger", "wu_optimiererin"]
+    },
+    {
+      "id": "video", "label_de": "Video (YouTube-artig)",
+      "reach": 0.75, "decay": 0.4, "moderation": 0.5,
+      "milieus": ["wu_besorgte_mitte", "wu_eigenheimer", "wu_zorniger"]
+    },
+    {
+      "id": "feed", "label_de": "Text/Feed (X-artig)",
+      "reach": 0.7, "decay": 0.6, "moderation": 0.55,
+      "milieus": ["wu_liberale", "wu_optimiererin", "wu_besorgte_mitte"]
+    },
+    {
+      "id": "messenger", "label_de": "Messenger / geschlossene Gruppen",
+      "reach": 0.35, "decay": 0.2, "moderation": 0.1,
+      "milieus": ["wu_zorniger", "wu_eigenheimer"]
+    },
+    {
+      "id": "etablierte_medien", "label_de": "Etablierte Medien (gestützte Stimme)",
+      "reach": 0.55, "decay": 0.3, "moderation": 0.85,
+      "milieus": ["wu_besorgte_mitte", "wu_liberale", "wu_eigenheimer"]
+    }
+  ]
+}

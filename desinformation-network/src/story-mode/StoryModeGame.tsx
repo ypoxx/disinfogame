@@ -947,6 +947,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               legality: a.legality,
               available: a.available,
               unavailableReason: a.unavailableReason,
+              // Zuständiges Büro für die Gruppierung (Entscheidung 1). Fallback „Ministerium",
+              // u. a. für die bekannte Affinitäts-Inkonsistenz (volkov≠NPC-Id, s. STATUS.md).
+              npc: state.npcs.find((n) => n.id === a.npcAffinity?.[0])?.name ?? 'Ministerium',
             }))}
             queue={state.actionQueue}
             threads={(state.comboHints ?? []).map((h) => ({
@@ -1036,6 +1039,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               phase={state.storyPhase.number}
               risk={state.resources.risk}
               trustProgress={trustProgress}
+              budget={state.resources.budget}
+              attention={state.resources.attention}
               onDone={() => setBriefedPhase(state.storyPhase.number)}
             />
           )}
@@ -1126,8 +1131,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         onClose={() => setShowEncyclopedia(false)}
       />
 
-      {/* Advisor Panel */}
-      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
+      {/* Advisor Panel — während eines Gesprächs ausgeblendet (freie Sicht aufs NPC-Gespräch
+          + dessen Maßnahmen-Optionen; Empfehlungen erscheinen jetzt diegetisch im Dialog). */}
+      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !state.currentDialog && (
         <AdvisorPanel
           npcs={state.npcs.map(npc => ({
             id: npc.id,
@@ -1169,8 +1175,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         />
       )}
 
-      {/* Action Queue Widget */}
-      {state.gamePhase === 'playing' && (
+      {/* Action Queue Widget — im Gespräch ausgeblendet (kein Overlay über dem Dialog) */}
+      {state.gamePhase === 'playing' && !state.currentDialog && (
         <ActionQueueWidget
           queue={state.actionQueue}
           currentResources={{
@@ -1195,8 +1201,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         />
       )}
 
-      {/* Combo Hints Widget */}
-      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && state.comboHints && state.comboHints.length > 0 && (
+      {/* Combo Hints Widget — im Gespräch ausgeblendet (kein Floating über dem Dialog) */}
+      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !state.currentDialog && state.comboHints && state.comboHints.length > 0 && (
         <div
           className="fixed bottom-4 left-4 w-80 z-20"
           style={{ maxHeight: '40vh', overflowY: 'auto' }}

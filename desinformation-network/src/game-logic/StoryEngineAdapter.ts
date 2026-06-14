@@ -150,6 +150,9 @@ export interface StoryAction {
   // Labels
   label_de: string;
   label_en: string;
+  /** Plakative Maßnahmen-Überschrift fürs Ausspielen (B5): „Bot-Netzwerk gestartet". */
+  headline_de?: string;
+  headline_en?: string;
   narrative_de: string;
   narrative_en: string;
 
@@ -2900,6 +2903,8 @@ export class StoryEngineAdapter {
       id: loaded.id,
       label_de: loaded.label_de,
       label_en: loaded.label_en || loaded.label_de,
+      headline_de: loaded.headline_de,
+      headline_en: loaded.headline_en,
       narrative_de: loaded.narrative_de || '',
       narrative_en: loaded.narrative_en || loaded.narrative_de || '',
       phase: loaded.phase,
@@ -3187,6 +3192,8 @@ export class StoryEngineAdapter {
       actionId: action.id,
       actionLabel_de: action.label_de,
       actionLabel_en: action.label_en,
+      headline_de: action.headline_de,
+      headline_en: action.headline_en,
       phase: action.phase,
       tags: action.tags,
       legality: action.legality,

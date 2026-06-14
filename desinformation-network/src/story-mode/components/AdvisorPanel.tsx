@@ -189,9 +189,9 @@ export function AdvisorPanel({
                 style={{
                   backgroundColor: isHovered ? StoryModeColors.background : StoryModeColors.concrete,
                   borderColor: topRec ? getPriorityColor(topRec.priority) : StoryModeColors.borderLight,
-                  boxShadow: topRec?.priority === 'critical'
-                    ? `0 0 8px ${getPriorityColor(topRec.priority)}`
-                    : '2px 2px 0px rgba(0,0,0,0.5)',
+                  // Stil-Bibel: dezenter Pixel-Innenrand statt Verbots-Schlagschatten/Glow.
+                  // Kritische Priorität bleibt über die rote Rahmenfarbe + pulsenden Indikator sichtbar.
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
                 }}
               >
                 {/* Betrayal Warning Badge */}
