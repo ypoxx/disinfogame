@@ -552,7 +552,7 @@
       "id": "cm19",
       "label_de": "Budget-Kürzung",
       "label_en": "Budget Cut",
-      "narrative_de": "Moskau ist mit den Ergebnissen unzufrieden. Das Budget für das nächste Quartal wird gekürzt.",
+      "narrative_de": "Die Zentrale ist mit den Ergebnissen unzufrieden. Das Budget für das nächste Quartal wird gekürzt.",
       "severity": "moderate",
       "trigger": {
         "type": "random_check",

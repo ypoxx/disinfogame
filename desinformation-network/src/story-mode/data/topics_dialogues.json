@@ -38,8 +38,8 @@
         },
         {
           "id": "topic_mission_intro_2",
-          "text_de": "Unsere Mission ist klar definiert. Moskau erwartet Resultate, keine Ausreden.",
-          "text_en": "Our mission is clearly defined. Moscow expects results, not excuses.",
+          "text_de": "Unsere Mission ist klar definiert. Die Zentrale erwartet Resultate, keine Ausreden.",
+          "text_en": "Our mission is clearly defined. Central expects results, not excuses.",
           "tone": "cold",
           "probability": 0.4,
           "phase_range": [1, 60],
@@ -65,8 +65,8 @@
         },
         {
           "id": "topic_mission_intro_4",
-          "text_de": "*vertraulich* Zwischen uns: Diese Mission ist wichtiger als Moskau zugibt. Erfolg oeffnet Tueren.",
-          "text_en": "*confidentially* Between us: This mission is more important than Moscow admits. Success opens doors.",
+          "text_de": "*vertraulich* Zwischen uns: Diese Mission ist wichtiger als die Zentrale zugibt. Erfolg oeffnet Tueren.",
+          "text_en": "*confidentially* Between us: This mission is more important than Central admits. Success opens doors.",
           "tone": "conspiratorial",
           "probability": 0.3,
           "phase_range": [1, 120],
@@ -183,8 +183,8 @@
         },
         {
           "id": "topic_resources_intro_2",
-          "text_de": "Die Ressourcenlage ist {budget_state}. Moskau wird nicht endlos nachschiessen.",
-          "text_en": "The resource situation is {budget_state}. Moscow won't keep funding indefinitely.",
+          "text_de": "Die Ressourcenlage ist {budget_state}. Die Zentrale wird nicht endlos nachschiessen.",
+          "text_en": "The resource situation is {budget_state}. Central won't keep funding indefinitely.",
           "tone": "warning",
           "probability": 0.5,
           "phase_range": [1, 120],
@@ -270,8 +270,8 @@
         },
         {
           "id": "topic_resources_option_2",
-          "text_de": "Sollten wir Moskau um zusaetzliche Mittel bitten?",
-          "text_en": "Should we ask Moscow for additional funds?",
+          "text_de": "Sollten wir die Zentrale um zusaetzliche Mittel bitten?",
+          "text_en": "Should we ask Central for additional funds?",
           "tone": "cautious",
           "condition": {
             "all": [
@@ -1080,8 +1080,8 @@
       "deep": [
         {
           "id": "topic_budget_deep_1",
-          "text_de": "Monatliche Ausgaben: Operationen (50%), Infrastruktur (25%), Personal (25%). Moskaus Zuschuss deckt etwa 70%.",
-          "text_en": "Monthly expenses: Operations (50%), infrastructure (25%), personnel (25%). Moscow's subsidy covers about 70%.",
+          "text_de": "Monatliche Ausgaben: Operationen (50%), Infrastruktur (25%), Personal (25%). Der Zuschuss der Zentrale deckt etwa 70%.",
+          "text_en": "Monthly expenses: Operations (50%), infrastructure (25%), personnel (25%). Central's subsidy covers about 70%.",
           "tone": "analytical",
           "probability": 0.6,
           "phase_range": [1, 120],
@@ -1398,8 +1398,8 @@
       "turns": [
         {
           "speaker": "direktor",
-          "text_de": "*ernst* Moskau ist ungeduldig. Der Fortschritt bei {objective_progress} ist zu langsam.",
-          "text_en": "*serious* Moscow is impatient. Progress at {objective_progress} is too slow.",
+          "text_de": "*ernst* Die Zentrale ist ungeduldig. Der Fortschritt bei {objective_progress} ist zu langsam.",
+          "text_en": "*serious* Central is impatient. Progress at {objective_progress} is too slow.",
           "tone": "cold"
         },
         {
