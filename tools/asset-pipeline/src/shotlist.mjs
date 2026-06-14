@@ -190,7 +190,7 @@ const BUILDING_KIT = [
     '16:9',
     { w: 1344, h: 768 },
     false,
-    'interior corridor wall of a brutalist ministry, cross-section view: plain concrete wall with a painted dado line, a notice board, a wall clock, ceiling with one fluorescent tube, linoleum floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people',
+    'EMPTY interior corridor wall of a brutalist ministry, cross-section view: plain smooth concrete wall with a painted dado line at hip height, a ceiling with one long fluorescent tube, a linoleum floor strip at the bottom; the wall is COMPLETELY EMPTY — absolutely NO notice board, NO clock, NO posters, NO plants, NO bench, NO furniture, NO objects of any kind on the wall or floor; seamlessly tileable from left to right, flat frontal view, NO doors, no people',
     'must',
   ],
   [
@@ -198,7 +198,7 @@ const BUILDING_KIT = [
     '16:9',
     { w: 1344, h: 768 },
     false,
-    'interior corridor wall of a modern ministry, cross-section view: clean concrete-and-glass wall with a glass-fronted notice board, a wall-mounted flat info screen, a tall potted plant and a water cooler, ceiling with recessed light strips, polished floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people',
+    'EMPTY interior corridor wall of a modern ministry, cross-section view: clean concrete-and-glass wall with slim vertical glass panels and a brushed-metal dado strip, ceiling with recessed light strips, a polished floor strip at the bottom; the wall is COMPLETELY EMPTY — absolutely NO notice board, NO screen, NO plants, NO water cooler, NO furniture, NO objects of any kind; seamlessly tileable from left to right, flat frontal view, NO doors, no people',
     'must',
   ],
   [
@@ -206,7 +206,15 @@ const BUILDING_KIT = [
     '16:9',
     { w: 1344, h: 768 },
     false,
-    'interior corridor wall of a modern ministry, cross-section view: clean concrete wall with a small coffee station, two framed abstract constructivist posters (geometric shapes only, no text), a low waiting bench, a wall clock, ceiling recessed light strips, polished floor strip at the bottom, seamlessly tileable from left to right, flat frontal view, NO doors, no people',
+    'EMPTY interior corridor wall of a modern ministry, cross-section view: warm-grey plastered wall with a darker wainscot panel below the dado line, ceiling with recessed light strips, a polished floor strip at the bottom; the wall is COMPLETELY EMPTY — absolutely NO coffee station, NO posters, NO bench, NO clock, NO furniture, NO objects of any kind; seamlessly tileable from left to right, flat frontal view, NO doors, no people',
+    'must',
+  ],
+  [
+    'bld_corridor_keller',
+    '16:9',
+    { w: 1344, h: 768 },
+    false,
+    'EMPTY basement vault-level corridor wall of a brutalist ministry, cross-section view: rough raw exposed-concrete wall, a row of metal conduits and pipes running horizontally near the ceiling with a few small red status lights, a bare sealed-concrete floor strip at the bottom, cooler and slightly darker utilitarian lighting; the wall is COMPLETELY EMPTY — absolutely NO furniture, NO posters, NO objects of any kind; seamlessly tileable from left to right, flat frontal view, NO doors, no people',
     'must',
   ],
   [

@@ -16,6 +16,7 @@ import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
 import { skyGradientForMinutes } from './skyTime';
+import { FLOOR_DECOR, DECOR_HEIGHT } from './corridorDecor';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
@@ -132,7 +133,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   // Mehr Abwechslung statt 1 Flur ×N: Variante je Etage (Owner-Hinweis).
   const corridorIds = ['bld_corridor', 'bld_corridor_2', 'bld_corridor_3'] as const;
   const corridorUrlFor = (level: number) =>
-    assets.imageUrl(corridorIds[(((level % 3) + 3) % 3)]) ?? corridorUrl;
+    assets.imageUrl(level === -1 ? 'bld_corridor_keller' : corridorIds[(((level % 3) + 3) % 3)]) ?? corridorUrl;
   const lobbyUrl = assets.imageUrl('room_lobby');
   const cityUrl = assets.imageUrl('bld_city_far');
   const streetUrl = assets.imageUrl('bld_street');
@@ -319,6 +320,38 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                   zIndex: 1,
                 }}
               />
+              {/* Frei platzierte Flur-Deko (R4): Bodensteher auf der Bodenlinie,
+                  Wand-Objekte auf Wandhöhe — datengetrieben, reale Proportionen. */}
+              {!isLobby && (FLOOR_DECOR[floor.id] ?? []).map((d, i) => {
+                const url = assets.imageUrl(d.id);
+                if (!url) return null;
+                const h = DECOR_HEIGHT[d.id] ?? 48;
+                const playableW = layout.shaft.x - STAGE.pillarWidth;
+                const cx = STAGE.pillarWidth + d.xFrac * playableW;
+                const baseline = floor.y + STAGE.floorHeight; // Bodenlinie (= Tür-Unterkante)
+                const top = d.mount === 'floor'
+                  ? baseline - h
+                  : floor.y + STAGE.floorHeight * 0.36 - h / 2; // Wand-Objekte oberes Drittel
+                return (
+                  <img
+                    key={`${floor.id}-decor-${i}`}
+                    src={url}
+                    alt=""
+                    aria-hidden
+                    style={{
+                      position: 'absolute',
+                      left: cx,
+                      top,
+                      height: h,
+                      width: 'auto',
+                      transform: 'translateX(-50%)',
+                      imageRendering: 'pixelated',
+                      pointerEvents: 'none',
+                      zIndex: 2,
+                    }}
+                  />
+                );
+              })}
               {/* Decken-Platte über der Etage */}
               <div
                 style={{
