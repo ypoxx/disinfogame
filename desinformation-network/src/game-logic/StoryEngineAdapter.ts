@@ -138,6 +138,7 @@ import {
 import {
   AUFTRAEGE,
   auftragProgress,
+  auftragMissionVerdict,
   type Auftrag,
   type AuftragId,
 } from '../story-mode/engine/Auftraege';
@@ -5296,6 +5297,13 @@ export class StoryEngineAdapter {
         risk: this.storyResources.risk,
         values: { ...this.getSocietySnapshot(), vertrauen: trustValue },
       });
+      // P1-1: Der Auftrag bestimmt jetzt die QUALITÄT des Sieges (nicht nur Flavor). Vertrauen ist
+      // das MITTEL (Sieg-Trigger), der Auftrag das ZIEL — erreicht der Spieler die Signatur seines
+      // Auftrags, ist es ein voller Erfolg; sonst ein „hohler" Sieg (Vertrauen gebrochen, eigentliches
+      // gesellschaftliches Ziel verfehlt). Macht den Auftrag mechanisch sichtbar + Wiederspiel-Anreiz.
+      const mission = auftragMissionVerdict(this.getAuftragProgress(), this.getAuftrag().titel_de);
+      const missionDe = mission.de;
+      const missionEn = mission.en;
       return {
         type: 'victory',
         title_de: ending.title_de,
@@ -5313,9 +5321,43 @@ export class StoryEngineAdapter {
         stats,
         // G23/G24: fiktiv (keine realen Orte) · G25: Sieg entheroisiert (kein Helden-Empfang).
         // Das eigene Auftrags-Ende + die Signatur-Bilanz tragen den erzählerischen Schluss.
-        epilogue_de: `${ending.epilog_de} — Signatur-Bilanz: ${ending.bilanz_de}.`,
-        epilogue_en: `${ending.epilog_en} — Signature outcome: ${ending.bilanz_en}.`,
+        epilogue_de: `${missionDe}${ending.epilog_de} — Signatur-Bilanz: ${ending.bilanz_de}.`,
+        epilogue_en: `${missionEn}${ending.epilog_en} — Signature outcome: ${ending.bilanz_en}.`,
         assembledEnding: this.assembledEndingForBranch('victory'),
+      };
+    }
+
+    // PRIORITY 1b (P1-2): Der Apparat zerfällt von innen — zu viele eigene Leute haben sich
+    // abgewandt/verraten. Eigener Verlustpfad (Frostpunk-Prinzip: mehrere unabhängige Bilanzen,
+    // jede ein eigener Weg zu scheitern). Die Bilanz existierte schon in EndingSystem.shouldGameEnd,
+    // war aber im Live-checkGameEnd ungenutzt.
+    if (this.betrayalSystem.getBetrayingNPCs().length >= 3) {
+      return {
+        type: 'defeat',
+        title_de: 'Der Apparat zerfällt',
+        title_en: 'The Apparatus Falls Apart',
+        description_de: 'Zu viele Ihrer eigenen Leute haben sich abgewandt. Ohne loyalen Apparat bricht die Operation von innen zusammen.',
+        description_en: 'Too many of your own people have turned. Without a loyal apparatus, the operation collapses from within.',
+        stats,
+        epilogue_de: 'Was Sie aufgebaut haben, zerlegt sich selbst — Misstrauen, Lecks, abgesprungene Mitarbeiter. Die Zentrale zieht den Stecker.',
+        epilogue_en: 'What you built dismantles itself — distrust, leaks, defected staff. The Central pulls the plug.',
+        assembledEnding: this.assembledEndingForBranch('defeat'),
+      };
+    }
+
+    // PRIORITY 1c (P1-2): Handlungsunfähig — die Kasse ist leer, während die Aufmerksamkeit hoch ist.
+    // Kein Geld, um Spuren zu decken oder weiterzumachen (zweiter unabhängiger Verlustpfad).
+    if (this.storyResources.budget <= 0 && this.storyResources.risk >= 70) {
+      return {
+        type: 'defeat',
+        title_de: 'Mittellos',
+        title_en: 'Out of Funds',
+        description_de: 'Die Kasse ist leer, und das Entdeckungsrisiko steht hoch. Ohne Mittel können Sie weder weiterarbeiten noch Ihre Spuren decken.',
+        description_en: 'The coffers are empty and detection risk is high. Without funds you can neither continue nor cover your tracks.',
+        stats,
+        epilogue_de: 'Eine Operation ohne Budget ist keine Operation. Die Zentrale stellt die Finanzierung ein — Sie sitzen auf dem Trockenen, während die Ermittler näher kommen.',
+        epilogue_en: 'An operation without a budget is no operation. The Central cuts funding — you are left high and dry as the investigators close in.',
+        assembledEnding: this.assembledEndingForBranch('defeat'),
       };
     }
 

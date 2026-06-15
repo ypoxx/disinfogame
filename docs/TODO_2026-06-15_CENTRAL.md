@@ -31,10 +31,17 @@ P1 = großer Qualitätssprung · P2 = Politur & Assets (Budget) · P3 = Aufräum
 
 ## 🟠 P1 — Großer Qualitätssprung
 
+> **🔬 Struktur-Befund (Messung, Session 2026-06-15):** Die Gesellschaftswerte/Auftrags-Signatur und der
+> Sieg laufen auf **verschiedenen Zeitskalen** — der Vertrauens-Sieg fällt **schnell** (Median Phase ~54–64),
+> bevor die Signatur nennenswert reift (Sieg-Runs: auftragProgress median ~0.0 für „Keil", ~0.33 für
+> „Wahl/Zweifel", weil nur die Vertrauens-Achse automatisch erfüllt ist). → Ein **harter** per-Auftrag-Win-Gate
+> würde das Spiel **unspielbar/unwinnbar** machen UND den (schnelleren) vorsichtigen Pfad bestrafen.
+> **Owner-Entscheidung nötig** (Pacing), s. §❓-7.
+
 | # | Posten | Quelle | Beleg | Kosten |
 |---|---|---|---|---|
-| P1-1 | **Auftrags-Signatur zur echten Win-Condition** — Keil→Polarisierung, Wahl→Fraktionsstärke, Zweifel→Zynismus statt universell Vertrauen<40. Macht die 3 Aufträge mechanisch distinkt (= „interessante Entscheidung", Sid Meier). | B1 | `Auftraege.ts:38–79`; `StoryEngineAdapter.ts:5211` | Code (M) |
-| P1-2 | **Zusätzliche Niederlage-Pfade** (Frostpunk-Prinzip, Bilanzen existieren) — NPC-Massenverrat `npcsBetray≥3` + Budget-Pleite sind in `EndingSystem.shouldGameEnd:833/836` definiert, aber im Live-`checkGameEnd` ungenutzt. | B1 | `EndingSystem.ts:830–836` | Code (M) |
+| ✅ P1-1 | **Auftrag bestimmt die Sieg-QUALITÄT** (statt unspielbarem Hard-Gate): voll erfüllt ≥0.6 · teilweise ≥0.35 · sonst „hohler Sieg" (Vertrauen gebrochen, eigentliches Ziel verfehlt) — im Sieg-Ende sichtbar (`auftragMissionVerdict`). **+ Kopplungs-Boost** (`SocietyDynamics` baseline grey/illegal → polarisierung/zynismus/diskursqualität) macht volle Erfüllung für dedizierten Aggressiv-Pfad erreichbar; **balance-neutral** (obj_destabilize unberührt, Sim 17/19, society-Tests grün). Hard-Gate = Owner-Pacing-Entscheidung. | B1 | `Auftraege.ts` `auftragMissionVerdict`; `StoryEngineAdapter.ts` victory-Branch; `SocietyDynamics.ts:110–124` | Code (M) |
+| ✅ P1-2 | **Zwei neue Niederlage-Pfade live** (Frostpunk-Prinzip): **„Der Apparat zerfällt"** (`getBetrayingNPCs()≥3`) + **„Mittellos"** (`budget≤0 && risk≥70`) — vorher nur im toten `EndingSystem.shouldGameEnd` definiert. Sim bleibt gewinn- UND verlierbar. | B1 | `StoryEngineAdapter.ts checkGameEnd` (PRIORITY 1b/1c) | Code (M) |
 | P1-3 | **Ambient-Listen neu schreiben** (~100 Zeilen) gegen die aktuellen Steckbriefe — Rollenrutsch beheben (Alexei≠Troll, Katja≠Autorin, Igor≠Hacker, Marina≠Daten-Analystin); 15 Anglizismen raus. Side-by-side-Test als Gate. | B2 | `dialogues.json` ~341–462,741–865,1097–1218,1444–1566,1793–1914; `NPC_VOICE_PROFILES.md:12` | Content (L) |
 | P1-4 | **Topics in Steckbrief-Stimme** — Behörden-Floskeln + Prozent-Listen + Copy-Paste-Schablonen (40-30-30) raus, ASCII-Umlaute→echte Umlaute. | B2 | `topics_dialogues.json` (alle 14) | Content (M) |
 | P1-5 | **Encyclopedia (Taste I) auf `DisinfoMethodAtlas`** umstellen (deutsch, im Spiel verankert) oder entfernen — heute entkoppelte Pro-Mode-Legacy. | B4 | `Encyclopedia.tsx:1–7,52`; `disinfo_methods.json` | Code (M) |
@@ -101,6 +108,7 @@ P1 = großer Qualitätssprung · P2 = Politur & Assets (Budget) · P3 = Aufräum
 4. **Fokusgruppe:** CSS-Initialen akzeptieren oder Persona-Porträt-Batch (6+2 Bilder)? *(P2-14)*
 5. **Sound:** Sind adaptive Musik/Ducking/Ambience (J34–J36) gebaut? Deploy-Preview prüfen, bevor P2-15 geplant wird. *(A4-Widerspruch)*
 6. **Asset-Budget-Pakete:** Skyline-Varianten · Audience-Figuren · Avatar hi-res · Wohnzimmer — je Paket Budget-Ansage.
+7. **Auftrag als ECHTE (harte) Win-Condition?** (Pacing) — Heute ist der Auftrag die Sieg-*Qualität* (P1-1), kein harter Gate, weil der Vertrauens-Sieg schneller fällt als die Signatur reift. Soll der Sieg künftig die Signatur **verlangen**? Dann braucht es eine Pacing-Entscheidung: (a) Vertrauens-Sieg verlangsamen, damit die Mission Zeit hat zu reifen, ODER (b) Gesellschaftswerte deutlich schneller bewegen (ändert Polls/Fokusgruppe/Gegenseite-Erzählung mit), ODER (c) bei „hohlem Sieg" weiterspielen lassen, bis die Signatur erfüllt ist. Empfehlung: erst die Spielqualität von P1-1 im Preview erleben, dann entscheiden.
 
 ---
 

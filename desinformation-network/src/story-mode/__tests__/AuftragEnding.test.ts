@@ -9,7 +9,7 @@ import {
   auftragEndingTone,
   type AuftragEndingTone,
 } from '../engine/EndingSystem';
-import { AUFTRAEGE, auftragProgress, type AuftragId } from '../engine/Auftraege';
+import { AUFTRAEGE, auftragProgress, auftragMissionVerdict, type AuftragId } from '../engine/Auftraege';
 
 const AUFTRAG_IDS: AuftragId[] = ['keil', 'wahl', 'zweifel'];
 // Erzwingt eine bestimmte Tonalität über Moral/Risiko.
@@ -83,5 +83,22 @@ describe('assembleAuftragEnding', () => {
     });
     expect(e.bilanz_de).toContain('–');
     expect(e.signaturProgress).toBeLessThan(0.2);
+  });
+});
+
+describe('auftragMissionVerdict (P1-1: Auftrag bestimmt die Sieg-Qualität)', () => {
+  it('voll erfüllt ≥0.6 · teilweise ≥0.35 · sonst hohler Sieg — Titel tauct immer auf', () => {
+    const titel = 'Der Keil';
+    expect(auftragMissionVerdict(0.7, titel).de).toContain('voll erfüllt');
+    expect(auftragMissionVerdict(0.6, titel).de).toContain('voll erfüllt');
+    expect(auftragMissionVerdict(0.5, titel).de).toContain('teilweise');
+    expect(auftragMissionVerdict(0.35, titel).de).toContain('teilweise');
+    expect(auftragMissionVerdict(0.2, titel).de).toContain('Hohler Sieg');
+    expect(auftragMissionVerdict(0, titel).de).toContain('Hohler Sieg');
+    // de + en nennen immer den Auftrags-Titel (lesbarer Bezug im Ende)
+    for (const p of [0.7, 0.4, 0.1]) {
+      expect(auftragMissionVerdict(p, titel).de).toContain(titel);
+      expect(auftragMissionVerdict(p, titel).en).toContain(titel);
+    }
   });
 });
