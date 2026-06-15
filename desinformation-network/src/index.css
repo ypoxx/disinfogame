@@ -115,7 +115,7 @@
 /* Custom base styles */
 @layer base {
   html {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -130,24 +130,8 @@
   }
 }
 
-/* Custom components */
-@layer components {
-  .btn-primary {
-    @apply px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors;
-  }
-
-  .btn-secondary {
-    @apply px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors;
-  }
-
-  .card {
-    @apply bg-white rounded-2xl shadow-soft p-6;
-  }
-
-  .input {
-    @apply w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500;
-  }
-}
+/* P1-11: Legacy-Web-Klassen (.btn-primary/.btn-secondary/.card/.input — rounded-lg/2xl,
+   bg-white/blue, ungenutzt) entfernt; widersprachen der v2-Pixel-Verfassung (§4.6). */
 
 /* Custom utilities */
 @layer utilities {
@@ -163,53 +147,8 @@
     animation: slideUp 0.3s ease-out forwards;
   }
 
-  /* ============================================
-     Interactive States (Phase 5)
-     Apply to clickable elements for consistent UX
-     ============================================ */
-  .interactive {
-    transition: all var(--transition-normal);
-    cursor: pointer;
-  }
-
-  .interactive:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-
-  .interactive:active {
-    transform: scale(0.98);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  }
-
-  /* Subtle variant for smaller elements */
-  .interactive-subtle {
-    transition: all var(--transition-fast);
-    cursor: pointer;
-  }
-
-  .interactive-subtle:hover {
-    opacity: 0.85;
-  }
-
-  .interactive-subtle:active {
-    transform: scale(0.97);
-  }
-
-  /* Glow variant for emphasized elements */
-  .interactive-glow {
-    transition: all var(--transition-normal);
-    cursor: pointer;
-  }
-
-  .interactive-glow:hover {
-    box-shadow: 0 0 20px var(--accent-primary);
-  }
-
-  .interactive-glow:active {
-    transform: scale(0.98);
-    box-shadow: 0 0 10px var(--accent-primary);
-  }
+  /* P1-11: ungenutzte „Interactive States"-Klassen (.interactive/.interactive-subtle/
+     .interactive-glow — Web-Hover-Lift + Neon-Glow) entfernt (Verbotsliste §4.6). */
 }
 
 /* ============================================
@@ -317,14 +256,7 @@
   }
 }
 
-@keyframes glow-pulse {
-  0%, 100% {
-    box-shadow: 0 0 5px var(--combo-glow);
-  }
-  50% {
-    box-shadow: 0 0 20px var(--combo-glow), 0 0 30px var(--combo-glow);
-  }
-}
+/* P1-11: @keyframes glow-pulse (Neon-Combo-Glow, ungenutzt) entfernt. */
 
 @keyframes crisis-pulse {
   0%, 100% {
@@ -443,17 +375,7 @@
   to { max-width: 100%; }
 }
 
-/* Opportunity highlight */
-@keyframes opportunity-glow {
-  0%, 100% {
-    box-shadow: 0 0 8px var(--opportunity-glow);
-    border-color: var(--opportunity-available);
-  }
-  50% {
-    box-shadow: 0 0 16px var(--opportunity-glow), 0 0 24px var(--opportunity-glow);
-    border-color: var(--opportunity-available);
-  }
-}
+/* P1-11: @keyframes opportunity-glow (Neon-Highlight, ungenutzt) entfernt. */
 
 /* Crisis warning */
 @keyframes crisis-flash {
@@ -510,9 +432,7 @@
 
 /* Pulsing/glowing effects */
 .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
-.animate-glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
 .animate-crisis-pulse { animation: crisis-pulse 1s ease-in-out infinite; }
-.animate-opportunity-glow { animation: opportunity-glow 2s ease-in-out infinite; }
 .animate-crisis-flash { animation: crisis-flash 1s ease-in-out infinite; }
 
 /* Button effects */
