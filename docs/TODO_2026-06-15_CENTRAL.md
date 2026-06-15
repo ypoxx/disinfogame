@@ -107,10 +107,10 @@ P1 = großer Qualitätssprung · P2 = Politur & Assets (Budget) · P3 = Aufräum
 ## ❓ Owner-Entscheidungen (vor Umsetzung)
 1. **Russisch-codierte NPC-Namen** (Volkov/Petrova/Petrov/Orlova/Smirnov) — als fiktive Ost-Block-Würze behalten, oder fiktionalisieren? *(B3)*
 2. **Reale Plattformnamen** (Twitter/TikTok/Telegram/YouTube) in Topics/Actions — für Glaubwürdigkeit halten oder fiktionalisieren? `SYMBOLS_AUDIT.md` verbietet nur Staatssymbole. *(B2)*
-3. **Avatar:** Porträt-only akzeptieren oder m/w-Lauf-Variante (Budget)? *(P2-9)*
+3. ✅ **Avatar:** entschieden = **m/w-Lauf-Variante** umgesetzt (PR #85). *(P2-9)*
 4. **Fokusgruppe:** CSS-Initialen akzeptieren oder Persona-Porträt-Batch (6+2 Bilder)? *(P2-14)*
 5. **Sound:** Sind adaptive Musik/Ducking/Ambience (J34–J36) gebaut? Deploy-Preview prüfen, bevor P2-15 geplant wird. *(A4-Widerspruch)*
-6. **Asset-Budget-Pakete:** Skyline-Varianten · Audience-Figuren · Avatar hi-res · Wohnzimmer — je Paket Budget-Ansage.
+6. ✅ **Asset-Budget-Pakete:** Budget freigegeben → Skyline · Audience · Avatar m/w · Operationszentrale umgesetzt (PR #85). Optional offen: Avatar **hi-res** (48–64 px).
 7. **Auftrag als ECHTE (harte) Win-Condition?** (Pacing) — Heute ist der Auftrag die Sieg-*Qualität* (P1-1), kein harter Gate, weil der Vertrauens-Sieg schneller fällt als die Signatur reift. Soll der Sieg künftig die Signatur **verlangen**? Dann braucht es eine Pacing-Entscheidung: (a) Vertrauens-Sieg verlangsamen, damit die Mission Zeit hat zu reifen, ODER (b) Gesellschaftswerte deutlich schneller bewegen (ändert Polls/Fokusgruppe/Gegenseite-Erzählung mit), ODER (c) bei „hohlem Sieg" weiterspielen lassen, bis die Signatur erfüllt ist. Empfehlung: erst die Spielqualität von P1-1 im Preview erleben, dann entscheiden.
 
 ---
