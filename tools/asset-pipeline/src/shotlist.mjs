@@ -728,11 +728,14 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       animations: { idle: { row: 0, frames: 2, frameTime: 600, loop: true } },
       seed: seedFor(id),
       prompt:
-        `A 2-frame pixel art sprite sheet of ${hint}, in a seated posture facing the viewer ` +
-        `(as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO ` +
-        `background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in ` +
-        `one row, the SAME character with identical outfit and colors in every frame, only a ` +
-        `subtle idle motion changes (blink, small head turn). ${CHROMA_PROMPT} ${style}`,
+        `A 2-frame pixel art sprite sheet of ${hint}, drawn in a CLEARLY SEATED pose as if ` +
+        `relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the ` +
+        `knees bent forward, the lower legs drop down to the feet, the back is slightly reclined ` +
+        `and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO ` +
+        `background — ONLY the seated person, centered, feet near the bottom edge of the frame. ` +
+        `Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with ` +
+        `identical outfit and colors in every frame, only a subtle idle motion changes (blink, ` +
+        `small head turn, slight breathing). ${CHROMA_PROMPT} ${style}`,
     });
   }
 
