@@ -29,6 +29,8 @@ export interface FokusgruppeViewProps {
   segments: FokusgruppeSegmentInput[];
   /** Letzte ausgespielte Maßnahme (Broadcast-Headline), kann null sein. */
   lastHeadline: string | null;
+  /** P6: laufende Episoden-Stränge — die Gruppe reagiert auch auf das „Warum". */
+  episodeHints?: string[];
   onClose: () => void;
 }
 
@@ -389,6 +391,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
 export function FokusgruppeView({
   segments,
   lastHeadline,
+  episodeHints = [],
   onClose,
 }: FokusgruppeViewProps): React.JSX.Element {
   const assets = useAssets();
@@ -550,6 +553,27 @@ export function FokusgruppeView({
               title={`Letzte Maßnahme: ${lastHeadline}`}
             >
               ⬢ {lastHeadline}
+            </span>
+          )}
+          {/* P6: laufende Episoden-Stränge — die Gruppe reagiert auf das „Warum". */}
+          {episodeHints.length > 0 && (
+            <span
+              style={{
+                fontSize: 10,
+                fontFamily: 'monospace',
+                color: StoryModeColors.agencyBlue,
+                backgroundColor: 'rgba(5,20,40,0.7)',
+                border: `1px solid ${StoryModeColors.agencyBlue}`,
+                padding: '1px 8px',
+                letterSpacing: 0.5,
+                maxWidth: 320,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+              title={`Laufende Episoden: ${episodeHints.join(' · ')}`}
+            >
+              ★ {episodeHints.join(' · ')}
             </span>
           )}
         </div>

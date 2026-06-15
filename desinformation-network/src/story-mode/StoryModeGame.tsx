@@ -36,6 +36,7 @@ import { BroadcastBar } from './broadcast/BroadcastBar';
 import { useAudienceBroadcast } from './broadcast/useAudienceBroadcast';
 import { NpcRoomView } from './building/NpcRoomView';
 import { NewsroomView, derivePosts } from './components/NewsroomView';
+import { deriveGegenseite } from './engine/Gegenseite';
 import { FokusgruppeView } from './components/FokusgruppeView';
 import { OperationsAkteView } from './components/OperationsAkteView';
 import { loadTargets, loadCarriers, loadPlatforms } from './battlefield/BattlefieldChain';
@@ -941,6 +942,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 volume: Math.round(seg.belief * 100),
                 rising: seg.mood === 'wuetend' || seg.mood === 'misstrauisch',
               }))}
+            gegenseite={deriveGegenseite({
+              attention: state.resources.attention,
+              risk: state.resources.risk,
+              carriersBurned: state.getOperationsSummary().carriersBurned,
+              phase: state.storyPhase.number,
+            })}
             onClose={() => setShowNewsroom(false)}
           />
         )}
@@ -957,6 +964,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               vulnerabilities: seg.vulnerabilities,
             }))}
             lastHeadline={audience.lastItem?.headline ?? null}
+            episodeHints={(state.activeEpisodes ?? []).map((ep) => ep.titel_de)}
             onClose={() => setShowFokusgruppe(false)}
           />
         )}
