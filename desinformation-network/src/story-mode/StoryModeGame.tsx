@@ -691,6 +691,13 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           isCompleted: o.completed,
           isPrimary: o.type === 'primary',
         }))}
+        society={{
+          // Vertrauen = aktueller Wert des Destabilisierungs-Ziels (Sieg-Mittel).
+          vertrauen: state.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100,
+          polarisierung: state.resources.polarisierung,
+          informationslast: state.resources.informationslast,
+          zynismus: state.resources.zynismus,
+        }}
         onEndPhase={requestEndDay}
         onOpenMenu={pauseGame}
         onHideHud={() => setHudVisible(false)}

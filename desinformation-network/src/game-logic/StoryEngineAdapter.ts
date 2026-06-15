@@ -151,10 +151,48 @@ export interface StoryResources {
   attention: number;        // 👁️ Aufmerksamkeit der Gegner (0-100)
   moralWeight: number;      // 💀 Moralische Last (beeinflusst NPCs & Enden)
 
+  // === Gesellschaftswerte (B2, „Herzstück") ===
+  // Mehrdimensionaler Gesellschafts-Zustand NEBEN der Sieg-Achse Vertrauen (obj_destabilize).
+  // P1: existieren + sichtbar, bewegen sich noch NICHT (kein Effekt-Splitting) → Balance identisch.
+  // Das volle Set ist von Anfang an vorgesehen (auch die Auftrags-Achsen §14.1), damit P5/P6 keinen
+  // Umbau brauchen. 0–100. Sichtbar im HUD (O3/F3): polarisierung, informationslast, zynismus
+  // (+ Vertrauen, das aus obj_destabilize gelesen wird). Rest läuft intern.
+  polarisierung: number;       // Lagerbildung (sichtbar)
+  informationslast: number;    // Orientierungs-Überflutung (sichtbar)
+  zynismus: number;            // Rückzug/Apathie/Erschöpfung (sichtbar)
+  fragmentierung: number;      // Zerfall gemeinsamer Öffentlichkeit (intern)
+  diskursqualitaet: number;    // Gesundheit der Debatte, Resilienz-nah (intern)
+  // Auftrags-Achsen (§14.1, intern — Signaturen der Aufträge, ab P5 wirksam):
+  wehrhaftigkeit: number;      // Unterstützungs-/Verteidigungsbereitschaft („Rückzug")
+  reformfaehigkeit: number;    // Governance-/Kompromissfähigkeit („Stillstand")
+  fraktionsstaerke: number;    // Stärke der uns-nahen politischen Kraft („Die Wahl")
+
   // Abgeleitet
   actionPointsRemaining: number;  // ~5 pro Phase
   actionPointsMax: number;
 }
+
+/** Schlüssel aller Gesellschaftswerte (B2) — für Iteration, HUD, Persistenz, Tests. */
+export type SocietyValueKey =
+  | 'polarisierung' | 'informationslast' | 'zynismus'
+  | 'fragmentierung' | 'diskursqualitaet'
+  | 'wehrhaftigkeit' | 'reformfaehigkeit' | 'fraktionsstaerke';
+
+/** Metadaten je Gesellschaftswert: Label + ob im HUD sichtbar (O3: niedrigschwellig). */
+export const SOCIETY_VALUE_META: Record<SocietyValueKey, { label_de: string; visible: boolean; help_de: string }> = {
+  polarisierung:    { label_de: 'Polarisierung',    visible: true,  help_de: 'Wie stark sich die Lager gegeneinander aufstellen.' },
+  informationslast: { label_de: 'Informationslast', visible: true,  help_de: 'Wie überflutet die Öffentlichkeit ist — Orientierung wird schwer.' },
+  zynismus:         { label_de: 'Zynismus',         visible: true,  help_de: 'Resignation und Rückzug aus der Debatte.' },
+  fragmentierung:   { label_de: 'Fragmentierung',   visible: false, help_de: 'Zerfall in getrennte Echo-Öffentlichkeiten.' },
+  diskursqualitaet: { label_de: 'Diskursqualität',  visible: false, help_de: 'Gesundheit der öffentlichen Debatte (Resilienz).' },
+  wehrhaftigkeit:   { label_de: 'Wehrhaftigkeit',   visible: false, help_de: 'Unterstützungs- und Verteidigungsbereitschaft.' },
+  reformfaehigkeit: { label_de: 'Reformfähigkeit',  visible: false, help_de: 'Governance- und Kompromissfähigkeit.' },
+  fraktionsstaerke: { label_de: 'Fraktions-Stärke', visible: false, help_de: 'Stärke der uns nahen politischen Kraft.' },
+};
+
+/** Reihenfolge der im HUD sichtbaren Gesellschaftswerte (Vertrauen kommt separat aus dem Ziel). */
+export const VISIBLE_SOCIETY_KEYS: SocietyValueKey[] =
+  (Object.keys(SOCIETY_VALUE_META) as SocietyValueKey[]).filter(k => SOCIETY_VALUE_META[k].visible);
 
 /**
  * Story Mode Aktion (narrativ verpackte Ability)
@@ -605,6 +643,17 @@ export class StoryEngineAdapter {
       risk: 0,
       attention: 0,
       moralWeight: 0,
+      // Gesellschaftswerte (B2) — gesunde Demokratie mit realistischen Grundwerten:
+      // etwas Polarisierung/Last/Zynismus existiert schon; Diskurs/Wehrhaftigkeit/Reform hoch,
+      // Fraktions-Stärke der uns-nahen Kraft niedrig. P1 bewegt sie noch nicht.
+      polarisierung: 25,
+      informationslast: 20,
+      zynismus: 20,
+      fragmentierung: 15,
+      diskursqualitaet: 70,
+      wehrhaftigkeit: 60,
+      reformfaehigkeit: 55,
+      fraktionsstaerke: 25,
       actionPointsRemaining: this.ACTION_POINTS_PER_PHASE,
       actionPointsMax: this.ACTION_POINTS_PER_PHASE,
     };
