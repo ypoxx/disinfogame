@@ -82,6 +82,17 @@ export const DOOR_TRAFFIC: Record<string, DoorDummy[]> = {
   etage3: [{ figure: 'figure_clerk', xFrac: 0.83, delayS: 8 }],  // Newsroom-Tür
 };
 
+/**
+ * P7/§14.4 (#1) — Umgebungshumor: klickbare Propaganda-Plakate.
+ * Trockene Ministeriums-Selbstpropaganda (fiktiv, keine realen Symbole). Beim Anklicken
+ * eines Wand-Plakats erscheint eine Vergrößerung mit dem Spruch.
+ */
+export const POSTER_SLOGANS: Record<string, { titel_de: string; slogan_de: string }> = {
+  prop_poster_a: { titel_de: 'EINIGKEIT', slogan_de: 'Einigkeit durch Meinungsvielfalt. Abweichende Meinungen ausgenommen.' },
+  prop_poster_b: { titel_de: 'WAHRHEIT', slogan_de: 'Die Wahrheit ist, was alle teilen.' },
+  prop_poster_c: { titel_de: 'FORTSCHRITT', slogan_de: 'Wir blicken zuversichtlich zurück.' },
+};
+
 export const FLOOR_DECOR: Record<string, DecorPlacement[]> = {
   etage4: [
     { id: 'prop_plant_tall', xFrac: 0.04, mount: 'floor' },

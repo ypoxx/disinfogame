@@ -3,7 +3,7 @@
  * x-Bereich und referenziert ein bekanntes Asset (kein stiller Fehlplatz).
  */
 import { describe, it, expect } from 'vitest';
-import { FLOOR_DECOR, DECOR_HEIGHT } from '../building/corridorDecor';
+import { FLOOR_DECOR, DECOR_HEIGHT, POSTER_SLOGANS } from '../building/corridorDecor';
 
 describe('corridorDecor', () => {
   it('jede Deko-Platzierung ist gültig (xFrac 0..1, Höhe bekannt, mount gültig)', () => {
@@ -21,6 +21,17 @@ describe('corridorDecor', () => {
     for (const [id, h] of Object.entries(DECOR_HEIGHT)) {
       expect(h, `${id}`).toBeGreaterThan(0);
       expect(h, `${id} zu groß`).toBeLessThanOrEqual(160);
+    }
+  });
+
+  it('P7/§14.4: jedes platzierte Plakat hat einen Spruch (klickbar)', () => {
+    const placedPosters = new Set(
+      Object.values(FLOOR_DECOR).flat().map((d) => d.id).filter((id) => id.startsWith('prop_poster')),
+    );
+    for (const id of placedPosters) {
+      expect(POSTER_SLOGANS[id], `${id} ohne Slogan`).toBeTruthy();
+      expect(POSTER_SLOGANS[id].titel_de.length).toBeGreaterThan(2);
+      expect(POSTER_SLOGANS[id].slogan_de.length).toBeGreaterThan(10);
     }
   });
 });

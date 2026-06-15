@@ -16,7 +16,7 @@ import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
 import { skyGradientForMinutes } from './skyTime';
-import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, FLOOR_WALKERS, DOOR_TRAFFIC, type AmbientFigure } from './corridorDecor';
+import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, FLOOR_WALKERS, DOOR_TRAFFIC, POSTER_SLOGANS, type AmbientFigure } from './corridorDecor';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
@@ -169,6 +169,8 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   const [hoverRoom, setHoverRoom] = useState<string | null>(null);
   const [hoverShaft, setHoverShaft] = useState(false);
   const [pfoertnerOpen, setPfoertnerOpen] = useState(false); // Strang 5: Pförtner-Sprechblase
+  // P7/§14.4: angeklicktes Propaganda-Plakat (Vergrößerung + Spruch).
+  const [poster, setPoster] = useState<{ url: string; titel_de: string; slogan_de: string } | null>(null);
 
   // Schritt-Sound auf den Kontakt-Frames des Laufzyklus (Frame 0 und 4).
   const handleWalkFrame = useCallback((frame: number) => {
@@ -411,12 +413,17 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 const top = d.mount === 'floor'
                   ? baseline - h
                   : floor.y + STAGE.floorHeight * 0.36 - h / 2; // Wand-Objekte oberes Drittel
+                // P7/§14.4: Propaganda-Plakate sind anklickbar (Vergrößerung + Spruch).
+                const slogan = POSTER_SLOGANS[d.id];
+                const clickablePoster = interactive && !!slogan;
                 return (
                   <img
                     key={`${floor.id}-decor-${i}`}
                     src={url}
-                    alt=""
-                    aria-hidden
+                    alt={slogan ? `Plakat: ${slogan.titel_de}` : ''}
+                    aria-hidden={slogan ? undefined : true}
+                    title={clickablePoster ? 'Plakat ansehen' : undefined}
+                    onClick={clickablePoster ? () => setPoster({ url, ...slogan }) : undefined}
                     style={{
                       position: 'absolute',
                       left: cx,
@@ -425,7 +432,8 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                       width: 'auto',
                       transform: 'translateX(-50%)',
                       imageRendering: 'pixelated',
-                      pointerEvents: 'none',
+                      pointerEvents: clickablePoster ? 'auto' : 'none',
+                      cursor: clickablePoster ? 'pointer' : undefined,
                       zIndex: 2,
                     }}
                   />
@@ -743,6 +751,43 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           zum Redaktionsschluss hin tiefblaue Abend-/Nacht-Stimmung über der Stadt. */}
       <DayNightTint />
       <SeasonOverlay month={month} />
+
+      {/* P7/§14.4 (#1): Propaganda-Plakat vergrößert — trockener Ministeriums-Humor. */}
+      {poster && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Plakat: ${poster.titel_de}`}
+          onClick={() => setPoster(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1200,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14,
+            background: 'rgba(0,0,0,0.82)', cursor: 'pointer', padding: 24,
+          }}
+        >
+          <img
+            src={poster.url}
+            alt={`Plakat: ${poster.titel_de}`}
+            style={{
+              maxHeight: '52vh', maxWidth: '88vw', width: 'auto',
+              imageRendering: 'pixelated',
+              border: `4px solid ${StoryModeColors.ministryRed}`,
+              boxShadow: '8px 8px 0 0 rgba(0,0,0,0.6)',
+            }}
+          />
+          <div style={{ maxWidth: 520, textAlign: 'center' }}>
+            <div style={{ fontFamily: 'monospace', fontWeight: 900, letterSpacing: 3, color: StoryModeColors.warning, fontSize: 14, marginBottom: 6 }}>
+              {poster.titel_de}
+            </div>
+            <div style={{ fontFamily: 'monospace', color: '#e8e4d8', fontSize: 13, lineHeight: 1.5, fontStyle: 'italic' }}>
+              „{poster.slogan_de}"
+            </div>
+            <div style={{ fontFamily: 'monospace', color: StoryModeColors.textMuted, fontSize: 10, marginTop: 12 }}>
+              (Klicken zum Schließen)
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
