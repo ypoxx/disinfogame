@@ -8,6 +8,8 @@
  * plausibility is what matters. Each ending should feel earned.
  */
 
+import { getAuftrag, auftragProgress, type AuftragId } from './Auftraege';
+
 // ============================================
 // TYPES
 // ============================================
@@ -919,4 +921,149 @@ export function getEndingSystem(): EndingSystem {
     endingSystemInstance = new EndingSystem();
   }
   return endingSystemInstance;
+}
+
+// ============================================
+// AUFTRAGS-ENDEN (P5-Politur) — signatur-getriebene, tonal differenzierte Enden je Auftrag
+// ============================================
+// „Vertrauen = Mittel, Auftrag = Ziel": Bisher war der Auftrag nur ein Schluss-Satz
+// (auftragEpilog). Hier wird daraus ein echtes, eigenes Ende — Kategorie + Tonalität ergeben
+// sich aus der SIGNATUR-Erfüllung und der Art des Sieges (moralischer Preis / Enttarnungsnähe).
+// Bewusst NUR Erzähltext: keine Sieg-/Balance-Mathematik (additiv, rückwärtskompatibel).
+
+/** Tonalität eines Auftrags-Endes — abgeleitet aus Moral-Preis und Enttarnungsnähe. */
+export type AuftragEndingTone = 'kalt' | 'pyrrhisch' | 'knapp';
+
+/** Welche Tonalität ein Sieg trägt: hoher Moral-Preis → pyrrhisch, knapp an Enttarnung → knapp,
+ *  sonst kalt-effizient (G25: kein Heldenpathos). */
+export function auftragEndingTone(moralWeight: number, risk: number): AuftragEndingTone {
+  if (moralWeight >= 55) return 'pyrrhisch';
+  if (risk >= 65) return 'knapp';
+  return 'kalt';
+}
+
+export interface AuftragEndingContext {
+  moralWeight: number;
+  risk: number;
+  /** Finale Werte (inkl. `vertrauen`) für die Signatur-Bilanz. */
+  values: Record<string, number | undefined>;
+}
+
+export interface AuftragEnding {
+  auftragId: AuftragId;
+  tone: AuftragEndingTone;
+  /** EndingSystem-Kategorie: pyrrhischer Sieg vs. (kalter/knapper) Sieg. */
+  category: EndingCategory;
+  title_de: string; title_en: string;
+  epilog_de: string; epilog_en: string;
+  /** Signatur-Bilanz: konkrete Achsenwerte gegen ihre Zielmarken. */
+  bilanz_de: string; bilanz_en: string;
+  /** Signatur-Erfüllung 0..1 (gemittelt). */
+  signaturProgress: number;
+}
+
+const AXIS_LABELS: Record<string, { de: string; en: string }> = {
+  vertrauen:        { de: 'Vertrauen',        en: 'Trust' },
+  polarisierung:    { de: 'Polarisierung',    en: 'Polarization' },
+  informationslast: { de: 'Informationslast', en: 'Information load' },
+  zynismus:         { de: 'Zynismus',         en: 'Cynicism' },
+  fragmentierung:   { de: 'Fragmentierung',   en: 'Fragmentation' },
+  diskursqualitaet: { de: 'Diskursqualität',  en: 'Discourse quality' },
+  wehrhaftigkeit:   { de: 'Wehrhaftigkeit',   en: 'Resilience' },
+  reformfaehigkeit: { de: 'Reformfähigkeit',  en: 'Reform capacity' },
+  fraktionsstaerke: { de: 'Fraktions-Stärke', en: 'Faction strength' },
+};
+
+/** DE/EN-Erzähltext je Auftrag × Tonalität — das eigentliche „eigene Ende" (fiktiv, G23/24/25). */
+const AUFTRAG_ENDING_TEXT: Record<AuftragId, Record<AuftragEndingTone, {
+  title_de: string; title_en: string; epilog_de: string; epilog_en: string;
+}>> = {
+  keil: {
+    kalt: {
+      title_de: 'Der Keil sitzt', title_en: 'The Wedge Holds',
+      epilog_de: 'Westunion redet nur noch in zwei Sprachen, die einander nicht mehr übersetzen. Jede Nachricht ist sofort Lager. Die Zentrale verbucht es nüchtern — kein Empfang, der nächste Reizpunkt liegt schon auf dem Tisch.',
+      epilog_en: 'Westunion speaks in two languages now, and neither translates the other. Every headline is instantly a side. The Center logs it soberly — no reception, the next flashpoint is already on the desk.',
+    },
+    pyrrhisch: {
+      title_de: 'Ein Land, zwei Wirklichkeiten', title_en: 'One Country, Two Realities',
+      epilog_de: 'Die Spaltung sitzt tief — und Sie wissen, durch wessen Hand. Nachts hören Sie die Gespräche, die nie wieder geführt werden. „Erfolg", sagt die Zentrale. Es klingt wie ein Vorwurf.',
+      epilog_en: 'The split runs deep — and you know whose hand drove it. At night you hear the conversations that will never happen again. "Success," says the Center. It sounds like an accusation.',
+    },
+    knapp: {
+      title_de: 'Gerade noch der Keil', title_en: 'The Wedge, Just in Time',
+      epilog_de: 'Der Riss geht durchs Land, bevor die Ermittler ihn zu Ihnen zurückverfolgen. Sie werden eilig abgezogen. Was bleibt, streiten zwei Hälften aus, die einander nicht mehr zuhören.',
+      epilog_en: 'The fracture splits the country before the investigators can trace it back to you. You are pulled out in a hurry. What remains is fought out by two halves that no longer listen.',
+    },
+  },
+  wahl: {
+    kalt: {
+      title_de: 'Die Mehrheit, gemacht', title_en: 'A Manufactured Majority',
+      epilog_de: 'Die uns nahe Kraft sitzt fester denn je; die anderen sind müde, misstrauisch, zu Hause geblieben. Niemand hat eine Stimme gefälscht — es genügte, den Glauben an die eigene Stimme zu nehmen.',
+      epilog_en: 'Our preferred faction sits firmer than ever; the others are tired, suspicious, stayed home. No one forged a vote — it was enough to take away the belief that a vote mattered.',
+    },
+    pyrrhisch: {
+      title_de: 'Gewählt, gekauft', title_en: 'Elected, Bought',
+      epilog_de: 'Die Macht hat gewechselt, und Sie kennen den Preis in Gesichtern, nicht in Prozenten. Die Zentrale feiert ein Ergebnis. Sie sehen die Wahlplakate und denken an Rechnungen, die noch offen sind.',
+      epilog_en: 'Power has changed hands, and you know the price in faces, not in percentages. The Center celebrates a result. You see the campaign posters and think of debts still unpaid.',
+    },
+    knapp: {
+      title_de: 'Knapp gekippt', title_en: 'Tipped, Narrowly',
+      epilog_de: 'Die Kraft steigt, kurz bevor die Spur zu Ihnen führt. Ein Land driftet, ein Operateur verschwindet. Ob die neue Mehrheit hält, werden andere ausbaden.',
+      epilog_en: 'The faction rises just before the trail reaches you. A country drifts, an operator disappears. Whether the new majority holds is for others to endure.',
+    },
+  },
+  zweifel: {
+    kalt: {
+      title_de: 'Niemand glaubt mehr', title_en: 'Nobody Believes Anymore',
+      epilog_de: 'Wahlen „manipuliert", Experten „gekauft", Medien „Lügen" — am Ende glaubt man nichts, also auch nicht an Widerstand. Die wirksamste Lüge war: dass es keine Wahrheit gibt.',
+      epilog_en: 'Elections "rigged", experts "bought", media "lies" — in the end people believe nothing, and so not in resistance either. The most effective lie was that there is no truth.',
+    },
+    pyrrhisch: {
+      title_de: 'Die Asche des Zweifels', title_en: 'The Ash of Doubt',
+      epilog_de: 'Sie haben den Glauben an alles ausgehöhlt — auch an sich selbst. Ein Land, das niemandem mehr traut, traut auch Ihnen nicht. Die Zentrale ist zufrieden; Sie sind allein.',
+      epilog_en: 'You hollowed out belief in everything — including yourself. A country that trusts no one trusts you least of all. The Center is pleased; you are alone.',
+    },
+    knapp: {
+      title_de: 'Zweifel, knapp gesät', title_en: 'Doubt, Sown Just in Time',
+      epilog_de: 'Der Zynismus greift, bevor der Verdacht Sie greift. Sie tauchen unter in ein Land, das ohnehin keiner Quelle mehr glaubt — am wenigsten der eigenen Erinnerung.',
+      epilog_en: 'The cynicism takes hold before suspicion takes you. You vanish into a country that no longer believes any source — least of all its own memory.',
+    },
+  },
+};
+
+/**
+ * Baut das auftrags- und signatur-getriebene Ende: Tonalität aus dem „Wie" des Sieges,
+ * Kategorie (pyrrhic/victory) und eine konkrete Signatur-Bilanz aus den Endwerten.
+ */
+export function assembleAuftragEnding(auftragId: AuftragId, ctx: AuftragEndingContext): AuftragEnding {
+  const tone = auftragEndingTone(ctx.moralWeight, ctx.risk);
+  const text = AUFTRAG_ENDING_TEXT[auftragId][tone];
+  const auftrag = getAuftrag(auftragId);
+  const signaturProgress = auftragProgress(auftrag, ctx.values);
+
+  const parts_de: string[] = [];
+  const parts_en: string[] = [];
+  for (const sig of auftrag.signatur) {
+    const v = ctx.values[sig.wert];
+    const lab = AXIS_LABELS[sig.wert] ?? { de: sig.wert, en: sig.wert };
+    const hit = typeof v === 'number' && (sig.richtung === 'hoch' ? v >= sig.ziel : v <= sig.ziel);
+    const mark = hit ? '✓' : '–';
+    const arrow = sig.richtung === 'hoch' ? '↑' : '↓';
+    const val = typeof v === 'number' ? Math.round(v) : '?';
+    parts_de.push(`${lab.de} ${arrow}${val} (Ziel ${sig.ziel}) ${mark}`);
+    parts_en.push(`${lab.en} ${arrow}${val} (target ${sig.ziel}) ${mark}`);
+  }
+
+  return {
+    auftragId,
+    tone,
+    category: tone === 'pyrrhisch' ? 'pyrrhic' : 'victory',
+    title_de: text.title_de,
+    title_en: text.title_en,
+    epilog_de: text.epilog_de,
+    epilog_en: text.epilog_en,
+    bilanz_de: parts_de.join(' · '),
+    bilanz_en: parts_en.join(' · '),
+    signaturProgress,
+  };
 }

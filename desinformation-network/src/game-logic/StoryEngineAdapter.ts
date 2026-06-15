@@ -84,6 +84,7 @@ import {
 import {
   EndingSystem,
   getEndingSystem,
+  assembleAuftragEnding,
   type AssembledEnding,
   type EndingGameState,
 } from '../story-mode/engine/EndingSystem';
@@ -137,7 +138,6 @@ import {
 import {
   AUFTRAEGE,
   auftragProgress,
-  auftragEpilog,
   type Auftrag,
   type AuftragId,
 } from '../story-mode/engine/Auftraege';
@@ -5261,12 +5261,19 @@ export class StoryEngineAdapter {
 
       storyLogger.log(`🏆 Victory achieved! Objectives held ${this.trustTargetHeldPhases} phases. Risk: ${this.storyResources.risk}%, Moral: ${this.storyResources.moralWeight}`);
 
-      // P5: auftrags-spezifischer Schluss-Satz — jeder Auftrag endet anders (eigenes Ende).
-      const ae = auftragEpilog(this.currentAuftragId);
+      // P5-Politur: signatur-getriebenes, auftrags-spezifisches Ende (Kategorie/Tonalität je
+      // Auftrag) statt nur eines Schluss-Satzes. Titel + Schluss-Erzählung kommen aus dem
+      // EndingSystem; die Signatur-Bilanz benennt konkret, welche Achsen wie weit getrieben wurden.
+      const trustValue = this.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100;
+      const ending = assembleAuftragEnding(this.currentAuftragId, {
+        moralWeight: this.storyResources.moralWeight,
+        risk: this.storyResources.risk,
+        values: { ...this.getSocietySnapshot(), vertrauen: trustValue },
+      });
       return {
         type: 'victory',
-        title_de: isDarkVictory ? 'Pyrrhussieg' : (isNarrowEscape ? 'Knapper Sieg' : 'Mission erfüllt'),
-        title_en: isDarkVictory ? 'Pyrrhic Victory' : (isNarrowEscape ? 'Narrow Victory' : 'Mission Accomplished'),
+        title_de: ending.title_de,
+        title_en: ending.title_en,
         description_de: isDarkVictory
           ? 'Sie haben Ihre Ziele erreicht - aber zu welchem Preis?'
           : isNarrowEscape
@@ -5278,18 +5285,10 @@ export class StoryEngineAdapter {
             ? 'Just in time. The investigators were closing in.'
             : 'You have achieved your objectives. Westunion is destabilized.',
         stats,
-        // G23/G24: fiktiv (keine realen Orte) · G25: Sieg entheroisiert (kein Helden-Empfang,
-        // nur die nächste Akte) — der Lernmoment liegt im End-Report, nicht im Triumph.
-        epilogue_de: (isDarkVictory
-          ? 'Westunion ist destabilisiert. Die Zentrale ist zufrieden. Doch nachts verfolgen Sie die Gesichter derer, die Sie geopfert haben.'
-          : isNarrowEscape
-            ? 'Sie werden eilig abgezogen. Die Zentrale verbucht es nüchtern als Erfolg — kein Empfang, nur ein neuer Auftrag.'
-            : 'Westunion ist gespalten. Die Zentrale ist zufrieden. Für Sie heißt das vor allem: Die nächste Akte liegt schon auf dem Tisch.') + ` ${ae.de}`,
-        epilogue_en: (isDarkVictory
-          ? 'Westunion is destabilized. The Center is pleased. But at night, the faces of those you sacrificed haunt you.'
-          : isNarrowEscape
-            ? 'You are hastily extracted. The Center logs it soberly as a success — no reception, just a new assignment.'
-            : 'Westunion is divided. The Center is pleased. For you, that mostly means: the next file is already on the desk.') + ` ${ae.en}`,
+        // G23/G24: fiktiv (keine realen Orte) · G25: Sieg entheroisiert (kein Helden-Empfang).
+        // Das eigene Auftrags-Ende + die Signatur-Bilanz tragen den erzählerischen Schluss.
+        epilogue_de: `${ending.epilog_de} — Signatur-Bilanz: ${ending.bilanz_de}.`,
+        epilogue_en: `${ending.epilog_en} — Signature outcome: ${ending.bilanz_en}.`,
       };
     }
 
