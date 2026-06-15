@@ -15,7 +15,7 @@ import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties } fr
 import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
-import { skyGradientForMinutes } from './skyTime';
+import { skyGradientForMinutes, skylineLayersForMinutes } from './skyTime';
 import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, FLOOR_WALKERS, DOOR_TRAFFIC, POSTER_SLOGANS, shredderLine, coffeeLine, volksbrauseLine, employeeOfMonth, plantAsset, plantLine, type AmbientFigure } from './corridorDecor';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
@@ -220,6 +220,9 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
     assets.imageUrl(level === -1 ? 'bld_corridor_keller' : corridorIds[(((level % 3) + 3) % 3)]) ?? corridorUrl;
   const lobbyUrl = assets.imageUrl('room_lobby');
   const cityUrl = assets.imageUrl('bld_city_far');
+  // Tageszeit-Skylines (Dämmerung/Nacht) blenden über die Basis ein — siehe skylineLayersForMinutes.
+  const cityDuskUrl = assets.imageUrl('bld_city_far_dusk');
+  const cityNightUrl = assets.imageUrl('bld_city_far_night');
   const streetUrl = assets.imageUrl('bld_street');
   const undergroundUrl = assets.imageUrl('bld_underground');
   // Tageszeit-Himmel (gegen „schwarzer Himmel zu groß"): Verlauf folgt der Tagesuhr,
@@ -255,30 +258,37 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
     >
       <style>{STAGE_KEYFRAMES}</style>
 
-      {/* ───── Stadt: Skyline hinter dem Haus, Straße unter dem Haus (volle Breite) ───── */}
-      {cityUrl && (
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: Math.max(0, view.h - groundScreenY),
-            // Skyline groß, aber Anzeige unter Native-Höhe (864) → scharf statt hochskaliert.
-            height: Math.min(view.h * 0.72, 760),
-            backgroundImage: `url(${cityUrl})`,
-            backgroundRepeat: 'repeat-x',
-            backgroundSize: 'auto 100%',
-            backgroundPosition: 'center bottom',
-            imageRendering: 'pixelated',
-            opacity: 0.95,
-            // Natürlicher Übergang Stadt → Himmel: oberer Rand sanft ausblenden (kein harter Schnitt).
-            WebkitMaskImage: 'linear-gradient(to top, #000 62%, transparent 100%)',
-            maskImage: 'linear-gradient(to top, #000 62%, transparent 100%)',
-            pointerEvents: 'none',
-          }}
-        />
-      )}
+      {/* ───── Stadt: Skyline hinter dem Haus (Tag/Dämmerung/Nacht überblendet) ───── */}
+      {cityUrl && (() => {
+        const skyline = skylineLayersForMinutes(skyMinutes);
+        // Gemeinsame Geometrie/Maske für alle Tageszeit-Skylines; nur die Opazität unterscheidet sie.
+        const layerStyle = (url: string, opacity: number): CSSProperties => ({
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: Math.max(0, view.h - groundScreenY),
+          // Skyline groß, aber Anzeige unter Native-Höhe (864) → scharf statt hochskaliert.
+          height: Math.min(view.h * 0.72, 760),
+          backgroundImage: `url(${url})`,
+          backgroundRepeat: 'repeat-x',
+          backgroundSize: 'auto 100%',
+          backgroundPosition: 'center bottom',
+          imageRendering: 'pixelated',
+          opacity,
+          transition: 'opacity 1200ms linear',
+          // Natürlicher Übergang Stadt → Himmel: oberer Rand sanft ausblenden (kein harter Schnitt).
+          WebkitMaskImage: 'linear-gradient(to top, #000 62%, transparent 100%)',
+          maskImage: 'linear-gradient(to top, #000 62%, transparent 100%)',
+          pointerEvents: 'none',
+        });
+        return (
+          <>
+            <div aria-hidden style={layerStyle(cityUrl, 0.95)} />
+            {cityDuskUrl && <div aria-hidden style={layerStyle(cityDuskUrl, skyline.dusk)} />}
+            {cityNightUrl && <div aria-hidden style={layerStyle(cityNightUrl, skyline.night)} />}
+          </>
+        );
+      })()}
       {/* Untergrund: Erde/Rohre hinter dem Keller und darunter (statt „nichts"/Straße). */}
       <div
         aria-hidden

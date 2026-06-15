@@ -233,6 +233,26 @@ const BUILDING_KIT = [
 'distant city skyline for a side-scrolling pixel game background, a DENSE CONTINUOUS row of many block buildings of varied heights packed close together with NO large empty gaps between building clusters (no missing-tooth gaps), several depth layers: nearer buildings darker and sharper, buildings further back progressively lighter as they recede into cool blue-grey atmospheric haze; small warm lit windows scattered across the buildings, a few slim chimneys with faint smoke, one thin TV tower; the UPPER parts of the skyline gradually dissolve into the hazy distance so there is NO hard top edge; flat layered silhouette; PERFECTLY seamless horizontal tile — the LEFT and RIGHT edges must continue each other exactly with buildings crossing the seam so it repeats with no visible break; crisp clean high-resolution pixel art, on a single flat solid magenta (#FF00FF) background above and between the gaps so the sky can be cut out',
     'must',
   ],
+  // Tageszeit-Varianten der Skyline (gleicher Seed wie bld_city_far → gleiche Silhouette,
+  // nur das Licht ändert sich; werden in BuildingStage über die Tagesuhr eingeblendet).
+  [
+    'bld_city_far_dusk',
+    '21:9',
+    { w: 2016, h: 864 },
+    true,
+    'distant city skyline for a side-scrolling pixel game background, a DENSE CONTINUOUS row of many block buildings of varied heights packed close together with NO large empty gaps between building clusters (no missing-tooth gaps), several depth layers: nearer buildings darker and sharper, buildings further back progressively lighter as they recede into a warm amber-orange dusk haze; the buildings stand as silhouettes lit by golden-hour light with a soft warm orange rim along their tops; MANY warm amber lit windows scattered across the buildings, a few slim chimneys with faint smoke, one thin TV tower with a faint red beacon; the UPPER parts of the skyline gradually dissolve into the hazy distance so there is NO hard top edge; flat layered silhouette; PERFECTLY seamless horizontal tile — the LEFT and RIGHT edges must continue each other exactly with buildings crossing the seam so it repeats with no visible break; crisp clean high-resolution pixel art, on a single flat solid magenta (#FF00FF) background above and between the gaps so the sky can be cut out',
+    'nice',
+    'bld_city_far',
+  ],
+  [
+    'bld_city_far_night',
+    '21:9',
+    { w: 2016, h: 864 },
+    true,
+    'distant city skyline for a side-scrolling pixel game background, a DENSE CONTINUOUS row of many block buildings of varied heights packed close together with NO large empty gaps between building clusters (no missing-tooth gaps), several depth layers: nearer buildings as dark deep blue-grey silhouettes and sharper, buildings further back progressively lighter into a faint cool city glow low on the night horizon; MANY warm yellow glowing windows densely scattered across the buildings with a few cool blue-lit office floors, a few slim chimneys, one thin TV tower lit with a small red aircraft beacon; the UPPER parts of the skyline gradually dissolve into the dark hazy distance so there is NO hard top edge; flat layered silhouette; PERFECTLY seamless horizontal tile — the LEFT and RIGHT edges must continue each other exactly with buildings crossing the seam so it repeats with no visible break; crisp clean high-resolution pixel art, on a single flat solid magenta (#FF00FF) background above and between the gaps so the sky can be cut out',
+    'nice',
+    'bld_city_far',
+  ],
   [
     'bld_underground',
     '21:9',
@@ -663,7 +683,9 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
   }
 
   // --- Gebäude-Baukasten + HUD-Rahmen (Stage / Broadcast-Leiste) ---
-  for (const [id, aspectRatio, size, chroma, hint, priority] of BUILDING_KIT) {
+  // Optionales 7. Tupel-Element `seedId`: Tageszeit-Varianten (z. B. Skyline Dämmerung/Nacht)
+  // teilen den Seed der Basis → gleiche Silhouette, nur das Licht ändert sich (sauberer Cross-Fade).
+  for (const [id, aspectRatio, size, chroma, hint, priority, seedId] of BUILDING_KIT) {
     shots.push({
       id,
       type: 'image',
@@ -672,7 +694,7 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       aspectRatio,
       size,
       chroma,
-      seed: seedFor(id),
+      seed: seedFor(seedId ?? id),
       prompt: `A pixel art game asset: ${hint}. No people, no readable text. ${chroma ? `${CHROMA_PROMPT} ` : ''}${style}`,
     });
   }
