@@ -5215,20 +5215,27 @@ export class StoryEngineAdapter {
   /**
    * P0-2: Liefert das state-getriebene Ende (8×7) für den gerade ausgelösten 4-Typ-Branch.
    * Zuerst die echte Zustands-Klassifikation (`checkGameEnding`); greift deren strengeres Gate
-   * noch nicht (z. B. Enttarnung bei risk 85–94 < 95), wird die zum Branch passende Kategorie
-   * erzwungen, damit der End-Report immer Tiefe + Wiederspiel-Hinweise zeigt.
+   * noch nicht (z. B. Enttarnung bei risk 85–94 < 95) ODER weicht ihre Kategorie vom Live-Branch
+   * ab, wird die zum Branch passende Kategorie erzwungen, damit der End-Report immer Tiefe +
+   * Wiederspiel-Hinweise UND eine zum Ausgang passende Optik zeigt.
    */
   private assembledEndingForBranch(type: GameEndState['type']): AssembledEnding | undefined {
-    const rich = this.checkGameEnding();
-    if (rich) return rich;
-    const moral = this.storyResources.moralWeight;
-    const tone = type === 'victory'
-      ? 'triumphant'
-      : moral >= 70 ? 'haunting' : moral < 30 ? 'hopeful' : 'dark';
     const category = type === 'victory' ? 'victory'
       : type === 'escape' ? 'escape'
       : type === 'moral_redemption' ? 'redemption'
       : 'exposure';
+    // Codex-Review 2026-06-15: `checkGameEnding()` klassifiziert den Zustand unabhängig vom
+    // gerade ausgelösten Live-Branch. Stimmt dessen Kategorie nicht mit dem Branch überein
+    // (z. B. „Zeit abgelaufen"-Niederlage, während die Ziele formal erfüllt, aber nicht
+    // REQUIRED_HOLD_PHASES gehalten wurden → Sieg-Klassifikation), würde der End-Report eine
+    // Sieg-Optik für eine Niederlage zeigen. Daher den reichen Zustand nur übernehmen, wenn
+    // seine Kategorie zum Branch passt; sonst die zum Branch gehörende Kategorie erzwingen.
+    const rich = this.checkGameEnding();
+    if (rich && rich.category === category) return rich;
+    const moral = this.storyResources.moralWeight;
+    const tone = type === 'victory'
+      ? 'triumphant'
+      : moral >= 70 ? 'haunting' : moral < 30 ? 'hopeful' : 'dark';
     return this.forceEnding(category, tone) ?? undefined;
   }
 

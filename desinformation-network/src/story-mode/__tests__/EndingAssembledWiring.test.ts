@@ -31,5 +31,11 @@ describe('P0-2: checkGameEnd trägt ein AssembledEnding', () => {
     expect(typeof a!.tone).toBe('string');
     expect(a!.fullNarrative_de.length).toBeGreaterThan(0);
     expect(Array.isArray(a!.replayHints)).toBe(true);
+
+    // Codex-Review 2026-06-15: Die angehängte Ending-Kategorie MUSS zum Live-Branch passen.
+    // Eine Niederlage darf nie eine Sieg-Optik im End-Report erzeugen, auch wenn die
+    // unabhängige `checkGameEnding()`-Klassifikation den Zustand anders einstuft.
+    expect(a!.category).not.toBe('victory');
+    expect(a!.category).toBe('exposure');
   });
 });
