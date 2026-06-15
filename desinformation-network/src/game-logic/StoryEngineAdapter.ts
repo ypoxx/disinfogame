@@ -140,6 +140,7 @@ import {
   type Auftrag,
   type AuftragId,
 } from '../story-mode/engine/Auftraege';
+import { buildPollNews, pickPollInstrument } from '../story-mode/engine/PollNews';
 
 // ============================================
 // STORY MODE SPECIFIC TYPES
@@ -605,6 +606,12 @@ export class StoryEngineAdapter {
   // Auftrags-Signatur bestimmt das Ende + macht den Fortschritt lesbar.
   private currentAuftragId: AuftragId = 'keil';
 
+  // P6 — Umfragen/Barometer als News (F3): periodisch erscheinen fiktive Mess-Instrumente
+  // als Nachrichten, die den Gesellschafts-Zustand erzählerisch zeigen (§14.2).
+  private pollIndex = 0;
+  private lastPollValues: Record<string, number> = {};
+  private readonly POLL_EVERY_PHASES = 3;  // ~quartalsweise
+
   // Engine Integration
   private actionLoader: ActionLoader;
   private consequenceSystem: ConsequenceSystem;
@@ -863,6 +870,9 @@ export class StoryEngineAdapter {
     } else {
       this.rumorPressure = 0;
     }
+
+    // P6/F3: periodische Umfrage als News (erzählerisches Gesicht des Zustands).
+    this.maybeEmitPollNews(newPhaseNumber);
 
     // Decrement exposure countdown if active
     if (this.exposureCountdown !== null) {
@@ -3668,6 +3678,38 @@ export class StoryEngineAdapter {
     return auftragProgress(this.getAuftrag(), { ...s, vertrauen: trust });
   }
 
+  /** Aktueller Wert eines Umfrage-Instruments (Vertrauen aus dem Ziel, sonst Gesellschaftswert). */
+  private pollValueFor(wert: string): number {
+    if (wert === 'vertrauen') {
+      return this.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100;
+    }
+    const v = (this.storyResources as unknown as Record<string, number>)[wert];
+    return typeof v === 'number' ? v : 0;
+  }
+
+  /** P6/F3: alle paar Phasen eine Umfrage als News emittieren (Auftrags-Instrument bevorzugt). */
+  private maybeEmitPollNews(phase: number): void {
+    if (phase % this.POLL_EVERY_PHASES !== 0) return;
+    const leitwert = this.getAuftrag().signatur[0]?.wert ?? 'polarisierung';
+    const instrument = pickPollInstrument(leitwert, this.pollIndex);
+    const value = this.pollValueFor(instrument.wert);
+    const content = buildPollNews(instrument, value, this.lastPollValues[instrument.id]);
+    this.newsEvents.unshift({
+      id: `poll_${instrument.id}_${phase}`,
+      phase,
+      headline_de: content.headline_de,
+      headline_en: content.headline_en,
+      description_de: content.description_de,
+      description_en: content.description_en,
+      type: 'world_event',
+      severity: 'info',
+      read: false,
+      pinned: false,
+    });
+    this.lastPollValues[instrument.id] = value;
+    this.pollIndex++;
+  }
+
   /** Wendet ein Werte-Delta an und klemmt auf 0–100. obj_destabilize bleibt unberührt (R2). */
   private applySocietyDelta(delta: SocietyDelta): void {
     for (const key of Object.keys(delta) as (keyof SocietyDelta)[]) {
@@ -5335,6 +5377,9 @@ export class StoryEngineAdapter {
       episodesCompleted: Array.from(this.episodesCompleted),
       // P5-Auftrag
       currentAuftragId: this.currentAuftragId,
+      // P6-Umfragen
+      pollIndex: this.pollIndex,
+      lastPollValues: this.lastPollValues,
       comboSystemState: this.comboSystem.exportState(),
       crisisMomentSystemState: this.crisisMomentSystem.exportState(),
       actorAIState: this.actorAI.exportState(),
@@ -5381,6 +5426,9 @@ export class StoryEngineAdapter {
     this.episodesCompleted = new Set(state.episodesCompleted ?? []);
     // P5-Auftrag (Default „keil" für alte Saves, R1).
     this.currentAuftragId = (state.currentAuftragId as AuftragId) ?? 'keil';
+    // P6-Umfragen (Default leer für alte Saves, R1).
+    this.pollIndex = state.pollIndex ?? 0;
+    this.lastPollValues = state.lastPollValues ?? {};
     if (state.comboSystemState) {
       this.comboSystem.importState(state.comboSystemState);
     }
@@ -5667,6 +5715,8 @@ export class StoryEngineAdapter {
     this.episodesActive.clear();
     this.episodesCompleted.clear();
     this.currentAuftragId = 'keil';
+    this.pollIndex = 0;
+    this.lastPollValues = {};
     this.initializeNPCs();
     this.initializeObjectives();
 
