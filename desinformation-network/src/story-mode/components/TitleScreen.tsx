@@ -45,7 +45,7 @@ function ChangelogOverlay({ onClose }: { onClose: () => void }): JSX.Element {
         style={{
           backgroundColor: StoryModeColors.surface,
           border: `4px solid ${StoryModeColors.border}`,
-          boxShadow: '8px 8px 0px 0px rgba(0,0,0,0.9)',
+          boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.06), inset 0 -3px 0 rgba(0,0,0,0.5)',
           minWidth: 340,
           maxWidth: 480,
           width: '90%',
@@ -165,14 +165,6 @@ const TITLE_KEYFRAMES = `
     0%   { opacity: 0; transform: scale(.6); }
     70%  { opacity: 1; transform: scale(1.05); }
     100% { opacity: 1; transform: scale(1); }
-  }
-  @keyframes ts-lift {
-    0%   { transform: translateY(0) translateX(-50%); box-shadow: 6px 6px 0 rgba(0,0,0,.8); }
-    100% { transform: translateY(-4px) translateX(-50%); box-shadow: 6px 10px 0 rgba(0,0,0,.8); }
-  }
-  @keyframes ts-lift-plain {
-    0%   { transform: translateY(0); box-shadow: 6px 6px 0 rgba(0,0,0,.8); }
-    100% { transform: translateY(-4px); box-shadow: 6px 10px 0 rgba(0,0,0,.8); }
   }
 `;
 
@@ -362,7 +354,7 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
           {/* „MISSION FORTSETZEN" erscheint NUR wenn hasSave, und zwar ZUERST */}
           {hasSave && (
             <MenuButton
-              label="💾 MISSION FORTSETZEN"
+              label="MISSION FORTSETZEN"
               onClick={onContinue}
               delay={0.7}
               ariaLabel="Gespeicherte Mission fortsetzen"
@@ -415,7 +407,7 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
               (e.currentTarget as HTMLButtonElement).style.borderColor = StoryModeColors.borderLight;
             }}
           >
-            {soundOn ? '🔊 TON AN' : '🔇 TON AUS'}
+            {soundOn ? 'TON AN' : 'TON AUS'}
           </button>
           <span
             style={{
@@ -441,7 +433,7 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
             maxWidth: 480,
           }}
         >
-          ⚠️ BILDUNGSZWECK: Dieses Spiel dient dem Verständnis von
+          BILDUNGSZWECK: Dieses Spiel dient dem Verständnis von
           Desinformationstaktiken und deren Gegenmaßnahmen.
         </p>
         {/* H48: Versionsnummer klickbar → Changelog-Overlay */}
@@ -519,7 +511,8 @@ function MenuButton({ label, onClick, delay, ariaLabel, accent }: MenuButtonProp
         color: '#fff',
         backgroundColor: accent,
         border: '4px solid #000',
-        boxShadow: hovered ? '6px 10px 0 rgba(0,0,0,.8)' : '6px 6px 0 rgba(0,0,0,.8)',
+        boxShadow: 'inset 0 3px 0 rgba(255,255,255,0.15), inset 0 -4px 0 rgba(0,0,0,0.45)',
+        filter: hovered ? 'brightness(1.12)' : undefined,
         cursor: 'pointer',
         fontFamily: 'inherit',
         transition: 'transform 120ms ease, box-shadow 120ms ease',

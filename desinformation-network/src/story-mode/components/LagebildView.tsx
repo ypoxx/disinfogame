@@ -22,7 +22,58 @@ interface LagebildViewProps {
   npcs: NPCState[];
   unreadNewsCount: number;
   worldEventCount: number;
+  /** P0-3: Herzstück sichtbar machen — Institutionen-Vertrauen (aus obj_destabilize). */
+  vertrauen: number;
+  /** P0-3: laufender strategischer Auftrag (Titel + Fortschritt 0..1). */
+  auftrag: { titel_de: string; progress: number };
   onClose: () => void;
+}
+
+/**
+ * P0-3: GESELLSCHAFT + AUFTRAG im Lagebild. Bisher lebte das Herzstück (Werte + Auftrag)
+ * nur in der default-versteckten HUD-Leiste; das diegetische Übersichts-Objekt zeigte es
+ * gar nicht. Werte kommen aus `resources` (sichtbares Set) + Vertrauen aus dem Ziel.
+ */
+function SocietyAuftragBlock({ resources, vertrauen, auftrag }: {
+  resources: StoryResources; vertrauen: number; auftrag: { titel_de: string; progress: number };
+}) {
+  const meters = [
+    { label: 'Vertrauen', value: vertrauen, color: StoryModeColors.agencyBlue },
+    { label: 'Polarisierung', value: resources.polarisierung, color: StoryModeColors.ministryRed },
+    { label: 'Informationslast', value: resources.informationslast, color: StoryModeColors.warning },
+    { label: 'Zynismus', value: resources.zynismus, color: StoryModeColors.danger },
+  ];
+  const pct = Math.round(Math.min(100, Math.max(0, auftrag.progress * 100)));
+  return (
+    <div className="p-3 border-2 mb-4" style={{ backgroundColor: StoryModeColors.surface, borderColor: StoryModeColors.border }}>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-bold" style={{ color: StoryModeColors.textSecondary }}>GESELLSCHAFT</span>
+        <span className="text-xs truncate max-w-[55%]" style={{ color: StoryModeColors.textMuted }} title={`Auftrag: ${auftrag.titel_de}`}>
+          Auftrag: <span style={{ color: StoryModeColors.textPrimary }}>{auftrag.titel_de}</span>
+        </span>
+      </div>
+      <div className="grid grid-cols-4 gap-3 mb-3">
+        {meters.map((m) => (
+          <div key={m.label}>
+            <div className="flex justify-between text-[10px] mb-0.5">
+              <span style={{ color: StoryModeColors.textSecondary }}>{m.label}</span>
+              <span style={{ color: StoryModeColors.textMuted }}>{Math.round(m.value)}%</span>
+            </div>
+            <div className="h-1.5 bg-black/30 overflow-hidden">
+              <div className="h-full" style={{ width: `${Math.min(100, Math.max(0, m.value))}%`, backgroundColor: m.color }} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-between text-[10px] mb-0.5">
+        <span style={{ color: StoryModeColors.textSecondary }}>Auftrags-Fortschritt</span>
+        <span style={{ color: StoryModeColors.textMuted }}>{pct}%</span>
+      </div>
+      <div className="h-2 bg-black/30 overflow-hidden">
+        <div className="h-full" style={{ width: `${pct}%`, backgroundColor: StoryModeColors.militaryOlive }} />
+      </div>
+    </div>
+  );
 }
 
 function ResourceCard({ icon, label, value, format, color, danger }: {
@@ -111,7 +162,7 @@ function TeamBlock({ npcs }: { npcs: NPCState[] }) {
   );
 }
 
-export function LagebildView({ resources, phase, objectives, newsEvents, npcs, unreadNewsCount, worldEventCount, onClose }: LagebildViewProps): React.JSX.Element {
+export function LagebildView({ resources, phase, objectives, newsEvents, npcs, unreadNewsCount, worldEventCount, vertrauen, auftrag, onClose }: LagebildViewProps): React.JSX.Element {
   return (
     <PixelModal
       open
@@ -129,6 +180,9 @@ export function LagebildView({ resources, phase, objectives, newsEvents, npcs, u
           <ResourceCard icon={<Icon name="attention" size={16} title="Aufmerksamkeit" />} label="AUFMERKSAMKEIT" value={resources.attention} format="percent" color={StoryModeColors.danger} danger={resources.attention > 70} />
           <ResourceCard icon={<Icon name="moral" size={16} title="Moral" />} label="MORAL. LAST" value={resources.moralWeight} format="number" color={StoryModeColors.ministryRed} danger={resources.moralWeight > 60} />
         </div>
+
+        {/* P0-3: Herzstück — Gesellschaftswerte + Auftrags-Fortschritt */}
+        <SocietyAuftragBlock resources={resources} vertrauen={vertrauen} auftrag={auftrag} />
 
         {/* Drei Spalten: Ziele · Nachrichten · Team */}
         <div className="grid grid-cols-3 gap-3">

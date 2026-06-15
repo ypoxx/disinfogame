@@ -8,7 +8,7 @@
 import { useState } from 'react';
 import { StoryModeColors } from '../theme';
 import type { AdvisorRecommendation } from '../engine/AdvisorRecommendation';
-import { getPriorityEmoji, getPriorityColor } from '../engine/AdvisorRecommendation';
+import { getPriorityLabel, getPriorityColor } from '../engine/AdvisorRecommendation';
 import type { BetrayalState } from '../engine/BetrayalSystem';
 import { BetrayalWarningBadge } from './BetrayalWarningBadge';
 
@@ -115,9 +115,10 @@ export function AdvisorPanel({
                 borderColor: topRec ? getPriorityColor(topRec.priority) : StoryModeColors.borderLight,
                 color: StoryModeColors.textPrimary,
               }}
-              title={npc.name}
+              title={topRec ? `${npc.name} — ${getPriorityLabel(topRec.priority)}` : npc.name}
             >
-              {topRec ? getPriorityEmoji(topRec.priority) : '○'}
+              {/* P0-8: Initiale identifiziert den Berater; der Rand trägt die Priorität (Farbe). */}
+              {npc.name.charAt(0)}
             </button>
           );
         })}
@@ -219,17 +220,18 @@ export function AdvisorPanel({
                     </div>
                   </div>
 
-                  {/* Priority Indicator */}
+                  {/* Priority Indicator (P0-8: Text-Label statt Emoji) */}
                   {topRec && (
                     <div
-                      className="text-xl ml-2"
+                      className="text-xs ml-2 font-bold"
                       style={{
                         color: getPriorityColor(topRec.priority),
+                        letterSpacing: '0.08em',
                         animation: topRec.priority === 'critical' ? 'pulse 2s infinite' : undefined,
                       }}
                       title={topRec.priority.toUpperCase()}
                     >
-                      {getPriorityEmoji(topRec.priority)}
+                      {getPriorityLabel(topRec.priority)}
                     </div>
                   )}
                 </div>

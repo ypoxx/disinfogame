@@ -83,7 +83,7 @@ export function BetrayalIndicators({ npcs, betrayalStates }: BetrayalIndicatorsP
             title={`${npc.name}: ${label} (Risiko: ${state?.betrayalRisk ?? 0}%)`}
           >
             <div
-              className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border-2 transition-all"
+              className="w-6 h-6 flex items-center justify-center text-[10px] font-bold border-2 transition-all"
               style={{
                 backgroundColor: color,
                 borderColor: level >= 3 ? '#fff' : 'transparent',

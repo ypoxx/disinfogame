@@ -38,8 +38,8 @@
       "type": "direct_value",
       "var": "budget",
       "format": "{value}",
-      "suffix_de": " Rubel",
-      "suffix_en": " rubles"
+      "suffix_de": " Taler",
+      "suffix_en": " taler"
     },
     "risk_state": {
       "conditions": [

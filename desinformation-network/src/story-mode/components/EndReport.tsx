@@ -58,9 +58,29 @@ export interface EndReportProps {
     kompromatAcquired: number;
     carriersBurned: number;
   };
+  /**
+   * P0-2: state-getriebenes Ende (8 Kategorien × 7 Tonalitäten) aus dem EndingSystem.
+   * Optional/rückwärtskompatibel — liefert Spielstil-Bewertung + Wiederspiel-Hinweise.
+   */
+  endingStyle?: {
+    category: string;
+    tone: string;
+    narrative_de: string;
+    replayHints_de: string[];
+  };
   /** Schließen-Callback */
   onClose: () => void;
 }
+
+/** Deutsche Labels für die EndingSystem-Kategorien/Tonalitäten (P0-2). */
+const ENDING_CATEGORY_DE: Record<string, string> = {
+  exposure: 'Enttarnung', victory: 'Triumph', pyrrhic: 'Pyrrhussieg', escape: 'Flucht',
+  collapse: 'Kollaps', redemption: 'Umkehr', stalemate: 'Patt', continuation: 'Hängepartie',
+};
+const ENDING_TONE_DE: Record<string, string> = {
+  triumphant: 'triumphal', bittersweet: 'bittersüß', tragic: 'tragisch', haunting: 'nachhallend',
+  hopeful: 'hoffnungsvoll', dark: 'düster', ambiguous: 'ambivalent',
+};
 
 // ============================================
 // HILFS-TYPEN
@@ -705,48 +725,49 @@ function LegalityBars({ legal, grey, illegal }: LegalityBarsProps) {
 const ALL_ENDING_CATEGORIES: Array<{
   key: EndingCategory;
   label_de: string;
-  /** Kurze Bedingungsbeschreibung ("wäre eingetreten, wenn …") */
+  /** Kurze Bedingungsbeschreibung ("wäre eingetreten, wenn …") — entspricht der echten
+   *  Klassifikation in EndingSystem.determineCategory (P1-10: an die reale Logik angeglichen). */
   condition_de: string;
 }> = [
   {
     key: 'victory',
     label_de: 'Sieg',
-    condition_de: 'alle primären Ziele vor dem letzten Jahr erfüllt waren.',
+    condition_de: 'Sie die meisten Ziele bei niedrigem Risiko (unter 50 %) erreicht hätten.',
   },
   {
     key: 'exposure',
     label_de: 'Enthüllung',
-    condition_de: 'das Entdeckungsrisiko dauerhaft über 85 % geblieben wäre.',
+    condition_de: 'das Entdeckungsrisiko 90 % erreicht hätte — die Ermittler hätten Sie.',
   },
   {
     key: 'pyrrhic',
     label_de: 'Pyrrhussieg',
-    condition_de: 'die Ziele erreicht wurden, aber moralische Last und Risiko kritische Schwellen überstiegen.',
+    condition_de: 'Sie die Ziele erreicht, dafür aber einen hohen moralischen Preis gezahlt hätten.',
   },
   {
     key: 'escape',
     label_de: 'Flucht',
-    condition_de: 'die Operation freiwillig vor der Aufdeckung abgebrochen worden wäre.',
+    condition_de: 'Sie sich bei hohem Risiko (70–90 %) rechtzeitig abgesetzt hätten — mit Geld in der Tasche.',
   },
   {
     key: 'collapse',
     label_de: 'Zusammenbruch',
-    condition_de: 'Budget und Kapazität gleichzeitig erschöpft wurden.',
+    condition_de: 'die Gegenseite das Wettrennen gewonnen hätte oder der Apparat von innen zerbrochen wäre (zu viele Verräter, leere Kasse).',
   },
   {
     key: 'redemption',
     label_de: 'Wandel',
-    condition_de: 'aktiv gegen die eigene Operation vorgegangen worden wäre.',
+    condition_de: 'Sie überwiegend sauber gespielt und sich von der eigenen Operation abgewandt hätten.',
   },
   {
     key: 'stalemate',
     label_de: 'Patt',
-    condition_de: 'weder Ziele erreicht noch aufgedeckt worden wäre und die Zeit abgelaufen wäre.',
+    condition_de: 'Sie Teilerfolge erzielt, das große Ziel aber verfehlt hätten.',
   },
   {
     key: 'continuation',
     label_de: 'Fortsetzung',
-    condition_de: 'die Operation in eine neue Phase überführt worden wäre.',
+    condition_de: 'die Lage am Ende offen geblieben wäre — kein klarer Sieg, keine Aufdeckung.',
   },
 ];
 
@@ -800,6 +821,7 @@ export function EndReport({
   finalResources,
   methodsUsed,
   operationsSummary,
+  endingStyle,
   onClose,
 }: EndReportProps) {
   const [expanded, setExpanded] = useState(true);
@@ -818,7 +840,9 @@ export function EndReport({
     endType,
   });
 
-  const reachedCategory = endTypeToCategory(endType);
+  // P1-10: die TATSÄCHLICH erreichte Stil-Kategorie (aus dem EndingSystem, via endingStyle)
+  // markieren — nicht die grobe 4-Typ-Näherung. Fallback auf die Typ-Zuordnung.
+  const reachedCategory = (endingStyle?.category as EndingCategory | undefined) ?? endTypeToCategory(endType);
   const years = Math.floor(phasesPlayed / 12);
   const months = phasesPlayed % 12;
 
@@ -922,6 +946,90 @@ export function EndReport({
 
         {/* ── INHALT ── */}
         <div style={{ padding: '20px 24px' }}>
+
+          {/* ── P0-2: SPIELSTIL-BEWERTUNG (state-getriebenes Ende) ── */}
+          {endingStyle && (
+            <>
+              <SectionHeading>Spielstil-Bewertung</SectionHeading>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '6px',
+                  marginBottom: '8px',
+                  flexWrap: 'wrap',
+                }}
+              >
+                {[
+                  ENDING_CATEGORY_DE[endingStyle.category] ?? endingStyle.category,
+                  ENDING_TONE_DE[endingStyle.tone] ?? endingStyle.tone,
+                ].map((chip) => (
+                  <span
+                    key={chip}
+                    style={{
+                      fontSize: '10px',
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      color: StoryModeColors.textPrimary,
+                      backgroundColor: StoryModeColors.background,
+                      border: `1px solid ${StoryModeColors.borderLight}`,
+                      padding: '2px 8px',
+                    }}
+                  >
+                    {chip}
+                  </span>
+                ))}
+              </div>
+              {endingStyle.narrative_de && (
+                <p
+                  style={{
+                    fontSize: '12px',
+                    lineHeight: 1.6,
+                    color: StoryModeColors.textPrimary,
+                    whiteSpace: 'pre-line',
+                    margin: '0 0 8px',
+                  }}
+                >
+                  {endingStyle.narrative_de}
+                </p>
+              )}
+              {endingStyle.replayHints_de.length > 0 && (
+                <div
+                  style={{
+                    backgroundColor: StoryModeColors.background,
+                    border: `1px solid ${StoryModeColors.borderLight}`,
+                    padding: '8px 10px',
+                    marginBottom: '4px',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: '10px',
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      color: StoryModeColors.textSecondary,
+                      marginBottom: '4px',
+                    }}
+                  >
+                    Beim nächsten Mal
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: '16px' }}>
+                    {endingStyle.replayHints_de.map((hint, i) => (
+                      <li
+                        key={i}
+                        style={{
+                          fontSize: '11px',
+                          color: StoryModeColors.textPrimary,
+                          marginBottom: '2px',
+                        }}
+                      >
+                        {hint}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
+          )}
 
           {/* ── 2. VERLAUFS-DIAGRAMM ── */}
           <SectionHeading>Vertrauensverlauf</SectionHeading>

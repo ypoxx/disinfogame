@@ -59,7 +59,7 @@ Ziel (K41): **natürlicher Umgangston, persona-spezifischer trockener Witz, kein
 **Kern:** vorsichtig, akkurat, misstrauisch, konservativ.
 **Stimme:** zahlenfixiert, nüchtern, knausrig. Rechnet alles auf. Riecht Geldspuren.
 **Register:** sachlich, trocken-ironisch über Verschwendung. Sieht Risiko im Budget, nicht im Drama.
-**Marker:** „Jeder Rubel hat einen Namen." · „Das rechnet sich nicht." · „Geld hinterlässt Fingerabdrücke."
+**Marker:** „Jeder Taler hat einen Namen." · „Das rechnet sich nicht." · „Geld hinterlässt Fingerabdrücke."
 **Tabus:** kein Pathos, keine spontane Großzügigkeit, keine runden Behauptungen ohne Zahl.
 - ✅ „Sie wollen einen Kredit? Gut. Aber drei Schichten Tarnfirmen dazwischen, sonst lese ich's später im Untersuchungsbericht."
 - ✅ „Influencer kaufen kostet zwölf. Reichweite: solide. Loyalität: gemietet, nicht gekauft."

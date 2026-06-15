@@ -14,7 +14,7 @@ import { ConsequenceModal } from './components/ConsequenceModal';
 import { EventsPanel } from './components/EventsPanel';
 import { TutorialOverlay, useTutorial } from './components/TutorialOverlay';
 import { GameEndScreen } from './components/GameEndScreen';
-import { Encyclopedia } from '@/components/Encyclopedia';
+import { MethodenDossier } from './components/MethodenDossier';
 import { AdvisorPanel } from './components/AdvisorPanel';
 import { AdvisorDetailModal } from './components/AdvisorDetailModal';
 import { BetrayalWarningBadge } from './components/BetrayalWarningBadge';
@@ -682,6 +682,13 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               }}
               methodsUsed={methodsUsed}
               operationsSummary={opsSummary}
+              endingStyle={state.gameEnd.assembledEnding ? {
+                category: state.gameEnd.assembledEnding.category,
+                tone: state.gameEnd.assembledEnding.tone,
+                narrative_de: state.gameEnd.assembledEnding.fullNarrative_de,
+                // replayHints interleaven de/en → gerade Indizes = deutsch
+                replayHints_de: state.gameEnd.assembledEnding.replayHints.filter((_, i) => i % 2 === 0),
+              } : undefined}
               onClose={() => setShowEndReport(false)}
             />
           );
@@ -1118,6 +1125,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             npcs={state.npcs}
             unreadNewsCount={state.unreadNewsCount}
             worldEventCount={worldEventCount}
+            vertrauen={state.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100}
+            auftrag={{ titel_de: state.engine.getAuftrag().titel_de, progress: state.engine.getAuftragProgress() }}
             onClose={() => setShowLagebild(false)}
           />
         )}
@@ -1248,8 +1257,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         />
       )}
 
-      {/* Encyclopedia Modal (Press 'I' to toggle) */}
-      <Encyclopedia
+      {/* Methoden-Dossier (P1-5: Taste I) — deutscher Atlas der realen Desinfo-Muster,
+          aus einem Guss mit dem End-Report (löst die alte englische Pro-Mode-Encyclopedia ab) */}
+      <MethodenDossier
         isOpen={showEncyclopedia}
         onClose={() => setShowEncyclopedia(false)}
       />

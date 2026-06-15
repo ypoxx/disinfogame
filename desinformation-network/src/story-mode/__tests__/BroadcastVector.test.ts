@@ -60,3 +60,24 @@ describe('reactToEffect — Werte-Vektor moduliert das Publikum (P6/F2, Anzeige)
     expect(plain.reactions[0].effectiveness).toBeCloseTo(neutral.reactions[0].effectiveness, 5);
   });
 });
+
+describe('mapActionToBroadcast — Operation-Themen (P1-7)', () => {
+  it('Operation (tags targeting+operation) -> Skandal/Misstrauen, NICHT abstiegs_angst', () => {
+    const opResult = {
+      success: true,
+      action: {
+        id: 'op_x', label_de: 'Op', label_en: 'Op', narrative_de: '', narrative_en: '',
+        headline_de: 'Skandal um Schlüsselfigur', phase: 'targeting',
+        tags: ['targeting', 'operation'], legality: 'grey',
+        costs: { attention: 6 }, available: false, prerequisites: [], prerequisitesMet: true, npcAffinity: [],
+      },
+      effects: [], resourceChanges: {},
+      narrative: { headline_de: 'Skandal', headline_en: 'Scandal', description_de: '', description_en: '' },
+      potentialConsequences: [],
+    } as unknown as ActionResult;
+    const item = mapActionToBroadcast(opResult, 40, null);
+    expect(item.themes).toContain('misstrauen_medien');
+    expect(item.themes).toContain('anti_establishment');
+    expect(item.themes).not.toContain('abstiegs_angst');
+  });
+});

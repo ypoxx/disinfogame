@@ -52,7 +52,10 @@
     "threatening": {
       "relationship_change": -10,
       "morale_change": -10,
-      "triggers": ["npc_fear", "possible_defection"]
+      "triggers": [
+        "npc_fear",
+        "possible_defection"
+      ]
     }
   },
   "npcs": {
@@ -174,7 +177,10 @@
             "id": "dir_brief_early_1",
             "text_de": "Unsere Aufgabe ist klar: Westunion destabilisieren. Wir haben zehn Jahre. Nutzen Sie sie weise.",
             "text_en": "Our mission is clear: destabilize Westunion. We have ten years. Use them wisely.",
-            "phase_range": [1, 12],
+            "phase_range": [
+              1,
+              12
+            ],
             "responses": [
               {
                 "id": "resp_yes",
@@ -197,7 +203,10 @@
             "id": "dir_brief_mid_1",
             "text_de": "Die Halbzeit naht. Die Zentrale erwartet Ergebnisse. Wo stehen wir?",
             "text_en": "Halftime approaches. Central expects results. Where do we stand?",
-            "phase_range": [48, 72],
+            "phase_range": [
+              48,
+              72
+            ],
             "condition": "phase_in_range"
           }
         ],
@@ -206,7 +215,10 @@
             "id": "dir_brief_late_1",
             "text_de": "Die Zeit läuft ab. Wenn wir versagen, werden andere die Verantwortung übernehmen.",
             "text_en": "Time is running out. If we fail, others will take over responsibility.",
-            "phase_range": [96, 120],
+            "phase_range": [
+              96,
+              120
+            ],
             "condition": "phase_in_range"
           }
         ]
@@ -215,14 +227,19 @@
         "action_success": [
           {
             "id": "dir_react_success_1",
-            "triggered_by_tags": ["high_impact", "political"],
+            "triggered_by_tags": [
+              "high_impact",
+              "political"
+            ],
             "text_de": "Ausgezeichnet. Solche Ergebnisse merke ich mir.",
             "text_en": "Excellent. Results like that, I remember.",
             "relationship_bonus": 3
           },
           {
             "id": "dir_react_success_2",
-            "triggered_by_tags": ["high_impact"],
+            "triggered_by_tags": [
+              "high_impact"
+            ],
             "text_de": "*nickt knapp* Sie denken strategisch. Selten genug. Gut.",
             "text_en": "*a curt nod* You think strategically. Rare enough. Good.",
             "relationship_bonus": 2
@@ -231,14 +248,18 @@
         "action_risky": [
           {
             "id": "dir_react_risky_1",
-            "triggered_by_tags": ["high_risk"],
+            "triggered_by_tags": [
+              "high_risk"
+            ],
             "text_de": "Mutig. Aber Mut ohne Ergebnis ist nur Leichtsinn.",
             "text_en": "Bold. But courage without a result is just recklessness.",
             "relationship_bonus": 0
           },
           {
             "id": "dir_react_risky_2",
-            "triggered_by_tags": ["high_risk"],
+            "triggered_by_tags": [
+              "high_risk"
+            ],
             "text_de": "Kalkuliertes Risiko oder Übermut? Das entscheidet der Ausgang.",
             "text_en": "Calculated risk or hubris? The outcome decides.",
             "relationship_bonus": 0
@@ -263,7 +284,10 @@
         "first_dark_action": [
           {
             "id": "dir_react_first_dark_1",
-            "triggered_by_tags": ["blackmail", "harassment"],
+            "triggered_by_tags": [
+              "blackmail",
+              "harassment"
+            ],
             "condition": "first_dark_action",
             "text_de": "*lächelt kalt* Gut. Sie haben begriffen, was dieser Posten verlangt. Kein Weg zurück.",
             "text_en": "*a cold smile* Good. You grasp what this post demands. No way back.",
@@ -289,7 +313,9 @@
         "level_up": [
           {
             "id": "dir_react_levelup_1",
-            "triggered_by_tags": ["relationship_level_up"],
+            "triggered_by_tags": [
+              "relationship_level_up"
+            ],
             "text_de": "Sie haben mein Vertrauen. Das gewährt sich hier kaum jemand.",
             "text_en": "You have my trust. Almost no one here earns that.",
             "relationship_bonus": 0
@@ -425,14 +451,14 @@
         },
         {
           "id": "dir_ambient_15",
-          "text_de": "*murmelt* Die Amerikaner werden das nie kommen sehen...",
-          "text_en": "*mutters* The Americans will never see this coming...",
+          "text_de": "*murmelt* Westunion wird das nie kommen sehen...",
+          "text_en": "*mutters* Westunion will never see this coming...",
           "probability": 0.15
         },
         {
           "id": "dir_ambient_16",
-          "text_de": "*justiert Portrait an der Wand - Stalin blickt herab*",
-          "text_en": "*adjusts portrait on wall - Stalin gazes down*",
+          "text_de": "*justiert ein Portrait an der Wand - ein strenger Blick von oben*",
+          "text_en": "*adjusts a portrait on the wall - a stern gaze from above*",
           "probability": 0.1
         },
         {
@@ -588,7 +614,10 @@
         "dark_action": [
           {
             "id": "mar_react_dark_1",
-            "triggered_by_tags": ["harassment", "blackmail"],
+            "triggered_by_tags": [
+              "harassment",
+              "blackmail"
+            ],
             "condition": "moral_weight >= 3",
             "text_de": "*kurze Pause* Harte Methoden. Funktionieren leider am besten.",
             "text_en": "*a brief pause* Hard methods. Unfortunately they work best.",
@@ -597,7 +626,10 @@
           },
           {
             "id": "mar_react_dark_2",
-            "triggered_by_tags": ["harassment", "blackmail"],
+            "triggered_by_tags": [
+              "harassment",
+              "blackmail"
+            ],
             "condition": "moral_weight >= 5",
             "text_de": "*tippt weiter* Notwendig, sage ich mir. Und meistens stimmt das sogar.",
             "text_en": "*keeps typing* Necessary, I tell myself. And usually it's even true.",
@@ -608,14 +640,19 @@
         "analysis_used": [
           {
             "id": "mar_react_analysis_1",
-            "triggered_by_tags": ["analysis"],
+            "triggered_by_tags": [
+              "analysis"
+            ],
             "text_de": "Sie nutzen meine Daten. Endlich jemand, der weiß, was er damit anfängt.",
             "text_en": "You use my data. Finally someone who knows what to do with it.",
             "relationship_bonus": 2
           },
           {
             "id": "mar_react_analysis_2",
-            "triggered_by_tags": ["data", "analysis"],
+            "triggered_by_tags": [
+              "data",
+              "analysis"
+            ],
             "text_de": "*lächelt knapp* Daten lügen nicht — sie wählen nur, was sie zeigen. Das ist mein Job.",
             "text_en": "*a small smile* Data doesn't lie — it just chooses what to show. That's my job.",
             "relationship_bonus": 3
@@ -624,7 +661,10 @@
         "data_success": [
           {
             "id": "mar_react_datasuccess_1",
-            "triggered_by_tags": ["high_impact", "analysis"],
+            "triggered_by_tags": [
+              "high_impact",
+              "analysis"
+            ],
             "text_de": "*Augen leuchten* 94 % Trefferquote. Das ist keine Analyse mehr, das ist Hellsehen.",
             "text_en": "*eyes light up* 94% hit rate. That's not analysis anymore, it's clairvoyance.",
             "relationship_bonus": 4
@@ -633,10 +673,13 @@
         "first_dark_action": [
           {
             "id": "mar_react_first_dark_1",
-            "triggered_by_tags": ["blackmail", "harassment"],
+            "triggered_by_tags": [
+              "blackmail",
+              "harassment"
+            ],
             "condition": "first_dark_action",
-            "text_de": "*kurzes Schweigen* Okay. Eine Stufe schärfer. Ich brauche einen Kaffee — und das Reichweiten-Dashboard.",
-            "text_en": "*a short silence* Okay. A notch sharper. I need a coffee — and the reach dashboard.",
+            "text_de": "*kurzes Schweigen* Okay. Eine Stufe schärfer. Ich brauche einen Kaffee — und die Reichweiten-Kurve.",
+            "text_en": "*a short silence* Okay. A notch sharper. I need a coffee — and the reach numbers.",
             "relationship_bonus": -5,
             "morale_change": -10
           }
@@ -654,7 +697,9 @@
         "level_up": [
           {
             "id": "mar_react_levelup_1",
-            "triggered_by_tags": ["relationship_level_up"],
+            "triggered_by_tags": [
+              "relationship_level_up"
+            ],
             "text_de": "*kurzes, echtes Lächeln* Sie vertrauen meinem Gespür. Wissen Sie, wie selten das ist? Danke.",
             "text_en": "*a brief, genuine smile* You trust my instinct. Do you know how rare that is? Thank you.",
             "relationship_bonus": 0
@@ -741,125 +786,125 @@
       "ambient": [
         {
           "id": "mar_ambient_1",
-          "text_de": "*analysiert Daten auf mehreren Bildschirmen*",
-          "text_en": "*analyzes data on multiple screens*",
+          "text_de": "*blättert durch Schlagzeilen, schüttelt den Kopf* Zu brav. Niemand teilt „brav\".",
+          "text_en": "*flips through headlines, shakes her head* Too tame. Nobody shares \"tame.\"",
           "probability": 0.4
         },
         {
           "id": "mar_ambient_2",
-          "text_de": "*trinkt Kaffee, sieht müde aus*",
-          "text_en": "*drinks coffee, looks tired*",
+          "text_de": "*lehnt sich zurück, zufrieden* Das läuft. Drei Plattformen, ein Narrativ.",
+          "text_en": "*leans back, satisfied* This one's working. Three platforms, one narrative.",
           "probability": 0.3,
           "condition": "morale < 50"
         },
         {
           "id": "mar_ambient_3",
-          "text_de": "*trackt Sentiment-Änderungen in Echtzeit-Dashboard*",
-          "text_en": "*tracks sentiment changes in real-time dashboard*",
+          "text_de": "*spricht ins Telefon* Geben Sie mir bis morgen. Dann redet die halbe Stadt darüber.",
+          "text_en": "*into the phone* Give me until tomorrow. Then half the city is talking about it.",
           "probability": 0.35
         },
         {
           "id": "mar_ambient_4",
-          "text_de": "*markiert Anomalien in Statistiken mit gelbem Marker*",
-          "text_en": "*marks anomalies in statistics with yellow highlighter*",
+          "text_de": "*betrachtet ihr Spiegelbild im dunklen Monitor, richtet das Haar*",
+          "text_en": "*checks her reflection in the dark monitor, fixes her hair*",
           "probability": 0.3
         },
         {
           "id": "mar_ambient_5",
-          "text_de": "*seufzt* Diese Korrelationen ergeben einfach keinen Sinn...",
-          "text_en": "*sighs* These correlations just don't make sense...",
+          "text_de": "*murmelt* Empörung verkauft sich besser als Wahrheit. Immer.",
+          "text_en": "*murmurs* Outrage sells better than truth. Always.",
           "probability": 0.25
         },
         {
           "id": "mar_ambient_6",
-          "text_de": "*gießt sich bereits den vierten Kaffee*",
-          "text_en": "*pours herself the fourth coffee already*",
+          "text_de": "*skizziert eine Schlagzeile, streicht sie durch, schreibt eine schärfere*",
+          "text_en": "*sketches a headline, crosses it out, writes a sharper one*",
           "probability": 0.3
         },
         {
           "id": "mar_ambient_7",
-          "text_de": "*vergleicht Zeitreihen-Analysen zwischen zwei Monitoren*",
-          "text_en": "*compares time series analyses between two monitors*",
+          "text_de": "*lächelt* Sehen Sie das? Geht gerade durch die Decke.",
+          "text_en": "*smiles* See that? Going through the roof right now.",
           "probability": 0.35
         },
         {
           "id": "mar_ambient_8",
-          "text_de": "*telefoniert leise mit Quelle* Ja, ich garantiere Anonymität...",
-          "text_en": "*talks quietly on phone with source* Yes, I guarantee anonymity...",
+          "text_de": "*probiert drei Formulierungen laut* ... die dritte. Die trifft.",
+          "text_en": "*tries three phrasings aloud* ...the third one. That one lands.",
           "probability": 0.2
         },
         {
           "id": "mar_ambient_9",
-          "text_de": "*erstellt komplexe Regression-Modelle in R*",
-          "text_en": "*creates complex regression models in R*",
+          "text_de": "*tippt eine Nachricht, löscht „vielleicht\", schreibt „garantiert\"*",
+          "text_en": "*types a message, deletes \"maybe,\" writes \"guaranteed\"*",
           "probability": 0.25
         },
         {
           "id": "mar_ambient_10",
-          "text_de": "*reibt sich müde die Augen, dann zurück zu den Zahlen*",
-          "text_en": "*rubs eyes tiredly, then back to the numbers*",
+          "text_de": "*zieht eine Augenbraue hoch* Subtil? Subtilität ist, wenn es niemand merkt.",
+          "text_en": "*raises an eyebrow* Subtle? Subtle is when nobody notices.",
           "probability": 0.3
         },
         {
           "id": "mar_ambient_11",
-          "text_de": "*lächelt* Aha! Hier ist das Muster!",
-          "text_en": "*smiles* Aha! There's the pattern!",
+          "text_de": "*sortiert Fotos* Dieses. Das richtige Gesicht zur falschen Geschichte.",
+          "text_en": "*sorts photos* This one. The right face for the wrong story.",
           "probability": 0.2
         },
         {
           "id": "mar_ambient_12",
-          "text_de": "*exportiert Daten in verschlüsselte Datei*",
-          "text_en": "*exports data to encrypted file*",
+          "text_de": "*seufzt theatralisch* Gute Arbeit langweilt mich. Geben Sie mir etwas Großes.",
+          "text_en": "*sighs theatrically* Good work bores me. Give me something big.",
           "probability": 0.25
         },
         {
           "id": "mar_ambient_13",
-          "text_de": "*kritzelt Formeln auf Whiteboard*",
-          "text_en": "*scribbles formulas on whiteboard*",
+          "text_de": "*spricht mit jemandem* Nein, kein Dementi. Ein Dementi ist auch Reichweite.",
+          "text_en": "*to someone* No, no denial. A denial is reach too.",
           "probability": 0.3
         },
         {
           "id": "mar_ambient_14",
-          "text_de": "*schaut besorgt* Die Public Opinion dreht sich schneller als erwartet...",
-          "text_en": "*looks worried* Public opinion is shifting faster than expected...",
+          "text_de": "*liest eine Reaktion, lächelt* Sie beißen an. Jedes Mal.",
+          "text_en": "*reads a reaction, smiles* They bite. Every time.",
           "probability": 0.2,
           "condition": "morale < 40"
         },
         {
           "id": "mar_ambient_15",
-          "text_de": "*organisiert Post-Its nach Dringlichkeit*",
-          "text_en": "*organizes Post-Its by urgency*",
+          "text_de": "*wirft einen Entwurf in den Papierkorb* Wer das glaubt, hätte es ohnehin geglaubt. Zu klein.",
+          "text_en": "*tosses a draft in the bin* Anyone who'd believe that already did. Too small.",
           "probability": 0.25
         },
         {
           "id": "mar_ambient_16",
-          "text_de": "*führt A/B-Test-Ergebnisse zusammen*",
-          "text_en": "*merges A/B test results*",
+          "text_de": "*trommelt mit dem Stift, denkt laut* Welches Thema kocht gerade? Da setzen wir an.",
+          "text_en": "*taps her pen, thinking aloud* Which topic is boiling right now? That's where we push.",
           "probability": 0.3
         },
         {
           "id": "mar_ambient_17",
-          "text_de": "*blättert durch dicken Stapel Ausdrucke*",
-          "text_en": "*flips through thick stack of printouts*",
+          "text_de": "*richtet ihren Blazer, bevor sie zum Telefon greift*",
+          "text_en": "*straightens her blazer before reaching for the phone*",
           "probability": 0.25
         },
         {
           "id": "mar_ambient_18",
-          "text_de": "*checked Fact-Checking-Tools auf drei Browsern*",
-          "text_en": "*checks fact-checking tools on three browsers*",
+          "text_de": "*grinst* Man muss niemanden überzeugen. Man muss nur lauter sein.",
+          "text_en": "*grins* You don't have to convince anyone. Just be louder.",
           "probability": 0.3
         },
         {
           "id": "mar_ambient_19",
-          "text_de": "*murmelt Zahlen im Schlaf - hat am Schreibtisch gedöst*",
-          "text_en": "*mumbles numbers in sleep - dozed off at desk*",
+          "text_de": "*betrachtet eine Kurve* Schön. Aber morgen will ich sie steiler.",
+          "text_en": "*studies a curve* Pretty. But tomorrow I want it steeper.",
           "probability": 0.15,
           "condition": "morale < 35"
         },
         {
           "id": "mar_ambient_20",
-          "text_de": "*aktualisiert Psychographic Profiles in Datenbank*",
-          "text_en": "*updates psychographic profiles in database*",
+          "text_de": "*spricht halblaut* Wahrheit ist ein Detail. Timing ist alles.",
+          "text_en": "*half-aloud* Truth is a detail. Timing is everything.",
           "probability": 0.3
         }
       ]
@@ -932,8 +977,8 @@
           },
           {
             "id": "vol_greet_2_2",
-            "text_de": "*zeigt aufs Dashboard* Grün. Alles grün. Genau das macht mich nervös.",
-            "text_en": "*points at the dashboard* Green. All green. That is exactly what makes me nervous.",
+            "text_de": "*zeigt auf die Anzeige* Grün. Alles grün. Genau das macht mich nervös.",
+            "text_en": "*points at the display* Green. All green. That is exactly what makes me nervous.",
             "tone": "excited"
           },
           {
@@ -980,14 +1025,20 @@
         "harassment_action": [
           {
             "id": "vol_react_harass_1",
-            "triggered_by_tags": ["technical","hacking"],
+            "triggered_by_tags": [
+              "technical",
+              "hacking"
+            ],
             "text_de": "*prüft die Logs* Sauber durchgezogen. Keine Spuren, die mich nachts wachhalten.",
             "text_en": "*checks the logs* Cleanly done. No traces to keep me up at night.",
             "relationship_bonus": 3
           },
           {
             "id": "vol_react_harass_2",
-            "triggered_by_tags": ["infrastructure","automation"],
+            "triggered_by_tags": [
+              "infrastructure",
+              "automation"
+            ],
             "text_de": "*nickt* Die Infrastruktur hält. Solange Sie sie nicht überlasten.",
             "text_en": "*nods* The infrastructure holds. As long as you don't overload it.",
             "relationship_bonus": 4
@@ -996,14 +1047,21 @@
         "gentle_approach": [
           {
             "id": "vol_react_gentle_1",
-            "triggered_by_tags": ["ai","deepfake"],
+            "triggered_by_tags": [
+              "ai",
+              "deepfake"
+            ],
             "text_de": "*mustert das Ergebnis* Täuschend echt. Genau das macht mir Sorgen.",
             "text_en": "*examines the result* Convincingly real. Which is exactly what worries me.",
             "relationship_bonus": -1
           },
           {
             "id": "vol_react_gentle_2",
-            "triggered_by_tags": ["security","defense","opsec"],
+            "triggered_by_tags": [
+              "security",
+              "defense",
+              "opsec"
+            ],
             "text_de": "Gut. Jede Schicht Anonymität ist eine Schicht, die uns Zeit kauft.",
             "text_en": "Good. Every layer of anonymity is a layer that buys us time.",
             "relationship_bonus": -2
@@ -1012,7 +1070,9 @@
         "chaos_success": [
           {
             "id": "vol_react_chaos_1",
-            "triggered_by_tags": ["high_impact"],
+            "triggered_by_tags": [
+              "high_impact"
+            ],
             "text_de": "*lehnt sich zurück* Große Wirkung, große Signatur. Die Forensik wird sich freuen.",
             "text_en": "*leans back* Big impact, big signature. The forensics team will be delighted.",
             "relationship_bonus": 5
@@ -1021,7 +1081,10 @@
         "viral_moment": [
           {
             "id": "vol_react_viral_1",
-            "triggered_by_tags": ["amplification","bots"],
+            "triggered_by_tags": [
+              "amplification",
+              "bots"
+            ],
             "text_de": "*beobachtet den Traffic* Die Bots laufen heiß. Ich drossle, bevor jemand das Muster sieht.",
             "text_en": "*watches the traffic* The bots are running hot. I'll throttle before anyone sees the pattern.",
             "relationship_bonus": 4
@@ -1030,7 +1093,10 @@
         "first_dark_action": [
           {
             "id": "vol_react_first_dark_1",
-            "triggered_by_tags": ["hacking","espionage"],
+            "triggered_by_tags": [
+              "hacking",
+              "espionage"
+            ],
             "condition": "first_dark_action",
             "text_de": "*tippt ruhig* Einbruch bestätigt. Ich säubere die Zugangsprotokolle. Reden Sie mit niemandem darüber.",
             "text_en": "*types calmly* Breach confirmed. I'm scrubbing the access logs. Don't talk to anyone about this.",
@@ -1056,7 +1122,9 @@
         "level_up": [
           {
             "id": "vol_react_levelup_1",
-            "triggered_by_tags": ["relationship_level_up"],
+            "triggered_by_tags": [
+              "relationship_level_up"
+            ],
             "text_de": "*schiebt einen verschlüsselten Stick rüber* Voller Zugriff. Missbrauchen Sie ihn nicht — ich sehe alles.",
             "text_en": "*slides over an encrypted stick* Full access. Don't abuse it — I see everything.",
             "relationship_bonus": 0
@@ -1097,122 +1165,122 @@
       "ambient": [
         {
           "id": "vol_ambient_1",
-          "text_de": "*lacht über etwas auf seinem Bildschirm* Oh, dieser Idiot...",
-          "text_en": "*laughs at something on his screen* Oh, this idiot...",
+          "text_de": "*starrt auf eine Logzeile, die nicht da sein dürfte* Drei Uhr nachts. Und trotzdem ein Zugriff.",
+          "text_en": "*stares at a log line that shouldn't be there* Three in the morning. And still an access.",
           "probability": 0.4
         },
         {
           "id": "vol_ambient_2",
-          "text_de": "*koordiniert Troll-Operationen über mehrere Chats*",
-          "text_en": "*coordinates troll operations via multiple chats*",
+          "text_de": "*prüft eine Verbindung doppelt* Anonym genug? Nichts ist anonym genug.",
+          "text_en": "*double-checks a connection* Anonymous enough? Nothing is anonymous enough.",
           "probability": 0.3
         },
         {
           "id": "vol_ambient_3",
-          "text_de": "*tippt wie besessen* Lass uns sehen, wie sie DAS verteidigen... *grinst*",
-          "text_en": "*types frantically* Let's see how they defend THIS... *grins*",
+          "text_de": "*murmelt* Jede Spur ist eine Spur. Auch die, die Sie nicht sehen.",
+          "text_en": "*murmurs* Every trace is a trace. Even the ones you don't see.",
           "probability": 0.35
         },
         {
           "id": "vol_ambient_4",
-          "text_de": "*scrollt durch wütende Kommentare* Perfekt. Genau wie geplant.",
-          "text_en": "*scrolls through angry comments* Perfect. Exactly as planned.",
+          "text_de": "*fährt mit dem Finger eine Liste ab* Hier. Da. Und da. Alles muss weg.",
+          "text_en": "*runs a finger down a list* Here. There. And there. All of it has to go.",
           "probability": 0.3
         },
         {
           "id": "vol_ambient_5",
-          "text_de": "*trinkt Energy-Drink* 72 Stunden wach. Neuer Rekord!",
-          "text_en": "*drinks energy drink* 72 hours awake. New record!",
+          "text_de": "*runzelt die Stirn* Das Muster wiederholt sich. Muster sind Beweise.",
+          "text_en": "*frowns* The pattern repeats. Patterns are evidence.",
           "probability": 0.25
         },
         {
           "id": "vol_ambient_6",
-          "text_de": "*brüllt lachend* NEIN! Die haben es wirklich geglaubt! *schlägt auf Tisch*",
-          "text_en": "*roars with laughter* NO WAY! They actually believed it! *slams desk*",
+          "text_de": "*trinkt kalten Kaffee, ohne den Blick vom Monitor zu nehmen*",
+          "text_en": "*drinks cold coffee without taking his eyes off the screen*",
           "probability": 0.2
         },
         {
           "id": "vol_ambient_7",
-          "text_de": "*erstellt Fake-Accounts im Sekundentakt*",
-          "text_en": "*creates fake accounts by the second*",
+          "text_de": "*seufzt leise* Wenn wir es überdrehen, sieht es jeder Praktikant mit Logzugang.",
+          "text_en": "*sighs quietly* If we overdo it, any intern with log access will see it.",
           "probability": 0.35
         },
         {
           "id": "vol_ambient_8",
-          "text_de": "*orchestriert koordinierten Hashtag-Sturm*",
-          "text_en": "*orchestrates coordinated hashtag storm*",
+          "text_de": "*schließt ein Fenster, öffnet es wieder, prüft noch einmal*",
+          "text_en": "*closes a window, opens it again, checks once more*",
           "probability": 0.3
         },
         {
           "id": "vol_ambient_9",
-          "text_de": "*zeigt anderen Troll* Schau! Die streiten sich jetzt untereinander!",
-          "text_en": "*shows another troll* Look! They're arguing among themselves now!",
+          "text_de": "*spricht halblaut* Ich habe gewarnt. Schreiben Sie das ins Protokoll.",
+          "text_en": "*half-aloud* I warned you. Put that in the record.",
           "probability": 0.25
         },
         {
           "id": "vol_ambient_10",
-          "text_de": "*analysiert Trending Topics* Zeit, das zu kapern...",
-          "text_en": "*analyzes trending topics* Time to hijack that...",
+          "text_de": "*verwischt eine Spur, kontrolliert, ob sie wirklich weg ist*",
+          "text_en": "*erases a trace, checks that it's really gone*",
           "probability": 0.3
         },
         {
           "id": "vol_ambient_11",
-          "text_de": "*postet absurde Meme-Kombination* Das wird sie komplett verwirren.",
-          "text_en": "*posts absurd meme combination* This will confuse them completely.",
+          "text_de": "*betrachtet eine Verbindung* Das hält der Forensik nicht stand. Noch nicht.",
+          "text_en": "*studies a connection* That won't hold up to forensics. Not yet.",
           "probability": 0.35
         },
         {
           "id": "vol_ambient_12",
-          "text_de": "*grinst zynisch beim Lesen von 'empörten' Reaktionen*",
-          "text_en": "*grins cynically while reading 'outraged' reactions*",
+          "text_de": "*zählt leise mit* Sieben Schichten. Eine zu wenig.",
+          "text_en": "*counts under his breath* Seven layers. One too few.",
           "probability": 0.3
         },
         {
           "id": "vol_ambient_13",
-          "text_de": "*jongliert zwischen 15 offenen Discord-Servern*",
-          "text_en": "*juggles between 15 open Discord servers*",
+          "text_de": "*reibt sich die Augen* Ich sehe Zeitstempel, wenn ich die Augen schließe.",
+          "text_en": "*rubs his eyes* I see timestamps when I close my eyes.",
           "probability": 0.25
         },
         {
           "id": "vol_ambient_14",
-          "text_de": "*testet neue Desinformation-Formate* Mal sehen, was funktioniert...",
-          "text_en": "*tests new disinformation formats* Let's see what works...",
+          "text_de": "*tippt eine Notiz: „Risiko: hoch. Empfehlung: warten.\"*",
+          "text_en": "*types a note: \"Risk: high. Recommendation: wait.\"*",
           "probability": 0.3
         },
         {
           "id": "vol_ambient_15",
-          "text_de": "*schreibt bewusst schlechte Rechtschreibung* Authentizität ist alles!",
-          "text_en": "*deliberately writes poor spelling* Authenticity is everything!",
+          "text_de": "*horcht auf das Lüftergeräusch* Der Server arbeitet zu hart. Das fällt auf.",
+          "text_en": "*listens to the fan* The server's working too hard. That gets noticed.",
           "probability": 0.25
         },
         {
           "id": "vol_ambient_16",
-          "text_de": "*kichert* Sie haben uns wieder ein Fact-Check gewidmet. Kostenlose Publicity!",
-          "text_en": "*giggles* They dedicated another fact-check to us. Free publicity!",
+          "text_de": "*zieht ein Kabel, steckt es woanders ein, atmet aus*",
+          "text_en": "*pulls a cable, plugs it in elsewhere, exhales*",
           "probability": 0.2
         },
         {
           "id": "vol_ambient_17",
-          "text_de": "*koordiniert Bot-Netzwerk über verschlüsselten Kanal*",
-          "text_en": "*coordinates bot network via encrypted channel*",
+          "text_de": "*murmelt* Geduld ist Sicherheit. Eile ist eine Festnahme.",
+          "text_en": "*murmurs* Patience is security. Haste is an arrest.",
           "probability": 0.3
         },
         {
           "id": "vol_ambient_18",
-          "text_de": "*isst kalte Pizza vom Vortag ohne hinzusehen*",
-          "text_en": "*eats yesterday's cold pizza without looking*",
+          "text_de": "*prüft, wer zuletzt eingeloggt war — und wann*",
+          "text_en": "*checks who logged in last — and when*",
           "probability": 0.25
         },
         {
           "id": "vol_ambient_19",
-          "text_de": "*murmelt* Chaos ist eine Leiter... *lacht irre*",
-          "text_en": "*mutters* Chaos is a ladder... *laughs maniacally*",
+          "text_de": "*schiebt die Brille hoch* Eine saubere Operation ist eine langsame Operation.",
+          "text_en": "*pushes his glasses up* A clean operation is a slow operation.",
           "probability": 0.15
         },
         {
           "id": "vol_ambient_20",
-          "text_de": "*startet neue Kontroverse mit einem einzigen Tweet*",
-          "text_en": "*starts new controversy with a single tweet*",
+          "text_de": "*schaut über die Schulter, obwohl niemand da ist*",
+          "text_en": "*glances over his shoulder, though no one is there*",
           "probability": 0.3
         }
       ]
@@ -1333,14 +1401,20 @@
         "content_success": [
           {
             "id": "kat_react_viral_1",
-            "triggered_by_tags": ["recruitment","field"],
+            "triggered_by_tags": [
+              "recruitment",
+              "field"
+            ],
             "text_de": "*knapp* Kontakt sitzt. Eine echte Stimme schlägt zehn Bots.",
             "text_en": "*curtly* Contact's in place. One real voice beats ten bots.",
             "relationship_bonus": 3
           },
           {
             "id": "kat_react_viral_2",
-            "triggered_by_tags": ["recruitment","organic"],
+            "triggered_by_tags": [
+              "recruitment",
+              "organic"
+            ],
             "text_de": "*nickt* Sauber angeworben. Der glaubt wirklich, es sei seine Idee.",
             "text_en": "*nods* Cleanly recruited. He genuinely thinks it's his own idea.",
             "relationship_bonus": 4
@@ -1349,14 +1423,19 @@
         "narrative_work": [
           {
             "id": "kat_react_narrative_1",
-            "triggered_by_tags": ["targeting","intelligence"],
+            "triggered_by_tags": [
+              "targeting",
+              "intelligence"
+            ],
             "text_de": "Material liegt vor. Sagen Sie mir, wann wir es nutzen — nicht ob.",
             "text_en": "Material's ready. Tell me when we use it — not if.",
             "relationship_bonus": 1
           },
           {
             "id": "kat_react_narrative_2",
-            "triggered_by_tags": ["intelligence"],
+            "triggered_by_tags": [
+              "intelligence"
+            ],
             "text_de": "*blättert durch Fotos* Da ist die Schwachstelle. Geduldige Arbeit zahlt sich aus.",
             "text_en": "*flips through photos* There is the weak spot. Patient work pays off.",
             "relationship_bonus": 2
@@ -1365,7 +1444,10 @@
         "emotional_impact": [
           {
             "id": "kat_react_emotional_1",
-            "triggered_by_tags": ["high_impact","intimidation"],
+            "triggered_by_tags": [
+              "high_impact",
+              "intimidation"
+            ],
             "text_de": "*ruhig* Die Botschaft ist angekommen. Die Zielperson überlegt sich zweimal, was sie sagt.",
             "text_en": "*calm* Message received. The target will think twice about what they say.",
             "relationship_bonus": 5
@@ -1374,7 +1456,10 @@
         "viral_success": [
           {
             "id": "kat_react_viralsuccess_1",
-            "triggered_by_tags": ["offline","mobilization"],
+            "triggered_by_tags": [
+              "offline",
+              "mobilization"
+            ],
             "text_de": "*zufrieden* Echte Gesichter auf der Straße. Niemand sieht die Fäden.",
             "text_en": "*satisfied* Real faces in the street. Nobody sees the strings.",
             "relationship_bonus": 6
@@ -1383,7 +1468,11 @@
         "first_dark_action": [
           {
             "id": "kat_react_first_dark_1",
-            "triggered_by_tags": ["blackmail","coercion","harassment"],
+            "triggered_by_tags": [
+              "blackmail",
+              "coercion",
+              "harassment"
+            ],
             "condition": "first_dark_action",
             "text_de": "*ernst* Das ist eine andere Liga. Meine Leute tragen das Risiko — vergessen Sie das nicht.",
             "text_en": "*serious* That's another league. My people carry the risk — don't forget that.",
@@ -1403,7 +1492,9 @@
         "level_up": [
           {
             "id": "kat_react_levelup_1",
-            "triggered_by_tags": ["relationship_level_up"],
+            "triggered_by_tags": [
+              "relationship_level_up"
+            ],
             "text_de": "*nickt langsam* Ich vertraue Ihnen meine Quellen an. Das mache ich bei kaum jemandem.",
             "text_en": "*nods slowly* I'll trust you with my sources. I do that for almost no one.",
             "relationship_bonus": 0
@@ -1412,7 +1503,10 @@
         "narrative_breakthrough": [
           {
             "id": "kat_react_breakthrough_1",
-            "triggered_by_tags": ["high_impact","false_flag"],
+            "triggered_by_tags": [
+              "high_impact",
+              "false_flag"
+            ],
             "text_de": "*leise* Es ist gelaufen, und alle sind zurück. So muss eine Operation enden.",
             "text_en": "*quietly* It's done, and everyone's back. That's how an operation should end.",
             "relationship_bonus": 7
@@ -1444,123 +1538,123 @@
       "ambient": [
         {
           "id": "kat_ambient_1",
-          "text_de": "*skizziert Ideen auf einem Whiteboard*",
-          "text_en": "*sketches ideas on a whiteboard*",
+          "text_de": "*prüft eine Adresse auf einer Karte, macht einen Haken*",
+          "text_en": "*checks an address on a map, ticks it off*",
           "probability": 0.4
         },
         {
           "id": "kat_ambient_2",
-          "text_de": "*testet Schlagzeilen an verschiedenen Personas*",
-          "text_en": "*tests headlines on different personas*",
+          "text_de": "*spricht knapp ins Telefon* Treffpunkt steht. Komm allein.",
+          "text_en": "*curtly, into the phone* Meeting point's set. Come alone.",
           "probability": 0.3
         },
         {
           "id": "kat_ambient_3",
-          "text_de": "*gestikuliert wild während sie Story-Arc erklärt*",
-          "text_en": "*gesticulates wildly while explaining story arc*",
+          "text_de": "*murmelt* Im Feld hält kein Plan. Nur Leute, denen man traut.",
+          "text_en": "*murmurs* No plan survives the field. Only people you trust.",
           "probability": 0.35
         },
         {
           "id": "kat_ambient_4",
-          "text_de": "*hört dramatische Musik während sie schreibt*",
-          "text_en": "*listens to dramatic music while writing*",
+          "text_de": "*rollt eine Karte zusammen, steckt sie ein*",
+          "text_en": "*rolls up a map, pockets it*",
           "probability": 0.3
         },
         {
           "id": "kat_ambient_5",
-          "text_de": "*liest laut verschiedene Versionen* Nein, das klingt nicht echt genug...",
-          "text_en": "*reads different versions aloud* No, that doesn't sound real enough...",
+          "text_de": "*zählt Bargeld, teilt es in Umschläge*",
+          "text_en": "*counts cash, splits it into envelopes*",
           "probability": 0.25
         },
         {
           "id": "kat_ambient_6",
-          "text_de": "*sammelt Bilder für emotionales Storyboard*",
-          "text_en": "*collects images for emotional storyboard*",
+          "text_de": "*sieht auf die Straße hinaus, prägt sich Gesichter ein*",
+          "text_en": "*looks out at the street, memorizes faces*",
           "probability": 0.3
         },
         {
           "id": "kat_ambient_7",
-          "text_de": "*weint bei eigener Story* Wenn ICH weine, werden SIE auch weinen!",
-          "text_en": "*cries at own story* If I cry, THEY will cry too!",
+          "text_de": "*knapp* Die Quelle ist nervös. Nervöse Quellen machen Fehler.",
+          "text_en": "*curtly* The source is nervous. Nervous sources make mistakes.",
           "probability": 0.2
         },
         {
           "id": "kat_ambient_8",
-          "text_de": "*erstellt Character-Profile für Fake-Personas*",
-          "text_en": "*creates character profiles for fake personas*",
+          "text_de": "*zieht die Jacke an* Manche Dinge bespricht man nicht am Schreibtisch.",
+          "text_en": "*puts on her jacket* Some things you don't discuss at a desk.",
           "probability": 0.35
         },
         {
           "id": "kat_ambient_9",
-          "text_de": "*umgibt sich mit Post-Its in allen Farben*",
-          "text_en": "*surrounds herself with Post-Its in all colors*",
+          "text_de": "*murmelt* Meine Leute, meine Regeln. Wer das vergisst, fliegt auf.",
+          "text_en": "*murmurs* My people, my rules. Forget that and you get burned.",
           "probability": 0.25
         },
         {
           "id": "kat_ambient_10",
-          "text_de": "*spielt verschiedene Zielgruppen-Reaktionen durch*",
-          "text_en": "*plays through different target audience reactions*",
+          "text_de": "*checkt ein zweites Handy, schaltet es wieder aus*",
+          "text_en": "*checks a second phone, switches it off again*",
           "probability": 0.3
         },
         {
           "id": "kat_ambient_11",
-          "text_de": "*springt auf* GENAU! Das ist der Hook! *kritzelt aufgeregt*",
-          "text_en": "*jumps up* EXACTLY! That's the hook! *scribbles excitedly*",
+          "text_de": "*notiert einen Namen, durchstreicht ihn wieder*",
+          "text_en": "*writes down a name, crosses it out again*",
           "probability": 0.25
         },
         {
           "id": "kat_ambient_12",
-          "text_de": "*optimiert Schlagzeilen für emotionalen Impact*",
-          "text_en": "*optimizes headlines for emotional impact*",
+          "text_de": "*trinkt Tee aus einem Blechbecher, beobachtet die Tür*",
+          "text_en": "*drinks tea from a tin mug, watching the door*",
           "probability": 0.35
         },
         {
           "id": "kat_ambient_13",
-          "text_de": "*flüstert Dialog vor sich hin, testet Authentizität*",
-          "text_en": "*whispers dialogue to herself, tests authenticity*",
+          "text_de": "*knapp* Sagen Sie mir das Ziel. Den Rest mache ich.",
+          "text_en": "*curtly* Give me the target. I'll handle the rest.",
           "probability": 0.3
         },
         {
           "id": "kat_ambient_14",
-          "text_de": "*studiert erfolgreiche virale Stories* Was macht sie so teilbar?",
-          "text_en": "*studies successful viral stories* What makes them so shareable?",
+          "text_de": "*prüft, ob jemand ihr gefolgt ist — Gewohnheit*",
+          "text_en": "*checks whether anyone followed her — habit*",
           "probability": 0.25
         },
         {
           "id": "kat_ambient_15",
-          "text_de": "*malt Story-Timeline mit bunten Markern*",
-          "text_en": "*draws story timeline with colorful markers*",
+          "text_de": "*murmelt* Eine verbrannte Quelle kriegt man nicht zurück. Nie.",
+          "text_en": "*murmurs* A burned source you never get back. Never.",
           "probability": 0.3
         },
         {
           "id": "kat_ambient_16",
-          "text_de": "*wählt perfektes Foto* Es muss die RICHTIGE Emotion auslösen...",
-          "text_en": "*selects perfect photo* It has to trigger the RIGHT emotion...",
+          "text_de": "*packt eine Tasche, kontrolliert zweimal den Inhalt*",
+          "text_en": "*packs a bag, checks the contents twice*",
           "probability": 0.25
         },
         {
           "id": "kat_ambient_17",
-          "text_de": "*schreibt emotionale Testimonials - alle erfunden*",
-          "text_en": "*writes emotional testimonials - all fabricated*",
+          "text_de": "*spricht leise mit jemandem* Du bist sicher. Solange du bei mir bleibst.",
+          "text_en": "*quietly, to someone* You're safe. As long as you stay with me.",
           "probability": 0.3
         },
         {
           "id": "kat_ambient_18",
-          "text_de": "*testet verschiedene Narrative-Frames*",
-          "text_en": "*tests different narrative frames*",
+          "text_de": "*zeichnet schnell einen Lageplan auf eine Serviette*",
+          "text_en": "*quickly sketches a layout on a napkin*",
           "probability": 0.35
         },
         {
           "id": "kat_ambient_19",
-          "text_de": "*seufzt erschöpft* Kreativität ist verdammt anstrengend...",
-          "text_en": "*sighs exhausted* Creativity is damn exhausting...",
+          "text_de": "*knapp* Demo bis Freitag. Echte Gesichter, falsche Empörung.",
+          "text_en": "*curtly* Rally by Friday. Real faces, fake outrage.",
           "probability": 0.2,
           "condition": "morale < 45"
         },
         {
           "id": "kat_ambient_20",
-          "text_de": "*designed emotionale Infografik mit tränenreichem Appeal*",
-          "text_en": "*designs emotional infographic with tearjerker appeal*",
+          "text_de": "*schaut auf die Uhr* Zeitfenster ist eng. Wir machen es trotzdem.",
+          "text_en": "*checks her watch* Window's tight. We do it anyway.",
           "probability": 0.3
         }
       ]
@@ -1581,8 +1675,8 @@
           },
           {
             "id": "igor_greet_0_2",
-            "text_de": "Sie sind neu. Dann eine Zahl vorweg: Jeder Rubel, den Sie ausgeben, hat einen Namen.",
-            "text_en": "You are new. So one number first: every ruble you spend has a name.",
+            "text_de": "Sie sind neu. Dann eine Zahl vorweg: Jeder Taler, den Sie ausgeben, hat einen Namen.",
+            "text_en": "You are new. So one number first: every taler you spend has a name.",
             "tone": "minimal"
           },
           {
@@ -1681,14 +1775,19 @@
         "technical_action": [
           {
             "id": "igor_react_tech_1",
-            "triggered_by_tags": ["financial","funding"],
+            "triggered_by_tags": [
+              "financial",
+              "funding"
+            ],
             "text_de": "*nickt* Saubere Buchung. Das Geld ist da und es riecht nach nichts.",
             "text_en": "*nods* Clean booking. The money's here and it smells of nothing.",
             "relationship_bonus": 2
           },
           {
             "id": "igor_react_tech_2",
-            "triggered_by_tags": ["financial"],
+            "triggered_by_tags": [
+              "financial"
+            ],
             "text_de": "*zeigt Daumen hoch* Effizient. Jeder Posten hat seinen Platz.",
             "text_en": "*thumbs up* Efficient. Every line item in its place.",
             "relationship_bonus": 3
@@ -1697,14 +1796,19 @@
         "low_tech": [
           {
             "id": "igor_react_lowtech_1",
-            "triggered_by_tags": ["cover","opsec"],
+            "triggered_by_tags": [
+              "cover",
+              "opsec"
+            ],
             "text_de": "*nickt* Tarnung steht. Drei Schichten zwischen uns und der Spur.",
             "text_en": "*nods* Cover's set. Three layers between us and the trail.",
             "relationship_bonus": 0
           },
           {
             "id": "igor_react_lowtech_2",
-            "triggered_by_tags": ["political"],
+            "triggered_by_tags": [
+              "political"
+            ],
             "text_de": "*runzelt die Stirn* Politisch teuer. Aber die Bücher stimmen, also gut.",
             "text_en": "*frowns* Politically expensive. But the books balance, so fine.",
             "relationship_bonus": -1
@@ -1713,7 +1817,10 @@
         "hack_success": [
           {
             "id": "igor_react_hacksuccess_1",
-            "triggered_by_tags": ["high_impact","funding"],
+            "triggered_by_tags": [
+              "high_impact",
+              "funding"
+            ],
             "text_de": "*rechnet* Große Summe, sauber verschleiert. Das ist mein Lieblings-Ergebnis.",
             "text_en": "*calculating* Big sum, cleanly obscured. That's my favorite kind of result.",
             "relationship_bonus": 4
@@ -1731,7 +1838,10 @@
         "first_dark_action": [
           {
             "id": "igor_react_first_dark_1",
-            "triggered_by_tags": ["corruption","high_risk"],
+            "triggered_by_tags": [
+              "corruption",
+              "high_risk"
+            ],
             "condition": "first_dark_action",
             "text_de": "*ernst* Bestechung hinterlässt immer eine Spur. Ich vergrabe sie tief. Aber sie bleibt.",
             "text_en": "*serious* Bribery always leaves a trace. I'll bury it deep. But it stays.",
@@ -1741,7 +1851,9 @@
         "technical_failure": [
           {
             "id": "igor_react_failure_1",
-            "triggered_by_tags": ["risk"],
+            "triggered_by_tags": [
+              "risk"
+            ],
             "text_de": "*tippt aggressiv* Das Geld ist verbrannt. Das passiert mir nicht zweimal.",
             "text_en": "*types aggressively* The money's gone. That won't happen to me twice.",
             "relationship_bonus": -2
@@ -1750,7 +1862,9 @@
         "level_up": [
           {
             "id": "igor_react_levelup_1",
-            "triggered_by_tags": ["relationship_level_up"],
+            "triggered_by_tags": [
+              "relationship_level_up"
+            ],
             "text_de": "*schiebt einen Zettel rüber* Ein Konto, das offiziell nicht existiert. Für Notfälle. Nur Sie.",
             "text_en": "*slides over a note* An account that officially doesn't exist. For emergencies. Only you.",
             "relationship_bonus": 0
@@ -1793,122 +1907,122 @@
       "ambient": [
         {
           "id": "igor_ambient_1",
-          "text_de": "*tippt schnell auf mehreren Tastaturen*",
-          "text_en": "*types quickly on multiple keyboards*",
+          "text_de": "*fährt mit dem Finger eine Zahlenspalte hinunter, hält inne*",
+          "text_en": "*runs a finger down a column of numbers, stops*",
           "probability": 0.5
         },
         {
           "id": "igor_ambient_2",
-          "text_de": "*studiert Code auf dem Bildschirm*",
-          "text_en": "*studies code on the screen*",
+          "text_de": "*murmelt* Jeder Taler hat einen Namen. Auch der, den niemand sehen soll.",
+          "text_en": "*murmurs* Every taler has a name. Even the one nobody's meant to see.",
           "probability": 0.3
         },
         {
           "id": "igor_ambient_3",
-          "text_de": "*führt Penetration-Test durch*",
-          "text_en": "*conducts penetration test*",
+          "text_de": "*prüft eine Rechnung gegen eine zweite* Eine Differenz. Kleine Differenzen werden große Probleme.",
+          "text_en": "*checks one invoice against another* A gap. Small gaps become big problems.",
           "probability": 0.35
         },
         {
           "id": "igor_ambient_4",
-          "text_de": "*überwacht Server-Logs in Echtzeit*",
-          "text_en": "*monitors server logs in real-time*",
+          "text_de": "*legt drei Belege übereinander, schüttelt den Kopf* Das rechnet sich nicht.",
+          "text_en": "*stacks three receipts, shakes his head* That doesn't add up.",
           "probability": 0.4
         },
         {
           "id": "igor_ambient_5",
-          "text_de": "*kompiliert Code - beobachtet Terminal*",
-          "text_en": "*compiles code - watches terminal*",
+          "text_de": "*rechnet im Kopf, tippt zur Kontrolle nach*",
+          "text_en": "*does the math in his head, types to confirm*",
           "probability": 0.35
         },
         {
           "id": "igor_ambient_6",
-          "text_de": "*nickt zufrieden bei erfolgreichem Exploit*",
-          "text_en": "*nods with satisfaction at successful exploit*",
+          "text_de": "*murmelt* Geld hinterlässt Fingerabdrücke. Mehr als jede Spur im Netz.",
+          "text_en": "*murmurs* Money leaves fingerprints. More than any trace online.",
           "probability": 0.25
         },
         {
           "id": "igor_ambient_7",
-          "text_de": "*patcht Sicherheitslücke*",
-          "text_en": "*patches security vulnerability*",
+          "text_de": "*sortiert Quittungen nach Datum, mit spitzen Fingern*",
+          "text_en": "*sorts receipts by date, with careful fingers*",
           "probability": 0.3
         },
         {
           "id": "igor_ambient_8",
-          "text_de": "*konfiguriert VPN-Tunnel*",
-          "text_en": "*configures VPN tunnel*",
+          "text_de": "*seufzt über eine Position* Wer hat das genehmigt? Niemand. Natürlich.",
+          "text_en": "*sighs at a line item* Who approved this? Nobody. Of course.",
           "probability": 0.3
         },
         {
           "id": "igor_ambient_9",
-          "text_de": "*schreibt Shell-Script ohne Kommentare*",
-          "text_en": "*writes shell script without comments*",
+          "text_de": "*zieht eine rote Linie unter eine Summe*",
+          "text_en": "*draws a red line under a sum*",
           "probability": 0.35
         },
         {
           "id": "igor_ambient_10",
-          "text_de": "*testet Zero-Day-Exploit*",
-          "text_en": "*tests zero-day exploit*",
+          "text_de": "*knapp* Drei Schichten Tarnfirmen. Sonst lese ich es später im Untersuchungsbericht.",
+          "text_en": "*curtly* Three layers of shell companies. Or I'll read it later in the inquiry.",
           "probability": 0.25
         },
         {
           "id": "igor_ambient_11",
-          "text_de": "*optimiert Datenbank-Queries*",
-          "text_en": "*optimizes database queries*",
+          "text_de": "*betrachtet einen Kontoauszug zu lange* Zu glatt. Echte Zahlen sind nie glatt.",
+          "text_en": "*studies a statement too long* Too clean. Real numbers are never clean.",
           "probability": 0.3
         },
         {
           "id": "igor_ambient_12",
-          "text_de": "*deployt Code auf Remote-Server*",
-          "text_en": "*deploys code to remote server*",
+          "text_de": "*spitzt einen Bleistift, obwohl der Computer läuft*",
+          "text_en": "*sharpens a pencil, though the computer is running*",
           "probability": 0.35
         },
         {
           "id": "igor_ambient_13",
-          "text_de": "*analysiert Netzwerk-Traffic*",
-          "text_en": "*analyzes network traffic*",
+          "text_de": "*murmelt* Loyalität ist gemietet, nicht gekauft. Und Miete läuft weiter.",
+          "text_en": "*murmurs* Loyalty is rented, not bought. And rent keeps running.",
           "probability": 0.3
         },
         {
           "id": "igor_ambient_14",
-          "text_de": "*schreibt Python-Script für Automation*",
-          "text_en": "*writes Python script for automation*",
+          "text_de": "*streicht eine Ausgabe* Das geht auch billiger. Es geht immer billiger.",
+          "text_en": "*cuts an expense* This can be cheaper. It can always be cheaper.",
           "probability": 0.35
         },
         {
           "id": "igor_ambient_15",
-          "text_de": "*führt SQL-Injection durch*",
-          "text_en": "*performs SQL injection*",
+          "text_de": "*prüft einen Wechselkurs, notiert ihn klein an den Rand*",
+          "text_en": "*checks an exchange rate, notes it small in the margin*",
           "probability": 0.25
         },
         {
           "id": "igor_ambient_16",
-          "text_de": "*konfiguriert Firewall-Regeln*",
-          "text_en": "*configures firewall rules*",
+          "text_de": "*schließt eine Mappe, dreht den Schlüssel zweimal um*",
+          "text_en": "*closes a folder, turns the key twice*",
           "probability": 0.3
         },
         {
           "id": "igor_ambient_17",
-          "text_de": "*überwacht CPU-Auslastung - runzelt Stirn*",
-          "text_en": "*monitors CPU usage - frowns*",
+          "text_de": "*knapp* Sie wollen einen Kredit? Gut. Aber ich will jeden Posten sehen.",
+          "text_en": "*curtly* You want a loan? Fine. But I want to see every line.",
           "probability": 0.25
         },
         {
           "id": "igor_ambient_18",
-          "text_de": "*erstellt verschlüsselte Backup*",
-          "text_en": "*creates encrypted backup*",
+          "text_de": "*zählt leise nach, fängt von vorn an, weil ihn jemand unterbrochen hat*",
+          "text_en": "*counts quietly, starts over because someone interrupted him*",
           "probability": 0.3
         },
         {
           "id": "igor_ambient_19",
-          "text_de": "*trinkt Club-Mate ohne hinzusehen*",
-          "text_en": "*drinks Club-Mate without looking*",
+          "text_de": "*murmelt* Eine Spur im Geld führt direkt zur Haustür. Immer.",
+          "text_en": "*murmurs* A trail in the money leads straight to your door. Always.",
           "probability": 0.35
         },
         {
           "id": "igor_ambient_20",
-          "text_de": "*reviewed Pull-Request - merged ohne Kommentar*",
-          "text_en": "*reviews pull request - merges without comment*",
+          "text_de": "*legt den Stift exakt parallel zur Tischkante*",
+          "text_en": "*lays his pen exactly parallel to the edge of the desk*",
           "probability": 0.3
         }
       ]

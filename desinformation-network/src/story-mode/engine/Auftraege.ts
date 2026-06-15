@@ -108,6 +108,27 @@ export function getDefaultAuftrag(): Auftrag {
 }
 
 /**
+ * P1-1: Erfüllungs-Verdikt des Auftrags fürs Sieg-Ende (Vertrauen = Mittel, Auftrag = Ziel).
+ * Aus dem Signatur-Fortschritt (0..1): voll erfüllt ≥0.6 · teilweise ≥0.35 · sonst „hohler Sieg".
+ * Macht den Auftrag mechanisch sichtbar — der Sieg fühlt sich je nach erreichtem Ziel anders an.
+ */
+export function auftragMissionVerdict(progress: number, titel: string): { de: string; en: string } {
+  if (progress >= 0.6) {
+    return { de: `Auftrag „${titel}" voll erfüllt. `, en: `Mission "${titel}" fully accomplished. ` };
+  }
+  if (progress >= 0.35) {
+    return {
+      de: `Auftrag „${titel}" nur teilweise erfüllt — der eigentliche gesellschaftliche Umbau blieb auf halbem Weg. `,
+      en: `Mission "${titel}" only partly accomplished — the real societal shift stalled halfway. `,
+    };
+  }
+  return {
+    de: `Hohler Sieg: Das Institutionen-Vertrauen ist gebrochen, doch „${titel}" — Ihr eigentliches Ziel — blieb unerreicht. `,
+    en: `A hollow victory: institutional trust is broken, yet "${titel}" — your actual goal — went unachieved. `,
+  };
+}
+
+/**
  * Fortschritt eines Auftrags (0..1): wie weit die Signatur-Achsen ihr Ziel erreicht haben,
  * gemittelt. Für die Anzeige (HUD/Instrument) und die spätere Enden-Auswahl.
  */

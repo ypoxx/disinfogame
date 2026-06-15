@@ -216,7 +216,7 @@ Ihre Entscheidungen bestimmen Ihr Schicksal.`,
 
 Klicken Sie auf den Computer, um Ihre erste E-Mail zu lesen und Ihre erste Aktion auszuwählen.
 
-Viel Erfolg, Genosse Direktor der Sonderoperationen.`,
+Viel Erfolg, Direktor der Sonderoperationen.`,
     position: 'center',
     requiresAction: true,
     actionLabel: 'MISSION STARTEN',

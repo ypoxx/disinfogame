@@ -25,13 +25,19 @@ export function AuftragSelect({ onChoose, onSkip }: AuftragSelectProps): React.J
         gap: 18, padding: 24, background: 'rgba(8,8,10,0.92)', fontFamily: 'monospace',
       }}
     >
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: 3, color: StoryModeColors.warning }}>
-          IHR AUFTRAG
+      <div style={{ textAlign: 'center', maxWidth: 600 }}>
+        {/* P1-9: Direktor-Rahmung — die Wahl ist sein Briefing, nicht ein abstraktes Menü.
+            Plain-Sprache erklärt „Vertrauen = Mittel, Auftrag = Ziel" in seiner Stimme. */}
+        <div style={{ fontSize: 10, letterSpacing: 2, color: StoryModeColors.textMuted, textTransform: 'uppercase' }}>
+          Direktor Volkov
         </div>
-        <div style={{ fontSize: 12, color: StoryModeColors.textSecondary, marginTop: 6, maxWidth: 560 }}>
-          Vertrauenserosion ist das Mittel — das Ziel wählen Sie. Jeder Auftrag hat eine eigene
-          Signatur und ein eigenes Ende.
+        <div style={{ fontSize: 13, lineHeight: 1.55, color: StoryModeColors.textSecondary, marginTop: 6 }}>
+          „Bevor Sie sich an die Arbeit machen — worauf legen wir es an? Das Vertrauen der Leute
+          zu zersetzen, ist nur das Mittel. Sagen Sie mir das <span style={{ color: StoryModeColors.warning }}>Ziel</span>.
+          Daran misst die Zentrale Ihren Erfolg."
+        </div>
+        <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: 3, color: StoryModeColors.warning, marginTop: 14 }}>
+          IHR AUFTRAG
         </div>
       </div>
 

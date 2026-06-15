@@ -1,3 +1,8 @@
+> ⚠️ **VERALTET (2026-06-15):** Dieses Walkthrough beschreibt ein **früheres** Design
+> (Inbox/E-Mail/OfficeScreen, Szenario „Hybrid Crisis") und entspricht **nicht** dem aktuellen
+> diegetischen Spielerpfad (Ankunft → Direktor → Büro-Hotspots → Korkbrett/Operationszentrale).
+> Nur als Historie lesen; aktueller Stand: `STATUS.md`.
+
 # Tag 1 im Büro: Detaillierter Walkthrough
 
 **Szenario:** "The Hybrid Crisis" (Option E5)

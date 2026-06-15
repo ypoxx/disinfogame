@@ -110,16 +110,19 @@ export function societyDeltaFromAction(
   // Baseline-„Lärm": nur WENIGE Aktionen tragen explizite Spaltungs-/Reichweiten-Keys,
   // deshalb treibt das allgemeine impact_scale die Werte breit (sonst bleiben sie tot).
   // Aggressive (grey/illegal) Aktionen polarisieren und verrohen — niedrigschwellige
-  // Aktionen kaum. So differenzieren sich Strategien hörbar.
+  // Aktionen kaum. So differenzieren sich Strategien hörbar. (P1-Kopplung verstärkt: der
+  // vertrauens-erodierende Aggressiv-Pfad bewegt nun auch die Auftrags-Werte spürbar — sonst
+  // bleibt der Auftrag ein toter Anzeige-Layer, dessen Signatur nie nennenswert reift.)
   const iw = impactWeight(ctx.impactScale);
   if (iw > 0) {
-    addDelta(d, 'informationslast', iw * mult * 0.4);
+    addDelta(d, 'informationslast', iw * mult * 0.5);
     if (ctx.legality === 'grey' || ctx.legality === 'illegal') {
-      addDelta(d, 'polarisierung', iw * mult * 0.6);
+      addDelta(d, 'polarisierung', iw * mult * 1.3);
+      addDelta(d, 'zynismus', iw * mult * 0.9);
     }
     if (ctx.legality === 'illegal') {
       addDelta(d, 'zynismus', iw * mult * 0.5);
-      addDelta(d, 'diskursqualitaet', -iw * mult * 0.3);
+      addDelta(d, 'diskursqualitaet', -iw * mult * 0.6);
     }
   }
 

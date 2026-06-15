@@ -1129,6 +1129,47 @@ export function useStoryGameState(seed?: string) {
     }
   }, [engine, npcs, refreshAvailableActions, trustHistory, recommendations]);
 
+  // P0-1: Episoden-Strang abschließen — sobald ALLE Einklink-Aktionen einer aktiven Episode
+  // gespielt sind, löst sich der Strang auf: `completeEpisode` wendet `wirkt_auf` auf die
+  // Gesellschaftswerte an und merkt den Lernmoment für den End-Report vor. (Zuvor wurde
+  // completeEpisode NUR in Tests aufgerufen — der Strang füllte sich optisch, zahlte aber nie aus.)
+  // Effekt statt Inline-Check, weil `completedActions` nicht in den executeAction-Deps steht
+  // (sonst Stale-Closure). completeEpisode ist idempotent → StrictMode-Doppellauf unkritisch.
+  useEffect(() => {
+    const active = engine.getActiveEpisodes();
+    if (active.length === 0) return;
+    const justCompleted: Episode[] = [];
+    for (const ep of active) {
+      if (
+        ep.einklink_aktionen.length > 0 &&
+        ep.einklink_aktionen.every((id) => completedActions.includes(id)) &&
+        engine.completeEpisode(ep.id)
+      ) {
+        justCompleted.push(ep);
+      }
+    }
+    if (justCompleted.length === 0) return;
+    setActiveEpisodes(engine.getActiveEpisodes());
+    setResources(engine.getResources()); // wirkt_auf hat die Gesellschaftswerte bewegt
+    const phaseNo = engine.getCurrentPhase().number;
+    // Abschluss-Beat als News (nicht-intrusiv — kein Hijack einer laufenden Dialog-Box):
+    setNewsEvents((prev) => [
+      ...justCompleted.map((ep) => ({
+        id: `episode_done_${ep.id}_${phaseNo}`,
+        phase: phaseNo,
+        headline_de: `Strang ausgespielt: „${ep.titel_de}"`,
+        headline_en: `Thread played out: "${ep.titel_de}"`,
+        description_de: `${ep.wendung_de} — die Maßnahmen dieses Strangs sind ausgespielt; die Wirkung zeigt sich nun in der Gesellschaft. Der Lernmoment steht im Abschlussbericht.`,
+        description_en: ep.wendung_de,
+        type: 'world_event' as const,
+        severity: 'info' as const,
+        read: false,
+        pinned: false,
+      })),
+      ...prev,
+    ]);
+  }, [completedActions, engine]);
+
   // ============================================
   // P2 OPERATIONS-AKTE (params-Durchstich)
   // ============================================

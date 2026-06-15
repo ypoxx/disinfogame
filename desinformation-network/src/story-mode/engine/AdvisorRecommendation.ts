@@ -398,16 +398,17 @@ export function getPriorityColor(priority: RecommendationPriority): string {
 }
 
 /**
- * Get emoji indicator for priority
+ * P0-8: Prioritäts-Label als TEXT (kein Emoji — Verbotsliste). Der frühere
+ * `getPriorityEmoji` gab nach dem v2-Sweep nur Leerstrings zurück → unsichtbarer Indikator.
  */
-export function getPriorityEmoji(priority: RecommendationPriority): string {
-  const emojis: Record<RecommendationPriority, string> = {
-    critical: '',
-    high: '',
-    medium: '',
-    low: '',
+export function getPriorityLabel(priority: RecommendationPriority): string {
+  const labels: Record<RecommendationPriority, string> = {
+    critical: 'AKUT',
+    high: 'HOCH',
+    medium: 'MITTEL',
+    low: 'NIEDRIG',
   };
-  return emojis[priority];
+  return labels[priority];
 }
 
 /**
