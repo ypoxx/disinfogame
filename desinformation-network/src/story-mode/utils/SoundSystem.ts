@@ -187,6 +187,10 @@ class SoundSystem {
   private ambienceAssetId: string | null = null;
   /** Ducking (J36): Musik leiser, solange eine Raum-Kulisse läuft (1 = voll, <1 = gedämpft). */
   private musicDuck: number = 1;
+  // Sound-Politur 2026-06-15: Hintergrund-Pool (ein Lage-Band kann mehrere Tracks haben →
+  // Abwechslung, Rotation beim Loop-Ende) + Crossfade beim Wechsel (gegen den „Abbrecher").
+  private musicPool: string[] = [];
+  private musicFadeHandle: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
     // Load settings from localStorage
@@ -316,33 +320,84 @@ class SoundSystem {
    * Ohne passendes Asset: stiller No-op. Gleiche id erneut => läuft weiter.
    */
   playMusic(assetId: string = 'music_theme_main'): boolean {
+    return this.playMusicPool([assetId]);
+  }
+
+  /**
+   * Pool gleichwertiger Tracks für dasselbe Lage-Band: pickt zufällig und rotiert
+   * beim Loop-Ende (wenn > 1) → früh hörbare Abwechslung. Gleicher Pool, der schon
+   * läuft, wird NICHT neu gestartet (kein Ruckeln bei Re-Render). Wechsel = Crossfade.
+   */
+  playMusicPool(ids: string[]): boolean {
     if (!this.enabled) return false;
-    if (this.musicAssetId === assetId && this.musicElement && !this.musicElement.paused) {
-      return true;
-    }
-    const url = getAssetRegistry().soundUrl(assetId);
-    if (!url) return false;
-    this.stopMusic();
-    const element = this.createAudio(url);
-    if (!element) return false;
-    element.loop = true;
-    this.musicElement = element;
-    this.musicAssetId = assetId;
-    this.applyMusicVolume();
-    void element.play().catch(() => {
-      // Autoplay-Policy: bis zur nächsten Nutzer-Interaktion still bleiben.
-    });
+    const pool = ids.filter((id) => !!getAssetRegistry().soundUrl(id));
+    if (pool.length === 0) return false;
+    if (this.samePool(pool) && this.musicElement && !this.musicElement.paused) return true;
+    this.musicPool = pool;
+    this.crossfadeTo(pool[Math.floor(Math.random() * pool.length)]);
     return true;
+  }
+
+  private samePool(pool: string[]): boolean {
+    return pool.length === this.musicPool.length && pool.every((id, i) => id === this.musicPool[i]);
+  }
+
+  /** Aktuelles Ziel-Volume der Musik (Master × Faktor × Kanal × Ducking). */
+  private musicTargetVolume(): number {
+    return Math.max(0, Math.min(1,
+      this.masterVolume * MUSIC_VOLUME_FACTOR * this.channelVolume.music * this.musicDuck));
+  }
+
+  /** Sanfter Übergang: alten Track ausblenden, neuen einblenden (~700 ms, gegen „Abbrecher"). */
+  private crossfadeTo(assetId: string): void {
+    const url = getAssetRegistry().soundUrl(assetId);
+    if (!url) return;
+    const next = this.createAudio(url);
+    if (!next) return;
+    const rotate = this.musicPool.length > 1;
+    next.loop = !rotate; // Pool > 1 → nicht loopen, 'ended' rotiert zum nächsten Track
+    next.volume = 0;
+    const prev = this.musicElement;
+    this.musicElement = next;
+    this.musicAssetId = assetId;
+    if (rotate) {
+      next.addEventListener('ended', () => { if (this.musicElement === next) this.rotatePool(); });
+    }
+    void next.play().catch(() => { /* Autoplay-Policy: still bis zur Interaktion */ });
+
+    if (this.musicFadeHandle) { clearInterval(this.musicFadeHandle); this.musicFadeHandle = null; }
+    const target = this.musicTargetVolume();
+    const stepMs = 40, dur = 700;
+    let t = 0;
+    this.musicFadeHandle = setInterval(() => {
+      t += stepMs;
+      const k = Math.min(1, t / dur);
+      try { next.volume = target * k; } catch { /* ignore */ }
+      if (prev) { try { prev.volume = target * (1 - k); } catch { /* ignore */ } }
+      if (k >= 1) {
+        if (this.musicFadeHandle) { clearInterval(this.musicFadeHandle); this.musicFadeHandle = null; }
+        if (prev && prev !== next) { try { prev.pause(); } catch { /* ignore */ } }
+        try { next.volume = this.musicTargetVolume(); } catch { /* ignore */ }
+      }
+    }, stepMs);
+  }
+
+  /** Loop-Ende eines Pool-Tracks → zu einem (möglichst anderen) Track des Pools wechseln. */
+  private rotatePool(): void {
+    if (this.musicPool.length <= 1) return;
+    const others = this.musicPool.filter((id) => id !== this.musicAssetId);
+    const choices = others.length > 0 ? others : this.musicPool;
+    this.crossfadeTo(choices[Math.floor(Math.random() * choices.length)]);
   }
 
   /** Musik-Lautstärke neu setzen (berücksichtigt Master, Kanal und Ducking). */
   private applyMusicVolume(): void {
-    if (!this.musicElement) return;
-    this.musicElement.volume = Math.max(0, Math.min(1,
-      this.masterVolume * MUSIC_VOLUME_FACTOR * this.channelVolume.music * this.musicDuck));
+    if (!this.musicElement || this.musicFadeHandle) return; // während Crossfade steuert der Fade
+    this.musicElement.volume = this.musicTargetVolume();
   }
 
   stopMusic(): void {
+    if (this.musicFadeHandle) { clearInterval(this.musicFadeHandle); this.musicFadeHandle = null; }
     if (this.musicElement) {
       try {
         this.musicElement.pause();
@@ -352,6 +407,7 @@ class SoundSystem {
     }
     this.musicElement = null;
     this.musicAssetId = null;
+    this.musicPool = [];
   }
 
   /**
@@ -554,6 +610,11 @@ export function getChannelVolume(channel: SoundChannel): number {
 
 export function playMusic(assetId?: string): boolean {
   return getSoundSystem().playMusic(assetId);
+}
+
+/** Pool gleichwertiger Tracks (zufällige Auswahl + Rotation, Crossfade beim Wechsel). */
+export function playMusicPool(ids: string[]): boolean {
+  return getSoundSystem().playMusicPool(ids);
 }
 
 export function stopMusic(): void {

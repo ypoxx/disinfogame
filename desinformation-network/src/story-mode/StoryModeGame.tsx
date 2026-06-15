@@ -53,8 +53,8 @@ import { SidePanel } from './components/SidePanel';
 import { LagebildView } from './components/LagebildView';
 import { NarrativeBoard } from './components/NarrativeBoard';
 import { initAssetRegistry, useAssets } from './assets';
-import { playMusic, playAmbience, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound, setChannelVolume, getChannelVolume, type SoundChannel } from './utils/SoundSystem';
-import { ambienceForContext, musicForState } from './utils/soundDirector';
+import { playMusicPool, playAmbience, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound, setChannelVolume, getChannelVolume, type SoundChannel } from './utils/SoundSystem';
+import { ambienceForContext, musicPoolForState } from './utils/soundDirector';
 
 // ============================================
 // TYPES
@@ -427,12 +427,13 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   useEffect(() => {
     if (state.gamePhase === 'playing' || state.gamePhase === 'tutorial') {
       // Adaptive Musik (J34/J35): Krise immer angespannt, sonst nach Lage (Risiko).
-      const track = state.activeCrisis ? 'music_tense' : musicForState({ risk: state.resources.risk });
-      playMusic(track);
+      // Pool → das ruhige Band rotiert zwischen mehreren Tracks (hörbare Abwechslung).
+      const pool = state.activeCrisis ? ['music_tense'] : musicPoolForState({ risk: state.resources.risk });
+      playMusicPool(pool);
     } else if (state.gamePhase === 'ended') {
       // Ende: hoffnungsvolle Enden hell, sonst düster.
       const won = state.gameEnd?.type === 'victory' || state.gameEnd?.type === 'moral_redemption';
-      playMusic(musicForState({ risk: state.resources.risk, gameEnded: true, won }));
+      playMusicPool(musicPoolForState({ risk: state.resources.risk, gameEnded: true, won }));
     }
   }, [state.gamePhase, state.activeCrisis, state.resources.risk, state.gameEnd, assets]);
 
