@@ -369,7 +369,6 @@ export interface NPCState {
 
   // Spezialisierung
   specialtyAreas: string[];
-  enhancedActions: string[];          // Action IDs mit Bonus
 }
 
 /**
@@ -732,7 +731,6 @@ export class StoryEngineAdapter {
         available: npc.initialState?.available ?? true,
         currentMood: 'neutral',
         specialtyAreas: npc.specialtyAreas || [],
-        enhancedActions: npc.enhancedActions || [],
       });
 
       // Store dialogue data for later use

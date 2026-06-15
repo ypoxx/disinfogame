@@ -7,12 +7,19 @@
       "role_en": "Agency Director",
       "portrait": "direktor",
       "personality": {
-        "traits": ["authoritar", "strategisch", "kalt"],
+        "traits": [
+          "authoritar",
+          "strategisch",
+          "kalt"
+        ],
         "motivation": "Macht und Kontrolle uber die Operation",
         "weakness": "Ungeduld bei langsamen Fortschritten"
       },
-      "specialtyAreas": ["strategy", "political_leverage", "command"],
-      "enhancedActions": ["ta01_recruit_local", "ta05_establish_front"],
+      "specialtyAreas": [
+        "strategy",
+        "political_leverage",
+        "command"
+      ],
       "dialogues": {
         "greetings": {
           "0": "Hmm. Sie verschwenden meine Zeit.",
@@ -44,12 +51,19 @@
       "role_en": "Media Specialist",
       "portrait": "marina",
       "personality": {
-        "traits": ["kreativ", "manipulativ", "ehrgeizig"],
+        "traits": [
+          "kreativ",
+          "manipulativ",
+          "ehrgeizig"
+        ],
         "motivation": "Anerkennung fur ihre Arbeit",
         "weakness": "Neigt zu ubertriebenem Selbstvertrauen"
       },
-      "specialtyAreas": ["media", "content_creation", "social_engineering"],
-      "enhancedActions": ["ta02_create_content", "ta03_amplify_message", "ta04_social_bots"],
+      "specialtyAreas": [
+        "media",
+        "content_creation",
+        "social_engineering"
+      ],
       "dialogues": {
         "greetings": {
           "0": "Wer sind Sie uberhaupt?",
@@ -79,14 +93,21 @@
       "name": "Alexei Petrov",
       "role_de": "Technischer Leiter",
       "role_en": "Technical Lead",
-      "portrait": "volkov",
+      "portrait": "alexei",
       "personality": {
-        "traits": ["analytisch", "paranoid", "perfektionistisch"],
+        "traits": [
+          "analytisch",
+          "paranoid",
+          "perfektionistisch"
+        ],
         "motivation": "Technische Exzellenz und Sicherheit",
         "weakness": "Ubermassige Vorsicht verlangsamt Operationen"
       },
-      "specialtyAreas": ["technical", "infrastructure", "security"],
-      "enhancedActions": ["ta04_social_bots", "ta06_build_network", "ta07_data_harvest"],
+      "specialtyAreas": [
+        "technical",
+        "infrastructure",
+        "security"
+      ],
       "dialogues": {
         "greetings": {
           "0": "Ihre Sicherheitsprotokolle sind mangelhaft.",
@@ -118,12 +139,19 @@
       "role_en": "Field Operative",
       "portrait": "katja",
       "personality": {
-        "traits": ["pragmatisch", "loyal", "risikobereit"],
+        "traits": [
+          "pragmatisch",
+          "loyal",
+          "risikobereit"
+        ],
         "motivation": "Erfolgreiche Missionen und Teamschutz",
         "weakness": "Emotionale Bindung an Quellen"
       },
-      "specialtyAreas": ["field_ops", "recruitment", "human_intelligence"],
-      "enhancedActions": ["ta01_recruit_local", "ta05_establish_front", "ta08_infiltrate"],
+      "specialtyAreas": [
+        "field_ops",
+        "recruitment",
+        "human_intelligence"
+      ],
       "dialogues": {
         "greetings": {
           "0": "Ich bin beschaftigt. Machen Sie es kurz.",
@@ -155,12 +183,19 @@
       "role_en": "Financial Analyst",
       "portrait": "igor",
       "personality": {
-        "traits": ["vorsichtig", "akkurat", "misstrauisch"],
+        "traits": [
+          "vorsichtig",
+          "akkurat",
+          "misstrauisch"
+        ],
         "motivation": "Finanzielle Stabilitat der Operation",
         "weakness": "Zu konservativ bei Investitionen"
       },
-      "specialtyAreas": ["finance", "money_laundering", "economic_warfare"],
-      "enhancedActions": ["ta05_establish_front", "ta09_economic_pressure"],
+      "specialtyAreas": [
+        "finance",
+        "money_laundering",
+        "economic_warfare"
+      ],
       "dialogues": {
         "greetings": {
           "0": "Die Bucher stimmen nicht. Erklaren Sie sich.",

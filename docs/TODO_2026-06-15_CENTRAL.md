@@ -87,10 +87,11 @@ P1 = großer Qualitätssprung · P2 = Politur & Assets (Budget) · P3 = Aufräum
 ## 🟢 P3 — Aufräumen & niedrig
 
 - P3-1 **Waisen verbinden/archivieren:** NPC-`figure_*` (6) in Flure platzieren · `prop_safe`/`server_rack`/`world_map` in Keller/Ops-Deko · `prop_tv`/`typewriter`/`coffee`/`files`/`red_phone` archivieren · 6 alte `audience_*`-Sheets archivieren · `icon_save`/`office`/`building`-Routen verdrahten oder entfernen. *(A3)*
-- P3-2 **Tote ID-Altlasten entfernen:** `npcs.json` `enhancedActions` (9 tote Refs) · `alexei.portrait:"volkov"` · `StoryNarrativeGenerator` `volkov`-Block (0 Caller) · ggf. `vol_*`-Dialog-IDs umbenennen. *(B3)*
-- P3-3 **IdValidator erweitern** um `enhancedActions` + Advisor-`suggestedActions` (Blindstellen, die P0-5 hätten fangen können). *(B3)*
-- P3-4 **Toter/veralteter Code:** `TutorialOverlay` (13 Schritte) löschen oder als echte Hilfe aktualisieren; `unlocksRoom/unlocksNpc` als „geplant" markieren (totes Schema-Feld). *(B4)*
-- P3-5 **Doku-Hygiene:** `DAY_ONE_WALKTHROUGH.md` + Teile `HIDDEN_TREASURES.md` als veraltet markieren/aktualisieren. *(B4)*
+- ✅ P3-2 **Tote ID-Altlasten entfernt:** `enhancedActions` (5×, 9 tote `ta##`-Refs) aus `npcs.json` + Typ + Loader raus (war write-only) · `alexei.portrait:"volkov"`→`"alexei"` · `StoryNarrativeGenerator`-Reaktionen `volkov`→`direktor` re-keyed (Direktor-Name bleibt, in kalter Stimme). *(B3)*
+- P3-3 IdValidator-Erweiterung: **entfällt** für `enhancedActions` (Quelle entfernt); Advisor-`suggestedActions` ist runtime-generiert (P0-5 behebt die Quelle) → niedrig.
+- P3-4 **Toter/veralteter Code:** ✅ ungenutzte `src/components/Encyclopedia.tsx` gelöscht (P1-5 ersetzt). **Offen:** `TutorialOverlay` (gemountet, aber nie aktiviert) löschen/zur Hilfe machen; `unlocksRoom/unlocksNpc` als „geplant" markieren.
+- ✅ P3-5 **Doku-Hygiene:** `DAY_ONE_WALKTHROUGH.md` als VERALTET markiert. **Offen:** `HIDDEN_TREASURES.md`-Teile.
+- 🆕 P3-7 **`npcs.json` Inline-Fallback-Dialoge** (greetings/reactions/topics) tragen ASCII-Umlaute + alte Stimme + „Lebensader" — werden nur als Fallback gezeigt (DialogLoader hat Vorrang), aber player-sichtbar. Eigener ASCII-Umlaut- + Voice-Pass nötig (wie P1-3/P1-4). *(Neu-Fund P3)*
 - P3-6 Kleinkram: Lampen-abends-an, `StoryHUD.ViewToggleButton`-Label, `sovietRed`→`ministryRed`-Token, Save/Load sichert `DialogLoader`-Zustand nicht. *(A4 DB-07/10/11/13, C-11)*
 
 ---

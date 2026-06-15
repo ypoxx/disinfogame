@@ -313,22 +313,22 @@ export class StoryNarrativeGenerator {
           en: 'Marina stands up. "We need to talk. Privately."',
         },
       },
-      volkov: {
+      direktor: {
         positive: {
-          de: 'Volkov grinst. "Das wird der Zentrale gefallen."',
-          en: 'Volkov grins. "The Center will be pleased."',
+          de: 'Direktor Volkov nickt knapp. "Das wird der Zentrale gefallen."',
+          en: 'Director Volkov gives a curt nod. "The Center will be pleased."',
         },
         negative: {
-          de: 'Volkov zuckt mit den Schultern. "Zu viel Risiko für zu wenig Gewinn."',
-          en: 'Volkov shrugs. "Too much risk for too little reward."',
+          de: 'Direktor Volkov sieht Sie kühl an. "Zu viel Risiko für zu wenig Ertrag."',
+          en: 'Director Volkov looks at you coldly. "Too much risk for too little return."',
         },
         neutral: {
-          de: 'Volkov checkt sein Telefon, desinteressiert.',
-          en: 'Volkov checks his phone, disinterested.',
+          de: 'Direktor Volkov notiert etwas, ohne aufzusehen.',
+          en: 'Director Volkov notes something down without looking up.',
         },
         crisis: {
-          de: 'Volkov wird still. Ein schlechtes Zeichen.',
-          en: 'Volkov goes quiet. A bad sign.',
+          de: 'Direktor Volkov wird still. Ein schlechtes Zeichen.',
+          en: 'Director Volkov goes quiet. A bad sign.',
         },
       },
     };
