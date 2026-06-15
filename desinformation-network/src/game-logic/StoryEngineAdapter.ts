@@ -116,6 +116,9 @@ import { storyLogger } from '../utils/logger';
 // Import NPC and World Events data
 import npcsData from '../story-mode/data/npcs.json';
 import worldEventsData from '../story-mode/data/world-events.json';
+import targetsData from '../story-mode/data/targets.json';
+import disinfoMethodsData from '../story-mode/data/disinfo_methods.json';
+import { validateReferences, reportValidationIssues, type ValidationIssue } from '../story-mode/engine/IdValidator';
 
 // ============================================
 // STORY MODE SPECIFIC TYPES
@@ -470,6 +473,32 @@ export interface GameEndState {
 // STORY ENGINE ADAPTER CLASS
 // ============================================
 
+/**
+ * Format-Version des Spielstands (saveState/loadState). Wird beim Laden geprüft;
+ * `loadState` füllt fehlende Felder per Default-Merge (R1) auf, damit additive neue
+ * Felder (Gesellschaftswerte B2, Episoden B1 …) alte Saves nicht kaputt machen.
+ * 1.1.0: Gesellschaftswerte (B2a) + Default-Merge eingeführt.
+ */
+export const SAVE_FORMAT_VERSION = '1.1.0';
+
+// Datenintegritäts-Check (P0/R3): nur EINMAL über die Lebenszeit des Moduls laufen
+// lassen — die Daten sind statisch importiert, und die Balance-Sim erzeugt Dutzende
+// Engines. Das Ergebnis wird zwischengespeichert (auch für Tests abrufbar).
+let cachedDataIntegrityIssues: ValidationIssue[] | null = null;
+
+export function getDataIntegrityIssues(): ValidationIssue[] {
+  if (cachedDataIntegrityIssues === null) {
+    cachedDataIntegrityIssues = validateReferences({
+      actions: getActionLoader().getAllActions(),
+      npcs: (npcsData as { npcs: { id: string }[] }).npcs,
+      targets: (targetsData as { targets: { id: string; vulnerabilities?: { id: string }[] }[] }).targets,
+      methods: (disinfoMethodsData as { methods: { id: string }[] }).methods,
+      // episodes: erst ab P4 (B1) — der Validator deckt sie dann automatisch ab.
+    });
+  }
+  return cachedDataIntegrityIssues;
+}
+
 export class StoryEngineAdapter {
   private engineState: GameState | null = null;
   private storyPhase: StoryPhase;
@@ -536,6 +565,11 @@ export class StoryEngineAdapter {
     this.storyResources = this.createInitialResources();
     this.initializeNPCs();
     this.initializeObjectives();
+
+    // P0/R3: ID-Kopplungen einmalig prüfen (warnt bei toten Refs, ändert kein Verhalten).
+    if (cachedDataIntegrityIssues === null) {
+      reportValidationIssues(getDataIntegrityIssues());
+    }
 
     storyLogger.log(`✅ StoryEngineAdapter initialized (seed: ${this.rngSeed})`);
   }
@@ -5008,7 +5042,7 @@ export class StoryEngineAdapter {
 
   saveState(): string {
     const state = {
-      version: '1.0.0',
+      version: SAVE_FORMAT_VERSION,
       rngSeed: this.rngSeed,
       storyPhase: this.storyPhase,
       storyResources: this.storyResources,
@@ -5034,15 +5068,27 @@ export class StoryEngineAdapter {
   loadState(savedState: string): void {
     const state = JSON.parse(savedState);
 
+    // R1-Härtung (P0): Default-Merge statt roher Zuweisung. Alte Saves ohne die neuen
+    // Felder (Gesellschaftswerte B2, …) erben so saubere Startwerte statt undefined/NaN.
+    const savedVersion: string = state.version ?? '1.0.0';
+    if (savedVersion !== SAVE_FORMAT_VERSION) {
+      storyLogger.log(`[loadState] Migriere Spielstand ${savedVersion} → ${SAVE_FORMAT_VERSION} (Default-Merge).`);
+    }
+
     this.rngSeed = state.rngSeed || this.rngSeed;
     this.storyPhase = state.storyPhase;
-    this.storyResources = state.storyResources;
-    this.pendingConsequences = state.pendingConsequences;
+    // Fehlende Ressourcen-Felder mit Initialwerten auffüllen (additiv, rückwärtskompatibel).
+    this.storyResources = { ...this.createInitialResources(), ...(state.storyResources ?? {}) };
+    this.pendingConsequences = state.pendingConsequences ?? [];
     this.exposureCountdown = state.exposureCountdown ?? null;
-    this.newsEvents = state.newsEvents;
-    this.objectives = state.objectives;
-    this.npcStates = new Map(state.npcStates);
-    this.actionHistory = state.actionHistory;
+    this.newsEvents = state.newsEvents ?? [];
+    if (Array.isArray(state.objectives) && state.objectives.length > 0) {
+      this.objectives = state.objectives;
+    } else {
+      this.initializeObjectives();
+    }
+    this.npcStates = new Map(state.npcStates ?? []);
+    this.actionHistory = state.actionHistory ?? [];
     this.worldEventCooldowns = new Map(state.worldEventCooldowns || []);
     this.activeOpportunityWindows = new Map(state.activeOpportunityWindows || []);
     if (state.comboSystemState) {

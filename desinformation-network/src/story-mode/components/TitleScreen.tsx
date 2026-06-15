@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useAssets } from '../assets/useAssets';
 import { StoryModeColors } from '../theme';
 import { isSoundEnabled, setSoundEnabled, playMusic } from '../utils/SoundSystem';
-import { GAME_VERSION, CHANGELOG } from '../version';
+import { GAME_VERSION, BUILD_STAMP, CHANGELOG } from '../version';
 
 // ---------------------------------------------------------------------------
 // Changelog-Overlay (H48) — Pixel/Brutalist-Stil, aria-modal, Escape-schließt.
@@ -469,7 +469,7 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
             (e.currentTarget as HTMLButtonElement).style.color = StoryModeColors.textMuted;
           }}
         >
-          v{GAME_VERSION} — Vorabversion für Testspieler
+          v{GAME_VERSION} · Build {BUILD_STAMP} — Vorabversion für Testspieler
         </button>
       </div>
 

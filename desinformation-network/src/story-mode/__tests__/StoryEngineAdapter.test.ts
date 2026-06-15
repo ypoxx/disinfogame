@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { StoryEngineAdapter, createStoryEngine } from '../../game-logic/StoryEngineAdapter';
+import { StoryEngineAdapter, createStoryEngine, SAVE_FORMAT_VERSION } from '../../game-logic/StoryEngineAdapter';
 
 describe('StoryEngineAdapter', () => {
   let engine: StoryEngineAdapter;
@@ -91,7 +91,7 @@ describe('StoryEngineAdapter', () => {
       expect(typeof savedState).toBe('string');
 
       const parsed = JSON.parse(savedState);
-      expect(parsed.version).toBe('1.0.0');
+      expect(parsed.version).toBe(SAVE_FORMAT_VERSION);
       expect(parsed.storyPhase).toBeDefined();
       expect(parsed.storyResources).toBeDefined();
     });
