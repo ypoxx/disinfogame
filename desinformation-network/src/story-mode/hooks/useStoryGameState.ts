@@ -16,6 +16,7 @@ import {
 } from '../../game-logic/StoryEngineAdapter';
 import type { OperationParams } from '../battlefield/BattlefieldChain';
 import { getEpisode, type Episode } from '../engine/EpisodeLoader';
+import type { AuftragId } from '../engine/Auftraege';
 import { playSound } from '../utils/SoundSystem';
 import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
 import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
@@ -559,6 +560,12 @@ export function useStoryGameState(seed?: string) {
   const refreshAvailableActions = useCallback(() => {
     const actions = engine.getAvailableActions();
     setAvailableActions(actions);
+  }, [engine]);
+
+  // P5: strategischen Auftrag wählen (Plague-Inc.-Stil beim Einstieg/Neustart).
+  const chooseAuftrag = useCallback((id: AuftragId) => {
+    engine.setAuftrag(id);
+    playSound('click');
   }, [engine]);
 
   const startGame = useCallback(() => {
@@ -1623,6 +1630,7 @@ export function useStoryGameState(seed?: string) {
     // Game Flow
     startGame,
     skipTutorial,
+    chooseAuftrag,
     continueDialog,
     dismissDialog,
     handleDialogChoice,

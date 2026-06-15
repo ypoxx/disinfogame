@@ -29,6 +29,7 @@ import type { ActionResult } from '../game-logic/StoryEngineAdapter';
 import { PlayerOfficeView } from './components/PlayerOfficeView';
 import { TitleScreen } from './components/TitleScreen';
 import { ArrivalSequence } from './components/ArrivalSequence';
+import { AuftragSelect } from './components/AuftragSelect';
 import { AvatarChoice } from './components/AvatarChoice';
 import { BuildingView } from './building/BuildingView';
 import { pfoertnerLine as computePfoertnerLine, dominantMood } from './building/pfoertner';
@@ -253,6 +254,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     state,
     startGame,
     skipTutorial,
+    chooseAuftrag,
     continueDialog,
     dismissDialog,
     handleDialogChoice,
@@ -324,6 +326,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   }, [state.gamePhase, state.gameEnd]);
   const [showNewsroom, setShowNewsroom] = useState(false);
   const [showFokusgruppe, setShowFokusgruppe] = useState(false);
+  // P5: Auftrags-Wahl einmal pro Partie (beim ersten „playing"); bei Neustart (→ 'intro') re-armt.
+  const [auftragChosen, setAuftragChosen] = useState(false);
+  useEffect(() => {
+    if (state.gamePhase === 'intro') setAuftragChosen(false);
+  }, [state.gamePhase]);
   // P2: Operations-Akte (Operationszentrale, Etage 4) — Verbreiter×Plattform-Operation.
   const [showOperationsAkte, setShowOperationsAkte] = useState(false);
   // 2f: Narrativ-Tafel (Korkbrett) — diegetisches Planungs-Herzstück, Pinnwand im Büro.
@@ -684,6 +691,14 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       className="fixed inset-0 font-mono"
       style={{ backgroundColor: StoryModeColors.background }}
     >
+      {/* P5: Auftrags-Wahl zu Beginn der Partie (Plague-Inc.-Stil). */}
+      {!auftragChosen && state.gamePhase === 'playing' && (
+        <AuftragSelect
+          onChoose={(id) => { chooseAuftrag(id); setAuftragChosen(true); }}
+          onSkip={() => { chooseAuftrag('keil'); setAuftragChosen(true); }}
+        />
+      )}
+
       {/* HUD (E1/I32): nur auf Knopfdruck — Taste H, Standard aus, „nicht dauerhaft" */}
       {hudVisible && (
       <StoryHUD
