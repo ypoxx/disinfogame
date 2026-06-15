@@ -8,7 +8,49 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `STRANG34_FEINPLAN_2026-06-13_AKTIONEN_DIALOGE.md` → `GESAMTKONZEPT_VISUELL.md` →
 > dieses Dokument für den aktuellen Bau-Stand. Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
-**Stand:** 2026-06-14 · **PR #82 (Draft, Branch `claude/trusting-keller-5e1o0f`)** — „Loop schließen".
+**Stand:** 2026-06-15 · **PR #83 (Draft, Branch `claude/gifted-curie-5bgc0c`)** — **„Herzstück" (Episoden · Gesellschaftswerte · Aufträge · Vernetzung)**, baut auf main nach Merge von PR #82.
+
+### 🎭 Herzstück-Bau (PR #83) — Fortschritt P0→P7 (alle Phasen grün: `tsc`·`vitest`·`build`)
+Bau-Plan `BAUPLAN_2026-06-14_HERZSTUECK.md`, strikt in Reihenfolge. Gate je Commit grün (vitest 360).
+- **✅ P0 — Hygiene:** Save/Load-Migration (`SAVE_FORMAT_VERSION` 1.1.0 + Default-Merge, R1), zentraler
+  ID-Validator (`IdValidator.ts`, R3/R4, warn-only, prüft auch Episoden-Refs), dynamische Versionsanzeige
+  (`__BUILD_STAMP__` via vite `define`, §14.6). Tests: SaveLoadMigration, IdValidator.
+- **✅ P1 — Gesellschaftswerte als Zustand (B2a):** volles Werte-Set in `StoryResources` (sichtbar
+  Polarisierung/Informationslast/Zynismus + Vertrauen aus dem Ziel; intern Fragmentierung/Diskursqualität
+  + Auftrags-Achsen Wehrhaftigkeit/Reformfähigkeit/Fraktions-Stärke). HUD-Leiste „GESELLSCHAFT". **OHNE
+  Sieg-/Balance-Änderung** (deterministischer `BalanceInvariant`-Test pinnt die obj_destabilize-Mathematik).
+- **✅ P2 — Effekt-Splitting + Formeln (B2b):** `SocietyDynamics.ts` (pure) — Aktions-Effekte speisen die
+  Werte; nicht-lineare Phasen-Formeln (Polarisierung→Fragmentierung, Info-Last→Diskurs↓, …). Werte
+  differenzieren Strategien; obj_destabilize unangetastet.
+- **✅ P3 — Angriffs-Phänomene (B3):** 6 Familien / 18 Aktionen (`actions_p3_phenomena.json`):
+  Überflutung · Gerüchte-Mutation · Zermürbung · Krisen-Zeitfenster (×1.5, 3 Phasen) · Loyalitätsfalle ·
+  Erinnerungskonflikt. +4 Atlas-Methoden (14→18). Gerüchte-Druck reift verzögert. Sim im Rausch-Band.
+- **✅ P4 — Episoden + Korkbrett (B1):** `episodes.json` (10er-Batch inkl. Veen/Ferro/Brücke), `EpisodeLoader.ts`
+  (pure, Auslöser always/Wert/worldEvent), Engine-`episodeState` (offered/active/completed) auf dem lebenden
+  NPC-Pfad, `wirkt_auf` balance-neutral (nur Gesellschaftswerte). **UI:** NPC bietet Episode im Dialog an →
+  aktiver Strang am Korkbrett (**Spuren = Episoden-Stränge**) + Einklink-Maßnahmen auf den Sendeplan.
+- **✅ P5 — Strategische Aufträge (Keil/Wahl/Zweifel):** `Auftraege.ts` (Signatur-Achsen + Instrument §14.2),
+  Engine-Auswahl (Default Keil) + Fortschritt, im HUD sichtbar. **Vertrauen = Mittel, Auftrag = Ziel.** v1
+  balance-neutral (obj_destabilize bleibt der Sieg).
+- **🟡 P6 — Vernetzung (Teil 1):** **Umfragen/Barometer als News (F3, §14.2)** — `PollNews.ts`, periodisch,
+  Auftrags-Leit-Instrument bevorzugt, Tendenz. **Offen (Teil 2, z. T. Asset-Budget):** Broadcast aus aktiver
+  Episode · Publikum reagiert auf Werte-Vektor · **Newsroom** (erzählerische Gegenseite C9) · Fokusgruppe auf
+  Episoden/Werte.
+- **⬜ P7 — Umgebungshumor + Ethik-Geländer:** offen. Klickbare Plakate, Kaffeeküche/Reißwolf/Automat (§14.4),
+  Helden-Siegtext entschärfen, Debrief verpflichtend, Gegenmaßnahmen je Methode im End-Report.
+
+**Methodik-Notiz (wichtig für künftige Balance-Arbeit):** Die Balance-Sim ist durch `Math.random()`-Seedung
+im Engine-Kern **inhärent verrauscht** (greedy/aggressiv ±1–2 run-to-run) — exakte Sieg-Quoten taugen NICHT
+als „unverändert"-Beweis. Robuster Ersatz: `BalanceInvariant.test.ts` pinnt die seed-/combo-unabhängigen
+**Effektwerte** von `applyActionEffects` (die reine obj_destabilize-Mathematik).
+
+**Offene Politur-Notizen Herzstück:** P4 Episoden-Lernmoment explizit im End-Report ausweisen (heute über die
+gespielten Einklink-Aktionen bereits im Atlas abgedeckt) · P5 Auftrags-Wahlbildschirm beim Neustart +
+signatur-getriebene Enden im `EndingSystem`.
+
+---
+
+**Vorheriger Stand:** 2026-06-14 · **PR #82 (gemerged)** — „Loop schließen".
 **Geliefert PR #82 (alles grün, Gate je Commit `tsc`·`vitest 300`·`build`):**
 - **P2-Loop geschlossen (Engine):** `playOperation` koppelt jetzt an Sieg/Niederlage — gelungene
   Operation erodiert das Institutionen-Vertrauen (Sieg-Ziel), Enttarnung (Verbreiter verbrannt) =
@@ -50,10 +92,13 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
   Fokusgruppe reagiert auf Episoden/Werte, Fernseher spiegelt Episoden-Schlagzeilen (Asset-Paket nötig), Umgebungshumor.
 - **Bau-Reihenfolge §9.3** (B2a→B2b→B3→B1→Vernetzung→B4) · **Risiko-Register §10** (save/load-Migration, K14-Balance,
   ID-Kopplung, tote Hooks) · Ethik-Geländer mitgedacht (niedrige Prio).
-**Nächster Schritt:** detaillierter **Bau-Plan** ableiten (PR-Schnitt nach §9.3, je grün + simuliert), dann bauen —
-am besten **frische Session** (Token-Budget). **Technik-Nebentask:** dynamische Versionsanzeige je Commit (Cache-Diagnose, §14.6).
-> ✅ **Bau-Plan liegt vor:** `BAUPLAN_2026-06-14_HERZSTUECK.md` (P0 Hygiene → P1 Werte → P2 Splitting → P3 Phänomene →
-> P4 Episoden/Korkbrett → P5 Aufträge/Enden → P6 Vernetzung → P7 Humor/Ethik). **Einstieg für die frische Session: P0+P1.**
+**Nächster Schritt:** ✅ **Bau läuft (PR #83):** P0–P5 erledigt + P6-Teil-1 (Umfragen-News). **Als Nächstes
+strikt weiter:** **P6-Teil-2** (Broadcast aus aktiver Episode · Publikum reagiert auf Werte-Vektor · **Newsroom**
+C9 · Fokusgruppe auf Episoden/Werte — **Asset-Batch mit Budget-Ansage** via Skill `pixel-asset-pipeline`) →
+**P7** (Umgebungshumor §14.4 + Ethik-Geländer: Helden-Siegtext entschärfen, Debrift verpflichtend, Gegenmaßnahmen
+je Methode). Details + Methodik-Notiz oben im Herzstück-Block.
+> ✅ **Bau-Plan:** `BAUPLAN_2026-06-14_HERZSTUECK.md` (P0 Hygiene → P1 Werte → P2 Splitting → P3 Phänomene →
+> P4 Episoden/Korkbrett → P5 Aufträge/Enden → P6 Vernetzung → P7 Humor/Ethik). **Fortschritt: siehe Herzstück-Block oben.**
 
 ### 🔎 Aus dieser Session offen / nur im Preview zu prüfen (nicht in-Container verifizierbar)
 - **Fernsehfamilie ausgeklappt** (Taste B): Sitzlinie/Köpfe — Preview prüfen, ggf. Skala/Position nachziehen.
