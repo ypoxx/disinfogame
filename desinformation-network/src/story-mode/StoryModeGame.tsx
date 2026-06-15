@@ -308,6 +308,20 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showDayReport, setShowDayReport] = useState(false);
   const [briefedPhase, setBriefedPhase] = useState<number | null>(null);
   const [showEndReport, setShowEndReport] = useState(false);
+  // P7/B4 (SOUL §5): „End-Report IST der Lernmoment" → bei Spielende automatisch öffnen,
+  // statt ihn hinter einem optionalen Knopf zu verstecken. Schließbar (kein Hard-Trap),
+  // re-armt sich für die nächste Partie.
+  const endReportAutoOpened = useRef(false);
+  useEffect(() => {
+    if (state.gamePhase === 'ended' && state.gameEnd) {
+      if (!endReportAutoOpened.current) {
+        endReportAutoOpened.current = true;
+        setShowEndReport(true);
+      }
+    } else {
+      endReportAutoOpened.current = false;
+    }
+  }, [state.gamePhase, state.gameEnd]);
   const [showNewsroom, setShowNewsroom] = useState(false);
   const [showFokusgruppe, setShowFokusgruppe] = useState(false);
   // P2: Operations-Akte (Operationszentrale, Etage 4) — Verbreiter×Plattform-Operation.
