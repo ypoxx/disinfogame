@@ -725,48 +725,49 @@ function LegalityBars({ legal, grey, illegal }: LegalityBarsProps) {
 const ALL_ENDING_CATEGORIES: Array<{
   key: EndingCategory;
   label_de: string;
-  /** Kurze Bedingungsbeschreibung ("wäre eingetreten, wenn …") */
+  /** Kurze Bedingungsbeschreibung ("wäre eingetreten, wenn …") — entspricht der echten
+   *  Klassifikation in EndingSystem.determineCategory (P1-10: an die reale Logik angeglichen). */
   condition_de: string;
 }> = [
   {
     key: 'victory',
     label_de: 'Sieg',
-    condition_de: 'alle primären Ziele vor dem letzten Jahr erfüllt waren.',
+    condition_de: 'Sie die meisten Ziele bei niedrigem Risiko (unter 50 %) erreicht hätten.',
   },
   {
     key: 'exposure',
     label_de: 'Enthüllung',
-    condition_de: 'das Entdeckungsrisiko dauerhaft über 85 % geblieben wäre.',
+    condition_de: 'das Entdeckungsrisiko 90 % erreicht hätte — die Ermittler hätten Sie.',
   },
   {
     key: 'pyrrhic',
     label_de: 'Pyrrhussieg',
-    condition_de: 'die Ziele erreicht wurden, aber moralische Last und Risiko kritische Schwellen überstiegen.',
+    condition_de: 'Sie die Ziele erreicht, dafür aber einen hohen moralischen Preis gezahlt hätten.',
   },
   {
     key: 'escape',
     label_de: 'Flucht',
-    condition_de: 'die Operation freiwillig vor der Aufdeckung abgebrochen worden wäre.',
+    condition_de: 'Sie sich bei hohem Risiko (70–90 %) rechtzeitig abgesetzt hätten — mit Geld in der Tasche.',
   },
   {
     key: 'collapse',
     label_de: 'Zusammenbruch',
-    condition_de: 'Budget und Kapazität gleichzeitig erschöpft wurden.',
+    condition_de: 'die Gegenseite das Wettrennen gewonnen hätte oder der Apparat von innen zerbrochen wäre (zu viele Verräter, leere Kasse).',
   },
   {
     key: 'redemption',
     label_de: 'Wandel',
-    condition_de: 'aktiv gegen die eigene Operation vorgegangen worden wäre.',
+    condition_de: 'Sie überwiegend sauber gespielt und sich von der eigenen Operation abgewandt hätten.',
   },
   {
     key: 'stalemate',
     label_de: 'Patt',
-    condition_de: 'weder Ziele erreicht noch aufgedeckt worden wäre und die Zeit abgelaufen wäre.',
+    condition_de: 'Sie Teilerfolge erzielt, das große Ziel aber verfehlt hätten.',
   },
   {
     key: 'continuation',
     label_de: 'Fortsetzung',
-    condition_de: 'die Operation in eine neue Phase überführt worden wäre.',
+    condition_de: 'die Lage am Ende offen geblieben wäre — kein klarer Sieg, keine Aufdeckung.',
   },
 ];
 
@@ -839,7 +840,9 @@ export function EndReport({
     endType,
   });
 
-  const reachedCategory = endTypeToCategory(endType);
+  // P1-10: die TATSÄCHLICH erreichte Stil-Kategorie (aus dem EndingSystem, via endingStyle)
+  // markieren — nicht die grobe 4-Typ-Näherung. Fallback auf die Typ-Zuordnung.
+  const reachedCategory = (endingStyle?.category as EndingCategory | undefined) ?? endTypeToCategory(endType);
   const years = Math.floor(phasesPlayed / 12);
   const months = phasesPlayed % 12;
 
