@@ -106,6 +106,7 @@ const PROPS = [
   ['prop_vending', 'a modern drinks vending machine with a dark glass front and softly lit shelves, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective'],
   ['prop_clock_wall', 'a round minimalist wall clock with a thin frame, strict flat front view, orthographic'],
   ['prop_noticeboard', 'a glass-fronted office notice board with a few pinned papers, strict flat front view, orthographic'],
+  ['prop_shredder', 'a tall office paper shredder bin overflowing with shredded paper strips spilling over the top, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective'],
   ['prop_poster_a', 'a framed abstract constructivist poster, geometric dark-red and grey shapes only, no text, strict flat front view'],
   ['prop_poster_b', 'a framed abstract poster with cyan and grey diagonal geometric shapes only, no text, strict flat front view'],
   ['prop_poster_c', 'a framed abstract poster with muted concentric geometric shapes only, no text, strict flat front view'],

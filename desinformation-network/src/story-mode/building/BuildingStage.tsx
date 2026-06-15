@@ -16,7 +16,7 @@ import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
 import { skyGradientForMinutes } from './skyTime';
-import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, FLOOR_WALKERS, DOOR_TRAFFIC, POSTER_SLOGANS, type AmbientFigure } from './corridorDecor';
+import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, FLOOR_WALKERS, DOOR_TRAFFIC, POSTER_SLOGANS, shredderLine, type AmbientFigure } from './corridorDecor';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
@@ -54,6 +54,8 @@ export interface BuildingStageProps {
   month?: number;
   /** Strang 5: aktueller Stimmungs-Hinweis des Pförtners (Lobby), klickbar. */
   pfoertnerLine?: string;
+  /** P7/§14.4: Entdeckungsdruck (0–100) — speist den Reißwolf-Kommentar. */
+  risk?: number;
 }
 
 const layout = getBuildingLayout();
@@ -161,7 +163,7 @@ function DoorDummy({ figure, left, top, height, delayS }: { figure: string; left
   );
 }
 
-export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interactive = true, month, pfoertnerLine }: BuildingStageProps) {
+export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interactive = true, month, pfoertnerLine, risk = 0 }: BuildingStageProps) {
   const assets = useAssets();
   const npcById = new Map(npcs.map((n) => [n.id, n]));
   const containerRef = useRef<HTMLDivElement>(null);
@@ -413,17 +415,23 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 const top = d.mount === 'floor'
                   ? baseline - h
                   : floor.y + STAGE.floorHeight * 0.36 - h / 2; // Wand-Objekte oberes Drittel
-                // P7/§14.4: Propaganda-Plakate sind anklickbar (Vergrößerung + Spruch).
+                // P7/§14.4: anklickbare Umgebung — Plakate (Vergrößerung + Spruch) und der
+                // Reißwolf (Kommentar spiegelt den Entdeckungsdruck). Beide nutzen das Detail-Overlay.
                 const slogan = POSTER_SLOGANS[d.id];
-                const clickablePoster = interactive && !!slogan;
+                const detail = slogan
+                  ? { url, titel_de: slogan.titel_de, slogan_de: slogan.slogan_de }
+                  : d.id === 'prop_shredder'
+                    ? { url, titel_de: 'AKTENVERNICHTER', slogan_de: shredderLine(risk) }
+                    : null;
+                const clickable = interactive && !!detail;
                 return (
                   <img
                     key={`${floor.id}-decor-${i}`}
                     src={url}
-                    alt={slogan ? `Plakat: ${slogan.titel_de}` : ''}
-                    aria-hidden={slogan ? undefined : true}
-                    title={clickablePoster ? 'Plakat ansehen' : undefined}
-                    onClick={clickablePoster ? () => setPoster({ url, ...slogan }) : undefined}
+                    alt={detail ? detail.titel_de : ''}
+                    aria-hidden={detail ? undefined : true}
+                    title={clickable ? 'Ansehen' : undefined}
+                    onClick={clickable ? () => setPoster(detail) : undefined}
                     style={{
                       position: 'absolute',
                       left: cx,
@@ -432,8 +440,8 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                       width: 'auto',
                       transform: 'translateX(-50%)',
                       imageRendering: 'pixelated',
-                      pointerEvents: clickablePoster ? 'auto' : 'none',
-                      cursor: clickablePoster ? 'pointer' : undefined,
+                      pointerEvents: clickable ? 'auto' : 'none',
+                      cursor: clickable ? 'pointer' : undefined,
                       zIndex: 2,
                     }}
                   />

@@ -31,7 +31,18 @@ export const DECOR_HEIGHT: Record<string, number> = {
   prop_poster_a: 54,
   prop_poster_b: 54,
   prop_poster_c: 54,
+  prop_shredder: 88, // ~1,15 m Standgerät mit überquellendem Papier
 };
+
+/**
+ * P7/§14.4 (#7) — der Reißwolf, der nie leer wird: sein Kommentar spiegelt den
+ * Entdeckungsdruck (Risiko). „Feinheiten verweisen aufs Spiel" (SOUL §9). Pure Funktion.
+ */
+export function shredderLine(risk: number): string {
+  if (risk < 30) return 'Heute steht er still. Saubere Akten — fast schon verdächtig ruhig.';
+  if (risk < 65) return 'Er hat zu tun. Es bleibt eben immer etwas übrig, das niemand sehen soll.';
+  return 'Er läuft heiß. Die Spuren häufen sich schneller, als wir sie vernichten können.';
+}
 
 /**
  * Deko je Etage (Schlüssel = floor.id). Positionen liegen in den Tür-Lücken
@@ -97,6 +108,7 @@ export const FLOOR_DECOR: Record<string, DecorPlacement[]> = {
   etage4: [
     { id: 'prop_plant_tall', xFrac: 0.04, mount: 'floor' },
     { id: 'prop_poster_a', xFrac: 0.33, mount: 'wall' },
+    { id: 'prop_shredder', xFrac: 0.63, mount: 'floor' }, // Operationszentrale: OPSEC-Humor
     { id: 'prop_trashcan', xFrac: 0.965, mount: 'floor' },
   ],
   etage3: [

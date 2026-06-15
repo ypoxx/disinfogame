@@ -789,6 +789,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 publicMood: dominantMood(audience.country.segments.map((s) => s.mood)),
                 lastHeadline: audience.lastItem?.headline ?? null,
               })}
+              risk={state.resources.risk}
               onRoomClick={(npcId) => {
                 setActivePanel(null);
                 interactWithNpc(npcId);

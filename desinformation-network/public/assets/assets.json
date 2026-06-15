@@ -891,6 +891,16 @@
       "styleVersion": "v1"
     },
     {
+      "id": "prop_shredder",
+      "type": "image",
+      "file": "images/prop_shredder.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a tall office paper shredder bin overflowing with shredded paper strips spilling over the top, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 66227,
+      "styleVersion": "v1"
+    },
+    {
       "id": "prop_trashcan",
       "type": "image",
       "file": "images/prop_trashcan.png",

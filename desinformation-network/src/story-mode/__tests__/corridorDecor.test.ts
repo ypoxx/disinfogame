@@ -3,7 +3,7 @@
  * x-Bereich und referenziert ein bekanntes Asset (kein stiller Fehlplatz).
  */
 import { describe, it, expect } from 'vitest';
-import { FLOOR_DECOR, DECOR_HEIGHT, POSTER_SLOGANS } from '../building/corridorDecor';
+import { FLOOR_DECOR, DECOR_HEIGHT, POSTER_SLOGANS, shredderLine } from '../building/corridorDecor';
 
 describe('corridorDecor', () => {
   it('jede Deko-Platzierung ist gültig (xFrac 0..1, Höhe bekannt, mount gültig)', () => {
@@ -22,6 +22,18 @@ describe('corridorDecor', () => {
       expect(h, `${id}`).toBeGreaterThan(0);
       expect(h, `${id} zu groß`).toBeLessThanOrEqual(160);
     }
+  });
+
+  it('P7/§14.4: der Reißwolf-Kommentar spiegelt den Entdeckungsdruck', () => {
+    const calm = shredderLine(10);
+    const busy = shredderLine(50);
+    const hot = shredderLine(85);
+    expect(calm).not.toBe(busy);
+    expect(busy).not.toBe(hot);
+    expect(hot).toMatch(/heiß|häufen/i);
+    // platziert + mit Höhe hinterlegt
+    expect(DECOR_HEIGHT.prop_shredder).toBeGreaterThan(0);
+    expect(Object.values(FLOOR_DECOR).flat().some((d) => d.id === 'prop_shredder')).toBe(true);
   });
 
   it('P7/§14.4: jedes platzierte Plakat hat einen Spruch (klickbar)', () => {

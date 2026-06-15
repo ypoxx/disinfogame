@@ -31,9 +31,11 @@ interface BuildingViewProps {
   locked?: boolean;
   /** Strang 5: Stimmungs-Hinweis des Pförtners (Lobby). */
   pfoertnerLine?: string;
+  /** P7/§14.4: Entdeckungsdruck (0–100) für den Reißwolf-Kommentar. */
+  risk?: number;
 }
 
-export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, walkHome = false, onArrivedHome, month, locked = false, pfoertnerLine }: BuildingViewProps) {
+export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, walkHome = false, onArrivedHome, month, locked = false, pfoertnerLine, risk }: BuildingViewProps) {
   const nav = useNavigator();
   const [directoryOpen, setDirectoryOpen] = useState(false);
 
@@ -97,6 +99,7 @@ export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, wa
         onOpenDirectory={locked ? undefined : () => setDirectoryOpen(true)}
         month={month}
         pfoertnerLine={pfoertnerLine}
+        risk={risk}
       />
       {directoryOpen && (
         <FloorDirectory
