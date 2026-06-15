@@ -48,6 +48,7 @@ const pct = (v: number): number => Math.round(((v + 1) / 2) * 100);
 
 export function FokusgruppePreTest({ personas, onCommission, onClose }: FokusgruppePreTestProps): React.JSX.Element {
   const assets = useAssets();
+  const bgUrl = assets.imageUrl('room_analyse'); // Einwegspiegel-Beobachtungsraum (diegetisch)
   const [appeal, setAppeal] = useState<MessageAppeal>('hope');
   const [sample, setSample] = useState<string[]>(personas.map((p) => p.id));
   const [result, setResult] = useState<PreTestResult | null>(null);
@@ -68,11 +69,24 @@ export function FokusgruppePreTest({ personas, onCommission, onClose }: Fokusgru
       aria-label="Fokusgruppe beauftragen"
       data-testid="fokusgruppe-pretest"
       style={{
-        position: 'fixed', inset: 0, zIndex: 1100, display: 'flex', flexDirection: 'column',
-        background: 'rgba(6,7,11,0.96)', color: StoryModeColors.textPrimary, fontFamily: StoryModeFonts.world,
-        padding: '18px 20px', overflowY: 'auto',
+        position: 'fixed', inset: 0, zIndex: 1100,
+        color: StoryModeColors.textPrimary, fontFamily: StoryModeFonts.world,
       }}
     >
+      {/* Diegetischer Hintergrund: Einwegspiegel-Beobachtungsraum (room_analyse) statt schwarzem Panel.
+          Das Publikum ist im Raumbild hinter der Scheibe zu sehen — kein Live-Rendering nötig. */}
+      {bgUrl ? (
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${bgUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', imageRendering: 'pixelated' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.74) 0%, rgba(0,0,0,0.56) 38%, rgba(0,0,0,0.8) 100%)' }} />
+        </div>
+      ) : (
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: '#080b10' }} />
+      )}
+      {/* Scanlines (dezenter Monitor-Look, wie FokusgruppeView) */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1, background: 'repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px)' }} />
+
+      {/* Inhalt über dem Raum */}
+      <div style={{ position: 'relative', zIndex: 2, height: '100%', display: 'flex', flexDirection: 'column', padding: '18px 20px', overflowY: 'auto', boxSizing: 'border-box' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 12 }}>
         <span style={{ fontFamily: StoryModeFonts.label, fontSize: 16, color: StoryModeColors.warning, letterSpacing: 2 }}>
           ZIELGRUPPEN-ANALYSE
@@ -150,6 +164,7 @@ export function FokusgruppePreTest({ personas, onCommission, onClose }: Fokusgru
       ) : (
         <PreTestResultView result={result} personas={personas} assets={assets} onReset={() => setResult(null)} />
       )}
+      </div>
     </div>
   );
 }
