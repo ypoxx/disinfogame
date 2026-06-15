@@ -536,17 +536,17 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
     });
   }
 
-  // --- Spielfigur-Sheets (Bauplan: BUILDING_CONCEPT.md, 32×32 je Frame) ---
+  // --- Spielfigur-Sheets (hi-res: 64×64 je Frame; Anzeige bleibt 128 px über scale=2) ---
   shots.push({
     id: 'player_walk',
     type: 'sheet',
     kind: 'sheet',
     priority: 'must',
-    frameWidth: 32,
-    frameHeight: 32,
+    frameWidth: 64,
+    frameHeight: 64,
     cols: 8,
     rows: 1,
-    size: { w: 256, h: 32 },
+    size: { w: 512, h: 64 },
     animations: { walkRight: { row: 0, frames: 8, frameTime: 90, loop: true } },
     seed: seedFor('player_walk'),
     prompt:
@@ -576,11 +576,11 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
     type: 'sheet',
     kind: 'sheet',
     priority: 'must',
-    frameWidth: 32,
-    frameHeight: 32,
+    frameWidth: 64,
+    frameHeight: 64,
     cols: 4,
     rows: 1,
-    size: { w: 128, h: 32 },
+    size: { w: 256, h: 64 },
     animations: { idle: { row: 0, frames: 4, frameTime: 220, loop: true } },
     seed: seedFor('player_idle'),
     prompt:
@@ -596,11 +596,11 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
     type: 'sheet',
     kind: 'sheet',
     priority: 'nice',
-    frameWidth: 32,
-    frameHeight: 32,
+    frameWidth: 64,
+    frameHeight: 64,
     cols: 8,
     rows: 1,
-    size: { w: 256, h: 32 },
+    size: { w: 512, h: 64 },
     animations: { walkRight: { row: 0, frames: 8, frameTime: 90, loop: true } },
     seed: seedFor('player_walk_f'),
     prompt:
@@ -630,11 +630,11 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
     type: 'sheet',
     kind: 'sheet',
     priority: 'nice',
-    frameWidth: 32,
-    frameHeight: 32,
+    frameWidth: 64,
+    frameHeight: 64,
     cols: 4,
     rows: 1,
-    size: { w: 128, h: 32 },
+    size: { w: 256, h: 64 },
     animations: { idle: { row: 0, frames: 4, frameTime: 220, loop: true } },
     seed: seedFor('player_idle_f'),
     prompt:

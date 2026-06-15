@@ -719,7 +719,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           )}
           {nav.avatarInCabin && (
             <span style={{ position: 'absolute', left: '50%', bottom: 22, transform: 'translateX(-50%)', zIndex: 4 }}>
-              <PixelSprite sheetId={avatarIdleSheet} animation="idle" fallback="•" scale={3} title="Sie" />
+              <PixelSprite sheetId={avatarIdleSheet} animation="idle" fallback="•" scale={1.5} title="Sie" />
             </span>
           )}
         </div>
@@ -788,7 +788,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               animation={nav.mode === 'walk' ? 'walkRight' : 'idle'}
               fallback="•"
               flip={nav.facing === -1}
-              scale={4}
+              scale={2}
               title="Sie"
               frameTimeMs={nav.mode === 'walk' ? WALK_FRAME_TIME_MS : undefined}
               onFrame={nav.mode === 'walk' ? handleWalkFrame : undefined}
