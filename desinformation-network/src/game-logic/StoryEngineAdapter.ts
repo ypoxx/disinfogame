@@ -127,6 +127,13 @@ import {
   type SocietyDelta,
   type SocietySnapshot,
 } from '../story-mode/engine/SocietyDynamics';
+import {
+  loadEpisodes,
+  getEpisode,
+  isEpisodeTriggered,
+  type Episode,
+  type EpisodeTriggerContext,
+} from '../story-mode/engine/EpisodeLoader';
 
 // ============================================
 // STORY MODE SPECIFIC TYPES
@@ -539,7 +546,7 @@ export function getDataIntegrityIssues(): ValidationIssue[] {
       npcs: (npcsData as { npcs: { id: string }[] }).npcs,
       targets: (targetsData as { targets: { id: string; vulnerabilities?: { id: string }[] }[] }).targets,
       methods: (disinfoMethodsData as { methods: { id: string }[] }).methods,
-      // episodes: erst ab P4 (B1) — der Validator deckt sie dann automatisch ab.
+      episodes: loadEpisodes(),   // B1/P4 — Episoden-Refs werden mitgeprüft.
     });
   }
   return cachedDataIntegrityIssues;
@@ -580,6 +587,12 @@ export class StoryEngineAdapter {
   private rumorPressure = 0;
   private readonly CRISIS_WINDOW_DURATION = 3;
   private readonly CRISIS_WINDOW_MULTIPLIER = 1.5;
+
+  // B1/P4 — Episoden-Zustand (die Wirbelsäule): angeboten / aktiv (am Korkbrett) /
+  // abgeschlossen (Lernmoment im End-Report). Reine String-Mengen → save/load-leicht.
+  private episodesOffered: Set<string> = new Set();
+  private episodesActive: Set<string> = new Set();
+  private episodesCompleted: Set<string> = new Set();
 
   // Engine Integration
   private actionLoader: ActionLoader;
@@ -3541,6 +3554,82 @@ export class StoryEngineAdapter {
     return this.rumorPressure;
   }
 
+  // ============================================
+  // EPISODEN (B1/P4) — die Wirbelsäule
+  // ============================================
+
+  /** Auslöse-Kontext: aktuelle Werte (inkl. Vertrauen) + bisher ausgelöste Welt-Events. */
+  private buildEpisodeTriggerContext(): EpisodeTriggerContext {
+    const s = this.getSocietySnapshot();
+    const trust = this.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100;
+    return {
+      values: { ...s, vertrauen: trust },
+      recentWorldEventIds: Array.from(this.allTriggeredEvents.keys()),
+    };
+  }
+
+  /**
+   * Emergent-kuratiert (O1): Episoden, die JETZT auslösbar sind und noch nicht laufen/
+   * abgeschlossen sind. Optional auf den anbietenden NPC gefiltert (Dialog-Angebot).
+   */
+  getOfferableEpisodes(npcId?: string): Episode[] {
+    const ctx = this.buildEpisodeTriggerContext();
+    return loadEpisodes().filter(ep => {
+      if (this.episodesActive.has(ep.id) || this.episodesCompleted.has(ep.id)) return false;
+      if (npcId && ep.beteiligte?.anbieter_npc !== npcId) return false;
+      return isEpisodeTriggered(ep, ctx);
+    });
+  }
+
+  /** Markiert eine Episode als angeboten (für „neu/ungesehen"-Anzeige). */
+  markEpisodeOffered(episodeId: string): void {
+    if (getEpisode(episodeId)) this.episodesOffered.add(episodeId);
+  }
+
+  /** Heftet eine Episode als aktiven Strang ans Korkbrett (Spur). */
+  activateEpisode(episodeId: string): boolean {
+    const ep = getEpisode(episodeId);
+    if (!ep || this.episodesActive.has(episodeId) || this.episodesCompleted.has(episodeId)) return false;
+    this.episodesOffered.add(episodeId);
+    this.episodesActive.add(episodeId);
+    storyLogger.log(`[Episode] aktiviert: ${ep.titel_de}`);
+    return true;
+  }
+
+  /**
+   * Schließt eine Episode ab: wendet `wirkt_auf` auf die Gesellschaftswerte an
+   * (P4: NUR Gesellschaftswerte — balance-neutral; 'vertrauen' wird ab P5 gekoppelt)
+   * und merkt den Lernmoment für den End-Report vor.
+   */
+  completeEpisode(episodeId: string): boolean {
+    const ep = getEpisode(episodeId);
+    if (!ep || this.episodesCompleted.has(episodeId)) return false;
+    this.episodesActive.delete(episodeId);
+    this.episodesCompleted.add(episodeId);
+
+    const delta: SocietyDelta = {};
+    for (const [key, value] of Object.entries(ep.wirkt_auf)) {
+      if (key === 'vertrauen') continue;          // P4: Vertrauen NICHT koppeln (Balance, R2)
+      if (typeof value === 'number') (delta as Record<string, number>)[key] = value;
+    }
+    this.applySocietyDelta(delta);
+    storyLogger.log(`[Episode] abgeschlossen: ${ep.titel_de} (Lernmoment: ${ep.lernmoment_id})`);
+    return true;
+  }
+
+  getActiveEpisodes(): Episode[] {
+    return Array.from(this.episodesActive).map(id => getEpisode(id)).filter((e): e is Episode => !!e);
+  }
+
+  getCompletedEpisodes(): Episode[] {
+    return Array.from(this.episodesCompleted).map(id => getEpisode(id)).filter((e): e is Episode => !!e);
+  }
+
+  /** Lernmoment-Methoden-IDs aus abgeschlossenen Episoden (für den End-Report/Atlas). */
+  getEpisodeLernmomentIds(): string[] {
+    return this.getCompletedEpisodes().map(e => e.lernmoment_id);
+  }
+
   /** Wendet ein Werte-Delta an und klemmt auf 0–100. obj_destabilize bleibt unberührt (R2). */
   private applySocietyDelta(delta: SocietyDelta): void {
     for (const key of Object.keys(delta) as (keyof SocietyDelta)[]) {
@@ -5202,6 +5291,10 @@ export class StoryEngineAdapter {
       // P3-Phänomen-Zustand
       crisisWindowPhasesLeft: this.crisisWindowPhasesLeft,
       rumorPressure: this.rumorPressure,
+      // P4-Episoden-Zustand
+      episodesOffered: Array.from(this.episodesOffered),
+      episodesActive: Array.from(this.episodesActive),
+      episodesCompleted: Array.from(this.episodesCompleted),
       comboSystemState: this.comboSystem.exportState(),
       crisisMomentSystemState: this.crisisMomentSystem.exportState(),
       actorAIState: this.actorAI.exportState(),
@@ -5242,6 +5335,10 @@ export class StoryEngineAdapter {
     // P3-Phänomen-Zustand (Default 0 für alte Saves, R1).
     this.crisisWindowPhasesLeft = state.crisisWindowPhasesLeft ?? 0;
     this.rumorPressure = state.rumorPressure ?? 0;
+    // P4-Episoden-Zustand (Default leer für alte Saves, R1).
+    this.episodesOffered = new Set(state.episodesOffered ?? []);
+    this.episodesActive = new Set(state.episodesActive ?? []);
+    this.episodesCompleted = new Set(state.episodesCompleted ?? []);
     if (state.comboSystemState) {
       this.comboSystem.importState(state.comboSystemState);
     }
@@ -5519,6 +5616,14 @@ export class StoryEngineAdapter {
     this.actionHistory = [];
     this.worldEventCooldowns.clear();
     this.activeOpportunityWindows.clear();
+    this.allTriggeredEvents.clear();
+    this.triggeredEventsThisPhase.clear();
+    // P3/P4-Zustand zurücksetzen
+    this.crisisWindowPhasesLeft = 0;
+    this.rumorPressure = 0;
+    this.episodesOffered.clear();
+    this.episodesActive.clear();
+    this.episodesCompleted.clear();
     this.initializeNPCs();
     this.initializeObjectives();
 
