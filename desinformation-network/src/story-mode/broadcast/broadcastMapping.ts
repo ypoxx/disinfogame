@@ -39,12 +39,16 @@ const THEMES_BY_TAG: Record<string, string[]> = {
   political: ['anti_establishment'],
   media: ['misstrauen_medien'],
   amplification: ['misstrauen_medien'],
-  financial: ['wirtschafts_sorge'],
-  funding: ['wirtschafts_sorge'],
+  financial: ['wirtschafts_sorge', 'abstiegs_angst'],
+  funding: ['wirtschafts_sorge', 'abstiegs_angst'],
   security: ['sicherheits_beduerfnis'],
   defense: ['sicherheits_beduerfnis'],
   division: ['anti_establishment', 'soziale_gerechtigkeit'],
-  targeting: ['abstiegs_angst'],
+  // P1-7: Operation (Kompromat gegen eine Schlüsselfigur) → Skandal/Misstrauen, nicht
+  // „Abstiegsangst". `targeting` zielt auf das Diskreditieren einer Person (nur 1 weitere
+  // Aktion trägt den Tag); `operation` war bisher GAR NICHT abgebildet → Default-Thema.
+  targeting: ['anti_establishment'],
+  operation: ['misstrauen_medien', 'anti_establishment'],
   recruitment: ['anti_establishment'],
   espionage: ['misstrauen_medien'],
 };
