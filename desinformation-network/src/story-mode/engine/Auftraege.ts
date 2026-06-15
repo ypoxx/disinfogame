@@ -82,6 +82,27 @@ export function getAuftrag(id: AuftragId): Auftrag {
   return AUFTRAEGE[id];
 }
 
+/** Auftrags-spezifischer Schluss-Satz fürs Ende (DE/EN) — jeder Auftrag endet anders. */
+export function auftragEpilog(id: AuftragId): { de: string; en: string } {
+  switch (id) {
+    case 'keil':
+      return {
+        de: 'Auftrag „Der Keil": Das Land ist tief gespalten — der Kulturkampf frisst jeden Diskurs.',
+        en: 'Mission "The Wedge": The country is deeply split — the culture war devours every debate.',
+      };
+    case 'wahl':
+      return {
+        de: 'Auftrag „Die Wahl": Die uns nahe Kraft ist erstarkt, die etablierten Kräfte sind zermürbt.',
+        en: 'Mission "The Election": Our preferred faction has risen; the establishment is worn down.',
+      };
+    case 'zweifel':
+      return {
+        de: 'Auftrag „Der Zweifel": Man glaubt nichts mehr — nicht den Wahlen, nicht den Medien, nicht einander.',
+        en: 'Mission "The Doubt": Nobody believes anything anymore — not the vote, not the media, not each other.',
+      };
+  }
+}
+
 export function getDefaultAuftrag(): Auftrag {
   return AUFTRAEGE.keil;
 }

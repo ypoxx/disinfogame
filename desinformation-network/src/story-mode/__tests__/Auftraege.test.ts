@@ -4,7 +4,7 @@
  * und Balance-Neutralität (v1: obj_destabilize bleibt der Sieg, Auftrag formt das Ende).
  */
 import { describe, it, expect } from 'vitest';
-import { AUFTRAEGE, auftragProgress, getDefaultAuftrag } from '../engine/Auftraege';
+import { AUFTRAEGE, auftragProgress, getDefaultAuftrag, auftragEpilog } from '../engine/Auftraege';
 import { createStoryEngine } from '../../game-logic/StoryEngineAdapter';
 
 describe('Auftrags-Daten', () => {
@@ -25,6 +25,16 @@ describe('Auftrags-Daten', () => {
     const high = auftragProgress(keil, { polarisierung: 65, fragmentierung: 45, diskursqualitaet: 40 });
     expect(high).toBeGreaterThan(low);
     expect(high).toBeGreaterThan(0.8);
+  });
+
+  it('jeder Auftrag hat einen eigenen Schluss-Satz (DE/EN, eigenes Ende)', () => {
+    const ids = ['keil', 'wahl', 'zweifel'] as const;
+    const de = ids.map((id) => auftragEpilog(id).de);
+    expect(new Set(de).size).toBe(3); // alle verschieden
+    for (const id of ids) {
+      expect(auftragEpilog(id).de.length).toBeGreaterThan(20);
+      expect(auftragEpilog(id).en.length).toBeGreaterThan(20);
+    }
   });
 
   it('unterscheidet Aufträge: dieselbe Lage, andere Signatur → anderer Fortschritt', () => {

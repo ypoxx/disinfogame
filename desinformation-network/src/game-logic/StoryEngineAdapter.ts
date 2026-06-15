@@ -137,6 +137,7 @@ import {
 import {
   AUFTRAEGE,
   auftragProgress,
+  auftragEpilog,
   type Auftrag,
   type AuftragId,
 } from '../story-mode/engine/Auftraege';
@@ -5260,6 +5261,8 @@ export class StoryEngineAdapter {
 
       storyLogger.log(`🏆 Victory achieved! Objectives held ${this.trustTargetHeldPhases} phases. Risk: ${this.storyResources.risk}%, Moral: ${this.storyResources.moralWeight}`);
 
+      // P5: auftrags-spezifischer Schluss-Satz — jeder Auftrag endet anders (eigenes Ende).
+      const ae = auftragEpilog(this.currentAuftragId);
       return {
         type: 'victory',
         title_de: isDarkVictory ? 'Pyrrhussieg' : (isNarrowEscape ? 'Knapper Sieg' : 'Mission erfüllt'),
@@ -5277,16 +5280,16 @@ export class StoryEngineAdapter {
         stats,
         // G23/G24: fiktiv (keine realen Orte) · G25: Sieg entheroisiert (kein Helden-Empfang,
         // nur die nächste Akte) — der Lernmoment liegt im End-Report, nicht im Triumph.
-        epilogue_de: isDarkVictory
+        epilogue_de: (isDarkVictory
           ? 'Westunion ist destabilisiert. Die Zentrale ist zufrieden. Doch nachts verfolgen Sie die Gesichter derer, die Sie geopfert haben.'
           : isNarrowEscape
             ? 'Sie werden eilig abgezogen. Die Zentrale verbucht es nüchtern als Erfolg — kein Empfang, nur ein neuer Auftrag.'
-            : 'Westunion ist gespalten. Die Zentrale ist zufrieden. Für Sie heißt das vor allem: Die nächste Akte liegt schon auf dem Tisch.',
-        epilogue_en: isDarkVictory
+            : 'Westunion ist gespalten. Die Zentrale ist zufrieden. Für Sie heißt das vor allem: Die nächste Akte liegt schon auf dem Tisch.') + ` ${ae.de}`,
+        epilogue_en: (isDarkVictory
           ? 'Westunion is destabilized. The Center is pleased. But at night, the faces of those you sacrificed haunt you.'
           : isNarrowEscape
             ? 'You are hastily extracted. The Center logs it soberly as a success — no reception, just a new assignment.'
-            : 'Westunion is divided. The Center is pleased. For you, that mostly means: the next file is already on the desk.',
+            : 'Westunion is divided. The Center is pleased. For you, that mostly means: the next file is already on the desk.') + ` ${ae.en}`,
       };
     }
 
