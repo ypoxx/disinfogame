@@ -46,7 +46,7 @@ import { Icon } from './components/Icon';
 import { MorningBriefing } from './components/MorningBriefing';
 import { DayReport } from './components/DayReport';
 import { EndReport } from './components/EndReport';
-import { classifyMethods } from './engine/DisinfoMethodAtlas';
+import { classifyMethods, withEpisodeLearnings } from './engine/DisinfoMethodAtlas';
 import { useDayClockStore, TIME_COST } from './stores/dayClockStore';
 import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
@@ -653,14 +653,19 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           // Legalitäts-Bilanz UND der Bildungs-Kern: reale Methoden hinter den Mechaniken.
           const actionCatalog = state.getActionCatalog();
           const opsSummary = state.getOperationsSummary();
-          const methodsUsed = classifyMethods({
-            completedActionIds: state.completedActions,
-            catalog: actionCatalog,
-            carriersUsed: opsSummary.carriersUsed,
-            platformsUsed: opsSummary.platformsUsed,
-            operationsPlayed: opsSummary.operationsPlayed,
-            kompromatAcquired: opsSummary.kompromatAcquired,
-          });
+          // P4-Politur: die in abgeschlossenen Episoden vermittelten Lernmomente explizit
+          // ausweisen (lernmoment_id → Atlas), zusätzlich zur Tag-Klassifikation der Aktionen.
+          const methodsUsed = withEpisodeLearnings(
+            classifyMethods({
+              completedActionIds: state.completedActions,
+              catalog: actionCatalog,
+              carriersUsed: opsSummary.carriersUsed,
+              platformsUsed: opsSummary.platformsUsed,
+              operationsPlayed: opsSummary.operationsPlayed,
+              kompromatAcquired: opsSummary.kompromatAcquired,
+            }),
+            state.engine.getEpisodeLernmomentIds(),
+          );
           return (
             <EndReport
               endType={state.gameEnd.type}

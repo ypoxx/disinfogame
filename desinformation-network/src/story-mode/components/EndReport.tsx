@@ -314,6 +314,8 @@ interface MethodsSectionProps {
 function MethodsSection({ methods, operationsSummary }: MethodsSectionProps) {
   const ops = operationsSummary;
   const hasOps = !!ops && ops.operationsPlayed > 0;
+  // P4-Politur: die in abgeschlossenen Episoden vermittelten Lernmomente explizit ausweisen.
+  const episodeLearnings = methods.filter((m) => m.fromEpisode);
 
   return (
     <>
@@ -328,6 +330,29 @@ function MethodsSection({ methods, operationsSummary }: MethodsSectionProps) {
         Jede Mechanik in diesem Spiel bildet eine reale Methode der Desinformation ab.
         Das ist der eigentliche Zweck: Wer die Muster hier erkennt, erkennt sie auch draußen.
       </p>
+
+      {episodeLearnings.length > 0 && (
+        <div
+          style={{
+            backgroundColor: StoryModeColors.darkConcrete,
+            border: `1px solid ${StoryModeColors.agencyBlue}`,
+            borderLeft: `3px solid ${StoryModeColors.agencyBlue}`,
+            padding: '8px 12px',
+            marginBottom: '12px',
+            fontSize: '11px',
+            color: StoryModeColors.textSecondary,
+          }}
+        >
+          <span style={{ color: StoryModeColors.agencyBlue, fontWeight: 'bold' }}>
+            ★ Lernmomente aus Ihren Episoden:{' '}
+          </span>
+          {episodeLearnings.map((m) => m.label_de).join(' · ')}
+          <div style={{ marginTop: '4px', color: StoryModeColors.textMuted }}>
+            Diese Methoden hat Ihnen eine durchgespielte Episode konkret vor Augen geführt
+            (unten mit ★ markiert).
+          </div>
+        </div>
+      )}
 
       {hasOps && (
         <div
@@ -365,6 +390,9 @@ function MethodsSection({ methods, operationsSummary }: MethodsSectionProps) {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
               <span style={{ fontSize: '13px', fontWeight: 'bold', color: StoryModeColors.textPrimary }}>
+                {m.fromEpisode && (
+                  <span title="Lernmoment aus einer abgeschlossenen Episode" style={{ color: StoryModeColors.agencyBlue }}>★ </span>
+                )}
                 {m.label_de}
               </span>
               <span
