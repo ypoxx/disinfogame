@@ -311,6 +311,20 @@ const AUDIENCE_FIGURES = [
   ['audience_liberale', 'a woman around 60 with round glasses, folded quality newspaper, podcast earphones around the neck'],
 ];
 
+// Fokusgruppe-Personas (Pre-Test/Nachanalyse): Halbporträts mit 3 Stimmungs-Mimiken.
+// Vertikaler Schnitt — 3 KONTRASTIERENDE Milieus, damit der Pre-Test divergente Reaktionen
+// + Sample-Bias zeigt. Anker = 'skeptisch' (neutral-reserviert), die anderen referenzieren ihn.
+const PERSONAS = [
+  ['lena',   'a poised woman in her early 30s, smart-casual blazer over a light blouse, neat shoulder-length hair, small modern earrings'],
+  ['walter', 'a careworn man in his mid 50s, a checked button-up shirt, reading glasses pushed up on his forehead, thinning grey hair'],
+  ['doreen', 'a tense woman in her mid 40s, a worn zip hoodie over a plain shirt, hair pulled back tightly, tired sharp eyes'],
+];
+const PERSONA_MOOD_EXPR = {
+  skeptisch:  'a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced',
+  zustimmend: 'a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile',
+  ablehnend:  'a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive',
+};
+
 // Flavor-Figuren (Strang 5 — Atmosphäre): STEHENDE Statisten im Gebäude (Pförtner,
 // Reinigung, Kollege). 2-Frame-Idle, freistehend (Chroma), flach-frontal.
 const FLAVOR_FIGURES = [
@@ -794,6 +808,40 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
         `identical outfit and colors in every frame, only a subtle idle motion changes (blink, ` +
         `small head turn, slight breathing). ${CHROMA_PROMPT} ${style}`,
     });
+  }
+
+  // --- Fokusgruppe-Personas: Anker (skeptisch) + 2 referenzierte Stimmungs-Mimiken ---
+  for (const [pid, desc] of PERSONAS) {
+    const frame =
+      `A pixel art character, shown from the waist up, large like a visual-novel / adventure-game ` +
+      `character, facing slightly toward the centre, full head and both shoulders inside the frame, ` +
+      `NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete ` +
+      `wall background. No text.`;
+    shots.push({
+      id: `persona_${pid}_skeptisch`,
+      type: 'image',
+      kind: 'portrait',
+      priority: 'nice',
+      aspectRatio: '3:4',
+      size: { w: 768, h: 1024 },
+      seed: seedFor(`persona_${pid}`),
+      prompt: `${frame} ${desc}, with ${PERSONA_MOOD_EXPR.skeptisch}. ${style}`,
+    });
+    for (const mood of ['zustimmend', 'ablehnend']) {
+      shots.push({
+        id: `persona_${pid}_${mood}`,
+        type: 'image',
+        kind: 'portrait',
+        priority: 'nice',
+        aspectRatio: '3:4',
+        size: { w: 768, h: 1024 },
+        seed: seedFor(`persona_${pid}`),
+        referenceId: `persona_${pid}_skeptisch`,
+        prompt:
+          `Same pixel art character as the reference image, identical face, hair, clothing and framing, ` +
+          `but with ${PERSONA_MOOD_EXPR[mood]}. Plain dark concrete wall background. No text. ${style}`,
+      });
+    }
   }
 
   // --- Flavor-Figuren (Strang 5): STEHENDE Statisten, 2-Frame-Idle ---
