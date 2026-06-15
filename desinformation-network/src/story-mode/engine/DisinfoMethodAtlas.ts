@@ -25,6 +25,8 @@ export interface DisinfoMethod {
   real_method_de: string;
   what_de: string;
   real_case_de: string;
+  /** P7/B4 — „So wäre es erkannt/gekontert worden" (Resilienz-Geländer, optional). */
+  counter_de?: string;
   severity: MethodSeverity;
   matchTags: string[];
   matchCarriers: string[];
@@ -40,11 +42,15 @@ export interface MethodInsight {
   real_method_de: string;
   what_de: string;
   real_case_de: string;
+  /** P7/B4 — „So wäre es erkannt/gekontert worden" (Resilienz-Geländer). */
+  counter_de?: string;
   severity: MethodSeverity;
   /** Beleg-Gewicht (Summe getroffener Tags/Verbreiter/Plattformen/Operationen). */
   count: number;
   /** Kurzbeleg „woran erkannt" (z. B. „14 Maßnahmen · Verbreiter: Bot-Netz"). */
   evidence_de: string;
+  /** P4-Politur: explizit in einer abgeschlossenen Episode vermittelter Lernmoment. */
+  fromEpisode?: boolean;
 }
 
 /** Minimaler Aktions-Eintrag (id → tags) für die Klassifikation. */
@@ -146,6 +152,7 @@ export function classifyMethods(
         real_method_de: m.real_method_de,
         what_de: m.what_de,
         real_case_de: m.real_case_de,
+        counter_de: m.counter_de,
         severity: m.severity,
         count,
         evidence_de: evidence.join(' · '),
@@ -155,4 +162,60 @@ export function classifyMethods(
 
   // Stabil sortieren: nach Gewicht, dann alphabetisch (Determinismus für Tests).
   return insights.sort((a, b) => b.count - a.count || a.label_de.localeCompare(b.label_de));
+}
+
+/**
+ * P4-Politur — Episoden-Lernmomente explizit ausweisen.
+ *
+ * Eine abgeschlossene Episode trägt einen `lernmoment_id`, der direkt auf eine Atlas-Methode
+ * zeigt. Bisher tauchten diese Methoden nur indirekt auf (über die in der Episode gespielten
+ * Einklink-Aktionen via `classifyMethods`). Hier werden sie EXPLIZIT als Episoden-Lernmoment
+ * markiert — und falls die Tag-Klassifikation eine Episoden-Methode gar nicht (stark genug)
+ * erfasst hat, wird sie zusätzlich aufgenommen. Pure + deterministisch (vitest-first).
+ *
+ * @param insights  Ergebnis aus `classifyMethods` (Spielverhalten → Methoden).
+ * @param episodeLernmomentIds  `lernmoment_id`s der abgeschlossenen Episoden (Atlas-Ids).
+ */
+export function withEpisodeLearnings(
+  insights: MethodInsight[],
+  episodeLernmomentIds: string[],
+  methods: DisinfoMethod[] = loadDisinfoMethods(),
+): MethodInsight[] {
+  // Häufigkeit je Episoden-Lernmoment (eine Methode kann mehrere Episoden vermitteln).
+  const epCounts = new Map<string, number>();
+  for (const id of episodeLernmomentIds) epCounts.set(id, (epCounts.get(id) ?? 0) + 1);
+
+  // 1) Bereits klassifizierte Methoden, die auch ein Episoden-Lernmoment sind → markieren.
+  const seen = new Set(insights.map((i) => i.id));
+  const result: MethodInsight[] = insights.map((i) =>
+    epCounts.has(i.id) ? { ...i, fromEpisode: true } : i,
+  );
+
+  // 2) Episoden-Lernmomente ohne Tag-Beleg → explizit ergänzen (sonst ginge der Lernmoment verloren).
+  const methodById = new Map(methods.map((m) => [m.id, m]));
+  for (const [id, n] of epCounts) {
+    if (seen.has(id)) continue;
+    const m = methodById.get(id);
+    if (!m) continue;
+    result.push({
+      id: m.id,
+      label_de: m.label_de,
+      real_method_de: m.real_method_de,
+      what_de: m.what_de,
+      real_case_de: m.real_case_de,
+      counter_de: m.counter_de,
+      severity: m.severity,
+      count: 0, // kein Tag-Gewicht, aber durch die Episode vermittelt
+      evidence_de: `${n} abgeschlossene Episode${n === 1 ? '' : 'n'}`,
+      fromEpisode: true,
+    });
+  }
+
+  // Episoden-Lernmomente sollen sichtbar bleiben: zuerst, dann nach Gewicht/Label (deterministisch).
+  return result.sort(
+    (a, b) =>
+      Number(!!b.fromEpisode) - Number(!!a.fromEpisode) ||
+      b.count - a.count ||
+      a.label_de.localeCompare(b.label_de),
+  );
 }

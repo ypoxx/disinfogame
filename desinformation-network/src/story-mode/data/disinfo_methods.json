@@ -11,10 +11,26 @@
       "what_de": "Automatisierte oder ferngesteuerte Konten erzeugen künstliche Reichweite: Sie liken, teilen und kommentieren im Gleichtakt, bis ein Beitrag „beliebt\" wirkt und der Algorithmus ihn weiterträgt.",
       "real_case_de": "Bei der „Doppelgänger\"-Kampagne verbreiteten tausende Wegwerf-Konten geklonte Artikel im großen Stil. Plattformen nennen dieses Muster „koordiniertes unauthentisches Verhalten\".",
       "severity": "hoch",
-      "matchTags": ["bots", "automation", "amplification", "flooding", "coordinated", "trending", "network", "scale", "viral", "multi_platform", "engagement", "algorithm"],
-      "matchCarriers": ["botnetz"],
+      "matchTags": [
+        "bots",
+        "automation",
+        "amplification",
+        "flooding",
+        "coordinated",
+        "trending",
+        "network",
+        "scale",
+        "viral",
+        "multi_platform",
+        "engagement",
+        "algorithm"
+      ],
+      "matchCarriers": [
+        "botnetz"
+      ],
       "matchPlatforms": [],
-      "matchKinds": []
+      "matchKinds": [],
+      "counter_de": "Plattformen erkennen koordiniertes Verhalten an Mustern (gleiche Postzeiten, identische Inhalte); unabhängige Recherche-Netzwerke und schnelle Account-Sperren entziehen der Flut die Reichweite."
     },
     {
       "id": "sockpuppets",
@@ -23,10 +39,22 @@
       "what_de": "Erfundene Personas mit Profilbild und Lebenslauf täuschen echte Bürger vor. Viele „normale Leute\", die scheinbar unabhängig dasselbe sagen, wirken überzeugender als eine offene Kampagne.",
       "real_case_de": "Die „Internet Research Agency\" betrieb hunderte erfundene US-Bürger-Konten, die als echte Aktivisten auftraten und sogar reale Demonstrationen organisierten.",
       "severity": "hoch",
-      "matchTags": ["astroturf", "fake_grassroots", "personas", "persona", "organic", "community", "trolling", "human_operators"],
-      "matchCarriers": ["useful_idiots"],
+      "matchTags": [
+        "astroturf",
+        "fake_grassroots",
+        "personas",
+        "persona",
+        "organic",
+        "community",
+        "trolling",
+        "human_operators"
+      ],
+      "matchCarriers": [
+        "useful_idiots"
+      ],
       "matchPlatforms": [],
-      "matchKinds": []
+      "matchKinds": [],
+      "counter_de": "Authentizitäts-Prüfungen (Konto-Alter, Verhalten, Netzwerk) entlarven Persona-Netze; echte, sichtbare lokale Stimmen sind der beste Gegenbeweis zu Astroturfing."
     },
     {
       "id": "clone_front_media",
@@ -35,10 +63,24 @@
       "what_de": "Gefälschte Nachrichtenseiten kopieren das Aussehen seriöser Medien, oder ein eigenes „Medium\" verschweigt seine Geldgeber. Die Botschaft borgt sich die Glaubwürdigkeit echten Journalismus.",
       "real_case_de": "„Doppelgänger\" klonte über 17 echte Medien auf 50+ Domains. „Voice of Europe\" trat als unabhängiges Portal auf, während es verdeckt finanziert wurde — bis zur Abschaltung per Sanktion.",
       "severity": "hoch",
-      "matchTags": ["impersonation", "forgery", "false_flag", "tabloid", "blogs", "official", "traditional_media", "mainstream", "media"],
-      "matchCarriers": ["klonmedien", "frontmedium"],
+      "matchTags": [
+        "impersonation",
+        "forgery",
+        "false_flag",
+        "tabloid",
+        "blogs",
+        "official",
+        "traditional_media",
+        "mainstream",
+        "media"
+      ],
+      "matchCarriers": [
+        "klonmedien",
+        "frontmedium"
+      ],
       "matchPlatforms": [],
-      "matchKinds": []
+      "matchKinds": [],
+      "counter_de": "Impressums- und Domain-Checks, Bilder-Rückwärtssuche und Medienkompetenz entlarven Klon-Seiten; verifizierte Quellen und klare Kennzeichnung schützen."
     },
     {
       "id": "paid_influencers",
@@ -47,10 +89,19 @@
       "what_de": "Reichweitenstarke Creator werden — oft über Tarnfirmen — bezahlt, ohne die Quelle offenzulegen. Daneben verbreiten ideologisch Überzeugte die Botschaft freiwillig und gratis weiter.",
       "real_case_de": "Im „Tenet Media\"-Fall flossen 9,7 Mio. $ über eine Tarnfirma an US-Influencer (16 Mio. Views). Die Creator gaben an, die Geldquelle nicht gekannt zu haben — als die Quelle aufflog, fiel das Asset.",
       "severity": "hoch",
-      "matchTags": ["influencer", "paid", "recruitment", "mice", "youth"],
-      "matchCarriers": ["creator"],
+      "matchTags": [
+        "influencer",
+        "paid",
+        "recruitment",
+        "mice",
+        "youth"
+      ],
+      "matchCarriers": [
+        "creator"
+      ],
       "matchPlatforms": [],
-      "matchKinds": []
+      "matchKinds": [],
+      "counter_de": "Transparenzpflichten für bezahlte Inhalte und die Offenlegung von Geldflüssen machen den Kauf sichtbar; ein Publikum, das nach Werbe-Kennzeichnung fragt, ist resistenter."
     },
     {
       "id": "fake_experts",
@@ -59,10 +110,28 @@
       "what_de": "Eine Behauptung wird über scheinbar seriöse Institute, NGOs oder „Experten\" gewaschen: Was als bezahlte Studie beginnt, zitieren später echte Medien — die Herkunft verschwindet unterwegs.",
       "real_case_de": "Regierungsnahe „NGOs\" (GONGOs) und Pseudo-Thinktanks produzieren Studien, die echten Diskurs imitieren. So erhält Propaganda den Anstrich unabhängiger Wissenschaft.",
       "severity": "mittel",
-      "matchTags": ["academic", "expert", "legitimacy", "pr", "institutional", "ngo", "research", "education", "professional", "framework"],
-      "matchCarriers": ["akademiker", "thinktank", "expolitiker"],
-      "matchPlatforms": ["etablierte_medien"],
-      "matchKinds": []
+      "matchTags": [
+        "academic",
+        "expert",
+        "legitimacy",
+        "pr",
+        "institutional",
+        "ngo",
+        "research",
+        "education",
+        "professional",
+        "framework"
+      ],
+      "matchCarriers": [
+        "akademiker",
+        "thinktank",
+        "expolitiker"
+      ],
+      "matchPlatforms": [
+        "etablierte_medien"
+      ],
+      "matchKinds": [],
+      "counter_de": "Prüfung von Qualifikation, Interessenkonflikten und Finanzierung; seriöse Fachgesellschaften und Peer-Review entwerten Pseudo-Experten."
     },
     {
       "id": "divisive_narratives",
@@ -71,10 +140,26 @@
       "what_de": "Gezielt werden Reizthemen (Migration, Identität, Religion, Wirtschaft) emotional aufgeladen, um eine Gesellschaft entlang bestehender Bruchlinien zu spalten. Wut und Angst verbreiten sich schneller als Fakten.",
       "real_case_de": "Ausländische Operationen bespielten gleichzeitig beide Seiten hitziger Debatten — nicht um eine Seite zu stärken, sondern um den Riss zu vertiefen und Vertrauen in den Diskurs selbst zu zerstören.",
       "severity": "hoch",
-      "matchTags": ["emotional", "division", "polarization", "fear", "conspiracy", "identity", "nationalism", "religion", "culture", "values", "society", "narrative", "confusion", "destabilization"],
+      "matchTags": [
+        "emotional",
+        "division",
+        "polarization",
+        "fear",
+        "conspiracy",
+        "identity",
+        "nationalism",
+        "religion",
+        "culture",
+        "values",
+        "society",
+        "narrative",
+        "confusion",
+        "destabilization"
+      ],
       "matchCarriers": [],
       "matchPlatforms": [],
-      "matchKinds": []
+      "matchKinds": [],
+      "counter_de": "Brückenakteure und eine gemeinsame Faktenbasis nehmen Reizthemen die Schärfe; wer die emotionale Aufladung benennt, durchbricht den Reflex."
     },
     {
       "id": "synthetic_media",
@@ -83,10 +168,20 @@
       "what_de": "KI erzeugt täuschend echte Bilder, Stimmen oder Videos. Schon der bloße Verdacht, etwas könnte gefälscht sein, untergräbt das Vertrauen in echte Beweise („Lügner-Dividende\").",
       "real_case_de": "Gefälschte Audio-Clips von Politikern kurz vor Wahlen und KI-Bilder „aktueller Ereignisse\" sind dokumentiert. Der Schaden entsteht oft, bevor die Fälschung widerlegt ist.",
       "severity": "hoch",
-      "matchTags": ["deepfake", "ai", "video", "audio", "visual"],
+      "matchTags": [
+        "deepfake",
+        "ai",
+        "video",
+        "audio",
+        "visual"
+      ],
       "matchCarriers": [],
-      "matchPlatforms": ["kurzvideo", "video"],
-      "matchKinds": []
+      "matchPlatforms": [
+        "kurzvideo",
+        "video"
+      ],
+      "matchKinds": [],
+      "counter_de": "Forensische Erkennung (Artefakte, Metadaten) und Herkunfts-Nachweise (Content Credentials) plus Prebunking nehmen Deepfakes die Wucht."
     },
     {
       "id": "character_assassination",
@@ -95,10 +190,24 @@
       "what_de": "Statt Argumente anzugreifen, wird die Person zerstört: echte, verzerrte oder erfundene Schwächen werden zum Skandal aufgebaut, um eine unbequeme Stimme zum Schweigen zu bringen. Genau das modelliert das „Kommunikations-Schlachtfeld\" — als EINE Methode unter vielen.",
       "real_case_de": "„Kompromat\" hat eine lange Tradition: belastendes Material wird gesammelt und im richtigen Moment gestreut. Heute mischt sich das mit Doxxing und koordinierten Belästigungs-Kampagnen.",
       "severity": "hoch",
-      "matchTags": ["blackmail", "scandal", "reputation", "attack", "harassment", "coercion", "intimidation", "threat", "targeting"],
+      "matchTags": [
+        "blackmail",
+        "scandal",
+        "reputation",
+        "attack",
+        "harassment",
+        "coercion",
+        "intimidation",
+        "threat",
+        "targeting"
+      ],
       "matchCarriers": [],
       "matchPlatforms": [],
-      "matchKinds": ["kompromat", "operation"]
+      "matchKinds": [
+        "kompromat",
+        "operation"
+      ],
+      "counter_de": "Quellenkritik bei Anschuldigungen, Schutz der Betroffenen und Einordnung statt Skandalisierung entziehen dem Rufmord die Wirkung."
     },
     {
       "id": "hack_and_leak",
@@ -107,10 +216,18 @@
       "what_de": "Gestohlene Dokumente werden — oft selektiv, manchmal mit untergeschobenen Fälschungen — zum richtigen Zeitpunkt geleakt. Echte Daten verleihen auch der Manipulation Glaubwürdigkeit.",
       "real_case_de": "Geleakte E-Mails wurden mehrfach kurz vor Wahlen veröffentlicht und über willige Mittler weiterverbreitet — die Echtheit eines Teils machte das Ganze glaubwürdig.",
       "severity": "hoch",
-      "matchTags": ["hacking", "leak", "espionage", "intelligence", "evidence", "security"],
+      "matchTags": [
+        "hacking",
+        "leak",
+        "espionage",
+        "intelligence",
+        "evidence",
+        "security"
+      ],
       "matchCarriers": [],
       "matchPlatforms": [],
-      "matchKinds": []
+      "matchKinds": [],
+      "counter_de": "Echtheits- und Kontextprüfung geleakter Dokumente, zurückhaltende Berichterstattung und IT-Sicherheit begrenzen den Schaden."
     },
     {
       "id": "platform_gaming",
@@ -119,10 +236,25 @@
       "what_de": "Inhalte werden so gebaut und verteilt, dass Empfehlungs-, Trend- und Suchsysteme sie bevorzugen. Wer den Algorithmus versteht, kauft Reichweite, ohne sie zu kaufen.",
       "real_case_de": "Koordinierte Kampagnen pushten Hashtags in Trends und besetzten Suchergebnisse, sodass selbst neutrale Nutzer zuerst die manipulierte Version sahen.",
       "severity": "mittel",
-      "matchTags": ["seo", "platform", "optimization", "distribution", "advertising", "messaging", "email", "text", "social_media", "digital"],
+      "matchTags": [
+        "seo",
+        "platform",
+        "optimization",
+        "distribution",
+        "advertising",
+        "messaging",
+        "email",
+        "text",
+        "social_media",
+        "digital"
+      ],
       "matchCarriers": [],
-      "matchPlatforms": ["feed", "messenger"],
-      "matchKinds": []
+      "matchPlatforms": [
+        "feed",
+        "messenger"
+      ],
+      "matchKinds": [],
+      "counter_de": "Algorithmus-Transparenz, das Schließen von Spam-/SEO-Lücken und das Markieren manipulierter Trends nehmen die künstliche Sichtbarkeit."
     },
     {
       "id": "covert_financing",
@@ -131,10 +263,19 @@
       "what_de": "Geld ist die unsichtbare Infrastruktur jeder Operation: Tarnfirmen, Mittelsmänner und Krypto verschleiern, wer wirklich zahlt — und damit, wer wirklich spricht.",
       "real_case_de": "„Voice of Europe\" soll Politiker verdeckt (bar/krypto) bezahlt haben; „Tenet\" lief über eine Tarnfirma. Die Geldspur ist oft das, was Ermittler am Ende doch zur Quelle führt.",
       "severity": "mittel",
-      "matchTags": ["financial", "funding", "crypto", "fraud", "business", "corruption", "acquisition"],
+      "matchTags": [
+        "financial",
+        "funding",
+        "crypto",
+        "fraud",
+        "business",
+        "corruption",
+        "acquisition"
+      ],
       "matchCarriers": [],
       "matchPlatforms": [],
-      "matchKinds": []
+      "matchKinds": [],
+      "counter_de": "Folge dem Geld: Transparenzregister, Finanzaufsicht und investigative Recherche decken verdeckte Finanzierung auf."
     },
     {
       "id": "firehose_undermining",
@@ -143,10 +284,18 @@
       "what_de": "Statt einer überzeugenden Lüge wird ein Dauerfeuer widersprüchlicher Behauptungen abgefeuert — schnell, wiederholt, ohne Rücksicht auf Konsistenz. Ziel ist nicht Glauben, sondern Erschöpfung: Wenn nichts mehr sicher ist, gewinnt der Zweifel.",
       "real_case_de": "Die RAND-Forschung beschrieb dieses Modell als „Firehose of Falsehood\". Parallel werden Faktenchecker als „voreingenommen\" diffamiert, um die Korrektur selbst zu entwerten.",
       "severity": "hoch",
-      "matchTags": ["counter", "fact_checkers", "institutions", "trust", "disruption", "deplatforming"],
+      "matchTags": [
+        "counter",
+        "fact_checkers",
+        "institutions",
+        "trust",
+        "disruption",
+        "deplatforming"
+      ],
       "matchCarriers": [],
       "matchPlatforms": [],
-      "matchKinds": []
+      "matchKinds": [],
+      "counter_de": "Nicht jeder Lüge hinterherlaufen: Prebunking, die ruhige Wiederholung verlässlicher Fakten und das Stärken weniger vertrauter Quellen schlagen die Flut."
     },
     {
       "id": "offline_mobilization",
@@ -155,10 +304,23 @@
       "what_de": "Desinformation bleibt nicht online: Über Lobbying, finanzierte Veranstaltungen, infiltrierte Vereine und gekaufte Amtsträger wirkt die Operation direkt in Politik und Gesellschaft hinein.",
       "real_case_de": "Ferngesteuerte Konten organisierten reale Kundgebungen; verdeckt finanzierte Politiker trugen Botschaften in Parlamente. Online-Narrativ und Offline-Handlung greifen ineinander.",
       "severity": "mittel",
-      "matchTags": ["infiltration", "offline", "events", "mobilization", "field", "direct", "lobbying", "election", "legislation", "political", "networking"],
+      "matchTags": [
+        "infiltration",
+        "offline",
+        "events",
+        "mobilization",
+        "field",
+        "direct",
+        "lobbying",
+        "election",
+        "legislation",
+        "political",
+        "networking"
+      ],
       "matchCarriers": [],
       "matchPlatforms": [],
-      "matchKinds": []
+      "matchKinds": [],
+      "counter_de": "Transparenz über Organisatoren und Geldgeber, lokale Gegen-Mobilisierung und wachsame Kommunalpolitik entlarven künstliche Graswurzeln."
     },
     {
       "id": "opsec_tradecraft",
@@ -167,10 +329,98 @@
       "what_de": "Verschleierung ist Teil der Methode: Wegwerf-Konten, Mittelsmänner, plausible Abstreitbarkeit und langfristiger Aufbau sollen verhindern, dass eine Operation zur Quelle zurückverfolgt wird.",
       "real_case_de": "Der größte Aufwand vieler Kampagnen steckt nicht in der Botschaft, sondern im Verbergen der Spuren — was die Aufdeckung durch Plattformen, Behörden und Recherche-Netzwerke so wertvoll macht.",
       "severity": "niedrig",
-      "matchTags": ["opsec", "cover", "maintenance", "persistence", "monitoring", "evaluation", "efficiency", "upgrade", "foundation", "basic", "long_term", "disinformation", "history"],
+      "matchTags": [
+        "opsec",
+        "cover",
+        "maintenance",
+        "persistence",
+        "monitoring",
+        "evaluation",
+        "efficiency",
+        "upgrade",
+        "foundation",
+        "basic",
+        "long_term",
+        "disinformation",
+        "history"
+      ],
       "matchCarriers": [],
       "matchPlatforms": [],
-      "matchKinds": []
+      "matchKinds": [],
+      "counter_de": "Plattform-, Behörden- und Recherche-Kooperation rekonstruiert die Spur trotz Tarnung; je teurer das Verbergen, desto angreifbarer die Operation."
+    },
+    {
+      "id": "rumor_ecology",
+      "label_de": "Gerüchte-Ökologie & mutierende Erzählungen",
+      "real_method_de": "Rumor seeding / sich selbst verändernde Falschmeldungen",
+      "what_de": "Ein vages, ungesichertes Signal wird gestreut und vom Publikum selbst ausgeschmückt. Sobald eine Version widerlegt ist, kursiert die nächste — das Gerücht mutiert schneller, als Faktenchecker korrigieren können.",
+      "real_case_de": "Gerüchte über Wahlbetrug oder Gesundheitsthemen überlebten dutzende Richtigstellungen, weil jede Korrektur nur eine von vielen Varianten traf. Gerüchte sind zäher als Lügen, weil sie nie dasselbe bleiben.",
+      "severity": "mittel",
+      "matchTags": [
+        "rumor",
+        "confusion",
+        "narrative",
+        "conspiracy"
+      ],
+      "matchCarriers": [],
+      "matchPlatforms": [],
+      "matchKinds": [],
+      "counter_de": "Schnelle, empathische Richtigstellung, das frühe Füllen von Informationslücken und das Benennen der Quelle bremsen die Mutation des Gerüchts."
+    },
+    {
+      "id": "demobilization",
+      "label_de": "Zermürbung & Demobilisierung",
+      "real_method_de": "Voter/Civic Demobilization durch Erschöpfung",
+      "what_de": "Ziel ist nicht Zustimmung, sondern Rückzug: Durch Dauer-Empörung und das Gefühl „es bringt eh nichts“ werden Menschen aus Debatte und Beteiligung gedrängt. Müde Bürger demonstrieren und wählen nicht.",
+      "real_case_de": "Kampagnen zielten gezielt darauf, die Wahlbeteiligung bestimmter Gruppen zu senken, statt sie umzustimmen. Demokratie stirbt auch an Gleichgültigkeit, nicht nur an der Lüge.",
+      "severity": "hoch",
+      "matchTags": [
+        "demoralization",
+        "apathy",
+        "fear",
+        "destabilization",
+        "election"
+      ],
+      "matchCarriers": [],
+      "matchPlatforms": [],
+      "matchKinds": [],
+      "counter_de": "Beteiligung positiv adressieren, Selbstwirksamkeit zeigen und die Erschöpfung benennen; vertrauenswürdige lokale Stimmen holen Zurückgezogene zurück."
+    },
+    {
+      "id": "crisis_vacuum",
+      "label_de": "Krisen-Vakuum & Tempo vor Wahrheit",
+      "real_method_de": "Ausnutzen von Informationslücken in Krisen",
+      "what_de": "In einer Krise suchen alle gleichzeitig nach Orientierung. Wer die erste Erklärung liefert, prägt das Bild — egal, was sich später als wahr herausstellt. In Krisen schlägt Tempo die Wahrheit.",
+      "real_case_de": "Nach Anschlägen und Katastrophen verbreiteten sich falsche Täter- und Schuldzuweisungen in Stunden, lange bevor Behörden gesicherte Fakten hatten. Die Deutung war besetzt, bevor die Wahrheit aufholen konnte.",
+      "severity": "hoch",
+      "matchTags": [
+        "crisis",
+        "confusion",
+        "destabilization",
+        "media"
+      ],
+      "matchCarriers": [],
+      "matchPlatforms": [],
+      "matchKinds": [],
+      "counter_de": "Vorbereitete Krisenkommunikation, schnelle verifizierte Updates und das ehrliche Benennen von Unsicherheit besetzen die Deutungslücke vor den Angreifern."
+    },
+    {
+      "id": "memory_conflict",
+      "label_de": "Erinnerungskonflikt & Geschichtspolitik",
+      "real_method_de": "Instrumentalisierung des kollektiven Gedächtnisses",
+      "what_de": "Alte Kränkungen und ungelöste historische Konflikte werden gezielt reaktiviert und neu gedeutet. Wer die Vergangenheit besitzt, prägt die Gegenwart — Informationskonflikte sind oft Erinnerungskonflikte.",
+      "real_case_de": "Operationen schürten Streit über Denkmäler, Gedenktage und Geschichtsdeutung, um bestehende Gruppen gegeneinander aufzustellen. Die gefährlichste Spaltung erfindet selten — sie reißt alte Wunden wieder auf.",
+      "severity": "hoch",
+      "matchTags": [
+        "memory",
+        "history",
+        "identity",
+        "narrative"
+      ],
+      "matchCarriers": [],
+      "matchPlatforms": [],
+      "matchKinds": [],
+      "counter_de": "Gemeinsames, differenziertes Erinnern, das Einbinden aller Gruppen und historische Einordnung nehmen reaktivierten Konflikten die Sprengkraft."
     }
   ]
 }

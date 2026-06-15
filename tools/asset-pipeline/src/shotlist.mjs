@@ -106,9 +106,14 @@ const PROPS = [
   ['prop_vending', 'a modern drinks vending machine with a dark glass front and softly lit shelves, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective'],
   ['prop_clock_wall', 'a round minimalist wall clock with a thin frame, strict flat front view, orthographic'],
   ['prop_noticeboard', 'a glass-fronted office notice board with a few pinned papers, strict flat front view, orthographic'],
+  ['prop_shredder', 'a tall office paper shredder bin overflowing with shredded paper strips spilling over the top, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective'],
   ['prop_poster_a', 'a framed abstract constructivist poster, geometric dark-red and grey shapes only, no text, strict flat front view'],
   ['prop_poster_b', 'a framed abstract poster with cyan and grey diagonal geometric shapes only, no text, strict flat front view'],
   ['prop_poster_c', 'a framed abstract poster with muted concentric geometric shapes only, no text, strict flat front view'],
+  // --- P7/§14.4 Umgebungshumor-Batch (state-reaktive Props) ---
+  ['prop_coffee_station', 'a small office kitchenette counter unit with a drip coffee machine, an electric kettle, a few stacked mugs and a couple of jars and tins on the worktop, a small closed cupboard below, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective'],
+  ['prop_employee_wall', 'a wall-mounted employee-of-the-month display: a small grid of identical simple framed portrait photos of the exact SAME faceless generic office worker repeated four times, with a plain blank plaque strip above them, no readable text, strict flat front view, orthographic'],
+  ['prop_plant_wilted', 'a tall potted indoor rubber-tree plant that is wilting and dying, drooping brown and yellowed leaves sagging downward with a few bare stems, in the same simple modern dark pot, full plant from pot to top, strict flat front elevation view, orthographic, NO isometric, NO 3/4 or top-down perspective'],
 ];
 
 // Gebäude-Baukasten: Querschnitts-Bausteine für die Stage (BuildingView).
@@ -301,6 +306,11 @@ const PLAYER_PORTRAITS = [
   ['portrait_player_f1', 'a young ambitious woman in her late 20s, grey blazer, tied-back hair, alert eyes'],
   ['portrait_player_f2', 'a middle-aged woman in her 40s, grey blazer, short practical haircut, determined look'],
   ['portrait_player_f3', 'an experienced woman around 60, grey blazer, silver bun, calm calculating gaze'],
+];
+
+// Erzählerische Gegenseite (P6/C9): Köpfe der Aufklärung für den Newsroom.
+const GEGENSEITE_PORTRAITS = [
+  ['portrait_factcheckerin', 'a Westunion fact-checker woman in her 40s, tired but determined, simple knit cardigan, plain glasses, modest professional look, NOT a politician'],
 ];
 
 // Pixel-Icon-Set (E30: ersetzt Emojis; einzelne Objekte, Chroma, 1:1).
@@ -608,6 +618,22 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       type: 'image',
       kind: 'portrait',
       priority: 'must',
+      aspectRatio: '1:1',
+      size: { w: 1024, h: 1024 },
+      seed: seedFor(id),
+      prompt:
+        `A pixel art character portrait, head and shoulders, facing slightly left, neutral expression. ` +
+        `${hint}. Plain dark concrete wall background. No text. ${style}`,
+    });
+  }
+
+  // --- Erzählerische Gegenseite (P6/C9): Newsroom-Köpfe ---
+  for (const [id, hint] of GEGENSEITE_PORTRAITS) {
+    shots.push({
+      id,
+      type: 'image',
+      kind: 'portrait',
+      priority: 'nice',
       aspectRatio: '1:1',
       size: { w: 1024, h: 1024 },
       seed: seedFor(id),

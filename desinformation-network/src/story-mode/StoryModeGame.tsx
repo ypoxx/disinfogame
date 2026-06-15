@@ -29,6 +29,7 @@ import type { ActionResult } from '../game-logic/StoryEngineAdapter';
 import { PlayerOfficeView } from './components/PlayerOfficeView';
 import { TitleScreen } from './components/TitleScreen';
 import { ArrivalSequence } from './components/ArrivalSequence';
+import { AuftragSelect } from './components/AuftragSelect';
 import { AvatarChoice } from './components/AvatarChoice';
 import { BuildingView } from './building/BuildingView';
 import { pfoertnerLine as computePfoertnerLine, dominantMood } from './building/pfoertner';
@@ -36,6 +37,7 @@ import { BroadcastBar } from './broadcast/BroadcastBar';
 import { useAudienceBroadcast } from './broadcast/useAudienceBroadcast';
 import { NpcRoomView } from './building/NpcRoomView';
 import { NewsroomView, derivePosts } from './components/NewsroomView';
+import { deriveGegenseite } from './engine/Gegenseite';
 import { FokusgruppeView } from './components/FokusgruppeView';
 import { OperationsAkteView } from './components/OperationsAkteView';
 import { loadTargets, loadCarriers, loadPlatforms } from './battlefield/BattlefieldChain';
@@ -44,7 +46,7 @@ import { Icon } from './components/Icon';
 import { MorningBriefing } from './components/MorningBriefing';
 import { DayReport } from './components/DayReport';
 import { EndReport } from './components/EndReport';
-import { classifyMethods } from './engine/DisinfoMethodAtlas';
+import { classifyMethods, withEpisodeLearnings } from './engine/DisinfoMethodAtlas';
 import { useDayClockStore, TIME_COST } from './stores/dayClockStore';
 import { usePanelStore } from './stores/panelStore';
 import { SidePanel } from './components/SidePanel';
@@ -252,6 +254,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     state,
     startGame,
     skipTutorial,
+    chooseAuftrag,
     continueDialog,
     dismissDialog,
     handleDialogChoice,
@@ -307,8 +310,27 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showDayReport, setShowDayReport] = useState(false);
   const [briefedPhase, setBriefedPhase] = useState<number | null>(null);
   const [showEndReport, setShowEndReport] = useState(false);
+  // P7/B4 (SOUL §5): „End-Report IST der Lernmoment" → bei Spielende automatisch öffnen,
+  // statt ihn hinter einem optionalen Knopf zu verstecken. Schließbar (kein Hard-Trap),
+  // re-armt sich für die nächste Partie.
+  const endReportAutoOpened = useRef(false);
+  useEffect(() => {
+    if (state.gamePhase === 'ended' && state.gameEnd) {
+      if (!endReportAutoOpened.current) {
+        endReportAutoOpened.current = true;
+        setShowEndReport(true);
+      }
+    } else {
+      endReportAutoOpened.current = false;
+    }
+  }, [state.gamePhase, state.gameEnd]);
   const [showNewsroom, setShowNewsroom] = useState(false);
   const [showFokusgruppe, setShowFokusgruppe] = useState(false);
+  // P5: Auftrags-Wahl einmal pro Partie (beim ersten „playing"); bei Neustart (→ 'intro') re-armt.
+  const [auftragChosen, setAuftragChosen] = useState(false);
+  useEffect(() => {
+    if (state.gamePhase === 'intro') setAuftragChosen(false);
+  }, [state.gamePhase]);
   // P2: Operations-Akte (Operationszentrale, Etage 4) — Verbreiter×Plattform-Operation.
   const [showOperationsAkte, setShowOperationsAkte] = useState(false);
   // 2f: Narrativ-Tafel (Korkbrett) — diegetisches Planungs-Herzstück, Pinnwand im Büro.
@@ -331,7 +353,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const worldEventCount = state.newsEvents.filter(e => e.type === 'world_event').length;
 
   // Publikum/Broadcast (Taste B) — reine Anzeige-Schicht über audienceModel.
-  const audience = useAudienceBroadcast(state.lastActionResult, state.storyPhase.number, state.resources.risk);
+  const audience = useAudienceBroadcast(state.lastActionResult, state.storyPhase.number, state.resources.risk, {
+    activeEpisodes: state.activeEpisodes,
+    society: { polarisierung: state.resources.polarisierung, zynismus: state.resources.zynismus },
+  });
 
   // Auto-Peek (2d): Der Streifen ist permanent sichtbar; jede neue „Sendung" klappt
   // kurz das volle Wohnzimmer aus, damit der Feedback-Loop (Tat → Publikum reagiert)
@@ -628,14 +653,19 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           // Legalitäts-Bilanz UND der Bildungs-Kern: reale Methoden hinter den Mechaniken.
           const actionCatalog = state.getActionCatalog();
           const opsSummary = state.getOperationsSummary();
-          const methodsUsed = classifyMethods({
-            completedActionIds: state.completedActions,
-            catalog: actionCatalog,
-            carriersUsed: opsSummary.carriersUsed,
-            platformsUsed: opsSummary.platformsUsed,
-            operationsPlayed: opsSummary.operationsPlayed,
-            kompromatAcquired: opsSummary.kompromatAcquired,
-          });
+          // P4-Politur: die in abgeschlossenen Episoden vermittelten Lernmomente explizit
+          // ausweisen (lernmoment_id → Atlas), zusätzlich zur Tag-Klassifikation der Aktionen.
+          const methodsUsed = withEpisodeLearnings(
+            classifyMethods({
+              completedActionIds: state.completedActions,
+              catalog: actionCatalog,
+              carriersUsed: opsSummary.carriersUsed,
+              platformsUsed: opsSummary.platformsUsed,
+              operationsPlayed: opsSummary.operationsPlayed,
+              kompromatAcquired: opsSummary.kompromatAcquired,
+            }),
+            state.engine.getEpisodeLernmomentIds(),
+          );
           return (
             <EndReport
               endType={state.gameEnd.type}
@@ -666,6 +696,14 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       className="fixed inset-0 font-mono"
       style={{ backgroundColor: StoryModeColors.background }}
     >
+      {/* P5: Auftrags-Wahl zu Beginn der Partie (Plague-Inc.-Stil). */}
+      {!auftragChosen && state.gamePhase === 'playing' && (
+        <AuftragSelect
+          onChoose={(id) => { chooseAuftrag(id); setAuftragChosen(true); }}
+          onSkip={() => { chooseAuftrag('keil'); setAuftragChosen(true); }}
+        />
+      )}
+
       {/* HUD (E1/I32): nur auf Knopfdruck — Taste H, Standard aus, „nicht dauerhaft" */}
       {hudVisible && (
       <StoryHUD
@@ -691,6 +729,14 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           isCompleted: o.completed,
           isPrimary: o.type === 'primary',
         }))}
+        society={{
+          // Vertrauen = aktueller Wert des Destabilisierungs-Ziels (Sieg-Mittel).
+          vertrauen: state.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100,
+          polarisierung: state.resources.polarisierung,
+          informationslast: state.resources.informationslast,
+          zynismus: state.resources.zynismus,
+          auftragTitel: state.engine.getAuftrag().titel_de,
+        }}
         onEndPhase={requestEndDay}
         onOpenMenu={pauseGame}
         onHideHud={() => setHudVisible(false)}
@@ -763,6 +809,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 publicMood: dominantMood(audience.country.segments.map((s) => s.mood)),
                 lastHeadline: audience.lastItem?.headline ?? null,
               })}
+              risk={state.resources.risk}
+              moralWeight={state.resources.moralWeight}
+              attention={state.resources.attention}
+              auftragId={state.engine.getAuftragId()}
               onRoomClick={(npcId) => {
                 setActivePanel(null);
                 interactWithNpc(npcId);
@@ -933,6 +983,15 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 volume: Math.round(seg.belief * 100),
                 rising: seg.mood === 'wuetend' || seg.mood === 'misstrauisch',
               }))}
+            gegenseite={{
+              ...deriveGegenseite({
+                attention: state.resources.attention,
+                risk: state.resources.risk,
+                carriersBurned: state.getOperationsSummary().carriersBurned,
+                phase: state.storyPhase.number,
+              }),
+              portraitId: 'portrait_factcheckerin',
+            }}
             onClose={() => setShowNewsroom(false)}
           />
         )}
@@ -949,6 +1008,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               vulnerabilities: seg.vulnerabilities,
             }))}
             lastHeadline={audience.lastItem?.headline ?? null}
+            episodeHints={(state.activeEpisodes ?? []).map((ep) => ep.titel_de)}
             onClose={() => setShowFokusgruppe(false)}
           />
         )}
@@ -1000,13 +1060,28 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               npc: state.npcs.find((n) => n.id === a.npcAffinity?.[0])?.name ?? 'Ministerium',
             }))}
             queue={state.actionQueue}
-            threads={(state.comboHints ?? []).map((h) => ({
-              id: h.comboId,
-              name: h.comboName,
-              hint: h.hint_de,
-              progress: h.progress,
-              expiresIn: h.expiresIn,
-            }))}
+            threads={[
+              // P4/B1: aktive Episoden = die Stränge am Korkbrett (das „Warum"). Fortschritt =
+              // Anteil der bereits gespielten Einklink-Aktionen dieser Episode.
+              ...(state.activeEpisodes ?? []).map((ep) => {
+                const total = ep.einklink_aktionen.length || 1;
+                const done = ep.einklink_aktionen.filter((id) => state.completedActions.includes(id)).length;
+                return {
+                  id: ep.id,
+                  name: ep.titel_de,
+                  hint: ep.wendung_de,
+                  progress: done / total,
+                  expiresIn: 99,
+                };
+              }),
+              ...(state.comboHints ?? []).map((h) => ({
+                id: h.comboId,
+                name: h.comboName,
+                hint: h.hint_de,
+                progress: h.progress,
+                expiresIn: h.expiresIn,
+              })),
+            ]}
             resources={{
               budget: state.resources.budget,
               capacity: state.resources.capacity,

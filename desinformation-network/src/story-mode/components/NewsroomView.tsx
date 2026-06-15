@@ -32,9 +32,20 @@ export interface TrendingTopic {
   rising: boolean;
 }
 
+/** P6/C9: erzählerische Gegenseite (Aufklärungs-Stand als kleine Geschichte). */
+export interface GegenseitePanel {
+  awareness: number;   // 0..1
+  format_de: string;
+  lines: string[];
+  /** Optionaler Kopf der Gegenseite (Asset-ID, z. B. 'portrait_factcheckerin'). */
+  portraitId?: string;
+}
+
 export interface NewsroomViewProps {
   posts: NewsPost[];
   trending: TrendingTopic[];
+  /** P6/C9: erzählerische Gegenseite (optional) — die Aufklärung wird wahrnehmbar. */
+  gegenseite?: GegenseitePanel;
   onClose: () => void;
 }
 
@@ -420,6 +431,7 @@ function TrendingRow({ item, maxVolume }: TrendingRowProps): React.JSX.Element {
 export function NewsroomView({
   posts,
   trending,
+  gegenseite,
   onClose,
 }: NewsroomViewProps): React.JSX.Element {
   const assets = useAssets();
@@ -625,6 +637,50 @@ export function NewsroomView({
               overflow: 'hidden',
             }}
           >
+            {/* P6/C9: erzählerische Gegenseite — der Stand der Aufklärung als kleine Geschichte. */}
+            {gegenseite && (
+              <div
+                style={{
+                  padding: '8px 12px',
+                  backgroundColor: 'rgba(20,12,12,0.95)',
+                  borderBottom: `2px solid ${StoryModeColors.agencyBlue}`,
+                  flexShrink: 0,
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: StoryModeColors.agencyBlue }}>
+                    GEGENSEITE — {gegenseite.format_de.toUpperCase()}
+                  </span>
+                  <span style={{ fontSize: 9, color: StoryModeColors.textMuted }} title="Stand der Aufklärung">
+                    Aufklärung {Math.round(gegenseite.awareness * 100)}%
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                  {gegenseite.portraitId && assets.imageUrl(gegenseite.portraitId) && (
+                    <img
+                      src={assets.imageUrl(gegenseite.portraitId)!}
+                      alt="Faktencheckerin"
+                      style={{
+                        width: 40,
+                        height: 40,
+                        objectFit: 'cover',
+                        flexShrink: 0,
+                        border: `1px solid ${StoryModeColors.agencyBlue}`,
+                        imageRendering: 'pixelated',
+                      }}
+                    />
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    {gegenseite.lines.map((line, i) => (
+                      <p key={i} style={{ margin: '2px 0', fontSize: 11, lineHeight: 1.4, color: StoryModeColors.textPrimary }}>
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Feed-Titel */}
             <div
               style={{

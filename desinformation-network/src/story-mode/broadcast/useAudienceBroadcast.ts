@@ -13,15 +13,23 @@ import {
   decaySegment,
   type AudienceCountry,
   type CountryReaction,
+  type SocietyMood,
 } from '../audience/audienceModel';
 import { mapActionToBroadcast, type BroadcastItem } from './broadcastMapping';
 import type { ActionResult } from '../../game-logic/StoryEngineAdapter';
+import type { Episode } from '../engine/EpisodeLoader';
 
 export interface AudienceBroadcastState {
   country: AudienceCountry;
   lastItem: BroadcastItem | null;
   lastReaction: CountryReaction | null;
   history: BroadcastItem[];
+}
+
+/** P6: Episoden-Kontext + Gesellschafts-Vektor fürs Publikum (Anzeige, keine Rückwirkung). */
+export interface BroadcastContext {
+  activeEpisodes?: Episode[];
+  society?: SocietyMood;
 }
 
 const DECAY_RATE_PER_PHASE = 0.12;
@@ -36,19 +44,27 @@ function cloneCountry(): AudienceCountry {
 export function useAudienceBroadcast(
   lastActionResult: ActionResult | null,
   phaseNumber: number,
-  riskLevel: number
+  riskLevel: number,
+  context?: BroadcastContext
 ): AudienceBroadcastState {
   const [country, setCountry] = useState<AudienceCountry>(cloneCountry);
   const [lastItem, setLastItem] = useState<BroadcastItem | null>(null);
   const [lastReaction, setLastReaction] = useState<CountryReaction | null>(null);
   const [history, setHistory] = useState<BroadcastItem[]>([]);
   const seenResult = useRef<ActionResult | null>(null);
+  // Aktuellen Kontext in einem Ref halten → kein erneuter Effekt-Lauf bei Werte-Änderung
+  // (das Publikum reagiert nur auf NEUE Aktionen, nicht auf jeden Werte-Tick).
+  const contextRef = useRef<BroadcastContext | undefined>(context);
+  contextRef.current = context;
 
   // Neue Aktion → Sendung + Publikums-Reaktion (newBelief/newMood übernehmen).
   useEffect(() => {
     if (!lastActionResult || lastActionResult === seenResult.current) return;
     seenResult.current = lastActionResult;
-    const item = mapActionToBroadcast(lastActionResult, riskLevel);
+    const ctx = contextRef.current;
+    // P6: gehört die Aktion zu einem aktiven Episoden-Strang? → Broadcast bekommt den Titel.
+    const episode = ctx?.activeEpisodes?.find((e) => e.einklink_aktionen.includes(lastActionResult.action.id));
+    const item = mapActionToBroadcast(lastActionResult, riskLevel, episode?.titel_de ?? null);
     setLastItem(item);
     setHistory((h) => [item, ...h].slice(0, HISTORY_LIMIT));
     setCountry((c) => {
@@ -56,7 +72,7 @@ export function useAudienceBroadcast(
         themes: item.themes,
         channel: item.channel,
         intensity: item.intensity,
-      });
+      }, ctx?.society);
       setLastReaction(reaction);
       const bySegment = new Map(reaction.reactions.map((r) => [r.segmentId, r]));
       return {

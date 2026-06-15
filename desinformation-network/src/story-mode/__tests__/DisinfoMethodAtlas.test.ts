@@ -7,6 +7,7 @@ import { describe, it, expect } from 'vitest';
 import {
   classifyMethods,
   loadDisinfoMethods,
+  withEpisodeLearnings,
   type MethodActionEntry,
 } from '../engine/DisinfoMethodAtlas';
 
@@ -38,6 +39,13 @@ describe('Atlas-Daten', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it('P7/B4: jede Methode trägt eine Gegenmaßnahme (Resilienz-Geländer)', () => {
+    for (const m of loadDisinfoMethods()) {
+      expect(m.counter_de, `counter_de fehlt bei ${m.id}`).toBeTruthy();
+      expect((m.counter_de ?? '').length).toBeGreaterThan(20);
+    }
+  });
+
   it('enthält die Kompromat-/Schlachtfeld-Familie als EINE unter vielen', () => {
     const methods = loadDisinfoMethods();
     const kompromat = methods.find((m) => m.matchKinds.includes('kompromat'));
@@ -60,6 +68,8 @@ describe('classifyMethods', () => {
     expect(emo.count).toBeGreaterThan(0);
     expect(emo.evidence_de).toMatch(/Maßnahme/);
     expect(emo.real_method_de).toBeTruthy();
+    // P7/B4: die Gegenmaßnahme wird in den End-Report durchgereicht.
+    expect(emo.counter_de).toBeTruthy();
   });
 
   it('gewichtet häufiger genutzte Methoden nach oben', () => {
@@ -92,5 +102,50 @@ describe('classifyMethods', () => {
   it('ist deterministisch (gleiche Eingabe → gleiche Reihenfolge)', () => {
     const usage = { completedActionIds: ['a_bot', 'a_emo', 'a_expert'], catalog };
     expect(classifyMethods(usage)).toEqual(classifyMethods(usage));
+  });
+});
+
+describe('withEpisodeLearnings (P4-Politur: Episoden-Lernmomente explizit)', () => {
+  // 'a_emo' → divisive_narratives ist eine echte Atlas-Methode (auch ein Episoden-Lernmoment).
+  const classified = () => classifyMethods({ completedActionIds: ['a_emo', 'a_emo'], catalog });
+
+  it('markiert eine bereits klassifizierte Methode als Episoden-Lernmoment', () => {
+    const out = withEpisodeLearnings(classified(), ['divisive_narratives']);
+    const m = out.find((x) => x.id === 'divisive_narratives');
+    expect(m?.fromEpisode).toBe(true);
+    // andere Methoden bleiben unmarkiert
+    expect(out.every((x) => x.id === 'divisive_narratives' || !x.fromEpisode)).toBe(true);
+  });
+
+  it('ergänzt einen Episoden-Lernmoment, den die Tag-Klassifikation gar nicht erfasst hat', () => {
+    const before = classified();
+    expect(before.some((x) => x.id === 'fake_experts')).toBe(false); // nicht gespielt
+    const out = withEpisodeLearnings(before, ['fake_experts']);
+    const added = out.find((x) => x.id === 'fake_experts');
+    expect(added).toBeTruthy();
+    expect(added?.fromEpisode).toBe(true);
+    expect(added?.count).toBe(0); // kein Tag-Beleg
+    expect(added?.evidence_de).toMatch(/Episode/);
+    // voller Bildungs-Inhalt mitgeliefert (kein leerer Eintrag)
+    expect((added?.what_de ?? '').length).toBeGreaterThan(20);
+    expect(added?.counter_de).toBeTruthy();
+  });
+
+  it('zählt mehrfach vermittelte Lernmomente und stellt Episoden-Lernmomente nach vorn', () => {
+    const out = withEpisodeLearnings([], ['fake_experts', 'fake_experts']);
+    expect(out[0].fromEpisode).toBe(true);
+    expect(out[0].evidence_de).toMatch(/2 abgeschlossene Episoden/);
+  });
+
+  it('ist rückwärtskompatibel: keine Episoden → keine Markierung, Reihenfolge stabil', () => {
+    const base = classified();
+    const out = withEpisodeLearnings(base, []);
+    expect(out.some((x) => x.fromEpisode)).toBe(false);
+    expect(out.map((x) => x.id)).toEqual(base.map((x) => x.id));
+  });
+
+  it('ignoriert unbekannte Lernmoment-Ids ohne zu werfen', () => {
+    const out = withEpisodeLearnings([], ['kein_echter_eintrag_xyz']);
+    expect(out).toHaveLength(0);
   });
 });

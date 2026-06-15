@@ -531,6 +531,16 @@
       "styleVersion": "v1"
     },
     {
+      "id": "portrait_factcheckerin",
+      "type": "image",
+      "file": "images/portrait_factcheckerin.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character portrait, head and shoulders, facing slightly left, neutral expression. a Westunion fact-checker woman in her 40s, tired but determined, simple knit cardigan, plain glasses, modest professional look, NOT a politician. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 627086,
+      "styleVersion": "v1"
+    },
+    {
       "id": "portrait_igor",
       "type": "image",
       "file": "images/portrait_igor.png",
@@ -781,6 +791,26 @@
       "styleVersion": "v1"
     },
     {
+      "id": "prop_coffee_station",
+      "type": "image",
+      "file": "images/prop_coffee_station.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a small office kitchenette counter unit with a drip coffee machine, an electric kettle, a few stacked mugs and a couple of jars and tins on the worktop, a small closed cupboard below, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 744895,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_employee_wall",
+      "type": "image",
+      "file": "images/prop_employee_wall.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a wall-mounted employee-of-the-month display: a small grid of identical simple framed portrait photos of the exact SAME faceless generic office worker repeated four times, with a plain blank plaque strip above them, no readable text, strict flat front view, orthographic. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 940786,
+      "styleVersion": "v1"
+    },
+    {
       "id": "prop_files",
       "type": "image",
       "file": "images/prop_files.png",
@@ -818,6 +848,16 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A single isolated pixel-art object for a game: a tall potted indoor rubber-tree plant in a simple modern dark pot, full plant from pot to top, strict flat front elevation view, orthographic, NO isometric, NO 3/4 or top-down perspective. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
       "seed": 526689,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_plant_wilted",
+      "type": "image",
+      "file": "images/prop_plant_wilted.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a tall potted indoor rubber-tree plant that is wilting and dying, drooping brown and yellowed leaves sagging downward with a few bare stems, in the same simple modern dark pot, full plant from pot to top, strict flat front elevation view, orthographic, NO isometric, NO 3/4 or top-down perspective. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 604821,
       "styleVersion": "v1"
     },
     {
@@ -878,6 +918,16 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A pixel art game asset: server rack with blinking red and green LEDs. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 648307,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "prop_shredder",
+      "type": "image",
+      "file": "images/prop_shredder.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A single isolated pixel-art object for a game: a tall office paper shredder bin overflowing with shredded paper strips spilling over the top, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
+      "seed": 66227,
       "styleVersion": "v1"
     },
     {

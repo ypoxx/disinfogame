@@ -16,7 +16,7 @@ import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
 import { skyGradientForMinutes } from './skyTime';
-import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, FLOOR_WALKERS, DOOR_TRAFFIC, type AmbientFigure } from './corridorDecor';
+import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, FLOOR_WALKERS, DOOR_TRAFFIC, POSTER_SLOGANS, shredderLine, coffeeLine, volksbrauseLine, employeeOfMonth, plantAsset, plantLine, type AmbientFigure } from './corridorDecor';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
@@ -54,6 +54,14 @@ export interface BuildingStageProps {
   month?: number;
   /** Strang 5: aktueller Stimmungs-Hinweis des Pförtners (Lobby), klickbar. */
   pfoertnerLine?: string;
+  /** P7/§14.4: Entdeckungsdruck (0–100) — speist den Reißwolf-Kommentar. */
+  risk?: number;
+  /** P7/§14.4: moralische Last (0–100) — welke/grüne Büropflanze + Pflanzen-Kommentar. */
+  moralWeight?: number;
+  /** P7/§14.4: Aufmerksamkeit (0–100) — speist mit Risiko/Moral die Kaffeeküchen-Wirtschaftslage. */
+  attention?: number;
+  /** P7/§14.4: aktiver Auftrag — das „Etikett" der Volksbrause reagiert aufs Narrativ. */
+  auftragId?: string;
 }
 
 const layout = getBuildingLayout();
@@ -161,7 +169,7 @@ function DoorDummy({ figure, left, top, height, delayS }: { figure: string; left
   );
 }
 
-export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interactive = true, month, pfoertnerLine }: BuildingStageProps) {
+export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interactive = true, month, pfoertnerLine, risk = 0, moralWeight = 0, attention = 0, auftragId = 'keil' }: BuildingStageProps) {
   const assets = useAssets();
   const npcById = new Map(npcs.map((n) => [n.id, n]));
   const containerRef = useRef<HTMLDivElement>(null);
@@ -169,6 +177,10 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   const [hoverRoom, setHoverRoom] = useState<string | null>(null);
   const [hoverShaft, setHoverShaft] = useState(false);
   const [pfoertnerOpen, setPfoertnerOpen] = useState(false); // Strang 5: Pförtner-Sprechblase
+  // P7/§14.4: angeklicktes Detail-Objekt (Plakat/Reißwolf/Kaffeeküche/Automat/…): Vergrößerung + Spruch.
+  const [poster, setPoster] = useState<{ url: string; titel_de: string; slogan_de: string } | null>(null);
+  // P7/§14.4 (#8): bei jedem Klick auf die „Mitarbeiter des Monats"-Wand wechselt der Deckname.
+  const [employeeClicks, setEmployeeClicks] = useState(0);
 
   // Schritt-Sound auf den Kontakt-Frames des Laufzyklus (Frame 0 und 4).
   const handleWalkFrame = useCallback((frame: number) => {
@@ -402,7 +414,9 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               {/* Frei platzierte Flur-Deko (R4): Bodensteher auf der Bodenlinie,
                   Wand-Objekte auf Wandhöhe — datengetrieben, reale Proportionen. */}
               {!isLobby && (FLOOR_DECOR[floor.id] ?? []).map((d, i) => {
-                const url = assets.imageUrl(d.id);
+                // P7/§14.4 (#4): die große Büropflanze welkt sichtbar je nach moralischer Last.
+                const displayId = plantAsset(d.id, moralWeight);
+                const url = assets.imageUrl(displayId);
                 if (!url) return null;
                 const h = DECOR_HEIGHT[d.id] ?? 48;
                 const playableW = layout.shaft.x - STAGE.pillarWidth;
@@ -411,12 +425,40 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 const top = d.mount === 'floor'
                   ? baseline - h
                   : floor.y + STAGE.floorHeight * 0.36 - h / 2; // Wand-Objekte oberes Drittel
+                // P7/§14.4: anklickbare, state-reaktive Umgebung — alle nutzen dasselbe Detail-Overlay.
+                // Plakate (Spruch), Reißwolf (Entdeckungsdruck), Kaffeeküche (Wirtschaftslage),
+                // Volksbrause (Narrativ/Auftrag), Mitarbeiter-Wand (Deckname zyklisch), Pflanze (Moral).
+                const slogan = POSTER_SLOGANS[d.id];
+                const isPlant = d.id === 'prop_plant_tall' || d.id === 'prop_plant_small';
+                const isEmployee = d.id === 'prop_employee_wall';
+                const detail = slogan
+                  ? { url, titel_de: slogan.titel_de, slogan_de: slogan.slogan_de }
+                  : d.id === 'prop_shredder'
+                    ? { url, titel_de: 'AKTENVERNICHTER', slogan_de: shredderLine(risk) }
+                  : d.id === 'prop_coffee_station'
+                    ? { url, titel_de: 'KAFFEEKÜCHE', slogan_de: coffeeLine(risk, attention, moralWeight) }
+                  : d.id === 'prop_vending'
+                    ? { url, titel_de: 'VOLKSBRAUSE', slogan_de: volksbrauseLine(auftragId) }
+                  : isEmployee
+                    ? { url, titel_de: 'MITARBEITER DES MONATS', slogan_de: employeeOfMonth(employeeClicks).spruch }
+                  : isPlant
+                    ? { url, titel_de: 'BÜROPFLANZE', slogan_de: plantLine(moralWeight) }
+                    : null;
+                const clickable = interactive && !!detail;
+                // Mitarbeiter-Wand: Klick zeigt den aktuellen Deckname und schaltet auf den nächsten weiter.
+                const onDetailClick = isEmployee
+                  ? () => { setPoster(detail); setEmployeeClicks((c) => c + 1); }
+                  : detail
+                    ? () => setPoster(detail)
+                    : undefined;
                 return (
                   <img
                     key={`${floor.id}-decor-${i}`}
                     src={url}
-                    alt=""
-                    aria-hidden
+                    alt={detail ? detail.titel_de : ''}
+                    aria-hidden={detail ? undefined : true}
+                    title={clickable ? 'Ansehen' : undefined}
+                    onClick={clickable ? onDetailClick : undefined}
                     style={{
                       position: 'absolute',
                       left: cx,
@@ -425,7 +467,8 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                       width: 'auto',
                       transform: 'translateX(-50%)',
                       imageRendering: 'pixelated',
-                      pointerEvents: 'none',
+                      pointerEvents: clickable ? 'auto' : 'none',
+                      cursor: clickable ? 'pointer' : undefined,
                       zIndex: 2,
                     }}
                   />
@@ -743,6 +786,43 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           zum Redaktionsschluss hin tiefblaue Abend-/Nacht-Stimmung über der Stadt. */}
       <DayNightTint />
       <SeasonOverlay month={month} />
+
+      {/* P7/§14.4 (#1): Propaganda-Plakat vergrößert — trockener Ministeriums-Humor. */}
+      {poster && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Plakat: ${poster.titel_de}`}
+          onClick={() => setPoster(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1200,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14,
+            background: 'rgba(0,0,0,0.82)', cursor: 'pointer', padding: 24,
+          }}
+        >
+          <img
+            src={poster.url}
+            alt={`Plakat: ${poster.titel_de}`}
+            style={{
+              maxHeight: '52vh', maxWidth: '88vw', width: 'auto',
+              imageRendering: 'pixelated',
+              border: `4px solid ${StoryModeColors.ministryRed}`,
+              boxShadow: '8px 8px 0 0 rgba(0,0,0,0.6)',
+            }}
+          />
+          <div style={{ maxWidth: 520, textAlign: 'center' }}>
+            <div style={{ fontFamily: 'monospace', fontWeight: 900, letterSpacing: 3, color: StoryModeColors.warning, fontSize: 14, marginBottom: 6 }}>
+              {poster.titel_de}
+            </div>
+            <div style={{ fontFamily: 'monospace', color: '#e8e4d8', fontSize: 13, lineHeight: 1.5, fontStyle: 'italic' }}>
+              „{poster.slogan_de}"
+            </div>
+            <div style={{ fontFamily: 'monospace', color: StoryModeColors.textMuted, fontSize: 10, marginTop: 12 }}>
+              (Klicken zum Schließen)
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

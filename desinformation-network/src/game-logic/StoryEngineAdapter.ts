@@ -84,6 +84,7 @@ import {
 import {
   EndingSystem,
   getEndingSystem,
+  assembleAuftragEnding,
   type AssembledEnding,
   type EndingGameState,
 } from '../story-mode/engine/EndingSystem';
@@ -116,6 +117,31 @@ import { storyLogger } from '../utils/logger';
 // Import NPC and World Events data
 import npcsData from '../story-mode/data/npcs.json';
 import worldEventsData from '../story-mode/data/world-events.json';
+import targetsData from '../story-mode/data/targets.json';
+import disinfoMethodsData from '../story-mode/data/disinfo_methods.json';
+import { validateReferences, reportValidationIssues, type ValidationIssue } from '../story-mode/engine/IdValidator';
+import {
+  societyDeltaFromAction,
+  societyFormulaStep,
+  scaleSocietyDelta,
+  clampSocietyValue,
+  type SocietyDelta,
+  type SocietySnapshot,
+} from '../story-mode/engine/SocietyDynamics';
+import {
+  loadEpisodes,
+  getEpisode,
+  isEpisodeTriggered,
+  type Episode,
+  type EpisodeTriggerContext,
+} from '../story-mode/engine/EpisodeLoader';
+import {
+  AUFTRAEGE,
+  auftragProgress,
+  type Auftrag,
+  type AuftragId,
+} from '../story-mode/engine/Auftraege';
+import { buildPollNews, pickPollInstrument } from '../story-mode/engine/PollNews';
 
 // ============================================
 // STORY MODE SPECIFIC TYPES
@@ -148,10 +174,48 @@ export interface StoryResources {
   attention: number;        // 👁️ Aufmerksamkeit der Gegner (0-100)
   moralWeight: number;      // 💀 Moralische Last (beeinflusst NPCs & Enden)
 
+  // === Gesellschaftswerte (B2, „Herzstück") ===
+  // Mehrdimensionaler Gesellschafts-Zustand NEBEN der Sieg-Achse Vertrauen (obj_destabilize).
+  // P1: existieren + sichtbar, bewegen sich noch NICHT (kein Effekt-Splitting) → Balance identisch.
+  // Das volle Set ist von Anfang an vorgesehen (auch die Auftrags-Achsen §14.1), damit P5/P6 keinen
+  // Umbau brauchen. 0–100. Sichtbar im HUD (O3/F3): polarisierung, informationslast, zynismus
+  // (+ Vertrauen, das aus obj_destabilize gelesen wird). Rest läuft intern.
+  polarisierung: number;       // Lagerbildung (sichtbar)
+  informationslast: number;    // Orientierungs-Überflutung (sichtbar)
+  zynismus: number;            // Rückzug/Apathie/Erschöpfung (sichtbar)
+  fragmentierung: number;      // Zerfall gemeinsamer Öffentlichkeit (intern)
+  diskursqualitaet: number;    // Gesundheit der Debatte, Resilienz-nah (intern)
+  // Auftrags-Achsen (§14.1, intern — Signaturen der Aufträge, ab P5 wirksam):
+  wehrhaftigkeit: number;      // Unterstützungs-/Verteidigungsbereitschaft („Rückzug")
+  reformfaehigkeit: number;    // Governance-/Kompromissfähigkeit („Stillstand")
+  fraktionsstaerke: number;    // Stärke der uns-nahen politischen Kraft („Die Wahl")
+
   // Abgeleitet
   actionPointsRemaining: number;  // ~5 pro Phase
   actionPointsMax: number;
 }
+
+/** Schlüssel aller Gesellschaftswerte (B2) — für Iteration, HUD, Persistenz, Tests. */
+export type SocietyValueKey =
+  | 'polarisierung' | 'informationslast' | 'zynismus'
+  | 'fragmentierung' | 'diskursqualitaet'
+  | 'wehrhaftigkeit' | 'reformfaehigkeit' | 'fraktionsstaerke';
+
+/** Metadaten je Gesellschaftswert: Label + ob im HUD sichtbar (O3: niedrigschwellig). */
+export const SOCIETY_VALUE_META: Record<SocietyValueKey, { label_de: string; visible: boolean; help_de: string }> = {
+  polarisierung:    { label_de: 'Polarisierung',    visible: true,  help_de: 'Wie stark sich die Lager gegeneinander aufstellen.' },
+  informationslast: { label_de: 'Informationslast', visible: true,  help_de: 'Wie überflutet die Öffentlichkeit ist — Orientierung wird schwer.' },
+  zynismus:         { label_de: 'Zynismus',         visible: true,  help_de: 'Resignation und Rückzug aus der Debatte.' },
+  fragmentierung:   { label_de: 'Fragmentierung',   visible: false, help_de: 'Zerfall in getrennte Echo-Öffentlichkeiten.' },
+  diskursqualitaet: { label_de: 'Diskursqualität',  visible: false, help_de: 'Gesundheit der öffentlichen Debatte (Resilienz).' },
+  wehrhaftigkeit:   { label_de: 'Wehrhaftigkeit',   visible: false, help_de: 'Unterstützungs- und Verteidigungsbereitschaft.' },
+  reformfaehigkeit: { label_de: 'Reformfähigkeit',  visible: false, help_de: 'Governance- und Kompromissfähigkeit.' },
+  fraktionsstaerke: { label_de: 'Fraktions-Stärke', visible: false, help_de: 'Stärke der uns nahen politischen Kraft.' },
+};
+
+/** Reihenfolge der im HUD sichtbaren Gesellschaftswerte (Vertrauen kommt separat aus dem Ziel). */
+export const VISIBLE_SOCIETY_KEYS: SocietyValueKey[] =
+  (Object.keys(SOCIETY_VALUE_META) as SocietyValueKey[]).filter(k => SOCIETY_VALUE_META[k].visible);
 
 /**
  * Story Mode Aktion (narrativ verpackte Ability)
@@ -470,6 +534,32 @@ export interface GameEndState {
 // STORY ENGINE ADAPTER CLASS
 // ============================================
 
+/**
+ * Format-Version des Spielstands (saveState/loadState). Wird beim Laden geprüft;
+ * `loadState` füllt fehlende Felder per Default-Merge (R1) auf, damit additive neue
+ * Felder (Gesellschaftswerte B2, Episoden B1 …) alte Saves nicht kaputt machen.
+ * 1.1.0: Gesellschaftswerte (B2a) + Default-Merge eingeführt.
+ */
+export const SAVE_FORMAT_VERSION = '1.1.0';
+
+// Datenintegritäts-Check (P0/R3): nur EINMAL über die Lebenszeit des Moduls laufen
+// lassen — die Daten sind statisch importiert, und die Balance-Sim erzeugt Dutzende
+// Engines. Das Ergebnis wird zwischengespeichert (auch für Tests abrufbar).
+let cachedDataIntegrityIssues: ValidationIssue[] | null = null;
+
+export function getDataIntegrityIssues(): ValidationIssue[] {
+  if (cachedDataIntegrityIssues === null) {
+    cachedDataIntegrityIssues = validateReferences({
+      actions: getActionLoader().getAllActions(),
+      npcs: (npcsData as { npcs: { id: string }[] }).npcs,
+      targets: (targetsData as { targets: { id: string; vulnerabilities?: { id: string }[] }[] }).targets,
+      methods: (disinfoMethodsData as { methods: { id: string }[] }).methods,
+      episodes: loadEpisodes(),   // B1/P4 — Episoden-Refs werden mitgeprüft.
+    });
+  }
+  return cachedDataIntegrityIssues;
+}
+
 export class StoryEngineAdapter {
   private engineState: GameState | null = null;
   private storyPhase: StoryPhase;
@@ -496,6 +586,32 @@ export class StoryEngineAdapter {
   // Track active opportunity windows (created by world events)
   private activeOpportunityWindows: Map<string, OpportunityWindow> = new Map();
   private readonly OPPORTUNITY_WINDOW_DURATION = 6;  // Default: 6 phases = 6 months
+
+  // P3/B3 — Angriffs-Phänomene mit Zustand:
+  // Krisen-Zeitfenster: solange aktiv, wirken Gesellschafts-Effekte verstärkt
+  // („In Krisen schlägt Tempo Wahrheit"). Diegetisch motiviert (Krisen-Aktion/-Event),
+  // kein abstrakter Timer. Gerüchte-Druck: reift verzögert über Phasen (zäher als Lügen).
+  private crisisWindowPhasesLeft = 0;
+  private rumorPressure = 0;
+  private readonly CRISIS_WINDOW_DURATION = 3;
+  private readonly CRISIS_WINDOW_MULTIPLIER = 1.5;
+
+  // B1/P4 — Episoden-Zustand (die Wirbelsäule): angeboten / aktiv (am Korkbrett) /
+  // abgeschlossen (Lernmoment im End-Report). Reine String-Mengen → save/load-leicht.
+  private episodesOffered: Set<string> = new Set();
+  private episodesActive: Set<string> = new Set();
+  private episodesCompleted: Set<string> = new Set();
+
+  // P5 — Strategischer Auftrag („Vertrauen = Mittel, Auftrag = Ziel"). Default = „Der Keil"
+  // (Tutorial); beim Neustart wählbar. v1: obj_destabilize bleibt der spielbare Sieg, die
+  // Auftrags-Signatur bestimmt das Ende + macht den Fortschritt lesbar.
+  private currentAuftragId: AuftragId = 'keil';
+
+  // P6 — Umfragen/Barometer als News (F3): periodisch erscheinen fiktive Mess-Instrumente
+  // als Nachrichten, die den Gesellschafts-Zustand erzählerisch zeigen (§14.2).
+  private pollIndex = 0;
+  private lastPollValues: Record<string, number> = {};
+  private readonly POLL_EVERY_PHASES = 3;  // ~quartalsweise
 
   // Engine Integration
   private actionLoader: ActionLoader;
@@ -537,6 +653,11 @@ export class StoryEngineAdapter {
     this.initializeNPCs();
     this.initializeObjectives();
 
+    // P0/R3: ID-Kopplungen einmalig prüfen (warnt bei toten Refs, ändert kein Verhalten).
+    if (cachedDataIntegrityIssues === null) {
+      reportValidationIssues(getDataIntegrityIssues());
+    }
+
     storyLogger.log(`✅ StoryEngineAdapter initialized (seed: ${this.rngSeed})`);
   }
 
@@ -571,6 +692,17 @@ export class StoryEngineAdapter {
       risk: 0,
       attention: 0,
       moralWeight: 0,
+      // Gesellschaftswerte (B2) — gesunde Demokratie mit realistischen Grundwerten:
+      // etwas Polarisierung/Last/Zynismus existiert schon; Diskurs/Wehrhaftigkeit/Reform hoch,
+      // Fraktions-Stärke der uns-nahen Kraft niedrig. P1 bewegt sie noch nicht.
+      polarisierung: 25,
+      informationslast: 20,
+      zynismus: 20,
+      fragmentierung: 15,
+      diskursqualitaet: 70,
+      wehrhaftigkeit: 60,
+      reformfaehigkeit: 55,
+      fraktionsstaerke: 25,
       actionPointsRemaining: this.ACTION_POINTS_PER_PHASE,
       actionPointsMax: this.ACTION_POINTS_PER_PHASE,
     };
@@ -721,6 +853,27 @@ export class StoryEngineAdapter {
     };
 
     Object.assign(this.storyResources, resourceChanges);
+
+    // B2b/P2: Gesellschafts-Formel je Phase — die Werte wirken nicht-linear aufeinander
+    // (verzögerte/„intelligente" Effekte, §14.2). Berührt NUR Gesellschaftswerte, nicht
+    // die Sieg-Ressourcen → Balance bleibt gehalten (R2).
+    this.applySocietyDelta(societyFormulaStep(this.getSocietySnapshot()));
+
+    // P3: Krisenfenster läuft ab; Gerüchte-Druck blutet verzögert in Informationslast/
+    // Fragmentierung und klingt langsam ab (mutiert weiter, statt korrigiert zu werden).
+    if (this.crisisWindowPhasesLeft > 0) this.crisisWindowPhasesLeft--;
+    if (this.rumorPressure > 0.5) {
+      this.applySocietyDelta({
+        informationslast: this.rumorPressure * 0.15,
+        fragmentierung: this.rumorPressure * 0.05,
+      });
+      this.rumorPressure *= 0.85;
+    } else {
+      this.rumorPressure = 0;
+    }
+
+    // P6/F3: periodische Umfrage als News (erzählerisches Gesicht des Zustands).
+    this.maybeEmitPollNews(newPhaseNumber);
 
     // Decrement exposure countdown if active
     if (this.exposureCountdown !== null) {
@@ -3394,6 +3547,179 @@ export class StoryEngineAdapter {
     obj.completed = obj.currentValue <= obj.targetValue;
   }
 
+  // ============================================
+  // GESELLSCHAFTSWERTE (B2b/P2) — Effekt-Splitting + Formeln
+  // ============================================
+
+  /** Schnappschuss der acht Gesellschaftswerte (für die Phasen-Formel). */
+  private getSocietySnapshot(): SocietySnapshot {
+    const r = this.storyResources;
+    return {
+      polarisierung: r.polarisierung,
+      informationslast: r.informationslast,
+      zynismus: r.zynismus,
+      fragmentierung: r.fragmentierung,
+      diskursqualitaet: r.diskursqualitaet,
+      wehrhaftigkeit: r.wehrhaftigkeit,
+      reformfaehigkeit: r.reformfaehigkeit,
+      fraktionsstaerke: r.fraktionsstaerke,
+    };
+  }
+
+  /** P3: verbleibende Phasen des aktiven Krisenfensters (0 = keins). */
+  getCrisisWindowPhasesLeft(): number {
+    return this.crisisWindowPhasesLeft;
+  }
+
+  /** P3: aktueller Gerüchte-Druck (verzögerte Informationslast-Quelle). */
+  getRumorPressure(): number {
+    return this.rumorPressure;
+  }
+
+  // ============================================
+  // EPISODEN (B1/P4) — die Wirbelsäule
+  // ============================================
+
+  /** Auslöse-Kontext: aktuelle Werte (inkl. Vertrauen) + bisher ausgelöste Welt-Events. */
+  private buildEpisodeTriggerContext(): EpisodeTriggerContext {
+    const s = this.getSocietySnapshot();
+    const trust = this.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100;
+    return {
+      values: { ...s, vertrauen: trust },
+      recentWorldEventIds: Array.from(this.allTriggeredEvents.keys()),
+    };
+  }
+
+  /**
+   * Emergent-kuratiert (O1): Episoden, die JETZT auslösbar sind und noch nicht laufen/
+   * abgeschlossen sind. Optional auf den anbietenden NPC gefiltert (Dialog-Angebot).
+   */
+  getOfferableEpisodes(npcId?: string): Episode[] {
+    const ctx = this.buildEpisodeTriggerContext();
+    return loadEpisodes().filter(ep => {
+      if (this.episodesActive.has(ep.id) || this.episodesCompleted.has(ep.id)) return false;
+      if (npcId && ep.beteiligte?.anbieter_npc !== npcId) return false;
+      return isEpisodeTriggered(ep, ctx);
+    });
+  }
+
+  /** Markiert eine Episode als angeboten (für „neu/ungesehen"-Anzeige). */
+  markEpisodeOffered(episodeId: string): void {
+    if (getEpisode(episodeId)) this.episodesOffered.add(episodeId);
+  }
+
+  /** Heftet eine Episode als aktiven Strang ans Korkbrett (Spur). */
+  activateEpisode(episodeId: string): boolean {
+    const ep = getEpisode(episodeId);
+    if (!ep || this.episodesActive.has(episodeId) || this.episodesCompleted.has(episodeId)) return false;
+    this.episodesOffered.add(episodeId);
+    this.episodesActive.add(episodeId);
+    storyLogger.log(`[Episode] aktiviert: ${ep.titel_de}`);
+    return true;
+  }
+
+  /**
+   * Schließt eine Episode ab: wendet `wirkt_auf` auf die Gesellschaftswerte an
+   * (P4: NUR Gesellschaftswerte — balance-neutral; 'vertrauen' wird ab P5 gekoppelt)
+   * und merkt den Lernmoment für den End-Report vor.
+   */
+  completeEpisode(episodeId: string): boolean {
+    const ep = getEpisode(episodeId);
+    if (!ep || this.episodesCompleted.has(episodeId)) return false;
+    this.episodesActive.delete(episodeId);
+    this.episodesCompleted.add(episodeId);
+
+    const delta: SocietyDelta = {};
+    for (const [key, value] of Object.entries(ep.wirkt_auf)) {
+      if (key === 'vertrauen') continue;          // P4: Vertrauen NICHT koppeln (Balance, R2)
+      if (typeof value === 'number') (delta as Record<string, number>)[key] = value;
+    }
+    this.applySocietyDelta(delta);
+    storyLogger.log(`[Episode] abgeschlossen: ${ep.titel_de} (Lernmoment: ${ep.lernmoment_id})`);
+    return true;
+  }
+
+  getActiveEpisodes(): Episode[] {
+    return Array.from(this.episodesActive).map(id => getEpisode(id)).filter((e): e is Episode => !!e);
+  }
+
+  getCompletedEpisodes(): Episode[] {
+    return Array.from(this.episodesCompleted).map(id => getEpisode(id)).filter((e): e is Episode => !!e);
+  }
+
+  /** Lernmoment-Methoden-IDs aus abgeschlossenen Episoden (für den End-Report/Atlas). */
+  getEpisodeLernmomentIds(): string[] {
+    return this.getCompletedEpisodes().map(e => e.lernmoment_id);
+  }
+
+  // ============================================
+  // AUFTRÄGE (P5) — Vertrauen = Mittel, Auftrag = Ziel
+  // ============================================
+
+  /** Den strategischen Auftrag setzen (Default beim Einstieg, Wahl beim Neustart). */
+  setAuftrag(id: AuftragId): void {
+    if (AUFTRAEGE[id]) {
+      this.currentAuftragId = id;
+      storyLogger.log(`[Auftrag] gewählt: ${AUFTRAEGE[id].titel_de}`);
+    }
+  }
+
+  getAuftragId(): AuftragId {
+    return this.currentAuftragId;
+  }
+
+  getAuftrag(): Auftrag {
+    return AUFTRAEGE[this.currentAuftragId];
+  }
+
+  /** Fortschritt des aktuellen Auftrags (0..1) über seine Signatur-Achsen (Vertrauen + Werte). */
+  getAuftragProgress(): number {
+    const s = this.getSocietySnapshot();
+    const trust = this.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100;
+    return auftragProgress(this.getAuftrag(), { ...s, vertrauen: trust });
+  }
+
+  /** Aktueller Wert eines Umfrage-Instruments (Vertrauen aus dem Ziel, sonst Gesellschaftswert). */
+  private pollValueFor(wert: string): number {
+    if (wert === 'vertrauen') {
+      return this.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100;
+    }
+    const v = (this.storyResources as unknown as Record<string, number>)[wert];
+    return typeof v === 'number' ? v : 0;
+  }
+
+  /** P6/F3: alle paar Phasen eine Umfrage als News emittieren (Auftrags-Instrument bevorzugt). */
+  private maybeEmitPollNews(phase: number): void {
+    if (phase % this.POLL_EVERY_PHASES !== 0) return;
+    const leitwert = this.getAuftrag().signatur[0]?.wert ?? 'polarisierung';
+    const instrument = pickPollInstrument(leitwert, this.pollIndex);
+    const value = this.pollValueFor(instrument.wert);
+    const content = buildPollNews(instrument, value, this.lastPollValues[instrument.id]);
+    this.newsEvents.unshift({
+      id: `poll_${instrument.id}_${phase}`,
+      phase,
+      headline_de: content.headline_de,
+      headline_en: content.headline_en,
+      description_de: content.description_de,
+      description_en: content.description_en,
+      type: 'world_event',
+      severity: 'info',
+      read: false,
+      pinned: false,
+    });
+    this.lastPollValues[instrument.id] = value;
+    this.pollIndex++;
+  }
+
+  /** Wendet ein Werte-Delta an und klemmt auf 0–100. obj_destabilize bleibt unberührt (R2). */
+  private applySocietyDelta(delta: SocietyDelta): void {
+    for (const key of Object.keys(delta) as (keyof SocietyDelta)[]) {
+      const d = delta[key];
+      if (typeof d !== 'number' || d === 0) continue;
+      this.storyResources[key] = clampSocietyValue(this.storyResources[key] + d);
+    }
+  }
+
   /** Bilanz der bisherigen P2-Operationen (End-Report/Atlas). */
   getOperationsSummary(): OperationsSummary {
     let carriersBurned = 0;
@@ -3858,6 +4184,29 @@ export class StoryEngineAdapter {
         description_de: `Politischer Einfluss +${value}%`,
         description_en: `Political leverage +${value}%`,
       });
+    }
+
+    // === B2b/P2 + B3/P3: Effekt-Splitting auf die Gesellschaftswerte ===
+    // Dieselben rohen Effekte ZUSÄTZLICH verteilen. obj_destabilize-Mathematik oben
+    // bleibt unverändert (K14/R2). Reine Zustands-Akkumulation, nicht in `effects[]`
+    // gespiegelt (das bleibt die UI-Bilanz der Aktion).
+    let societyDelta = societyDeltaFromAction(actionEffects, effectivenessMultiplier, {
+      legality: loadedAction.legality,
+      impactScale: actionEffects.impact_scale,
+    });
+    // Krisenfenster (P3): solange aktiv, wirkt JEDE Aktion verstärkt.
+    if (this.crisisWindowPhasesLeft > 0) {
+      societyDelta = scaleSocietyDelta(societyDelta, this.CRISIS_WINDOW_MULTIPLIER);
+    }
+    this.applySocietyDelta(societyDelta);
+
+    // Krisenfenster öffnen/verlängern, wenn die Aktion eines ausnutzt.
+    if (typeof actionEffects.crisis_window === 'number' && actionEffects.crisis_window > 0) {
+      this.crisisWindowPhasesLeft = Math.max(this.crisisWindowPhasesLeft, this.CRISIS_WINDOW_DURATION);
+    }
+    // Gerüchte-Druck (P3): reift verzögert über die nächsten Phasen (mutiert, zäh).
+    if (typeof actionEffects.rumor_mutation === 'number' && actionEffects.rumor_mutation > 0) {
+      this.rumorPressure += actionEffects.rumor_mutation * effectivenessMultiplier * 10;
     }
 
     return effects;
@@ -4912,10 +5261,19 @@ export class StoryEngineAdapter {
 
       storyLogger.log(`🏆 Victory achieved! Objectives held ${this.trustTargetHeldPhases} phases. Risk: ${this.storyResources.risk}%, Moral: ${this.storyResources.moralWeight}`);
 
+      // P5-Politur: signatur-getriebenes, auftrags-spezifisches Ende (Kategorie/Tonalität je
+      // Auftrag) statt nur eines Schluss-Satzes. Titel + Schluss-Erzählung kommen aus dem
+      // EndingSystem; die Signatur-Bilanz benennt konkret, welche Achsen wie weit getrieben wurden.
+      const trustValue = this.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100;
+      const ending = assembleAuftragEnding(this.currentAuftragId, {
+        moralWeight: this.storyResources.moralWeight,
+        risk: this.storyResources.risk,
+        values: { ...this.getSocietySnapshot(), vertrauen: trustValue },
+      });
       return {
         type: 'victory',
-        title_de: isDarkVictory ? 'Pyrrhussieg' : (isNarrowEscape ? 'Knapper Sieg' : 'Mission erfüllt'),
-        title_en: isDarkVictory ? 'Pyrrhic Victory' : (isNarrowEscape ? 'Narrow Victory' : 'Mission Accomplished'),
+        title_de: ending.title_de,
+        title_en: ending.title_en,
         description_de: isDarkVictory
           ? 'Sie haben Ihre Ziele erreicht - aber zu welchem Preis?'
           : isNarrowEscape
@@ -4927,16 +5285,10 @@ export class StoryEngineAdapter {
             ? 'Just in time. The investigators were closing in.'
             : 'You have achieved your objectives. Westunion is destabilized.',
         stats,
-        epilogue_de: isDarkVictory
-          ? 'Westunion ist destabilisiert. Moskau ist zufrieden. Doch nachts verfolgen Sie die Gesichter derer, die Sie geopfert haben.'
-          : isNarrowEscape
-            ? 'Sie werden eilig abgezogen. In Moskau werden Sie als Held empfangen - gerade noch rechtzeitig entkommen.'
-            : 'Westunion ist gespalten. Moskau ist zufrieden. Sie werden befördert und kehren als Held heim.',
-        epilogue_en: isDarkVictory
-          ? 'Westunion is destabilized. Moscow is pleased. But at night, the faces of those you sacrificed haunt you.'
-          : isNarrowEscape
-            ? 'You are hastily extracted. In Moscow you are received as a hero - escaped just in time.'
-            : 'Westunion is divided. Moscow is pleased. You are promoted and return home as a hero.',
+        // G23/G24: fiktiv (keine realen Orte) · G25: Sieg entheroisiert (kein Helden-Empfang).
+        // Das eigene Auftrags-Ende + die Signatur-Bilanz tragen den erzählerischen Schluss.
+        epilogue_de: `${ending.epilog_de} — Signatur-Bilanz: ${ending.bilanz_de}.`,
+        epilogue_en: `${ending.epilog_en} — Signature outcome: ${ending.bilanz_en}.`,
       };
     }
 
@@ -4969,8 +5321,8 @@ export class StoryEngineAdapter {
           description_de: 'Sie haben die Zeichen erkannt. Bevor die Schlinge sich zuzieht, setzen Sie sich nach Ostland ab.',
           description_en: 'You recognized the signs. Before the noose tightens, you escape to Ostland.',
           stats,
-          epilogue_de: 'In Ostland werden Sie als Held empfangen. Doch die Schatten Ihrer Taten folgen Ihnen.',
-          epilogue_en: 'In Ostland you are received as a hero. But the shadows of your deeds follow you.',
+          epilogue_de: 'In Ostland nimmt man Sie nüchtern wieder auf. Doch die Schatten Ihrer Taten folgen Ihnen.',
+          epilogue_en: 'In Ostland you are taken back in soberly. But the shadows of your deeds follow you.',
         };
       }
     }
@@ -5008,7 +5360,7 @@ export class StoryEngineAdapter {
 
   saveState(): string {
     const state = {
-      version: '1.0.0',
+      version: SAVE_FORMAT_VERSION,
       rngSeed: this.rngSeed,
       storyPhase: this.storyPhase,
       storyResources: this.storyResources,
@@ -5020,6 +5372,18 @@ export class StoryEngineAdapter {
       actionHistory: this.actionHistory,
       worldEventCooldowns: Array.from(this.worldEventCooldowns.entries()),
       activeOpportunityWindows: Array.from(this.activeOpportunityWindows.entries()),
+      // P3-Phänomen-Zustand
+      crisisWindowPhasesLeft: this.crisisWindowPhasesLeft,
+      rumorPressure: this.rumorPressure,
+      // P4-Episoden-Zustand
+      episodesOffered: Array.from(this.episodesOffered),
+      episodesActive: Array.from(this.episodesActive),
+      episodesCompleted: Array.from(this.episodesCompleted),
+      // P5-Auftrag
+      currentAuftragId: this.currentAuftragId,
+      // P6-Umfragen
+      pollIndex: this.pollIndex,
+      lastPollValues: this.lastPollValues,
       comboSystemState: this.comboSystem.exportState(),
       crisisMomentSystemState: this.crisisMomentSystem.exportState(),
       actorAIState: this.actorAI.exportState(),
@@ -5034,17 +5398,41 @@ export class StoryEngineAdapter {
   loadState(savedState: string): void {
     const state = JSON.parse(savedState);
 
+    // R1-Härtung (P0): Default-Merge statt roher Zuweisung. Alte Saves ohne die neuen
+    // Felder (Gesellschaftswerte B2, …) erben so saubere Startwerte statt undefined/NaN.
+    const savedVersion: string = state.version ?? '1.0.0';
+    if (savedVersion !== SAVE_FORMAT_VERSION) {
+      storyLogger.log(`[loadState] Migriere Spielstand ${savedVersion} → ${SAVE_FORMAT_VERSION} (Default-Merge).`);
+    }
+
     this.rngSeed = state.rngSeed || this.rngSeed;
     this.storyPhase = state.storyPhase;
-    this.storyResources = state.storyResources;
-    this.pendingConsequences = state.pendingConsequences;
+    // Fehlende Ressourcen-Felder mit Initialwerten auffüllen (additiv, rückwärtskompatibel).
+    this.storyResources = { ...this.createInitialResources(), ...(state.storyResources ?? {}) };
+    this.pendingConsequences = state.pendingConsequences ?? [];
     this.exposureCountdown = state.exposureCountdown ?? null;
-    this.newsEvents = state.newsEvents;
-    this.objectives = state.objectives;
-    this.npcStates = new Map(state.npcStates);
-    this.actionHistory = state.actionHistory;
+    this.newsEvents = state.newsEvents ?? [];
+    if (Array.isArray(state.objectives) && state.objectives.length > 0) {
+      this.objectives = state.objectives;
+    } else {
+      this.initializeObjectives();
+    }
+    this.npcStates = new Map(state.npcStates ?? []);
+    this.actionHistory = state.actionHistory ?? [];
     this.worldEventCooldowns = new Map(state.worldEventCooldowns || []);
     this.activeOpportunityWindows = new Map(state.activeOpportunityWindows || []);
+    // P3-Phänomen-Zustand (Default 0 für alte Saves, R1).
+    this.crisisWindowPhasesLeft = state.crisisWindowPhasesLeft ?? 0;
+    this.rumorPressure = state.rumorPressure ?? 0;
+    // P4-Episoden-Zustand (Default leer für alte Saves, R1).
+    this.episodesOffered = new Set(state.episodesOffered ?? []);
+    this.episodesActive = new Set(state.episodesActive ?? []);
+    this.episodesCompleted = new Set(state.episodesCompleted ?? []);
+    // P5-Auftrag (Default „keil" für alte Saves, R1).
+    this.currentAuftragId = (state.currentAuftragId as AuftragId) ?? 'keil';
+    // P6-Umfragen (Default leer für alte Saves, R1).
+    this.pollIndex = state.pollIndex ?? 0;
+    this.lastPollValues = state.lastPollValues ?? {};
     if (state.comboSystemState) {
       this.comboSystem.importState(state.comboSystemState);
     }
@@ -5322,6 +5710,17 @@ export class StoryEngineAdapter {
     this.actionHistory = [];
     this.worldEventCooldowns.clear();
     this.activeOpportunityWindows.clear();
+    this.allTriggeredEvents.clear();
+    this.triggeredEventsThisPhase.clear();
+    // P3/P4-Zustand zurücksetzen
+    this.crisisWindowPhasesLeft = 0;
+    this.rumorPressure = 0;
+    this.episodesOffered.clear();
+    this.episodesActive.clear();
+    this.episodesCompleted.clear();
+    this.currentAuftragId = 'keil';
+    this.pollIndex = 0;
+    this.lastPollValues = {};
     this.initializeNPCs();
     this.initializeObjectives();
 

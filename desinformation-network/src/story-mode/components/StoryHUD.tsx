@@ -38,10 +38,25 @@ export interface ObjectiveInfo {
   isPrimary: boolean;
 }
 
+/**
+ * Gesellschaftswerte fürs HUD (B2/P1, O3: 4 sichtbar, niedrigschwellig).
+ * Vertrauen kommt aus obj_destabilize; der Rest aus den neuen Zustandsfeldern.
+ */
+export interface SocietyInfo {
+  vertrauen: number;        // Institutionen-Vertrauen (0–100, sinkt = Auftrags-Mittel)
+  polarisierung: number;
+  informationslast: number;
+  zynismus: number;
+  /** P5: Titel des laufenden strategischen Auftrags („Vertrauen = Mittel, Auftrag = Ziel"). */
+  auftragTitel?: string;
+}
+
 interface StoryHUDProps {
   resources: StoryResources;
   phase: StoryPhaseInfo;
   objectives: ObjectiveInfo[];
+  /** B2/P1: mehrdimensionaler Gesellschafts-Zustand (4 sichtbar). */
+  society?: SocietyInfo;
   onEndPhase?: () => void;
   onOpenMenu?: () => void;
   onOpenObjectives?: () => void;
@@ -286,6 +301,71 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
 }
 
 // ============================================
+// SOCIETY STRIP (Gesellschaftswerte B2/P1)
+// ============================================
+
+interface SocietyStripProps {
+  society: SocietyInfo;
+}
+
+/** Eine kompakte Mini-Zeile je Gesellschaftswert: Label · Wert · dünner Balken. */
+function SocietyMeter({ label, value, color }: { label: string; value: number; color: string }) {
+  const pct = Math.max(0, Math.min(100, value));
+  return (
+    <div className="flex items-center gap-1.5" title={`${label}: ${Math.round(value)}%`}>
+      <span
+        className="uppercase tracking-wide shrink-0"
+        style={{ color: StoryModeColors.textMuted, fontSize: '0.55rem', width: 64 }}
+      >
+        {label}
+      </span>
+      <div
+        className="rounded-sm overflow-hidden shrink-0"
+        style={{ width: 48, height: 4, backgroundColor: StoryModeColors.border }}
+      >
+        <div className="h-full transition-all duration-300" style={{ width: `${pct}%`, backgroundColor: color }} />
+      </div>
+      <span className="tabular-nums" style={{ color: StoryModeColors.textSecondary, fontSize: '0.6rem', width: 26, textAlign: 'right' }}>
+        {Math.round(value)}
+      </span>
+    </div>
+  );
+}
+
+/** Niedrigschwellige Schnellanzeige des Gesellschafts-Zustands (4 Werte, O3/F3). */
+function SocietyStrip({ society }: SocietyStripProps) {
+  return (
+    <div
+      className="px-3 py-2 border-2"
+      style={{
+        backgroundColor: StoryModeColors.surfaceLight,
+        borderColor: StoryModeColors.border,
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
+      }}
+    >
+      <div className="flex items-center gap-2 mb-1.5">
+        <Icon name="stats" size={12} title="Gesellschaft" fallback="G" />
+        <span className="text-xs font-bold uppercase" style={{ color: StoryModeColors.textSecondary }}>
+          Gesellschaft
+        </span>
+        {society.auftragTitel && (
+          <span className="text-xs ml-auto truncate max-w-[120px]" style={{ color: StoryModeColors.textMuted }} title={`Auftrag: ${society.auftragTitel}`}>
+            ▸ {society.auftragTitel}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-col gap-1">
+        {/* Vertrauen = Sieg-Mittel; sinkt durch aggressive Operationen. */}
+        <SocietyMeter label="Vertrauen" value={society.vertrauen} color={StoryModeColors.agencyBlue} />
+        <SocietyMeter label="Polaris." value={society.polarisierung} color={StoryModeColors.ministryRed} />
+        <SocietyMeter label="Info-Last" value={society.informationslast} color={StoryModeColors.warning} />
+        <SocietyMeter label="Zynismus" value={society.zynismus} color={StoryModeColors.militaryOlive} />
+      </div>
+    </div>
+  );
+}
+
+// ============================================
 // MAIN STORY HUD COMPONENT
 // ============================================
 
@@ -293,6 +373,7 @@ export function StoryHUD({
   resources,
   phase,
   objectives,
+  society,
   onEndPhase,
   onOpenMenu,
   onOpenObjectives,
@@ -413,8 +494,9 @@ export function StoryHUD({
         </div>
       </div>
 
-      {/* Bottom Left: Objective Tracker */}
-      <div className="fixed bottom-4 left-4 z-30">
+      {/* Bottom Left: Gesellschaftswerte (B2) + Ziel — gruppiert „Zustand & Auftrag" */}
+      <div className="fixed bottom-4 left-4 z-30 flex flex-col gap-2">
+        {society && <SocietyStrip society={society} />}
         <ObjectiveTracker
           objectives={objectives}
           onClick={onOpenObjectives}

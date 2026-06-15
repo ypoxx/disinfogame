@@ -96,9 +96,23 @@ function nextMood(current: Mood, effectiveness: number): Mood {
   return current;
 }
 
+/**
+ * Gesellschafts-Vektor fürs Publikum (P6/F2, NUR Anzeige-Modulation — keine Rückwirkung
+ * auf die Spielmechanik). Hohe Polarisierung facht Reaktionen an; hoher Zynismus kippt die
+ * Stimmung Richtung Misstrauen/Rückzug. 0–100.
+ */
+export interface SocietyMood {
+  polarisierung: number;
+  zynismus: number;
+}
+
 /** Reaktion eines Landes auf einen Effekt (pro Segment + Gesamt-Quote). */
-export function reactToEffect(country: AudienceCountry, effect: Effect): CountryReaction {
-  const intensity = clamp01(effect.intensity ?? 0.5);
+export function reactToEffect(country: AudienceCountry, effect: Effect, society?: SocietyMood): CountryReaction {
+  const baseIntensity = clamp01(effect.intensity ?? 0.5);
+  // Polarisierung verstärkt die Wirkung (eine schon aufgewühlte Gesellschaft reagiert heftiger).
+  const polarFactor = society ? 1 + Math.max(0, society.polarisierung - 30) / 140 : 1; // bis ~1.5×
+  const intensity = clamp01(baseIntensity * polarFactor);
+  const cynical = (society?.zynismus ?? 0) >= 55;
 
   const reactions: SegmentReaction[] = country.segments.map((seg) => {
     const reached = seg.reachedBy.includes(effect.channel);
@@ -108,6 +122,9 @@ export function reactToEffect(country: AudienceCountry, effect: Effect): Country
     // Reichweite hängt auch an der Intensität → Entdeckungs-Risiko (gedämpfte Intensität) senkt die Quote.
     const reach = reached ? seg.size * (0.3 + 0.7 * resonance) * (0.4 + 0.6 * intensity) : 0;
     const beliefDelta = effectiveness * 0.2;
+    let newMood = nextMood(seg.mood, effectiveness);
+    // Hoher Zynismus: aus „verunsichert" wird Rückzug/Misstrauen statt Wut.
+    if (cynical && reached && newMood === 'verunsichert') newMood = 'misstrauisch';
     return {
       segmentId: seg.id,
       reached,
@@ -116,7 +133,7 @@ export function reactToEffect(country: AudienceCountry, effect: Effect): Country
       reach,
       beliefDelta,
       newBelief: clamp01(seg.belief + beliefDelta),
-      newMood: nextMood(seg.mood, effectiveness),
+      newMood,
     };
   });
 

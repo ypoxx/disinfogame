@@ -8,7 +8,64 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `STRANG34_FEINPLAN_2026-06-13_AKTIONEN_DIALOGE.md` → `GESAMTKONZEPT_VISUELL.md` →
 > dieses Dokument für den aktuellen Bau-Stand. Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
-**Stand:** 2026-06-14 · **PR #82 (Draft, Branch `claude/trusting-keller-5e1o0f`)** — „Loop schließen".
+**Stand:** 2026-06-15 · **PR #83 (Draft, Branch `claude/gifted-curie-5bgc0c`)** — **„Herzstück" (Episoden · Gesellschaftswerte · Aufträge · Vernetzung)**, baut auf main nach Merge von PR #82.
+
+### 🎭 Herzstück-Bau (PR #83) — Fortschritt P0→P7 (alle Phasen grün: `tsc`·`vitest`·`build`)
+Bau-Plan `BAUPLAN_2026-06-14_HERZSTUECK.md`, strikt in Reihenfolge. Gate je Commit grün (vitest **388**).
+**Optionale Politur abgeschlossen (Session 2026-06-15):** (1) Umgebungshumor-Asset-Batch §14.4, (2) tiefere
+signatur-getriebene Enden im EndingSystem, (3) Episoden-Lernmoment explizit im End-Report — Details unten je Phase.
+- **✅ P0 — Hygiene:** Save/Load-Migration (`SAVE_FORMAT_VERSION` 1.1.0 + Default-Merge, R1), zentraler
+  ID-Validator (`IdValidator.ts`, R3/R4, warn-only, prüft auch Episoden-Refs), dynamische Versionsanzeige
+  (`__BUILD_STAMP__` via vite `define`, §14.6). Tests: SaveLoadMigration, IdValidator.
+- **✅ P1 — Gesellschaftswerte als Zustand (B2a):** volles Werte-Set in `StoryResources` (sichtbar
+  Polarisierung/Informationslast/Zynismus + Vertrauen aus dem Ziel; intern Fragmentierung/Diskursqualität
+  + Auftrags-Achsen Wehrhaftigkeit/Reformfähigkeit/Fraktions-Stärke). HUD-Leiste „GESELLSCHAFT". **OHNE
+  Sieg-/Balance-Änderung** (deterministischer `BalanceInvariant`-Test pinnt die obj_destabilize-Mathematik).
+- **✅ P2 — Effekt-Splitting + Formeln (B2b):** `SocietyDynamics.ts` (pure) — Aktions-Effekte speisen die
+  Werte; nicht-lineare Phasen-Formeln (Polarisierung→Fragmentierung, Info-Last→Diskurs↓, …). Werte
+  differenzieren Strategien; obj_destabilize unangetastet.
+- **✅ P3 — Angriffs-Phänomene (B3):** 6 Familien / 18 Aktionen (`actions_p3_phenomena.json`):
+  Überflutung · Gerüchte-Mutation · Zermürbung · Krisen-Zeitfenster (×1.5, 3 Phasen) · Loyalitätsfalle ·
+  Erinnerungskonflikt. +4 Atlas-Methoden (14→18). Gerüchte-Druck reift verzögert. Sim im Rausch-Band.
+- **✅ P4 — Episoden + Korkbrett (B1):** `episodes.json` (10er-Batch inkl. Veen/Ferro/Brücke), `EpisodeLoader.ts`
+  (pure, Auslöser always/Wert/worldEvent), Engine-`episodeState` (offered/active/completed) auf dem lebenden
+  NPC-Pfad, `wirkt_auf` balance-neutral (nur Gesellschaftswerte). **UI:** NPC bietet Episode im Dialog an →
+  aktiver Strang am Korkbrett (**Spuren = Episoden-Stränge**) + Einklink-Maßnahmen auf den Sendeplan.
+- **✅ P5 — Strategische Aufträge (Keil/Wahl/Zweifel):** `Auftraege.ts` (Signatur-Achsen + Instrument §14.2),
+  Engine-Auswahl + Fortschritt, im HUD sichtbar. **Auftrags-Wahlbildschirm** beim Einstieg/Neustart
+  (`AuftragSelect`, Plague-Inc.-Stil). „Vertrauen = Mittel, Auftrag = Ziel." v1 balance-neutral
+  (obj_destabilize bleibt der Sieg). **✅ Politur:** **signatur-getriebene Enden** (`EndingSystem.assembleAuftragEnding`)
+  — Tonalität (kalt/pyrrhisch/knapp aus Moral-Preis/Enttarnungsnähe) + Kategorie (victory/pyrrhic) + 9 distinkte
+  Titel/Schluss-Erzählungen je Auftrag × Ton + **Signatur-Bilanz** (Endwerte gegen Zielmarken); live im Sieg-Ende.
+- **🟡 P6 — Vernetzung:** **Umfragen/Barometer als News (F3, §14.2)** — `PollNews.ts` (periodisch,
+  Auftrags-Leit-Instrument, Tendenz). **Erzählerische Gegenseite (C9, §14.3)** — `Gegenseite.ts` leitet den
+  Aufklärungs-Stand aus Aufmerksamkeit/Risiko/verbrannten Verbreitern ab; im Newsroom als „GEGENSEITE"-Streifen
+  **inkl. erzeugtem Faktencheckerin-Porträt** (Asset, Vision-QC ✓). **Fokusgruppe** reagiert auf laufende
+  Episoden (★-Hinweis). **Offen:** Broadcast-Schlagzeile direkt aus aktiver Episode · Publikum mechanisch auf
+  Werte-Vektor · weitere TV-/Umfrage-Grafiken (Asset-Batch, Pipeline bestätigt lauffähig).
+- **✅ P7 — Umgebungshumor + Ethik-Geländer:** **Sieg entheroisiert (G25)** + **reale Symbole „Moskau/Moscow"
+  raus** (G23/24, Story-Pfad sauber). **Gegenmaßnahmen je Methode im End-Report** (`counter_de` an allen 18
+  Atlas-Methoden). **Debrief verpflichtend** (End-Report öffnet bei Spielende automatisch). **Umgebungshumor
+  §14.4:** klickbare Propaganda-Plakate (#1) · Reißwolf = Entdeckungsdruck (#7) · Pförtner liest letzte
+  Schlagzeile (#12). **✅ Asset-Batch-Politur (state-reaktiv, Detail-Overlay):** **Kaffeeküche** (#2, Sorten =
+  Wirtschafts-/Sanktionslage aus Risiko/Aufmerksamkeit/Moral) · **Volksbrause-Automat** (#9, Etikett reagiert
+  aufs Narrativ/Auftrag) · **Mitarbeiter-des-Monats-Wand** (#8, gleiches Gesicht, Deckname zyklisch) ·
+  **Büropflanze welk/grün je Moral** (#4, Asset-Swap `prop_plant_tall`↔`prop_plant_wilted`). 3 neue Pixel-Assets
+  (Pipeline, Vision-QC'd, getrimmt); pure Helfer in `corridorDecor` getestet.
+
+**Methodik-Notiz (wichtig für künftige Balance-Arbeit):** Die Balance-Sim ist durch `Math.random()`-Seedung
+im Engine-Kern **inhärent verrauscht** (greedy/aggressiv ±1–2 run-to-run) — exakte Sieg-Quoten taugen NICHT
+als „unverändert"-Beweis. Robuster Ersatz: `BalanceInvariant.test.ts` pinnt die seed-/combo-unabhängigen
+**Effektwerte** von `applyActionEffects` (die reine obj_destabilize-Mathematik).
+
+**Politur-Notizen Herzstück (✅ Session 2026-06-15 abgeschlossen):** P4 Episoden-Lernmoment **explizit** im
+End-Report (`withEpisodeLearnings` → ★-Callout + Badge, ergänzt auch von der Tag-Klassifikation verfehlte
+Episoden-Methoden) · P5 signatur-getriebene Enden im `EndingSystem` · P7 Umgebungshumor-Asset-Batch §14.4.
+Alle additiv/balance-neutral (BalanceInvariant grün), Gate je Commit `tsc`·`vitest 388`·`build`.
+
+---
+
+**Vorheriger Stand:** 2026-06-14 · **PR #82 (gemerged)** — „Loop schließen".
 **Geliefert PR #82 (alles grün, Gate je Commit `tsc`·`vitest 300`·`build`):**
 - **P2-Loop geschlossen (Engine):** `playOperation` koppelt jetzt an Sieg/Niederlage — gelungene
   Operation erodiert das Institutionen-Vertrauen (Sieg-Ziel), Enttarnung (Verbreiter verbrannt) =
@@ -50,10 +107,17 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
   Fokusgruppe reagiert auf Episoden/Werte, Fernseher spiegelt Episoden-Schlagzeilen (Asset-Paket nötig), Umgebungshumor.
 - **Bau-Reihenfolge §9.3** (B2a→B2b→B3→B1→Vernetzung→B4) · **Risiko-Register §10** (save/load-Migration, K14-Balance,
   ID-Kopplung, tote Hooks) · Ethik-Geländer mitgedacht (niedrige Prio).
-**Nächster Schritt:** detaillierter **Bau-Plan** ableiten (PR-Schnitt nach §9.3, je grün + simuliert), dann bauen —
-am besten **frische Session** (Token-Budget). **Technik-Nebentask:** dynamische Versionsanzeige je Commit (Cache-Diagnose, §14.6).
-> ✅ **Bau-Plan liegt vor:** `BAUPLAN_2026-06-14_HERZSTUECK.md` (P0 Hygiene → P1 Werte → P2 Splitting → P3 Phänomene →
-> P4 Episoden/Korkbrett → P5 Aufträge/Enden → P6 Vernetzung → P7 Humor/Ethik). **Einstieg für die frische Session: P0+P1.**
+**Nächster Schritt:** ✅ **Herzstück P0–P7 gebaut (PR #83):** alle Phasen grün (vitest 374). Aufträge wählbar
+mit eigenen Enden, Episoden über das Korkbrett, lebendiger Broadcast/Newsroom (Gegenseite C9 + Asset)/Fokusgruppe,
+Umgebungshumor (Plakate + Reißwolf), Ethik-Geländer (Gegenmaßnahmen + Debrief verpflichtend), reale Symbole raus.
+**✅ Verbleibende Politur abgeschlossen (Session 2026-06-15):** (a) **Umgebungshumor-Asset-Batch** §14.4
+(Kaffeeküche/Volksbrause/Mitarbeiter-des-Monats/Pflanze — 3 neue Assets via `pixel-asset-pipeline`, Vision-QC'd,
+state-reaktiv in `corridorDecor`/`BuildingStage`); (b) **tiefere signatur-getriebene Enden** im `EndingSystem`
+(Kategorien/Tonalität je Auftrag + Signatur-Bilanz); (c) **Episoden-Lernmoment explizit** im End-Report
+(`withEpisodeLearnings`). Alles additiv, BalanceInvariant grün. **Offen (Preview/Owner):** Feinjustage der
+Prop-Platzierung an der Wand-Fuß-Linie (in-Container nur teilweise verifizierbar; Deploy-Preview prüfen).
+> ✅ **Bau-Plan:** `BAUPLAN_2026-06-14_HERZSTUECK.md` (P0 Hygiene → P1 Werte → P2 Splitting → P3 Phänomene →
+> P4 Episoden/Korkbrett → P5 Aufträge/Enden → P6 Vernetzung → P7 Humor/Ethik). **Fortschritt: siehe Herzstück-Block oben.**
 
 ### 🔎 Aus dieser Session offen / nur im Preview zu prüfen (nicht in-Container verifizierbar)
 - **Fernsehfamilie ausgeklappt** (Taste B): Sitzlinie/Köpfe — Preview prüfen, ggf. Skala/Position nachziehen.
