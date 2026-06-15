@@ -32,12 +32,17 @@ Bau-Plan `BAUPLAN_2026-06-14_HERZSTUECK.md`, strikt in Reihenfolge. Gate je Comm
 - **✅ P5 — Strategische Aufträge (Keil/Wahl/Zweifel):** `Auftraege.ts` (Signatur-Achsen + Instrument §14.2),
   Engine-Auswahl (Default Keil) + Fortschritt, im HUD sichtbar. **Vertrauen = Mittel, Auftrag = Ziel.** v1
   balance-neutral (obj_destabilize bleibt der Sieg).
-- **🟡 P6 — Vernetzung (Teil 1):** **Umfragen/Barometer als News (F3, §14.2)** — `PollNews.ts`, periodisch,
-  Auftrags-Leit-Instrument bevorzugt, Tendenz. **Offen (Teil 2, z. T. Asset-Budget):** Broadcast aus aktiver
-  Episode · Publikum reagiert auf Werte-Vektor · **Newsroom** (erzählerische Gegenseite C9) · Fokusgruppe auf
-  Episoden/Werte.
-- **⬜ P7 — Umgebungshumor + Ethik-Geländer:** offen. Klickbare Plakate, Kaffeeküche/Reißwolf/Automat (§14.4),
-  Helden-Siegtext entschärfen, Debrief verpflichtend, Gegenmaßnahmen je Methode im End-Report.
+- **🟡 P6 — Vernetzung:** **Umfragen/Barometer als News (F3, §14.2)** — `PollNews.ts` (periodisch,
+  Auftrags-Leit-Instrument, Tendenz). **Erzählerische Gegenseite (C9, §14.3)** — `Gegenseite.ts` leitet den
+  Aufklärungs-Stand aus Aufmerksamkeit/Risiko/verbrannten Verbreitern ab; im Newsroom als „GEGENSEITE"-Streifen
+  **inkl. erzeugtem Faktencheckerin-Porträt** (Asset, Vision-QC ✓). **Fokusgruppe** reagiert auf laufende
+  Episoden (★-Hinweis). **Offen:** Broadcast-Schlagzeile direkt aus aktiver Episode · Publikum mechanisch auf
+  Werte-Vektor · weitere TV-/Umfrage-Grafiken (Asset-Batch, Pipeline bestätigt lauffähig).
+- **🟡 P7 — Umgebungshumor + Ethik-Geländer:** **Sieg entheroisiert (G25)** + **reale Symbole „Moskau/Moscow"
+  raus** (G23/24, Story-Pfad sauber). **Gegenmaßnahmen je Methode im End-Report** (`counter_de` an allen 18
+  Atlas-Methoden, „So wäre es gekontert worden"). **Debrief verpflichtend** (End-Report öffnet bei Spielende
+  automatisch). **Offen:** Umgebungshumor §14.4 (klickbare Plakate/Kaffeeküche/Reißwolf — je Asset +
+  Gebäude-Platzierung über `corridorDecor`).
 
 **Methodik-Notiz (wichtig für künftige Balance-Arbeit):** Die Balance-Sim ist durch `Math.random()`-Seedung
 im Engine-Kern **inhärent verrauscht** (greedy/aggressiv ±1–2 run-to-run) — exakte Sieg-Quoten taugen NICHT
@@ -92,11 +97,12 @@ signatur-getriebene Enden im `EndingSystem`.
   Fokusgruppe reagiert auf Episoden/Werte, Fernseher spiegelt Episoden-Schlagzeilen (Asset-Paket nötig), Umgebungshumor.
 - **Bau-Reihenfolge §9.3** (B2a→B2b→B3→B1→Vernetzung→B4) · **Risiko-Register §10** (save/load-Migration, K14-Balance,
   ID-Kopplung, tote Hooks) · Ethik-Geländer mitgedacht (niedrige Prio).
-**Nächster Schritt:** ✅ **Bau läuft (PR #83):** P0–P5 erledigt + P6-Teil-1 (Umfragen-News). **Als Nächstes
-strikt weiter:** **P6-Teil-2** (Broadcast aus aktiver Episode · Publikum reagiert auf Werte-Vektor · **Newsroom**
-C9 · Fokusgruppe auf Episoden/Werte — **Asset-Batch mit Budget-Ansage** via Skill `pixel-asset-pipeline`) →
-**P7** (Umgebungshumor §14.4 + Ethik-Geländer: Helden-Siegtext entschärfen, Debrift verpflichtend, Gegenmaßnahmen
-je Methode). Details + Methodik-Notiz oben im Herzstück-Block.
+**Nächster Schritt:** ✅ **Bau weit fortgeschritten (PR #83):** P0–P5 komplett, P6 (Umfragen-News + Gegenseite-C9
+inkl. Asset + Fokusgruppe-Episoden) und P7 (Ethik-Geländer: Sieg entheroisiert, Gegenmaßnahmen im End-Report,
+Debrief verpflichtend, reale Symbole raus) großteils erledigt. **Verbleibende Batches:** (a) **Umgebungshumor
+§14.4** (klickbare Plakate/Kaffeeküche/Reißwolf — je Asset via `pixel-asset-pipeline` **mit Budget-Ansage** +
+Gebäude-Platzierung über `corridorDecor`); (b) Broadcast-Schlagzeile direkt aus aktiver Episode + Publikum auf
+Werte-Vektor; (c) weitere TV-/Umfrage-Grafiken. Pipeline ist bestätigt lauffähig (Gegenseite-Porträt erzeugt).
 > ✅ **Bau-Plan:** `BAUPLAN_2026-06-14_HERZSTUECK.md` (P0 Hygiene → P1 Werte → P2 Splitting → P3 Phänomene →
 > P4 Episoden/Korkbrett → P5 Aufträge/Enden → P6 Vernetzung → P7 Humor/Ethik). **Fortschritt: siehe Herzstück-Block oben.**
 
