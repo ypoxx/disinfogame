@@ -7,6 +7,7 @@
 import actionsData from '../data/actions.json';
 import actionsContinuedData from '../data/actions_continued.json';
 import actionsP1cData from '../data/actions_p1c.json';
+import actionsP3PhenomenaData from '../data/actions_p3_phenomena.json';
 import type { OperationParams } from '../battlefield/BattlefieldChain';
 import { storyLogger } from '../../utils/logger';
 
@@ -110,6 +111,13 @@ export class ActionLoader {
     const p1c = actionsP1cData as any;
     if (Array.isArray(p1c.actions_p1c)) {
       allRawActions.push(...p1c.actions_p1c);
+    }
+
+    // P3-Phänomene (Angriffs-„Verben", Konzept §5) — separat geladen, kein Churn.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const p3 = actionsP3PhenomenaData as any;
+    if (Array.isArray(p3.actions_p3_phenomena)) {
+      allRawActions.push(...p3.actions_p3_phenomena);
     }
 
     // Process and store actions

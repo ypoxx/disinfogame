@@ -171,6 +171,54 @@
       "matchCarriers": [],
       "matchPlatforms": [],
       "matchKinds": []
+    },
+    {
+      "id": "rumor_ecology",
+      "label_de": "Gerüchte-Ökologie & mutierende Erzählungen",
+      "real_method_de": "Rumor seeding / sich selbst verändernde Falschmeldungen",
+      "what_de": "Ein vages, ungesichertes Signal wird gestreut und vom Publikum selbst ausgeschmückt. Sobald eine Version widerlegt ist, kursiert die nächste — das Gerücht mutiert schneller, als Faktenchecker korrigieren können.",
+      "real_case_de": "Gerüchte über Wahlbetrug oder Gesundheitsthemen überlebten dutzende Richtigstellungen, weil jede Korrektur nur eine von vielen Varianten traf. Gerüchte sind zäher als Lügen, weil sie nie dasselbe bleiben.",
+      "severity": "mittel",
+      "matchTags": ["rumor", "confusion", "narrative", "conspiracy"],
+      "matchCarriers": [],
+      "matchPlatforms": [],
+      "matchKinds": []
+    },
+    {
+      "id": "demobilization",
+      "label_de": "Zermürbung & Demobilisierung",
+      "real_method_de": "Voter/Civic Demobilization durch Erschöpfung",
+      "what_de": "Ziel ist nicht Zustimmung, sondern Rückzug: Durch Dauer-Empörung und das Gefühl „es bringt eh nichts“ werden Menschen aus Debatte und Beteiligung gedrängt. Müde Bürger demonstrieren und wählen nicht.",
+      "real_case_de": "Kampagnen zielten gezielt darauf, die Wahlbeteiligung bestimmter Gruppen zu senken, statt sie umzustimmen. Demokratie stirbt auch an Gleichgültigkeit, nicht nur an der Lüge.",
+      "severity": "hoch",
+      "matchTags": ["demoralization", "apathy", "fear", "destabilization", "election"],
+      "matchCarriers": [],
+      "matchPlatforms": [],
+      "matchKinds": []
+    },
+    {
+      "id": "crisis_vacuum",
+      "label_de": "Krisen-Vakuum & Tempo vor Wahrheit",
+      "real_method_de": "Ausnutzen von Informationslücken in Krisen",
+      "what_de": "In einer Krise suchen alle gleichzeitig nach Orientierung. Wer die erste Erklärung liefert, prägt das Bild — egal, was sich später als wahr herausstellt. In Krisen schlägt Tempo die Wahrheit.",
+      "real_case_de": "Nach Anschlägen und Katastrophen verbreiteten sich falsche Täter- und Schuldzuweisungen in Stunden, lange bevor Behörden gesicherte Fakten hatten. Die Deutung war besetzt, bevor die Wahrheit aufholen konnte.",
+      "severity": "hoch",
+      "matchTags": ["crisis", "confusion", "destabilization", "media"],
+      "matchCarriers": [],
+      "matchPlatforms": [],
+      "matchKinds": []
+    },
+    {
+      "id": "memory_conflict",
+      "label_de": "Erinnerungskonflikt & Geschichtspolitik",
+      "real_method_de": "Instrumentalisierung des kollektiven Gedächtnisses",
+      "what_de": "Alte Kränkungen und ungelöste historische Konflikte werden gezielt reaktiviert und neu gedeutet. Wer die Vergangenheit besitzt, prägt die Gegenwart — Informationskonflikte sind oft Erinnerungskonflikte.",
+      "real_case_de": "Operationen schürten Streit über Denkmäler, Gedenktage und Geschichtsdeutung, um bestehende Gruppen gegeneinander aufzustellen. Die gefährlichste Spaltung erfindet selten — sie reißt alte Wunden wieder auf.",
+      "severity": "hoch",
+      "matchTags": ["memory", "history", "identity", "narrative"],
+      "matchCarriers": [],
+      "matchPlatforms": [],
+      "matchKinds": []
     }
   ]
 }

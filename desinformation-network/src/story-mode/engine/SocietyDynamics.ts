@@ -79,6 +79,34 @@ export function societyDeltaFromAction(
   const polInfl = num(effects.political_leverage) + num(effects.political_influence) + num(effects.long_term_influence);
   if (polInfl > 0) addDelta(d, 'fraktionsstaerke', polInfl * mult * 4);
 
+  // === P3/B3 — Angriffs-Phänomene (die „Verben"): gezielte, STARKE Treiber je Heimat-Wert. ===
+  // Überflutung als Waffe → Informationslast hoch, Korrektur/Diskurs runter (Firehose).
+  if (num(effects.flooding) > 0) {
+    addDelta(d, 'informationslast', num(effects.flooding) * mult * 18);
+    addDelta(d, 'diskursqualitaet', -num(effects.flooding) * mult * 6);
+  }
+  // Gerüchte-Mutation → Informationslast + Fragmentierung (zäher als Lügen; reift über Phasen).
+  if (num(effects.rumor_mutation) > 0) {
+    addDelta(d, 'informationslast', num(effects.rumor_mutation) * mult * 12);
+    addDelta(d, 'fragmentierung', num(effects.rumor_mutation) * mult * 5);
+  }
+  // Zermürbung/Apathie → Zynismus hoch, Wehrhaftigkeit runter (Demobilisierung).
+  if (num(effects.demoralization) > 0) {
+    addDelta(d, 'zynismus', num(effects.demoralization) * mult * 16);
+    addDelta(d, 'wehrhaftigkeit', -num(effects.demoralization) * mult * 6);
+  }
+  // Identitäts-/Loyalitätsfalle → Polarisierung hoch, Diskurs runter (Korrektur = Verrat).
+  if (num(effects.loyalty_trap) > 0) {
+    addDelta(d, 'polarisierung', num(effects.loyalty_trap) * mult * 16);
+    addDelta(d, 'diskursqualitaet', -num(effects.loyalty_trap) * mult * 5);
+  }
+  // Erinnerungskonflikt → Polarisierung + Fragmentierung (Infokonflikte sind Erinnerungskonflikte).
+  if (num(effects.memory_conflict) > 0) {
+    addDelta(d, 'polarisierung', num(effects.memory_conflict) * mult * 12);
+    addDelta(d, 'fragmentierung', num(effects.memory_conflict) * mult * 8);
+  }
+  // (crisis_window wird in der Engine als temporärer Wirkungs-Multiplikator behandelt.)
+
   // Baseline-„Lärm": nur WENIGE Aktionen tragen explizite Spaltungs-/Reichweiten-Keys,
   // deshalb treibt das allgemeine impact_scale die Werte breit (sonst bleiben sie tot).
   // Aggressive (grey/illegal) Aktionen polarisieren und verrohen — niedrigschwellige
@@ -125,6 +153,16 @@ export function societyFormulaStep(s: SocietySnapshot): SocietyDelta {
   }
 
   return d;
+}
+
+/** Skaliert alle Deltas (z. B. Krisenfenster-Multiplikator). Pure. */
+export function scaleSocietyDelta(delta: SocietyDelta, factor: number): SocietyDelta {
+  const out: SocietyDelta = {};
+  for (const key of Object.keys(delta) as (keyof SocietyDelta)[]) {
+    const v = delta[key];
+    if (typeof v === 'number') out[key] = v * factor;
+  }
+  return out;
 }
 
 /** Klemmt einen Wert auf das gültige 0–100-Band. */

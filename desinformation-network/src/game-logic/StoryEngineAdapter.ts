@@ -122,6 +122,7 @@ import { validateReferences, reportValidationIssues, type ValidationIssue } from
 import {
   societyDeltaFromAction,
   societyFormulaStep,
+  scaleSocietyDelta,
   clampSocietyValue,
   type SocietyDelta,
   type SocietySnapshot,
@@ -571,6 +572,15 @@ export class StoryEngineAdapter {
   private activeOpportunityWindows: Map<string, OpportunityWindow> = new Map();
   private readonly OPPORTUNITY_WINDOW_DURATION = 6;  // Default: 6 phases = 6 months
 
+  // P3/B3 — Angriffs-Phänomene mit Zustand:
+  // Krisen-Zeitfenster: solange aktiv, wirken Gesellschafts-Effekte verstärkt
+  // („In Krisen schlägt Tempo Wahrheit"). Diegetisch motiviert (Krisen-Aktion/-Event),
+  // kein abstrakter Timer. Gerüchte-Druck: reift verzögert über Phasen (zäher als Lügen).
+  private crisisWindowPhasesLeft = 0;
+  private rumorPressure = 0;
+  private readonly CRISIS_WINDOW_DURATION = 3;
+  private readonly CRISIS_WINDOW_MULTIPLIER = 1.5;
+
   // Engine Integration
   private actionLoader: ActionLoader;
   private consequenceSystem: ConsequenceSystem;
@@ -816,6 +826,19 @@ export class StoryEngineAdapter {
     // (verzögerte/„intelligente" Effekte, §14.2). Berührt NUR Gesellschaftswerte, nicht
     // die Sieg-Ressourcen → Balance bleibt gehalten (R2).
     this.applySocietyDelta(societyFormulaStep(this.getSocietySnapshot()));
+
+    // P3: Krisenfenster läuft ab; Gerüchte-Druck blutet verzögert in Informationslast/
+    // Fragmentierung und klingt langsam ab (mutiert weiter, statt korrigiert zu werden).
+    if (this.crisisWindowPhasesLeft > 0) this.crisisWindowPhasesLeft--;
+    if (this.rumorPressure > 0.5) {
+      this.applySocietyDelta({
+        informationslast: this.rumorPressure * 0.15,
+        fragmentierung: this.rumorPressure * 0.05,
+      });
+      this.rumorPressure *= 0.85;
+    } else {
+      this.rumorPressure = 0;
+    }
 
     // Decrement exposure countdown if active
     if (this.exposureCountdown !== null) {
@@ -3508,6 +3531,16 @@ export class StoryEngineAdapter {
     };
   }
 
+  /** P3: verbleibende Phasen des aktiven Krisenfensters (0 = keins). */
+  getCrisisWindowPhasesLeft(): number {
+    return this.crisisWindowPhasesLeft;
+  }
+
+  /** P3: aktueller Gerüchte-Druck (verzögerte Informationslast-Quelle). */
+  getRumorPressure(): number {
+    return this.rumorPressure;
+  }
+
   /** Wendet ein Werte-Delta an und klemmt auf 0–100. obj_destabilize bleibt unberührt (R2). */
   private applySocietyDelta(delta: SocietyDelta): void {
     for (const key of Object.keys(delta) as (keyof SocietyDelta)[]) {
@@ -3983,16 +4016,28 @@ export class StoryEngineAdapter {
       });
     }
 
-    // === B2b/P2: Effekt-Splitting ===
-    // Dieselben rohen Effekte ZUSÄTZLICH auf die Gesellschaftswerte verteilen.
-    // obj_destabilize-Mathematik oben bleibt unverändert (K14/R2). Reine Zustands-
-    // Akkumulation, nicht in `effects[]` gespiegelt (das bleibt die UI-Bilanz der Aktion).
-    this.applySocietyDelta(
-      societyDeltaFromAction(actionEffects, effectivenessMultiplier, {
-        legality: loadedAction.legality,
-        impactScale: actionEffects.impact_scale,
-      }),
-    );
+    // === B2b/P2 + B3/P3: Effekt-Splitting auf die Gesellschaftswerte ===
+    // Dieselben rohen Effekte ZUSÄTZLICH verteilen. obj_destabilize-Mathematik oben
+    // bleibt unverändert (K14/R2). Reine Zustands-Akkumulation, nicht in `effects[]`
+    // gespiegelt (das bleibt die UI-Bilanz der Aktion).
+    let societyDelta = societyDeltaFromAction(actionEffects, effectivenessMultiplier, {
+      legality: loadedAction.legality,
+      impactScale: actionEffects.impact_scale,
+    });
+    // Krisenfenster (P3): solange aktiv, wirkt JEDE Aktion verstärkt.
+    if (this.crisisWindowPhasesLeft > 0) {
+      societyDelta = scaleSocietyDelta(societyDelta, this.CRISIS_WINDOW_MULTIPLIER);
+    }
+    this.applySocietyDelta(societyDelta);
+
+    // Krisenfenster öffnen/verlängern, wenn die Aktion eines ausnutzt.
+    if (typeof actionEffects.crisis_window === 'number' && actionEffects.crisis_window > 0) {
+      this.crisisWindowPhasesLeft = Math.max(this.crisisWindowPhasesLeft, this.CRISIS_WINDOW_DURATION);
+    }
+    // Gerüchte-Druck (P3): reift verzögert über die nächsten Phasen (mutiert, zäh).
+    if (typeof actionEffects.rumor_mutation === 'number' && actionEffects.rumor_mutation > 0) {
+      this.rumorPressure += actionEffects.rumor_mutation * effectivenessMultiplier * 10;
+    }
 
     return effects;
   }
@@ -5154,6 +5199,9 @@ export class StoryEngineAdapter {
       actionHistory: this.actionHistory,
       worldEventCooldowns: Array.from(this.worldEventCooldowns.entries()),
       activeOpportunityWindows: Array.from(this.activeOpportunityWindows.entries()),
+      // P3-Phänomen-Zustand
+      crisisWindowPhasesLeft: this.crisisWindowPhasesLeft,
+      rumorPressure: this.rumorPressure,
       comboSystemState: this.comboSystem.exportState(),
       crisisMomentSystemState: this.crisisMomentSystem.exportState(),
       actorAIState: this.actorAI.exportState(),
@@ -5191,6 +5239,9 @@ export class StoryEngineAdapter {
     this.actionHistory = state.actionHistory ?? [];
     this.worldEventCooldowns = new Map(state.worldEventCooldowns || []);
     this.activeOpportunityWindows = new Map(state.activeOpportunityWindows || []);
+    // P3-Phänomen-Zustand (Default 0 für alte Saves, R1).
+    this.crisisWindowPhasesLeft = state.crisisWindowPhasesLeft ?? 0;
+    this.rumorPressure = state.rumorPressure ?? 0;
     if (state.comboSystemState) {
       this.comboSystem.importState(state.comboSystemState);
     }
