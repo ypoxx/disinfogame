@@ -44,6 +44,18 @@ export const StoryModeColors = {
   textMuted: '#828A95',
 };
 
+// Pixel-Schriftfamilien (P1-6) — selbst gehostet (public/fonts/, SIL OFL), via @font-face
+// in index.css geladen. Für Inline-`style`-Nutzung; die Tailwind-Pendants sind
+// `font-mono` (world), `font-display` (display) und `font-pixel` (label).
+export const StoryModeFonts = {
+  /** Weltschrift/Body — Pixel-Monospace (CRT). Ersetzt die frühere `monospace`-Notlösung. */
+  world: "'VT323', ui-monospace, monospace",
+  /** Headlines/Titel — 8-Bit-Arcade. Bewusst sparsam (sehr breit). */
+  display: "'Press Start 2P', system-ui, sans-serif",
+  /** Mini-Labels/Badges — winzige Pixelschrift. */
+  label: "'Silkscreen', ui-monospace, monospace",
+} as const;
+
 // v2: ohne harten Brutalismus-Schlagschatten (Verbotsliste) — klare Pixel-Kante,
 // dezenter Press-Effekt bleibt über active:translate.
 export const createBrutalistButton = (baseColor: string) => ({

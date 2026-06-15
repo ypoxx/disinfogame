@@ -874,7 +874,7 @@ export function EndReport({
           backgroundColor: StoryModeColors.surface,
           border: `3px solid ${StoryModeColors.agencyBlue}`,
           boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-          fontFamily: 'monospace',
+          fontFamily: "'VT323', monospace",
         }}
       >
         {/* ── 1. KOPF ── */}
@@ -1245,7 +1245,7 @@ export function EndReport({
                 letterSpacing: '0.08em',
                 cursor: 'pointer',
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-                fontFamily: 'monospace',
+                fontFamily: "'VT323', monospace",
               }}
             >
               BERICHT SCHLIESSEN

@@ -119,7 +119,7 @@ function AmbientPerson({ a, left, top, height }: { a: AmbientFigure; left: numbe
           style={{
             position: 'absolute', bottom: height + 6, left: '50%', transform: 'translateX(-50%)',
             width: 230, backgroundColor: 'rgba(12,12,16,0.94)', border: `1px solid ${StoryModeColors.borderLight}`,
-            color: '#e8e4d8', fontFamily: 'monospace', fontSize: 11, lineHeight: 1.4, padding: '6px 8px', zIndex: 7,
+            color: '#e8e4d8', fontFamily: "'VT323', monospace", fontSize: 11, lineHeight: 1.4, padding: '6px 8px', zIndex: 7,
           }}
         >
           <span style={{ display: 'block', fontSize: 8, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 2 }}>{a.who}</span>
@@ -656,7 +656,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                     position: 'absolute', bottom: pH + 6, left: '50%', transform: 'translateX(-50%)',
                     width: 240, maxWidth: 240, backgroundColor: 'rgba(12,12,16,0.94)',
                     border: `1px solid ${StoryModeColors.borderLight}`, color: '#e8e4d8',
-                    fontFamily: 'monospace', fontSize: 11, lineHeight: 1.4, padding: '6px 8px', zIndex: 7,
+                    fontFamily: "'VT323', monospace", fontSize: 11, lineHeight: 1.4, padding: '6px 8px', zIndex: 7,
                   }}
                 >
                   <span style={{ display: 'block', fontSize: 8, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 2 }}>PFÖRTNER</span>
@@ -825,13 +825,13 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             }}
           />
           <div style={{ maxWidth: 520, textAlign: 'center' }}>
-            <div style={{ fontFamily: 'monospace', fontWeight: 900, letterSpacing: 3, color: StoryModeColors.warning, fontSize: 14, marginBottom: 6 }}>
+            <div style={{ fontFamily: "'VT323', monospace", fontWeight: 900, letterSpacing: 3, color: StoryModeColors.warning, fontSize: 14, marginBottom: 6 }}>
               {poster.titel_de}
             </div>
-            <div style={{ fontFamily: 'monospace', color: '#e8e4d8', fontSize: 13, lineHeight: 1.5, fontStyle: 'italic' }}>
+            <div style={{ fontFamily: "'VT323', monospace", color: '#e8e4d8', fontSize: 13, lineHeight: 1.5, fontStyle: 'italic' }}>
               „{poster.slogan_de}"
             </div>
-            <div style={{ fontFamily: 'monospace', color: StoryModeColors.textMuted, fontSize: 10, marginTop: 12 }}>
+            <div style={{ fontFamily: "'VT323', monospace", color: StoryModeColors.textMuted, fontSize: 10, marginTop: 12 }}>
               (Klicken zum Schließen)
             </div>
           </div>

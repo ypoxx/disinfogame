@@ -45,7 +45,7 @@ P1 = großer Qualitätssprung · P2 = Politur & Assets (Budget) · P3 = Aufräum
 | ✅ P1-3 | **Ambient-Rollenrutsch behoben** — alle **80 Zeilen** (de+en) der 4 fehlbesetzten NPCs (Marina≠Daten-Analystin, Alexei≠Troll, Katja≠Autorin, Igor≠Hacker) neu in korrekter Steckbrief-Stimme; Anglizismen-Soße (Dashboard/Sentiment/Penetration-Test/Zero-Day/Story-Arc/…) getilgt; IDs stabil; unvertont → keine Audio-Desync. | B2 | `dialogues.json` ambient-Blöcke; `NPC_VOICE_PROFILES.md` | Content (L) |
 | ✅ P1-4 | **Topics bereinigt** — **73** ASCII-Umlaut-Strings korrigiert (kuratiert, ohne Korruption korrekter Wörter), **5 Prozent-Listen** (40-30-30) in NPC-Stimme umgeschrieben, **3 „Lebensader"-Copy-Paste** variiert. | B2 | `topics_dialogues.json` | Content (M) |
 | ✅ P1-5 | **Taste I = Methoden-Dossier** (neu, deutsch, PixelModal) statt der englischen Pro-Mode-Encyclopedia. Rendert `disinfo_methods.json` (18 Muster: was es ist · realer Fall · Gegenmaßnahme) — **aus einem Guss mit dem End-Report**. Alte `Encyclopedia.tsx` aus dem Spielpfad gelöst (→ P3-Dead-Code). | B4 | `components/MethodenDossier.tsx` (neu); `StoryModeGame.tsx:17,1262` | Code (M) |
-| P1-6 | **`monospace`/`font-mono` als Weltschrift entfernen** — Schwerpunkt FokusgruppeView (13×), NewsroomView (11×), AuftragSelect-Root, DayReport (5×). *Vollständig blockiert durch Pixel-Font (🔒 P3-BLOCK-1) — Übergang: `inherit`.* | A1 | 72 Inline + ~27 Klassen | Code (M) |
+| ✅ P1-6 | **Pixel-Weltschrift gesetzt** — VT323 (OFL) selbst gehostet (`public/fonts/`) via `@font-face`; Tailwind `font-mono`→VT323 (deckt die `font-mono`-Klassen) + 51× Inline-`monospace`→VT323-Stack. Set komplettiert: Press Start 2P (Headlines, am Titel) + Silkscreen (Mini-Labels, Broadcast) als `font-display`/`font-pixel` + `StoryModeFonts`. Alle mit Umlaut-/Sonderzeichen-Abdeckung. | A1 | `index.css`, `tailwind.config.js`, `theme.ts` + 51 Inline | Code (M) |
 | ✅ P1-7 | **Operation an `broadcastMapping` gekoppelt** — Tag `operation` war GAR NICHT in `THEMES_BY_TAG` (→ Default-Thema); `targeting→abstiegs_angst` war falsch. Jetzt: `operation`→Skandal/Misstrauen (`misstrauen_medien`+`anti_establishment`), `targeting`→`anti_establishment`, `abstiegs_angst` zu den Wirtschafts-Tags verschoben (passt dort). Neuer Test. | B3-Subaudit | `broadcast/broadcastMapping.ts:38` | Code (S) |
 | ✅ P1-8 | **`ROOM_HINTS['operations']` ergänzt** + `room_operations` live neu generiert — vorher generischer Fallback-Prompt (beliebiges Büro), jetzt War-Room/Kommandozentrum (PR #85). | A2 | `shotlist.mjs` ROOM_HINTS | Code (XS) + Asset |
 | P1-9 | **Auftrags-Wahl kontextualisieren** — narrativ in den Direktor-Dialog ziehen oder erst nach Tag 1 anbieten (heute kontextlos sofort). | B4 | `StoryModeGame.tsx:700`; `AuftragSelect.tsx:28` | Code (S) |
@@ -99,7 +99,7 @@ P1 = großer Qualitätssprung · P2 = Politur & Assets (Budget) · P3 = Aufräum
 ---
 
 ## 🔒 Extern blockiert
-- **P3-BLOCK-1 Pixel-Font** (z. B. „Pixel Operator", CC0) — Netz-Policy (403). Owner-Upload nach `public/fonts/` oder Allowlist. Blockiert die **vollständige** `font-mono`-Lösung (P1-6). *(A4 AN-21, DB-17)*
+- ✅ **P3-BLOCK-1 Pixel-Font aufgelöst** — VT323 + Press Start 2P + Silkscreen (alle SIL OFL) selbst gehostet in `public/fonts/` (inkl. `OFL.txt`); kein externer CDN. P1-6 damit entsperrt + umgesetzt. *(A4 AN-21, DB-17)*
 - `npm run lint` defekt (keine ESLint-Config) — Gate stützt sich auf tsc/build/vitest. *(A4 DB-07)*
 
 ---

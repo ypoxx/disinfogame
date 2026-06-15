@@ -22,7 +22,7 @@ export function AuftragSelect({ onChoose, onSkip }: AuftragSelectProps): React.J
       style={{
         position: 'fixed', inset: 0, zIndex: 1100,
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        gap: 18, padding: 24, background: 'rgba(8,8,10,0.92)', fontFamily: 'monospace',
+        gap: 18, padding: 24, background: 'rgba(8,8,10,0.92)', fontFamily: "'VT323', monospace",
       }}
     >
       <div style={{ textAlign: 'center', maxWidth: 600 }}>

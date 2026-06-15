@@ -274,7 +274,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
             justifyContent: 'center',
             fontSize: 15,
             fontWeight: 900,
-            fontFamily: 'monospace',
+            fontFamily: "'VT323', monospace",
             color: '#fff',
             imageRendering: 'pixelated',
           }}
@@ -289,7 +289,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
             style={{
               fontSize: 12,
               fontWeight: 900,
-              fontFamily: 'monospace',
+              fontFamily: "'VT323', monospace",
               color: StoryModeColors.textPrimary,
               letterSpacing: 0.5,
               whiteSpace: 'nowrap',
@@ -302,7 +302,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
           <div
             style={{
               fontSize: 10,
-              fontFamily: 'monospace',
+              fontFamily: "'VT323', monospace",
               color: StoryModeColors.textMuted,
               whiteSpace: 'nowrap',
               overflow: 'hidden',
@@ -317,7 +317,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
               display: 'inline-block',
               marginTop: 2,
               fontSize: 9,
-              fontFamily: 'monospace',
+              fontFamily: "'VT323', monospace",
               fontWeight: 700,
               letterSpacing: 1,
               color: borderColor,
@@ -334,7 +334,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
         style={{
           padding: '6px 10px',
           fontSize: 10,
-          fontFamily: 'monospace',
+          fontFamily: "'VT323', monospace",
           fontStyle: 'italic',
           color: StoryModeColors.textMuted,
           lineHeight: 1.4,
@@ -373,7 +373,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
           style={{
             margin: 0,
             fontSize: 11,
-            fontFamily: 'monospace',
+            fontFamily: "'VT323', monospace",
             color: StoryModeColors.textPrimary,
             lineHeight: 1.5,
           }}
@@ -435,7 +435,7 @@ export function FokusgruppeView({
         zIndex: 1000,
         display: 'flex',
         flexDirection: 'column',
-        fontFamily: 'monospace',
+        fontFamily: "'VT323', monospace",
         backgroundColor: '#0d0d0d',
         overflow: 'hidden',
       }}
@@ -502,7 +502,7 @@ export function FokusgruppeView({
             style={{
               fontSize: 11,
               fontWeight: 900,
-              fontFamily: 'monospace',
+              fontFamily: "'VT323', monospace",
               color: StoryModeColors.danger,
               letterSpacing: 1,
               animation: 'fg-rec-blink 1.2s ease-in-out infinite',
@@ -539,7 +539,7 @@ export function FokusgruppeView({
             <span
               style={{
                 fontSize: 10,
-                fontFamily: 'monospace',
+                fontFamily: "'VT323', monospace",
                 color: StoryModeColors.warning,
                 backgroundColor: 'rgba(40,30,5,0.7)',
                 border: `1px solid ${StoryModeColors.warning}`,
@@ -560,7 +560,7 @@ export function FokusgruppeView({
             <span
               style={{
                 fontSize: 10,
-                fontFamily: 'monospace',
+                fontFamily: "'VT323', monospace",
                 color: StoryModeColors.agencyBlue,
                 backgroundColor: 'rgba(5,20,40,0.7)',
                 border: `1px solid ${StoryModeColors.agencyBlue}`,
@@ -587,7 +587,7 @@ export function FokusgruppeView({
             border: `2px solid ${StoryModeColors.ministryRed}`,
             color: StoryModeColors.textPrimary,
             fontSize: 16,
-            fontFamily: 'monospace',
+            fontFamily: "'VT323', monospace",
             fontWeight: 900,
             width: 32,
             height: 32,
@@ -625,7 +625,7 @@ export function FokusgruppeView({
               justifyContent: 'center',
               color: StoryModeColors.textMuted,
               fontSize: 13,
-              fontFamily: 'monospace',
+              fontFamily: "'VT323', monospace",
               letterSpacing: 1,
             }}
           >
@@ -670,7 +670,7 @@ export function FokusgruppeView({
           style={{
             textAlign: 'center',
             fontSize: 9,
-            fontFamily: 'monospace',
+            fontFamily: "'VT323', monospace",
             color: StoryModeColors.textMuted,
             letterSpacing: 1,
             flexShrink: 0,

@@ -191,7 +191,7 @@ export function PlayerOfficeView({
         width: '100%',
         height: '100%',
         overflow: 'hidden',
-        fontFamily: 'monospace',
+        fontFamily: "'VT323', monospace",
         backgroundColor: '#1a1a1a',
       }}
     >
@@ -312,7 +312,7 @@ export function PlayerOfficeView({
                   padding: '2px 8px',
                   fontSize: 11,
                   fontWeight: 700,
-                  fontFamily: 'monospace',
+                  fontFamily: "'VT323', monospace",
                   letterSpacing: 1,
                   pointerEvents: 'none',
                   zIndex: 20,
@@ -341,7 +341,7 @@ export function PlayerOfficeView({
                   color: '#fff',
                   fontSize: 11,
                   fontWeight: 700,
-                  fontFamily: 'monospace',
+                  fontFamily: "'VT323', monospace",
                   pointerEvents: 'none',
                   zIndex: 21,
                   animation: 'po-badge-pulse 1.6s ease-in-out infinite',
@@ -395,7 +395,7 @@ export function PlayerOfficeView({
                 border: `1px solid ${StoryModeColors.warning}`,
                 padding: '1px 5px',
                 fontSize: 9,
-                fontFamily: 'monospace',
+                fontFamily: "'VT323', monospace",
                 fontWeight: 700,
                 whiteSpace: 'nowrap',
               }}
@@ -419,7 +419,7 @@ export function PlayerOfficeView({
             color: '#e8e4d8',
             padding: '4px 10px',
             fontSize: 11,
-            fontFamily: 'monospace',
+            fontFamily: "'VT323', monospace",
             fontWeight: 700,
             cursor: 'pointer',
             zIndex: 40,
@@ -459,7 +459,7 @@ export function PlayerOfficeView({
             color: '#fff',
             padding: '6px 20px',
             fontSize: 13,
-            fontFamily: 'monospace',
+            fontFamily: "'VT323', monospace",
             fontWeight: 900,
             cursor: 'pointer',
             boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
@@ -512,7 +512,7 @@ function Dienstausweis(): React.JSX.Element {
       </span>
       <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
         <span style={{ fontSize: 9, color: StoryModeColors.textSecondary, letterSpacing: 1 }}>SONDEROPERATIONEN</span>
-        <span style={{ fontSize: 12, fontWeight: 700, color: StoryModeColors.textPrimary, fontFamily: 'monospace' }}>{name}</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: StoryModeColors.textPrimary, fontFamily: "'VT323', monospace" }}>{name}</span>
       </span>
     </div>
   );
