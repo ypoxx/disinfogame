@@ -110,6 +110,10 @@ const PROPS = [
   ['prop_poster_a', 'a framed abstract constructivist poster, geometric dark-red and grey shapes only, no text, strict flat front view'],
   ['prop_poster_b', 'a framed abstract poster with cyan and grey diagonal geometric shapes only, no text, strict flat front view'],
   ['prop_poster_c', 'a framed abstract poster with muted concentric geometric shapes only, no text, strict flat front view'],
+  // --- P7/§14.4 Umgebungshumor-Batch (state-reaktive Props) ---
+  ['prop_coffee_station', 'a small office kitchenette counter unit with a drip coffee machine, an electric kettle, a few stacked mugs and a couple of jars and tins on the worktop, a small closed cupboard below, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective'],
+  ['prop_employee_wall', 'a wall-mounted employee-of-the-month display: a small grid of identical simple framed portrait photos of the exact SAME faceless generic office worker repeated four times, with a plain blank plaque strip above them, no readable text, strict flat front view, orthographic'],
+  ['prop_plant_wilted', 'a tall potted indoor rubber-tree plant that is wilting and dying, drooping brown and yellowed leaves sagging downward with a few bare stems, in the same simple modern dark pot, full plant from pot to top, strict flat front elevation view, orthographic, NO isometric, NO 3/4 or top-down perspective'],
 ];
 
 // Gebäude-Baukasten: Querschnitts-Bausteine für die Stage (BuildingView).

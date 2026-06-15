@@ -805,6 +805,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 lastHeadline: audience.lastItem?.headline ?? null,
               })}
               risk={state.resources.risk}
+              moralWeight={state.resources.moralWeight}
+              attention={state.resources.attention}
+              auftragId={state.engine.getAuftragId()}
               onRoomClick={(npcId) => {
                 setActivePanel(null);
                 interactWithNpc(npcId);

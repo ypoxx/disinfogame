@@ -33,9 +33,15 @@ interface BuildingViewProps {
   pfoertnerLine?: string;
   /** P7/§14.4: Entdeckungsdruck (0–100) für den Reißwolf-Kommentar. */
   risk?: number;
+  /** P7/§14.4: moralische Last (welke/grüne Pflanze). */
+  moralWeight?: number;
+  /** P7/§14.4: Aufmerksamkeit (Kaffeeküchen-Wirtschaftslage). */
+  attention?: number;
+  /** P7/§14.4: aktiver Auftrag (Volksbrause-Etikett). */
+  auftragId?: string;
 }
 
-export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, walkHome = false, onArrivedHome, month, locked = false, pfoertnerLine, risk }: BuildingViewProps) {
+export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, walkHome = false, onArrivedHome, month, locked = false, pfoertnerLine, risk, moralWeight, attention, auftragId }: BuildingViewProps) {
   const nav = useNavigator();
   const [directoryOpen, setDirectoryOpen] = useState(false);
 
@@ -100,6 +106,9 @@ export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, wa
         month={month}
         pfoertnerLine={pfoertnerLine}
         risk={risk}
+        moralWeight={moralWeight}
+        attention={attention}
+        auftragId={auftragId}
       />
       {directoryOpen && (
         <FloorDirectory
