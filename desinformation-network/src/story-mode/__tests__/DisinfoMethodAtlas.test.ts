@@ -38,6 +38,13 @@ describe('Atlas-Daten', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it('P7/B4: jede Methode trägt eine Gegenmaßnahme (Resilienz-Geländer)', () => {
+    for (const m of loadDisinfoMethods()) {
+      expect(m.counter_de, `counter_de fehlt bei ${m.id}`).toBeTruthy();
+      expect((m.counter_de ?? '').length).toBeGreaterThan(20);
+    }
+  });
+
   it('enthält die Kompromat-/Schlachtfeld-Familie als EINE unter vielen', () => {
     const methods = loadDisinfoMethods();
     const kompromat = methods.find((m) => m.matchKinds.includes('kompromat'));
@@ -60,6 +67,8 @@ describe('classifyMethods', () => {
     expect(emo.count).toBeGreaterThan(0);
     expect(emo.evidence_de).toMatch(/Maßnahme/);
     expect(emo.real_method_de).toBeTruthy();
+    // P7/B4: die Gegenmaßnahme wird in den End-Report durchgereicht.
+    expect(emo.counter_de).toBeTruthy();
   });
 
   it('gewichtet häufiger genutzte Methoden nach oben', () => {

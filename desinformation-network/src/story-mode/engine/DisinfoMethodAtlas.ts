@@ -25,6 +25,8 @@ export interface DisinfoMethod {
   real_method_de: string;
   what_de: string;
   real_case_de: string;
+  /** P7/B4 — „So wäre es erkannt/gekontert worden" (Resilienz-Geländer, optional). */
+  counter_de?: string;
   severity: MethodSeverity;
   matchTags: string[];
   matchCarriers: string[];
@@ -40,6 +42,8 @@ export interface MethodInsight {
   real_method_de: string;
   what_de: string;
   real_case_de: string;
+  /** P7/B4 — „So wäre es erkannt/gekontert worden" (Resilienz-Geländer). */
+  counter_de?: string;
   severity: MethodSeverity;
   /** Beleg-Gewicht (Summe getroffener Tags/Verbreiter/Plattformen/Operationen). */
   count: number;
@@ -146,6 +150,7 @@ export function classifyMethods(
         real_method_de: m.real_method_de,
         what_de: m.what_de,
         real_case_de: m.real_case_de,
+        counter_de: m.counter_de,
         severity: m.severity,
         count,
         evidence_de: evidence.join(' · '),

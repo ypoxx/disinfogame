@@ -391,6 +391,22 @@ function MethodsSection({ methods, operationsSummary }: MethodsSectionProps) {
               <span style={{ color: StoryModeColors.textMuted }}>Dokumentiert: </span>
               {m.real_case_de}
             </p>
+            {/* P7/B4 — Resilienz-Geländer: „So wäre es erkannt/gekontert worden." */}
+            {m.counter_de && (
+              <p
+                style={{
+                  fontSize: '11px',
+                  lineHeight: '1.5',
+                  color: StoryModeColors.agencyBlue,
+                  margin: '0 0 4px',
+                  paddingLeft: '8px',
+                  borderLeft: `2px solid ${StoryModeColors.agencyBlue}`,
+                }}
+              >
+                <span style={{ fontWeight: 700 }}>So wäre es gekontert worden: </span>
+                {m.counter_de}
+              </p>
+            )}
             <div style={{ fontSize: '10px', color: StoryModeColors.textMuted }}>
               Erkannt an: {m.evidence_de}
             </div>
