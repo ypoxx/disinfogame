@@ -93,7 +93,8 @@ P1 = großer Qualitätssprung · P2 = Politur & Assets (Budget) · P3 = Aufräum
 - P3-4 **Toter/veralteter Code:** ✅ ungenutzte `src/components/Encyclopedia.tsx` gelöscht (P1-5 ersetzt). **Offen:** `TutorialOverlay` (gemountet, aber nie aktiviert) löschen/zur Hilfe machen; `unlocksRoom/unlocksNpc` als „geplant" markieren.
 - ✅ P3-5 **Doku-Hygiene:** `DAY_ONE_WALKTHROUGH.md` als VERALTET markiert. **Offen:** `HIDDEN_TREASURES.md`-Teile.
 - 🆕 P3-7 **`npcs.json` Inline-Fallback-Dialoge** (greetings/reactions/topics) tragen ASCII-Umlaute + alte Stimme + „Lebensader" — werden nur als Fallback gezeigt (DialogLoader hat Vorrang), aber player-sichtbar. Eigener ASCII-Umlaut- + Voice-Pass nötig (wie P1-3/P1-4). *(Neu-Fund P3)*
-- P3-6 Kleinkram: Lampen-abends-an, `StoryHUD.ViewToggleButton`-Label, `sovietRed`→`ministryRed`-Token, Save/Load sichert `DialogLoader`-Zustand nicht. *(A4 DB-07/10/11/13, C-11)*
+- P3-6 Kleinkram: ✅ `sovietRed`→`ministryRed` ist **bereits erledigt** (0 Verwendungen). **Offen:** Lampen-abends-an, `StoryHUD.ViewToggleButton`-Label, Save/Load sichert `DialogLoader`-Zustand nicht. *(A4 DB-07/10/11/13, C-11)*
+- 🔎 **Investigations-Befunde (P3, 2026-06-15):** `TutorialOverlay` ist **kein toter Code** — bewusst als Hilfe-Overlay erreichbar (`tutorial.start()`); nur der **Inhalt** ist veraltet (Inbox/E-Mail) → Content-Pass statt Löschen. `ComboHintsWidget` (floating) zeigt dieselben Combos wie das Korkbrett, aber „auf einen Blick" → Entfernen verliert den Schnellblick; diegetische Auflösung (V6) ist **Design + Preview-Verifikation**, nicht blind machbar.
 
 ---
 
