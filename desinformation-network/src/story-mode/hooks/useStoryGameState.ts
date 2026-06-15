@@ -15,6 +15,7 @@ import {
   OperationsSummary,
 } from '../../game-logic/StoryEngineAdapter';
 import type { OperationParams } from '../battlefield/BattlefieldChain';
+import { getEpisode, type Episode } from '../engine/EpisodeLoader';
 import { playSound } from '../utils/SoundSystem';
 import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
 import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
@@ -99,6 +100,20 @@ export function buildActionOfferChoices(
       text: `▸ ${a.headline_de || a.label_de}`,
       cost: { ap: 1, budget: a.costs.budget },
     }));
+}
+
+/**
+ * P4/B1: Episoden-Angebote eines NPCs als Dialog-Auswahl (emergent-kuratiert).
+ * Der NPC bietet eine situierte Geschichte an, wenn ihr Auslöser passt.
+ */
+function buildEpisodeOfferChoices(
+  offerable: Episode[],
+  max = 2,
+): { id: string; text: string }[] {
+  return offerable.slice(0, max).map((ep) => ({
+    id: `episode_${ep.id}`,
+    text: `★ ${ep.titel_de}`,
+  }));
 }
 
 /**
@@ -299,6 +314,9 @@ export interface StoryGameState {
   // Action Queue
   actionQueue: QueuedAction[];
 
+  // P4/B1: aktive Episoden-Stränge (Korkbrett-Spuren)
+  activeEpisodes: Episode[];
+
   // Trust Evolution Tracking
   trustHistory: TrustHistoryPoint[];
   extendedActors: ExtendedActor[];
@@ -399,6 +417,9 @@ export function useStoryGameState(seed?: string) {
 
   // Action Queue
   const [actionQueue, setActionQueue] = useState<QueuedAction[]>([]);
+
+  // P4/B1: aktive Episoden-Stränge (Korkbrett-Spuren). Reaktiv, damit das Brett mitzieht.
+  const [activeEpisodes, setActiveEpisodes] = useState<Episode[]>(() => engine.getActiveEpisodes());
 
   // Trust Evolution Tracking
   const [trustHistory, setTrustHistory] = useState<TrustHistoryPoint[]>(() => {
@@ -627,6 +648,36 @@ export function useStoryGameState(seed?: string) {
       return;
     }
 
+    // P4/B1: „Episode aufnehmen" — der NPC bietet eine Geschichte an, der Spieler nimmt
+    // sie als aktiven Strang aufs Korkbrett; die Einklink-Aktionen landen auf dem Sendeplan.
+    if (choiceId.startsWith('episode_') && activeNpcId) {
+      const episodeId = choiceId.slice('episode_'.length);
+      const ep = getEpisode(episodeId);
+      const npc = engine.getNPCState(activeNpcId);
+      if (ep && engine.activateEpisode(episodeId)) {
+        playSound('click');
+        setActiveEpisodes(engine.getActiveEpisodes());
+        // Einklink-Aktionen, die verfügbar sind, auf den Sendeplan heften.
+        const pinned = ep.einklink_aktionen
+          .map(id => availableActions.find(a => a.id === id))
+          .filter((a): a is StoryAction => !!a);
+        if (pinned.length > 0) {
+          setActionQueue(prev => [...prev, ...pinned.map(a => buildQueuedAction(a))]);
+        }
+        setCurrentDialog({
+          speaker: npc?.name || activeNpcId,
+          speakerTitle: npc?.role_de,
+          text: `${ep.lage_de}\n\n— ${ep.wendung_de}\n\n(„${ep.titel_de}" liegt jetzt als Strang auf dem Korkbrett.${pinned.length > 0 ? ' Die passenden Maßnahmen sind auf dem Sendeplan.' : ''})`,
+          mood: 'neutral',
+          choices: [
+            { id: 'back_to_npc', text: 'Weiter besprechen' },
+            { id: 'dismiss', text: 'An die Arbeit' },
+          ],
+        });
+      }
+      return;
+    }
+
     // TD-006: Handle NPC topic choices
     if (choiceId.startsWith('topic_') && activeNpcId) {
       const topic = choiceId.replace('topic_', '');
@@ -686,7 +737,9 @@ export function useStoryGameState(seed?: string) {
           id: `topic_${topic}`,
           text: getTopicLabel(topic),
         }));
-        // P1a: kontextuelle Maßnahmen-Angebote dieses NPCs zuerst.
+        // P4/B1: Episoden-Angebote dieses NPCs zuoberst (das „Warum"), dann Maßnahmen.
+        const episodeOffers = buildEpisodeOfferChoices(engine.getOfferableEpisodes(activeNpcId));
+        // P1a: kontextuelle Maßnahmen-Angebote dieses NPCs.
         const actionOffers = buildActionOfferChoices(availableActions, activeNpcId);
 
         setCurrentDialog({
@@ -700,7 +753,8 @@ export function useStoryGameState(seed?: string) {
             npc.currentMood === 'upset' ? 'angry' : 'neutral'
           ),
           voiceAssetId: greetingResult.voiceAssetId,
-          choices: (actionOffers.length > 0 || topicChoices.length > 0) ? [
+          choices: (episodeOffers.length > 0 || actionOffers.length > 0 || topicChoices.length > 0) ? [
+            ...episodeOffers,
             ...actionOffers,
             ...topicChoices,
             { id: 'dismiss', text: 'Auf Wiedersehen' },
@@ -1286,7 +1340,9 @@ export function useStoryGameState(seed?: string) {
       id: `topic_${topic}`,
       text: getTopicLabel(topic),
     }));
-    // P1a: kontextuelle Maßnahmen-Angebote dieses NPCs zuerst (Aktion aus Dialog).
+    // P4/B1: Episoden-Angebote dieses NPCs zuoberst (das „Warum").
+    const episodeOffers = buildEpisodeOfferChoices(engine.getOfferableEpisodes(npcId));
+    // P1a: kontextuelle Maßnahmen-Angebote dieses NPCs (Aktion aus Dialog).
     const actionOffers = buildActionOfferChoices(availableActions, npcId);
 
     setCurrentDialog({
@@ -1297,7 +1353,8 @@ export function useStoryGameState(seed?: string) {
       voiceAssetId: greetingVoiceId,
       npcRecommendation: recommendationText,
       npcBetrayalWarning: betrayalWarning,
-      choices: (actionOffers.length > 0 || topicChoices.length > 0) ? [
+      choices: (episodeOffers.length > 0 || actionOffers.length > 0 || topicChoices.length > 0) ? [
+        ...episodeOffers,
         ...actionOffers,
         ...topicChoices,
         { id: 'dismiss', text: 'Auf Wiedersehen' },
@@ -1446,6 +1503,7 @@ export function useStoryGameState(seed?: string) {
       setNewsEvents(engine.getNewsEvents());
       setObjectives(engine.getObjectives());
       setActiveConsequence(engine.getActiveConsequence());
+      setActiveEpisodes(engine.getActiveEpisodes());
       refreshAvailableActions();
       setGamePhase('playing');
 
@@ -1501,6 +1559,7 @@ export function useStoryGameState(seed?: string) {
     setGameEnd(null);
     setCurrentDialog(null);
     setActiveNpcId(null);
+    setActiveEpisodes(newEngine.getActiveEpisodes());
 
     // Reset trust tracking
     const actors = newEngine.getExtendedActors();
@@ -1556,6 +1615,7 @@ export function useStoryGameState(seed?: string) {
       comboHints,
       carrierStates,
       acquiredKompromat,
+      activeEpisodes,
       getOperationsSummary: () => engine.getOperationsSummary(),
       getActionCatalog: () => engine.getActionCatalog(),
     } as StoryGameState,

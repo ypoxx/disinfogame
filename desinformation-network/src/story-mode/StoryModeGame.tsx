@@ -1007,13 +1007,28 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               npc: state.npcs.find((n) => n.id === a.npcAffinity?.[0])?.name ?? 'Ministerium',
             }))}
             queue={state.actionQueue}
-            threads={(state.comboHints ?? []).map((h) => ({
-              id: h.comboId,
-              name: h.comboName,
-              hint: h.hint_de,
-              progress: h.progress,
-              expiresIn: h.expiresIn,
-            }))}
+            threads={[
+              // P4/B1: aktive Episoden = die Stränge am Korkbrett (das „Warum"). Fortschritt =
+              // Anteil der bereits gespielten Einklink-Aktionen dieser Episode.
+              ...(state.activeEpisodes ?? []).map((ep) => {
+                const total = ep.einklink_aktionen.length || 1;
+                const done = ep.einklink_aktionen.filter((id) => state.completedActions.includes(id)).length;
+                return {
+                  id: ep.id,
+                  name: ep.titel_de,
+                  hint: ep.wendung_de,
+                  progress: done / total,
+                  expiresIn: 99,
+                };
+              }),
+              ...(state.comboHints ?? []).map((h) => ({
+                id: h.comboId,
+                name: h.comboName,
+                hint: h.hint_de,
+                progress: h.progress,
+                expiresIn: h.expiresIn,
+              })),
+            ]}
             resources={{
               budget: state.resources.budget,
               capacity: state.resources.capacity,
