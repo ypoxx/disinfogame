@@ -48,6 +48,8 @@ const ROOM_HINTS = {
     "the player's own modest modern office: a clean desk with a flat computer monitor and a slim telephone, a small stack of files, a corkboard with pinned notes and red string, a wall-mounted flat screen, a chair, a window with city light. Zone lighting: neutral, slightly warm, comfortable",
   cyber_lab:
     'underground cyber operations room: several slim multi-monitor workstations with cyan and blue screen glow, server racks with status LEDs, tidy overhead cable trays, a dark room lit mostly by the screens. Zone lighting: dark, cool, cyan-tinted',
+  operations:
+    'a strategic information-operations command center / war room: a large central situation table with a glowing abstract tactical surface, a curved wall of slim flat screens showing abstract influence-network graphs, abstract regional maps and live campaign dashboards, two standing operator workstations at the sides, a glass status board crossed with coloured strings, indirect ceiling light. Zone lighting: cool-neutral and focused, medium-dark with cool screen glow',
   medien_zentrum:
     'modern media / broadcast monitoring center: a wall of flat screens showing abstract news graphics, a long clean desk, a soft seating corner, a large window with city light, plants, an abstract constructivist poster. Zone lighting: one of the brighter, warmer rooms',
   zentrale:
