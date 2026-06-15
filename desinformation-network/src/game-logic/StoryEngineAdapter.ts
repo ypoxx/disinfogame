@@ -5275,16 +5275,18 @@ export class StoryEngineAdapter {
             ? 'Just in time. The investigators were closing in.'
             : 'You have achieved your objectives. Westunion is destabilized.',
         stats,
+        // G23/G24: fiktiv (keine realen Orte) · G25: Sieg entheroisiert (kein Helden-Empfang,
+        // nur die nächste Akte) — der Lernmoment liegt im End-Report, nicht im Triumph.
         epilogue_de: isDarkVictory
-          ? 'Westunion ist destabilisiert. Moskau ist zufrieden. Doch nachts verfolgen Sie die Gesichter derer, die Sie geopfert haben.'
+          ? 'Westunion ist destabilisiert. Die Zentrale ist zufrieden. Doch nachts verfolgen Sie die Gesichter derer, die Sie geopfert haben.'
           : isNarrowEscape
-            ? 'Sie werden eilig abgezogen. In Moskau werden Sie als Held empfangen - gerade noch rechtzeitig entkommen.'
-            : 'Westunion ist gespalten. Moskau ist zufrieden. Sie werden befördert und kehren als Held heim.',
+            ? 'Sie werden eilig abgezogen. Die Zentrale verbucht es nüchtern als Erfolg — kein Empfang, nur ein neuer Auftrag.'
+            : 'Westunion ist gespalten. Die Zentrale ist zufrieden. Für Sie heißt das vor allem: Die nächste Akte liegt schon auf dem Tisch.',
         epilogue_en: isDarkVictory
-          ? 'Westunion is destabilized. Moscow is pleased. But at night, the faces of those you sacrificed haunt you.'
+          ? 'Westunion is destabilized. The Center is pleased. But at night, the faces of those you sacrificed haunt you.'
           : isNarrowEscape
-            ? 'You are hastily extracted. In Moscow you are received as a hero - escaped just in time.'
-            : 'Westunion is divided. Moscow is pleased. You are promoted and return home as a hero.',
+            ? 'You are hastily extracted. The Center logs it soberly as a success — no reception, just a new assignment.'
+            : 'Westunion is divided. The Center is pleased. For you, that mostly means: the next file is already on the desk.',
       };
     }
 
@@ -5317,8 +5319,8 @@ export class StoryEngineAdapter {
           description_de: 'Sie haben die Zeichen erkannt. Bevor die Schlinge sich zuzieht, setzen Sie sich nach Ostland ab.',
           description_en: 'You recognized the signs. Before the noose tightens, you escape to Ostland.',
           stats,
-          epilogue_de: 'In Ostland werden Sie als Held empfangen. Doch die Schatten Ihrer Taten folgen Ihnen.',
-          epilogue_en: 'In Ostland you are received as a hero. But the shadows of your deeds follow you.',
+          epilogue_de: 'In Ostland nimmt man Sie nüchtern wieder auf. Doch die Schatten Ihrer Taten folgen Ihnen.',
+          epilogue_en: 'In Ostland you are taken back in soberly. But the shadows of your deeds follow you.',
         };
       }
     }

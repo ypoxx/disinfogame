@@ -93,7 +93,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
       );
 
       const message = playerRelationship > 2
-        ? `Moskau ist... unzufrieden. Wir sind bei ${(trustProgress * 100).toFixed(0)}% Zielerreichung, ` +
+        ? `Die Zentrale ist... unzufrieden. Wir sind bei ${(trustProgress * 100).toFixed(0)}% Zielerreichung, ` +
           `aber bereits ${(phaseProgress * 100).toFixed(0)}% der Zeit verbraucht. ` +
           `Effizienz: ${(efficiency * 100).toFixed(0)}%. Das ist inakzeptabel. ` +
           `Radikalere Maßnahmen sind erforderlich - JETZT.`
@@ -103,7 +103,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
         `\nPrimary Objective (Trust Reduction): ${(trustProgress * 100).toFixed(0)}% complete` +
         `\nTime Elapsed: ${(phaseProgress * 100).toFixed(0)}% (Phase ${currentPhase}/${maxPhases})` +
         `\nEfficiency Ratio: ${(efficiency * 100).toFixed(0)}% (Target: >80%)` +
-        `\nMoskau Expectation: Progress ≥ 0.8 * Time` +
+        `\nZentrale Expectation: Progress ≥ 0.8 * Time` +
         `\nCurrent performance below acceptable threshold. Escalation required.`;
 
       return {
@@ -351,7 +351,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
         return {
           formalMessage: `Halbzeit. Trust bei ${(trustProgress * 100).toFixed(0)}%, Risiko bei ${currentRisk.toFixed(0)}%.`,
           personalMessage: `Halbzeit, Genosse. Trust-Reduktion bei ${(trustProgress * 100).toFixed(0)}%, Risiko ${currentRisk.toFixed(0)}%. ` +
-            `Moskau ist ${trustProgress > 0.3 ? 'zufrieden' : 'ungeduldig'}. ` +
+            `Die Zentrale ist ${trustProgress > 0.3 ? 'zufrieden' : 'ungeduldig'}. ` +
             `Die zweite Hälfte wird härter - Verteidiger werden aktiver.`,
           detailedAnalysis: `Mid-Campaign Assessment (Phase 40/120):` +
             `\nObjective Progress: ${(trustProgress * 100).toFixed(0)}% (Target: >30%)` +
@@ -369,7 +369,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
         return {
           formalMessage: `Phase 60. Progress: ${(trustProgress * 100).toFixed(0)}%. Risiko: ${currentRisk.toFixed(0)}%.`,
           personalMessage: `Jahr 5 abgeschlossen. ${(trustProgress * 100).toFixed(0)}% Zielerreichung, ${currentRisk.toFixed(0)}% Risiko. ` +
-            `${trustProgress > 0.5 ? 'Exzellent. Moskau ist sehr zufrieden.' : 'Fortschritt unzureichend. Druck steigt.'}`,
+            `${trustProgress > 0.5 ? 'Exzellent. Die Zentrale ist sehr zufrieden.' : 'Fortschritt unzureichend. Druck steigt.'}`,
           detailedAnalysis: `Year 5 Strategic Review:` +
             `\nProgress: ${(trustProgress * 100).toFixed(0)}% (Target: >50%)` +
             `\nRisk: ${currentRisk.toFixed(0)}%` +

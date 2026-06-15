@@ -97,7 +97,7 @@ const MORAL_REFLECTIONS: Record<string, string[]> = {
   high: [
     'Die Spuren Ihrer Arbeit sind tief. Leben wurden zerstört, Gesellschaften gespalten.',
     'Sie haben bewiesen, wie effektiv Desinformation sein kann - zu welchem Preis?',
-    'Moskau ist zufrieden. Können Sie das Gleiche von sich behaupten?',
+    'Die Zentrale ist zufrieden. Können Sie das Gleiche von sich behaupten?',
   ],
   extreme: [
     'Sie haben Grenzen überschritten, die nie hätten überschritten werden dürfen.',

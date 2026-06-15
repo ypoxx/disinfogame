@@ -315,8 +315,8 @@ export class StoryNarrativeGenerator {
       },
       volkov: {
         positive: {
-          de: 'Volkov grinst. "Das wird Moskau gefallen."',
-          en: 'Volkov grins. "Moscow will be pleased."',
+          de: 'Volkov grinst. "Das wird der Zentrale gefallen."',
+          en: 'Volkov grins. "The Center will be pleased."',
         },
         negative: {
           de: 'Volkov zuckt mit den Schultern. "Zu viel Risiko für zu wenig Gewinn."',
