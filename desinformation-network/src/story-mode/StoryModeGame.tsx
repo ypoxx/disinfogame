@@ -942,12 +942,15 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 volume: Math.round(seg.belief * 100),
                 rising: seg.mood === 'wuetend' || seg.mood === 'misstrauisch',
               }))}
-            gegenseite={deriveGegenseite({
-              attention: state.resources.attention,
-              risk: state.resources.risk,
-              carriersBurned: state.getOperationsSummary().carriersBurned,
-              phase: state.storyPhase.number,
-            })}
+            gegenseite={{
+              ...deriveGegenseite({
+                attention: state.resources.attention,
+                risk: state.resources.risk,
+                carriersBurned: state.getOperationsSummary().carriersBurned,
+                phase: state.storyPhase.number,
+              }),
+              portraitId: 'portrait_factcheckerin',
+            }}
             onClose={() => setShowNewsroom(false)}
           />
         )}

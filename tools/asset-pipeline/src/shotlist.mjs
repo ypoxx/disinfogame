@@ -303,6 +303,11 @@ const PLAYER_PORTRAITS = [
   ['portrait_player_f3', 'an experienced woman around 60, grey blazer, silver bun, calm calculating gaze'],
 ];
 
+// Erzählerische Gegenseite (P6/C9): Köpfe der Aufklärung für den Newsroom.
+const GEGENSEITE_PORTRAITS = [
+  ['portrait_factcheckerin', 'a Westunion fact-checker woman in her 40s, tired but determined, simple knit cardigan, plain glasses, modest professional look, NOT a politician'],
+];
+
 // Pixel-Icon-Set (E30: ersetzt Emojis; einzelne Objekte, Chroma, 1:1).
 const ICONS = [
   ['icon_budget', 'a small stack of banknotes with a coin'],
@@ -608,6 +613,22 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       type: 'image',
       kind: 'portrait',
       priority: 'must',
+      aspectRatio: '1:1',
+      size: { w: 1024, h: 1024 },
+      seed: seedFor(id),
+      prompt:
+        `A pixel art character portrait, head and shoulders, facing slightly left, neutral expression. ` +
+        `${hint}. Plain dark concrete wall background. No text. ${style}`,
+    });
+  }
+
+  // --- Erzählerische Gegenseite (P6/C9): Newsroom-Köpfe ---
+  for (const [id, hint] of GEGENSEITE_PORTRAITS) {
+    shots.push({
+      id,
+      type: 'image',
+      kind: 'portrait',
+      priority: 'nice',
       aspectRatio: '1:1',
       size: { w: 1024, h: 1024 },
       seed: seedFor(id),

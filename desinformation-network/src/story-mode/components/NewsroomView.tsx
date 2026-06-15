@@ -37,6 +37,8 @@ export interface GegenseitePanel {
   awareness: number;   // 0..1
   format_de: string;
   lines: string[];
+  /** Optionaler Kopf der Gegenseite (Asset-ID, z. B. 'portrait_factcheckerin'). */
+  portraitId?: string;
 }
 
 export interface NewsroomViewProps {
@@ -653,11 +655,29 @@ export function NewsroomView({
                     Aufklärung {Math.round(gegenseite.awareness * 100)}%
                   </span>
                 </div>
-                {gegenseite.lines.map((line, i) => (
-                  <p key={i} style={{ margin: '2px 0', fontSize: 11, lineHeight: 1.4, color: StoryModeColors.textPrimary }}>
-                    {line}
-                  </p>
-                ))}
+                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                  {gegenseite.portraitId && assets.imageUrl(gegenseite.portraitId) && (
+                    <img
+                      src={assets.imageUrl(gegenseite.portraitId)!}
+                      alt="Faktencheckerin"
+                      style={{
+                        width: 40,
+                        height: 40,
+                        objectFit: 'cover',
+                        flexShrink: 0,
+                        border: `1px solid ${StoryModeColors.agencyBlue}`,
+                        imageRendering: 'pixelated',
+                      }}
+                    />
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    {gegenseite.lines.map((line, i) => (
+                      <p key={i} style={{ margin: '2px 0', fontSize: 11, lineHeight: 1.4, color: StoryModeColors.textPrimary }}>
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
 
