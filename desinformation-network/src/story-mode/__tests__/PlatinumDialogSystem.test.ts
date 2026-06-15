@@ -226,7 +226,7 @@ describe('Platinum Dialog System', () => {
 
       expect(resolved).not.toContain('{budget_value}');
       expect(resolved).toContain('2500');
-      expect(resolved).toContain('Rubel');
+      expect(resolved).toContain('Taler'); // fiktive Währung (P0-7: kein reales „Rubel")
     });
 
     it('should resolve risk_value insert', () => {

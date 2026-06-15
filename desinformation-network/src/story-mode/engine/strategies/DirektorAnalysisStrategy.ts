@@ -333,6 +333,22 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
     const trustProgress = gameState.objectives.find(o => o.type === 'trust_reduction')?.progress || 0;
     const currentRisk = gameState.resources.risk;
 
+    // P0-5: Empfehlungen aus den TATSÄCHLICH verfügbaren Aktionen ableiten (statt hartkodierter,
+    // nicht-existenter `ta##`-IDs, die im AdvisorDetailModal als tote Klick-Buttons landeten).
+    const active = gameState.availableActions.filter(a => !a.tags.includes('passive'));
+    const aggressivePicks = active
+      .filter(a => (a.costs.risk ?? 0) > 2)
+      .sort((a, b) => (b.costs.risk ?? 0) - (a.costs.risk ?? 0))
+      .slice(0, 3)
+      .map(a => a.id);
+    const cautiousPicks = active
+      .filter(a => (a.costs.risk ?? 0) <= 2)
+      .slice(0, 3)
+      .map(a => a.id);
+    // Fallbacks, falls ein Pool leer ist — nie eine tote ID zurückgeben.
+    const aggressive = aggressivePicks.length ? aggressivePicks : active.slice(0, 3).map(a => a.id);
+    const cautious = cautiousPicks.length ? cautiousPicks : active.slice(0, 3).map(a => a.id);
+
     switch (milestone) {
       case 20:
         return {
@@ -343,14 +359,14 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
             `\nTrust Progress: ${(trustProgress * 100).toFixed(0)}% (Target: >15%)` +
             `\nRisk Level: ${currentRisk.toFixed(0)}% (Target: <40%)` +
             `\nNext Phase: Expansion - build on foundation, increase reach and infrastructure.`,
-          recommendations: ['ta02_server_network', 'ta03_content_creation', 'ta04_distribution'],
+          recommendations: cautious,
           tone: 'neutral',
         };
 
       case 40:
         return {
           formalMessage: `Halbzeit. Trust bei ${(trustProgress * 100).toFixed(0)}%, Risiko bei ${currentRisk.toFixed(0)}%.`,
-          personalMessage: `Halbzeit, Genosse. Trust-Reduktion bei ${(trustProgress * 100).toFixed(0)}%, Risiko ${currentRisk.toFixed(0)}%. ` +
+          personalMessage: `Halbzeit, Operateur. Trust-Reduktion bei ${(trustProgress * 100).toFixed(0)}%, Risiko ${currentRisk.toFixed(0)}%. ` +
             `Die Zentrale ist ${trustProgress > 0.3 ? 'zufrieden' : 'ungeduldig'}. ` +
             `Die zweite Hälfte wird härter - Verteidiger werden aktiver.`,
           detailedAnalysis: `Mid-Campaign Assessment (Phase 40/120):` +
@@ -359,9 +375,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
             `\nTrend: ${trustProgress > 0.3 ? 'On track' : 'Behind schedule'}` +
             `\nChallenges Ahead: Defensive countermeasures increasing, detection risk rising.` +
             `\nRecommendation: ${trustProgress > 0.3 ? 'Maintain momentum' : 'Accelerate operations'} while strengthening security.`,
-          recommendations: trustProgress > 0.3
-            ? ['ta06_political_leverage', 'ta08_operational_security']
-            : ['ta07_aggressive_narrative', 'ta06_infiltration'],
+          recommendations: trustProgress > 0.3 ? cautious : aggressive,
           tone: trustProgress > 0.3 ? 'enthusiastic' : 'urgent',
         };
 
@@ -376,9 +390,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
             `\nStatus: ${trustProgress > 0.5 ? 'Ahead of schedule' : 'Behind target'}` +
             `\nRemaining Time: 60 phases (5 years)` +
             `\n${trustProgress > 0.5 ? 'Maintain pressure, prepare for final push.' : 'Escalation required, consider high-risk/high-reward operations.'}`,
-          recommendations: trustProgress > 0.5
-            ? ['ta08_consolidate', 'ta09_economic_warfare']
-            : ['ta07_radical_narrative', 'ta06_deep_infiltration'],
+          recommendations: trustProgress > 0.5 ? cautious : aggressive,
           tone: trustProgress > 0.5 ? 'enthusiastic' : 'concerned',
         };
 
@@ -392,7 +404,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
             `\nRequired Progress: ${((1.0 - trustProgress) * 100).toFixed(0)}% in 40 phases` +
             `\nRequired Rate: ${(((1.0 - trustProgress) / 40) * 100).toFixed(2)}% per phase` +
             `\n${trustProgress > 0.7 ? 'Victory achievable with current tempo.' : 'Must accelerate significantly to achieve objective.'}`,
-          recommendations: ['ta09_final_operations', 'ta08_all_in'],
+          recommendations: aggressive,
           tone: trustProgress > 0.7 ? 'enthusiastic' : 'urgent',
         };
 
@@ -406,7 +418,7 @@ export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
             `\nTarget: 100%` +
             `\nGap: ${((1.0 - trustProgress) * 100).toFixed(0)}%` +
             `\n${trustProgress > 0.85 ? 'Maintain course to victory.' : 'Desperate measures may be required.'}`,
-          recommendations: ['all_available_aggressive_actions'],
+          recommendations: aggressive,
           tone: trustProgress > 0.85 ? 'enthusiastic' : 'urgent',
         };
 

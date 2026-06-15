@@ -114,12 +114,14 @@ export function deriveBriefingHint(s: BriefingState): BriefingHint {
   if (s.trustProgress < 0.4) {
     return {
       problem: `Beim Vertrauensbruch kommen wir kaum voran — erst ${trustPct} % des Ziels.`,
-      pointer: 'Holen Sie sich bei Marina im Medien-Zentrum eine schärfere Linie für unsere Narrative.',
+      // P0-4: P2-Schlachtfeld auffindbar machen — der Direktor verweist auf die Operationszentrale (Etage 4).
+      pointer: 'Holen Sie sich bei Marina im Medien-Zentrum eine schärfere Linie — und eskalieren Sie gezielt: in der Operationszentrale (Etage 4) setzen Sie eine Operation gegen eine Schlüsselfigur auf.',
     };
   }
   return {
     problem: `Die Lage läuft für uns — ${trustPct} % des Ziels sind erreicht.`,
-    pointer: 'Halten Sie das Tempo. Marina im Medien-Zentrum hat sicher schon den nächsten Hebel.',
+    // P0-4: auch in guter Lage bleibt die Operationszentrale (Etage 4) als Eskalations-Hebel sichtbar.
+    pointer: 'Halten Sie das Tempo. Marina im Medien-Zentrum hat den nächsten Hebel — und in der Operationszentrale (Etage 4) warten gezielte Operationen gegen Schlüsselfiguren.',
   };
 }
 

@@ -682,6 +682,13 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               }}
               methodsUsed={methodsUsed}
               operationsSummary={opsSummary}
+              endingStyle={state.gameEnd.assembledEnding ? {
+                category: state.gameEnd.assembledEnding.category,
+                tone: state.gameEnd.assembledEnding.tone,
+                narrative_de: state.gameEnd.assembledEnding.fullNarrative_de,
+                // replayHints interleaven de/en → gerade Indizes = deutsch
+                replayHints_de: state.gameEnd.assembledEnding.replayHints.filter((_, i) => i % 2 === 0),
+              } : undefined}
               onClose={() => setShowEndReport(false)}
             />
           );
@@ -1118,6 +1125,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             npcs={state.npcs}
             unreadNewsCount={state.unreadNewsCount}
             worldEventCount={worldEventCount}
+            vertrauen={state.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100}
+            auftrag={{ titel_de: state.engine.getAuftrag().titel_de, progress: state.engine.getAuftragProgress() }}
             onClose={() => setShowLagebild(false)}
           />
         )}

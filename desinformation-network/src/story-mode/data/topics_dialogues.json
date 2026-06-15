@@ -196,8 +196,8 @@
         },
         {
           "id": "topic_resources_intro_3",
-          "text_de": "Jeder Rubel muss Rechenschaft ablegen. Keine Verschwendung.",
-          "text_en": "Every ruble must be accounted for. No waste.",
+          "text_de": "Jeder Taler muss Rechenschaft ablegen. Keine Verschwendung.",
+          "text_en": "Every taler must be accounted for. No waste.",
           "tone": "strict",
           "probability": 0.4,
           "phase_range": [1, 120],
@@ -1028,12 +1028,12 @@
       ]
     },
     "budget": {
-      "core_message": "Jeder Rubel muss Rechenschaft ablegen",
+      "core_message": "Jeder Taler muss Rechenschaft ablegen",
       "intro": [
         {
           "id": "topic_budget_intro_1",
-          "text_de": "Jeder Rubel muss Rechenschaft ablegen. Das Budget ist {budget_state} mit {budget_value}.",
-          "text_en": "Every ruble must be accounted for. Budget is {budget_state} at {budget_value}.",
+          "text_de": "Jeder Taler muss Rechenschaft ablegen. Das Budget ist {budget_state} mit {budget_value}.",
+          "text_en": "Every taler must be accounted for. Budget is {budget_state} at {budget_value}.",
           "tone": "strict",
           "probability": 0.6,
           "phase_range": [1, 120],

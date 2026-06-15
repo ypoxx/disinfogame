@@ -12,16 +12,20 @@ P1 = großer Qualitätssprung · P2 = Politur & Assets (Budget) · P3 = Aufräum
 
 ## 🔴 P0 — Erst diese (höchster Hebel, Engine ist da)
 
+> **✅ Alle 8 P0-Posten umgesetzt** (Branch `claude/eager-curie-2m5kej`, Gate grün: `tsc 0` · `vitest 389` · `build`).
+> Welt-Fiktion-Entscheidung des Owners eingearbeitet: NPC-Namen + Plattformnamen **bleiben**; nur die harten
+> Staatssymbol-Lecks getilgt (Stalin/Genosse/NATO/Rubel→Taler/„Amerikaner"→Westunion/Gelbe Westen).
+
 | # | Posten | Quelle | Beleg | Kosten |
 |---|---|---|---|---|
-| P0-1 | **Episoden im Spiel abschließen** — `completeEpisode()` wird live NIE aufgerufen (nur Tests). Im Hook nach jeder Aktion prüfen, ob alle `einklink_aktionen` einer aktiven Episode gespielt sind → `engine.completeEpisode(id)` + Abschluss-Beat. Erst dann feuern `wirkt_auf` + End-Report-Lernmoment. | B4, verifiziert | `StoryEngineAdapter.ts:3626`; `useStoryGameState.ts:658` | Code (M) |
-| P0-2 | **Reiches EndingSystem verdrahten** — bei Spielende `evaluateEnding()` aufrufen; Kategorie/Tonalität durchreichen. Verwandelt 4 Strings in 8×7 state-getriebene Enden. | B1, verifiziert | `StoryEngineAdapter.ts:5830/5905` (tot) vs. `checkGameEnd` live | Code (S–M) |
-| P0-3 | **Herzstück sichtbar machen** — Society-Werte + Auftrags-Fortschritt ins **Lagebild** (heute keine davon); HUD-„GESELLSCHAFT" nicht der einzige (default-aus) Ort. | B4 | `LagebildView.tsx:17`; `StoryHUD.tsx:497` | Code (S) |
-| P0-4 | **P2-Schlachtfeld auffindbar machen** — Direktor-Hinweis/Pflicht-Episode „Operationszentrale, Etage 4" + `deriveBriefingHint` um Ops-Pointer erweitern. | B4 | `MorningBriefing.tsx:94`; Raum `operations` | Code (S) |
-| P0-5 | **Advisor-Empfehlungen auf reale Aktionen** — `DirektorAnalysisStrategy` schlägt nicht-existente `ta02_server_network`/`ta08_all_in`… vor → tote Klicks im player-sichtbaren Modal. Auf `getAvailableActions()` umstellen. | B3 | `DirektorAnalysisStrategy.ts:346,395,409`; `AdvisorDetailModal.tsx:245` | Code (S) |
-| P0-6 | **Farbemojis aus `headline_de`** (9×) — landen sichtbar in Broadcast/Newsroom/DayReport. Text-Präfix statt Emoji. | A1 | `StoryEngineAdapter.ts:1672,1771,1826,1865,1887,1909,1953,1981,3242` | Code (XS) |
-| P0-7 | **Reale-Symbol-Reste tilgen** (player-sichtbar) — Stalin, „Amerikaner", Genosse (2×), Rubel (5×, **Test lösen** `PlatinumDialogSystem.test.ts:229`), NATO, Gelbe Westen. | B2, B3 | `dialogues.json:434,428`; `TutorialOverlay.tsx:219`; `DirektorAnalysisStrategy.ts:353`; `topics_dialogues.json:199,1035`; `world-events.json:370,233` | Content (S) |
-| P0-8 | **`AdvisorPanel` Priority-Icon** — `getPriorityEmoji()` gibt leere Strings → sichtbares UI-Loch. `Icon`-Bauteil je Level. | A1 | `AdvisorRecommendation.ts:404–409` | Code (XS) |
+| ✅ P0-1 | **Episoden im Spiel abschließen** — `completeEpisode()` wird live NIE aufgerufen (nur Tests). Im Hook nach jeder Aktion prüfen, ob alle `einklink_aktionen` einer aktiven Episode gespielt sind → `engine.completeEpisode(id)` + Abschluss-Beat. Erst dann feuern `wirkt_auf` + End-Report-Lernmoment. | B4, verifiziert | `StoryEngineAdapter.ts:3626`; `useStoryGameState.ts:658` | Code (M) |
+| ✅ P0-2 | **Reiches EndingSystem verdrahten** — bei Spielende `evaluateEnding()` aufrufen; Kategorie/Tonalität durchreichen. Verwandelt 4 Strings in 8×7 state-getriebene Enden. | B1, verifiziert | `StoryEngineAdapter.ts:5830/5905` (tot) vs. `checkGameEnd` live | Code (S–M) |
+| ✅ P0-3 | **Herzstück sichtbar machen** — Society-Werte + Auftrags-Fortschritt ins **Lagebild** (heute keine davon); HUD-„GESELLSCHAFT" nicht der einzige (default-aus) Ort. | B4 | `LagebildView.tsx:17`; `StoryHUD.tsx:497` | Code (S) |
+| ✅ P0-4 | **P2-Schlachtfeld auffindbar machen** — Direktor-Hinweis/Pflicht-Episode „Operationszentrale, Etage 4" + `deriveBriefingHint` um Ops-Pointer erweitern. | B4 | `MorningBriefing.tsx:94`; Raum `operations` | Code (S) |
+| ✅ P0-5 | **Advisor-Empfehlungen auf reale Aktionen** — `DirektorAnalysisStrategy` schlägt nicht-existente `ta02_server_network`/`ta08_all_in`… vor → tote Klicks im player-sichtbaren Modal. Auf `getAvailableActions()` umstellen. | B3 | `DirektorAnalysisStrategy.ts:346,395,409`; `AdvisorDetailModal.tsx:245` | Code (S) |
+| ✅ P0-6 | **Farbemojis aus `headline_de`** (9×) — landen sichtbar in Broadcast/Newsroom/DayReport. Text-Präfix statt Emoji. | A1 | `StoryEngineAdapter.ts:1672,1771,1826,1865,1887,1909,1953,1981,3242` | Code (XS) |
+| ✅ P0-7 | **Reale-Symbol-Reste tilgen** (player-sichtbar) — Stalin, „Amerikaner", Genosse (2×), Rubel (5×, **Test lösen** `PlatinumDialogSystem.test.ts:229`), NATO, Gelbe Westen. | B2, B3 | `dialogues.json:434,428`; `TutorialOverlay.tsx:219`; `DirektorAnalysisStrategy.ts:353`; `topics_dialogues.json:199,1035`; `world-events.json:370,233` | Content (S) |
+| ✅ P0-8 | **`AdvisorPanel` Priority-Icon** — `getPriorityEmoji()` gibt leere Strings → sichtbares UI-Loch. `Icon`-Bauteil je Level. | A1 | `AdvisorRecommendation.ts:404–409` | Code (XS) |
 
 ---
 

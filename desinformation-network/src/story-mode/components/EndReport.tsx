@@ -58,9 +58,29 @@ export interface EndReportProps {
     kompromatAcquired: number;
     carriersBurned: number;
   };
+  /**
+   * P0-2: state-getriebenes Ende (8 Kategorien × 7 Tonalitäten) aus dem EndingSystem.
+   * Optional/rückwärtskompatibel — liefert Spielstil-Bewertung + Wiederspiel-Hinweise.
+   */
+  endingStyle?: {
+    category: string;
+    tone: string;
+    narrative_de: string;
+    replayHints_de: string[];
+  };
   /** Schließen-Callback */
   onClose: () => void;
 }
+
+/** Deutsche Labels für die EndingSystem-Kategorien/Tonalitäten (P0-2). */
+const ENDING_CATEGORY_DE: Record<string, string> = {
+  exposure: 'Enttarnung', victory: 'Triumph', pyrrhic: 'Pyrrhussieg', escape: 'Flucht',
+  collapse: 'Kollaps', redemption: 'Umkehr', stalemate: 'Patt', continuation: 'Hängepartie',
+};
+const ENDING_TONE_DE: Record<string, string> = {
+  triumphant: 'triumphal', bittersweet: 'bittersüß', tragic: 'tragisch', haunting: 'nachhallend',
+  hopeful: 'hoffnungsvoll', dark: 'düster', ambiguous: 'ambivalent',
+};
 
 // ============================================
 // HILFS-TYPEN
@@ -800,6 +820,7 @@ export function EndReport({
   finalResources,
   methodsUsed,
   operationsSummary,
+  endingStyle,
   onClose,
 }: EndReportProps) {
   const [expanded, setExpanded] = useState(true);
@@ -922,6 +943,90 @@ export function EndReport({
 
         {/* ── INHALT ── */}
         <div style={{ padding: '20px 24px' }}>
+
+          {/* ── P0-2: SPIELSTIL-BEWERTUNG (state-getriebenes Ende) ── */}
+          {endingStyle && (
+            <>
+              <SectionHeading>Spielstil-Bewertung</SectionHeading>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '6px',
+                  marginBottom: '8px',
+                  flexWrap: 'wrap',
+                }}
+              >
+                {[
+                  ENDING_CATEGORY_DE[endingStyle.category] ?? endingStyle.category,
+                  ENDING_TONE_DE[endingStyle.tone] ?? endingStyle.tone,
+                ].map((chip) => (
+                  <span
+                    key={chip}
+                    style={{
+                      fontSize: '10px',
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      color: StoryModeColors.textPrimary,
+                      backgroundColor: StoryModeColors.background,
+                      border: `1px solid ${StoryModeColors.borderLight}`,
+                      padding: '2px 8px',
+                    }}
+                  >
+                    {chip}
+                  </span>
+                ))}
+              </div>
+              {endingStyle.narrative_de && (
+                <p
+                  style={{
+                    fontSize: '12px',
+                    lineHeight: 1.6,
+                    color: StoryModeColors.textPrimary,
+                    whiteSpace: 'pre-line',
+                    margin: '0 0 8px',
+                  }}
+                >
+                  {endingStyle.narrative_de}
+                </p>
+              )}
+              {endingStyle.replayHints_de.length > 0 && (
+                <div
+                  style={{
+                    backgroundColor: StoryModeColors.background,
+                    border: `1px solid ${StoryModeColors.borderLight}`,
+                    padding: '8px 10px',
+                    marginBottom: '4px',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: '10px',
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      color: StoryModeColors.textSecondary,
+                      marginBottom: '4px',
+                    }}
+                  >
+                    Beim nächsten Mal
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: '16px' }}>
+                    {endingStyle.replayHints_de.map((hint, i) => (
+                      <li
+                        key={i}
+                        style={{
+                          fontSize: '11px',
+                          color: StoryModeColors.textPrimary,
+                          marginBottom: '2px',
+                        }}
+                      >
+                        {hint}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
+          )}
 
           {/* ── 2. VERLAUFS-DIAGRAMM ── */}
           <SectionHeading>Vertrauensverlauf</SectionHeading>

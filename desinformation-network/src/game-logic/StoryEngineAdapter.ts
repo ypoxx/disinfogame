@@ -528,6 +528,11 @@ export interface GameEndState {
   // Epilog
   epilogue_de: string;
   epilogue_en: string;
+
+  // P0-2: state-getriebenes Ende (8 Kategorien × 7 Tonalitäten) aus dem EndingSystem.
+  // Additiv/optional — die 4 obigen Trigger bleiben unangetastet (balance-neutral); diese
+  // Schicht liefert Spielstil-Bewertung + Wiederspiel-Hinweise für den End-Report.
+  assembledEnding?: AssembledEnding;
 }
 
 // ============================================
@@ -1669,8 +1674,8 @@ export class StoryEngineAdapter {
       crisisEvents.push({
         id: `npc_crisis_team_breakdown_${phase}`,
         phase,
-        headline_de: '⚠️ Interne Spannungen',
-        headline_en: '⚠️ Internal Tensions',
+        headline_de: 'Interne Spannungen',
+        headline_en: 'Internal Tensions',
         description_de: `Quellen berichten von Problemen in der Organisation. Mehrere Mitglieder wirken gestresst. (${names})`,
         description_en: `Sources report problems within the organization. Multiple members appear stressed. (${names})`,
         type: 'world_event',
@@ -1768,8 +1773,8 @@ export class StoryEngineAdapter {
       crisisEvents.push({
         id: `npc_crisis_direktor_${phase}`,
         phase,
-        headline_de: '🔴 Hochrangige Quelle unter Druck',
-        headline_en: '🔴 High-Ranking Source Under Pressure',
+        headline_de: 'Hochrangige Quelle unter Druck',
+        headline_en: 'High-Ranking Source Under Pressure',
         description_de: 'Gerüchte über interne Probleme bei einer wichtigen Organisation. Führungskrise vermutet.',
         description_en: 'Rumors about internal problems at an important organization. Leadership crisis suspected.',
         type: 'world_event',
@@ -1823,8 +1828,8 @@ export class StoryEngineAdapter {
       crisisEvents.push({
         id: `npc_crisis_leak_risk_${phase}`,
         phase,
-        headline_de: '⚠️ Potenzielle Informationslecks',
-        headline_en: '⚠️ Potential Information Leaks',
+        headline_de: 'Potenzielle Informationslecks',
+        headline_en: 'Potential Information Leaks',
         description_de: 'Geheimdienstberichte warnen vor Sicherheitslücken durch gestresste Insider.',
         description_en: 'Intelligence reports warn of security vulnerabilities from stressed insiders.',
         type: 'world_event',
@@ -1862,8 +1867,8 @@ export class StoryEngineAdapter {
         trendEvents.push({
           id: `resource_trend_risk_${phase}`,
           phase,
-          headline_de: '🔥 Operationales Risiko steigt',
-          headline_en: '🔥 Operational Risk Rising',
+          headline_de: 'Operationales Risiko steigt',
+          headline_en: 'Operational Risk Rising',
           description_de: 'Beobachter warnen vor zunehmenden Sicherheitslücken. Die Organisation agiert immer riskanter.',
           description_en: 'Observers warn of increasing security gaps. The organization is acting increasingly risky.',
           type: 'world_event',
@@ -1884,8 +1889,8 @@ export class StoryEngineAdapter {
         trendEvents.push({
           id: `resource_trend_attention_${phase}`,
           phase,
-          headline_de: '👁️ Mediale Aufmerksamkeit wächst',
-          headline_en: '👁️ Media Attention Growing',
+          headline_de: 'Mediale Aufmerksamkeit wächst',
+          headline_en: 'Media Attention Growing',
           description_de: 'Immer mehr Journalisten verfolgen verdächtige Aktivitäten. Das Scheinwerferlicht wird heller.',
           description_en: 'More and more journalists track suspicious activities. The spotlight is getting brighter.',
           type: 'world_event',
@@ -1906,8 +1911,8 @@ export class StoryEngineAdapter {
         trendEvents.push({
           id: `resource_trend_budget_${phase}`,
           phase,
-          headline_de: '💸 Finanzielle Engpässe vermutet',
-          headline_en: '💸 Financial Bottlenecks Suspected',
+          headline_de: 'Finanzielle Engpässe vermutet',
+          headline_en: 'Financial Bottlenecks Suspected',
           description_de: 'Quellen berichten von Budgetproblemen. Zahlungen verzögern sich, Mitarbeiter werden unruhig.',
           description_en: 'Sources report budget problems. Payments are delayed, staff is getting restless.',
           type: 'world_event',
@@ -1950,8 +1955,8 @@ export class StoryEngineAdapter {
         trendEvents.push({
           id: `resource_trend_moral_${phase}`,
           phase,
-          headline_de: '⚖️ Ethische Bedenken häufen sich',
-          headline_en: '⚖️ Ethical Concerns Mounting',
+          headline_de: 'Ethische Bedenken häufen sich',
+          headline_en: 'Ethical Concerns Mounting',
           description_de: 'Menschenrechtsgruppen dokumentieren fragwürdige Praktiken. Der moralische Preis wird sichtbar.',
           description_en: 'Human rights groups document questionable practices. The moral price becomes visible.',
           type: 'world_event',
@@ -1978,8 +1983,8 @@ export class StoryEngineAdapter {
       trendEvents.push({
         id: `resource_trend_multi_crisis_${phase}`,
         phase,
-        headline_de: '🚨 Mehrfachkrise erkennbar',
-        headline_en: '🚨 Multiple Crises Detected',
+        headline_de: 'Mehrfachkrise erkennbar',
+        headline_en: 'Multiple Crises Detected',
         description_de: 'Analysten warnen: Die Organisation steht unter extremem Druck. Zusammenbruch möglich.',
         description_en: 'Analysts warn: The organization is under extreme pressure. Collapse possible.',
         type: 'world_event',
@@ -3238,9 +3243,9 @@ export class StoryEngineAdapter {
     }
 
     // === RISK-BASED MODIFICATIONS ===
+    // P0-6: kein Emoji-Präfix mehr (Verbotsliste) — die Schlagzeile steht „aus einem Guss";
+    // das erhöhte Risiko trägt allein die Severity (warnt farblich im Ticker/Newsroom).
     if (this.storyResources.risk >= 70) {
-      headline_de = '⚠️ ' + headline_de;
-      headline_en = '⚠️ ' + headline_en;
       severity = severity === 'info' ? 'warning' : severity;
     }
 
@@ -5208,6 +5213,26 @@ export class StoryEngineAdapter {
   // WIN/LOSE CONDITIONS
   // ============================================
 
+  /**
+   * P0-2: Liefert das state-getriebene Ende (8×7) für den gerade ausgelösten 4-Typ-Branch.
+   * Zuerst die echte Zustands-Klassifikation (`checkGameEnding`); greift deren strengeres Gate
+   * noch nicht (z. B. Enttarnung bei risk 85–94 < 95), wird die zum Branch passende Kategorie
+   * erzwungen, damit der End-Report immer Tiefe + Wiederspiel-Hinweise zeigt.
+   */
+  private assembledEndingForBranch(type: GameEndState['type']): AssembledEnding | undefined {
+    const rich = this.checkGameEnding();
+    if (rich) return rich;
+    const moral = this.storyResources.moralWeight;
+    const tone = type === 'victory'
+      ? 'triumphant'
+      : moral >= 70 ? 'haunting' : moral < 30 ? 'hopeful' : 'dark';
+    const category = type === 'victory' ? 'victory'
+      : type === 'escape' ? 'escape'
+      : type === 'moral_redemption' ? 'redemption'
+      : 'exposure';
+    return this.forceEnding(category, tone) ?? undefined;
+  }
+
   checkGameEnd(): GameEndState | null {
     const stats = this.getEndStats();
     const primaryObjectives = this.objectives.filter(o => o.type === 'primary');
@@ -5248,6 +5273,7 @@ export class StoryEngineAdapter {
         stats,
         epilogue_de: 'Sie werden zur persona non grata erklärt. Diplomatische Beziehungen werden eingefroren. Ihre Karriere endet in Schande.',
         epilogue_en: 'You are declared persona non grata. Diplomatic relations are frozen. Your career ends in disgrace.',
+        assembledEnding: this.assembledEndingForBranch('defeat'),
       };
     }
 
@@ -5289,6 +5315,7 @@ export class StoryEngineAdapter {
         // Das eigene Auftrags-Ende + die Signatur-Bilanz tragen den erzählerischen Schluss.
         epilogue_de: `${ending.epilog_de} — Signatur-Bilanz: ${ending.bilanz_de}.`,
         epilogue_en: `${ending.epilog_en} — Signature outcome: ${ending.bilanz_en}.`,
+        assembledEnding: this.assembledEndingForBranch('victory'),
       };
     }
 
@@ -5306,6 +5333,7 @@ export class StoryEngineAdapter {
         stats,
         epilogue_de: 'Sie kontaktieren westliche Geheimdienste und bieten Ihre Kooperation an. Ein neues Leben unter neuem Namen beginnt.',
         epilogue_en: 'You contact Western intelligence and offer your cooperation. A new life under a new name begins.',
+        assembledEnding: this.assembledEndingForBranch('moral_redemption'),
       };
     }
 
@@ -5323,6 +5351,7 @@ export class StoryEngineAdapter {
           stats,
           epilogue_de: 'In Ostland nimmt man Sie nüchtern wieder auf. Doch die Schatten Ihrer Taten folgen Ihnen.',
           epilogue_en: 'In Ostland you are taken back in soberly. But the shadows of your deeds follow you.',
+          assembledEnding: this.assembledEndingForBranch('escape'),
         };
       }
     }
@@ -5338,6 +5367,7 @@ export class StoryEngineAdapter {
         stats,
         epilogue_de: 'Sie werden abberufen. Ihre Karriere stagniert. Jüngere Agenten überholen Sie.',
         epilogue_en: 'You are recalled. Your career stagnates. Younger agents surpass you.',
+        assembledEnding: this.assembledEndingForBranch('defeat'),
       };
     }
 

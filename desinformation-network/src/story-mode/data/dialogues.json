@@ -425,14 +425,14 @@
         },
         {
           "id": "dir_ambient_15",
-          "text_de": "*murmelt* Die Amerikaner werden das nie kommen sehen...",
-          "text_en": "*mutters* The Americans will never see this coming...",
+          "text_de": "*murmelt* Westunion wird das nie kommen sehen...",
+          "text_en": "*mutters* Westunion will never see this coming...",
           "probability": 0.15
         },
         {
           "id": "dir_ambient_16",
-          "text_de": "*justiert Portrait an der Wand - Stalin blickt herab*",
-          "text_en": "*adjusts portrait on wall - Stalin gazes down*",
+          "text_de": "*justiert ein Portrait an der Wand - ein strenger Blick von oben*",
+          "text_en": "*adjusts a portrait on the wall - a stern gaze from above*",
           "probability": 0.1
         },
         {
@@ -1581,8 +1581,8 @@
           },
           {
             "id": "igor_greet_0_2",
-            "text_de": "Sie sind neu. Dann eine Zahl vorweg: Jeder Rubel, den Sie ausgeben, hat einen Namen.",
-            "text_en": "You are new. So one number first: every ruble you spend has a name.",
+            "text_de": "Sie sind neu. Dann eine Zahl vorweg: Jeder Taler, den Sie ausgeben, hat einen Namen.",
+            "text_en": "You are new. So one number first: every taler you spend has a name.",
             "tone": "minimal"
           },
           {
