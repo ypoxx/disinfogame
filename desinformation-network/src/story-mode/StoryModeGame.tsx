@@ -697,6 +697,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           polarisierung: state.resources.polarisierung,
           informationslast: state.resources.informationslast,
           zynismus: state.resources.zynismus,
+          auftragTitel: state.engine.getAuftrag().titel_de,
         }}
         onEndPhase={requestEndDay}
         onOpenMenu={pauseGame}

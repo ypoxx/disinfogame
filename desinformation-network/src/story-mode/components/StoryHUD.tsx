@@ -47,6 +47,8 @@ export interface SocietyInfo {
   polarisierung: number;
   informationslast: number;
   zynismus: number;
+  /** P5: Titel des laufenden strategischen Auftrags („Vertrauen = Mittel, Auftrag = Ziel"). */
+  auftragTitel?: string;
 }
 
 interface StoryHUDProps {
@@ -346,6 +348,11 @@ function SocietyStrip({ society }: SocietyStripProps) {
         <span className="text-xs font-bold uppercase" style={{ color: StoryModeColors.textSecondary }}>
           Gesellschaft
         </span>
+        {society.auftragTitel && (
+          <span className="text-xs ml-auto truncate max-w-[120px]" style={{ color: StoryModeColors.textMuted }} title={`Auftrag: ${society.auftragTitel}`}>
+            ▸ {society.auftragTitel}
+          </span>
+        )}
       </div>
       <div className="flex flex-col gap-1">
         {/* Vertrauen = Sieg-Mittel; sinkt durch aggressive Operationen. */}

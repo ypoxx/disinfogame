@@ -134,6 +134,12 @@ import {
   type Episode,
   type EpisodeTriggerContext,
 } from '../story-mode/engine/EpisodeLoader';
+import {
+  AUFTRAEGE,
+  auftragProgress,
+  type Auftrag,
+  type AuftragId,
+} from '../story-mode/engine/Auftraege';
 
 // ============================================
 // STORY MODE SPECIFIC TYPES
@@ -593,6 +599,11 @@ export class StoryEngineAdapter {
   private episodesOffered: Set<string> = new Set();
   private episodesActive: Set<string> = new Set();
   private episodesCompleted: Set<string> = new Set();
+
+  // P5 — Strategischer Auftrag („Vertrauen = Mittel, Auftrag = Ziel"). Default = „Der Keil"
+  // (Tutorial); beim Neustart wählbar. v1: obj_destabilize bleibt der spielbare Sieg, die
+  // Auftrags-Signatur bestimmt das Ende + macht den Fortschritt lesbar.
+  private currentAuftragId: AuftragId = 'keil';
 
   // Engine Integration
   private actionLoader: ActionLoader;
@@ -3630,6 +3641,33 @@ export class StoryEngineAdapter {
     return this.getCompletedEpisodes().map(e => e.lernmoment_id);
   }
 
+  // ============================================
+  // AUFTRÄGE (P5) — Vertrauen = Mittel, Auftrag = Ziel
+  // ============================================
+
+  /** Den strategischen Auftrag setzen (Default beim Einstieg, Wahl beim Neustart). */
+  setAuftrag(id: AuftragId): void {
+    if (AUFTRAEGE[id]) {
+      this.currentAuftragId = id;
+      storyLogger.log(`[Auftrag] gewählt: ${AUFTRAEGE[id].titel_de}`);
+    }
+  }
+
+  getAuftragId(): AuftragId {
+    return this.currentAuftragId;
+  }
+
+  getAuftrag(): Auftrag {
+    return AUFTRAEGE[this.currentAuftragId];
+  }
+
+  /** Fortschritt des aktuellen Auftrags (0..1) über seine Signatur-Achsen (Vertrauen + Werte). */
+  getAuftragProgress(): number {
+    const s = this.getSocietySnapshot();
+    const trust = this.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100;
+    return auftragProgress(this.getAuftrag(), { ...s, vertrauen: trust });
+  }
+
   /** Wendet ein Werte-Delta an und klemmt auf 0–100. obj_destabilize bleibt unberührt (R2). */
   private applySocietyDelta(delta: SocietyDelta): void {
     for (const key of Object.keys(delta) as (keyof SocietyDelta)[]) {
@@ -5295,6 +5333,8 @@ export class StoryEngineAdapter {
       episodesOffered: Array.from(this.episodesOffered),
       episodesActive: Array.from(this.episodesActive),
       episodesCompleted: Array.from(this.episodesCompleted),
+      // P5-Auftrag
+      currentAuftragId: this.currentAuftragId,
       comboSystemState: this.comboSystem.exportState(),
       crisisMomentSystemState: this.crisisMomentSystem.exportState(),
       actorAIState: this.actorAI.exportState(),
@@ -5339,6 +5379,8 @@ export class StoryEngineAdapter {
     this.episodesOffered = new Set(state.episodesOffered ?? []);
     this.episodesActive = new Set(state.episodesActive ?? []);
     this.episodesCompleted = new Set(state.episodesCompleted ?? []);
+    // P5-Auftrag (Default „keil" für alte Saves, R1).
+    this.currentAuftragId = (state.currentAuftragId as AuftragId) ?? 'keil';
     if (state.comboSystemState) {
       this.comboSystem.importState(state.comboSystemState);
     }
@@ -5624,6 +5666,7 @@ export class StoryEngineAdapter {
     this.episodesOffered.clear();
     this.episodesActive.clear();
     this.episodesCompleted.clear();
+    this.currentAuftragId = 'keil';
     this.initializeNPCs();
     this.initializeObjectives();
 
