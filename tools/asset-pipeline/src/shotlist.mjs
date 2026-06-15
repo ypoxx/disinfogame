@@ -589,6 +589,64 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       `spaced frames in one row showing the SAME character with identical outfit and colors in ` +
       `every frame, only a subtle breathing motion changes. ${CHROMA_PROMPT} ${style}`,
   });
+  // Weibliche Lauf-/Idle-Variante (P2-9): an die Avatar-Wahl gekoppelt (portraitId 'f…').
+  // Gleiche Lauf-Zyklus-Spezifikation wie player_walk, nur die Figur ist weiblich.
+  shots.push({
+    id: 'player_walk_f',
+    type: 'sheet',
+    kind: 'sheet',
+    priority: 'nice',
+    frameWidth: 32,
+    frameHeight: 32,
+    cols: 8,
+    rows: 1,
+    size: { w: 256, h: 32 },
+    animations: { walkRight: { row: 0, frames: 8, frameTime: 90, loop: true } },
+    seed: seedFor('player_walk_f'),
+    prompt:
+      `An 8-frame pixel art sprite sheet of a middle-aged government official woman in a modern grey trouser-suit ` +
+      `with a slim briefcase in her left hand, walking to the right, strict side view. ` +
+      `Horizontal layout, exactly 8 evenly spaced frames in one row, SAME character with ` +
+      `identical suit and colors in every frame. The frames form one full walk cycle with ` +
+      `DRAMATIC, clearly different leg poses: ` +
+      `frame 1 right heel strikes the ground in front, legs wide apart, body at its lowest; ` +
+      `frame 2 weight sinks onto the bent right leg; ` +
+      `frame 3 body rises, left leg swings past the standing right leg; ` +
+      `frame 4 body at its highest, left foot reaching forward, only right toes touch ground; ` +
+      `frame 5 left heel strikes the ground in front, legs wide apart, body at its lowest; ` +
+      `frame 6 weight sinks onto the bent left leg; ` +
+      `frame 7 body rises, right leg swings past the standing left leg; ` +
+      `frame 8 body at its highest, right foot reaching forward, only left toes touch ground. ` +
+      `The head moves up and down by 2 pixels across the cycle (lowest in frames 1 and 5, ` +
+      `highest in frames 4 and 8); the free right arm swings opposite to the legs. ` +
+      `Adjacent frames MUST differ visibly, especially the legs. ` +
+      `CRITICAL: in EVERY one of the 8 frames the figure walks on the spot against the SAME ` +
+      `single flat solid magenta (#FF00FF) fill — absolutely NO corridor, NO office, NO room, ` +
+      `NO doors, NO windows, NO floor line, NO shadow, NO scenery of any kind behind or under ` +
+      `the figure; only the walking woman floating on pure uniform magenta. ${CHROMA_PROMPT} ${style}`,
+  });
+  shots.push({
+    id: 'player_idle_f',
+    type: 'sheet',
+    kind: 'sheet',
+    priority: 'nice',
+    frameWidth: 32,
+    frameHeight: 32,
+    cols: 4,
+    rows: 1,
+    size: { w: 128, h: 32 },
+    animations: { idle: { row: 0, frames: 4, frameTime: 220, loop: true } },
+    seed: seedFor('player_idle_f'),
+    prompt:
+      `A 4-frame pixel art sprite sheet of a middle-aged government official woman in a modern grey trouser-suit ` +
+      `standing idle and subtly breathing, front view. Horizontal layout, exactly 4 evenly ` +
+      `spaced frames in one row showing the SAME character with identical outfit and colors in ` +
+      `every frame, only a subtle breathing motion changes. ` +
+      `CRITICAL: in EVERY frame the figure stands against the SAME single flat solid magenta ` +
+      `(#FF00FF) fill — absolutely NO corridor, NO office, NO room, NO doors, NO windows, NO ` +
+      `floor line, NO shadow, NO scenery of any kind behind or under the figure; only the woman ` +
+      `on pure uniform magenta. ${CHROMA_PROMPT} ${style}`,
+  });
 
   // --- NPC-Figuren im Gebäude (klein, Kür) ---
   for (const npc of npcs) {

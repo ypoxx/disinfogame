@@ -15,6 +15,7 @@ import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties } fr
 import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
+import { usePlayerProfile, playerWalkSheetId, playerIdleSheetId } from '../stores/playerProfileStore';
 import { skyGradientForMinutes, skylineLayersForMinutes } from './skyTime';
 import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, FLOOR_WALKERS, DOOR_TRAFFIC, POSTER_SLOGANS, shredderLine, coffeeLine, volksbrauseLine, employeeOfMonth, plantAsset, plantLine, type AmbientFigure } from './corridorDecor';
 import type { NavigatorState } from './useNavigator';
@@ -228,6 +229,10 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   // Tageszeit-Himmel (gegen „schwarzer Himmel zu groß"): Verlauf folgt der Tagesuhr,
   // die chroma-freigestellte Skyline liegt davor.
   const skyMinutes = useDayClockStore((s) => s.minutes);
+  // Avatar-Sheets folgen der Geschlechter-Wahl aus der Personalakte (P2-9).
+  const portraitId = usePlayerProfile((s) => s.portraitId);
+  const avatarWalkSheet = playerWalkSheetId(portraitId);
+  const avatarIdleSheet = playerIdleSheetId(portraitId);
   const cabinClosedUrl = assets.imageUrl('elevator_cabin_closed');
   const cabinOpenUrl = assets.imageUrl('elevator_cabin_open');
 
@@ -714,7 +719,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           )}
           {nav.avatarInCabin && (
             <span style={{ position: 'absolute', left: '50%', bottom: 22, transform: 'translateX(-50%)', zIndex: 4 }}>
-              <PixelSprite sheetId="player_idle" animation="idle" fallback="•" scale={3} title="Sie" />
+              <PixelSprite sheetId={avatarIdleSheet} animation="idle" fallback="•" scale={3} title="Sie" />
             </span>
           )}
         </div>
@@ -779,7 +784,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             data-testid="building-avatar"
           >
             <PixelSprite
-              sheetId={nav.mode === 'walk' ? 'player_walk' : 'player_idle'}
+              sheetId={nav.mode === 'walk' ? avatarWalkSheet : avatarIdleSheet}
               animation={nav.mode === 'walk' ? 'walkRight' : 'idle'}
               fallback="•"
               flip={nav.facing === -1}
