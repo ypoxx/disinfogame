@@ -326,10 +326,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   }, [state.gamePhase, state.gameEnd]);
   const [showNewsroom, setShowNewsroom] = useState(false);
   const [showFokusgruppe, setShowFokusgruppe] = useState(false);
-  // P5: Auftrags-Wahl einmal pro Partie (beim ersten „playing"); bei Neustart (→ 'intro') re-armt.
-  const [auftragChosen, setAuftragChosen] = useState(false);
+  // P1-9: Auftrags-Wahl ist der Abschluss des Direktor-Dialogs (Intro-Schritt nach der
+  // Ankunfts-Sequenz), nicht mehr ein Overlay über der bereits laufenden Welt. Bei Neustart
+  // (→ 'intro') re-armt der Schritt; geladene Spielstände überspringen ihn (Auftrag steht schon).
+  const [showAuftrag, setShowAuftrag] = useState(false);
   useEffect(() => {
-    if (state.gamePhase === 'intro') setAuftragChosen(false);
+    if (state.gamePhase === 'intro') setShowAuftrag(false);
   }, [state.gamePhase]);
   // P2: Operations-Akte (Operationszentrale, Etage 4) — Verbreiter×Plattform-Operation.
   const [showOperationsAkte, setShowOperationsAkte] = useState(false);
@@ -579,9 +581,18 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         <ArrivalSequence
           npcs={state.npcs}
           onDone={() => {
+            // Direktor empfangen → er erteilt jetzt den Auftrag (P1-9), DANN öffnet sich die Welt.
             setShowArrival(false);
-            startGame();
+            setShowAuftrag(true);
           }}
+        />
+      );
+    }
+    if (showAuftrag) {
+      return (
+        <AuftragSelect
+          onChoose={(id) => { chooseAuftrag(id); setShowAuftrag(false); startGame(); }}
+          onSkip={() => { chooseAuftrag('keil'); setShowAuftrag(false); startGame(); }}
         />
       );
     }
@@ -703,14 +714,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       className="fixed inset-0 font-mono"
       style={{ backgroundColor: StoryModeColors.background }}
     >
-      {/* P5: Auftrags-Wahl zu Beginn der Partie (Plague-Inc.-Stil). */}
-      {!auftragChosen && state.gamePhase === 'playing' && (
-        <AuftragSelect
-          onChoose={(id) => { chooseAuftrag(id); setAuftragChosen(true); }}
-          onSkip={() => { chooseAuftrag('keil'); setAuftragChosen(true); }}
-        />
-      )}
-
       {/* HUD (E1/I32): nur auf Knopfdruck — Taste H, Standard aus, „nicht dauerhaft" */}
       {hudVisible && (
       <StoryHUD

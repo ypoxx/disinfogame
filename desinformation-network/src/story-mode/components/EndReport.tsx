@@ -732,7 +732,7 @@ const ALL_ENDING_CATEGORIES: Array<{
   {
     key: 'victory',
     label_de: 'Sieg',
-    condition_de: 'Sie die meisten Ziele bei niedrigem Risiko (unter 50 %) erreicht hätten.',
+    condition_de: 'Sie fast alle Ziele (mind. 80 %) bei niedrigem Entdeckungsrisiko (unter 50 %) erreicht hätten.',
   },
   {
     key: 'exposure',
@@ -742,32 +742,32 @@ const ALL_ENDING_CATEGORIES: Array<{
   {
     key: 'pyrrhic',
     label_de: 'Pyrrhussieg',
-    condition_de: 'Sie die Ziele erreicht, dafür aber einen hohen moralischen Preis gezahlt hätten.',
+    condition_de: 'Sie die meisten Ziele (mind. 60 %) erreicht, dabei aber eine schwere moralische Last (ab 60) aufgehäuft hätten.',
   },
   {
     key: 'escape',
     label_de: 'Flucht',
-    condition_de: 'Sie sich bei hohem Risiko (70–90 %) rechtzeitig abgesetzt hätten — mit Geld in der Tasche.',
+    condition_de: 'Sie sich bei hohem Risiko (70–90 %) mit noch gefüllter Kasse (Budget ab 30) rechtzeitig abgesetzt hätten.',
   },
   {
     key: 'collapse',
     label_de: 'Zusammenbruch',
-    condition_de: 'die Gegenseite das Wettrennen gewonnen hätte oder der Apparat von innen zerbrochen wäre (zu viele Verräter, leere Kasse).',
+    condition_de: 'das Wettrüsten eskaliert (Stufe 4+) und die Gegenseite zugleich übermächtig geworden wäre (mind. 4 aktive Verteidiger).',
   },
   {
     key: 'redemption',
     label_de: 'Wandel',
-    condition_de: 'Sie überwiegend sauber gespielt und sich von der eigenen Operation abgewandt hätten.',
+    condition_de: 'Sie überwiegend sauber gespielt (mehr ethische als illegale Aktionen) und die moralische Last sehr niedrig (unter 20) gehalten hätten.',
   },
   {
     key: 'stalemate',
     label_de: 'Patt',
-    condition_de: 'Sie Teilerfolge erzielt, das große Ziel aber verfehlt hätten.',
+    condition_de: 'Sie nur Teilerfolge erzielt hätten (mindestens ein Ziel, aber unter 60 %) — das große Ziel verfehlt.',
   },
   {
     key: 'continuation',
     label_de: 'Fortsetzung',
-    condition_de: 'die Lage am Ende offen geblieben wäre — kein klarer Sieg, keine Aufdeckung.',
+    condition_de: 'die Operation ergebnislos ausgelaufen wäre — kein Ziel erreicht, aber auch nicht enttarnt.',
   },
 ];
 
