@@ -3,9 +3,14 @@
  */
 import { describe, it, expect } from 'vitest';
 import { preTest, reactionFor, moodForShift, representativeness, type Persona } from '../audience/fokusgruppeModel';
-import personasJson from '../data/personas.json';
 
-const POP = personasJson.personas as unknown as Persona[];
+// Kontrollierte 3-Milieus-Fixture: macht die Bias-/Repräsentativitäts-Logik deterministisch
+// prüfbar, unabhängig von der vollen personas.json (die ~30 Personas über 8 Milieus hat).
+const POP: Persona[] = [
+  { id: 'lena', name: 'Lena', milieu: 'Optimisten', segmentId: 'optimiererin', bio: '', vulnerabilities: ['FOMO'], receptivity: { hope: 0.8, fear: 0.0, anger: -0.6, trust: 0.4 } },
+  { id: 'walter', name: 'Walter', milieu: 'Mitte', segmentId: 'besorgte_mitte', bio: '', vulnerabilities: ['Abstiegsangst'], receptivity: { hope: -0.2, fear: 0.8, anger: 0.1, trust: -0.3 } },
+  { id: 'doreen', name: 'Doreen', milieu: 'Abgehängte', segmentId: 'zorniger', bio: '', vulnerabilities: ['Empörung'], receptivity: { hope: -0.7, fear: 0.2, anger: 0.9, trust: -0.8 } },
+];
 const lena = POP.find((p) => p.id === 'lena')!;
 
 describe('fokusgruppeModel', () => {

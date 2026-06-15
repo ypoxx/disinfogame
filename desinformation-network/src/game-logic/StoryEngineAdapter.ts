@@ -4811,6 +4811,17 @@ export class StoryEngineAdapter {
     return { ...this.storyResources };
   }
 
+  /**
+   * Budget direkt abziehen (z. B. Fokusgruppe beauftragen) — außerhalb des Aktions-Systems.
+   * Nie unter 0; gibt zurück, ob es bezahlbar war.
+   */
+  spendBudget(amount: number): boolean {
+    if (amount <= 0) return true;
+    if (this.storyResources.budget < amount) return false;
+    this.storyResources.budget -= amount;
+    return true;
+  }
+
   getNPCState(npcId: string): NPCState | null {
     return this.npcStates.get(npcId) || null;
   }

@@ -568,6 +568,16 @@ export function useStoryGameState(seed?: string) {
     playSound('click');
   }, [engine]);
 
+  /** Fokusgruppe beauftragen: Budget abziehen (Zeit kostet der Aufrufer via endPhase). */
+  const commissionFokusgruppe = useCallback((cost: number): boolean => {
+    const paid = engine.spendBudget(cost);
+    if (paid) {
+      setResources(engine.getResources());
+      playSound('click');
+    }
+    return paid;
+  }, [engine]);
+
   const startGame = useCallback(() => {
     setGamePhase('tutorial');
     playSound('notification');
@@ -1672,6 +1682,7 @@ export function useStoryGameState(seed?: string) {
     startGame,
     skipTutorial,
     chooseAuftrag,
+    commissionFokusgruppe,
     continueDialog,
     dismissDialog,
     handleDialogChoice,

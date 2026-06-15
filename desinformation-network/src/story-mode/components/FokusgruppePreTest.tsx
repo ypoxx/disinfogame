@@ -18,6 +18,9 @@ import {
   type PreTestResult,
 } from '../audience/fokusgruppeModel';
 
+/** Budget-Kosten einer Beauftragung (bewusst moderat — Testen soll sich lohnen). */
+export const FOKUSGRUPPE_COST = 8;
+
 const APPEALS: { id: MessageAppeal; label: string; desc: string }[] = [
   { id: 'hope', label: 'Aufbruch', desc: 'Modernisierung, Versprechen' },
   { id: 'fear', label: 'Abstiegsangst', desc: 'Bedrohung, Nostalgie' },
@@ -38,7 +41,9 @@ const MOOD_LABEL: Record<PersonaMood, string> = {
 
 export interface FokusgruppePreTestProps {
   personas: Persona[];
-  /** Beauftragung bestätigt (kostet eine Phase Zeit). */
+  /** Aktuelles Budget (für die Bezahlbarkeits-Sperre). */
+  budget: number;
+  /** Beauftragung bestätigt — Aufrufer zieht Budget (FOKUSGRUPPE_COST) ab + kostet eine Phase. */
   onCommission: () => void;
   onClose: () => void;
 }
@@ -46,18 +51,21 @@ export interface FokusgruppePreTestProps {
 /** -1..1 → 0..100 % für die Balkenbreite. */
 const pct = (v: number): number => Math.round(((v + 1) / 2) * 100);
 
-export function FokusgruppePreTest({ personas, onCommission, onClose }: FokusgruppePreTestProps): React.JSX.Element {
+export function FokusgruppePreTest({ personas, budget, onCommission, onClose }: FokusgruppePreTestProps): React.JSX.Element {
   const assets = useAssets();
   const bgUrl = assets.imageUrl('room_analyse'); // Einwegspiegel-Beobachtungsraum (diegetisch)
   const [appeal, setAppeal] = useState<MessageAppeal>('hope');
   const [sample, setSample] = useState<string[]>(personas.map((p) => p.id));
   const [result, setResult] = useState<PreTestResult | null>(null);
 
+  const affordable = budget >= FOKUSGRUPPE_COST;
+  const canCommission = sample.length > 0 && affordable && !result;
+
   const toggle = (id: string): void =>
     setSample((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
 
   const commission = (): void => {
-    if (sample.length === 0 || result) return;
+    if (!canCommission) return;
     onCommission();
     setResult(preTest(appeal, personas, sample));
   };
@@ -151,15 +159,20 @@ export function FokusgruppePreTest({ personas, onCommission, onClose }: Fokusgru
 
           <button
             onClick={commission}
-            disabled={sample.length === 0}
+            disabled={!canCommission}
             data-testid="pretest-commission"
             style={{
-              alignSelf: 'flex-start', padding: '10px 20px', fontSize: 15, fontWeight: 700, cursor: sample.length ? 'pointer' : 'not-allowed',
-              border: `3px solid ${StoryModeColors.darkRed}`, background: StoryModeColors.ministryRed, color: '#fff', opacity: sample.length ? 1 : 0.5,
+              alignSelf: 'flex-start', padding: '10px 20px', fontSize: 15, fontWeight: 700, cursor: canCommission ? 'pointer' : 'not-allowed',
+              border: `3px solid ${StoryModeColors.darkRed}`, background: StoryModeColors.ministryRed, color: '#fff', opacity: canCommission ? 1 : 0.5,
             }}
           >
-            BEFRAGUNG BEAUFTRAGEN ▸ <span style={{ fontWeight: 400, fontSize: 12 }}>(kostet eine Phase)</span>
+            BEFRAGUNG BEAUFTRAGEN ▸ <span style={{ fontWeight: 400, fontSize: 12 }}>(kostet {FOKUSGRUPPE_COST} Budget + eine Phase)</span>
           </button>
+          {!affordable && (
+            <div data-testid="pretest-unaffordable" style={{ marginTop: 8, fontSize: 12, color: StoryModeColors.danger }}>
+              Budget zu niedrig ({budget} / {FOKUSGRUPPE_COST}).
+            </div>
+          )}
         </>
       ) : (
         <PreTestResultView result={result} personas={personas} assets={assets} onReset={() => setResult(null)} />

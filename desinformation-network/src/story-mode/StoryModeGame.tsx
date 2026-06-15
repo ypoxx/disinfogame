@@ -39,7 +39,7 @@ import { NpcRoomView } from './building/NpcRoomView';
 import { NewsroomView, derivePosts } from './components/NewsroomView';
 import { deriveGegenseite } from './engine/Gegenseite';
 import { FokusgruppeView } from './components/FokusgruppeView';
-import { FokusgruppePreTest } from './components/FokusgruppePreTest';
+import { FokusgruppePreTest, FOKUSGRUPPE_COST } from './components/FokusgruppePreTest';
 import personasJson from './data/personas.json';
 import type { Persona } from './audience/fokusgruppeModel';
 import { OperationsAkteView } from './components/OperationsAkteView';
@@ -258,6 +258,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     startGame,
     skipTutorial,
     chooseAuftrag,
+    commissionFokusgruppe,
     continueDialog,
     dismissDialog,
     handleDialogChoice,
@@ -1033,7 +1034,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         {showPreTest && (
           <FokusgruppePreTest
             personas={personasJson.personas as unknown as Persona[]}
-            onCommission={() => endPhase()}
+            budget={state.resources.budget}
+            onCommission={() => { if (commissionFokusgruppe(FOKUSGRUPPE_COST)) endPhase(); }}
             onClose={() => setShowPreTest(false)}
           />
         )}
