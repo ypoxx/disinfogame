@@ -66,12 +66,12 @@ export function BetrayalWarningBadge({
       title={`Loyalität gefährdet: ${betrayalRisk}% Verrats-Risiko`}
     >
       <div
-        className="flex items-center gap-1 px-2 py-1 border-2 font-bold text-xs shadow-lg"
+        className="flex items-center gap-1 px-2 py-1 border-2 font-bold text-xs"
         style={{
           backgroundColor: warningLevel >= 3 ? getWarningColor() : StoryModeColors.background,
           borderColor: getWarningColor(),
           color: warningLevel >= 3 ? '#fff' : getWarningColor(),
-          boxShadow: `0 0 ${warningLevel * 3}px ${getWarningColor()}`,
+          boxShadow: `inset 0 0 0 1px ${getWarningColor()}`,
         }}
       >
         <span className="text-sm">{getWarningIcon()}</span>

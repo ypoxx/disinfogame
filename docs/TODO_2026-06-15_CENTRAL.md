@@ -57,9 +57,10 @@ P1 = großer Qualitätssprung · P2 = Politur & Assets (Budget) · P3 = Aufräum
 ## 🟡 P2 — Politur & Assets (mit Budget-Ansage)
 
 **Visuell/Code (gratis zuerst):**
-- P2-1 **Prozeduraler Himmel** (Tagesuhr-Verlauf 7 Stops + Horizont-Glühen) + **Skyline-Band höher** — löst „zu klein/zu dunkel" ohne Asset. *(A4 C-07/C-08)*
-- P2-2 **Büro-Hotspots entrechtecken** (Ruhe-Ring weg, Hover-Glow folgt Möbelform) + **„2"-Welt-Badge diegetisch verorten**. *(A4 C-01/C-02)*
-- P2-3 **Broadcast-Leiste höher**; **ComboHints diegetisch** (statt `fixed bottom-4 left-4`). *(A1, A4 C-05/C-06)*
+- ✅ P2-1 **Prozeduraler Himmel** ist **bereits verdrahtet** (`skyGradientForMinutes` in `BuildingStage:253` + 6-Stopp-`skyTime.ts`, cross-fade). Rest von V12 = **2–3 Skyline-Varianten** (Asset/Budget).
+- ✅ P2-5 **Verbotsliste-Politur** (gratis, sicher): harte Drop-Shadows raus (TitleScreen Menü/Changelog/tote `ts-lift`-Keyframes, `BuildingStage` Plakat) → Inset-Pixelrand; **TitleScreen-Farbemojis** (`💾🔊🔇⚠️`) raus; `BetrayalWarningBadge` `shadow-lg`+Glow → Pixel-Alarm-Rand; runde Web-Pillen (`ActionFeedbackDialog`/`ActionQueueWidget`/`BetrayalIndicators`) → eckig. *(A1)*
+- P2-2 **Büro-Hotspots entrechtecken** (Ruhe-Ring weg, Hover-Glow folgt Möbelform) + **„2"-Welt-Badge diegetisch verorten**. *(A4 C-01/C-02) — visuell, im Preview prüfen*
+- P2-3 **Broadcast-Leiste höher**; **ComboHints diegetisch** (statt `fixed bottom-4 left-4`). *(A1, A4 C-05/C-06) — visuell, im Preview prüfen*
 - P2-4 **Seitenleiste diegetisch** (Papier/Klemmbrett oder PixelModal) — „zwei Welten" auflösen (V14). *(A4 C-04)*
 - P2-5 **Harte Box-Shadows raus** (`TitleScreen` Menü/Changelog, `BuildingStage:810`, `BetrayalWarningBadge` Glow+`shadow-lg`); TitleScreen-Emojis→Icon; runde Pillen (`BetrayalIndicators`/`ActionFeedbackDialog`/`ActionQueueWidget`)→eckig. *(A1)*
 - P2-6 **`MissionPanel`/`GameEndScreen` auf PixelModal**; `#8B0000`→`StoryModeColors`. *(A1)*

@@ -737,11 +737,11 @@ export function ActionFeedbackDialog({
                     </div>
                     {/* Progress Bar */}
                     <div
-                      className="h-2 w-full rounded-full overflow-hidden"
+                      className="h-2 w-full overflow-hidden"
                       style={{ backgroundColor: StoryModeColors.border }}
                     >
                       <div
-                        className="h-full rounded-full transition-all"
+                        className="h-full transition-all"
                         style={{
                           width: `${hint.progress * 100}%`,
                           backgroundColor: hint.progress >= 0.75

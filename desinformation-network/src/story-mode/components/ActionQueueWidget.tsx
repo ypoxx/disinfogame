@@ -77,7 +77,7 @@ export function ActionQueueWidget({
           <span className="text-2xl"><Icon name="actions" size={24} title="Warteschlange" /></span>
           {queue.length > 0 && (
             <span
-              className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold border"
+              className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center text-xs font-bold border"
               style={{
                 backgroundColor: StoryModeColors.ministryRed,
                 borderColor: StoryModeColors.darkRed,

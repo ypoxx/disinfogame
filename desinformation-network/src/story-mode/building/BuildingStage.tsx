@@ -807,7 +807,6 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               maxHeight: '52vh', maxWidth: '88vw', width: 'auto',
               imageRendering: 'pixelated',
               border: `4px solid ${StoryModeColors.ministryRed}`,
-              boxShadow: '8px 8px 0 0 rgba(0,0,0,0.6)',
             }}
           />
           <div style={{ maxWidth: 520, textAlign: 'center' }}>
