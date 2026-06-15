@@ -39,6 +39,9 @@ import { NpcRoomView } from './building/NpcRoomView';
 import { NewsroomView, derivePosts } from './components/NewsroomView';
 import { deriveGegenseite } from './engine/Gegenseite';
 import { FokusgruppeView } from './components/FokusgruppeView';
+import { FokusgruppePreTest } from './components/FokusgruppePreTest';
+import personasJson from './data/personas.json';
+import type { Persona } from './audience/fokusgruppeModel';
 import { OperationsAkteView } from './components/OperationsAkteView';
 import { loadTargets, loadCarriers, loadPlatforms } from './battlefield/BattlefieldChain';
 import { DayClock } from './components/DayClock';
@@ -326,6 +329,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   }, [state.gamePhase, state.gameEnd]);
   const [showNewsroom, setShowNewsroom] = useState(false);
   const [showFokusgruppe, setShowFokusgruppe] = useState(false);
+  // Fokusgruppe Pre-Test (beauftragbare Befragung + Sample-Bias) — analyse-Raum.
+  const [showPreTest, setShowPreTest] = useState(false);
   // P1-9: Auftrags-Wahl ist der Abschluss des Direktor-Dialogs (Intro-Schritt nach der
   // Ankunfts-Sequenz), nicht mehr ein Overlay über der bereits laufenden Welt. Bei Neustart
   // (→ 'intro') re-armt der Schritt; geladene Spielstände überspringen ihn (Auftrag steht schon).
@@ -439,7 +444,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
   // F36: Raum-Klangkulisse je nach aktuellem Ort (zweiter, leiser Loop unter der Musik; Ducking aktiv).
   const ambienceOverlay = showNewsroom ? 'newsroom'
-    : showFokusgruppe ? 'fokusgruppe'
+    : (showFokusgruppe || showPreTest) ? 'fokusgruppe'
     : showOperationsAkte ? 'akte'
     : showLagebild ? 'lagebild'
     : showBoard ? 'board'
@@ -831,7 +836,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               onEnterOffice={() => setViewMode('office')}
               onEnterRoom={(roomId) => {
                 if (roomId === 'newsroom') setShowNewsroom(true);
-                else if (roomId === 'analyse') setShowFokusgruppe(true);
+                else if (roomId === 'analyse') setShowPreTest(true);
                 else if (roomId === 'operations') setShowOperationsAkte(true);
               }}
               walkHome={walkHome}
@@ -1021,6 +1026,15 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             lastHeadline={audience.lastItem?.headline ?? null}
             episodeHints={(state.activeEpisodes ?? []).map((ep) => ep.titel_de)}
             onClose={() => setShowFokusgruppe(false)}
+          />
+        )}
+
+        {/* Fokusgruppe Pre-Test (beauftragbar): Appell + Stichprobe testen, Sample-Bias aufdecken. */}
+        {showPreTest && (
+          <FokusgruppePreTest
+            personas={personasJson.personas as unknown as Persona[]}
+            onCommission={() => endPhase()}
+            onClose={() => setShowPreTest(false)}
           />
         )}
 
