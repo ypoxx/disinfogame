@@ -119,6 +119,13 @@ import worldEventsData from '../story-mode/data/world-events.json';
 import targetsData from '../story-mode/data/targets.json';
 import disinfoMethodsData from '../story-mode/data/disinfo_methods.json';
 import { validateReferences, reportValidationIssues, type ValidationIssue } from '../story-mode/engine/IdValidator';
+import {
+  societyDeltaFromAction,
+  societyFormulaStep,
+  clampSocietyValue,
+  type SocietyDelta,
+  type SocietySnapshot,
+} from '../story-mode/engine/SocietyDynamics';
 
 // ============================================
 // STORY MODE SPECIFIC TYPES
@@ -804,6 +811,11 @@ export class StoryEngineAdapter {
     };
 
     Object.assign(this.storyResources, resourceChanges);
+
+    // B2b/P2: Gesellschafts-Formel je Phase — die Werte wirken nicht-linear aufeinander
+    // (verzögerte/„intelligente" Effekte, §14.2). Berührt NUR Gesellschaftswerte, nicht
+    // die Sieg-Ressourcen → Balance bleibt gehalten (R2).
+    this.applySocietyDelta(societyFormulaStep(this.getSocietySnapshot()));
 
     // Decrement exposure countdown if active
     if (this.exposureCountdown !== null) {
@@ -3477,6 +3489,34 @@ export class StoryEngineAdapter {
     obj.completed = obj.currentValue <= obj.targetValue;
   }
 
+  // ============================================
+  // GESELLSCHAFTSWERTE (B2b/P2) — Effekt-Splitting + Formeln
+  // ============================================
+
+  /** Schnappschuss der acht Gesellschaftswerte (für die Phasen-Formel). */
+  private getSocietySnapshot(): SocietySnapshot {
+    const r = this.storyResources;
+    return {
+      polarisierung: r.polarisierung,
+      informationslast: r.informationslast,
+      zynismus: r.zynismus,
+      fragmentierung: r.fragmentierung,
+      diskursqualitaet: r.diskursqualitaet,
+      wehrhaftigkeit: r.wehrhaftigkeit,
+      reformfaehigkeit: r.reformfaehigkeit,
+      fraktionsstaerke: r.fraktionsstaerke,
+    };
+  }
+
+  /** Wendet ein Werte-Delta an und klemmt auf 0–100. obj_destabilize bleibt unberührt (R2). */
+  private applySocietyDelta(delta: SocietyDelta): void {
+    for (const key of Object.keys(delta) as (keyof SocietyDelta)[]) {
+      const d = delta[key];
+      if (typeof d !== 'number' || d === 0) continue;
+      this.storyResources[key] = clampSocietyValue(this.storyResources[key] + d);
+    }
+  }
+
   /** Bilanz der bisherigen P2-Operationen (End-Report/Atlas). */
   getOperationsSummary(): OperationsSummary {
     let carriersBurned = 0;
@@ -3942,6 +3982,17 @@ export class StoryEngineAdapter {
         description_en: `Political leverage +${value}%`,
       });
     }
+
+    // === B2b/P2: Effekt-Splitting ===
+    // Dieselben rohen Effekte ZUSÄTZLICH auf die Gesellschaftswerte verteilen.
+    // obj_destabilize-Mathematik oben bleibt unverändert (K14/R2). Reine Zustands-
+    // Akkumulation, nicht in `effects[]` gespiegelt (das bleibt die UI-Bilanz der Aktion).
+    this.applySocietyDelta(
+      societyDeltaFromAction(actionEffects, effectivenessMultiplier, {
+        legality: loadedAction.legality,
+        impactScale: actionEffects.impact_scale,
+      }),
+    );
 
     return effects;
   }

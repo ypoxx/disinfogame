@@ -3,11 +3,9 @@
  *
  * Belegt: (1) das volle Werte-Set existiert mit sinnvollen Startwerten; (2) genau die
  * vorgesehenen 4 sind im HUD sichtbar markiert (3 Felder + Vertrauen separat → O3);
- * (3) in P1 BEWEGEN sich die Werte noch NICHT (kein Effekt-Splitting → Balance identisch);
+ * (3) ab P2 BEWEGEN sich die Werte durch Aktionen/Phasen (Effekt-Splitting), und
+ *     Strategien differenzieren sich (aggressiv verroht stärker als zurückhaltend);
  * (4) sie persistieren über save/load und erben Defaults aus alten Saves.
- *
- * HINWEIS: Assertion (3) wird in P2 (Effekt-Splitting) bewusst umgekehrt — dann sollen
- * sich die Werte durch Aktionen bewegen.
  */
 import { describe, it, expect } from 'vitest';
 import {
@@ -47,18 +45,30 @@ describe('Gesellschaftswerte (P1/B2a)', () => {
     expect(SOCIETY_VALUE_META.fraktionsstaerke.visible).toBe(false);
   });
 
-  it('P1: Werte bewegen sich (noch) NICHT durch Aktionen oder Phasen', () => {
-    const engine = createStoryEngine('soc_static');
+  it('P2: Werte bewegen sich durch Aktionen + Phasen (Effekt-Splitting)', () => {
+    const engine = createStoryEngine('soc_move');
     const before = { ...engine.getResources() };
-    // Mehrere aggressive Aktionen + Phasenwechsel — in P1 ohne Effekt-Splitting.
-    for (const id of ['5.2', '4.1', '7.2']) {
+    for (const id of ['5.2', '4.1', '4.4', '8.2']) {
       try { engine.executeAction(id); } catch { /* egal */ }
     }
     engine.advancePhase();
     const after = engine.getResources();
-    for (const k of ALL_KEYS) {
-      expect(after[k]).toBe(before[k]);
+    // Mindestens die Informationslast steigt (Reichweite/„Lärm").
+    expect(after.informationslast).toBeGreaterThan(before.informationslast);
+    // obj_destabilize bleibt die Sieg-Achse — Gesellschaftswerte sind ZUSÄTZLICH.
+    expect(after.budget).toBeLessThanOrEqual(before.budget + 5); // nur Phasen-Regen
+  });
+
+  it('P2: aggressive Strategie verroht stärker als zurückhaltende', () => {
+    function zynismusAfter(ids: string[]): number {
+      const e = createStoryEngine('soc_diff');
+      for (const id of ids) { try { e.executeAction(id); } catch { /* egal */ } }
+      return e.getResources().zynismus;
     }
+    // Illegale/aggressive Aktionen erzeugen Zynismus; rein legale kaum.
+    const aggressive = zynismusAfter(['8.2', '8.1', '8.5']); // illegale Ziel-Aktionen
+    const restrained = zynismusAfter(['1.1', '1.2']);        // Vorbereitung (legal)
+    expect(aggressive).toBeGreaterThan(restrained);
   });
 
   it('persistiert über save/load und erbt Defaults aus altem Save', () => {
