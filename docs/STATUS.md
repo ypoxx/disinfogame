@@ -30,8 +30,9 @@ Bau-Plan `BAUPLAN_2026-06-14_HERZSTUECK.md`, strikt in Reihenfolge. Gate je Comm
   NPC-Pfad, `wirkt_auf` balance-neutral (nur Gesellschaftswerte). **UI:** NPC bietet Episode im Dialog an →
   aktiver Strang am Korkbrett (**Spuren = Episoden-Stränge**) + Einklink-Maßnahmen auf den Sendeplan.
 - **✅ P5 — Strategische Aufträge (Keil/Wahl/Zweifel):** `Auftraege.ts` (Signatur-Achsen + Instrument §14.2),
-  Engine-Auswahl (Default Keil) + Fortschritt, im HUD sichtbar. **Vertrauen = Mittel, Auftrag = Ziel.** v1
-  balance-neutral (obj_destabilize bleibt der Sieg).
+  Engine-Auswahl + Fortschritt, im HUD sichtbar. **Auftrags-Wahlbildschirm** beim Einstieg/Neustart
+  (`AuftragSelect`, Plague-Inc.-Stil) + **auftrags-spezifischer Sieg-Epilog** (`auftragEpilog`). „Vertrauen =
+  Mittel, Auftrag = Ziel." v1 balance-neutral (obj_destabilize bleibt der Sieg; tiefere EndingSystem-Kategorien offen).
 - **🟡 P6 — Vernetzung:** **Umfragen/Barometer als News (F3, §14.2)** — `PollNews.ts` (periodisch,
   Auftrags-Leit-Instrument, Tendenz). **Erzählerische Gegenseite (C9, §14.3)** — `Gegenseite.ts` leitet den
   Aufklärungs-Stand aus Aufmerksamkeit/Risiko/verbrannten Verbreitern ab; im Newsroom als „GEGENSEITE"-Streifen
@@ -40,9 +41,10 @@ Bau-Plan `BAUPLAN_2026-06-14_HERZSTUECK.md`, strikt in Reihenfolge. Gate je Comm
   Werte-Vektor · weitere TV-/Umfrage-Grafiken (Asset-Batch, Pipeline bestätigt lauffähig).
 - **🟡 P7 — Umgebungshumor + Ethik-Geländer:** **Sieg entheroisiert (G25)** + **reale Symbole „Moskau/Moscow"
   raus** (G23/24, Story-Pfad sauber). **Gegenmaßnahmen je Methode im End-Report** (`counter_de` an allen 18
-  Atlas-Methoden, „So wäre es gekontert worden"). **Debrief verpflichtend** (End-Report öffnet bei Spielende
-  automatisch). **Offen:** Umgebungshumor §14.4 (klickbare Plakate/Kaffeeküche/Reißwolf — je Asset +
-  Gebäude-Platzierung über `corridorDecor`).
+  Atlas-Methoden). **Debrief verpflichtend** (End-Report öffnet bei Spielende automatisch). **Umgebungshumor
+  §14.4:** klickbare Propaganda-Plakate (#1, mit Sprüchen) · Reißwolf = Entdeckungsdruck (#7, neues Asset) ·
+  Pförtner liest letzte Schlagzeile (#12, bestand). **Offen (Asset-Folge):** Kaffeeküche/Volksbrause/
+  Mitarbeiter-des-Monats/Pflanze-welk (je Asset + Platzierung).
 
 **Methodik-Notiz (wichtig für künftige Balance-Arbeit):** Die Balance-Sim ist durch `Math.random()`-Seedung
 im Engine-Kern **inhärent verrauscht** (greedy/aggressiv ±1–2 run-to-run) — exakte Sieg-Quoten taugen NICHT
@@ -97,12 +99,13 @@ signatur-getriebene Enden im `EndingSystem`.
   Fokusgruppe reagiert auf Episoden/Werte, Fernseher spiegelt Episoden-Schlagzeilen (Asset-Paket nötig), Umgebungshumor.
 - **Bau-Reihenfolge §9.3** (B2a→B2b→B3→B1→Vernetzung→B4) · **Risiko-Register §10** (save/load-Migration, K14-Balance,
   ID-Kopplung, tote Hooks) · Ethik-Geländer mitgedacht (niedrige Prio).
-**Nächster Schritt:** ✅ **Bau weit fortgeschritten (PR #83):** P0–P5 komplett, P6 (Umfragen-News + Gegenseite-C9
-inkl. Asset + Fokusgruppe-Episoden) und P7 (Ethik-Geländer: Sieg entheroisiert, Gegenmaßnahmen im End-Report,
-Debrief verpflichtend, reale Symbole raus) großteils erledigt. **Verbleibende Batches:** (a) **Umgebungshumor
-§14.4** (klickbare Plakate/Kaffeeküche/Reißwolf — je Asset via `pixel-asset-pipeline` **mit Budget-Ansage** +
-Gebäude-Platzierung über `corridorDecor`); (b) Broadcast-Schlagzeile direkt aus aktiver Episode + Publikum auf
-Werte-Vektor; (c) weitere TV-/Umfrage-Grafiken. Pipeline ist bestätigt lauffähig (Gegenseite-Porträt erzeugt).
+**Nächster Schritt:** ✅ **Herzstück P0–P7 gebaut (PR #83):** alle Phasen grün (vitest 374). Aufträge wählbar
+mit eigenen Enden, Episoden über das Korkbrett, lebendiger Broadcast/Newsroom (Gegenseite C9 + Asset)/Fokusgruppe,
+Umgebungshumor (Plakate + Reißwolf), Ethik-Geländer (Gegenmaßnahmen + Debrief verpflichtend), reale Symbole raus.
+**Verbleibende Politur (optional, klar umrissen):** (a) weiterer **Umgebungshumor-Asset-Batch** §14.4
+(Kaffeeküche/Volksbrause/Mitarbeiter-des-Monats/Pflanze — je Asset via `pixel-asset-pipeline` **mit Budget-Ansage**
++ `corridorDecor`-Platzierung); (b) tiefere signatur-getriebene Enden im `EndingSystem` (Kategorien/Tonalität);
+(c) Episoden-Lernmoment explizit im End-Report ausweisen. Pipeline bestätigt lauffähig (2 Assets erzeugt).
 > ✅ **Bau-Plan:** `BAUPLAN_2026-06-14_HERZSTUECK.md` (P0 Hygiene → P1 Werte → P2 Splitting → P3 Phänomene →
 > P4 Episoden/Korkbrett → P5 Aufträge/Enden → P6 Vernetzung → P7 Humor/Ethik). **Fortschritt: siehe Herzstück-Block oben.**
 
