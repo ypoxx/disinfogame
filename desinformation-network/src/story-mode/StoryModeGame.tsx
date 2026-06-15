@@ -346,7 +346,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const worldEventCount = state.newsEvents.filter(e => e.type === 'world_event').length;
 
   // Publikum/Broadcast (Taste B) — reine Anzeige-Schicht über audienceModel.
-  const audience = useAudienceBroadcast(state.lastActionResult, state.storyPhase.number, state.resources.risk);
+  const audience = useAudienceBroadcast(state.lastActionResult, state.storyPhase.number, state.resources.risk, {
+    activeEpisodes: state.activeEpisodes,
+    society: { polarisierung: state.resources.polarisierung, zynismus: state.resources.zynismus },
+  });
 
   // Auto-Peek (2d): Der Streifen ist permanent sichtbar; jede neue „Sendung" klappt
   // kurz das volle Wohnzimmer aus, damit der Feedback-Loop (Tat → Publikum reagiert)

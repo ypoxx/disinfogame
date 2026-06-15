@@ -60,8 +60,10 @@ export function tierForIntensity(intensity: number): BroadcastTier {
 /**
  * Aktions-Ergebnis → Broadcast-Eintrag.
  * Intensität: Aufmerksamkeits-Kosten der Aktion (Hauptsignal) + Risiko-Anteil.
+ * `episodeTitle` (P6): gehört die Aktion zu einem aktiven Episoden-Strang, wird der
+ * Broadcast „eine Geschichte mit Namen" (Konzept §7) statt nur einer Aktionszeile.
  */
-export function mapActionToBroadcast(result: ActionResult, riskLevel: number): BroadcastItem {
+export function mapActionToBroadcast(result: ActionResult, riskLevel: number, episodeTitle?: string | null): BroadcastItem {
   const tags = result.action.tags ?? [];
 
   let channel: Channel = 'tv';
@@ -79,14 +81,15 @@ export function mapActionToBroadcast(result: ActionResult, riskLevel: number): B
     Math.min(1, attention / 12 + (riskLevel / 100) * 0.3 + (result.success ? 0.25 : 0.1))
   );
 
+  // B5: plakative Aktions-Überschrift NUR bei Erfolg; bei Misserfolg/Gegenreaktion die
+  // narrative Überschrift (Fehler-/Rückschlag-Text wie „Nicht genug Ressourcen"), Codex-Review #80.
+  const baseHeadline = (result.success && result.action.headline_de) || result.narrative?.headline_de || result.action.label_de;
   return {
     id: `${result.action.id}_${Date.now()}`,
     channel,
     themes: themes.length > 0 ? themes : DEFAULT_THEMES,
     intensity,
-    // B5: plakative Aktions-Überschrift NUR bei Erfolg; bei Misserfolg/Gegenreaktion die
-    // narrative Überschrift (Fehler-/Rückschlag-Text wie „Nicht genug Ressourcen"), Codex-Review #80.
-    headline: (result.success && result.action.headline_de) || result.narrative?.headline_de || result.action.label_de,
+    headline: episodeTitle ? `${episodeTitle}: ${baseHeadline}` : baseHeadline,
     tier: tierForIntensity(intensity),
     kind: result.success ? 'eigen' : 'gegenreaktion',
   };
