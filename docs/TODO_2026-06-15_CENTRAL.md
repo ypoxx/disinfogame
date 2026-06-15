@@ -73,7 +73,9 @@ P1 = großer Qualitätssprung · P2 = Politur & Assets (Budget) · P3 = Aufräum
 - ✅ P2-11 **Tür/Fahrstuhl bereits in gutem Zustand** (verifiziert): Tür offen/zu gleiche Maße, Kabine 170/184 ≈ 92 % Schachtbreite (keine Briefmarke), Tür 144/Avatar 128 ≈ 1,13 (R1 ok), Basislinien fluchten. **Keine Neugenerierung nötig.** *(A4 AN-16/17, DB-03/04/05/06)*
 - ✅ P2-12 **Skyline-Varianten** (Dämmerung/Nacht) über die Tagesuhr überblendet (`skylineLayersForMinutes`); seed-gekoppelte Tiles. Transitions-Optik in der Preview prüfen. *(A4 AN-09)*
 - P2-13 **Poll/Barometer-Grafiken** (`prop_poll_chart`, `prop_barometer_gauge`) — nur falls P6-TV-Viz gebaut wird. *(A2)*
-- P2-14 **Fokusgruppe-Persona-Porträts** ODER CSS akzeptieren; **2 fehlende Personas** (`wu_idealistin`, `wu_macher`). *(A2, B3 — Owner-Entscheidung)*
+- ✅ P2-14 **Fokusgruppe als Feature gebaut** — beauftragbare Befragung (Pre-Test + Sample-Bias) im Beobachtungsraum (`room_analyse`), **30 Personas** über 8 Milieus mit **90 Stimmungs-Porträts**, Budget+Phase-Kosten. (Konzept: `docs/FOKUSGRUPPE_KONZEPT_2026-06-15.md`.) *(A2, B3)*
+  - 🎨 **Folge (visuell): Persona-Blinzeln** — dezente 2-Frame-Mimik-Animation, *nur wenn es bei den kleinen Gesichtern sauber aussieht*. (Phase 3)
+  - 🔗 **Folge (Mechanik): Appell an konkrete Aktionen koppeln** — der Pre-Test testet heute abstrakte Appelle (hope/fear/anger/trust); künftig eine **konkret geplante Maßnahme/Operation** aus der Queue vorab testen (engere Kopplung an die Aktion + Backfire-Risiko bei ungetestetem Versand). Optional: **longitudinale Drift** einer Persona (§7).
 
 **Sound (🔍 zuerst Preview-Verifikation, s. Owner-Fragen):**
 - P2-15 Adaptive Musik (J34/J35) + Ducking (J36) + Ambience-Verdrahtung — **STATUS/Backlog widersprüchlich**.
@@ -108,7 +110,7 @@ P1 = großer Qualitätssprung · P2 = Politur & Assets (Budget) · P3 = Aufräum
 1. **Russisch-codierte NPC-Namen** (Volkov/Petrova/Petrov/Orlova/Smirnov) — als fiktive Ost-Block-Würze behalten, oder fiktionalisieren? *(B3)*
 2. **Reale Plattformnamen** (Twitter/TikTok/Telegram/YouTube) in Topics/Actions — für Glaubwürdigkeit halten oder fiktionalisieren? `SYMBOLS_AUDIT.md` verbietet nur Staatssymbole. *(B2)*
 3. ✅ **Avatar:** entschieden = **m/w-Lauf-Variante** umgesetzt (PR #85). *(P2-9)*
-4. **Fokusgruppe:** CSS-Initialen akzeptieren oder Persona-Porträt-Batch (6+2 Bilder)? *(P2-14)*
+4. ✅ **Fokusgruppe:** entschieden + gebaut — 30 Persona-Porträts (90 Bilder) + beauftragbares Pre-Test-Feature. *(P2-14)*
 5. **Sound:** Sind adaptive Musik/Ducking/Ambience (J34–J36) gebaut? Deploy-Preview prüfen, bevor P2-15 geplant wird. *(A4-Widerspruch)*
 6. ✅ **Asset-Budget-Pakete:** Budget freigegeben → Skyline · Audience · Avatar m/w · Operationszentrale umgesetzt (PR #85). Optional offen: Avatar **hi-res** (48–64 px).
 7. **Auftrag als ECHTE (harte) Win-Condition?** (Pacing) — Heute ist der Auftrag die Sieg-*Qualität* (P1-1), kein harter Gate, weil der Vertrauens-Sieg schneller fällt als die Signatur reift. Soll der Sieg künftig die Signatur **verlangen**? Dann braucht es eine Pacing-Entscheidung: (a) Vertrauens-Sieg verlangsamen, damit die Mission Zeit hat zu reifen, ODER (b) Gesellschaftswerte deutlich schneller bewegen (ändert Polls/Fokusgruppe/Gegenseite-Erzählung mit), ODER (c) bei „hohlem Sieg" weiterspielen lassen, bis die Signatur erfüllt ist. Empfehlung: erst die Spielqualität von P1-1 im Preview erleben, dann entscheiden.
