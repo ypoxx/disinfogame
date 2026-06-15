@@ -89,14 +89,13 @@ const HALF_HINTS = {
 };
 
 const PROPS = [
-  ['prop_tv', 'old CRT television set on a metal stand, screen glowing'],
+  // Archiviert 2026-06-15 (P3-1): prop_tv/red_phone/files/typewriter = alte Sowjet-/CRT-Ära,
+  // im v2-Look retired (s. archive/orphan-assets-2026-06-15/). server_rack/world_map/safe bleiben
+  // für die Keller-/Ops-Deko-Platzierung, prop_coffee als Requisite.
   ['prop_server_rack', 'server rack with blinking red and green LEDs'],
-  ['prop_red_phone', 'red rotary telephone'],
   ['prop_world_map', 'wall-mounted world map with pins and string'],
-  ['prop_files', 'stack of beige paper files and folders'],
   ['prop_safe', 'heavy steel safe with a rotary dial'],
   ['prop_coffee', 'steaming coffee cup on a saucer'],
-  ['prop_typewriter', 'soviet-era mechanical typewriter'],
   // --- Korridor-Deko (R4-Entkachelung): einzelne, frei platzierbare Objekte ---
   // FLACH-FRONTAL (keine Isometrie) — passt zum flachen Korridor-Querschnitt (R4-Befund).
   ['prop_plant_tall', 'a tall potted indoor rubber-tree plant in a simple modern dark pot, full plant from pot to top, strict flat front elevation view, orthographic, NO isometric, NO 3/4 or top-down perspective'],

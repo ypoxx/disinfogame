@@ -831,16 +831,6 @@
       "styleVersion": "v1"
     },
     {
-      "id": "prop_files",
-      "type": "image",
-      "file": "images/prop_files.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: stack of beige paper files and folders. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 308568,
-      "styleVersion": "v1"
-    },
-    {
       "id": "prop_noticeboard",
       "type": "image",
       "file": "images/prop_noticeboard.png",
@@ -911,16 +901,6 @@
       "styleVersion": "v1"
     },
     {
-      "id": "prop_red_phone",
-      "type": "image",
-      "file": "images/prop_red_phone.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: red rotary telephone. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 39184,
-      "styleVersion": "v1"
-    },
-    {
       "id": "prop_safe",
       "type": "image",
       "file": "images/prop_safe.png",
@@ -958,26 +938,6 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A single isolated pixel-art object for a game: a cylindrical brushed-metal office waste bin, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective, do NOT show the rim opening from above. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
       "seed": 494860,
-      "styleVersion": "v1"
-    },
-    {
-      "id": "prop_tv",
-      "type": "image",
-      "file": "images/prop_tv.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: old CRT television set on a metal stand, screen glowing. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 950469,
-      "styleVersion": "v1"
-    },
-    {
-      "id": "prop_typewriter",
-      "type": "image",
-      "file": "images/prop_typewriter.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: soviet-era mechanical typewriter. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 838841,
       "styleVersion": "v1"
     },
     {
@@ -1423,26 +1383,6 @@
       }
     },
     {
-      "id": "audience_family",
-      "type": "sheet",
-      "file": "sheets/audience_family.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a mother with a small child on her lap, sitting and facing the viewer, full body including the seat. Horizontal layout, exactly 2 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 714687,
-      "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
-      "animations": {
-        "idle": {
-          "row": 0,
-          "frames": 2,
-          "frameTime": 600,
-          "loop": true
-        }
-      }
-    },
-    {
       "id": "audience_idealistin",
       "type": "sheet",
       "file": "sheets/audience_idealistin.png",
@@ -1450,26 +1390,6 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A 2-frame pixel art sprite sheet of a woman in her mid 30s in a linen shirt with a tote bag leaning against the sofa, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 832249,
-      "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
-      "animations": {
-        "idle": {
-          "row": 0,
-          "frames": 2,
-          "frameTime": 600,
-          "loop": true
-        }
-      }
-    },
-    {
-      "id": "audience_intellectual",
-      "type": "sheet",
-      "file": "sheets/audience_intellectual.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a thin man with round glasses holding a folded newspaper, sitting and facing the viewer, full body including the seat. Horizontal layout, exactly 2 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 635879,
       "styleVersion": "v1",
       "frameWidth": 48,
       "frameHeight": 48,
@@ -1523,26 +1443,6 @@
       }
     },
     {
-      "id": "audience_official",
-      "type": "sheet",
-      "file": "sheets/audience_official.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a stiff mid-level official in a grey uniform-like suit, sitting and facing the viewer, full body including the seat. Horizontal layout, exactly 2 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 362205,
-      "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
-      "animations": {
-        "idle": {
-          "row": 0,
-          "frames": 2,
-          "frameTime": 600,
-          "loop": true
-        }
-      }
-    },
-    {
       "id": "audience_optimiererin",
       "type": "sheet",
       "file": "sheets/audience_optimiererin.png",
@@ -1550,66 +1450,6 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A 2-frame pixel art sprite sheet of a career woman in her mid 30s in a white blazer, holding a smoothie cup, sitting upright, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 350343,
-      "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
-      "animations": {
-        "idle": {
-          "row": 0,
-          "frames": 2,
-          "frameTime": 600,
-          "loop": true
-        }
-      }
-    },
-    {
-      "id": "audience_pensioner",
-      "type": "sheet",
-      "file": "sheets/audience_pensioner.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of an elderly pensioner woman with a headscarf and knitting, sitting and facing the viewer, full body including the seat. Horizontal layout, exactly 2 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 55006,
-      "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
-      "animations": {
-        "idle": {
-          "row": 0,
-          "frames": 2,
-          "frameTime": 600,
-          "loop": true
-        }
-      }
-    },
-    {
-      "id": "audience_worker",
-      "type": "sheet",
-      "file": "sheets/audience_worker.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a tired factory worker in blue overalls, middle-aged man, sitting and facing the viewer, full body including the seat. Horizontal layout, exactly 2 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 560907,
-      "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
-      "animations": {
-        "idle": {
-          "row": 0,
-          "frames": 2,
-          "frameTime": 600,
-          "loop": true
-        }
-      }
-    },
-    {
-      "id": "audience_youth",
-      "type": "sheet",
-      "file": "sheets/audience_youth.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a young student with a walkman headphones around the neck, sitting and facing the viewer, full body including the seat. Horizontal layout, exactly 2 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 901004,
       "styleVersion": "v1",
       "frameWidth": 48,
       "frameHeight": 48,
