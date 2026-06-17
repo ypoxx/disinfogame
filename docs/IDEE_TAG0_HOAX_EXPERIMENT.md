@@ -41,5 +41,28 @@ Marina danach: „*Süß. Jetzt mit Absicht.*" → übergibt an Auftragswahl/Zie
 Dies ist der **erste fest gesetzte „Beat"** des Tag-1-Skripts: garantierter Aha-Moment, der dann an
 den Director übergibt. Re-Sequenzierung vorhandener Teile, kein neuer Inhalt.
 
-> Offene Director-Entscheidungen (noch zu treffen): welche Aktion · genaue absurde Rahmung ·
-> welches Segment „glaubt" · Wortlaut der Brücke · ob Risiko in der Probier-Zone zählt.
+## Geformter Beat — Director-Entscheidungen A–D (Owner, 2026-06-15, in Sitzung getroffen)
+*Status weiterhin: nicht final zur Umsetzung freigegeben — aber inhaltlich geformt.*
+
+- **A — Experiment-Aktion:** `Verschwörungsnarrativ entwickeln` (lauter, sichtbarster Aha; Schlagzeile
+  „Verschwörungserzählung lanciert").
+- **B — Zugang zum Inhalt:** **drei geführte Köder** (geführte Freiheit), Spieler wählt einen:
+  1. „Die Stadttauben sind Regierungsdrohnen"
+  2. „Im Trinkwasser ist ein Mittel, das die Leute fügsam macht"
+  3. „Die berühmte Brücke wurde nie gebaut — alles Kulisse" *(Vorgriff auf Episode `ep_bruecke`)*
+- **C — Echo / Bildungs-Pointe:** diegetisches Echo (**ein Segment glaubt es**, z. B. „Die Abgehängten:
+  überzeugt"; Faktencheckerin Ferro: „…frei erfunden") **+ Marinas Satz**: „Sehen Sie? Es muss nicht
+  stimmen. Es muss nur ankommen." (Real-Welt-„Wussten Sie?"-Karte → in den End-Report, NICHT hier.)
+- **D — Probier-Zone:** **folgenlos** (weder Kosten noch Risiko zählen) — Kalibrierung, kein Zug.
+- **Brücke (Toy→Game):** Marina „Süß. Jetzt mit Absicht." → Auftragswahl (Keil/Wahl/Zweifel).
+
+### Was es real anfasst (Orchestrierung, kein Neubau)
+- **Wiederverwendet:** Aktion + Schlagzeile, Marina + Stimme, Broadcast/Quote/Wohnzimmer, 8 Segmente,
+  Ferro/Gegenseite, Auftragswahl.
+- **Neu (klein):** 3 Köder-Zeilen · 1 Echo-Regel · Marinas 2 Sätze · Reihenfolge als Tag-1-Beat ·
+  Schalter „Probier-Zone folgenlos".
+- **Spine:** 1 Director-Eintrag (Tag 1, erster Beat) · 3 Beat-Queue-Ereignisse (ON AIR → Echo →
+  Brücke) · Fortschritts-Anzeige bleibt still, erscheint mit der Auftragswahl.
+
+> Noch offen, falls gebaut wird: exakte Quote-Zahl/Tuning · ob alle 3 Köder ein eigenes Echo bekommen
+> oder ein gemeinsames · genaue Anbindung an den (noch zu bauenden) Director/Beat-Queue.
