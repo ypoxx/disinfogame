@@ -55,6 +55,36 @@ Anti-Wiederholungs-Tiebreak greift nur auf den ruhigen Tagen → Notfall bleibt
 glaubwürdig, Routine-Tage nutzen sich nicht ab (Kur gegen „Tag 3,4,5 immer
 dasselbe").
 
+## Entscheidung ③ — Offenheits-Prinzip: **Offene Beats mit Trade-offs**
+Gegen die Sorge „Automatisierung → ein richtiger Weg". Kern-Klarstellung: das
+sind eigentlich *zwei* Ängste, mit verschiedenen Kuren —
+- **(a) Gleichförmigkeit** — immer dieselbe *Abfolge* von Anlässen.
+- **(b) Lösungs-Schiene** — pro Anlass nur *eine richtige Antwort*.
+
+Und „Beat" = **Anlass/Bühne**, kein Drehbuch-Stück. Der Director kürt *was
+passiert*, nie *was der Spieler tut*. (Der dünne Dirigent aus ① schreibt ohnehin
+keine feste Abfolge — er reagiert je Phase neu auf den Zustand; ein fixer Pfad ist
+bauartbedingt ausgeschlossen.)
+
+**Primäres, bindendes Prinzip (Kur für b):** Jeder Beat muss **mindestens zwei
+nicht-dominierte Antworten** bieten — keine Option ist auf allen Achsen
+(Vertrauen / Risiko / Aufmerksamkeit / Ziel) besser als eine andere; jede kostet
+*woanders*. Der Berater *empfiehlt* relativ zum aktuellen Ziel
+(Keil/Wahl/Zweifel), aber ein anderes Ziel empföhle eine andere Antwort →
+„richtig" ist **strategie-relativ**, nicht absolut. Nutzt die vorhandene
+Trade-off-Struktur der Aktionen — **kein neues System, eine Autoren-Disziplin**
+(testbar: ein Beat ohne ≥2 nicht-dominierte Optionen ist ein Fehler).
+
+**Gestaffelt darüber (später, optional):**
+- **2 — Beat-Pool mit Gewichtung** (Kur für a): Director zieht aus einem *Pool*
+  passender Beats mit gewichtetem Zufall (Dringlichkeit ↑, jüngst gesehener Typ ↓)
+  statt immer den Top-Beat. Billiger, natürlicher Zusatz; zwei ähnliche
+  Spielstände driften auseinander.
+- **3 — Reaktive Beats** (Originalität): Beats nach Spieler-Vorgeschichte
+  parametrisiert (derselbe Anlass spielt anders je nach bisherigem Stil; NPCs
+  erinnern sich). Reichste Variante, meiste Autorenarbeit — gezielt dort, wo sie
+  sich lohnt.
+
 ## Das einzige wirklich Neue
 Eine schlanke `StoryDirector`-Funktion (rein, testbar, wie `dayClockStore`/
 `CrisisMomentSystem`), die am Ende von `advancePhase()` läuft:
