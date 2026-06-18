@@ -11,6 +11,8 @@ ist deshalb **eine Naht, kein neuer Motor** — sie sequenziert und macht sichtb
 was schon existiert.
 
 ## Fund: fünf bereits existierende Regie-Systeme
+> Pfade in dieser Tabelle relativ zu `desinformation-network/src/story-mode/`.
+
 | System | Was es heute tut | Datei |
 |---|---|---|
 | Krisen-System | zustandsgetriggerte Beats am Phasenende (Risiko/Aufmerksamkeit/Aktionszahl) | `engine/CrisisMomentSystem.ts` |
@@ -84,6 +86,39 @@ Trade-off-Struktur der Aktionen — **kein neues System, eine Autoren-Disziplin*
   parametrisiert (derselbe Anlass spielt anders je nach bisherigem Stil; NPCs
   erinnern sich). Reichste Variante, meiste Autorenarbeit — gezielt dort, wo sie
   sich lohnt.
+
+## Lackmustest ③: Der Stadtrat-Beat (am echten Mechanik-Modell)
+Zwei Ebenen im Spiel: **Spieler-Kosten** (`risk` 0–100, `attention` 0–100,
+Reichweite/Budget — `StoryEngineAdapter.ts`) und **Gesellschafts-Werte**, die den
+Auftrag bewegen (polarisierung/fragmentierung/diskursqualitaet/fraktionsstaerke/
+vertrauen/zynismus — `engine/Auftraege.ts`). Auftrags-Signaturen: Keil
+(polaris.↑/fragm.↑/diskurs↓) · Wahl (fraktion↑/vertrauen↓/zynismus↑) · Zweifel
+(vertrauen↓/zynismus↑/diskurs↓).
+
+**Anlass:** „Der Stadtrat tagt morgen über das Reizthema." Der Director setzt nur
+den Anlass; die Antwort gehört dem Spieler.
+
+| Option | Gesellschafts-Werte | Spieler-Kosten | Reichw. |
+|---|---|---|---|
+| A — Hetzen (Skandal aufladen) | polaris.↑↑, zynismus↑, diskurs↓ | Aufmerks.↑↑, Risiko↑ | hoch |
+| B — Einschleusen (Verfahren delegitimieren) | vertrauen↓, zynismus↑, diskurs↓ | Aufmerks.↓ (leise), Risiko↑ bei Enttarnung, Budget/Zeit | niedrig |
+| C — Fraktion stärken | fraktionsstaerke↑↑, polaris.↑ | Aufmerks.↑, Risiko↑ | gezielt |
+| D — Laufen lassen (abkühlen) | — (kein Fortschritt) | Aufmerks.↓, Risiko↓ | 0 |
+
+- **Nicht-Dominanz: hält.** Keine Option ist auf allen Achsen beste; jede gewinnt
+  woanders (A=Reichweite, B=Tarnung+Zweifel-Trifecta, C=einzige für fraktion, D=
+  einzige, die Hitze senkt).
+- **Strategie-Relativität: hält.** Keil→A, Wahl→C, Zweifel→B, überhitzt→D. Der
+  Berater empfiehlt entlang des *aktiven* Auftrags; andere Aufträge sind von
+  anderen Optionen korrekt bedient. „Richtig" ist strategie-relativ.
+
+**Verschärfung von ③ (vom Test gefördert) — testbare Autoren-Checkliste je Beat:**
+> **Deckung + kein Universalsieger:** Jede Option muss für *mindestens eine*
+> Strategie/Lage die beste sein — und *keine* für alle. Zusätzlich muss die
+> Kosten-Achse (Risiko/Aufmerksamkeit) situative Überschreibungen erzeugen (z. B.
+> „abkühlen" als Überhitzungs-Ventil). Verhindert nicht nur „eine richtige
+> Antwort", sondern auch schleichende *Weich*-Dominanz einer Option über mehrere
+> Aufträge.
 
 ## Das einzige wirklich Neue
 Eine schlanke `StoryDirector`-Funktion (rein, testbar, wie `dayClockStore`/
