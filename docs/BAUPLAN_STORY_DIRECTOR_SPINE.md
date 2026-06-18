@@ -95,8 +95,11 @@ vertrauen/zynismus — `engine/Auftraege.ts`). Auftrags-Signaturen: Keil
 (polaris.↑/fragm.↑/diskurs↓) · Wahl (fraktion↑/vertrauen↓/zynismus↑) · Zweifel
 (vertrauen↓/zynismus↑/diskurs↓).
 
-**Anlass:** „Der Stadtrat tagt morgen über das Reizthema." Der Director setzt nur
-den Anlass; die Antwort gehört dem Spieler.
+**Anlass:** „Der Stadtrat von [Stadt] in **Gallia** (Fokus-Mitgliedsstaat) tagt
+morgen über das Reizthema." Der Director setzt nur den Anlass; die Antwort gehört
+dem Spieler. (Skala/Geografie gemäß `WELT_ECKPUNKTE_WESTUNION.md` — eine
+Stadtrats-Institution sitzt in einer Stadt eines Mitgliedsstaats, nie „in
+Westunion".)
 
 | Option | Gesellschafts-Werte | Spieler-Kosten | Reichw. |
 |---|---|---|---|
