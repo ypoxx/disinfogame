@@ -57,3 +57,20 @@ Ohne Anker improvisiert jeder Beat seine Geografie und landet auf der falschen
 Skala. Mit Anker hat jeder Beat eine klare **Bühne** (Fokus-Staat) und **Ebene**
 (Union/Staat/Stadt) — lokale und unionsweite Ereignisse fühlen sich dann richtig
 an, und Beats lassen sich überhaupt sauber ausformen.
+
+## Die Gegenseite: ein langsames Immunsystem (kein Konter)
+> Kanonisiert 2026-06-18 aus dem Muster-Formen (`BEAT_MUSTER_KATALOG.md` C.2).
+
+Die Gegenseite der Westunion (Faktenchecker, Regulierer, aufgeklärte
+Öffentlichkeit) wirkt **nicht** als dramatischer Gegenschlag, sondern als
+**langsames Immunsystem**: Enttarnung einer Operation ist meist nur eine *kleine
+Bremse*; die eigentliche Abwehr ist die über die Zeit wachsende
+**gesellschaftliche Resilienz** (Aufklärung, Regulierung, Inokulation der
+Publika). Das reframt jedes „Backfire" in den Beats: nicht „der Spieler fliegt
+spektakulär auf", sondern „die Immunabwehr lernt dazu".
+
+**Verfeinerung:** Resilienz *dämpft* in der Regel — kann aber selten paradox
+*verstärken*, wenn ein Widerlegungs-Versuch die Erzählung erst verbreitet
+(Streisand; real belegt am Biolabs-Fall, vgl. `IDEE_BEAT_BUMERANG.md`).
+Auflösungs-Regel für `Gegenseite.ts`: Dämpfung als Norm, Amplifikation als seltene
+Ausnahme.

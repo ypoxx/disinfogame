@@ -123,6 +123,19 @@ Westunion".)
 > Antwort", sondern auch schleichende *Weich*-Dominanz einer Option über mehrere
 > Aufträge.
 
+## Befunde aus dem Muster-Katalog (6 Beats)
+> Aus der Synthese `BEAT_MUSTER_KATALOG.md` (Teil C). Zwei Befunde betreffen die
+> Spine direkt:
+- **Die Relativitäts-Achse wandert.** ③ hält über alle Beats, aber *woran* sich
+  „richtig" misst, verschiebt sich: **Auftrag** (offensive Beats: Stadtrat/Reale
+  Vorlage/Schwelbrand) → **operative Lage** (Loyalitätsprobe/Nebel) → **Spiel-
+  geschichte** (Bumerang). Der Director/Berater (`NPCAdvisorEngine`) muss die
+  Achse je Beat kennen, um lagegerecht zu empfehlen.
+- **Der Dirigent braucht ein Gedächtnis.** Der Bumerang-Beat macht *vergangenen*
+  Spielzustand (Narrativ-Gedächtnis: welche Themen liefen, wie inokuliert) zum
+  First-Class-Input — der konkrete Treiber für **Schicht 3 (reaktive Beats)** und
+  eine Save/Load-relevante Zustandsfrage (vgl. §offene Implementierungsfragen).
+
 ## Das einzige wirklich Neue
 Eine schlanke `StoryDirector`-Funktion (rein, testbar, wie `dayClockStore`/
 `CrisisMomentSystem`), die am Ende von `advancePhase()` läuft:
