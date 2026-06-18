@@ -3409,12 +3409,22 @@ export class StoryEngineAdapter {
       moralWeight: this.storyResources.moralWeight,
     });
 
+    // T3.4-Fix: resourceChanges sind signierte Deltas, keine Roh-Kosten. Budget/Kapazität
+    // werden verbraucht (negativ), Risiko/Aufmerksamkeit steigen (positiv) — sonst zeigte das
+    // Ergebnis-Modal „+$3K" grün, während der Saldo sank. Budget um den NPC-Rabatt korrigiert
+    // (analog deductActionCosts).
+    const resourceChanges: Partial<StoryResources> = { ...action.costs };
+    if (resourceChanges.budget) {
+      resourceChanges.budget = -Math.ceil(resourceChanges.budget * (1 - this.calculateNPCDiscount(action) / 100));
+    }
+    if (resourceChanges.capacity) resourceChanges.capacity = -resourceChanges.capacity;
+
     // Ergebnis
     const result: ActionResult = {
       success: true,
       action,
       effects,
-      resourceChanges: action.costs,
+      resourceChanges,
       narrative: {
         headline_de: storyNarrative.headline_de,
         headline_en: storyNarrative.headline_en,

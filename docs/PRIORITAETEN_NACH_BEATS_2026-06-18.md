@@ -1,0 +1,65 @@
+# Prioritäten nach den Beats — was außerhalb der Beats fehlt
+
+> In-Sitzung mit Owner geformt (2026-06-18). Status: **Plan/Sequenz**.
+> Brücke: nach der Beat-Synthese (`BEAT_MUSTER_KATALOG.md`) zurück zum
+> Spielerinnen-Feedback geschaut, um zu prüfen, was *außerhalb* der Beats fehlt.
+> Quellen: `PLAYTEST_PERSONAS_2026-06-15.md` (+ `_TEIL2`),
+> `ORCHESTRATION_FEEDBACK.md`, `REVIEW_2026-06-15_GAME_STRUCTURE.md` (30 Befunde,
+> destilliert).
+
+## Befund
+Die Beats sind die narrative Wirbelsäule — aber die Tester scheitern *davor*, in
+Minute 10–30. Kernaussage: **nicht zu schwer, sondern verstecktes Getriebe + zu
+viel zu früh + Feedback-Lücken + Reflexion end-lastig.** Außerhalb der Beats fehlt
+*mehr* als bei den Beats selbst.
+
+## Die fünf Themen
+| # | Thema | Kern | Schwere | berührt Beats? |
+|---|---|---|---|---|
+| **1** | Getriebe unsichtbar | Kausalkette Aktion→Gesellschaftswerte nicht sichtbar; Barometer-Zielrichtung unklar; GESELLSCHAFT-Leiste nur auf Taste H; Lagebild zeigt Werte+Auftrag nicht | 🔴 dominant (Retention-Killer) | indirekt |
+| **2** | Erste halbe Stunde verliert | zwei Aktionsflächen/Verben; Auftragswahl zu früh/kontextlos; Tag-1 ohne Führung; 4-schichtiges Zeitmodell; „stille Tage" | 🔴 hoch (Cliff Min 10–30) | nein |
+| **3** | Totes/kaputtes Gerüst | **Episoden schließen nie ab**; EndingSystem (8×7) toter Code; Advisor empfiehlt nicht-existente Aktionen; Budget-Vorzeichen-Bug; Heimweg/Tageswechsel teils blockiert; doppelte NPC-Reaktion | 🟠 billig + hohe Wirkung | **ja** |
+| **4** | Inhalts-Konsistenz | **NPC-Rollenrutsch** (Ambient ≠ Steckbrief); Topics schwach; reale Symbole leaken | 🟠 mittel | **ja, direkt** |
+| **5** | Reflexion zu spät | Belohnung sofort, Schaden/Gegenseite erst im End-Report → trainiert erst den Reiz | 🟠 didaktischer Kern | **ja** |
+
+## Brücken zur Beat-Arbeit
+- **T5 ↔ „Gegenseite = Immunsystem" (Befund C.2):** Wenn der Schaden als langsame
+  Resilienz *früher/spürbarer* zurückkommt statt erst im End-Report, kippt die
+  Didaktik vom Reiz zur Reflexion. Konzeptionelle Lösung steht — nur nicht im
+  Loop verdrahtet.
+- **T4 ↔ Beat-NPCs:** Beat #4 (Loyalitätsprobe) baut auf Katja=Feld /
+  Alexei=Techniker. Weicht deren Ambient-Stimme von der Rolle ab, bricht der Beat.
+  Symbol-Leaks widersprechen `SYMBOLS_AUDIT.md`.
+
+## Empfohlene Sequenz (Owner-bestätigt)
+**T3 → T1 → T5**, T4 eingezogen, wo es Beats direkt trägt.
+
+**Warum T3 zuerst:**
+1. Bestes Wirkung/Aufwand — nichts Neues bauen, Vorhandenes zum Feuern bringen.
+2. Erlöst die Beat-Arbeit: Episoden = autorierte Beats, die wegen eines Bugs *nie
+   auszahlen* (`wirkt_auf` + Lernmoment feuern nicht); EndingSystem = ungenutzte
+   Ausgangs-Vielfalt.
+3. Niedriges Risiko, verifizierbar (Bugs haben klare richtige Antworten).
+4. Fundament für T1/T5 — keine bessere Sichtbarkeit auf einen kaputten Loop setzen.
+
+**Disziplin:** jeden gemeldeten Bug **erst im Code verifizieren** (Befunde stammen
+aus einem Review, nicht aus eigener Sichtung), dann fixen, dann Durchlauf prüfen.
+
+## T3 — Verifikations-Ergebnis (2026-06-18, am Code geprüft)
+**Kernbefund:** Das Review (06-15) war *stale* — Commit **#84** lieferte Review
+*und* P0-Fixes zusammen; die Playtest-Berichte kamen erst danach. Die Review-Bugs
+sind also bereits gefixt; offen sind nur die *playtest*-stämmigen Punkte.
+Baseline: `tsc` sauber, **391 Tests grün**.
+
+| ID | Bug | Quelle | Status |
+|---|---|---|---|
+| T3.1 | `completeEpisode()` nie live aufgerufen | REVIEW §B1 | ✅ bereits gefixt (#84, `P0-1`: Live-`useEffect`) |
+| T3.2 | EndingSystem (8×7) toter Code | REVIEW §B1 | ✅ bereits gefixt (#84, `P0-2`: `checkGameEnding` + Wiring-Test) |
+| T3.3 | Advisor empfiehlt nicht-existente IDs | REVIEW §B3 | ✅ bereits gefixt (#84, `P0-5`: aus verfügbaren Aktionen + Fallback) |
+| T3.4 | Budget-Vorzeichen: „+$3K" grün bei sinkendem Saldo | PLAYTEST A/B | ✅ **diese Sitzung gefixt** (signierte Deltas an der Quelle) |
+| T3.5 | Heimweg/Tageswechsel teils blockiert | PLAYTEST TEIL2 §2 | ⏳ nur per **Live-Durchlauf** verifizierbar (Animation/Timing) |
+| T3.6 | Doppelte NPC-Reaktion (Modal + Pop-up-Box) | PLAYTEST A | 🔧 real bestätigt — Fix-Richtung = Owner-Entscheidung |
+
+**Nebenbefund:** #84 hat auch T1/T2-Punkte erledigt — `P0-3` (Lagebild zeigt jetzt
+GESELLSCHAFT+AUFTRAG; deckt #30 + Teil von #25) und `P0-4` (P2-Operationszentrale
+auffindbar; #19). Das verkleinert T1/T2 spürbar.
