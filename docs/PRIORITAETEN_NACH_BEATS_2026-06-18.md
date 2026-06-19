@@ -88,3 +88,18 @@ sauber neu startet. `tsc` sauber, 391 Tests grün, Build ok.
 **Verifikation:** Logik + grüne Checks. Laufzeit-Bestätigung braucht den **Dev-
 Server** (StrictMode; `vite preview` = Production zeigt den Bug nicht) — optionaler
 Spot-Check: Büro → „Tag beenden" → Tagesfazit erscheint.
+
+## T1 — Fortschritt: #5 Kausalkette sichtbar (erledigt)
+Das Ergebnis-Modal (`ActionFeedbackDialog`) zeigt jetzt den Block **„GESELLSCHAFT —
+WIRKUNG DIESER AKTION"**: die unmittelbaren Gesellschaftswert-Deltas der Aktion
+(z. B. Polarisierung ▲ +3, Fragmentierung ▲ +2) + Vertrauen, nur bei tatsächlicher
+Wirkung. Engine: neues `ActionResult.societyChanges` via Vorher/Nachher-Schnappschuss
+um `applyActionEffects` (`StoryEngineAdapter`). Damit ist die Kausalkette
+Aktion→Werte am **Entscheidungspunkt** sichtbar (lag bisher nur in der Konsole /
+verzögert im Lagebericht). Mechanisch ehrlich: Analyse-/Vorbereitungs-Aktionen
+bewegen die Werte nicht → kein Block. Engine-verifiziert (2.1/3.1/9.3 liefern Deltas,
+1.1 nicht) + Live-Durchlauf bestätigt (`runs/t3-runthrough/06_RESULT_MODAL.png`).
+tsc/391 Tests/Build grün.
+
+**Offen in T1:** #14 Barometer-Zielrichtung (hoch/runter?) + Trend · #27
+Wirksamkeits-„50%"-Herleitung · #24 Segment-Stimmung früher zeigen.

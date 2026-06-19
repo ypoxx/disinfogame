@@ -288,6 +288,11 @@ export interface ActionResult {
   // Ressourcen-Änderungen
   resourceChanges: Partial<StoryResources>;
 
+  // T1/#5: unmittelbare Gesellschaftswert-Wirkung dieser Aktion (gerundete Deltas,
+  // nur ≠ 0) + Vertrauen. Macht die Kausalkette Aktion→Werte am Entscheidungspunkt
+  // sichtbar — die Wirkung lag bisher nur in der Konsole / verzögert im Lagebericht.
+  societyChanges?: Partial<Record<SocietyValueKey, number>> & { vertrauen?: number };
+
   // Narrative Reaktion
   narrative: {
     headline_de: string;
@@ -3354,8 +3359,14 @@ export class StoryEngineAdapter {
     // Aktion Points reduzieren
     this.storyResources.actionPointsRemaining--;
 
+    // T1/#5: Gesellschaftswerte vor den Effekten schnappen, um die unmittelbare
+    // Wirkung dieser Aktion sichtbar zu machen (Delta nach applyActionEffects).
+    const societyBefore = this.getSocietySnapshot();
+    const trustBefore = this.objectives.find((o) => o.id === 'obj_destabilize')?.currentValue ?? 100;
+
     // Effekte anwenden
     const effects = this.applyActionEffects(action, options);
+    const societyChanges = this.societyChangesSince(societyBefore, trustBefore);
 
     // Konsequenzen registrieren
     const potentialConsequences = this.registerPotentialConsequences(action);
@@ -3425,6 +3436,7 @@ export class StoryEngineAdapter {
       action,
       effects,
       resourceChanges,
+      societyChanges,
       narrative: {
         headline_de: storyNarrative.headline_de,
         headline_en: storyNarrative.headline_en,
@@ -3578,6 +3590,25 @@ export class StoryEngineAdapter {
       reformfaehigkeit: r.reformfaehigkeit,
       fraktionsstaerke: r.fraktionsstaerke,
     };
+  }
+
+  /** T1/#5: unmittelbare Gesellschaftswert-Änderung einer Aktion (gerundet, nur ≠ 0)
+   *  + Vertrauen (aus obj_destabilize). Vergleicht den Schnappschuss vor den Effekten
+   *  mit dem aktuellen Zustand. */
+  private societyChangesSince(
+    before: SocietySnapshot,
+    trustBefore: number
+  ): ActionResult['societyChanges'] {
+    const after = this.getSocietySnapshot();
+    const out: Partial<Record<SocietyValueKey, number>> & { vertrauen?: number } = {};
+    for (const key of Object.keys(after) as SocietyValueKey[]) {
+      const d = Math.round(after[key] - before[key]);
+      if (d !== 0) out[key] = d;
+    }
+    const trustAfter = this.objectives.find((o) => o.id === 'obj_destabilize')?.currentValue ?? trustBefore;
+    const dv = Math.round(trustAfter - trustBefore);
+    if (dv !== 0) out.vertrauen = dv;
+    return Object.keys(out).length > 0 ? out : undefined;
   }
 
   /** P3: verbleibende Phasen des aktiven Krisenfensters (0 = keins). */

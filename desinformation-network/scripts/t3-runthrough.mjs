@@ -87,25 +87,36 @@ await page.waitForTimeout(800);
 await shot('05_actions_panel.png');
 log('Buttons @ actions panel:', JSON.stringify(await buttonTexts()).slice(0, 900));
 
-// Eine Aktion ausführen (erst evtl. eine Aktion in der Liste wählen, dann ausführen)
-let exec = await clickByText(/ausführen|sofort|jetzt ausführen|absenden/i);
-if (!exec) {
-  await page.locator('text=/analy|kampagne|bot|troll|meme|gerücht|zielgruppe/i').first().click({ timeout: 1500 }).catch(() => {});
-  await page.waitForTimeout(450);
-  await shot('05b_after_pick.png');
-  exec = await clickByText(/ausführen|sofort|jetzt ausführen|absenden/i);
-}
-if (exec) {
-  log(`-> Aktion ausgeführt via '${exec}'`);
-  await page.waitForTimeout(1100);
-  const hasModal = await bodyHas(/AKTION ERFOLGREICH|AKTION FEHLGESCHLAGEN|RESSOURCEN|NPC-REAKTIONEN|VERSTANDEN/i);
-  log(`-> Ergebnis-Modal: ${hasModal} | NPC-REAKTIONEN: ${await bodyHas(/NPC-REAKTIONEN/i)} | Budget: ${await bodyHas(/Budget/i)}`);
-  await shot('06_RESULT_MODAL.png');
+// Mehrere Aktionen durchprobieren, bis das Ergebnis-Modal einen GESELLSCHAFT-Block
+// zeigt (Analyse-Aktionen bewegen die Werte nicht). #5-Beweis. Das Panel schließt
+// nach jeder Ausführung → vor jeder Iteration neu öffnen + i-ten Knopf wählen.
+const collectExec = async () => {
+  const out = [];
+  for (const el of await page.getByRole('button').all()) {
+    if (/ausführen/i.test((await el.textContent().catch(() => '')) || '')) out.push(el);
+  }
+  return out;
+};
+let shown = false;
+for (let i = 0; i < 8 && !shown; i++) {
+  let btns = await collectExec();
+  if (btns.length === 0) {
+    await page.keyboard.press('a').catch(() => {}); // Aktionen-Panel erneut öffnen
+    await page.waitForTimeout(500);
+    await clickByText(/^\s*alle\s*$/i);
+    await page.waitForTimeout(300);
+    btns = await collectExec();
+  }
+  if (btns.length === 0) { log(`#${i}: keine Ausführen-Knöpfe (AP erschöpft?)`); break; }
+  await btns[Math.min(i, btns.length - 1)].click({ timeout: 1500 }).catch(() => {});
+  await page.waitForTimeout(1000);
+  const hasSoc = await bodyHas(/WIRKUNG DIESER AKTION/i);
+  log(`exec #${i}: Modal=${await bodyHas(/AKTION ERFOLGREICH|RESSOURCEN/i)} NPC=${await bodyHas(/NPC-REAKTIONEN/i)} GESELLSCHAFT=${hasSoc}`);
+  if (hasSoc) { await shot('06_RESULT_MODAL.png'); shown = true; break; }
   await clickByText(/verstanden|schließen/i);
-  await page.waitForTimeout(400);
-} else {
-  log('-> kein Ausführen-Knopf gefunden');
+  await page.waitForTimeout(500);
 }
+log('Gesellschaft-Block gezeigt:', shown);
 
 // T3.5: Tageswechsel/Heimweg versuchen
 log('--- T3.5 Tageswechsel-Versuch ---');

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { StoryModeColors } from '../theme';
 import type { ActionResult } from '../../game-logic/StoryEngineAdapter';
+import { SOCIETY_VALUE_META, type SocietyValueKey } from '../../game-logic/StoryEngineAdapter';
 import { COMBO_COLORS } from '../../utils/colors';
 import { Icon } from './Icon';
 import { PixelModal } from './PixelModal';
@@ -65,6 +66,44 @@ export function ActionFeedbackDialog({
       ))}
     </div>
   );
+
+  // T1/#5: Gesellschaftswert-Wirkung dieser Aktion (Kausalkette sichtbar). Zeigt nur
+  // tatsächlich bewegte Werte; Label aus SOCIETY_VALUE_META, „Vertrauen" separat.
+  const socLabel = (k: string) =>
+    k === 'vertrauen' ? 'Vertrauen' : SOCIETY_VALUE_META[k as SocietyValueKey]?.label_de ?? k;
+  const renderSociety = (changes: NonNullable<ActionResult['societyChanges']>) => {
+    const entries = (Object.entries(changes) as [string, number][]).filter(([, v]) => v !== 0);
+    if (entries.length === 0) return null;
+    return (
+      <div
+        className="border-2 p-4"
+        style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.agencyBlue }}
+      >
+        <h3
+          className="font-bold mb-1 text-sm flex items-center gap-2"
+          style={{ color: StoryModeColors.agencyBlue }}
+        >
+          <Icon name="mission" size={14} title="Gesellschaft" fallback="§" /> GESELLSCHAFT — WIRKUNG DIESER AKTION
+        </h3>
+        <div className="text-xs mb-3" style={{ color: StoryModeColors.textMuted }}>
+          So verschiebt diese Aktion die gesellschaftlichen Werte.
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          {entries.map(([k, v]) => (
+            <div key={k} className="flex justify-between">
+              <span style={{ color: StoryModeColors.textMuted }}>{socLabel(k)}:</span>
+              <span
+                className="font-bold"
+                style={{ color: v > 0 ? StoryModeColors.warning : StoryModeColors.agencyBlue }}
+              >
+                {v > 0 ? `▲ +${v}` : `▼ ${v}`}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   // Calculate cumulative stats for batch mode
   const cumulativeChanges = isBatchMode ? results.reduce((acc, r) => {
@@ -364,6 +403,9 @@ export function ActionFeedbackDialog({
                       </div>
                     )}
 
+                    {/* T1/#5: Gesellschafts-Wirkung dieser Aktion */}
+                    {actionResult.societyChanges && renderSociety(actionResult.societyChanges)}
+
                     {/* NPC Reactions */}
                     {actionResult.npcReactions && actionResult.npcReactions.length > 0 && (
                       <div
@@ -569,6 +611,9 @@ export function ActionFeedbackDialog({
               </div>
             </div>
           )}
+
+          {/* T1/#5: Gesellschafts-Wirkung dieser Aktion */}
+          {singleResult.societyChanges && renderSociety(singleResult.societyChanges)}
 
           {/* Effects */}
           {singleResult.effects && singleResult.effects.length > 0 && (
