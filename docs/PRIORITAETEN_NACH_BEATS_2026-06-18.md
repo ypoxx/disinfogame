@@ -56,10 +56,16 @@ Baseline: `tsc` sauber, **391 Tests grün**.
 | T3.1 | `completeEpisode()` nie live aufgerufen | REVIEW §B1 | ✅ bereits gefixt (#84, `P0-1`: Live-`useEffect`) |
 | T3.2 | EndingSystem (8×7) toter Code | REVIEW §B1 | ✅ bereits gefixt (#84, `P0-2`: `checkGameEnding` + Wiring-Test) |
 | T3.3 | Advisor empfiehlt nicht-existente IDs | REVIEW §B3 | ✅ bereits gefixt (#84, `P0-5`: aus verfügbaren Aktionen + Fallback) |
-| T3.4 | Budget-Vorzeichen: „+$3K" grün bei sinkendem Saldo | PLAYTEST A/B | ✅ **diese Sitzung gefixt** (signierte Deltas an der Quelle) |
-| T3.5 | Heimweg/Tageswechsel teils blockiert | PLAYTEST TEIL2 §2 | ⏳ nur per **Live-Durchlauf** verifizierbar (Animation/Timing) |
-| T3.6 | Doppelte NPC-Reaktion (Modal + Pop-up-Box) | PLAYTEST A | 🔧 real bestätigt — Fix-Richtung = Owner-Entscheidung |
+| T3.4 | Budget-Vorzeichen: „+$3K" grün bei sinkendem Saldo | PLAYTEST A/B | ✅ gefixt + **live bestätigt** (Modal zeigt Budget rot „$-3K" statt grün „+$3K") |
+| T3.5 | Heimweg/Tageswechsel teils blockiert | PLAYTEST TEIL2 §2 | ⏳ **offen** — Durchlauf erreichte kein Tag-Ende (braucht AP-Erschöpfung/18:00) → Human-Spot-Check |
+| T3.6 | Doppelte NPC-Reaktion (Modal + Pop-up-Box) | PLAYTEST A | ✅ **Option C umgesetzt + live bestätigt** (NPC-Porträt + Reaktion im Ergebnis-Modal, Pop-up entfällt) |
 
 **Nebenbefund:** #84 hat auch T1/T2-Punkte erledigt — `P0-3` (Lagebild zeigt jetzt
 GESELLSCHAFT+AUFTRAG; deckt #30 + Teil von #25) und `P0-4` (P2-Operationszentrale
 auffindbar; #19). Das verkleinert T1/T2 spürbar.
+
+**Live-Durchlauf** (Playwright, `scripts/t3-runthrough.mjs`): App bootet sauber
+(nur 1 benigner externer Cert-Fehler, nicht aus den Änderungen). T3.4 + T3.6 im
+laufenden Spiel bestätigt (Screenshot `runs/t3-runthrough/06_RESULT_MODAL.png`).
+Kleiner Kosmetik-Rest: die Budget-Zeile rendert „$-3K" statt „-$3K" (Vorzeichen +
+Farbe korrekt; nur die Zeichen-Reihenfolge) — optionaler Politur-Punkt.
