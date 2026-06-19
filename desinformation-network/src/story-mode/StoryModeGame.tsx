@@ -296,6 +296,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   } = usePanelStore();
 
   const [showActionFeedback, setShowActionFeedback] = useState(false);
+  // T2/#26: Tastenkürzel-Hilfe (Taste „?") — die Hotkeys waren nirgends erklärt.
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const [showEncyclopedia, setShowEncyclopedia] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [selectedAdvisorNpc, setSelectedAdvisorNpc] = useState<string | null>(null);
@@ -474,6 +476,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
       if (e.key === 'Escape') {
+        // T2/#26: zuerst die Tastenkürzel-Hilfe schließen.
+        if (showShortcuts) {
+          setShowShortcuts(false);
+          return;
+        }
         // First priority: close active sidebar panel
         if (activePanel) {
           setActivePanel(null);
@@ -515,13 +522,14 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           case 'b': toggleBroadcast(); break;
           case 'i': setShowEncyclopedia(prev => !prev); break;
           case 'h': setHudVisible(v => !v); break;
+          case '?': setShowShortcuts(v => !v); break;
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleBroadcast, setShowEncyclopedia]);
+  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleBroadcast, setShowEncyclopedia, showShortcuts, setShowShortcuts]);
 
   // K9 Stufe 1: Autosave bei jedem Phasenwechsel (nur während 'playing').
   // saveGame kommt aus useStoryGameState und wird auch im Pausemenü genutzt.
@@ -1163,12 +1171,13 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           />
         )}
 
-        {/* Morgenbriefing beim Direktor (K1) — einmal je Tag, ab Tag 2 */}
+        {/* Morgenbriefing beim Direktor (K1) — einmal je Tag. T2/#7: auch an Tag 1,
+            aber erst NACH der Auftragswahl (gerichtete Eröffnung der Kern-Schleife). */}
         {state.gamePhase === 'playing' &&
           !showDayReport &&
           !walkHome &&
           !state.currentDialog &&
-          state.storyPhase.number > 1 &&
+          (state.storyPhase.number > 1 || auftragChosen) &&
           briefedPhase !== state.storyPhase.number && (
             <MorningBriefing
               phase={state.storyPhase.number}
@@ -1176,6 +1185,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               trustProgress={trustProgress}
               budget={state.resources.budget}
               attention={state.resources.attention}
+              auftragTitel={state.engine.getAuftrag().titel_de}
               onDone={() => setBriefedPhase(state.storyPhase.number)}
             />
           )}
@@ -1219,6 +1229,56 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           setBatchActionResults(null);
         }}
       />
+
+      {/* T2/#26: Tastenkürzel-Hilfe (Taste „?") — die Hotkeys waren nirgends erklärt. */}
+      {showShortcuts && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
+          onClick={() => setShowShortcuts(false)}
+          role="button"
+          aria-label="Tastenkürzel schließen"
+        >
+          <div
+            className="mx-4 max-w-md w-full border-4 p-6"
+            style={{ backgroundColor: StoryModeColors.surface, borderColor: StoryModeColors.ministryRed }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="font-bold text-lg mb-4" style={{ color: StoryModeColors.warning }}>
+              TASTENKÜRZEL
+            </h2>
+            <div className="grid grid-cols-1 gap-1 text-sm">
+              {([
+                ['A', 'Terminal / Aktionen'],
+                ['N', 'Nachrichten'],
+                ['S', 'Statistik'],
+                ['P', 'Personal (NPCs)'],
+                ['M', 'Mission & Auftrag'],
+                ['E', 'Ereignisse'],
+                ['B', 'Sendung (Broadcast)'],
+                ['I', 'Methoden-Dossier'],
+                ['F', 'Etagen-Verzeichnis'],
+                ['H', 'HUD ein/aus'],
+                ['Leertaste', 'Dialog weiter'],
+                ['Esc', 'Schließen / Pause'],
+                ['?', 'Diese Hilfe'],
+              ] as [string, string][]).map(([k, d]) => (
+                <div
+                  key={k}
+                  className="flex justify-between border-b py-1"
+                  style={{ borderColor: StoryModeColors.border }}
+                >
+                  <span className="font-bold" style={{ color: StoryModeColors.warning }}>{k}</span>
+                  <span style={{ color: StoryModeColors.textSecondary }}>{d}</span>
+                </div>
+              ))}
+            </div>
+            <div className="text-xs mt-4 text-center" style={{ color: StoryModeColors.textMuted }}>
+              Klick oder Esc zum Schließen
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Consequence Modal */}
       {state.gamePhase === 'consequence' && state.activeConsequence && (

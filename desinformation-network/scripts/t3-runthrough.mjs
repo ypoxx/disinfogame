@@ -71,6 +71,12 @@ log('Auftrag bestätigt via:', begun);
 await page.waitForTimeout(900);
 await shot('03b_auftrag_confirmed.png');
 
+// T2/#7: Tag-1-Briefing erscheint nach der Auftragswahl (gerichtete Eröffnung)
+log('Tag-1-Briefing:', await bodyHas(/Ihr erster Schritt|Terminal \(Taste A\)|MORGENBRIEFING/i));
+await shot('03c_tag1_briefing.png');
+await page.keyboard.press('Space').catch(() => {}); // Briefing schließen
+await page.waitForTimeout(400);
+
 // Restliche Dialoge per Leertaste/Box-Klick schließen (× vermeiden — würde überspringen)
 for (let i = 0; i < 10; i++) {
   if (!(await bodyHas(/weiter ▸/i))) break;
@@ -136,6 +142,13 @@ await shot('08_mission_panel.png');
 log('Mission-Panel Auftrag-Block:', await bodyHas(/sollst du bewegen|hochtreiben|drücken|Ziel \d/i));
 await page.keyboard.press('Escape').catch(() => {});
 await page.waitForTimeout(300);
+
+// T2/#26: Tastenkürzel-Hilfe (Taste ?)
+await page.keyboard.press('?').catch(() => {});
+await page.waitForTimeout(500);
+log('Shortcuts-Overlay:', await bodyHas(/TASTENKÜRZEL/i));
+await shot('09_shortcuts.png');
+await page.keyboard.press('Escape').catch(() => {});
 
 // T3.5: Tageswechsel/Heimweg versuchen
 log('--- T3.5 Tageswechsel-Versuch ---');

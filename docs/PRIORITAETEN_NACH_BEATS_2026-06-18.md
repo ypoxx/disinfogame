@@ -116,3 +116,26 @@ gefunden + behoben).
 
 **Bewusst als Folgeschritt (nicht in T1):** Gesellschaftswert-**Trendgraph** über
 Zeit (#14-Teil) — braucht Historie-Sammlung pro Phase (analog `trustHistory`).
+
+## T2 — Fortschritt (Onboarding, 2026-06-18)
+Umgesetzt (billige, risikoarme Gewinne):
+- **#10** Spielername-Default „Direktor" → „Agent" (+ leeres Feld für neue Spieler,
+  Platzhalter „Ihr Deckname") — behebt die Rollenkollision mit Direktor Volkov.
+- **#7** Gerichtete **Tag-1-Eröffnung**: Morgenbriefing erscheint jetzt auch an Tag 1
+  (nach der Auftragswahl) mit Auftrags-Titel + Kern-Schleife („Terminal (A) → Maßnahme
+  → Wirkung im Ergebnis"). Nebenbei `deriveLaune`-Bug gefixt (0..1- statt 0..100-
+  Schwellen → Direktor-Laune war praktisch immer „kritisch").
+- **#6** Verb-Konsistenz: ActionPanel „+ EINREIHEN" → „+ ANHEFTEN" (gleiches
+  Queue-Verb wie die Narrativ-Tafel).
+- **#26** Tastenkürzel-Hilfe: Overlay auf Taste „?" (war nirgends erklärt); der
+  Tag-1-Hinweis verweist darauf.
+
+Kontrolle: tsc/391 Tests/Build grün · Live-Durchlauf (#7/#26 visuell bestätigt) ·
+unabhängiger Code-Review → keine Befunde.
+
+**Als Entscheidung offen (kein eigenmächtiger Umbau der Kern-IA):**
+- **#6 (tief)** Zwei Aktionsflächen (Terminal + Narrativ-Tafel) — zusammenlegen, oder
+  eine klar als Primär-Fläche für Einsteiger? (Tag-1 verweist jetzt schon auf EINE: das Terminal.)
+- **#20** Auftragswahl-Timing (jetzt direkt nach dem Intro) — erst nach einer ersten Aktion?
+- **#1** 4-schichtiges Zeitmodell (Uhr/AP/Monat/Jahr) — vereinfachen/Ebenen verbergen?
+- **#11** „stille Tage": Events/Episoden/Musik stärker an Risiko-Schwellen koppeln (Pacing).

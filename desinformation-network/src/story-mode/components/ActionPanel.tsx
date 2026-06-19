@@ -389,9 +389,9 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
                 borderColor: StoryModeColors.darkOlive,
                 color: StoryModeColors.warning,
               }}
-              title="Zur Warteschlange hinzufügen"
+              title="Aufs Korkbrett anheften (Sendeplan)"
             >
-              + EINREIHEN
+              + ANHEFTEN
             </button>
           )}
         </div>

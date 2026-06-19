@@ -20,7 +20,13 @@ export function AvatarChoice({ onConfirm }: AvatarChoiceProps): React.JSX.Elemen
   const assets = useAssets();
   const setProfile = usePlayerProfile((s) => s.setProfile);
   const [portraitId, setPortraitId] = useState<string>(usePlayerProfile.getState().portraitId);
-  const [name, setName] = useState<string>(usePlayerProfile.getState().name);
+  // T2/#10: Neue Spieler starten mit LEEREM Feld (Platzhalter lädt zur Eingabe ein),
+  // statt mit „Direktor" vorbelegt (Rollenkollision mit Direktor Volkov). Rückkehrer
+  // sehen ihren gewählten Namen.
+  const [name, setName] = useState<string>(() => {
+    const p = usePlayerProfile.getState();
+    return p.chosen ? p.name : '';
+  });
 
   const confirm = (): void => {
     setProfile(name, portraitId);
@@ -95,7 +101,7 @@ export function AvatarChoice({ onConfirm }: AvatarChoiceProps): React.JSX.Elemen
           maxLength={24}
           className="w-full px-3 py-2 mb-5 border-2 font-mono"
           style={{ backgroundColor: StoryModeColors.background, borderColor: StoryModeColors.borderLight, color: StoryModeColors.textPrimary }}
-          placeholder="Direktor"
+          placeholder="Ihr Deckname"
           aria-label="Ihr Name"
         />
 
