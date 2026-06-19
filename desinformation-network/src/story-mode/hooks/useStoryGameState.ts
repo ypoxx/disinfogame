@@ -1096,20 +1096,9 @@ export function useStoryGameState(seed?: string) {
       // Refresh available actions (some may be unlocked or used)
       refreshAvailableActions();
 
-      // Show result dialog if there are NPC reactions
-      if (result.npcReactions && result.npcReactions.length > 0) {
-        const reaction = result.npcReactions[0];
-        const npc = npcs.find(n => n.id === reaction.npcId);
-
-        setCurrentDialog({
-          speaker: npc?.name || reaction.npcId,
-          speakerTitle: npc?.role_de,
-          text: reaction.dialogue_de,
-          mood: reaction.reaction === 'crisis' ? 'angry' :
-                reaction.reaction === 'negative' ? 'worried' :
-                reaction.reaction === 'positive' ? 'happy' : 'neutral',
-        });
-      }
+      // T3.6 (Option C): Die NPC-Reaktion erscheint jetzt MIT Porträt direkt im
+      // Ergebnis-Modal (ActionFeedbackDialog). Die frühere separate Dialog-Pop-up-Box
+      // entfällt — eine Anzeige statt doppelter Bestätigung pro Aktion.
 
       // Update combo hints (fetch active hints from engine)
       const activeHints = engine.getActiveComboHints();

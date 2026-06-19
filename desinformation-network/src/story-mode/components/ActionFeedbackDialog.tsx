@@ -4,16 +4,20 @@ import type { ActionResult } from '../../game-logic/StoryEngineAdapter';
 import { COMBO_COLORS } from '../../utils/colors';
 import { Icon } from './Icon';
 import { PixelModal } from './PixelModal';
+import { NPCPortrait } from './DialogBox';
 
 interface ActionFeedbackDialogProps {
   isVisible: boolean;
   result: ActionResult | ActionResult[] | null;
+  /** Für NPC-Reaktionen mit Porträt + Klarnamen im Modal (T3.6 Option C). */
+  npcs?: { id: string; name: string; role_de?: string }[];
   onClose: () => void;
 }
 
 export function ActionFeedbackDialog({
   isVisible,
   result,
+  npcs,
   onClose,
 }: ActionFeedbackDialogProps) {
   if (!isVisible || !result) return null;
@@ -22,6 +26,45 @@ export function ActionFeedbackDialog({
   const results = Array.isArray(result) ? result : [result];
   const isBatchMode = Array.isArray(result) && result.length > 1;
   const [expandedIndex, setExpandedIndex] = useState<number>(0);
+
+  // T3.6 (Option C): NPC-Reaktion mit Gesicht direkt im Modal rendern (eine Anzeige
+  // statt zusätzlicher Pop-up-Box). Mood/Label/Farbe aus dem Reaktions-Typ ableiten.
+  const reactionMood = (r: string): 'neutral' | 'happy' | 'angry' | 'worried' =>
+    r === 'crisis' ? 'angry' : r === 'negative' ? 'worried' : r === 'positive' ? 'happy' : 'neutral';
+  const reactionLabel = (r: string) =>
+    r === 'positive' ? 'OK' : r === 'negative' ? 'Nein' : r === 'crisis' ? 'Alarm' : '–';
+  const reactionColor = (r: string) =>
+    r === 'positive'
+      ? StoryModeColors.success
+      : r === 'negative' || r === 'crisis'
+        ? StoryModeColors.danger
+        : StoryModeColors.textPrimary;
+  const npcLabel = (id: string) => npcs?.find((n) => n.id === id)?.name ?? id;
+  const renderReactions = (reactions: NonNullable<ActionResult['npcReactions']>) => (
+    <div className="space-y-2">
+      {reactions.map((reaction, i) => (
+        <div key={i} className="flex items-start gap-3">
+          <NPCPortrait npc={reaction.npcId} mood={reactionMood(reaction.reaction)} size={40} />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-sm" style={{ color: StoryModeColors.textPrimary }}>
+                {npcLabel(reaction.npcId)}
+              </span>
+              <span
+                className="text-xs font-bold px-1.5 py-0.5 border"
+                style={{ color: reactionColor(reaction.reaction), borderColor: reactionColor(reaction.reaction) }}
+              >
+                {reactionLabel(reaction.reaction)}
+              </span>
+            </div>
+            <div className="text-xs italic mt-0.5" style={{ color: StoryModeColors.textSecondary }}>
+              {reaction.dialogue_de}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   // Calculate cumulative stats for batch mode
   const cumulativeChanges = isBatchMode ? results.reduce((acc, r) => {
@@ -338,33 +381,7 @@ export function ActionFeedbackDialog({
                         >
                           NPC-REAKTIONEN
                         </h4>
-                        <div className="space-y-2">
-                          {actionResult.npcReactions.map((reaction, i) => (
-                            <div
-                              key={i}
-                              className="flex items-start gap-2 text-xs"
-                            >
-                              <span
-                                className="font-bold"
-                                style={{
-                                  color: reaction.reaction === 'positive'
-                                    ? StoryModeColors.success
-                                    : reaction.reaction === 'negative'
-                                    ? StoryModeColors.danger
-                                    : StoryModeColors.textPrimary,
-                                }}
-                              >
-                                {reaction.npcId}:
-                              </span>
-                              <span style={{ color: StoryModeColors.textSecondary }}>
-                                {reaction.reaction === 'positive' ? 'OK' :
-                                 reaction.reaction === 'negative' ? 'Nein' :
-                                 reaction.reaction === 'crisis' ? 'Alarm' : '–'}
-                                {' '}{reaction.dialogue_de}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
+                        {renderReactions(actionResult.npcReactions)}
                       </div>
                     )}
                   </div>
@@ -602,33 +619,7 @@ export function ActionFeedbackDialog({
               >
                 NPC-REAKTIONEN
               </h3>
-              <div className="space-y-2">
-                {singleResult.npcReactions.map((reaction, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-2 text-sm"
-                  >
-                    <span
-                      className="font-bold"
-                      style={{
-                        color: reaction.reaction === 'positive'
-                          ? StoryModeColors.success
-                          : reaction.reaction === 'negative'
-                          ? StoryModeColors.danger
-                          : StoryModeColors.textPrimary,
-                      }}
-                    >
-                      {reaction.npcId}:
-                    </span>
-                    <span style={{ color: StoryModeColors.textSecondary }}>
-                      {reaction.reaction === 'positive' ? 'OK' :
-                       reaction.reaction === 'negative' ? 'Nein' :
-                       reaction.reaction === 'crisis' ? 'Alarm' : '–'}
-                      {' '}{reaction.dialogue_de}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              {renderReactions(singleResult.npcReactions)}
             </div>
           )}
 

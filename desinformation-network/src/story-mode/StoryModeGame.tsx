@@ -1205,6 +1205,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       <ActionFeedbackDialog
         isVisible={showActionFeedback}
         result={batchActionResults || state.lastActionResult}
+        npcs={state.npcs}
         onClose={() => {
           setShowActionFeedback(false);
           setBatchActionResults(null);
