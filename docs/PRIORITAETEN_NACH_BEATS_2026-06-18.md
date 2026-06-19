@@ -57,7 +57,7 @@ Baseline: `tsc` sauber, **391 Tests grün**.
 | T3.2 | EndingSystem (8×7) toter Code | REVIEW §B1 | ✅ bereits gefixt (#84, `P0-2`: `checkGameEnding` + Wiring-Test) |
 | T3.3 | Advisor empfiehlt nicht-existente IDs | REVIEW §B3 | ✅ bereits gefixt (#84, `P0-5`: aus verfügbaren Aktionen + Fallback) |
 | T3.4 | Budget-Vorzeichen: „+$3K" grün bei sinkendem Saldo | PLAYTEST A/B | ✅ gefixt + **live bestätigt** (Modal zeigt Budget rot „$-3K" statt grün „+$3K") |
-| T3.5 | Heimweg/Tageswechsel teils blockiert | PLAYTEST TEIL2 §2 | ⏳ **offen** — Durchlauf erreichte kein Tag-Ende (braucht AP-Erschöpfung/18:00) → Human-Spot-Check |
+| T3.5 | Heimweg/Tageswechsel teils blockiert | PLAYTEST TEIL2 §2 | ✅ **diagnostiziert + gefixt** (StrictMode-Remount-Desync; Guard im Cleanup freigegeben) |
 | T3.6 | Doppelte NPC-Reaktion (Modal + Pop-up-Box) | PLAYTEST A | ✅ **Option C umgesetzt + live bestätigt** (NPC-Porträt + Reaktion im Ergebnis-Modal, Pop-up entfällt) |
 
 **Nebenbefund:** #84 hat auch T1/T2-Punkte erledigt — `P0-3` (Lagebild zeigt jetzt
@@ -67,5 +67,24 @@ auffindbar; #19). Das verkleinert T1/T2 spürbar.
 **Live-Durchlauf** (Playwright, `scripts/t3-runthrough.mjs`): App bootet sauber
 (nur 1 benigner externer Cert-Fehler, nicht aus den Änderungen). T3.4 + T3.6 im
 laufenden Spiel bestätigt (Screenshot `runs/t3-runthrough/06_RESULT_MODAL.png`).
-Kleiner Kosmetik-Rest: die Budget-Zeile rendert „$-3K" statt „-$3K" (Vorzeichen +
-Farbe korrekt; nur die Zeichen-Reihenfolge) — optionaler Politur-Punkt.
+Kosmetik (erledigt): die Budget-Zeile rendert jetzt „-$3K" statt „$-3K"
+(Vorzeichen vor dem `$`).
+
+## T3.5 — Diagnose + Fix (StrictMode-Remount-Desync)
+**Root Cause:** Tagesende **aus der Büro-Ansicht** → `requestEndDay` schaltet auf
+`viewMode='building'` → `BuildingView` mountet frisch. In React StrictMode (Dev,
+`main.tsx`) wird das als Mount→Unmount→Remount simuliert: (1) Mount startet
+`goTo('lobby')`; (2) der simulierte Unmount bricht den Lauf via `useNavigator`-
+`cancelRun` ab; (3) der Remount findet `walkingHomeRef.current` **noch true**
+(Ref überlebt) und überspringt `goTo` → `onArrivedHome` feuert nie → Tageswechsel
+hängt. Vom Erdgeschoss ist man bereits in der Gebäude-Ansicht → kein Remount → ein
+sauberer Lauf → funktioniert (deckt sich mit dem Playtest-Befund „nur von der
+Büro-Etage"). Nebenfund: `useNavigator.goTo` schluckt `planRoute`-Fehler still
+(`catch { return }`) — latenter Footgun, hier aber nicht die Ursache (Route
+Büro→Lobby ist gültig).
+**Fix:** `BuildingView`-Heimweg-Effekt gibt den Guard im **Cleanup** frei
+(`walkingHomeRef.current = false`), sodass der abgebrochene Heimweg auf dem Remount
+sauber neu startet. `tsc` sauber, 391 Tests grün, Build ok.
+**Verifikation:** Logik + grüne Checks. Laufzeit-Bestätigung braucht den **Dev-
+Server** (StrictMode; `vite preview` = Production zeigt den Bug nicht) — optionaler
+Spot-Check: Büro → „Tag beenden" → Tagesfazit erscheint.

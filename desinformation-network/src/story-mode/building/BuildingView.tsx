@@ -56,6 +56,12 @@ export function BuildingView({ npcs, onRoomClick, onEnterOffice, onEnterRoom, wa
       });
     }
     if (!walkHome) walkingHomeRef.current = false;
+    // T3.5-Fix: Beim Unmount (View-Wechsel Büro→Gebäude UND StrictMode-Doppel-Mount)
+    // bricht useNavigator den laufenden Heimweg via cancelRun ab. Ohne Reset bliebe
+    // walkingHomeRef.current === true → der Remount überspränge goTo → onArrivedHome
+    // feuerte nie → der Tageswechsel hinge. Guard hier freigeben, damit der Heimweg
+    // auf dem Remount sauber neu startet.
+    return () => { walkingHomeRef.current = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walkHome]);
 

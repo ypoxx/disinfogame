@@ -170,8 +170,7 @@ export function ActionFeedbackDialog({
                           : StoryModeColors.danger,
                       }}
                     >
-                      {cumulativeChanges.budget > 0 ? '+' : ''}
-                      ${cumulativeChanges.budget}K
+                      {cumulativeChanges.budget > 0 ? '+$' : '-$'}{Math.abs(cumulativeChanges.budget)}K
                     </span>
                   </div>
                 )}
@@ -341,8 +340,7 @@ export function ActionFeedbackDialog({
                                     : StoryModeColors.danger,
                                 }}
                               >
-                                {actionResult.resourceChanges.budget > 0 ? '+' : ''}
-                                ${actionResult.resourceChanges.budget}K
+                                {actionResult.resourceChanges.budget > 0 ? '+$' : '-$'}{Math.abs(actionResult.resourceChanges.budget)}K
                               </span>
                             </div>
                           )}
@@ -505,8 +503,7 @@ export function ActionFeedbackDialog({
                           : StoryModeColors.danger,
                       }}
                     >
-                      {singleResult.resourceChanges.budget > 0 ? '+' : ''}
-                      ${singleResult.resourceChanges.budget}K
+                      {singleResult.resourceChanges.budget > 0 ? '+$' : '-$'}{Math.abs(singleResult.resourceChanges.budget)}K
                     </span>
                   </div>
                 )}
