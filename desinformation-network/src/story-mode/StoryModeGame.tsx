@@ -961,6 +961,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               variant="sidebar"
               phase={state.storyPhase}
               objectives={state.objectives}
+              auftrag={state.engine.getAuftrag()}
+              societyValues={state.resources}
+              vertrauen={state.objectives.find((o) => o.id === 'obj_destabilize')?.currentValue}
               onClose={() => setActivePanel(null)}
             />
           )}
@@ -1206,6 +1209,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         isVisible={showActionFeedback}
         result={batchActionResults || state.lastActionResult}
         npcs={state.npcs}
+        audienceSegments={audience.country.segments.map((seg) => ({
+          label: seg.label_de,
+          mood: seg.mood,
+          belief: seg.belief,
+        }))}
         onClose={() => {
           setShowActionFeedback(false);
           setBatchActionResults(null);

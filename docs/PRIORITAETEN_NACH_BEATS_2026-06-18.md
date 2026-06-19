@@ -101,5 +101,18 @@ bewegen die Werte nicht → kein Block. Engine-verifiziert (2.1/3.1/9.3 liefern 
 1.1 nicht) + Live-Durchlauf bestätigt (`runs/t3-runthrough/06_RESULT_MODAL.png`).
 tsc/391 Tests/Build grün.
 
-**Offen in T1:** #14 Barometer-Zielrichtung (hoch/runter?) + Trend · #27
-Wirksamkeits-„50%"-Herleitung · #24 Segment-Stimmung früher zeigen.
+**T1 abgeschlossen** (2026-06-18) — die Sichtbarkeits-Lücke ist geschlossen:
+- **#5** Kausalkette Aktion→Werte: „GESELLSCHAFT — WIRKUNG DIESER AKTION" im Modal.
+- **#14** Barometer-Zielrichtung: „AUFTRAG"-Block im MissionPanel zeigt je
+  Signatur-Achse die Richtung (▲ hochtreiben / ▼ drücken) + jetzt→Ziel + Fortschritt.
+- **#27** Wirksamkeit: „WIRKSAMKEIT X%"-Block mit Herleitung (Basis 50% +
+  Ziel-Affinität); `effectiveness` jetzt auf `ActionResult`.
+- **#24** Segment-Stimmung: „PUBLIKUM — STIMMUNG IM LAND" im Ergebnis-Modal
+  (statt erst im Tagesbericht).
+
+Kontrolle: `tsc`/391 Tests/Build grün · Live-Durchlauf bestätigt (#5/#27 visuell,
+#14/#24 DOM) · unabhängiger Code-Review (1 kleiner Anzeige-Fehler „(siehe unten)"
+gefunden + behoben).
+
+**Bewusst als Folgeschritt (nicht in T1):** Gesellschaftswert-**Trendgraph** über
+Zeit (#14-Teil) — braucht Historie-Sammlung pro Phase (analog `trustHistory`).

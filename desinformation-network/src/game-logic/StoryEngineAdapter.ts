@@ -293,6 +293,10 @@ export interface ActionResult {
   // sichtbar — die Wirkung lag bisher nur in der Konsole / verzögert im Lagebericht.
   societyChanges?: Partial<Record<SocietyValueKey, number>> & { vertrauen?: number };
 
+  // T1/#27: Gesamt-Wirksamkeit dieser Aktion (Basis 50% + Ziel-Affinität der Akteure),
+  // damit die im Erzähltext genannte Prozentzahl im Modal hergeleitet/sichtbar wird.
+  effectiveness?: number;
+
   // Narrative Reaktion
   narrative: {
     headline_de: string;
@@ -3398,6 +3402,10 @@ export class StoryEngineAdapter {
       }
     }
 
+    // T1/#27: Wirksamkeit einmal berechnen (Basis 50% + Ziel-Affinität der Akteure)
+    // — für den Erzähltext UND als sichtbare Kennzahl im Ergebnis-Modal.
+    const effectiveness = Math.min(100, 50 + actorModifiers.reduce((sum, m) => sum + (m.modifier - 1) * 50, 0));
+
     // === NARRATIVE GENERATOR INTEGRATION ===
     // Generate rich narrative for action result
     const storyNarrative = StoryNarrativeGenerator.generateActionNarrative({
@@ -3415,7 +3423,7 @@ export class StoryEngineAdapter {
         .map(m => this.extendedActorLoader.getActor(m.actorId)!)
         .filter(Boolean),
       npcAssist: options?.npcAssist,
-      effectiveness: Math.min(100, 50 + actorModifiers.reduce((sum, m) => sum + (m.modifier - 1) * 50, 0)),
+      effectiveness,
       risk: this.storyResources.risk,
       moralWeight: this.storyResources.moralWeight,
     });
@@ -3437,6 +3445,7 @@ export class StoryEngineAdapter {
       effects,
       resourceChanges,
       societyChanges,
+      effectiveness,
       narrative: {
         headline_de: storyNarrative.headline_de,
         headline_en: storyNarrative.headline_en,

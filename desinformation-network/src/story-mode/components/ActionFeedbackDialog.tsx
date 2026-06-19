@@ -12,6 +12,8 @@ interface ActionFeedbackDialogProps {
   result: ActionResult | ActionResult[] | null;
   /** Für NPC-Reaktionen mit Porträt + Klarnamen im Modal (T3.6 Option C). */
   npcs?: { id: string; name: string; role_de?: string }[];
+  /** T1/#24: Publikums-Segmente (Stimmung) — schon im Ergebnis-Modal statt erst im Tagesbericht. */
+  audienceSegments?: { label: string; mood: string; belief: number }[];
   onClose: () => void;
 }
 
@@ -19,6 +21,7 @@ export function ActionFeedbackDialog({
   isVisible,
   result,
   npcs,
+  audienceSegments,
   onClose,
 }: ActionFeedbackDialogProps) {
   if (!isVisible || !result) return null;
@@ -98,6 +101,68 @@ export function ActionFeedbackDialog({
               >
                 {v > 0 ? `▲ +${v}` : `▼ ${v}`}
               </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // T1/#27: Wirksamkeit + Herleitung (Basis 50% + Ziel-Affinität der Akteure), statt
+  // nur einer nackten „50%"-Zahl im Erzähltext.
+  const renderEffectiveness = (r: ActionResult) => {
+    if (typeof r.effectiveness !== 'number') return null;
+    const hasMods = !!(r.actorModifiers && r.actorModifiers.length > 0);
+    return (
+      <div
+        className="border-2 p-3"
+        style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.agencyBlue }}
+      >
+        <div className="flex justify-between items-center">
+          <span className="font-bold text-sm" style={{ color: StoryModeColors.agencyBlue }}>
+            WIRKSAMKEIT
+          </span>
+          <span
+            className="font-bold text-lg"
+            style={{ color: r.effectiveness >= 50 ? StoryModeColors.success : StoryModeColors.warning }}
+          >
+            {Math.round(r.effectiveness)}%
+          </span>
+        </div>
+        <div className="text-xs mt-1" style={{ color: StoryModeColors.textMuted }}>
+          Basis 50%{hasMods ? ' + Ziel-Affinität der Akteure' : ' — keine besonderen Ziel-Faktoren'}
+        </div>
+      </div>
+    );
+  };
+
+  // T1/#24: Publikums-/Segment-Stimmung schon im Ergebnis-Modal (statt erst im
+  // Tagesbericht) — der Spieler sieht die „Temperatur im Land" am Entscheidungspunkt.
+  const moodColor = (m: string) =>
+    m === 'wuetend'
+      ? StoryModeColors.danger
+      : m === 'verunsichert'
+        ? StoryModeColors.warning
+        : m === 'misstrauisch'
+          ? StoryModeColors.document
+          : StoryModeColors.textMuted;
+  const moodLabel = (m: string) =>
+    m === 'wuetend' ? 'wütend' : m === 'verunsichert' ? 'verunsichert' : m === 'misstrauisch' ? 'misstrauisch' : 'ruhig';
+  const renderPublikum = () => {
+    if (!audienceSegments || audienceSegments.length === 0) return null;
+    return (
+      <div
+        className="border-2 p-3"
+        style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.ministryRed }}
+      >
+        <h3 className="font-bold mb-2 text-sm" style={{ color: StoryModeColors.ministryRed }}>
+          ◍ PUBLIKUM — STIMMUNG IM LAND
+        </h3>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+          {audienceSegments.map((s, i) => (
+            <div key={i} className="flex items-center justify-between text-xs">
+              <span style={{ color: StoryModeColors.textSecondary }}>{s.label}</span>
+              <span className="font-bold" style={{ color: moodColor(s.mood) }}>{moodLabel(s.mood)}</span>
             </div>
           ))}
         </div>
@@ -403,6 +468,9 @@ export function ActionFeedbackDialog({
                       </div>
                     )}
 
+                    {/* T1/#27: Wirksamkeit + Herleitung */}
+                    {renderEffectiveness(actionResult)}
+
                     {/* T1/#5: Gesellschafts-Wirkung dieser Aktion */}
                     {actionResult.societyChanges && renderSociety(actionResult.societyChanges)}
 
@@ -612,8 +680,14 @@ export function ActionFeedbackDialog({
             </div>
           )}
 
+          {/* T1/#27: Wirksamkeit + Herleitung */}
+          {renderEffectiveness(singleResult)}
+
           {/* T1/#5: Gesellschafts-Wirkung dieser Aktion */}
           {singleResult.societyChanges && renderSociety(singleResult.societyChanges)}
+
+          {/* T1/#24: Publikums-Stimmung schon hier (nicht erst im Tagesbericht) */}
+          {renderPublikum()}
 
           {/* Effects */}
           {singleResult.effects && singleResult.effects.length > 0 && (

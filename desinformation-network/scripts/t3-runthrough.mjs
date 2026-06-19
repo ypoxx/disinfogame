@@ -112,11 +112,30 @@ for (let i = 0; i < 8 && !shown; i++) {
   await page.waitForTimeout(1000);
   const hasSoc = await bodyHas(/WIRKUNG DIESER AKTION/i);
   log(`exec #${i}: Modal=${await bodyHas(/AKTION ERFOLGREICH|RESSOURCEN/i)} NPC=${await bodyHas(/NPC-REAKTIONEN/i)} GESELLSCHAFT=${hasSoc}`);
-  if (hasSoc) { await shot('06_RESULT_MODAL.png'); shown = true; break; }
+  if (hasSoc) {
+    await shot('06_RESULT_MODAL.png');
+    log(`-> WIRKSAMKEIT: ${await bodyHas(/WIRKSAMKEIT/i)} | PUBLIKUM: ${await bodyHas(/STIMMUNG IM LAND/i)}`);
+    await page.mouse.move(320, 200);
+    await page.mouse.wheel(0, 600); // im Modal nach unten scrollen (GESELLSCHAFT/PUBLIKUM)
+    await page.waitForTimeout(400);
+    await shot('06b_modal_scrolled.png');
+    shown = true;
+    break;
+  }
   await clickByText(/verstanden|schließen/i);
   await page.waitForTimeout(500);
 }
 log('Gesellschaft-Block gezeigt:', shown);
+
+// #14: Mission-Panel (Auftrags-Zielrichtung) zeigen
+await clickByText(/verstanden|schließen/i);
+await page.waitForTimeout(400);
+await page.keyboard.press('m').catch(() => {});
+await page.waitForTimeout(800);
+await shot('08_mission_panel.png');
+log('Mission-Panel Auftrag-Block:', await bodyHas(/sollst du bewegen|hochtreiben|drücken|Ziel \d/i));
+await page.keyboard.press('Escape').catch(() => {});
+await page.waitForTimeout(300);
 
 // T3.5: Tageswechsel/Heimweg versuchen
 log('--- T3.5 Tageswechsel-Versuch ---');
