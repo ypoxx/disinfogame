@@ -2,7 +2,7 @@
  * Tests für den Spieler-Profil-Store (K10): Default, Setzen, Asset-id, Trim/Clamp.
  */
 import { describe, it, expect, beforeEach } from 'vitest';
-import { usePlayerProfile, playerPortraitAssetId, PLAYER_PORTRAITS } from '../stores/playerProfileStore';
+import { usePlayerProfile, playerPortraitAssetId, playerWalkSheetId, playerIdleSheetId, isFemaleProfile, PLAYER_PORTRAITS } from '../stores/playerProfileStore';
 
 describe('playerProfileStore', () => {
   beforeEach(() => {
@@ -39,5 +39,19 @@ describe('playerProfileStore', () => {
 
   it('playerPortraitAssetId bildet die Asset-Konvention ab', () => {
     expect(playerPortraitAssetId('f3')).toBe('portrait_player_f3');
+  });
+
+  it('Avatar-Sheets folgen der Geschlechter-Wahl (m→Basis, f→_f-Variante)', () => {
+    expect(isFemaleProfile('m2')).toBe(false);
+    expect(isFemaleProfile('f1')).toBe(true);
+    expect(playerWalkSheetId('m2')).toBe('player_walk');
+    expect(playerIdleSheetId('m2')).toBe('player_idle');
+    expect(playerWalkSheetId('f1')).toBe('player_walk_f');
+    expect(playerIdleSheetId('f3')).toBe('player_idle_f');
+    // Jede angebotene Porträt-Option liefert ein gültiges Sheet-Paar.
+    for (const opt of PLAYER_PORTRAITS) {
+      expect(playerWalkSheetId(opt.id)).toMatch(/^player_walk(_f)?$/);
+      expect(playerIdleSheetId(opt.id)).toMatch(/^player_idle(_f)?$/);
+    }
   });
 });

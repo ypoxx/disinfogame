@@ -34,7 +34,11 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'monospace'],
+        // Weltschrift (P1-6): VT323 als Pixel-Monospace; `font-mono` kippt damit überall auf den Pixel-Look.
+        mono: ['VT323', 'ui-monospace', 'Menlo', 'Monaco', 'monospace'],
+        // Headlines + Mini-Labels (Pixel-Set) — über `font-display` / `font-pixel` nutzbar.
+        display: ['"Press Start 2P"', 'system-ui', 'sans-serif'],
+        pixel: ['Silkscreen', 'ui-monospace', 'monospace'],
       },
       fontSize: {
         'xs': ['0.75rem', { lineHeight: '1rem' }],

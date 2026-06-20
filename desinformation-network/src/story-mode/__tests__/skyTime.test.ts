@@ -3,7 +3,7 @@
  * bleibt in 0..255, und liefert ein gültiges CSS-linear-gradient.
  */
 import { describe, it, expect } from 'vitest';
-import { skyStopsForMinutes, skyGradientForMinutes } from '../building/skyTime';
+import { skyStopsForMinutes, skyGradientForMinutes, skylineLayersForMinutes } from '../building/skyTime';
 
 const lum = (rgb: string): number => {
   const m = rgb.match(/rgb\((\d+), (\d+), (\d+)\)/)!;
@@ -38,5 +38,28 @@ describe('skyTime', () => {
     expect(g).toContain('0%');
     expect(g).toContain('58%');
     expect(g).toContain('100%');
+  });
+
+  it('Skyline-Layer: tagsüber aus, Dämmerung blendet ein, Nacht übernimmt', () => {
+    const day = skylineLayersForMinutes(90); // früher Vormittag (t≈0.17)
+    expect(day.dusk).toBe(0);
+    expect(day.night).toBe(0);
+
+    const dusk = skylineLayersForMinutes(0.7 * 540); // goldene Stunde (t≈0.7)
+    expect(dusk.dusk).toBeGreaterThan(0.5);
+    expect(dusk.night).toBe(0);
+
+    const night = skylineLayersForMinutes(540); // Nacht (t=1)
+    expect(night.night).toBe(1);
+    expect(night.dusk).toBe(0); // Nacht hat die Dämmerung wieder ausgeblendet
+
+    // Alle Opazitäten bleiben in 0..1, auch außerhalb des Fensters.
+    for (const min of [-100, 0, 200, 400, 540, 9999]) {
+      const l = skylineLayersForMinutes(min);
+      for (const v of [l.dusk, l.night]) {
+        expect(v).toBeGreaterThanOrEqual(0);
+        expect(v).toBeLessThanOrEqual(1);
+      }
+    }
   });
 });

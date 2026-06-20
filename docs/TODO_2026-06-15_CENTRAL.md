@@ -45,11 +45,11 @@ P1 = großer Qualitätssprung · P2 = Politur & Assets (Budget) · P3 = Aufräum
 | ✅ P1-3 | **Ambient-Rollenrutsch behoben** — alle **80 Zeilen** (de+en) der 4 fehlbesetzten NPCs (Marina≠Daten-Analystin, Alexei≠Troll, Katja≠Autorin, Igor≠Hacker) neu in korrekter Steckbrief-Stimme; Anglizismen-Soße (Dashboard/Sentiment/Penetration-Test/Zero-Day/Story-Arc/…) getilgt; IDs stabil; unvertont → keine Audio-Desync. | B2 | `dialogues.json` ambient-Blöcke; `NPC_VOICE_PROFILES.md` | Content (L) |
 | ✅ P1-4 | **Topics bereinigt** — **73** ASCII-Umlaut-Strings korrigiert (kuratiert, ohne Korruption korrekter Wörter), **5 Prozent-Listen** (40-30-30) in NPC-Stimme umgeschrieben, **3 „Lebensader"-Copy-Paste** variiert. | B2 | `topics_dialogues.json` | Content (M) |
 | ✅ P1-5 | **Taste I = Methoden-Dossier** (neu, deutsch, PixelModal) statt der englischen Pro-Mode-Encyclopedia. Rendert `disinfo_methods.json` (18 Muster: was es ist · realer Fall · Gegenmaßnahme) — **aus einem Guss mit dem End-Report**. Alte `Encyclopedia.tsx` aus dem Spielpfad gelöst (→ P3-Dead-Code). | B4 | `components/MethodenDossier.tsx` (neu); `StoryModeGame.tsx:17,1262` | Code (M) |
-| P1-6 | **`monospace`/`font-mono` als Weltschrift entfernen** — Schwerpunkt FokusgruppeView (13×), NewsroomView (11×), AuftragSelect-Root, DayReport (5×). *Vollständig blockiert durch Pixel-Font (🔒 P3-BLOCK-1) — Übergang: `inherit`.* | A1 | 72 Inline + ~27 Klassen | Code (M) |
+| ✅ P1-6 | **Pixel-Weltschrift gesetzt** — VT323 (OFL) selbst gehostet (`public/fonts/`) via `@font-face`; Tailwind `font-mono`→VT323 (deckt die `font-mono`-Klassen) + 51× Inline-`monospace`→VT323-Stack. Set komplettiert: Press Start 2P (Headlines, am Titel) + Silkscreen (Mini-Labels, Broadcast) als `font-display`/`font-pixel` + `StoryModeFonts`. Alle mit Umlaut-/Sonderzeichen-Abdeckung. | A1 | `index.css`, `tailwind.config.js`, `theme.ts` + 51 Inline | Code (M) |
 | ✅ P1-7 | **Operation an `broadcastMapping` gekoppelt** — Tag `operation` war GAR NICHT in `THEMES_BY_TAG` (→ Default-Thema); `targeting→abstiegs_angst` war falsch. Jetzt: `operation`→Skandal/Misstrauen (`misstrauen_medien`+`anti_establishment`), `targeting`→`anti_establishment`, `abstiegs_angst` zu den Wirtschafts-Tags verschoben (passt dort). Neuer Test. | B3-Subaudit | `broadcast/broadcastMapping.ts:38` | Code (S) |
-| P1-8 | **`ROOM_HINTS['operations']` in Shotlist** + `room_operations` neu generieren (heute generischer Fallback-Prompt). | A2 | `shotlist.mjs` ROOM_HINTS | Code (XS) + Asset |
-| P1-9 | **Auftrags-Wahl kontextualisieren** — narrativ in den Direktor-Dialog ziehen oder erst nach Tag 1 anbieten (heute kontextlos sofort). | B4 | `StoryModeGame.tsx:700`; `AuftragSelect.tsx:28` | Code (S) |
-| P1-10 | **End-Report „Mögliche Spielenden": Bedingungstexte an echte Trigger** angleichen (`collapse`=armsRace≥5; `stalemate`/`pyrrhic` werden nie erzeugt). | B3 | `EndReport.tsx:705–751` | Content (S) |
+| ✅ P1-8 | **`ROOM_HINTS['operations']` ergänzt** + `room_operations` live neu generiert — vorher generischer Fallback-Prompt (beliebiges Büro), jetzt War-Room/Kommandozentrum (PR #85). | A2 | `shotlist.mjs` ROOM_HINTS | Code (XS) + Asset |
+| ✅ P1-9 | **Auftrags-Wahl in den Direktor-Dialog gezogen** — erscheint jetzt als Abschluss der Ankunfts-/Direktor-Sequenz (Volkov erteilt den Auftrag), bevor sich die Welt öffnet; nicht mehr als Overlay über der laufenden Partie. Geladene Spielstände überspringen den Schritt. | B4 | `StoryModeGame.tsx` Intro-Flow | Code (S) |
+| ✅ P1-10 | **End-Report-Bedingungstexte an die echten Trigger angeglichen** — alle 8 `condition_de` exakt nach `EndingSystem.determineCategory` (victory ≥80 %/risk<50, pyrrhic ≥60 %/moral≥60, escape risk 70–90/budget≥30, collapse armsRace≥4 & ≥4 Verteidiger, redemption moral<20 & ethisch>illegal, stalemate ≥1/<60 %, continuation = ergebnislos). | B3 | `EndReport.tsx:732–771` | Content (S) |
 | ✅ P1-11 | **`index.css` Legacy-Klassen entfernt** — `.btn-primary/.btn-secondary/.card/.input` (rounded-lg/2xl), `.interactive*` (Web-Hover-Lift + Neon-Glow), `@keyframes glow-pulse`/`opportunity-glow` + ihre `animate-*`-Klassen, globales `'Inter'` (war ohnehin nicht geladen). Alle 0 Verwendungen (geprüft). | A1 | `index.css` | Code (S) |
 
 ---
@@ -67,13 +67,15 @@ P1 = großer Qualitätssprung · P2 = Politur & Assets (Budget) · P3 = Aufräum
 - P2-7 **R4-Entkachelung** — saubere Basis-Korridore (ohne eingebackene Deko) + datengetriebene `decor[]`-Platzierung an der Wand-Fuß-Linie; eigener Keller-Korridor (R7). **Atomar ausliefern.** *(A4 AN-06/07/08, C-03)*
 - P2-8 **Fernsehfamilie/Wohnzimmer** — repräsentative Teilmenge auf Sofa-Sitzlinie (nicht alle 8), Sitzlinie↔Sofa-Asset. *(A4 DB-02/C-18)*
 
-**Assets (Budget):**
-- P2-9 **Avatar hi-res** (48–64 px) + Entscheidung Porträt-only vs. m/w-Lauf-Variante (heute nicht an Wahl gekoppelt). *(A4 AN-02/03, DB-01 — Owner-Entscheidung)*
-- P2-10 **Audience-Figuren neu** (8 Segmente „kaputt") + **Wohnzimmer/Sofa** modern. *(A4 AN-04/05)*
-- P2-11 **Tür-Assets** (gleiche Maße offen/zu, echte Phasen) + **Fahrstuhl-Kabine** an Schachtmaße; **Avatar↔Tür-Proportion** (R1). *(A4 AN-16/17, DB-03/04/05/06)*
-- P2-12 **2–3 Skyline-Varianten** (Tag/Dämmerung/Nacht) cross-faden. *(A4 AN-09)*
+**Assets (Budget):** *(Budget freigegeben 2026-06-15 → Pakete in PR #85 umgesetzt)*
+- ✅ P2-9 **Avatar m/w-Lauf-Variante** — Owner-Entscheidung: m/w. `player_walk_f`/`player_idle_f` erzeugt, an die `portraitId`-Geschlechterwahl gekoppelt (`playerWalkSheetId`/`playerIdleSheetId`), BuildingStage folgt der Wahl. *(Hi-res 48–64 px optional offen.)*
+- ✅ P2-10 **Audience-Figuren neu** — alle 8 Segmente als klar **sitzende** Posen neu generiert (vorher stehend → „in der Luft"); Wohnzimmer/Sofa war bereits gut. Finale Sitzlinien-Pixelausrichtung = Preview-Feinschliff. *(A4 AN-04/05)*
+- ✅ P2-11 **Tür/Fahrstuhl bereits in gutem Zustand** (verifiziert): Tür offen/zu gleiche Maße, Kabine 170/184 ≈ 92 % Schachtbreite (keine Briefmarke), Tür 144/Avatar 128 ≈ 1,13 (R1 ok), Basislinien fluchten. **Keine Neugenerierung nötig.** *(A4 AN-16/17, DB-03/04/05/06)*
+- ✅ P2-12 **Skyline-Varianten** (Dämmerung/Nacht) über die Tagesuhr überblendet (`skylineLayersForMinutes`); seed-gekoppelte Tiles. Transitions-Optik in der Preview prüfen. *(A4 AN-09)*
 - P2-13 **Poll/Barometer-Grafiken** (`prop_poll_chart`, `prop_barometer_gauge`) — nur falls P6-TV-Viz gebaut wird. *(A2)*
-- P2-14 **Fokusgruppe-Persona-Porträts** ODER CSS akzeptieren; **2 fehlende Personas** (`wu_idealistin`, `wu_macher`). *(A2, B3 — Owner-Entscheidung)*
+- ✅ P2-14 **Fokusgruppe als Feature gebaut** — beauftragbare Befragung (Pre-Test + Sample-Bias) im Beobachtungsraum (`room_analyse`), **30 Personas** über 8 Milieus mit **90 Stimmungs-Porträts**, Budget+Phase-Kosten. (Konzept: `docs/FOKUSGRUPPE_KONZEPT_2026-06-15.md`.) *(A2, B3)*
+  - 🎨 **Folge (visuell): Persona-Blinzeln** — dezente 2-Frame-Mimik-Animation, *nur wenn es bei den kleinen Gesichtern sauber aussieht*. (Phase 3)
+  - 🔗 **Folge (Mechanik): Appell an konkrete Aktionen koppeln** — der Pre-Test testet heute abstrakte Appelle (hope/fear/anger/trust); künftig eine **konkret geplante Maßnahme/Operation** aus der Queue vorab testen (engere Kopplung an die Aktion + Backfire-Risiko bei ungetestetem Versand). Optional: **longitudinale Drift** einer Persona (§7).
 
 **Sound (🔍 zuerst Preview-Verifikation, s. Owner-Fragen):**
 - P2-15 Adaptive Musik (J34/J35) + Ducking (J36) + Ambience-Verdrahtung — **STATUS/Backlog widersprüchlich**.
@@ -99,18 +101,25 @@ P1 = großer Qualitätssprung · P2 = Politur & Assets (Budget) · P3 = Aufräum
 ---
 
 ## 🔒 Extern blockiert
-- **P3-BLOCK-1 Pixel-Font** (z. B. „Pixel Operator", CC0) — Netz-Policy (403). Owner-Upload nach `public/fonts/` oder Allowlist. Blockiert die **vollständige** `font-mono`-Lösung (P1-6). *(A4 AN-21, DB-17)*
+- ✅ **P3-BLOCK-1 Pixel-Font aufgelöst** — VT323 + Press Start 2P + Silkscreen (alle SIL OFL) selbst gehostet in `public/fonts/` (inkl. `OFL.txt`); kein externer CDN. P1-6 damit entsperrt + umgesetzt. *(A4 AN-21, DB-17)*
 - `npm run lint` defekt (keine ESLint-Config) — Gate stützt sich auf tsc/build/vitest. *(A4 DB-07)*
 
 ---
 
 ## ❓ Owner-Entscheidungen (vor Umsetzung)
+
+> **🔄 Abgleich 2026-06-20 (Details im `GESAMTPLAN_2026-06-20.md`):** #1 NPC-Namen → ✅ behalten ·
+> #2 Plattformnamen → ✅ behalten · #3 Avatar m/w → ✅ entschieden + gebaut (PR #85, noch nicht gemergt) ·
+> #5 Sound (J34–36) → ✅ ist auf main · #6 Asset-Budget → ✅ freigegeben (#85). **Noch offen:** #4
+> (Fokusgruppe-Porträts) · #7 (harte Win-Condition/Pacing). Neu: Beats bewegen **nur andere Achsen,
+> nicht die Sieg-Achse** (`DECISIONS_2026-06-20_BEATS.md`).
+
 1. **Russisch-codierte NPC-Namen** (Volkov/Petrova/Petrov/Orlova/Smirnov) — als fiktive Ost-Block-Würze behalten, oder fiktionalisieren? *(B3)*
 2. **Reale Plattformnamen** (Twitter/TikTok/Telegram/YouTube) in Topics/Actions — für Glaubwürdigkeit halten oder fiktionalisieren? `SYMBOLS_AUDIT.md` verbietet nur Staatssymbole. *(B2)*
-3. **Avatar:** Porträt-only akzeptieren oder m/w-Lauf-Variante (Budget)? *(P2-9)*
-4. **Fokusgruppe:** CSS-Initialen akzeptieren oder Persona-Porträt-Batch (6+2 Bilder)? *(P2-14)*
+3. ✅ **Avatar:** entschieden = **m/w-Lauf-Variante** umgesetzt (PR #85). *(P2-9)*
+4. ✅ **Fokusgruppe:** entschieden + gebaut — 30 Persona-Porträts (90 Bilder) + beauftragbares Pre-Test-Feature. *(P2-14)*
 5. **Sound:** Sind adaptive Musik/Ducking/Ambience (J34–J36) gebaut? Deploy-Preview prüfen, bevor P2-15 geplant wird. *(A4-Widerspruch)*
-6. **Asset-Budget-Pakete:** Skyline-Varianten · Audience-Figuren · Avatar hi-res · Wohnzimmer — je Paket Budget-Ansage.
+6. ✅ **Asset-Budget-Pakete:** Budget freigegeben → Skyline · Audience · Avatar m/w · Operationszentrale umgesetzt (PR #85). Optional offen: Avatar **hi-res** (48–64 px).
 7. **Auftrag als ECHTE (harte) Win-Condition?** (Pacing) — Heute ist der Auftrag die Sieg-*Qualität* (P1-1), kein harter Gate, weil der Vertrauens-Sieg schneller fällt als die Signatur reift. Soll der Sieg künftig die Signatur **verlangen**? Dann braucht es eine Pacing-Entscheidung: (a) Vertrauens-Sieg verlangsamen, damit die Mission Zeit hat zu reifen, ODER (b) Gesellschaftswerte deutlich schneller bewegen (ändert Polls/Fokusgruppe/Gegenseite-Erzählung mit), ODER (c) bei „hohlem Sieg" weiterspielen lassen, bis die Signatur erfüllt ist. Empfehlung: erst die Spielqualität von P1-1 im Preview erleben, dann entscheiden.
 
 ---

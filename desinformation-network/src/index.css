@@ -3,6 +3,36 @@
 @tailwind utilities;
 
 /* ============================================
+   Pixel-Weltschrift (P1-6) — selbst gehostet, SIL Open Font License (public/fonts/).
+   VT323 = Weltschrift/Body (Monospace, CRT) · Press Start 2P = Headlines ·
+   Silkscreen = Mini-Labels. Alle mit voller Umlaut-/Sonderzeichen-Abdeckung.
+   ============================================ */
+@font-face {
+  font-family: 'VT323';
+  src: url('/fonts/VT323-Regular.woff2') format('woff2'),
+       url('/fonts/VT323-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Press Start 2P';
+  src: url('/fonts/PressStart2P-Regular.woff2') format('woff2'),
+       url('/fonts/PressStart2P-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Silkscreen';
+  src: url('/fonts/Silkscreen-Regular.woff2') format('woff2'),
+       url('/fonts/Silkscreen-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================
    Z-INDEX LAYER SYSTEM (Phase 1)
 
    Unified, scalable z-index hierarchy.

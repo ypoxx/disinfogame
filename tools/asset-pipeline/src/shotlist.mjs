@@ -48,6 +48,8 @@ const ROOM_HINTS = {
     "the player's own modest modern office: a clean desk with a flat computer monitor and a slim telephone, a small stack of files, a corkboard with pinned notes and red string, a wall-mounted flat screen, a chair, a window with city light. Zone lighting: neutral, slightly warm, comfortable",
   cyber_lab:
     'underground cyber operations room: several slim multi-monitor workstations with cyan and blue screen glow, server racks with status LEDs, tidy overhead cable trays, a dark room lit mostly by the screens. Zone lighting: dark, cool, cyan-tinted',
+  operations:
+    'a strategic information-operations command center / war room: a large central situation table with a glowing abstract tactical surface, a curved wall of slim flat screens showing abstract influence-network graphs, abstract regional maps and live campaign dashboards, two standing operator workstations at the sides, a glass status board crossed with coloured strings, indirect ceiling light. Zone lighting: cool-neutral and focused, medium-dark with cool screen glow',
   medien_zentrum:
     'modern media / broadcast monitoring center: a wall of flat screens showing abstract news graphics, a long clean desk, a soft seating corner, a large window with city light, plants, an abstract constructivist poster. Zone lighting: one of the brighter, warmer rooms',
   zentrale:
@@ -87,14 +89,13 @@ const HALF_HINTS = {
 };
 
 const PROPS = [
-  ['prop_tv', 'old CRT television set on a metal stand, screen glowing'],
+  // Archiviert 2026-06-15 (P3-1): prop_tv/red_phone/files/typewriter = alte Sowjet-/CRT-Ära,
+  // im v2-Look retired (s. archive/orphan-assets-2026-06-15/). server_rack/world_map/safe bleiben
+  // für die Keller-/Ops-Deko-Platzierung, prop_coffee als Requisite.
   ['prop_server_rack', 'server rack with blinking red and green LEDs'],
-  ['prop_red_phone', 'red rotary telephone'],
   ['prop_world_map', 'wall-mounted world map with pins and string'],
-  ['prop_files', 'stack of beige paper files and folders'],
   ['prop_safe', 'heavy steel safe with a rotary dial'],
   ['prop_coffee', 'steaming coffee cup on a saucer'],
-  ['prop_typewriter', 'soviet-era mechanical typewriter'],
   // --- Korridor-Deko (R4-Entkachelung): einzelne, frei platzierbare Objekte ---
   // FLACH-FRONTAL (keine Isometrie) — passt zum flachen Korridor-Querschnitt (R4-Befund).
   ['prop_plant_tall', 'a tall potted indoor rubber-tree plant in a simple modern dark pot, full plant from pot to top, strict flat front elevation view, orthographic, NO isometric, NO 3/4 or top-down perspective'],
@@ -231,6 +232,26 @@ const BUILDING_KIT = [
 'distant city skyline for a side-scrolling pixel game background, a DENSE CONTINUOUS row of many block buildings of varied heights packed close together with NO large empty gaps between building clusters (no missing-tooth gaps), several depth layers: nearer buildings darker and sharper, buildings further back progressively lighter as they recede into cool blue-grey atmospheric haze; small warm lit windows scattered across the buildings, a few slim chimneys with faint smoke, one thin TV tower; the UPPER parts of the skyline gradually dissolve into the hazy distance so there is NO hard top edge; flat layered silhouette; PERFECTLY seamless horizontal tile — the LEFT and RIGHT edges must continue each other exactly with buildings crossing the seam so it repeats with no visible break; crisp clean high-resolution pixel art, on a single flat solid magenta (#FF00FF) background above and between the gaps so the sky can be cut out',
     'must',
   ],
+  // Tageszeit-Varianten der Skyline (gleicher Seed wie bld_city_far → gleiche Silhouette,
+  // nur das Licht ändert sich; werden in BuildingStage über die Tagesuhr eingeblendet).
+  [
+    'bld_city_far_dusk',
+    '21:9',
+    { w: 2016, h: 864 },
+    true,
+    'distant city skyline for a side-scrolling pixel game background, a DENSE CONTINUOUS row of many block buildings of varied heights packed close together with NO large empty gaps between building clusters (no missing-tooth gaps), several depth layers: nearer buildings darker and sharper, buildings further back progressively lighter as they recede into a warm amber-orange dusk haze; the buildings stand as silhouettes lit by golden-hour light with a soft warm orange rim along their tops; MANY warm amber lit windows scattered across the buildings, a few slim chimneys with faint smoke, one thin TV tower with a faint red beacon; the UPPER parts of the skyline gradually dissolve into the hazy distance so there is NO hard top edge; flat layered silhouette; PERFECTLY seamless horizontal tile — the LEFT and RIGHT edges must continue each other exactly with buildings crossing the seam so it repeats with no visible break; crisp clean high-resolution pixel art, on a single flat solid magenta (#FF00FF) background above and between the gaps so the sky can be cut out',
+    'nice',
+    'bld_city_far',
+  ],
+  [
+    'bld_city_far_night',
+    '21:9',
+    { w: 2016, h: 864 },
+    true,
+    'distant city skyline for a side-scrolling pixel game background, a DENSE CONTINUOUS row of many block buildings of varied heights packed close together with NO large empty gaps between building clusters (no missing-tooth gaps), several depth layers: nearer buildings as dark deep blue-grey silhouettes and sharper, buildings further back progressively lighter into a faint cool city glow low on the night horizon; MANY warm yellow glowing windows densely scattered across the buildings with a few cool blue-lit office floors, a few slim chimneys, one thin TV tower lit with a small red aircraft beacon; the UPPER parts of the skyline gradually dissolve into the dark hazy distance so there is NO hard top edge; flat layered silhouette; PERFECTLY seamless horizontal tile — the LEFT and RIGHT edges must continue each other exactly with buildings crossing the seam so it repeats with no visible break; crisp clean high-resolution pixel art, on a single flat solid magenta (#FF00FF) background above and between the gaps so the sky can be cut out',
+    'nice',
+    'bld_city_far',
+  ],
   [
     'bld_underground',
     '21:9',
@@ -289,6 +310,47 @@ const AUDIENCE_FIGURES = [
   ['audience_eigenheimer', 'a retired man in a knitted cardigan with a cat on his lap and a tablet'],
   ['audience_liberale', 'a woman around 60 with round glasses, folded quality newspaper, podcast earphones around the neck'],
 ];
+
+// Fokusgruppe-Personas (Pre-Test/Nachanalyse): Halbporträts mit 3 Stimmungs-Mimiken.
+// Vertikaler Schnitt — 3 KONTRASTIERENDE Milieus, damit der Pre-Test divergente Reaktionen
+// + Sample-Bias zeigt. Anker = 'skeptisch' (neutral-reserviert), die anderen referenzieren ihn.
+const PERSONAS = [
+  ['lena',     'a poised woman in her early 30s, smart-casual blazer over a light blouse, neat shoulder-length hair, small modern earrings'],
+  ['tobias',   'a man in his early 30s, a modern hoodie under a slim blazer, trendy glasses, short tidy hair, a confident open face'],
+  ['ayla',     'a woman in her mid 30s, a sharp dark business blazer, sleek tied-back dark hair, a minimalist composed look'],
+  ['nico',     'a young man in his late 20s, a crisp light shirt, a friendly open face, short styled hair'],
+  ['bernd',    'a sturdy man in his early 50s, a work jacket over a polo shirt, a weathered face, short greying hair'],
+  ['silke',    'a woman in her 40s, a nurse-style tunic, a tired but kind face, hair in a practical short cut'],
+  ['murat',    'a man in his 40s, a plain work fleece, light stubble, short dark hair, a no-nonsense look'],
+  ['heiko',    'a man in his 50s, a factory work shirt, broad build, short grey hair, a serious expression'],
+  ['jonas',    'a man in his early 30s, an oversized knit jumper and round glasses, tousled hair, an ironic half-smile'],
+  ['mara',     'a woman in her late 20s, layered alternative clothing, dyed short hair, a small nose stud'],
+  ['finn',     'a man in his 30s, a beanie and a graphic tee under an open shirt, a scruffy short beard'],
+  ['walter',   'a careworn man in his mid 50s, a checked button-up shirt, reading glasses pushed up on his forehead, thinning grey hair'],
+  ['petra',    'a woman around 50, a plain cardigan over a blouse, neat permed hair, a cautious expression'],
+  ['dieter',   'a man in his early 60s, a conservative grey shirt and tie, balding, a careful look'],
+  ['claudia',  'a woman in her late 40s, a sensible blouse and a scarf, glasses, shoulder-length hair'],
+  ['doreen',   'a tense woman in her mid 40s, a worn zip hoodie over a plain shirt, hair pulled back tightly, tired sharp eyes'],
+  ['ralf',     'a gaunt man in his 50s, a worn jacket, unshaven, thinning hair, a bitter set mouth'],
+  ['ingo',     'a man in his late 50s, a faded windbreaker, grey stubble, deep frown lines'],
+  ['tanja',    'a woman in her 40s, a supermarket-style polo shirt, hair tied back, hard tired eyes'],
+  ['greta',    'a young woman in her late 20s, simple eco-style clothing, a small pin on her jacket, natural untreated hair'],
+  ['samira',   'a woman in her 30s, a warm cardigan and a colourful scarf, a kind earnest face, curly hair'],
+  ['jakob',    'a student in his early 20s, a casual t-shirt and a tote-bag strap, messy hair, a hopeful look'],
+  ['lea',      'a young woman in her early 30s, a neat shirt with a faint medical badge, tied-back hair, a calm face'],
+  ['wolfgang', 'a man in his late 60s, a tidy buttoned cardigan over a shirt, neat grey hair, a composed look'],
+  ['renate',   'a well-groomed woman around 70, a blouse with a brooch, styled grey hair, glasses'],
+  ['guenther', 'a man in his late 60s, a sturdy checked shirt, glasses, neat grey hair, a steady gaze'],
+  ['henrike',  'a woman in her 40s, a smart turtleneck, modern glasses, a sleek bob, an assured expression'],
+  ['paul',     'a man in his 40s, an open-collar shirt under a blazer, light stubble, an intelligent look'],
+  ['miriam',   'a woman in her 40s, a crisp dark blazer, minimal jewelry, a composed confident face'],
+  ['andreas',  'a man in his 50s, a tweed jacket over a shirt, glasses, greying hair, a measured expression'],
+];
+const PERSONA_MOOD_EXPR = {
+  skeptisch:  'a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced',
+  zustimmend: 'a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile',
+  ablehnend:  'a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive',
+};
 
 // Flavor-Figuren (Strang 5 — Atmosphäre): STEHENDE Statisten im Gebäude (Pförtner,
 // Reinigung, Kollege). 2-Frame-Idle, freistehend (Chroma), flach-frontal.
@@ -514,17 +576,17 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
     });
   }
 
-  // --- Spielfigur-Sheets (Bauplan: BUILDING_CONCEPT.md, 32×32 je Frame) ---
+  // --- Spielfigur-Sheets (hi-res: 64×64 je Frame; Anzeige bleibt 128 px über scale=2) ---
   shots.push({
     id: 'player_walk',
     type: 'sheet',
     kind: 'sheet',
     priority: 'must',
-    frameWidth: 32,
-    frameHeight: 32,
+    frameWidth: 64,
+    frameHeight: 64,
     cols: 8,
     rows: 1,
-    size: { w: 256, h: 32 },
+    size: { w: 512, h: 64 },
     animations: { walkRight: { row: 0, frames: 8, frameTime: 90, loop: true } },
     seed: seedFor('player_walk'),
     prompt:
@@ -554,11 +616,11 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
     type: 'sheet',
     kind: 'sheet',
     priority: 'must',
-    frameWidth: 32,
-    frameHeight: 32,
+    frameWidth: 64,
+    frameHeight: 64,
     cols: 4,
     rows: 1,
-    size: { w: 128, h: 32 },
+    size: { w: 256, h: 64 },
     animations: { idle: { row: 0, frames: 4, frameTime: 220, loop: true } },
     seed: seedFor('player_idle'),
     prompt:
@@ -566,6 +628,64 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       `standing idle and subtly breathing, front view. Horizontal layout, exactly 4 evenly ` +
       `spaced frames in one row showing the SAME character with identical outfit and colors in ` +
       `every frame, only a subtle breathing motion changes. ${CHROMA_PROMPT} ${style}`,
+  });
+  // Weibliche Lauf-/Idle-Variante (P2-9): an die Avatar-Wahl gekoppelt (portraitId 'f…').
+  // Gleiche Lauf-Zyklus-Spezifikation wie player_walk, nur die Figur ist weiblich.
+  shots.push({
+    id: 'player_walk_f',
+    type: 'sheet',
+    kind: 'sheet',
+    priority: 'nice',
+    frameWidth: 64,
+    frameHeight: 64,
+    cols: 8,
+    rows: 1,
+    size: { w: 512, h: 64 },
+    animations: { walkRight: { row: 0, frames: 8, frameTime: 90, loop: true } },
+    seed: seedFor('player_walk_f'),
+    prompt:
+      `An 8-frame pixel art sprite sheet of a middle-aged government official woman in a modern grey trouser-suit ` +
+      `with a slim briefcase in her left hand, walking to the right, strict side view. ` +
+      `Horizontal layout, exactly 8 evenly spaced frames in one row, SAME character with ` +
+      `identical suit and colors in every frame. The frames form one full walk cycle with ` +
+      `DRAMATIC, clearly different leg poses: ` +
+      `frame 1 right heel strikes the ground in front, legs wide apart, body at its lowest; ` +
+      `frame 2 weight sinks onto the bent right leg; ` +
+      `frame 3 body rises, left leg swings past the standing right leg; ` +
+      `frame 4 body at its highest, left foot reaching forward, only right toes touch ground; ` +
+      `frame 5 left heel strikes the ground in front, legs wide apart, body at its lowest; ` +
+      `frame 6 weight sinks onto the bent left leg; ` +
+      `frame 7 body rises, right leg swings past the standing left leg; ` +
+      `frame 8 body at its highest, right foot reaching forward, only left toes touch ground. ` +
+      `The head moves up and down by 2 pixels across the cycle (lowest in frames 1 and 5, ` +
+      `highest in frames 4 and 8); the free right arm swings opposite to the legs. ` +
+      `Adjacent frames MUST differ visibly, especially the legs. ` +
+      `CRITICAL: in EVERY one of the 8 frames the figure walks on the spot against the SAME ` +
+      `single flat solid magenta (#FF00FF) fill — absolutely NO corridor, NO office, NO room, ` +
+      `NO doors, NO windows, NO floor line, NO shadow, NO scenery of any kind behind or under ` +
+      `the figure; only the walking woman floating on pure uniform magenta. ${CHROMA_PROMPT} ${style}`,
+  });
+  shots.push({
+    id: 'player_idle_f',
+    type: 'sheet',
+    kind: 'sheet',
+    priority: 'nice',
+    frameWidth: 64,
+    frameHeight: 64,
+    cols: 4,
+    rows: 1,
+    size: { w: 256, h: 64 },
+    animations: { idle: { row: 0, frames: 4, frameTime: 220, loop: true } },
+    seed: seedFor('player_idle_f'),
+    prompt:
+      `A 4-frame pixel art sprite sheet of a middle-aged government official woman in a modern grey trouser-suit ` +
+      `standing idle and subtly breathing, front view. Horizontal layout, exactly 4 evenly ` +
+      `spaced frames in one row showing the SAME character with identical outfit and colors in ` +
+      `every frame, only a subtle breathing motion changes. ` +
+      `CRITICAL: in EVERY frame the figure stands against the SAME single flat solid magenta ` +
+      `(#FF00FF) fill — absolutely NO corridor, NO office, NO room, NO doors, NO windows, NO ` +
+      `floor line, NO shadow, NO scenery of any kind behind or under the figure; only the woman ` +
+      `on pure uniform magenta. ${CHROMA_PROMPT} ${style}`,
   });
 
   // --- NPC-Figuren im Gebäude (klein, Kür) ---
@@ -661,7 +781,9 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
   }
 
   // --- Gebäude-Baukasten + HUD-Rahmen (Stage / Broadcast-Leiste) ---
-  for (const [id, aspectRatio, size, chroma, hint, priority] of BUILDING_KIT) {
+  // Optionales 7. Tupel-Element `seedId`: Tageszeit-Varianten (z. B. Skyline Dämmerung/Nacht)
+  // teilen den Seed der Basis → gleiche Silhouette, nur das Licht ändert sich (sauberer Cross-Fade).
+  for (const [id, aspectRatio, size, chroma, hint, priority, seedId] of BUILDING_KIT) {
     shots.push({
       id,
       type: 'image',
@@ -670,7 +792,7 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       aspectRatio,
       size,
       chroma,
-      seed: seedFor(id),
+      seed: seedFor(seedId ?? id),
       prompt: `A pixel art game asset: ${hint}. No people, no readable text. ${chroma ? `${CHROMA_PROMPT} ` : ''}${style}`,
     });
   }
@@ -704,12 +826,49 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       animations: { idle: { row: 0, frames: 2, frameTime: 600, loop: true } },
       seed: seedFor(id),
       prompt:
-        `A 2-frame pixel art sprite sheet of ${hint}, in a seated posture facing the viewer ` +
-        `(as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO ` +
-        `background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in ` +
-        `one row, the SAME character with identical outfit and colors in every frame, only a ` +
-        `subtle idle motion changes (blink, small head turn). ${CHROMA_PROMPT} ${style}`,
+        `A 2-frame pixel art sprite sheet of ${hint}, drawn in a CLEARLY SEATED pose as if ` +
+        `relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the ` +
+        `knees bent forward, the lower legs drop down to the feet, the back is slightly reclined ` +
+        `and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO ` +
+        `background — ONLY the seated person, centered, feet near the bottom edge of the frame. ` +
+        `Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with ` +
+        `identical outfit and colors in every frame, only a subtle idle motion changes (blink, ` +
+        `small head turn, slight breathing). ${CHROMA_PROMPT} ${style}`,
     });
+  }
+
+  // --- Fokusgruppe-Personas: Anker (skeptisch) + 2 referenzierte Stimmungs-Mimiken ---
+  for (const [pid, desc] of PERSONAS) {
+    const frame =
+      `A pixel art character, shown from the waist up, large like a visual-novel / adventure-game ` +
+      `character, facing slightly toward the centre, full head and both shoulders inside the frame, ` +
+      `NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete ` +
+      `wall background. No text.`;
+    shots.push({
+      id: `persona_${pid}_skeptisch`,
+      type: 'image',
+      kind: 'portrait',
+      priority: 'nice',
+      aspectRatio: '3:4',
+      size: { w: 768, h: 1024 },
+      seed: seedFor(`persona_${pid}`),
+      prompt: `${frame} ${desc}, with ${PERSONA_MOOD_EXPR.skeptisch}. ${style}`,
+    });
+    for (const mood of ['zustimmend', 'ablehnend']) {
+      shots.push({
+        id: `persona_${pid}_${mood}`,
+        type: 'image',
+        kind: 'portrait',
+        priority: 'nice',
+        aspectRatio: '3:4',
+        size: { w: 768, h: 1024 },
+        seed: seedFor(`persona_${pid}`),
+        referenceId: `persona_${pid}_skeptisch`,
+        prompt:
+          `Same pixel art character as the reference image, identical face, hair, clothing and framing, ` +
+          `but with ${PERSONA_MOOD_EXPR[mood]}. Plain dark concrete wall background. No text. ${style}`,
+      });
+    }
   }
 
   // --- Flavor-Figuren (Strang 5): STEHENDE Statisten, 2-Frame-Idle ---

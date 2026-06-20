@@ -71,3 +71,18 @@ export const usePlayerProfile = create<PlayerProfileState>((set) => ({
 export function playerPortraitAssetId(portraitId: string): string {
   return `portrait_player_${portraitId}`;
 }
+
+/** Weibliche Avatar-Wahl? Die portraitId-Konvention kodiert das Geschlecht ('f…'/'m…'). */
+export function isFemaleProfile(portraitId: string): boolean {
+  return portraitId.startsWith('f');
+}
+
+/** Lauf-Sheet je nach gewähltem Avatar-Geschlecht (P2-9). */
+export function playerWalkSheetId(portraitId: string): string {
+  return isFemaleProfile(portraitId) ? 'player_walk_f' : 'player_walk';
+}
+
+/** Idle-Sheet je nach gewähltem Avatar-Geschlecht (P2-9). */
+export function playerIdleSheetId(portraitId: string): string {
+  return isFemaleProfile(portraitId) ? 'player_idle_f' : 'player_idle';
+}

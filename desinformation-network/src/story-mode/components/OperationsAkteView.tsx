@@ -109,7 +109,7 @@ const dossierBtnStyle: React.CSSProperties = {
   marginLeft: 19,
   padding: '2px 8px',
   fontSize: 9,
-  fontFamily: 'monospace',
+  fontFamily: "'VT323', monospace",
   fontWeight: 700,
   letterSpacing: 0.5,
   color: '#1a1a1a',
@@ -209,7 +209,7 @@ function OptionRow({
         backgroundColor: selected ? '#e7d9b4' : '#d8c9a8',
         border: `2px solid ${selected ? StoryModeColors.ministryRed : '#a8966c'}`,
         cursor: 'pointer',
-        fontFamily: 'monospace',
+        fontFamily: "'VT323', monospace",
       }}
     >
       <span
@@ -352,7 +352,7 @@ export function OperationsAkteView({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 16,
-        fontFamily: 'monospace',
+        fontFamily: "'VT323', monospace",
         // Diegetisch: Operationszentrale-Raum durchscheinend hinter dem Aktendeckel.
         backgroundColor: '#08080a',
         ...(backdropUrl
@@ -554,7 +554,7 @@ export function OperationsAkteView({
                         backgroundColor: on ? '#e7d9b4' : '#d8c9a8',
                         border: `2px solid ${on ? StoryModeColors.ministryRed : '#a8966c'}`,
                         cursor: 'pointer',
-                        fontFamily: 'monospace',
+                        fontFamily: "'VT323', monospace",
                       }}
                     >
                       <span style={{ fontSize: 10, fontWeight: 700, color: '#1a1a1a' }}>
@@ -647,7 +647,7 @@ export function OperationsAkteView({
                 border: `2px solid ${complete ? StoryModeColors.darkRed : StoryModeColors.border}`,
                 color: complete ? '#fff' : StoryModeColors.textMuted,
                 fontSize: 13,
-                fontFamily: 'monospace',
+                fontFamily: "'VT323', monospace",
                 fontWeight: 900,
                 letterSpacing: 2,
                 cursor: complete ? 'pointer' : 'not-allowed',

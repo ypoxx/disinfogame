@@ -12,7 +12,7 @@
 import type { CSSProperties } from 'react';
 import { useAssets } from '../assets/useAssets';
 import { PixelSprite } from '../assets/PixelSprite';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, StoryModeFonts } from '../theme';
 import { FIGURE_BY_SEGMENT, type BroadcastTier } from './broadcastMapping';
 import type { AudienceBroadcastState } from './useAudienceBroadcast';
 import type { Mood } from '../audience/audienceModel';
@@ -99,7 +99,7 @@ function CollapsedStrip({ audience, onToggle }: { audience: AudienceBroadcastSta
         backgroundColor: 'rgba(8,8,12,0.94)',
         borderTop: `3px solid ${StoryModeColors.ministryRed}`,
         cursor: 'pointer',
-        fontFamily: 'monospace',
+        fontFamily: "'VT323', monospace",
       }}
       data-testid="broadcast-strip"
     >
@@ -175,7 +175,7 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
               whiteSpace: 'nowrap',
               fontSize: 11,
               fontWeight: 700,
-              fontFamily: 'monospace',
+              fontFamily: "'VT323', monospace",
               color: isPrint ? '#26221a' : '#9be89b',
               animation: 'bb-ticker 9s linear infinite',
               paddingLeft: 4,
@@ -185,7 +185,7 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
             {item.headline}
           </span>
         ) : (
-          <span style={{ width: '100%', textAlign: 'center', fontSize: 10, color: '#5a7a5a', fontFamily: 'monospace' }}>
+          <span style={{ width: '100%', textAlign: 'center', fontSize: 10, color: '#5a7a5a', fontFamily: "'VT323', monospace" }}>
             ▚▞ KEIN SIGNAL ▚▞
           </span>
         )}
@@ -240,7 +240,7 @@ function AudienceRoom({ audience }: { audience: AudienceBroadcastState }) {
       }}
       title="Publikum: Westunion"
     >
-      <span style={{ position: 'absolute', top: 4, left: 8, fontSize: 10, fontWeight: 700, letterSpacing: 1, color: '#c8c8b8', backgroundColor: 'rgba(10,10,14,0.7)', padding: '1px 6px', zIndex: 3 }}>
+      <span style={{ position: 'absolute', top: 4, left: 8, fontFamily: StoryModeFonts.label, fontSize: 10, fontWeight: 700, letterSpacing: 1, color: '#c8c8b8', backgroundColor: 'rgba(10,10,14,0.7)', padding: '1px 6px', zIndex: 3 }}>
         PUBLIKUM — WESTUNION
       </span>
       {/* Repräsentative Teilmenge (das Sofa fasst nicht alle 8 — Owner: nicht alle sitzen);
@@ -335,9 +335,9 @@ export function BroadcastBar({ audience, expanded, onToggle }: BroadcastBarProps
       <BroadcastScreen audience={audience} />
 
       {/* Mitte: Wirkung + Verlauf */}
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6, fontFamily: 'monospace' }}>
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6, fontFamily: "'VT323', monospace" }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: '#c8c8b8' }}>⬢ MINISTERIUM SENDET</span>
+          <span style={{ fontFamily: StoryModeFonts.label, fontSize: 11, fontWeight: 700, letterSpacing: 2, color: '#c8c8b8' }}>⬢ MINISTERIUM SENDET</span>
           {item && (
             <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', color: '#0d0d0d', backgroundColor: TIER_COLOR[item.tier] }}>
               {TIER_LABEL[item.tier]}

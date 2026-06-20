@@ -8,7 +8,10 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `STRANG34_FEINPLAN_2026-06-13_AKTIONEN_DIALOGE.md` → `GESAMTKONZEPT_VISUELL.md` →
 > dieses Dokument für den aktuellen Bau-Stand. Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
-**Stand:** 2026-06-20 · **PR #87 (Draft, Branch `claude/gracious-keller-g43bu3`)** — **Spine/Beats: Director-Pool · Entscheidungs-Beats (6/6) · Narrativ-Gedächtnis**. Setzt die Spine-Arbeit aus `HANDOFF_2026-06-18.md` (PR #86: Slice 1/2 + T1/T2/T3) fort. Owner-Entscheidung dieser Session: `DECISIONS_2026-06-20_BEATS.md`.
+**Stand:** 2026-06-20 · **PR #87 (gemergt, `main` @ `b7a4ea6`)** — **Spine/Beats: Director-Pool · Entscheidungs-Beats (6/6) · Narrativ-Gedächtnis**. Setzt die Spine-Arbeit aus `HANDOFF_2026-06-18.md` (PR #86: Slice 1/2 + T1/T2/T3) fort. Owner-Entscheidung dieser Session: `DECISIONS_2026-06-20_BEATS.md`.
+
+> 🗺️ **Voll-Plan / Roadmap:** `GESAMTPLAN_2026-06-20.md` (konsolidiert TODO + Spine/Beats + Owner-Entscheidungen).
+> 📦 **Gebaut, aber noch nicht auf main:** **PR #85** (Asset-Pakete: Avatar m/w, Operationszentrale, Skylines, sitzende Audience) — konfliktfrei mergebar, Owner-Preview offen. Sound (J34–36) **ist** auf main.
 
 ### 🎬 Story-Director-Spine (PR #87) — alle Schichten + Beat-Katalog (Gate je Commit: `tsc 0`·`vitest 456`·`build`)
 Bau-Plan `BAUPLAN_STORY_DIRECTOR_SPINE.md`, Baukasten `BEAT_MUSTER_KATALOG.md`.

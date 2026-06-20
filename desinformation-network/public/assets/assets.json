@@ -21,6 +21,26 @@
       "styleVersion": "v1"
     },
     {
+      "id": "bld_city_far_dusk",
+      "type": "image",
+      "file": "images/bld_city_far_dusk.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game asset: distant city skyline for a side-scrolling pixel game background, a DENSE CONTINUOUS row of many block buildings of varied heights packed close together with NO large empty gaps between building clusters (no missing-tooth gaps), several depth layers: nearer buildings darker and sharper, buildings further back progressively lighter as they recede into a warm amber-orange dusk haze; the buildings stand as silhouettes lit by golden-hour light with a soft warm orange rim along their tops; MANY warm amber lit windows scattered across the buildings, a few slim chimneys with faint smoke, one thin TV tower with a faint red beacon; the UPPER parts of the skyline gradually dissolve into the hazy distance so there is NO hard top edge; flat layered silhouette; PERFECTLY seamless horizontal tile — the LEFT and RIGHT edges must continue each other exactly with buildings crossing the seam so it repeats with no visible break; crisp clean high-resolution pixel art, on a single flat solid magenta (#FF00FF) background above and between the gaps so the sky can be cut out. No people, no readable text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 858121,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bld_city_far_night",
+      "type": "image",
+      "file": "images/bld_city_far_night.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art game asset: distant city skyline for a side-scrolling pixel game background, a DENSE CONTINUOUS row of many block buildings of varied heights packed close together with NO large empty gaps between building clusters (no missing-tooth gaps), several depth layers: nearer buildings as dark deep blue-grey silhouettes and sharper, buildings further back progressively lighter into a faint cool city glow low on the night horizon; MANY warm yellow glowing windows densely scattered across the buildings with a few cool blue-lit office floors, a few slim chimneys, one thin TV tower lit with a small red aircraft beacon; the UPPER parts of the skyline gradually dissolve into the dark hazy distance so there is NO hard top edge; flat layered silhouette; PERFECTLY seamless horizontal tile — the LEFT and RIGHT edges must continue each other exactly with buildings crossing the seam so it repeats with no visible break; crisp clean high-resolution pixel art, on a single flat solid magenta (#FF00FF) background above and between the gaps so the sky can be cut out. No people, no readable text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 858121,
+      "styleVersion": "v1"
+    },
+    {
       "id": "bld_corridor",
       "type": "image",
       "file": "images/bld_corridor.png",
@@ -431,6 +451,906 @@
       "styleVersion": "v2"
     },
     {
+      "id": "persona_andreas_ablehnend",
+      "type": "image",
+      "file": "images/persona_andreas_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 862437,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_andreas_skeptisch",
+      "type": "image",
+      "file": "images/persona_andreas_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a man in his 50s, a tweed jacket over a shirt, glasses, greying hair, a measured expression, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 862437,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_andreas_zustimmend",
+      "type": "image",
+      "file": "images/persona_andreas_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 862437,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_ayla_ablehnend",
+      "type": "image",
+      "file": "images/persona_ayla_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 58562,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_ayla_skeptisch",
+      "type": "image",
+      "file": "images/persona_ayla_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a woman in her mid 30s, a sharp dark business blazer, sleek tied-back dark hair, a minimalist composed look, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 58562,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_ayla_zustimmend",
+      "type": "image",
+      "file": "images/persona_ayla_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 58562,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_bernd_ablehnend",
+      "type": "image",
+      "file": "images/persona_bernd_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 392045,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_bernd_skeptisch",
+      "type": "image",
+      "file": "images/persona_bernd_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a sturdy man in his early 50s, a work jacket over a polo shirt, a weathered face, short greying hair, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 392045,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_bernd_zustimmend",
+      "type": "image",
+      "file": "images/persona_bernd_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 392045,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_claudia_ablehnend",
+      "type": "image",
+      "file": "images/persona_claudia_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 632438,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_claudia_skeptisch",
+      "type": "image",
+      "file": "images/persona_claudia_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a woman in her late 40s, a sensible blouse and a scarf, glasses, shoulder-length hair, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 632438,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_claudia_zustimmend",
+      "type": "image",
+      "file": "images/persona_claudia_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 632438,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_dieter_ablehnend",
+      "type": "image",
+      "file": "images/persona_dieter_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 293813,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_dieter_skeptisch",
+      "type": "image",
+      "file": "images/persona_dieter_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a man in his early 60s, a conservative grey shirt and tie, balding, a careful look, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 293813,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_dieter_zustimmend",
+      "type": "image",
+      "file": "images/persona_dieter_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 293813,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_doreen_ablehnend",
+      "type": "image",
+      "file": "images/persona_doreen_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 442068,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_doreen_skeptisch",
+      "type": "image",
+      "file": "images/persona_doreen_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a tense woman in her mid 40s, a worn zip hoodie over a plain shirt, hair pulled back tightly, tired sharp eyes, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 442068,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_doreen_zustimmend",
+      "type": "image",
+      "file": "images/persona_doreen_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 442068,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_finn_ablehnend",
+      "type": "image",
+      "file": "images/persona_finn_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 370961,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_finn_skeptisch",
+      "type": "image",
+      "file": "images/persona_finn_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a man in his 30s, a beanie and a graphic tee under an open shirt, a scruffy short beard, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 370961,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_finn_zustimmend",
+      "type": "image",
+      "file": "images/persona_finn_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 370961,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_greta_ablehnend",
+      "type": "image",
+      "file": "images/persona_greta_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 198459,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_greta_skeptisch",
+      "type": "image",
+      "file": "images/persona_greta_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a young woman in her late 20s, simple eco-style clothing, a small pin on her jacket, natural untreated hair, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 198459,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_greta_zustimmend",
+      "type": "image",
+      "file": "images/persona_greta_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 198459,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_guenther_ablehnend",
+      "type": "image",
+      "file": "images/persona_guenther_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 582757,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_guenther_skeptisch",
+      "type": "image",
+      "file": "images/persona_guenther_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a man in his late 60s, a sturdy checked shirt, glasses, neat grey hair, a steady gaze, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 582757,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_guenther_zustimmend",
+      "type": "image",
+      "file": "images/persona_guenther_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 582757,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_heiko_ablehnend",
+      "type": "image",
+      "file": "images/persona_heiko_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 966005,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_heiko_skeptisch",
+      "type": "image",
+      "file": "images/persona_heiko_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a man in his 50s, a factory work shirt, broad build, short grey hair, a serious expression, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 966005,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_heiko_zustimmend",
+      "type": "image",
+      "file": "images/persona_heiko_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 966005,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_henrike_ablehnend",
+      "type": "image",
+      "file": "images/persona_henrike_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 435693,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_henrike_skeptisch",
+      "type": "image",
+      "file": "images/persona_henrike_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a woman in her 40s, a smart turtleneck, modern glasses, a sleek bob, an assured expression, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 435693,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_henrike_zustimmend",
+      "type": "image",
+      "file": "images/persona_henrike_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 435693,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_ingo_ablehnend",
+      "type": "image",
+      "file": "images/persona_ingo_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 215469,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_ingo_skeptisch",
+      "type": "image",
+      "file": "images/persona_ingo_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a man in his late 50s, a faded windbreaker, grey stubble, deep frown lines, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 215469,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_ingo_zustimmend",
+      "type": "image",
+      "file": "images/persona_ingo_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 215469,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_jakob_ablehnend",
+      "type": "image",
+      "file": "images/persona_jakob_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 279243,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_jakob_skeptisch",
+      "type": "image",
+      "file": "images/persona_jakob_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a student in his early 20s, a casual t-shirt and a tote-bag strap, messy hair, a hopeful look, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 279243,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_jakob_zustimmend",
+      "type": "image",
+      "file": "images/persona_jakob_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 279243,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_jonas_ablehnend",
+      "type": "image",
+      "file": "images/persona_jonas_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 35026,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_jonas_skeptisch",
+      "type": "image",
+      "file": "images/persona_jonas_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a man in his early 30s, an oversized knit jumper and round glasses, tousled hair, an ironic half-smile, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 35026,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_jonas_zustimmend",
+      "type": "image",
+      "file": "images/persona_jonas_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 35026,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_lea_ablehnend",
+      "type": "image",
+      "file": "images/persona_lea_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 243886,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_lea_skeptisch",
+      "type": "image",
+      "file": "images/persona_lea_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a young woman in her early 30s, a neat shirt with a faint medical badge, tied-back hair, a calm face, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 243886,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_lea_zustimmend",
+      "type": "image",
+      "file": "images/persona_lea_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 243886,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_lena_ablehnend",
+      "type": "image",
+      "file": "images/persona_lena_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 624046,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_lena_skeptisch",
+      "type": "image",
+      "file": "images/persona_lena_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a poised woman in her early 30s, smart-casual blazer over a light blouse, neat shoulder-length hair, small modern earrings, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 624046,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_lena_zustimmend",
+      "type": "image",
+      "file": "images/persona_lena_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 624046,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_mara_ablehnend",
+      "type": "image",
+      "file": "images/persona_mara_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 733767,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_mara_skeptisch",
+      "type": "image",
+      "file": "images/persona_mara_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a woman in her late 20s, layered alternative clothing, dyed short hair, a small nose stud, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 733767,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_mara_zustimmend",
+      "type": "image",
+      "file": "images/persona_mara_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 733767,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_miriam_ablehnend",
+      "type": "image",
+      "file": "images/persona_miriam_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 344127,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_miriam_skeptisch",
+      "type": "image",
+      "file": "images/persona_miriam_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a woman in her 40s, a crisp dark blazer, minimal jewelry, a composed confident face, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 344127,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_miriam_zustimmend",
+      "type": "image",
+      "file": "images/persona_miriam_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 344127,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_murat_ablehnend",
+      "type": "image",
+      "file": "images/persona_murat_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 172181,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_murat_skeptisch",
+      "type": "image",
+      "file": "images/persona_murat_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a man in his 40s, a plain work fleece, light stubble, short dark hair, a no-nonsense look, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 172181,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_murat_zustimmend",
+      "type": "image",
+      "file": "images/persona_murat_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 172181,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_nico_ablehnend",
+      "type": "image",
+      "file": "images/persona_nico_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 140291,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_nico_skeptisch",
+      "type": "image",
+      "file": "images/persona_nico_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a young man in his late 20s, a crisp light shirt, a friendly open face, short styled hair, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 140291,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_nico_zustimmend",
+      "type": "image",
+      "file": "images/persona_nico_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 140291,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_paul_ablehnend",
+      "type": "image",
+      "file": "images/persona_paul_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 119584,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_paul_skeptisch",
+      "type": "image",
+      "file": "images/persona_paul_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a man in his 40s, an open-collar shirt under a blazer, light stubble, an intelligent look, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 119584,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_paul_zustimmend",
+      "type": "image",
+      "file": "images/persona_paul_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 119584,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_petra_ablehnend",
+      "type": "image",
+      "file": "images/persona_petra_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 326230,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_petra_skeptisch",
+      "type": "image",
+      "file": "images/persona_petra_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a woman around 50, a plain cardigan over a blouse, neat permed hair, a cautious expression, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 326230,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_petra_zustimmend",
+      "type": "image",
+      "file": "images/persona_petra_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 326230,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_ralf_ablehnend",
+      "type": "image",
+      "file": "images/persona_ralf_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 489227,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_ralf_skeptisch",
+      "type": "image",
+      "file": "images/persona_ralf_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a gaunt man in his 50s, a worn jacket, unshaven, thinning hair, a bitter set mouth, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 489227,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_ralf_zustimmend",
+      "type": "image",
+      "file": "images/persona_ralf_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 489227,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_renate_ablehnend",
+      "type": "image",
+      "file": "images/persona_renate_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 523900,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_renate_skeptisch",
+      "type": "image",
+      "file": "images/persona_renate_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a well-groomed woman around 70, a blouse with a brooch, styled grey hair, glasses, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 523900,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_renate_zustimmend",
+      "type": "image",
+      "file": "images/persona_renate_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 523900,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_samira_ablehnend",
+      "type": "image",
+      "file": "images/persona_samira_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 957103,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_samira_skeptisch",
+      "type": "image",
+      "file": "images/persona_samira_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a woman in her 30s, a warm cardigan and a colourful scarf, a kind earnest face, curly hair, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 957103,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_samira_zustimmend",
+      "type": "image",
+      "file": "images/persona_samira_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 957103,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_silke_ablehnend",
+      "type": "image",
+      "file": "images/persona_silke_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 536621,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_silke_skeptisch",
+      "type": "image",
+      "file": "images/persona_silke_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a woman in her 40s, a nurse-style tunic, a tired but kind face, hair in a practical short cut, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 536621,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_silke_zustimmend",
+      "type": "image",
+      "file": "images/persona_silke_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 536621,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_tanja_ablehnend",
+      "type": "image",
+      "file": "images/persona_tanja_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 48057,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_tanja_skeptisch",
+      "type": "image",
+      "file": "images/persona_tanja_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a woman in her 40s, a supermarket-style polo shirt, hair tied back, hard tired eyes, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 48057,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_tanja_zustimmend",
+      "type": "image",
+      "file": "images/persona_tanja_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 48057,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_tobias_ablehnend",
+      "type": "image",
+      "file": "images/persona_tobias_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 497197,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_tobias_skeptisch",
+      "type": "image",
+      "file": "images/persona_tobias_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a man in his early 30s, a modern hoodie under a slim blazer, trendy glasses, short tidy hair, a confident open face, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 497197,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_tobias_zustimmend",
+      "type": "image",
+      "file": "images/persona_tobias_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 497197,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_walter_ablehnend",
+      "type": "image",
+      "file": "images/persona_walter_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 551114,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_walter_skeptisch",
+      "type": "image",
+      "file": "images/persona_walter_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a careworn man in his mid 50s, a checked button-up shirt, reading glasses pushed up on his forehead, thinning grey hair, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 551114,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_walter_zustimmend",
+      "type": "image",
+      "file": "images/persona_walter_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 551114,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_wolfgang_ablehnend",
+      "type": "image",
+      "file": "images/persona_wolfgang_ablehnend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a rejecting, hostile expression — a hard frown, chin slightly raised, clearly dismissive. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 228774,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_wolfgang_skeptisch",
+      "type": "image",
+      "file": "images/persona_wolfgang_skeptisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A pixel art character, shown from the waist up, large like a visual-novel / adventure-game character, facing slightly toward the centre, full head and both shoulders inside the frame, NOT cropped at the top. ONLY the person — NO desk, NO furniture, NO props. Plain dark concrete wall background. No text. a man in his late 60s, a tidy buttoned cardigan over a shirt, neat grey hair, a composed look, with a reserved, skeptical expression — eyes slightly narrowed, lips lightly pressed, attentive but unconvinced. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 228774,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "persona_wolfgang_zustimmend",
+      "type": "image",
+      "file": "images/persona_wolfgang_zustimmend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as the reference image, identical face, hair, clothing and framing, but with a warm, agreeing expression — a faint approving nod, softened eyes and the hint of a smile. Plain dark concrete wall background. No text. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 228774,
+      "styleVersion": "v1"
+    },
+    {
       "id": "portrait_alexei",
       "type": "image",
       "file": "images/portrait_alexei.png",
@@ -811,16 +1731,6 @@
       "styleVersion": "v1"
     },
     {
-      "id": "prop_files",
-      "type": "image",
-      "file": "images/prop_files.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: stack of beige paper files and folders. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 308568,
-      "styleVersion": "v1"
-    },
-    {
       "id": "prop_noticeboard",
       "type": "image",
       "file": "images/prop_noticeboard.png",
@@ -891,16 +1801,6 @@
       "styleVersion": "v1"
     },
     {
-      "id": "prop_red_phone",
-      "type": "image",
-      "file": "images/prop_red_phone.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: red rotary telephone. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 39184,
-      "styleVersion": "v1"
-    },
-    {
       "id": "prop_safe",
       "type": "image",
       "file": "images/prop_safe.png",
@@ -938,26 +1838,6 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A single isolated pixel-art object for a game: a cylindrical brushed-metal office waste bin, strict flat front elevation view, orthographic, seen straight from the front, NO isometric, NO 3/4 or top-down perspective, do NOT show the rim opening from above. The object stands completely ALONE, centered, floating on one flat solid magenta (#FF00FF) background — absolutely NO room, NO floor, NO ground, NO wall, NO tiles, NO shadow, NO furniture, NO scenery of any kind, ONLY the single isolated object on pure uniform magenta everywhere around it. No text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
       "seed": 494860,
-      "styleVersion": "v1"
-    },
-    {
-      "id": "prop_tv",
-      "type": "image",
-      "file": "images/prop_tv.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: old CRT television set on a metal stand, screen glowing. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 950469,
-      "styleVersion": "v1"
-    },
-    {
-      "id": "prop_typewriter",
-      "type": "image",
-      "file": "images/prop_typewriter.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game asset: soviet-era mechanical typewriter. Single object, centered, no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 838841,
       "styleVersion": "v1"
     },
     {
@@ -1066,7 +1946,7 @@
       "file": "images/room_operations.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A pixel art game background scene, wide interior view. office room \"Operations Room\". Concrete and glass walls, a clean floor, an abstract constructivist-style poster (geometric shapes only, no emblems, no text). Furniture and desks are modest in size and clearly smaller than a standing adult; keep the lower third of the scene as clear floor space for a character to stand. No people, no text, no UI elements. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A pixel art game background scene, wide interior view. a strategic information-operations command center / war room: a large central situation table with a glowing abstract tactical surface, a curved wall of slim flat screens showing abstract influence-network graphs, abstract regional maps and live campaign dashboards, two standing operator workstations at the sides, a glass status board crossed with coloured strings, indirect ceiling light. Zone lighting: cool-neutral and focused, medium-dark with cool screen glow. Concrete and glass walls, a clean floor, an abstract constructivist-style poster (geometric shapes only, no emblems, no text). Furniture and desks are modest in size and clearly smaller than a standing adult; keep the lower third of the scene as clear floor space for a character to stand. No people, no text, no UI elements. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 949119,
       "styleVersion": "v1"
     },
@@ -1348,7 +2228,7 @@
       "file": "sheets/audience_besorgte_mitte.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a woman around 55 in a polo shirt with a tablet on her lap, reading glasses, in a seated posture facing the viewer (as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A 2-frame pixel art sprite sheet of a woman around 55 in a polo shirt with a tablet on her lap, reading glasses, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 74014,
       "styleVersion": "v1",
       "frameWidth": 48,
@@ -1368,7 +2248,7 @@
       "file": "sheets/audience_bohemien.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a young creative in an oversized hoodie with headphones around the neck, slouched with a smartphone, in a seated posture facing the viewer (as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A 2-frame pixel art sprite sheet of a young creative in an oversized hoodie with headphones around the neck, slouched with a smartphone, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 808892,
       "styleVersion": "v1",
       "frameWidth": 48,
@@ -1388,28 +2268,8 @@
       "file": "sheets/audience_eigenheimer.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a retired man in a knitted cardigan with a cat on his lap and a tablet, in a seated posture facing the viewer (as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A 2-frame pixel art sprite sheet of a retired man in a knitted cardigan with a cat on his lap and a tablet, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 53128,
-      "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
-      "animations": {
-        "idle": {
-          "row": 0,
-          "frames": 2,
-          "frameTime": 600,
-          "loop": true
-        }
-      }
-    },
-    {
-      "id": "audience_family",
-      "type": "sheet",
-      "file": "sheets/audience_family.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a mother with a small child on her lap, sitting and facing the viewer, full body including the seat. Horizontal layout, exactly 2 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 714687,
       "styleVersion": "v1",
       "frameWidth": 48,
       "frameHeight": 48,
@@ -1428,28 +2288,8 @@
       "file": "sheets/audience_idealistin.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a woman in her mid 30s in a linen shirt with a tote bag leaning against the sofa, in a seated posture facing the viewer (as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A 2-frame pixel art sprite sheet of a woman in her mid 30s in a linen shirt with a tote bag leaning against the sofa, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 832249,
-      "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
-      "animations": {
-        "idle": {
-          "row": 0,
-          "frames": 2,
-          "frameTime": 600,
-          "loop": true
-        }
-      }
-    },
-    {
-      "id": "audience_intellectual",
-      "type": "sheet",
-      "file": "sheets/audience_intellectual.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a thin man with round glasses holding a folded newspaper, sitting and facing the viewer, full body including the seat. Horizontal layout, exactly 2 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 635879,
       "styleVersion": "v1",
       "frameWidth": 48,
       "frameHeight": 48,
@@ -1468,7 +2308,7 @@
       "file": "sheets/audience_liberale.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a woman around 60 with round glasses, folded quality newspaper, podcast earphones around the neck, in a seated posture facing the viewer (as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A 2-frame pixel art sprite sheet of a woman around 60 with round glasses, folded quality newspaper, podcast earphones around the neck, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 275642,
       "styleVersion": "v1",
       "frameWidth": 48,
@@ -1488,28 +2328,8 @@
       "file": "sheets/audience_macher.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a hands-on tradesman in his mid 40s in a fleece jacket and jeans, beer bottle on his knee, in a seated posture facing the viewer (as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A 2-frame pixel art sprite sheet of a hands-on tradesman in his mid 40s in a fleece jacket and jeans, beer bottle on his knee, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 260936,
-      "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
-      "animations": {
-        "idle": {
-          "row": 0,
-          "frames": 2,
-          "frameTime": 600,
-          "loop": true
-        }
-      }
-    },
-    {
-      "id": "audience_official",
-      "type": "sheet",
-      "file": "sheets/audience_official.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a stiff mid-level official in a grey uniform-like suit, sitting and facing the viewer, full body including the seat. Horizontal layout, exactly 2 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 362205,
       "styleVersion": "v1",
       "frameWidth": 48,
       "frameHeight": 48,
@@ -1528,68 +2348,8 @@
       "file": "sheets/audience_optimiererin.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a career woman in her mid 30s in a white blazer, holding a smoothie cup, sitting upright, in a seated posture facing the viewer (as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A 2-frame pixel art sprite sheet of a career woman in her mid 30s in a white blazer, holding a smoothie cup, sitting upright, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 350343,
-      "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
-      "animations": {
-        "idle": {
-          "row": 0,
-          "frames": 2,
-          "frameTime": 600,
-          "loop": true
-        }
-      }
-    },
-    {
-      "id": "audience_pensioner",
-      "type": "sheet",
-      "file": "sheets/audience_pensioner.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of an elderly pensioner woman with a headscarf and knitting, sitting and facing the viewer, full body including the seat. Horizontal layout, exactly 2 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 55006,
-      "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
-      "animations": {
-        "idle": {
-          "row": 0,
-          "frames": 2,
-          "frameTime": 600,
-          "loop": true
-        }
-      }
-    },
-    {
-      "id": "audience_worker",
-      "type": "sheet",
-      "file": "sheets/audience_worker.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a tired factory worker in blue overalls, middle-aged man, sitting and facing the viewer, full body including the seat. Horizontal layout, exactly 2 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 560907,
-      "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
-      "animations": {
-        "idle": {
-          "row": 0,
-          "frames": 2,
-          "frameTime": 600,
-          "loop": true
-        }
-      }
-    },
-    {
-      "id": "audience_youth",
-      "type": "sheet",
-      "file": "sheets/audience_youth.png",
-      "chosen": true,
-      "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a young student with a walkman headphones around the neck, sitting and facing the viewer, full body including the seat. Horizontal layout, exactly 2 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. 16-bit pixel art, SNES-era retro game style. Soviet-era brutalist aesthetic (1970s-80s): raw concrete walls, cold fluorescent lighting, worn metal and wood, bureaucratic claustrophobic atmosphere. Hard geometric edges. Muted color palette (#6B7280, #9CA3AF, #4A5D23, #6B8E23, #8B4513, #A0522D, #D2B48C, #DEB887, #B22234, #FFD700, #00FF00); dark-red accents only for important elements. No modern clean design, no saturated candy colors, no pastel tones. Fictional eastern-bloc setting: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
-      "seed": 901004,
       "styleVersion": "v1",
       "frameWidth": 48,
       "frameHeight": 48,
@@ -1608,7 +2368,7 @@
       "file": "sheets/audience_zorniger.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a frustrated man in a faded t-shirt, arms crossed, cigarette behind the ear, in a seated posture facing the viewer (as if sitting on a sofa, but draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the person). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "prompt": "A 2-frame pixel art sprite sheet of a frustrated man in a faded t-shirt, arms crossed, cigarette behind the ear, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 179953,
       "styleVersion": "v1",
       "frameWidth": 48,
@@ -1810,9 +2570,29 @@
       "provider": "gemini-3-pro-image",
       "prompt": "A 4-frame pixel art sprite sheet of a middle-aged government official in a modern grey suit standing idle and subtly breathing, front view. Horizontal layout, exactly 4 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle breathing motion changes. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 211324,
-      "styleVersion": "v2",
-      "frameWidth": 32,
-      "frameHeight": 32,
+      "styleVersion": "v1",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "frameTime": 220,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "player_idle_f",
+      "type": "sheet",
+      "file": "sheets/player_idle_f.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A 4-frame pixel art sprite sheet of a middle-aged government official woman in a modern grey trouser-suit standing idle and subtly breathing, front view. Horizontal layout, exactly 4 evenly spaced frames in one row showing the SAME character with identical outfit and colors in every frame, only a subtle breathing motion changes. CRITICAL: in EVERY frame the figure stands against the SAME single flat solid magenta (#FF00FF) fill — absolutely NO corridor, NO office, NO room, NO doors, NO windows, NO floor line, NO shadow, NO scenery of any kind behind or under the figure; only the woman on pure uniform magenta. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 935842,
+      "styleVersion": "v1",
+      "frameWidth": 64,
+      "frameHeight": 64,
       "animations": {
         "idle": {
           "row": 0,
@@ -1830,9 +2610,29 @@
       "provider": "gemini-3-pro-image",
       "prompt": "An 8-frame pixel art sprite sheet of a middle-aged government official in a modern grey suit with a briefcase in his left hand, walking to the right, strict side view. Horizontal layout, exactly 8 evenly spaced frames in one row, SAME character with identical suit and colors in every frame. The frames form one full walk cycle with DRAMATIC, clearly different leg poses: frame 1 right heel strikes the ground in front, legs wide apart, body at its lowest; frame 2 weight sinks onto the bent right leg; frame 3 body rises, left leg swings past the standing right leg; frame 4 body at its highest, left foot reaching forward, only right toes touch ground; frame 5 left heel strikes the ground in front, legs wide apart, body at its lowest; frame 6 weight sinks onto the bent left leg; frame 7 body rises, right leg swings past the standing left leg; frame 8 body at its highest, right foot reaching forward, only left toes touch ground. The head moves up and down by 2 pixels across the cycle (lowest in frames 1 and 5, highest in frames 4 and 8); the free right arm swings opposite to the legs. Adjacent frames MUST differ visibly, especially the legs. CRITICAL: in EVERY one of the 8 frames the figure walks on the spot against the SAME single flat solid magenta (#FF00FF) fill — absolutely NO corridor, NO office, NO room, NO doors, NO windows, NO floor line, NO shadow, NO scenery of any kind behind or under the figure; only the walking man floating on pure uniform magenta. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 782795,
-      "styleVersion": "v2",
-      "frameWidth": 32,
-      "frameHeight": 32,
+      "styleVersion": "v1",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "animations": {
+        "walkRight": {
+          "row": 0,
+          "frames": 8,
+          "frameTime": 90,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "player_walk_f",
+      "type": "sheet",
+      "file": "sheets/player_walk_f.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "An 8-frame pixel art sprite sheet of a middle-aged government official woman in a modern grey trouser-suit with a slim briefcase in her left hand, walking to the right, strict side view. Horizontal layout, exactly 8 evenly spaced frames in one row, SAME character with identical suit and colors in every frame. The frames form one full walk cycle with DRAMATIC, clearly different leg poses: frame 1 right heel strikes the ground in front, legs wide apart, body at its lowest; frame 2 weight sinks onto the bent right leg; frame 3 body rises, left leg swings past the standing right leg; frame 4 body at its highest, left foot reaching forward, only right toes touch ground; frame 5 left heel strikes the ground in front, legs wide apart, body at its lowest; frame 6 weight sinks onto the bent left leg; frame 7 body rises, right leg swings past the standing left leg; frame 8 body at its highest, right foot reaching forward, only left toes touch ground. The head moves up and down by 2 pixels across the cycle (lowest in frames 1 and 5, highest in frames 4 and 8); the free right arm swings opposite to the legs. Adjacent frames MUST differ visibly, especially the legs. CRITICAL: in EVERY one of the 8 frames the figure walks on the spot against the SAME single flat solid magenta (#FF00FF) fill — absolutely NO corridor, NO office, NO room, NO doors, NO windows, NO floor line, NO shadow, NO scenery of any kind behind or under the figure; only the walking woman floating on pure uniform magenta. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
+      "seed": 467749,
+      "styleVersion": "v1",
+      "frameWidth": 64,
+      "frameHeight": 64,
       "animations": {
         "walkRight": {
           "row": 0,
