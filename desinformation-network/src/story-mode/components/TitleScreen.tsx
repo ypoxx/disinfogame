@@ -7,7 +7,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useAssets } from '../assets/useAssets';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, StoryModeFonts } from '../theme';
 import { isSoundEnabled, setSoundEnabled, playMusic } from '../utils/SoundSystem';
 import { GAME_VERSION, BUILD_STAMP, CHANGELOG } from '../version';
 
@@ -49,7 +49,7 @@ function ChangelogOverlay({ onClose }: { onClose: () => void }): JSX.Element {
           minWidth: 340,
           maxWidth: 480,
           width: '90%',
-          fontFamily: 'monospace',
+          fontFamily: "'VT323', monospace",
         }}
       >
         {/* Kopfzeile */}
@@ -81,7 +81,7 @@ function ChangelogOverlay({ onClose }: { onClose: () => void }): JSX.Element {
               border: `2px solid ${StoryModeColors.borderLight}`,
               color: StoryModeColors.textSecondary,
               cursor: 'pointer',
-              fontFamily: 'monospace',
+              fontFamily: "'VT323', monospace",
               fontSize: '1rem',
               lineHeight: 1,
               padding: '2px 8px',
@@ -309,9 +309,12 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
         <h1
           style={{
             color: StoryModeColors.warning,
-            fontWeight: 700,
-            fontSize: 'clamp(1.5rem, 5vw, 2.6rem)',
-            letterSpacing: '0.15em',
+            // Press Start 2P (Headlines-Set): läuft deutlich breiter → kleinere clamp + engeres Tracking,
+            // damit „OPERATION: WESTUNION" auf schmalen Schirmen nicht überläuft (Preview gegenprüfen).
+            fontFamily: StoryModeFonts.display,
+            fontSize: 'clamp(0.85rem, 3.4vw, 1.5rem)',
+            letterSpacing: '0.04em',
+            lineHeight: 1.35,
             textTransform: 'uppercase',
             margin: 0,
             marginBottom: 8,

@@ -41,10 +41,20 @@ export function ambienceForContext(ctx: AmbienceContext): string | null {
   return 'sfx_amb_lobby'; // Gebäude-Übersicht: dezenter Hallen-Ton
 }
 
-/** Adaptive Musik: Lage bestimmt den Loop (heller → düster, Ende → Sieg/Spannung). */
+/**
+ * Adaptive Musik: Lage bestimmt das Band. Pro Band kann es MEHRERE gleichwertige
+ * Tracks geben (Pool) → zufällige Auswahl + Rotation, damit früh hörbar ist, dass
+ * es verschiedene Musik gibt. Das ruhige Anfangs-Band ist bewusst gepoolt.
+ */
+export function musicPoolForState(s: { risk: number; gameEnded?: boolean; won?: boolean }): string[] {
+  if (s.gameEnded) return s.won ? ['music_victory'] : ['music_tense'];
+  if (s.risk >= 66) return ['music_tense'];
+  if (s.risk >= 33) return ['music_gameplay'];
+  // Ruhiges Band: zwei Stimmungen im selben Stil (night_city war bisher ungenutzt).
+  return ['music_calm_archive', 'music_night_city'];
+}
+
+/** Einzeltrack (deterministisch = erstes Pool-Element). Rückwärtskompatibel/testbar. */
 export function musicForState(s: { risk: number; gameEnded?: boolean; won?: boolean }): string {
-  if (s.gameEnded) return s.won ? 'music_victory' : 'music_tense';
-  if (s.risk >= 66) return 'music_tense';
-  if (s.risk >= 33) return 'music_gameplay';
-  return 'music_calm_archive';
+  return musicPoolForState(s)[0];
 }

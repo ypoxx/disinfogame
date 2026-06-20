@@ -237,7 +237,7 @@ function PostCard({ post, isFirst = false }: PostCardProps): React.JSX.Element {
           justifyContent: 'center',
           fontSize: 11,
           fontWeight: 900,
-          fontFamily: 'monospace',
+          fontFamily: "'VT323', monospace",
           color: '#fff',
           imageRendering: 'pixelated',
           // Pixeliger 1px-Rand simuliert Sprite-Rand
@@ -262,7 +262,7 @@ function PostCard({ post, isFirst = false }: PostCardProps): React.JSX.Element {
             style={{
               fontSize: 10,
               fontWeight: 700,
-              fontFamily: 'monospace',
+              fontFamily: "'VT323', monospace",
               color: StoryModeColors.warning,
               letterSpacing: 0.5,
               whiteSpace: 'nowrap',
@@ -293,7 +293,7 @@ function PostCard({ post, isFirst = false }: PostCardProps): React.JSX.Element {
           style={{
             margin: 0,
             fontSize: 11,
-            fontFamily: 'monospace',
+            fontFamily: "'VT323', monospace",
             color: StoryModeColors.textPrimary,
             lineHeight: 1.4,
             // 2-Zeilen-Clamp via -webkit-line-clamp
@@ -313,7 +313,7 @@ function PostCard({ post, isFirst = false }: PostCardProps): React.JSX.Element {
             gap: 12,
             marginTop: 5,
             fontSize: 10,
-            fontFamily: 'monospace',
+            fontFamily: "'VT323', monospace",
             color: StoryModeColors.textMuted,
           }}
         >
@@ -360,7 +360,7 @@ function TrendingRow({ item, maxVolume }: TrendingRowProps): React.JSX.Element {
         <span
           style={{
             fontSize: 10,
-            fontFamily: 'monospace',
+            fontFamily: "'VT323', monospace",
             fontWeight: 700,
             color: StoryModeColors.textPrimary,
             letterSpacing: 0.5,
@@ -377,7 +377,7 @@ function TrendingRow({ item, maxVolume }: TrendingRowProps): React.JSX.Element {
           style={{
             fontSize: 12,
             color: item.rising ? StoryModeColors.danger : StoryModeColors.textMuted,
-            fontFamily: 'monospace',
+            fontFamily: "'VT323', monospace",
             flexShrink: 0,
           }}
         >
@@ -415,7 +415,7 @@ function TrendingRow({ item, maxVolume }: TrendingRowProps): React.JSX.Element {
         style={{
           fontSize: 9,
           color: StoryModeColors.textMuted,
-          fontFamily: 'monospace',
+          fontFamily: "'VT323', monospace",
           marginTop: 2,
           textAlign: 'right',
         }}
@@ -473,7 +473,7 @@ export function NewsroomView({
         zIndex: 1000,
         display: 'flex',
         flexDirection: 'column',
-        fontFamily: 'monospace',
+        fontFamily: "'VT323', monospace",
         backgroundColor: '#0d0d0d',
         overflow: 'hidden',
       }}
@@ -584,7 +584,7 @@ export function NewsroomView({
             border: `2px solid ${StoryModeColors.ministryRed}`,
             color: StoryModeColors.textPrimary,
             fontSize: 16,
-            fontFamily: 'monospace',
+            fontFamily: "'VT323', monospace",
             fontWeight: 900,
             width: 32,
             height: 32,
@@ -740,7 +740,7 @@ export function NewsroomView({
                     height: '100%',
                     color: StoryModeColors.textMuted,
                     fontSize: 12,
-                    fontFamily: 'monospace',
+                    fontFamily: "'VT323', monospace",
                     letterSpacing: 1,
                   }}
                 >
@@ -792,7 +792,7 @@ export function NewsroomView({
                   style={{
                     color: StoryModeColors.textMuted,
                     fontSize: 11,
-                    fontFamily: 'monospace',
+                    fontFamily: "'VT323', monospace",
                     marginTop: 12,
                     textAlign: 'center',
                   }}

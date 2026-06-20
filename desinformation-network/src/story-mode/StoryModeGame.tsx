@@ -41,6 +41,9 @@ import { NpcRoomView } from './building/NpcRoomView';
 import { NewsroomView, derivePosts } from './components/NewsroomView';
 import { deriveGegenseite } from './engine/Gegenseite';
 import { FokusgruppeView } from './components/FokusgruppeView';
+import { FokusgruppePreTest, FOKUSGRUPPE_COST } from './components/FokusgruppePreTest';
+import personasJson from './data/personas.json';
+import type { Persona } from './audience/fokusgruppeModel';
 import { OperationsAkteView } from './components/OperationsAkteView';
 import { loadTargets, loadCarriers, loadPlatforms } from './battlefield/BattlefieldChain';
 import { DayClock } from './components/DayClock';
@@ -56,8 +59,8 @@ import { SidePanel } from './components/SidePanel';
 import { LagebildView } from './components/LagebildView';
 import { NarrativeBoard } from './components/NarrativeBoard';
 import { initAssetRegistry, useAssets } from './assets';
-import { playMusic, playAmbience, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound, setChannelVolume, getChannelVolume, type SoundChannel } from './utils/SoundSystem';
-import { ambienceForContext, musicForState } from './utils/soundDirector';
+import { playMusicPool, playAmbience, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound, setChannelVolume, getChannelVolume, type SoundChannel } from './utils/SoundSystem';
+import { ambienceForContext, musicPoolForState } from './utils/soundDirector';
 
 // ============================================
 // TYPES
@@ -258,6 +261,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     startGame,
     skipTutorial,
     chooseAuftrag,
+    commissionFokusgruppe,
     continueDialog,
     dismissDialog,
     handleDialogChoice,
@@ -338,10 +342,14 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   }, [state.gamePhase, state.gameEnd]);
   const [showNewsroom, setShowNewsroom] = useState(false);
   const [showFokusgruppe, setShowFokusgruppe] = useState(false);
-  // P5: Auftrags-Wahl einmal pro Partie (beim ersten „playing"); bei Neustart (→ 'intro') re-armt.
-  const [auftragChosen, setAuftragChosen] = useState(false);
+  // Fokusgruppe Pre-Test (beauftragbare Befragung + Sample-Bias) — analyse-Raum.
+  const [showPreTest, setShowPreTest] = useState(false);
+  // P1-9: Auftrags-Wahl ist der Abschluss des Direktor-Dialogs (Intro-Schritt nach der
+  // Ankunfts-Sequenz), nicht mehr ein Overlay über der bereits laufenden Welt. Bei Neustart
+  // (→ 'intro') re-armt der Schritt; geladene Spielstände überspringen ihn (Auftrag steht schon).
+  const [showAuftrag, setShowAuftrag] = useState(false);
   useEffect(() => {
-    if (state.gamePhase === 'intro') setAuftragChosen(false);
+    if (state.gamePhase === 'intro') setShowAuftrag(false);
   }, [state.gamePhase]);
   // P2: Operations-Akte (Operationszentrale, Etage 4) — Verbreiter×Plattform-Operation.
   const [showOperationsAkte, setShowOperationsAkte] = useState(false);
@@ -437,18 +445,19 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   useEffect(() => {
     if (state.gamePhase === 'playing' || state.gamePhase === 'tutorial') {
       // Adaptive Musik (J34/J35): Krise immer angespannt, sonst nach Lage (Risiko).
-      const track = state.activeCrisis ? 'music_tense' : musicForState({ risk: state.resources.risk });
-      playMusic(track);
+      // Pool → das ruhige Band rotiert zwischen mehreren Tracks (hörbare Abwechslung).
+      const pool = state.activeCrisis ? ['music_tense'] : musicPoolForState({ risk: state.resources.risk });
+      playMusicPool(pool);
     } else if (state.gamePhase === 'ended') {
       // Ende: hoffnungsvolle Enden hell, sonst düster.
       const won = state.gameEnd?.type === 'victory' || state.gameEnd?.type === 'moral_redemption';
-      playMusic(musicForState({ risk: state.resources.risk, gameEnded: true, won }));
+      playMusicPool(musicPoolForState({ risk: state.resources.risk, gameEnded: true, won }));
     }
   }, [state.gamePhase, state.activeCrisis, state.resources.risk, state.gameEnd, assets]);
 
   // F36: Raum-Klangkulisse je nach aktuellem Ort (zweiter, leiser Loop unter der Musik; Ducking aktiv).
   const ambienceOverlay = showNewsroom ? 'newsroom'
-    : showFokusgruppe ? 'fokusgruppe'
+    : (showFokusgruppe || showPreTest) ? 'fokusgruppe'
     : showOperationsAkte ? 'akte'
     : showLagebild ? 'lagebild'
     : showBoard ? 'board'
@@ -597,9 +606,18 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         <ArrivalSequence
           npcs={state.npcs}
           onDone={() => {
+            // Direktor empfangen → er erteilt jetzt den Auftrag (P1-9), DANN öffnet sich die Welt.
             setShowArrival(false);
-            startGame();
+            setShowAuftrag(true);
           }}
+        />
+      );
+    }
+    if (showAuftrag) {
+      return (
+        <AuftragSelect
+          onChoose={(id) => { chooseAuftrag(id); setShowAuftrag(false); startGame(); }}
+          onSkip={() => { chooseAuftrag('keil'); setShowAuftrag(false); startGame(); }}
         />
       );
     }
@@ -721,14 +739,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       className="fixed inset-0 font-mono"
       style={{ backgroundColor: StoryModeColors.background }}
     >
-      {/* P5: Auftrags-Wahl zu Beginn der Partie (Plague-Inc.-Stil). */}
-      {!auftragChosen && state.gamePhase === 'playing' && (
-        <AuftragSelect
-          onChoose={(id) => { chooseAuftrag(id); setAuftragChosen(true); }}
-          onSkip={() => { chooseAuftrag('keil'); setAuftragChosen(true); }}
-        />
-      )}
-
       {/* HUD (E1/I32): nur auf Knopfdruck — Taste H, Standard aus, „nicht dauerhaft" */}
       {hudVisible && (
       <StoryHUD
@@ -845,7 +855,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               onEnterOffice={() => setViewMode('office')}
               onEnterRoom={(roomId) => {
                 if (roomId === 'newsroom') setShowNewsroom(true);
-                else if (roomId === 'analyse') setShowFokusgruppe(true);
+                else if (roomId === 'analyse') setShowPreTest(true);
                 else if (roomId === 'operations') setShowOperationsAkte(true);
               }}
               walkHome={walkHome}
@@ -1041,6 +1051,16 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           />
         )}
 
+        {/* Fokusgruppe Pre-Test (beauftragbar): Appell + Stichprobe testen, Sample-Bias aufdecken. */}
+        {showPreTest && (
+          <FokusgruppePreTest
+            personas={personasJson.personas as unknown as Persona[]}
+            budget={state.resources.budget}
+            onCommission={() => { if (commissionFokusgruppe(FOKUSGRUPPE_COST)) endPhase(); }}
+            onClose={() => setShowPreTest(false)}
+          />
+        )}
+
         {/* Operations-Akte (P2): Verbreiter×Plattform-Operation gegen ein fiktives Ziel.
             Faktencheck/Sättigung speisen sich aus der Lage (attention/risk → 0..1). */}
         {showOperationsAkte && (
@@ -1187,7 +1207,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           !showDayReport &&
           !walkHome &&
           !state.currentDialog &&
-          (state.storyPhase.number > 1 || auftragChosen) &&
+          (state.storyPhase.number > 1 || !showAuftrag) &&
           briefedPhase !== state.storyPhase.number && (
             <MorningBriefing
               phase={state.storyPhase.number}

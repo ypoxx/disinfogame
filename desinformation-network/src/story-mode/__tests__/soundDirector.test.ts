@@ -2,7 +2,7 @@
  * soundDirector (pure): Raum-Kulisse je Kontext + adaptive Musik je Lage.
  */
 import { describe, it, expect } from 'vitest';
-import { ambienceForContext, musicForState } from '../utils/soundDirector';
+import { ambienceForContext, musicForState, musicPoolForState } from '../utils/soundDirector';
 
 describe('ambienceForContext', () => {
   it('Overlay hat Vorrang vor Ansicht/Gespräch', () => {
@@ -31,5 +31,19 @@ describe('musicForState', () => {
   it('Spielende: Sieg vs. Niederlage', () => {
     expect(musicForState({ risk: 10, gameEnded: true, won: true })).toBe('music_victory');
     expect(musicForState({ risk: 10, gameEnded: true, won: false })).toBe('music_tense');
+  });
+});
+
+describe('musicPoolForState', () => {
+  it('ruhiges Band ist gepoolt (Abwechslung), höhere Bänder einzeln', () => {
+    expect(musicPoolForState({ risk: 10 })).toEqual(['music_calm_archive', 'music_night_city']);
+    expect(musicPoolForState({ risk: 40 })).toEqual(['music_gameplay']);
+    expect(musicPoolForState({ risk: 80 })).toEqual(['music_tense']);
+    expect(musicPoolForState({ risk: 10, gameEnded: true, won: true })).toEqual(['music_victory']);
+  });
+  it('musicForState bleibt das erste Pool-Element (deterministisch)', () => {
+    for (const risk of [10, 40, 80]) {
+      expect(musicForState({ risk })).toBe(musicPoolForState({ risk })[0]);
+    }
   });
 });

@@ -140,7 +140,7 @@ export function ArrivalSequence({ npcs, onDone }: ArrivalSequenceProps): JSX.Ele
             color: '#c8c8b8',
             fontSize: 'clamp(.65rem, 1.8vw, .9rem)',
             letterSpacing: '0.12em',
-            fontFamily: 'monospace',
+            fontFamily: "'VT323', monospace",
             animation: 'as-caption-fade .6s ease both',
           }}
         >

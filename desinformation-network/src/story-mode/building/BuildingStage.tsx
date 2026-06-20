@@ -15,7 +15,8 @@ import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties } fr
 import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
-import { skyGradientForMinutes } from './skyTime';
+import { usePlayerProfile, playerWalkSheetId, playerIdleSheetId } from '../stores/playerProfileStore';
+import { skyGradientForMinutes, skylineLayersForMinutes } from './skyTime';
 import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, FLOOR_WALKERS, DOOR_TRAFFIC, POSTER_SLOGANS, shredderLine, coffeeLine, volksbrauseLine, employeeOfMonth, plantAsset, plantLine, type AmbientFigure } from './corridorDecor';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
@@ -118,7 +119,7 @@ function AmbientPerson({ a, left, top, height }: { a: AmbientFigure; left: numbe
           style={{
             position: 'absolute', bottom: height + 6, left: '50%', transform: 'translateX(-50%)',
             width: 230, backgroundColor: 'rgba(12,12,16,0.94)', border: `1px solid ${StoryModeColors.borderLight}`,
-            color: '#e8e4d8', fontFamily: 'monospace', fontSize: 11, lineHeight: 1.4, padding: '6px 8px', zIndex: 7,
+            color: '#e8e4d8', fontFamily: "'VT323', monospace", fontSize: 11, lineHeight: 1.4, padding: '6px 8px', zIndex: 7,
           }}
         >
           <span style={{ display: 'block', fontSize: 8, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 2 }}>{a.who}</span>
@@ -220,11 +221,18 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
     assets.imageUrl(level === -1 ? 'bld_corridor_keller' : corridorIds[(((level % 3) + 3) % 3)]) ?? corridorUrl;
   const lobbyUrl = assets.imageUrl('room_lobby');
   const cityUrl = assets.imageUrl('bld_city_far');
+  // Tageszeit-Skylines (Dämmerung/Nacht) blenden über die Basis ein — siehe skylineLayersForMinutes.
+  const cityDuskUrl = assets.imageUrl('bld_city_far_dusk');
+  const cityNightUrl = assets.imageUrl('bld_city_far_night');
   const streetUrl = assets.imageUrl('bld_street');
   const undergroundUrl = assets.imageUrl('bld_underground');
   // Tageszeit-Himmel (gegen „schwarzer Himmel zu groß"): Verlauf folgt der Tagesuhr,
   // die chroma-freigestellte Skyline liegt davor.
   const skyMinutes = useDayClockStore((s) => s.minutes);
+  // Avatar-Sheets folgen der Geschlechter-Wahl aus der Personalakte (P2-9).
+  const portraitId = usePlayerProfile((s) => s.portraitId);
+  const avatarWalkSheet = playerWalkSheetId(portraitId);
+  const avatarIdleSheet = playerIdleSheetId(portraitId);
   const cabinClosedUrl = assets.imageUrl('elevator_cabin_closed');
   const cabinOpenUrl = assets.imageUrl('elevator_cabin_open');
 
@@ -255,30 +263,37 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
     >
       <style>{STAGE_KEYFRAMES}</style>
 
-      {/* ───── Stadt: Skyline hinter dem Haus, Straße unter dem Haus (volle Breite) ───── */}
-      {cityUrl && (
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: Math.max(0, view.h - groundScreenY),
-            // Skyline groß, aber Anzeige unter Native-Höhe (864) → scharf statt hochskaliert.
-            height: Math.min(view.h * 0.72, 760),
-            backgroundImage: `url(${cityUrl})`,
-            backgroundRepeat: 'repeat-x',
-            backgroundSize: 'auto 100%',
-            backgroundPosition: 'center bottom',
-            imageRendering: 'pixelated',
-            opacity: 0.95,
-            // Natürlicher Übergang Stadt → Himmel: oberer Rand sanft ausblenden (kein harter Schnitt).
-            WebkitMaskImage: 'linear-gradient(to top, #000 62%, transparent 100%)',
-            maskImage: 'linear-gradient(to top, #000 62%, transparent 100%)',
-            pointerEvents: 'none',
-          }}
-        />
-      )}
+      {/* ───── Stadt: Skyline hinter dem Haus (Tag/Dämmerung/Nacht überblendet) ───── */}
+      {cityUrl && (() => {
+        const skyline = skylineLayersForMinutes(skyMinutes);
+        // Gemeinsame Geometrie/Maske für alle Tageszeit-Skylines; nur die Opazität unterscheidet sie.
+        const layerStyle = (url: string, opacity: number): CSSProperties => ({
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: Math.max(0, view.h - groundScreenY),
+          // Skyline groß, aber Anzeige unter Native-Höhe (864) → scharf statt hochskaliert.
+          height: Math.min(view.h * 0.72, 760),
+          backgroundImage: `url(${url})`,
+          backgroundRepeat: 'repeat-x',
+          backgroundSize: 'auto 100%',
+          backgroundPosition: 'center bottom',
+          imageRendering: 'pixelated',
+          opacity,
+          transition: 'opacity 1200ms linear',
+          // Natürlicher Übergang Stadt → Himmel: oberer Rand sanft ausblenden (kein harter Schnitt).
+          WebkitMaskImage: 'linear-gradient(to top, #000 62%, transparent 100%)',
+          maskImage: 'linear-gradient(to top, #000 62%, transparent 100%)',
+          pointerEvents: 'none',
+        });
+        return (
+          <>
+            <div aria-hidden style={layerStyle(cityUrl, 0.95)} />
+            {cityDuskUrl && <div aria-hidden style={layerStyle(cityDuskUrl, skyline.dusk)} />}
+            {cityNightUrl && <div aria-hidden style={layerStyle(cityNightUrl, skyline.night)} />}
+          </>
+        );
+      })()}
       {/* Untergrund: Erde/Rohre hinter dem Keller und darunter (statt „nichts"/Straße). */}
       <div
         aria-hidden
@@ -641,7 +656,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                     position: 'absolute', bottom: pH + 6, left: '50%', transform: 'translateX(-50%)',
                     width: 240, maxWidth: 240, backgroundColor: 'rgba(12,12,16,0.94)',
                     border: `1px solid ${StoryModeColors.borderLight}`, color: '#e8e4d8',
-                    fontFamily: 'monospace', fontSize: 11, lineHeight: 1.4, padding: '6px 8px', zIndex: 7,
+                    fontFamily: "'VT323', monospace", fontSize: 11, lineHeight: 1.4, padding: '6px 8px', zIndex: 7,
                   }}
                 >
                   <span style={{ display: 'block', fontSize: 8, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 2 }}>PFÖRTNER</span>
@@ -704,7 +719,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           )}
           {nav.avatarInCabin && (
             <span style={{ position: 'absolute', left: '50%', bottom: 22, transform: 'translateX(-50%)', zIndex: 4 }}>
-              <PixelSprite sheetId="player_idle" animation="idle" fallback="•" scale={3} title="Sie" />
+              <PixelSprite sheetId={avatarIdleSheet} animation="idle" fallback="•" scale={1.5} title="Sie" />
             </span>
           )}
         </div>
@@ -769,11 +784,11 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             data-testid="building-avatar"
           >
             <PixelSprite
-              sheetId={nav.mode === 'walk' ? 'player_walk' : 'player_idle'}
+              sheetId={nav.mode === 'walk' ? avatarWalkSheet : avatarIdleSheet}
               animation={nav.mode === 'walk' ? 'walkRight' : 'idle'}
               fallback="•"
               flip={nav.facing === -1}
-              scale={4}
+              scale={2}
               title="Sie"
               frameTimeMs={nav.mode === 'walk' ? WALK_FRAME_TIME_MS : undefined}
               onFrame={nav.mode === 'walk' ? handleWalkFrame : undefined}
@@ -810,13 +825,13 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             }}
           />
           <div style={{ maxWidth: 520, textAlign: 'center' }}>
-            <div style={{ fontFamily: 'monospace', fontWeight: 900, letterSpacing: 3, color: StoryModeColors.warning, fontSize: 14, marginBottom: 6 }}>
+            <div style={{ fontFamily: "'VT323', monospace", fontWeight: 900, letterSpacing: 3, color: StoryModeColors.warning, fontSize: 14, marginBottom: 6 }}>
               {poster.titel_de}
             </div>
-            <div style={{ fontFamily: 'monospace', color: '#e8e4d8', fontSize: 13, lineHeight: 1.5, fontStyle: 'italic' }}>
+            <div style={{ fontFamily: "'VT323', monospace", color: '#e8e4d8', fontSize: 13, lineHeight: 1.5, fontStyle: 'italic' }}>
               „{poster.slogan_de}"
             </div>
-            <div style={{ fontFamily: 'monospace', color: StoryModeColors.textMuted, fontSize: 10, marginTop: 12 }}>
+            <div style={{ fontFamily: "'VT323', monospace", color: StoryModeColors.textMuted, fontSize: 10, marginTop: 12 }}>
               (Klicken zum Schließen)
             </div>
           </div>

@@ -54,3 +54,27 @@ export function skyGradientForMinutes(minutes: number, dayLengthMin = 540): stri
   const s = skyStopsForMinutes(minutes, dayLengthMin);
   return `linear-gradient(${s.top} 0%, ${s.mid} 58%, ${s.horizon} 100%)`;
 }
+
+export interface SkylineLayers {
+  /** Opazität der Dämmerungs-Skyline (0..1). */
+  dusk: number;
+  /** Opazität der Nacht-Skyline (0..1). */
+  night: number;
+}
+
+const ramp = (x: number, a: number, b: number) => clamp01((x - a) / (b - a || 1));
+
+/**
+ * Opazitäten der Tageszeit-Skylines über die Tagesuhr. Die Basis-Skyline
+ * (`bld_city_far`, Tag) liegt darunter und bleibt sichtbar; Dämmerung und Nacht
+ * werden darüber ein-/ausgeblendet. Je Zeitband ist im Wesentlichen EINE Skyline
+ * dominant — nur an den Bandgrenzen entsteht eine kurze Überblendung (die Varianten
+ * teilen die Silhouette nicht 1:1, daher bewusst nur eine kurze Blende statt Dauer-Mix).
+ */
+export function skylineLayersForMinutes(minutes: number, dayLengthMin = 540): SkylineLayers {
+  const t = clamp01(minutes / dayLengthMin);
+  // Dämmerung blendet am Nachmittag ein und zur Nacht wieder aus; Nacht legt sich darüber.
+  const dusk = ramp(t, 0.5, 0.62) * (1 - ramp(t, 0.82, 0.9));
+  const night = ramp(t, 0.82, 0.92);
+  return { dusk, night };
+}
