@@ -8,6 +8,8 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `STRANG34_FEINPLAN_2026-06-13_AKTIONEN_DIALOGE.md` → `GESAMTKONZEPT_VISUELL.md` →
 > dieses Dokument für den aktuellen Bau-Stand. Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
+**Stand:** 2026-06-20 (Review) · **Review Episoden & Aktionen** — `REVIEW_2026-06-20_EPISODEN_AKTIONEN.md` (Branch `claude/gracious-keller-g43bu3`). Benennt das Owner-„Bauchgefühl" in drei messbaren Befunden: (A) zwei Inhalts-Klassen (Episoden/`9.x`/`11.x` gut, `1.x`–`8.x` Lehrbuch-Ton), (B) **Terminal-Jahres-Gate** (`ta0{year}`, `StoryModeGame.tsx:929` × `ActionPanel.tsx:449`, `PHASES_PER_YEAR=12`) → im 1. Jahr nur klinische Analyse-Aktionen, die guten Phänomen-Aktionen erst Jahr 4–8 → „falsche Zeit" + IA-Bruch zur Tafel (zwei Inventare); harter Beleg: `ep_bruecke` (always) braucht nur „Jahr-7"-Aktionen, (C) Redundanz (143 → ~70–80 Familien). **Leitsatz-Empfehlung:** Aktionen = Vokabular der Episoden/Beats (kuratieren), Jahres-Gate kappen, vertikale „Keil"-Scheibe als Konzept-Probe. **4 Owner-Entscheidungen offen** (Review §7). Gate grün (`tsc 0`·`vitest 473`·`build`).
+
 **Stand:** 2026-06-20 · **PR #87 (gemergt, `main` @ `b7a4ea6`)** — **Spine/Beats: Director-Pool · Entscheidungs-Beats (6/6) · Narrativ-Gedächtnis**. Setzt die Spine-Arbeit aus `HANDOFF_2026-06-18.md` (PR #86: Slice 1/2 + T1/T2/T3) fort. Owner-Entscheidung dieser Session: `DECISIONS_2026-06-20_BEATS.md`.
 
 > 🤝 **Neueste Übergabe für die nächste Session:** `HANDOFF_2026-06-20.md` (Stand, Pacing, Next-Steps).
