@@ -303,7 +303,7 @@ const HUD_KIT = [
 const AUDIENCE_FIGURES = [
   ['audience_optimiererin', 'a career woman in her mid 30s in a white blazer, holding a smoothie cup, sitting upright'],
   ['audience_macher', 'a hands-on tradesman in his mid 40s in a fleece jacket and jeans, beer bottle on his knee'],
-  ['audience_bohemien', 'a young creative in an oversized hoodie with headphones around the neck, slouched with a smartphone'],
+  ['audience_bohemien', 'a young creative with tousled hair and round glasses, an unzipped hoodie worn open with the HOOD DOWN (head bare and fully visible), headphones resting on the shoulders, sitting back relaxed and watching the TV, head upright'],
   ['audience_besorgte_mitte', 'a woman around 55 in a polo shirt with a tablet on her lap, reading glasses'],
   ['audience_zorniger', 'a frustrated man in a faded t-shirt, arms crossed, cigarette behind the ear'],
   ['audience_idealistin', 'a woman in her mid 30s in a linen shirt with a tote bag leaning against the sofa'],
@@ -829,8 +829,10 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
         `A 2-frame pixel art sprite sheet of ${hint}, drawn in a CLEARLY SEATED pose as if ` +
         `relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the ` +
         `knees bent forward, the lower legs drop down to the feet, the back is slightly reclined ` +
-        `and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO ` +
-        `background — ONLY the seated person, centered, feet near the bottom edge of the frame. ` +
+        `and the hands rest on the lap. The FULL head sits upright on the shoulders and is clearly ` +
+        `visible and unobstructed — NOT bowed down, NOT hidden by a hood/hair, NOT cropped at the ` +
+        `top edge; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, ` +
+        `NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. ` +
         `Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with ` +
         `identical outfit and colors in every frame, only a subtle idle motion changes (blink, ` +
         `small head turn, slight breathing). ${CHROMA_PROMPT} ${style}`,
