@@ -14,6 +14,10 @@
   font-weight: 400;
   font-style: normal;
   font-display: swap;
+  /* VT323 rendert pro px deutlich kleiner als eine klassische Monospace (kleine x-Höhe).
+     `size-adjust` skaliert alle Glyphen global hoch, ohne dass irgendein px-Wert geändert
+     werden muss → Pixel-Weltschrift erreicht wieder die Lesbarkeit der alten monospace. */
+  size-adjust: 132%;
 }
 @font-face {
   font-family: 'Press Start 2P';
@@ -154,9 +158,14 @@
     @apply bg-gray-100 text-gray-900;
   }
 
-  /* Remove default button styles */
+  /* Fokus-Sichtbarkeit pixel-konform: KEIN blauer Web-Ring/Glow (Verbotsliste, §4.6),
+     stattdessen eine klare amberfarbene Pixel-Kante nur bei Tastatur-Fokus. */
   button {
-    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+    @apply focus:outline-none;
+  }
+  button:focus-visible {
+    outline: 2px solid #F0B429;
+    outline-offset: 1px;
   }
 }
 

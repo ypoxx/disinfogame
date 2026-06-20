@@ -245,8 +245,8 @@ function AudienceRoom({ audience }: { audience: AudienceBroadcastState }) {
       </span>
       {/* Repräsentative Teilmenge (das Sofa fasst nicht alle 8 — Owner: nicht alle sitzen);
           mittig, Rand-Polster, kleinere Skala → Köpfe werden oben NICHT abgeschnitten. */}
-      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 10, display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 8, padding: '0 18px', zIndex: 2 }}>
-        {audience.country.segments.slice(0, 5).map((seg) => {
+      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 14, display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 12, padding: '0 16px', zIndex: 2 }}>
+        {audience.country.segments.slice(0, 4).map((seg) => {
           const figure = FIGURE_BY_SEGMENT[seg.id] ?? 'audience_besorgte_mitte';
           const reaction = reactionBySegment.get(seg.id);
           const showBubble = reaction && Math.abs(reaction.beliefDelta) >= 0.04;
@@ -278,7 +278,7 @@ function AudienceRoom({ audience }: { audience: AudienceBroadcastState }) {
                 </span>
               )}
               <span style={{ filter: MOOD_FILTER[seg.mood], transition: 'filter 600ms ease' }}>
-                <PixelSprite sheetId={figure} animation="idle" fallback="" scale={1.35} title={seg.label_de} />
+                <PixelSprite sheetId={figure} animation="idle" fallback="" scale={2.2} title={seg.label_de} />
               </span>
               {/* Überzeugungs-Sockel: füllt sich mit der Wirkung der Desinformation */}
               <span

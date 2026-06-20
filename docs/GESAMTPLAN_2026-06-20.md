@@ -39,12 +39,24 @@ einem Guss.
 
 ---
 
-## 3. Gebaut, aber NOCH NICHT auf `main` (sofort landebar)
-- **PR #85 — Asset-Pakete (offener Draft):** **Avatar m/w** (P2-9), **Operationszentrale**
-  `room_operations` (P1-8), **Skyline Dämmerung/Nacht** (P2-12), **sitzende Audience-Figuren**
-  (P2-10). Budget war freigegeben, Vision-QC erledigt. **Konfliktfrei in das aktuelle `main`
-  mergebar (geprüft).** Offen nur Owner-Preview-Feinschliff (Skyline-Übergang an Bandgrenzen,
-  Audience-Sitzlinien). → **Empfehlung: prüfen + mergen** (größter „done-but-not-landed"-Hebel).
+## 3. ✅ Gelandet seit der ersten Plan-Fassung (PR #88 → `main`)
+- **PR #85 ist integriert gemergt** (war viel größer als sein Titel): **Assets** (Avatar m/w,
+  Operationszentrale, Skyline Dämmerung/Nacht, sitzende Audience) · **Pixel-Weltschrift VT323**
+  (+ Press Start 2P / Silkscreen, P1-6) · **Fokusgruppe-PreTest-Feature** · **P1-8/9/10**.
+  Eine Spine-Kollision (`auftragChosen`→`showAuftrag`) aufgelöst; verlustfrei kontrolliert.
+- **Visuelle Korrekturen (Session 2026-06-20, nach Owner-Screenshots):**
+  - **Font zu klein** vs. alte Monospace → VT323 `@font-face size-adjust: 132%` (global größer,
+    ohne px-Werte zu ändern).
+  - **Blauer Web-Fokus-Ring** (der „Rand" um eine Sofa-Figur) → entfernt; Button-Fokus jetzt
+    pixel-konform (amber, nur `:focus-visible`; Maus-Klick zeigt keinen Ring mehr).
+  - **Sofa-Publikum zu klein** → repräsentative 4 statt 5, `scale 1.35→2.2`. (Exakte Sitzlinie
+    am Preview feinjustierbar.)
+  - **Flaky-Test** `DecisionBeatFlow` (hing an `Date.now`-Krisen-Seed) deterministisch gemacht.
+- **⚠️ Offen — `audience_bohemien` ist „kopflos"** (echter Generierungs-Mangel, der wiederkehrende
+  Kopf-Crop): **eine** Figur muss neu generiert werden (Pixel-Asset-Pipeline; `GEMINI_API_KEY`
+  vorhanden; minimaler Budget; Kostenansage). Die anderen 7 Figuren sind ok.
+- **⚠️ Offen — #85-Preview-Feinschliff:** Skyline-Übergang an Bandgrenzen · Audience-Sitzlinien-
+  Pixelausrichtung (vom #85-Autor selbst notiert).
 
 ---
 
@@ -53,7 +65,7 @@ einem Guss.
 |---|---|---|
 | 1 | NPC-Namen (Volkov & Co.) fiktionalisieren? | ✅ **entschieden: behalten** (#84) |
 | 2 | Reale Plattformnamen behalten? | ✅ **entschieden: behalten** (#84) |
-| 3 | Avatar m/w-Variante? | ✅ **entschieden + gebaut** (in #85, noch nicht gemergt) |
+| 3 | Avatar m/w-Variante? | ✅ **entschieden + gebaut + gemergt** (#85→#88) |
 | 5 | Sound (J34–36) gebaut? | ✅ **ja, auf main** (#81) |
 | 6 | Asset-Budget freigeben? | ✅ **freigegeben** (#85 hat es genutzt) |
 | — | Beats: Sieg-Achse bewegen? | ✅ **nur andere Achsen** (2026-06-20, `DECISIONS_2026-06-20_BEATS.md`) |
@@ -64,16 +76,15 @@ einem Guss.
 
 ## 5. Roadmap — priorisierte Phasen
 
-### Phase A — Landen & verifizieren (kein Budget, sofort)
-1. **PR #85 mergen** (konfliktfrei) → Avatar m/w, Operationszentrale, Skylines, sitzende Audience landen.
-2. **Owner-Preview-Sichtprüfung** am `main`-Deploy: Beat-Texte/Tonalität · Decision-Modal +
-   „★ BERATER RÄT" · #85-Assets (Skyline-Übergang, Audience-Sitzlinien) · Sound.
+### Phase A — Landen & verifizieren ✅ größtenteils erledigt
+1. ✅ **PR #85 gelandet** (integriert, PR #88). 2. ✅ **Sichtbare Owner-Mängel gefixt** (Font-Größe,
+   Fokus-Ring, Publikums-Skala). **Offen:** `audience_bohemien` neu generieren · Owner-Sichtprüfung
+   am `main`-Deploy (Font-Größe jetzt ok? · Publikum-Skala/Sitzlinie · Beat-Texte/Modal/Badge).
 
-### Phase B — Spielqualität ohne Budget/Block (Code/Content)
-- **P1-9** Auftrags-Wahl kontextualisieren (in den Direktor-Dialog ziehen / nach Tag 1).
-- **P1-10** End-Report „Mögliche Spielenden": Bedingungstexte an die echten Trigger angleichen.
-- **P2-17 Pacing:** garantierte erste Verteidiger-Welle (Früh-Druck; teils via Frühphasen-Nudge
-  da) + eskalierende Endwelle gegen Spät-Leerlauf.
+### Phase B — Spielqualität ohne Budget/Block (Code/Content) ← **AKTUELL**
+- ✅ **P1-9** (Auftrags-Wahl im Direktor-Dialog) + ✅ **P1-10** (End-Report-Bedingungstexte) — via #85 erledigt.
+- **P2-17 Pacing (Kern von Phase B):** garantierte erste Verteidiger-Welle (Früh-Druck; teils via
+  Frühphasen-Nudge da) + eskalierende Endwelle gegen Spät-Leerlauf. **Mit Balance-Sim belegen.**
 - **❓7 entscheiden** (Pacing/harte Win-Condition) — nach dem Preview-Erleben.
 - **Spine-Feinschliff:** DayReport-Vorgriff („Marina kündigt morgen an"); Lage-Berater-Heuristik
   für Loyalitätsprobe/Nebel verfeinern.
