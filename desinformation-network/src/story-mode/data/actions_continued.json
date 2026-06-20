@@ -1807,10 +1807,10 @@
     {
       "id": "8.2",
       "phase": "targeting",
-      "label_de": "Person diskreditieren",
+      "label_de": "Eine Person erledigen",
       "headline_de": "Rufmord-Kampagne gestartet",
       "label_en": "Discredit Person",
-      "narrative_de": "Rufmord. Wahre, halbwahre oder erfundene Geschichten, die den Ruf zerstören.",
+      "narrative_de": "Beweisen müssen wir nichts — nur oft genug fragen; am Ende bleibt nicht die Lüge hängen, sondern der Zweifel an der Person.",
       "costs": {
         "budget": 8,
         "capacity": 2,
@@ -1862,10 +1862,10 @@
     {
       "id": "8.4",
       "phase": "targeting",
-      "label_de": "Institution delegitimieren",
+      "label_de": "Die Instanz untergraben",
       "headline_de": "Vertrauen in Institution untergraben",
       "label_en": "Delegitimize Institution",
-      "narrative_de": "'Ausländische Agenten', 'Lügenpresse', 'Systemmedien' - Vertrauen in Institutionen untergraben.",
+      "narrative_de": "Wir müssen das Gericht, das Amt, die Redaktion nicht widerlegen — wir fragen nur laut genug, wem sie gehören. Wer einmal zweifelt, glaubt auch der nächsten Zahl nicht mehr.",
       "costs": {
         "budget": 10,
         "capacity": 2,
