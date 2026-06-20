@@ -35,7 +35,10 @@ einem Guss.
 - **Story-Director-Spine (#86/#87):** gewichteter Beat-Pool · **Entscheidungs-Beats 6/6**
   (Stadtrat · Reale Vorlage · Schwelbrand · Loyalitätsprobe · Nebel · Bumerang) · Narrativ-
   Gedächtnis (Schicht 3) · Live-Berater-Badge. Beats **balance-neutral auf der Sieg-Achse**.
-- **Gate:** `tsc 0` · `vitest 456` · `build` grün.
+- **Pacing „spürbar härter" (P2-17, Session 2026-06-20, PR #89):** zwei Gegenwehr-Wellen
+  (garantierte erste bei Phase 6 · spät eskalierender Gegendruck nach 3,5-Jahre-Schonzeit).
+  Nur Risiko/Aufmerksamkeit (R2: Sieg-Achse tabu). **Mit Balance-Sim belegt.**
+- **Gate:** `tsc 0` · `vitest 473` · `build` grün.
 
 ---
 
@@ -69,8 +72,9 @@ einem Guss.
 | 5 | Sound (J34–36) gebaut? | ✅ **ja, auf main** (#81) |
 | 6 | Asset-Budget freigeben? | ✅ **freigegeben** (#85 hat es genutzt) |
 | — | Beats: Sieg-Achse bewegen? | ✅ **nur andere Achsen** (2026-06-20, `DECISIONS_2026-06-20_BEATS.md`) |
+| 7 | Pacing-Intensität? | ✅ **„spürbar härter" gewählt** (2026-06-20) → P2-17 gebaut (späte Eskalation, sim-belegt) |
 | 4 | Fokusgruppe: Persona-Porträts oder CSS? | 🟡 **offen** (Segmente existieren als Daten; Bild-Batch = Budget) |
-| 7 | Auftrag als *harte* Sieg-Bedingung (Pacing)? | 🟡 **offen** (heute Sieg-*Qualität*; Entscheidung am besten nach Preview) |
+| — | Auftrag als *harte* Sieg-Bedingung? | 🟡 **offen** (heute Sieg-*Qualität*; Pacing-Druck deckt den Spannungs-Bedarf erstmal ab) |
 
 ---
 
@@ -83,9 +87,12 @@ einem Guss.
 
 ### Phase B — Spielqualität ohne Budget/Block (Code/Content) ← **AKTUELL**
 - ✅ **P1-9** (Auftrags-Wahl im Direktor-Dialog) + ✅ **P1-10** (End-Report-Bedingungstexte) — via #85 erledigt.
-- **P2-17 Pacing (Kern von Phase B):** garantierte erste Verteidiger-Welle (Früh-Druck; teils via
-  Frühphasen-Nudge da) + eskalierende Endwelle gegen Spät-Leerlauf. **Mit Balance-Sim belegen.**
-- **❓7 entscheiden** (Pacing/harte Win-Condition) — nach dem Preview-Erleben.
+- ✅ **P2-17 Pacing „spürbar härter" (PR #89):** garantierte erste Gegenwehr-Welle (Phase 6) +
+  spät eskalierender Gegendruck (`oppositionPressure`, nach 3,5-Jahre-Schonzeit) gegen Spät-Leerlauf.
+  **Balance-Sim belegt:** „Zeit abgelaufen"-Fizzle entfällt komplett; vorsichtiges/passives Spiel
+  (vorher 100 % enttarnungs-sicher, nur Timeout) **kann jetzt auffliegen** (max. Risiko ~3 → ~85+);
+  gewinn- UND verlierbar bleibt (16 S / 20 N über 36 Partien). Regressionstest `Pacing.test.ts` +
+  `BalanceInvariant` grün (R2 gehalten). ❓7 ist damit als „spürbar härter" entschieden.
 - **Spine-Feinschliff:** DayReport-Vorgriff („Marina kündigt morgen an"); Lage-Berater-Heuristik
   für Loyalitätsprobe/Nebel verfeinern.
 

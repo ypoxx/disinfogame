@@ -13,6 +13,13 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > 🗺️ **Voll-Plan / Roadmap:** `GESAMTPLAN_2026-06-20.md` (konsolidiert TODO + Spine/Beats + Owner-Entscheidungen).
 > 📦 **Gebaut, aber noch nicht auf main:** **PR #85** (Asset-Pakete: Avatar m/w, Operationszentrale, Skylines, sitzende Audience) — konfliktfrei mergebar, Owner-Preview offen. Sound (J34–36) **ist** auf main.
 
+### 🎚️ Phase B — Pacing „spürbar härter" (Session 2026-06-20, PR #89, Branch `claude/gracious-keller-g43bu3`)
+Owner-Entscheidung: **„Spürbar härter (mehr Nervenkitzel)"** → späte mechanische Eskalation, gegen die auch passives Spiel auffliegen kann. Umgesetzt in `StoryEngineAdapter` (P2-17):
+- **Garantierte erste Gegenwehr-Welle (Phase 6):** einmaliger Aufmerksamkeits-/Risiko-Stups + News „Erste Gegenwehr formiert sich" — Früh-Druck + Lehrmoment, dass Untätigkeit nicht ewig folgenlos bleibt.
+- **Späte Eskalation (`oppositionPressure`):** mit der Phase wachsender Gegendruck nach 3,5-Jahre-Schonzeit; überwiegt spät den passiven Abbau → Dauer-Vorsicht/Leerlauf wird gefährlich. **Nur Risiko/Aufmerksamkeit, NIE die Sieg-Achse** (R2; `BalanceInvariant` grün).
+- **Balance-Sim-Beleg (36 Partien):** Das „Zeit abgelaufen"-Fizzle **entfällt komplett**; vorsichtiges/zufälliges Spiel (vorher max. Risiko ~3, nie enttarnt) **kann jetzt enttarnt werden** (max. Risiko ~85–100). Gewinn- UND verlierbar bleibt (16 Sieg / 20 Niederlage). Regressionstest `Pacing.test.ts` (3) pinnt die Eckpunkte.
+- **Gate:** `tsc 0` · `vitest 473` · `build` grün. Owner-Sichtprüfung am Deploy-Preview empfohlen (fühlt sich der Spät-Druck stimmig an?).
+
 ### 🎬 Story-Director-Spine (PR #87) — alle Schichten + Beat-Katalog (Gate je Commit: `tsc 0`·`vitest 456`·`build`)
 Bau-Plan `BAUPLAN_STORY_DIRECTOR_SPINE.md`, Baukasten `BEAT_MUSTER_KATALOG.md`.
 - **✅ Slice 3 — gewichteter Beat-Pool:** `StoryDirector.pickNext()` zieht gewichtet aus einem Pool

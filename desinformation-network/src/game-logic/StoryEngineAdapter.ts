@@ -678,6 +678,10 @@ export class StoryEngineAdapter {
   private readonly ACTION_POINTS_PER_PHASE = 5;
   private readonly CAPACITY_REGEN_PER_PHASE = 2;
 
+  // P2-17 Pacing („spürbar härter"): zwei Gegenwehr-Wellen.
+  private readonly FIRST_DEFENDER_WAVE_PHASE = 6; // garantierte erste Gegenwehr (~halbes Jahr)
+  private readonly PACING_GRACE_PHASES = 42;      // Schonzeit (3,5 Jahre) vor der Eskalation
+
   constructor(seed?: string) {
     this.rngSeed = seed || Date.now().toString();
 
@@ -897,7 +901,43 @@ export class StoryEngineAdapter {
       risk: Math.max(0, this.storyResources.risk - riskDecay),
     };
 
+    // P2-17 Pacing („spürbar härter") — eskalierende Gegenwehr-Welle.
+    // Mit den Jahren formiert sich die Verteidigung der Westunion: ein mit der Phase
+    // wachsender Gegendruck legt Risiko (und etwas Aufmerksamkeit) zu. Die Schonzeit
+    // (erste 3 Jahre) ist nahezu null, danach steigt er spürbar und überwiegt spät
+    // den passiven Abbau oben — so wird auch Dauer-Vorsicht/Leerlauf am Ende riskant
+    // und kann auffliegen. Berührt NUR Risiko/Aufmerksamkeit, NIE die Sieg-Achse
+    // (obj_destabilize, R2) → die Balance der Gewinn-Achse bleibt unangetastet.
+    const opp = this.oppositionPressure(newPhaseNumber);
+    if (opp.risk > 0) {
+      resourceChanges.risk = Math.min(100, (resourceChanges.risk as number) + opp.risk);
+    }
+    if (opp.attention > 0) {
+      resourceChanges.attention = Math.min(100, (resourceChanges.attention as number) + opp.attention);
+    }
+
     Object.assign(this.storyResources, resourceChanges);
+
+    // P2-17 Pacing — garantierte erste Gegenwehr-Welle (Früh-Druck + Lehrmoment).
+    // Genau einmal beim Eintritt in die frühe Phase: die Gegenseite wird erstmals
+    // auf die Operation aufmerksam — ein sichtbares Signal, dass Untätigkeit nicht
+    // ewig folgenlos bleibt. Kleiner Aufmerksamkeits-/Risiko-Stups + News.
+    if (newPhaseNumber === this.FIRST_DEFENDER_WAVE_PHASE) {
+      this.storyResources.attention = Math.min(100, this.storyResources.attention + 5);
+      this.storyResources.risk = Math.min(100, this.storyResources.risk + 3);
+      this.newsEvents.unshift({
+        id: `pacing_first_wave_${newPhaseNumber}`,
+        phase: newPhaseNumber,
+        headline_de: 'Erste Gegenwehr formiert sich',
+        headline_en: 'First counter-efforts take shape',
+        description_de: 'Faktenchecker und Beobachter beginnen, Unstimmigkeiten zu sammeln. Noch ist es ein Flüstern — aber die Westunion fängt an, hinzusehen.',
+        description_en: 'Fact-checkers and observers begin collecting inconsistencies. It is a whisper for now — but Westunion is starting to look.',
+        type: 'world_event',
+        severity: 'warning',
+        read: false,
+        pinned: false,
+      });
+    }
 
     // B2b/P2: Gesellschafts-Formel je Phase — die Werte wirken nicht-linear aufeinander
     // (verzögerte/„intelligente" Effekte, §14.2). Berührt NUR Gesellschaftswerte, nicht
@@ -1892,6 +1932,22 @@ export class StoryEngineAdapter {
    *
    * Tracked trends: Risk, Attention, Budget depletion
    */
+  /**
+   * P2-17 Pacing — Gegenwehr-Eskalation (Spät-Welle). Wächst linear mit der Phase;
+   * in der Schonzeit (erste 3 Jahre) null. Spät überwiegt sie den passiven Abbau
+   * (~1–2 Risiko/Phase), sodass Dauer-Leerlauf gefährlich wird („spürbar härter").
+   * Gibt NUR Risiko/Aufmerksamkeit zurück — die Sieg-Achse (obj_destabilize) bleibt
+   * tabu (R2). Gedeckelt, damit aktives, geschicktes Spiel weiter gewinnbar bleibt.
+   */
+  private oppositionPressure(phase: number): { risk: number; attention: number } {
+    const ramp = phase - this.PACING_GRACE_PHASES;
+    if (ramp <= 0) return { risk: 0, attention: 0 };
+    return {
+      risk: Math.min(5, ramp * 0.10),
+      attention: Math.min(7, ramp * 0.13),
+    };
+  }
+
   private generateResourceTrendEvents(phase: number): NewsEvent[] {
     const trendEvents: NewsEvent[] = [];
 
