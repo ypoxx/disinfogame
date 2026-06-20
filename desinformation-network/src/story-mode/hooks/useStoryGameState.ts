@@ -895,17 +895,17 @@ export function useStoryGameState(seed?: string) {
       }
     }
 
-    // Spine Slice 2: Der Dirigent kürt den nächsten Beat (Krise→Episode→Stups) und legt
-    // ihn im directorStore ab → Marinas Vorgriffszeile im nächsten Morgenbriefing.
+    // Spine Slice 2/3: Der Dirigent kürt den nächsten Beat und legt ihn im
+    // directorStore ab → Marinas Vorgriffszeile im nächsten Morgenbriefing. Krise hat
+    // Vorfahrt; sonst zieht Slice 3 gewichtet aus dem Pool aller reifen Episoden +
+    // Berater-Stupser (Math.random als Default → ähnliche Spielstände driften auseinander).
     const directorCrisis = crisisSystem.getMostUrgentCrisis();
     const ripeEpisodes = engine.getOfferableEpisodes();
     const directorInputs: DirectorInputs = {
       crisis: directorCrisis
         ? { id: directorCrisis.crisisId, vorgriffZeile_de: directorCrisis.crisis.newsTickerText_de }
         : undefined,
-      ripeEpisode: ripeEpisodes[0]
-        ? { id: ripeEpisodes[0].id, titel_de: ripeEpisodes[0].titel_de }
-        : undefined,
+      ripeEpisodes: ripeEpisodes.map((ep) => ({ id: ep.id, titel_de: ep.titel_de })),
       stupsCandidates: recommendations.map((rec) => ({
         quelleId: rec.npcId,
         vorgriffZeile_de: rec.message,
