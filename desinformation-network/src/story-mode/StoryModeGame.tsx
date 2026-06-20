@@ -11,6 +11,8 @@ import { NpcPanel } from './components/NpcPanel';
 import { MissionPanel } from './components/MissionPanel';
 import { ActionFeedbackDialog } from './components/ActionFeedbackDialog';
 import { ConsequenceModal } from './components/ConsequenceModal';
+import { DecisionBeatModal } from './components/DecisionBeatModal';
+import { getDecisionBeat } from './engine/DecisionBeats';
 import { EventsPanel } from './components/EventsPanel';
 import { TutorialOverlay, useTutorial } from './components/TutorialOverlay';
 import { GameEndScreen } from './components/GameEndScreen';
@@ -273,6 +275,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     reorderQueue,
     executeQueue,
     handleConsequenceChoice,
+    decisionBeatResult,
+    handleDecisionBeatChoice,
+    closeDecisionBeat,
     interactWithNpc,
     markNewsAsRead,
     toggleNewsPinned,
@@ -301,6 +306,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showShortcuts, setShowShortcuts] = useState(false);
   // Spine Slice 2: der vom Director gekürte Beat → Marinas Vorgriff im Morgenbriefing.
   const directorBeat = useDirectorStore((s) => s.currentBeat);
+  // Spine Slice 4: ein offener Entscheidungs-Beat, den die UI nach dem Briefing präsentiert.
+  const pendingDecisionBeatId = useDirectorStore((s) => s.pendingDecisionBeatId);
   const [showEncyclopedia, setShowEncyclopedia] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [selectedAdvisorNpc, setSelectedAdvisorNpc] = useState<string | null>(null);
@@ -1293,6 +1300,25 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           onChoice={handleConsequenceChoice}
         />
       )}
+
+      {/* Decision Beat Modal (Spine Slice 4): nach dem Morgenbriefing präsentiert, wenn
+          kein anderes Overlay blockiert. Marina hat den Beat im Briefing vorweggenommen. */}
+      {pendingDecisionBeatId &&
+        state.gamePhase === 'playing' &&
+        briefedPhase === state.storyPhase.number &&
+        !state.currentDialog &&
+        !showDayReport &&
+        !walkHome &&
+        !state.activeCrisis &&
+        !state.activeConsequence && (
+          <DecisionBeatModal
+            isVisible={true}
+            beat={getDecisionBeat(pendingDecisionBeatId) ?? null}
+            result={decisionBeatResult}
+            onChoose={(optionId) => handleDecisionBeatChoice(pendingDecisionBeatId, optionId)}
+            onClose={closeDecisionBeat}
+          />
+        )}
 
       {/* Pause Menu */}
       {state.gamePhase === 'paused' && (

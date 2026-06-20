@@ -153,3 +153,28 @@ describe('StoryDirector.pickNext — gewichteter Pool-Zug (Slice 3)', () => {
     expect(low?.quelleId).not.toBe(high?.quelleId);
   });
 });
+
+describe('StoryDirector.pickNext — Entscheidungs-Beats im Pool (Slice 4)', () => {
+  it('ein Entscheidungs-Beat ist das schwerste Pool-Mitglied (rng→0) und trägt die DecisionBeat-Id', () => {
+    const beat = pickNext(
+      {
+        decisionCandidates: [{ id: 'stadtrat', vorgriffZeile_de: 'Morgen tagt der Stadtrat…' }],
+        ripeEpisodes: [{ id: 'ep1', titel_de: 'Die Brücke' }],
+        stupsCandidates: [{ quelleId: 'marina', vorgriffZeile_de: 'Marina rät…' }],
+      },
+      null,
+      fixed(0),
+    );
+    expect(beat?.typ).toBe('entscheidung');
+    expect(beat?.quelleId).toBe('stadtrat');
+    expect(beat?.decisionBeatId).toBe('stadtrat');
+  });
+
+  it('Krise behält Vorfahrt vor dem Entscheidungs-Beat', () => {
+    const beat = pickNext({
+      crisis: { id: 'c1', vorgriffZeile_de: 'Krise!' },
+      decisionCandidates: [{ id: 'stadtrat', vorgriffZeile_de: 'Stadtrat…' }],
+    });
+    expect(beat?.typ).toBe('krise');
+  });
+});

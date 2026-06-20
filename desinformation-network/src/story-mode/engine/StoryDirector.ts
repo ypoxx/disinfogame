@@ -21,16 +21,18 @@
  * Stups-Ebene.
  */
 
-export type BeatTyp = 'krise' | 'episode' | 'stups';
+export type BeatTyp = 'krise' | 'episode' | 'stups' | 'entscheidung';
 
 /** Minimaler Beat-Datentyp (Bauplan §„Das einzige wirklich Neue"). */
 export interface Beat {
   id: string;
   typ: BeatTyp;
-  /** Quelle (Krisen-/Episoden-/Stups-Id) — auch Schlüssel für die Anti-Wiederholung. */
+  /** Quelle (Krisen-/Episoden-/Stups-/Entscheidungs-Id) — auch Schlüssel für die Anti-Wiederholung. */
   quelleId: string;
   /** Marinas Vorgriffszeile im Lagebericht + Aufhänger fürs Morgenbriefing. */
   vorgriffZeile_de: string;
+  /** Bei `typ:'entscheidung'`: die DecisionBeat-Id, die die UI dann präsentiert (Slice 4). */
+  decisionBeatId?: string;
   /** Optionaler Hook auf einen Fortschrittswert, den der Beat bewegt (Slice 2+). */
   fortschrittHook?: string;
 }
@@ -41,6 +43,8 @@ export interface DirectorInputs {
   crisis?: { id: string; vorgriffZeile_de: string };
   /** JETZT reife, noch nicht laufende Episoden (getOfferableEpisodes). */
   ripeEpisodes?: { id: string; titel_de: string }[];
+  /** Noch nicht aufgelöste Entscheidungs-Beats (DecisionBeats.unresolvedDecisionCandidates). */
+  decisionCandidates?: { id: string; vorgriffZeile_de: string }[];
   /** Berater-/Ziel-Stupser (NPCAdvisorEngine), nach Priorität sortiert. */
   stupsCandidates?: { quelleId: string; vorgriffZeile_de: string }[];
 }
@@ -52,6 +56,7 @@ export interface DirectorInputs {
  * auszuschließen — „bevorzugt etwas anderes", nicht „verbietet das Gleiche".
  */
 const BASE_WEIGHT: Record<Exclude<BeatTyp, 'krise'>, number> = {
+  entscheidung: 8, // authorierte Set-Pieces: am ehesten surfacen (Slice 4)
   episode: 6,
   stups: 2,
 };
@@ -74,6 +79,16 @@ function gewicht(typ: Exclude<BeatTyp, 'krise'>, quelleId: string, lastBeat?: Be
   return w;
 }
 
+function decisionBeat(d: { id: string; vorgriffZeile_de: string }): Beat {
+  return {
+    id: `entscheidung_${d.id}`,
+    typ: 'entscheidung',
+    quelleId: d.id,
+    vorgriffZeile_de: d.vorgriffZeile_de,
+    decisionBeatId: d.id,
+  };
+}
+
 function episodeBeat(ep: { id: string; titel_de: string }): Beat {
   return {
     id: `episode_${ep.id}`,
@@ -94,6 +109,9 @@ function stupsBeat(s: { quelleId: string; vorgriffZeile_de: string }): Beat {
 
 function buildPool(inputs: DirectorInputs, lastBeat?: Beat | null): PoolEntry[] {
   const pool: PoolEntry[] = [];
+  for (const d of inputs.decisionCandidates ?? []) {
+    pool.push({ beat: decisionBeat(d), weight: gewicht('entscheidung', d.id, lastBeat) });
+  }
   for (const ep of inputs.ripeEpisodes ?? []) {
     pool.push({ beat: episodeBeat(ep), weight: gewicht('episode', ep.id, lastBeat) });
   }

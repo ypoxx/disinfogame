@@ -90,6 +90,11 @@ import {
 } from '../story-mode/engine/EndingSystem';
 
 import {
+  getDecisionBeat,
+  getBeatOption,
+} from '../story-mode/engine/DecisionBeats';
+
+import {
   ExtendedActorLoader,
   getExtendedActorLoader,
   type ExtendedActor,
@@ -325,6 +330,22 @@ export interface ActionResult {
 
   // Betrayal warnings triggered
   betrayalWarnings?: BetrayalWarning[];
+}
+
+/**
+ * Ergebnis einer aufgelösten Entscheidungs-Beat-Option (Spine Slice 4). Wie bei
+ * `ActionResult` macht es die Wirkung am Entscheidungspunkt sichtbar (T1): die
+ * Gesellschaftswert-Deltas (Vertrauen bleibt entkoppelt, R2) + die Spieler-Kosten.
+ */
+export interface DecisionBeatResult {
+  beatId: string;
+  beatName_de: string;
+  optionId: string;
+  optionLabel_de: string;
+  technik_de: string;
+  narrative_de: string;
+  societyChanges?: Partial<Record<SocietyValueKey, number>> & { vertrauen?: number };
+  resourceChanges: Partial<Pick<StoryResources, 'risk' | 'attention' | 'budget'>>;
 }
 
 /**
@@ -615,6 +636,8 @@ export class StoryEngineAdapter {
   private episodesOffered: Set<string> = new Set();
   private episodesActive: Set<string> = new Set();
   private episodesCompleted: Set<string> = new Set();
+  /** Slice 4: bereits aufgelöste Entscheidungs-Beats (damit der Director sie nicht erneut zieht). */
+  private resolvedDecisionBeats: Set<string> = new Set();
 
   // P5 — Strategischer Auftrag („Vertrauen = Mittel, Auftrag = Ziel"). Default = „Der Keil"
   // (Tutorial); beim Neustart wählbar. v1: obj_destabilize bleibt der spielbare Sieg, die
@@ -3739,6 +3762,89 @@ export class StoryEngineAdapter {
     return Array.from(this.episodesActive).map(id => getEpisode(id)).filter((e): e is Episode => !!e);
   }
 
+  // ============================================
+  // ENTSCHEIDUNGS-BEATS (Spine Slice 4) — Inhalt der Spine
+  // ============================================
+
+  getResolvedDecisionBeatIds(): string[] {
+    return Array.from(this.resolvedDecisionBeats);
+  }
+
+  /**
+   * Wendet die gewählte Option eines Entscheidungs-Beats an: Gesellschaftswert-Deltas
+   * (über `applySocietyDelta`, 0–100-geklemmt) + Spieler-Kosten (Risiko/Aufmerksamkeit/
+   * Budget). `vertrauen` wird — wie bei `completeEpisode` — NICHT an `obj_destabilize`
+   * gekoppelt (R2: balance-neutral; die Vertrauens-*Richtung* lebt narrativ in `wirkung_de`
+   * und steuert die Berater-Empfehlung). Liefert die Deltas für die UI (T1) zurück.
+   */
+  applyDecisionBeatOption(beatId: string, optionId: string): DecisionBeatResult | null {
+    const beat = getDecisionBeat(beatId);
+    if (!beat) return null;
+    const option = getBeatOption(beat, optionId);
+    if (!option) return null;
+
+    const clamp100 = (x: number) => Math.max(0, Math.min(100, x));
+    const societyBefore = this.getSocietySnapshot();
+    const trustBefore = this.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100;
+    const riskBefore = this.storyResources.risk;
+    const attentionBefore = this.storyResources.attention;
+    const budgetBefore = this.storyResources.budget;
+
+    // Gesellschaftswert-Deltas (Vertrauen ausgeklammert — R2).
+    const delta: SocietyDelta = {};
+    for (const [key, value] of Object.entries(option.werteDelta)) {
+      if (key === 'vertrauen') continue;
+      if (typeof value === 'number') (delta as Record<string, number>)[key] = value;
+    }
+    this.applySocietyDelta(delta);
+
+    // Spieler-Kosten.
+    if (typeof option.spielerKosten.risk === 'number') {
+      this.storyResources.risk = clamp100(this.storyResources.risk + option.spielerKosten.risk);
+    }
+    if (typeof option.spielerKosten.attention === 'number') {
+      this.storyResources.attention = clamp100(this.storyResources.attention + option.spielerKosten.attention);
+    }
+    if (typeof option.spielerKosten.budget === 'number') {
+      this.storyResources.budget += option.spielerKosten.budget;
+    }
+
+    this.resolvedDecisionBeats.add(beatId);
+
+    const resourceChanges: Partial<Pick<StoryResources, 'risk' | 'attention' | 'budget'>> = {};
+    if (this.storyResources.risk !== riskBefore) resourceChanges.risk = this.storyResources.risk - riskBefore;
+    if (this.storyResources.attention !== attentionBefore) resourceChanges.attention = this.storyResources.attention - attentionBefore;
+    if (this.storyResources.budget !== budgetBefore) resourceChanges.budget = this.storyResources.budget - budgetBefore;
+
+    // Sichtbarkeit im Newsroom (wie eine Welt-Reaktion auf die Entscheidung).
+    const phase = this.getCurrentPhase().number;
+    this.newsEvents.unshift({
+      id: `decision_${beatId}_${optionId}_${phase}`,
+      phase,
+      headline_de: `${beat.name_de}: ${option.label_de}`,
+      headline_en: `${beat.name_de}: ${option.label_de}`,
+      description_de: option.wirkung_de,
+      description_en: option.wirkung_de,
+      type: 'world_event',
+      severity: 'info',
+      read: false,
+      pinned: false,
+    });
+
+    storyLogger.log(`[DecisionBeat] ${beatId} → ${optionId} (${option.technik_de})`);
+
+    return {
+      beatId,
+      beatName_de: beat.name_de,
+      optionId,
+      optionLabel_de: option.label_de,
+      technik_de: option.technik_de,
+      narrative_de: option.wirkung_de,
+      societyChanges: this.societyChangesSince(societyBefore, trustBefore),
+      resourceChanges,
+    };
+  }
+
   getCompletedEpisodes(): Episode[] {
     return Array.from(this.episodesCompleted).map(id => getEpisode(id)).filter((e): e is Episode => !!e);
   }
@@ -5548,6 +5654,7 @@ export class StoryEngineAdapter {
       episodesOffered: Array.from(this.episodesOffered),
       episodesActive: Array.from(this.episodesActive),
       episodesCompleted: Array.from(this.episodesCompleted),
+      resolvedDecisionBeats: Array.from(this.resolvedDecisionBeats),
       // P5-Auftrag
       currentAuftragId: this.currentAuftragId,
       // P6-Umfragen
@@ -5597,6 +5704,7 @@ export class StoryEngineAdapter {
     this.episodesOffered = new Set(state.episodesOffered ?? []);
     this.episodesActive = new Set(state.episodesActive ?? []);
     this.episodesCompleted = new Set(state.episodesCompleted ?? []);
+    this.resolvedDecisionBeats = new Set(state.resolvedDecisionBeats ?? []);
     // P5-Auftrag (Default „keil" für alte Saves, R1).
     this.currentAuftragId = (state.currentAuftragId as AuftragId) ?? 'keil';
     // P6-Umfragen (Default leer für alte Saves, R1).
