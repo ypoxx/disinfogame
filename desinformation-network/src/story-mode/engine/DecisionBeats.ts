@@ -597,6 +597,52 @@ export function geschichteContextForInoculation(
   return 'frisch';
 }
 
+/** Signale aus dem Engine-Zustand für die Live-Empfehlung (der Aufrufer füllt sie). */
+export interface AdvisorSignals {
+  auftragId: AuftragId;
+  risk: number;
+  attention: number;
+  budget: number;
+  /** Inokulation des Beat-Themas (nur für geschichte-relative Beats wie Bumerang). */
+  inoculation?: number;
+}
+
+/** Schwelle, ab der die Lage „überhitzt" ist → das Abkühl-Ventil schlägt den Auftrag. */
+const UEBERHITZT_RISK = 70;
+
+/** Bildet die operativen Signale auf die deklarierten Lage-Kontexte eines Beats ab. */
+function lageContextFor(beat: DecisionBeat, s: AdvisorSignals, ueberhitzt: boolean): string {
+  if (beat.id === 'loyalitaetsprobe') {
+    if (s.risk >= 70) return 'akut_bedroht';
+    if (s.risk >= 40) return 'leck_gefahr';
+    if (s.budget < 40) return 'kosten_druck';
+    return 'lage_ruhig';
+  }
+  if (beat.id === 'nebel') {
+    if (ueberhitzt || s.risk >= 60) return 'risiko_scheu';
+    if (s.budget < 40) return 'ressourcen_knapp';
+    if (s.budget >= 90) return 'ressourcen_satt';
+    return 'info_noetig';
+  }
+  return beat.kontexte?.[0] ?? '';
+}
+
+/**
+ * Die Empfehlung des Beraters für die aktuelle Lage — über *alle* Relativitäts-Achsen
+ * (Befund C.1, „die Achse wandert"). „Richtig" ist strategie-/lage-/geschichte-relativ:
+ * ein anderer Zustand empföhle eine andere Option. Rein + testbar.
+ */
+export function recommendForState(beat: DecisionBeat, s: AdvisorSignals): BeatOption {
+  const ueberhitzt = s.risk >= UEBERHITZT_RISK;
+  if (beat.relativitaetsAchse === 'auftrag') {
+    return recommendOption(beat, s.auftragId, ueberhitzt);
+  }
+  if (beat.relativitaetsAchse === 'geschichte') {
+    return bestForContext(beat, geschichteContextForInoculation(s.inoculation ?? 0, s.auftragId, ueberhitzt));
+  }
+  return bestForContext(beat, lageContextFor(beat, s, ueberhitzt));
+}
+
 /**
  * Kandidaten für den Director-Pool: noch nicht aufgelöste Beats als
  * {id, vorgriffZeile_de}. Reaktive Beats (mit `requiresThema`) erscheinen erst, wenn ihr

@@ -12,7 +12,7 @@ import { MissionPanel } from './components/MissionPanel';
 import { ActionFeedbackDialog } from './components/ActionFeedbackDialog';
 import { ConsequenceModal } from './components/ConsequenceModal';
 import { DecisionBeatModal } from './components/DecisionBeatModal';
-import { getDecisionBeat } from './engine/DecisionBeats';
+import { getDecisionBeat, recommendForState } from './engine/DecisionBeats';
 import { EventsPanel } from './components/EventsPanel';
 import { TutorialOverlay, useTutorial } from './components/TutorialOverlay';
 import { GameEndScreen } from './components/GameEndScreen';
@@ -1310,15 +1310,30 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         !showDayReport &&
         !walkHome &&
         !state.activeCrisis &&
-        !state.activeConsequence && (
-          <DecisionBeatModal
-            isVisible={true}
-            beat={getDecisionBeat(pendingDecisionBeatId) ?? null}
-            result={decisionBeatResult}
-            onChoose={(optionId) => handleDecisionBeatChoice(pendingDecisionBeatId, optionId)}
-            onClose={closeDecisionBeat}
-          />
-        )}
+        !state.activeConsequence &&
+        (() => {
+          const beat = getDecisionBeat(pendingDecisionBeatId) ?? null;
+          // Berater-Empfehlung für die aktuelle Lage (strategie-/lage-/geschichte-relativ).
+          const recommendedOptionId = beat
+            ? recommendForState(beat, {
+                auftragId: state.engine.getAuftrag().id,
+                risk: state.resources.risk,
+                attention: state.resources.attention,
+                budget: state.resources.budget,
+                inoculation: beat.themaId ? state.engine.getInoculation(beat.themaId) : 0,
+              }).id
+            : undefined;
+          return (
+            <DecisionBeatModal
+              isVisible={true}
+              beat={beat}
+              result={decisionBeatResult}
+              recommendedOptionId={recommendedOptionId}
+              onChoose={(optionId) => handleDecisionBeatChoice(pendingDecisionBeatId, optionId)}
+              onClose={closeDecisionBeat}
+            />
+          );
+        })()}
 
       {/* Pause Menu */}
       {state.gamePhase === 'paused' && (

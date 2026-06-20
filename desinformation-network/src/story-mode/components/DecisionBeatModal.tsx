@@ -8,6 +8,8 @@ interface DecisionBeatModalProps {
   beat: DecisionBeat | null;
   /** Gesetzt, sobald gewählt wurde → Ergebnis-Ansicht (T1: Wirkung sichtbar). */
   result: DecisionBeatResult | null;
+  /** Vom Berater für die aktuelle Lage empfohlene Option (strategie-/lage-relativ). */
+  recommendedOptionId?: string;
   onChoose: (optionId: string) => void;
   onClose: () => void;
 }
@@ -56,7 +58,7 @@ function KostenChips({ kosten }: { kosten: { risk?: number; attention?: number; 
   );
 }
 
-export function DecisionBeatModal({ isVisible, beat, result, onChoose, onClose }: DecisionBeatModalProps) {
+export function DecisionBeatModal({ isVisible, beat, result, recommendedOptionId, onChoose, onClose }: DecisionBeatModalProps) {
   if (!isVisible || !beat) return null;
 
   return (
@@ -141,6 +143,14 @@ export function DecisionBeatModal({ isVisible, beat, result, onChoose, onClose }
                   <div className="flex justify-between items-start mb-1 gap-3">
                     <span className="font-bold" style={{ color: StoryModeColors.textPrimary }}>
                       {opt.id} · {opt.label_de}
+                      {recommendedOptionId === opt.id && (
+                        <span
+                          className="ml-2 text-xs px-1.5 py-0.5 border align-middle"
+                          style={{ borderColor: StoryModeColors.warning, color: StoryModeColors.warning }}
+                        >
+                          ★ BERATER RÄT
+                        </span>
+                      )}
                     </span>
                     <KostenChips kosten={opt.spielerKosten} />
                   </div>

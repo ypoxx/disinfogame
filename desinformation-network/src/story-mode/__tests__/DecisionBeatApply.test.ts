@@ -5,6 +5,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { createStoryEngine } from '../../game-logic/StoryEngineAdapter';
+import { ALL_DECISION_BEATS } from '../engine/DecisionBeats';
 
 const trustOf = (e: ReturnType<typeof createStoryEngine>) =>
   e.getObjectives().find((o) => o.id === 'obj_destabilize')!.currentValue;
@@ -35,6 +36,17 @@ describe('applyDecisionBeatOption', () => {
     const t2 = trustOf(e2);
     e2.applyDecisionBeatOption('reale_vorlage', 'A');
     expect(trustOf(e2)).toBe(t2);
+  });
+
+  it('KEIN Beat bewegt die Sieg-Achse — gilt für ALLE Beats × Optionen (Owner-Entscheidung)', () => {
+    for (const beat of ALL_DECISION_BEATS) {
+      for (const opt of beat.optionen) {
+        const e = createStoryEngine();
+        const before = trustOf(e);
+        e.applyDecisionBeatOption(beat.id, opt.id, () => 0.5);
+        expect(trustOf(e), `${beat.id}/${opt.id} darf obj_destabilize nicht bewegen`).toBe(before);
+      }
+    }
   });
 
   it('Abkühl-Option (Stadtrat/D) senkt Risiko + Aufmerksamkeit', () => {

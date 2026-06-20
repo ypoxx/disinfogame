@@ -8,6 +8,7 @@ import {
   ALL_DECISION_BEATS,
   getDecisionBeat,
   recommendOption,
+  recommendForState,
   bestForContext,
   evaluateBeatGate,
   unresolvedDecisionCandidates,
@@ -116,6 +117,34 @@ describe('DecisionBeats — epistemische/stochastische Relativität (Nebel)', ()
     expect(bestForContext(nb, 'info_noetig').id).toBe('B'); // sondieren
     expect(bestForContext(nb, 'ressourcen_knapp').id).toBe('C'); // hedgen
     expect(bestForContext(nb, 'risiko_scheu').id).toBe('D'); // auslassen
+  });
+});
+
+describe('DecisionBeats — Live-Empfehlung über alle Achsen (recommendForState)', () => {
+  const ruhig = { risk: 10, attention: 10, budget: 150 };
+  it('auftrags-relativ: folgt dem aktiven Auftrag, bei Überhitzung das Abkühl-Ventil', () => {
+    const st = getDecisionBeat('stadtrat')!;
+    expect(recommendForState(st, { auftragId: 'keil', ...ruhig }).id).toBe('A');
+    expect(recommendForState(st, { auftragId: 'wahl', ...ruhig }).id).toBe('C');
+    expect(recommendForState(st, { auftragId: 'keil', risk: 80, attention: 10, budget: 150 }).id).toBe('D');
+  });
+  it('lage-relativ (Loyalitätsprobe): Sicherheitslage steuert', () => {
+    const lp = getDecisionBeat('loyalitaetsprobe')!;
+    expect(recommendForState(lp, { auftragId: 'keil', risk: 75, attention: 10, budget: 150 }).id).toBe('C'); // akut → verbrennen
+    expect(recommendForState(lp, { auftragId: 'keil', risk: 50, attention: 10, budget: 150 }).id).toBe('B'); // leck → kaltstellen
+    expect(recommendForState(lp, { auftragId: 'keil', risk: 10, attention: 10, budget: 20 }).id).toBe('D'); // knapp → vertrauen
+    expect(recommendForState(lp, { auftragId: 'keil', ...ruhig }).id).toBe('A'); // ruhig → einbinden
+  });
+  it('lage-relativ (Nebel): Ressourcen/Risiko steuern den Einsatz', () => {
+    const nb = getDecisionBeat('nebel')!;
+    expect(recommendForState(nb, { auftragId: 'keil', risk: 65, attention: 10, budget: 150 }).id).toBe('D'); // scheu → auslassen
+    expect(recommendForState(nb, { auftragId: 'keil', risk: 10, attention: 10, budget: 30 }).id).toBe('C'); // knapp → hedgen
+    expect(recommendForState(nb, { auftragId: 'keil', risk: 10, attention: 10, budget: 150 }).id).toBe('A'); // satt → voll
+  });
+  it('geschichte-relativ (Bumerang): Inokulation steuert', () => {
+    const bm = getDecisionBeat('bumerang')!;
+    expect(recommendForState(bm, { auftragId: 'keil', ...ruhig, inoculation: 0 }).id).toBe('A'); // frisch → recyceln
+    expect(recommendForState(bm, { auftragId: 'keil', ...ruhig, inoculation: 90 }).id).toBe('D'); // hoch → begraben
   });
 });
 
