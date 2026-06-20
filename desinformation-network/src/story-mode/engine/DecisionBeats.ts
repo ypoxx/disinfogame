@@ -29,11 +29,12 @@ export type AusgangsForm = 'deterministisch' | 'backfire' | 'akkumulierend' | 's
  * Sieg-Achse `obj_destabilize` (R2, balance-neutral wie `completeEpisode`). */
 export type WerteDelta = Partial<Record<SocietyValueKey | 'vertrauen', number>>;
 
-/** Spieler-Kosten: Risiko/Aufmerksamkeit (0–100-Achsen), Budget (Tsd. €, negativ = Ausgabe). */
+/** Spieler-Kosten: Risiko/Aufmerksamkeit (0–100-Achsen), Budget (Tsd. €, negativ = Ausgabe), Moral-Last. */
 export interface SpielerKosten {
   risk?: number;
   attention?: number;
   budget?: number;
+  moralWeight?: number;
 }
 
 export interface BeatOption {
@@ -47,6 +48,12 @@ export interface BeatOption {
   werteDelta: WerteDelta;
   spielerKosten: SpielerKosten;
   ausgang: AusgangsForm;
+  /**
+   * Nur für NICHT-auftrags-relative Beats (relativitaetsAchse ≠ 'auftrag'): Eignung je
+   * operativem/historischem Kontext (Befund C.1). Bei auftrags-relativen Beats wird die
+   * Empfehlung stattdessen aus `werteDelta` + Auftrags-Signatur abgeleitet.
+   */
+  eignung?: Record<string, number>;
 }
 
 export interface DecisionBeat {
@@ -65,6 +72,11 @@ export interface DecisionBeat {
   kostenAchse_de: string;
   /** Woran sich „richtig" misst (Teil C.1) — steuert die Berater-Empfehlung. */
   relativitaetsAchse: RelativitaetsAchse;
+  /**
+   * Kontext-Labels, gegen die ein NICHT-auftrags-relativer Beat geprüft/empfohlen wird
+   * (Pflicht bei relativitaetsAchse ≠ 'auftrag'; bei 'auftrag' implizit Keil/Wahl/Zweifel).
+   */
+  kontexte?: string[];
   optionen: BeatOption[];
 }
 
@@ -188,7 +200,118 @@ const REALE_VORLAGE: DecisionBeat = {
   ],
 };
 
-export const ALL_DECISION_BEATS: DecisionBeat[] = [STADTRAT, REALE_VORLAGE];
+/**
+ * Beat #3 „Der Schwelbrand" (`IDEE_BEAT_SCHWELBRAND.md`). Offensiv, mehrtägig,
+ * akkumulierend — Leitfrage „wann aufhören?". Kosten-Achse: Dauer/Gier. Auftrags-relativ;
+ * Gate-Deckung: Keil→A · Wahl→B · Zweifel→A · überhitzt→C (3 Optionen, A deckt zwei Fälle).
+ */
+const SCHWELBRAND: DecisionBeat = {
+  id: 'schwelbrand',
+  name_de: 'Der Schwelbrand',
+  region: 'offensiv',
+  ebene: 'staat',
+  ort_de: 'landesweit in Gallia',
+  anlass_de:
+    'Eine Kampagne, die Sie vor Tagen gelegt haben, glimmt weiter und wird größer. Die Versuchung: noch mehr herausholen. Die Gefahr: je länger sie brennt, desto sichtbarer wird die Quelle.',
+  vorgriffZeile_de: 'Marina: „Unser Schwelbrand in Gallia greift weiter um sich — wir müssen entscheiden, ob wir nachlegen oder ernten."',
+  leitspannung_de: 'Wann aufhören?',
+  kostenAchse_de: 'Dauer / Gier (je länger, desto sichtbarer)',
+  relativitaetsAchse: 'auftrag',
+  optionen: [
+    {
+      id: 'A',
+      label_de: 'Weiter anfachen — nachlegen',
+      technik_de: 'Eskalation / Persistenz-Kampagne',
+      wirkung_de: 'Treibt die Spaltung weiter hoch und vergiftet die Debatte — aber jeder Tag mehr erhöht die Sichtbarkeit der Quelle.',
+      werteDelta: { polarisierung: 18, diskursqualitaet: -8, zynismus: 6 },
+      spielerKosten: { attention: 16, risk: 8 },
+      ausgang: 'akkumulierend',
+    },
+    {
+      id: 'B',
+      label_de: 'Ernten — jetzt Kapital schlagen',
+      technik_de: 'Gezielte Konversion (Reichweite → Wirkung)',
+      wirkung_de: 'Verwandelt die aufgebaute Reichweite in einen konkreten Vorteil für die uns nahe Kraft — bevor das Feuer auffällt.',
+      werteDelta: { fraktionsstaerke: 22, zynismus: 10 },
+      spielerKosten: { attention: 8, risk: 10 },
+      ausgang: 'deterministisch',
+    },
+    {
+      id: 'C',
+      label_de: 'Löschen — abklingen lassen',
+      technik_de: 'Rückzug / Spuren kühlen',
+      wirkung_de: 'Kein weiterer Gewinn, aber die Sichtbarkeit sinkt, bevor die Quelle auffliegt.',
+      werteDelta: {},
+      spielerKosten: { attention: -12, risk: -10 },
+      ausgang: 'deterministisch',
+    },
+  ],
+};
+
+/**
+ * Beat #4 „Die Loyalitätsprobe" (`IDEE_BEAT_LOYALITAETSPROBE.md`). Intern (nach innen) —
+ * eigene Leute managen. Relativitäts-Achse: **operative Lage** (Befund C.1), NICHT der
+ * Auftrag → die Eignung jeder Option ist je Lage deklariert (`eignung`), nicht aus den
+ * Gesellschaftswerten abgeleitet. Kosten-Achse: interne Loyalität/Sicherheit (Moral-Last).
+ */
+const LOYALITAETSPROBE: DecisionBeat = {
+  id: 'loyalitaetsprobe',
+  name_de: 'Die Loyalitätsprobe',
+  region: 'intern',
+  ebene: 'transnational',
+  ort_de: 'die eigene Abteilung',
+  anlass_de:
+    'Ein Verbreiter wird unzuverlässig — er stellt Fragen, hortet Material. Ein Risiko nach innen. Wie gehen Sie mit den eigenen Leuten um?',
+  vorgriffZeile_de: 'Marina: „Einer unserer Leute wird zum Risiko. Wir müssen entscheiden, wie wir mit ihm verfahren."',
+  leitspannung_de: 'Eigene Leute managen?',
+  kostenAchse_de: 'Interne Loyalität / Sicherheit',
+  relativitaetsAchse: 'lage',
+  kontexte: ['lage_ruhig', 'leck_gefahr', 'akut_bedroht', 'kosten_druck'],
+  optionen: [
+    {
+      id: 'A',
+      label_de: 'Einbinden — stärker binden, investieren',
+      technik_de: 'Loyalitäts-Bindung (Anreize)',
+      wirkung_de: 'Kostet Budget, senkt aber das Leck-Risiko nachhaltig — lohnt, wenn die Lage Luft lässt.',
+      werteDelta: {},
+      spielerKosten: { budget: -8, risk: -4 },
+      ausgang: 'deterministisch',
+      eignung: { lage_ruhig: 3, leck_gefahr: 1, akut_bedroht: 0, kosten_druck: 0 },
+    },
+    {
+      id: 'B',
+      label_de: 'Kaltstellen — sauber aus dem Verkehr ziehen',
+      technik_de: 'Kompartmentierung / Isolierung',
+      wirkung_de: 'Neutralisiert das Leck ohne Lärm — die solide Wahl, wenn die Sicherheit kippt.',
+      werteDelta: {},
+      spielerKosten: { risk: -8, attention: 4, moralWeight: 3 },
+      ausgang: 'deterministisch',
+      eignung: { lage_ruhig: 1, leck_gefahr: 3, akut_bedroht: 1, kosten_druck: 1 },
+    },
+    {
+      id: 'C',
+      label_de: 'Verbrennen — das Asset opfern',
+      technik_de: 'Asset-Verbrennung (harter Schnitt)',
+      wirkung_de: 'Eliminiert das Leck sofort und vollständig — der härteste, teuerste Schnitt, nur bei akuter Enttarnungsgefahr.',
+      werteDelta: {},
+      spielerKosten: { risk: -16, attention: 10, moralWeight: 10 },
+      ausgang: 'deterministisch',
+      eignung: { lage_ruhig: 0, leck_gefahr: 1, akut_bedroht: 3, kosten_druck: 0 },
+    },
+    {
+      id: 'D',
+      label_de: 'Vertrauen — nichts tun, Risiko hinnehmen',
+      technik_de: '— (Zurückhaltung)',
+      wirkung_de: 'Kostet nichts, lässt aber das Risiko stehen — die Option, wenn jede Ressource zählt.',
+      werteDelta: {},
+      spielerKosten: { risk: 6 },
+      ausgang: 'backfire',
+      eignung: { lage_ruhig: 1, leck_gefahr: 0, akut_bedroht: 0, kosten_druck: 3 },
+    },
+  ],
+};
+
+export const ALL_DECISION_BEATS: DecisionBeat[] = [STADTRAT, REALE_VORLAGE, SCHWELBRAND, LOYALITAETSPROBE];
 
 const BEATS_BY_ID: Record<string, DecisionBeat> = Object.fromEntries(
   ALL_DECISION_BEATS.map((b) => [b.id, b]),
@@ -225,48 +348,68 @@ export function hitzeKosten(option: BeatOption): number {
   return (option.spielerKosten.risk ?? 0) + (option.spielerKosten.attention ?? 0);
 }
 
+const AUFTRAG_IDS = new Set<string>(['keil', 'wahl', 'zweifel']);
+
 /**
- * Welche Option der Berater empfiehlt. Normalfall: relativ zum aktiven Auftrag (höchster
- * Score). Bei *überhitzter Lage* schlägt die Lage den Auftrag (Spine: situative
- * Überschreibung) → die Option, die am stärksten Hitze senkt (das Abkühl-Ventil).
+ * Die beste Option für *einen* Kontext — der Kern, auf dem Empfehlung UND Gate ruhen.
+ * Die Relativitäts-Achse „wandert" (Befund C.1): der Kontext ist entweder ein Auftrag
+ * (Score aus `werteDelta` + Signatur), die universelle Überhitzung (geringste Hitze =
+ * Abkühl-Ventil) oder ein deklarierter operativer/historischer Kontext (`eignung`).
+ */
+export function bestForContext(beat: DecisionBeat, context: string): BeatOption {
+  if (context === 'ueberhitzt') {
+    return beat.optionen.reduce((best, o) => (hitzeKosten(o) < hitzeKosten(best) ? o : best));
+  }
+  if (AUFTRAG_IDS.has(context)) {
+    const id = context as AuftragId;
+    return beat.optionen.reduce((best, o) =>
+      scoreForAuftrag(o, id) > scoreForAuftrag(best, id) ? o : best,
+    );
+  }
+  // Deklarierter Kontext (lage/geschichte): höchste deklarierte Eignung.
+  return beat.optionen.reduce((best, o) =>
+    (o.eignung?.[context] ?? -Infinity) > (best.eignung?.[context] ?? -Infinity) ? o : best,
+  );
+}
+
+/**
+ * Empfehlung des Beraters für auftrags-relative Beats (Komfort-Wrapper um `bestForContext`).
+ * Bei überhitzter Lage schlägt die Lage den Auftrag (situative Überschreibung).
  */
 export function recommendOption(
   beat: DecisionBeat,
   auftragId: AuftragId,
   ueberhitzt = false,
 ): BeatOption {
-  if (ueberhitzt) {
-    return beat.optionen.reduce((best, o) => (hitzeKosten(o) < hitzeKosten(best) ? o : best));
-  }
-  return beat.optionen.reduce((best, o) =>
-    scoreForAuftrag(o, auftragId) > scoreForAuftrag(best, auftragId) ? o : best,
-  );
+  return bestForContext(beat, ueberhitzt ? 'ueberhitzt' : auftragId);
+}
+
+/** Die Kontexte, gegen die ein Beat geprüft wird — je nach Relativitäts-Achse (Befund C.1). */
+export function gateContexts(beat: DecisionBeat): string[] {
+  if (beat.relativitaetsAchse === 'auftrag') return ['keil', 'wahl', 'zweifel', 'ueberhitzt'];
+  return beat.kontexte ?? [];
 }
 
 export interface GateResult {
   ok: boolean;
-  /** Jede Option ist für ≥1 Fall die beste. */
+  /** Jede Option ist für ≥1 Kontext die beste. */
   coverage: boolean;
-  /** Keine Option ist für *alle* Fälle die beste. */
+  /** Keine Option ist für *alle* Kontexte die beste. */
   noUniversalWinner: boolean;
-  /** Bester Options-Id je Fall (keil/wahl/zweifel/ueberhitzt). */
+  /** Bester Options-Id je Kontext. */
   bestByCase: Record<string, string>;
-  /** Optionen, die in keinem Fall gewinnen (Gate-Verletzung, wenn nicht leer). */
+  /** Optionen, die in keinem Kontext gewinnen (Gate-Verletzung, wenn nicht leer). */
   uncovered: string[];
 }
 
 /**
- * Das testbare Qualitäts-Gate (Katalog Teil B): prüft über die Fälle Keil/Wahl/Zweifel
- * (auftrags-relativ) + überhitzte Lage, dass jede Option für mindestens einen Fall die
- * beste ist (Deckung) und keine für alle (kein Universalsieger).
+ * Das testbare Qualitäts-Gate (Katalog Teil B): prüft über die Relativitäts-Kontexte des
+ * Beats, dass jede Option für mindestens einen Kontext die beste ist (Deckung) und keine
+ * für alle (kein Universalsieger).
  */
 export function evaluateBeatGate(beat: DecisionBeat): GateResult {
-  const bestByCase: Record<string, string> = {
-    keil: recommendOption(beat, 'keil').id,
-    wahl: recommendOption(beat, 'wahl').id,
-    zweifel: recommendOption(beat, 'zweifel').id,
-    ueberhitzt: recommendOption(beat, 'keil', true).id,
-  };
+  const bestByCase: Record<string, string> = {};
+  for (const ctx of gateContexts(beat)) bestByCase[ctx] = bestForContext(beat, ctx).id;
   const winners = new Set(Object.values(bestByCase));
   const uncovered = beat.optionen.map((o) => o.id).filter((id) => !winners.has(id));
   const coverage = uncovered.length === 0;

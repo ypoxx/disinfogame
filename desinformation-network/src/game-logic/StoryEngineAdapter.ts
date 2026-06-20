@@ -345,7 +345,7 @@ export interface DecisionBeatResult {
   technik_de: string;
   narrative_de: string;
   societyChanges?: Partial<Record<SocietyValueKey, number>> & { vertrauen?: number };
-  resourceChanges: Partial<Pick<StoryResources, 'risk' | 'attention' | 'budget'>>;
+  resourceChanges: Partial<Pick<StoryResources, 'risk' | 'attention' | 'budget' | 'moralWeight'>>;
 }
 
 /**
@@ -3789,6 +3789,7 @@ export class StoryEngineAdapter {
     const riskBefore = this.storyResources.risk;
     const attentionBefore = this.storyResources.attention;
     const budgetBefore = this.storyResources.budget;
+    const moralBefore = this.storyResources.moralWeight;
 
     // Gesellschaftswert-Deltas (Vertrauen ausgeklammert — R2).
     const delta: SocietyDelta = {};
@@ -3808,13 +3809,17 @@ export class StoryEngineAdapter {
     if (typeof option.spielerKosten.budget === 'number') {
       this.storyResources.budget += option.spielerKosten.budget;
     }
+    if (typeof option.spielerKosten.moralWeight === 'number') {
+      this.storyResources.moralWeight = Math.max(0, this.storyResources.moralWeight + option.spielerKosten.moralWeight);
+    }
 
     this.resolvedDecisionBeats.add(beatId);
 
-    const resourceChanges: Partial<Pick<StoryResources, 'risk' | 'attention' | 'budget'>> = {};
+    const resourceChanges: Partial<Pick<StoryResources, 'risk' | 'attention' | 'budget' | 'moralWeight'>> = {};
     if (this.storyResources.risk !== riskBefore) resourceChanges.risk = this.storyResources.risk - riskBefore;
     if (this.storyResources.attention !== attentionBefore) resourceChanges.attention = this.storyResources.attention - attentionBefore;
     if (this.storyResources.budget !== budgetBefore) resourceChanges.budget = this.storyResources.budget - budgetBefore;
+    if (this.storyResources.moralWeight !== moralBefore) resourceChanges.moralWeight = this.storyResources.moralWeight - moralBefore;
 
     // Sichtbarkeit im Newsroom (wie eine Welt-Reaktion auf die Entscheidung).
     const phase = this.getCurrentPhase().number;

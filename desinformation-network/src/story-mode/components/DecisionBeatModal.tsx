@@ -42,11 +42,12 @@ function WerteChips({ delta }: { delta: WerteDelta }) {
   );
 }
 
-function KostenChips({ kosten }: { kosten: { risk?: number; attention?: number; budget?: number } }) {
+function KostenChips({ kosten }: { kosten: { risk?: number; attention?: number; budget?: number; moralWeight?: number } }) {
   const items: string[] = [];
   if (kosten.risk) items.push(`${kosten.risk > 0 ? '+' : ''}${kosten.risk}% Risiko`);
   if (kosten.attention) items.push(`${kosten.attention > 0 ? '+' : ''}${kosten.attention}% Aufmerksamkeit`);
   if (kosten.budget) items.push(`${kosten.budget > 0 ? '+' : '-'}$${Math.abs(kosten.budget)}K`);
+  if (kosten.moralWeight) items.push(`${kosten.moralWeight > 0 ? '+' : ''}${kosten.moralWeight} Moral`);
   if (items.length === 0) return null;
   return (
     <div className="flex gap-2 text-xs" style={{ color: StoryModeColors.danger }}>
