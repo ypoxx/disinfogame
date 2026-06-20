@@ -105,6 +105,13 @@ P1 = großer Qualitätssprung · P2 = Politur & Assets (Budget) · P3 = Aufräum
 ---
 
 ## ❓ Owner-Entscheidungen (vor Umsetzung)
+
+> **🔄 Abgleich 2026-06-20 (Details im `GESAMTPLAN_2026-06-20.md`):** #1 NPC-Namen → ✅ behalten ·
+> #2 Plattformnamen → ✅ behalten · #3 Avatar m/w → ✅ entschieden + gebaut (PR #85, noch nicht gemergt) ·
+> #5 Sound (J34–36) → ✅ ist auf main · #6 Asset-Budget → ✅ freigegeben (#85). **Noch offen:** #4
+> (Fokusgruppe-Porträts) · #7 (harte Win-Condition/Pacing). Neu: Beats bewegen **nur andere Achsen,
+> nicht die Sieg-Achse** (`DECISIONS_2026-06-20_BEATS.md`).
+
 1. **Russisch-codierte NPC-Namen** (Volkov/Petrova/Petrov/Orlova/Smirnov) — als fiktive Ost-Block-Würze behalten, oder fiktionalisieren? *(B3)*
 2. **Reale Plattformnamen** (Twitter/TikTok/Telegram/YouTube) in Topics/Actions — für Glaubwürdigkeit halten oder fiktionalisieren? `SYMBOLS_AUDIT.md` verbietet nur Staatssymbole. *(B2)*
 3. **Avatar:** Porträt-only akzeptieren oder m/w-Lauf-Variante (Budget)? *(P2-9)*
