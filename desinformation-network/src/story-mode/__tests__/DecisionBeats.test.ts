@@ -11,6 +11,7 @@ import {
   bestForContext,
   evaluateBeatGate,
   unresolvedDecisionCandidates,
+  geschichteContextForInoculation,
 } from '../engine/DecisionBeats';
 
 describe('DecisionBeats — Struktur', () => {
@@ -82,16 +83,40 @@ describe('DecisionBeats — operative-Lage-Relativität (Loyalitätsprobe)', () 
   });
 });
 
-describe('DecisionBeats — Director-Kandidaten', () => {
+describe('DecisionBeats — Spielgeschichte-Relativität (Bumerang, reaktiv/Schicht 3)', () => {
+  const bm = getDecisionBeat('bumerang')!;
+  it('Relativitäts-Achse ist die Spielgeschichte', () => {
+    expect(bm.relativitaetsAchse).toBe('geschichte');
+    expect(bm.requiresThema).toBe('reizthema_gallia');
+  });
+  it('jeder Inokulations-Kontext empfiehlt eine andere Option', () => {
+    expect(bestForContext(bm, 'frisch').id).toBe('A'); // recyceln
+    expect(bestForContext(bm, 'inokuliert').id).toBe('B'); // mutieren
+    expect(bestForContext(bm, 'breitenwirkung').id).toBe('C'); // mainstreamen
+    expect(bestForContext(bm, 'abklingen').id).toBe('D'); // begraben
+  });
+  it('Kontext aus Inokulation + Auftrag: frisch→recyceln, hoch→abklingen, Wahl→Reichweite', () => {
+    expect(geschichteContextForInoculation(10, 'zweifel')).toBe('frisch');
+    expect(geschichteContextForInoculation(55, 'keil')).toBe('inokuliert');
+    expect(geschichteContextForInoculation(90, 'keil')).toBe('abklingen');
+    expect(geschichteContextForInoculation(10, 'wahl')).toBe('breitenwirkung');
+    expect(geschichteContextForInoculation(10, 'zweifel', true)).toBe('abklingen'); // überhitzt
+  });
+});
+
+describe('DecisionBeats — Director-Kandidaten (reaktive Verfügbarkeit, Schicht 3)', () => {
   it('liefert unaufgelöste Beats; aufgelöste fallen raus', () => {
-    expect(unresolvedDecisionCandidates([]).map((c) => c.id)).toEqual([
+    const rest = unresolvedDecisionCandidates(['stadtrat', 'schwelbrand']);
+    expect(rest.map((c) => c.id)).toEqual(['reale_vorlage', 'loyalitaetsprobe']);
+    expect(unresolvedDecisionCandidates(ALL_DECISION_BEATS.map((b) => b.id))).toEqual([]);
+  });
+  it('Bumerang erscheint erst, wenn sein Thema schon gesät wurde', () => {
+    expect(unresolvedDecisionCandidates([], []).map((c) => c.id)).toEqual([
       'stadtrat',
       'reale_vorlage',
       'schwelbrand',
       'loyalitaetsprobe',
-    ]);
-    const rest = unresolvedDecisionCandidates(['stadtrat', 'schwelbrand']);
-    expect(rest.map((c) => c.id)).toEqual(['reale_vorlage', 'loyalitaetsprobe']);
-    expect(unresolvedDecisionCandidates(ALL_DECISION_BEATS.map((b) => b.id))).toEqual([]);
+    ]); // Bumerang fehlt — nichts zu recyceln
+    expect(unresolvedDecisionCandidates([], ['reizthema_gallia']).map((c) => c.id)).toContain('bumerang');
   });
 });

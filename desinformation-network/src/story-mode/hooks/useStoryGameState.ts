@@ -913,7 +913,10 @@ export function useStoryGameState(seed?: string) {
       crisis: directorCrisis
         ? { id: directorCrisis.crisisId, vorgriffZeile_de: directorCrisis.crisis.newsTickerText_de }
         : undefined,
-      decisionCandidates: unresolvedDecisionCandidates(engine.getResolvedDecisionBeatIds()),
+      decisionCandidates: unresolvedDecisionCandidates(
+        engine.getResolvedDecisionBeatIds(),
+        engine.getSeededThemes(),
+      ),
       ripeEpisodes: ripeEpisodes.map((ep) => ({ id: ep.id, titel_de: ep.titel_de })),
       stupsCandidates: recommendations.map((rec) => ({
         quelleId: rec.npcId,

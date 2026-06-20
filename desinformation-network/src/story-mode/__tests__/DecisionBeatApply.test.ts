@@ -72,3 +72,62 @@ describe('applyDecisionBeatOption', () => {
     expect(e.getResources()).toEqual(before);
   });
 });
+
+describe('Narrativ-Gedächtnis & Bumerang (Schicht 3)', () => {
+  it('eine themen-tragende Option sät das Thema (reaktive Verfügbarkeit)', () => {
+    const e = createStoryEngine();
+    expect(e.getSeededThemes()).not.toContain('reizthema_gallia');
+    e.applyDecisionBeatOption('stadtrat', 'A'); // Stadtrat trägt reizthema_gallia
+    expect(e.getSeededThemes()).toContain('reizthema_gallia');
+    expect(e.getInoculation('reizthema_gallia')).toBeGreaterThan(0);
+  });
+
+  it('Loyalitätsprobe (intern) sät kein Narrativ-Thema', () => {
+    const e = createStoryEngine();
+    e.applyDecisionBeatOption('loyalitaetsprobe', 'B');
+    expect(e.getSeededThemes()).toEqual([]);
+  });
+
+  it('Bumerang/Recyceln bei frischem Thema zündet voll (Wiederzündung)', () => {
+    const e = createStoryEngine();
+    const before = e.getResources();
+    const res = e.applyDecisionBeatOption('bumerang', 'A', () => 0.5)!;
+    expect(res.narrative_de).toContain('Wiederzündung');
+    // inoc 0 → Faktor 1 → volle Polarisierung (+18).
+    expect(e.getResources().polarisierung - before.polarisierung).toBe(18);
+  });
+
+  it('hohe Inokulation → Rückschlag (Resilienz steigt, Zusatzrisiko), Wirkung gedämpft', () => {
+    const e = createStoryEngine();
+    e.applyDecisionBeatOption('stadtrat', 'A');     // inoc → 30
+    e.applyDecisionBeatOption('reale_vorlage', 'B'); // inoc → 60
+    const before = e.getResources();
+    const res = e.applyDecisionBeatOption('bumerang', 'A', () => 0.9)! ; // >=0.15 → Rückschlag
+    expect(res.narrative_de).toContain('Rückschlag');
+    // Diskursqualität (Resilienz) steigt = schlecht für uns.
+    expect(e.getResources().diskursqualitaet).toBeGreaterThan(before.diskursqualitaet);
+    // Faktor 0.4 → Polarisierung nur +7 (18*0.4 gerundet), nicht +18.
+    expect(e.getResources().polarisierung - before.polarisierung).toBe(7);
+  });
+
+  it('Streisand-Paradox bei niedrigem rng (selten): verstärkt statt zu dämpfen', () => {
+    const e = createStoryEngine();
+    e.applyDecisionBeatOption('stadtrat', 'A');
+    e.applyDecisionBeatOption('reale_vorlage', 'B'); // inoc 60
+    const before = e.getResources();
+    const res = e.applyDecisionBeatOption('bumerang', 'A', () => 0.0)!; // <0.15 → Streisand
+    expect(res.narrative_de).toContain('Streisand');
+    // gedämpfte 7 + Streisand 14 = 21.
+    expect(e.getResources().polarisierung - before.polarisierung).toBe(21);
+  });
+
+  it('Narrativ-Gedächtnis überlebt save/load', () => {
+    const e = createStoryEngine();
+    e.applyDecisionBeatOption('stadtrat', 'A');
+    const inoc = e.getInoculation('reizthema_gallia');
+    const loaded = createStoryEngine();
+    loaded.loadState(e.saveState());
+    expect(loaded.getSeededThemes()).toContain('reizthema_gallia');
+    expect(loaded.getInoculation('reizthema_gallia')).toBe(inoc);
+  });
+});

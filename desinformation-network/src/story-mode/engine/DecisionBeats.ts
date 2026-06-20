@@ -54,6 +54,12 @@ export interface BeatOption {
    * Empfehlung stattdessen aus `werteDelta` + Auftrags-Signatur abgeleitet.
    */
   eignung?: Record<string, number>;
+  /**
+   * Schicht 3: Wirkung dieser Option skaliert mit der Inokulation des Beat-Themas
+   * (abnehmende Erträge + Rückschlag/Streisand bei hoher Inokulation). Nur sinnvoll für
+   * Recycling-Optionen reaktiver Beats (Bumerang/Recyceln).
+   */
+  inoculationScaled?: boolean;
 }
 
 export interface DecisionBeat {
@@ -77,6 +83,10 @@ export interface DecisionBeat {
    * (Pflicht bei relativitaetsAchse ≠ 'auftrag'; bei 'auftrag' implizit Keil/Wahl/Zweifel).
    */
   kontexte?: string[];
+  /** Schicht 3: Narrativ-Thema, das dieser Beat sät/recycelt (NarrativeMemory). */
+  themaId?: string;
+  /** Schicht 3 (reaktiv): Beat ist erst verfügbar, wenn dieses Thema schon gelaufen ist. */
+  requiresThema?: string;
   optionen: BeatOption[];
 }
 
@@ -102,6 +112,7 @@ const STADTRAT: DecisionBeat = {
   leitspannung_de: 'Welche Antwort?',
   kostenAchse_de: 'Lautstärke / Aufmerksamkeit',
   relativitaetsAchse: 'auftrag',
+  themaId: 'reizthema_gallia',
   optionen: [
     {
       id: 'A',
@@ -160,6 +171,7 @@ const REALE_VORLAGE: DecisionBeat = {
   leitspannung_de: 'Ob und wie ausnutzen?',
   kostenAchse_de: 'Authentizität / Widerlegbarkeit',
   relativitaetsAchse: 'auftrag',
+  themaId: 'reizthema_gallia',
   optionen: [
     {
       id: 'A',
@@ -217,6 +229,7 @@ const SCHWELBRAND: DecisionBeat = {
   leitspannung_de: 'Wann aufhören?',
   kostenAchse_de: 'Dauer / Gier (je länger, desto sichtbarer)',
   relativitaetsAchse: 'auftrag',
+  themaId: 'reizthema_gallia',
   optionen: [
     {
       id: 'A',
@@ -311,7 +324,81 @@ const LOYALITAETSPROBE: DecisionBeat = {
   ],
 };
 
-export const ALL_DECISION_BEATS: DecisionBeat[] = [STADTRAT, REALE_VORLAGE, SCHWELBRAND, LOYALITAETSPROBE];
+/**
+ * Beat #6 „Der Bumerang" (`IDEE_BEAT_BUMERANG.md`). Der erste **reaktive** Beat: die
+ * *Vergangenheit* ist der zentrale Input. Relativitäts-Achse = **Spielgeschichte**
+ * (Befund C.1/C.3) — „richtig" hängt am akkumulierten Inokulations-Stand des Themas.
+ * `requiresThema`: erscheint erst, wenn die Erzählung im Spiel schon lief (man kann nichts
+ * recyceln, was nie gesät wurde). Option A (Recyceln) ist `inoculationScaled` → abnehmende
+ * Erträge + Rückschlag/Streisand bei hoher Inokulation (Engine: `applyDecisionBeatOption`).
+ */
+const BUMERANG: DecisionBeat = {
+  id: 'bumerang',
+  name_de: 'Der Bumerang',
+  region: 'zeitlich',
+  ebene: 'transnational',
+  ort_de: 'Gallia und darüber hinaus',
+  anlass_de:
+    'Eine Erzählung, die Sie vor Tagen gesät haben, taucht auf einem neuen realweltlichen Aufhänger wieder auf — diesmal wirkt sie anders. History matters: das Publikum erinnert sich.',
+  vorgriffZeile_de: 'Marina: „Unsere alte Erzählung lebt wieder auf — ein neuer Aufhänger. Recyceln, umdrehen, mainstreamen oder begraben?"',
+  leitspannung_de: 'Recyceln oder begraben?',
+  kostenAchse_de: 'Narrativ-Lebenszyklus / Verfall',
+  relativitaetsAchse: 'geschichte',
+  kontexte: ['frisch', 'inokuliert', 'breitenwirkung', 'abklingen'],
+  themaId: 'reizthema_gallia',
+  requiresThema: 'reizthema_gallia',
+  optionen: [
+    {
+      id: 'A',
+      label_de: 'Recyceln — 1:1 neu aufladen',
+      technik_de: 'Recycling (Reaktivierung auf neuem Peg)',
+      wirkung_de: 'Billig, das Asset existiert — aber je inokulierter das Publikum, desto schwächer, und „längst widerlegt" kann zurückschlagen.',
+      werteDelta: { polarisierung: 18, zynismus: 8 },
+      spielerKosten: { attention: 6, risk: 4 },
+      ausgang: 'backfire',
+      inoculationScaled: true,
+      eignung: { frisch: 3, inokuliert: 0, breitenwirkung: 1, abklingen: 1 },
+    },
+    {
+      id: 'B',
+      label_de: 'Mutieren — neuer Dreh, Inokulation ausweichen',
+      technik_de: 'Mutation (Reframing gegen die Immunabwehr)',
+      wirkung_de: 'Umgeht das Gedächtnis des Publikums, verliert aber den „klingt vertraut"-Vorteil — mehr Aufwand.',
+      werteDelta: { polarisierung: 12, fragmentierung: 8 },
+      spielerKosten: { attention: 8, risk: 8, budget: -4 },
+      ausgang: 'deterministisch',
+      eignung: { frisch: 1, inokuliert: 3, breitenwirkung: 1, abklingen: 0 },
+    },
+    {
+      id: 'C',
+      label_de: 'Mainstreamen — glaubwürdigen Träger gewinnen',
+      technik_de: 'Mainstreaming (Adoption durch glaubwürdigen Träger)',
+      wirkung_de: 'Höchste Reichweite in neue Publika — aber teuer/riskant: der Träger kann verbrennen und bindet uns öffentlich an die Story.',
+      werteDelta: { fraktionsstaerke: 18, polarisierung: 6 },
+      spielerKosten: { attention: 14, risk: 16, budget: -8 },
+      ausgang: 'backfire',
+      eignung: { frisch: 1, inokuliert: 1, breitenwirkung: 3, abklingen: 0 },
+    },
+    {
+      id: 'D',
+      label_de: 'Begraben lassen — schonen',
+      technik_de: '— (Verfall zulassen)',
+      wirkung_de: 'Oft klug bei hoher Resilienz; vielleicht lebt die Story ohne uns von selbst wieder auf.',
+      werteDelta: {},
+      spielerKosten: { attention: -8, risk: -6 },
+      ausgang: 'deterministisch',
+      eignung: { frisch: 0, inokuliert: 1, breitenwirkung: 0, abklingen: 3 },
+    },
+  ],
+};
+
+export const ALL_DECISION_BEATS: DecisionBeat[] = [
+  STADTRAT,
+  REALE_VORLAGE,
+  SCHWELBRAND,
+  LOYALITAETSPROBE,
+  BUMERANG,
+];
 
 const BEATS_BY_ID: Record<string, DecisionBeat> = Object.fromEntries(
   ALL_DECISION_BEATS.map((b) => [b.id, b]),
@@ -418,16 +505,35 @@ export function evaluateBeatGate(beat: DecisionBeat): GateResult {
 }
 
 /**
+ * Schicht 3: leitet aus Inokulations-Stand + Auftrag den Geschichts-Kontext für einen
+ * reaktiven Beat (Bumerang) ab — „richtig" ist history- UND auftrags-relativ (Litmus ③).
+ * Überhitzung/sehr hohe Inokulation → begraben; mittel → mutieren; „Wahl" braucht Reichweite
+ * → mainstreamen; sonst frisch genug zum Recyceln.
+ */
+export function geschichteContextForInoculation(
+  inoculation: number,
+  auftragId: AuftragId,
+  ueberhitzt = false,
+): string {
+  if (ueberhitzt || inoculation >= 80) return 'abklingen';
+  if (inoculation >= 50) return 'inokuliert';
+  if (auftragId === 'wahl') return 'breitenwirkung';
+  return 'frisch';
+}
+
+/**
  * Kandidaten für den Director-Pool: noch nicht aufgelöste Beats als
- * {id, vorgriffZeile_de}. Der Aufrufer (useStoryGameState) füllt `resolvedIds` aus dem
- * Engine-Zustand.
+ * {id, vorgriffZeile_de}. Reaktive Beats (mit `requiresThema`) erscheinen erst, wenn ihr
+ * Thema schon gelaufen ist (`seededThemes`) — man kann nichts recyceln, was nie gesät wurde.
+ * Der Aufrufer (useStoryGameState) füllt beide Listen aus dem Engine-Zustand.
  */
 export function unresolvedDecisionCandidates(
   resolvedIds: Iterable<string>,
+  seededThemes: Iterable<string> = [],
 ): { id: string; vorgriffZeile_de: string }[] {
   const resolved = new Set(resolvedIds);
-  return ALL_DECISION_BEATS.filter((b) => !resolved.has(b.id)).map((b) => ({
-    id: b.id,
-    vorgriffZeile_de: b.vorgriffZeile_de,
-  }));
+  const seeded = new Set(seededThemes);
+  return ALL_DECISION_BEATS.filter((b) => !resolved.has(b.id))
+    .filter((b) => !b.requiresThema || seeded.has(b.requiresThema))
+    .map((b) => ({ id: b.id, vorgriffZeile_de: b.vorgriffZeile_de }));
 }

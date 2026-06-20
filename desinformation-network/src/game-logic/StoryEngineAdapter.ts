@@ -95,6 +95,13 @@ import {
 } from '../story-mode/engine/DecisionBeats';
 
 import {
+  recordThema,
+  inoculationOf,
+  seededThemes,
+  type NarrativeMemoryState,
+} from '../story-mode/engine/NarrativeMemory';
+
+import {
   ExtendedActorLoader,
   getExtendedActorLoader,
   type ExtendedActor,
@@ -638,6 +645,8 @@ export class StoryEngineAdapter {
   private episodesCompleted: Set<string> = new Set();
   /** Slice 4: bereits aufgelöste Entscheidungs-Beats (damit der Director sie nicht erneut zieht). */
   private resolvedDecisionBeats: Set<string> = new Set();
+  /** Schicht 3: Narrativ-Gedächtnis (welche Themen liefen wie oft, wie inokuliert). */
+  private narrativeMemory: NarrativeMemoryState = {};
 
   // P5 — Strategischer Auftrag („Vertrauen = Mittel, Auftrag = Ziel"). Default = „Der Keil"
   // (Tutorial); beim Neustart wählbar. v1: obj_destabilize bleibt der spielbare Sieg, die
@@ -3770,20 +3779,37 @@ export class StoryEngineAdapter {
     return Array.from(this.resolvedDecisionBeats);
   }
 
+  /** Schicht 3: bisher gesäte Narrativ-Themen (reaktive Beat-Verfügbarkeit). */
+  getSeededThemes(): string[] {
+    return seededThemes(this.narrativeMemory);
+  }
+
+  /** Schicht 3: effektive Inokulation eines Themas JETZT (mit Verfall). */
+  getInoculation(themaId: string): number {
+    return inoculationOf(this.narrativeMemory, themaId, this.getCurrentPhase().number);
+  }
+
   /**
    * Wendet die gewählte Option eines Entscheidungs-Beats an: Gesellschaftswert-Deltas
    * (über `applySocietyDelta`, 0–100-geklemmt) + Spieler-Kosten (Risiko/Aufmerksamkeit/
-   * Budget). `vertrauen` wird — wie bei `completeEpisode` — NICHT an `obj_destabilize`
-   * gekoppelt (R2: balance-neutral; die Vertrauens-*Richtung* lebt narrativ in `wirkung_de`
-   * und steuert die Berater-Empfehlung). Liefert die Deltas für die UI (T1) zurück.
+   * Budget/Moral). `vertrauen` wird — wie bei `completeEpisode` — NICHT an `obj_destabilize`
+   * gekoppelt (R2: balance-neutral). Schicht 3: bei `inoculationScaled`-Optionen skaliert
+   * die Wirkung mit der Inokulation des Beat-Themas (abnehmende Erträge), mit Rückschlag
+   * bzw. seltenem Streisand-Effekt bei hoher Inokulation (`rng` injizierbar → testbar).
+   * Liefert die Deltas für die UI (T1) zurück.
    */
-  applyDecisionBeatOption(beatId: string, optionId: string): DecisionBeatResult | null {
+  applyDecisionBeatOption(
+    beatId: string,
+    optionId: string,
+    rng: () => number = Math.random,
+  ): DecisionBeatResult | null {
     const beat = getDecisionBeat(beatId);
     if (!beat) return null;
     const option = getBeatOption(beat, optionId);
     if (!option) return null;
 
     const clamp100 = (x: number) => Math.max(0, Math.min(100, x));
+    const phase = this.getCurrentPhase().number;
     const societyBefore = this.getSocietySnapshot();
     const trustBefore = this.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100;
     const riskBefore = this.storyResources.risk;
@@ -3791,18 +3817,47 @@ export class StoryEngineAdapter {
     const budgetBefore = this.storyResources.budget;
     const moralBefore = this.storyResources.moralWeight;
 
-    // Gesellschaftswert-Deltas (Vertrauen ausgeklammert — R2).
+    // Schicht 3: Inokulation des Themas VOR dem Lauf (steuert Skalierung/Rückschlag).
+    const inoc = beat.themaId ? inoculationOf(this.narrativeMemory, beat.themaId, phase) : 0;
+    const scaled = !!option.inoculationScaled && !!beat.themaId;
+    const factor = scaled ? Math.max(0, 1 - inoc / 100) : 1; // abnehmende Erträge
+
+    // Gesellschaftswert-Deltas (Vertrauen ausgeklammert — R2; inokulationsskaliert).
     const delta: SocietyDelta = {};
+    const addDelta = (key: string, v: number) => {
+      (delta as Record<string, number>)[key] = ((delta as Record<string, number>)[key] ?? 0) + v;
+    };
     for (const [key, value] of Object.entries(option.werteDelta)) {
       if (key === 'vertrauen') continue;
-      if (typeof value === 'number') (delta as Record<string, number>)[key] = value;
+      if (typeof value === 'number') addDelta(key, Math.round(value * factor));
+    }
+
+    // Schicht 3: Rückschlag/Streisand der Recycling-Option bei hoher Inokulation.
+    let extraRisk = 0;
+    let outcomeNote = '';
+    if (scaled) {
+      if (inoc >= 60) {
+        if (rng() < 0.15) {
+          // Streisand: die Widerlegung befeuert die Geschichte erst recht.
+          addDelta('polarisierung', 14);
+          outcomeNote = ' Paradox: Die Widerlegung befeuert die Geschichte erst recht (Streisand-Effekt).';
+        } else {
+          // Resilienz bremst: Diskursqualität (Resilienz) steigt, Risiko zieht an.
+          addDelta('diskursqualitaet', 10);
+          extraRisk = 8;
+          outcomeNote = ' Rückschlag: „längst widerlegt" — die Faktenchecker waren schneller.';
+        }
+      } else if (inoc < 20) {
+        outcomeNote = ' Wiederzündung: frisch genug, um erneut zu zünden.';
+      } else {
+        outcomeNote = ' Verpufft teils: das Publikum ist abgestumpft.';
+      }
     }
     this.applySocietyDelta(delta);
 
-    // Spieler-Kosten.
-    if (typeof option.spielerKosten.risk === 'number') {
-      this.storyResources.risk = clamp100(this.storyResources.risk + option.spielerKosten.risk);
-    }
+    // Spieler-Kosten (inkl. inokulations-bedingtem Zusatzrisiko).
+    const riskCost = (option.spielerKosten.risk ?? 0) + extraRisk;
+    if (riskCost !== 0) this.storyResources.risk = clamp100(this.storyResources.risk + riskCost);
     if (typeof option.spielerKosten.attention === 'number') {
       this.storyResources.attention = clamp100(this.storyResources.attention + option.spielerKosten.attention);
     }
@@ -3814,6 +3869,8 @@ export class StoryEngineAdapter {
     }
 
     this.resolvedDecisionBeats.add(beatId);
+    // Schicht 3: das Thema fortschreiben (erst NACH dem Lesen der Inokulation) → Recyceln impft.
+    if (beat.themaId) this.narrativeMemory = recordThema(this.narrativeMemory, beat.themaId, phase);
 
     const resourceChanges: Partial<Pick<StoryResources, 'risk' | 'attention' | 'budget' | 'moralWeight'>> = {};
     if (this.storyResources.risk !== riskBefore) resourceChanges.risk = this.storyResources.risk - riskBefore;
@@ -3821,22 +3878,23 @@ export class StoryEngineAdapter {
     if (this.storyResources.budget !== budgetBefore) resourceChanges.budget = this.storyResources.budget - budgetBefore;
     if (this.storyResources.moralWeight !== moralBefore) resourceChanges.moralWeight = this.storyResources.moralWeight - moralBefore;
 
+    const narrative_de = option.wirkung_de + outcomeNote;
+
     // Sichtbarkeit im Newsroom (wie eine Welt-Reaktion auf die Entscheidung).
-    const phase = this.getCurrentPhase().number;
     this.newsEvents.unshift({
       id: `decision_${beatId}_${optionId}_${phase}`,
       phase,
       headline_de: `${beat.name_de}: ${option.label_de}`,
       headline_en: `${beat.name_de}: ${option.label_de}`,
-      description_de: option.wirkung_de,
-      description_en: option.wirkung_de,
+      description_de: narrative_de,
+      description_en: narrative_de,
       type: 'world_event',
       severity: 'info',
       read: false,
       pinned: false,
     });
 
-    storyLogger.log(`[DecisionBeat] ${beatId} → ${optionId} (${option.technik_de})`);
+    storyLogger.log(`[DecisionBeat] ${beatId} → ${optionId} (${option.technik_de}, inoc=${inoc})`);
 
     return {
       beatId,
@@ -3844,7 +3902,7 @@ export class StoryEngineAdapter {
       optionId,
       optionLabel_de: option.label_de,
       technik_de: option.technik_de,
-      narrative_de: option.wirkung_de,
+      narrative_de,
       societyChanges: this.societyChangesSince(societyBefore, trustBefore),
       resourceChanges,
     };
@@ -5660,6 +5718,7 @@ export class StoryEngineAdapter {
       episodesActive: Array.from(this.episodesActive),
       episodesCompleted: Array.from(this.episodesCompleted),
       resolvedDecisionBeats: Array.from(this.resolvedDecisionBeats),
+      narrativeMemory: this.narrativeMemory,
       // P5-Auftrag
       currentAuftragId: this.currentAuftragId,
       // P6-Umfragen
@@ -5710,6 +5769,7 @@ export class StoryEngineAdapter {
     this.episodesActive = new Set(state.episodesActive ?? []);
     this.episodesCompleted = new Set(state.episodesCompleted ?? []);
     this.resolvedDecisionBeats = new Set(state.resolvedDecisionBeats ?? []);
+    this.narrativeMemory = state.narrativeMemory ?? {};
     // P5-Auftrag (Default „keil" für alte Saves, R1).
     this.currentAuftragId = (state.currentAuftragId as AuftragId) ?? 'keil';
     // P6-Umfragen (Default leer für alte Saves, R1).
