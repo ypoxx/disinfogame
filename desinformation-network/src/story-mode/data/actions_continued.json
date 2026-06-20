@@ -1601,10 +1601,10 @@
     {
       "id": "7.2",
       "phase": "ta07",
-      "label_de": "Kulturkrieg befeuern",
+      "label_de": "Den Kulturkampf entfachen",
       "headline_de": "Kulturkampf angeheizt",
       "label_en": "Fuel Culture War",
-      "narrative_de": "Tradition gegen Moderne, Werte gegen Liberalismus. Kulturelle Spaltung vertiefen.",
+      "narrative_de": "Tradition gegen Fortschritt, „die Anständigen“ gegen „die da oben“ — wir müssen niemanden überzeugen, nur jeden zwingen, eine Seite zu wählen.",
       "costs": {
         "budget": 4,
         "capacity": 1,
