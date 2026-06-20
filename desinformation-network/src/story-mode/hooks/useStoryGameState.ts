@@ -17,6 +17,8 @@ import {
 import type { OperationParams } from '../battlefield/BattlefieldChain';
 import { getEpisode, type Episode } from '../engine/EpisodeLoader';
 import type { AuftragId } from '../engine/Auftraege';
+import { pickNext, type DirectorInputs } from '../engine/StoryDirector';
+import { useDirectorStore } from '../stores/directorStore';
 import { playSound } from '../utils/SoundSystem';
 import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
 import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
@@ -892,6 +894,25 @@ export function useStoryGameState(seed?: string) {
         storyLogger.log(`[CRISIS] Triggered: ${mostUrgent.crisis.name_en}`);
       }
     }
+
+    // Spine Slice 2: Der Dirigent kürt den nächsten Beat (Krise→Episode→Stups) und legt
+    // ihn im directorStore ab → Marinas Vorgriffszeile im nächsten Morgenbriefing.
+    const directorCrisis = crisisSystem.getMostUrgentCrisis();
+    const ripeEpisodes = engine.getOfferableEpisodes();
+    const directorInputs: DirectorInputs = {
+      crisis: directorCrisis
+        ? { id: directorCrisis.crisisId, vorgriffZeile_de: directorCrisis.crisis.newsTickerText_de }
+        : undefined,
+      ripeEpisode: ripeEpisodes[0]
+        ? { id: ripeEpisodes[0].id, titel_de: ripeEpisodes[0].titel_de }
+        : undefined,
+      stupsCandidates: recommendations.map((rec) => ({
+        quelleId: rec.npcId,
+        vorgriffZeile_de: rec.message,
+      })),
+    };
+    const dirStore = useDirectorStore.getState();
+    dirStore.setBeat(pickNext(directorInputs, dirStore.lastBeat));
 
     // Update combo hints
     const hints = engine.getActiveComboHints();

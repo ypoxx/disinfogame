@@ -23,6 +23,8 @@ interface MorningBriefingProps {
   attention: number;       // 0..100 — Aufmerksamkeit der Gegenseite
   /** T2/#7: Titel des aktiven Auftrags — für die gerichtete Tag-1-Eröffnung. */
   auftragTitel?: string;
+  /** Spine Slice 2: Vorgriffszeile des vom Director gekürten Beats (Marina). */
+  beatHook?: string;
   onDone: () => void;
 }
 
@@ -129,7 +131,7 @@ export function deriveBriefingHint(s: BriefingState): BriefingHint {
   };
 }
 
-export function MorningBriefing({ phase, risk, trustProgress, budget, attention, auftragTitel, onDone }: MorningBriefingProps) {
+export function MorningBriefing({ phase, risk, trustProgress, budget, attention, auftragTitel, beatHook, onDone }: MorningBriefingProps) {
   const assets = useAssets();
   // T2/#7: Tag 1 bekommt eine eigene, gerichtete Eröffnung (statt der laufenden
   // Lage-Logik): sie erklärt die Kern-Schleife und verweist auf EINE klare Anlaufstelle.
@@ -250,6 +252,24 @@ export function MorningBriefing({ phase, risk, trustProgress, budget, attention,
               <span style={{ color: StoryModeColors.textSecondary }}>{hint.pointer}</span>
             </p>
           </div>
+
+          {/* Spine Slice 2: Marinas Vorgriff auf den nächsten Beat (wenn gesetzt). */}
+          {beatHook && (
+            <div className="mt-2 pt-2 border-t-2" style={{ borderColor: StoryModeColors.borderLight }}>
+              <span
+                className="text-xs font-bold uppercase tracking-wider"
+                style={{ color: StoryModeColors.agencyBlue }}
+              >
+                Marina — Vorgriff
+              </span>
+              <p
+                className="font-mono text-xs leading-relaxed mt-1"
+                style={{ color: StoryModeColors.textPrimary }}
+              >
+                {beatHook}
+              </p>
+            </div>
+          )}
 
           <div className="mt-3 text-right">
             <span

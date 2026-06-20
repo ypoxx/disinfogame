@@ -49,6 +49,7 @@ import { EndReport } from './components/EndReport';
 import { classifyMethods, withEpisodeLearnings } from './engine/DisinfoMethodAtlas';
 import { useDayClockStore, TIME_COST } from './stores/dayClockStore';
 import { usePanelStore } from './stores/panelStore';
+import { useDirectorStore } from './stores/directorStore';
 import { SidePanel } from './components/SidePanel';
 import { LagebildView } from './components/LagebildView';
 import { NarrativeBoard } from './components/NarrativeBoard';
@@ -298,6 +299,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showActionFeedback, setShowActionFeedback] = useState(false);
   // T2/#26: Tastenkürzel-Hilfe (Taste „?") — die Hotkeys waren nirgends erklärt.
   const [showShortcuts, setShowShortcuts] = useState(false);
+  // Spine Slice 2: der vom Director gekürte Beat → Marinas Vorgriff im Morgenbriefing.
+  const directorBeat = useDirectorStore((s) => s.currentBeat);
   const [showEncyclopedia, setShowEncyclopedia] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [selectedAdvisorNpc, setSelectedAdvisorNpc] = useState<string | null>(null);
@@ -1186,6 +1189,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               budget={state.resources.budget}
               attention={state.resources.attention}
               auftragTitel={state.engine.getAuftrag().titel_de}
+              beatHook={directorBeat?.vorgriffZeile_de}
               onDone={() => setBriefedPhase(state.storyPhase.number)}
             />
           )}
