@@ -10,6 +10,7 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 
 **Stand:** 2026-06-20 · **PR #87 (gemergt, `main` @ `b7a4ea6`)** — **Spine/Beats: Director-Pool · Entscheidungs-Beats (6/6) · Narrativ-Gedächtnis**. Setzt die Spine-Arbeit aus `HANDOFF_2026-06-18.md` (PR #86: Slice 1/2 + T1/T2/T3) fort. Owner-Entscheidung dieser Session: `DECISIONS_2026-06-20_BEATS.md`.
 
+> 🤝 **Neueste Übergabe für die nächste Session:** `HANDOFF_2026-06-20.md` (Stand, Pacing, Next-Steps).
 > 🗺️ **Voll-Plan / Roadmap:** `GESAMTPLAN_2026-06-20.md` (konsolidiert TODO + Spine/Beats + Owner-Entscheidungen).
 > 📦 **Gebaut, aber noch nicht auf main:** **PR #85** (Asset-Pakete: Avatar m/w, Operationszentrale, Skylines, sitzende Audience) — konfliktfrei mergebar, Owner-Preview offen. Sound (J34–36) **ist** auf main.
 
