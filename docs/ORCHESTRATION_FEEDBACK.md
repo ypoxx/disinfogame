@@ -111,3 +111,35 @@ Offen für die Roadmap (priorisiert nach Gutachten):
 4. **Browser-Smoke reproduzierbar gemacht.** `playwright-core` als devDep + `npm run smoke`
    (`scripts/app-smoke.mjs`) gegen `vite preview`; Chromium-Binary liegt im Container
    (`/opt/pw-browsers/chromium-1194`). Bestätigte das Owner-Feedback am echten Build.
+
+## Lehren 2026-06-20 (Story-Director-Spine: Slice 3/4 + Schicht 3 + Beats 6/6)
+
+1. **Toolchain-Drift im frischen Web-Container.** Beim Start fehlten die `node_modules`
+   bzw. `npx` zog ad-hoc TypeScript **6.0.2** (statt der im Lockfile gepinnten **5.9.3**),
+   was `tsc` an der `baseUrl`-Deprecation (TS5101) abbrechen ließ und React-Typen
+   vermissen ließ. Fix: **`npm ci`** in `desinformation-network/` vor dem Gate. → Kandidat
+   für einen SessionStart-Hook, damit künftige Web-Sessions sofort grün testen können.
+2. **Mehrtägiger, diegetischer E2E ist headless unzuverlässig — Test-Pyramide schlägt
+   Browser-Drive.** Der Weg zum Decision-Modal (Auftrag → Büro → FEIERABEND → Heimweg-
+   Animation → Tagesbericht → Tag-2-Briefing) ist zu timing-/canvas-empfindlich für einen
+   stabilen Playwright-Lauf. Wirksamer und reproduzierbar: **deterministischer
+   Hook-Integrationstest** (`renderHook(useStoryGameState)` + `Math.random`-Stub → echter
+   `endPhase` setzt `pendingDecisionBeatId`) für den Auslöser **+ RTL** fürs Modal-Rendern
+   **+ Store-Unit** für die Naht. Den flakigen Runthrough NICHT als „Verifikation" einchecken.
+3. **Programmatische `element.click()` lösen Reacts `onClick` nicht zuverlässig aus** —
+   echte Playwright-Klicks (`getByRole(...).click({force})`) verwenden. Und: Eck-Klicks zum
+   Dialog-Vorspulen statt Bildschirm-Mitte, sonst wird versehentlich eine Karte gewählt.
+4. **Reaktive Beats brauchen ein achsen-bewusstes Gate.** „Richtig" wandert je Beat
+   (Auftrag → operative Lage → Spielgeschichte, Befund C.1). Ein auftrags-only-Gate wäre
+   für Lage-/Geschichte-Beats falsch; `bestForContext` dispatcht je `relativitaetsAchse` und
+   trägt Empfehlung UND Gate.
+5. **Owner-Sprache zuerst.** Die erste Rückfrage zur Vertrauens-Kopplung war zu technisch
+   (`obj_destabilize`/„Sieg-Achse") und hat Verwirrung erzeugt. Erst nach einer Klartext-
+   Erklärung („Beats teilen jede Achse mit Aktionen außer dem Sieg-Zähler") war die
+   Entscheidung tragfähig. → Konzept immer in einfacher Sprache führen, Fachbegriff nur in
+   Klammern (SOUL §2/§7).
+6. **Handoff ergänzt SOUL/STATUS, ersetzt sie nicht.** Diese Session folgte nur dem
+   `HANDOFF_2026-06-18.md` und übersprang die SOUL-Lese-Reihenfolge + die STATUS/DECISIONS-
+   Pflege. Nachgezogen (STATUS.md, dieses Doc, `DECISIONS_2026-06-20_BEATS.md`). Lehre: auch
+   bei einer engen Continuation-Aufgabe STATUS am Ende aktualisieren und Owner-Entscheidungen
+   ins datierte DECISIONS-Doc destillieren.

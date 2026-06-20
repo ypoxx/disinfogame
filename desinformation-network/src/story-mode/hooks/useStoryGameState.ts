@@ -13,10 +13,14 @@ import {
   GameEndState,
   OperationOutcome,
   OperationsSummary,
+  DecisionBeatResult,
 } from '../../game-logic/StoryEngineAdapter';
 import type { OperationParams } from '../battlefield/BattlefieldChain';
 import { getEpisode, type Episode } from '../engine/EpisodeLoader';
 import type { AuftragId } from '../engine/Auftraege';
+import { pickNext, type DirectorInputs } from '../engine/StoryDirector';
+import { unresolvedDecisionCandidates } from '../engine/DecisionBeats';
+import { useDirectorStore } from '../stores/directorStore';
 import { playSound } from '../utils/SoundSystem';
 import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
 import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
@@ -406,6 +410,8 @@ export function useStoryGameState(seed?: string) {
 
   // Consequences
   const [activeConsequence, setActiveConsequence] = useState<ActiveConsequence | null>(null);
+  // Slice 4: Ergebnis einer aufgelösten Entscheidungs-Beat-Option (für die Ergebnis-Ansicht).
+  const [decisionBeatResult, setDecisionBeatResult] = useState<DecisionBeatResult | null>(null);
 
   // Game End
   const [gameEnd, setGameEnd] = useState<GameEndState | null>(null);
@@ -571,6 +577,10 @@ export function useStoryGameState(seed?: string) {
   const startGame = useCallback(() => {
     setGamePhase('tutorial');
     playSound('notification');
+
+    // Slice 4: Director-Zustand frisch (kein Beat/Pending aus einem früheren Spiel).
+    useDirectorStore.getState().reset();
+    setDecisionBeatResult(null);
 
     // Load available actions from engine
     refreshAvailableActions();
@@ -893,6 +903,29 @@ export function useStoryGameState(seed?: string) {
       }
     }
 
+    // Spine Slice 2/3: Der Dirigent kürt den nächsten Beat und legt ihn im
+    // directorStore ab → Marinas Vorgriffszeile im nächsten Morgenbriefing. Krise hat
+    // Vorfahrt; sonst zieht Slice 3 gewichtet aus dem Pool aller reifen Episoden +
+    // Berater-Stupser (Math.random als Default → ähnliche Spielstände driften auseinander).
+    const directorCrisis = crisisSystem.getMostUrgentCrisis();
+    const ripeEpisodes = engine.getOfferableEpisodes();
+    const directorInputs: DirectorInputs = {
+      crisis: directorCrisis
+        ? { id: directorCrisis.crisisId, vorgriffZeile_de: directorCrisis.crisis.newsTickerText_de }
+        : undefined,
+      decisionCandidates: unresolvedDecisionCandidates(
+        engine.getResolvedDecisionBeatIds(),
+        engine.getSeededThemes(),
+      ),
+      ripeEpisodes: ripeEpisodes.map((ep) => ({ id: ep.id, titel_de: ep.titel_de })),
+      stupsCandidates: recommendations.map((rec) => ({
+        quelleId: rec.npcId,
+        vorgriffZeile_de: rec.message,
+      })),
+    };
+    const dirStore = useDirectorStore.getState();
+    dirStore.setBeat(pickNext(directorInputs, dirStore.lastBeat));
+
     // Update combo hints
     const hints = engine.getActiveComboHints();
     setComboHints(hints);
@@ -1096,20 +1129,9 @@ export function useStoryGameState(seed?: string) {
       // Refresh available actions (some may be unlocked or used)
       refreshAvailableActions();
 
-      // Show result dialog if there are NPC reactions
-      if (result.npcReactions && result.npcReactions.length > 0) {
-        const reaction = result.npcReactions[0];
-        const npc = npcs.find(n => n.id === reaction.npcId);
-
-        setCurrentDialog({
-          speaker: npc?.name || reaction.npcId,
-          speakerTitle: npc?.role_de,
-          text: reaction.dialogue_de,
-          mood: reaction.reaction === 'crisis' ? 'angry' :
-                reaction.reaction === 'negative' ? 'worried' :
-                reaction.reaction === 'positive' ? 'happy' : 'neutral',
-        });
-      }
+      // T3.6 (Option C): Die NPC-Reaktion erscheint jetzt MIT Porträt direkt im
+      // Ergebnis-Modal (ActionFeedbackDialog). Die frühere separate Dialog-Pop-up-Box
+      // entfällt — eine Anzeige statt doppelter Bestätigung pro Aktion.
 
       // Update combo hints (fetch active hints from engine)
       const activeHints = engine.getActiveComboHints();
@@ -1311,6 +1333,25 @@ export function useStoryGameState(seed?: string) {
       setGamePhase('ended');
     }
   }, [engine, activeConsequence]);
+
+  // ============================================
+  // ENTSCHEIDUNGS-BEATS (Spine Slice 4)
+  // ============================================
+
+  /** Wendet die gewählte Option an und zeigt das Ergebnis (T1: Wirkung sichtbar). */
+  const handleDecisionBeatChoice = useCallback((beatId: string, optionId: string) => {
+    const res = engine.applyDecisionBeatOption(beatId, optionId);
+    if (!res) return;
+    setDecisionBeatResult(res);
+    setResources(engine.getResources()); // HUD (Gesellschaftswerte + Risiko/Aufmerksamkeit) auffrischen
+    playSound('consequence');
+  }, [engine]);
+
+  /** Schließt die Entscheidung ab: Ergebnis verwerfen + offene Präsentation löschen. */
+  const closeDecisionBeat = useCallback(() => {
+    setDecisionBeatResult(null);
+    useDirectorStore.getState().clearPendingDecision();
+  }, []);
 
   // ============================================
   // NPC INTERACTIONS
@@ -1697,6 +1738,11 @@ export function useStoryGameState(seed?: string) {
 
     // Consequences
     handleConsequenceChoice,
+
+    // Entscheidungs-Beats (Slice 4)
+    decisionBeatResult,
+    handleDecisionBeatChoice,
+    closeDecisionBeat,
 
     // NPCs
     interactWithNpc,

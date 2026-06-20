@@ -389,9 +389,9 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
                 borderColor: StoryModeColors.darkOlive,
                 color: StoryModeColors.warning,
               }}
-              title="Zur Warteschlange hinzufügen"
+              title="Aufs Korkbrett anheften (Sendeplan)"
             >
-              + EINREIHEN
+              + ANHEFTEN
             </button>
           )}
         </div>
@@ -619,9 +619,9 @@ export function ActionPanel({
           }}
         >
           <div>
-            <h2 className="font-bold text-sm text-white">AKTIONEN PLANEN</h2>
+            <h2 className="font-bold text-sm text-white">AKTIONEN · SCHNELLZUGRIFF</h2>
             <p className="text-[10px] text-white/70">
-              {currentPhase.toUpperCase()} | {filteredActions.length} verfugbar
+              Einzeln ausführen oder anheften · {filteredActions.length} verfügbar
             </p>
           </div>
         </div>
@@ -655,9 +655,9 @@ export function ActionPanel({
           }}
         >
           <div>
-            <h2 className="font-bold text-xl text-white">AKTIONEN PLANEN</h2>
+            <h2 className="font-bold text-xl text-white">AKTIONEN · SCHNELLZUGRIFF</h2>
             <p className="text-sm text-white/70">
-              Phase: {currentPhase.toUpperCase()} | {filteredActions.length} verfugbar
+              Einzeln ausführen oder anheften · {filteredActions.length} verfügbar
             </p>
           </div>
           <button

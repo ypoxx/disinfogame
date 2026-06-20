@@ -7,7 +7,7 @@ import { usePlayerProfile, playerPortraitAssetId, PLAYER_PORTRAITS } from '../st
 describe('playerProfileStore', () => {
   beforeEach(() => {
     try { localStorage.clear(); } catch { /* jsdom */ }
-    usePlayerProfile.setState({ name: 'Direktor', portraitId: 'm2', chosen: false });
+    usePlayerProfile.setState({ name: 'Agent', portraitId: 'm2', chosen: false });
   });
 
   it('bietet 6 Porträt-Optionen', () => {
@@ -15,9 +15,9 @@ describe('playerProfileStore', () => {
     expect(PLAYER_PORTRAITS.map((p) => p.id)).toEqual(['m1', 'm2', 'm3', 'f1', 'f2', 'f3']);
   });
 
-  it('Default ist Direktor / m2 / nicht gewählt', () => {
+  it('Default ist Agent / m2 / nicht gewählt', () => {
     const s = usePlayerProfile.getState();
-    expect(s.name).toBe('Direktor');
+    expect(s.name).toBe('Agent');
     expect(s.portraitId).toBe('m2');
     expect(s.chosen).toBe(false);
   });
@@ -30,9 +30,9 @@ describe('playerProfileStore', () => {
     expect(s.chosen).toBe(true);
   });
 
-  it('leerer Name fällt auf Direktor zurück, lange Namen werden gekürzt', () => {
+  it('leerer Name fällt auf Agent zurück, lange Namen werden gekürzt', () => {
     usePlayerProfile.getState().setProfile('   ', 'm1');
-    expect(usePlayerProfile.getState().name).toBe('Direktor');
+    expect(usePlayerProfile.getState().name).toBe('Agent');
     usePlayerProfile.getState().setProfile('X'.repeat(40), 'm1');
     expect(usePlayerProfile.getState().name.length).toBe(24);
   });

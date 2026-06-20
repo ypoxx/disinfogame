@@ -38,7 +38,7 @@ function load(): { name: string; portraitId: string; chosen: boolean } {
     if (raw) {
       const p = JSON.parse(raw);
       return {
-        name: typeof p.name === 'string' ? p.name : 'Direktor',
+        name: typeof p.name === 'string' ? p.name : 'Agent',
         portraitId: typeof p.portraitId === 'string' ? p.portraitId : 'm2',
         chosen: !!p.chosen,
       };
@@ -46,7 +46,7 @@ function load(): { name: string; portraitId: string; chosen: boolean } {
   } catch {
     // Defaults unten
   }
-  return { name: 'Direktor', portraitId: 'm2', chosen: false };
+  return { name: 'Agent', portraitId: 'm2', chosen: false };
 }
 
 const initial = load();
@@ -56,7 +56,8 @@ export const usePlayerProfile = create<PlayerProfileState>((set) => ({
   portraitId: initial.portraitId,
   chosen: initial.chosen,
   setProfile: (name, portraitId) => {
-    const clean = name.trim().slice(0, 24) || 'Direktor';
+    // T2/#10: Fallback nicht mehr „Direktor" (kollidiert mit Direktor Volkov) → neutral.
+    const clean = name.trim().slice(0, 24) || 'Agent';
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ name: clean, portraitId, chosen: true }));
     } catch {

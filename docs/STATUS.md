@@ -8,6 +8,37 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `STRANG34_FEINPLAN_2026-06-13_AKTIONEN_DIALOGE.md` → `GESAMTKONZEPT_VISUELL.md` →
 > dieses Dokument für den aktuellen Bau-Stand. Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
+**Stand:** 2026-06-20 · **PR #87 (Draft, Branch `claude/gracious-keller-g43bu3`)** — **Spine/Beats: Director-Pool · Entscheidungs-Beats (6/6) · Narrativ-Gedächtnis**. Setzt die Spine-Arbeit aus `HANDOFF_2026-06-18.md` (PR #86: Slice 1/2 + T1/T2/T3) fort. Owner-Entscheidung dieser Session: `DECISIONS_2026-06-20_BEATS.md`.
+
+### 🎬 Story-Director-Spine (PR #87) — alle Schichten + Beat-Katalog (Gate je Commit: `tsc 0`·`vitest 456`·`build`)
+Bau-Plan `BAUPLAN_STORY_DIRECTOR_SPINE.md`, Baukasten `BEAT_MUSTER_KATALOG.md`.
+- **✅ Slice 3 — gewichteter Beat-Pool:** `StoryDirector.pickNext()` zieht gewichtet aus einem Pool
+  (Krise = harte Vorfahrt; Dämpfer same-type/same-source) statt immer den Top-Beat; `rng = Math.random`
+  injizierbar (Kern testbar). Kur gegen „Tag 3,4,5 immer dasselbe".
+- **✅ Slice 4 — Entscheidungs-Beats als Inhalt:** `engine/DecisionBeats.ts` — **kein neues System**,
+  jede Option mappt auf bestehende Achsen (Gesellschaftswerte + Spieler-Kosten). `bestForContext` ist der
+  gemeinsame Kern für Empfehlung UND Gate (dispatcht je Relativitäts-Achse); `evaluateBeatGate` prüft
+  **Deckung + kein Universalsieger**. `StoryEngineAdapter.applyDecisionBeatOption` ist **balance-neutral
+  auf `obj_destabilize`** (R2, per Invariant-Test über alle Beats × Optionen). Präsentation:
+  `DecisionBeatModal` nach dem Morgenbriefing via `directorStore.pendingDecisionBeatId`.
+- **✅ Schicht 3 — Narrativ-Gedächtnis:** `engine/NarrativeMemory.ts` (Themen/Inokulation, verfällt mit
+  der Zeit; Save/Load). First-Class-Input für reaktive Beats.
+- **✅ Beat-Katalog vollständig (6/6):** Stadtrat · Reale Vorlage · Schwelbrand (auftrags-relativ) ·
+  Loyalitätsprobe · Nebel (operative Lage; Nebel **stochastisch**) · Bumerang (Spielgeschichte; reaktiv:
+  Inokulation/Streisand). Alle drei Relativitäts-Achsen abgedeckt.
+- **✅ Live-Berater-Hinweis:** `recommendForState` → „★ BERATER RÄT"-Badge im Modal (strategie-/lage-/
+  geschichte-relativ). **✅ `startGame` ruft `directorStore.reset()`** (Slice-2-Restpunkt).
+- **Verifikation:** Runtime-Auslöser deterministisch getestet (`DecisionBeatFlow.test.tsx`: echter
+  `endPhase` → `pendingDecisionBeatId`), Modal-Rendern (`DecisionBeatModal.test.tsx`, RTL),
+  Store-Naht (`directorStore.test.ts`). Owner-Sichtprüfung am `deploy-preview-87` empfohlen.
+- **Owner-Entscheidung:** Beats bewegen **nur andere Achsen, nicht die Sieg-Achse** (`DECISIONS_2026-06-20_BEATS.md`).
+
+> ⚠️ **Container-Hinweis (Toolchain-Drift):** Im frischen Web-Container fehlten die `node_modules`
+> bzw. lag TS 6.0.2 statt der gepinnten 5.9.3 vor → vor dem Gate `npm ci` in `desinformation-network/`
+> (Lockfile = TS 5.9.3). Kandidat für den SessionStart-Hook.
+
+---
+
 **Stand:** 2026-06-15 · **PR #83 (Draft, Branch `claude/gifted-curie-5bgc0c`)** — **„Herzstück" (Episoden · Gesellschaftswerte · Aufträge · Vernetzung)**, baut auf main nach Merge von PR #82.
 
 ### 🎭 Herzstück-Bau (PR #83) — Fortschritt P0→P7 (alle Phasen grün: `tsc`·`vitest`·`build`)

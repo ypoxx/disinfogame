@@ -90,6 +90,18 @@ import {
 } from '../story-mode/engine/EndingSystem';
 
 import {
+  getDecisionBeat,
+  getBeatOption,
+} from '../story-mode/engine/DecisionBeats';
+
+import {
+  recordThema,
+  inoculationOf,
+  seededThemes,
+  type NarrativeMemoryState,
+} from '../story-mode/engine/NarrativeMemory';
+
+import {
   ExtendedActorLoader,
   getExtendedActorLoader,
   type ExtendedActor,
@@ -288,6 +300,15 @@ export interface ActionResult {
   // Ressourcen-Änderungen
   resourceChanges: Partial<StoryResources>;
 
+  // T1/#5: unmittelbare Gesellschaftswert-Wirkung dieser Aktion (gerundete Deltas,
+  // nur ≠ 0) + Vertrauen. Macht die Kausalkette Aktion→Werte am Entscheidungspunkt
+  // sichtbar — die Wirkung lag bisher nur in der Konsole / verzögert im Lagebericht.
+  societyChanges?: Partial<Record<SocietyValueKey, number>> & { vertrauen?: number };
+
+  // T1/#27: Gesamt-Wirksamkeit dieser Aktion (Basis 50% + Ziel-Affinität der Akteure),
+  // damit die im Erzähltext genannte Prozentzahl im Modal hergeleitet/sichtbar wird.
+  effectiveness?: number;
+
   // Narrative Reaktion
   narrative: {
     headline_de: string;
@@ -316,6 +337,22 @@ export interface ActionResult {
 
   // Betrayal warnings triggered
   betrayalWarnings?: BetrayalWarning[];
+}
+
+/**
+ * Ergebnis einer aufgelösten Entscheidungs-Beat-Option (Spine Slice 4). Wie bei
+ * `ActionResult` macht es die Wirkung am Entscheidungspunkt sichtbar (T1): die
+ * Gesellschaftswert-Deltas (Vertrauen bleibt entkoppelt, R2) + die Spieler-Kosten.
+ */
+export interface DecisionBeatResult {
+  beatId: string;
+  beatName_de: string;
+  optionId: string;
+  optionLabel_de: string;
+  technik_de: string;
+  narrative_de: string;
+  societyChanges?: Partial<Record<SocietyValueKey, number>> & { vertrauen?: number };
+  resourceChanges: Partial<Pick<StoryResources, 'risk' | 'attention' | 'budget' | 'moralWeight'>>;
 }
 
 /**
@@ -606,6 +643,10 @@ export class StoryEngineAdapter {
   private episodesOffered: Set<string> = new Set();
   private episodesActive: Set<string> = new Set();
   private episodesCompleted: Set<string> = new Set();
+  /** Slice 4: bereits aufgelöste Entscheidungs-Beats (damit der Director sie nicht erneut zieht). */
+  private resolvedDecisionBeats: Set<string> = new Set();
+  /** Schicht 3: Narrativ-Gedächtnis (welche Themen liefen wie oft, wie inokuliert). */
+  private narrativeMemory: NarrativeMemoryState = {};
 
   // P5 — Strategischer Auftrag („Vertrauen = Mittel, Auftrag = Ziel"). Default = „Der Keil"
   // (Tutorial); beim Neustart wählbar. v1: obj_destabilize bleibt der spielbare Sieg, die
@@ -1856,6 +1897,48 @@ export class StoryEngineAdapter {
 
     // Skip first 2 phases - need history for trends
     if (phase < 3) return trendEvents;
+
+    // T2/#11: „Stille Tage" füllen — in ruhiger Frühphase (niedriges Risiko) gelegentlich
+    // ein leiser Hinweis, der die Stille bricht UND lehrt, dass Eskalation/Wagnis der Motor
+    // ist (Welt-Events feuern sonst erst ab risk≥70). Deterministisch → kein Spam.
+    if (
+      phase <= 12 &&
+      this.storyResources.risk < 40 &&
+      this.storyResources.attention < 50 &&
+      this.seededRandom(`ambient_calm_${phase}`) < 0.34
+    ) {
+      const calmLines = [
+        {
+          headline_de: 'Ruhige Lage im Land',
+          headline_en: 'A quiet spell',
+          description_de:
+            'Die Öffentlichkeit ist gelassen, die Ermittler unbeschäftigt. Wer kein Risiko geht, bleibt unsichtbar — bewegt aber auch wenig. Der große Hebel liegt im Wagnis.',
+          description_en:
+            'The public is calm, investigators idle. Playing it safe keeps you invisible — but moves little. The real leverage lies in bold action.',
+        },
+        {
+          headline_de: 'Wenig Bewegung in der Westunion',
+          headline_en: 'Little movement across Westunion',
+          description_de:
+            'Vorsichtige Operationen halten die Gegenseite fern — und die Schlagzeilen aus. Sichtbare Wirkung kostet Aufmerksamkeit und Risiko.',
+          description_en:
+            'Cautious operations keep the opposition away — and the headlines too. Visible impact costs attention and risk.',
+        },
+      ];
+      const line = calmLines[Math.abs(phase) % calmLines.length];
+      trendEvents.push({
+        id: `ambient_calm_${phase}`,
+        phase,
+        headline_de: line.headline_de,
+        headline_en: line.headline_en,
+        description_de: line.description_de,
+        description_en: line.description_en,
+        type: 'world_event',
+        severity: 'info',
+        read: false,
+        pinned: false,
+      });
+    }
 
     // ============================================================
     // RISING RISK TREND
@@ -3354,8 +3437,14 @@ export class StoryEngineAdapter {
     // Aktion Points reduzieren
     this.storyResources.actionPointsRemaining--;
 
+    // T1/#5: Gesellschaftswerte vor den Effekten schnappen, um die unmittelbare
+    // Wirkung dieser Aktion sichtbar zu machen (Delta nach applyActionEffects).
+    const societyBefore = this.getSocietySnapshot();
+    const trustBefore = this.objectives.find((o) => o.id === 'obj_destabilize')?.currentValue ?? 100;
+
     // Effekte anwenden
     const effects = this.applyActionEffects(action, options);
+    const societyChanges = this.societyChangesSince(societyBefore, trustBefore);
 
     // Konsequenzen registrieren
     const potentialConsequences = this.registerPotentialConsequences(action);
@@ -3387,6 +3476,10 @@ export class StoryEngineAdapter {
       }
     }
 
+    // T1/#27: Wirksamkeit einmal berechnen (Basis 50% + Ziel-Affinität der Akteure)
+    // — für den Erzähltext UND als sichtbare Kennzahl im Ergebnis-Modal.
+    const effectiveness = Math.min(100, 50 + actorModifiers.reduce((sum, m) => sum + (m.modifier - 1) * 50, 0));
+
     // === NARRATIVE GENERATOR INTEGRATION ===
     // Generate rich narrative for action result
     const storyNarrative = StoryNarrativeGenerator.generateActionNarrative({
@@ -3404,17 +3497,29 @@ export class StoryEngineAdapter {
         .map(m => this.extendedActorLoader.getActor(m.actorId)!)
         .filter(Boolean),
       npcAssist: options?.npcAssist,
-      effectiveness: Math.min(100, 50 + actorModifiers.reduce((sum, m) => sum + (m.modifier - 1) * 50, 0)),
+      effectiveness,
       risk: this.storyResources.risk,
       moralWeight: this.storyResources.moralWeight,
     });
+
+    // T3.4-Fix: resourceChanges sind signierte Deltas, keine Roh-Kosten. Budget/Kapazität
+    // werden verbraucht (negativ), Risiko/Aufmerksamkeit steigen (positiv) — sonst zeigte das
+    // Ergebnis-Modal „+$3K" grün, während der Saldo sank. Budget um den NPC-Rabatt korrigiert
+    // (analog deductActionCosts).
+    const resourceChanges: Partial<StoryResources> = { ...action.costs };
+    if (resourceChanges.budget) {
+      resourceChanges.budget = -Math.ceil(resourceChanges.budget * (1 - this.calculateNPCDiscount(action) / 100));
+    }
+    if (resourceChanges.capacity) resourceChanges.capacity = -resourceChanges.capacity;
 
     // Ergebnis
     const result: ActionResult = {
       success: true,
       action,
       effects,
-      resourceChanges: action.costs,
+      resourceChanges,
+      societyChanges,
+      effectiveness,
       narrative: {
         headline_de: storyNarrative.headline_de,
         headline_en: storyNarrative.headline_en,
@@ -3570,6 +3675,25 @@ export class StoryEngineAdapter {
     };
   }
 
+  /** T1/#5: unmittelbare Gesellschaftswert-Änderung einer Aktion (gerundet, nur ≠ 0)
+   *  + Vertrauen (aus obj_destabilize). Vergleicht den Schnappschuss vor den Effekten
+   *  mit dem aktuellen Zustand. */
+  private societyChangesSince(
+    before: SocietySnapshot,
+    trustBefore: number
+  ): ActionResult['societyChanges'] {
+    const after = this.getSocietySnapshot();
+    const out: Partial<Record<SocietyValueKey, number>> & { vertrauen?: number } = {};
+    for (const key of Object.keys(after) as SocietyValueKey[]) {
+      const d = Math.round(after[key] - before[key]);
+      if (d !== 0) out[key] = d;
+    }
+    const trustAfter = this.objectives.find((o) => o.id === 'obj_destabilize')?.currentValue ?? trustBefore;
+    const dv = Math.round(trustAfter - trustBefore);
+    if (dv !== 0) out.vertrauen = dv;
+    return Object.keys(out).length > 0 ? out : undefined;
+  }
+
   /** P3: verbleibende Phasen des aktiven Krisenfensters (0 = keins). */
   getCrisisWindowPhasesLeft(): number {
     return this.crisisWindowPhasesLeft;
@@ -3645,6 +3769,154 @@ export class StoryEngineAdapter {
 
   getActiveEpisodes(): Episode[] {
     return Array.from(this.episodesActive).map(id => getEpisode(id)).filter((e): e is Episode => !!e);
+  }
+
+  // ============================================
+  // ENTSCHEIDUNGS-BEATS (Spine Slice 4) — Inhalt der Spine
+  // ============================================
+
+  getResolvedDecisionBeatIds(): string[] {
+    return Array.from(this.resolvedDecisionBeats);
+  }
+
+  /** Schicht 3: bisher gesäte Narrativ-Themen (reaktive Beat-Verfügbarkeit). */
+  getSeededThemes(): string[] {
+    return seededThemes(this.narrativeMemory);
+  }
+
+  /** Schicht 3: effektive Inokulation eines Themas JETZT (mit Verfall). */
+  getInoculation(themaId: string): number {
+    return inoculationOf(this.narrativeMemory, themaId, this.getCurrentPhase().number);
+  }
+
+  /**
+   * Wendet die gewählte Option eines Entscheidungs-Beats an: Gesellschaftswert-Deltas
+   * (über `applySocietyDelta`, 0–100-geklemmt) + Spieler-Kosten (Risiko/Aufmerksamkeit/
+   * Budget/Moral). `vertrauen` wird — wie bei `completeEpisode` — NICHT an `obj_destabilize`
+   * gekoppelt (R2: balance-neutral). Schicht 3: bei `inoculationScaled`-Optionen skaliert
+   * die Wirkung mit der Inokulation des Beat-Themas (abnehmende Erträge), mit Rückschlag
+   * bzw. seltenem Streisand-Effekt bei hoher Inokulation (`rng` injizierbar → testbar).
+   * Liefert die Deltas für die UI (T1) zurück.
+   */
+  applyDecisionBeatOption(
+    beatId: string,
+    optionId: string,
+    rng: () => number = Math.random,
+  ): DecisionBeatResult | null {
+    const beat = getDecisionBeat(beatId);
+    if (!beat) return null;
+    const option = getBeatOption(beat, optionId);
+    if (!option) return null;
+
+    const clamp100 = (x: number) => Math.max(0, Math.min(100, x));
+    const phase = this.getCurrentPhase().number;
+    const societyBefore = this.getSocietySnapshot();
+    const trustBefore = this.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100;
+    const riskBefore = this.storyResources.risk;
+    const attentionBefore = this.storyResources.attention;
+    const budgetBefore = this.storyResources.budget;
+    const moralBefore = this.storyResources.moralWeight;
+
+    // Schicht 3: Inokulation des Themas VOR dem Lauf (steuert Skalierung/Rückschlag).
+    const inoc = beat.themaId ? inoculationOf(this.narrativeMemory, beat.themaId, phase) : 0;
+    const scaled = !!option.inoculationScaled && !!beat.themaId;
+    let factor = scaled ? Math.max(0, 1 - inoc / 100) : 1; // abnehmende Erträge
+
+    let outcomeNote = '';
+
+    // Nebel (#5): die Wirkungs-GRÖSSE wird verdeckt gezogen — der Einsatz ist schon bezahlt.
+    if (option.stochastik) {
+      const { min, max } = option.stochastik;
+      const draw = min + rng() * (max - min);
+      factor *= draw;
+      if (draw >= 1.3) outcomeNote = ' Ausgang: die Wirkung fiel groß aus — mehr als gedacht.';
+      else if (draw <= 0.5) outcomeNote = ' Ausgang: ein Rohrkrepierer — der Einsatz verpuffte weitgehend.';
+      else outcomeNote = ' Ausgang: die Wirkung lag im erwarteten Rahmen.';
+    }
+
+    // Gesellschaftswert-Deltas (Vertrauen ausgeklammert — R2; inokulations-/varianz-skaliert).
+    const delta: SocietyDelta = {};
+    const addDelta = (key: string, v: number) => {
+      (delta as Record<string, number>)[key] = ((delta as Record<string, number>)[key] ?? 0) + v;
+    };
+    for (const [key, value] of Object.entries(option.werteDelta)) {
+      if (key === 'vertrauen') continue;
+      if (typeof value === 'number') addDelta(key, Math.round(value * factor));
+    }
+
+    // Schicht 3: Rückschlag/Streisand der Recycling-Option bei hoher Inokulation.
+    let extraRisk = 0;
+    if (scaled) {
+      if (inoc >= 60) {
+        if (rng() < 0.15) {
+          // Streisand: die Widerlegung befeuert die Geschichte erst recht.
+          addDelta('polarisierung', 14);
+          outcomeNote = ' Paradox: Die Widerlegung befeuert die Geschichte erst recht (Streisand-Effekt).';
+        } else {
+          // Resilienz bremst: Diskursqualität (Resilienz) steigt, Risiko zieht an.
+          addDelta('diskursqualitaet', 10);
+          extraRisk = 8;
+          outcomeNote = ' Rückschlag: „längst widerlegt" — die Faktenchecker waren schneller.';
+        }
+      } else if (inoc < 20) {
+        outcomeNote = ' Wiederzündung: frisch genug, um erneut zu zünden.';
+      } else {
+        outcomeNote = ' Verpufft teils: das Publikum ist abgestumpft.';
+      }
+    }
+    this.applySocietyDelta(delta);
+
+    // Spieler-Kosten (inkl. inokulations-bedingtem Zusatzrisiko).
+    const riskCost = (option.spielerKosten.risk ?? 0) + extraRisk;
+    if (riskCost !== 0) this.storyResources.risk = clamp100(this.storyResources.risk + riskCost);
+    if (typeof option.spielerKosten.attention === 'number') {
+      this.storyResources.attention = clamp100(this.storyResources.attention + option.spielerKosten.attention);
+    }
+    if (typeof option.spielerKosten.budget === 'number') {
+      this.storyResources.budget += option.spielerKosten.budget;
+    }
+    if (typeof option.spielerKosten.moralWeight === 'number') {
+      this.storyResources.moralWeight = Math.max(0, this.storyResources.moralWeight + option.spielerKosten.moralWeight);
+    }
+
+    this.resolvedDecisionBeats.add(beatId);
+    // Schicht 3: das Thema fortschreiben (erst NACH dem Lesen der Inokulation) → Recyceln impft.
+    if (beat.themaId) this.narrativeMemory = recordThema(this.narrativeMemory, beat.themaId, phase);
+
+    const resourceChanges: Partial<Pick<StoryResources, 'risk' | 'attention' | 'budget' | 'moralWeight'>> = {};
+    if (this.storyResources.risk !== riskBefore) resourceChanges.risk = this.storyResources.risk - riskBefore;
+    if (this.storyResources.attention !== attentionBefore) resourceChanges.attention = this.storyResources.attention - attentionBefore;
+    if (this.storyResources.budget !== budgetBefore) resourceChanges.budget = this.storyResources.budget - budgetBefore;
+    if (this.storyResources.moralWeight !== moralBefore) resourceChanges.moralWeight = this.storyResources.moralWeight - moralBefore;
+
+    const narrative_de = option.wirkung_de + outcomeNote;
+
+    // Sichtbarkeit im Newsroom (wie eine Welt-Reaktion auf die Entscheidung).
+    this.newsEvents.unshift({
+      id: `decision_${beatId}_${optionId}_${phase}`,
+      phase,
+      headline_de: `${beat.name_de}: ${option.label_de}`,
+      headline_en: `${beat.name_de}: ${option.label_de}`,
+      description_de: narrative_de,
+      description_en: narrative_de,
+      type: 'world_event',
+      severity: 'info',
+      read: false,
+      pinned: false,
+    });
+
+    storyLogger.log(`[DecisionBeat] ${beatId} → ${optionId} (${option.technik_de}, inoc=${inoc})`);
+
+    return {
+      beatId,
+      beatName_de: beat.name_de,
+      optionId,
+      optionLabel_de: option.label_de,
+      technik_de: option.technik_de,
+      narrative_de,
+      societyChanges: this.societyChangesSince(societyBefore, trustBefore),
+      resourceChanges,
+    };
   }
 
   getCompletedEpisodes(): Episode[] {
@@ -5456,6 +5728,8 @@ export class StoryEngineAdapter {
       episodesOffered: Array.from(this.episodesOffered),
       episodesActive: Array.from(this.episodesActive),
       episodesCompleted: Array.from(this.episodesCompleted),
+      resolvedDecisionBeats: Array.from(this.resolvedDecisionBeats),
+      narrativeMemory: this.narrativeMemory,
       // P5-Auftrag
       currentAuftragId: this.currentAuftragId,
       // P6-Umfragen
@@ -5505,6 +5779,8 @@ export class StoryEngineAdapter {
     this.episodesOffered = new Set(state.episodesOffered ?? []);
     this.episodesActive = new Set(state.episodesActive ?? []);
     this.episodesCompleted = new Set(state.episodesCompleted ?? []);
+    this.resolvedDecisionBeats = new Set(state.resolvedDecisionBeats ?? []);
+    this.narrativeMemory = state.narrativeMemory ?? {};
     // P5-Auftrag (Default „keil" für alte Saves, R1).
     this.currentAuftragId = (state.currentAuftragId as AuftragId) ?? 'keil';
     // P6-Umfragen (Default leer für alte Saves, R1).

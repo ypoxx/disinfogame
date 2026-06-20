@@ -49,7 +49,7 @@ interface PortraitProps {
   size?: number;
 }
 
-function NPCPortrait({ npc, mood, size = 48 }: PortraitProps) {
+export function NPCPortrait({ npc, mood, size = 48 }: PortraitProps) {
   // Echtes Porträt aus dem Asset-Manifest (portrait_<npc>_<mood>, sonst
   // portrait_<npc>) hat Vorrang vor dem CSS-Gesicht.
   const assets = useAssets();

@@ -1,12 +1,19 @@
 import { StoryModeColors } from '../theme';
 import { Icon } from './Icon';
 import { PixelFrame } from './PixelFrame';
-import type { StoryPhase, Objective } from '../../game-logic/StoryEngineAdapter';
+import { SOCIETY_VALUE_META, type StoryPhase, type Objective, type SocietyValueKey } from '../../game-logic/StoryEngineAdapter';
+import type { Auftrag } from '../engine/Auftraege';
 
 interface MissionPanelProps {
   isVisible: boolean;
   phase: StoryPhase;
   objectives: Objective[];
+  /** T1/#14: aktiver Auftrag — zeigt die Zielrichtung (hoch/runter) je Signatur-Wert. */
+  auftrag?: Auftrag;
+  /** Aktuelle Gesellschaftswerte (für den Ist-Stand je Signatur-Achse). */
+  societyValues?: Partial<Record<SocietyValueKey, number>>;
+  /** Aktuelles Vertrauen (aus obj_destabilize) — separate Signatur-Achse. */
+  vertrauen?: number;
   onClose: () => void;
   variant?: 'modal' | 'sidebar';
 }
@@ -15,6 +22,9 @@ export function MissionPanel({
   isVisible,
   phase,
   objectives,
+  auftrag,
+  societyValues,
+  vertrauen,
   onClose,
   variant = 'modal',
 }: MissionPanelProps) {
@@ -119,6 +129,57 @@ export function MissionPanel({
           Denken Sie daran: Jede Aktion hat Konsequenzen. Handeln Sie klug.
         </p>
       </div>
+
+      {/* T1/#14: Auftrags-Zielrichtung — welche Werte in welche Richtung sollen.
+          Ohne das weiß der Spieler nicht, ob ein Barometer hoch oder runter „gut" ist. */}
+      {auftrag && (
+        <div
+          className="border-4 p-4"
+          style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.warning }}
+        >
+          <h3 className="font-bold mb-1 flex items-center gap-2" style={{ color: StoryModeColors.warning }}>
+            <Icon name="mission" size={16} title="Auftrag" fallback="◎" /> AUFTRAG: {auftrag.titel_de.toUpperCase()}
+          </h3>
+          <div className="text-xs mb-3" style={{ color: StoryModeColors.textMuted }}>
+            {auftrag.instrument_de} — diese Werte sollst du bewegen:
+          </div>
+          <div className="space-y-3">
+            {auftrag.signatur.map((s) => {
+              const cur = s.wert === 'vertrauen' ? vertrauen ?? s.start : societyValues?.[s.wert] ?? s.start;
+              const label = s.wert === 'vertrauen' ? 'Vertrauen' : SOCIETY_VALUE_META[s.wert].label_de;
+              const reached = s.richtung === 'hoch' ? cur >= s.ziel : cur <= s.ziel;
+              const prog =
+                s.richtung === 'hoch'
+                  ? (cur - s.start) / Math.max(1, s.ziel - s.start)
+                  : (s.start - cur) / Math.max(1, s.start - s.ziel);
+              const pct = Math.max(0, Math.min(1, prog)) * 100;
+              return (
+                <div key={s.wert}>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span style={{ color: StoryModeColors.textPrimary }}>
+                      {s.richtung === 'hoch' ? '▲' : '▼'} {label}
+                      <span style={{ color: StoryModeColors.textMuted }}>
+                        {' '}
+                        — {s.richtung === 'hoch' ? 'hochtreiben' : 'drücken'}
+                      </span>
+                    </span>
+                    <span style={{ color: reached ? StoryModeColors.success : StoryModeColors.textSecondary }}>
+                      {reached ? '✓ ' : ''}
+                      jetzt {Math.round(cur)} → Ziel {s.ziel}
+                    </span>
+                  </div>
+                  <div className="h-2 w-full" style={{ backgroundColor: StoryModeColors.border }}>
+                    <div
+                      className="h-full transition-all"
+                      style={{ width: `${pct}%`, backgroundColor: reached ? StoryModeColors.success : StoryModeColors.warning }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Primary Objectives */}
       <div

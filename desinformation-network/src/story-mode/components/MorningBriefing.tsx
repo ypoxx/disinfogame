@@ -21,6 +21,10 @@ interface MorningBriefingProps {
   trustProgress: number;   // 0..1 — Fortschritt Richtung Destabilisierungs-Ziel
   budget: number;          // verbleibendes Budget in Tausend Euro
   attention: number;       // 0..100 — Aufmerksamkeit der Gegenseite
+  /** T2/#7: Titel des aktiven Auftrags — für die gerichtete Tag-1-Eröffnung. */
+  auftragTitel?: string;
+  /** Spine Slice 2: Vorgriffszeile des vom Director gekürten Beats (Marina). */
+  beatHook?: string;
   onDone: () => void;
 }
 
@@ -64,10 +68,12 @@ const LAUNE_LABEL: Record<Laune, string> = {
 
 /** Lage regelbasiert aus risk + Vertrauens-Fortschritt ableiten. */
 function deriveLaune(risk: number, trustProgress: number): Laune {
+  // trustProgress ist 0..1 (NICHT 0..100) — Schwellen entsprechend (zuvor verglich
+  // `< 30`/`>= 60` gegen einen 0..1-Wert → Laune war praktisch immer „kritisch").
   // Hohes Risiko ODER zurückliegender Vertrauens-Stand = kritisch.
-  if (risk >= 65 || trustProgress < 30) return 'kritisch';
+  if (risk >= 65 || trustProgress < 0.3) return 'kritisch';
   // Niedriges Risiko UND klarer Vorsprung = gut.
-  if (risk < 40 && trustProgress >= 60) return 'gut';
+  if (risk < 40 && trustProgress >= 0.6) return 'gut';
   return 'mittel';
 }
 
@@ -125,17 +131,26 @@ export function deriveBriefingHint(s: BriefingState): BriefingHint {
   };
 }
 
-export function MorningBriefing({ phase, risk, trustProgress, budget, attention, onDone }: MorningBriefingProps) {
+export function MorningBriefing({ phase, risk, trustProgress, budget, attention, auftragTitel, beatHook, onDone }: MorningBriefingProps) {
   const assets = useAssets();
-  const laune = deriveLaune(risk, trustProgress);
+  // T2/#7: Tag 1 bekommt eine eigene, gerichtete Eröffnung (statt der laufenden
+  // Lage-Logik): sie erklärt die Kern-Schleife und verweist auf EINE klare Anlaufstelle.
+  const firstDay = phase <= 1;
+  const laune: Laune = firstDay ? 'gut' : deriveLaune(risk, trustProgress);
   const mood = MOOD_BY_LAUNE[laune];
 
   // Deterministische Variantenwahl: gleiche Phase → gleicher Text.
-  const variants = BRIEFINGS[laune];
-  const variant = variants[Math.abs(phase) % variants.length];
+  const variant = firstDay
+    ? { text: `Willkommen in der Abteilung. Ihr Auftrag: „${auftragTitel ?? 'Westunion destabilisieren'}". Bringen wir das Land in Bewegung — Schritt für Schritt.` }
+    : BRIEFINGS[laune][Math.abs(phase) % BRIEFINGS[laune].length];
 
-  // Konkreter, diegetischer Tageshinweis (B5/D-4).
-  const hint = deriveBriefingHint({ risk, attention, budget, trustProgress });
+  // Konkreter, diegetischer Tageshinweis (B5/D-4); an Tag 1 die Kern-Schleife.
+  const hint = firstDay
+    ? {
+        problem: 'Ihr erster Schritt: Öffnen Sie das Terminal (Taste A) und führen Sie eine Maßnahme aus.',
+        pointer: 'Im Ergebnis sehen Sie sofort, wie sie Gesellschaft, Auftrag und Publikum bewegt — daran richten Sie die nächsten Züge aus. (Taste ? zeigt alle Tastenkürzel.)',
+      }
+    : deriveBriefingHint({ risk, attention, budget, trustProgress });
 
   // Porträt: mood-spezifisch, sonst Basis-Porträt; null → CSS-Fallback unten.
   const portraitUrl =
@@ -237,6 +252,24 @@ export function MorningBriefing({ phase, risk, trustProgress, budget, attention,
               <span style={{ color: StoryModeColors.textSecondary }}>{hint.pointer}</span>
             </p>
           </div>
+
+          {/* Spine Slice 2: Marinas Vorgriff auf den nächsten Beat (wenn gesetzt). */}
+          {beatHook && (
+            <div className="mt-2 pt-2 border-t-2" style={{ borderColor: StoryModeColors.borderLight }}>
+              <span
+                className="text-xs font-bold uppercase tracking-wider"
+                style={{ color: StoryModeColors.agencyBlue }}
+              >
+                Marina — Vorgriff
+              </span>
+              <p
+                className="font-mono text-xs leading-relaxed mt-1"
+                style={{ color: StoryModeColors.textPrimary }}
+              >
+                {beatHook}
+              </p>
+            </div>
+          )}
 
           <div className="mt-3 text-right">
             <span
