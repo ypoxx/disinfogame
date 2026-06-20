@@ -3820,9 +3820,21 @@ export class StoryEngineAdapter {
     // Schicht 3: Inokulation des Themas VOR dem Lauf (steuert Skalierung/Rückschlag).
     const inoc = beat.themaId ? inoculationOf(this.narrativeMemory, beat.themaId, phase) : 0;
     const scaled = !!option.inoculationScaled && !!beat.themaId;
-    const factor = scaled ? Math.max(0, 1 - inoc / 100) : 1; // abnehmende Erträge
+    let factor = scaled ? Math.max(0, 1 - inoc / 100) : 1; // abnehmende Erträge
 
-    // Gesellschaftswert-Deltas (Vertrauen ausgeklammert — R2; inokulationsskaliert).
+    let outcomeNote = '';
+
+    // Nebel (#5): die Wirkungs-GRÖSSE wird verdeckt gezogen — der Einsatz ist schon bezahlt.
+    if (option.stochastik) {
+      const { min, max } = option.stochastik;
+      const draw = min + rng() * (max - min);
+      factor *= draw;
+      if (draw >= 1.3) outcomeNote = ' Ausgang: die Wirkung fiel groß aus — mehr als gedacht.';
+      else if (draw <= 0.5) outcomeNote = ' Ausgang: ein Rohrkrepierer — der Einsatz verpuffte weitgehend.';
+      else outcomeNote = ' Ausgang: die Wirkung lag im erwarteten Rahmen.';
+    }
+
+    // Gesellschaftswert-Deltas (Vertrauen ausgeklammert — R2; inokulations-/varianz-skaliert).
     const delta: SocietyDelta = {};
     const addDelta = (key: string, v: number) => {
       (delta as Record<string, number>)[key] = ((delta as Record<string, number>)[key] ?? 0) + v;
@@ -3834,7 +3846,6 @@ export class StoryEngineAdapter {
 
     // Schicht 3: Rückschlag/Streisand der Recycling-Option bei hoher Inokulation.
     let extraRisk = 0;
-    let outcomeNote = '';
     if (scaled) {
       if (inoc >= 60) {
         if (rng() < 0.15) {

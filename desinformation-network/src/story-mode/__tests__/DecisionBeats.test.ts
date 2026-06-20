@@ -104,19 +104,32 @@ describe('DecisionBeats — Spielgeschichte-Relativität (Bumerang, reaktiv/Schi
   });
 });
 
+describe('DecisionBeats — epistemische/stochastische Relativität (Nebel)', () => {
+  const nb = getDecisionBeat('nebel')!;
+  it('ist operative-Lage-relativ und stochastisch (verdeckte Varianz je Option)', () => {
+    expect(nb.relativitaetsAchse).toBe('lage');
+    expect(nb.optionen.find((o) => o.id === 'A')!.stochastik).toEqual({ min: 0, max: 2.0 });
+    expect(nb.optionen.find((o) => o.id === 'C')!.stochastik!.max).toBeLessThan(1.01); // gehedgt = gekappt
+  });
+  it('jede Lage empfiehlt einen anderen Einsatz', () => {
+    expect(bestForContext(nb, 'ressourcen_satt').id).toBe('A'); // voll
+    expect(bestForContext(nb, 'info_noetig').id).toBe('B'); // sondieren
+    expect(bestForContext(nb, 'ressourcen_knapp').id).toBe('C'); // hedgen
+    expect(bestForContext(nb, 'risiko_scheu').id).toBe('D'); // auslassen
+  });
+});
+
 describe('DecisionBeats — Director-Kandidaten (reaktive Verfügbarkeit, Schicht 3)', () => {
   it('liefert unaufgelöste Beats; aufgelöste fallen raus', () => {
     const rest = unresolvedDecisionCandidates(['stadtrat', 'schwelbrand']);
-    expect(rest.map((c) => c.id)).toEqual(['reale_vorlage', 'loyalitaetsprobe']);
+    expect(rest.map((c) => c.id)).toEqual(['reale_vorlage', 'loyalitaetsprobe', 'nebel']);
     expect(unresolvedDecisionCandidates(ALL_DECISION_BEATS.map((b) => b.id))).toEqual([]);
   });
   it('Bumerang erscheint erst, wenn sein Thema schon gesät wurde', () => {
-    expect(unresolvedDecisionCandidates([], []).map((c) => c.id)).toEqual([
-      'stadtrat',
-      'reale_vorlage',
-      'schwelbrand',
-      'loyalitaetsprobe',
-    ]); // Bumerang fehlt — nichts zu recyceln
+    // Ohne gesätes Thema: alle außer Bumerang (nichts zu recyceln).
+    const ids = unresolvedDecisionCandidates([], []).map((c) => c.id);
+    expect(ids).not.toContain('bumerang');
+    expect(ids).toEqual(['stadtrat', 'reale_vorlage', 'schwelbrand', 'loyalitaetsprobe', 'nebel']);
     expect(unresolvedDecisionCandidates([], ['reizthema_gallia']).map((c) => c.id)).toContain('bumerang');
   });
 });

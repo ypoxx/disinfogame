@@ -121,6 +121,39 @@ describe('Narrativ-Gedächtnis & Bumerang (Schicht 3)', () => {
     expect(e.getResources().polarisierung - before.polarisierung).toBe(21);
   });
 
+  it('Nebel/voll: hoher rng-Zug → großer Payoff; Einsatz (Kosten) ist immer fällig', () => {
+    const e = createStoryEngine();
+    const before = e.getResources();
+    const res = e.applyDecisionBeatOption('nebel', 'A', () => 0.9)!; // Faktor 1.8
+    expect(res.narrative_de).toContain('groß');
+    expect(e.getResources().informationslast - before.informationslast).toBe(32); // 18*1.8
+    expect(e.getResources().budget).toBeLessThan(before.budget); // Einsatz bezahlt
+  });
+
+  it('Nebel/voll: niedriger rng-Zug → Rohrkrepierer (Kosten fällig, kaum Wirkung)', () => {
+    const e = createStoryEngine();
+    const before = e.getResources();
+    const res = e.applyDecisionBeatOption('nebel', 'A', () => 0)!; // Faktor 0
+    expect(res.narrative_de).toContain('Rohrkrepierer');
+    expect(e.getResources().informationslast).toBe(before.informationslast); // nichts gewirkt
+    expect(e.getResources().attention).toBeGreaterThan(before.attention); // aber Aufmerksamkeit verbrannt
+  });
+
+  it('Nebel/hedgen: Varianz gekappt — selbst bei rng=0 noch solide Wirkung', () => {
+    const e = createStoryEngine();
+    const before = e.getResources();
+    e.applyDecisionBeatOption('nebel', 'C', () => 0); // Faktor 0.7
+    expect(e.getResources().informationslast - before.informationslast).toBe(8); // 12*0.7=8.4→8
+  });
+
+  it('Nebel ist deterministisch bei gleichem rng (reproduzierbar)', () => {
+    const a = createStoryEngine();
+    const b = createStoryEngine();
+    const ra = a.applyDecisionBeatOption('nebel', 'A', () => 0.42)!;
+    const rb = b.applyDecisionBeatOption('nebel', 'A', () => 0.42)!;
+    expect(ra.societyChanges).toEqual(rb.societyChanges);
+  });
+
   it('Narrativ-Gedächtnis überlebt save/load', () => {
     const e = createStoryEngine();
     e.applyDecisionBeatOption('stadtrat', 'A');

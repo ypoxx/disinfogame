@@ -60,6 +60,13 @@ export interface BeatOption {
    * Recycling-Optionen reaktiver Beats (Bumerang/Recyceln).
    */
   inoculationScaled?: boolean;
+  /**
+   * Stochastik (Nebel): die Wirkungs-*Größe* ist verborgen — der Payoff wird als
+   * Multiplikator aus [min, max] gezogen, NACHDEM die Kosten (der Einsatz) bezahlt sind.
+   * Breite Spanne = hohe Varianz (voll reingehen), enge = gekappt (hedgen). „Bet-Sizing
+   * unter Nebel": man committet Ressourcen, bevor man die wahre Wirkung kennt.
+   */
+  stochastik?: { min: number; max: number };
 }
 
 export interface DecisionBeat {
@@ -392,12 +399,81 @@ const BUMERANG: DecisionBeat = {
   ],
 };
 
+/**
+ * Beat #5 „Der Nebel" (`IDEE_BEAT_NEBEL.md`). Epistemisch, **stochastisch** — die
+ * novellste Achse: nicht *welcher* Hebel, sondern *wie viel* wetten, wenn die Wirkungs-
+ * GRÖSSE selbst verborgen ist. Relativitäts-Achse = operative Lage (Ressourcen/Risiko-
+ * Appetit). Der Einsatz (Kosten) wird bezahlt, der Payoff (`werteDelta`) aus einer
+ * verdeckten Verteilung gezogen (`stochastik`). Litmus ③ am stärksten: selbst der
+ * „optimale" Zug verliert manchmal — das Spiel selbst kennt den richtigen Zug nicht.
+ */
+const NEBEL: DecisionBeat = {
+  id: 'nebel',
+  name_de: 'Der Nebel',
+  region: 'epistemisch',
+  ebene: 'transnational',
+  ort_de: 'eine Gelegenheit ungewisser Tragweite',
+  anlass_de:
+    'Eine Gelegenheit taucht auf, deren Wirkung unklar ist — vielleicht ein Riesen-Hebel, vielleicht ein Rohrkrepierer. Igor liefert nur eine Schätzung mit Unsicherheitsband. Sie müssen Ressourcen committen, bevor Sie die wahre Wirkung kennen.',
+  vorgriffZeile_de: 'Marina: „Igor hat etwas aufgetan — Wirkung ungewiss. Wie viel setzen wir darauf?"',
+  leitspannung_de: 'Wie viel wetten?',
+  kostenAchse_de: 'Verborgene Information / Varianz',
+  relativitaetsAchse: 'lage',
+  kontexte: ['ressourcen_satt', 'info_noetig', 'ressourcen_knapp', 'risiko_scheu'],
+  optionen: [
+    {
+      id: 'A',
+      label_de: 'Voll reingehen — großer Einsatz',
+      technik_de: 'All-in unter Unsicherheit (hohe Varianz)',
+      wirkung_de: 'Zahlt es sich aus: massiv. Floppt es: Ressourcen verbrannt, Aufmerksamkeit für nichts. Der Einsatz ist fällig, bevor die Wirkung feststeht.',
+      werteDelta: { informationslast: 18, polarisierung: 8 },
+      spielerKosten: { budget: -12, attention: 12, risk: 6 },
+      ausgang: 'stochastisch',
+      stochastik: { min: 0, max: 2.0 },
+      eignung: { ressourcen_satt: 3, info_noetig: 1, ressourcen_knapp: 0, risiko_scheu: 0 },
+    },
+    {
+      id: 'B',
+      label_de: 'Klein sondieren — Signal lesen',
+      technik_de: 'Sondierung (Information gegen Tempo kaufen)',
+      wirkung_de: 'Wenig Einsatz, geringe Varianz — und Sie lesen das Signal: das Ergebnis verrät, wie stark der Hebel wirklich gewesen wäre. Kostet einen Zug.',
+      werteDelta: { informationslast: 8 },
+      spielerKosten: { budget: -3, attention: 2 },
+      ausgang: 'stochastisch',
+      stochastik: { min: 0.4, max: 0.8 },
+      eignung: { ressourcen_satt: 1, info_noetig: 3, ressourcen_knapp: 1, risiko_scheu: 1 },
+    },
+    {
+      id: 'C',
+      label_de: 'Hedgen — Einsatz splitten',
+      technik_de: 'Diversifikation (Auf- und Abwärts kappen)',
+      wirkung_de: 'Verteilt den Einsatz — kappt den Verlust UND den Gewinn. Nirgends all-in, kostet Effizienz, aber verlässlich.',
+      werteDelta: { informationslast: 12, polarisierung: 4 },
+      spielerKosten: { budget: -7, attention: 6, risk: 3 },
+      ausgang: 'stochastisch',
+      stochastik: { min: 0.7, max: 1.0 },
+      eignung: { ressourcen_satt: 1, info_noetig: 1, ressourcen_knapp: 3, risiko_scheu: 1 },
+    },
+    {
+      id: 'D',
+      label_de: 'Auslassen — nichts setzen',
+      technik_de: '— (Opportunitätskosten)',
+      wirkung_de: 'Null Varianz, null Kosten — aber war es DER Hebel, erfahren Sie es nie. Manchmal bläst das Unterschätzte ohne Sie auf; manchmal verpufft das Überschätzte.',
+      werteDelta: {},
+      spielerKosten: { attention: -4 },
+      ausgang: 'deterministisch',
+      eignung: { ressourcen_satt: 0, info_noetig: 0, ressourcen_knapp: 1, risiko_scheu: 3 },
+    },
+  ],
+};
+
 export const ALL_DECISION_BEATS: DecisionBeat[] = [
   STADTRAT,
   REALE_VORLAGE,
   SCHWELBRAND,
   LOYALITAETSPROBE,
   BUMERANG,
+  NEBEL,
 ];
 
 const BEATS_BY_ID: Record<string, DecisionBeat> = Object.fromEntries(
