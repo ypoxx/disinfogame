@@ -280,6 +280,13 @@ export interface StoryAction {
 
   /** P2 Verbreiter×Plattform-Auswahl (ids, additiv/heute leer) — s. BattlefieldChain. */
   params?: OperationParams;
+
+  /**
+   * Roh-Effekte der Aktion (für die Wirkungs-Vorschau am Planungspunkt, S0/M1).
+   * Speist `societyDeltaFromAction` rein/seiteneffektfrei — KEINE Mechanik-Quelle,
+   * nur Anzeige. Die echte Wirkung läuft weiter über `applyActionEffects`.
+   */
+  effects?: Record<string, unknown>;
 }
 
 /**
@@ -3266,6 +3273,7 @@ export class StoryEngineAdapter {
       engineAbilityId: loaded.disarm_ref || undefined,
       disarmRef: loaded.disarm_ref || undefined,
       params: loaded.params,
+      effects: loaded.effects,
     };
   }
 
