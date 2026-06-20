@@ -8,10 +8,26 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `STRANG34_FEINPLAN_2026-06-13_AKTIONEN_DIALOGE.md` → `GESAMTKONZEPT_VISUELL.md` →
 > dieses Dokument für den aktuellen Bau-Stand. Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
+**Stand:** 2026-06-20 (Kuratieren-Paket) · **S0 + alle 3 Auftrags-Scheiben gebaut** (Branch `claude/gracious-keller-g43bu3`, PR #89). Owner-Go: kuratieren + Jahres-Gate kappen + alle Scheiben parallel auf ein Qualitätsniveau. Maßstab: **`QUALITAETSMERKMALE.md`** (8 Merkmale M1–M8 = Abnahme-Gate).
+> - **S0 (Fundament, balance-neutral):** Terminal-Jahres-Gate gekappt (kein `ta0{year}`-Filter mehr); Episoden-Strang-Aktionen hervorgehoben (`● STRANG`) + zuerst sortiert (M2); Gesellschaftswert-Wirkung als Vorschau auf der Planungskarte (M1, `previewSocietyDeltas`); interne Aktions-ID von der Karte entfernt (M4). Test `ActionImpactPreview` (+4).
+> - **3 Scheiben (Text/Kuration, balance-neutral; parallel von 3 Autoren-Agenten entworfen, zentral integriert + synchronisiert):** **Keil** (7 Aktionen Voice-Lift), **Zweifel** (12 Aktionen + 3 Episoden auf 2 nicht-dominierte Wege gekürzt), **Wahl** (unterversorgt: 1→4 Episoden, +3 neue Wahl-Episoden mit realer Methode als `lernmoment_id`; 5 Aktionen Voice-Lift). Episoden gesamt **13** (war 10).
+> - **Offen / Follow-up (geflaggt, NICHT in diesem Text-Pass):** **Balance-Pass** für 2 Text↔Mechanik-Lücken — (a) `ep_denkmalstreit`-Aktionen (11.16/17/18 = `memory_conflict`) treiben `diskursqualitaet` nicht, das aber die Keil-Signatur misst; (b) `7.2 social_division` mechanisch schwach (als „breiter" Weg evtl. dominiert). Beide brauchen `BalanceInvariant`+Sim. Optional: Zweifel-Episode `ep_echtes_video` („Lügner-Dividende"/`synthetic_media`) vom Agenten vorgeschlagen.
+> - Gate je Scheibe grün (`tsc 0`·`vitest 477`·`build`).
+
+**Stand:** 2026-06-20 (Review) · **Review Episoden & Aktionen** — `REVIEW_2026-06-20_EPISODEN_AKTIONEN.md` (Branch `claude/gracious-keller-g43bu3`). Benennt das Owner-„Bauchgefühl" in drei messbaren Befunden: (A) zwei Inhalts-Klassen (Episoden/`9.x`/`11.x` gut, `1.x`–`8.x` Lehrbuch-Ton), (B) **Terminal-Jahres-Gate** (`ta0{year}`, `StoryModeGame.tsx:929` × `ActionPanel.tsx:449`, `PHASES_PER_YEAR=12`) → im 1. Jahr nur klinische Analyse-Aktionen, die guten Phänomen-Aktionen erst Jahr 4–8 → „falsche Zeit" + IA-Bruch zur Tafel (zwei Inventare); harter Beleg: `ep_bruecke` (always) braucht nur „Jahr-7"-Aktionen, (C) Redundanz (143 → ~70–80 Familien). **Leitsatz-Empfehlung:** Aktionen = Vokabular der Episoden/Beats (kuratieren), Jahres-Gate kappen, vertikale „Keil"-Scheibe als Konzept-Probe. **4 Owner-Entscheidungen offen** (Review §7). Gate grün (`tsc 0`·`vitest 473`·`build`).
+
 **Stand:** 2026-06-20 · **PR #87 (gemergt, `main` @ `b7a4ea6`)** — **Spine/Beats: Director-Pool · Entscheidungs-Beats (6/6) · Narrativ-Gedächtnis**. Setzt die Spine-Arbeit aus `HANDOFF_2026-06-18.md` (PR #86: Slice 1/2 + T1/T2/T3) fort. Owner-Entscheidung dieser Session: `DECISIONS_2026-06-20_BEATS.md`.
 
+> 🤝 **Neueste Übergabe für die nächste Session:** `HANDOFF_2026-06-20.md` (Stand, Pacing, Next-Steps).
 > 🗺️ **Voll-Plan / Roadmap:** `GESAMTPLAN_2026-06-20.md` (konsolidiert TODO + Spine/Beats + Owner-Entscheidungen).
 > 📦 **Gebaut, aber noch nicht auf main:** **PR #85** (Asset-Pakete: Avatar m/w, Operationszentrale, Skylines, sitzende Audience) — konfliktfrei mergebar, Owner-Preview offen. Sound (J34–36) **ist** auf main.
+
+### 🎚️ Phase B — Pacing „spürbar härter" (Session 2026-06-20, PR #89, Branch `claude/gracious-keller-g43bu3`)
+Owner-Entscheidung: **„Spürbar härter (mehr Nervenkitzel)"** → späte mechanische Eskalation, gegen die auch passives Spiel auffliegen kann. Umgesetzt in `StoryEngineAdapter` (P2-17):
+- **Garantierte erste Gegenwehr-Welle (Phase 6):** einmaliger Aufmerksamkeits-/Risiko-Stups + News „Erste Gegenwehr formiert sich" — Früh-Druck + Lehrmoment, dass Untätigkeit nicht ewig folgenlos bleibt.
+- **Späte Eskalation (`oppositionPressure`):** mit der Phase wachsender Gegendruck nach 3,5-Jahre-Schonzeit; überwiegt spät den passiven Abbau → Dauer-Vorsicht/Leerlauf wird gefährlich. **Nur Risiko/Aufmerksamkeit, NIE die Sieg-Achse** (R2; `BalanceInvariant` grün).
+- **Balance-Sim-Beleg (36 Partien):** Das „Zeit abgelaufen"-Fizzle **entfällt komplett**; vorsichtiges/zufälliges Spiel (vorher max. Risiko ~3, nie enttarnt) **kann jetzt enttarnt werden** (max. Risiko ~85–100). Gewinn- UND verlierbar bleibt (16 Sieg / 20 Niederlage). Regressionstest `Pacing.test.ts` (3) pinnt die Eckpunkte.
+- **Gate:** `tsc 0` · `vitest 473` · `build` grün. Owner-Sichtprüfung am Deploy-Preview empfohlen (fühlt sich der Spät-Druck stimmig an?).
 
 ### 🎬 Story-Director-Spine (PR #87) — alle Schichten + Beat-Katalog (Gate je Commit: `tsc 0`·`vitest 456`·`build`)
 Bau-Plan `BAUPLAN_STORY_DIRECTOR_SPINE.md`, Baukasten `BEAT_MUSTER_KATALOG.md`.

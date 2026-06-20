@@ -1063,7 +1063,7 @@
       "label_de": "Astroturfing",
       "headline_de": "Künstliche Graswurzelbewegung gestartet",
       "label_en": "Astroturfing",
-      "narrative_de": "Eine Graswurzelbewegung simulieren. Künstlich, aber überzeugend organisch wirkend.",
+      "narrative_de": "Hunderte „normale Bürger“, die zufällig alle dasselbe fordern — keiner ist echt, jeder ist überzeugend.",
       "costs": {
         "budget": 8,
         "capacity": 2,
@@ -1118,10 +1118,10 @@
       "id": "5.6",
       "phase": "ta05",
       "disarm_ref": null,
-      "label_de": "Influencer kaufen",
+      "label_de": "Eine Reichweite mieten",
       "headline_de": "Influencer eingekauft",
       "label_en": "Buy Influencer",
-      "narrative_de": "Reichweite leihen. Ein Influencer verbreitet unsere Botschaft an sein Publikum.",
+      "narrative_de": "Eine halbe Million Follower vertrauen ihm wie einem Freund. Wir leihen uns dieses Vertrauen für eine Saison — er merkt kaum, dass er für uns sendet, sein Publikum gar nicht.",
       "costs": {
         "budget": 10,
         "capacity": 2,
@@ -1312,7 +1312,7 @@
       "label_de": "Wahlkampf unterstützen",
       "headline_de": "Wahlkampf heimlich befeuert",
       "label_en": "Support Election Campaign",
-      "narrative_de": "Kandidaten mit Geld und Ressourcen unterstützen. Einfluss durch Wahlhilfe.",
+      "narrative_de": "Geld, Plakate, Leute für die richtige Kampagne. Wir gewinnen keine Wahl — wir kaufen einem, der gewinnen könnte, den entscheidenden Vorsprung.",
       "costs": {
         "budget": 20,
         "capacity": 3,
@@ -1601,10 +1601,10 @@
     {
       "id": "7.2",
       "phase": "ta07",
-      "label_de": "Kulturkrieg befeuern",
+      "label_de": "Den Kulturkampf entfachen",
       "headline_de": "Kulturkampf angeheizt",
       "label_en": "Fuel Culture War",
-      "narrative_de": "Tradition gegen Moderne, Werte gegen Liberalismus. Kulturelle Spaltung vertiefen.",
+      "narrative_de": "Tradition gegen Fortschritt, „die Anständigen“ gegen „die da oben“ — wir müssen niemanden überzeugen, nur jeden zwingen, eine Seite zu wählen.",
       "costs": {
         "budget": 4,
         "capacity": 1,
@@ -1807,10 +1807,10 @@
     {
       "id": "8.2",
       "phase": "targeting",
-      "label_de": "Person diskreditieren",
+      "label_de": "Eine Person erledigen",
       "headline_de": "Rufmord-Kampagne gestartet",
       "label_en": "Discredit Person",
-      "narrative_de": "Rufmord. Wahre, halbwahre oder erfundene Geschichten, die den Ruf zerstören.",
+      "narrative_de": "Beweisen müssen wir nichts — nur oft genug fragen; am Ende bleibt nicht die Lüge hängen, sondern der Zweifel an der Person.",
       "costs": {
         "budget": 8,
         "capacity": 2,
@@ -1862,10 +1862,10 @@
     {
       "id": "8.4",
       "phase": "targeting",
-      "label_de": "Institution delegitimieren",
+      "label_de": "Die Instanz untergraben",
       "headline_de": "Vertrauen in Institution untergraben",
       "label_en": "Delegitimize Institution",
-      "narrative_de": "'Ausländische Agenten', 'Lügenpresse', 'Systemmedien' - Vertrauen in Institutionen untergraben.",
+      "narrative_de": "Wir müssen das Gericht, das Amt, die Redaktion nicht widerlegen — wir fragen nur laut genug, wem sie gehören. Wer einmal zweifelt, glaubt auch der nächsten Zahl nicht mehr.",
       "costs": {
         "budget": 10,
         "capacity": 2,
@@ -1975,7 +1975,7 @@
       "label_de": "Politiker kompromittieren",
       "headline_de": "Politiker im Skandal versenkt",
       "label_en": "Compromise Politician",
-      "narrative_de": "Einen Skandal inszenieren oder aufdecken. Die Karriere eines Politikers zerstören.",
+      "narrative_de": "Ein Skandal zur rechten Zeit, echt oder inszeniert. Eine Karriere, die Jahre brauchte, kippt an einem einzigen Nachmittag.",
       "costs": {
         "budget": 15,
         "capacity": 3,

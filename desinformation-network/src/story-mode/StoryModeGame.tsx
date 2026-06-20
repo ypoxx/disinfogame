@@ -923,10 +923,15 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 tags: a.tags,
                 prerequisites: a.prerequisites,
                 disarm_ref: a.disarmRef,
+                effects: a.effects,
                 isUnlocked: a.available,
                 isUsed: !a.available && a.unavailableReason === 'Already used',
               }))}
-              currentPhase={state.storyPhase.year <= 7 ? `ta0${state.storyPhase.year}` : 'targeting'}
+              // S0 (Review 2026-06-20): kein Jahres-Gate mehr — stattdessen die Aktionen der
+              // aktiven Episoden-Stränge hervorheben/zuerst zeigen (kuratieren statt Katalog, M2).
+              episodeActionIds={Array.from(
+                new Set((state.activeEpisodes ?? []).flatMap((ep) => ep.einklink_aktionen)),
+              )}
               availableResources={{
                 budget: state.resources.budget,
                 capacity: state.resources.capacity,

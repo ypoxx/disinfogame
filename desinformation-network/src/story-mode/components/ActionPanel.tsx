@@ -2,6 +2,38 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { StoryModeColors } from '../theme';
 import { Icon } from './Icon';
 import type { AdvisorRecommendation } from '../engine/AdvisorRecommendation';
+import { societyDeltaFromAction } from '../engine/SocietyDynamics';
+import { SOCIETY_VALUE_META, type SocietyValueKey } from '../../game-logic/StoryEngineAdapter';
+
+// ============================================
+// WIRKUNGS-VORSCHAU (M1 — Lesbarkeit am Entscheidungspunkt)
+// ============================================
+
+/** Label eines Gesellschaftswerts (reuse der kanonischen Meta). */
+function societyLabel(k: string): string {
+  return SOCIETY_VALUE_META[k as SocietyValueKey]?.label_de ?? k;
+}
+
+/**
+ * Schätzt die Gesellschaftswert-Wirkung EINER Aktion fürs Planen (rein, mult=1).
+ * Liefert die stärksten Verschiebungen (Betrag absteigend, max 3) — bewusst „≈",
+ * weil der echte Lauf den NPC-Assist-Multiplikator + Klemmung anwendet.
+ */
+export function previewSocietyDeltas(
+  effects: Record<string, unknown> | undefined,
+  legality: string,
+): { key: string; value: number }[] {
+  if (!effects) return [];
+  const delta = societyDeltaFromAction(effects, 1, {
+    legality,
+    impactScale: effects.impact_scale,
+  });
+  return (Object.entries(delta) as [string, number][])
+    .map(([key, value]) => ({ key, value: Math.round(value) }))
+    .filter(d => d.value !== 0)
+    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
+    .slice(0, 3);
+}
 
 // ============================================
 // TYPES
@@ -26,18 +58,22 @@ export interface StoryAction {
   prerequisites?: string[];
   unlocks?: string[];
   disarm_ref?: string;
-  effects?: {
-    trust_impact?: number;
-    reach?: number;
-    detection_risk?: number;
-  };
+  /** Roh-Effekte für die Wirkungs-Vorschau (M1). Nur Anzeige, keine Mechanik. */
+  effects?: Record<string, unknown>;
   isUnlocked: boolean;
   isUsed: boolean;
 }
 
 interface ActionPanelProps {
   actions: StoryAction[];
-  currentPhase: string;
+  /**
+   * @deprecated S0 (Review 2026-06-20): Das Terminal filtert NICHT mehr nach Spiel-Jahr
+   * (`ta0{year}`) — das versteckte die guten Aktionen jahrelang und brach die Episoden.
+   * Prop bleibt vorerst für Aufrufer-Kompatibilität, wird aber nicht zum Filtern genutzt.
+   */
+  currentPhase?: string;
+  /** Aktionen der aktiven Episoden-Stränge (M2): werden hervorgehoben + zuerst sortiert. */
+  episodeActionIds?: string[];
   availableResources: {
     budget: number;
     capacity: number;
@@ -76,11 +112,17 @@ interface ActionCardProps {
   onSelect: () => void;
   onAddToQueue?: () => void;
   isRecommended?: boolean;
+  isEpisodeRelevant?: boolean;
   isHighlighted?: boolean;
   actionRef?: React.RefObject<HTMLDivElement>;
 }
 
-function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, isHighlighted, actionRef }: ActionCardProps) {
+function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, isEpisodeRelevant, isHighlighted, actionRef }: ActionCardProps) {
+  // M1: Gesellschaftswert-Wirkung schon beim Planen (statt nur „1 NPC-Bonus").
+  const societyPreview = useMemo(
+    () => previewSocietyDeltas(action.effects, action.legality),
+    [action.effects, action.legality],
+  );
   const legalityColors = {
     legal: StoryModeColors.success,
     grey: StoryModeColors.warning,
@@ -99,11 +141,12 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
   const getBorderColor = () => {
     if (action.isUsed) return StoryModeColors.border;
     if (isRecommended) return '#FFD700'; // Gold for recommended
+    if (isEpisodeRelevant) return StoryModeColors.agencyBlue; // Aktueller Strang
     return legalityColors[action.legality];
   };
 
   const getBorderWidth = () => {
-    if (isRecommended) return '3px';
+    if (isRecommended || isEpisodeRelevant) return '3px';
     return '2px';
   };
 
@@ -152,16 +195,19 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
             {legalityLabels[action.legality]}
           </div>
         </div>
-        <div
-          className="text-xs px-2 py-0.5 border"
-          style={{
-            backgroundColor: StoryModeColors.background,
-            borderColor: StoryModeColors.borderLight,
-            color: StoryModeColors.textSecondary,
-          }}
-        >
-          ID: {action.id}
-        </div>
+        {isEpisodeRelevant && (
+          <div
+            className="text-xs px-2 py-0.5 border font-bold whitespace-nowrap"
+            style={{
+              backgroundColor: StoryModeColors.background,
+              borderColor: StoryModeColors.agencyBlue,
+              color: StoryModeColors.agencyBlue,
+            }}
+            title="Gehört zum aktuellen Episoden-Strang"
+          >
+            ● STRANG
+          </div>
+        )}
       </div>
 
       {/* Narrative */}
@@ -311,6 +357,20 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
           <div className="font-bold mb-1" style={{ color: StoryModeColors.textSecondary }}>
             AUSWIRKUNG:
           </div>
+          {/* M1: Gesellschaftswert-Verschiebung schon hier sichtbar (≈ ohne NPC-Assist). */}
+          {societyPreview.length > 0 && (
+            <div className="flex flex-wrap gap-x-3 gap-y-0.5 mb-1">
+              {societyPreview.map(({ key, value }) => (
+                <span
+                  key={key}
+                  style={{ color: value > 0 ? StoryModeColors.warning : StoryModeColors.agencyBlue }}
+                  title="Geschätzte Wirkung auf die Gesellschaft"
+                >
+                  {societyLabel(key)} {value > 0 ? `▲ ≈+${value}` : `▼ ≈${value}`}
+                </span>
+              ))}
+            </div>
+          )}
           <div className="flex flex-wrap gap-x-3 gap-y-0.5">
             {(action.costs.risk ?? 0) > 0 && (
               <span style={{ color: (action.costs.risk ?? 0) > 10 ? StoryModeColors.danger : StoryModeColors.warning }}>
@@ -406,7 +466,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
 
 export function ActionPanel({
   actions,
-  currentPhase,
+  episodeActionIds = [],
   availableResources,
   onSelectAction,
   onAddToQueue,
@@ -429,6 +489,9 @@ export function ActionPanel({
     return ids;
   }, [recommendations]);
 
+  // M2: Aktionen der aktiven Episoden-Stränge — werden hervorgehoben + zuerst gezeigt.
+  const episodeActionIdSet = useMemo(() => new Set(episodeActionIds), [episodeActionIds]);
+
   // Check if action is recommended (stable reference via Set)
   // NOTE: Do NOT use this function in useMemo deps - use recommendedActionIds instead
 
@@ -443,10 +506,11 @@ export function ActionPanel({
   }, [highlightActionId]);
 
   const filteredActions = useMemo(() => {
+    // S0 (Review 2026-06-20): KEIN Jahres-/Phasen-Gate mehr. Früher zeigte das Terminal nur
+    // `ta0{year}` → im 1. Jahr nur Analyse-Aktionen, die guten Phänomen-Aktionen erst Jahr 4–8,
+    // und Episoden-Aktionen waren im Terminal unsichtbar. Jetzt: alle (freigeschalteten)
+    // Aktionen, anlass-relevante zuerst (M2).
     let result = actions;
-
-    // Filter by phase
-    result = result.filter(a => a.phase === currentPhase || a.phase === 'any');
 
     // Filter by tab
     if (activeTab !== 'all') {
@@ -468,17 +532,14 @@ export function ActionPanel({
       );
     }
 
-    // Sort: Recommended actions first
-    result.sort((a, b) => {
-      const aRecommended = recommendedActionIds.has(a.id);
-      const bRecommended = recommendedActionIds.has(b.id);
-      if (aRecommended && !bRecommended) return -1;
-      if (!aRecommended && bRecommended) return 1;
-      return 0; // Keep original order for same category
-    });
+    // Sort (M2): aktueller Episoden-Strang zuerst, dann Berater-Empfehlung, dann Rest.
+    // Stabil per Rang, damit die Reihenfolge innerhalb einer Stufe erhalten bleibt.
+    const rank = (id: string) =>
+      episodeActionIdSet.has(id) ? 0 : recommendedActionIds.has(id) ? 1 : 2;
+    result = [...result].sort((a, b) => rank(a.id) - rank(b.id));
 
     return result;
-  }, [actions, currentPhase, activeTab, searchQuery, recommendedActionIds]);
+  }, [actions, activeTab, searchQuery, recommendedActionIds, episodeActionIdSet]);
 
   const canAffordAction = (action: StoryAction) => {
     if (action.costs.budget && action.costs.budget > availableResources.budget) {
@@ -569,6 +630,7 @@ export function ActionPanel({
                 onSelect={() => onSelectAction(action.id)}
                 onAddToQueue={onAddToQueue ? () => onAddToQueue(action.id) : undefined}
                 isRecommended={recommendedActionIds.has(action.id)}
+                isEpisodeRelevant={episodeActionIdSet.has(action.id)}
                 isHighlighted={isHighlighted}
                 actionRef={isHighlighted ? highlightedActionRef : undefined}
               />

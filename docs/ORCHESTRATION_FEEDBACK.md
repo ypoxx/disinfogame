@@ -143,3 +143,12 @@ Offen für die Roadmap (priorisiert nach Gutachten):
    Pflege. Nachgezogen (STATUS.md, dieses Doc, `DECISIONS_2026-06-20_BEATS.md`). Lehre: auch
    bei einer engen Continuation-Aufgabe STATUS am Ende aktualisieren und Owner-Entscheidungen
    ins datierte DECISIONS-Doc destillieren.
+7. **Pacing/Schwierigkeit: die Sim-VERTEILUNG ist der Beweis, nicht die Sieg-Quote.** Für
+   P2-17 („spürbar härter") war die exakte Win-Rate (verrauscht, s. STATUS-Methodik-Notiz)
+   wertlos — der überzeugende Beleg war die **Struktur** der Enden: das „Zeit abgelaufen"-
+   Fizzle verschwand komplett und vorsichtiges Spiel sprang von max. Risiko ~3 (nie enttarnt)
+   auf ~85–100 (kann auffliegen). Lehre: Difficulty-Änderungen am **Vorher/Nachher der
+   Enden-Verteilung + Max-Risiko je Strategie** messen, nicht an einer Zahl. Erst Baseline
+   loggen, dann ändern, dann gegenmessen; die neuen Garantien als Regressionstest pinnen
+   (`Pacing.test.ts`: frühe Welle deterministisch, Schonzeit risiko-arm, Spät-Eskalation in
+   die Gefahr) — und die Sieg-Achse über `BalanceInvariant` weiter sauber halten (R2).
