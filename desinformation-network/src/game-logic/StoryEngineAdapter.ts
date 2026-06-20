@@ -1866,6 +1866,48 @@ export class StoryEngineAdapter {
     // Skip first 2 phases - need history for trends
     if (phase < 3) return trendEvents;
 
+    // T2/#11: „Stille Tage" füllen — in ruhiger Frühphase (niedriges Risiko) gelegentlich
+    // ein leiser Hinweis, der die Stille bricht UND lehrt, dass Eskalation/Wagnis der Motor
+    // ist (Welt-Events feuern sonst erst ab risk≥70). Deterministisch → kein Spam.
+    if (
+      phase <= 12 &&
+      this.storyResources.risk < 40 &&
+      this.storyResources.attention < 50 &&
+      this.seededRandom(`ambient_calm_${phase}`) < 0.34
+    ) {
+      const calmLines = [
+        {
+          headline_de: 'Ruhige Lage im Land',
+          headline_en: 'A quiet spell',
+          description_de:
+            'Die Öffentlichkeit ist gelassen, die Ermittler unbeschäftigt. Wer kein Risiko geht, bleibt unsichtbar — bewegt aber auch wenig. Der große Hebel liegt im Wagnis.',
+          description_en:
+            'The public is calm, investigators idle. Playing it safe keeps you invisible — but moves little. The real leverage lies in bold action.',
+        },
+        {
+          headline_de: 'Wenig Bewegung in der Westunion',
+          headline_en: 'Little movement across Westunion',
+          description_de:
+            'Vorsichtige Operationen halten die Gegenseite fern — und die Schlagzeilen aus. Sichtbare Wirkung kostet Aufmerksamkeit und Risiko.',
+          description_en:
+            'Cautious operations keep the opposition away — and the headlines too. Visible impact costs attention and risk.',
+        },
+      ];
+      const line = calmLines[Math.abs(phase) % calmLines.length];
+      trendEvents.push({
+        id: `ambient_calm_${phase}`,
+        phase,
+        headline_de: line.headline_de,
+        headline_en: line.headline_en,
+        description_de: line.description_de,
+        description_en: line.description_en,
+        type: 'world_event',
+        severity: 'info',
+        read: false,
+        pinned: false,
+      });
+    }
+
     // ============================================================
     // RISING RISK TREND
     // ============================================================

@@ -190,7 +190,7 @@ export function NarrativeBoard({
             <span className="font-bold tracking-widest text-sm" style={{ color: StoryModeColors.document }}>
               NARRATIV-TAFEL
             </span>
-            <span className="text-[11px]" style={{ color: '#c9b48f' }}>Sendeplan des Ministeriums</span>
+            <span className="text-[11px]" style={{ color: '#c9b48f' }}>Sendeplan — Maßnahmen planen &amp; ausspielen</span>
           </div>
           <button
             onClick={onClose}

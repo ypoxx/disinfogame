@@ -190,43 +190,28 @@ function PhaseDisplay({ phase }: PhaseDisplayProps) {
   ];
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-3">
+      {/* T2/#1: Kalender (sekundär) — Jahr + Monat als EIN Kontext statt drei
+          konkurrierende Großzahlen. */}
       <div className="text-center">
-        <div className="text-xs" style={{ color: StoryModeColors.textSecondary }}>
-          JAHR
+        <div className="text-[10px]" style={{ color: StoryModeColors.textSecondary }}>
+          KALENDER
         </div>
-        <div
-          className="font-bold text-xl"
-          style={{ color: StoryModeColors.ministryRed }}
-        >
-          {phase.year}
+        <div className="font-bold text-sm" style={{ color: StoryModeColors.document }}>
+          J{phase.year} · {months[phase.month - 1] || 'JAN'}
         </div>
       </div>
       <div
         className="h-8 w-0.5"
         style={{ backgroundColor: StoryModeColors.borderLight }}
       />
+      {/* AP (primär) — die heute verfügbaren Aktionen; der eigentliche Zug-Takt. */}
       <div className="text-center">
-        <div className="text-xs" style={{ color: StoryModeColors.textSecondary }}>
-          MONAT
+        <div className="text-[10px]" style={{ color: StoryModeColors.textSecondary }}>
+          AKTIONEN HEUTE
         </div>
         <div
-          className="font-bold text-xl"
-          style={{ color: StoryModeColors.document }}
-        >
-          {months[phase.month - 1] || 'JAN'}
-        </div>
-      </div>
-      <div
-        className="h-8 w-0.5"
-        style={{ backgroundColor: StoryModeColors.borderLight }}
-      />
-      <div className="text-center">
-        <div className="text-xs" style={{ color: StoryModeColors.textSecondary }}>
-          AP
-        </div>
-        <div
-          className="font-bold text-xl"
+          className="font-bold text-2xl"
           style={{ color: StoryModeColors.warning }}
         >
           {phase.actionPoints}/{phase.maxActionPoints}

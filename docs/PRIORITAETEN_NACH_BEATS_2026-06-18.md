@@ -133,9 +133,19 @@ Umgesetzt (billige, risikoarme Gewinne):
 Kontrolle: tsc/391 Tests/Build grün · Live-Durchlauf (#7/#26 visuell bestätigt) ·
 unabhängiger Code-Review → keine Befunde.
 
-**Als Entscheidung offen (kein eigenmächtiger Umbau der Kern-IA):**
-- **#6 (tief)** Zwei Aktionsflächen (Terminal + Narrativ-Tafel) — zusammenlegen, oder
-  eine klar als Primär-Fläche für Einsteiger? (Tag-1 verweist jetzt schon auf EINE: das Terminal.)
-- **#20** Auftragswahl-Timing (jetzt direkt nach dem Intro) — erst nach einer ersten Aktion?
-- **#1** 4-schichtiges Zeitmodell (Uhr/AP/Monat/Jahr) — vereinfachen/Ebenen verbergen?
-- **#11** „stille Tage": Events/Episoden/Musik stärker an Risiko-Schwellen koppeln (Pacing).
+**Weitere Empfehlungen umgesetzt** (Owner: „alle deine Empfehlungen", 2026-06-18):
+- **#6 Klarstellung:** Rollenlabels — ActionPanel „AKTIONEN · SCHNELLZUGRIFF"
+  (einzeln ausführen/anheften), Narrativ-Tafel „Sendeplan — planen & ausspielen".
+  Die zwei Flächen sind jetzt als Paar lesbar (nicht zusammengelegt).
+- **#11 Pacing:** Frühphasen-Nudge — in ruhiger Lage (risk<40, Phase ≤12)
+  gelegentlich ein leiser Welt-Hinweis, der die Stille bricht UND lehrt, dass
+  Eskalation/Wagnis der Motor ist. (Musik koppelt schon an Risiko — kein Eingriff nötig.)
+- **#1 Zeitmodell entschärft:** HUD-Hierarchie (AP „AKTIONEN HEUTE" primär groß,
+  Jahr+Monat als kleiner „KALENDER"-Cluster) + kanonische `TIME_MODEL.md`.
+- **#20** Auftragswahl-Timing: **bewusst unverändert** (per Empfehlung — Verschiebung
+  wäre ein größerer Flow-Umbau mit unklarem Gewinn).
+
+Kontrolle: tsc/391 Tests/Build grün · Live-Durchlauf (#6-Header + „+ ANHEFTEN" belegt).
+
+**Echte Tiefen-Entscheidung weiterhin offen (Kern-IA, nicht eigenmächtig):**
+#6-tief (Flächen *zusammenlegen*?) · #1-tief (Zeit-Ebenen *entfernen*?).
