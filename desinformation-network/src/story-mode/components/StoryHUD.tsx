@@ -53,12 +53,22 @@ export interface SocietyInfo {
   auftragTitel?: string;
 }
 
+/** Etappe 3 Paket A: Stufen-Marken + bereits gezündete Stufen (`engine.getAbwehrStageInfo()`). */
+export interface AbwehrStageInfo {
+  stages: readonly number[];
+  fired: number[];
+}
+
 interface StoryHUDProps {
   resources: StoryResources;
   phase: StoryPhaseInfo;
   objectives: ObjectiveInfo[];
   /** B2/P1: mehrdimensionaler Gesellschafts-Zustand (4 sichtbar). */
   society?: SocietyInfo;
+  /** Etappe 3 Paket D: der zweite Rennläufer — ABWEHR 0–100 (befördertes wehrhaftigkeit). */
+  abwehr?: number;
+  /** Stufen-Marken 25/50/75 + bereits gezündete Stufen fürs Balken-Overlay. */
+  abwehrStageInfo?: AbwehrStageInfo;
   onEndPhase?: () => void;
   onOpenMenu?: () => void;
   onOpenObjectives?: () => void;
@@ -172,6 +182,82 @@ function ResourceBar({
             />
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// ABWEHR BAR (Etappe 3 Paket D — der zweite Rennläufer)
+// ============================================
+
+interface AbwehrBarProps {
+  value: number;
+  stageInfo: AbwehrStageInfo;
+}
+
+/**
+ * Der Gegner-Balken: ABWEHR 0–100 mit Stufen-Kerben bei 25/50/75 (gezündet = hell).
+ * Nüchtern-bedrohlich statt spielerisch: Rot/Orange, kein Grün — das ist der Läufer,
+ * der uns einholt, nicht unser eigener Fortschritt (Zielbild §3 Läufer 2).
+ */
+function AbwehrBar({ value, stageInfo }: AbwehrBarProps) {
+  const pct = Math.max(0, Math.min(100, value));
+  // Kritisch = auf/über der höchsten Stufe (Task-Force-Niveau) → dezenter Puls.
+  const topStage = stageInfo.stages[stageInfo.stages.length - 1];
+  const isCritical = topStage !== undefined && pct >= topStage;
+  const pulseStyle: React.CSSProperties = isCritical
+    ? { animation: 'hud-risk-pulse 1.2s ease-in-out infinite' }
+    : {};
+
+  return (
+    <div className="flex items-center gap-2" data-testid="abwehr-bar">
+      <Icon name="risk" size={20} title="ABWEHR — die Gegenseite holt auf" fallback="A" />
+      <div className="flex-1" style={pulseStyle}>
+        <div className="flex justify-between mb-0.5" style={{ fontSize: '0.8rem' }}>
+          <span
+            style={{
+              color: StoryModeColors.textSecondary,
+              fontWeight: 700,
+              letterSpacing: '0.05em',
+            }}
+          >
+            ABWEHR
+          </span>
+          <span style={{ color: StoryModeColors.danger, fontWeight: 800, fontSize: '0.85rem' }}>
+            {Math.round(pct)}
+          </span>
+        </div>
+        <div className="relative" style={{ height: '4px' }}>
+          <div
+            className="rounded-sm overflow-hidden h-full"
+            style={{ backgroundColor: StoryModeColors.border }}
+          >
+            <div
+              className="h-full transition-all duration-300"
+              style={{ width: `${pct}%`, backgroundColor: StoryModeColors.danger }}
+            />
+          </div>
+          {/* Stufen-Marken: kleine Kerben im Balken, gezündete Stufen hell hervorgehoben. */}
+          {stageInfo.stages.map((stage) => {
+            const fired = stageInfo.fired.includes(stage);
+            return (
+              <div
+                key={stage}
+                data-testid={`abwehr-stage-mark-${stage}`}
+                title={`Stufe ${stage}${fired ? ' — gezündet' : ''}`}
+                className="absolute"
+                style={{
+                  left: `${stage}%`,
+                  top: '-1px',
+                  bottom: '-1px',
+                  width: '2px',
+                  backgroundColor: fired ? StoryModeColors.textPrimary : 'rgba(0,0,0,0.55)',
+                }}
+              />
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -358,6 +444,8 @@ export function StoryHUD({
   phase,
   objectives,
   society,
+  abwehr,
+  abwehrStageInfo,
   onEndPhase,
   onOpenMenu,
   onOpenObjectives,
@@ -431,6 +519,13 @@ export function StoryHUD({
               dangerThreshold={75}
               priority="secondary"
             />
+            {/* Trennlinie: eigene Ressourcen vs. der zweite Läufer (Zielbild §3). */}
+            {abwehr !== undefined && abwehrStageInfo && (
+              <>
+                <div className="h-8 w-0.5" style={{ backgroundColor: StoryModeColors.borderLight }} />
+                <AbwehrBar value={abwehr} stageInfo={abwehrStageInfo} />
+              </>
+            )}
           </div>
 
           {/* Right: Actions — kein View-Umschalter mehr (§4.4, Strang 2/2c) */}
