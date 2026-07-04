@@ -4515,6 +4515,11 @@ export class StoryEngineAdapter {
   resolveStageCountermeasure(choice: StageCountermeasureChoice): StageCountermeasureResolution | null {
     const stage = this.pendingAbwehrStages.shift();
     if (!stage) return null;
+    // Härtung (Review-Befund): kontern setzt Budget voraus — die UI graut die Option
+    // zwar aus, aber ein künftiger zweiter Aufrufer darf die Kasse nicht negativ ziehen.
+    if (choice === 'kontern' && this.storyResources.budget < this.COUNTER_COST_BUDGET) {
+      choice = 'aussitzen';
+    }
     const cmId = this.STAGE_COUNTERMEASURES[stage];
     // Im CountermeasureSystem registrieren (Save/Bilanz) — Definition für die Texte.
     const definition = this.countermeasureSystem.triggerById(cmId, this.storyPhase.number)
