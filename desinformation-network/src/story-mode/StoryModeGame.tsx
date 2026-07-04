@@ -776,6 +776,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           zynismus: state.resources.zynismus,
           auftragTitel: state.engine.getAuftrag().titel_de,
         }}
+        abwehr={state.engine.getAbwehr()}
+        abwehrStageInfo={state.engine.getAbwehrStageInfo()}
         onEndPhase={requestEndDay}
         onOpenMenu={pauseGame}
         onHideHud={() => setHudVisible(false)}
@@ -1036,6 +1038,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 risk: state.resources.risk,
                 carriersBurned: state.getOperationsSummary().carriersBurned,
                 phase: state.storyPhase.number,
+                // Etappe 3 Paket D: höchste bereits gezündete Abwehr-Stufe benennt die Gegenseite.
+                abwehrStage: state.engine.getAbwehrStageInfo().fired.slice(-1)[0] ?? 0,
               }),
               portraitId: 'portrait_factcheckerin',
             }}
@@ -1202,6 +1206,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               attention: state.resources.attention,
             }}
             trustProgress={trustProgress}
+            nightReport={state.engine.getNightReport()}
             onNextDay={() => {
               endPhase();
               useDayClockStore.getState().resetDay();

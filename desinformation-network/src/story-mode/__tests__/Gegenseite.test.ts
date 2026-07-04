@@ -29,4 +29,24 @@ describe('Gegenseite', () => {
     const f2 = deriveGegenseite({ attention: 50, risk: 50, carriersBurned: 0, phase: 2 }).format_de;
     expect(new Set([f0, f1, f2]).size).toBe(3);
   });
+
+  // Etappe 3 Paket D: die aktive ABWEHR-Stufe bekommt eine Attributions-Zeile.
+  it('zeigt keine Stufen-Attribution ohne abwehrStage (Rückwärts-Kompatibilität)', () => {
+    const noStage = deriveGegenseite({ attention: 50, risk: 50, carriersBurned: 0, phase: 0 });
+    expect(noStage.lines.join(' ')).not.toMatch(/Abwehr 25|Stufe 50|Stufe 75/);
+
+    const stageZero = deriveGegenseite({ attention: 50, risk: 50, carriersBurned: 0, phase: 0, abwehrStage: 0 });
+    expect(stageZero.lines.join(' ')).not.toMatch(/Abwehr 25|Stufe 50|Stufe 75/);
+  });
+
+  it('Stufen-Attribution erscheint ab der jeweiligen Stufe (25/50/75)', () => {
+    const s25 = deriveGegenseite({ attention: 50, risk: 50, carriersBurned: 0, phase: 0, abwehrStage: 25 });
+    expect(s25.lines.join(' ')).toMatch(/Behörden hinsehen \[Abwehr 25\]/);
+
+    const s50 = deriveGegenseite({ attention: 50, risk: 50, carriersBurned: 0, phase: 0, abwehrStage: 50 });
+    expect(s50.lines.join(' ')).toMatch(/koordiniert \[Stufe 50\]/);
+
+    const s75 = deriveGegenseite({ attention: 50, risk: 50, carriersBurned: 0, phase: 0, abwehrStage: 75 });
+    expect(s75.lines.join(' ')).toMatch(/Task-Force-Niveau \[Stufe 75\]/);
+  });
 });
