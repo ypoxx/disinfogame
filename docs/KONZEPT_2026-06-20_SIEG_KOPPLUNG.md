@@ -1,6 +1,9 @@
 # 🎯 Konzept zur Owner-Entscheidung: „Wofür gewinnt man eigentlich?" (R2 / Sieg-Kopplung)
 
-**Version 2** · 2026-07-02 (Erstfassung 2026-06-20) · **Branch:** `claude/gracious-keller-g43bu3` · **Status:** Entscheidungsvorlage (kein Code)
+**Version 2** · 2026-07-02 (Erstfassung 2026-06-20) · **Branch:** `claude/gracious-keller-g43bu3` ·
+**Status:** ✅ **BEANTWORTET** durch `DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md` (E1–E20);
+Nachfolger/Zielbild: `ZIELBILD_2026-07-04_WETTRENNEN.md`. Der **Anhang (8 Nebenbefunde)
+bleibt aktiv reparaturwürdig** und ist Teil von Etappe 0.
 **Für:** Owner (mündliche Transkript-Antwort erwünscht — Fragen sind nummeriert: F1, F2 …)
 
 > **Was ist Version 2?** Vor deiner Antwort habe ich das gesamte Konzept einer unabhängigen

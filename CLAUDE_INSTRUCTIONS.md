@@ -4,7 +4,9 @@
 **Letzte Aktualisierung:** 2026-06-01 *(zuvor 2026-05-31)*
 
 > **Stand 2026-05-31:** Projekt ist **Story-only** (Pro Mode archiviert unter `archive/pro-mode/`).
-> **Aktuelle Richtung & Roadmap:** `ROADMAP.md` + `docs/BUILDING_AND_ASSETS.md` — Ziel: **TVTower-Gebäude** + Grafik-Pipeline.
+> **Aktuelle Richtung (2026-07-04):** `docs/DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md` (bindend) +
+> `docs/ZIELBILD_2026-07-04_WETTRENNEN.md` (kanonisches Zielbild: Wettrennen gegen das Immunsystem) +
+> `docs/STATUS.md` (Bau-Stand). *(Historisch: `ROADMAP.md` + `docs/BUILDING_AND_ASSETS.md` — TVTower/Grafik-Pipeline.)*
 > Verbindliche Wahrheit: `docs/VISION_LOCK.md`. Diese Datei bleibt nützlich für **Story-Inhalt** (Lore, Datendateien, Konventionen); einzelne Pfade unten sind historisch.
 
 ---

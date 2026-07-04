@@ -1,5 +1,10 @@
 # 🗺️ Gesamtplan — Operation Westunion (Stand 2026-06-20)
 
+> ⚠️ **SUPERSEDED (2026-07-04):** Dieser Plan führt „R2: Sieg-Achse tabu" als geltende
+> Leitplanke — sie ist gefallen (`DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md`). Der neue
+> Fahrplan (Etappen 0–5) steht in `ZIELBILD_2026-07-04_WETTRENNEN.md` §13; Einzelposten
+> dieses Plans bleiben als Arbeitsvorrat nutzbar, soweit sie dem Zielbild nicht widersprechen.
+
 **Zweck:** EIN konsolidierter, aktueller Voll-Plan. Gleicht `TODO_2026-06-15_CENTRAL.md`
 (Stand vor #84–#87) gegen den realen Code auf `main` + die getroffenen Owner-Entscheidungen
 ab und schneidet daraus eine priorisierte Roadmap. **Lese-Reihenfolge:** `SOUL.md` (Vision +

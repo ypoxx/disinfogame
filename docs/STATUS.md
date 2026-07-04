@@ -4,9 +4,22 @@
 offen/zurückgestellt ist, und die priorisierte TODO-Liste. Ersetzt nicht die Detailpläne,
 sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 
-> Lese-Reihenfolge: `SOUL.md` → `DECISIONS_2026-06-13B_TRANSCRIPT.md` →
-> `STRANG34_FEINPLAN_2026-06-13_AKTIONEN_DIALOGE.md` → `GESAMTKONZEPT_VISUELL.md` →
-> dieses Dokument für den aktuellen Bau-Stand. Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
+> Lese-Reihenfolge: `SOUL.md` → **`DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md`** (bindend) →
+> **`ZIELBILD_2026-07-04_WETTRENNEN.md`** (kanonisches Zielbild + Etappenplan) →
+> `GESAMTKONZEPT_VISUELL.md` → dieses Dokument für den aktuellen Bau-Stand.
+> Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
+
+**Stand:** 2026-07-04 (RICHTUNGSWECHSEL) · **Owner-Transkript F1–F25 beantwortet** → bindende
+Entscheidungen E1–E20 (`DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md`), ausgearbeitet per Design-Panel
+(5 Entwürfe + 3 Juroren + 2 Sweeps) zum kanonischen **`ZIELBILD_2026-07-04_WETTRENNEN.md`**:
+> - **Sieg = EIN Weg:** Auftrag „Die Wahl" — Sonntagsfrage über die Schwelle bringen, bevor die
+>   ABWEHR (Immunsystem, befördertes `wehrhaftigkeit`) 100 erreicht oder der Wahltag (~Tag 40) kommt.
+>   **R2 ist gefallen** (Beats/Episoden koppeln an den Sieg); `obj_destabilize`-Sieg + Halte-Logik entfallen.
+> - **Drei Verlustwege:** Land hält stand · Wahlabend verloren (Pleite = Vorstufe) · Enttarnt.
+>   Verrat = +15-Abwehr-Ereignis statt eigener Game-Over.
+> - **Nächster Schritt = Etappe 0 „Leitplanke":** hartes Gewinnbar/Verlierbar-Sim-Gate + die 8
+>   Nebenbefunde fixen (KONZEPT-Anhang), DANN erst umverdrahten (Etappen 1–5, Zielbild §13).
+> - SOUL.md revidiert (P3 Uhr, P5 Lernmomente, P11/P12 neu); alte R2-Dokumente mit Superseded-Kopf.
 
 **Stand:** 2026-06-20 (Kuratieren-Paket) · **S0 + alle 3 Auftrags-Scheiben gebaut** (Branch `claude/gracious-keller-g43bu3`, PR #89). Owner-Go: kuratieren + Jahres-Gate kappen + alle Scheiben parallel auf ein Qualitätsniveau. Maßstab: **`QUALITAETSMERKMALE.md`** (8 Merkmale M1–M8 = Abnahme-Gate).
 > - **S0 (Fundament, balance-neutral):** Terminal-Jahres-Gate gekappt (kein `ta0{year}`-Filter mehr); Episoden-Strang-Aktionen hervorgehoben (`● STRANG`) + zuerst sortiert (M2); Gesellschaftswert-Wirkung als Vorschau auf der Planungskarte (M1, `previewSocietyDeltas`); interne Aktions-ID von der Karte entfernt (M4). Test `ActionImpactPreview` (+4).
