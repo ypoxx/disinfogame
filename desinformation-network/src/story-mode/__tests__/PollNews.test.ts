@@ -39,7 +39,8 @@ describe('Umfrage-Emission (Engine)', () => {
   it('emittiert periodisch eine Umfrage-News, die den Zustand spiegelt', () => {
     const e = createStoryEngine('poll_emit');
     e.setAuftrag('keil');
-    for (let i = 0; i < 3; i++) { try { e.executeAction('11.14'); } catch { /* egal */ } e.advancePhase(); }
+    // Etappe 2: die „Sonntagsfrage" erscheint alle 5 Tage → 5 Phasen vorrücken.
+    for (let i = 0; i < 5; i++) { try { e.executeAction('11.14'); } catch { /* egal */ } e.advancePhase(); }
     const polls = e.getNewsEvents().filter(n => n.id.startsWith('poll_'));
     expect(polls.length).toBeGreaterThanOrEqual(1);
     // keil → erstes Instrument = Stimmungsbarometer (Polarisierung).
@@ -48,7 +49,7 @@ describe('Umfrage-Emission (Engine)', () => {
 
   it('Umfrage-Zustand übersteht save/load; alte Saves → Default', () => {
     const e = createStoryEngine('poll_save');
-    for (let i = 0; i < 3; i++) e.advancePhase();
+    for (let i = 0; i < 5; i++) e.advancePhase();
     const saved = e.saveState();
     const parsed = JSON.parse(saved);
     expect(parsed.pollIndex).toBeGreaterThanOrEqual(1);

@@ -297,13 +297,11 @@ export function generateCommentParagraphs(params: {
   const endContext = endContextMap[endType];
   if (endContext) paragraphs.push(endContext);
 
-  // Amtszeit-Länge
-  const years = Math.floor(phasesPlayed / 12);
-  const months = phasesPlayed % 12;
-  if (years >= 8) {
+  // Kampagnen-Länge (Etappe 2: Tage statt Jahre — die Wahlkampagne läuft ~40 Tage).
+  if (phasesPlayed >= 30) {
     paragraphs.push(
-      `Die Amtszeit von ${years} Jahren und ${months} Monaten entspricht einer Langzeitoperation. ` +
-      'Ausdauer erhöht die kumulative Wirkung, steigert aber auch das Entdeckungsrisiko exponentiell.'
+      `Die Operation lief ${phasesPlayed} Tage bis zum Wahltag. ` +
+      'Jeder zusätzliche Tag erhöht die kumulative Wirkung, steigert aber auch das Entdeckungsrisiko.'
     );
   }
 
@@ -843,8 +841,6 @@ export function EndReport({
   // P1-10: die TATSÄCHLICH erreichte Stil-Kategorie (aus dem EndingSystem, via endingStyle)
   // markieren — nicht die grobe 4-Typ-Näherung. Fallback auf die Typ-Zuordnung.
   const reachedCategory = (endingStyle?.category as EndingCategory | undefined) ?? endTypeToCategory(endType);
-  const years = Math.floor(phasesPlayed / 12);
-  const months = phasesPlayed % 12;
 
   const finalTrustPct =
     trustHistory.length > 0
@@ -921,11 +917,9 @@ export function EndReport({
               color: StoryModeColors.textSecondary,
             }}
           >
-            Amtszeit:{' '}
+            Kampagne:{' '}
             <span style={{ color: StoryModeColors.textPrimary }}>
-              {years > 0 ? `${years} Jahr${years !== 1 ? 'e' : ''}` : ''}
-              {months > 0 ? ` ${months} Monat${months !== 1 ? 'e' : ''}` : ''}
-              {years === 0 && months === 0 ? '< 1 Monat' : ''}
+              {`${phasesPlayed} ${phasesPlayed === 1 ? 'Tag' : 'Tage'} bis zum Wahltag`}
             </span>
             {' · '}
             Aktionen gesamt:{' '}

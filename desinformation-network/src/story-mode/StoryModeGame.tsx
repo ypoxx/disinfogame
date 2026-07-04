@@ -753,6 +753,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           current: state.storyPhase.number,
           year: state.storyPhase.year,
           month: state.storyPhase.month,
+          electionDay: state.storyPhase.electionDay,
           actionPoints: state.resources.actionPointsRemaining,
           maxActionPoints: state.resources.actionPointsMax,
         }}

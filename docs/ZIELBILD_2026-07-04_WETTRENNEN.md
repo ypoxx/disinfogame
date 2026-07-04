@@ -325,8 +325,26 @@ Verstärker, Kompromat). Pleite ist kein eigener Game-Over, sondern die Würgesc
     der `AuftragSelect`-UI (ein Auftrag ganz ohne Auswahl) sind UI/Content und wandern zu Etappe 5; die
     `WIN_THRESHOLD`-Verschärfung auf 1.0 folgt mit der Aktions-Kuratierung. keil/zweifel bleiben als
     Daten selektierbar, aber auf `wahl` kalibriert.
-- **Etappe 2 — „Die Uhr":** `CAMPAIGN_DAYS`, Wahltag, Kalender-Kollaps, Episoden/Beats auf Tage getaktet
-  (Content-Kompression ist ehrliche Redaktionsarbeit), Verschiebe-Mechaniken.
+- **Etappe 2 — „Die Uhr": ✅ ERLEDIGT (2026-07-04).** Das 120-Phasen-Kalendermodell (12 Monate ×
+  10 Jahre) ist ersetzt durch die **40-Tage-Wahlkampagne**: 1 Tag = 1 Phase, Ziellinie = `electionDay`
+  (Default 40, `CAMPAIGN_DAYS_DEFAULT`). `StoryPhase.year/month/isNewYear` sind deprecated (konstant),
+  neu ist `electionDay` + Countdown-Labels („Tag 12 — Wahl in 28 Tagen"). Timeout-Ende umbenannt zu
+  **„Wahlabend verloren"** (am Auftrag gescheitert). Pacing/Poll/Cooldown auf Tagesskala umgerechnet
+  (Grace 42→12, Welle Tag 6→4, Poll alle 3→5 Tage = „Sonntagsfrage", Cooldown 12→6). HUD/MissionPanel/
+  StatsPanel/Lagebild/EndReport/GameEndScreen zeigen jetzt Tag+Countdown statt Jahr/Monat. `shiftElectionDay`-
+  API für Verschiebe-Mechaniken bereit. **Save-Format 1.1.0→2.0.0** (bewusster Semantik-Bruch).
+  - **Isolation (2. Teil, erledigt):** `createStoryEngine()` setzt jetzt ALLE Gameplay-Singletons zurück
+    → der in Etappe 0 gefundene State-Leak zwischen Partien ist geschlossen (Neustart im Spiel UND
+    Sim-Läufe sind sauber isoliert). Sim-Verteilung ist dadurch deterministisch/stabil.
+  - ⚠️ **BALANCE INVERTIERT (Tuning-Ziel Etappe 3):** In der kurzen Kampagne fliegt aggressives Spiel an
+    der eigenen Risiko-Rate auf (greedy 0 %), geduldiges gewinnt (low_risk 100 %) — Umkehrung ggü.
+    Etappe 1. Das Gate (gewinnbar UND verlierbar) hält robust; die Pro-Strategie-Balance wird bewusst
+    ERST mit dem ImmuneSystem (Etappe 3) getunt, das Risiko/Ertrag neu formt — jetzt zu überdrehen wäre
+    Wegwerf-Arbeit. Verschiebe-Mechaniken (`shiftElectionDay`) haben API, aber noch keinen Event-Trigger
+    → Etappe 3/5.
+  - **Carry-forward:** Episoden/Beats sind noch NICHT auf die 40-Tage-Taktung neu kuratiert (sie feuern
+    weiter über ihre Society-Gates) — Content-Arbeit für Etappe 5; die EndReport-Charts mit Jahres-Achse
+    zeigen bei 40 Tagen degeneriert „Jahr 1" (Report-Politur Etappe 5).
 - **Etappe 3 — „Immunsystem sichtbar":** `ImmuneSystem`-Modul, ABWEHR-Balken (wehrhaftigkeit befördert),
   CountermeasureSystem/Sperren/reach_reduction/Verrats-Folgen eingesteckt, Nacht-Transparenz im
   Tagesfazit.

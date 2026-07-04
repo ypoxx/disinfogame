@@ -21,6 +21,21 @@ Entscheidungen E1–E20 (`DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md`), ausgearbeit
 >   Nebenbefunde fixen (KONZEPT-Anhang), DANN erst umverdrahten (Etappen 1–5, Zielbild §13).
 > - SOUL.md revidiert (P3 Uhr, P5 Lernmomente, P11/P12 neu); alte R2-Dokumente mit Superseded-Kopf.
 
+**Stand:** 2026-07-04 (ETAPPE 2 „Die Uhr" ✅) · Branch `claude/gracious-keller-g43bu3`, PR #89 · Gate grün (`tsc 0` · `vitest 482` · `build`).
+> - **Kampagnen-Uhr:** 120-Phasen-Kalender (12 Monate × 10 Jahre) → **40-Tage-Wahlkampagne** (1 Tag =
+>   1 Phase, `electionDay`, `CAMPAIGN_DAYS_DEFAULT=40`). `StoryPhase.year/month` deprecated (konstant),
+>   neu `electionDay` + Countdown-Labels. Timeout-Ende → **„Wahlabend verloren"**. Pacing/Poll/Cooldown
+>   auf Tage umgerechnet (Grace 42→12, Welle 6→4, Poll 3→5 = Sonntagsfrage, Cooldown 12→6). Alle
+>   HUD/Report-Komponenten zeigen Tag+Countdown. `shiftElectionDay`-API bereit. Save 1.1.0→**2.0.0**.
+> - **Isolation geschlossen:** `createStoryEngine()` resettet jetzt alle Gameplay-Singletons → der
+>   Etappe-0-State-Leak zwischen Partien (Spiel-Neustart + Sim-Läufe) ist behoben; Sim jetzt stabil.
+> - **Selbst-Review-Fixes:** Doppel-Sound bei Krisen-Auflösung entfernt; EndReport/GameEndScreen von
+>   Jahre/Monate auf Kampagnen-Tage umgestellt. Tests geflippt (Pacing, PollNews, StoryEngineAdapter,
+>   EndReport, DecisionBeatFlow — letzterer: Krisen-Mock NACH startGame wegen neuem Reset).
+> - ⚠️ **Balance invertiert (Tuning-Ziel Etappe 3):** greedy 0 % / low_risk 100 % in der kurzen
+>   Kampagne; Gate (gewinnbar UND verlierbar, 23/13) hält robust. Bewusst NICHT jetzt getunt — das
+>   ImmuneSystem (Etappe 3) formt Risiko/Ertrag neu. Nächster Schritt: **Etappe 3 „Immunsystem sichtbar"**.
+
 **Stand:** 2026-07-04 (ETAPPE 1 „Auftrag = Sieg" ✅) · Branch `claude/gracious-keller-g43bu3`, PR #89 · Gate grün (`tsc 0` · `vitest 482` · `build`).
 > - **Sieg = Auftrag:** neues Modul `story-mode/engine/VictorySystem.ts` (reine Ausgangs-Entscheidung).
 >   Sieg = Signatur „Die Wahl" erfüllt (Min-Regel, `auftragProgress(…,'min')`) — nicht mehr gehaltenes

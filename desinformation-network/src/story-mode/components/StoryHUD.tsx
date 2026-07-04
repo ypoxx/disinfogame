@@ -23,8 +23,10 @@ export interface StoryResources {
 
 export interface StoryPhaseInfo {
   current: number;
-  year: number;
-  month: number;
+  year: number;    // DEPRECATED (Etappe 2: Kampagnen-Uhr) — konstant 1
+  month: number;   // DEPRECATED — konstant 1
+  /** Wahltag (Ziellinie); Etappe 2 „Die Uhr". */
+  electionDay?: number;
   actionPoints: number;
   maxActionPoints: number;
 }
@@ -184,21 +186,18 @@ interface PhaseDisplayProps {
 }
 
 function PhaseDisplay({ phase }: PhaseDisplayProps) {
-  const months = [
-    'JAN', 'FEB', 'MÄR', 'APR', 'MAI', 'JUN',
-    'JUL', 'AUG', 'SEP', 'OKT', 'NOV', 'DEZ'
-  ];
+  // Etappe 2 „Die Uhr": Kampagnen-Countdown statt Jahr/Monat-Kalender.
+  const daysLeft = Math.max(0, (phase.electionDay ?? 40) - phase.current);
 
   return (
     <div className="flex items-center gap-3">
-      {/* T2/#1: Kalender (sekundär) — Jahr + Monat als EIN Kontext statt drei
-          konkurrierende Großzahlen. */}
+      {/* Kampagnen-Uhr (sekundär): Tag X + Countdown zum Wahltag als EIN Kontext. */}
       <div className="text-center">
         <div className="text-[10px]" style={{ color: StoryModeColors.textSecondary }}>
-          KALENDER
+          TAG {phase.current}
         </div>
         <div className="font-bold text-sm" style={{ color: StoryModeColors.document }}>
-          J{phase.year} · {months[phase.month - 1] || 'JAN'}
+          {daysLeft === 0 ? 'WAHLTAG' : `WAHL IN ${daysLeft} T.`}
         </div>
       </div>
       <div

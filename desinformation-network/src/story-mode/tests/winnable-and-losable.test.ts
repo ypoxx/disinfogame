@@ -20,10 +20,13 @@
  * Singleton-Graph lässt sich nicht vollständig isolieren, daher driftet die Feinverteilung
  * je nach Test-Reihenfolge um ±1–2 — die Floors haben bewusst Luft dazu.
  *
- * Ist-Verteilung nach Etappe 1 (2026-07-04, Auftrag = Sieg „Die Wahl", 36 Partien):
- * ~6–7 Siege / ~30 Niederlagen; greedy ~50 % (in Zielbild-Band 30–60 %), random 0 %,
- * low_risk 0 % (beide treiben die aggressive Signatur nicht → verlieren stets); einzige
- * Niederlage-Ursache noch „Exposed" (die anderen Verlustwege kommen mit Etappe 2/3).
+ * Ist-Verteilung nach Etappe 2 (2026-07-04, 40-Tage-Wahlkampagne, 36 Partien):
+ * ~22 Siege / ~14 Niederlagen. ⚠️ Die Pro-Strategie-Balance ist INVERTIERT ggü. Etappe 1:
+ * in der kurzen Kampagne fliegt aggressives Spiel (greedy) an der eigenen Reckless-Rate auf
+ * (0 %, finalRisk ~96), während geduldiges Spiel (low_risk) die Signatur passiv über die
+ * Drift-Kopplung erreicht (100 %, finalRisk ~15). Das ist bekannt und ein TUNING-Ziel für
+ * Etappe 3 (ImmuneSystem formt Risiko/Ertrag neu) — NICHT hier zu überdrehen. Das Gate prüft
+ * weiter nur die Invariante (gewinnbar UND verlierbar), die robust hält.
  *
  * Lauf: npx vitest run src/story-mode/tests/winnable-and-losable.test.ts
  */

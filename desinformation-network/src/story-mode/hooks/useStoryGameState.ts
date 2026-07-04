@@ -1530,9 +1530,8 @@ export function useStoryGameState(seed?: string) {
     if (resolution) {
       storyLogger.log(`[CRISIS] Resolved: ${activeCrisis.crisis.name_en} with choice ${choiceId}`);
 
-      // Clear the active crisis
+      // Clear the active crisis (Sound spielt bereits engine.resolveCrisis — kein Doppel-Sound)
       setActiveCrisis(null);
-      playSound('success');
 
       // Refresh game state (Ressourcen/Objectives nach angewandten Effekten)
       setResources(engine.getResources());

@@ -18,16 +18,19 @@ describe('Decision-Beat-Flow (Integration über den echten Hook)', () => {
 
   it('endPhase kürt einen Entscheidungs-Beat und öffnet die Präsentation (pendingDecisionBeatId)', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0); // schwerster Pool-Beat = Entscheidung (Gewicht 8)
-    // Deterministisch: eine (Date.now-geseedete) Krise hätte Vorfahrt und würde den
-    // Entscheidungs-Beat verdrängen. Krisen-Singleton (dieselbe Instanz wie im Hook)
-    // neutralisieren → der erste endPhase kürt garantiert den Entscheidungs-Beat.
-    const crisis = getCrisisMomentSystem();
-    vi.spyOn(crisis, 'getMostUrgentCrisis').mockReturnValue(null);
-    vi.spyOn(crisis, 'checkForCrises').mockReturnValue([]);
 
     const { result } = renderHook(() => useStoryGameState());
     act(() => { result.current.startGame(); });
     act(() => { result.current.chooseAuftrag('keil'); });
+
+    // Deterministisch: eine (Date.now-geseedete) Krise hätte Vorfahrt und würde den
+    // Entscheidungs-Beat verdrängen. Krisen-Singleton neutralisieren → der erste endPhase kürt
+    // garantiert den Entscheidungs-Beat. WICHTIG: NACH startGame mocken — `createStoryEngine`
+    // setzt seit Etappe 2 alle Gameplay-Singletons zurück (Isolation), ein früherer Spy wäre weg.
+    const crisis = getCrisisMomentSystem();
+    vi.spyOn(crisis, 'getMostUrgentCrisis').mockReturnValue(null);
+    vi.spyOn(crisis, 'checkForCrises').mockReturnValue([]);
+
     act(() => { result.current.endPhase(); });
 
     const pending = useDirectorStore.getState().pendingDecisionBeatId;

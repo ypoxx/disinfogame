@@ -16,12 +16,14 @@ import type {
 import {
   ActionLoader,
   getActionLoader,
+  resetActionLoader,
   type LoadedAction,
 } from '../story-mode/engine/ActionLoader';
 
 import {
   ConsequenceSystem,
   getConsequenceSystem,
+  resetConsequenceSystem,
   type ActiveConsequence as EngineActiveConsequence,
   type ConsequenceEffects,
 } from '../story-mode/engine/ConsequenceSystem';
@@ -53,6 +55,7 @@ import {
 import {
   StoryComboSystem,
   getStoryComboSystem,
+  resetStoryComboSystem,
   type StoryComboProgress,
   type StoryComboActivation,
   type ComboHint,
@@ -61,6 +64,7 @@ import {
 import {
   CrisisMomentSystem,
   getCrisisMomentSystem,
+  resetCrisisMomentSystem,
   type CrisisMoment,
   type CrisisChoice,
   type ActiveCrisis,
@@ -70,6 +74,7 @@ import {
 import {
   StoryActorAI,
   getStoryActorAI,
+  resetStoryActorAI,
   type DefensiveActor,
   type AIAction,
 } from '../story-mode/engine/StoryActorAI';
@@ -77,6 +82,7 @@ import {
 import {
   BetrayalSystem,
   getBetrayalSystem,
+  resetBetrayalSystem,
   type BetrayalWarning,
   type BetrayalEvent,
 } from '../story-mode/engine/BetrayalSystem';
@@ -106,10 +112,12 @@ import { evaluateEnd } from '../story-mode/engine/VictorySystem';
 import {
   ExtendedActorLoader,
   getExtendedActorLoader,
+  resetExtendedActorLoader,
   type ExtendedActor,
   type ActorEffectivenessModifier,
 } from '../story-mode/engine/ExtendedActorLoader';
 
+import { resetAdvisorEngine } from '../story-mode/engine/NPCAdvisorEngine';
 import { StoryNarrativeGenerator } from '../story-mode/engine/StoryNarrativeGenerator';
 import { dialogLoader } from '../story-mode/engine/DialogLoader';
 import {
@@ -167,12 +175,14 @@ import { buildPollNews, pickPollInstrument } from '../story-mode/engine/PollNews
  * Eine Phase entspricht ca. 1 Monat im Spiel
  */
 export interface StoryPhase {
-  number: number;           // 1-120 (10 Jahre × 12 Monate)
-  year: number;             // 1-10
-  month: number;            // 1-12
-  label_de: string;         // "Jahr 3, Monat 7"
-  label_en: string;         // "Year 3, Month 7"
-  isNewYear: boolean;       // Für spezielle Events
+  number: number;           // Tag der Kampagne (1..electionDay); Etappe 2: 1 Tag = 1 Phase
+  year: number;             // DEPRECATED (konstant 1) — nur Save-Kompatibilität
+  month: number;            // DEPRECATED (konstant 1) — nur Save-Kompatibilität
+  /** Der Wahltag (Ziellinie der Kampagne); verschiebbar via shiftElectionDay. */
+  electionDay: number;
+  label_de: string;         // "Tag 12 — Wahl in 28 Tagen"
+  label_en: string;         // "Day 12 — election in 28 days"
+  isNewYear: boolean;       // DEPRECATED (konstant false)
   season: 'spring' | 'summer' | 'autumn' | 'winter';
 }
 
@@ -591,7 +601,7 @@ export interface GameEndState {
  * Felder (Gesellschaftswerte B2, Episoden B1 …) alte Saves nicht kaputt machen.
  * 1.1.0: Gesellschaftswerte (B2a) + Default-Merge eingeführt.
  */
-export const SAVE_FORMAT_VERSION = '1.1.0';
+export const SAVE_FORMAT_VERSION = '2.0.0';  // Etappe 2: Kampagnen-Uhr (Semantik-Bruch zum 120-Phasen-Modell)
 
 // Datenintegritäts-Check (P0/R3): nur EINMAL über die Lebenszeit des Moduls laufen
 // lassen — die Daten sind statisch importiert, und die Balance-Sim erzeugt Dutzende
@@ -635,7 +645,7 @@ export class StoryEngineAdapter {
   private readonly WIN_THRESHOLD = 0.5;
   // P2-7: Track world event cooldowns (eventId -> last triggered phase)
   private worldEventCooldowns: Map<string, number> = new Map();
-  private readonly WORLD_EVENT_COOLDOWN = 12;  // 12 phases = 1 year cooldown
+  private readonly WORLD_EVENT_COOLDOWN = 6;   // Etappe 2: 6 Tage Cooldown (vorher 12 Phasen = „1 Jahr")
   // Track triggered events for cascade system (eventId -> phase triggered)
   private triggeredEventsThisPhase: Set<string> = new Set();
   private allTriggeredEvents: Map<string, number> = new Map();
@@ -672,7 +682,7 @@ export class StoryEngineAdapter {
   // als Nachrichten, die den Gesellschafts-Zustand erzählerisch zeigen (§14.2).
   private pollIndex = 0;
   private lastPollValues: Record<string, number> = {};
-  private readonly POLL_EVERY_PHASES = 3;  // ~quartalsweise
+  private readonly POLL_EVERY_PHASES = 5;  // Etappe 2: die Sonntagsfrage — alle 5 Tage (Zielbild §3)
 
   // Engine Integration
   private actionLoader: ActionLoader;
@@ -687,15 +697,20 @@ export class StoryEngineAdapter {
   private extendedActorLoader: ExtendedActorLoader;
   private rngSeed: string;
 
-  // Konfiguration
-  private readonly PHASES_PER_YEAR = 12;
-  private readonly MAX_YEARS = 10;
+  // Konfiguration — Etappe 2 „Die Uhr" (2026-07-04, Zielbild §5): Das 120-Phasen-
+  // Kalendermodell (12 Monate × 10 Jahre) ist ersetzt durch die WAHLKAMPAGNE:
+  // 1 gespielter Tag = 1 Phase, Ziellinie = der Wahltag. `electionDay` ist bewusst
+  // mutierbar (Verschiebe-Mechaniken: Misstrauensvotum zieht vor, „Nachspielzeit"
+  // schiebt einmalig — via shiftElectionDay).
+  static readonly CAMPAIGN_DAYS_DEFAULT = 40;   // Tuning-Korridor 30–50, per Sim-Gate kalibriert
+  private electionDay = StoryEngineAdapter.CAMPAIGN_DAYS_DEFAULT;
   private readonly ACTION_POINTS_PER_PHASE = 5;
   private readonly CAPACITY_REGEN_PER_PHASE = 2;
 
-  // P2-17 Pacing („spürbar härter"): zwei Gegenwehr-Wellen.
-  private readonly FIRST_DEFENDER_WAVE_PHASE = 6; // garantierte erste Gegenwehr (~halbes Jahr)
-  private readonly PACING_GRACE_PHASES = 42;      // Schonzeit (3,5 Jahre) vor der Eskalation
+  // P2-17 Pacing („spürbar härter"): zwei Gegenwehr-Wellen. Etappe 2: auf die
+  // Tages-Skala umgerechnet (vorher 6/42 von 120 Phasen ≈ 5 %/35 %).
+  private readonly FIRST_DEFENDER_WAVE_PHASE = 4;  // garantierte erste Gegenwehr (Tag 4)
+  private readonly PACING_GRACE_PHASES = 12;       // Schonzeit (~erstes Kampagnendrittel) vor der Eskalation
 
   constructor(seed?: string) {
     this.rngSeed = seed || Date.now().toString();
@@ -732,21 +747,23 @@ export class StoryEngineAdapter {
   // ============================================
 
   private createPhase(phaseNumber: number): StoryPhase {
-    const year = Math.ceil(phaseNumber / this.PHASES_PER_YEAR);
-    const month = ((phaseNumber - 1) % this.PHASES_PER_YEAR) + 1;
-
-    const seasons: Array<'winter' | 'spring' | 'summer' | 'autumn'> =
-      ['winter', 'winter', 'spring', 'spring', 'spring', 'summer',
-       'summer', 'summer', 'autumn', 'autumn', 'autumn', 'winter'];
-
+    // Etappe 2: 1 Tag = 1 Phase; die Kampagne läuft auf den Wahltag zu. year/month sind
+    // DEPRECATED (konstant 1) — nur noch für Save-Kompatibilität und Alt-Konsumenten befüllt.
+    const remaining = Math.max(0, this.electionDay - phaseNumber);
     return {
       number: phaseNumber,
-      year,
-      month,
-      label_de: `Jahr ${year}, Monat ${month}`,
-      label_en: `Year ${year}, Month ${month}`,
-      isNewYear: month === 1,
-      season: seasons[month - 1],
+      year: 1,
+      month: 1,
+      electionDay: this.electionDay,
+      label_de: remaining === 0
+        ? `Tag ${phaseNumber} — WAHLTAG`
+        : `Tag ${phaseNumber} — Wahl in ${remaining} Tagen`,
+      label_en: remaining === 0
+        ? `Day ${phaseNumber} — ELECTION DAY`
+        : `Day ${phaseNumber} — election in ${remaining} days`,
+      isNewYear: false,
+      // Spätsommer-Kampagne, die in den Wahl-Herbst kippt (rein kosmetisch).
+      season: phaseNumber <= Math.floor(this.electionDay / 2) ? 'summer' : 'autumn',
     };
   }
 
@@ -874,8 +891,8 @@ export class StoryEngineAdapter {
     const newPhaseNumber = previousPhase + 1;
 
     // Prüfe Spielende
-    if (newPhaseNumber > this.PHASES_PER_YEAR * this.MAX_YEARS) {
-      // Zeit abgelaufen - Spielende
+    if (newPhaseNumber > this.electionDay) {
+      // Wahltag erreicht — checkGameEnd entscheidet (Sieg oder „Wahlabend verloren").
     }
 
     // Phase aktualisieren
@@ -4050,6 +4067,38 @@ export class StoryEngineAdapter {
     });
   }
 
+  /** Kampagnen-Uhr: aktueller Tag, Wahltag, verbleibende Tage (Etappe 2). */
+  getElectionInfo(): { day: number; electionDay: number; daysRemaining: number } {
+    const day = this.storyPhase.number;
+    return { day, electionDay: this.electionDay, daysRemaining: Math.max(0, this.electionDay - day) };
+  }
+
+  /**
+   * Verschiebt den Wahltag (Etappe 2, Zielbild §5: Misstrauensvotum zieht vor,
+   * „Nachspielzeit" der Zentrale schiebt einmalig nach hinten). Geklemmt: frühestens
+   * morgen (der Wahltag kann nicht in die Vergangenheit rutschen), spätestens Tag 60.
+   * Erzeugt die zugehörige News; die Phase wird neu etikettiert (Countdown-Label).
+   */
+  shiftElectionDay(deltaDays: number, reason_de: string, reason_en: string): number {
+    const next = Math.max(this.storyPhase.number + 1, Math.min(60, this.electionDay + deltaDays));
+    if (next === this.electionDay) return this.electionDay;
+    this.electionDay = next;
+    this.storyPhase = this.createPhase(this.storyPhase.number);
+    this.newsEvents.unshift({
+      id: `news_election_shift_${this.storyPhase.number}_${next}`,
+      phase: this.storyPhase.number,
+      headline_de: deltaDays < 0 ? 'Wahl vorgezogen!' : 'Wahltermin verschoben',
+      headline_en: deltaDays < 0 ? 'Election moved up!' : 'Election postponed',
+      description_de: `${reason_de} Neuer Wahltag: Tag ${next}.`,
+      description_en: `${reason_en} New election day: day ${next}.`,
+      type: 'world_event',
+      severity: deltaDays < 0 ? 'warning' : 'info',
+      read: false,
+      pinned: true,
+    });
+    return this.electionDay;
+  }
+
   /**
    * Wendet eine Vertrauens-Änderung auf `obj_destabilize` an (Vertrauen = currentValue, Start 100,
    * sinkt Richtung Ziel). Negativer Delta = Vertrauen erodiert = Auftrags-Fortschritt (bei Aufträgen
@@ -5667,7 +5716,7 @@ export class StoryEngineAdapter {
       allNpcsLost,
       exposureCountdown: this.exposureCountdown,
       phaseNumber: this.storyPhase.number,
-      maxPhases: this.PHASES_PER_YEAR * this.MAX_YEARS,
+      maxPhases: this.electionDay,
     });
     if (!decision) return null;
 
@@ -5808,17 +5857,17 @@ export class StoryEngineAdapter {
       };
     }
 
-    // PRIORITY 5: Zeit/Wahltag erreicht, Auftrag verfehlt → am Auftrag gescheitert.
+    // PRIORITY 5: Der Wahltag ist da, die Schwelle verfehlt → am Auftrag gescheitert (Etappe 2).
     if (decision.branch === 'timeout') {
       return {
         type: 'defeat',
-        title_de: 'Zeit abgelaufen',
-        title_en: 'Time\'s Up',
-        description_de: 'Die Zeit ist abgelaufen, ohne dass die Ziele erreicht wurden.',
-        description_en: 'Time has run out without achieving the objectives.',
+        title_de: 'Wahlabend verloren',
+        title_en: 'Election Night Lost',
+        description_de: 'Der Wahltag ist gekommen — und die Hochrechnung bleibt ereignislos. Die Regierung wird bestätigt; Ihr Auftrag ist gescheitert.',
+        description_en: 'Election day has arrived — and the projection stays uneventful. The government is confirmed; your mission has failed.',
         stats,
-        epilogue_de: 'Sie werden abberufen. Ihre Karriere stagniert. Jüngere Agenten überholen Sie.',
-        epilogue_en: 'You are recalled. Your career stagnates. Younger agents surpass you.',
+        epilogue_de: 'Kein Knall, ein Achselzucken der Geschichte. Die Zentrale beendet die Finanzierung: „Packen Sie die Akten." Das Land redet weiter — ohne Sie.',
+        epilogue_en: 'No bang — a shrug of history. The Central ends the funding: "Pack up the files." The country keeps talking — without you.',
         assembledEnding: this.assembledEndingForBranch('defeat'),
       };
     }
@@ -5844,6 +5893,7 @@ export class StoryEngineAdapter {
     const state = {
       version: SAVE_FORMAT_VERSION,
       rngSeed: this.rngSeed,
+      electionDay: this.electionDay,
       storyPhase: this.storyPhase,
       storyResources: this.storyResources,
       pendingConsequences: this.pendingConsequences,
@@ -5890,7 +5940,14 @@ export class StoryEngineAdapter {
     }
 
     this.rngSeed = state.rngSeed || this.rngSeed;
-    this.storyPhase = state.storyPhase;
+    // Etappe 2: Kampagnen-Uhr laden. Alte Saves (ohne electionDay, 120-Phasen-Modell) werden
+    // bewusst auf die 40-Tage-Kampagne migriert: Tag = alte Phasennummer, gekappt auf den
+    // Wahltag (Semantik-Bruch ist dokumentiert — Zielbild §13 Teststrategie).
+    this.electionDay = typeof state.electionDay === 'number'
+      ? state.electionDay
+      : StoryEngineAdapter.CAMPAIGN_DAYS_DEFAULT;
+    const loadedDay = Math.min(state.storyPhase?.number ?? 1, this.electionDay);
+    this.storyPhase = this.createPhase(loadedDay);
     // Fehlende Ressourcen-Felder mit Initialwerten auffüllen (additiv, rückwärtskompatibel).
     this.storyResources = { ...this.createInitialResources(), ...(state.storyResources ?? {}) };
     this.pendingConsequences = state.pendingConsequences ?? [];
@@ -6205,6 +6262,7 @@ export class StoryEngineAdapter {
     this.episodesActive.clear();
     this.episodesCompleted.clear();
     this.currentAuftragId = 'wahl';
+    this.electionDay = StoryEngineAdapter.CAMPAIGN_DAYS_DEFAULT;
     this.pollIndex = 0;
     this.lastPollValues = {};
     this.initializeNPCs();
@@ -6516,6 +6574,22 @@ export class StoryEngineAdapter {
 // FACTORY FUNCTION
 // ============================================
 
+/**
+ * Etappe 2 (Isolation, Zielbild §13): Ein neues Spiel = ein sauberer Zustand. Vor der
+ * Engine-Konstruktion werden ALLE modul-globalen Gameplay-Singletons zurückgesetzt —
+ * vorher leakte Zustand (Verrats-Risiko, Verteidiger-Stärke, Aktions-Nutzung, Krisen)
+ * zwischen Partien: im Spiel beim Neustart, in Simulationen zwischen Läufen (der
+ * Etappe-0-Befund „Feinverteilung kippt je nach Reset-Set" war genau dieses Leck).
+ * Loader-Caches laden nur Daten neu — funktional identisch, minimal langsamer.
+ */
 export function createStoryEngine(seed?: string): StoryEngineAdapter {
+  resetStoryActorAI();
+  resetStoryComboSystem();
+  resetCrisisMomentSystem();
+  resetBetrayalSystem();
+  resetConsequenceSystem();
+  resetActionLoader();
+  resetExtendedActorLoader();
+  resetAdvisorEngine();
   return new StoryEngineAdapter(seed);
 }

@@ -39,40 +39,42 @@ describe('P2-17 Pacing — Gegenwehr-Wellen', () => {
     resetCrisisMomentSystem();
   });
 
-  it('Frühe Welle: garantiert genau einmal beim Eintritt in Phase 6 (News sichtbar)', () => {
+  it('Frühe Welle: garantiert genau einmal beim Eintritt in Tag 4 (News sichtbar)', () => {
     const engine = freshEngine('pacing_early');
 
-    // Vor Phase 6 darf die Welle NICHT da sein.
-    advanceTo(engine, 5);
+    // Vor Tag 4 darf die Welle NICHT da sein.
+    advanceTo(engine, 3);
     const before = engine.getNewsEvents({ limit: 300 });
-    expect(before.some(n => n.id === 'pacing_first_wave_6')).toBe(false);
+    expect(before.some(n => n.id === 'pacing_first_wave_4')).toBe(false);
 
-    // Eintritt in Phase 6 → garantierte erste Gegenwehr.
-    advanceTo(engine, 6);
+    // Eintritt in Tag 4 → garantierte erste Gegenwehr.
+    advanceTo(engine, 4);
     const after = engine.getNewsEvents({ limit: 300 });
-    expect(after.some(n => n.id === 'pacing_first_wave_6')).toBe(true);
+    expect(after.some(n => n.id === 'pacing_first_wave_4')).toBe(true);
   });
 
-  it('Schonzeit: in den ersten Jahren bleibt passives Spiel risiko-arm (keine Eskalation)', () => {
+  it('Schonzeit: im ersten Kampagnendrittel bleibt passives Spiel risiko-arm (keine Eskalation)', () => {
     const engine = freshEngine('pacing_grace');
-    // Bis Phase 40 (innerhalb der 3,5-Jahre-Schonzeit) baut Untätigkeit kein Risiko auf
-    // — der frühe Welle-Stups (+3) ist längst wieder abgebaut.
-    advanceTo(engine, 40);
-    expect(engine.getResources().risk).toBeLessThanOrEqual(10);
+    // Bis Tag 10 (innerhalb der Schonzeit von 12 Tagen) baut Untätigkeit kaum Risiko auf
+    // — der frühe Welle-Stups (Tag 4) ist weitgehend wieder abgebaut.
+    advanceTo(engine, 10);
+    expect(engine.getResources().risk).toBeLessThanOrEqual(12);
   });
 
   it('Späte Eskalation: passives Dauer-Spiel läuft spät in die Gefahr (kann auffliegen)', () => {
     const engine = freshEngine('pacing_late');
     let maxLate = 0;
     // Unbeirrt weiter enden lassen (Spielende ignorieren) und das Spät-Risiko messen.
-    for (let p = 0; p < 100; p++) {
+    // Kampagne ist ~40 Tage; die Eskalation greift im letzten Drittel (ab ~Tag 30).
+    for (let p = 0; p < 60; p++) {
       engine.advancePhase();
-      if (engine.getCurrentPhase().number >= 80) {
+      if (engine.getCurrentPhase().number >= 30) {
         maxLate = Math.max(maxLate, engine.getResources().risk);
       }
     }
-    // Ohne Pacing bliebe vorsichtiges/passives Spiel bei ~0 Risiko (nur „Zeit abgelaufen").
-    // Mit der Eskalation steigt es spät klar in die Enttarnungs-Zone (Schwelle 85).
-    expect(maxLate).toBeGreaterThanOrEqual(70);
+    // Ohne Pacing bliebe vorsichtiges/passives Spiel bei ~0 Risiko.
+    // Mit der Eskalation steigt es spät klar in die Gefahrenzone (in der 40-Tage-Kampagne
+    // knapp unter die Enttarnungs-Schwelle 85 — passives Dauer-Spiel wird real gefährlich).
+    expect(maxLate).toBeGreaterThanOrEqual(60);
   });
 });
