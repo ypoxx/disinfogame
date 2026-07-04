@@ -313,10 +313,18 @@ Verstärker, Kompromat). Pleite ist kein eigener Game-Over, sondern die Würgesc
     (+ kaputte Clamp-Mathe gefixt). **Nicht-Befunde verifiziert:** Endspiel-Schwellen (85 vs. 90/95)
     sind bereits defensiv versöhnt (kein Live-Bug); die „Datenkopie `docs/story-mode/data/`" existiert
     nicht (nur `schema/`+`playtests/`, referenziert) → nichts zu entfernen.
-- **Etappe 1 — „Auftrag = Sieg":** R2-Guards raus, `VictorySystem` als neues Modul extrahiert (kein
-  Inline-Editieren im 6463-Zeilen-Adapter), Sieg-Check auf Wahl-Signatur, ein Auftrag per Akte,
-  Enden beschnitten. Minimal-Pass über die Aktionen, damit die Wahl-Achsen erreichbar sind
-  (Code-Sweep-Warnung: sonst ist der neue Sieg unerreichbar).
+- **Etappe 1 — „Auftrag = Sieg": ✅ ERLEDIGT (2026-07-04).** `VictorySystem.ts` als reines,
+  testbares Modul extrahiert (entscheidet den Ausgangs-Zweig; Texte bleiben im Adapter). Sieg =
+  Auftrags-Signatur „Die Wahl" erfüllt (Min-Regel über die schwächste Achse, `auftragProgress(…,'min')`),
+  statt gehaltenem Vertrauen. R2-Guards raus — Beats/Episoden mit `vertrauen`-Delta koppeln jetzt an die
+  Sieg-Achse. EIN Auftrag (Default `wahl`). Der vom Sim-Gate aufgedeckte Flaschenhals (`fraktionsstaerke`
+  nur über ~6 `political_*`-Aktionen treibbar) über zwei design-sinnvolle Kopplungen behoben: aggressive
+  Aktionen mobilisieren die radikale Fraktion + eine gespaltene/verdrossene Gesellschaft driftet zu ihr.
+  Ergebnis (Gate): gewinnbar UND verlierbar — greedy ~50 % (Zielbild-Band), random/low_risk 0 %.
+  - **Carry-forward:** Enden-Beschnitt (escape/moral_redemption → Epilog-Färbungen) und die Entfernung
+    der `AuftragSelect`-UI (ein Auftrag ganz ohne Auswahl) sind UI/Content und wandern zu Etappe 5; die
+    `WIN_THRESHOLD`-Verschärfung auf 1.0 folgt mit der Aktions-Kuratierung. keil/zweifel bleiben als
+    Daten selektierbar, aber auf `wahl` kalibriert.
 - **Etappe 2 — „Die Uhr":** `CAMPAIGN_DAYS`, Wahltag, Kalender-Kollaps, Episoden/Beats auf Tage getaktet
   (Content-Kompression ist ehrliche Redaktionsarbeit), Verschiebe-Mechaniken.
 - **Etappe 3 — „Immunsystem sichtbar":** `ImmuneSystem`-Modul, ABWEHR-Balken (wehrhaftigkeit befördert),

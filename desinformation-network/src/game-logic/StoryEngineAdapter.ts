@@ -101,6 +101,8 @@ import {
   type NarrativeMemoryState,
 } from '../story-mode/engine/NarrativeMemory';
 
+import { evaluateEnd } from '../story-mode/engine/VictorySystem';
+
 import {
   ExtendedActorLoader,
   getExtendedActorLoader,
@@ -623,9 +625,14 @@ export class StoryEngineAdapter {
   private actionHistory: { phase: number; actionId: string; result: ActionResult }[] = [];
   private exposureCountdown: number | null = null;  // Countdown to forced exposure/game end
   // Stellschraube 4 (Balancing K14 2026-06-12): Zählt aufeinanderfolgende Phasen,
-  // in denen das Vertrauens-Ziel gehalten wurde. Sieg erst nach REQUIRED_HOLD_PHASES.
+  // in denen das Vertrauens-Ziel gehalten wurde. HISTORISCH — seit Etappe 1 (Auftrag = Sieg)
+  // NICHT mehr Sieg-Bedingung; die Regeneration bleibt das Wettrennen, der Zähler nur noch
+  // Telemetrie/Save-Kompatibilität. Wird mit dem Wahltag-Stichtag (Etappe 2) ganz entfallen.
   private trustTargetHeldPhases = 0;
-  private readonly REQUIRED_HOLD_PHASES = 3;  // Ziel muss 3 Phasen gehalten werden
+  private readonly REQUIRED_HOLD_PHASES = 3;
+  // Etappe 1: Sieg = Auftrag erfüllt. Die schwächste Signatur-Achse muss ihr Ziel erreichen
+  // (Min-Regel). 1.0 = jede Achse voll am Ziel. Balancing-Stellschraube (per Sim-Gate kalibriert).
+  private readonly WIN_THRESHOLD = 0.5;
   // P2-7: Track world event cooldowns (eventId -> last triggered phase)
   private worldEventCooldowns: Map<string, number> = new Map();
   private readonly WORLD_EVENT_COOLDOWN = 12;  // 12 phases = 1 year cooldown
@@ -655,10 +662,11 @@ export class StoryEngineAdapter {
   /** Schicht 3: Narrativ-Gedächtnis (welche Themen liefen wie oft, wie inokuliert). */
   private narrativeMemory: NarrativeMemoryState = {};
 
-  // P5 — Strategischer Auftrag („Vertrauen = Mittel, Auftrag = Ziel"). Default = „Der Keil"
-  // (Tutorial); beim Neustart wählbar. v1: obj_destabilize bleibt der spielbare Sieg, die
-  // Auftrags-Signatur bestimmt das Ende + macht den Fortschritt lesbar.
-  private currentAuftragId: AuftragId = 'keil';
+  // Strategischer Auftrag („Vertrauen = Mittel, Auftrag = Ziel"). Etappe 1: EIN Auftrag —
+  // „Die Wahl" (Zielbild §8). Seine Signatur IST die Sieg-Bedingung. Der Auftrag enthält die
+  // zuverlässig treibbare Vertrauens-Achse (Mittel) + fraktionsstaerke/zynismus (Ziel).
+  // keil/zweifel bleiben als Daten erhalten (spätere Akt-Struktur / Wiederspiel-Kampagnen).
+  private currentAuftragId: AuftragId = 'wahl';
 
   // P6 — Umfragen/Barometer als News (F3): periodisch erscheinen fiktive Mess-Instrumente
   // als Nachrichten, die den Gesellschafts-Zustand erzählerisch zeigen (§14.2).
@@ -3823,8 +3831,9 @@ export class StoryEngineAdapter {
 
     const delta: SocietyDelta = {};
     for (const [key, value] of Object.entries(ep.wirkt_auf)) {
-      if (key === 'vertrauen') continue;          // P4: Vertrauen NICHT koppeln (Balance, R2)
-      if (typeof value === 'number') (delta as Record<string, number>)[key] = value;
+      if (typeof value !== 'number') continue;
+      if (key === 'vertrauen') { this.applyTrustDelta(value); continue; }  // Etappe 1: R2 gefallen — Vertrauen koppelt
+      (delta as Record<string, number>)[key] = value;
     }
     this.applySocietyDelta(delta);
     storyLogger.log(`[Episode] abgeschlossen: ${ep.titel_de} (Lernmoment: ${ep.lernmoment_id})`);
@@ -3904,8 +3913,10 @@ export class StoryEngineAdapter {
       (delta as Record<string, number>)[key] = ((delta as Record<string, number>)[key] ?? 0) + v;
     };
     for (const [key, value] of Object.entries(option.werteDelta)) {
-      if (key === 'vertrauen') continue;
-      if (typeof value === 'number') addDelta(key, Math.round(value * factor));
+      if (typeof value !== 'number') continue;
+      // Etappe 1: R2 gefallen — Vertrauen (obj_destabilize) koppelt jetzt an den Sieg.
+      if (key === 'vertrauen') { this.applyTrustDelta(Math.round(value * factor)); continue; }
+      addDelta(key, Math.round(value * factor));
     }
 
     // Schicht 3: Rückschlag/Streisand der Recycling-Option bei hoher Inokulation.
@@ -4017,6 +4028,40 @@ export class StoryEngineAdapter {
     const s = this.getSocietySnapshot();
     const trust = this.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100;
     return auftragProgress(this.getAuftrag(), { ...s, vertrauen: trust });
+  }
+
+  /** Sieg-relevanter Fortschritt (0..1): die SCHWÄCHSTE Signatur-Achse (Min-Regel, Etappe 1). */
+  getAuftragProgressMin(): number {
+    const s = this.getSocietySnapshot();
+    const trust = this.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100;
+    return auftragProgress(this.getAuftrag(), { ...s, vertrauen: trust }, 'min');
+  }
+
+  /** Fortschritt je Signatur-Achse (0..1) — für die HUD-„Nadeln" und Balancing-Diagnose. */
+  getAuftragAxes(): { wert: string; progress: number }[] {
+    const s = this.getSocietySnapshot();
+    const trust = this.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100;
+    const values: Record<string, number> = { ...s, vertrauen: trust };
+    return this.getAuftrag().signatur.map(sig => {
+      const v = values[sig.wert];
+      const span = Math.abs(sig.ziel - sig.start) || 1;
+      const p = sig.richtung === 'hoch' ? (v - sig.start) / span : (sig.start - v) / span;
+      return { wert: sig.wert, progress: Math.max(0, Math.min(1, p)) };
+    });
+  }
+
+  /**
+   * Wendet eine Vertrauens-Änderung auf `obj_destabilize` an (Vertrauen = currentValue, Start 100,
+   * sinkt Richtung Ziel). Negativer Delta = Vertrauen erodiert = Auftrags-Fortschritt (bei Aufträgen
+   * mit vertrauen↓). Seit Etappe 1 dürfen Beats/Episoden das Vertrauen bewegen (R2 gefallen).
+   */
+  private applyTrustDelta(d: number): void {
+    if (d === 0) return;
+    const obj = this.objectives.find(o => o.id === 'obj_destabilize');
+    if (!obj) return;
+    obj.currentValue = Math.max(0, Math.min(100, obj.currentValue + d));
+    obj.progress = Math.min(100, ((100 - obj.currentValue) / (100 - obj.targetValue)) * 100);
+    obj.completed = obj.currentValue <= obj.targetValue;
   }
 
   /** Aktueller Wert eines Umfrage-Instruments (Vertrauen aus dem Ziel, sonst Gesellschaftswert). */
@@ -5596,31 +5641,39 @@ export class StoryEngineAdapter {
 
   checkGameEnd(): GameEndState | null {
     const stats = this.getEndStats();
-    const primaryObjectives = this.objectives.filter(o => o.type === 'primary');
 
-    // FIX 2026-01-14: The survival objective is automatically "completed" if player hasn't lost
-    // Update survival objective status based on current risk
+    // FIX 2026-01-14: obj_survive gilt als „erfüllt", solange nicht enttarnt (nur HUD-Konsistenz;
+    // seit Etappe 1 nicht mehr Sieg-relevant).
     const survivalObj = this.objectives.find(o => o.id === 'obj_survive');
     if (survivalObj) {
       survivalObj.completed = this.storyResources.risk < survivalObj.targetValue;
       survivalObj.progress = survivalObj.completed ? 100 : Math.max(0, ((survivalObj.targetValue - this.storyResources.risk) / survivalObj.targetValue) * 100);
     }
 
-    // Stellschraube 4 (Balancing K14 2026-06-12): Sieg erst, wenn ALLE primären
-    // Ziele erfüllt sind UND das Vertrauens-Ziel REQUIRED_HOLD_PHASES Phasen in
-    // Folge gehalten wurde. Verhindert Insta-Win in Phase 2–8 — das Vertrauen
-    // muss gegen die Verteidiger-Regeneration dauerhaft gedrückt bleiben.
-    const allCompleted = primaryObjectives.every(o => o.completed);
-    const trustHeld = this.trustTargetHeldPhases >= this.REQUIRED_HOLD_PHASES;
     const npcArray = Array.from(this.npcStates.values());
     const npcsInCrisis = npcArray.filter(npc => npc.inCrisis).length;
     const allNpcsLost = npcsInCrisis >= npcArray.length - 1; // Almost all NPCs in crisis
 
-    // PRIORITY 0: ENTTARNUNG schlägt einen noch nicht „gehaltenen" Sieg.
-    // Balancing K14: Wer das Ziel erst seit Kurzem hält, kann bei risk ≥ 85
-    // trotzdem auffliegen — Enttarnung bleibt bis zum gesicherten Sieg gefährlich.
-    if (this.storyResources.risk >= 85 && !(allCompleted && trustHeld)) {
-      storyLogger.log(`💀 Defeat: Risk ${this.storyResources.risk}% exceeded threshold before victory secured.`);
+    // Etappe 1 (Auftrag = Sieg): Die Ausgangs-ENTSCHEIDUNG liegt jetzt im reinen, isoliert
+    // testbaren VictorySystem — die Texte/Endings bleiben unten im Adapter. Sieg = Auftrags-
+    // Signatur erfüllt (Min-Regel über die schwächste Achse), nicht mehr gehaltenes Vertrauen.
+    const decision = evaluateEnd({
+      auftragProgressMin: this.getAuftragProgressMin(),
+      winThreshold: this.WIN_THRESHOLD,
+      risk: this.storyResources.risk,
+      budget: this.storyResources.budget,
+      betrayingNpcs: this.betrayalSystem.getBetrayingNPCs().length,
+      moralWeight: this.storyResources.moralWeight,
+      allNpcsLost,
+      exposureCountdown: this.exposureCountdown,
+      phaseNumber: this.storyPhase.number,
+      maxPhases: this.PHASES_PER_YEAR * this.MAX_YEARS,
+    });
+    if (!decision) return null;
+
+    // PRIORITY 0: ENTTARNUNG schlägt einen noch nicht erfüllten Auftrag.
+    if (decision.branch === 'exposed') {
+      storyLogger.log(`💀 Defeat: Risk ${this.storyResources.risk}% exceeded threshold before mission complete.`);
       return {
         type: 'defeat',
         title_de: 'Enttarnt',
@@ -5638,15 +5691,15 @@ export class StoryEngineAdapter {
       };
     }
 
-    // PRIORITY 1: VICTORY - nur nach gehaltenem Vertrauens-Ziel.
-    if (allCompleted && trustHeld) {
+    // PRIORITY 1: VICTORY — der Auftrag ist erfüllt (Signatur-Min ≥ WIN_THRESHOLD).
+    if (decision.branch === 'victory') {
       // Determine victory flavor based on moral weight and risk
       // Balancing K14: hohes Risiko beim Sieg (≥ 70) ⇒ eingeschränktes/pyrrhisches Ende.
       const isHighRisk = this.storyResources.risk >= 70;
       const isDarkVictory = this.storyResources.moralWeight >= 50 || isHighRisk;
       const isNarrowEscape = isHighRisk;
 
-      storyLogger.log(`🏆 Victory achieved! Objectives held ${this.trustTargetHeldPhases} phases. Risk: ${this.storyResources.risk}%, Moral: ${this.storyResources.moralWeight}`);
+      storyLogger.log(`🏆 Victory! Auftrag „${this.getAuftrag().titel_de}" erfüllt (Signatur-Min ${(this.getAuftragProgressMin() * 100).toFixed(0)}%). Risk: ${this.storyResources.risk}%, Moral: ${this.storyResources.moralWeight}`);
 
       // P5-Politur: signatur-getriebenes, auftrags-spezifisches Ende (Kategorie/Tonalität je
       // Auftrag) statt nur eines Schluss-Satzes. Titel + Schluss-Erzählung kommen aus dem
@@ -5691,7 +5744,7 @@ export class StoryEngineAdapter {
     // abgewandt/verraten. Eigener Verlustpfad (Frostpunk-Prinzip: mehrere unabhängige Bilanzen,
     // jede ein eigener Weg zu scheitern). Die Bilanz existierte schon in EndingSystem.shouldGameEnd,
     // war aber im Live-checkGameEnd ungenutzt.
-    if (this.betrayalSystem.getBetrayingNPCs().length >= 3) {
+    if (decision.branch === 'apparatus') {
       return {
         type: 'defeat',
         title_de: 'Der Apparat zerfällt',
@@ -5707,7 +5760,7 @@ export class StoryEngineAdapter {
 
     // PRIORITY 1c (P1-2): Handlungsunfähig — die Kasse ist leer, während die Aufmerksamkeit hoch ist.
     // Kein Geld, um Spuren zu decken oder weiterzumachen (zweiter unabhängiger Verlustpfad).
-    if (this.storyResources.budget <= 0 && this.storyResources.risk >= 70) {
+    if (decision.branch === 'broke') {
       return {
         type: 'defeat',
         title_de: 'Mittellos',
@@ -5725,7 +5778,7 @@ export class StoryEngineAdapter {
     // (Balancing K14 2026-06-12 — Enttarnung schlägt einen noch nicht gesicherten Sieg).
 
     // PRIORITY 3: Moral Redemption - High moral weight and player turned
-    if (this.storyResources.moralWeight >= 80 && allNpcsLost) {
+    if (decision.branch === 'moral_redemption') {
       return {
         type: 'moral_redemption',
         title_de: 'Gewissensentscheidung',
@@ -5740,26 +5793,23 @@ export class StoryEngineAdapter {
     }
 
     // PRIORITY 4: Escape - Risk is critical but player chose to flee
-    if (this.storyResources.risk >= 75 && this.storyResources.risk < 85 && this.storyResources.moralWeight < 50) {
-      const hasEscapeOpportunity = this.exposureCountdown !== null && this.exposureCountdown <= 1;
-
-      if (hasEscapeOpportunity) {
-        return {
-          type: 'escape',
-          title_de: 'Flucht nach Osten',
-          title_en: 'Flight to the East',
-          description_de: 'Sie haben die Zeichen erkannt. Bevor die Schlinge sich zuzieht, setzen Sie sich nach Ostland ab.',
-          description_en: 'You recognized the signs. Before the noose tightens, you escape to Ostland.',
-          stats,
-          epilogue_de: 'In Ostland nimmt man Sie nüchtern wieder auf. Doch die Schatten Ihrer Taten folgen Ihnen.',
-          epilogue_en: 'In Ostland you are taken back in soberly. But the shadows of your deeds follow you.',
-          assembledEnding: this.assembledEndingForBranch('escape'),
-        };
-      }
+    // (Bedingung — Risiko 75–84, Moral < 50, Fluchtgelegenheit — steckt im VictorySystem.)
+    if (decision.branch === 'escape') {
+      return {
+        type: 'escape',
+        title_de: 'Flucht nach Osten',
+        title_en: 'Flight to the East',
+        description_de: 'Sie haben die Zeichen erkannt. Bevor die Schlinge sich zuzieht, setzen Sie sich nach Ostland ab.',
+        description_en: 'You recognized the signs. Before the noose tightens, you escape to Ostland.',
+        stats,
+        epilogue_de: 'In Ostland nimmt man Sie nüchtern wieder auf. Doch die Schatten Ihrer Taten folgen Ihnen.',
+        epilogue_en: 'In Ostland you are taken back in soberly. But the shadows of your deeds follow you.',
+        assembledEnding: this.assembledEndingForBranch('escape'),
+      };
     }
 
-    // PRIORITY 5: Time limit - Only if objectives not completed (victory already handled above)
-    if (this.storyPhase.number >= this.PHASES_PER_YEAR * this.MAX_YEARS) {
+    // PRIORITY 5: Zeit/Wahltag erreicht, Auftrag verfehlt → am Auftrag gescheitert.
+    if (decision.branch === 'timeout') {
       return {
         type: 'defeat',
         title_de: 'Zeit abgelaufen',
@@ -5864,8 +5914,8 @@ export class StoryEngineAdapter {
     this.episodesCompleted = new Set(state.episodesCompleted ?? []);
     this.resolvedDecisionBeats = new Set(state.resolvedDecisionBeats ?? []);
     this.narrativeMemory = state.narrativeMemory ?? {};
-    // P5-Auftrag (Default „keil" für alte Saves, R1).
-    this.currentAuftragId = (state.currentAuftragId as AuftragId) ?? 'keil';
+    // Auftrag (Default „wahl" für alte Saves ohne Feld — Etappe 1: EIN Auftrag „Die Wahl").
+    this.currentAuftragId = (state.currentAuftragId as AuftragId) ?? 'wahl';
     // P6-Umfragen (Default leer für alte Saves, R1).
     this.pollIndex = state.pollIndex ?? 0;
     this.lastPollValues = state.lastPollValues ?? {};
@@ -6154,7 +6204,7 @@ export class StoryEngineAdapter {
     this.episodesOffered.clear();
     this.episodesActive.clear();
     this.episodesCompleted.clear();
-    this.currentAuftragId = 'keil';
+    this.currentAuftragId = 'wahl';
     this.pollIndex = 0;
     this.lastPollValues = {};
     this.initializeNPCs();

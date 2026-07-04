@@ -21,6 +21,20 @@ Entscheidungen E1–E20 (`DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md`), ausgearbeit
 >   Nebenbefunde fixen (KONZEPT-Anhang), DANN erst umverdrahten (Etappen 1–5, Zielbild §13).
 > - SOUL.md revidiert (P3 Uhr, P5 Lernmomente, P11/P12 neu); alte R2-Dokumente mit Superseded-Kopf.
 
+**Stand:** 2026-07-04 (ETAPPE 1 „Auftrag = Sieg" ✅) · Branch `claude/gracious-keller-g43bu3`, PR #89 · Gate grün (`tsc 0` · `vitest 482` · `build`).
+> - **Sieg = Auftrag:** neues Modul `story-mode/engine/VictorySystem.ts` (reine Ausgangs-Entscheidung).
+>   Sieg = Signatur „Die Wahl" erfüllt (Min-Regel, `auftragProgress(…,'min')`) — nicht mehr gehaltenes
+>   Vertrauen (`obj_destabilize`-Halte-Logik ist raus). R2 gefallen: Beats/Episoden mit `vertrauen`-Delta
+>   koppeln jetzt an die Sieg-Achse (`applyTrustDelta`). EIN Auftrag (Default `wahl`).
+> - **Reachability-Fix (vom Gate aufgedeckt):** Sieg war zunächst UNerreichbar (0/36), weil
+>   `fraktionsstaerke` nur über ~6 `political_*`-Aktionen treibbar ist. Zwei design-sinnvolle Kopplungen in
+>   `SocietyDynamics`: aggressive Aktionen mobilisieren die radikale Fraktion + gespaltene/verdrossene
+>   Gesellschaft driftet zu ihr. Danach: gewinnbar UND verlierbar (greedy ~50 %, random/low_risk 0 %).
+> - **Tests geflippt:** `DecisionBeatApply` (R2 → Kopplung), `Auftraege` (Default keil → wahl). Gate um
+>   Pro-Achsen-Diagnose erweitert; Win-Floor auf 4 (Luft für Sim-Drift), TARGET_BANDS für Etappe 2/3.
+> - **Carry-forward:** Enden-Beschnitt + `AuftragSelect`-UI-Entfernung → Etappe 5; `WIN_THRESHOLD` 0.5→1.0
+>   mit Aktions-Kuratierung. Nächster Schritt: **Etappe 2 „Die Uhr"** (`CAMPAIGN_DAYS`/Wahltag, Zielbild §13).
+
 **Stand:** 2026-07-04 (ETAPPE 0 „Leitplanke" ✅) · Branch `claude/gracious-keller-g43bu3`, PR #89 · Gate grün (`tsc 0` · `vitest 482` · `build`).
 > - **Sim-Gate gebaut:** `src/story-mode/tests/winnable-and-losable.test.ts` — das erste harte
 >   „gewinnbar UND verlierbar"-Gate des Projekts (bis heute gab es KEINES; nur loggende Sims). 36
@@ -42,8 +56,6 @@ Entscheidungen E1–E20 (`DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md`), ausgearbeit
 >   (`assembledEndingForBranch`, Guard erzwingt Branch-Kategorie) → kein Live-Bug, Doku-Note für Etappe 1.
 >   Die „veraltete Datenkopie `docs/story-mode/data/`" EXISTIERT NICHT (nur `schema/` + `playtests/`,
 >   beide referenziert) → nichts zu entfernen.
-> - **Offen (Etappe 1):** `VictorySystem`/`ImmuneSystem` als neue Module extrahieren; R2-Guards raus;
->   ein Auftrag per Akte; Enden beschneiden. Details: `ZIELBILD_2026-07-04_WETTRENNEN.md` §13.
 
 **Stand:** 2026-06-20 (Kuratieren-Paket) · **S0 + alle 3 Auftrags-Scheiben gebaut** (Branch `claude/gracious-keller-g43bu3`, PR #89). Owner-Go: kuratieren + Jahres-Gate kappen + alle Scheiben parallel auf ein Qualitätsniveau. Maßstab: **`QUALITAETSMERKMALE.md`** (8 Merkmale M1–M8 = Abnahme-Gate).
 > - **S0 (Fundament, balance-neutral):** Terminal-Jahres-Gate gekappt (kein `ta0{year}`-Filter mehr); Episoden-Strang-Aktionen hervorgehoben (`● STRANG`) + zuerst sortiert (M2); Gesellschaftswert-Wirkung als Vorschau auf der Planungskarte (M1, `previewSocietyDeltas`); interne Aktions-ID von der Karte entfernt (M4). Test `ActionImpactPreview` (+4).

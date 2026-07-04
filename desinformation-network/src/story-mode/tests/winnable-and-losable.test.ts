@@ -14,14 +14,16 @@
  * hier über einen seed-abgeleiteten PRNG — dieselbe Seed ⇒ dieselben Partien ⇒
  * reproduzierbares Gate.
  *
- * KALIBRIERUNG: Die Schwellen unten sind bewusst auf die INVARIANTE gesetzt
- * (gewinnbar + verlierbar + keine triviale Strategie), nicht auf die engen
- * Zahlen-Bänder des Zielbilds — denn das aktuelle Modell ist noch das alte
- * (120 Phasen, Vertrauens-Sieg), nicht das Wettrennen. Die engen Bänder
- * (siehe TARGET_BANDS) werden Etappe für Etappe scharfgeschaltet, wenn die neue
- * Mechanik steht. Beobachtete Ist-Verteilung (2026-07-04, altes Modell, 36
- * Partien): 15 Siege / 21 Niederlagen; greedy 3/12, random 5/12, low_risk 7/12;
- * einzige Niederlage-Ursache: „Exposed".
+ * KALIBRIERUNG: Die Schwellen unten prüfen die INVARIANTE (gewinnbar UND verlierbar),
+ * NICHT die engen Pro-Strategie-Bänder des Zielbilds — die (TARGET_BANDS) werden Etappe
+ * für Etappe scharfgeschaltet, wenn das Wettrennen + Immunsystem stehen. Der Legacy-
+ * Singleton-Graph lässt sich nicht vollständig isolieren, daher driftet die Feinverteilung
+ * je nach Test-Reihenfolge um ±1–2 — die Floors haben bewusst Luft dazu.
+ *
+ * Ist-Verteilung nach Etappe 1 (2026-07-04, Auftrag = Sieg „Die Wahl", 36 Partien):
+ * ~6–7 Siege / ~30 Niederlagen; greedy ~50 % (in Zielbild-Band 30–60 %), random 0 %,
+ * low_risk 0 % (beide treiben die aggressive Signatur nicht → verlieren stets); einzige
+ * Niederlage-Ursache noch „Exposed" (die anderen Verlustwege kommen mit Etappe 2/3).
  *
  * Lauf: npx vitest run src/story-mode/tests/winnable-and-losable.test.ts
  */
@@ -40,6 +42,10 @@ interface SimResult {
   outcome: 'victory' | 'defeat' | 'timeout';
   endTitle: string | null;
   endPhase: number;
+  progressMin: number;   // Auftrags-Signatur (schwächste Achse) am Ende
+  progressMean: number;  // Auftrags-Signatur (Mittel) am Ende
+  finalRisk: number;
+  axes: { wert: string; progress: number }[];
 }
 
 interface SimAction {
@@ -153,7 +159,14 @@ function runOne(strategy: Strategy, seed: string, maxPhases: number): SimResult 
     engine.advancePhase();
     endPhase = engine.getCurrentPhase().number;
   }
-  return { strategy, outcome, endTitle, endPhase };
+  const axes = engine.getAuftragAxes();
+  return {
+    strategy, outcome, endTitle, endPhase,
+    progressMin: engine.getAuftragProgressMin(),
+    progressMean: engine.getAuftragProgress(),
+    finalRisk: engine.getResources().risk,
+    axes,
+  };
 }
 
 // Zielbild-Zielbänder (Etappe-für-Etappe scharfzuschalten, wenn das Wettrennen steht).
@@ -188,21 +201,33 @@ describe('GEWINNBAR-UND-VERLIERBAR-Gate (Etappe 0)', () => {
   for (const d of defeats) lossCauses[d.endTitle ?? '?'] = (lossCauses[d.endTitle ?? '?'] || 0) + 1;
   console.log('\n=== GEWINNBAR-UND-VERLIERBAR-GATE ===');
   console.log(`  Partien: ${all.length}  Siege: ${wins.length}  Niederlagen: ${defeats.length}  Timeouts: ${all.filter(r => r.outcome === 'timeout').length}`);
+  const med2 = (xs: number[]) => { const s = [...xs].sort((a, b) => a - b); return s.length ? s[Math.floor(s.length / 2)] : 0; };
   for (const s of STRATEGIES) {
     const g = byStrategy(s);
-    console.log(`  ${s}: ${g.filter(r => r.outcome === 'victory').length} Sieg / ${g.filter(r => r.outcome === 'defeat').length} Niederlage`);
+    const mins = g.map(r => r.progressMin);
+    console.log(`  ${s}: ${g.filter(r => r.outcome === 'victory').length} Sieg / ${g.filter(r => r.outcome === 'defeat').length} Niederlage · progMin med ${(med2(mins) * 100).toFixed(0)}% max ${(Math.max(...mins) * 100).toFixed(0)}% · finalRisk med ${med2(g.map(r => r.finalRisk)).toFixed(0)}`);
   }
   console.log(`  Niederlage-Ursachen: ${JSON.stringify(lossCauses)}`);
+  const med = (xs: number[]) => { const s = [...xs].sort((a, b) => a - b); return s.length ? s[Math.floor(s.length / 2)] : 0; };
+  console.log(`  Auftrag-Fortschritt: min(Median) ${(med(all.map(r => r.progressMin)) * 100).toFixed(0)}% · mean(Median) ${(med(all.map(r => r.progressMean)) * 100).toFixed(0)}% · Max-min ${(Math.max(...all.map(r => r.progressMin)) * 100).toFixed(0)}% · finalRisk(Median) ${med(all.map(r => r.finalRisk)).toFixed(0)}`);
+  // Pro-Achse (greedy): welche Signatur-Achse ist der Flaschenhals?
+  const greedyRuns = byStrategy('greedy');
+  const axisKeys = greedyRuns[0]?.axes.map(a => a.wert) ?? [];
+  for (const k of axisKeys) {
+    const vals = greedyRuns.map(r => r.axes.find(a => a.wert === k)?.progress ?? 0);
+    console.log(`    greedy Achse ${k}: med ${(med(vals) * 100).toFixed(0)}% max ${(Math.max(...vals) * 100).toFixed(0)}%`);
+  }
 
   it('ist GEWINNBAR (genug Siege im Aggregat)', () => {
-    // Ist-Beobachtung 15–17 über Reset-/Reihenfolge-Varianten. Floor 6 → fängt robust
-    // „unbesiegbar geworden", ohne an der nicht-isolierbaren Feinverteilung zu hängen.
-    expect(wins.length).toBeGreaterThanOrEqual(6);
+    // Ist ~6–7 (Etappe 1). Floor 4 → beweist robust „gewinnbar", mit Luft für die ±1–2-Drift
+    // des nicht-isolierbaren Legacy-Sims. Die Verschärfung auf die 30–60 %-Bänder folgt mit
+    // dem Wettrennen (TARGET_BANDS).
+    expect(wins.length).toBeGreaterThanOrEqual(4);
   });
 
   it('ist VERLIERBAR (genug Niederlagen im Aggregat)', () => {
     // Der historische Bug war „Verlieren ist mathematisch unmöglich" — genau das fängt dies.
-    // Ist-Beobachtung 19–21. Floor 6.
+    // Ist ~30. Floor 6.
     expect(defeats.length).toBeGreaterThanOrEqual(6);
   });
 

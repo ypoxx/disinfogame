@@ -48,7 +48,6 @@ export const AUFTRAEGE: Record<AuftragId, Auftrag> = {
       { wert: 'fragmentierung', richtung: 'hoch', start: 15, ziel: 45 },
       { wert: 'diskursqualitaet', richtung: 'runter', start: 70, ziel: 40 },
     ],
-    istDefault: true,
   },
   wahl: {
     id: 'wahl',
@@ -62,6 +61,7 @@ export const AUFTRAEGE: Record<AuftragId, Auftrag> = {
       { wert: 'vertrauen', richtung: 'runter', start: 100, ziel: 50 },
       { wert: 'zynismus', richtung: 'hoch', start: 20, ziel: 45 },
     ],
+    istDefault: true,
   },
   zweifel: {
     id: 'zweifel',
@@ -104,7 +104,7 @@ export function auftragEpilog(id: AuftragId): { de: string; en: string } {
 }
 
 export function getDefaultAuftrag(): Auftrag {
-  return AUFTRAEGE.keil;
+  return AUFTRAEGE.wahl;   // Etappe 1: EIN Auftrag „Die Wahl" (Zielbild §8)
 }
 
 /**
@@ -129,15 +129,20 @@ export function auftragMissionVerdict(progress: number, titel: string): { de: st
 }
 
 /**
- * Fortschritt eines Auftrags (0..1): wie weit die Signatur-Achsen ihr Ziel erreicht haben,
- * gemittelt. Für die Anzeige (HUD/Instrument) und die spätere Enden-Auswahl.
+ * Fortschritt eines Auftrags (0..1): wie weit die Signatur-Achsen ihr Ziel erreicht haben.
+ *
+ * - `'mean'` (Default): gemittelt — für die Anzeige (HUD/Instrument) und das Enden-Verdikt.
+ * - `'min'`: die SCHWÄCHSTE Achse — für den SIEG-Check (Etappe 1). Min-Regel, damit eine
+ *   überdrehte Achse keine zwei vernachlässigten trägt: gewonnen wird erst, wenn JEDE
+ *   Signatur-Achse ihr Ziel erreicht.
  */
 export function auftragProgress(
   auftrag: Auftrag,
   values: Partial<Record<SocietyValueKey | 'vertrauen', number>>,
+  mode: 'mean' | 'min' = 'mean',
 ): number {
   if (auftrag.signatur.length === 0) return 0;
-  let sum = 0;
+  const perAxis: number[] = [];
   for (const sig of auftrag.signatur) {
     const v = values[sig.wert];
     if (typeof v !== 'number') continue;
@@ -146,7 +151,10 @@ export function auftragProgress(
     const p = sig.richtung === 'hoch'
       ? (v - sig.start) / span
       : (sig.start - v) / span;
-    sum += Math.max(0, Math.min(1, p));
+    perAxis.push(Math.max(0, Math.min(1, p)));
   }
-  return sum / auftrag.signatur.length;
+  if (perAxis.length === 0) return 0;
+  if (mode === 'min') return Math.min(...perAxis);
+  // 'mean' teilt bewusst durch die volle Signatur-Länge (fehlende Achsen zählen als 0).
+  return perAxis.reduce((a, b) => a + b, 0) / auftrag.signatur.length;
 }

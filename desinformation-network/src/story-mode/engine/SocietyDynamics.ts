@@ -119,6 +119,10 @@ export function societyDeltaFromAction(
     if (ctx.legality === 'grey' || ctx.legality === 'illegal') {
       addDelta(d, 'polarisierung', iw * mult * 1.3);
       addDelta(d, 'zynismus', iw * mult * 0.9);
+      // Etappe 1: aggressive Aktionen mobilisieren die uns-nahe (radikale) Kraft — sonst
+      // bleibt fraktionsstaerke der einsame Flaschenhals der Wahl-Signatur (nur ~6 Aktionen
+      // tragen political_*). Thematisch: Spalten/Demoralisieren stärkt die Radikalen.
+      addDelta(d, 'fraktionsstaerke', iw * mult * 1.0);
     }
     if (ctx.legality === 'illegal') {
       addDelta(d, 'zynismus', iw * mult * 0.5);
@@ -148,6 +152,13 @@ export function societyFormulaStep(s: SocietySnapshot): SocietyDelta {
 
   // Hoher Zynismus senkt die Wehrhaftigkeit (Rückzug-Signatur).
   if (s.zynismus > 40) addDelta(d, 'wehrhaftigkeit', -(s.zynismus - 40) * 0.04);
+
+  // Etappe 1: Eine gespaltene, verdrossene Gesellschaft driftet zur radikalen Kraft —
+  // Polarisierung + Zynismus stärken die uns-nahe Fraktion. Thematisch „Division füttert
+  // die Radikalen"; mechanisch macht es die Wahl-Signatur (fraktionsstaerke) über die
+  // action-treibbaren Achsen erreichbar, statt nur über die seltenen political_*-Aktionen.
+  const fraktionsDrift = (s.polarisierung + s.zynismus) / 2;
+  if (fraktionsDrift > 35) addDelta(d, 'fraktionsstaerke', (fraktionsDrift - 35) * 0.06);
 
   // Resilienz: bei niedrigem Druck erholen sich Diskursqualität und (langsamer) Wehrhaftigkeit.
   if (s.informationslast < 30 && s.polarisierung < 40) {
