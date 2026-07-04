@@ -258,6 +258,34 @@ export const SOCIETY_VALUE_META: Record<SocietyValueKey, { label_de: string; vis
 export const VISIBLE_SOCIETY_KEYS: SocietyValueKey[] =
   (Object.keys(SOCIETY_VALUE_META) as SocietyValueKey[]).filter(k => SOCIETY_VALUE_META[k].visible);
 
+// ── Etappe 3 (Paket B): Stufen-Gegenmaßnahmen — Verträge zwischen Engine und UI ──
+
+/** Vereinheitlichte Reaktion auf eine Stufen-Gegenmaßnahme (Zielbild §3). */
+export type StageCountermeasureChoice = 'kontern' | 'aussitzen' | 'ablenken';
+
+export interface StageCountermeasureOption {
+  id: StageCountermeasureChoice;
+  label_de: string;
+  /** Kühle Folgen-Vorschau („Budget −25 · Maßnahme abgeschwächt"). */
+  folge_de: string;
+  /** kontern braucht Budget — sonst ausgegraut. */
+  available: boolean;
+}
+
+/** Die an einer Abwehr-Stufe (25/50/75) anstehende Gegenmaßnahme fürs Modal. */
+export interface StageCountermeasureOffer {
+  stage: AbwehrStage;
+  definition: CountermeasureDefinition;
+  options: StageCountermeasureOption[];
+}
+
+/** Bilanz nach der Auflösung — kühle Quittungs-Zeilen (E8). */
+export interface StageCountermeasureResolution {
+  stage: AbwehrStage;
+  label_de: string;
+  lines_de: string[];
+}
+
 /**
  * Story Mode Aktion (narrativ verpackte Ability)
  */
@@ -4347,6 +4375,165 @@ export class StoryEngineAdapter {
   /** Ausstehende Stufen (read-only, für UI-Hinweise). */
   getPendingAbwehrStages(): AbwehrStage[] {
     return [...this.pendingAbwehrStages];
+  }
+
+  /**
+   * Nacht-VORSCHAU fürs Tagesfazit: Das Tagesfazit erscheint VOR endPhase — es soll
+   * die KOMMENDE Nacht ausweisen („Über Nacht holen die Institutionen X zurück").
+   * Deterministisch aus dem aktuellen Zustand berechnet, mutiert nichts. Kleiner,
+   * bewusster Unschärfe-Rand: Verteidiger, die erst heute Nacht spawnen, fehlen hier.
+   */
+  getNightPreview(): NightReport {
+    const step = abwehrStep({
+      current: this.storyResources.wehrhaftigkeit,
+      noiseRisk: this.noiseRiskToday,
+      noiseAttention: this.noiseAttentionToday,
+      defenderStrengthSum: this.actorAI.getDefenderStrengthSum(),
+      armsRaceLevel: this.actorAI.getArmsRaceLevel(),
+    });
+    return {
+      day: this.storyPhase.number,
+      trustRegeneration: this.actorAI.getTrustRegeneration(),
+      abwehrDelta: step.delta,
+      abwehrParts: step.parts,
+      abwehrAfter: step.next,
+    };
+  }
+
+  // ── Paket B: Stufen-Gegenmaßnahmen (CountermeasureSystem eingesteckt) ────────────
+  // An den Stufen 25/50/75 feuert je EINE kuratierte DISARM-Maßnahme (Zielbild §3):
+  // Prebunking-Kampagne (cm24) · Plattform-Sperre (cm05) · Task-Force (cm22).
+  // Der Spieler reagiert mit 2–3 vereinheitlichten Optionen: kontern (Geld, dämpft
+  // die Maßnahme) / aussitzen (füttert die Abwehr) / ablenken (Risiko).
+  // Typen dafür: StageCountermeasureOffer/-Resolution (unten bei den Exporten).
+
+  private readonly STAGE_COUNTERMEASURES: Record<AbwehrStage, string> = {
+    25: 'cm24',  // Prebunking-Kampagne — impft das Publikum, stärkt das Vertrauen
+    50: 'cm05',  // Plattform-Maßnahmen — „Kanal gesperrt", Aktion X Tage grau
+    75: 'cm22',  // Internationale Untersuchungskoalition — die Task-Force
+  };
+  private readonly COUNTER_COST_BUDGET = 25;   // kontern kostet Geld (E18: Geld = Druck)
+  private readonly SIT_OUT_ABWEHR = 4;         // aussitzen füttert die Abwehr
+  private readonly DISTRACT_RISK = 6;          // ablenken erkauft Ruhe mit Risiko
+  private readonly DISTRACT_ATTENTION_RELIEF = 4;
+  private readonly BAN_DAYS = 4;               // Plattform-Sperre: Kanal X Tage grau
+  private readonly TASKFORCE_COUNTDOWN_START = 8;
+  private readonly TASKFORCE_COUNTDOWN_CUT = 3;
+
+  /**
+   * Die anstehende Stufen-Gegenmaßnahme für die UI (oder null). Peek — konsumiert
+   * erst resolveStageCountermeasure. Optionen mit Verfügbarkeits-Flag (kontern
+   * braucht Budget).
+   */
+  getPendingStageCountermeasure(): StageCountermeasureOffer | null {
+    const stage = this.pendingAbwehrStages[0];
+    if (!stage) return null;
+    const definition = this.countermeasureSystem.getCountermeasure(this.STAGE_COUNTERMEASURES[stage]);
+    if (!definition) return null;
+    return {
+      stage,
+      definition,
+      options: [
+        {
+          id: 'kontern',
+          label_de: 'Kontern',
+          folge_de: `Budget −${this.COUNTER_COST_BUDGET} · die Maßnahme wird abgeschwächt`,
+          available: this.storyResources.budget >= this.COUNTER_COST_BUDGET,
+        },
+        {
+          id: 'aussitzen',
+          label_de: 'Aussitzen',
+          folge_de: `Keine Kosten · die Abwehr wächst um +${this.SIT_OUT_ABWEHR}`,
+          available: true,
+        },
+        {
+          id: 'ablenken',
+          label_de: 'Ablenken',
+          folge_de: `Risiko +${this.DISTRACT_RISK} · Aufmerksamkeit −${this.DISTRACT_ATTENTION_RELIEF}`,
+          available: true,
+        },
+      ],
+    };
+  }
+
+  /**
+   * Stufen-Gegenmaßnahme auflösen: Basis-Zähne der Maßnahme + Folge der gewählten
+   * Reaktion. Kontern dämpft die Zähne (halbe Wirkung), aussitzen füttert die
+   * Abwehr, ablenken tauscht Aufmerksamkeit gegen Risiko. Liefert die Bilanz-Zeilen
+   * für die UI (kühle Quittung, E8).
+   */
+  resolveStageCountermeasure(choice: StageCountermeasureChoice): StageCountermeasureResolution | null {
+    const stage = this.pendingAbwehrStages.shift();
+    if (!stage) return null;
+    const cmId = this.STAGE_COUNTERMEASURES[stage];
+    // Im CountermeasureSystem registrieren (Save/Bilanz) — Definition für die Texte.
+    const definition = this.countermeasureSystem.triggerById(cmId, this.storyPhase.number)
+      ?? this.countermeasureSystem.getCountermeasure(cmId);
+    const label = definition?.label_de ?? `Gegenmaßnahme Stufe ${stage}`;
+    const lines: string[] = [];
+    const countered = choice === 'kontern';
+
+    // Reaktions-Folgen zuerst (sie erklären die Dämpfung der Zähne).
+    if (countered) {
+      this.storyResources.budget -= this.COUNTER_COST_BUDGET;
+      lines.push(`Gegenkampagne bezahlt: Budget −${this.COUNTER_COST_BUDGET}.`);
+    } else if (choice === 'aussitzen') {
+      this.raiseAbwehr(this.SIT_OUT_ABWEHR);
+      lines.push(`Nichts unternommen — die Maßnahme wirkt ungestört: Abwehr +${this.SIT_OUT_ABWEHR}.`);
+    } else {
+      this.storyResources.risk = Math.min(100, this.storyResources.risk + this.DISTRACT_RISK);
+      this.storyResources.attention = Math.max(0, this.storyResources.attention - this.DISTRACT_ATTENTION_RELIEF);
+      lines.push(`Ablenkungsmanöver: Aufmerksamkeit −${this.DISTRACT_ATTENTION_RELIEF}, Risiko +${this.DISTRACT_RISK}.`);
+    }
+
+    // Basis-Zähne je Stufe (kontern halbiert).
+    if (stage === 25) {
+      // Prebunking: das Publikum wird geimpft — die Institutionen gewinnen Vertrauen.
+      const regain = countered ? 2 : 4;
+      this.applyInstitutionalTrustDelta(regain);
+      lines.push(`Prebunking wirkt: Institutionen-Vertrauen +${regain}.`);
+    } else if (stage === 50) {
+      // Plattform-Sperre: der meistgenutzte jüngste Kanal wird still gelegt.
+      const banDays = countered ? Math.ceil(this.BAN_DAYS / 2) : this.BAN_DAYS;
+      const lastRealAction = [...this.actionHistory].reverse()
+        .find((h) => !h.actionId.startsWith('op_'))?.actionId;
+      if (lastRealAction) {
+        this.actorAI.disableAction(lastRealAction, this.storyPhase.number + banDays);
+        const label_de = this.getActionById(lastRealAction)?.label_de ?? lastRealAction;
+        lines.push(`Kanal gesperrt: „${label_de}" für ${banDays} Tage nicht verfügbar.`);
+        this.newsEvents.unshift({
+          id: `abwehr_ban_${lastRealAction}_${this.storyPhase.number}`,
+          phase: this.storyPhase.number,
+          headline_de: 'Plattform setzt Sperren durch',
+          headline_en: 'Platform enforces bans',
+          description_de: `Koordinierte unechte Aktivitäten eingeschränkt — ein Kanal ist ${banDays} Tage still.`,
+          description_en: `Coordinated inauthentic behavior restricted — one channel is silent for ${banDays} days.`,
+          type: 'world_event',
+          severity: 'warning',
+          read: false,
+          pinned: false,
+        });
+      } else {
+        lines.push('Plattform-Sperren greifen — noch gibt es keinen Kanal, den es trifft.');
+      }
+    } else {
+      // Task-Force: der Ermittler-Countdown beschleunigt (oder beginnt).
+      const risk = countered ? 2 : 5;
+      this.storyResources.risk = Math.min(100, this.storyResources.risk + risk);
+      if (this.exposureCountdown === null) {
+        this.exposureCountdown = countered
+          ? this.TASKFORCE_COUNTDOWN_START + 2
+          : this.TASKFORCE_COUNTDOWN_START;
+        lines.push(`Die Task-Force nimmt die Ermittlung auf: Countdown ${this.exposureCountdown} Tage · Risiko +${risk}.`);
+      } else {
+        const cut = countered ? 1 : this.TASKFORCE_COUNTDOWN_CUT;
+        this.exposureCountdown = Math.max(1, this.exposureCountdown - cut);
+        lines.push(`Die Task-Force beschleunigt die Ermittlung: Countdown −${cut} (jetzt ${this.exposureCountdown}) · Risiko +${risk}.`);
+      }
+    }
+
+    storyLogger.log(`[ImmuneSystem] Stufe ${stage}: ${label} — Reaktion „${choice}"`);
+    return { stage, label_de: label, lines_de: lines };
   }
 
   /** Bilanz der bisherigen P2-Operationen (End-Report/Atlas). */

@@ -15,6 +15,11 @@ import {
   OperationsSummary,
   DecisionBeatResult,
 } from '../../game-logic/StoryEngineAdapter';
+import type {
+  StageCountermeasureOffer,
+  StageCountermeasureChoice,
+  StageCountermeasureResolution,
+} from '../../game-logic/StoryEngineAdapter';
 import type { OperationParams } from '../battlefield/BattlefieldChain';
 import { getEpisode, type Episode } from '../engine/EpisodeLoader';
 import type { AuftragId } from '../engine/Auftraege';
@@ -334,6 +339,9 @@ export interface StoryGameState {
   // Crisis System
   activeCrisis: ActiveCrisis | null;
 
+  // Etappe 3 (Paket B): an einer Abwehr-Stufe (25/50/75) anstehende Gegenmaßnahme
+  activeStageCountermeasure: StageCountermeasureOffer | null;
+
   // Recommendation Tracking
   recommendationTracking: Map<string, {
     followed: number;
@@ -458,6 +466,9 @@ export function useStoryGameState(seed?: string) {
 
   // Crisis System
   const [activeCrisis, setActiveCrisis] = useState<ActiveCrisis | null>(null);
+  // Etappe 3 (Paket B): anstehende Stufen-Gegenmaßnahme (Modal nach endPhase).
+  const [activeStageCountermeasure, setActiveStageCountermeasure] =
+    useState<StageCountermeasureOffer | null>(null);
 
   // Recommendation Tracking
   const [recommendationTracking, setRecommendationTracking] = useState<Map<string, {
@@ -911,6 +922,14 @@ export function useStoryGameState(seed?: string) {
         setActiveCrisis(mostUrgent);
         storyLogger.log(`[CRISIS] Triggered: ${mostUrgent.crisis.name_en}`);
       }
+    }
+
+    // Etappe 3 (Paket B): hat die ABWEHR über Nacht eine Stufe (25/50/75) überschritten,
+    // steht die kuratierte Gegenmaßnahme an → Modal am Morgen (kontern/aussitzen/ablenken).
+    const pendingStageCm = engine.getPendingStageCountermeasure();
+    if (pendingStageCm) {
+      playSound('countermeasure');
+      setActiveStageCountermeasure(pendingStageCm);
     }
 
     // Spine Slice 2/3: Der Dirigent kürt den nächsten Beat und legt ihn im
@@ -1476,6 +1495,26 @@ export function useStoryGameState(seed?: string) {
   }, []);
 
   // ============================================
+  // STUFEN-GEGENMASSNAHMEN (Etappe 3, Paket B)
+  // ============================================
+
+  /** Reaktion wählen: Engine löst auf (Zähne + Folgen), UI zeigt die Quittung im Modal. */
+  const resolveStageCountermeasure = useCallback(
+    (choice: StageCountermeasureChoice): StageCountermeasureResolution | null => {
+      const resolution = engine.resolveStageCountermeasure(choice);
+      setResources(engine.getResources());
+      setNewsEvents(engine.getNewsEvents());
+      return resolution;
+    },
+    [engine]
+  );
+
+  /** Nach der Quittung: schließen — steht eine WEITERE Stufe an, folgt deren Modal. */
+  const dismissStageCountermeasure = useCallback(() => {
+    setActiveStageCountermeasure(engine.getPendingStageCountermeasure());
+  }, [engine]);
+
+  // ============================================
   // BETRAYAL SYSTEM HANDLERS
   // ============================================
 
@@ -1697,6 +1736,7 @@ export function useStoryGameState(seed?: string) {
       activeBetrayalWarnings,
       activeBetrayalEvent,
       activeCrisis,
+      activeStageCountermeasure,
       recommendationTracking,
       comboHints,
       carrierStates,
@@ -1753,6 +1793,10 @@ export function useStoryGameState(seed?: string) {
     acknowledgeBetrayal,
     dismissBetrayalWarnings,
     addressGrievance,
+
+    // Stufen-Gegenmaßnahmen (Etappe 3, Paket B)
+    resolveStageCountermeasure,
+    dismissStageCountermeasure,
 
     // Crisis System
     resolveCrisis,

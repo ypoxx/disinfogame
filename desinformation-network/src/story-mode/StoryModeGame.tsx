@@ -22,6 +22,7 @@ import { AdvisorDetailModal } from './components/AdvisorDetailModal';
 import { BetrayalWarningBadge } from './components/BetrayalWarningBadge';
 import { GrievanceModal } from './components/GrievanceModal';
 import { BetrayalEventModal } from './components/BetrayalEventModal';
+import { StageCountermeasureModal } from './components/StageCountermeasureModal';
 import { ComboHintsWidget } from './components/ComboHintsWidget';
 import { CrisisModal } from './components/CrisisModal';
 import { BetrayalIndicators } from './components/BetrayalIndicators';
@@ -288,6 +289,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     acknowledgeBetrayal,
     dismissBetrayalWarnings,
     addressGrievance,
+    resolveStageCountermeasure,
+    dismissStageCountermeasure,
     resolveCrisis,
     dismissCrisis,
     saveGame,
@@ -1490,6 +1493,15 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           isVisible={true}
           event={state.activeBetrayalEvent}
           onAcknowledge={acknowledgeBetrayal}
+        />
+      )}
+
+      {/* Etappe 3 (Paket B): Stufen-Gegenmaßnahme (Abwehr 25/50/75) */}
+      {state.activeStageCountermeasure && (
+        <StageCountermeasureModal
+          offer={state.activeStageCountermeasure}
+          onResolve={resolveStageCountermeasure}
+          onClose={dismissStageCountermeasure}
         />
       )}
 

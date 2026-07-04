@@ -525,6 +525,16 @@ export class StoryActorAI {
   }
 
   /**
+   * Etappe 3 (Paket B): eine Aktion gezielt sperren — die Abwehr-Stufe 50
+   * („Plattform-Sperren werden endlich durchgesetzt") legt einen Kanal für
+   * X Tage still. Nutzt dieselbe disabledActions-Buchhaltung wie der
+   * platform_moderator, damit EINE Quelle der Wahrheit bleibt.
+   */
+  disableAction(actionId: string, reenablePhase: number): void {
+    this.disabledActions.set(actionId, reenablePhase);
+  }
+
+  /**
    * Check if an action is currently disabled by platform moderation
    */
   isActionDisabled(actionId: string, currentPhase: number): boolean {
