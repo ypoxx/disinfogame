@@ -54,10 +54,10 @@ export function StatsPanel({
               className="text-3xl font-bold"
               style={{ color: StoryModeColors.ministryRed }}
             >
-              {phase.year}
+              {phase.number}
             </div>
             <div className="text-xs" style={{ color: StoryModeColors.textMuted }}>
-              JAHR
+              TAG
             </div>
           </div>
           <div className="text-center">
@@ -65,21 +65,10 @@ export function StatsPanel({
               className="text-3xl font-bold"
               style={{ color: StoryModeColors.warning }}
             >
-              {phase.month}
+              {Math.max(0, (phase.electionDay ?? 40) - phase.number)}
             </div>
             <div className="text-xs" style={{ color: StoryModeColors.textMuted }}>
-              MONAT
-            </div>
-          </div>
-          <div className="text-center">
-            <div
-              className="text-3xl font-bold"
-              style={{ color: StoryModeColors.agencyBlue }}
-            >
-              {phase.number}
-            </div>
-            <div className="text-xs" style={{ color: StoryModeColors.textMuted }}>
-              PHASE
+              BIS ZUR WAHL
             </div>
           </div>
           <div className="text-center">
@@ -453,7 +442,7 @@ export function StatsPanel({
             color: StoryModeColors.textMuted,
           }}
         >
-          Verbleibende Zeit: {10 - phase.year} Jahre, {12 - phase.month} Monate
+          Verbleibende Zeit: {Math.max(0, (phase.electionDay ?? 40) - phase.number)} Tage bis zur Wahl
         </div>
       </div>
     </div>

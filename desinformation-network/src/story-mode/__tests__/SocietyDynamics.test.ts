@@ -80,8 +80,19 @@ describe('societyFormulaStep (nicht-lineare Kopplung)', () => {
     expect(d.reformfaehigkeit!).toBeLessThan(0);
   });
 
-  it('hoher Zynismus senkt Wehrhaftigkeit (Rückzug)', () => {
-    const d = societyFormulaStep({ ...baseSnapshot, zynismus: 65 });
+  it('Etappe 3: die Phasen-Formel bewegt die ABWEHR (wehrhaftigkeit) NICHT mehr', () => {
+    // Falle 4 (HANDOFF Etappe 3): wehrhaftigkeit ist zur ABWEHR befördert — passive
+    // Gesellschafts-Drift (Zynismus-Kopplung/Resilienz-Erholung) zöge den zweiten
+    // Rennläufer mit falschem Vorzeichen. Nur gezielte Aktionen (demoralization =
+    // „Bremse") und das ImmuneSystem dürfen sie bewegen.
+    const hoch = societyFormulaStep({ ...baseSnapshot, zynismus: 65 });
+    expect(hoch.wehrhaftigkeit).toBeUndefined();
+    const ruhig = societyFormulaStep({ ...baseSnapshot, informationslast: 20, polarisierung: 20, wehrhaftigkeit: 10 });
+    expect(ruhig.wehrhaftigkeit).toBeUndefined();
+  });
+
+  it('gezielte Zermürbung (demoralization) senkt die ABWEHR weiter — die „Bremse"', () => {
+    const d = societyDeltaFromAction({ demoralization: 0.4 }, 1, { legality: 'grey' });
     expect(d.wehrhaftigkeit!).toBeLessThan(0);
   });
 

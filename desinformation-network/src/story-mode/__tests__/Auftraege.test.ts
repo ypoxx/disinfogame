@@ -8,10 +8,10 @@ import { AUFTRAEGE, auftragProgress, getDefaultAuftrag, auftragEpilog } from '..
 import { createStoryEngine } from '../../game-logic/StoryEngineAdapter';
 
 describe('Auftrags-Daten', () => {
-  it('hat die drei Erst-Archetypen mit Default „Der Keil"', () => {
+  it('hat die drei Archetypen mit Default „Die Wahl" (Etappe 1: EIN Auftrag)', () => {
     expect(Object.keys(AUFTRAEGE).sort()).toEqual(['keil', 'wahl', 'zweifel']);
-    expect(getDefaultAuftrag().id).toBe('keil');
-    expect(AUFTRAEGE.keil.istDefault).toBe(true);
+    expect(getDefaultAuftrag().id).toBe('wahl');
+    expect(AUFTRAEGE.wahl.istDefault).toBe(true);
     for (const a of Object.values(AUFTRAEGE)) {
       expect(a.titel_de.length).toBeGreaterThan(2);
       expect(a.signatur.length).toBeGreaterThan(0);
@@ -46,9 +46,9 @@ describe('Auftrags-Daten', () => {
 });
 
 describe('Auftrag in der Engine', () => {
-  it('Default „keil", wählbar, save/load-fest', () => {
+  it('Default „wahl", wählbar, save/load-fest', () => {
     const e = createStoryEngine('auftrag');
-    expect(e.getAuftragId()).toBe('keil');
+    expect(e.getAuftragId()).toBe('wahl');
     e.setAuftrag('zweifel');
     expect(e.getAuftrag().titel_de).toBe('Der Zweifel');
 
@@ -57,10 +57,10 @@ describe('Auftrag in der Engine', () => {
     loaded.loadState(saved);
     expect(loaded.getAuftragId()).toBe('zweifel');
 
-    // Alter Save ohne Auftrag → Default keil.
+    // Alter Save ohne Auftrag → Default wahl (Etappe 1).
     const old = JSON.parse(saved); old.version = '1.0.0'; delete old.currentAuftragId;
     const l2 = createStoryEngine('f2'); l2.loadState(JSON.stringify(old));
-    expect(l2.getAuftragId()).toBe('keil');
+    expect(l2.getAuftragId()).toBe('wahl');
   });
 
   it('Auftragswahl ändert die Sieg-Mathematik NICHT (Balance-Neutralität v1)', () => {

@@ -51,7 +51,8 @@ describe('StoryEngineAdapter', () => {
     it('should advance phase correctly', () => {
       const result = engine.advancePhase();
       expect(result.newPhase.number).toBe(2);
-      expect(result.newPhase.month).toBe(2);
+      // Etappe 2 „Die Uhr": 1 Tag = 1 Phase; der Wahltag ist die Ziellinie.
+      expect(result.newPhase.electionDay).toBe(40);
     });
 
     it('should regenerate capacity on phase advance', () => {
@@ -73,15 +74,15 @@ describe('StoryEngineAdapter', () => {
       expect(resources.actionPointsRemaining).toBe(5);
     });
 
-    it('should handle year transitions', () => {
-      // Advance 12 phases to get to year 2
-      for (let i = 0; i < 12; i++) {
+    it('zählt Tage bis zum Wahltag herunter (Etappe 2)', () => {
+      // 10 Tage vorrücken → Tag 11, Wahl in 29 Tagen.
+      for (let i = 0; i < 10; i++) {
         engine.advancePhase();
       }
       const phase = engine.getCurrentPhase();
-      expect(phase.year).toBe(2);
-      expect(phase.month).toBe(1);
-      expect(phase.isNewYear).toBe(true);
+      expect(phase.number).toBe(11);
+      expect(engine.getElectionInfo().daysRemaining).toBe(29);
+      expect(phase.label_de).toContain('29 Tagen');
     });
   });
 

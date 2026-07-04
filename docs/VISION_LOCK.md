@@ -11,6 +11,13 @@
 Bei Widerspruch gewinnt **der laufende Code / die Daten**, nicht die Prosa. (`npcs.json` schlägt `README`.)
 Belege sind verifiziert (Datei:Zeile bzw. Daten-Zählung). Entscheidungen wurden am 2026-05-31 getroffen.
 
+> 🔄 **AMENDMENT 2026-07-04 (Owner-Transkript, bindend):** Sieg/Niederlage und Zeitmodell dieses
+> Locks sind revidiert — **EIN Siegweg** (Auftrag „Die Wahl" als Wettrennen gegen das Immunsystem)
+> ersetzt den Vertrauens-Sieg; die 8 Ending-Kategorien bleiben als Text-/Epilog-Rahmen, entscheiden
+> aber nicht mehr; das Zeitmodell wechselt von „Jahre 1–10" auf eine ~40-Tage-Kampagne (Wahltag).
+> Quelle: `DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md` + `ZIELBILD_2026-07-04_WETTRENNEN.md`.
+> NPC-Roster, Zähl-Fakten, Kunst-Richtung und Pro-Mode-Archivierung gelten unverändert.
+
 ---
 
 ## 1. NPC-Roster  ✅ entschieden

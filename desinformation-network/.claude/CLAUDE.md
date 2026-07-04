@@ -25,7 +25,7 @@ Panels), Broadcast-Leiste (Taste B: Sendung + Publikums-Wohnzimmer).
 | Bereich | Dateien | Prinzip |
 |---|---|---|
 | Gebäude | `building/buildingLayout.ts`, `BuildingNavigator.ts` (pure TS, getestet), `useNavigator.ts`, `BuildingStage.tsx`, `BuildingView.tsx` | Daten (`data/building.json`) → Layout → Navigator-Schritte (`durationMs` + `timeCostMin`-Hook, v1=0) → Stage rendert |
-| Broadcast | `broadcast/broadcastMapping.ts` (PROVISORISCH), `useAudienceBroadcast.ts`, `BroadcastBar.tsx` | reine Anzeige-Schicht über `audience/audienceModel.ts` — KEINE Rückwirkung auf Mechanik |
+| Broadcast | `broadcast/broadcastMapping.ts` (PROVISORISCH), `useAudienceBroadcast.ts`, `BroadcastBar.tsx` | bisher reine Anzeige-Schicht über `audience/audienceModel.ts`; **per Owner-Entscheidung 2026-07-04 (E16) wirken Publikum/Milieus mechanisch zurück** (Immunisierung, Kippen) — Umbau folgt per `docs/ZIELBILD_2026-07-04_WETTRENNEN.md` |
 | Assets | `assets/` (Registry, useSprite, PixelSprite) | lädt `public/assets/assets.json`; **jede** Grafik/jeder Sound hat CSS-/Synth-Fallback |
 | Engine | `hooks/useStoryGameState.ts`, `../game-logic/StoryEngineAdapter.ts`, `engine/*` | Phase nur über `endPhase()`; Engine ist mutable Klasse in React-State (bewusst) |
 | Daten | `data/*.json` (building, npcs, actions, dialogues, audience, …) | Daten zuerst ändern, Code folgt |

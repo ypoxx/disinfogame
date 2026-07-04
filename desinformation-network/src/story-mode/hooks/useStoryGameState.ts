@@ -15,6 +15,11 @@ import {
   OperationsSummary,
   DecisionBeatResult,
 } from '../../game-logic/StoryEngineAdapter';
+import type {
+  StageCountermeasureOffer,
+  StageCountermeasureChoice,
+  StageCountermeasureResolution,
+} from '../../game-logic/StoryEngineAdapter';
 import type { OperationParams } from '../battlefield/BattlefieldChain';
 import { getEpisode, type Episode } from '../engine/EpisodeLoader';
 import type { AuftragId } from '../engine/Auftraege';
@@ -334,6 +339,9 @@ export interface StoryGameState {
   // Crisis System
   activeCrisis: ActiveCrisis | null;
 
+  // Etappe 3 (Paket B): an einer Abwehr-Stufe (25/50/75) anstehende Gegenmaßnahme
+  activeStageCountermeasure: StageCountermeasureOffer | null;
+
   // Recommendation Tracking
   recommendationTracking: Map<string, {
     followed: number;
@@ -458,6 +466,9 @@ export function useStoryGameState(seed?: string) {
 
   // Crisis System
   const [activeCrisis, setActiveCrisis] = useState<ActiveCrisis | null>(null);
+  // Etappe 3 (Paket B): anstehende Stufen-Gegenmaßnahme (Modal nach endPhase).
+  const [activeStageCountermeasure, setActiveStageCountermeasure] =
+    useState<StageCountermeasureOffer | null>(null);
 
   // Recommendation Tracking
   const [recommendationTracking, setRecommendationTracking] = useState<Map<string, {
@@ -913,6 +924,14 @@ export function useStoryGameState(seed?: string) {
       }
     }
 
+    // Etappe 3 (Paket B): hat die ABWEHR über Nacht eine Stufe (25/50/75) überschritten,
+    // steht die kuratierte Gegenmaßnahme an → Modal am Morgen (kontern/aussitzen/ablenken).
+    const pendingStageCm = engine.getPendingStageCountermeasure();
+    if (pendingStageCm) {
+      playSound('countermeasure');
+      setActiveStageCountermeasure(pendingStageCm);
+    }
+
     // Spine Slice 2/3: Der Dirigent kürt den nächsten Beat und legt ihn im
     // directorStore ab → Marinas Vorgriffszeile im nächsten Morgenbriefing. Krise hat
     // Vorfahrt; sonst zieht Slice 3 gewichtet aus dem Pool aller reifen Episoden +
@@ -986,21 +1005,19 @@ export function useStoryGameState(seed?: string) {
       if (result.success) {
         setCompletedActions(prev => [...prev, actionId]);
 
-        // Process action through Betrayal System
+        // Betrayal risk is already processed inside engine.executeAction
+        // (StoryEngineAdapter.processNPCReactions → betrayalSystem.processAction).
+        // Etappe-0-Fix (2026-07-04): Hier NICHT erneut processAction aufrufen — das
+        // zählte den Moral-Weight doppelt und ließ Verrats-Risiko im echten Spiel
+        // doppelt so schnell steigen wie in der Simulation. Wir lesen nur noch den
+        // vom Adapter erzeugten Zustand für die UI (read-only, kein Doppelzählen).
         const betrayalSystem = getBetrayalSystem();
 
         // Check if action has moral weight (triggers betrayal risk)
         if (action.costs?.moralWeight && action.costs.moralWeight > 0) {
-          const betrayalResult = betrayalSystem.processAction(
-            actionId,
-            action.tags || [],
-            action.costs.moralWeight,
-            currentPhase.number
-          );
-
-          // Store warnings to show later
-          if (betrayalResult.warnings.length > 0) {
-            setActiveBetrayalWarnings(betrayalResult.warnings);
+          // Warnungen stammen aus dem Adapter-Ergebnis (eine Verarbeitung, eine Wahrheit)
+          if (result.betrayalWarnings && result.betrayalWarnings.length > 0) {
+            setActiveBetrayalWarnings(result.betrayalWarnings);
           }
 
           // Check if any NPC is at critical betrayal risk
@@ -1021,6 +1038,12 @@ export function useStoryGameState(seed?: string) {
                 currentPhase.number
               );
               if (betrayalEvent) {
+                // Paket C (Etappe 3): Die Folgen WIRKEN jetzt (bisher nur Modal-Text) —
+                // Verrat = Abwehr-Ereignis (+15) statt eigener Game-Over.
+                engine.applyBetrayalEvent(betrayalEvent);
+                setResources(engine.getResources());
+                setNewsEvents(engine.getNewsEvents());
+                setNpcs(engine.getAllNPCs());
                 setActiveBetrayalEvent(betrayalEvent);
                 storyLogger.warn(`BETRAYAL: ${npc.name} has betrayed the operation!`);
                 // Betrayal event will be shown via modal
@@ -1478,6 +1501,26 @@ export function useStoryGameState(seed?: string) {
   }, []);
 
   // ============================================
+  // STUFEN-GEGENMASSNAHMEN (Etappe 3, Paket B)
+  // ============================================
+
+  /** Reaktion wählen: Engine löst auf (Zähne + Folgen), UI zeigt die Quittung im Modal. */
+  const resolveStageCountermeasure = useCallback(
+    (choice: StageCountermeasureChoice): StageCountermeasureResolution | null => {
+      const resolution = engine.resolveStageCountermeasure(choice);
+      setResources(engine.getResources());
+      setNewsEvents(engine.getNewsEvents());
+      return resolution;
+    },
+    [engine]
+  );
+
+  /** Nach der Quittung: schließen — steht eine WEITERE Stufe an, folgt deren Modal. */
+  const dismissStageCountermeasure = useCallback(() => {
+    setActiveStageCountermeasure(engine.getPendingStageCountermeasure());
+  }, [engine]);
+
+  // ============================================
   // BETRAYAL SYSTEM HANDLERS
   // ============================================
 
@@ -1523,32 +1566,21 @@ export function useStoryGameState(seed?: string) {
   const resolveCrisis = useCallback((choiceId: string) => {
     if (!activeCrisis) return;
 
-    const crisisSystem = getCrisisMomentSystem();
-    const currentPhase = engine.getCurrentPhase();
-
-    const resolution = crisisSystem.resolveCrisis(
-      activeCrisis.crisisId,
-      choiceId,
-      currentPhase.number
-    );
+    // Etappe-0-Fix (2026-07-04): Über den Adapter auflösen, NICHT direkt über das
+    // CrisisMomentSystem. Der frühere Direktweg hat die Effekte der Spielerwahl nur
+    // geloggt, aber nie angewandt (folgenlose Krise). engine.resolveCrisis() wendet
+    // die Effekte via applyCrisisEffects an und schreibt die Auflösungs-News.
+    const resolution = engine.resolveCrisis(activeCrisis.crisisId, choiceId);
 
     if (resolution) {
       storyLogger.log(`[CRISIS] Resolved: ${activeCrisis.crisis.name_en} with choice ${choiceId}`);
 
-      // Apply effects from the choice
-      resolution.effects.forEach(effect => {
-        if (effect.type === 'resource_bonus' && effect.value) {
-          // Apply resource changes
-          storyLogger.log(`[CRISIS] Effect: ${effect.type} = ${effect.value}`);
-        }
-      });
-
-      // Clear the active crisis
+      // Clear the active crisis (Sound spielt bereits engine.resolveCrisis — kein Doppel-Sound)
       setActiveCrisis(null);
-      playSound('success');
 
-      // Refresh game state
+      // Refresh game state (Ressourcen/Objectives nach angewandten Effekten)
       setResources(engine.getResources());
+      setObjectives(engine.getObjectives());
       setNpcs(engine.getAllNPCs());
       setNewsEvents(engine.getNewsEvents());
 
@@ -1710,6 +1742,7 @@ export function useStoryGameState(seed?: string) {
       activeBetrayalWarnings,
       activeBetrayalEvent,
       activeCrisis,
+      activeStageCountermeasure,
       recommendationTracking,
       comboHints,
       carrierStates,
@@ -1766,6 +1799,10 @@ export function useStoryGameState(seed?: string) {
     acknowledgeBetrayal,
     dismissBetrayalWarnings,
     addressGrievance,
+
+    // Stufen-Gegenmaßnahmen (Etappe 3, Paket B)
+    resolveStageCountermeasure,
+    dismissStageCountermeasure,
 
     // Crisis System
     resolveCrisis,

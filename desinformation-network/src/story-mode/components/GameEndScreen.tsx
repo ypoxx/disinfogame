@@ -141,8 +141,7 @@ Manchmal ist das Richtige zu tun schwieriger als weiterzumachen.`,
 
 function StatsGrid({ stats }: { stats: GameEndData['stats'] }) {
   const statItems: Array<{ label: string; value: number; suffix?: string; color: string }> = [
-    { label: 'Jahre gespielt', value: Math.floor(stats.phasesPlayed / 12), color: StoryModeColors.warning },
-    { label: 'Phasen', value: stats.phasesPlayed, color: StoryModeColors.textPrimary },
+    { label: 'Kampagnen-Tage', value: stats.phasesPlayed, color: StoryModeColors.warning },
     { label: 'Aktionen', value: stats.actionsExecuted, color: StoryModeColors.agencyBlue },
     { label: 'Konsequenzen', value: stats.consequencesTriggered, color: StoryModeColors.danger },
     { label: 'NPCs in Krise', value: stats.npcsCrisis, color: StoryModeColors.ministryRed },

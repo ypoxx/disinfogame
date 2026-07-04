@@ -143,3 +143,40 @@ Offen für die Roadmap (priorisiert nach Gutachten):
    Pflege. Nachgezogen (STATUS.md, dieses Doc, `DECISIONS_2026-06-20_BEATS.md`). Lehre: auch
    bei einer engen Continuation-Aufgabe STATUS am Ende aktualisieren und Owner-Entscheidungen
    ins datierte DECISIONS-Doc destillieren.
+7. **Pacing/Schwierigkeit: die Sim-VERTEILUNG ist der Beweis, nicht die Sieg-Quote.** Für
+   P2-17 („spürbar härter") war die exakte Win-Rate (verrauscht, s. STATUS-Methodik-Notiz)
+   wertlos — der überzeugende Beleg war die **Struktur** der Enden: das „Zeit abgelaufen"-
+   Fizzle verschwand komplett und vorsichtiges Spiel sprang von max. Risiko ~3 (nie enttarnt)
+   auf ~85–100 (kann auffliegen). Lehre: Difficulty-Änderungen am **Vorher/Nachher der
+   Enden-Verteilung + Max-Risiko je Strategie** messen, nicht an einer Zahl. Erst Baseline
+   loggen, dann ändern, dann gegenmessen; die neuen Garantien als Regressionstest pinnen
+   (`Pacing.test.ts`: frühe Welle deterministisch, Schonzeit risiko-arm, Spät-Eskalation in
+   die Gefahr) — und die Sieg-Achse über `BalanceInvariant` weiter sauber halten (R2).
+
+## Etappe 3 „Immunsystem" — Lehren zum Balance-Tuning (2026-07-04)
+
+8. **Deterministische Sim-Strategien sind bang-bang; Bänder brauchen große Stichproben.**
+   Die drei Sim-Strategien (greedy/random/low_risk) sind pro Seed nahezu deterministisch —
+   bei 12 Partien/Strategie kippt eine Win-Rate mit einer winzigen Stellschraube komplett
+   von 0 % auf 100 % (kein stabiles „50 %"). Erst **24 Partien/Strategie (72 gesamt)** haben
+   die `globalRandom`-Verrauschung des Engine-Kerns genug gemittelt, dass greedy stabil bei
+   29–50 % lag und tragfähige Bänder (`TARGET_BANDS`) scharfschaltbar wurden. Lehre: Für
+   Pro-Strategie-Bänder Stichprobe erhöhen, NICHT die Floors immer weiter aufweichen; und die
+   Robustheit **8×-flakefrei** verifizieren, bevor man ein Band als Gate pinnt.
+9. **Gekoppelte Balance-Hebel einzeln bewegen und gegen ALLE Gates messen.** Vier Stellschrauben
+   (Lärm-Kopplung, Risiko-Melder-Anteil, fraktions-Drift, Win-Threshold) zogen sich gegenseitig:
+   der Fix für ein Band brach ein anderes (greedy in Band → p2-Operatoren chancenlos → operator
+   fixen → low_risk 100 %). Die Auflösung war kein globaler Kompromiss, sondern ein **sauber
+   getrennter Hebel**: Operationen treiben `fraktionsstaerke`, was NUR op-spielende Strategien
+   betrifft (die Haupt-Gate-Strategien rufen `playOperation` nie auf). Lehre: Wenn zwei Tests
+   Gegensätzliches vom selben Regler wollen, suche einen Hebel, der nur EINE Seite berührt —
+   und miss jede Änderung gegen `winnable-and-losable` UND `balance-sim-p2` zugleich.
+10. **Das „doppelte Buchhaltung" vermeiden.** Anfangs speiste die Aktions-Risikokost sowohl den
+    Enttarnungs-Melder (voll) als auch die Abwehr (voll) — aggressives Spiel flog schon an Tag 8
+    auf, bevor die neue Mechanik (Abwehr) je griff. Erst als der Lärm PRIMÄR in die Abwehr floss
+    und den rohen Risiko-Melder nur gedämpft traf (`RISK_COST_TO_METER`), wurde die Abwehr zum
+    eigentlichen zweiten Rennläufer. Lehre bei neuen Ressourcen: prüfen, ob eine Kost mehrere
+    Melder DOPPELT treibt, und den Anteil je Melder bewusst aufteilen.
+11. **Container-Toolchain-Drift bleibt akut.** Auch diese Session brauchte `npm ci` im
+    `desinformation-network/` vor dem Gate (frischer Web-Container ohne node_modules / mit
+    falscher TS-Version). Weiter Kandidat für den SessionStart-Hook.

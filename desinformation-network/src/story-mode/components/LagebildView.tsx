@@ -169,7 +169,7 @@ export function LagebildView({ resources, phase, objectives, newsEvents, npcs, u
       onClose={onClose}
       variant="standard"
       maxWidthClass="max-w-4xl"
-      title={<span><Icon name="dashboard" size={14} title="Lagebild" /> LAGEBILD — JAHR {phase.year} · MONAT {phase.month} · PHASE {phase.number}</span>}
+      title={<span><Icon name="dashboard" size={14} title="Lagebild" /> LAGEBILD — TAG {phase.number} · WAHL IN {Math.max(0, (phase.electionDay ?? 40) - phase.number)} TAGEN</span>}
     >
       <div className="p-4 font-mono">
         {/* Ressourcen */}

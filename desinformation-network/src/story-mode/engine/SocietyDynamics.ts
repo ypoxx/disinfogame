@@ -119,6 +119,10 @@ export function societyDeltaFromAction(
     if (ctx.legality === 'grey' || ctx.legality === 'illegal') {
       addDelta(d, 'polarisierung', iw * mult * 1.3);
       addDelta(d, 'zynismus', iw * mult * 0.9);
+      // Etappe 1: aggressive Aktionen mobilisieren die uns-nahe (radikale) Kraft — sonst
+      // bleibt fraktionsstaerke der einsame Flaschenhals der Wahl-Signatur (nur ~6 Aktionen
+      // tragen political_*). Thematisch: Spalten/Demoralisieren stärkt die Radikalen.
+      addDelta(d, 'fraktionsstaerke', iw * mult * 1.0);
     }
     if (ctx.legality === 'illegal') {
       addDelta(d, 'zynismus', iw * mult * 0.5);
@@ -146,13 +150,26 @@ export function societyFormulaStep(s: SocietySnapshot): SocietyDelta {
   const blockade = (s.polarisierung + s.fragmentierung) / 2;
   if (blockade > 35) addDelta(d, 'reformfaehigkeit', -(blockade - 35) * 0.03);
 
-  // Hoher Zynismus senkt die Wehrhaftigkeit (Rückzug-Signatur).
-  if (s.zynismus > 40) addDelta(d, 'wehrhaftigkeit', -(s.zynismus - 40) * 0.04);
+  // Etappe 3: KEINE passive Zynismus-Drift auf `wehrhaftigkeit` mehr — der Wert ist
+  // zur ABWEHR befördert (zweiter Rennläufer, ImmuneSystem). Die alte Kopplung hätte
+  // das falsche Vorzeichen im Rennen: die Gesellschafts-Drift zöge den Gegner-Balken
+  // runter. Gezieltes Senken bleibt möglich (demoralization-Aktionen = „Bremse").
 
-  // Resilienz: bei niedrigem Druck erholen sich Diskursqualität und (langsamer) Wehrhaftigkeit.
+  // Etappe 1: Eine gespaltene, verdrossene Gesellschaft driftet zur radikalen Kraft —
+  // Polarisierung + Zynismus stärken die uns-nahe Fraktion. Thematisch „Division füttert
+  // die Radikalen"; mechanisch macht es die Wahl-Signatur (fraktionsstaerke) über die
+  // action-treibbaren Achsen erreichbar, statt nur über die seltenen political_*-Aktionen.
+  // Etappe 3 (Paket E): Kopplung gedämpft (0.06 → 0.035). Passives Spiel soll die
+  // Fraktions-Stärke NICHT mehr allein über die Drift bis ans Ziel schieben — sonst
+  // gewinnt „nur abwarten" verlässlich. Aktives Spalten/Aggression treibt sie weiter
+  // direkt (societyDeltaFromAction), also bleibt der Auftrag für Aktive erreichbar.
+  const fraktionsDrift = (s.polarisierung + s.zynismus) / 2;
+  if (fraktionsDrift > 35) addDelta(d, 'fraktionsstaerke', (fraktionsDrift - 35) * 0.035);
+
+  // Resilienz: bei niedrigem Druck erholt sich die Diskursqualität. (Die frühere
+  // Wehrhaftigkeits-Erholung übernimmt das ImmuneSystem-Grundrauschen — Etappe 3.)
   if (s.informationslast < 30 && s.polarisierung < 40) {
     addDelta(d, 'diskursqualitaet', 0.3);
-    if (s.wehrhaftigkeit < 60) addDelta(d, 'wehrhaftigkeit', 0.1);
   }
 
   return d;

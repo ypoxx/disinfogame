@@ -15,8 +15,12 @@ Wir abstrahieren die MUSTER dieser Spiele (Planungs-Rhythmus, Verbindlichkeiten,
 sichtbares Publikums-Feedback, Wettrennen um eine Deutungs-Metrik) und übertragen
 sie mit mehrfachem Nachdenken auf etwas Eigenes: den Arbeitsalltag in einem
 fiktiven **Desinformationsministerium**, das eine westliche Demokratie bespielt.
-Spielbar, spannend, niedrigschwellig; Bildung entsteht durch das Spiel als
-Ganzes (v. a. den End-Report), nicht durch Belehrung. Pixel-Art **aus einem Guss**
+Spielbar, spannend, niedrigschwellig. Gewonnen wird auf genau EINEM Weg: den
+AUFTRAG erreichen — ein Wettrennen gegen das erwachende „Immunsystem" der
+Gesellschaft (Plague-Inc-Prinzip); am Auftrag kann man auch scheitern. Bildung
+entsteht durch das Spiel als Ganzes — eingewoben in NPC-Nebensätze, News und
+klickbare Umgebung, gebündelt im Civ-artigen End-Report —, nie durch Belehrung.
+Pixel-Art **aus einem Guss**
 — die visuelle Kohärenz ist das Erste, was Nutzer sehen und beurteilen.
 
 ## 2. Der Owner (und wie man ihn liest)
@@ -46,19 +50,45 @@ Ganzes (v. a. den End-Report), nicht durch Belehrung. Pixel-Art **aus einem Guss
 1. Alles aus einem Guss (Pixel-Art überall; Texte als flexible Ebene darüber).
 2. Glaubwürdige Welt: kein Röntgenblick, echte Proportionen (Avatar > Schreibtisch!),
    Gebäude in einer Stadt, Raum-Nahsicht beim Betreten.
-3. Mechanik dient der Simulation — keine künstliche Verknappung/tickende Uhr.
+3. Mechanik dient der Simulation — eine tickende Uhr ist erlaubt und erwünscht
+   (revidiert, Owner 2026-07-04/E4): Tageszyklus mit Anfang und Ende plus eine
+   flexible Kampagnen-Uhr („30-Tage-Gefühl"; Modell: Wahltag, siehe ZIELBILD §5).
+   Druck eher schleichend als skriptete Stürme; Verknappung bleibt diegetisch
+   motiviert, nie willkürlich.
 4. Bewegung ist Gefühl und Rhythmus, keine Belohnungsquelle.
-5. Bildung durchs Ganze; moralische Last dezent; End-Report ist der Lernmoment.
+5. Bildung durchs Ganze: Lernmomente eingewoben ins Spiel (NPC-Nebensätze, News,
+   klickbare Umgebung mit wechselnden Mikro-Lernmomenten — „darf auch mal was
+   Süßes sein") UND der Civ-artige End-Report als Bündelung (revidiert, Owner
+   2026-07-04/E10). Kühle Quittierung statt Erfolgs-Feier, leiser schlechter
+   Beigeschmack — erzählerisch getragen, nie didaktisch, nie akademische
+   Unterbrechung (E8).
 6. Niedrigschwellig, Spaß zuerst; Zielgruppe spielaffine Erwachsene.
 7. Einfache Sprache Richtung Owner (Lehre: „Diegese").
 8. Budget-Bewusstsein; Warnung ab ~dreistelligen Euro-Beträgen pro Maßnahme.
 9. Feinheiten mit Spielbezug statt beliebiger Gags.
-10. Zielbild 0.9: durchspielbar, gewinn- UND verlierbar, NPCs mit Situations-
-    bewusstsein, Aktionen aus Dialogen heraus, keine Entwurfs-Reste.
+10. Zielbild 0.9: durchspielbar, gewinn- UND verlierbar (hart per Simulations-
+    Test verankert, E11), NPCs mit Situationsbewusstsein, Aktionen aus Dialogen
+    heraus, keine Entwurfs-Reste.
+11. EIN Siegweg: Der Auftrag ist das Ziel UND das Spiel (E2) — keine zwei
+    Anzeigetafeln mehr. Gewinnen ist ein Wettrennen gegen das mechanische
+    „Immunsystem" der Gesellschaft (E1); am Auftrag kann man scheitern.
+    Wiederholte Maschen verpuffen (Abstumpfung/Immunisierung, E5); Gegenmaßnahmen
+    werden mit der Zeit transparent. Spielspaß schlägt Bildungswirkung im
+    Konfliktfall (E9). Ausgestaltung: `ZIELBILD_2026-07-04_WETTRENNEN.md`.
+12. „Schaufenster" heißt visuelle Einfachheit (Milieus plakativ als Figuren,
+    MadTV-Stil, verschiedene Situationen) — mechanische Rückwirkung von
+    Publikum/Milieus (Immunisierung, Kippen) ist ausdrücklich erlaubt und
+    erwünscht (E16). Die alte Lesart „keine Rückwirkung" war ein Missverständnis.
 
 ## 4. Arbeitsmodus der KI-Sessions
 
-> **AKTUELLER STAND (2026-06-14):** Strang 1 (#77) + 2 (#78) + Feinplan 3+4 (#79) **und PR #80**
+> **RICHTUNGS-STAND (2026-07-04):** Bindende Owner-Entscheidungen E1–E20 in
+> `DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md`, ausgestaltet im kanonischen
+> `ZIELBILD_2026-07-04_WETTRENNEN.md`: Auftrag = Sieg (EIN Weg, „Die Wahl"),
+> Wettrennen gegen das Immunsystem (Sonntagsfrage vs. Abwehr), 40-Tage-Uhr,
+> Milieu-Rückwirkung erwünscht, R2 gefallen. Bau-Stand: `STATUS.md`.
+>
+> **Historie (2026-06-14):** Strang 1 (#77) + 2 (#78) + Feinplan 3+4 (#79) **und PR #80**
 > gemerged: Strang 3+4 **P0 + P1 (komplett) + P2 (Konzept + Engine, noch ohne UI)** plus umfangreiche
 > Politur/Konsistenz. Im Spiel: Aktion-aus-Dialog, NPC-Stimmen (Begrüßungen + Reaktionen aller 5,
 > Steckbriefe in `NPC_VOICE_PROFILES.md`), 125 Aktionen (Igor/Finanz inkl. Kredit, Fokusgruppe),
@@ -74,8 +104,10 @@ Ganzes (v. a. den End-Report), nicht durch Belehrung. Pixel-Art **aus einem Guss
 > (Token-Budget). Auftrag/Entscheidungen: `DECISIONS_2026-06-13B_TRANSCRIPT.md`.
 
 - **Erst lesen:** SOUL.md → **`STATUS.md`** (aktueller Bau-Stand: erledigt/offen/TODO) →
-  **`DECISIONS_2026-06-13B_TRANSCRIPT.md`** (neuestes) → `DECISIONS_2026-06-12_NEXT_LEVEL.md` →
-  `GESAMTKONZEPT_VISUELL.md` → `NEXT_LEVEL_PLAN.md`. CLAUDE.md im Spielordner für Technik-Regeln.
+  **`DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md`** (neuestes, BINDEND: E1–E20) →
+  **`ZIELBILD_2026-07-04_WETTRENNEN.md`** (kanonisches Zielbild + Etappenplan) →
+  `KONZEPT_2026-06-20_SIEG_KOPPLUNG.md` (beantwortete Vorlage, Code-Befunde + Nebenbefunde) →
+  `GESAMTKONZEPT_VISUELL.md` → ältere DECISIONS bei Bedarf. CLAUDE.md im Spielordner für Technik-Regeln.
 - **Orchestrierung:** Großes parallelisieren (Recherche/Reviews/Implementierung
   auf disjunkten Dateien), Integration zentral halten. Agenten-Briefings IMMER
   mit harter Abschluss-Klausel („Antwort MUSS mit BERICHT: beginnen, keine

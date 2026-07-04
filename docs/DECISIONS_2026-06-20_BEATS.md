@@ -1,6 +1,14 @@
 # 📋 Owner-Entscheidungen 2026-06-20 — Spine/Beats (Vertrauen-Kopplung)
 
-**Status:** Kanonisch — destilliert aus dem Chat-Austausch dieser Session.
+> ⚠️ **SUPERSEDED (2026-07-04):** Die Kern-Entscheidung dieses Dokuments — **R2:
+> „Beats bewegen NUR andere Achsen, nicht die Sieg-Achse"** — ist per Owner-Transkript
+> **gefallen** (`DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md`, E3 + Konsequenz 2;
+> Zielbild: `ZIELBILD_2026-07-04_WETTRENNEN.md`). Beats/Episoden koppeln künftig an
+> den Sieg. Beim Umbau muss auch der Invariant-Test (`DecisionBeatApply.test.ts`),
+> der das Verwerfen der Vertrauens-Wirkung absichert, umgedreht werden.
+> Dieses Dokument bleibt als datiertes Protokoll erhalten.
+
+**Status:** ~~Kanonisch~~ Historisch (superseded, s. o.) — destilliert aus dem Chat-Austausch dieser Session.
 **Verhältnis:** Ergänzt `BAUPLAN_STORY_DIRECTOR_SPINE.md`, `BEAT_MUSTER_KATALOG.md`,
 `HANDOFF_2026-06-18.md`, `SOUL.md`. Bezieht sich auf PR #87 (Spine Slice 3/4 + Schicht 3).
 **Lesehilfe:** ✅ entschieden · 🧩 Konzept-/Bau-Auftrag · 💬 Rückfrage · ⚠️ Hinweis.

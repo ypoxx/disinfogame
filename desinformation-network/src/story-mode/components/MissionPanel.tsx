@@ -33,12 +33,14 @@ export function MissionPanel({
   const primaryObjectives = objectives.filter(o => o.type === 'primary');
   const secondaryObjectives = objectives.filter(o => o.type === 'secondary');
 
-  const getPhaseDescription = (year: number) => {
-    if (year <= 2) return 'GRÜNDUNG - Bauen Sie Ihr Netzwerk auf und etablieren Sie erste Kanäle.';
-    if (year <= 4) return 'EXPANSION - Erweitern Sie Ihren Einfluss und rekrutieren Sie Schlüsselfiguren.';
-    if (year <= 6) return 'INFILTRATION - Unterwandern Sie Institutionen und verbreiten Sie Narrative.';
-    if (year <= 8) return 'ESKALATION - Verstärken Sie die Spaltung und destabilisieren Sie das System.';
-    return 'ENDSPIEL - Führen Sie den finalen Schlag aus.';
+  // Etappe 2 „Die Uhr": Kampagnen-Akte statt Jahres-Phasen — die Beschreibung folgt dem
+  // Countdown zum Wahltag (Akt-Dramaturgie: Keil treiben → Zweifel säen → Wahl kippen).
+  const getPhaseDescription = (day: number, electionDay: number) => {
+    const t = day / Math.max(1, electionDay);
+    if (t <= 0.33) return 'AKT 1: DEN KEIL TREIBEN — Netzwerk aufbauen, das Land an Reizthemen spalten.';
+    if (t <= 0.66) return 'AKT 2: DEN ZWEIFEL SÄEN — Institutionen delegitimieren, die Gegenseite demobilisieren.';
+    if (day < electionDay) return 'AKT 3: DIE WAHL KIPPEN — die uns nahe Kraft über die Schwelle bringen.';
+    return 'WAHLTAG — heute zählt nur noch die Hochrechnung.';
   };
 
   const content = (
@@ -94,11 +96,11 @@ export function MissionPanel({
               color: StoryModeColors.warning,
             }}
           >
-            JAHR {phase.year} / MONAT {phase.month}
+            TAG {phase.number} / WAHL IN {Math.max(0, (phase.electionDay ?? 40) - phase.number)} TAGEN
           </span>
         </div>
         <p style={{ color: StoryModeColors.textPrimary }}>
-          {getPhaseDescription(phase.year)}
+          {getPhaseDescription(phase.number, phase.electionDay ?? 40)}
         </p>
       </div>
 
@@ -402,7 +404,7 @@ export function MissionPanel({
               color: StoryModeColors.textMuted,
             }}
           >
-            <span>Dokument: OP-WU-{phase.year.toString().padStart(2, '0')}{phase.month.toString().padStart(2, '0')}</span>
+            <span>Dokument: OP-WU-T{phase.number.toString().padStart(2, '0')}</span>
             <span>Freigabestufe: GAMMA</span>
           </div>
         </div>

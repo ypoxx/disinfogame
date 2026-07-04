@@ -23,7 +23,17 @@ export interface GegenseiteContext {
   risk: number;            // 0–100
   carriersBurned: number;  // Anzahl enttarnter Verbreiter
   phase: number;
+  /** Etappe 3 Paket D: höchste gezündete ABWEHR-Stufe (0/25/50/75), 0 wenn keine. */
+  abwehrStage?: number;
 }
+
+/** Je gezündeter ABWEHR-Stufe EINE Attributions-Zeile — die Gegenseite bekommt einen
+ *  Namen für den eigenen Fortschritt (Zielbild §3: „Stufen-Zähne"). */
+const ABWEHR_STAGE_LINES: Record<number, string> = {
+  25: 'Seit die Behörden hinsehen [Abwehr 25], vergleicht man Notizen systematisch.',
+  50: 'Die Abwehr arbeitet jetzt koordiniert [Stufe 50] — Redaktionen, Plattformen, Behörden.',
+  75: 'Task-Force-Niveau [Stufe 75]: Ihre Handschrift ist aktenkundig.',
+};
 
 /** Berechnet den Aufklärungsgrad 0..1 aus dem Lage-Bild. */
 export function gegenseiteAwareness(ctx: GegenseiteContext): number {
@@ -58,6 +68,11 @@ export function deriveGegenseite(ctx: GegenseiteContext): GegenseiteReport {
       'Im Abendprogramm wird Ihre Handschrift benannt — das Publikum hört genau hin.',
     ];
   }
+
+  // Stufen-Attribution ans Ende anhängen (unabhängig vom Aufklärungsgrad — die Stufe
+  // ist ein eigenes, mechanisch verankertes Signal, kein Ersatz für die Erzählung oben).
+  const stageLine = ctx.abwehrStage ? ABWEHR_STAGE_LINES[ctx.abwehrStage] : undefined;
+  if (stageLine) lines = [...lines, stageLine];
 
   return { awareness, format_de, lines };
 }

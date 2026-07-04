@@ -133,9 +133,9 @@ describe('EndReport Komponente', () => {
     expect(screen.getByText('Verhaftung')).toBeTruthy();
   });
 
-  it('zeigt die Amtszeit korrekt an (36 Phasen = 3 Jahre)', () => {
+  it('zeigt die Kampagnen-Länge in Tagen an (Etappe 2: Wahlkampagne)', () => {
     render(<EndReport {...defaultProps} phasesPlayed={36} />);
-    expect(screen.getByText(/3 Jahre/)).toBeTruthy();
+    expect(screen.getAllByText(/36 Tage bis zum Wahltag/).length).toBeGreaterThanOrEqual(1);
   });
 
   it('zeigt Schließen-Button und ruft onClose auf', async () => {

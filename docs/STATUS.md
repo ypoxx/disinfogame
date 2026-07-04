@@ -4,14 +4,103 @@
 offen/zurückgestellt ist, und die priorisierte TODO-Liste. Ersetzt nicht die Detailpläne,
 sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 
-> Lese-Reihenfolge: `SOUL.md` → `DECISIONS_2026-06-13B_TRANSCRIPT.md` →
-> `STRANG34_FEINPLAN_2026-06-13_AKTIONEN_DIALOGE.md` → `GESAMTKONZEPT_VISUELL.md` →
-> dieses Dokument für den aktuellen Bau-Stand. Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
+> Lese-Reihenfolge: `SOUL.md` → **`DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md`** (bindend) →
+> **`ZIELBILD_2026-07-04_WETTRENNEN.md`** (kanonisches Zielbild + Etappenplan) →
+> `GESAMTKONZEPT_VISUELL.md` → dieses Dokument für den aktuellen Bau-Stand.
+> Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
+
+**Stand:** 2026-07-04 (RICHTUNGSWECHSEL) · **Owner-Transkript F1–F25 beantwortet** → bindende
+Entscheidungen E1–E20 (`DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md`), ausgearbeitet per Design-Panel
+(5 Entwürfe + 3 Juroren + 2 Sweeps) zum kanonischen **`ZIELBILD_2026-07-04_WETTRENNEN.md`**:
+> - **Sieg = EIN Weg:** Auftrag „Die Wahl" — Sonntagsfrage über die Schwelle bringen, bevor die
+>   ABWEHR (Immunsystem, befördertes `wehrhaftigkeit`) 100 erreicht oder der Wahltag (~Tag 40) kommt.
+>   **R2 ist gefallen** (Beats/Episoden koppeln an den Sieg); `obj_destabilize`-Sieg + Halte-Logik entfallen.
+> - **Drei Verlustwege:** Land hält stand · Wahlabend verloren (Pleite = Vorstufe) · Enttarnt.
+>   Verrat = +15-Abwehr-Ereignis statt eigener Game-Over.
+> - **Nächster Schritt = Etappe 0 „Leitplanke":** hartes Gewinnbar/Verlierbar-Sim-Gate + die 8
+>   Nebenbefunde fixen (KONZEPT-Anhang), DANN erst umverdrahten (Etappen 1–5, Zielbild §13).
+> - SOUL.md revidiert (P3 Uhr, P5 Lernmomente, P11/P12 neu); alte R2-Dokumente mit Superseded-Kopf.
+
+**Stand:** 2026-07-04 (ETAPPE 3 „Immunsystem sichtbar" ✅) · Branch `claude/etappe-3-handoff-startup-0fr81v` · Gate grün (`tsc 0` · `vitest 533` · `build`). Baut auf Etappe 0–2 (PR #89).
+> Der zweite Rennläufer lebt: **ABWEHR 0–100** (befördertes `wehrhaftigkeit`) mit Stufen 25/50/75, Verlust „Das Land hält stand" bei 100 (Zielbild §3/§4/§7).
+> - **Paket A — ImmuneSystem** (`engine/ImmuneSystem.ts`, pur/testbar wie VictorySystem): nächtlicher Abwehr-Schritt aus vier Zuflüssen — Lärm (Risiko/Aufmerksamkeit der eigenen Aktionen+Operationen), Verteidiger-Maschinerie (`getDefenderStrengthSum`+`armsRaceLevel`), Maschen-Wiederholung („Gepatcht" übers 18er-Atlas-Vokabular, `counter_de`-Lernmoment), Zeitgrundrauschen. `wehrhaftigkeit` Start 60→8 (das Land ist naiv); passive Formeldrift auf die Abwehr **entfernt** (Falle 4, falsches Vorzeichen). Neuer Verlustweg `immune` in `VictorySystem` (VOR Sieg+Timeout; Enttarnung bleibt getrennt). Save **2.0.0→2.1.0** (Altstände erben den neuen Abwehr-Start).
+> - **Paket B — Stufen-Gegenmaßnahmen:** an 25/50/75 feuert je eine kuratierte DISARM-Maßnahme (Prebunking cm24 · Plattform-Sperre cm05 · Task-Force cm22) mit vereinheitlichten Reaktionen kontern/aussitzen/ablenken (`StageCountermeasureModal`). `CountermeasureSystem.triggerById` (vorher null Aufrufer). Nacht-Vorschau `getNightPreview` fürs Tagesfazit.
+> - **Paket C — Zähne scharf:** Plattform-Sperren durchgesetzt (`isActionDisabledByAI` in getAvailableActions **und** executeAction — „Kanal gesperrt"), `reach_reduction` implementiert (Wirkungs-Dämpfung, klingt ab), `BetrayalEvent.effects` angewandt → **Verrat = +15-Abwehr-Ereignis** mit Leak-Story; `apparatus`-Verlustweg entfernt (3 Kern-Verlustwege).
+> - **Paket D — UI:** ABWEHR-Balken im HUD (Stufen-Marken 25/50/75), Nacht-Transparenz im DayReport („Über Nacht: …"), Gegenseite-Vignetten mit Stufen-Attribution.
+> - **Paket E — Balance:** Wettrennen austariert — aggressives Spiel fliegt jetzt am Immunsystem auf statt an Sofort-Enttarnung. Sim-Gate (`winnable-and-losable`, 72 Partien, 8× flakefrei) mit **scharfgeschalteten Bändern**: greedy 29–50 % (Median ~42 %, Zielbild-Korridor 30–60 %), low_risk 29–63 % (Passivität kein sicherer Weg), Immun-Verlustweg feuert robust. Operationen mobilisieren die radikale Kraft (op-Spiel bleibt gewinnbar). **Carry-forward Etappe 5:** 2. Verlustweg (Enttarnung) ≥15 % — im Sim dünn, weil der Rambo vorher an der Abwehr scheitert; die Aktions-Kuratierung formt den Draw um.
+> - **Detail-Arbeitsplan/Fallen:** `HANDOFF_2026-07-04_ETAPPE3.md`. **Offen (Preview/Owner):** ABWEHR-Balken-Optik + Nacht-Box am Deploy-Preview sichten; HUD-Konsolidierung (Risiko raus) ist Etappe 5.
+
+**Stand:** 2026-07-04 (ETAPPE 2 „Die Uhr" ✅) · Branch `claude/gracious-keller-g43bu3`, PR #89 · Gate grün (`tsc 0` · `vitest 482` · `build`).
+> - **Kampagnen-Uhr:** 120-Phasen-Kalender (12 Monate × 10 Jahre) → **40-Tage-Wahlkampagne** (1 Tag =
+>   1 Phase, `electionDay`, `CAMPAIGN_DAYS_DEFAULT=40`). `StoryPhase.year/month` deprecated (konstant),
+>   neu `electionDay` + Countdown-Labels. Timeout-Ende → **„Wahlabend verloren"**. Pacing/Poll/Cooldown
+>   auf Tage umgerechnet (Grace 42→12, Welle 6→4, Poll 3→5 = Sonntagsfrage, Cooldown 12→6). Alle
+>   HUD/Report-Komponenten zeigen Tag+Countdown. `shiftElectionDay`-API bereit. Save 1.1.0→**2.0.0**.
+> - **Isolation geschlossen:** `createStoryEngine()` resettet jetzt alle Gameplay-Singletons → der
+>   Etappe-0-State-Leak zwischen Partien (Spiel-Neustart + Sim-Läufe) ist behoben; Sim jetzt stabil.
+> - **Selbst-Review-Fixes:** Doppel-Sound bei Krisen-Auflösung entfernt; EndReport/GameEndScreen von
+>   Jahre/Monate auf Kampagnen-Tage umgestellt. Tests geflippt (Pacing, PollNews, StoryEngineAdapter,
+>   EndReport, DecisionBeatFlow — letzterer: Krisen-Mock NACH startGame wegen neuem Reset).
+> - ⚠️ **Balance invertiert (Tuning-Ziel Etappe 3):** greedy 0 % / low_risk 100 % in der kurzen
+>   Kampagne; Gate (gewinnbar UND verlierbar, 23/13) hält robust. Bewusst NICHT jetzt getunt — das
+>   ImmuneSystem (Etappe 3) formt Risiko/Ertrag neu. Nächster Schritt: **Etappe 3 „Immunsystem sichtbar"**.
+
+**Stand:** 2026-07-04 (ETAPPE 1 „Auftrag = Sieg" ✅) · Branch `claude/gracious-keller-g43bu3`, PR #89 · Gate grün (`tsc 0` · `vitest 482` · `build`).
+> - **Sieg = Auftrag:** neues Modul `story-mode/engine/VictorySystem.ts` (reine Ausgangs-Entscheidung).
+>   Sieg = Signatur „Die Wahl" erfüllt (Min-Regel, `auftragProgress(…,'min')`) — nicht mehr gehaltenes
+>   Vertrauen (`obj_destabilize`-Halte-Logik ist raus). R2 gefallen: Beats/Episoden mit `vertrauen`-Delta
+>   koppeln jetzt an die Sieg-Achse (`applyTrustDelta`). EIN Auftrag (Default `wahl`).
+> - **Reachability-Fix (vom Gate aufgedeckt):** Sieg war zunächst UNerreichbar (0/36), weil
+>   `fraktionsstaerke` nur über ~6 `political_*`-Aktionen treibbar ist. Zwei design-sinnvolle Kopplungen in
+>   `SocietyDynamics`: aggressive Aktionen mobilisieren die radikale Fraktion + gespaltene/verdrossene
+>   Gesellschaft driftet zu ihr. Danach: gewinnbar UND verlierbar (greedy ~50 %, random/low_risk 0 %).
+> - **Tests geflippt:** `DecisionBeatApply` (R2 → Kopplung), `Auftraege` (Default keil → wahl). Gate um
+>   Pro-Achsen-Diagnose erweitert; Win-Floor auf 4 (Luft für Sim-Drift), TARGET_BANDS für Etappe 2/3.
+> - **Carry-forward:** Enden-Beschnitt + `AuftragSelect`-UI-Entfernung → Etappe 5; `WIN_THRESHOLD` 0.5→1.0
+>   mit Aktions-Kuratierung. Nächster Schritt: **Etappe 2 „Die Uhr"** (`CAMPAIGN_DAYS`/Wahltag, Zielbild §13).
+
+**Stand:** 2026-07-04 (ETAPPE 0 „Leitplanke" ✅) · Branch `claude/gracious-keller-g43bu3`, PR #89 · Gate grün (`tsc 0` · `vitest 482` · `build`).
+> - **Sim-Gate gebaut:** `src/story-mode/tests/winnable-and-losable.test.ts` — das erste harte
+>   „gewinnbar UND verlierbar"-Gate des Projekts (bis heute gab es KEINES; nur loggende Sims). 36
+>   deterministische Partien (seed-PRNG statt `Math.random`), prüft die über Reset-/Reihenfolge-Varianten
+>   stabile Aggregat-Invariante (Siege 15–18, Niederlagen 18–21; Floor 6/6). Pro-Strategie-Bänder als
+>   `TARGET_BANDS` dokumentiert (Etappe 1–5 scharfzuschalten).
+> - **Wichtiger Befund (für Etappe 2):** Der Legacy-Singleton-Graph lässt sich NICHT billig vollständig
+>   isolieren — je nach Reset-Set kippt die Feinverteilung stark (voller Loader-Reset: greedy 0/12,
+>   low_risk 12/0). Die früher „ausgewogen" wirkenden Zahlen waren teils State-Leak-Artefakt; das alte
+>   Modell hat sauber gemessen triviale Strategien. Der Sim wird in Etappe 2 mit sauberer Isolation neu
+>   aufgesetzt; bis dahin trägt das Gate nur die robuste Aggregat-Invariante.
+> - **Nebenbefunde gefixt:** (1) doppelte Verrats-Verarbeitung entfernt (`useStoryGameState.ts`: kein
+>   zweites `betrayalSystem.processAction` mehr — Adapter ist einzige Wahrheit; Warnungen aus
+>   `result.betrayalWarnings`). (2) Folgenlose Krisen-Auflösung behoben: Hook ruft jetzt
+>   `engine.resolveCrisis()` (wendet Effekte an) statt nur zu loggen. (3) Kaputte Krisen-Clamp-Mathe
+>   in `applyCrisisEffects` korrigiert (alter `Math.min(target, current+…)` snappte `obj_destabilize`
+>   von 100 auf 40 = Insta-Complete → jetzt bounded).
+> - **Nicht-Befunde (verifiziert):** Endspiel-Schwellen (85 vs. 90/95) sind bereits defensiv versöhnt
+>   (`assembledEndingForBranch`, Guard erzwingt Branch-Kategorie) → kein Live-Bug, Doku-Note für Etappe 1.
+>   Die „veraltete Datenkopie `docs/story-mode/data/`" EXISTIERT NICHT (nur `schema/` + `playtests/`,
+>   beide referenziert) → nichts zu entfernen.
+
+**Stand:** 2026-06-20 (Kuratieren-Paket) · **S0 + alle 3 Auftrags-Scheiben gebaut** (Branch `claude/gracious-keller-g43bu3`, PR #89). Owner-Go: kuratieren + Jahres-Gate kappen + alle Scheiben parallel auf ein Qualitätsniveau. Maßstab: **`QUALITAETSMERKMALE.md`** (8 Merkmale M1–M8 = Abnahme-Gate).
+> - **S0 (Fundament, balance-neutral):** Terminal-Jahres-Gate gekappt (kein `ta0{year}`-Filter mehr); Episoden-Strang-Aktionen hervorgehoben (`● STRANG`) + zuerst sortiert (M2); Gesellschaftswert-Wirkung als Vorschau auf der Planungskarte (M1, `previewSocietyDeltas`); interne Aktions-ID von der Karte entfernt (M4). Test `ActionImpactPreview` (+4).
+> - **3 Scheiben (Text/Kuration, balance-neutral; parallel von 3 Autoren-Agenten entworfen, zentral integriert + synchronisiert):** **Keil** (7 Aktionen Voice-Lift), **Zweifel** (12 Aktionen + 3 Episoden auf 2 nicht-dominierte Wege gekürzt), **Wahl** (unterversorgt: 1→4 Episoden, +3 neue Wahl-Episoden mit realer Methode als `lernmoment_id`; 5 Aktionen Voice-Lift). Episoden gesamt **13** (war 10).
+> - **Offen / Follow-up (geflaggt, NICHT in diesem Text-Pass):** **Balance-Pass** für 2 Text↔Mechanik-Lücken — (a) `ep_denkmalstreit`-Aktionen (11.16/17/18 = `memory_conflict`) treiben `diskursqualitaet` nicht, das aber die Keil-Signatur misst; (b) `7.2 social_division` mechanisch schwach (als „breiter" Weg evtl. dominiert). Beide brauchen `BalanceInvariant`+Sim. Optional: Zweifel-Episode `ep_echtes_video` („Lügner-Dividende"/`synthetic_media`) vom Agenten vorgeschlagen.
+> - Gate je Scheibe grün (`tsc 0`·`vitest 477`·`build`).
+
+**Stand:** 2026-06-20 (Review) · **Review Episoden & Aktionen** — `REVIEW_2026-06-20_EPISODEN_AKTIONEN.md` (Branch `claude/gracious-keller-g43bu3`). Benennt das Owner-„Bauchgefühl" in drei messbaren Befunden: (A) zwei Inhalts-Klassen (Episoden/`9.x`/`11.x` gut, `1.x`–`8.x` Lehrbuch-Ton), (B) **Terminal-Jahres-Gate** (`ta0{year}`, `StoryModeGame.tsx:929` × `ActionPanel.tsx:449`, `PHASES_PER_YEAR=12`) → im 1. Jahr nur klinische Analyse-Aktionen, die guten Phänomen-Aktionen erst Jahr 4–8 → „falsche Zeit" + IA-Bruch zur Tafel (zwei Inventare); harter Beleg: `ep_bruecke` (always) braucht nur „Jahr-7"-Aktionen, (C) Redundanz (143 → ~70–80 Familien). **Leitsatz-Empfehlung:** Aktionen = Vokabular der Episoden/Beats (kuratieren), Jahres-Gate kappen, vertikale „Keil"-Scheibe als Konzept-Probe. **4 Owner-Entscheidungen offen** (Review §7). Gate grün (`tsc 0`·`vitest 473`·`build`).
 
 **Stand:** 2026-06-20 · **PR #87 (gemergt, `main` @ `b7a4ea6`)** — **Spine/Beats: Director-Pool · Entscheidungs-Beats (6/6) · Narrativ-Gedächtnis**. Setzt die Spine-Arbeit aus `HANDOFF_2026-06-18.md` (PR #86: Slice 1/2 + T1/T2/T3) fort. Owner-Entscheidung dieser Session: `DECISIONS_2026-06-20_BEATS.md`.
 
+> 🤝 **Neueste Übergabe für die nächste Session:** `HANDOFF_2026-06-20.md` (Stand, Pacing, Next-Steps).
 > 🗺️ **Voll-Plan / Roadmap:** `GESAMTPLAN_2026-06-20.md` (konsolidiert TODO + Spine/Beats + Owner-Entscheidungen).
 > 📦 **Gebaut, aber noch nicht auf main:** **PR #85** (Asset-Pakete: Avatar m/w, Operationszentrale, Skylines, sitzende Audience) — konfliktfrei mergebar, Owner-Preview offen. Sound (J34–36) **ist** auf main.
+
+### 🎚️ Phase B — Pacing „spürbar härter" (Session 2026-06-20, PR #89, Branch `claude/gracious-keller-g43bu3`)
+Owner-Entscheidung: **„Spürbar härter (mehr Nervenkitzel)"** → späte mechanische Eskalation, gegen die auch passives Spiel auffliegen kann. Umgesetzt in `StoryEngineAdapter` (P2-17):
+- **Garantierte erste Gegenwehr-Welle (Phase 6):** einmaliger Aufmerksamkeits-/Risiko-Stups + News „Erste Gegenwehr formiert sich" — Früh-Druck + Lehrmoment, dass Untätigkeit nicht ewig folgenlos bleibt.
+- **Späte Eskalation (`oppositionPressure`):** mit der Phase wachsender Gegendruck nach 3,5-Jahre-Schonzeit; überwiegt spät den passiven Abbau → Dauer-Vorsicht/Leerlauf wird gefährlich. **Nur Risiko/Aufmerksamkeit, NIE die Sieg-Achse** (R2; `BalanceInvariant` grün).
+- **Balance-Sim-Beleg (36 Partien):** Das „Zeit abgelaufen"-Fizzle **entfällt komplett**; vorsichtiges/zufälliges Spiel (vorher max. Risiko ~3, nie enttarnt) **kann jetzt enttarnt werden** (max. Risiko ~85–100). Gewinn- UND verlierbar bleibt (16 Sieg / 20 Niederlage). Regressionstest `Pacing.test.ts` (3) pinnt die Eckpunkte.
+- **Gate:** `tsc 0` · `vitest 473` · `build` grün. Owner-Sichtprüfung am Deploy-Preview empfohlen (fühlt sich der Spät-Druck stimmig an?).
 
 ### 🎬 Story-Director-Spine (PR #87) — alle Schichten + Beat-Katalog (Gate je Commit: `tsc 0`·`vitest 456`·`build`)
 Bau-Plan `BAUPLAN_STORY_DIRECTOR_SPINE.md`, Baukasten `BEAT_MUSTER_KATALOG.md`.

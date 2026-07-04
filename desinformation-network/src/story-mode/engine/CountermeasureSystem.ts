@@ -274,6 +274,19 @@ export class CountermeasureSystem {
   }
 
   /**
+   * Etappe 3 (Paket B): eine BESTIMMTE Maßnahme gezielt auslösen — die Abwehr-Stufen
+   * 25/50/75 feuern kuratierte Maßnahmen (Prebunking/Sperre/Task-Force), statt auf
+   * den Zufalls-Trigger zu warten. Liefert die Definition oder null (unbekannt/aktiv).
+   */
+  triggerById(cmId: string, phase: number): CountermeasureDefinition | null {
+    const cm = this.countermeasures.get(cmId);
+    if (!cm) return null;
+    if (this.activeCountermeasures.has(cmId)) return null;
+    this.triggerCountermeasure(cmId, phase);
+    return cm;
+  }
+
+  /**
    * Resolve a countermeasure with a chosen option
    */
   resolveCountermeasure(cmId: string, chosenOptionIndex: number, phase: number): CounterOption | null {

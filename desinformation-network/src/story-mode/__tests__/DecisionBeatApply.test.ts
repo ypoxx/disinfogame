@@ -1,7 +1,8 @@
 /**
  * Spine Slice 4 — Engine-Andockung der Entscheidungs-Beats: `applyDecisionBeatOption`
- * bewegt die Gesellschaftswerte + Spieler-Kosten über die bestehenden Pfade, bleibt
- * aber balance-neutral auf der Sieg-Achse (obj_destabilize/Vertrauen, R2).
+ * bewegt die Gesellschaftswerte + Spieler-Kosten über die bestehenden Pfade.
+ * Etappe 1 (2026-07-04): R2 ist GEFALLEN — Optionen mit „vertrauen"-Delta koppeln jetzt
+ * an die Sieg-Achse (obj_destabilize); society-only Optionen lassen sie unberührt.
  */
 import { describe, it, expect } from 'vitest';
 import { createStoryEngine } from '../../game-logic/StoryEngineAdapter';
@@ -26,27 +27,31 @@ describe('applyDecisionBeatOption', () => {
     expect(res!.optionLabel_de).toContain('Hetzen');
   });
 
-  it('bleibt balance-neutral: obj_destabilize/Vertrauen unverändert (R2)', () => {
+  it('koppelt Vertrauen: eine Option mit „vertrauen↓" senkt obj_destabilize (R2 gefallen, Etappe 1)', () => {
     const e = createStoryEngine();
     const trustBefore = trustOf(e);
-    // Auch eine Option mit „vertrauen↓" im Werte-Delta darf die Sieg-Achse nicht bewegen.
+    // stadtrat/B trägt vertrauen↓ → die Sieg-Achse SINKT jetzt (Auftrag = Sieg).
     e.applyDecisionBeatOption('stadtrat', 'B');
-    expect(trustOf(e)).toBe(trustBefore);
-    const e2 = createStoryEngine();
-    const t2 = trustOf(e2);
-    e2.applyDecisionBeatOption('reale_vorlage', 'A');
-    expect(trustOf(e2)).toBe(t2);
+    expect(trustOf(e)).toBeLessThan(trustBefore);
   });
 
-  it('KEIN Beat bewegt die Sieg-Achse — gilt für ALLE Beats × Optionen (Owner-Entscheidung)', () => {
+  it('koppelt Vertrauen NUR bei vertrauen-Optionen; society-only Beats lassen obj_destabilize unberührt', () => {
+    let sawCoupled = false;
     for (const beat of ALL_DECISION_BEATS) {
       for (const opt of beat.optionen) {
+        const wd = opt.werteDelta as Record<string, number>;
+        const hasTrust = typeof wd.vertrauen === 'number' && wd.vertrauen !== 0;
         const e = createStoryEngine();
         const before = trustOf(e);
         e.applyDecisionBeatOption(beat.id, opt.id, () => 0.5);
-        expect(trustOf(e), `${beat.id}/${opt.id} darf obj_destabilize nicht bewegen`).toBe(before);
+        if (hasTrust) {
+          if (trustOf(e) !== before) sawCoupled = true;
+        } else {
+          expect(trustOf(e), `${beat.id}/${opt.id} ohne vertrauen-Delta darf obj_destabilize nicht bewegen`).toBe(before);
+        }
       }
     }
+    expect(sawCoupled, 'mindestens eine Beat-Option koppelt Vertrauen an die Sieg-Achse').toBe(true);
   });
 
   it('Abkühl-Option (Stadtrat/D) senkt Risiko + Aufmerksamkeit', () => {

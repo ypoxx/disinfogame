@@ -1,5 +1,10 @@
 # Zeitmodell — die vier Ebenen (Diegese + UI)
 
+> ⚠️ **VORBEHALT (2026-07-04):** Die Owner-Frage am Ende dieses Dokuments ist beantwortet —
+> das Vier-Ebenen-Modell wird per `ZIELBILD_2026-07-04_WETTRENNEN.md` §5 auf **zwei Ebenen**
+> eingedampft (Arbeitstag bleibt; Monat/Jahr/120 Phasen → ~40-Tage-Kampagne mit Wahltag).
+> Bis zum Umbau (Etappe 2) beschreibt dieses Dokument den Ist-Zustand des Codes.
+
 > Kanonische Kurzreferenz (T2/#1, 2026-06-18). Die Tester empfanden die vier
 > überlagernden Zeit-Ebenen als Buchhaltung. Sie bleiben mechanisch, sind aber
 > jetzt **hierarchisiert** (primär = „was tust du heute", sekundär = Kalender).
