@@ -1206,7 +1206,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               attention: state.resources.attention,
             }}
             trustProgress={trustProgress}
-            nightReport={state.engine.getNightReport()}
+            // VORSCHAU statt Rückblick: Das Tagesfazit erscheint VOR endPhase — es
+            // weist die KOMMENDE Nacht aus (deterministisch aus dem Ist-Zustand).
+            nightReport={state.engine.getNightPreview()}
             onNextDay={() => {
               endPhase();
               useDayClockStore.getState().resetDay();
