@@ -22,6 +22,7 @@ import { AdvisorDetailModal } from './components/AdvisorDetailModal';
 import { BetrayalWarningBadge } from './components/BetrayalWarningBadge';
 import { GrievanceModal } from './components/GrievanceModal';
 import { BetrayalEventModal } from './components/BetrayalEventModal';
+import { StageCountermeasureModal } from './components/StageCountermeasureModal';
 import { ComboHintsWidget } from './components/ComboHintsWidget';
 import { CrisisModal } from './components/CrisisModal';
 import { BetrayalIndicators } from './components/BetrayalIndicators';
@@ -288,6 +289,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     acknowledgeBetrayal,
     dismissBetrayalWarnings,
     addressGrievance,
+    resolveStageCountermeasure,
+    dismissStageCountermeasure,
     resolveCrisis,
     dismissCrisis,
     saveGame,
@@ -773,6 +776,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           zynismus: state.resources.zynismus,
           auftragTitel: state.engine.getAuftrag().titel_de,
         }}
+        abwehr={state.engine.getAbwehr()}
+        abwehrStageInfo={state.engine.getAbwehrStageInfo()}
         onEndPhase={requestEndDay}
         onOpenMenu={pauseGame}
         onHideHud={() => setHudVisible(false)}
@@ -1033,6 +1038,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 risk: state.resources.risk,
                 carriersBurned: state.getOperationsSummary().carriersBurned,
                 phase: state.storyPhase.number,
+                // Etappe 3 Paket D: höchste bereits gezündete Abwehr-Stufe benennt die Gegenseite.
+                abwehrStage: state.engine.getAbwehrStageInfo().fired.slice(-1)[0] ?? 0,
               }),
               portraitId: 'portrait_factcheckerin',
             }}
@@ -1199,6 +1206,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               attention: state.resources.attention,
             }}
             trustProgress={trustProgress}
+            // VORSCHAU statt Rückblick: Das Tagesfazit erscheint VOR endPhase — es
+            // weist die KOMMENDE Nacht aus (deterministisch aus dem Ist-Zustand).
+            nightReport={state.engine.getNightPreview()}
             onNextDay={() => {
               endPhase();
               useDayClockStore.getState().resetDay();
@@ -1490,6 +1500,15 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           isVisible={true}
           event={state.activeBetrayalEvent}
           onAcknowledge={acknowledgeBetrayal}
+        />
+      )}
+
+      {/* Etappe 3 (Paket B): Stufen-Gegenmaßnahme (Abwehr 25/50/75) */}
+      {state.activeStageCountermeasure && (
+        <StageCountermeasureModal
+          offer={state.activeStageCountermeasure}
+          onResolve={resolveStageCountermeasure}
+          onClose={dismissStageCountermeasure}
         />
       )}
 

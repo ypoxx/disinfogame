@@ -24,15 +24,18 @@
 export type EndBranch =
   | 'victory'          // Auftrag erfüllt
   | 'exposed'          // enttarnt (Risiko ≥ Schwelle, Auftrag noch nicht erfüllt)
-  | 'apparatus'        // der Apparat zerfällt (zu viele Verräter)
+  | 'immune'           // das Land hält stand (Abwehr ≥ 100, Etappe 3)
   | 'broke'            // mittellos (Kasse leer bei hohem Risiko)
   | 'moral_redemption' // Gewissensentscheidung
   | 'escape'           // Flucht (kritisches Risiko, Gelegenheit)
   | 'timeout';         // Zeit/Wahltag erreicht, Auftrag verfehlt
+// Etappe 3 (Paket C): 'apparatus' entfällt — Verrat ist kein eigener Game-Over mehr,
+// sondern ein +15-ABWEHR-Ereignis mit Leak-Story (Zielbild §4/D4: weniger Regeln,
+// mehr Drama). broke/moral_redemption/escape wandern erst in Etappe 5 zu Epilogen.
 
 // --- Schwellen (zentral, damit Balancing sie an EINER Stelle findet) ---------
 export const EXPOSED_RISK = 85;          // Enttarnung
-export const APPARATUS_BETRAYERS = 3;    // Apparat zerfällt
+export const IMMUNE_ABWEHR = 100;        // das Land ist immun (Etappe 3, Zielbild §4)
 export const BROKE_RISK = 70;            // Mittellos (zusammen mit Budget ≤ 0)
 export const MORAL_REDEMPTION_WEIGHT = 80;
 export const ESCAPE_RISK_MIN = 75;       // Flucht-Fenster (bis < EXPOSED_RISK)
@@ -42,9 +45,10 @@ export interface EndEvaluationInput {
   auftragProgressMin: number;
   /** Ab hier gilt der Auftrag als erfüllt (Sieg). Default-Kalibrierung im Adapter. */
   winThreshold: number;
+  /** ABWEHR 0–100 (befördertes `wehrhaftigkeit`, Etappe 3) — der zweite Rennläufer. */
+  abwehr: number;
   risk: number;
   budget: number;
-  betrayingNpcs: number;
   moralWeight: number;
   allNpcsLost: boolean;
   exposureCountdown: number | null;
@@ -70,11 +74,16 @@ export function evaluateEnd(i: EndEvaluationInput): EndDecision | null {
   // PRIORITY 0: Enttarnung schlägt einen noch NICHT erfüllten Auftrag.
   if (i.risk >= EXPOSED_RISK && !auftragMet) return { branch: 'exposed', auftragMet };
 
+  // PRIORITY 0b: Das Land hält stand — die Abwehr ist voll, das Land ist immun.
+  // Bewusst VOR dem Sieg: Der Sieg verlangt „Abwehr unter 100" (Zielbild §4) —
+  // erreicht das Immunsystem die 100 zuerst, ist die Operation gescheitert,
+  // selbst wenn die Signatur rechnerisch im Ziel steht.
+  if (i.abwehr >= IMMUNE_ABWEHR) return { branch: 'immune', auftragMet };
+
   // PRIORITY 1: Sieg — der Auftrag ist erfüllt.
   if (auftragMet) return { branch: 'victory', auftragMet };
 
-  // PRIORITY 1b: Der Apparat zerfällt von innen.
-  if (i.betrayingNpcs >= APPARATUS_BETRAYERS) return { branch: 'apparatus', auftragMet };
+  // (Ehemals 1b 'apparatus': Verrat wirkt seit Etappe 3 als Abwehr-Ereignis, s. o.)
 
   // PRIORITY 1c: Handlungsunfähig — Kasse leer bei hohem Risiko.
   if (i.budget <= 0 && i.risk >= BROKE_RISK) return { branch: 'broke', auftragMet };

@@ -14,6 +14,7 @@ import {
   VISIBLE_SOCIETY_KEYS,
   type SocietyValueKey,
 } from '../../game-logic/StoryEngineAdapter';
+import { ABWEHR_START } from '../engine/ImmuneSystem';
 
 const ALL_KEYS = Object.keys(SOCIETY_VALUE_META) as SocietyValueKey[];
 
@@ -25,7 +26,8 @@ describe('Gesellschaftswerte (P1/B2a)', () => {
     expect(res.zynismus).toBe(20);
     expect(res.fragmentierung).toBe(15);
     expect(res.diskursqualitaet).toBe(70);
-    expect(res.wehrhaftigkeit).toBe(60);
+    // Etappe 3: wehrhaftigkeit IST die ABWEHR — startet niedrig (das Land ist naiv).
+    expect(res.wehrhaftigkeit).toBe(ABWEHR_START);
     expect(res.reformfaehigkeit).toBe(55);
     expect(res.fraktionsstaerke).toBe(25);
     // Alle Werte sind im 0–100-Band.

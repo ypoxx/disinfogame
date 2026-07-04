@@ -110,6 +110,20 @@ import {
 import { evaluateEnd } from '../story-mode/engine/VictorySystem';
 
 import {
+  ABWEHR_START,
+  abwehrStep,
+  clampAbwehr,
+  crossedAbwehrStages,
+  isPatchTriggered,
+  methodFamilyForTags,
+  PATCH_ABWEHR_JUMP,
+  ABWEHR_STAGES,
+  type AbwehrStage,
+  type NightReport,
+} from '../story-mode/engine/ImmuneSystem';
+import { loadDisinfoMethods } from '../story-mode/engine/DisinfoMethodAtlas';
+
+import {
   ExtendedActorLoader,
   getExtendedActorLoader,
   resetExtendedActorLoader,
@@ -233,7 +247,9 @@ export const SOCIETY_VALUE_META: Record<SocietyValueKey, { label_de: string; vis
   zynismus:         { label_de: 'Zynismus',         visible: true,  help_de: 'Resignation und Rückzug aus der Debatte.' },
   fragmentierung:   { label_de: 'Fragmentierung',   visible: false, help_de: 'Zerfall in getrennte Echo-Öffentlichkeiten.' },
   diskursqualitaet: { label_de: 'Diskursqualität',  visible: false, help_de: 'Gesundheit der öffentlichen Debatte (Resilienz).' },
-  wehrhaftigkeit:   { label_de: 'Wehrhaftigkeit',   visible: false, help_de: 'Unterstützungs- und Verteidigungsbereitschaft.' },
+  // Etappe 3: zur ABWEHR befördert — sichtbar über den eigenen ABWEHR-Balken im HUD
+  // (zweiter Rennläufer), NICHT über die Gesellschaftswerte-Leiste (daher visible:false).
+  wehrhaftigkeit:   { label_de: 'Abwehr',           visible: false, help_de: 'Das Immunsystem der Gesellschaft — erreicht es 100, ist die Operation gescheitert.' },
   reformfaehigkeit: { label_de: 'Reformfähigkeit',  visible: false, help_de: 'Governance- und Kompromissfähigkeit.' },
   fraktionsstaerke: { label_de: 'Fraktions-Stärke', visible: false, help_de: 'Stärke der uns nahen politischen Kraft.' },
 };
@@ -241,6 +257,34 @@ export const SOCIETY_VALUE_META: Record<SocietyValueKey, { label_de: string; vis
 /** Reihenfolge der im HUD sichtbaren Gesellschaftswerte (Vertrauen kommt separat aus dem Ziel). */
 export const VISIBLE_SOCIETY_KEYS: SocietyValueKey[] =
   (Object.keys(SOCIETY_VALUE_META) as SocietyValueKey[]).filter(k => SOCIETY_VALUE_META[k].visible);
+
+// ── Etappe 3 (Paket B): Stufen-Gegenmaßnahmen — Verträge zwischen Engine und UI ──
+
+/** Vereinheitlichte Reaktion auf eine Stufen-Gegenmaßnahme (Zielbild §3). */
+export type StageCountermeasureChoice = 'kontern' | 'aussitzen' | 'ablenken';
+
+export interface StageCountermeasureOption {
+  id: StageCountermeasureChoice;
+  label_de: string;
+  /** Kühle Folgen-Vorschau („Budget −25 · Maßnahme abgeschwächt"). */
+  folge_de: string;
+  /** kontern braucht Budget — sonst ausgegraut. */
+  available: boolean;
+}
+
+/** Die an einer Abwehr-Stufe (25/50/75) anstehende Gegenmaßnahme fürs Modal. */
+export interface StageCountermeasureOffer {
+  stage: AbwehrStage;
+  definition: CountermeasureDefinition;
+  options: StageCountermeasureOption[];
+}
+
+/** Bilanz nach der Auflösung — kühle Quittungs-Zeilen (E8). */
+export interface StageCountermeasureResolution {
+  stage: AbwehrStage;
+  label_de: string;
+  lines_de: string[];
+}
 
 /**
  * Story Mode Aktion (narrativ verpackte Ability)
@@ -600,8 +644,11 @@ export interface GameEndState {
  * `loadState` füllt fehlende Felder per Default-Merge (R1) auf, damit additive neue
  * Felder (Gesellschaftswerte B2, Episoden B1 …) alte Saves nicht kaputt machen.
  * 1.1.0: Gesellschaftswerte (B2a) + Default-Merge eingeführt.
+ * 2.0.0: Kampagnen-Uhr (Semantik-Bruch zum 120-Phasen-Modell, Etappe 2).
+ * 2.1.0: `wehrhaftigkeit` zur ABWEHR befördert (Etappe 3) — Altstände erben den
+ *        neuen Startwert, ihr alter Gesellschafts-Wert (60) wäre eine falsche Abwehr.
  */
-export const SAVE_FORMAT_VERSION = '2.0.0';  // Etappe 2: Kampagnen-Uhr (Semantik-Bruch zum 120-Phasen-Modell)
+export const SAVE_FORMAT_VERSION = '2.1.0';
 
 // Datenintegritäts-Check (P0/R3): nur EINMAL über die Lebenszeit des Moduls laufen
 // lassen — die Daten sind statisch importiert, und die Balance-Sim erzeugt Dutzende
@@ -642,7 +689,10 @@ export class StoryEngineAdapter {
   private readonly REQUIRED_HOLD_PHASES = 3;
   // Etappe 1: Sieg = Auftrag erfüllt. Die schwächste Signatur-Achse muss ihr Ziel erreichen
   // (Min-Regel). 1.0 = jede Achse voll am Ziel. Balancing-Stellschraube (per Sim-Gate kalibriert).
-  private readonly WIN_THRESHOLD = 0.5;
+  // Etappe 3 (Paket E): 0.5 → 0.6 — mit dem Immunsystem (Regeneration + Dämpfung) darf die
+  // Latte höher liegen; passives Drift-Spiel erreicht das Plateau (~0.53) nicht mehr.
+  // Der Rest des Wegs Richtung 1.0 folgt mit der Aktions-Kuratierung (Etappe 5).
+  private readonly WIN_THRESHOLD = 0.6;
   // P2-7: Track world event cooldowns (eventId -> last triggered phase)
   private worldEventCooldowns: Map<string, number> = new Map();
   private readonly WORLD_EVENT_COOLDOWN = 6;   // Etappe 2: 6 Tage Cooldown (vorher 12 Phasen = „1 Jahr")
@@ -683,6 +733,32 @@ export class StoryEngineAdapter {
   private pollIndex = 0;
   private lastPollValues: Record<string, number> = {};
   private readonly POLL_EVERY_PHASES = 5;  // Etappe 2: die Sonntagsfrage — alle 5 Tage (Zielbild §3)
+
+  // Etappe 3 — ImmuneSystem-Zustand (die ABWEHR lebt in storyResources.wehrhaftigkeit;
+  // hier nur die Zufluss-Buchhaltung + Stufen-/Patch-Verwaltung):
+  /** Lärm des laufenden Tages: Risiko-/Aufmerksamkeits-Kosten der eigenen Aktionen. */
+  private noiseRiskToday = 0;
+  private noiseAttentionToday = 0;
+  /** Einsätze je Maschen-Familie (18er-Atlas-Vokabular) — Basis der „Gepatcht"-Events. */
+  private methodFamilyUseCounts: Map<string, number> = new Map();
+  /** Bereits durchschaute („gepatchte") Familien — für UI-Stempel und End-Report. */
+  private patchedFamilies: Set<string> = new Set();
+  /** Bereits gefeuerte Abwehr-Stufen (25/50/75) — jede Stufe zündet genau einmal. */
+  private firedAbwehrStages: Set<number> = new Set();
+  /** Stufen, deren Gegenmaßnahme noch aussteht (Paket B konsumiert diese Queue). */
+  private pendingAbwehrStages: AbwehrStage[] = [];
+  /** Bilanz der letzten Nacht (Tagesfazit-Transparenz, Zielbild §3). */
+  private lastNightReport: NightReport | null = null;
+  /** Atlas-Familien (id/label/matchTags + counter_de) — einmal geladen, mehrfach genutzt. */
+  private readonly methodFamilies = loadDisinfoMethods();
+  /** Paket C: Reichweiten-Dämpfung 0..0.5 durch Verteidiger (reach_reduction) —
+   *  senkt die Wirkung ALLER Aktionen, klingt je Phase ab (die Gegenwehr ermüdet). */
+  private reachDampening = 0;
+  /** Paket E: Anteil der Aktions-Risikokost, der auf den rohen Enttarnungs-Melder
+   *  wirkt (Rest ist über die ABWEHR-Lärm-Kopplung abgebildet). Zwei Verlustachsen
+   *  mit unterschiedlicher Streuung: Abwehr (deterministisch akkumuliert) + Enttarnung
+   *  (geseedete Ermittler-Spawns → Streuung, die dieselbe Strategie mal so, mal so enden lässt). */
+  private readonly RISK_COST_TO_METER = 0.62;
 
   // Engine Integration
   private actionLoader: ActionLoader;
@@ -782,7 +858,9 @@ export class StoryEngineAdapter {
       zynismus: 20,
       fragmentierung: 15,
       diskursqualitaet: 70,
-      wehrhaftigkeit: 60,
+      // Etappe 3: wehrhaftigkeit IST die ABWEHR (zweiter Rennläufer). Sie startet
+      // niedrig — „die Abwehr schläft anfangs fast, das Land ist naiv" (Zielbild §5).
+      wehrhaftigkeit: ABWEHR_START,
       reformfaehigkeit: 55,
       fraktionsstaerke: 25,
       actionPointsRemaining: this.ACTION_POINTS_PER_PHASE,
@@ -971,6 +1049,10 @@ export class StoryEngineAdapter {
       });
     }
 
+    // Paket C: Die Reichweiten-Dämpfung der Verteidiger klingt je Phase ab —
+    // ohne frische Gegenwehr erholt sich die eigene Wirkung wieder.
+    this.reachDampening = this.reachDampening > 0.015 ? this.reachDampening * 0.7 : 0;
+
     // B2b/P2: Gesellschafts-Formel je Phase — die Werte wirken nicht-linear aufeinander
     // (verzögerte/„intelligente" Effekte, §14.2). Berührt NUR Gesellschaftswerte, nicht
     // die Sieg-Ressourcen → Balance bleibt gehalten (R2).
@@ -1104,7 +1186,11 @@ export class StoryEngineAdapter {
             this.storyResources.attention = Math.min(100, this.storyResources.attention + effect.value);
             break;
           case 'reach_reduction':
-            // Affects action effectiveness (tracked in modifiers)
+            // Paket C (Etappe 3): Faktenchecks/Gegen-Narrative dämpfen die Wirkung
+            // ALLER folgenden Aktionen (Multiplikator in applyActionEffects). Werte
+            // kommen als strength×10..15 → +0.04..0.15 Dämpfung, Deckel 0.5.
+            this.reachDampening = Math.min(0.5, this.reachDampening + effect.value / 100);
+            storyLogger.log(`[ActorAI] Reichweiten-Dämpfung +${(effect.value / 100).toFixed(2)} → ${this.reachDampening.toFixed(2)}`);
             break;
           case 'countdown_start':
             if (this.exposureCountdown === null) {
@@ -1158,6 +1244,30 @@ export class StoryEngineAdapter {
     } else {
       this.trustTargetHeldPhases = 0;
     }
+
+    // ── Etappe 3: der nächtliche ABWEHR-Schritt (Zuflüsse a/b/d, Zielbild §3) ──────
+    // Läuft NACH der Verteidiger-Verarbeitung (Spawns/Eskalation dieses Tages zählen
+    // mit). Der Tages-Lärm wird konsumiert; die Bilanz wandert als NightReport ins
+    // Tagesfazit („die Nacht wird transparent" — man versteht, warum Nichtstun verliert).
+    const abwehrBefore = this.storyResources.wehrhaftigkeit;
+    const abwehr = abwehrStep({
+      current: abwehrBefore,
+      noiseRisk: this.noiseRiskToday,
+      noiseAttention: this.noiseAttentionToday,
+      defenderStrengthSum: this.actorAI.getDefenderStrengthSum(),
+      armsRaceLevel: this.actorAI.getArmsRaceLevel(),
+    });
+    this.storyResources.wehrhaftigkeit = abwehr.next;
+    this.fireAbwehrStageEvents(abwehrBefore, abwehr.next);
+    this.lastNightReport = {
+      day: previousPhase,
+      trustRegeneration: trustRegen,
+      abwehrDelta: abwehr.delta,
+      abwehrParts: abwehr.parts,
+      abwehrAfter: abwehr.next,
+    };
+    this.noiseRiskToday = 0;
+    this.noiseAttentionToday = 0;
 
     return {
       newPhase: this.storyPhase,
@@ -1972,11 +2082,15 @@ export class StoryEngineAdapter {
    * tabu (R2). Gedeckelt, damit aktives, geschicktes Spiel weiter gewinnbar bleibt.
    */
   private oppositionPressure(phase: number): { risk: number; attention: number } {
+    // Etappe 3 (Paket E): stark gestutzt — der Anti-Passivitäts-Druck kommt jetzt
+    // aus dem IMMUNSYSTEM (Abwehr/Regeneration/Wahltag), nicht aus einem Skript
+    // (Zielbild §5/E4: „Der Druck wächst aus dem eigenen Handeln"). Es bleibt ein
+    // leichter später Atem der Gegenseite, damit Spät-Spiel nie ganz lautlos ist.
     const ramp = phase - this.PACING_GRACE_PHASES;
     if (ramp <= 0) return { risk: 0, attention: 0 };
     return {
-      risk: Math.min(5, ramp * 0.10),
-      attention: Math.min(7, ramp * 0.13),
+      risk: Math.min(2, ramp * 0.05),
+      attention: Math.min(4, ramp * 0.08),
     };
   }
 
@@ -3270,6 +3384,13 @@ export class StoryEngineAdapter {
       }
     }
 
+    // Paket C (Etappe 3): Plattform-Sperren DURCHSETZEN — bisher führte die
+    // Moderations-KI Buch (disabledActions), aber niemand las sie. Gesperrte
+    // Kanäle sind jetzt sichtbar grau („Kanal gesperrt", X Tage).
+    const bannedUntil = this.actorAI.getDisabledActions()[loaded.id];
+    const isBanned = this.actorAI.isActionDisabled(loaded.id, this.storyPhase.number);
+    const banDaysLeft = isBanned ? Math.max(1, bannedUntil - this.storyPhase.number) : 0;
+
     return {
       id: loaded.id,
       label_de: loaded.label_de,
@@ -3288,9 +3409,10 @@ export class StoryEngineAdapter {
         attention: loaded.costs.attention,
         moralWeight: loaded.costs.moral_weight,
       },
-      available: loaded.isUnlocked && !loaded.isUsed,
+      available: loaded.isUnlocked && !loaded.isUsed && !isBanned,
       unavailableReason: !loaded.isUnlocked ? 'Locked - prerequisites not met' :
-                         loaded.isUsed ? 'Already used' : undefined,
+                         loaded.isUsed ? 'Already used' :
+                         isBanned ? `Kanal gesperrt — noch ${banDaysLeft} Tag${banDaysLeft === 1 ? '' : 'e'}` : undefined,
       prerequisites: loaded.prerequisites || [],
       prerequisitesMet: this.actionLoader.arePrerequisitesMet(loaded),
       npcAffinity: loaded.npc_affinity,
@@ -3503,6 +3625,24 @@ export class StoryEngineAdapter {
       throw new Error(`Action ${actionId} not found`);
     }
 
+    // Paket C (Etappe 3): gesperrte Kanäle sind auch am Ausführungs-Pfad dicht
+    // (nicht nur ausgegraut) — sonst umgeht die Aktions-Queue die Sperre.
+    if (this.actorAI.isActionDisabled(actionId, this.storyPhase.number)) {
+      return {
+        success: false,
+        action,
+        effects: [],
+        resourceChanges: {},
+        narrative: {
+          headline_de: 'Kanal gesperrt',
+          headline_en: 'Channel banned',
+          description_de: 'Die Plattform-Moderation hat diesen Kanal vorübergehend stillgelegt.',
+          description_en: 'Platform moderation has temporarily shut this channel down.',
+        },
+        potentialConsequences: [],
+      };
+    }
+
     // Prüfe Ressourcen
     if (!this.canAffordAction(action)) {
       return {
@@ -3676,6 +3816,10 @@ export class StoryEngineAdapter {
     // Track action for Actor-AI (Arms Race)
     this.actorAI.trackAction(actionId, action.tags, this.storyPhase.number);
 
+    // Etappe 3 (Zufluss c): Maschen-Wiederholung — die n-te Wiederholung derselben
+    // Familie wird durchschaut („Gepatcht") und stärkt die ABWEHR sofort sichtbar.
+    this.registerMethodFamilyUse(action.tags);
+
     // Historie
     this.actionHistory.push({
       phase: this.storyPhase.number,
@@ -3719,6 +3863,7 @@ export class StoryEngineAdapter {
   private readonly OP_BURN_TRUST_REBOUND = 9;  // Enttarnung: Institutionen gewinnen Vertrauen zurück
   private readonly OP_BURN_RISK_SPIKE = 12;    // Enttarnung hebt das Entdeckungsrisiko sprunghaft
   private readonly OP_BURN_ATTENTION_SPIKE = 8;
+  private readonly OP_FRAKTION_MOBILIZE = 2.5; // Etappe 3: Operation mobilisiert die radikale Kraft
   private readonly KOMPROMAT_MORAL = 12;       // Beschaffung heiklen Materials = moralische Last
   private readonly OP_DEPLOY_MORAL = 7;        // Ausspielen des Kompromats = zusätzliche Last
   private readonly OP_BURN_MORAL = 5;          // verbranntes Asset / öffentlicher Schaden
@@ -4154,6 +4299,298 @@ export class StoryEngineAdapter {
     }
   }
 
+  // ============================================
+  // IMMUNSYSTEM (Etappe 3) — die ABWEHR, der zweite Rennläufer
+  // ============================================
+
+  /** Lärm des Tages verbuchen (Zufluss a) — der nächtliche Schritt konsumiert ihn. */
+  private addAbwehrNoise(risk: number, attention: number): void {
+    if (risk > 0) this.noiseRiskToday += risk;
+    if (attention > 0) this.noiseAttentionToday += attention;
+  }
+
+  /** ABWEHR sofort anheben (z. B. „Gepatcht"-Sprung, Verrats-Ereignis) inkl. Stufen-Check. */
+  private raiseAbwehr(amount: number): void {
+    if (amount <= 0) return;
+    const before = this.storyResources.wehrhaftigkeit;
+    this.storyResources.wehrhaftigkeit = clampAbwehr(before + amount);
+    this.fireAbwehrStageEvents(before, this.storyResources.wehrhaftigkeit);
+  }
+
+  /**
+   * Stufen 25/50/75: jede zündet genau EINMAL (auch wenn die Abwehr später wieder
+   * darunter fällt und erneut steigt — sonst würde dieselbe Eskalation doppelt erzählt).
+   * Erzeugt die TV-Nachricht und stellt die Stufe in die Gegenmaßnahmen-Queue (Paket B).
+   */
+  private fireAbwehrStageEvents(before: number, after: number): void {
+    for (const stage of crossedAbwehrStages(before, after)) {
+      if (this.firedAbwehrStages.has(stage)) continue;
+      this.firedAbwehrStages.add(stage);
+      this.pendingAbwehrStages.push(stage);
+
+      const texts: Record<AbwehrStage, { h_de: string; h_en: string; d_de: string; d_en: string }> = {
+        25: {
+          h_de: 'Das Land beginnt hinzusehen',
+          h_en: 'The country starts paying attention',
+          d_de: 'Faktenchecker vergleichen Notizen, erste Behörden stellen Fragen. Die Abwehr der Westunion hat Stufe 25 erreicht.',
+          d_en: 'Fact-checkers compare notes, first agencies ask questions. Westunion\'s defense has reached level 25.',
+        },
+        50: {
+          h_de: 'Die Abwehr organisiert sich',
+          h_en: 'The defense organizes',
+          d_de: 'Redaktionen, Plattformen und Behörden arbeiten jetzt zusammen. Die Abwehr steht bei 50 — die Hälfte des Weges zur Immunität.',
+          d_en: 'Newsrooms, platforms and agencies now work together. The defense stands at 50 — halfway to immunity.',
+        },
+        75: {
+          h_de: 'Das Netz zieht sich zu',
+          h_en: 'The net is closing',
+          d_de: 'Das Land kennt Ihre Handschrift. Abwehr bei 75 — erreicht sie 100, ist die Operation wirkungslos und fliegt auf.',
+          d_en: 'The country knows your signature. Defense at 75 — at 100 the operation is inert and exposed.',
+        },
+      };
+      const t = texts[stage];
+      this.newsEvents.unshift({
+        id: `abwehr_stage_${stage}`,
+        phase: this.storyPhase.number,
+        headline_de: t.h_de,
+        headline_en: t.h_en,
+        description_de: t.d_de,
+        description_en: t.d_en,
+        type: 'world_event',
+        severity: stage >= 75 ? 'danger' : 'warning',
+        read: false,
+        pinned: true,
+      });
+      playSound('countermeasure');
+      storyLogger.log(`[ImmuneSystem] ABWEHR-Stufe ${stage} erreicht (${before.toFixed(1)} → ${after.toFixed(1)})`);
+    }
+  }
+
+  /**
+   * Zufluss c — Maschen-Wiederholung: Aktionen werden über das 18er-Atlas-Vokabular
+   * einer Maschen-Familie zugeordnet; die n-te Wiederholung derselben Familie wird
+   * durchschaut („Gepatcht"): sofortiger Abwehr-Sprung + TV-Nachricht, die nebenbei
+   * die reale Erkennungs-Regel erklärt (E5/E10 — Transparenz statt Belehrung).
+   */
+  private registerMethodFamilyUse(tags: string[]): void {
+    const family = methodFamilyForTags(tags, this.methodFamilies);
+    if (!family) return;
+    const count = (this.methodFamilyUseCounts.get(family.id) ?? 0) + 1;
+    this.methodFamilyUseCounts.set(family.id, count);
+    if (!isPatchTriggered(count)) return;
+
+    this.patchedFamilies.add(family.id);
+    const counterHint = this.methodFamilies.find((m) => m.id === family.id)?.counter_de;
+    this.newsEvents.unshift({
+      id: `abwehr_patch_${family.id}_${count}`,
+      phase: this.storyPhase.number,
+      headline_de: `Masche durchschaut: ${family.label_de}`,
+      headline_en: `Pattern patched: ${family.label_de}`,
+      description_de: `Die ${count}. Wiederholung blieb nicht unbemerkt — Redaktionen kennen das Muster jetzt.${counterHint ? ` ${counterHint}` : ''}`,
+      description_en: `Repetition number ${count} did not go unnoticed — newsrooms now know the pattern.`,
+      type: 'world_event',
+      severity: 'warning',
+      read: false,
+      pinned: false,
+    });
+    this.raiseAbwehr(PATCH_ABWEHR_JUMP);
+    storyLogger.log(`[ImmuneSystem] Gepatcht: ${family.id} (Einsatz ${count}) → Abwehr +${PATCH_ABWEHR_JUMP}`);
+  }
+
+  /** Aktueller ABWEHR-Stand 0–100 (= befördertes `wehrhaftigkeit`). */
+  getAbwehr(): number {
+    return this.storyResources.wehrhaftigkeit;
+  }
+
+  /** Stufen-Info fürs HUD: Marken + bereits gezündete Stufen. */
+  getAbwehrStageInfo(): { stages: readonly number[]; fired: number[] } {
+    return { stages: ABWEHR_STAGES, fired: Array.from(this.firedAbwehrStages).sort((a, b) => a - b) };
+  }
+
+  /** Bilanz der letzten Nacht (Tagesfazit: „Über Nacht holen die Institutionen X zurück"). */
+  getNightReport(): NightReport | null {
+    return this.lastNightReport;
+  }
+
+  /** Durchschaute („gepatchte") Maschen-Familien — für Stempel/End-Report. */
+  getPatchedFamilies(): string[] {
+    return Array.from(this.patchedFamilies);
+  }
+
+  /** Nächste Abwehr-Stufe, deren Gegenmaßnahme aussteht (Paket B konsumiert). */
+  consumePendingAbwehrStage(): AbwehrStage | null {
+    return this.pendingAbwehrStages.shift() ?? null;
+  }
+
+  /** Ausstehende Stufen (read-only, für UI-Hinweise). */
+  getPendingAbwehrStages(): AbwehrStage[] {
+    return [...this.pendingAbwehrStages];
+  }
+
+  /**
+   * Nacht-VORSCHAU fürs Tagesfazit: Das Tagesfazit erscheint VOR endPhase — es soll
+   * die KOMMENDE Nacht ausweisen („Über Nacht holen die Institutionen X zurück").
+   * Deterministisch aus dem aktuellen Zustand berechnet, mutiert nichts. Kleiner,
+   * bewusster Unschärfe-Rand: Verteidiger, die erst heute Nacht spawnen, fehlen hier.
+   */
+  getNightPreview(): NightReport {
+    const step = abwehrStep({
+      current: this.storyResources.wehrhaftigkeit,
+      noiseRisk: this.noiseRiskToday,
+      noiseAttention: this.noiseAttentionToday,
+      defenderStrengthSum: this.actorAI.getDefenderStrengthSum(),
+      armsRaceLevel: this.actorAI.getArmsRaceLevel(),
+    });
+    return {
+      day: this.storyPhase.number,
+      trustRegeneration: this.actorAI.getTrustRegeneration(),
+      abwehrDelta: step.delta,
+      abwehrParts: step.parts,
+      abwehrAfter: step.next,
+    };
+  }
+
+  // ── Paket B: Stufen-Gegenmaßnahmen (CountermeasureSystem eingesteckt) ────────────
+  // An den Stufen 25/50/75 feuert je EINE kuratierte DISARM-Maßnahme (Zielbild §3):
+  // Prebunking-Kampagne (cm24) · Plattform-Sperre (cm05) · Task-Force (cm22).
+  // Der Spieler reagiert mit 2–3 vereinheitlichten Optionen: kontern (Geld, dämpft
+  // die Maßnahme) / aussitzen (füttert die Abwehr) / ablenken (Risiko).
+  // Typen dafür: StageCountermeasureOffer/-Resolution (unten bei den Exporten).
+
+  private readonly STAGE_COUNTERMEASURES: Record<AbwehrStage, string> = {
+    25: 'cm24',  // Prebunking-Kampagne — impft das Publikum, stärkt das Vertrauen
+    50: 'cm05',  // Plattform-Maßnahmen — „Kanal gesperrt", Aktion X Tage grau
+    75: 'cm22',  // Internationale Untersuchungskoalition — die Task-Force
+  };
+  private readonly COUNTER_COST_BUDGET = 25;   // kontern kostet Geld (E18: Geld = Druck)
+  private readonly SIT_OUT_ABWEHR = 4;         // aussitzen füttert die Abwehr
+  private readonly DISTRACT_RISK = 6;          // ablenken erkauft Ruhe mit Risiko
+  private readonly DISTRACT_ATTENTION_RELIEF = 4;
+  private readonly BAN_DAYS = 4;               // Plattform-Sperre: Kanal X Tage grau
+  private readonly TASKFORCE_COUNTDOWN_START = 8;
+  private readonly TASKFORCE_COUNTDOWN_CUT = 3;
+
+  /**
+   * Die anstehende Stufen-Gegenmaßnahme für die UI (oder null). Peek — konsumiert
+   * erst resolveStageCountermeasure. Optionen mit Verfügbarkeits-Flag (kontern
+   * braucht Budget).
+   */
+  getPendingStageCountermeasure(): StageCountermeasureOffer | null {
+    const stage = this.pendingAbwehrStages[0];
+    if (!stage) return null;
+    const definition = this.countermeasureSystem.getCountermeasure(this.STAGE_COUNTERMEASURES[stage]);
+    if (!definition) return null;
+    return {
+      stage,
+      definition,
+      options: [
+        {
+          id: 'kontern',
+          label_de: 'Kontern',
+          folge_de: `Budget −${this.COUNTER_COST_BUDGET} · die Maßnahme wird abgeschwächt`,
+          available: this.storyResources.budget >= this.COUNTER_COST_BUDGET,
+        },
+        {
+          id: 'aussitzen',
+          label_de: 'Aussitzen',
+          folge_de: `Keine Kosten · die Abwehr wächst um +${this.SIT_OUT_ABWEHR}`,
+          available: true,
+        },
+        {
+          id: 'ablenken',
+          label_de: 'Ablenken',
+          folge_de: `Risiko +${this.DISTRACT_RISK} · Aufmerksamkeit −${this.DISTRACT_ATTENTION_RELIEF}`,
+          available: true,
+        },
+      ],
+    };
+  }
+
+  /**
+   * Stufen-Gegenmaßnahme auflösen: Basis-Zähne der Maßnahme + Folge der gewählten
+   * Reaktion. Kontern dämpft die Zähne (halbe Wirkung), aussitzen füttert die
+   * Abwehr, ablenken tauscht Aufmerksamkeit gegen Risiko. Liefert die Bilanz-Zeilen
+   * für die UI (kühle Quittung, E8).
+   */
+  resolveStageCountermeasure(choice: StageCountermeasureChoice): StageCountermeasureResolution | null {
+    const stage = this.pendingAbwehrStages.shift();
+    if (!stage) return null;
+    // Härtung (Review-Befund): kontern setzt Budget voraus — die UI graut die Option
+    // zwar aus, aber ein künftiger zweiter Aufrufer darf die Kasse nicht negativ ziehen.
+    if (choice === 'kontern' && this.storyResources.budget < this.COUNTER_COST_BUDGET) {
+      choice = 'aussitzen';
+    }
+    const cmId = this.STAGE_COUNTERMEASURES[stage];
+    // Im CountermeasureSystem registrieren (Save/Bilanz) — Definition für die Texte.
+    const definition = this.countermeasureSystem.triggerById(cmId, this.storyPhase.number)
+      ?? this.countermeasureSystem.getCountermeasure(cmId);
+    const label = definition?.label_de ?? `Gegenmaßnahme Stufe ${stage}`;
+    const lines: string[] = [];
+    const countered = choice === 'kontern';
+
+    // Reaktions-Folgen zuerst (sie erklären die Dämpfung der Zähne).
+    if (countered) {
+      this.storyResources.budget -= this.COUNTER_COST_BUDGET;
+      lines.push(`Gegenkampagne bezahlt: Budget −${this.COUNTER_COST_BUDGET}.`);
+    } else if (choice === 'aussitzen') {
+      this.raiseAbwehr(this.SIT_OUT_ABWEHR);
+      lines.push(`Nichts unternommen — die Maßnahme wirkt ungestört: Abwehr +${this.SIT_OUT_ABWEHR}.`);
+    } else {
+      this.storyResources.risk = Math.min(100, this.storyResources.risk + this.DISTRACT_RISK);
+      this.storyResources.attention = Math.max(0, this.storyResources.attention - this.DISTRACT_ATTENTION_RELIEF);
+      lines.push(`Ablenkungsmanöver: Aufmerksamkeit −${this.DISTRACT_ATTENTION_RELIEF}, Risiko +${this.DISTRACT_RISK}.`);
+    }
+
+    // Basis-Zähne je Stufe (kontern halbiert).
+    if (stage === 25) {
+      // Prebunking: das Publikum wird geimpft — die Institutionen gewinnen Vertrauen.
+      const regain = countered ? 2 : 4;
+      this.applyInstitutionalTrustDelta(regain);
+      lines.push(`Prebunking wirkt: Institutionen-Vertrauen +${regain}.`);
+    } else if (stage === 50) {
+      // Plattform-Sperre: der meistgenutzte jüngste Kanal wird still gelegt.
+      const banDays = countered ? Math.ceil(this.BAN_DAYS / 2) : this.BAN_DAYS;
+      const lastRealAction = [...this.actionHistory].reverse()
+        .find((h) => !h.actionId.startsWith('op_'))?.actionId;
+      if (lastRealAction) {
+        this.actorAI.disableAction(lastRealAction, this.storyPhase.number + banDays);
+        const label_de = this.getActionById(lastRealAction)?.label_de ?? lastRealAction;
+        lines.push(`Kanal gesperrt: „${label_de}" für ${banDays} Tage nicht verfügbar.`);
+        this.newsEvents.unshift({
+          id: `abwehr_ban_${lastRealAction}_${this.storyPhase.number}`,
+          phase: this.storyPhase.number,
+          headline_de: 'Plattform setzt Sperren durch',
+          headline_en: 'Platform enforces bans',
+          description_de: `Koordinierte unechte Aktivitäten eingeschränkt — ein Kanal ist ${banDays} Tage still.`,
+          description_en: `Coordinated inauthentic behavior restricted — one channel is silent for ${banDays} days.`,
+          type: 'world_event',
+          severity: 'warning',
+          read: false,
+          pinned: false,
+        });
+      } else {
+        lines.push('Plattform-Sperren greifen — noch gibt es keinen Kanal, den es trifft.');
+      }
+    } else {
+      // Task-Force: der Ermittler-Countdown beschleunigt (oder beginnt).
+      const risk = countered ? 2 : 5;
+      this.storyResources.risk = Math.min(100, this.storyResources.risk + risk);
+      if (this.exposureCountdown === null) {
+        this.exposureCountdown = countered
+          ? this.TASKFORCE_COUNTDOWN_START + 2
+          : this.TASKFORCE_COUNTDOWN_START;
+        lines.push(`Die Task-Force nimmt die Ermittlung auf: Countdown ${this.exposureCountdown} Tage · Risiko +${risk}.`);
+      } else {
+        const cut = countered ? 1 : this.TASKFORCE_COUNTDOWN_CUT;
+        this.exposureCountdown = Math.max(1, this.exposureCountdown - cut);
+        lines.push(`Die Task-Force beschleunigt die Ermittlung: Countdown −${cut} (jetzt ${this.exposureCountdown}) · Risiko +${risk}.`);
+      }
+    }
+
+    storyLogger.log(`[ImmuneSystem] Stufe ${stage}: ${label} — Reaktion „${choice}"`);
+    return { stage, label_de: label, lines_de: lines };
+  }
+
   /** Bilanz der bisherigen P2-Operationen (End-Report/Atlas). */
   getOperationsSummary(): OperationsSummary {
     let carriersBurned = 0;
@@ -4263,14 +4700,28 @@ export class StoryEngineAdapter {
     const clamp100 = (x: number) => Math.max(0, Math.min(100, x));
     const riskAdd = Math.round(result.exposureRisk * 8);
     const attentionAdd = Math.round(result.impact * 6);
-    this.storyResources.risk = clamp100(this.storyResources.risk + riskAdd);
+    // Etappe 3 (Paket E): konsistent mit Aktionen — der rohe Enttarnungs-Melder bekommt
+    // nur den gedämpften Anteil (RISK_COST_TO_METER), damit op-lastiges Spiel nicht
+    // DOPPELT (Risiko + Abwehr) bestraft wird. Der volle Lärm speist die Abwehr.
+    this.storyResources.risk = clamp100(this.storyResources.risk + riskAdd * this.RISK_COST_TO_METER);
     this.storyResources.attention = clamp100(this.storyResources.attention + attentionAdd);
+    // Auch Operationen sind Lärm — sie füttern die ABWEHR (Zufluss a). Bewusst STARK
+    // gedämpft: die Abwehr ist primär gegen Aktions-Spam; Operationen tragen ihre eigene
+    // Strafe (Verbreiter-Verbrennen + Enttarnungs-Spike bei Aufdeckung), sonst wäre
+    // op-fokussiertes Spiel dreifach bestraft (Risiko + Burn + Abwehr) und chancenlos.
+    this.addAbwehrNoise(riskAdd * 0.15, attentionAdd * 0.15);
 
     // ── „Loop schließen" (1/2): der ERTRAG einer gelungenen Operation ──────────────
     // Wirkung gegen das Ziel erodiert das Institutionen-Vertrauen (das Sieg-Ziel) —
     // erst dadurch lohnt sich der Aufwand (Verbreiter aufbauen + Kompromat) überhaupt.
     let trustDelta = -(result.impact * this.OP_TRUST_EROSION);
     this.applyInstitutionalTrustDelta(trustDelta);
+
+    // Etappe 3 (Paket E): Eine gelungene Operation mobilisiert zusätzlich die uns-nahe
+    // (radikale) Kraft — das Schlachtfeld ist auch Wahlkampf. Treibt die zweite
+    // Signatur-Achse (fraktionsstaerke), damit op-fokussiertes Spiel die Wahl-Signatur
+    // im Rennen gegen die Abwehr erreichen kann (nicht nur die Vertrauens-Achse maxt).
+    this.applySocietyDelta({ fraktionsstaerke: result.impact * this.OP_FRAKTION_MOBILIZE });
 
     // Ausspielen heiklen Kompromats wiegt moralisch (zusätzlich zur Beschaffung).
     let moralAdded = Math.round(resolved.vulnerability!.heikelheit * this.OP_DEPLOY_MORAL);
@@ -4348,6 +4799,8 @@ export class StoryEngineAdapter {
       // Öffentliche Aufdeckung heizt die Ermittlung an.
       this.storyResources.risk = clamp100(this.storyResources.risk + this.OP_BURN_RISK_SPIKE);
       this.storyResources.attention = clamp100(this.storyResources.attention + this.OP_BURN_ATTENTION_SPIKE);
+      // Etappe 3: eine öffentliche Enttarnung ist der lauteste Lärm von allen.
+      this.addAbwehrNoise(this.OP_BURN_RISK_SPIKE, this.OP_BURN_ATTENTION_SPIKE);
       this.storyResources.moralWeight += this.OP_BURN_MORAL;
       moralAdded += this.OP_BURN_MORAL;
 
@@ -4445,20 +4898,30 @@ export class StoryEngineAdapter {
       this.storyResources.capacity -= costs.capacity;
     }
     if (costs.risk) {
-      this.storyResources.risk += costs.risk;
+      // Etappe 3 (Paket E): Der Lärm einer Aktion lebt jetzt in der ABWEHR (Zufluss a).
+      // Damit aggressives Spiel nicht DOPPELT bestraft wird (Sofort-Enttarnung UND
+      // Abwehr) und schon an Tag 8 auffliegt, trifft die Risiko-Kost den rohen
+      // Enttarnungs-Melder gedämpft — die volle Kost speist unten die Abwehr.
+      this.storyResources.risk += costs.risk * this.RISK_COST_TO_METER;
     }
 
     // P1-4 Fix: Implicit attention gain for all actions (more for illegal)
-    // This ensures attention builds up over time even without explicit costs
+    // This ensures attention builds up over time even without explicit costs.
+    // Etappe 3 (Paket E): gestutzt (illegal 3→2, grey 1→0). Der Druck aggressiven
+    // Spiels läuft jetzt primär über die ABWEHR (Lärm-Zufluss), nicht über eine
+    // Aufmerksamkeits-/Enttarnungs-Spirale, die schon an Tag 8 auffliegt.
     let attentionGain = costs.attention || 0;
     if (action.legality === 'illegal') {
-      attentionGain += 3;  // Illegal actions always draw some attention
-    } else if (action.legality === 'grey') {
-      attentionGain += 1;  // Grey area actions draw minimal attention
+      attentionGain += 2;  // Illegal actions always draw some attention
     }
     if (attentionGain > 0) {
       this.storyResources.attention = Math.min(100, this.storyResources.attention + attentionGain);
     }
+
+    // Etappe 3: Der eigene Lärm füttert die ABWEHR (Zufluss a, Zielbild §3) —
+    // Risiko/Aufmerksamkeit bleiben eigene Größen (Enttarnung getrennt, Falle 3),
+    // aber jede laute Aktion lässt zugleich das Immunsystem lernen.
+    this.addAbwehrNoise(costs.risk || 0, attentionGain);
 
     if (costs.moralWeight) {
       this.storyResources.moralWeight += costs.moralWeight;
@@ -4484,6 +4947,12 @@ export class StoryEngineAdapter {
       if (npc) {
         effectivenessMultiplier = 1 + (npc.relationshipLevel * 0.1);
       }
+    }
+
+    // Paket C (Etappe 3): aktive Reichweiten-Dämpfung der Verteidiger (reach_reduction)
+    // senkt die Wirkung — Faktenchecks/Gegen-Narrative haben jetzt mechanische Zähne.
+    if (this.reachDampening > 0) {
+      effectivenessMultiplier *= 1 - this.reachDampening;
     }
 
     // Process effects from loaded action
@@ -5709,9 +6178,9 @@ export class StoryEngineAdapter {
     const decision = evaluateEnd({
       auftragProgressMin: this.getAuftragProgressMin(),
       winThreshold: this.WIN_THRESHOLD,
+      abwehr: this.storyResources.wehrhaftigkeit,
       risk: this.storyResources.risk,
       budget: this.storyResources.budget,
-      betrayingNpcs: this.betrayalSystem.getBetrayingNPCs().length,
       moralWeight: this.storyResources.moralWeight,
       allNpcsLost,
       exposureCountdown: this.exposureCountdown,
@@ -5736,6 +6205,24 @@ export class StoryEngineAdapter {
         stats,
         epilogue_de: 'Sie werden zur persona non grata erklärt. Diplomatische Beziehungen werden eingefroren. Ihre Karriere endet in Schande.',
         epilogue_en: 'You are declared persona non grata. Diplomatic relations are frozen. Your career ends in disgrace.',
+        assembledEnding: this.assembledEndingForBranch('defeat'),
+      };
+    }
+
+    // PRIORITY 0b: DAS LAND HÄLT STAND — die Abwehr hat 100 erreicht (Etappe 3).
+    // Verlust 1 im Zielbild §4: kein Knall, sondern Ertrinken in Zeitlupe — die
+    // Sondersendung erklärt die eigenen Maschen, Stück für Stück.
+    if (decision.branch === 'immune') {
+      storyLogger.log(`💀 Defeat: ABWEHR ${this.storyResources.wehrhaftigkeit.toFixed(0)} — das Land ist immun.`);
+      return {
+        type: 'defeat',
+        title_de: 'Das Land hält stand',
+        title_en: 'The Country Holds',
+        description_de: 'Das Immunsystem der Gesellschaft hat Sie eingeholt: Faktenchecker, Behörden, abgestumpfte Milieus — Ihre Maschen verfangen nicht mehr. Die Operation ist wirkungslos geworden.',
+        description_en: 'The society\'s immune system has caught up with you: fact-checkers, agencies, hardened audiences — your schemes no longer stick. The operation has become inert.',
+        stats,
+        epilogue_de: 'In der Sondersendung laufen Ihre eigenen Schlagzeilen als Beweismittel — Masche für Masche erklärt, mit rotem GEFÄLSCHT-Stempel. Unten im Bild: Ihr Bürogebäude, Blaulicht.',
+        epilogue_en: 'The special broadcast runs your own headlines as evidence — scheme by scheme, stamped FORGED in red. At the bottom of the frame: your office building, blue lights.',
         assembledEnding: this.assembledEndingForBranch('defeat'),
       };
     }
@@ -5789,23 +6276,8 @@ export class StoryEngineAdapter {
       };
     }
 
-    // PRIORITY 1b (P1-2): Der Apparat zerfällt von innen — zu viele eigene Leute haben sich
-    // abgewandt/verraten. Eigener Verlustpfad (Frostpunk-Prinzip: mehrere unabhängige Bilanzen,
-    // jede ein eigener Weg zu scheitern). Die Bilanz existierte schon in EndingSystem.shouldGameEnd,
-    // war aber im Live-checkGameEnd ungenutzt.
-    if (decision.branch === 'apparatus') {
-      return {
-        type: 'defeat',
-        title_de: 'Der Apparat zerfällt',
-        title_en: 'The Apparatus Falls Apart',
-        description_de: 'Zu viele Ihrer eigenen Leute haben sich abgewandt. Ohne loyalen Apparat bricht die Operation von innen zusammen.',
-        description_en: 'Too many of your own people have turned. Without a loyal apparatus, the operation collapses from within.',
-        stats,
-        epilogue_de: 'Was Sie aufgebaut haben, zerlegt sich selbst — Misstrauen, Lecks, abgesprungene Mitarbeiter. Die Zentrale zieht den Stecker.',
-        epilogue_en: 'What you built dismantles itself — distrust, leaks, defected staff. The Central pulls the plug.',
-        assembledEnding: this.assembledEndingForBranch('defeat'),
-      };
-    }
+    // (Ehemals PRIORITY 1b 'apparatus': Verrat ist seit Etappe 3 ein +15-Abwehr-Ereignis
+    // mit Leak-Story — applyBetrayalEvent — statt eines eigenen Game-Over. Zielbild §4/D4.)
 
     // PRIORITY 1c (P1-2): Handlungsunfähig — die Kasse ist leer, während die Aufmerksamkeit hoch ist.
     // Kein Geld, um Spuren zu decken oder weiterzumachen (zweiter unabhängiger Verlustpfad).
@@ -5918,6 +6390,15 @@ export class StoryEngineAdapter {
       // P6-Umfragen
       pollIndex: this.pollIndex,
       lastPollValues: this.lastPollValues,
+      // Etappe 3 — ImmuneSystem-Zustand
+      noiseRiskToday: this.noiseRiskToday,
+      noiseAttentionToday: this.noiseAttentionToday,
+      methodFamilyUseCounts: Array.from(this.methodFamilyUseCounts.entries()),
+      patchedFamilies: Array.from(this.patchedFamilies),
+      firedAbwehrStages: Array.from(this.firedAbwehrStages),
+      pendingAbwehrStages: this.pendingAbwehrStages,
+      lastNightReport: this.lastNightReport,
+      reachDampening: this.reachDampening,
       comboSystemState: this.comboSystem.exportState(),
       crisisMomentSystemState: this.crisisMomentSystem.exportState(),
       actorAIState: this.actorAI.exportState(),
@@ -5976,6 +6457,21 @@ export class StoryEngineAdapter {
     // P6-Umfragen (Default leer für alte Saves, R1).
     this.pollIndex = state.pollIndex ?? 0;
     this.lastPollValues = state.lastPollValues ?? {};
+    // Etappe 3 — ImmuneSystem-Zustand (Defaults für alte Saves).
+    this.noiseRiskToday = state.noiseRiskToday ?? 0;
+    this.noiseAttentionToday = state.noiseAttentionToday ?? 0;
+    this.methodFamilyUseCounts = new Map(state.methodFamilyUseCounts ?? []);
+    this.patchedFamilies = new Set(state.patchedFamilies ?? []);
+    this.firedAbwehrStages = new Set(state.firedAbwehrStages ?? []);
+    this.pendingAbwehrStages = state.pendingAbwehrStages ?? [];
+    this.lastNightReport = state.lastNightReport ?? null;
+    this.reachDampening = state.reachDampening ?? 0;
+    // Migration < 2.1.0: `wehrhaftigkeit` war ein Gesellschaftswert (Start 60), jetzt
+    // ist sie die ABWEHR (Start niedrig). Altstände ohne Etappe-3-Marker erben den
+    // neuen Startwert — ihr alter Wert wäre eine grundlos fast halbvolle Abwehr.
+    if (state.firedAbwehrStages === undefined) {
+      this.storyResources.wehrhaftigkeit = ABWEHR_START;
+    }
     if (state.comboSystemState) {
       this.comboSystem.importState(state.comboSystemState);
     }
@@ -6265,6 +6761,15 @@ export class StoryEngineAdapter {
     this.electionDay = StoryEngineAdapter.CAMPAIGN_DAYS_DEFAULT;
     this.pollIndex = 0;
     this.lastPollValues = {};
+    // Etappe 3 — ImmuneSystem-Zustand zurücksetzen.
+    this.noiseRiskToday = 0;
+    this.noiseAttentionToday = 0;
+    this.methodFamilyUseCounts.clear();
+    this.patchedFamilies.clear();
+    this.firedAbwehrStages.clear();
+    this.pendingAbwehrStages = [];
+    this.lastNightReport = null;
+    this.reachDampening = 0;
     this.initializeNPCs();
     this.initializeObjectives();
 
@@ -6319,6 +6824,74 @@ export class StoryEngineAdapter {
   // ============================================
   // BETRAYAL SYSTEM PUBLIC METHODS
   // ============================================
+
+  /**
+   * Paket C (Etappe 3): Verrats-FOLGEN anwenden — die BetrayalEvent.effects waren
+   * seit jeher generiert, aber nie verdrahtet (Zielbild §4, Nebenbefund). Verrat ist
+   * KEIN eigener Game-Over mehr, sondern ein dramatisches ABWEHR-Ereignis (+15) mit
+   * Leak-Story: Der Überläufer erklärt der Öffentlichkeit die Maschen (Insider-Leck).
+   */
+  private readonly BETRAYAL_ABWEHR_JUMP = 15;
+
+  applyBetrayalEvent(event: BetrayalEvent): void {
+    for (const effect of event.effects) {
+      switch (effect.type) {
+        case 'risk_increase':
+          this.storyResources.risk = Math.min(100, this.storyResources.risk + effect.value);
+          break;
+        case 'attention_increase':
+          this.storyResources.attention = Math.min(100, this.storyResources.attention + effect.value);
+          break;
+        case 'evidence_exposed':
+          // Beweise liegen vor: die Ermittlung beginnt (oder rückt spürbar näher).
+          this.exposureCountdown = this.exposureCountdown === null
+            ? 10
+            : Math.max(1, this.exposureCountdown - 2);
+          break;
+        case 'network_damage':
+          // Geschwächte Netzwerk-Verbindungen dämpfen die eigene Reichweite (wie reach_reduction).
+          this.reachDampening = Math.min(0.5, this.reachDampening + effect.value / 100);
+          break;
+        case 'action_disabled': {
+          // Sabotage legt den zuletzt genutzten Kanal für `value` Tage still.
+          const lastAction = [...this.actionHistory].reverse()
+            .find((h) => !h.actionId.startsWith('op_'))?.actionId;
+          if (lastAction) this.actorAI.disableAction(lastAction, this.storyPhase.number + effect.value);
+          break;
+        }
+        case 'npc_lost': {
+          const npc = this.npcStates.get(event.npcId);
+          if (npc) {
+            npc.inCrisis = true;
+            npc.available = false;
+          }
+          break;
+        }
+        case 'countdown_accelerate':
+          this.exposureCountdown = this.exposureCountdown === null
+            ? Math.max(3, 12 - effect.value)
+            : Math.max(1, this.exposureCountdown - effect.value);
+          break;
+      }
+    }
+
+    // Das Abwehr-Ereignis: der Verrat impft das Land gegen die eigenen Maschen.
+    this.raiseAbwehr(this.BETRAYAL_ABWEHR_JUMP);
+    this.newsEvents.unshift({
+      id: `betrayal_leak_${event.npcId}_${this.storyPhase.number}`,
+      phase: this.storyPhase.number,
+      headline_de: `Insider packt aus: ${event.npcName}`,
+      headline_en: `Insider speaks out: ${event.npcName}`,
+      description_de: `${event.consequence_de} Die Öffentlichkeit lernt die Maschen aus erster Hand — die Abwehr springt um +${this.BETRAYAL_ABWEHR_JUMP}.`,
+      description_en: `${event.consequence_en} The public learns the schemes first-hand — the defense jumps by +${this.BETRAYAL_ABWEHR_JUMP}.`,
+      type: 'consequence',
+      severity: 'danger',
+      read: false,
+      pinned: true,
+    });
+    playSound('warning');
+    storyLogger.log(`[Betrayal] ${event.npcName} (${event.type}/${event.severity}) — Folgen angewandt, Abwehr +${this.BETRAYAL_ABWEHR_JUMP}`);
+  }
 
   /**
    * Get current betrayal status for all NPCs

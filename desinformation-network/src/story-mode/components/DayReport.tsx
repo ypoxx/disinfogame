@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { StoryModeColors } from '../theme';
+import type { NightReport } from '../engine/ImmuneSystem';
 
 // ============================================
 // TAGESFAZIT / "LAGEBERICHT" (K1, A4) — der A4-Pflichtmoment
@@ -23,7 +24,14 @@ interface DayReportProps {
   counterHeadlines: string[];
   resources: { risk: number; budget: number; attention: number };
   trustProgress: number; // 0–100 (Ministerium Institutionen)
+  /** Etappe 3 Paket D: Nacht-Transparenz — null an Tag 1 (keine Nacht vergangen). */
+  nightReport?: NightReport | null;
   onNextDay: () => void;
+}
+
+/** Rundet auf eine Nachkommastelle, deutsches Komma statt Punkt (Stempel-Ästhetik). */
+function formatDe(n: number): string {
+  return n.toFixed(1).replace('.', ',');
 }
 
 /** Spalten-Block mit Brutalist-Rahmen + Stagger-Index für die Einblendung. */
@@ -82,6 +90,7 @@ export function DayReport({
   counterHeadlines,
   resources,
   trustProgress,
+  nightReport,
   onNextDay,
 }: DayReportProps) {
   // Weiter auch per Enter.
@@ -252,6 +261,45 @@ export function DayReport({
               </div>
             </div>
           </div>
+
+          {/* Nacht-Transparenz (Etappe 3 Paket D): das Rennen wird jeden Abend fühlbar —
+              wer den zweiten Läufer nicht bremst, sieht hier, warum Nichtstun verliert.
+              Tag 1 hat keine Vorgängernacht → Zeile entfällt (nightReport === null). */}
+          {nightReport && (
+            <div
+              className="border-2 p-4 mb-6 animate-fade-in"
+              style={{
+                backgroundColor: StoryModeColors.darkConcrete,
+                borderColor: StoryModeColors.border,
+                opacity: 0,
+                animationDelay: '0.42s',
+                animationFillMode: 'forwards',
+              }}
+              data-testid="night-report-row"
+            >
+              <div className="text-xs uppercase tracking-wider mb-1" style={{ color: StoryModeColors.textSecondary }}>
+                Über Nacht
+              </div>
+              <p className="font-mono text-sm" style={{ color: StoryModeColors.textPrimary }}>
+                Institutionen holen {formatDe(nightReport.trustRegeneration)} Punkte Vertrauen zurück · Abwehr{' '}
+                +{formatDe(nightReport.abwehrDelta)} → {Math.round(nightReport.abwehrAfter)}
+              </p>
+              {/* Aufschlüsselung der Zuflüsse — nur nennenswerte (> 0,05) zeigen (keine Zahlen-Buchhalterei). */}
+              {(() => {
+                const parts = [
+                  { label: 'Lärm', value: nightReport.abwehrParts.noise },
+                  { label: 'Verteidiger', value: nightReport.abwehrParts.defenders },
+                  { label: 'Grundrauschen', value: nightReport.abwehrParts.baseline },
+                ].filter((p) => p.value > 0.05);
+                if (parts.length === 0) return null;
+                return (
+                  <p className="font-mono text-xs mt-1" style={{ color: StoryModeColors.textSecondary }}>
+                    {parts.map((p) => `${p.label} +${formatDe(p.value)}`).join(' · ')}
+                  </p>
+                );
+              })()}
+            </div>
+          )}
 
           {/* Weiter-Button */}
           <div className="text-center pb-6">
