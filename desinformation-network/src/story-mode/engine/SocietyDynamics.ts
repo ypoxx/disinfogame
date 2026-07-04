@@ -150,8 +150,10 @@ export function societyFormulaStep(s: SocietySnapshot): SocietyDelta {
   const blockade = (s.polarisierung + s.fragmentierung) / 2;
   if (blockade > 35) addDelta(d, 'reformfaehigkeit', -(blockade - 35) * 0.03);
 
-  // Hoher Zynismus senkt die Wehrhaftigkeit (Rückzug-Signatur).
-  if (s.zynismus > 40) addDelta(d, 'wehrhaftigkeit', -(s.zynismus - 40) * 0.04);
+  // Etappe 3: KEINE passive Zynismus-Drift auf `wehrhaftigkeit` mehr — der Wert ist
+  // zur ABWEHR befördert (zweiter Rennläufer, ImmuneSystem). Die alte Kopplung hätte
+  // das falsche Vorzeichen im Rennen: die Gesellschafts-Drift zöge den Gegner-Balken
+  // runter. Gezieltes Senken bleibt möglich (demoralization-Aktionen = „Bremse").
 
   // Etappe 1: Eine gespaltene, verdrossene Gesellschaft driftet zur radikalen Kraft —
   // Polarisierung + Zynismus stärken die uns-nahe Fraktion. Thematisch „Division füttert
@@ -160,10 +162,10 @@ export function societyFormulaStep(s: SocietySnapshot): SocietyDelta {
   const fraktionsDrift = (s.polarisierung + s.zynismus) / 2;
   if (fraktionsDrift > 35) addDelta(d, 'fraktionsstaerke', (fraktionsDrift - 35) * 0.06);
 
-  // Resilienz: bei niedrigem Druck erholen sich Diskursqualität und (langsamer) Wehrhaftigkeit.
+  // Resilienz: bei niedrigem Druck erholt sich die Diskursqualität. (Die frühere
+  // Wehrhaftigkeits-Erholung übernimmt das ImmuneSystem-Grundrauschen — Etappe 3.)
   if (s.informationslast < 30 && s.polarisierung < 40) {
     addDelta(d, 'diskursqualitaet', 0.3);
-    if (s.wehrhaftigkeit < 60) addDelta(d, 'wehrhaftigkeit', 0.1);
   }
 
   return d;

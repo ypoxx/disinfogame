@@ -555,6 +555,19 @@ export class StoryActorAI {
   }
 
   /**
+   * Summierte AKTUELLE Stärke aller gespawnten Verteidiger (Etappe 3):
+   * speist den passiven ABWEHR-Zufluss des ImmuneSystems (Zufluss b) —
+   * dieselbe Basis wie getTrustRegeneration, aber roh (Skalierung dort).
+   */
+  getDefenderStrengthSum(): number {
+    let sum = 0;
+    for (const actor of this.spawnedActors) {
+      sum += this.actorStrengths.get(actor.id) || actor.strength;
+    }
+    return sum;
+  }
+
+  /**
    * Vertrauens-Regeneration durch Verteidiger pro Phase.
    * Balancing K14 2026-06-12: Verteidiger (Faktenchecker/Moderation/…) holen
    * pro Phase Vertrauen zurück und erzeugen so das Wettrennen Erosion vs.

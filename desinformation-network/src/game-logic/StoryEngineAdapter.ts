@@ -110,6 +110,20 @@ import {
 import { evaluateEnd } from '../story-mode/engine/VictorySystem';
 
 import {
+  ABWEHR_START,
+  abwehrStep,
+  clampAbwehr,
+  crossedAbwehrStages,
+  isPatchTriggered,
+  methodFamilyForTags,
+  PATCH_ABWEHR_JUMP,
+  ABWEHR_STAGES,
+  type AbwehrStage,
+  type NightReport,
+} from '../story-mode/engine/ImmuneSystem';
+import { loadDisinfoMethods } from '../story-mode/engine/DisinfoMethodAtlas';
+
+import {
   ExtendedActorLoader,
   getExtendedActorLoader,
   resetExtendedActorLoader,
@@ -233,7 +247,9 @@ export const SOCIETY_VALUE_META: Record<SocietyValueKey, { label_de: string; vis
   zynismus:         { label_de: 'Zynismus',         visible: true,  help_de: 'Resignation und Rückzug aus der Debatte.' },
   fragmentierung:   { label_de: 'Fragmentierung',   visible: false, help_de: 'Zerfall in getrennte Echo-Öffentlichkeiten.' },
   diskursqualitaet: { label_de: 'Diskursqualität',  visible: false, help_de: 'Gesundheit der öffentlichen Debatte (Resilienz).' },
-  wehrhaftigkeit:   { label_de: 'Wehrhaftigkeit',   visible: false, help_de: 'Unterstützungs- und Verteidigungsbereitschaft.' },
+  // Etappe 3: zur ABWEHR befördert — sichtbar über den eigenen ABWEHR-Balken im HUD
+  // (zweiter Rennläufer), NICHT über die Gesellschaftswerte-Leiste (daher visible:false).
+  wehrhaftigkeit:   { label_de: 'Abwehr',           visible: false, help_de: 'Das Immunsystem der Gesellschaft — erreicht es 100, ist die Operation gescheitert.' },
   reformfaehigkeit: { label_de: 'Reformfähigkeit',  visible: false, help_de: 'Governance- und Kompromissfähigkeit.' },
   fraktionsstaerke: { label_de: 'Fraktions-Stärke', visible: false, help_de: 'Stärke der uns nahen politischen Kraft.' },
 };
@@ -600,8 +616,11 @@ export interface GameEndState {
  * `loadState` füllt fehlende Felder per Default-Merge (R1) auf, damit additive neue
  * Felder (Gesellschaftswerte B2, Episoden B1 …) alte Saves nicht kaputt machen.
  * 1.1.0: Gesellschaftswerte (B2a) + Default-Merge eingeführt.
+ * 2.0.0: Kampagnen-Uhr (Semantik-Bruch zum 120-Phasen-Modell, Etappe 2).
+ * 2.1.0: `wehrhaftigkeit` zur ABWEHR befördert (Etappe 3) — Altstände erben den
+ *        neuen Startwert, ihr alter Gesellschafts-Wert (60) wäre eine falsche Abwehr.
  */
-export const SAVE_FORMAT_VERSION = '2.0.0';  // Etappe 2: Kampagnen-Uhr (Semantik-Bruch zum 120-Phasen-Modell)
+export const SAVE_FORMAT_VERSION = '2.1.0';
 
 // Datenintegritäts-Check (P0/R3): nur EINMAL über die Lebenszeit des Moduls laufen
 // lassen — die Daten sind statisch importiert, und die Balance-Sim erzeugt Dutzende
@@ -683,6 +702,24 @@ export class StoryEngineAdapter {
   private pollIndex = 0;
   private lastPollValues: Record<string, number> = {};
   private readonly POLL_EVERY_PHASES = 5;  // Etappe 2: die Sonntagsfrage — alle 5 Tage (Zielbild §3)
+
+  // Etappe 3 — ImmuneSystem-Zustand (die ABWEHR lebt in storyResources.wehrhaftigkeit;
+  // hier nur die Zufluss-Buchhaltung + Stufen-/Patch-Verwaltung):
+  /** Lärm des laufenden Tages: Risiko-/Aufmerksamkeits-Kosten der eigenen Aktionen. */
+  private noiseRiskToday = 0;
+  private noiseAttentionToday = 0;
+  /** Einsätze je Maschen-Familie (18er-Atlas-Vokabular) — Basis der „Gepatcht"-Events. */
+  private methodFamilyUseCounts: Map<string, number> = new Map();
+  /** Bereits durchschaute („gepatchte") Familien — für UI-Stempel und End-Report. */
+  private patchedFamilies: Set<string> = new Set();
+  /** Bereits gefeuerte Abwehr-Stufen (25/50/75) — jede Stufe zündet genau einmal. */
+  private firedAbwehrStages: Set<number> = new Set();
+  /** Stufen, deren Gegenmaßnahme noch aussteht (Paket B konsumiert diese Queue). */
+  private pendingAbwehrStages: AbwehrStage[] = [];
+  /** Bilanz der letzten Nacht (Tagesfazit-Transparenz, Zielbild §3). */
+  private lastNightReport: NightReport | null = null;
+  /** Atlas-Familien (id/label/matchTags + counter_de) — einmal geladen, mehrfach genutzt. */
+  private readonly methodFamilies = loadDisinfoMethods();
 
   // Engine Integration
   private actionLoader: ActionLoader;
@@ -782,7 +819,9 @@ export class StoryEngineAdapter {
       zynismus: 20,
       fragmentierung: 15,
       diskursqualitaet: 70,
-      wehrhaftigkeit: 60,
+      // Etappe 3: wehrhaftigkeit IST die ABWEHR (zweiter Rennläufer). Sie startet
+      // niedrig — „die Abwehr schläft anfangs fast, das Land ist naiv" (Zielbild §5).
+      wehrhaftigkeit: ABWEHR_START,
       reformfaehigkeit: 55,
       fraktionsstaerke: 25,
       actionPointsRemaining: this.ACTION_POINTS_PER_PHASE,
@@ -1158,6 +1197,30 @@ export class StoryEngineAdapter {
     } else {
       this.trustTargetHeldPhases = 0;
     }
+
+    // ── Etappe 3: der nächtliche ABWEHR-Schritt (Zuflüsse a/b/d, Zielbild §3) ──────
+    // Läuft NACH der Verteidiger-Verarbeitung (Spawns/Eskalation dieses Tages zählen
+    // mit). Der Tages-Lärm wird konsumiert; die Bilanz wandert als NightReport ins
+    // Tagesfazit („die Nacht wird transparent" — man versteht, warum Nichtstun verliert).
+    const abwehrBefore = this.storyResources.wehrhaftigkeit;
+    const abwehr = abwehrStep({
+      current: abwehrBefore,
+      noiseRisk: this.noiseRiskToday,
+      noiseAttention: this.noiseAttentionToday,
+      defenderStrengthSum: this.actorAI.getDefenderStrengthSum(),
+      armsRaceLevel: this.actorAI.getArmsRaceLevel(),
+    });
+    this.storyResources.wehrhaftigkeit = abwehr.next;
+    this.fireAbwehrStageEvents(abwehrBefore, abwehr.next);
+    this.lastNightReport = {
+      day: previousPhase,
+      trustRegeneration: trustRegen,
+      abwehrDelta: abwehr.delta,
+      abwehrParts: abwehr.parts,
+      abwehrAfter: abwehr.next,
+    };
+    this.noiseRiskToday = 0;
+    this.noiseAttentionToday = 0;
 
     return {
       newPhase: this.storyPhase,
@@ -3676,6 +3739,10 @@ export class StoryEngineAdapter {
     // Track action for Actor-AI (Arms Race)
     this.actorAI.trackAction(actionId, action.tags, this.storyPhase.number);
 
+    // Etappe 3 (Zufluss c): Maschen-Wiederholung — die n-te Wiederholung derselben
+    // Familie wird durchschaut („Gepatcht") und stärkt die ABWEHR sofort sichtbar.
+    this.registerMethodFamilyUse(action.tags);
+
     // Historie
     this.actionHistory.push({
       phase: this.storyPhase.number,
@@ -4154,6 +4221,134 @@ export class StoryEngineAdapter {
     }
   }
 
+  // ============================================
+  // IMMUNSYSTEM (Etappe 3) — die ABWEHR, der zweite Rennläufer
+  // ============================================
+
+  /** Lärm des Tages verbuchen (Zufluss a) — der nächtliche Schritt konsumiert ihn. */
+  private addAbwehrNoise(risk: number, attention: number): void {
+    if (risk > 0) this.noiseRiskToday += risk;
+    if (attention > 0) this.noiseAttentionToday += attention;
+  }
+
+  /** ABWEHR sofort anheben (z. B. „Gepatcht"-Sprung, Verrats-Ereignis) inkl. Stufen-Check. */
+  private raiseAbwehr(amount: number): void {
+    if (amount <= 0) return;
+    const before = this.storyResources.wehrhaftigkeit;
+    this.storyResources.wehrhaftigkeit = clampAbwehr(before + amount);
+    this.fireAbwehrStageEvents(before, this.storyResources.wehrhaftigkeit);
+  }
+
+  /**
+   * Stufen 25/50/75: jede zündet genau EINMAL (auch wenn die Abwehr später wieder
+   * darunter fällt und erneut steigt — sonst würde dieselbe Eskalation doppelt erzählt).
+   * Erzeugt die TV-Nachricht und stellt die Stufe in die Gegenmaßnahmen-Queue (Paket B).
+   */
+  private fireAbwehrStageEvents(before: number, after: number): void {
+    for (const stage of crossedAbwehrStages(before, after)) {
+      if (this.firedAbwehrStages.has(stage)) continue;
+      this.firedAbwehrStages.add(stage);
+      this.pendingAbwehrStages.push(stage);
+
+      const texts: Record<AbwehrStage, { h_de: string; h_en: string; d_de: string; d_en: string }> = {
+        25: {
+          h_de: 'Das Land beginnt hinzusehen',
+          h_en: 'The country starts paying attention',
+          d_de: 'Faktenchecker vergleichen Notizen, erste Behörden stellen Fragen. Die Abwehr der Westunion hat Stufe 25 erreicht.',
+          d_en: 'Fact-checkers compare notes, first agencies ask questions. Westunion\'s defense has reached level 25.',
+        },
+        50: {
+          h_de: 'Die Abwehr organisiert sich',
+          h_en: 'The defense organizes',
+          d_de: 'Redaktionen, Plattformen und Behörden arbeiten jetzt zusammen. Die Abwehr steht bei 50 — die Hälfte des Weges zur Immunität.',
+          d_en: 'Newsrooms, platforms and agencies now work together. The defense stands at 50 — halfway to immunity.',
+        },
+        75: {
+          h_de: 'Das Netz zieht sich zu',
+          h_en: 'The net is closing',
+          d_de: 'Das Land kennt Ihre Handschrift. Abwehr bei 75 — erreicht sie 100, ist die Operation wirkungslos und fliegt auf.',
+          d_en: 'The country knows your signature. Defense at 75 — at 100 the operation is inert and exposed.',
+        },
+      };
+      const t = texts[stage];
+      this.newsEvents.unshift({
+        id: `abwehr_stage_${stage}`,
+        phase: this.storyPhase.number,
+        headline_de: t.h_de,
+        headline_en: t.h_en,
+        description_de: t.d_de,
+        description_en: t.d_en,
+        type: 'world_event',
+        severity: stage >= 75 ? 'danger' : 'warning',
+        read: false,
+        pinned: true,
+      });
+      playSound('countermeasure');
+      storyLogger.log(`[ImmuneSystem] ABWEHR-Stufe ${stage} erreicht (${before.toFixed(1)} → ${after.toFixed(1)})`);
+    }
+  }
+
+  /**
+   * Zufluss c — Maschen-Wiederholung: Aktionen werden über das 18er-Atlas-Vokabular
+   * einer Maschen-Familie zugeordnet; die n-te Wiederholung derselben Familie wird
+   * durchschaut („Gepatcht"): sofortiger Abwehr-Sprung + TV-Nachricht, die nebenbei
+   * die reale Erkennungs-Regel erklärt (E5/E10 — Transparenz statt Belehrung).
+   */
+  private registerMethodFamilyUse(tags: string[]): void {
+    const family = methodFamilyForTags(tags, this.methodFamilies);
+    if (!family) return;
+    const count = (this.methodFamilyUseCounts.get(family.id) ?? 0) + 1;
+    this.methodFamilyUseCounts.set(family.id, count);
+    if (!isPatchTriggered(count)) return;
+
+    this.patchedFamilies.add(family.id);
+    const counterHint = this.methodFamilies.find((m) => m.id === family.id)?.counter_de;
+    this.newsEvents.unshift({
+      id: `abwehr_patch_${family.id}_${count}`,
+      phase: this.storyPhase.number,
+      headline_de: `Masche durchschaut: ${family.label_de}`,
+      headline_en: `Pattern patched: ${family.label_de}`,
+      description_de: `Die ${count}. Wiederholung blieb nicht unbemerkt — Redaktionen kennen das Muster jetzt.${counterHint ? ` ${counterHint}` : ''}`,
+      description_en: `Repetition number ${count} did not go unnoticed — newsrooms now know the pattern.`,
+      type: 'world_event',
+      severity: 'warning',
+      read: false,
+      pinned: false,
+    });
+    this.raiseAbwehr(PATCH_ABWEHR_JUMP);
+    storyLogger.log(`[ImmuneSystem] Gepatcht: ${family.id} (Einsatz ${count}) → Abwehr +${PATCH_ABWEHR_JUMP}`);
+  }
+
+  /** Aktueller ABWEHR-Stand 0–100 (= befördertes `wehrhaftigkeit`). */
+  getAbwehr(): number {
+    return this.storyResources.wehrhaftigkeit;
+  }
+
+  /** Stufen-Info fürs HUD: Marken + bereits gezündete Stufen. */
+  getAbwehrStageInfo(): { stages: readonly number[]; fired: number[] } {
+    return { stages: ABWEHR_STAGES, fired: Array.from(this.firedAbwehrStages).sort((a, b) => a - b) };
+  }
+
+  /** Bilanz der letzten Nacht (Tagesfazit: „Über Nacht holen die Institutionen X zurück"). */
+  getNightReport(): NightReport | null {
+    return this.lastNightReport;
+  }
+
+  /** Durchschaute („gepatchte") Maschen-Familien — für Stempel/End-Report. */
+  getPatchedFamilies(): string[] {
+    return Array.from(this.patchedFamilies);
+  }
+
+  /** Nächste Abwehr-Stufe, deren Gegenmaßnahme aussteht (Paket B konsumiert). */
+  consumePendingAbwehrStage(): AbwehrStage | null {
+    return this.pendingAbwehrStages.shift() ?? null;
+  }
+
+  /** Ausstehende Stufen (read-only, für UI-Hinweise). */
+  getPendingAbwehrStages(): AbwehrStage[] {
+    return [...this.pendingAbwehrStages];
+  }
+
   /** Bilanz der bisherigen P2-Operationen (End-Report/Atlas). */
   getOperationsSummary(): OperationsSummary {
     let carriersBurned = 0;
@@ -4265,6 +4460,8 @@ export class StoryEngineAdapter {
     const attentionAdd = Math.round(result.impact * 6);
     this.storyResources.risk = clamp100(this.storyResources.risk + riskAdd);
     this.storyResources.attention = clamp100(this.storyResources.attention + attentionAdd);
+    // Etappe 3: auch Operationen sind Lärm — sie füttern die ABWEHR (Zufluss a).
+    this.addAbwehrNoise(riskAdd, attentionAdd);
 
     // ── „Loop schließen" (1/2): der ERTRAG einer gelungenen Operation ──────────────
     // Wirkung gegen das Ziel erodiert das Institutionen-Vertrauen (das Sieg-Ziel) —
@@ -4348,6 +4545,8 @@ export class StoryEngineAdapter {
       // Öffentliche Aufdeckung heizt die Ermittlung an.
       this.storyResources.risk = clamp100(this.storyResources.risk + this.OP_BURN_RISK_SPIKE);
       this.storyResources.attention = clamp100(this.storyResources.attention + this.OP_BURN_ATTENTION_SPIKE);
+      // Etappe 3: eine öffentliche Enttarnung ist der lauteste Lärm von allen.
+      this.addAbwehrNoise(this.OP_BURN_RISK_SPIKE, this.OP_BURN_ATTENTION_SPIKE);
       this.storyResources.moralWeight += this.OP_BURN_MORAL;
       moralAdded += this.OP_BURN_MORAL;
 
@@ -4459,6 +4658,11 @@ export class StoryEngineAdapter {
     if (attentionGain > 0) {
       this.storyResources.attention = Math.min(100, this.storyResources.attention + attentionGain);
     }
+
+    // Etappe 3: Der eigene Lärm füttert die ABWEHR (Zufluss a, Zielbild §3) —
+    // Risiko/Aufmerksamkeit bleiben eigene Größen (Enttarnung getrennt, Falle 3),
+    // aber jede laute Aktion lässt zugleich das Immunsystem lernen.
+    this.addAbwehrNoise(costs.risk || 0, attentionGain);
 
     if (costs.moralWeight) {
       this.storyResources.moralWeight += costs.moralWeight;
@@ -5709,6 +5913,7 @@ export class StoryEngineAdapter {
     const decision = evaluateEnd({
       auftragProgressMin: this.getAuftragProgressMin(),
       winThreshold: this.WIN_THRESHOLD,
+      abwehr: this.storyResources.wehrhaftigkeit,
       risk: this.storyResources.risk,
       budget: this.storyResources.budget,
       betrayingNpcs: this.betrayalSystem.getBetrayingNPCs().length,
@@ -5736,6 +5941,24 @@ export class StoryEngineAdapter {
         stats,
         epilogue_de: 'Sie werden zur persona non grata erklärt. Diplomatische Beziehungen werden eingefroren. Ihre Karriere endet in Schande.',
         epilogue_en: 'You are declared persona non grata. Diplomatic relations are frozen. Your career ends in disgrace.',
+        assembledEnding: this.assembledEndingForBranch('defeat'),
+      };
+    }
+
+    // PRIORITY 0b: DAS LAND HÄLT STAND — die Abwehr hat 100 erreicht (Etappe 3).
+    // Verlust 1 im Zielbild §4: kein Knall, sondern Ertrinken in Zeitlupe — die
+    // Sondersendung erklärt die eigenen Maschen, Stück für Stück.
+    if (decision.branch === 'immune') {
+      storyLogger.log(`💀 Defeat: ABWEHR ${this.storyResources.wehrhaftigkeit.toFixed(0)} — das Land ist immun.`);
+      return {
+        type: 'defeat',
+        title_de: 'Das Land hält stand',
+        title_en: 'The Country Holds',
+        description_de: 'Das Immunsystem der Gesellschaft hat Sie eingeholt: Faktenchecker, Behörden, abgestumpfte Milieus — Ihre Maschen verfangen nicht mehr. Die Operation ist wirkungslos geworden.',
+        description_en: 'The society\'s immune system has caught up with you: fact-checkers, agencies, hardened audiences — your schemes no longer stick. The operation has become inert.',
+        stats,
+        epilogue_de: 'In der Sondersendung laufen Ihre eigenen Schlagzeilen als Beweismittel — Masche für Masche erklärt, mit rotem GEFÄLSCHT-Stempel. Unten im Bild: Ihr Bürogebäude, Blaulicht.',
+        epilogue_en: 'The special broadcast runs your own headlines as evidence — scheme by scheme, stamped FORGED in red. At the bottom of the frame: your office building, blue lights.',
         assembledEnding: this.assembledEndingForBranch('defeat'),
       };
     }
@@ -5918,6 +6141,14 @@ export class StoryEngineAdapter {
       // P6-Umfragen
       pollIndex: this.pollIndex,
       lastPollValues: this.lastPollValues,
+      // Etappe 3 — ImmuneSystem-Zustand
+      noiseRiskToday: this.noiseRiskToday,
+      noiseAttentionToday: this.noiseAttentionToday,
+      methodFamilyUseCounts: Array.from(this.methodFamilyUseCounts.entries()),
+      patchedFamilies: Array.from(this.patchedFamilies),
+      firedAbwehrStages: Array.from(this.firedAbwehrStages),
+      pendingAbwehrStages: this.pendingAbwehrStages,
+      lastNightReport: this.lastNightReport,
       comboSystemState: this.comboSystem.exportState(),
       crisisMomentSystemState: this.crisisMomentSystem.exportState(),
       actorAIState: this.actorAI.exportState(),
@@ -5976,6 +6207,20 @@ export class StoryEngineAdapter {
     // P6-Umfragen (Default leer für alte Saves, R1).
     this.pollIndex = state.pollIndex ?? 0;
     this.lastPollValues = state.lastPollValues ?? {};
+    // Etappe 3 — ImmuneSystem-Zustand (Defaults für alte Saves).
+    this.noiseRiskToday = state.noiseRiskToday ?? 0;
+    this.noiseAttentionToday = state.noiseAttentionToday ?? 0;
+    this.methodFamilyUseCounts = new Map(state.methodFamilyUseCounts ?? []);
+    this.patchedFamilies = new Set(state.patchedFamilies ?? []);
+    this.firedAbwehrStages = new Set(state.firedAbwehrStages ?? []);
+    this.pendingAbwehrStages = state.pendingAbwehrStages ?? [];
+    this.lastNightReport = state.lastNightReport ?? null;
+    // Migration < 2.1.0: `wehrhaftigkeit` war ein Gesellschaftswert (Start 60), jetzt
+    // ist sie die ABWEHR (Start niedrig). Altstände ohne Etappe-3-Marker erben den
+    // neuen Startwert — ihr alter Wert wäre eine grundlos fast halbvolle Abwehr.
+    if (state.firedAbwehrStages === undefined) {
+      this.storyResources.wehrhaftigkeit = ABWEHR_START;
+    }
     if (state.comboSystemState) {
       this.comboSystem.importState(state.comboSystemState);
     }
@@ -6265,6 +6510,14 @@ export class StoryEngineAdapter {
     this.electionDay = StoryEngineAdapter.CAMPAIGN_DAYS_DEFAULT;
     this.pollIndex = 0;
     this.lastPollValues = {};
+    // Etappe 3 — ImmuneSystem-Zustand zurücksetzen.
+    this.noiseRiskToday = 0;
+    this.noiseAttentionToday = 0;
+    this.methodFamilyUseCounts.clear();
+    this.patchedFamilies.clear();
+    this.firedAbwehrStages.clear();
+    this.pendingAbwehrStages = [];
+    this.lastNightReport = null;
     this.initializeNPCs();
     this.initializeObjectives();
 
