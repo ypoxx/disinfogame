@@ -345,9 +345,25 @@ Verstärker, Kompromat). Pleite ist kein eigener Game-Over, sondern die Würgesc
   - **Carry-forward:** Episoden/Beats sind noch NICHT auf die 40-Tage-Taktung neu kuratiert (sie feuern
     weiter über ihre Society-Gates) — Content-Arbeit für Etappe 5; die EndReport-Charts mit Jahres-Achse
     zeigen bei 40 Tagen degeneriert „Jahr 1" (Report-Politur Etappe 5).
-- **Etappe 3 — „Immunsystem sichtbar":** `ImmuneSystem`-Modul, ABWEHR-Balken (wehrhaftigkeit befördert),
-  CountermeasureSystem/Sperren/reach_reduction/Verrats-Folgen eingesteckt, Nacht-Transparenz im
-  Tagesfazit.
+- **Etappe 3 — „Immunsystem sichtbar": ✅ ERLEDIGT (2026-07-04).** Der zweite Rennläufer lebt:
+  **ABWEHR 0–100** (befördertes `wehrhaftigkeit`, Start 60→8) mit Stufen 25/50/75, Verlust „Das Land
+  hält stand" bei 100. `engine/ImmuneSystem.ts` (pur/testbar): nächtlicher Schritt aus vier Zuflüssen
+  (Lärm der eigenen Aktionen/Operationen · Verteidiger-Maschinerie · „Gepatcht"-Maschen-Wiederholung
+  übers 18er-Atlas-Vokabular · Zeitgrundrauschen). Neuer Verlustweg `immune` in `VictorySystem` (VOR
+  Sieg+Timeout). CountermeasureSystem an den Stufen eingesteckt (Prebunking/Sperre/Task-Force,
+  Reaktionen kontern/aussitzen/ablenken), Plattform-Sperren durchgesetzt, `reach_reduction` implementiert,
+  Verrats-Folgen angewandt → **Verrat = +15-Abwehr-Ereignis** (`apparatus`-Game-Over entfällt, 3 Kern-
+  Verlustwege). ABWEHR-Balken im HUD + Nacht-Transparenz im Tagesfazit + Gegenseite-Stufen-Attribution.
+  Save **2.0.0→2.1.0**. Passive Formeldrift auf die Abwehr entfernt (Falle 4: falsches Vorzeichen im Rennen).
+  - **Balance (Paket E):** Wettrennen austariert — aggressives Spiel fliegt am Immunsystem auf statt an
+    Sofort-Enttarnung. Sim-Gate mit **scharfgeschalteten Bändern** (72 Partien, flakefrei): greedy 29–50 %
+    (Median ~42 %, Zielbild-Korridor 30–60 %), low_risk 29–63 % (Passivität kein sicherer Weg), Immun-
+    Verlustweg feuert robust; gewinnbar UND verlierbar. Operationen mobilisieren die radikale Kraft
+    (op-fokussiertes Spiel bleibt gewinnbar, sauber getrennt vom Aktions-Draw).
+  - **Carry-forward Etappe 5:** Das „jeder Verlustweg ≥ 15 %"-Band ist NOCH nicht tragfähig — der Immun-
+    Weg dominiert (~94 %), Enttarnung feuert nur dünn, weil der Sim-Rambo vorher an der Abwehr scheitert.
+    Die Aktions-Kuratierung (Etappe 5) formt den Aktions-Draw um und holt die Enttarnung zurück in den
+    Vordergrund. HUD-Konsolidierung (Risiko raus) ebenfalls Etappe 5.
 - **Etappe 4 — „Impfung & Abstumpfung":** Maschen-Gedächtnis (8×18), FRISCH/BEKANNT/VERBRANNT-Stempel,
   Wohnzimmer-Alphabet (E16-Situationsbilder), Prebunking>Debunking-Parametrisierung.
 - **Etappe 5 — „Fertig" (der Versionssprung):** Aktions-Kuratierung abschließen, Geld-Tranchen,
