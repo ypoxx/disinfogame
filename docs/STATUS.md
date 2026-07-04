@@ -21,6 +21,30 @@ Entscheidungen E1–E20 (`DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md`), ausgearbeit
 >   Nebenbefunde fixen (KONZEPT-Anhang), DANN erst umverdrahten (Etappen 1–5, Zielbild §13).
 > - SOUL.md revidiert (P3 Uhr, P5 Lernmomente, P11/P12 neu); alte R2-Dokumente mit Superseded-Kopf.
 
+**Stand:** 2026-07-04 (ETAPPE 0 „Leitplanke" ✅) · Branch `claude/gracious-keller-g43bu3`, PR #89 · Gate grün (`tsc 0` · `vitest 482` · `build`).
+> - **Sim-Gate gebaut:** `src/story-mode/tests/winnable-and-losable.test.ts` — das erste harte
+>   „gewinnbar UND verlierbar"-Gate des Projekts (bis heute gab es KEINES; nur loggende Sims). 36
+>   deterministische Partien (seed-PRNG statt `Math.random`), prüft die über Reset-/Reihenfolge-Varianten
+>   stabile Aggregat-Invariante (Siege 15–18, Niederlagen 18–21; Floor 6/6). Pro-Strategie-Bänder als
+>   `TARGET_BANDS` dokumentiert (Etappe 1–5 scharfzuschalten).
+> - **Wichtiger Befund (für Etappe 2):** Der Legacy-Singleton-Graph lässt sich NICHT billig vollständig
+>   isolieren — je nach Reset-Set kippt die Feinverteilung stark (voller Loader-Reset: greedy 0/12,
+>   low_risk 12/0). Die früher „ausgewogen" wirkenden Zahlen waren teils State-Leak-Artefakt; das alte
+>   Modell hat sauber gemessen triviale Strategien. Der Sim wird in Etappe 2 mit sauberer Isolation neu
+>   aufgesetzt; bis dahin trägt das Gate nur die robuste Aggregat-Invariante.
+> - **Nebenbefunde gefixt:** (1) doppelte Verrats-Verarbeitung entfernt (`useStoryGameState.ts`: kein
+>   zweites `betrayalSystem.processAction` mehr — Adapter ist einzige Wahrheit; Warnungen aus
+>   `result.betrayalWarnings`). (2) Folgenlose Krisen-Auflösung behoben: Hook ruft jetzt
+>   `engine.resolveCrisis()` (wendet Effekte an) statt nur zu loggen. (3) Kaputte Krisen-Clamp-Mathe
+>   in `applyCrisisEffects` korrigiert (alter `Math.min(target, current+…)` snappte `obj_destabilize`
+>   von 100 auf 40 = Insta-Complete → jetzt bounded).
+> - **Nicht-Befunde (verifiziert):** Endspiel-Schwellen (85 vs. 90/95) sind bereits defensiv versöhnt
+>   (`assembledEndingForBranch`, Guard erzwingt Branch-Kategorie) → kein Live-Bug, Doku-Note für Etappe 1.
+>   Die „veraltete Datenkopie `docs/story-mode/data/`" EXISTIERT NICHT (nur `schema/` + `playtests/`,
+>   beide referenziert) → nichts zu entfernen.
+> - **Offen (Etappe 1):** `VictorySystem`/`ImmuneSystem` als neue Module extrahieren; R2-Guards raus;
+>   ein Auftrag per Akte; Enden beschneiden. Details: `ZIELBILD_2026-07-04_WETTRENNEN.md` §13.
+
 **Stand:** 2026-06-20 (Kuratieren-Paket) · **S0 + alle 3 Auftrags-Scheiben gebaut** (Branch `claude/gracious-keller-g43bu3`, PR #89). Owner-Go: kuratieren + Jahres-Gate kappen + alle Scheiben parallel auf ein Qualitätsniveau. Maßstab: **`QUALITAETSMERKMALE.md`** (8 Merkmale M1–M8 = Abnahme-Gate).
 > - **S0 (Fundament, balance-neutral):** Terminal-Jahres-Gate gekappt (kein `ta0{year}`-Filter mehr); Episoden-Strang-Aktionen hervorgehoben (`● STRANG`) + zuerst sortiert (M2); Gesellschaftswert-Wirkung als Vorschau auf der Planungskarte (M1, `previewSocietyDeltas`); interne Aktions-ID von der Karte entfernt (M4). Test `ActionImpactPreview` (+4).
 > - **3 Scheiben (Text/Kuration, balance-neutral; parallel von 3 Autoren-Agenten entworfen, zentral integriert + synchronisiert):** **Keil** (7 Aktionen Voice-Lift), **Zweifel** (12 Aktionen + 3 Episoden auf 2 nicht-dominierte Wege gekürzt), **Wahl** (unterversorgt: 1→4 Episoden, +3 neue Wahl-Episoden mit realer Methode als `lernmoment_id`; 5 Aktionen Voice-Lift). Episoden gesamt **13** (war 10).

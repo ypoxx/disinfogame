@@ -986,21 +986,19 @@ export function useStoryGameState(seed?: string) {
       if (result.success) {
         setCompletedActions(prev => [...prev, actionId]);
 
-        // Process action through Betrayal System
+        // Betrayal risk is already processed inside engine.executeAction
+        // (StoryEngineAdapter.processNPCReactions → betrayalSystem.processAction).
+        // Etappe-0-Fix (2026-07-04): Hier NICHT erneut processAction aufrufen — das
+        // zählte den Moral-Weight doppelt und ließ Verrats-Risiko im echten Spiel
+        // doppelt so schnell steigen wie in der Simulation. Wir lesen nur noch den
+        // vom Adapter erzeugten Zustand für die UI (read-only, kein Doppelzählen).
         const betrayalSystem = getBetrayalSystem();
 
         // Check if action has moral weight (triggers betrayal risk)
         if (action.costs?.moralWeight && action.costs.moralWeight > 0) {
-          const betrayalResult = betrayalSystem.processAction(
-            actionId,
-            action.tags || [],
-            action.costs.moralWeight,
-            currentPhase.number
-          );
-
-          // Store warnings to show later
-          if (betrayalResult.warnings.length > 0) {
-            setActiveBetrayalWarnings(betrayalResult.warnings);
+          // Warnungen stammen aus dem Adapter-Ergebnis (eine Verarbeitung, eine Wahrheit)
+          if (result.betrayalWarnings && result.betrayalWarnings.length > 0) {
+            setActiveBetrayalWarnings(result.betrayalWarnings);
           }
 
           // Check if any NPC is at critical betrayal risk
@@ -1523,32 +1521,22 @@ export function useStoryGameState(seed?: string) {
   const resolveCrisis = useCallback((choiceId: string) => {
     if (!activeCrisis) return;
 
-    const crisisSystem = getCrisisMomentSystem();
-    const currentPhase = engine.getCurrentPhase();
-
-    const resolution = crisisSystem.resolveCrisis(
-      activeCrisis.crisisId,
-      choiceId,
-      currentPhase.number
-    );
+    // Etappe-0-Fix (2026-07-04): Über den Adapter auflösen, NICHT direkt über das
+    // CrisisMomentSystem. Der frühere Direktweg hat die Effekte der Spielerwahl nur
+    // geloggt, aber nie angewandt (folgenlose Krise). engine.resolveCrisis() wendet
+    // die Effekte via applyCrisisEffects an und schreibt die Auflösungs-News.
+    const resolution = engine.resolveCrisis(activeCrisis.crisisId, choiceId);
 
     if (resolution) {
       storyLogger.log(`[CRISIS] Resolved: ${activeCrisis.crisis.name_en} with choice ${choiceId}`);
-
-      // Apply effects from the choice
-      resolution.effects.forEach(effect => {
-        if (effect.type === 'resource_bonus' && effect.value) {
-          // Apply resource changes
-          storyLogger.log(`[CRISIS] Effect: ${effect.type} = ${effect.value}`);
-        }
-      });
 
       // Clear the active crisis
       setActiveCrisis(null);
       playSound('success');
 
-      // Refresh game state
+      // Refresh game state (Ressourcen/Objectives nach angewandten Effekten)
       setResources(engine.getResources());
+      setObjectives(engine.getObjectives());
       setNpcs(engine.getAllNPCs());
       setNewsEvents(engine.getNewsEvents());
 

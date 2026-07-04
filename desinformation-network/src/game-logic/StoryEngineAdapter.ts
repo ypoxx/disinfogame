@@ -5002,18 +5002,25 @@ export class StoryEngineAdapter {
    * Apply effects from a crisis resolution
    */
   private applyCrisisEffects(effects: import('../story-mode/engine/CrisisMomentSystem').CrisisEffect[]): void {
+    // Etappe-0-Hinweis (2026-07-04): Dieser Block schreibt in obj_destabilize (die alte
+    // Sieg-Achse) und wird in Etappe 1 vom VictorySystem abgelöst. Bis dahin: bounded
+    // change statt Snap. Der frühere `Math.min(targetValue, currentValue + …)` setzte
+    // currentValue (Start 100, Ziel 40) bei JEDEM trust_/emotional_delta hart auf 40 =
+    // sofortiger Objective-Complete. obj_destabilize sinkt Richtung Ziel (100→40), ein
+    // positiver Effektwert = Fortschritt (Vertrauen erodiert) → currentValue nimmt ab.
     for (const effect of effects) {
       switch (effect.type) {
-        case 'trust_delta':
-          // Affects objectives
+        case 'trust_delta': {
           const trustObj = this.objectives.find(o => o.category === 'trust_reduction');
           if (trustObj && typeof effect.value === 'number') {
-            trustObj.currentValue = Math.min(
+            const delta = Math.abs(effect.value) * 100;
+            trustObj.currentValue = Math.max(
               trustObj.targetValue,
-              trustObj.currentValue + Math.abs(effect.value) * 100
+              Math.min(100, trustObj.currentValue - delta)
             );
           }
           break;
+        }
 
         case 'resource_bonus':
           if (typeof effect.value === 'number') {
@@ -5021,16 +5028,17 @@ export class StoryEngineAdapter {
           }
           break;
 
-        case 'emotional_delta':
-          // Affects polarization objective
+        case 'emotional_delta': {
           const polarObj = this.objectives.find(o => o.id === 'obj_destabilize');
           if (polarObj && typeof effect.value === 'number') {
-            polarObj.currentValue = Math.min(
+            const delta = Math.abs(effect.value) * 50;
+            polarObj.currentValue = Math.max(
               polarObj.targetValue,
-              polarObj.currentValue + Math.abs(effect.value) * 50
+              Math.min(100, polarObj.currentValue - delta)
             );
           }
           break;
+        }
 
         case 'objective_progress':
           if (typeof effect.value === 'number') {

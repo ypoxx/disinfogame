@@ -296,12 +296,23 @@ Verstärker, Kompromat). Pleite ist kein eigener Game-Over, sondern die Würgesc
 
 **Regel: Jede Etappe endet spielbar (tsc/Tests/Build grün); das Sim-Gate ist ab Etappe 0 die Leitplanke.**
 
-- **Etappe 0 — „Leitplanke":** Das harte **Gewinnbar/Verlierbar-Sim-Gate** wird ZUERST gebaut
-  (`winnable-and-losable`): geseedete Headless-Läufe mit drei Bot-Profilen. **Harte Bänder:** Greedy
-  gewinnt 30–60 %; Random <10 % Siege UND >60 % Niederlagen; kein Profil bei 0 % oder 100 %; **jeder
-  Verlustweg stellt ≥15 % der Niederlagen**; mediane Siegtage nahe Kampagnenende. Außerhalb = Build rot.
-  Dazu die 8 Nebenbefunde fixen (doppelte Verrats-Moral, wirkungslose Krisen-Auflösungen,
-  Schwellen-Versöhnung, Datenkopien) — sonst kalibriert man auf Bugs.
+- **Etappe 0 — „Leitplanke": ✅ ERLEDIGT (2026-07-04).** Das harte **Gewinnbar/Verlierbar-Sim-Gate**
+  ist gebaut (`src/story-mode/tests/winnable-and-losable.test.ts`): 36 geseedete Headless-Läufe
+  (seed-PRNG statt `Math.random`). **Umgesetzt** wird HEUTE nur die über Reset-/Reihenfolge-Varianten
+  stabile Aggregat-Invariante (gewinnbar UND verlierbar, Floor 6/6; Ist 15–18 Siege / 18–21 Niederlagen).
+  Die harten Bänder (Greedy 30–60 %; Random <10 % Siege UND >60 % Niederlagen; kein Profil bei 0/100 %;
+  jeder Verlustweg ≥15 %) stehen als `TARGET_BANDS` bereit, werden aber **erst mit der neuen Mechanik
+  scharfgeschaltet** — Begründung siehe unten.
+  - ⚠️ **Befund für Etappe 2:** Der Legacy-Singleton-Graph ist NICHT billig vollständig isolierbar.
+    Je nach Reset-Set kippt die Feinverteilung stark (voller Loader-Reset: greedy 0/12, low_risk 12/0;
+    Gameplay-Reset: ~5/7). Die früher „ausgewogen" wirkenden Zahlen waren teils State-Leak-Artefakt;
+    sauber gemessen hat das ALTE Modell triviale Strategien. **Etappe 2 muss den Sim mit sauberer
+    per-Partie-Isolation neu aufsetzen** (Engine ohne modul-globale Gameplay-Singletons, oder
+    vollständiges reset/export/import) — erst dann tragen die Pro-Strategie-Bänder.
+  - **Nebenbefunde:** doppelte Verrats-Verarbeitung entfernt, folgenlose Krisen-Auflösung verdrahtet
+    (+ kaputte Clamp-Mathe gefixt). **Nicht-Befunde verifiziert:** Endspiel-Schwellen (85 vs. 90/95)
+    sind bereits defensiv versöhnt (kein Live-Bug); die „Datenkopie `docs/story-mode/data/`" existiert
+    nicht (nur `schema/`+`playtests/`, referenziert) → nichts zu entfernen.
 - **Etappe 1 — „Auftrag = Sieg":** R2-Guards raus, `VictorySystem` als neues Modul extrahiert (kein
   Inline-Editieren im 6463-Zeilen-Adapter), Sieg-Check auf Wahl-Signatur, ein Auftrag per Akte,
   Enden beschnitten. Minimal-Pass über die Aktionen, damit die Wahl-Achsen erreichbar sind
