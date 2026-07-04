@@ -19,7 +19,6 @@ const base: EndEvaluationInput = {
   abwehr: 30,
   risk: 20,
   budget: 100,
-  betrayingNpcs: 0,
   moralWeight: 10,
   allNpcsLost: false,
   exposureCountdown: null,

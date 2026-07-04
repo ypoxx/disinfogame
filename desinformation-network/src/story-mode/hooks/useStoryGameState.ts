@@ -1038,6 +1038,12 @@ export function useStoryGameState(seed?: string) {
                 currentPhase.number
               );
               if (betrayalEvent) {
+                // Paket C (Etappe 3): Die Folgen WIRKEN jetzt (bisher nur Modal-Text) —
+                // Verrat = Abwehr-Ereignis (+15) statt eigener Game-Over.
+                engine.applyBetrayalEvent(betrayalEvent);
+                setResources(engine.getResources());
+                setNewsEvents(engine.getNewsEvents());
+                setNpcs(engine.getAllNPCs());
                 setActiveBetrayalEvent(betrayalEvent);
                 storyLogger.warn(`BETRAYAL: ${npc.name} has betrayed the operation!`);
                 // Betrayal event will be shown via modal

@@ -748,6 +748,9 @@ export class StoryEngineAdapter {
   private lastNightReport: NightReport | null = null;
   /** Atlas-Familien (id/label/matchTags + counter_de) — einmal geladen, mehrfach genutzt. */
   private readonly methodFamilies = loadDisinfoMethods();
+  /** Paket C: Reichweiten-Dämpfung 0..0.5 durch Verteidiger (reach_reduction) —
+   *  senkt die Wirkung ALLER Aktionen, klingt je Phase ab (die Gegenwehr ermüdet). */
+  private reachDampening = 0;
 
   // Engine Integration
   private actionLoader: ActionLoader;
@@ -1038,6 +1041,10 @@ export class StoryEngineAdapter {
       });
     }
 
+    // Paket C: Die Reichweiten-Dämpfung der Verteidiger klingt je Phase ab —
+    // ohne frische Gegenwehr erholt sich die eigene Wirkung wieder.
+    this.reachDampening = this.reachDampening > 0.015 ? this.reachDampening * 0.7 : 0;
+
     // B2b/P2: Gesellschafts-Formel je Phase — die Werte wirken nicht-linear aufeinander
     // (verzögerte/„intelligente" Effekte, §14.2). Berührt NUR Gesellschaftswerte, nicht
     // die Sieg-Ressourcen → Balance bleibt gehalten (R2).
@@ -1171,7 +1178,11 @@ export class StoryEngineAdapter {
             this.storyResources.attention = Math.min(100, this.storyResources.attention + effect.value);
             break;
           case 'reach_reduction':
-            // Affects action effectiveness (tracked in modifiers)
+            // Paket C (Etappe 3): Faktenchecks/Gegen-Narrative dämpfen die Wirkung
+            // ALLER folgenden Aktionen (Multiplikator in applyActionEffects). Werte
+            // kommen als strength×10..15 → +0.04..0.15 Dämpfung, Deckel 0.5.
+            this.reachDampening = Math.min(0.5, this.reachDampening + effect.value / 100);
+            storyLogger.log(`[ActorAI] Reichweiten-Dämpfung +${(effect.value / 100).toFixed(2)} → ${this.reachDampening.toFixed(2)}`);
             break;
           case 'countdown_start':
             if (this.exposureCountdown === null) {
@@ -3361,6 +3372,13 @@ export class StoryEngineAdapter {
       }
     }
 
+    // Paket C (Etappe 3): Plattform-Sperren DURCHSETZEN — bisher führte die
+    // Moderations-KI Buch (disabledActions), aber niemand las sie. Gesperrte
+    // Kanäle sind jetzt sichtbar grau („Kanal gesperrt", X Tage).
+    const bannedUntil = this.actorAI.getDisabledActions()[loaded.id];
+    const isBanned = this.actorAI.isActionDisabled(loaded.id, this.storyPhase.number);
+    const banDaysLeft = isBanned ? Math.max(1, bannedUntil - this.storyPhase.number) : 0;
+
     return {
       id: loaded.id,
       label_de: loaded.label_de,
@@ -3379,9 +3397,10 @@ export class StoryEngineAdapter {
         attention: loaded.costs.attention,
         moralWeight: loaded.costs.moral_weight,
       },
-      available: loaded.isUnlocked && !loaded.isUsed,
+      available: loaded.isUnlocked && !loaded.isUsed && !isBanned,
       unavailableReason: !loaded.isUnlocked ? 'Locked - prerequisites not met' :
-                         loaded.isUsed ? 'Already used' : undefined,
+                         loaded.isUsed ? 'Already used' :
+                         isBanned ? `Kanal gesperrt — noch ${banDaysLeft} Tag${banDaysLeft === 1 ? '' : 'e'}` : undefined,
       prerequisites: loaded.prerequisites || [],
       prerequisitesMet: this.actionLoader.arePrerequisitesMet(loaded),
       npcAffinity: loaded.npc_affinity,
@@ -3592,6 +3611,24 @@ export class StoryEngineAdapter {
     const action = this.getActionById(actionId);
     if (!action) {
       throw new Error(`Action ${actionId} not found`);
+    }
+
+    // Paket C (Etappe 3): gesperrte Kanäle sind auch am Ausführungs-Pfad dicht
+    // (nicht nur ausgegraut) — sonst umgeht die Aktions-Queue die Sperre.
+    if (this.actorAI.isActionDisabled(actionId, this.storyPhase.number)) {
+      return {
+        success: false,
+        action,
+        effects: [],
+        resourceChanges: {},
+        narrative: {
+          headline_de: 'Kanal gesperrt',
+          headline_en: 'Channel banned',
+          description_de: 'Die Plattform-Moderation hat diesen Kanal vorübergehend stillgelegt.',
+          description_en: 'Platform moderation has temporarily shut this channel down.',
+        },
+        potentialConsequences: [],
+      };
     }
 
     // Prüfe Ressourcen
@@ -4877,6 +4914,12 @@ export class StoryEngineAdapter {
       }
     }
 
+    // Paket C (Etappe 3): aktive Reichweiten-Dämpfung der Verteidiger (reach_reduction)
+    // senkt die Wirkung — Faktenchecks/Gegen-Narrative haben jetzt mechanische Zähne.
+    if (this.reachDampening > 0) {
+      effectivenessMultiplier *= 1 - this.reachDampening;
+    }
+
     // Process effects from loaded action
     const actionEffects = loadedAction.effects as Record<string, unknown>;
 
@@ -6103,7 +6146,6 @@ export class StoryEngineAdapter {
       abwehr: this.storyResources.wehrhaftigkeit,
       risk: this.storyResources.risk,
       budget: this.storyResources.budget,
-      betrayingNpcs: this.betrayalSystem.getBetrayingNPCs().length,
       moralWeight: this.storyResources.moralWeight,
       allNpcsLost,
       exposureCountdown: this.exposureCountdown,
@@ -6199,23 +6241,8 @@ export class StoryEngineAdapter {
       };
     }
 
-    // PRIORITY 1b (P1-2): Der Apparat zerfällt von innen — zu viele eigene Leute haben sich
-    // abgewandt/verraten. Eigener Verlustpfad (Frostpunk-Prinzip: mehrere unabhängige Bilanzen,
-    // jede ein eigener Weg zu scheitern). Die Bilanz existierte schon in EndingSystem.shouldGameEnd,
-    // war aber im Live-checkGameEnd ungenutzt.
-    if (decision.branch === 'apparatus') {
-      return {
-        type: 'defeat',
-        title_de: 'Der Apparat zerfällt',
-        title_en: 'The Apparatus Falls Apart',
-        description_de: 'Zu viele Ihrer eigenen Leute haben sich abgewandt. Ohne loyalen Apparat bricht die Operation von innen zusammen.',
-        description_en: 'Too many of your own people have turned. Without a loyal apparatus, the operation collapses from within.',
-        stats,
-        epilogue_de: 'Was Sie aufgebaut haben, zerlegt sich selbst — Misstrauen, Lecks, abgesprungene Mitarbeiter. Die Zentrale zieht den Stecker.',
-        epilogue_en: 'What you built dismantles itself — distrust, leaks, defected staff. The Central pulls the plug.',
-        assembledEnding: this.assembledEndingForBranch('defeat'),
-      };
-    }
+    // (Ehemals PRIORITY 1b 'apparatus': Verrat ist seit Etappe 3 ein +15-Abwehr-Ereignis
+    // mit Leak-Story — applyBetrayalEvent — statt eines eigenen Game-Over. Zielbild §4/D4.)
 
     // PRIORITY 1c (P1-2): Handlungsunfähig — die Kasse ist leer, während die Aufmerksamkeit hoch ist.
     // Kein Geld, um Spuren zu decken oder weiterzumachen (zweiter unabhängiger Verlustpfad).
@@ -6336,6 +6363,7 @@ export class StoryEngineAdapter {
       firedAbwehrStages: Array.from(this.firedAbwehrStages),
       pendingAbwehrStages: this.pendingAbwehrStages,
       lastNightReport: this.lastNightReport,
+      reachDampening: this.reachDampening,
       comboSystemState: this.comboSystem.exportState(),
       crisisMomentSystemState: this.crisisMomentSystem.exportState(),
       actorAIState: this.actorAI.exportState(),
@@ -6402,6 +6430,7 @@ export class StoryEngineAdapter {
     this.firedAbwehrStages = new Set(state.firedAbwehrStages ?? []);
     this.pendingAbwehrStages = state.pendingAbwehrStages ?? [];
     this.lastNightReport = state.lastNightReport ?? null;
+    this.reachDampening = state.reachDampening ?? 0;
     // Migration < 2.1.0: `wehrhaftigkeit` war ein Gesellschaftswert (Start 60), jetzt
     // ist sie die ABWEHR (Start niedrig). Altstände ohne Etappe-3-Marker erben den
     // neuen Startwert — ihr alter Wert wäre eine grundlos fast halbvolle Abwehr.
@@ -6705,6 +6734,7 @@ export class StoryEngineAdapter {
     this.firedAbwehrStages.clear();
     this.pendingAbwehrStages = [];
     this.lastNightReport = null;
+    this.reachDampening = 0;
     this.initializeNPCs();
     this.initializeObjectives();
 
@@ -6759,6 +6789,74 @@ export class StoryEngineAdapter {
   // ============================================
   // BETRAYAL SYSTEM PUBLIC METHODS
   // ============================================
+
+  /**
+   * Paket C (Etappe 3): Verrats-FOLGEN anwenden — die BetrayalEvent.effects waren
+   * seit jeher generiert, aber nie verdrahtet (Zielbild §4, Nebenbefund). Verrat ist
+   * KEIN eigener Game-Over mehr, sondern ein dramatisches ABWEHR-Ereignis (+15) mit
+   * Leak-Story: Der Überläufer erklärt der Öffentlichkeit die Maschen (Insider-Leck).
+   */
+  private readonly BETRAYAL_ABWEHR_JUMP = 15;
+
+  applyBetrayalEvent(event: BetrayalEvent): void {
+    for (const effect of event.effects) {
+      switch (effect.type) {
+        case 'risk_increase':
+          this.storyResources.risk = Math.min(100, this.storyResources.risk + effect.value);
+          break;
+        case 'attention_increase':
+          this.storyResources.attention = Math.min(100, this.storyResources.attention + effect.value);
+          break;
+        case 'evidence_exposed':
+          // Beweise liegen vor: die Ermittlung beginnt (oder rückt spürbar näher).
+          this.exposureCountdown = this.exposureCountdown === null
+            ? 10
+            : Math.max(1, this.exposureCountdown - 2);
+          break;
+        case 'network_damage':
+          // Geschwächte Netzwerk-Verbindungen dämpfen die eigene Reichweite (wie reach_reduction).
+          this.reachDampening = Math.min(0.5, this.reachDampening + effect.value / 100);
+          break;
+        case 'action_disabled': {
+          // Sabotage legt den zuletzt genutzten Kanal für `value` Tage still.
+          const lastAction = [...this.actionHistory].reverse()
+            .find((h) => !h.actionId.startsWith('op_'))?.actionId;
+          if (lastAction) this.actorAI.disableAction(lastAction, this.storyPhase.number + effect.value);
+          break;
+        }
+        case 'npc_lost': {
+          const npc = this.npcStates.get(event.npcId);
+          if (npc) {
+            npc.inCrisis = true;
+            npc.available = false;
+          }
+          break;
+        }
+        case 'countdown_accelerate':
+          this.exposureCountdown = this.exposureCountdown === null
+            ? Math.max(3, 12 - effect.value)
+            : Math.max(1, this.exposureCountdown - effect.value);
+          break;
+      }
+    }
+
+    // Das Abwehr-Ereignis: der Verrat impft das Land gegen die eigenen Maschen.
+    this.raiseAbwehr(this.BETRAYAL_ABWEHR_JUMP);
+    this.newsEvents.unshift({
+      id: `betrayal_leak_${event.npcId}_${this.storyPhase.number}`,
+      phase: this.storyPhase.number,
+      headline_de: `Insider packt aus: ${event.npcName}`,
+      headline_en: `Insider speaks out: ${event.npcName}`,
+      description_de: `${event.consequence_de} Die Öffentlichkeit lernt die Maschen aus erster Hand — die Abwehr springt um +${this.BETRAYAL_ABWEHR_JUMP}.`,
+      description_en: `${event.consequence_en} The public learns the schemes first-hand — the defense jumps by +${this.BETRAYAL_ABWEHR_JUMP}.`,
+      type: 'consequence',
+      severity: 'danger',
+      read: false,
+      pinned: true,
+    });
+    playSound('warning');
+    storyLogger.log(`[Betrayal] ${event.npcName} (${event.type}/${event.severity}) — Folgen angewandt, Abwehr +${this.BETRAYAL_ABWEHR_JUMP}`);
+  }
 
   /**
    * Get current betrayal status for all NPCs
