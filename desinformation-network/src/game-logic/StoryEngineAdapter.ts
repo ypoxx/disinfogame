@@ -689,7 +689,10 @@ export class StoryEngineAdapter {
   private readonly REQUIRED_HOLD_PHASES = 3;
   // Etappe 1: Sieg = Auftrag erfüllt. Die schwächste Signatur-Achse muss ihr Ziel erreichen
   // (Min-Regel). 1.0 = jede Achse voll am Ziel. Balancing-Stellschraube (per Sim-Gate kalibriert).
-  private readonly WIN_THRESHOLD = 0.5;
+  // Etappe 3 (Paket E): 0.5 → 0.6 — mit dem Immunsystem (Regeneration + Dämpfung) darf die
+  // Latte höher liegen; passives Drift-Spiel erreicht das Plateau (~0.53) nicht mehr.
+  // Der Rest des Wegs Richtung 1.0 folgt mit der Aktions-Kuratierung (Etappe 5).
+  private readonly WIN_THRESHOLD = 0.6;
   // P2-7: Track world event cooldowns (eventId -> last triggered phase)
   private worldEventCooldowns: Map<string, number> = new Map();
   private readonly WORLD_EVENT_COOLDOWN = 6;   // Etappe 2: 6 Tage Cooldown (vorher 12 Phasen = „1 Jahr")
@@ -751,6 +754,11 @@ export class StoryEngineAdapter {
   /** Paket C: Reichweiten-Dämpfung 0..0.5 durch Verteidiger (reach_reduction) —
    *  senkt die Wirkung ALLER Aktionen, klingt je Phase ab (die Gegenwehr ermüdet). */
   private reachDampening = 0;
+  /** Paket E: Anteil der Aktions-Risikokost, der auf den rohen Enttarnungs-Melder
+   *  wirkt (Rest ist über die ABWEHR-Lärm-Kopplung abgebildet). Zwei Verlustachsen
+   *  mit unterschiedlicher Streuung: Abwehr (deterministisch akkumuliert) + Enttarnung
+   *  (geseedete Ermittler-Spawns → Streuung, die dieselbe Strategie mal so, mal so enden lässt). */
+  private readonly RISK_COST_TO_METER = 0.62;
 
   // Engine Integration
   private actionLoader: ActionLoader;
@@ -2074,11 +2082,15 @@ export class StoryEngineAdapter {
    * tabu (R2). Gedeckelt, damit aktives, geschicktes Spiel weiter gewinnbar bleibt.
    */
   private oppositionPressure(phase: number): { risk: number; attention: number } {
+    // Etappe 3 (Paket E): stark gestutzt — der Anti-Passivitäts-Druck kommt jetzt
+    // aus dem IMMUNSYSTEM (Abwehr/Regeneration/Wahltag), nicht aus einem Skript
+    // (Zielbild §5/E4: „Der Druck wächst aus dem eigenen Handeln"). Es bleibt ein
+    // leichter später Atem der Gegenseite, damit Spät-Spiel nie ganz lautlos ist.
     const ramp = phase - this.PACING_GRACE_PHASES;
     if (ramp <= 0) return { risk: 0, attention: 0 };
     return {
-      risk: Math.min(5, ramp * 0.10),
-      attention: Math.min(7, ramp * 0.13),
+      risk: Math.min(2, ramp * 0.05),
+      attention: Math.min(4, ramp * 0.08),
     };
   }
 
@@ -3851,6 +3863,7 @@ export class StoryEngineAdapter {
   private readonly OP_BURN_TRUST_REBOUND = 9;  // Enttarnung: Institutionen gewinnen Vertrauen zurück
   private readonly OP_BURN_RISK_SPIKE = 12;    // Enttarnung hebt das Entdeckungsrisiko sprunghaft
   private readonly OP_BURN_ATTENTION_SPIKE = 8;
+  private readonly OP_FRAKTION_MOBILIZE = 2.5; // Etappe 3: Operation mobilisiert die radikale Kraft
   private readonly KOMPROMAT_MORAL = 12;       // Beschaffung heiklen Materials = moralische Last
   private readonly OP_DEPLOY_MORAL = 7;        // Ausspielen des Kompromats = zusätzliche Last
   private readonly OP_BURN_MORAL = 5;          // verbranntes Asset / öffentlicher Schaden
@@ -4682,16 +4695,28 @@ export class StoryEngineAdapter {
     const clamp100 = (x: number) => Math.max(0, Math.min(100, x));
     const riskAdd = Math.round(result.exposureRisk * 8);
     const attentionAdd = Math.round(result.impact * 6);
-    this.storyResources.risk = clamp100(this.storyResources.risk + riskAdd);
+    // Etappe 3 (Paket E): konsistent mit Aktionen — der rohe Enttarnungs-Melder bekommt
+    // nur den gedämpften Anteil (RISK_COST_TO_METER), damit op-lastiges Spiel nicht
+    // DOPPELT (Risiko + Abwehr) bestraft wird. Der volle Lärm speist die Abwehr.
+    this.storyResources.risk = clamp100(this.storyResources.risk + riskAdd * this.RISK_COST_TO_METER);
     this.storyResources.attention = clamp100(this.storyResources.attention + attentionAdd);
-    // Etappe 3: auch Operationen sind Lärm — sie füttern die ABWEHR (Zufluss a).
-    this.addAbwehrNoise(riskAdd, attentionAdd);
+    // Auch Operationen sind Lärm — sie füttern die ABWEHR (Zufluss a). Bewusst STARK
+    // gedämpft: die Abwehr ist primär gegen Aktions-Spam; Operationen tragen ihre eigene
+    // Strafe (Verbreiter-Verbrennen + Enttarnungs-Spike bei Aufdeckung), sonst wäre
+    // op-fokussiertes Spiel dreifach bestraft (Risiko + Burn + Abwehr) und chancenlos.
+    this.addAbwehrNoise(riskAdd * 0.15, attentionAdd * 0.15);
 
     // ── „Loop schließen" (1/2): der ERTRAG einer gelungenen Operation ──────────────
     // Wirkung gegen das Ziel erodiert das Institutionen-Vertrauen (das Sieg-Ziel) —
     // erst dadurch lohnt sich der Aufwand (Verbreiter aufbauen + Kompromat) überhaupt.
     let trustDelta = -(result.impact * this.OP_TRUST_EROSION);
     this.applyInstitutionalTrustDelta(trustDelta);
+
+    // Etappe 3 (Paket E): Eine gelungene Operation mobilisiert zusätzlich die uns-nahe
+    // (radikale) Kraft — das Schlachtfeld ist auch Wahlkampf. Treibt die zweite
+    // Signatur-Achse (fraktionsstaerke), damit op-fokussiertes Spiel die Wahl-Signatur
+    // im Rennen gegen die Abwehr erreichen kann (nicht nur die Vertrauens-Achse maxt).
+    this.applySocietyDelta({ fraktionsstaerke: result.impact * this.OP_FRAKTION_MOBILIZE });
 
     // Ausspielen heiklen Kompromats wiegt moralisch (zusätzlich zur Beschaffung).
     let moralAdded = Math.round(resolved.vulnerability!.heikelheit * this.OP_DEPLOY_MORAL);
@@ -4868,16 +4893,21 @@ export class StoryEngineAdapter {
       this.storyResources.capacity -= costs.capacity;
     }
     if (costs.risk) {
-      this.storyResources.risk += costs.risk;
+      // Etappe 3 (Paket E): Der Lärm einer Aktion lebt jetzt in der ABWEHR (Zufluss a).
+      // Damit aggressives Spiel nicht DOPPELT bestraft wird (Sofort-Enttarnung UND
+      // Abwehr) und schon an Tag 8 auffliegt, trifft die Risiko-Kost den rohen
+      // Enttarnungs-Melder gedämpft — die volle Kost speist unten die Abwehr.
+      this.storyResources.risk += costs.risk * this.RISK_COST_TO_METER;
     }
 
     // P1-4 Fix: Implicit attention gain for all actions (more for illegal)
-    // This ensures attention builds up over time even without explicit costs
+    // This ensures attention builds up over time even without explicit costs.
+    // Etappe 3 (Paket E): gestutzt (illegal 3→2, grey 1→0). Der Druck aggressiven
+    // Spiels läuft jetzt primär über die ABWEHR (Lärm-Zufluss), nicht über eine
+    // Aufmerksamkeits-/Enttarnungs-Spirale, die schon an Tag 8 auffliegt.
     let attentionGain = costs.attention || 0;
     if (action.legality === 'illegal') {
-      attentionGain += 3;  // Illegal actions always draw some attention
-    } else if (action.legality === 'grey') {
-      attentionGain += 1;  // Grey area actions draw minimal attention
+      attentionGain += 2;  // Illegal actions always draw some attention
     }
     if (attentionGain > 0) {
       this.storyResources.attention = Math.min(100, this.storyResources.attention + attentionGain);

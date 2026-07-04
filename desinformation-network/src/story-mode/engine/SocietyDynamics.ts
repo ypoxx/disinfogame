@@ -159,8 +159,12 @@ export function societyFormulaStep(s: SocietySnapshot): SocietyDelta {
   // Polarisierung + Zynismus stärken die uns-nahe Fraktion. Thematisch „Division füttert
   // die Radikalen"; mechanisch macht es die Wahl-Signatur (fraktionsstaerke) über die
   // action-treibbaren Achsen erreichbar, statt nur über die seltenen political_*-Aktionen.
+  // Etappe 3 (Paket E): Kopplung gedämpft (0.06 → 0.035). Passives Spiel soll die
+  // Fraktions-Stärke NICHT mehr allein über die Drift bis ans Ziel schieben — sonst
+  // gewinnt „nur abwarten" verlässlich. Aktives Spalten/Aggression treibt sie weiter
+  // direkt (societyDeltaFromAction), also bleibt der Auftrag für Aktive erreichbar.
   const fraktionsDrift = (s.polarisierung + s.zynismus) / 2;
-  if (fraktionsDrift > 35) addDelta(d, 'fraktionsstaerke', (fraktionsDrift - 35) * 0.06);
+  if (fraktionsDrift > 35) addDelta(d, 'fraktionsstaerke', (fraktionsDrift - 35) * 0.035);
 
   // Resilienz: bei niedrigem Druck erholt sich die Diskursqualität. (Die frühere
   // Wehrhaftigkeits-Erholung übernimmt das ImmuneSystem-Grundrauschen — Etappe 3.)

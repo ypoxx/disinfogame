@@ -61,20 +61,23 @@ describe('P2-17 Pacing — Gegenwehr-Wellen', () => {
     expect(engine.getResources().risk).toBeLessThanOrEqual(12);
   });
 
-  it('Späte Eskalation: passives Dauer-Spiel läuft spät in die Gefahr (kann auffliegen)', () => {
+  it('Späte Eskalation (Etappe 3): passives Dauer-Spiel läuft spät ins IMMUNSYSTEM', () => {
+    // Etappe 3 „Immunsystem sichtbar": Der Anti-Passivitäts-Druck kommt NICHT mehr aus
+    // einem Risiko-Skript (oppositionPressure ist bewusst gestutzt — Zielbild §5/E4:
+    // „der Druck wächst aus dem eigenen Handeln"), sondern aus der ABWEHR: Zeitgrund-
+    // rauschen + Verteidiger-Zuwachs lassen sie über die Tage klettern. Reines Abwarten
+    // verliert (Zielbild §3d) — hier belegt: die ABWEHR steigt spät klar an.
     const engine = freshEngine('pacing_late');
-    let maxLate = 0;
-    // Unbeirrt weiter enden lassen (Spielende ignorieren) und das Spät-Risiko messen.
-    // Kampagne ist ~40 Tage; die Eskalation greift im letzten Drittel (ab ~Tag 30).
+    const abwehrStart = engine.getAbwehr();
+    let maxLateAbwehr = 0;
     for (let p = 0; p < 60; p++) {
       engine.advancePhase();
-      if (engine.getCurrentPhase().number >= 30) {
-        maxLate = Math.max(maxLate, engine.getResources().risk);
+      if (engine.getCurrentPhase().number >= 25) {
+        maxLateAbwehr = Math.max(maxLateAbwehr, engine.getAbwehr());
       }
     }
-    // Ohne Pacing bliebe vorsichtiges/passives Spiel bei ~0 Risiko.
-    // Mit der Eskalation steigt es spät klar in die Gefahrenzone (in der 40-Tage-Kampagne
-    // knapp unter die Enttarnungs-Schwelle 85 — passives Dauer-Spiel wird real gefährlich).
-    expect(maxLate).toBeGreaterThanOrEqual(60);
+    // Die Abwehr wächst über die Kampagne deutlich (von ~8 Start in Richtung Gefahr) —
+    // passives Dauer-Spiel wird real gefährlich, ohne dass der Spieler je Lärm macht.
+    expect(maxLateAbwehr).toBeGreaterThan(abwehrStart + 10);
   });
 });
