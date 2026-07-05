@@ -59,16 +59,31 @@ export interface AbwehrStageInfo {
   fired: number[];
 }
 
+/** Etappe 5 (Zielbild §6): der eigene Läufer — die Sonntagsfrage (% mit Zielstrich). */
+export interface SonntagsfrageInfo {
+  /** Umfragewert der Partei (%, diegetisches Gesicht von auftragProgress). */
+  pollPct: number;
+  /** Machtwechsel-Schwelle (%, = WIN_THRESHOLD in derselben Abbildung). */
+  thresholdPct: number;
+  /** Titel des laufenden Auftrags („Die Wahl"). */
+  auftragTitel?: string;
+}
+
 interface StoryHUDProps {
   resources: StoryResources;
   phase: StoryPhaseInfo;
   objectives: ObjectiveInfo[];
-  /** B2/P1: mehrdimensionaler Gesellschafts-Zustand (4 sichtbar). */
+  /** DEPRECATED (Etappe 5, §6): die 8 Gesellschaftswerte verschwinden als HUD-Anzeige
+   *  (Wohnzimmer-Alphabet ersetzt sie). Prop bleibt optional für Rückwärts-Kompatibilität. */
   society?: SocietyInfo;
+  /** Etappe 5: der eigene Rennläufer — die Sonntagsfrage (Zielbild §6, HUD-Größe 1). */
+  sonntagsfrage?: SonntagsfrageInfo;
   /** Etappe 3 Paket D: der zweite Rennläufer — ABWEHR 0–100 (befördertes wehrhaftigkeit). */
   abwehr?: number;
   /** Stufen-Marken 25/50/75 + bereits gezündete Stufen fürs Balken-Overlay. */
   abwehrStageInfo?: AbwehrStageInfo;
+  /** Etappe 5: SITUATIVE Ermittler-Countdown-Warnung (nur wenn eine Untersuchung läuft, §12.4). */
+  exposureCountdown?: number | null;
   onEndPhase?: () => void;
   onOpenMenu?: () => void;
   onOpenObjectives?: () => void;
@@ -264,6 +279,54 @@ function AbwehrBar({ value, stageInfo }: AbwehrBarProps) {
 }
 
 // ============================================
+// SONNTAGSFRAGE BAR (Etappe 5 — der eigene Läufer, Zielbild §6)
+// ============================================
+
+/**
+ * Der eigene Balken: die Sonntagsfrage (Umfragewert der Partei) mit ZIELSTRICH an der
+ * Machtwechsel-Schwelle. Das diegetische Gesicht von auftragProgress — jeder versteht
+ * eine Umfrage ohne ein Wort Erklärung (Zielbild §3). Rot wie die eigene Sache; der
+ * Balken wächst Richtung Schwelle, der Zielstrich zeigt, wie weit noch fehlt.
+ */
+function SonntagsfrageBar({ info }: { info: SonntagsfrageInfo }) {
+  // Skala bis knapp über die Schwelle, damit der Zielstrich nicht am Rand klebt.
+  const scaleMax = Math.max(info.pollPct, info.thresholdPct) + 6;
+  const barPct = Math.min(100, (info.pollPct / scaleMax) * 100);
+  const linePct = Math.min(100, (info.thresholdPct / scaleMax) * 100);
+  const reached = info.pollPct >= info.thresholdPct;
+  return (
+    <div className="flex items-center gap-2" data-testid="sonntagsfrage-bar">
+      <Icon name="mission" size={20} title="SONNTAGSFRAGE — Ihr Umfragewert" fallback="S" />
+      <div className="flex-1" style={{ minWidth: 96 }}>
+        <div className="flex justify-between mb-0.5" style={{ fontSize: '0.8rem' }}>
+          <span style={{ color: StoryModeColors.textSecondary, fontWeight: 700, letterSpacing: '0.05em' }}>
+            SONNTAGSFRAGE
+          </span>
+          <span style={{ color: StoryModeColors.warning, fontWeight: 800, fontSize: '0.85rem' }}>
+            {info.pollPct.toFixed(1)}%
+          </span>
+        </div>
+        <div className="relative" style={{ height: '4px' }}>
+          <div className="rounded-sm overflow-hidden h-full" style={{ backgroundColor: StoryModeColors.border }}>
+            <div
+              className="h-full transition-all duration-300"
+              style={{ width: `${barPct}%`, backgroundColor: reached ? StoryModeColors.success : StoryModeColors.ministryRed }}
+            />
+          </div>
+          {/* Zielstrich = Machtwechsel-Schwelle. */}
+          <div
+            data-testid="sonntagsfrage-schwelle"
+            title="Machtwechsel-Schwelle"
+            className="absolute"
+            style={{ left: `${linePct}%`, top: '-2px', bottom: '-2px', width: '2px', backgroundColor: StoryModeColors.warning }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
 // PHASE DISPLAY COMPONENT
 // ============================================
 
@@ -370,70 +433,8 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
   );
 }
 
-// ============================================
-// SOCIETY STRIP (Gesellschaftswerte B2/P1)
-// ============================================
-
-interface SocietyStripProps {
-  society: SocietyInfo;
-}
-
-/** Eine kompakte Mini-Zeile je Gesellschaftswert: Label · Wert · dünner Balken. */
-function SocietyMeter({ label, value, color }: { label: string; value: number; color: string }) {
-  const pct = Math.max(0, Math.min(100, value));
-  return (
-    <div className="flex items-center gap-1.5" title={`${label}: ${Math.round(value)}%`}>
-      <span
-        className="uppercase tracking-wide shrink-0"
-        style={{ color: StoryModeColors.textMuted, fontSize: '0.55rem', width: 64 }}
-      >
-        {label}
-      </span>
-      <div
-        className="rounded-sm overflow-hidden shrink-0"
-        style={{ width: 48, height: 4, backgroundColor: StoryModeColors.border }}
-      >
-        <div className="h-full transition-all duration-300" style={{ width: `${pct}%`, backgroundColor: color }} />
-      </div>
-      <span className="tabular-nums" style={{ color: StoryModeColors.textSecondary, fontSize: '0.6rem', width: 26, textAlign: 'right' }}>
-        {Math.round(value)}
-      </span>
-    </div>
-  );
-}
-
-/** Niedrigschwellige Schnellanzeige des Gesellschafts-Zustands (4 Werte, O3/F3). */
-function SocietyStrip({ society }: SocietyStripProps) {
-  return (
-    <div
-      className="px-3 py-2 border-2"
-      style={{
-        backgroundColor: StoryModeColors.surfaceLight,
-        borderColor: StoryModeColors.border,
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-      }}
-    >
-      <div className="flex items-center gap-2 mb-1.5">
-        <Icon name="stats" size={12} title="Gesellschaft" fallback="G" />
-        <span className="text-xs font-bold uppercase" style={{ color: StoryModeColors.textSecondary }}>
-          Gesellschaft
-        </span>
-        {society.auftragTitel && (
-          <span className="text-xs ml-auto truncate max-w-[120px]" style={{ color: StoryModeColors.textMuted }} title={`Auftrag: ${society.auftragTitel}`}>
-            ▸ {society.auftragTitel}
-          </span>
-        )}
-      </div>
-      <div className="flex flex-col gap-1">
-        {/* Vertrauen = Sieg-Mittel; sinkt durch aggressive Operationen. */}
-        <SocietyMeter label="Vertrauen" value={society.vertrauen} color={StoryModeColors.agencyBlue} />
-        <SocietyMeter label="Polaris." value={society.polarisierung} color={StoryModeColors.ministryRed} />
-        <SocietyMeter label="Info-Last" value={society.informationslast} color={StoryModeColors.warning} />
-        <SocietyMeter label="Zynismus" value={society.zynismus} color={StoryModeColors.militaryOlive} />
-      </div>
-    </div>
-  );
-}
+// (Etappe 5, §6: Der frühere „SocietyStrip" — 4 Gesellschaftswerte im HUD — ist entfallen.
+//  Die Gesellschaft zeigt sich als Bild, nie als Balken: das Wohnzimmer-Alphabet.)
 
 // ============================================
 // MAIN STORY HUD COMPONENT
@@ -443,9 +444,10 @@ export function StoryHUD({
   resources,
   phase,
   objectives,
-  society,
+  sonntagsfrage,
   abwehr,
   abwehrStageInfo,
+  exposureCountdown,
   onEndPhase,
   onOpenMenu,
   onOpenObjectives,
@@ -468,63 +470,47 @@ export function StoryHUD({
           {/* Left: Phase Info */}
           <PhaseDisplay phase={phase} />
 
-          {/* Center: Resources */}
+          {/* Center: die vier Größen (Zielbild §6) — SONNTAGSFRAGE · ABWEHR · KASSE · (TAG links).
+              Risiko/Aufmerksamkeit sind keine eigenen Anzeigen mehr (nur noch Abwehr-Zuflüsse, §12.4);
+              die 8 Gesellschaftswerte zeigt das Wohnzimmer-Alphabet, nicht der HUD. */}
           <div className="flex items-center gap-6">
+            {/* Läufer 1 — die Sonntagsfrage (unser Fortschritt). */}
+            {sonntagsfrage && <SonntagsfrageBar info={sonntagsfrage} />}
+            {/* Läufer 2 — die ABWEHR (das Immunsystem holt auf). */}
+            {abwehr !== undefined && abwehrStageInfo && (
+              <>
+                <div className="h-8 w-0.5" style={{ backgroundColor: StoryModeColors.borderLight }} />
+                <AbwehrBar value={abwehr} stageInfo={abwehrStageInfo} />
+              </>
+            )}
+            <div className="h-8 w-0.5" style={{ backgroundColor: StoryModeColors.borderLight }} />
+            {/* KASSE — die Zentrale zahlt in Tranchen (E18); Warnfarben ab knapper Kasse. */}
             <ResourceBar
               icon="budget"
-              label="BUDGET"
+              label="KASSE"
               value={resources.budget}
               format="currency"
               color={StoryModeColors.warning}
               warningThreshold={20}
               dangerThreshold={10}
             />
-            {/* E29: KAPAZITÄT primär — zentrale Spielressource */}
-            <ResourceBar
-              icon="capacity"
-              label="KAPAZITÄT"
-              value={resources.capacity}
-              maxValue={100}
-              color={StoryModeColors.agencyBlue}
-              priority="primary"
-            />
-            {/* E29: RISIKO primär — kritischster Indikator, pulsiert bei ≥70 */}
-            <ResourceBar
-              icon="risk"
-              label="RISIKO"
-              value={resources.risk}
-              format="percent"
-              color={StoryModeColors.militaryOlive}
-              warningThreshold={50}
-              dangerThreshold={70}
-              priority="primary"
-            />
-            <ResourceBar
-              icon="attention"
-              label="AUFMERKSAMKEIT"
-              value={resources.attention}
-              format="percent"
-              color={StoryModeColors.danger}
-              warningThreshold={60}
-              dangerThreshold={80}
-            />
-            {/* E29: MORALISCHE LAST sekundär — ethischer Indikator, weniger sofort-kritisch */}
-            <ResourceBar
-              icon="moral"
-              label="MORALISCHE LAST"
-              value={resources.moralWeight}
-              format="number"
-              color={StoryModeColors.ministryRed}
-              warningThreshold={50}
-              dangerThreshold={75}
-              priority="secondary"
-            />
-            {/* Trennlinie: eigene Ressourcen vs. der zweite Läufer (Zielbild §3). */}
-            {abwehr !== undefined && abwehrStageInfo && (
-              <>
-                <div className="h-8 w-0.5" style={{ backgroundColor: StoryModeColors.borderLight }} />
-                <AbwehrBar value={abwehr} stageInfo={abwehrStageInfo} />
-              </>
+            {/* SITUATIVE Ermittler-Countdown-Warnung — nur wenn eine Untersuchung läuft (§12.4). */}
+            {exposureCountdown !== null && exposureCountdown !== undefined && (
+              <div
+                data-testid="exposure-warning"
+                title="Eine Untersuchung läuft — der Countdown bis zur Enttarnung"
+                className="flex items-center gap-1 px-2 py-1 border-2"
+                style={{
+                  borderColor: StoryModeColors.danger,
+                  color: StoryModeColors.danger,
+                  fontWeight: 900,
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.05em',
+                  animation: 'hud-risk-pulse 1.2s ease-in-out infinite',
+                }}
+              >
+                ⚠ ENTTARNUNG IN {Math.max(0, exposureCountdown)} T.
+              </div>
             )}
           </div>
 
@@ -573,9 +559,9 @@ export function StoryHUD({
         </div>
       </div>
 
-      {/* Bottom Left: Gesellschaftswerte (B2) + Ziel — gruppiert „Zustand & Auftrag" */}
+      {/* Bottom Left: das laufende Ziel (die Akte). Die 8 Gesellschaftswerte sind aus dem
+          HUD verschwunden (Zielbild §6) — das Wohnzimmer-Alphabet zeigt die Gesellschaft. */}
       <div className="fixed bottom-4 left-4 z-30 flex flex-col gap-2">
-        {society && <SocietyStrip society={society} />}
         <ObjectiveTracker
           objectives={objectives}
           onClick={onOpenObjectives}

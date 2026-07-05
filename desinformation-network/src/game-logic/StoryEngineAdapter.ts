@@ -4654,6 +4654,11 @@ export class StoryEngineAdapter {
     return this.storyResources.wehrhaftigkeit;
   }
 
+  /** Ermittler-Countdown (Restphasen) oder null — für die SITUATIVE HUD-Warnung (Zielbild §12.4). */
+  getExposureCountdown(): number | null {
+    return this.exposureCountdown;
+  }
+
   /** Stufen-Info fürs HUD: Marken + bereits gezündete Stufen. */
   getAbwehrStageInfo(): { stages: readonly number[]; fired: number[] } {
     return { stages: ABWEHR_STAGES, fired: Array.from(this.firedAbwehrStages).sort((a, b) => a - b) };
