@@ -125,7 +125,7 @@
       "label_en": "Run a Focus Group",
       "narrative_de": "Echte Menschen, echte Reaktionen. Wir testen, welche Botschaft den Nerv trifft, bevor wir sie ausspielen.",
       "narrative_en": "Real people, real reactions. We test which message lands before we deploy it.",
-      "costs": { "budget": 8, "capacity": 1, "risk": 0 },
+      "costs": { "budget": 8, "capacity": 1, "risk": 0, "attention": 1 },
       "prerequisites": [],
       "npc_affinity": ["marina"],
       "legality": "legal",

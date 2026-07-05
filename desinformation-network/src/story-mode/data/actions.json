@@ -118,7 +118,8 @@
       "costs": {
         "budget": 3,
         "capacity": 1,
-        "risk": 0
+        "risk": 0,
+        "attention": 1
       },
       "effects": {
         "reveals_vulnerabilities": true,
@@ -142,7 +143,8 @@
       "costs": {
         "budget": 5,
         "capacity": 2,
-        "risk": 0
+        "risk": 0,
+        "attention": 1
       },
       "effects": {
         "defines_okrs": true,
@@ -166,7 +168,8 @@
       "costs": {
         "budget": 0,
         "capacity": 1,
-        "risk": 0
+        "risk": 0,
+        "attention": 1
       },
       "effects": {
         "tactical_framework": true,
@@ -214,7 +217,8 @@
       "costs": {
         "budget": 5,
         "capacity": 1,
-        "risk": 0
+        "risk": 0,
+        "attention": 1
       },
       "effects": {
         "trending_topics": true,
@@ -310,7 +314,8 @@
       "costs": {
         "budget": 3,
         "capacity": 1,
-        "risk": 0
+        "risk": 0,
+        "attention": 1
       },
       "effects": {
         "message_optimization": true,
@@ -334,7 +339,8 @@
       "costs": {
         "budget": 4,
         "capacity": 1,
-        "risk": 0
+        "risk": 0,
+        "attention": 1
       },
       "effects": {
         "campaign_evaluation": true,
