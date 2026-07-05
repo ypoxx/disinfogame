@@ -207,3 +207,29 @@ Offen für die Roadmap (priorisiert nach Gutachten):
     mechanisch wahr wird. Statt den Kern der Etappe weichzuspülen: Verschiebung in
     STATUS/Zielbild dokumentieren, kodiertes Gate auf die neue Realität stellen,
     Feinschliff der Aktions-Kuratierung (Etappe 5) überlassen.
+
+## Etappe 5 „Fertig" (2026-07-05)
+
+16. **Eine „Aufräum"-Aufgabe kann an ein Wirkmodell gekoppelt sein — dann NICHT halb
+    machen.** Die Aktions-Kuratierung (143→60–80) sah nach reiner Daten-Diät aus. Der
+    Sim zeigte: fast jede „tote" Aktion treibt VERDECKT über die impact_scale-Baseline
+    (`SocietyDynamics`) den Sieg-Fortschritt. Löschen ref-sicherer impact_scale-Aktionen
+    ⇒ greedy 58 %→12 %; Löschen von Legal/Low-Risk-Clutter ⇒ Passivität 4 %→75 % (weil
+    `low_risk` nach Risiko sortiert und die Clutter-Picks „verschwendete"). Lehre: Erst
+    empirisch prüfen, ob das zu Entfernende load-bearing ist; wenn ja, das Wirkmodell
+    zuerst explizit machen (impact_scale abschaffen → Läufer-Effekte je Aktion), DANN
+    reduzieren. Ein halb gelöschter Katalog mit intaktem impact_scale bricht die Balance.
+17. **Empirische Balance-Befunde sind ein Deliverable — auch wenn die Aufgabe „deferred"
+    endet.** Statt die Kuratierung zu erzwingen und die 8×-flakefrei kalibrierte Balance
+    zu zerbrechen: die Zahlen (58→12, 4→75) in Commit + Handoff festhalten, damit die
+    Folge-Session die Kopplung nicht neu entdeckt. Die dauerhafte **Aktions-Invariante**
+    („jede Aktion bewegt einen Läufer", als Test) ist die Leitplanke, die die spätere
+    Reduktion absichert — der wertvolle, risikofreie Teil, der SOFORT lieferbar war.
+18. **JSON-Daten surgisch editieren.** `JSON.stringify(obj, null, 2)` expandiert Inline-
+    Arrays → 653-Zeilen-Diff für 7 Ein-Zeilen-Änderungen. Text-basierte Insertion (Regex
+    auf die Kosten-Zeile) hielt den Diff bei 13 Zeilen. Kept-Objekte nach jedem
+    Skript-Lauf semantisch gegen HEAD prüfen (`JSON.stringify`-Vergleich je ID).
+19. **UI-Type-Unions als Supersets lassen Enden-Beschnitt billig sein.** Beim Reduzieren
+    von `GameEndState.type` (4→2) mussten die Consumer (GameEndScreen/EndReport) NICHT
+    angefasst werden: ihre breiteren Unions akzeptieren den schmaleren Typ weiter. Die
+    unerreichbaren Zweige sind toter, aber harmloser Code — spart Churn, ohne zu brechen.

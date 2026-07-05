@@ -9,6 +9,39 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `GESAMTKONZEPT_VISUELL.md` → dieses Dokument für den aktuellen Bau-Stand.
 > Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
+**Stand:** 2026-07-05 (ETAPPE 5 „Fertig" — der Versionssprung, TEILWEISE) · Branch
+`claude/etappe-5-handoff-setup-29psoe` (Draft-PR, baut auf Etappe 0–4) · Gate grün
+(`tsc 0` · `vitest 575` · `build`; beide Sim-Gates tragfähig, greedy 15/24, low_risk 1/24).
+> Der Versionssprung ist in 6 Paketen geliefert; die tiefe Aktions-Kuratierung ist bewusst
+> an die impact_scale-Abschaffung gekoppelt und als Balance-Follow-up dokumentiert (siehe unten).
+> - **Kurator-Rename (§10/O6):** Der Spieler bleibt „Direktor"; Volkov ist „Kurator Volkov —
+>   Verbindung zur Zentrale" (npcs.json, DialogBox-Alias volkov/kurator→direktor-Assets,
+>   Erzähl-Reaktionen, Intro-Text „40 Tage" statt „10 Jahre"). Browser-Smoke bestätigt.
+> - **Paket B — Geld-Tranchen (E18, §11):** `engine/Finanzen.ts` (pur): die Zentrale zahlt in
+>   Tranchen NACH Fortschritt (Bonus/Plan/Partial/Mahnung→Kürzung, eskalierende Mahnstufe) statt
+>   +5/Phase passiv. Pleite = Würgeschlinge Richtung Timeout, kein eigener Game-Over. Läufer-
+>   Historie fürs Endreport aufgezeichnet. Nachspielzeit (§5b) als guarded Einmal-Hebel. Save **2.3.0**.
+> - **Paket C — Enden-Beschnitt + Wahlabend (§4/§9):** VictorySystem auf EIN Siegweg / DREI
+>   Verlustwege beschnitten (broke/moral_redemption/escape als eigene Game-Over raus →
+>   Timeout-Vorstufe bzw. Epilog-Färbungen). `GameEndState.type` = victory|defeat + `branch`.
+>   **`WahlabendScene.tsx`** (ein TV-Set, drei Enden: Balken kippt / bleibt stehen / Sondersendung
+>   mit GEFÄLSCHT-Stempel) + **TvSet-Baukasten** (E17, CSS-Fallback; echtes Studio-Asset später).
+> - **Paket D — HUD + Vergabe-Szene + Endreport:** HUD auf 4 Größen (SONNTAGSFRAGE-Balken NEU +
+>   ABWEHR + KASSE + TAG; Risiko/Aufmerksamkeit/8-Werte-Strip raus, §6/§12.4; situative
+>   Enttarnungs-Warnung). AuftragSelect → **Vergabe-Szene** (EINE Akte „Die Wahl", Partei
+>   „Westunion Erwacht", Browser-Smoke bestätigt). Endreport: **„Das Rennen"-Kurven** (beide Läufer),
+>   Jahres-Achse-Degeneration behoben (round = Kampagnentag).
+> - **Paket A — Aktions-Invariante:** `ActionRunnerInvariant.test` sichert dauerhaft „jede Aktion
+>   bewegt einen Läufer" (7 ta01-Enabler mit faint ABWEHR-Spur, balance-neutral). **BEFUND:** die
+>   Reduktion 143→60–80 ist NICHT balance-neutral, solange impact_scale das Wirkmodell ist
+>   (empirisch belegt: impact_scale-Aktionen entfernen bricht greedy 58→12 %; Low-Risk entfernen
+>   macht Passivität zu stark 4→75 %). WIN_THRESHOLD bleibt 0.6.
+> - **Offen / Carry-forward:** (1) **Deep-Kuratierung** = impact_scale abschaffen → explizite
+>   Läufer-Effekte je Aktion → 143→60–80 → WIN_THRESHOLD→1.0 (dedizierte Balance-Session,
+>   `HANDOFF_2026-07-05B_ETAPPE5_FOLLOWUP.md`). (2) **Tag-0-Hoax-Tutorial** (O7) — laut eigener
+>   Doku „NICHT beschlossen", owner-gated. (3) **TV-/Wohnzimmer-Assets** (Studio, 5 Alphabet-Bilder)
+>   via pixel-asset-pipeline mit Budget-Ansage.
+
 **Stand:** 2026-07-04 (RICHTUNGSWECHSEL) · **Owner-Transkript F1–F25 beantwortet** → bindende
 Entscheidungen E1–E20 (`DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md`), ausgearbeitet per Design-Panel
 (5 Entwürfe + 3 Juroren + 2 Sweeps) zum kanonischen **`ZIELBILD_2026-07-04_WETTRENNEN.md`**:
