@@ -69,6 +69,27 @@ export interface ActionFilters {
 // ACTION LOADER CLASS
 // ============================================
 
+/**
+ * ARCHIVIERTE Aktionen (Etappe 5, Zielbild §12.7): der Katalog wird von 143 auf 60–80
+ * kuratiert. Diese IDs sind aus dem Spiel-Draw genommen — der Datenbestand bleibt in den
+ * JSON-Dateien erhalten (Repo-Regel „archivieren, nicht löschen"; jederzeit re-aktivierbar),
+ * aber der Loader überspringt sie. So bleibt jede GELADENE Aktion Vokabular der Episoden/
+ * Beats und bewegt sichtbar einen Läufer (ActionRunnerInvariant). Referenz-sicher gewählt:
+ * keine wird von Episoden/Consequences/Combos/Tests referenziert oder ist prereq/unlock-
+ * Provider einer geladenen Aktion (Planer-Closure).
+ */
+export const ARCHIVED_ACTION_IDS: ReadonlySet<string> = new Set<string>([
+  '1.8', '1.9', '1.10', '2.5', '2.7', '2.9', '2.14', '2.15', '2.20',
+  '3.7', '3.13', '3.14', '3.16', '3.17', '3.19',
+  '4.5', '4.6', '4.7', '4.8', '4.9', '4.10', '4.11', '4.12', '4.13', '4.14', '4.15',
+  '5.5', '5.8', '5.10', '5.11', '5.12',
+  '6.3', '6.4', '6.5', '6.6', '6.8', '6.10',
+  '7.4', '7.6', '7.7', '7.8',
+  '8.3', '8.10', '8.12', '8.14', '8.15', '8.16',
+  '9.1', '9.2', '9.4', '9.5', '9.6', '9.7', '9.8', '9.9', '9.10', '9.12', '9.13', '9.14', '9.15',
+  '11.1', '11.6', '11.7', '11.12',
+]);
+
 export class ActionLoader {
   private actions: Map<string, LoadedAction> = new Map();
   private actionsByPhase: Map<string, LoadedAction[]> = new Map();
@@ -124,6 +145,8 @@ export class ActionLoader {
 
     // Process and store actions
     for (const raw of allRawActions) {
+      // Kuratierung (Zielbild §12.7): archivierte Aktionen aus dem Draw nehmen.
+      if (ARCHIVED_ACTION_IDS.has(raw.id)) continue;
       const action: LoadedAction = {
         ...raw,
         isUnlocked: this.shouldBeInitiallyUnlocked(raw),

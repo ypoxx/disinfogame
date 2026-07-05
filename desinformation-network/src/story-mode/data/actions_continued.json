@@ -443,9 +443,7 @@
         "capacity": 3,
         "risk": 5
       },
-      "prerequisites": [
-        "2.15"
-      ],
+      "prerequisites": [],
       "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": [
@@ -960,9 +958,7 @@
         "capacity": 2,
         "risk": 6
       },
-      "prerequisites": [
-        "2.15"
-      ],
+      "prerequisites": [],
       "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
@@ -1023,9 +1019,7 @@
         "capacity": 2,
         "risk": 6
       },
-      "prerequisites": [
-        "2.9"
-      ],
+      "prerequisites": [],
       "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": [
@@ -1529,10 +1523,7 @@
         "capacity": 2,
         "risk": 6
       },
-      "prerequisites": [
-        "2.9",
-        "2.18"
-      ],
+      "prerequisites": ["2.18"],
       "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": [
@@ -1559,9 +1550,7 @@
         "capacity": 3,
         "risk": 10
       },
-      "prerequisites": [
-        "6.3"
-      ],
+      "prerequisites": [],
       "npc_affinity": ["direktor"],
       "legality": "grey",
       "tags": [
@@ -1740,9 +1729,7 @@
         "capacity": 3,
         "risk": 5
       },
-      "prerequisites": [
-        "2.14"
-      ],
+      "prerequisites": [],
       "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": [
@@ -2061,9 +2048,7 @@
         "capacity": 2,
         "risk": 8
       },
-      "prerequisites": [
-        "1.8"
-      ],
+      "prerequisites": [],
       "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
@@ -2283,9 +2268,7 @@
         "capacity": 2,
         "risk": 5
       },
-      "prerequisites": [
-        "2.20"
-      ],
+      "prerequisites": [],
       "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": [
@@ -2475,9 +2458,7 @@
         "risk": 18,
         "moral_weight": 8
       },
-      "prerequisites": [
-        "2.20"
-      ],
+      "prerequisites": [],
       "npc_affinity": ["katja"],
       "legality": "illegal",
       "tags": [

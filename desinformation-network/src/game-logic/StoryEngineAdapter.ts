@@ -745,7 +745,7 @@ export class StoryEngineAdapter {
   // Etappe 3 (Paket E): 0.5 → 0.6 — mit dem Immunsystem (Regeneration + Dämpfung) darf die
   // Latte höher liegen; passives Drift-Spiel erreicht das Plateau (~0.53) nicht mehr.
   // Der Rest des Wegs Richtung 1.0 folgt mit der Aktions-Kuratierung (Etappe 5).
-  private readonly WIN_THRESHOLD = 0.6;
+  private readonly WIN_THRESHOLD = 1.0;
   // P2-7: Track world event cooldowns (eventId -> last triggered phase)
   private worldEventCooldowns: Map<string, number> = new Map();
   private readonly WORLD_EVENT_COOLDOWN = 6;   // Etappe 2: 6 Tage Cooldown (vorher 12 Phasen = „1 Jahr")

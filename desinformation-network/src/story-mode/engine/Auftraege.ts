@@ -46,10 +46,12 @@ export const AUFTRAEGE: Record<AuftragId, Auftrag> = {
     beschreibung_de:
       'Ein Reizthema so aufladen, dass der Kulturkampf den Diskurs frisst. Nicht überzeugen — spalten.',
     instrument_de: 'Westunion-Stimmungsbarometer (Lager-Abstand)',
+    // Zielmarken = die volle „Mission erfüllt"-Latte (WIN_THRESHOLD 1.0, Min-Regel):
+    // gewonnen wird, wenn JEDE Achse ihr Ziel GANZ erreicht (Etappe 5, Zielbild §12.7).
     signatur: [
-      { wert: 'polarisierung', richtung: 'hoch', start: 25, ziel: 65 },
-      { wert: 'fragmentierung', richtung: 'hoch', start: 15, ziel: 45 },
-      { wert: 'diskursqualitaet', richtung: 'runter', start: 70, ziel: 40 },
+      { wert: 'polarisierung', richtung: 'hoch', start: 25, ziel: 49 },
+      { wert: 'fragmentierung', richtung: 'hoch', start: 15, ziel: 33 },
+      { wert: 'diskursqualitaet', richtung: 'runter', start: 70, ziel: 52 },
     ],
   },
   wahl: {
@@ -59,10 +61,12 @@ export const AUFTRAEGE: Record<AuftragId, Auftrag> = {
     beschreibung_de:
       'Eine uns nahe Kraft stärken und die Beteiligung der anderen drücken, bis das Land driftet.',
     instrument_de: 'Westunion-Wahltrend / Politbarometer',
+    // Zielmarken = die volle „Mission erfüllt"-Latte (WIN_THRESHOLD 1.0, Min-Regel):
+    // gewonnen wird, wenn JEDE Achse ihr Ziel GANZ erreicht (Etappe 5, Zielbild §12.7).
     signatur: [
-      { wert: 'fraktionsstaerke', richtung: 'hoch', start: 25, ziel: 55 },
-      { wert: 'vertrauen', richtung: 'runter', start: 100, ziel: 50 },
-      { wert: 'zynismus', richtung: 'hoch', start: 20, ziel: 45 },
+      { wert: 'fraktionsstaerke', richtung: 'hoch', start: 25, ziel: 43 },
+      { wert: 'vertrauen', richtung: 'runter', start: 100, ziel: 70 },
+      { wert: 'zynismus', richtung: 'hoch', start: 20, ziel: 35 },
     ],
     istDefault: true,
   },
@@ -73,10 +77,12 @@ export const AUFTRAEGE: Record<AuftragId, Auftrag> = {
     beschreibung_de:
       'Nicht eine Lüge durchsetzen, sondern dass man nichts mehr glaubt — Wahlen „manipuliert", Experten „gekauft".',
     instrument_de: 'Westunion-Vertrauensindex (Institutionen/Medien)',
+    // Zielmarken = die volle „Mission erfüllt"-Latte (WIN_THRESHOLD 1.0, Min-Regel):
+    // gewonnen wird, wenn JEDE Achse ihr Ziel GANZ erreicht (Etappe 5, Zielbild §12.7).
     signatur: [
-      { wert: 'vertrauen', richtung: 'runter', start: 100, ziel: 45 },
-      { wert: 'zynismus', richtung: 'hoch', start: 20, ziel: 60 },
-      { wert: 'diskursqualitaet', richtung: 'runter', start: 70, ziel: 35 },
+      { wert: 'vertrauen', richtung: 'runter', start: 100, ziel: 67 },
+      { wert: 'zynismus', richtung: 'hoch', start: 20, ziel: 44 },
+      { wert: 'diskursqualitaet', richtung: 'runter', start: 70, ziel: 49 },
     ],
   },
 };

@@ -221,7 +221,7 @@
       "narrative_de": "Ein lange aufgebauter Kontakt, der bisher unauffällig blieb. Jetzt ziehen wir den Faden.",
       "narrative_en": "A long-cultivated contact who stayed quiet. Now we pull the thread.",
       "costs": { "budget": 10, "capacity": 2, "risk": 7, "moral_weight": 2 },
-      "prerequisites": ["2.20"],
+      "prerequisites": [],
       "npc_affinity": ["katja"],
       "legality": "illegal",
       "tags": ["field", "espionage"],
