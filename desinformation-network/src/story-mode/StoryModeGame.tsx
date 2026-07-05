@@ -1215,6 +1215,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             // VORSCHAU statt Rückblick: Das Tagesfazit erscheint VOR endPhase — es
             // weist die KOMMENDE Nacht aus (deterministisch aus dem Ist-Zustand).
             nightReport={state.engine.getNightPreview()}
+            // Etappe 5 (E18): kommt in der nächsten Nacht eine Tranche der Zentrale? (sonst null)
+            tranchePreview={state.engine.getTranchePreview()}
             onNextDay={() => {
               endPhase();
               useDayClockStore.getState().resetDay();

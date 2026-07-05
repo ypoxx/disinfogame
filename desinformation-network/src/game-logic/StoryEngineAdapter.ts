@@ -122,6 +122,13 @@ import {
   type NightReport,
 } from '../story-mode/engine/ImmuneSystem';
 
+// Etappe 5 — Geld-Tranchen (E18): die Zentrale zahlt nach Fortschritt statt passiv.
+import {
+  bewerteTranche,
+  istTrancheTag,
+  type TrancheResult,
+} from '../story-mode/engine/Finanzen';
+
 // Etappe 4 — Impfung & Abstumpfung: das Maschen-Gedächtnis (8 Milieus × 18 Familien).
 import {
   leeresMaschenGedaechtnis,
@@ -682,8 +689,11 @@ export interface GameEndState {
  * 2.2.0: Maschen-Gedächtnis (Etappe 4, additiv) — ersetzt die globale Familien-
  *        Zählung `methodFamilyUseCounts`; Altstände migrieren ihre Zählung als
  *        Einsatz-Historie, gepatchte Familien gelten überall als bekannt.
+ * 2.3.0: Geld-Tranchen (Etappe 5, E18, additiv) — der passive +5/Phase-Regen ist weg;
+ *        Tranchen-Zustand (Mahnstufe/Bezugspunkt) + Läufer-Historie. Altstände erben
+ *        Defaults (Mahnstufe 0, Bezugspunkt = aktueller Fortschritt).
  */
-export const SAVE_FORMAT_VERSION = '2.2.0';
+export const SAVE_FORMAT_VERSION = '2.3.0';
 
 // Datenintegritäts-Check (P0/R3): nur EINMAL über die Lebenszeit des Moduls laufen
 // lassen — die Daten sind statisch importiert, und die Balance-Sim erzeugt Dutzende
@@ -809,6 +819,23 @@ export class StoryEngineAdapter {
    *  mit unterschiedlicher Streuung: Abwehr (deterministisch akkumuliert) + Enttarnung
    *  (geseedete Ermittler-Spawns → Streuung, die dieselbe Strategie mal so, mal so enden lässt). */
   private readonly RISK_COST_TO_METER = 0.62;
+
+  // Etappe 5 — Geld-Tranchen (E18): die Zentrale zahlt in Tranchen NACH Fortschritt
+  // (kein passiver +5/Phase-Regen mehr). Wer liefert, bekommt nachgelegt; wer stagniert,
+  // wird gemahnt, dann gekürzt, dann handlungsunfähig — die Würgeschlinge zum „Wahlabend
+  // verloren" (Zielbild §11). Zustand: letzter Bewertungstag + Fortschritt-Bezugspunkt +
+  // Mahnstufe + Bilanz der letzten Tranche (Tagesfazit).
+  private lastTrancheDay = 0;
+  private lastTrancheProgress = 0;
+  private mahnstufe = 0;
+  private lastTranche: TrancheResult | null = null;
+  /** „Nachspielzeit" der Zentrale (§5b): genau EINMAL +5 Tage gegen Zielmarke/Budget. */
+  private nachspielzeitGenutzt = false;
+
+  // Etappe 5 — Läufer-Historie fürs Endreport (Zielbild §10/§13): je Nacht ein Punkt
+  // (Tag · Sonntagsfrage-Fortschritt 0..1 · ABWEHR 0..100) — die beiden Rennkurven über
+  // die 40 Tage. Additiv, save/load-persistiert.
+  private laeuferHistorie: { day: number; fortschritt: number; abwehr: number }[] = [];
 
   // Engine Integration
   private actionLoader: ActionLoader;
@@ -1053,8 +1080,8 @@ export class StoryEngineAdapter {
         10 // Max Capacity
       ),
       actionPointsRemaining: this.ACTION_POINTS_PER_PHASE,
-      // Budget regeneration (operational funding)
-      budget: this.storyResources.budget + 5,
+      // Etappe 5 (E18): KEIN passiver Budget-Regen mehr — die Zentrale zahlt in Tranchen
+      // nach Fortschritt (applyTranche(), unten nach Object.assign). Geld = Druck + Belohnung.
       // Passive Decay - reduced from 5 to 2
       attention: Math.max(0, this.storyResources.attention - 2),
       // Risk decay - gedämpft, pausiert während aktiver Untersuchung (s.o.)
@@ -1077,6 +1104,12 @@ export class StoryEngineAdapter {
     }
 
     Object.assign(this.storyResources, resourceChanges);
+
+    // Etappe 5 (E18): Geld-Tranche der Zentrale — an Tagen 5/10/15/… nach Fortschritt.
+    // BEWUSST hier (vor der nächtlichen Gesellschafts-Drift, societyFormulaStep unten):
+    // bemessen wird die Lieferung des TAGES, nicht die Drift — so deckt sich die Bilanz
+    // exakt mit der Tagesfazit-Vorschau (getTranchePreview).
+    this.applyTranche(newPhaseNumber);
 
     // P2-17 Pacing — garantierte erste Gegenwehr-Welle (Früh-Druck + Lehrmoment).
     // Genau einmal beim Eintritt in die frühe Phase: die Gegenseite wird erstmals
@@ -1328,6 +1361,12 @@ export class StoryEngineAdapter {
       abwehrParts: abwehr.parts,
       abwehrAfter: abwehr.next,
     };
+    // Etappe 5: ein Punkt der beiden Rennkurven für den End-Report (Zielbild §10).
+    this.laeuferHistorie.push({
+      day: previousPhase,
+      fortschritt: this.getAuftragProgressMin(),
+      abwehr: abwehr.next,
+    });
     this.noiseRiskToday = 0;
     this.noiseAttentionToday = 0;
     // Review-Befund 2: Der reaktive Faktencheck kontert nur die Familie DES Tages —
@@ -4658,6 +4697,96 @@ export class StoryEngineAdapter {
     };
   }
 
+  // ── Etappe 5: Geld-Tranchen (E18, Zielbild §11) ──────────────────────────────────
+  /**
+   * Zahlt an den Tranchen-Tagen (5/10/15/…) nach Fortschritt: bewertet die Lieferung
+   * seit der letzten Tranche, wendet die Auszahlung (oder Kürzung) aufs Budget an,
+   * fortschreibt Mahnstufe + Bezugspunkt und legt bei Bonus/Mahnung eine News an.
+   */
+  private applyTranche(day: number): void {
+    if (!istTrancheTag(day)) return;
+    const progressNow = this.getAuftragProgress();
+    const result = bewerteTranche({
+      day,
+      progressNow,
+      progressAtLastTranche: this.lastTrancheProgress,
+      mahnstufe: this.mahnstufe,
+    });
+    this.storyResources.budget += result.auszahlung;
+    this.mahnstufe = result.neueMahnstufe;
+    this.lastTrancheProgress = progressNow;
+    this.lastTrancheDay = day;
+    this.lastTranche = result;
+    // Bonus/Mahnung tragen eine Schlagzeile in den Feed (der Kurator meldet sich).
+    if (result.headline_de) {
+      const bedrohlich = result.bewertung === 'mahnung2' || result.bewertung === 'kuerzung';
+      this.newsEvents.unshift({
+        id: `news_tranche_${day}`,
+        phase: day,
+        headline_de: result.headline_de,
+        headline_en: result.headline_en,
+        description_de: result.text_de,
+        description_en: result.text_en,
+        type: 'world_event',
+        severity: bedrohlich ? 'danger' : result.bewertung === 'mahnung1' ? 'warning' : 'info',
+        read: false,
+        pinned: bedrohlich,
+      });
+    }
+  }
+
+  /**
+   * Tagesfazit-VORSCHAU der Tranche: Kommt in der nächsten Nacht (Tag+1) eine Tranche,
+   * liefert dies die projizierte Bilanz — sonst null. Deterministisch, mutiert nichts;
+   * deckt sich mit applyTranche, weil beide vor der Gesellschafts-Drift bemessen.
+   */
+  getTranchePreview(): TrancheResult | null {
+    const comingDay = this.storyPhase.number + 1;
+    if (!istTrancheTag(comingDay)) return null;
+    return bewerteTranche({
+      day: comingDay,
+      progressNow: this.getAuftragProgress(),
+      progressAtLastTranche: this.lastTrancheProgress,
+      mahnstufe: this.mahnstufe,
+    });
+  }
+
+  /** Bilanz der zuletzt gezahlten Tranche (für den End-Report / Debug). */
+  getLastTranche(): TrancheResult | null {
+    return this.lastTranche;
+  }
+
+  /** Aktuelle Mahnstufe der Zentrale (0 = im Soll) — für UI-Hinweise. */
+  getMahnstufe(): number {
+    return this.mahnstufe;
+  }
+
+  /** Läufer-Historie (Tag · Sonntagsfrage-Fortschritt 0..1 · ABWEHR 0..100) fürs Endreport. */
+  getLaeuferHistorie(): { day: number; fortschritt: number; abwehr: number }[] {
+    return [...this.laeuferHistorie];
+  }
+
+  /**
+   * „Nachspielzeit" der Zentrale (Zielbild §5b): einmalig +5 Tage — gegen Budgetkürzung
+   * und höhere Zielmarke. Liefert true, wenn gewährt (danach gesperrt).
+   */
+  requestNachspielzeit(): boolean {
+    if (this.nachspielzeitGenutzt) return false;
+    this.nachspielzeitGenutzt = true;
+    this.storyResources.budget = Math.max(0, this.storyResources.budget - 20);
+    this.shiftElectionDay(
+      5,
+      'Die Zentrale gewährt einmalig Nachspielzeit — gegen einen Abschlag und eine höhere Zielmarke.',
+      'The Central grants a one-time extension — at a cost and a higher bar.',
+    );
+    return true;
+  }
+
+  /** Ob die einmalige Nachspielzeit bereits verbraucht ist. */
+  istNachspielzeitGenutzt(): boolean {
+    return this.nachspielzeitGenutzt;
+  }
+
   // ── Paket B: Stufen-Gegenmaßnahmen (CountermeasureSystem eingesteckt) ────────────
   // An den Stufen 25/50/75 feuert je EINE kuratierte DISARM-Maßnahme (Zielbild §3):
   // Prebunking-Kampagne (cm24) · Plattform-Sperre (cm05) · Task-Force (cm22).
@@ -6650,6 +6779,13 @@ export class StoryEngineAdapter {
       pendingAbwehrStages: this.pendingAbwehrStages,
       lastNightReport: this.lastNightReport,
       reachDampening: this.reachDampening,
+      // Etappe 5 — Geld-Tranchen + Läufer-Historie (E18).
+      lastTrancheDay: this.lastTrancheDay,
+      lastTrancheProgress: this.lastTrancheProgress,
+      mahnstufe: this.mahnstufe,
+      lastTranche: this.lastTranche,
+      nachspielzeitGenutzt: this.nachspielzeitGenutzt,
+      laeuferHistorie: this.laeuferHistorie,
       comboSystemState: this.comboSystem.exportState(),
       crisisMomentSystemState: this.crisisMomentSystem.exportState(),
       actorAIState: this.actorAI.exportState(),
@@ -6737,6 +6873,15 @@ export class StoryEngineAdapter {
     this.pendingAbwehrStages = state.pendingAbwehrStages ?? [];
     this.lastNightReport = state.lastNightReport ?? null;
     this.reachDampening = state.reachDampening ?? 0;
+    // Etappe 5 — Geld-Tranchen (E18). Alte Saves (< 2.3.0) haben keine Tranchen-Felder:
+    // Mahnstufe 0, und der Bezugspunkt startet beim AKTUELLEN Fortschritt, damit nicht
+    // am Ladetag sofort eine Riesen-Tranche für den bereits erreichten Fortschritt fällig wird.
+    this.lastTrancheDay = state.lastTrancheDay ?? this.storyPhase.number;
+    this.lastTrancheProgress = state.lastTrancheProgress ?? this.getAuftragProgress();
+    this.mahnstufe = state.mahnstufe ?? 0;
+    this.lastTranche = state.lastTranche ?? null;
+    this.nachspielzeitGenutzt = state.nachspielzeitGenutzt ?? false;
+    this.laeuferHistorie = Array.isArray(state.laeuferHistorie) ? state.laeuferHistorie : [];
     // Migration < 2.1.0: `wehrhaftigkeit` war ein Gesellschaftswert (Start 60), jetzt
     // ist sie die ABWEHR (Start niedrig). Altstände ohne Etappe-3-Marker erben den
     // neuen Startwert — ihr alter Wert wäre eine grundlos fast halbvolle Abwehr.
@@ -7044,6 +7189,13 @@ export class StoryEngineAdapter {
     this.pendingAbwehrStages = [];
     this.lastNightReport = null;
     this.reachDampening = 0;
+    // Etappe 5 — Geld-Tranchen + Läufer-Historie zurücksetzen.
+    this.lastTrancheDay = 0;
+    this.lastTrancheProgress = 0;
+    this.mahnstufe = 0;
+    this.lastTranche = null;
+    this.nachspielzeitGenutzt = false;
+    this.laeuferHistorie = [];
     this.initializeNPCs();
     this.initializeObjectives();
 

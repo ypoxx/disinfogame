@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { StoryModeColors } from '../theme';
 import type { NightReport } from '../engine/ImmuneSystem';
+import type { TrancheResult } from '../engine/Finanzen';
 
 // ============================================
 // TAGESFAZIT / "LAGEBERICHT" (K1, A4) — der A4-Pflichtmoment
@@ -26,6 +27,8 @@ interface DayReportProps {
   trustProgress: number; // 0–100 (Ministerium Institutionen)
   /** Etappe 3 Paket D: Nacht-Transparenz — null an Tag 1 (keine Nacht vergangen). */
   nightReport?: NightReport | null;
+  /** Etappe 5 (E18): projizierte Tranche der Zentrale für die kommende Nacht (sonst null). */
+  tranchePreview?: TrancheResult | null;
   onNextDay: () => void;
 }
 
@@ -91,6 +94,7 @@ export function DayReport({
   resources,
   trustProgress,
   nightReport,
+  tranchePreview,
   onNextDay,
 }: DayReportProps) {
   // Weiter auch per Enter.
@@ -298,6 +302,29 @@ export function DayReport({
                   </p>
                 );
               })()}
+            </div>
+          )}
+
+          {/* Tranche der Zentrale (Etappe 5, E18): kommt in der nächsten Nacht Geld —
+              oder eine Mahnung? Nur an Tranchen-Tagen (5/10/…) sichtbar. */}
+          {tranchePreview && (
+            <div
+              className="border-2 p-4 mb-6 animate-fade-in"
+              style={{
+                backgroundColor: StoryModeColors.darkConcrete,
+                borderColor: tranchePreview.auszahlung < 0 ? StoryModeColors.ministryRed : StoryModeColors.border,
+                opacity: 0,
+                animationDelay: '0.5s',
+                animationFillMode: 'forwards',
+              }}
+              data-testid="tranche-row"
+            >
+              <div className="text-xs uppercase tracking-wider mb-1" style={{ color: StoryModeColors.textSecondary }}>
+                Die Zentrale
+              </div>
+              <p className="font-mono text-sm" style={{ color: StoryModeColors.textPrimary }}>
+                {tranchePreview.text_de}
+              </p>
             </div>
           )}
 
