@@ -4,6 +4,35 @@ import { Icon } from './Icon';
 import type { AdvisorRecommendation } from '../engine/AdvisorRecommendation';
 import { societyDeltaFromAction } from '../engine/SocietyDynamics';
 import { SOCIETY_VALUE_META, type SocietyValueKey } from '../../game-logic/StoryEngineAdapter';
+import type { MaschenStempel } from '../engine/MaschenGedaechtnis';
+
+// ============================================
+// MASCHEN-STEMPEL (Etappe 4 Paket D, Zielbild §6/E7): FRISCH/BEKANNT/VERBRANNT
+// je Ziel-Milieu VOR dem Ausgeben — Vertrag s. StoryEngineAdapter.getMaschenVorschau.
+// Lokal definiert (Adapter/Engine bleiben unangetastet), damit ActionPanel wie
+// bisher rein props-getrieben bleibt.
+// ============================================
+
+/** Rückgabe von `engine.getMaschenVorschau(actionId)` — null, wenn keine Masche. */
+export interface MaschenVorschau {
+  familieId: string;
+  familieLabel: string;
+  stempel: Array<{ milieuId: string; milieuLabel: string; stempel: MaschenStempel }>;
+  multiplikator: number;
+}
+
+/** Kastenstempel-Optik: unauffällig → warnend → verbrannt. NIE den Multiplikator zeigen (E6). */
+const STEMPEL_COLOR: Record<MaschenStempel, string> = {
+  frisch: StoryModeColors.textSecondary,
+  bekannt: StoryModeColors.warning,
+  verbrannt: StoryModeColors.danger,
+};
+
+const STEMPEL_LABEL: Record<MaschenStempel, string> = {
+  frisch: 'FRISCH',
+  bekannt: 'BEKANNT',
+  verbrannt: 'VERBRANNT',
+};
 
 // ============================================
 // WIRKUNGS-VORSCHAU (M1 — Lesbarkeit am Entscheidungspunkt)
@@ -86,6 +115,8 @@ interface ActionPanelProps {
   recommendations?: AdvisorRecommendation[];
   highlightActionId?: string | null;
   variant?: 'modal' | 'sidebar';
+  /** Etappe 4 (E7): Maschen-Vorschau je Aktion — optional, damit ActionPanel abwärtskompatibel bleibt. */
+  getMaschenVorschau?: (actionId: string) => MaschenVorschau | null;
 }
 
 // ============================================
@@ -115,13 +146,19 @@ interface ActionCardProps {
   isEpisodeRelevant?: boolean;
   isHighlighted?: boolean;
   actionRef?: React.RefObject<HTMLDivElement>;
+  getMaschenVorschau?: (actionId: string) => MaschenVorschau | null;
 }
 
-function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, isEpisodeRelevant, isHighlighted, actionRef }: ActionCardProps) {
+function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, isEpisodeRelevant, isHighlighted, actionRef, getMaschenVorschau }: ActionCardProps) {
   // M1: Gesellschaftswert-Wirkung schon beim Planen (statt nur „1 NPC-Bonus").
   const societyPreview = useMemo(
     () => previewSocietyDeltas(action.effects, action.legality),
     [action.effects, action.legality],
+  );
+  // E7: Maschen-Stempel VOR dem Ausgeben — null, wenn die Aktion keine Masche ist.
+  const maschenVorschau = useMemo(
+    () => getMaschenVorschau?.(action.id) ?? null,
+    [getMaschenVorschau, action.id],
   );
   const legalityColors = {
     legal: StoryModeColors.success,
@@ -371,6 +408,32 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
               ))}
             </div>
           )}
+          {/* E7: Frische-Stempel je Ziel-Milieu — warnt VOR dem Ausgeben, nie eine
+              Matrix-Zahl (E6). Grauer Kastenstempel: Border statt Schatten/Glow. */}
+          {maschenVorschau && (
+            <div className="mb-1">
+              <span style={{ color: StoryModeColors.textMuted }}>
+                MASCHE: {maschenVorschau.familieLabel}
+              </span>
+              <div className="flex flex-wrap gap-1 mt-0.5">
+                {maschenVorschau.stempel.slice(0, 3).map((s) => (
+                  <span
+                    key={s.milieuId}
+                    className="px-1.5 py-0.5 border font-bold uppercase"
+                    style={{
+                      borderColor: STEMPEL_COLOR[s.stempel],
+                      color: STEMPEL_COLOR[s.stempel],
+                      backgroundColor: 'transparent',
+                      boxShadow: 'none',
+                    }}
+                    title={`${s.milieuLabel}: Masche ${STEMPEL_LABEL[s.stempel]}`}
+                  >
+                    {s.milieuLabel}: {STEMPEL_LABEL[s.stempel]}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="flex flex-wrap gap-x-3 gap-y-0.5">
             {(action.costs.risk ?? 0) > 0 && (
               <span style={{ color: (action.costs.risk ?? 0) > 10 ? StoryModeColors.danger : StoryModeColors.warning }}>
@@ -475,6 +538,7 @@ export function ActionPanel({
   recommendations = [],
   highlightActionId = null,
   variant = 'modal',
+  getMaschenVorschau,
 }: ActionPanelProps) {
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -633,6 +697,7 @@ export function ActionPanel({
                 isEpisodeRelevant={episodeActionIdSet.has(action.id)}
                 isHighlighted={isHighlighted}
                 actionRef={isHighlighted ? highlightedActionRef : undefined}
+                getMaschenVorschau={getMaschenVorschau}
               />
             );
           })}

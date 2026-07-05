@@ -70,9 +70,10 @@ export const MULT_VERBRANNT = 0.3;
 /** Schwellen auf der effektiven Abnutzung (statt roher 1/2): Beim Tages-Rhythmus
  *  liegt der 2. Einsatz bei 1−Verfall (0,7) und der 3. bei 2−2·Verfall (1,4) —
  *  die Schwellen 0,5/1,35 halten so die kanonische Treppe 1,0 → 0,6 → 0,3 (§7),
- *  während 2 Ruhetage eine Stufe zurück erlauben (Rotation lohnt). */
-const WEAR_BEKANNT_AB = 0.5;
-const WEAR_VERBRANNT_AB = 1.35;
+ *  während 2 Ruhetage eine Stufe zurück erlauben (Rotation lohnt). Exportiert,
+ *  damit Alphabet/Tests dieselben Schwellen lesen (keine divergenten Kopien). */
+export const WEAR_BEKANNT_AB = 0.5;
+export const WEAR_VERBRANNT_AB = 1.35;
 
 /** Prebunking: große Familien-Immunität, zerfällt über ~Wochen (cm24, Stufe 25). */
 export const PREBUNK_STRENGTH = 0.45;
@@ -152,8 +153,10 @@ export function stempelFuer(
   familyId: string,
   phase: number,
 ): MaschenStempel {
+  // Strikt > 0,8: eine reine Faktencheck-Impfung (Multiplikator exakt 0,8) stempelt
+  // BEKANNT — der Spieler wird schon auf der Karte gewarnt (Review-Befund 5).
   const m = wirkungsMultiplikator(state, milieuId, familyId, phase);
-  if (m >= 0.8) return 'frisch';
+  if (m > 0.8) return 'frisch';
   if (m >= 0.45) return 'bekannt';
   return 'verbrannt';
 }

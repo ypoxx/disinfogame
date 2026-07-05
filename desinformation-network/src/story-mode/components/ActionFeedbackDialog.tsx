@@ -108,6 +108,28 @@ export function ActionFeedbackDialog({
     );
   };
 
+  // Etappe 4 (E5/E8): Verpuffungs-Quittung — kühler Kastenstempel, KEIN Rot-Alarm.
+  // Nennt Ursache + Tag + Gegenmaßnahme; nie eine Zahl der Maschen-Matrix (E6).
+  const renderMaschenQuittung = (r: ActionResult) => {
+    if (!r.maschenQuittung) return null;
+    return (
+      <div
+        className="border-2 p-3 text-xs"
+        style={{
+          backgroundColor: StoryModeColors.darkConcrete,
+          borderColor: StoryModeColors.borderLight,
+        }}
+      >
+        <div className="font-bold mb-1" style={{ color: StoryModeColors.textSecondary }}>
+          STEMPEL — {r.maschenQuittung.familieLabel}
+        </div>
+        <div style={{ color: StoryModeColors.textSecondary }}>
+          {r.maschenQuittung.text_de}
+        </div>
+      </div>
+    );
+  };
+
   // T1/#27: Wirksamkeit + Herleitung (Basis 50% + Ziel-Affinität der Akteure), statt
   // nur einer nackten „50%"-Zahl im Erzähltext.
   const renderEffectiveness = (r: ActionResult) => {
@@ -417,6 +439,9 @@ export function ActionFeedbackDialog({
                       </div>
                     )}
 
+                    {/* Etappe 4 (E5/E8): Verpuffungs-Quittung */}
+                    {renderMaschenQuittung(actionResult)}
+
                     {/* Resource Changes */}
                     {actionResult.resourceChanges && (
                       <div
@@ -585,6 +610,9 @@ export function ActionFeedbackDialog({
               </p>
             </div>
           )}
+
+          {/* Etappe 4 (E5/E8): Verpuffungs-Quittung */}
+          {renderMaschenQuittung(singleResult)}
 
           {/* Resource Changes */}
           {singleResult.resourceChanges && (

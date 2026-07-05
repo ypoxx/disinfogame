@@ -138,6 +138,7 @@ import {
   effektiveImpfung,
   zellKey,
   PREBUNK_STRENGTH,
+  WEAR_VERBRANNT_AB,
   type MaschenGedaechtnisState,
   type MaschenStempel,
   type ZielMilieu,
@@ -1329,6 +1330,9 @@ export class StoryEngineAdapter {
     };
     this.noiseRiskToday = 0;
     this.noiseAttentionToday = 0;
+    // Review-Befund 2: Der reaktive Faktencheck kontert nur die Familie DES Tages —
+    // ohne Reset würde eine längst aufgegebene Familie Nacht für Nacht neu geimpft.
+    this.letzterFamilienEinsatz = null;
 
     return {
       newPhase: this.storyPhase,
@@ -4585,7 +4589,9 @@ export class StoryEngineAdapter {
           if (effektiveImpfung(this.maschenGedaechtnis, seg.id, fam.id, phase) >= 0.15) geimpft = true;
         }
         if (this.maschenGedaechtnis.abstumpfung[key]) {
-          if (effektiveAbstumpfung(this.maschenGedaechtnis, seg.id, fam.id, phase) >= 1.5) abgestumpft = true;
+          // Dieselbe Schwelle wie der VERBRANNT-Stempel — Karte und Wohnzimmer
+          // erzählen denselben Zustand (Review-Befund 3).
+          if (effektiveAbstumpfung(this.maschenGedaechtnis, seg.id, fam.id, phase) >= WEAR_VERBRANNT_AB) abgestumpft = true;
         }
         if (geimpft) break;
       }
@@ -6711,6 +6717,9 @@ export class StoryEngineAdapter {
     // Familien gelten überall als bekannt (Patch-Folge nachgezogen, kein Wissensverlust).
     this.maschenGedaechtnis = state.maschenGedaechtnis ?? leeresMaschenGedaechtnis();
     this.lastMaschenDaempfung = null;
+    // Review-Befund 1: sonst impft der erste Faktencheck nach dem Laden die
+    // Familie/Milieus des VORIGEN Spiels in den geladenen Zustand hinein.
+    this.letzterFamilienEinsatz = null;
     if (!state.maschenGedaechtnis && Array.isArray(state.methodFamilyUseCounts)) {
       const einsaetze: Record<string, number> = {};
       for (const [famId, count] of state.methodFamilyUseCounts as Array<[string, number]>) {

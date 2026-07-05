@@ -901,7 +901,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
           {/* Broadcast permanent (2d): Dauer-Streifen am Welt-Rand, per B ausklappbar */}
           {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
-            <BroadcastBar audience={audience} expanded={broadcastExpanded} onToggle={toggleBroadcast} />
+            <BroadcastBar
+              audience={audience}
+              expanded={broadcastExpanded}
+              onToggle={toggleBroadcast}
+              wohnzimmerAlphabet={state.engine.getWohnzimmerAlphabet()}
+            />
           )}
         </div>
 
@@ -960,6 +965,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               }}
               recommendations={state.recommendations}
               highlightActionId={highlightActionId}
+              getMaschenVorschau={(actionId) => state.engine.getMaschenVorschau(actionId)}
             />
           )}
           {activePanel === 'news' && (

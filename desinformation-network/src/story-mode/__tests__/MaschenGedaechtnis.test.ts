@@ -24,6 +24,8 @@ import {
   MULT_VERBRANNT,
   MIN_WIRKUNG,
   WEAR_DECAY_PER_DAY,
+  WEAR_BEKANNT_AB,
+  WEAR_STEP,
   PREBUNK_DECAY_PER_DAY,
   FACTCHECK_DECAY_PER_DAY,
 } from '../engine/MaschenGedaechtnis';
@@ -56,8 +58,9 @@ describe('MaschenGedaechtnis — Abstumpfung (1,0 → 0,6 → 0,3)', () => {
     s = registriereEinsatz(s, FAMILIE, [MILIEU], 1).state;
     expect(stempelFuer(s, MILIEU, FAMILIE, 2)).toBe('bekannt');
 
-    // Nach genug Ruhetagen ist die Zelle unter der BEKANNT-Schwelle (0,5).
-    const tageBisFrisch = Math.ceil((1 - 0.5) / WEAR_DECAY_PER_DAY) + 1;
+    // Nach genug Ruhetagen ist die Zelle unter der BEKANNT-Schwelle — aus den
+    // exportierten Konstanten hergeleitet, damit künftiges Tuning den Test mitzieht.
+    const tageBisFrisch = Math.ceil((WEAR_STEP - WEAR_BEKANNT_AB) / WEAR_DECAY_PER_DAY) + 1;
     expect(stempelFuer(s, MILIEU, FAMILIE, 1 + tageBisFrisch)).toBe('frisch');
   });
 
