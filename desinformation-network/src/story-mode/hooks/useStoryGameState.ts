@@ -881,7 +881,10 @@ export function useStoryGameState(seed?: string) {
     } : undefined;
 
     setTrustHistory(prev => [...prev, {
-      round: result.newPhase.month + (result.newPhase.year - 2024) * 12,
+      // Etappe 5: der Kampagnentag ist die Achse (Etappe 2 hat year/month auf konstant
+      // deprecated → die alte Formel lieferte für JEDEN Punkt denselben Wert und die
+      // Chart-Linie schoss aus dem Bild). Jetzt: round = Tag 1..Wahltag.
+      round: result.newPhase.number,
       actorTrust,
       averageTrust: actors.length > 0 ? totalTrust / actors.length : 1,
       event,

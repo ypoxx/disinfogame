@@ -206,6 +206,7 @@ import {
   AUFTRAEGE,
   auftragProgress,
   auftragMissionVerdict,
+  PARTEI_NAME_DE,
   type Auftrag,
   type AuftragId,
 } from '../story-mode/engine/Auftraege';
@@ -4659,6 +4660,11 @@ export class StoryEngineAdapter {
     return this.exposureCountdown;
   }
 
+  /** Sieg-Schwelle (0..1) der Min-Regel — für die Sieglinie im Endreport-Rennen-Chart. */
+  getWinThreshold(): number {
+    return this.WIN_THRESHOLD;
+  }
+
   /** Stufen-Info fürs HUD: Marken + bereits gezündete Stufen. */
   getAbwehrStageInfo(): { stages: readonly number[]; fired: number[] } {
     return { stages: ABWEHR_STAGES, fired: Array.from(this.firedAbwehrStages).sort((a, b) => a - b) };
@@ -4777,7 +4783,7 @@ export class StoryEngineAdapter {
   }
 
   /** Fiktiver Parteiname (Zielbild §8/D2) — EIN Name statt der früheren vier. */
-  static readonly PARTEI_NAME_DE = 'Westunion Erwacht';
+  static readonly PARTEI_NAME_DE = PARTEI_NAME_DE;
 
   /**
    * Daten für die Wahlabend-Szene (Zielbild §9): die Sonntagsfrage als Umfragewert der

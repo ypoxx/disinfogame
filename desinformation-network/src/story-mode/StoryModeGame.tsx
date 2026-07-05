@@ -625,7 +625,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       return (
         <AuftragSelect
           onChoose={(id) => { chooseAuftrag(id); setShowAuftrag(false); startGame(); }}
-          onSkip={() => { chooseAuftrag('keil'); setShowAuftrag(false); startGame(); }}
         />
       );
     }
@@ -748,6 +747,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               completedActionIds={state.completedActions}
               actionsCatalog={actionCatalog}
               trustHistory={state.trustHistory}
+              laeuferHistorie={state.engine.getLaeuferHistorie()}
+              winThreshold={state.engine.getWinThreshold()}
               finalResources={{
                 budget: state.resources.budget,
                 risk: state.resources.risk,
