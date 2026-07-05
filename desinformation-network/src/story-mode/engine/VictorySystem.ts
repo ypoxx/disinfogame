@@ -25,20 +25,17 @@ export type EndBranch =
   | 'victory'          // Auftrag erfüllt
   | 'exposed'          // enttarnt (Risiko ≥ Schwelle, Auftrag noch nicht erfüllt)
   | 'immune'           // das Land hält stand (Abwehr ≥ 100, Etappe 3)
-  | 'broke'            // mittellos (Kasse leer bei hohem Risiko)
-  | 'moral_redemption' // Gewissensentscheidung
-  | 'escape'           // Flucht (kritisches Risiko, Gelegenheit)
-  | 'timeout';         // Zeit/Wahltag erreicht, Auftrag verfehlt
-// Etappe 3 (Paket C): 'apparatus' entfällt — Verrat ist kein eigener Game-Over mehr,
-// sondern ein +15-ABWEHR-Ereignis mit Leak-Story (Zielbild §4/D4: weniger Regeln,
-// mehr Drama). broke/moral_redemption/escape wandern erst in Etappe 5 zu Epilogen.
+  | 'timeout';         // Wahltag erreicht, Auftrag verfehlt („Wahlabend verloren")
+// Etappe 5 (Paket C) — Enden-Beschnitt (Zielbild §4/§12.5, D4): EIN Siegweg, DREI
+// Verlustwege (immune · timeout · exposed). Weggefallen als eigene Game-Over:
+//   - 'broke' → die Pleite ist nur die VORSTUFE von „Wahlabend verloren" (kein eigener
+//     Bildschirm): kein Geld → keine Aktionen → kein Fortschritt → Timeout (§4/§11).
+//   - 'moral_redemption'/'escape' → Epilog-Färbungen statt eigener End-Checks.
+//   - 'apparatus' (Verrat) → schon in Etappe 3 zum +15-ABWEHR-Ereignis geworden.
 
 // --- Schwellen (zentral, damit Balancing sie an EINER Stelle findet) ---------
 export const EXPOSED_RISK = 85;          // Enttarnung
 export const IMMUNE_ABWEHR = 100;        // das Land ist immun (Etappe 3, Zielbild §4)
-export const BROKE_RISK = 70;            // Mittellos (zusammen mit Budget ≤ 0)
-export const MORAL_REDEMPTION_WEIGHT = 80;
-export const ESCAPE_RISK_MIN = 75;       // Flucht-Fenster (bis < EXPOSED_RISK)
 
 export interface EndEvaluationInput {
   /** Fortschritt der SCHWÄCHSTEN Signatur-Achse (0..1), Min-Regel. */
@@ -48,12 +45,8 @@ export interface EndEvaluationInput {
   /** ABWEHR 0–100 (befördertes `wehrhaftigkeit`, Etappe 3) — der zweite Rennläufer. */
   abwehr: number;
   risk: number;
-  budget: number;
-  moralWeight: number;
-  allNpcsLost: boolean;
-  exposureCountdown: number | null;
   phaseNumber: number;
-  /** Letzte Phase (aktuell Phasen-Limit; ab Etappe 2 der Wahltag). */
+  /** Der Wahltag (electionDay) — Timeout = „Wahlabend verloren". */
   maxPhases: number;
 }
 
@@ -83,28 +76,10 @@ export function evaluateEnd(i: EndEvaluationInput): EndDecision | null {
   // PRIORITY 1: Sieg — der Auftrag ist erfüllt.
   if (auftragMet) return { branch: 'victory', auftragMet };
 
-  // (Ehemals 1b 'apparatus': Verrat wirkt seit Etappe 3 als Abwehr-Ereignis, s. o.)
+  // (Ehemals 'apparatus'/'broke'/'moral_redemption'/'escape' — Etappe 5 Enden-Beschnitt:
+  //  Verrat = Abwehr-Ereignis, Pleite = Vorstufe des Timeout, Gewissen/Flucht = Epilog-Farbe.)
 
-  // PRIORITY 1c: Handlungsunfähig — Kasse leer bei hohem Risiko.
-  if (i.budget <= 0 && i.risk >= BROKE_RISK) return { branch: 'broke', auftragMet };
-
-  // PRIORITY 3: Gewissensentscheidung.
-  if (i.moralWeight >= MORAL_REDEMPTION_WEIGHT && i.allNpcsLost) {
-    return { branch: 'moral_redemption', auftragMet };
-  }
-
-  // PRIORITY 4: Flucht — kritisches Risiko + Fluchtgelegenheit.
-  if (
-    i.risk >= ESCAPE_RISK_MIN &&
-    i.risk < EXPOSED_RISK &&
-    i.moralWeight < 50 &&
-    i.exposureCountdown !== null &&
-    i.exposureCountdown <= 1
-  ) {
-    return { branch: 'escape', auftragMet };
-  }
-
-  // PRIORITY 5: Zeit/Wahltag erreicht, Auftrag verfehlt → am Auftrag gescheitert.
+  // PRIORITY 2: Wahltag erreicht, Auftrag verfehlt → am Auftrag gescheitert.
   if (i.phaseNumber >= i.maxPhases) return { branch: 'timeout', auftragMet };
 
   return null;

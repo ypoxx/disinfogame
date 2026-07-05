@@ -107,7 +107,7 @@ import {
   type NarrativeMemoryState,
 } from '../story-mode/engine/NarrativeMemory';
 
-import { evaluateEnd } from '../story-mode/engine/VictorySystem';
+import { evaluateEnd, type EndBranch } from '../story-mode/engine/VictorySystem';
 
 import {
   ABWEHR_START,
@@ -647,7 +647,12 @@ export interface Objective {
  * Spiel-Ende Information
  */
 export interface GameEndState {
-  type: 'victory' | 'defeat' | 'escape' | 'moral_redemption';
+  // Etappe 5 (Enden-Beschnitt): EIN Siegweg, DREI Verlustwege — nur noch victory | defeat
+  // (escape/moral_redemption sind Epilog-Färbungen, kein eigener Ausgangs-Typ mehr).
+  type: 'victory' | 'defeat';
+  /** Etappe 5: der konkrete Ausgangs-Zweig — steuert die Wahlabend-Szene (§9, ein TV-Set,
+   *  drei Enden: Sieg = Balken kippt · timeout = Balken kippt nicht · immune/exposed = Sondersendung). */
+  branch?: EndBranch;
 
   // Beschreibung
   title_de: string;
@@ -4766,6 +4771,26 @@ export class StoryEngineAdapter {
     return [...this.laeuferHistorie];
   }
 
+  /** Fiktiver Parteiname (Zielbild §8/D2) — EIN Name statt der früheren vier. */
+  static readonly PARTEI_NAME_DE = 'Westunion Erwacht';
+
+  /**
+   * Daten für die Wahlabend-Szene (Zielbild §9): die Sonntagsfrage als Umfragewert der
+   * radikalen Partei, diegetisches Gesicht von `auftragProgress` (§3, illustrativ 9→27 %).
+   * Der Balken kippt über die Machtwechsel-Schwelle genau dann, wenn der Auftrag erfüllt ist
+   * (Schwelle = WIN_THRESHOLD in derselben 9+p·18-Abbildung → Sieg zeigt den Balken über der Linie).
+   */
+  getWahlabendData(): { startPollPct: number; finalPollPct: number; thresholdPct: number; partyName: string } {
+    const SF_START = 9;
+    const SF_SPAN = 18;
+    return {
+      startPollPct: SF_START,
+      finalPollPct: SF_START + this.getAuftragProgressMin() * SF_SPAN,
+      thresholdPct: SF_START + this.WIN_THRESHOLD * SF_SPAN,
+      partyName: StoryEngineAdapter.PARTEI_NAME_DE,
+    };
+  }
+
   /**
    * „Nachspielzeit" der Zentrale (Zielbild §5b): einmalig +5 Tage — gegen Budgetkürzung
    * und höhere Zielmarke. Liefert true, wenn gewährt (danach gesperrt).
@@ -6517,10 +6542,7 @@ export class StoryEngineAdapter {
    * Wiederspiel-Hinweise UND eine zum Ausgang passende Optik zeigt.
    */
   private assembledEndingForBranch(type: GameEndState['type']): AssembledEnding | undefined {
-    const category = type === 'victory' ? 'victory'
-      : type === 'escape' ? 'escape'
-      : type === 'moral_redemption' ? 'redemption'
-      : 'exposure';
+    const category = type === 'victory' ? 'victory' : 'exposure';
     // Codex-Review 2026-06-15: `checkGameEnding()` klassifiziert den Zustand unabhängig vom
     // gerade ausgelösten Live-Branch. Stimmt dessen Kategorie nicht mit dem Branch überein
     // (z. B. „Zeit abgelaufen"-Niederlage, während die Ziele formal erfüllt, aber nicht
@@ -6547,10 +6569,6 @@ export class StoryEngineAdapter {
       survivalObj.progress = survivalObj.completed ? 100 : Math.max(0, ((survivalObj.targetValue - this.storyResources.risk) / survivalObj.targetValue) * 100);
     }
 
-    const npcArray = Array.from(this.npcStates.values());
-    const npcsInCrisis = npcArray.filter(npc => npc.inCrisis).length;
-    const allNpcsLost = npcsInCrisis >= npcArray.length - 1; // Almost all NPCs in crisis
-
     // Etappe 1 (Auftrag = Sieg): Die Ausgangs-ENTSCHEIDUNG liegt jetzt im reinen, isoliert
     // testbaren VictorySystem — die Texte/Endings bleiben unten im Adapter. Sieg = Auftrags-
     // Signatur erfüllt (Min-Regel über die schwächste Achse), nicht mehr gehaltenes Vertrauen.
@@ -6559,10 +6577,6 @@ export class StoryEngineAdapter {
       winThreshold: this.WIN_THRESHOLD,
       abwehr: this.storyResources.wehrhaftigkeit,
       risk: this.storyResources.risk,
-      budget: this.storyResources.budget,
-      moralWeight: this.storyResources.moralWeight,
-      allNpcsLost,
-      exposureCountdown: this.exposureCountdown,
       phaseNumber: this.storyPhase.number,
       maxPhases: this.electionDay,
     });
@@ -6573,6 +6587,7 @@ export class StoryEngineAdapter {
       storyLogger.log(`💀 Defeat: Risk ${this.storyResources.risk}% exceeded threshold before mission complete.`);
       return {
         type: 'defeat',
+        branch: 'exposed',
         title_de: 'Enttarnt',
         title_en: 'Exposed',
         description_de: this.exposureCountdown === 0
@@ -6595,6 +6610,7 @@ export class StoryEngineAdapter {
       storyLogger.log(`💀 Defeat: ABWEHR ${this.storyResources.wehrhaftigkeit.toFixed(0)} — das Land ist immun.`);
       return {
         type: 'defeat',
+        branch: 'immune',
         title_de: 'Das Land hält stand',
         title_en: 'The Country Holds',
         description_de: 'Das Immunsystem der Gesellschaft hat Sie eingeholt: Faktenchecker, Behörden, abgestumpfte Milieus — Ihre Maschen verfangen nicht mehr. Die Operation ist wirkungslos geworden.',
@@ -6634,6 +6650,7 @@ export class StoryEngineAdapter {
       const missionEn = mission.en;
       return {
         type: 'victory',
+        branch: 'victory',
         title_de: ending.title_de,
         title_en: ending.title_en,
         description_de: isDarkVictory
@@ -6655,63 +6672,15 @@ export class StoryEngineAdapter {
       };
     }
 
-    // (Ehemals PRIORITY 1b 'apparatus': Verrat ist seit Etappe 3 ein +15-Abwehr-Ereignis
-    // mit Leak-Story — applyBetrayalEvent — statt eines eigenen Game-Over. Zielbild §4/D4.)
+    // Etappe 5 (Enden-Beschnitt): 'broke'/'moral_redemption'/'escape' sind keine eigenen
+    // Game-Over mehr (Zielbild §4/§12.5) — die Pleite ist die Vorstufe des Timeout, Gewissen
+    // und Flucht leben als Epilog-Färbungen im EndingSystem weiter.
 
-    // PRIORITY 1c (P1-2): Handlungsunfähig — die Kasse ist leer, während die Aufmerksamkeit hoch ist.
-    // Kein Geld, um Spuren zu decken oder weiterzumachen (zweiter unabhängiger Verlustpfad).
-    if (decision.branch === 'broke') {
-      return {
-        type: 'defeat',
-        title_de: 'Mittellos',
-        title_en: 'Out of Funds',
-        description_de: 'Die Kasse ist leer, und das Entdeckungsrisiko steht hoch. Ohne Mittel können Sie weder weiterarbeiten noch Ihre Spuren decken.',
-        description_en: 'The coffers are empty and detection risk is high. Without funds you can neither continue nor cover your tracks.',
-        stats,
-        epilogue_de: 'Eine Operation ohne Budget ist keine Operation. Die Zentrale stellt die Finanzierung ein — Sie sitzen auf dem Trockenen, während die Ermittler näher kommen.',
-        epilogue_en: 'An operation without a budget is no operation. The Central cuts funding — you are left high and dry as the investigators close in.',
-        assembledEnding: this.assembledEndingForBranch('defeat'),
-      };
-    }
-
-    // PRIORITY 2: Enttarnung (risk ≥ 85) wird bereits oben in PRIORITY 0 behandelt
-    // (Balancing K14 2026-06-12 — Enttarnung schlägt einen noch nicht gesicherten Sieg).
-
-    // PRIORITY 3: Moral Redemption - High moral weight and player turned
-    if (decision.branch === 'moral_redemption') {
-      return {
-        type: 'moral_redemption',
-        title_de: 'Gewissensentscheidung',
-        title_en: 'Crisis of Conscience',
-        description_de: 'Die Last Ihrer Taten ist unerträglich geworden. Sie haben beschlossen, auszusteigen.',
-        description_en: 'The weight of your actions has become unbearable. You have decided to defect.',
-        stats,
-        epilogue_de: 'Sie kontaktieren westliche Geheimdienste und bieten Ihre Kooperation an. Ein neues Leben unter neuem Namen beginnt.',
-        epilogue_en: 'You contact Western intelligence and offer your cooperation. A new life under a new name begins.',
-        assembledEnding: this.assembledEndingForBranch('moral_redemption'),
-      };
-    }
-
-    // PRIORITY 4: Escape - Risk is critical but player chose to flee
-    // (Bedingung — Risiko 75–84, Moral < 50, Fluchtgelegenheit — steckt im VictorySystem.)
-    if (decision.branch === 'escape') {
-      return {
-        type: 'escape',
-        title_de: 'Flucht nach Osten',
-        title_en: 'Flight to the East',
-        description_de: 'Sie haben die Zeichen erkannt. Bevor die Schlinge sich zuzieht, setzen Sie sich nach Ostland ab.',
-        description_en: 'You recognized the signs. Before the noose tightens, you escape to Ostland.',
-        stats,
-        epilogue_de: 'In Ostland nimmt man Sie nüchtern wieder auf. Doch die Schatten Ihrer Taten folgen Ihnen.',
-        epilogue_en: 'In Ostland you are taken back in soberly. But the shadows of your deeds follow you.',
-        assembledEnding: this.assembledEndingForBranch('escape'),
-      };
-    }
-
-    // PRIORITY 5: Der Wahltag ist da, die Schwelle verfehlt → am Auftrag gescheitert (Etappe 2).
+    // PRIORITY 2: Der Wahltag ist da, die Schwelle verfehlt → am Auftrag gescheitert (Etappe 2).
     if (decision.branch === 'timeout') {
       return {
         type: 'defeat',
+        branch: 'timeout',
         title_de: 'Wahlabend verloren',
         title_en: 'Election Night Lost',
         description_de: 'Der Wahltag ist gekommen — und die Hochrechnung bleibt ereignislos. Die Regierung wird bestätigt; Ihr Auftrag ist gescheitert.',

@@ -16,6 +16,7 @@ import { getDecisionBeat, recommendForState } from './engine/DecisionBeats';
 import { EventsPanel } from './components/EventsPanel';
 import { TutorialOverlay, useTutorial } from './components/TutorialOverlay';
 import { GameEndScreen } from './components/GameEndScreen';
+import { WahlabendScene } from './components/WahlabendScene';
 import { MethodenDossier } from './components/MethodenDossier';
 import { AdvisorPanel } from './components/AdvisorPanel';
 import { AdvisorDetailModal } from './components/AdvisorDetailModal';
@@ -329,20 +330,24 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showDayReport, setShowDayReport] = useState(false);
   const [briefedPhase, setBriefedPhase] = useState<number | null>(null);
   const [showEndReport, setShowEndReport] = useState(false);
+  // Etappe 5 (Paket C): der Wahlabend (§9, ein TV-Set, drei Enden) läuft VOR dem
+  // GameEndScreen. Erst wenn die Szene durch ist, erscheinen Endscreen + Auto-Report.
+  const [electionNightDone, setElectionNightDone] = useState(false);
   // P7/B4 (SOUL §5): „End-Report IST der Lernmoment" → bei Spielende automatisch öffnen,
   // statt ihn hinter einem optionalen Knopf zu verstecken. Schließbar (kein Hard-Trap),
-  // re-armt sich für die nächste Partie.
+  // re-armt sich für die nächste Partie. Etappe 5: erst NACH dem Wahlabend öffnen.
   const endReportAutoOpened = useRef(false);
   useEffect(() => {
     if (state.gamePhase === 'ended' && state.gameEnd) {
-      if (!endReportAutoOpened.current) {
+      if (electionNightDone && !endReportAutoOpened.current) {
         endReportAutoOpened.current = true;
         setShowEndReport(true);
       }
     } else {
       endReportAutoOpened.current = false;
+      if (electionNightDone) setElectionNightDone(false);
     }
-  }, [state.gamePhase, state.gameEnd]);
+  }, [state.gamePhase, state.gameEnd, electionNightDone]);
   const [showNewsroom, setShowNewsroom] = useState(false);
   const [showFokusgruppe, setShowFokusgruppe] = useState(false);
   // Fokusgruppe Pre-Test (beauftragbare Befragung + Sample-Bias) — analyse-Raum.
@@ -453,7 +458,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       playMusicPool(pool);
     } else if (state.gamePhase === 'ended') {
       // Ende: hoffnungsvolle Enden hell, sonst düster.
-      const won = state.gameEnd?.type === 'victory' || state.gameEnd?.type === 'moral_redemption';
+      const won = state.gameEnd?.type === 'victory';
       playMusicPool(musicPoolForState({ risk: state.resources.risk, gameEnded: true, won }));
     }
   }, [state.gamePhase, state.activeCrisis, state.resources.risk, state.gameEnd, assets]);
@@ -632,6 +637,35 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         onNewGame={() => setShowAvatarChoice(true)}
         onContinue={handleLoad}
         hasSave={hasSaveGame()}
+      />
+    );
+  }
+
+  // Etappe 5 (Paket C): Wahlabend zuerst — „Ein TV-Set, drei Enden" (Zielbild §9).
+  // Der Balken kippt (Sieg), bleibt stehen (Wahlabend verloren) oder die Sondersendung
+  // zeigt die eigenen Maschen als Beweismittel (Land hält stand / Enttarnt).
+  if (state.gamePhase === 'ended' && state.gameEnd && !electionNightDone) {
+    const wa = state.engine.getWahlabendData();
+    const branch = state.gameEnd.branch
+      ?? (state.gameEnd.type === 'victory' ? 'victory' : 'timeout');
+    const playerHeadlines = state.newsEvents
+      .filter((e) => e.type === 'action_result')
+      .slice(0, 4)
+      .map((e) => e.headline_de);
+    return (
+      <WahlabendScene
+        branch={branch}
+        partyName={wa.partyName}
+        startPollPct={wa.startPollPct}
+        finalPollPct={wa.finalPollPct}
+        thresholdPct={wa.thresholdPct}
+        audience={audience.country.segments.map((seg) => ({
+          label: seg.label_de,
+          belief: seg.belief,
+          mood: seg.mood,
+        }))}
+        playerHeadlines={playerHeadlines}
+        onComplete={() => setElectionNightDone(true)}
       />
     );
   }
