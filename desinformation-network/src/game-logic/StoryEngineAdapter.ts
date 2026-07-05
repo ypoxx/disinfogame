@@ -121,6 +121,29 @@ import {
   type AbwehrStage,
   type NightReport,
 } from '../story-mode/engine/ImmuneSystem';
+
+// Etappe 4 — Impfung & Abstumpfung: das Maschen-Gedächtnis (8 Milieus × 18 Familien).
+import {
+  leeresMaschenGedaechtnis,
+  registriereEinsatz,
+  brennendeMilieus,
+  markiereFamilieBekannt,
+  impfePrebunking,
+  impfeFaktencheck,
+  zielMilieusFuerTags,
+  gewichteterMultiplikator,
+  erklaereDaempfung,
+  stempelFuer,
+  effektiveAbstumpfung,
+  effektiveImpfung,
+  zellKey,
+  PREBUNK_STRENGTH,
+  type MaschenGedaechtnisState,
+  type MaschenStempel,
+  type ZielMilieu,
+  type DaempfungsErklaerung,
+} from '../story-mode/engine/MaschenGedaechtnis';
+import { loadAudience, type AudienceSegment } from '../story-mode/audience/audienceModel';
 import { loadDisinfoMethods } from '../story-mode/engine/DisinfoMethodAtlas';
 
 import {
@@ -400,6 +423,14 @@ export interface ActionResult {
 
   // Betrayal warnings triggered
   betrayalWarnings?: BetrayalWarning[];
+
+  /** Etappe 4 (E5): Verpuffungs-Quittung — Ursache, Tag, Gegenmaßnahme (kühl, E8).
+   *  Nur gesetzt, wenn das Maschen-Gedächtnis die Wirkung spürbar gedämpft hat. */
+  maschenQuittung?: {
+    text_de: string;
+    multiplikator: number;
+    familieLabel: string;
+  };
 }
 
 /**
@@ -647,8 +678,11 @@ export interface GameEndState {
  * 2.0.0: Kampagnen-Uhr (Semantik-Bruch zum 120-Phasen-Modell, Etappe 2).
  * 2.1.0: `wehrhaftigkeit` zur ABWEHR befördert (Etappe 3) — Altstände erben den
  *        neuen Startwert, ihr alter Gesellschafts-Wert (60) wäre eine falsche Abwehr.
+ * 2.2.0: Maschen-Gedächtnis (Etappe 4, additiv) — ersetzt die globale Familien-
+ *        Zählung `methodFamilyUseCounts`; Altstände migrieren ihre Zählung als
+ *        Einsatz-Historie, gepatchte Familien gelten überall als bekannt.
  */
-export const SAVE_FORMAT_VERSION = '2.1.0';
+export const SAVE_FORMAT_VERSION = '2.2.0';
 
 // Datenintegritäts-Check (P0/R3): nur EINMAL über die Lebenszeit des Moduls laufen
 // lassen — die Daten sind statisch importiert, und die Balance-Sim erzeugt Dutzende
@@ -739,10 +773,25 @@ export class StoryEngineAdapter {
   /** Lärm des laufenden Tages: Risiko-/Aufmerksamkeits-Kosten der eigenen Aktionen. */
   private noiseRiskToday = 0;
   private noiseAttentionToday = 0;
-  /** Einsätze je Maschen-Familie (18er-Atlas-Vokabular) — Basis der „Gepatcht"-Events. */
-  private methodFamilyUseCounts: Map<string, number> = new Map();
   /** Bereits durchschaute („gepatchte") Familien — für UI-Stempel und End-Report. */
   private patchedFamilies: Set<string> = new Set();
+  // Etappe 4 — das Maschen-Gedächtnis (8 Milieus × 18 Familien): Abstumpfung je Zelle,
+  // Impfung (Prebunking/Faktencheck) als eigene Kanäle. Ersetzt die alte GLOBALE
+  // Einsatz-Zählung (methodFamilyUseCounts) — EIN System, nicht zwei (HANDOFF Falle 6).
+  private maschenGedaechtnis: MaschenGedaechtnisState = leeresMaschenGedaechtnis();
+  /** Publikums-Segmente (8 Milieus) — einmal geladen, für Ziel-Ableitung + Alphabet. */
+  private readonly audienceSegments: AudienceSegment[] = loadAudience()[0]?.segments ?? [];
+  /** Dämpfung der ZULETZT ausgeführten Aktion (für die E5-Quittung im Ergebnis). */
+  private lastMaschenDaempfung: {
+    familieId: string;
+    familieLabel: string;
+    ziele: ZielMilieu[];
+    multiplikator: number;
+    erklaerung: DaempfungsErklaerung | null;
+  } | null = null;
+  /** Letzter Familien-Einsatz (Familie + Ziel-Milieus) — Ziel des reaktiven Faktenchecks
+   *  (Paket C): der Check widerlegt, was zuletzt lief. Transient, nicht persistiert. */
+  private letzterFamilienEinsatz: { familieId: string; milieuIds: string[] } | null = null;
   /** Bereits gefeuerte Abwehr-Stufen (25/50/75) — jede Stufe zündet genau einmal. */
   private firedAbwehrStages: Set<number> = new Set();
   /** Stufen, deren Gegenmaßnahme noch aussteht (Paket B konsumiert diese Queue). */
@@ -1186,11 +1235,23 @@ export class StoryEngineAdapter {
             this.storyResources.attention = Math.min(100, this.storyResources.attention + effect.value);
             break;
           case 'reach_reduction':
-            // Paket C (Etappe 3): Faktenchecks/Gegen-Narrative dämpfen die Wirkung
-            // ALLER folgenden Aktionen (Multiplikator in applyActionEffects). Werte
-            // kommen als strength×10..15 → +0.04..0.15 Dämpfung, Deckel 0.5.
-            this.reachDampening = Math.min(0.5, this.reachDampening + effect.value / 100);
-            storyLogger.log(`[ActorAI] Reichweiten-Dämpfung +${(effect.value / 100).toFixed(2)} → ${this.reachDampening.toFixed(2)}`);
+            // Etappe 4 (Prebunking > Debunking): REAKTIVE Gegen-Narrative (Faktencheck,
+            // prominente Widerrede) impfen klein und schnell zerfallend NUR das zuletzt
+            // bespielte Milieu/die Familie — statt globaler Dauer-Dämpfung (Falle 10:
+            // dieselbe Gegenwehr darf nicht doppelt zählen). Plattform-/Netzwerk-Seite
+            // (platform_action, citizen_network) dämpft weiter global wie in Etappe 3.
+            if (aiAction.type === 'counter_narrative' && this.letzterFamilienEinsatz) {
+              this.maschenGedaechtnis = impfeFaktencheck(
+                this.maschenGedaechtnis,
+                this.letzterFamilienEinsatz.familieId,
+                this.letzterFamilienEinsatz.milieuIds,
+                this.storyPhase.number,
+              );
+              storyLogger.log(`[MaschenGedaechtnis] Reaktiver Faktencheck: ${this.letzterFamilienEinsatz.familieId} in ${this.letzterFamilienEinsatz.milieuIds.length} Milieus (klein/schnell zerfallend)`);
+            } else {
+              this.reachDampening = Math.min(0.5, this.reachDampening + effect.value / 100);
+              storyLogger.log(`[ActorAI] Reichweiten-Dämpfung +${(effect.value / 100).toFixed(2)} → ${this.reachDampening.toFixed(2)}`);
+            }
             break;
           case 'countdown_start':
             if (this.exposureCountdown === null) {
@@ -3761,6 +3822,24 @@ export class StoryEngineAdapter {
       betrayalWarnings: betrayalWarnings.length > 0 ? betrayalWarnings : undefined,
     };
 
+    // Etappe 4 (E5): Hat das Maschen-Gedächtnis spürbar gedämpft, quittiert das
+    // Ergebnis Ursache + Tag + Gegenmaßnahme — die Abstumpfung warnt zwar schon auf
+    // der Karte (Stempel), aber die Quittung erklärt das WARUM (nie eine Matrix-Zahl).
+    if (this.lastMaschenDaempfung && this.lastMaschenDaempfung.multiplikator <= 0.7) {
+      const text = this.maschenQuittungText(this.lastMaschenDaempfung);
+      result.maschenQuittung = {
+        text_de: text,
+        multiplikator: this.lastMaschenDaempfung.multiplikator,
+        familieLabel: this.lastMaschenDaempfung.familieLabel,
+      };
+      result.effects.unshift({
+        type: 'verpuffung',
+        value: -Math.round((1 - this.lastMaschenDaempfung.multiplikator) * 100),
+        description_de: text,
+        description_en: 'Effect fizzled: this pattern is already known here.',
+      });
+    }
+
     // Play appropriate sound based on action type
     if (action.legality === 'illegal' || (action.costs.moralWeight && action.costs.moralWeight > 5)) {
       playSound('moralShift'); // Dark action
@@ -4367,34 +4446,157 @@ export class StoryEngineAdapter {
   }
 
   /**
-   * Zufluss c — Maschen-Wiederholung: Aktionen werden über das 18er-Atlas-Vokabular
-   * einer Maschen-Familie zugeordnet; die n-te Wiederholung derselben Familie wird
-   * durchschaut („Gepatcht"): sofortiger Abwehr-Sprung + TV-Nachricht, die nebenbei
-   * die reale Erkennungs-Regel erklärt (E5/E10 — Transparenz statt Belehrung).
+   * Zufluss c — Maschen-Wiederholung, seit Etappe 4 übers Maschen-Gedächtnis:
+   * Der Einsatz wird je Ziel-Milieu fortgeschrieben (Abstumpfung 1,0→0,6→0,3),
+   * und die n-te Wiederholung derselben Familie wird durchschaut („Gepatcht"):
+   * Abwehr-Sprung + TV-Nachricht + die Familie gilt ÜBERALL als bekannt —
+   * EIN System statt der alten globalen Zählung (HANDOFF Falle 6).
    */
   private registerMethodFamilyUse(tags: string[]): void {
     const family = methodFamilyForTags(tags, this.methodFamilies);
     if (!family) return;
-    const count = (this.methodFamilyUseCounts.get(family.id) ?? 0) + 1;
-    this.methodFamilyUseCounts.set(family.id, count);
-    if (!isPatchTriggered(count)) return;
+    const ziele = zielMilieusFuerTags(tags, this.audienceSegments);
+    // Abnutzung NUR in den resonanten Milieus (Zielbild §7: „Milieu wechseln" bleibt
+    // ein echter Ausweg) — die Vorschau/Dämpfung mittelt trotzdem über alle Ziele.
+    const brennende = brennendeMilieus(ziele).map((z) => z.id);
+    const { state, einsatzNr } = registriereEinsatz(
+      this.maschenGedaechtnis,
+      family.id,
+      brennende,
+      this.storyPhase.number,
+    );
+    this.maschenGedaechtnis = state;
+    this.letzterFamilienEinsatz = { familieId: family.id, milieuIds: brennende };
+    if (!isPatchTriggered(einsatzNr)) return;
 
     this.patchedFamilies.add(family.id);
+    // Patch-Folge: die Gesellschaft kennt das Muster jetzt flächendeckend — die
+    // Familie stempelt fortan in ALLEN Milieus mindestens BEKANNT.
+    this.maschenGedaechtnis = markiereFamilieBekannt(
+      this.maschenGedaechtnis,
+      family.id,
+      this.audienceSegments.map((s) => s.id),
+      this.storyPhase.number,
+    );
     const counterHint = this.methodFamilies.find((m) => m.id === family.id)?.counter_de;
     this.newsEvents.unshift({
-      id: `abwehr_patch_${family.id}_${count}`,
+      id: `abwehr_patch_${family.id}_${einsatzNr}`,
       phase: this.storyPhase.number,
       headline_de: `Masche durchschaut: ${family.label_de}`,
       headline_en: `Pattern patched: ${family.label_de}`,
-      description_de: `Die ${count}. Wiederholung blieb nicht unbemerkt — Redaktionen kennen das Muster jetzt.${counterHint ? ` ${counterHint}` : ''}`,
-      description_en: `Repetition number ${count} did not go unnoticed — newsrooms now know the pattern.`,
+      description_de: `Die ${einsatzNr}. Wiederholung blieb nicht unbemerkt — Redaktionen kennen das Muster jetzt.${counterHint ? ` ${counterHint}` : ''}`,
+      description_en: `Repetition number ${einsatzNr} did not go unnoticed — newsrooms now know the pattern.`,
       type: 'world_event',
       severity: 'warning',
       read: false,
       pinned: false,
     });
     this.raiseAbwehr(PATCH_ABWEHR_JUMP);
-    storyLogger.log(`[ImmuneSystem] Gepatcht: ${family.id} (Einsatz ${count}) → Abwehr +${PATCH_ABWEHR_JUMP}`);
+    storyLogger.log(`[ImmuneSystem] Gepatcht: ${family.id} (Einsatz ${einsatzNr}) → Abwehr +${PATCH_ABWEHR_JUMP}`);
+  }
+
+  // ── Etappe 4: Maschen-Gedächtnis — Dämpfung, Quittung, UI-Verträge ────────────────
+
+  /**
+   * Dämpfung einer Aktion aus dem Maschen-Gedächtnis: Familie aus den Tags,
+   * Ziel-Milieus aus Kanal/Themen, Multiplikator reichweiten-gewichtet über die
+   * Ziele. Null, wenn die Aktion keiner Maschen-Familie zuzuordnen ist.
+   */
+  private berechneMaschenDaempfung(tags: string[]): {
+    familieId: string;
+    familieLabel: string;
+    ziele: ZielMilieu[];
+    multiplikator: number;
+    erklaerung: DaempfungsErklaerung | null;
+  } | null {
+    const family = methodFamilyForTags(tags, this.methodFamilies);
+    if (!family) return null;
+    const ziele = zielMilieusFuerTags(tags, this.audienceSegments);
+    if (ziele.length === 0) return null;
+    const phase = this.storyPhase.number;
+    const multiplikator = gewichteterMultiplikator(this.maschenGedaechtnis, family.id, ziele, phase);
+    return {
+      familieId: family.id,
+      familieLabel: family.label_de,
+      ziele,
+      multiplikator,
+      erklaerung: multiplikator < 1
+        ? erklaereDaempfung(this.maschenGedaechtnis, family.id, ziele, phase)
+        : null,
+    };
+  }
+
+  /** Quittungs-Text (E5, kühl): Ursache + Tag + Gegenmaßnahme — nie eine Zahl der Matrix. */
+  private maschenQuittungText(d: NonNullable<typeof this.lastMaschenDaempfung>): string {
+    const stufe = d.multiplikator <= 0.4 ? 'Wirkung: verpufft.' : 'Wirkung: gering.';
+    const grund = d.erklaerung;
+    if (!grund) return stufe;
+    const quelle =
+      grund.grund === 'prebunking'
+        ? `Prebunking-Kampagne der Landeszentrale, Tag ${grund.tag}`
+        : grund.grund === 'faktencheck'
+          ? `Faktencheck (${grund.milieuLabel}), Tag ${grund.tag}`
+          : `„${d.familieLabel}" zum wiederholten Mal (${grund.milieuLabel}), zuletzt Tag ${grund.tag}`;
+    return `${stufe} Grund: Masche bekannt — ${quelle}.`;
+  }
+
+  /**
+   * Karten-Vorschau (E7): FRISCH/BEKANNT/VERBRANNT je Ziel-Milieu VOR dem Ausgeben —
+   * man versenkt nie Ressourcen in Verpufftes. Null, wenn die Aktion keine Masche ist.
+   */
+  getMaschenVorschau(actionId: string): {
+    familieId: string;
+    familieLabel: string;
+    stempel: Array<{ milieuId: string; milieuLabel: string; stempel: MaschenStempel }>;
+    multiplikator: number;
+  } | null {
+    const loaded = this.actionLoader.getAction(actionId);
+    if (!loaded) return null;
+    const d = this.berechneMaschenDaempfung(loaded.tags ?? []);
+    if (!d) return null;
+    const phase = this.storyPhase.number;
+    return {
+      familieId: d.familieId,
+      familieLabel: d.familieLabel,
+      // Die 3 gewichtigsten Ziel-Milieus (Chips auf der Karte, Zielbild §6).
+      stempel: d.ziele.slice(0, 3).map((z) => ({
+        milieuId: z.id,
+        milieuLabel: z.label_de,
+        stempel: stempelFuer(this.maschenGedaechtnis, z.id, d.familieId, phase),
+      })),
+      multiplikator: d.multiplikator,
+    };
+  }
+
+  /**
+   * Wohnzimmer-Alphabet (Zielbild §6), Gedächtnis-Anteil: je Milieu das Bild aus dem
+   * Maschen-Zustand — „Faktencheck-Zeitung auf dem Tisch" (geimpft) schlägt „Abwinken
+   * vor dem TV" (Masche bekannt/abgestumpft). Stimmungs-Bilder (Küchen-Streit,
+   * einsam am Videospiel) speist die Broadcast-Schicht aus Publikums-Stimmung/Werten.
+   */
+  getWohnzimmerAlphabet(): Array<{ milieuId: string; bild: 'zeitung' | 'abwinken' | null; grund_de: string }> {
+    const phase = this.storyPhase.number;
+    return this.audienceSegments.map((seg) => {
+      let geimpft = false;
+      let abgestumpft = false;
+      for (const fam of this.methodFamilies) {
+        const key = zellKey(seg.id, fam.id);
+        if (this.maschenGedaechtnis.prebunk[key] || this.maschenGedaechtnis.factcheck[key]) {
+          if (effektiveImpfung(this.maschenGedaechtnis, seg.id, fam.id, phase) >= 0.15) geimpft = true;
+        }
+        if (this.maschenGedaechtnis.abstumpfung[key]) {
+          if (effektiveAbstumpfung(this.maschenGedaechtnis, seg.id, fam.id, phase) >= 1.5) abgestumpft = true;
+        }
+        if (geimpft) break;
+      }
+      if (geimpft) {
+        return { milieuId: seg.id, bild: 'zeitung' as const, grund_de: 'Prebunking hat gewirkt — hier liest man Faktenchecks.' };
+      }
+      if (abgestumpft) {
+        return { milieuId: seg.id, bild: 'abwinken' as const, grund_de: 'Masche bekannt — hier winkt man ab.' };
+      }
+      return { milieuId: seg.id, bild: null, grund_de: '' };
+    });
   }
 
   /** Aktueller ABWEHR-Stand 0–100 (= befördertes `wehrhaftigkeit`). */
@@ -4543,10 +4745,38 @@ export class StoryEngineAdapter {
 
     // Basis-Zähne je Stufe (kontern halbiert).
     if (stage === 25) {
-      // Prebunking: das Publikum wird geimpft — die Institutionen gewinnen Vertrauen.
-      const regain = countered ? 2 : 4;
-      this.applyInstitutionalTrustDelta(regain);
-      lines.push(`Prebunking wirkt: Institutionen-Vertrauen +${regain}.`);
+      // Etappe 4 (Paket C): Prebunking IMPFT statt Vertrauens-Regen — große, langsam
+      // zerfallende Familien-Immunität auf die meistgenutzten Maschen, aber NUR über
+      // die klassischen Kanäle (tv/print): medienferne Milieus bleiben die Lücke —
+      // der Spieler entdeckt selbst, wohin Aufklärung nicht durchdringt (Zielbild §7).
+      const staerke = countered ? PREBUNK_STRENGTH * 0.5 : PREBUNK_STRENGTH;
+      const familien = Object.entries(this.maschenGedaechtnis.familienEinsaetze)
+        .filter(([, n]) => n > 0)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([famId]) => famId);
+      const erreichte = this.audienceSegments
+        .filter((s) => s.reachedBy.includes('tv') || s.reachedBy.includes('print'))
+        .map((s) => s.id);
+      if (familien.length > 0) {
+        for (const famId of familien) {
+          this.maschenGedaechtnis = impfePrebunking(
+            this.maschenGedaechtnis, famId, erreichte, this.storyPhase.number, staerke,
+          );
+        }
+        const labels = familien
+          .map((f) => this.methodFamilies.find((m) => m.id === f)?.label_de ?? f)
+          .map((l) => `„${l}"`)
+          .join(', ');
+        lines.push(`Prebunking wirkt: ${labels} ${familien.length > 1 ? 'gelten' : 'gilt'} in den erreichten Milieus als durchschaut${countered ? ' (abgeschwächt)' : ''}.`);
+        lines.push('Nur wer klassische Medien meidet, bleibt unerreicht.');
+        storyLogger.log(`[MaschenGedaechtnis] Prebunking (cm24): ${familien.join(', ')} → ${erreichte.length} Milieus geimpft (Stärke ${staerke})`);
+      } else {
+        // Noch kein Muster im Umlauf — die Kampagne läuft ins Leere (kleiner Vertrauens-Rest).
+        const regain = countered ? 1 : 2;
+        this.applyInstitutionalTrustDelta(regain);
+        lines.push(`Prebunking läuft ins Leere — noch kein Muster im Umlauf. Institutionen-Vertrauen +${regain}.`);
+      }
     } else if (stage === 50) {
       // Plattform-Sperre: der meistgenutzte jüngste Kanal wird still gelegt.
       const banDays = countered ? Math.ceil(this.BAN_DAYS / 2) : this.BAN_DAYS;
@@ -4934,6 +5164,10 @@ export class StoryEngineAdapter {
   }): ActionResult['effects'] {
     const effects: ActionResult['effects'] = [];
 
+    // Etappe 4: Quittungs-Zustand IMMER nullen, bevor früh returned werden kann —
+    // sonst erbt eine effekt-lose Aktion die Verpuffungs-Quittung ihrer Vorgängerin.
+    this.lastMaschenDaempfung = null;
+
     // Get loaded action for raw effects data
     const loadedAction = this.actionLoader.getAction(action.id);
     if (!loadedAction || !loadedAction.effects) {
@@ -4953,6 +5187,16 @@ export class StoryEngineAdapter {
     // senkt die Wirkung — Faktenchecks/Gegen-Narrative haben jetzt mechanische Zähne.
     if (this.reachDampening > 0) {
       effectivenessMultiplier *= 1 - this.reachDampening;
+    }
+
+    // Etappe 4: Maschen-Gedächtnis — Wiederholung derselben Familie in denselben
+    // Milieus verpufft (1,0→0,6→0,3), Impfung dämpft zusätzlich. Wirkt auf die WIRKUNG
+    // (Sieg-Mathematik + Gesellschafts-Deltas über den Multiplikator), NICHT nochmal
+    // als Abwehr-/Risiko-Strafe (Falle 4/10: keine doppelte Buchhaltung).
+    const daempfung = this.berechneMaschenDaempfung(action.tags);
+    this.lastMaschenDaempfung = daempfung;
+    if (daempfung && daempfung.multiplikator < 1) {
+      effectivenessMultiplier *= daempfung.multiplikator;
     }
 
     // Process effects from loaded action
@@ -6393,7 +6637,8 @@ export class StoryEngineAdapter {
       // Etappe 3 — ImmuneSystem-Zustand
       noiseRiskToday: this.noiseRiskToday,
       noiseAttentionToday: this.noiseAttentionToday,
-      methodFamilyUseCounts: Array.from(this.methodFamilyUseCounts.entries()),
+      // Etappe 4: das Maschen-Gedächtnis ersetzt die alte globale Familien-Zählung.
+      maschenGedaechtnis: this.maschenGedaechtnis,
       patchedFamilies: Array.from(this.patchedFamilies),
       firedAbwehrStages: Array.from(this.firedAbwehrStages),
       pendingAbwehrStages: this.pendingAbwehrStages,
@@ -6460,8 +6705,25 @@ export class StoryEngineAdapter {
     // Etappe 3 — ImmuneSystem-Zustand (Defaults für alte Saves).
     this.noiseRiskToday = state.noiseRiskToday ?? 0;
     this.noiseAttentionToday = state.noiseAttentionToday ?? 0;
-    this.methodFamilyUseCounts = new Map(state.methodFamilyUseCounts ?? []);
     this.patchedFamilies = new Set(state.patchedFamilies ?? []);
+    // Etappe 4 — Maschen-Gedächtnis (Default leer, additiv). Migration < 2.2.0: die alte
+    // GLOBALE Familien-Zählung wird als Einsatz-Historie übernommen; bereits gepatchte
+    // Familien gelten überall als bekannt (Patch-Folge nachgezogen, kein Wissensverlust).
+    this.maschenGedaechtnis = state.maschenGedaechtnis ?? leeresMaschenGedaechtnis();
+    this.lastMaschenDaempfung = null;
+    if (!state.maschenGedaechtnis && Array.isArray(state.methodFamilyUseCounts)) {
+      const einsaetze: Record<string, number> = {};
+      for (const [famId, count] of state.methodFamilyUseCounts as Array<[string, number]>) {
+        if (typeof count === 'number' && count > 0) einsaetze[famId] = count;
+      }
+      this.maschenGedaechtnis = { ...this.maschenGedaechtnis, familienEinsaetze: einsaetze };
+      const alleMilieus = this.audienceSegments.map((s) => s.id);
+      for (const famId of this.patchedFamilies) {
+        this.maschenGedaechtnis = markiereFamilieBekannt(
+          this.maschenGedaechtnis, famId, alleMilieus, this.storyPhase.number,
+        );
+      }
+    }
     this.firedAbwehrStages = new Set(state.firedAbwehrStages ?? []);
     this.pendingAbwehrStages = state.pendingAbwehrStages ?? [];
     this.lastNightReport = state.lastNightReport ?? null;
@@ -6764,8 +7026,11 @@ export class StoryEngineAdapter {
     // Etappe 3 — ImmuneSystem-Zustand zurücksetzen.
     this.noiseRiskToday = 0;
     this.noiseAttentionToday = 0;
-    this.methodFamilyUseCounts.clear();
     this.patchedFamilies.clear();
+    // Etappe 4 — Maschen-Gedächtnis leeren.
+    this.maschenGedaechtnis = leeresMaschenGedaechtnis();
+    this.lastMaschenDaempfung = null;
+    this.letzterFamilienEinsatz = null;
     this.firedAbwehrStages.clear();
     this.pendingAbwehrStages = [];
     this.lastNightReport = null;

@@ -364,8 +364,26 @@ Verstärker, Kompromat). Pleite ist kein eigener Game-Over, sondern die Würgesc
     Weg dominiert (~94 %), Enttarnung feuert nur dünn, weil der Sim-Rambo vorher an der Abwehr scheitert.
     Die Aktions-Kuratierung (Etappe 5) formt den Aktions-Draw um und holt die Enttarnung zurück in den
     Vordergrund. HUD-Konsolidierung (Risiko raus) ebenfalls Etappe 5.
-- **Etappe 4 — „Impfung & Abstumpfung":** Maschen-Gedächtnis (8×18), FRISCH/BEKANNT/VERBRANNT-Stempel,
-  Wohnzimmer-Alphabet (E16-Situationsbilder), Prebunking>Debunking-Parametrisierung.
+- **Etappe 4 — „Impfung & Abstumpfung": ✅ ERLEDIGT (2026-07-05).** Das Immunsystem hat sein
+  Gedächtnis: `engine/MaschenGedaechtnis.ts` (pur, Verfall beim Lesen) — Abstumpfung je
+  (Milieu × Familie) mit der Treppe **1,0 → 0,6 → 0,3**, Abnutzung nur in RESONANTEN Milieus
+  („Milieu wechseln" bleibt ein Ausweg, §7), Ruhen lohnt (~4 Tage je Stufe). Impfung als eigener
+  Kanal: **Prebunking (cm24, Stufe 25) impft groß/langsam über tv/print** — das medienferne
+  Milieu bleibt die Lücke (Doppelboden) — **reaktive Faktenchecks klein/schnell** nur fürs
+  zuletzt bespielte Milieu (statt globaler Dauer-Dämpfung). FRISCH/BEKANNT/VERBRANNT-Stempel
+  auf der Karte VOR dem Ausgeben (E7), Verpuffungs-Quittung mit Ursache/Tag/Gegenmaßnahme (E5),
+  Wohnzimmer-Alphabet-Grundzustände (Zeitung/Abwinken aus dem Gedächtnis, Streit/einsam/Fahne
+  aus Stimmung/Glaube) als CSS-Fallback. Matrix NIE als Zahl sichtbar (E6), kein Backfire (E9).
+  „Gepatcht" zählt jetzt IM Gedächtnis (eine Buchhaltung; Patch stempelt die Familie überall
+  BEKANNT, Abwehr-Sprung dafür 4→3). Save 2.1.0→**2.2.0** (additiv + Migration der Alt-Zählung).
+  - **Balance:** Rennen neu kalibriert (Abwehr-Zuflüsse ~⅓ runter, das Gedächtnis bremst den
+    Spieler). Sim-Gate 8× flakefrei: Aggregat ~37–42/72 Siege, greedy 13–16/24 (obere
+    Korridor-Kante), random ~24/24 (**Rotation gewinnt — die Etappe wirkt**), low_risk 0–3/24
+    (**reine Passivität verliert jetzt mechanisch**, §3d — bewusste Verschiebung ggü. Etappe 3);
+    Enttarnung feuert wieder (3–7/72). `balance-sim-p2` grün (op-Spiel intakt).
+  - **Carry-forward Etappe 5:** greedy Richtung Korridor-Mitte + „jeder Verlustweg ≥ 15 %"
+    (Aktions-Kuratierung); Wohnzimmer-Alphabet als echtes Asset-Paket (Budget-Ansage);
+    optional Sim-Referenz „rotierend".
 - **Etappe 5 — „Fertig" (der Versionssprung):** Aktions-Kuratierung abschließen, Geld-Tranchen,
   Wahlabend-Szenen, TV-Set (E17: Baukasten — Pixel-Hintergrund + austauschbare Text-Ebene; **Priorität:
   Sprecherin, Umfrage-Ticker, Faktencheck, Wahlstudio — vier Bilder tragen 80 % der Dramaturgie**;

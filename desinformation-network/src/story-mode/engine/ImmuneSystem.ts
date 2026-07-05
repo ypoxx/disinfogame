@@ -31,22 +31,24 @@ export const ABWEHR_STAGES = [25, 50, 75] as const;
 
 /** Lärm: Risiko-Kosten der eigenen Aktionen → Abwehr-Zufluss (Paket E: der Haupt-
  *  Treiber gegen aggressives Spiel — lautes Spiel fliegt am Immunsystem auf, nicht
- *  am Sofort-Risiko). */
-export const NOISE_RISK_FACTOR = 0.46;
+ *  am Sofort-Risiko). Etappe 4 neu kalibriert: das Maschen-Gedächtnis dämpft jetzt
+ *  den Spieler-Durchsatz (~⅓ langsamer) — das Rennen wird proportional verlangsamt,
+ *  sonst gewinnt die Abwehr strukturell (Sim-Gate: greedy fiel auf 0 %). */
+export const NOISE_RISK_FACTOR = 0.41;
 /** Lärm: Aufmerksamkeits-Zuwachs der eigenen Aktionen → Abwehr-Zufluss. */
-export const NOISE_ATTENTION_FACTOR = 0.29;
+export const NOISE_ATTENTION_FACTOR = 0.26;
 /** Passiver Zuwachs je Summe Verteidiger-Stärke und Tag. Paket E: höher gewichtet als
  *  die (deterministische) Baseline — Verteidiger spawnen seed-abhängig, das gibt der
  *  Abwehr die Streuung, die dieselbe Strategie mal knapp gewinnen, mal knapp verlieren lässt. */
-export const DEFENDER_FACTOR = 0.85;
+export const DEFENDER_FACTOR = 0.7;
 /** Eskalations-Bonus je armsRaceLevel-Stufe (wie getTrustRegeneration). */
 export const ARMS_RACE_ESCALATION = 0.25;
 /** Zeitgrundrauschen je Tag — reines Abwarten verliert (Zielbild §3d). */
-export const BASELINE_PER_DAY = 0.35;
-/** „Gepatcht": Abwehr-Sprung, wenn eine Maschen-Familie durchschaut wird. Paket E:
- *  Hebel gegen REPETITIVES Spiel — wer dieselbe Masche stur wiederholt, wird
- *  durchschaut. Variiertes Spiel (viele Familien) triggert kaum Patches. */
-export const PATCH_ABWEHR_JUMP = 4;
+export const BASELINE_PER_DAY = 0.22;
+/** „Gepatcht": Abwehr-Sprung, wenn eine Maschen-Familie durchschaut wird. Etappe 4:
+ *  4 → 3, denn der Patch stempelt die Familie zusätzlich ÜBERALL als BEKANNT
+ *  (Wirkungs-Dämpfung) — derselbe Auslöser darf nicht doppelt voll strafen (Falle 10). */
+export const PATCH_ABWEHR_JUMP = 3;
 /** Jede n-te Wiederholung derselben Maschen-Familie wird durchschaut. */
 export const PATCH_EVERY_N_USES = 3;
 
