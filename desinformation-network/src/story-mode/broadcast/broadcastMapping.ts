@@ -10,7 +10,8 @@
  * KEINE Rückwirkung auf die Spielmechanik).
  */
 import type { ActionResult } from '../../game-logic/StoryEngineAdapter';
-import type { Channel } from '../audience/audienceModel';
+import type { Channel, Mood } from '../audience/audienceModel';
+import { kanalFuerTags, themenFuerTags } from '../engine/MaschenGedaechtnis';
 
 export type BroadcastTier = 'klein' | 'mittel' | 'gross';
 
@@ -28,32 +29,9 @@ export interface BroadcastItem {
   kind: 'eigen' | 'gegenreaktion';
 }
 
-/** Tag → Kanal (erste Übereinstimmung gewinnt; Default: tv). */
-const CHANNEL_BY_TAG: Array<[string[], Channel]> = [
-  [['digital', 'automation', 'personas', 'persona', 'online', 'amplification', 'organic'], 'social'],
-  [['academic', 'institutional', 'legitimacy', 'financial', 'expert', 'education'], 'print'],
-];
-
-/** Tag → Publikums-Themen (PROVISORISCH, s. Kopfkommentar). */
-const THEMES_BY_TAG: Record<string, string[]> = {
-  political: ['anti_establishment'],
-  media: ['misstrauen_medien'],
-  amplification: ['misstrauen_medien'],
-  financial: ['wirtschafts_sorge', 'abstiegs_angst'],
-  funding: ['wirtschafts_sorge', 'abstiegs_angst'],
-  security: ['sicherheits_beduerfnis'],
-  defense: ['sicherheits_beduerfnis'],
-  division: ['anti_establishment', 'soziale_gerechtigkeit'],
-  // P1-7: Operation (Kompromat gegen eine Schlüsselfigur) → Skandal/Misstrauen, nicht
-  // „Abstiegsangst". `targeting` zielt auf das Diskreditieren einer Person (nur 1 weitere
-  // Aktion trägt den Tag); `operation` war bisher GAR NICHT abgebildet → Default-Thema.
-  targeting: ['anti_establishment'],
-  operation: ['misstrauen_medien', 'anti_establishment'],
-  recruitment: ['anti_establishment'],
-  espionage: ['misstrauen_medien'],
-};
-
-const DEFAULT_THEMES = ['misstrauen_medien'];
+// Etappe 4: Die Tag→Kanal/Themen-Tabellen sind in die Engine gezogen
+// (`engine/MaschenGedaechtnis.ts`) — das Maschen-Gedächtnis bestimmt damit dieselben
+// Ziel-Milieus, die die Anzeige zeigt (E16: Publikum wirkt mechanisch zurück).
 
 export function tierForIntensity(intensity: number): BroadcastTier {
   if (intensity >= 0.66) return 'gross';
@@ -69,16 +47,8 @@ export function tierForIntensity(intensity: number): BroadcastTier {
  */
 export function mapActionToBroadcast(result: ActionResult, riskLevel: number, episodeTitle?: string | null): BroadcastItem {
   const tags = result.action.tags ?? [];
-
-  let channel: Channel = 'tv';
-  for (const [tagList, ch] of CHANNEL_BY_TAG) {
-    if (tags.some((t) => tagList.includes(t))) {
-      channel = ch;
-      break;
-    }
-  }
-
-  const themes = [...new Set(tags.flatMap((t) => THEMES_BY_TAG[t] ?? []))];
+  const channel: Channel = kanalFuerTags(tags);
+  const themes = themenFuerTags(tags);
   const attention = result.action.costs?.attention ?? 0;
   const intensity = Math.max(
     0.15,
@@ -91,7 +61,7 @@ export function mapActionToBroadcast(result: ActionResult, riskLevel: number, ep
   return {
     id: `${result.action.id}_${Date.now()}`,
     channel,
-    themes: themes.length > 0 ? themes : DEFAULT_THEMES,
+    themes,
     intensity,
     headline: episodeTitle ? `${episodeTitle}: ${baseHeadline}` : baseHeadline,
     tier: tierForIntensity(intensity),
@@ -113,3 +83,53 @@ export const FIGURE_BY_SEGMENT: Record<string, string> = {
   wu_eigenheimer: 'audience_eigenheimer',
   wu_liberale: 'audience_liberale',
 };
+
+// ── Wohnzimmer-Alphabet (Zielbild §6, Etappe 4 Paket D) ───────────────────────
+// Feste Bildsprache fürs Wohnzimmer: jedes Badge bedeutet IMMER dasselbe. Zwei
+// Quellen speisen es — das Maschen-Gedächtnis (`getWohnzimmerAlphabet()`: zeitung/
+// abwinken) und die Tages-Stimmung/Überzeugung des Publikums (Anzeige-Schicht,
+// keine Rückwirkung). Reine Funktion, damit die Priorität pur testbar ist.
+
+export type WohnzimmerBadge = 'fahne' | 'zeitung' | 'abwinken' | 'streit' | 'einsam';
+
+/** Ab dieser Überzeugung gilt das Milieu als gekippt (Parteifahne im Fenster). */
+export const FAHNE_BELIEF_SCHWELLE = 0.75;
+
+export interface WohnzimmerBadgeInput {
+  /** Gedächtnis-Bild aus `engine.getWohnzimmerAlphabet()` — null, wenn keins greift. */
+  bild: 'zeitung' | 'abwinken' | null;
+  /** Klartext-Grund aus dem Gedächtnis (Tooltip), falls `bild` gesetzt ist. */
+  grund_de: string;
+  mood: Mood;
+  belief: number;
+}
+
+export interface WohnzimmerBadgeResult {
+  badge: WohnzimmerBadge | null;
+  /** Klartext-Tooltip (Alt-Text statt Emoji/Zahl). */
+  title_de: string;
+}
+
+/**
+ * Priorität bei Konflikt (Owner-Vorgabe, Zielbild §6): fahne > zeitung > abwinken >
+ * streit > einsam. Das gekippte Milieu sticht jede andere Regung; das
+ * Maschen-Gedächtnis (Impfung/Abstumpfung) sticht die bloße Tages-Stimmung.
+ */
+export function wohnzimmerBadgeFor(input: WohnzimmerBadgeInput): WohnzimmerBadgeResult {
+  if (input.belief >= FAHNE_BELIEF_SCHWELLE) {
+    return { badge: 'fahne', title_de: 'Milieu gekippt — Parteifahne im Fenster.' };
+  }
+  if (input.bild === 'zeitung') {
+    return { badge: 'zeitung', title_de: input.grund_de };
+  }
+  if (input.bild === 'abwinken') {
+    return { badge: 'abwinken', title_de: input.grund_de };
+  }
+  if (input.mood === 'wuetend') {
+    return { badge: 'streit', title_de: 'Küchen-Streit — polarisiert/aktiviert.' };
+  }
+  if (input.mood === 'misstrauisch') {
+    return { badge: 'einsam', title_de: 'Einsam am Videospiel — demobilisiert.' };
+  }
+  return { badge: null, title_de: '' };
+}

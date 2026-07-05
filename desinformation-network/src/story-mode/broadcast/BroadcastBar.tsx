@@ -13,9 +13,34 @@ import type { CSSProperties } from 'react';
 import { useAssets } from '../assets/useAssets';
 import { PixelSprite } from '../assets/PixelSprite';
 import { StoryModeColors, StoryModeFonts } from '../theme';
-import { FIGURE_BY_SEGMENT, type BroadcastTier } from './broadcastMapping';
+import { FIGURE_BY_SEGMENT, wohnzimmerBadgeFor, type BroadcastTier, type WohnzimmerBadge } from './broadcastMapping';
 import type { AudienceBroadcastState } from './useAudienceBroadcast';
 import type { Mood } from '../audience/audienceModel';
+
+/** Wohnzimmer-Alphabet-Eintrag je Milieu (Vertrag: `engine.getWohnzimmerAlphabet()`). */
+export interface WohnzimmerAlphabetEntry {
+  milieuId: string;
+  bild: 'zeitung' | 'abwinken' | null;
+  grund_de: string;
+}
+
+/** Badge-Kürzel: 2-Zeichen-Pixel-Text statt Emoji — feste Bildsprache (Zielbild §6). */
+const BADGE_LABEL: Record<WohnzimmerBadge, string> = {
+  fahne: 'FA',
+  zeitung: 'ZG',
+  abwinken: 'AB',
+  streit: 'ST',
+  einsam: 'EI',
+};
+
+/** Kühle Farbgebung — kein Feier-Grün, keine Alarm-Ästhetik. */
+const BADGE_COLOR: Record<WohnzimmerBadge, string> = {
+  fahne: StoryModeColors.agencyBlue,
+  zeitung: StoryModeColors.textSecondary,
+  abwinken: StoryModeColors.warning,
+  streit: StoryModeColors.danger,
+  einsam: StoryModeColors.textMuted,
+};
 
 const KEYFRAMES = `
   @keyframes bb-slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -77,6 +102,8 @@ interface BroadcastBarProps {
   expanded: boolean;
   /** Taste B / Klick: zwischen kompakt und voll umschalten. */
   onToggle: () => void;
+  /** Etappe 4 (Zielbild §6): Maschen-Gedächtnis-Anteil des Wohnzimmer-Alphabets je Milieu. */
+  wohnzimmerAlphabet?: WohnzimmerAlphabetEntry[];
 }
 
 /**
@@ -220,10 +247,11 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
 }
 
 /** Wohnzimmer mit Publikums-Figuren (Stimmung = Färbung, Größe des Segments = Sockelbreite). */
-function AudienceRoom({ audience }: { audience: AudienceBroadcastState }) {
+function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroadcastState; wohnzimmerAlphabet?: WohnzimmerAlphabetEntry[] }) {
   const assets = useAssets();
   const roomUrl = assets.imageUrl('audience_room');
   const reactionBySegment = new Map(audience.lastReaction?.reactions.map((r) => [r.segmentId, r]) ?? []);
+  const alphabetByMilieu = new Map((wohnzimmerAlphabet ?? []).map((a) => [a.milieuId, a]));
 
   return (
     <div
@@ -250,12 +278,43 @@ function AudienceRoom({ audience }: { audience: AudienceBroadcastState }) {
           const figure = FIGURE_BY_SEGMENT[seg.id] ?? 'audience_besorgte_mitte';
           const reaction = reactionBySegment.get(seg.id);
           const showBubble = reaction && Math.abs(reaction.beliefDelta) >= 0.04;
+          // Wohnzimmer-Alphabet (Zielbild §6): feste Bildsprache, ein Badge bedeutet
+          // IMMER dasselbe — Priorität fahne > zeitung > abwinken > streit > einsam.
+          const alphabetEntry = alphabetByMilieu.get(seg.id);
+          const badgeResult = wohnzimmerBadgeFor({
+            bild: alphabetEntry?.bild ?? null,
+            grund_de: alphabetEntry?.grund_de ?? '',
+            mood: seg.mood,
+            belief: seg.belief,
+          });
           return (
             <div
               key={seg.id}
               style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
               title={`${seg.label_de} — ${MOOD_LABEL[seg.mood]}, Überzeugung ${(seg.belief * 100).toFixed(0)}%`}
             >
+              {badgeResult.badge && (
+                <span
+                  data-testid={`wz-badge-${seg.id}`}
+                  title={badgeResult.title_de}
+                  style={{
+                    position: 'absolute',
+                    top: -6,
+                    right: -2,
+                    fontSize: 9,
+                    fontWeight: 700,
+                    letterSpacing: 0.5,
+                    padding: '1px 3px',
+                    color: BADGE_COLOR[badgeResult.badge],
+                    border: `1px solid ${BADGE_COLOR[badgeResult.badge]}`,
+                    backgroundColor: 'rgba(10,10,14,0.85)',
+                    fontFamily: StoryModeFonts.label,
+                    zIndex: 5,
+                  }}
+                >
+                  {BADGE_LABEL[badgeResult.badge]}
+                </span>
+              )}
               {showBubble && (
                 <span
                   style={{
@@ -307,7 +366,7 @@ function AudienceRoom({ audience }: { audience: AudienceBroadcastState }) {
   );
 }
 
-export function BroadcastBar({ audience, expanded, onToggle }: BroadcastBarProps) {
+export function BroadcastBar({ audience, expanded, onToggle, wohnzimmerAlphabet }: BroadcastBarProps) {
   const item = audience.lastItem;
   const quote = audience.lastReaction?.quote ?? 0;
   const reach = audience.lastReaction ? audience.lastReaction.reactions.reduce((s, r) => s + r.reach, 0) : 0;
@@ -380,7 +439,7 @@ export function BroadcastBar({ audience, expanded, onToggle }: BroadcastBarProps
         </div>
       </div>
 
-      <AudienceRoom audience={audience} />
+      <AudienceRoom audience={audience} wohnzimmerAlphabet={wohnzimmerAlphabet} />
     </div>
   );
 }

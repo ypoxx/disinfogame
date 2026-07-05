@@ -180,3 +180,30 @@ Offen für die Roadmap (priorisiert nach Gutachten):
 11. **Container-Toolchain-Drift bleibt akut.** Auch diese Session brauchte `npm ci` im
     `desinformation-network/` vor dem Gate (frischer Web-Container ohne node_modules / mit
     falscher TS-Version). Weiter Kandidat für den SessionStart-Hook.
+
+## Etappe 4 „Impfung & Abstumpfung" — Lehren (2026-07-05)
+
+12. **Eine neue Spieler-Bremse verlangt eine proportionale Gegner-Bremse.** Das
+    Maschen-Gedächtnis dämpft den Spieler-Durchsatz um ~⅓ — mit den Etappe-3-
+    Abwehr-Zuflüssen fiel greedy sofort auf 0 % (Abwehr gewinnt strukturell, weil sie
+    fürs UNGEDÄMPFTE Tempo kalibriert war). Lehre: Wer eine Seite des Wettrennens
+    bremst, muss die andere im selben Zug neu kalibrieren — und zwar messend
+    (Interpolation zwischen zwei gemessenen Punkten war schneller als Raten).
+13. **„Flächige" Strafmechaniken zerstören die gewollten Auswege.** Erste Fassung:
+    jeder Einsatz nutzte ALLE erreichten Milieus ab → „Milieu wechseln" (ein im
+    Zielbild §7 ausdrücklich genannter Ausweg) war unmöglich, greedy UND low_risk
+    fielen auf 0 %. Die design-treue Korrektur (Abnutzung nur in RESONANTEN Milieus)
+    war zugleich die Balance-Korrektur. Lehre: Bei Abnutzungs-/Immunitäts-Mechaniken
+    zuerst fragen, welche AUSWEICH-Strategie das Zielbild verspricht, und die
+    Datenstruktur so schneiden, dass dieser Ausweg mechanisch existiert.
+14. **Verfalls-Konstanten und Stufen-Schwellen sind EIN gekoppeltes System.** Der
+    Decay-Nachschliff (0,22→0,3) brach still die kanonische 1,0→0,6→0,3-Treppe beim
+    Tages-Rhythmus (3. Einsatz landete bei effektiv 1,4 < Schwelle 1,5) — sichtbar nur,
+    weil die Treppe als Unit-Test gepinnt war. Lehre: Solche Zusagen IMMER als Test
+    pinnen und Schwellen aus dem Rhythmus herleiten (2−2·Verfall), nicht rund wählen.
+15. **Band-Verschiebungen ehrlich dokumentieren statt tot-tunen.** low_risk fiel von
+    29–63 % (Etappe 3) auf 0–3 gewonnene Partien — das ist KEIN Bug, sondern die
+    Zielbild-Zusage „reines Abwarten verliert" (§3d), die mit dem Gedächtnis erstmals
+    mechanisch wahr wird. Statt den Kern der Etappe weichzuspülen: Verschiebung in
+    STATUS/Zielbild dokumentieren, kodiertes Gate auf die neue Realität stellen,
+    Feinschliff der Aktions-Kuratierung (Etappe 5) überlassen.
