@@ -315,20 +315,20 @@ export class StoryNarrativeGenerator {
       },
       direktor: {
         positive: {
-          de: 'Direktor Volkov nickt knapp. "Das wird der Zentrale gefallen."',
-          en: 'Director Volkov gives a curt nod. "The Center will be pleased."',
+          de: 'Kurator Volkov nickt knapp. "Das wird der Zentrale gefallen."',
+          en: 'Curator Volkov gives a curt nod. "The Center will be pleased."',
         },
         negative: {
-          de: 'Direktor Volkov sieht Sie kühl an. "Zu viel Risiko für zu wenig Ertrag."',
-          en: 'Director Volkov looks at you coldly. "Too much risk for too little return."',
+          de: 'Kurator Volkov sieht Sie kühl an. "Zu viel Risiko für zu wenig Ertrag."',
+          en: 'Curator Volkov looks at you coldly. "Too much risk for too little return."',
         },
         neutral: {
-          de: 'Direktor Volkov notiert etwas, ohne aufzusehen.',
-          en: 'Director Volkov notes something down without looking up.',
+          de: 'Kurator Volkov notiert etwas, ohne aufzusehen.',
+          en: 'Curator Volkov notes something down without looking up.',
         },
         crisis: {
-          de: 'Direktor Volkov wird still. Ein schlechtes Zeichen.',
-          en: 'Director Volkov goes quiet. A bad sign.',
+          de: 'Kurator Volkov wird still. Ein schlechtes Zeichen.',
+          en: 'Curator Volkov goes quiet. A bad sign.',
         },
       },
     };

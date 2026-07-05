@@ -39,6 +39,10 @@ export interface EndReportProps {
   actionsCatalog: ActionCatalogEntry[];
   /** Vertrauensverlauf (je Phase ein Punkt) */
   trustHistory: TrustHistoryPoint[];
+  /** Etappe 5: die beiden Rennkurven (Tag · Sonntagsfrage-Fortschritt 0..1 · ABWEHR 0..100). */
+  laeuferHistorie?: { day: number; fortschritt: number; abwehr: number }[];
+  /** Etappe 5: die Machtwechsel-Schwelle (WIN_THRESHOLD 0..1) für die Sonntagsfrage-Linie. */
+  winThreshold?: number;
   /** Finale Ressourcen */
   finalResources: {
     budget: number;
@@ -95,8 +99,8 @@ export interface TrustPivot {
   delta: number;
   /** Richtung: positiv = Vertrauensgewinn */
   direction: 'up' | 'down';
-  /** Jahr aus Phasen-Rechnung */
-  year: number;
+  /** Kampagnentag des Pivots (Etappe 5: Tage statt Jahre). */
+  day: number;
   /** Optionale Ereignis-Beschreibung */
   eventDescription?: string;
 }
@@ -122,16 +126,15 @@ export function findTrustPivots(
     const curr = trustHistory[i].averageTrust;
     const delta = curr - prev;
 
-    // round → Jahr (Phase/12, aufgerundet)
+    // round = Kampagnentag (Etappe 5).
     const round = trustHistory[i].round;
-    const year = Math.max(1, Math.ceil(round / 12));
 
     pivots.push({
       index: i,
       round,
       delta: Math.abs(delta),
       direction: delta >= 0 ? 'up' : 'down',
-      year,
+      day: round,
       eventDescription: trustHistory[i].event?.description,
     });
   }
@@ -464,6 +467,64 @@ function MethodsSection({ methods, operationsSummary }: MethodsSectionProps) {
 }
 
 // ============================================
+// SVG LINIENDIAGRAMM – DAS RENNEN (Etappe 5, Zielbild §10)
+// ============================================
+
+/**
+ * Die beiden Rennkurven über die Kampagne: die SONNTAGSFRAGE (unser Läufer, steigt
+ * Richtung Machtwechsel-Schwelle) und die ABWEHR (der Gegner, holt auf). Wer die eigene
+ * Linie zuerst über die Schwelle bringt, bevor die Abwehr 100 erreicht, gewinnt das Rennen.
+ */
+function RennenChart({
+  historie, winThreshold,
+}: { historie: { day: number; fortschritt: number; abwehr: number }[]; winThreshold: number }) {
+  const W = 560, H = 220;
+  const PAD = { top: 16, right: 40, bottom: 40, left: 40 };
+  const cW = W - PAD.left - PAD.right;
+  const cH = H - PAD.top - PAD.bottom;
+  if (historie.length < 2) {
+    return (
+      <div style={{ color: StoryModeColors.textSecondary, padding: '1rem' }}>
+        Nicht genug Datenpunkte für das Rennen.
+      </div>
+    );
+  }
+  const maxDay = Math.max(...historie.map((p) => p.day), 1);
+  const toX = (day: number) => PAD.left + (day / maxDay) * cW;
+  const toY = (frac: number) => PAD.top + cH - Math.max(0, Math.min(1, frac)) * cH; // 0..1
+  // Sonntagsfrage = fortschritt (0..1); ABWEHR = abwehr/100 (0..1).
+  const sfPath = 'M ' + historie.map((p) => `${toX(p.day)},${toY(p.fortschritt)}`).join(' L ');
+  const abPath = 'M ' + historie.map((p) => `${toX(p.day)},${toY(p.abwehr / 100)}`).join(' L ');
+  const schwelleY = toY(Math.max(0, Math.min(1, winThreshold)));
+  const dayStep = maxDay > 20 ? 10 : 5;
+  const dayLabels: number[] = [];
+  for (let d = dayStep; d <= maxDay; d += dayStep) dayLabels.push(d);
+
+  return (
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ maxWidth: '100%', display: 'block' }} aria-label="Das Rennen: Sonntagsfrage gegen Abwehr">
+      <rect width={W} height={H} fill={StoryModeColors.background} rx={2} />
+      {/* Schwelle (Sieglinie der Sonntagsfrage) */}
+      <line x1={PAD.left} y1={schwelleY} x2={PAD.left + cW} y2={schwelleY} stroke={StoryModeColors.success} strokeWidth={1.2} strokeDasharray="6 3" />
+      <text x={PAD.left + cW + 2} y={schwelleY + 4} fontSize={9} fill={StoryModeColors.success}>Ziel</text>
+      {/* Abwehr-100-Linie (Verlustlinie) = oben (frac 1.0) */}
+      <text x={PAD.left + cW + 2} y={toY(1) + 4} fontSize={9} fill={StoryModeColors.danger}>100</text>
+      {/* ABWEHR (Gegner) */}
+      <path d={abPath} fill="none" stroke={StoryModeColors.danger} strokeWidth={2} strokeLinejoin="round" />
+      {/* SONNTAGSFRAGE (wir) */}
+      <path d={sfPath} fill="none" stroke={StoryModeColors.ministryRed} strokeWidth={2.4} strokeLinejoin="round" />
+      {/* X-Achse */}
+      <line x1={PAD.left} y1={PAD.top + cH} x2={PAD.left + cW} y2={PAD.top + cH} stroke={StoryModeColors.borderLight} strokeWidth={1} />
+      {dayLabels.map((d) => (
+        <text key={d} x={toX(d)} y={PAD.top + cH + 14} textAnchor="middle" fontSize={10} fill={StoryModeColors.textMuted}>T{d}</text>
+      ))}
+      {/* Legende */}
+      <text x={PAD.left} y={PAD.top + 2} fontSize={10} fill={StoryModeColors.ministryRed}>■ Sonntagsfrage</text>
+      <text x={PAD.left + 120} y={PAD.top + 2} fontSize={10} fill={StoryModeColors.danger}>■ Abwehr</text>
+    </svg>
+  );
+}
+
+// ============================================
 // SVG LINIENDIAGRAMM – Vertrauensverlauf
 // ============================================
 
@@ -505,11 +566,12 @@ function TrustLineChart({ trustHistory }: TrustLineChartProps) {
   // Schwellenlinie bei 40 % (trust = 0.4)
   const thresholdY = toY(0.4);
 
-  // X-Achsenbeschriftungen: Jahr 1 … Jahr N (bis zu 10)
-  const maxYear = Math.max(1, Math.ceil(maxRound / 12));
-  const yearLabels: Array<{ x: number; label: string }> = [];
-  for (let y = 1; y <= Math.min(maxYear, 10); y++) {
-    yearLabels.push({ x: toX(y * 12), label: `J${y}` });
+  // X-Achsenbeschriftungen: Kampagnentage (Etappe 5 — die Achse ist der Wahlkampf,
+  // nicht mehr „Jahre"; round = Tag 1..Wahltag).
+  const dayLabels: Array<{ x: number; label: string }> = [];
+  const dayStep = maxRound > 20 ? 10 : 5;
+  for (let d = dayStep; d <= maxRound; d += dayStep) {
+    dayLabels.push({ x: toX(d), label: `T${d}` });
   }
 
   // Y-Achsenbeschriftungen: 0 %, 50 %, 100 %
@@ -614,7 +676,7 @@ function TrustLineChart({ trustHistory }: TrustLineChartProps) {
       />
 
       {/* X-Beschriftungen */}
-      {yearLabels.map(({ x, label }) => (
+      {dayLabels.map(({ x, label }) => (
         <text
           key={label}
           x={x}
@@ -635,7 +697,7 @@ function TrustLineChart({ trustHistory }: TrustLineChartProps) {
         fontSize={10}
         fill={StoryModeColors.textSecondary}
       >
-        Amtszeit (Jahre)
+        Kampagne (Tage)
       </text>
       <text
         x={10}
@@ -816,6 +878,8 @@ export function EndReport({
   completedActionIds,
   actionsCatalog,
   trustHistory,
+  laeuferHistorie,
+  winThreshold,
   finalResources,
   methodsUsed,
   operationsSummary,
@@ -1025,6 +1089,26 @@ export function EndReport({
             </>
           )}
 
+          {/* ── 2a. DAS RENNEN (Etappe 5): die beiden Läufer über die Kampagne ── */}
+          {laeuferHistorie && laeuferHistorie.length >= 2 && (
+            <>
+              <SectionHeading>Das Rennen</SectionHeading>
+              <div
+                style={{
+                  backgroundColor: StoryModeColors.background,
+                  border: `1px solid ${StoryModeColors.borderLight}`,
+                  padding: '8px',
+                  marginBottom: '4px',
+                }}
+              >
+                <RennenChart historie={laeuferHistorie} winThreshold={winThreshold ?? 0.6} />
+              </div>
+              <p style={{ fontSize: '10px', color: StoryModeColors.textMuted, margin: '4px 0 12px' }}>
+                Ihre Sonntagsfrage gegen die Abwehr der Gesellschaft. Wer zuerst durchs Ziel geht, entscheidet den Wahlabend.
+              </p>
+            </>
+          )}
+
           {/* ── 2. VERLAUFS-DIAGRAMM ── */}
           <SectionHeading>Vertrauensverlauf</SectionHeading>
           <div
@@ -1116,7 +1200,7 @@ export function EndReport({
                     }}
                   >
                     {p.direction === 'down' ? '▼' : '▲'}{' '}
-                    {Math.round(p.delta * 100)} Pp. — Jahr {p.year}
+                    {Math.round(p.delta * 100)} Pp. — Tag {p.day}
                   </div>
                   {p.eventDescription && (
                     <div style={{ color: StoryModeColors.textSecondary }}>

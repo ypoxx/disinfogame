@@ -626,9 +626,9 @@ export function useStoryGameState(seed?: string) {
     setActiveNpcId('direktor');
     // Show intro dialog
     setCurrentDialog({
-      speaker: 'Direktor',
-      speakerTitle: 'Leiter der Agentur',
-      text: 'Willkommen in der Abteilung für Sonderoperationen. Ihre Mission: die politische Landschaft von Westunion zu destabilisieren. Sie haben 10 Jahre Zeit. Nutzen Sie sie weise.',
+      speaker: 'Kurator Volkov',
+      speakerTitle: 'Verbindung zur Zentrale',
+      text: 'Willkommen, Direktor. Sie leiten ab heute die Abteilung für Sonderoperationen. Ihr Auftrag: die radikale Kraft über die Schwelle bringen — vor dem Wahltag in 40 Tagen. Das Vertrauen der Leute zu zersetzen, ist nur das Mittel. Die Zentrale misst Sie am Ergebnis.',
       mood: 'neutral',
     });
   }, [refreshAvailableActions, generateRecommendations]);
@@ -881,7 +881,10 @@ export function useStoryGameState(seed?: string) {
     } : undefined;
 
     setTrustHistory(prev => [...prev, {
-      round: result.newPhase.month + (result.newPhase.year - 2024) * 12,
+      // Etappe 5: der Kampagnentag ist die Achse (Etappe 2 hat year/month auf konstant
+      // deprecated → die alte Formel lieferte für JEDEN Punkt denselben Wert und die
+      // Chart-Linie schoss aus dem Bild). Jetzt: round = Tag 1..Wahltag.
+      round: result.newPhase.number,
       actorTrust,
       averageTrust: actors.length > 0 ? totalTrust / actors.length : 1,
       event,

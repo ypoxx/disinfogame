@@ -2,9 +2,9 @@
   "npcs": [
     {
       "id": "direktor",
-      "name": "Direktor Volkov",
-      "role_de": "Leiter der Agentur",
-      "role_en": "Agency Director",
+      "name": "Kurator Volkov",
+      "role_de": "Verbindung zur Zentrale",
+      "role_en": "Link to Central Command",
       "portrait": "direktor",
       "personality": {
         "traits": [

@@ -384,11 +384,25 @@ Verstärker, Kompromat). Pleite ist kein eigener Game-Over, sondern die Würgesc
   - **Carry-forward Etappe 5:** greedy Richtung Korridor-Mitte + „jeder Verlustweg ≥ 15 %"
     (Aktions-Kuratierung); Wohnzimmer-Alphabet als echtes Asset-Paket (Budget-Ansage);
     optional Sim-Referenz „rotierend".
-- **Etappe 5 — „Fertig" (der Versionssprung):** Aktions-Kuratierung abschließen, Geld-Tranchen,
-  Wahlabend-Szenen, TV-Set (E17: Baukasten — Pixel-Hintergrund + austauschbare Text-Ebene; **Priorität:
-  Sprecherin, Umfrage-Ticker, Faktencheck, Wahlstudio — vier Bilder tragen 80 % der Dramaturgie**;
-  Rest-Set: Vox-Pop, Demo, Parlament, Krisenbild, Wohnzimmer-Schnitt, Testbild), Endreport-Ausbau,
-  Tag-0-Hoax-Update, Kurator-Rename.
+- **Etappe 5 — „Fertig" (der Versionssprung): 🟡 TEILWEISE (2026-07-05).** Geliefert (Gate grün,
+  `tsc 0`·`vitest 575`·`build`, beide Sim-Gates tragfähig): **Kurator-Rename** (Volkov = Verbindung
+  zur Zentrale, §10) · **Geld-Tranchen** (`engine/Finanzen.ts`, E18: die Zentrale zahlt nach
+  Fortschritt, Pleite = Würgeschlinge; Save 2.3.0) · **Enden-Beschnitt** (EIN Sieg-, DREI
+  Verlustwege; broke/moral/escape als Game-Over raus, `GameEndState.type`=victory|defeat+branch) ·
+  **Wahlabend-Szenen** (`WahlabendScene.tsx` — ein TV-Set, drei Enden §9) + **TV-Baukasten** (TvSet,
+  CSS-Fallback; echtes Studio-Asset ist Owner-Budget) · **HUD-Konsolidierung** (4 Größen: Sonntagsfrage-
+  Balken NEU + Abwehr + Kasse + Tag; Risiko/Aufmerksamkeit/8-Werte raus, §6) · **Vergabe-Szene** statt
+  AuftragSelect (EINE Akte „Die Wahl", §8) · **Endreport-Ausbau** (Läufer-Kurven „Das Rennen"; Jahres-
+  Achse-Degeneration behoben) · **Aktions-Invariante** als dauerhaftes Gate (jede Aktion bewegt einen
+  Läufer).
+  - ⚠️ **DEFERRED (Balance-Follow-up, `HANDOFF_2026-07-05B_ETAPPE5_FOLLOWUP.md`):** Die Aktions-
+    **Reduktion 143→60–80**, die **impact_scale-Abschaffung** und **WIN_THRESHOLD→1.0** sind
+    GEKOPPELT — empirisch belegt (dieselbe Session): impact_scale-Aktionen entfernen bricht greedy
+    (58 %→12 %, sie treiben verdeckt den Fortschritt); Legal/Low-Risk entfernen macht Passivität zu
+    stark (4 %→75 %). Die Kuratierung braucht daher zuerst explizite Läufer-Effekte je Aktion, dann
+    die Reduktion + Neukalibrierung. Die Invariante ist die Leitplanke dafür.
+  - **Ebenfalls offen:** Tag-0-Hoax-Update (O7; laut eigener Doku „NICHT beschlossen" → owner-gated) ·
+    TV-/Wohnzimmer-Alphabet-Assets (pixel-asset-pipeline, Budget-Ansage).
 
 **Weitere Test-Disziplin:** Characterization-Tests vor jedem Eingriff; Save-Format: bewusster
 Versions-Bruch mit klarer Meldung (der Sieg-Semantik-Wechsel macht Altstände bedeutungslos); die

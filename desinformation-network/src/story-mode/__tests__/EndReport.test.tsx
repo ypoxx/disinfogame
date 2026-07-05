@@ -68,7 +68,7 @@ describe('findTrustPivots', () => {
     expect(pivots).toHaveLength(1);
     expect(pivots[0].delta).toBeCloseTo(0.4, 2);
     expect(pivots[0].direction).toBe('down');
-    expect(pivots[0].year).toBe(1); // round 12 → Jahr 1
+    expect(pivots[0].day).toBe(12); // Etappe 5: round = Kampagnentag
   });
 
   it('erkennt Vertrauensgewinn als direction "up"', () => {

@@ -18,10 +18,6 @@ const base: EndEvaluationInput = {
   winThreshold: 0.5,
   abwehr: 30,
   risk: 20,
-  budget: 100,
-  moralWeight: 10,
-  allNpcsLost: false,
-  exposureCountdown: null,
   phaseNumber: 10,
   maxPhases: 40,
 };

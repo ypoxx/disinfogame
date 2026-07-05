@@ -52,16 +52,16 @@ Oben links sehen Sie das aktuelle Jahr und den Monat.`,
   },
   {
     id: 'resources',
-    title: 'Ressourcen',
-    content: `Sie verwalten fünf Ressourcen:
+    title: 'Das Rennen',
+    content: `Zwei Läufer rennen auf den Wahltag zu:
 
-[B] BUDGET - Geld für Operationen
-[K] KAPAZITÄT - Operative Bandbreite (regeneriert)
-[R] RISIKO - Entdeckungsgefahr (Game Over bei 85%+)
-[A] AUFMERKSAMKEIT - Zieht Gegner an
-[M] MORALISCHE LAST - Beeinflusst NPCs und Enden
+SONNTAGSFRAGE - Ihr Umfragewert. Bringen Sie ihn über die Schwelle.
+ABWEHR - das Immunsystem der Gesellschaft. Erreicht es 100, ist die
+Operation aufgeflogen.
+KASSE - die Zentrale zahlt in Tranchen, wenn Sie liefern.
+TAG X/40 - der Wahltag ist die Ziellinie.
 
-Halten Sie das Risiko niedrig!`,
+Lautes Spiel treibt die Abwehr. Wer zuerst durchs Ziel geht, gewinnt.`,
     position: 'top',
     highlight: 'hud',
   },

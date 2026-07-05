@@ -14,6 +14,9 @@ import type { SocietyValueKey } from '../../game-logic/StoryEngineAdapter';
 
 export type AuftragId = 'keil' | 'wahl' | 'zweifel';
 
+/** Fiktiver Parteiname (Zielbild §8/D2) — EIN Name statt der früheren vier. */
+export const PARTEI_NAME_DE = 'Westunion Erwacht';
+
 /** Eine Signatur-Achse: in welche Richtung sich ein Wert für den Auftrag bewegen soll. */
 export interface AuftragSignatur {
   wert: SocietyValueKey | 'vertrauen';
