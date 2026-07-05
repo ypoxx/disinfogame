@@ -626,9 +626,9 @@ export function useStoryGameState(seed?: string) {
     setActiveNpcId('direktor');
     // Show intro dialog
     setCurrentDialog({
-      speaker: 'Direktor',
-      speakerTitle: 'Leiter der Agentur',
-      text: 'Willkommen in der Abteilung für Sonderoperationen. Ihre Mission: die politische Landschaft von Westunion zu destabilisieren. Sie haben 10 Jahre Zeit. Nutzen Sie sie weise.',
+      speaker: 'Kurator Volkov',
+      speakerTitle: 'Verbindung zur Zentrale',
+      text: 'Willkommen, Direktor. Sie leiten ab heute die Abteilung für Sonderoperationen. Ihr Auftrag: die radikale Kraft über die Schwelle bringen — vor dem Wahltag in 40 Tagen. Das Vertrauen der Leute zu zersetzen, ist nur das Mittel. Die Zentrale misst Sie am Ergebnis.',
       mood: 'neutral',
     });
   }, [refreshAvailableActions, generateRecommendations]);

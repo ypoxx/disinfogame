@@ -109,6 +109,14 @@ export function NPCPortrait({ npc, mood, size = 48 }: PortraitProps) {
 
 const KNOWN_NPC_IDS = ['direktor', 'marina', 'alexei', 'volkov', 'katja', 'igor'];
 
+// Etappe 5: Volkov ist jetzt „Kurator Volkov" (Zielbild §10). Sprecher-Strings wie
+// „Kurator Volkov"/„Volkov" müssen auf die bestehenden direktor-Assets (Porträt/Farbe)
+// zeigen — sonst fiele der Token „volkov" auf eine fremde Farbe (Alexei-Oliv).
+const SPEAKER_ALIASES: Record<string, string> = {
+  volkov: 'direktor',
+  kurator: 'direktor',
+};
+
 /**
  * Leitet die NPC-id aus dem Sprecher ab. Dialoge setzen meist den vollen Namen
  * („Marina Petrova"), die Porträt-/Farb-Logik arbeitet aber mit Kurz-ids —
@@ -117,8 +125,10 @@ const KNOWN_NPC_IDS = ['direktor', 'marina', 'alexei', 'volkov', 'katja', 'igor'
  */
 function resolveSpeakerKey(speaker: string): string {
   const lower = speaker.toLowerCase();
+  if (SPEAKER_ALIASES[lower]) return SPEAKER_ALIASES[lower];
   if (KNOWN_NPC_IDS.includes(lower)) return lower;
   for (const token of lower.split(/\s+/)) {
+    if (SPEAKER_ALIASES[token]) return SPEAKER_ALIASES[token];
     if (KNOWN_NPC_IDS.includes(token)) return token;
   }
   return lower;

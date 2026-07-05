@@ -23,7 +23,7 @@ import { generateRecommendationId } from '../AdvisorRecommendation';
 
 export class DirektorAnalysisStrategy implements NPCAnalysisStrategy {
   public getNPCName(): string {
-    return 'Direktor Volkov';
+    return 'Kurator Volkov';
   }
 
   /**

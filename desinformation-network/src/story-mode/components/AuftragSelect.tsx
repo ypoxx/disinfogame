@@ -29,7 +29,7 @@ export function AuftragSelect({ onChoose, onSkip }: AuftragSelectProps): React.J
         {/* P1-9: Direktor-Rahmung — die Wahl ist sein Briefing, nicht ein abstraktes Menü.
             Plain-Sprache erklärt „Vertrauen = Mittel, Auftrag = Ziel" in seiner Stimme. */}
         <div style={{ fontSize: 10, letterSpacing: 2, color: StoryModeColors.textMuted, textTransform: 'uppercase' }}>
-          Direktor Volkov
+          Kurator Volkov
         </div>
         <div style={{ fontSize: 13, lineHeight: 1.55, color: StoryModeColors.textSecondary, marginTop: 6 }}>
           „Bevor Sie sich an die Arbeit machen — worauf legen wir es an? Das Vertrauen der Leute
