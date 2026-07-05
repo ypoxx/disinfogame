@@ -1,4 +1,9 @@
-**Status:** ✅ BAUFREIGEGEBEN — Owner-Entscheidung im Zielbild verankert
+**Status:** ✅ GEBAUT (2026-07-05, Branch `claude/tag-0-onboarding-curation-emdsmy`) —
+`src/story-mode/components/Tag0HoaxTutorial.tsx` (Arrival→Tag-0→Vergabe). Umgesetzt wie unten
+geformt (A–D): `Verschwörungsnarrativ`-Köder × 3, ein Milieu (die Abgehängten) glaubt, Ferro-
+Faktencheck = erster echter Abwehr-Tick (`applyTag0FactcheckTick`, folgenlos für Ressourcen,
+nur UI-Pfad → Sim unberührt), Marinas Brücke „Süß. Jetzt mit Absicht." zur Vergabe.
+War zuvor: ✅ BAUFREIGEGEBEN — Owner-Entscheidung im Zielbild verankert
 (`ZIELBILD_2026-07-04_WETTRENNEN.md` §10 „Tag-0-Hoax-Testballon (O7): bleibt — und wird
 besser" + §15-Tabelle O7; Owner-Bestätigung 2026-07-05). Ursprüngliche Owner-Eingabe 2026-06-15.
 **Scope:** Story — Onboarding / erster „Aha"-Beat → **Zwei-Balken-Tutorial** (Sonntagsfrage

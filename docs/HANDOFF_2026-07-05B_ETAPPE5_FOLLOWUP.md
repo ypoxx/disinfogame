@@ -1,5 +1,17 @@
 # 🤝 Handoff: Etappe 5 Follow-up — die tiefe Aktions-Kuratierung (Balance-Session)
 
+> ✅ **ERLEDIGT (2026-07-05, Branch `claude/tag-0-onboarding-curation-emdsmy`).** Beide offenen Ziele
+> geliefert: (a) Tag-0-Hoax-Zwei-Balken-Tutorial gebaut (`Tag0HoaxTutorial.tsx`, Arrival→Tag-0→Vergabe);
+> (b) die drei gekoppelten Kuratierungs-Teile zusammen kalibriert — **impact_scale abgeschafft** (Bake in
+> explizite Effekt-Keys, 113 Aktionen, semantisch exakt verifiziert), **Katalog 143→79**
+> (`ARCHIVED_ACTION_IDS`, referenz-sicher), **WIN_THRESHOLD 0.6→1.0** (Zielmarken re-skaliert) +
+> **„Passivität verliert" ohne Clutter** (`BASELINE_PER_DAY` 0.22→0.38). Sim-Gate 8× flakefrei nach jedem
+> Schritt: greedy 9–11/24, random 23–24, low_risk 2–8, beide Haupt-Verlustwege lebendig (Immun 19–28,
+> Enttarnung 7–12). **Wichtige Präzisierung ggü. dem Plan unten:** die Bake-Keys mussten LECK-FREI sein
+> (nicht polarization/amplification_base — die speisen `trust_erosion`/obj_destabilize und hätten die
+> K14/R2-Sieg-Mathematik verändert), deshalb organic_reach/political_influence/divisiveness_bonus/
+> emotional_impact (0 Adapter-Refs). tsc 0 · vitest 579 · build. Der Text unten war der PLAN.
+
 **Stand:** 2026-07-05, aktualisiert nach dem Merge · **Basis:** `main` — **Etappe 4 (#91) UND
 Etappe 5 (#92) sind gemergt** (`main` @ `f28c896`). Etappe 0–5 sind auf `main`; offen ist nur
 noch das Etappe-5-Follow-up (unten). Der Arbeits-Branch `claude/etappe-5-handoff-setup-29psoe`
