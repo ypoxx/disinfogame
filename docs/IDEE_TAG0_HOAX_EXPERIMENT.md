@@ -1,6 +1,10 @@
-**Status:** Idee / Reflexion (NICHT beschlossen) — Owner-Eingabe 2026-06-15
-**Scope:** Story — Onboarding / erster „Aha"-Beat
-**Zweck:** Idee festhalten, damit sie nicht verloren geht. Keine Umsetzungsentscheidung.
+**Status:** ✅ BAUFREIGEGEBEN — Owner-Entscheidung im Zielbild verankert
+(`ZIELBILD_2026-07-04_WETTRENNEN.md` §10 „Tag-0-Hoax-Testballon (O7): bleibt — und wird
+besser" + §15-Tabelle O7; Owner-Bestätigung 2026-07-05). Ursprüngliche Owner-Eingabe 2026-06-15.
+**Scope:** Story — Onboarding / erster „Aha"-Beat → **Zwei-Balken-Tutorial** (Sonntagsfrage
+UND ABWEHR einmal en miniature bewegen; Ferros Faktencheck = erster sichtbarer Abwehr-Tick).
+**Zweck:** Bauplan für die nächste Session. Die frühere Kopfzeile „NICHT beschlossen" war
+vom Zielbild überholt und hat Etappe-5-Handoffs fälschlich als „owner-gated" markiert (korrigiert 2026-07-05).
 
 # Idee: „Tag-0-Experiment" — der absurde Hoax als Aha-Moment
 
