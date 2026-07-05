@@ -401,7 +401,8 @@ Verstärker, Kompromat). Pleite ist kein eigener Game-Over, sondern die Würgesc
     (58 %→12 %, sie treiben verdeckt den Fortschritt); Legal/Low-Risk entfernen macht Passivität zu
     stark (4 %→75 %). Die Kuratierung braucht daher zuerst explizite Läufer-Effekte je Aktion, dann
     die Reduktion + Neukalibrierung. Die Invariante ist die Leitplanke dafür.
-  - **Ebenfalls offen:** Tag-0-Hoax-Update (O7; laut eigener Doku „NICHT beschlossen" → owner-gated) ·
+  - **Ebenfalls offen:** Tag-0-Hoax-Update (O7 — **beschlossen** hier in §10/§15, bestätigt 2026-07-05:
+    als Zwei-Balken-Tutorial bauen; die alte „NICHT beschlossen"-Kopfzeile der Idee-Datei war überholt) ·
     TV-/Wohnzimmer-Alphabet-Assets (pixel-asset-pipeline, Budget-Ansage).
 
 **Weitere Test-Disziplin:** Characterization-Tests vor jedem Eingriff; Save-Format: bewusster

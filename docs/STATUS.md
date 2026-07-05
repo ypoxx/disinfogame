@@ -38,9 +38,10 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 >   macht Passivität zu stark 4→75 %). WIN_THRESHOLD bleibt 0.6.
 > - **Offen / Carry-forward:** (1) **Deep-Kuratierung** = impact_scale abschaffen → explizite
 >   Läufer-Effekte je Aktion → 143→60–80 → WIN_THRESHOLD→1.0 (dedizierte Balance-Session,
->   `HANDOFF_2026-07-05B_ETAPPE5_FOLLOWUP.md`). (2) **Tag-0-Hoax-Tutorial** (O7) — laut eigener
->   Doku „NICHT beschlossen", owner-gated. (3) **TV-/Wohnzimmer-Assets** (Studio, 5 Alphabet-Bilder)
->   via pixel-asset-pipeline mit Budget-Ansage.
+>   `HANDOFF_2026-07-05B_ETAPPE5_FOLLOWUP.md`). (2) **Tag-0-Hoax-Tutorial** (O7) — **beschlossen**
+>   (Zielbild §10/§15, bestätigt 2026-07-05) → als Zwei-Balken-Onboarding **bauen**; die frühere
+>   „NICHT beschlossen"-Kopfzeile war überholt und ist korrigiert. (3) **TV-/Wohnzimmer-Assets**
+>   (Studio, 5 Alphabet-Bilder) via pixel-asset-pipeline mit Budget-Ansage.
 
 **Stand:** 2026-07-04 (RICHTUNGSWECHSEL) · **Owner-Transkript F1–F25 beantwortet** → bindende
 Entscheidungen E1–E20 (`DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md`), ausgearbeitet per Design-Panel

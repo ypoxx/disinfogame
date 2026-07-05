@@ -1,7 +1,9 @@
 # 🤝 Handoff: Etappe 5 Follow-up — die tiefe Aktions-Kuratierung (Balance-Session)
 
-**Stand:** 2026-07-05, Ende der Etappe-5-Session · **Basis:** Branch
-`claude/etappe-5-handoff-setup-29psoe` (Draft-PR; Etappe 0–4 ✅, Etappe 5 🟡 TEILWEISE)
+**Stand:** 2026-07-05, aktualisiert nach dem Merge · **Basis:** `main` — **Etappe 4 (#91) UND
+Etappe 5 (#92) sind gemergt** (`main` @ `f28c896`). Etappe 0–5 sind auf `main`; offen ist nur
+noch das Etappe-5-Follow-up (unten). Der Arbeits-Branch `claude/etappe-5-handoff-setup-29psoe`
+ist frisch von `main` neu aufgesetzt — hier startet die nächste Session.
 **Lies zuerst:** `SOUL.md` → `STATUS.md` (Etappe-5-Block) → `ZIELBILD_2026-07-04_WETTRENNEN.md`
 (§6/§12.7/§13) → dieses Dokument. **Container-Falle zuerst:** `cd desinformation-network && npm ci`.
 
@@ -57,10 +59,13 @@ Empirisch am Sim-Gate belegt:
 - `ActionRunnerInvariant.test.ts` (Kopf) hält die Läufer-Definitionen.
 
 ## 3. Weitere Carry-forwards
-- **Tag-0-Hoax-Tutorial (O7):** `docs/IDEE_TAG0_HOAX_EXPERIMENT.md` hat Status „NICHT beschlossen".
-  **Owner-Entscheidung nötig, BEVOR gebaut wird** (SOUL: keine unbeschlossenen Features bauen).
-  Andockpunkt fertig: Intro-Flow VOR der Vergabe-Szene (StoryModeGame.tsx, `showAuftrag`-Zweig);
-  erster Abwehr-Tick via `raiseAbwehr` (public Wrapper nötig) + Marina-„zweiter Balken"-Zeile.
+- **Tag-0-Hoax-Tutorial (O7): ✅ BESCHLOSSEN — bauen.** Owner-Entscheidung liegt im Zielbild §10
+  („bleibt — und wird besser") + §15-Tabelle O7 und wurde 2026-07-05 bestätigt. Die frühere Kopfzeile
+  „NICHT beschlossen" in `IDEE_TAG0_HOAX_EXPERIMENT.md` war vom Zielbild überholt (jetzt korrigiert) —
+  sie hatte diesen Punkt fälschlich als „owner-gated" geführt. **Bauen als Zwei-Balken-Tutorial:**
+  Andockpunkt = Intro-Flow VOR der Vergabe-Szene (`StoryModeGame.tsx`, `showAuftrag`-Zweig); erster
+  sichtbarer Abwehr-Tick via `raiseAbwehr` (public Wrapper nötig) nach Ferros Faktencheck + Marina-
+  „Sehen Sie den zweiten Balken?"-Zeile; folgenlose Probier-Zone. Details: `IDEE_TAG0_HOAX_EXPERIMENT.md`.
 - **Assets (Owner-Budget-Ansage):** TV-Studio-Set (Sprecherin/Umfrage-Ticker/Faktencheck/Wahlstudio —
   E17-Priorität, 4 Bilder tragen 80 %) für `TvSet`/`WahlabendScene`; 5 Wohnzimmer-Alphabet-Bilder
   (Küchen-Streit, einsam am Videospiel, Abwinken vor TV, Parteifahne, Faktencheck-Zeitung). Beides
@@ -88,6 +93,23 @@ Empirisch am Sim-Gate belegt:
    Diff). Kept-Aktionen nach jedem Skript-Lauf semantisch gegen HEAD prüfen.
 8. DialogBox-Sprecher: `SPEAKER_ALIASES` (volkov/kurator→direktor) hält Porträt+Farbe korrekt.
 
+## 5b. Modell-Klassifikator-Hinweis (Fable 5 → Opus 4.8)
+
+Fable 5 fährt auf JEDER Anfrage einen Safety-Check und schaltet bei vier Themenfeldern automatisch
+auf Opus 4.8 um (im selben Gespräch neu ausgeführt): (1) offensive Cybersecurity, (2) Großteil
+Biologie/Chemie/Life-Sciences, (3) Distillation-Angriffe, (4) enge Frontier-LLM-Entwicklung. Die
+Safeguards sind **absichtlich breit** — dieses Desinfo-Projekt löst daher gelegentlich Fehlalarme aus
+(Vokabular wie `hack`, `cyber`, `virus`, `pathogen`, der reale Biolabs-Fall). Das ist **kein Downgrade**
+(Opus 4.8 ist stark), berührt aber Abrechnung/Kontinuität.
+- **Verlässlichster Fix:** Settings → Capabilities → „Switch models when a message is flagged" **aus**.
+  `/model claude-fable-5` pinnt nur zurück, verhindert das erneute Umschalten aber nicht. Separat prüfen:
+  `/fast` (Fast Mode = absichtlich Opus 4.8, revertiert nicht von allein).
+- **In den Daten entschärft (2026-07-05, kosmetisch):** englische Labels „Exploit …" → „Leverage/Seize …"
+  (reine Synonyme, DE unverändert). **Bewusst NICHT angetastet:** Hacking-Aktionen, der reale Biolabs-
+  Bildungsfall, Virus-/Kernenergie-News — das ist legitimer, gesourcter Bildungsinhalt; ihn zu entfernen,
+  um einen breiten Klassifikator zu umgehen, wäre der falsche Trade. Quelle: support.claude.com
+  „Why Claude switched models … Fable 5".
+
 ## 6. Definition of Done (Follow-up)
 Katalog 60–80, impact_scale als Wirkmodell weg (jede Aktion trägt explizite Läufer-Effekte),
 WIN_THRESHOLD an der per-Sim kalibrierten Latte (Ziel 1.0), Invariante grün, beide Sim-Gates 8×
@@ -95,6 +117,10 @@ flakefrei mit greedy im 30–60-Korridor und „jeder Verlustweg ≥ 15 %" schar
 auf ✅; Draft-PR aktualisiert.
 
 ## 7. Kickoff-Prompt (Vorschlag)
-> „Lies SOUL.md → STATUS.md → ZIELBILD (§12.7/§13) → HANDOFF_2026-07-05B_ETAPPE5_FOLLOWUP.md und
-> schließe die tiefe Aktions-Kuratierung ab: erst impact_scale abschaffen (explizite Läufer-Effekte),
-> dann 143→60–80 reduzieren und WIN_THRESHOLD hochziehen — Sim-Gate 8× flakefrei nach jedem Schritt."
+> „Lies SOUL.md → STATUS.md → ZIELBILD (§10/§12.7/§13) → HANDOFF_2026-07-05B_ETAPPE5_FOLLOWUP.md.
+> Baue (a) das Tag-0-Hoax-Tutorial als Zwei-Balken-Onboarding (beschlossen, §10/§15) und schließe
+> (b) die tiefe Aktions-Kuratierung ab: erst impact_scale abschaffen (explizite Läufer-Effekte), dann
+> 143→60–80 reduzieren und WIN_THRESHOLD hochziehen — Sim-Gate 8× flakefrei nach jedem Schritt."
+
+**Reihenfolge-Tipp:** Erst den Hoax (klar abgegrenzt, kein Balance-Risiko, schneller sichtbarer Wert),
+dann die Kuratierung (die große iterative Balance-Arbeit) — ggf. in getrennten Sessions wegen Token-Budget.
