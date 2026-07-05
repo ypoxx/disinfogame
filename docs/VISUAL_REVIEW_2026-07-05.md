@@ -74,4 +74,52 @@ _[WIRD NACH ABSCHLUSS DES REVIEW-ORCHESTERS GEFÜLLT — §2 Befunde nach Priori
 
 ## 6. Shot-List-Plan (pixel-asset-pipeline-Format) + Kostenschätzung
 
-_[WIRD NACH SYNTHESE GEFÜLLT]_
+> **NICHTS davon ist generiert.** Format = `tools/asset-pipeline/src/shotlist.mjs`-Einträge
+> (`id/type/kind/priority/aspectRatio/size/seed: seedFor(id)/prompt`), Stile aus
+> `styleguide.mjs` (`styleCore()`/`styleHome()`/`styleObject()`), Budget-Mechanik der
+> Pipeline (Dry-Run-Default, `PIPELINE_MAX_IMAGES=12`/Lauf, idempotent) bleibt in Kraft.
+> Generierung erst nach Owner-Freigabe, dann per
+> `node src/cli.mjs generate --images --only <ids> --live --limit 12`.
+
+### Kosten-Basis (Stand 2026-07, Google-API-Preisliste)
+`gemini-3-pro-image`: ~**0,134 $/Bild** im 1–2K-Tier (unsere Räume 1344×768, Porträts
+1024×1024 teils im 0,039-$-Tier); 4K 0,24 $. Kalkulation unten konservativ mit
+**~0,27 $/Shot effektiv** (Vision-QC verwirft erfahrungsgemäß ~jede zweite Erzeugung;
+Stil-Lock-Kandidaten ×2–3 beim jeweils ersten Bild einer neuen Familie). Die reine
+API-Rechnung ist also **Cent-Bereich — der eigentliche Aufwand ist die QC-/Platzierungs-
+Session** (Trimmen, Standlinie, Gate), nicht der Bild-Preis.
+
+### Paket 0 — KEINE Generierung: Asset-Nachbearbeitung + Code (behebt §1-Messbefunde)
+| Was | Art | Aufwand |
+|---|---|---|
+| `bld_door_closed`/`bld_door_open` unten trimmen (10/9 px) → Türen stehen AUF der Linie und wirken wieder ~1,97 m hoch (1,13 H ≈ Stil-Bibel-Soll) | Asset-Korrektur (sharp-trim, 0 $) | Minuten + Gate |
+| `elevator_cabin_open` Content-Box an `closed` angleichen (16 vs. 7 px unten) → kein Sprung beim Überblenden | Asset-Korrektur (0 $) | Minuten + Gate |
+| `PixelSprite`-Bodenbündigkeit im Container (heilt Statisten/Pförtner/Walker/Tür-Dummies, 11–16 px) | Code-Fix | 1 Stelle + Smoke |
+| `walkY`-Offset −6 px vereinheitlichen (Avatar exakt auf Klassen-Linie) | Code-Fix | 1 Zeile + Smoke |
+
+### Paket A — TV-Studio-Set (E17, Owner-Priorität aus Etappe 5; „4 Bilder tragen 80 %")
+| id | kind | priority | Format | Prompt-Kern |
+|---|---|---|---|---|
+| `tv_studio_wahlstudio` | room | must | 4:3, 1024×768 | election-night TV studio backdrop, anchor desk, big abstract poll graphic wall, cool blue studio light, no people, no text, `styleCore()` |
+| `tv_studio_sondersendung` | room | must | 4:3, 1024×768 | same studio re-lit in alarm red for a breaking-news special, `referenceId: tv_studio_wahlstudio` (gleicher Seed → gleiche Geometrie) |
+| `tv_anchor_sprecherin` | figure | must | 1:1, 1024 | news anchor woman, bust, facing camera, modest western TV dress, isolated on chroma magenta (Objekt-Isolation!) |
+| `tv_grafik_hochrechnung` | prop | nice | 16:9 klein | abstract election bar-chart overlay panel, no text (Text bleibt flexible Ebene, §4.5/E35) |
+
+Einsatzorte: `TvSet`-Baukasten (`WahlabendScene`) — Drop-in unter die bestehende
+Text-Ebene ohne API-Änderung; derselbe Baukasten bespielt künftig Broadcast-„Sondersendung".
+**Kosten: 4 Shots ≈ 1,10 $** (inkl. QC-Verschnitt).
+
+### Paket B — Wohnzimmer-Alphabet (5 Bilder, Etappe-4-Carry-forward, styleHome!)
+`wz_kuechenstreit` · `wz_einsam_videospiel` · `wz_abwinken_tv` · `wz_parteifahne` ·
+`wz_faktencheck_zeitung` — je kind `room`-Detail, 4:3, priority must (E6: Zustände NUR
+als Bilder sichtbar). WARNUNG aus dem Skill: zwingend `styleHome()` (warm), sonst
+„Propaganda-Fabrik-Look". **Kosten: 5 Shots ≈ 1,35 $.**
+
+### Paket C — aus den Review-Befunden (§2) abgeleitet
+_[WIRD NACH SYNTHESE GEFÜLLT — Kandidaten je nach Bestätigungslage: Lobby-Breitbild +
+Empfangstresen (V9-Rest), 9-Slice-DialogBox-Asset (V3 optional), Hi-Res-Avatar-Sheets
+(V16), Broadcast-TV-Rahmen.]_
+
+**Gesamt-Budget-Ansage (Pakete A+B): ~2,50 $ API + eine QC-/Platzierungs-Session.**
+Weit unter der SOUL-§3.8-Warnschwelle; die Budget-Ansage erfolgt trotzdem, weil
+Owner-Freigabe für JEDE Generierung vereinbart ist.
