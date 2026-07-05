@@ -53,10 +53,7 @@ export function previewSocietyDeltas(
   legality: string,
 ): { key: string; value: number }[] {
   if (!effects) return [];
-  const delta = societyDeltaFromAction(effects, 1, {
-    legality,
-    impactScale: effects.impact_scale,
-  });
+  const delta = societyDeltaFromAction(effects, 1, { legality });
   return (Object.entries(delta) as [string, number][])
     .map(([key, value]) => ({ key, value: Math.round(value) }))
     .filter(d => d.value !== 0)

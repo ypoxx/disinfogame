@@ -16,7 +16,7 @@ const baseSnapshot: SocietySnapshot = {
 
 describe('societyDeltaFromAction', () => {
   it('Verstärkung/Reichweite → Informationslast↑', () => {
-    const d = societyDeltaFromAction({ reach_multiplier: 1.5 }, 1, { legality: 'grey', impactScale: 'medium' });
+    const d = societyDeltaFromAction({ reach_multiplier: 1.5 }, 1, { legality: 'grey' });
     expect(d.informationslast).toBeGreaterThan(0);
   });
 
@@ -41,15 +41,21 @@ describe('societyDeltaFromAction', () => {
     expect(d.fraktionsstaerke).toBeGreaterThan(0);
   });
 
-  it('aggressive (illegale) Aktion polarisiert UND verroht, legale kaum', () => {
-    const illegal = societyDeltaFromAction({ impact_scale: 'high' }, 1, { legality: 'illegal', impactScale: 'high' });
-    const legal = societyDeltaFromAction({ impact_scale: 'high' }, 1, { legality: 'legal', impactScale: 'high' });
-    expect(illegal.polarisierung ?? 0).toBeGreaterThan(0);
-    expect(illegal.zynismus ?? 0).toBeGreaterThan(0);
-    // legale Aktion polarisiert/verroht NICHT (nur Informationslast als „Lärm").
-    expect(legal.polarisierung ?? 0).toBe(0);
-    expect(legal.zynismus ?? 0).toBe(0);
-    expect(legal.informationslast ?? 0).toBeGreaterThan(0);
+  it('impact_scale ist als WIRKMODELL abgeschafft (Etappe 5, §12.7): allein liefert es NICHTS', () => {
+    // Früher trieb impact_scale verdeckt die Werte breit. Jetzt liest die Engine es nicht
+    // mehr — der Beitrag wurde per Bake in explizite Effekt-Keys je Aktion geschrieben.
+    const nurImpact = societyDeltaFromAction({ impact_scale: 'high' }, 1, { legality: 'illegal' });
+    expect(nurImpact).toEqual({});
+  });
+
+  it('die gebackenen expliziten Keys polarisieren UND verrohen (grey/illegal-Rolle)', () => {
+    // So sehen die Aktionen NACH der Bake aus: explizite Keys statt qualitativem Gewicht.
+    const aggressiv = societyDeltaFromAction(
+      { political_leverage: 0.25, polarization: 0.2167, emotional_impact: 0.35 }, 1, { legality: 'illegal' },
+    );
+    expect(aggressiv.polarisierung ?? 0).toBeGreaterThan(0);
+    expect(aggressiv.zynismus ?? 0).toBeGreaterThan(0);
+    expect(aggressiv.fraktionsstaerke ?? 0).toBeGreaterThan(0);
   });
 
   it('leere Effekte → leeres Delta', () => {

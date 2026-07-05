@@ -5711,7 +5711,6 @@ export class StoryEngineAdapter {
     // gespiegelt (das bleibt die UI-Bilanz der Aktion).
     let societyDelta = societyDeltaFromAction(actionEffects, effectivenessMultiplier, {
       legality: loadedAction.legality,
-      impactScale: actionEffects.impact_scale,
     });
     // Krisenfenster (P3): solange aktiv, wirkt JEDE Aktion verstärkt.
     if (this.crisisWindowPhasesLeft > 0) {
