@@ -37,6 +37,12 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
     rollupOptions: {
+      // vqa.html = Fixture-Bühne der Visual-Review-Ernte (kein Spieler-Pfad,
+      // wird nirgends verlinkt; Playwright steuert sie direkt an).
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        vqa: path.resolve(__dirname, 'vqa.html'),
+      },
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],

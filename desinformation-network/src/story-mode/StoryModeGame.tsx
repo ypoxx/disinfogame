@@ -55,6 +55,7 @@ import { DayReport } from './components/DayReport';
 import { EndReport } from './components/EndReport';
 import { classifyMethods, withEpisodeLearnings } from './engine/DisinfoMethodAtlas';
 import { useDayClockStore, TIME_COST } from './stores/dayClockStore';
+import { installVqaBase, publishVqa } from './harness/vqaHook';
 import { usePanelStore } from './stores/panelStore';
 import { useDirectorStore } from './stores/directorStore';
 import { SidePanel } from './components/SidePanel';
@@ -430,6 +431,44 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dayEnded, state.gamePhase, state.currentDialog]);
+
+  // VQA-Ernte (nur mit ?vqa=1 aktiv, sonst no-op): Engine + Steuer-Callbacks für
+  // die Playwright-Screenshot-Ernte exponieren (scripts/visual-review/).
+  useEffect(() => {
+    installVqaBase();
+    publishVqa({
+      engine: state.engine,
+      gamePhase: state.gamePhase,
+      gameEnd: state.gameEnd,
+      hasDialog: !!state.currentDialog,
+      viewMode,
+      startGame,
+      chooseAuftrag,
+      endPhase,
+      requestEndDay,
+      interactWithNpc,
+      continueDialog,
+      dismissDialog,
+      pauseGame,
+      resumeGame,
+      ui: {
+        setViewMode,
+        setActivePanel,
+        setBroadcastExpanded,
+        setHudVisible,
+        setShowNewsroom,
+        setShowLagebild,
+        setShowBoard,
+        setShowFokusgruppe,
+        setShowPreTest,
+        setShowOperationsAkte,
+        setShowDayReport,
+        setWalkHome,
+        setShowEndReport,
+        setElectionNightDone,
+      },
+    });
+  });
 
   // Vertrauens-Fortschritt (Ministerium Institutionen) fürs Briefing/Fazit.
   const destabObjective = state.objectives.find((o) => o.type === 'primary');
