@@ -257,3 +257,45 @@ Offen für die Roadmap (priorisiert nach Gutachten):
     ziehen. Video-Reviews: Gemini 3.1 Pro nimmt webm inline (<19 MB) und liefert
     sekundengenaue Timing-Befunde; Claude-Gegenkontrolle über 4–6 Seek-Standbilder
     funktioniert gut.
+
+## Session 2026-07-06 — UI-Luxus-Paket (Etappen 0–4, Doppel-Review je Etappe)
+
+23. **Doppel-Review-Kontrakt (Code adversarial + Harvest-Vision) je Etappe zahlt
+    sich aus — aber die zwei Hälften finden GRUNDVERSCHIEDENE Klassen.** Der
+    Code-Review fand die ESC-Regression und den Zeitbasis-Bruch (Massen-Spawn bei
+    Remount) — beides UNSICHTBAR auf Screenshots. Die Vision-Hälfte fand Kontrast
+    (~4,9:1) und Stray-Glyphen — beides für den Code-Review unsichtbar. Keine der
+    beiden Hälften ist verzichtbar; die teuersten Befunde ([hoch]) kamen jeweils aus
+    der Hälfte, die man beim schnellen Blick übersprungen hätte.
+24. **Vision-Befunde IMMER per DOM/Frame gegenprüfen, bevor man „fixt".** Gemini
+    meldete dreimal eine „leere Zeile im AUSWIRKUNG-Kasten" und einmal „Buttons
+    kleben am Rand". DOM-Messung: die Buttons hatten 19/39 px Abstand (widerlegt —
+    Scroll-Anschnitt), die „Leerzeile" war ein reales, aber winziges Spacing-Artefakt
+    (redundantes `mb-1` neben `space-y-1`). Ein Fix ohne Messung hätte am falschen Ort
+    angesetzt. Muster aus der Vor-Session (Nr. 21) bestätigt sich: Verifikation vor Fix.
+25. **Lazy-Load-Assets „ploppen" wie Ein-Faden.** LB-Statisten wurden in frischen
+    Browser-Kontexten unsichtbar, weil das Walk-Sheet erst beim ersten Auftritt lud —
+    die Figur erschien mitten im Flur statt aus der Tür. Las im Clip exakt wie ein
+    Opacity-Fade. Lehre: Sprites, die zu einem getakteten Moment (Tür-Beat) sichtbar
+    werden MÜSSEN, vorladen, bevor die Uhr startet — sonst wird ein Ladefehler als
+    Animations-Bug fehldiagnostiziert.
+26. **rAF-Zeit ist Seiten-Zeit, nicht Komponenten-Zeit.** Die Ambient-State-Machine
+    rechnete ab 0, der Abspielkopf fütterte aber `performance.now()` (Zeit seit
+    Seitenladen). Beim Remount (Büro↔Gebäude) waren alle Ersttermine längst verstrichen
+    → alle Agenten traten im selben Frame auf, deterministisch bei jeder Rückkehr. Fix:
+    Epoche je Mount (`now − epoch`) + Stale-Klemme (verpasste Termine neu staffeln) +
+    Saat je Mount. Jede rAF-getriebene Uhr, die eine Komponenten-lokale Zeitrechnung
+    hat, braucht eine Mount-Epoche — sonst leckt die Seiten-Zeit ein.
+27. **Ersatzloses Entfernen eines UI-Wegs braucht einen Reach-Prüfstrang.** Der
+    L2-Umbau löschte die Aktionen-Seitenleiste. Der Code-Review-Strang „Erreichbarkeit/
+    tote Pfade" fand: ActionPanel-Container = toter Produktionscode (→ Archiv, Karten-
+    Kern als ActionCard extrahiert), TutorialOverlay-Schritt beschrieb den alten
+    Katalog, Panel-Hotkeys leckten hinter das neue Overlay, Harvest schoss ein
+    Duplikat unter altem Namen. Diese „Geister des alten Wegs" findet KEIN
+    Funktionstest — nur ein gezielter grep-nach-Restnutzern-Strang.
+28. **Kreditlimit killt Verifier zuerst.** Der L2-Review lief bei den Verify-Agenten
+    ins Limit (13/40 fertig). Die 5 Review-Dimensionen (Roh-Befunde) waren aber durch —
+    also inline selbst verifiziert + ein SEPARATER, schlanker Verifikations-Workflow
+    (4 Prüfstränge statt 40) nach den Fixes. Lehre: Roh-Befunde sind billig, Verifikation
+    teuer; bei Budget-Druck die Verifikation auf die tatsächlich bestätigten/gefixten
+    Punkte fokussieren statt jeden Roh-Verdacht einzeln zu widerlegen.
