@@ -9,8 +9,15 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `GESAMTKONZEPT_VISUELL.md` → dieses Dokument für den aktuellen Bau-Stand.
 > Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
-**Stand:** 2026-07-06 (UI-LUXUS-PAKET, Bau-Session — Etappen 0–4) · Branch
-`claude/ui-luxus-package-1szmrw` (Draft-PR #96) · Gate grün (`tsc 0` · `vitest 630` · `build`).
+**Stand:** 2026-07-06 (UI-LUXUS-PAKET — Etappen 0–4 GEMERGT via PR #96) · Gate grün
+(`tsc 0` · `vitest 630` · `build`). **Übergabe: `docs/HANDOFF_2026-07-06_UI_LUXUS.md`.**
+> Nach der Owner-Preview-Sichtung zusätzlich gefixt: Cover-Snap-Letterbox (Räume/Büros
+> füllen wieder), Queue-Widget verdeckte das Publikums-Wohnzimmer, kaputte TV-Glyphen;
+> NEU `hud_tv_testcard` (Sendepause-Testbild).
+> **Owner-Richtung NEU (bindend):** Broadcast voll diegetisch ausbauen — jedes wichtige
+> Ereignis bekommt ein eigenes Pixel-Art-Bild/Mini-Animation im TV (nicht nur Text).
+> Details: `MINISTRY_BROADCAST_CONCEPT.md` §7. **Das ist die Priorität der nächsten Session.**
+> Offen außerdem: L3–L8 des Plans (Korkbrett, Kontakte, HUD, Tageszyklus, Klang, Playtest).
 > Umsetzung von `PLAN_2026-07-06_UI_LUXUS.md` mit Doppel-Review-Kontrakt (§3b a).
 > - **Etappe 0 ✅ — State-of-the-Art-Memo:** `MEMO_2026-07-06_STATE_OF_THE_ART.md`
 >   (Integer-Scaling/devicePixelRatio-Formeln · diegetische Papier-/CRT-UI-Lehren
