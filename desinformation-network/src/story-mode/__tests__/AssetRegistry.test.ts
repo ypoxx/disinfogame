@@ -26,7 +26,7 @@ const MANIFEST: AssetsManifest = {
     { id: 'broken_sheet', type: 'sheet', file: 'sheets/broken.png', chosen: true },
     { id: 'sfx_click', type: 'sfx', file: 'sounds/sfx_click.mp3', chosen: true },
     { id: 'music_theme_main', type: 'music', file: 'sounds/music_theme_main.mp3', chosen: true },
-    { id: 'voice_direktor_intro', type: 'voice', file: 'sounds/voice_direktor_intro.mp3', chosen: true },
+    { id: 'voice_volkov_intro', type: 'voice', file: 'sounds/voice_volkov_intro.mp3', chosen: true },
   ],
 };
 
@@ -71,7 +71,7 @@ describe('AssetRegistry (Auflösung von Asset-ids)', () => {
   it('idsByType filtert und sortiert', () => {
     const reg = new AssetRegistry(MANIFEST);
     expect(reg.idsByType('sheet')).toEqual(['broken_sheet', 'player_walk']);
-    expect(reg.idsByType('voice')).toEqual(['voice_direktor_intro']);
+    expect(reg.idsByType('voice')).toEqual(['voice_volkov_intro']);
   });
 
   it('voiceAssetId folgt der Studio-Konvention (concept.ts)', () => {

@@ -24,13 +24,14 @@ export function seedFor(id) {
 
 export const MOODS = ['happy', 'angry', 'worried', 'suspicious']; // + Basis "neutral" = Default-Porträt
 
-/** Intro-Zeile des Direktors — exakt der Text aus useStoryGameState (verdrahtet). */
+/** Intro-Zeile des Kurators Volkov — exakt der Text aus useStoryGameState (verdrahtet, 40-Tage-Modell). */
 export const INTRO_VOICE_LINE = {
-  npcId: 'direktor',
+  npcId: 'volkov',
   lineKey: 'intro',
   text:
-    'Willkommen in der Abteilung für Sonderoperationen. Ihre Mission: die politische ' +
-    'Landschaft von Westunion zu destabilisieren. Sie haben 10 Jahre Zeit. Nutzen Sie sie weise.',
+    'Willkommen, Direktor. Sie leiten ab heute die Abteilung für Sonderoperationen. ' +
+    'Ihr Auftrag: die radikale Kraft über die Schwelle bringen — vor dem Wahltag in 40 Tagen. ' +
+    'Das Vertrauen der Leute zu zersetzen, ist nur das Mittel. Die Zentrale misst Sie am Ergebnis.',
 };
 
 // Englische Bild-Beschreibungen je Raum/NPC (Inhalts-Hinweise aus dem Style-Guide

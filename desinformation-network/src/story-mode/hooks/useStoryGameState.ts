@@ -641,6 +641,7 @@ export function useStoryGameState(seed?: string) {
       speakerTitle: 'Verbindung zur Zentrale',
       text: 'Willkommen, Direktor. Sie leiten ab heute die Abteilung für Sonderoperationen. Ihr Auftrag: die radikale Kraft über die Schwelle bringen — vor dem Wahltag in 40 Tagen. Das Vertrauen der Leute zu zersetzen, ist nur das Mittel. Die Zentrale misst Sie am Ergebnis.',
       mood: 'neutral',
+      voiceAssetId: 'voice_volkov_intro',
     });
   }, [refreshAvailableActions, generateRecommendations]);
 

@@ -730,6 +730,9 @@ export class StoryEngineAdapter {
   private newsEvents: NewsEvent[] = [];
   private objectives: Objective[] = [];
   private npcStates: Map<string, NPCState> = new Map();
+  // Figuren, die der Spieler schon getroffen hat → beim ERSTEN Gespräch spielt
+  // die vertonte first_meeting-Zeile statt der Begrüßung (Vorstellungsrunde).
+  private metNpcs: Set<string> = new Set();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private npcDialogues: Map<string, any> = new Map();
   private actionHistory: { phase: number; actionId: string; result: ActionResult }[] = [];
@@ -6443,6 +6446,20 @@ export class StoryEngineAdapter {
 
     switch (context.type) {
       case 'greeting': {
+        // Erstbegegnung: beim ERSTEN Gespräch die vertonte first_meeting-Zeile
+        // (Vorstellungsrunde), dann als „getroffen" merken. Bühnenanweisungen (*…*)
+        // fürs Voiceover entfernt, damit angezeigter Text und Tonspur 1:1 passen.
+        if (!this.metNpcs.has(npcId)) {
+          this.metNpcs.add(npcId);
+          const firstMeeting = this.getNPCFirstMeeting(npcId);
+          if (firstMeeting?.text_de) {
+            return {
+              text: this.stripStageDirections(firstMeeting.text_de),
+              voiceAssetId: `voice_${npcId}_first`,
+              mood: 'neutral',
+            };
+          }
+        }
         const level = context.relationshipLevel ?? npc.relationshipLevel;
         // Platinum-Pfad (dialogues.json): mehrere Texte pro Level → kein 1:1-Match zur Tonspur
         const platinumDialogue = dialogLoader.getGreeting(npcId, level, rng);
@@ -7164,6 +7181,11 @@ export class StoryEngineAdapter {
     };
 
     return this.dialogLoader.getCrisisDialogue(npcId, conditions);
+  }
+
+  /** Entfernt Bühnenanweisungen (*…*) und normalisiert Leerraum — für vertonte Zeilen. */
+  private stripStageDirections(text: string): string {
+    return text.replace(/\*[^*]*\*/g, '').replace(/\s+/g, ' ').trim();
   }
 
   /**
