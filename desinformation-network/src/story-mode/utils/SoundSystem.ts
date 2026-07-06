@@ -164,7 +164,8 @@ const SOUND_CONFIGS: Record<SoundType, SoundConfig> = {
   doorOpen: { frequency: 160, duration: 0.18, type: 'triangle', volume: 0.12, decay: true },
   doorClose: { frequency: 110, duration: 0.22, type: 'triangle', volume: 0.15, decay: true },
   elevator: { frequency: 90, duration: 0.5, type: 'sine', volume: 0.1, secondFreq: 880 },
-  footsteps: { frequency: 130, duration: 0.08, type: 'triangle', volume: 0.08, decay: true },
+  // Bewusst leise/dezent: Schritte spielen im Laufzyklus sehr häufig (Owner-Wunsch).
+  footsteps: { frequency: 130, duration: 0.08, type: 'triangle', volume: 0.035, decay: true },
   tvOn: { frequency: 1200, duration: 0.12, type: 'sawtooth', volume: 0.08, decay: true },
   paper: { frequency: 600, duration: 0.07, type: 'triangle', volume: 0.07, decay: true },
   phoneRing: { frequency: 740, duration: 0.25, type: 'sine', volume: 0.12, secondFreq: 880 },
