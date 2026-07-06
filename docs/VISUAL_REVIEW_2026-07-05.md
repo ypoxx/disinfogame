@@ -133,6 +133,47 @@ Befund-Familien**, P3–P5 sind Einzelkorrekturen.
 - **Diegese:** Lagebild öffnet als nacktes graues UI-Fenster (kein TV-Rahmen); Warteschlange fordert „Wähle Aktionen im Terminal", aber kein Hotspot heißt Terminal; Korkbrett-Karten zeigen Preis, aber keine Wirkung/Stempel (M1 — Etappe-4-Stempel fehlen an der Tafel).
 - **Owner-Geschmack (5 bestätigt):** Kürzel-Hilfe nutzt Alarm-Rot-Rahmen · Lobby-Boden hat gemalte Tiefen-Perspektive im sonst flachen Querschnitt · „Social Listening"-Label · UI-Nacht-Tönung · Tagesbogen komprimiert (09:00 fast nächtlich, goldene Stunde ab 14:25).
 
+## 2b. Nachtrag (Owner-Feedback 2026-07-06): der blinde Fleck „UI-Materialwelt"
+
+Der Owner hat mit eigenen Screenshots (Berater-Panel ausgeklappt, Berater-Detail-Modal,
+Aktionen-Warteschlange, Avatar-Wahl) einen Punkt benannt, den das Review NICHT
+herausgearbeitet hat — Verdikt: **berechtigt, echter Methodik-Befund.**
+
+**Was das Review sah und was nicht:** Die Warteschlange wurde 8× beanstandet — aber
+immer wegen Position/Überdeckung, nie wegen ihrer GESTALT (Oliv-Kopfband, graue
+Web-Karte, glatte Fortschrittsbalken). Das **ausgeklappte Berater-Panel und sein
+Detail-Modal wurden gar nicht geerntet** (standen bereits als Lücke 6 im Backlog —
+die Owner-Screenshots zeigen genau diese Ansichten). Die Avatar-Wahl wurde nur für
+die Web-Schrift beanstandet; die **uneinheitlichen Porträt-Ausschnitte** (mal große
+Kopf-Nahaufnahme, mal kleine Halbfigur — die Köpfe unterschiedlich groß im Raster)
+hat kein Prüfer gemeldet.
+
+**Warum das systematisch passierte (nicht nur Pech):** Das Review prüfte gegen die
+Stil-Bibel — und die definiert für die Spiel-UI-Schicht nur Rahmen/Font/Icons (§4.5)
+plus Verbotsliste (§4.6). Sie definiert **keine UI-Material- und Farbwelt** (Woraus
+sind Panels „gemacht"? Akten-Papier? Beton? Warum Olivgrün?). Ohne Soll kein
+Verstoß: Die Prüfer konnten „flach/Web" melden, aber nicht „falsche Farbwelt".
+Das Olivgrün/Grau/Rot der Panels stammt aus `theme.ts` (`StoryModeColors`,
+militaryOlive etc.) — der Alt-Welt VOR der visuellen Verfassung; die Panels wurden
+beim Rework umgefärbt, aber nie aus dem neuen Konzept heraus NEU GEDACHT (der Owner-
+Begriff dafür: die UI soll diegetisch wirken — wie Objekte der Spielwelt: Akte,
+Klemmbrett, Terminal — verwandt mit Skeuomorphismus). Zweite Methodik-Lücke:
+Kompositions-Konsistenz ÜBER Asset-Familien (Porträt-Zuschnitte) stand nicht in der
+Prüf-Basis — die verglich Größen in der Welt, nicht Bild-Ausschnitte im UI.
+
+**Konsequenz (drei konkrete Schritte, siehe §6 Paket D):**
+1. **UI-Stil-Lock zuerst (Owner-Entscheidung):** 2–3 Material-/Farbwelt-Varianten als
+   Gemini-Mockups für DIESELBE Ansicht (Berater-Panel) — z. B. „Behörden-Akte"
+   (Papier/Karteikarten/Stempel), „Beton & Bakelit" (Ministeriic-Hardware), „Oliv-
+   Militaria" (bewusst beibehalten, aber texturiert). Owner wählt EINE → wird als
+   **§4.7 „UI-Material & Farben" in die Stil-Bibel** geschrieben. Ohne dieses Soll
+   bleibt jedes künftige Review hier blind.
+2. **UI-Material-Kit generieren (Paket D):** 9-Slice-Rahmen-Set + kachelbare
+   Panel-/Kopfband-Texturen + Balken-/Badge-Stile in der gewählten Welt — die
+   bestehenden Panels werden damit UMGEKLEIDET (CSS bleibt, Material wird Pixel).
+3. **Ernte-Nachschlag:** Berater ausgeklappt + Detail-Modal + gefüllte Queue in die
+   nächste Ernte (Lücken 6/13); Porträt-Zuschnitt-Konsistenz in die Prüf-Basis.
+
 ## 3. Regressions-Sweep (früher gefixte Klassen)
 
 | Klasse | Ergebnis |
@@ -234,6 +275,26 @@ als Bilder sichtbar). WARNUNG aus dem Skill: zwingend `styleHome()` (warm), sons
 
 Paket C gesamt: ~9–11 Shots ≈ **3 $** API (+ QC). **Erst nach Owner-Blick auf die
 Galerie freigeben** — B7/B10 sind ggf. schon durch Paket 0 + Trim erledigt.
+
+### Paket D — UI-Materialwelt (Nachtrag §2b, Owner-Auftrag 2026-07-06)
+**Schritt 1 — Stil-Lock (zuerst, ~6–9 Mockup-Bilder ≈ 1,50 $):** dieselbe Ansicht
+(Berater-Panel) in 2–3 Material-Varianten („Behörden-Akte" Papier/Karteikarte/Stempel ·
+„Beton & Bakelit" · „Oliv-Militaria texturiert") — Owner wählt EINE; Ergebnis wird
+§4.7 der Stil-Bibel.
+**Schritt 2 — Material-Kit in der Sieger-Welt (~8–10 Shots ≈ 2,50 $):**
+| id | kind | Inhalt |
+|---|---|---|
+| `ui_frame_light/standard/alarm` | prop (9-Slice) | DIE drei Rahmen für alle Panels/Modals |
+| `ui_panel_paper`/`ui_panel_dark` | tile | kachelbare Panel-Hintergründe (statt Flächenfarbe) |
+| `ui_header_band` | tile | Kopfband-Textur (ersetzt das flache Oliv) |
+| `ui_bar_segments` | prop | Fortschritts-/Moral-Balken als Pixel-Segmente |
+| `ui_badge_set` | prop | HOCH/Prio-/Legalitäts-Badges als Stempel |
+| `ui_clipboard_frame` | prop | Klemmbrett-/Akten-Motiv für Warteschlange + Berater |
+**Zusätzlich (Porträt-Konsistenz, Owner-Befund):** 6 Avatar-Porträts mit einheitlichem
+Zuschnitt re-generieren (`referenceId` je Bestandsbild, gleicher Seed ≈ 1,60 $) —
+gleicher Kopf-Anteil, gleiche Schulterhöhe im Raster.
+Paket D gesamt: **~5,60 $ API** + Stil-Lock-Entscheidung + eine Umbau-Session
+(Panels umkleiden, reine CSS-/Asset-Arbeit ohne Logik-Änderung).
 
 **Gesamt-Budget-Ansage: Pakete A+B ≈ 2,50 $ · Paket C ≈ 3 $ API + je eine QC-/
 Platzierungs-Session.** Weit unter der SOUL-§3.8-Warnschwelle; die Budget-Ansage
