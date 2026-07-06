@@ -116,7 +116,10 @@ export function useNavigator(initial?: AvatarPosition): UseNavigatorResult {
       const run: RunHandle = { cancelled: false, timeouts: [], raf: null, intervals: [] };
       runRef.current = run;
       arriveRef.current = { roomId, cb: onArrive };
-      setState((s) => ({ ...s, targetRoomId: roomId }));
+      // Transienten Fahrstuhl-Zustand normalisieren: cancelRun() löscht nur Timer —
+      // ein goTo() mitten im Tür-Beat würde sonst avatarInCabin=true stranden
+      // (Avatar liefe unsichtbar los, Review Etappe 1).
+      setState((s) => ({ ...s, targetRoomId: roomId, avatarInCabin: false, cabinDoorsOpen: false, openDoorRoomId: null }));
       // K1: Wege kosten Spielzeit — die Route bucht ihre Minuten auf die Tagesuhr
       // (auch bei Skip korrekt, da vorab gebucht).
       useDayClockStore.getState().advance(routeTimeCostMin(steps));

@@ -85,4 +85,18 @@ describe('snapCoverScale', () => {
       expect(isClean(r.scale)).toBe(true);
     }
   });
+
+  it('contain überragt die Fläche NIE (Review-Fix: Snap am Contain-Fit)', () => {
+    // Ultrawide: up=3 hätte 61 % Zuschnitt → contain muss ≤ Fläche bleiben.
+    const r1 = snapCoverScale(3440, 900, 1344, 768, 1);
+    expect(r1.mode).toBe('contain');
+    expect(r1.width).toBeLessThanOrEqual(3440);
+    expect(r1.height).toBeLessThanOrEqual(900);
+    expect(r1.scale).toBe(1);
+    // Gleichheits-Falle: coverFit=2 exakt, Zuschnitt 29,7 % > maxCrop —
+    // contain darf NICHT dieselbe verworfene Stufe zurückgeben.
+    const r2 = snapCoverScale(2688, 1080, 1344, 768, 1, 0.2);
+    expect(r2.mode).toBe('contain');
+    expect(r2.height).toBeLessThanOrEqual(1080);
+  });
 });

@@ -663,7 +663,7 @@ export function ActionPanel({
           className="text-center py-8"
           style={{ color: StoryModeColors.textSecondary }}
         >
-          Keine Aktionen fur aktuelle Filter verfugbar.
+          Keine Aktionen für aktuelle Filter verfügbar.
         </div>
       ) : (
         <div className={variant === 'sidebar' ? 'space-y-3' : 'grid grid-cols-2 gap-3'}>
@@ -713,7 +713,7 @@ export function ActionPanel({
         className="text-[10px]"
         style={{ color: StoryModeColors.textMuted }}
       >
-        Grau/Illegal erhoht Risiko
+        Grau/Illegal erhöht Risiko
       </div>
     </div>
   );

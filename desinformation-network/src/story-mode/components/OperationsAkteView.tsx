@@ -431,7 +431,7 @@ export function OperationsAkteView({
           </div>
           <button
             onClick={onClose}
-            aria-label="Operations-Akte schliessen"
+            aria-label="Operations-Akte schließen"
             style={{
               background: 'none',
               border: `2px solid ${StoryModeColors.ministryRed}`,

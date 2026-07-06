@@ -751,7 +751,8 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
         `head-and-shoulders bust, front-facing turned slightly left, the head is exactly ` +
         `40 percent of the image height, the eye line sits on the upper-third line, ` +
         `the bottom edge cuts at mid-chest, generous even margin above the hair. ` +
-        `${hint}. Plain dark concrete wall background. No text. ${style}`,
+        `${hint}. Background: one PLAIN FLAT dark concrete wall only — NO interior scene, ` +
+        `NO furniture, NO windows, NO corridors. No text. ${style}`,
     });
   }
 

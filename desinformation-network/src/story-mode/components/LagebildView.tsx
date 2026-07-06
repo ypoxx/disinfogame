@@ -110,8 +110,14 @@ function ObjectivesBlock({ objectives }: { objectives: Objective[] }) {
             <div key={obj.id}>
               <div className="flex justify-between text-xs mb-0.5">
                 <span style={{ color: obj.completed ? StoryModeColors.success : StoryModeColors.textPrimary }}>{obj.completed ? '✓ ' : ''}{obj.label_de}</span>
-                {/* B22: „100/40" las sich als „100 von 40" — Ziel ist, UNTER die Marke zu kommen. */}
-                <span style={{ color: StoryModeColors.textMuted }}>jetzt {Math.round(obj.currentValue)} → Ziel unter {obj.targetValue}</span>
+                {/* B22: „100/40" las sich als „100 von 40" — Ziel ist, UNTER die Marke zu
+                    kommen. Halte-Ziele (survival) führen kein lebendes currentValue —
+                    dort nur die Marke. Kein „→": U+2192 fehlt den Pixel-Fonts. */}
+                <span style={{ color: StoryModeColors.textMuted }}>
+                  {obj.category === 'survival'
+                    ? `unter ${obj.targetValue} halten`
+                    : `Stand ${Math.round(obj.currentValue)} · Ziel unter ${obj.targetValue}`}
+                </span>
               </div>
               <div className="h-1.5 bg-black/30 overflow-hidden">
                 <div className="h-full" style={{ width: `${progress}%`, backgroundColor: obj.completed ? StoryModeColors.success : StoryModeColors.militaryOlive }} />

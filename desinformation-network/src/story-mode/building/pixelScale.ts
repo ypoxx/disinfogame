@@ -74,6 +74,9 @@ export function snapCoverScale(
   if (Math.max(cropW, cropH) <= maxCrop) {
     return { scale: up, mode: 'cover', width: nativeW * up, height: nativeH * up };
   }
-  const down = snapPixelScale(coverFit, dpr);
+  // contain snappt am CONTAIN-Fit (min der Achsen), nicht am Cover-Fit — sonst
+  // überragt „contain" die Fläche (Review Etappe 1: Ultrawide schnitt 41 % ab).
+  const containFit = Math.min(areaW / nativeW, areaH / nativeH);
+  const down = snapPixelScale(containFit, dpr);
   return { scale: down, mode: 'contain', width: nativeW * down, height: nativeH * down };
 }

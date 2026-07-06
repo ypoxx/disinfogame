@@ -6,6 +6,24 @@
 import { useEffect, useLayoutEffect, useState, type RefObject } from 'react';
 import { snapCoverScale, type CoverSnap } from '../building/pixelScale';
 
+/**
+ * devicePixelRatio als React-State. Re-subscribed nach JEDEM Wechsel (MDN-Muster):
+ * eine `(resolution: Xdppx)`-Query feuert nur beim Kippen ihres matches-Status —
+ * ohne Re-Registrierung bliebe der zweite Monitor-/Zoom-Wechsel unbemerkt und
+ * die Welt-Ebene rasterte wieder krumm (Review Etappe 1).
+ */
+export function useDpr(): number {
+  const [dpr, setDpr] = useState(() => (typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1));
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+    const mq = window.matchMedia(`(resolution: ${dpr}dppx)`);
+    const onChange = () => setDpr(window.devicePixelRatio || 1);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, [dpr]);
+  return dpr;
+}
+
 export function useElementSize(ref: RefObject<HTMLElement | null>): { w: number; h: number } {
   const [size, setSize] = useState({ w: 0, h: 0 });
   useLayoutEffect(() => {
@@ -31,6 +49,9 @@ export function useNaturalSize(url: string | null | undefined): { w: number; h: 
     if (!url) { setSize(null); return; }
     const cached = naturalSizeCache.get(url);
     if (cached) { setSize(cached); return; }
+    // Kontrakt „unbekannt = null": beim URL-Wechsel NICHT die Maße des alten
+    // Bilds weiterreichen (sonst rechnet der Snap gegen falsche native Maße).
+    setSize(null);
     let alive = true;
     const img = new Image();
     img.onload = () => {
@@ -38,6 +59,8 @@ export function useNaturalSize(url: string | null | undefined): { w: number; h: 
       naturalSizeCache.set(url, s);
       if (alive) setSize(s);
     };
+    // Ladefehler: bewusst bei null bleiben — Konsumenten behalten ihren Fallback.
+    img.onerror = () => { if (alive) setSize(null); };
     img.src = url;
     return () => { alive = false; };
   }, [url]);
@@ -53,6 +76,9 @@ export function usePixelCover(
   natural: { w: number; h: number } | null,
   maxCrop = 0.2,
 ): CoverSnap | null {
+  // dpr als State: löst bei Monitor-/Zoom-Wechsel das Re-Rendern aus (sonst
+  // bliebe der Snap auf dem alten Geräte-Raster stehen).
+  const dpr = useDpr();
   if (!natural || area.w <= 0 || area.h <= 0) return null;
-  return snapCoverScale(area.w, area.h, natural.w, natural.h, undefined, maxCrop);
+  return snapCoverScale(area.w, area.h, natural.w, natural.h, dpr, maxCrop);
 }

@@ -837,7 +837,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         objectives={state.objectives.map(o => ({
           id: o.id,
           title: o.label_de,
-          progress: o.currentValue,
+          // B22: richtungs-bewusster Engine-Fortschritt (0–100), NICHT currentValue —
+          // beim Senk-Ziel (Vertrauen 100→40) wäre der Balken sonst ab Start voll.
+          progress: o.progress,
           target: o.targetValue,
           isCompleted: o.completed,
           isPrimary: o.type === 'primary',
@@ -1184,6 +1186,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               targetValue: o.targetValue,
               completed: o.completed,
               isPrimary: o.type === 'primary',
+              category: o.category,
             }))}
             actions={state.availableActions.map((a) => ({
               id: a.id,

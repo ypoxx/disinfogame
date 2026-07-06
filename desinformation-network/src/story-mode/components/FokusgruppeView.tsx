@@ -592,7 +592,7 @@ export function FokusgruppeView({
         {/* Schließen-Button ✕ (Escape) */}
         <button
           onClick={onClose}
-          aria-label="Fokusgruppe schliessen"
+          aria-label="Fokusgruppe schließen"
           style={{
             background: 'none',
             border: `2px solid ${StoryModeColors.ministryRed}`,

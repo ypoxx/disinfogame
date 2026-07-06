@@ -40,6 +40,8 @@ export interface BoardObjective {
   targetValue: number;
   completed: boolean;
   isPrimary: boolean;
+  /** Engine-Kategorie: 'survival' = Halte-Ziel ohne lebendes currentValue (B22). */
+  category?: string;
 }
 
 export interface BoardThread {
@@ -231,9 +233,14 @@ export function NarrativeBoard({
                 >
                   <Icon name="mission" size={12} title="Ziel" />
                   <span className="text-[11px] font-bold">{o.isPrimary ? 'ZIEL' : 'Nebenziel'}: {o.label_de}</span>
-                  {/* B22: „100/40" las sich als „100 von 40" — beide Missionsziele sind
-                      Senk-/Halte-Ziele (Wert unter die Marke drücken bzw. halten). */}
-                  <span className="text-[11px]">jetzt {Math.round(o.currentValue)} → Ziel unter {o.targetValue}{o.completed ? ' ✓' : ''}</span>
+                  {/* B22: „100/40" las sich als „100 von 40". Halte-Ziele (survival)
+                      führen kein lebendes currentValue — dort nur die Marke. */}
+                  <span className="text-[11px]">
+                    {o.category === 'survival'
+                      ? `unter ${o.targetValue} halten`
+                      : `Stand ${Math.round(o.currentValue)} · Ziel unter ${o.targetValue}`}
+                    {o.completed ? ' ✓' : ''}
+                  </span>
                 </div>
               ))}
             </div>

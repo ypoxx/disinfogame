@@ -167,7 +167,7 @@ export function MissionPanel({
                     </span>
                     <span style={{ color: reached ? StoryModeColors.success : StoryModeColors.textSecondary }}>
                       {reached ? '✓ ' : ''}
-                      jetzt {Math.round(cur)} → Ziel {s.ziel}
+                      jetzt {Math.round(cur)} · Ziel {s.ziel}
                     </span>
                   </div>
                   <div className="h-2 w-full" style={{ backgroundColor: StoryModeColors.border }}>
@@ -236,9 +236,11 @@ export function MissionPanel({
                   className="text-sm mt-1"
                   style={{ color: StoryModeColors.textSecondary }}
                 >
-                  {/* B22: „100 / 40" las sich als „100 von 40" — beide Hauptziele sind
-                      Senk-/Halte-Ziele (Wert unter die Marke drücken bzw. halten). */}
-                  Stand {Math.round(obj.currentValue)} → Ziel unter {obj.targetValue}
+                  {/* B22: „100 / 40" las sich als „100 von 40". Halte-Ziele (survival)
+                      führen kein lebendes currentValue — dort nur die Marke. */}
+                  {obj.category === 'survival'
+                    ? `unter ${obj.targetValue} halten`
+                    : `Stand ${Math.round(obj.currentValue)} · Ziel unter ${obj.targetValue}`}
                 </div>
               </div>
             </div>

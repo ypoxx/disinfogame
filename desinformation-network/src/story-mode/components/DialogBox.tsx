@@ -236,9 +236,12 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
 
   // B24: Hinweis neu messen, sobald die Options-Liste (nach dem Tippen) erscheint
   // oder die Nachricht wechselt — erst dann existiert die Scroll-Box im DOM.
+  // Auch bei Viewport-Änderung (maxHeight ist vh-abhängig, Review Etappe 1).
   const choicesCount = message?.choices?.length ?? 0;
   useEffect(() => {
     updateChoicesScrollHint();
+    window.addEventListener('resize', updateChoicesScrollHint);
+    return () => window.removeEventListener('resize', updateChoicesScrollHint);
   }, [isComplete, choicesCount, message?.text]);
 
   if (!isVisible || !message) return null;
@@ -432,19 +435,19 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
                 </button>
               ))}
             </div>
-            {/* B24: Verlaufskante + Pfeil, solange unten weitere Optionen liegen;
+            {/* B24: statischer Pixel-Marker, solange unten weitere Optionen liegen
+                (§4.6: kein Web-Verlauf, kein Blinken — „gestempelt statt geblinkt");
                 pointer-events-none, damit Klicks die Optionen darunter erreichen. */}
             {choicesScrollHint && (
-              <div
-                className="pointer-events-none absolute bottom-0 left-0 right-0 flex items-end justify-center"
-                style={{
-                  height: '32px',
-                  background: `linear-gradient(to bottom, transparent, ${StoryModeColors.surface})`,
-                }}
-              >
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 flex items-end justify-center">
                 <span
-                  className="text-xs font-bold animate-pulse"
-                  style={{ color: StoryModeColors.warning }}
+                  className="text-xs font-bold"
+                  style={{
+                    color: StoryModeColors.warning,
+                    backgroundColor: 'rgba(10,10,14,0.92)',
+                    border: `1px solid ${StoryModeColors.borderLight}`,
+                    padding: '1px 8px',
+                  }}
                 >
                   ▼ MEHR
                 </span>

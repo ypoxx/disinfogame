@@ -9,6 +9,54 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `GESAMTKONZEPT_VISUELL.md` → dieses Dokument für den aktuellen Bau-Stand.
 > Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
+**Stand:** 2026-07-06 (UI-LUXUS-PAKET, Bau-Session — Etappen 0+1) · Branch
+`claude/ui-luxus-package-1szmrw` · Gate grün (`tsc 0` · `vitest 586` · `build`).
+> Umsetzung von `PLAN_2026-07-06_UI_LUXUS.md` mit Doppel-Review-Kontrakt (§3b a).
+> - **Etappe 0 ✅ — State-of-the-Art-Memo:** `MEMO_2026-07-06_STATE_OF_THE_ART.md`
+>   (Integer-Scaling/devicePixelRatio-Formeln · diegetische Papier-/CRT-UI-Lehren
+>   [Papers Please/Obra Dinn/Duskers] · Ambient-NPC-Routinen [Stardew/ONI/Highrise]).
+> - **Etappe 1 ✅ (Code) — Auflösungs-Etappe + Sofort-Paket-Rest:**
+>   **B1-Kern:** Welt-Bühne nur noch pixel-sauber skaliert (`pixelScale.ts`, physisch
+>   ganzzahlig/Stammbruch inkl. dpr; Kamera-/Skalier-Ebenen-Split; Geräte-Pixel-Offsets;
+>   Scale 0,544→**0,5 exakt**, Avatar rendert 1:1 nativ — Browser-Smoke belegt).
+>   Welt-Text nativ gerastert (WorldAnchor-Gegenskalierung: Türschilder/Etagen-Schilder/
+>   Sprechblasen/ETAGEN-Plakette, in getrennten Beschriftungs-Spuren). Raum-Nahsicht +
+>   alle Vollbild-Views auf Cover-Snap (`usePixelFit`-Hooks). Tür-Assets auf ihre
+>   96×144-Welt-Box resampelt (Verzerrung raus, `scripts/fit-door-assets.mjs`).
+>   Skyline/Untergrund welt-kohärent am Bühnen-Scale. **B2/B21:** Pixel-Weltschrift als
+>   globaler Default, Inter/Web-Sans entfernt, Ligaturen aus. **B9:** Fahrstuhl-Z-Ordnung
+>   + Tür-Beat-Choreografie. **B11/B12:** Shredder-Fehlplatzierung (war das „Fragment"),
+>   Kaffeeküche, Wanduhr (yOffset 2,0 m), Statisten-Konstante. **B19–B24:** Umlaute,
+>   Englisch-Reste (Netz-Lauschposten/Themen im Aufwind/Netz-Ticker; interne Tags von
+>   der Karte entfernt, M4-Präzedenz), Ziel-Chip/Balken richtungs-bewusst, $-Währung →
+>   symbolfrei, Abschnitt-Fixes (Uhr/Stats/Dialog-Option/Beat-Modal-Scroll).
+>   **V16-Entscheid:** KEINE HD-Neugenerierung — nach Integer-Scaling rendert der
+>   64-px-Avatar 1:1 nativ; „zu pixelig" war primär der Matsch-Faktor (Texel-Dichte-
+>   Konsistenz schlägt Auflösung; Owner-Blick am Preview bestätigt das oder kippt es).
+>   **Generierung (Budget-Freigabe, ~1,80 $):** 6 Spieler-Porträts re-framed
+>   (einheitlicher Bust-Zuschnitt; f2-Rahmen-Ausschuss + m2/f1 nachgeneriert;
+>   m2 behält kanonischen Koffer — Rest-Feintuning = Owner-Geschmack) +
+>   `bld_underground` neu OHNE Röntgen-Räume (B10 ✅, Vision-QC bestätigt).
+>   **Doppel-Review-Kontrakt (§3b a) ERFÜLLT:**
+>   (1) Code adversarial (Workflow, 4 Dimensionen → 17 Roh-Befunde → 16 bestätigt /
+>   1 widerlegt, ALLE bestätigten gefixt): snapCoverScale-contain-Zweig (hoch),
+>   dpr-Listener-Resubscribe (`useDpr`), useNaturalSize-Stale/onerror, Navigator-
+>   Tür-Beat-Race, ETAGEN-Plakette klick-tot, DialogBox-Scroll-Hinweis §4.6-konform
+>   (Stempel statt Verlauf/Puls) + resize-reaktiv, B22-Familie überall richtungs-
+>   bewusst inkl. obj_survive-Sonderfall (HUD/Stats/Lagebild/Mission/Korkbrett),
+>   „→"-Glyphe (fehlt den Pixel-Fonts) ersetzt, B19-Nachzügler.
+>   (2) Harvest-Vision (volle Ernte 102 Artefakte + Nach-Shots, Gemini-Zweitmeinung,
+>   adversarial verifiziert): Fahrstuhl-B9 in allen 3 Phasen bestätigt sauber;
+>   Pförtner-Blase verdeckte EG-Schild → öffnet jetzt nach unten-rechts (gefixt);
+>   4 Gemini-Befunde widerlegt (VT323 ≠ Web-Sans per Pixel-Zoom belegt; „Figuren
+>   vor Fahrstuhltüren" = Fehldeutung). Geometrie-Audit: weiterhin 1 Befund
+>   (Shredder-Maßstab = bekannter Owner-Geschmack). Gate final: tsc 0 ·
+>   vitest 587 · build · Smoke Scale=0,5/0 Fehler.
+> - **Bewusst NICHT gemacht:** Statisten-Figuren behalten 112 px (1,53 m) trotz
+>   96-px-Nativhöhe — reale Proportion schlägt Texel-Reinheit (Review §1.2 stuft die
+>   Klasse als konsistent ein); Deko-Props behalten ihre Welt-Höhen (Resample-Batch
+>   wäre L1-Material-Session). Stühle-¾-Perspektive/Lobby-Tiefe = Owner-Geschmack, offen.
+
 **Stand:** 2026-07-05 (VISUAL-COHERENCE-REVIEW — Befunde + Plan, KEINE Fixes) · Branch
 `claude/visual-coherence-review-26f8av` (Draft-PR #95) · Gate grün (`tsc 0` · `vitest 575` · `build`).
 > Optisches Gesamt-Review per wiederverwendbarer Playwright-Ernte + orchestriertem Vision-Review.

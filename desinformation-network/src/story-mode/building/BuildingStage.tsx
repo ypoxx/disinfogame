@@ -14,6 +14,7 @@
 import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { snapPixelScale, snapToDevicePixel } from './pixelScale';
+import { useDpr } from '../hooks/usePixelFit';
 import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
 import { usePlayerProfile, playerWalkSheetId, playerIdleSheetId } from '../stores/playerProfileStore';
@@ -220,6 +221,9 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
     if (frame === 0 || frame === 4) playSound('footsteps');
   }, []);
 
+  // dpr über den re-subscribenden Hook (Review-Fix: eine feste dppx-Query erkennt
+  // nur den ERSTEN Wechsel — useDpr registriert nach jedem Wechsel neu, Memo §1).
+  const dpr = useDpr();
   useLayoutEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -228,20 +232,15 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
         // Gebäude schmaler als der Schirm: Stadt bleibt links/rechts sichtbar.
         // §4.1/B1: nur pixel-saubere Faktoren (physisch ganzzahlig bzw. Stammbruch) —
         // der frühere freie Float (~0,544) hat die gesamte Welt-Ebene weichgezeichnet.
-        scale: snapPixelScale(el.clientWidth / (layout.width * CITY_MARGIN_FACTOR)),
+        scale: snapPixelScale(el.clientWidth / (layout.width * CITY_MARGIN_FACTOR), dpr),
         h: el.clientHeight,
         w: el.clientWidth,
       });
     update();
     const obs = new ResizeObserver(update);
     obs.observe(el);
-    // Browser-Zoom/Monitor-Wechsel ändern devicePixelRatio zur Laufzeit (Memo §1).
-    const mq = typeof window.matchMedia === 'function'
-      ? window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`)
-      : null;
-    mq?.addEventListener('change', update);
-    return () => { obs.disconnect(); mq?.removeEventListener('change', update); };
-  }, []);
+    return () => obs.disconnect();
+  }, [dpr]);
 
   // Kamera: Etage des Avatars vertikal zentrieren (geklemmt auf Gebäudegrenzen).
   // Offsets auf ganze Geräte-Pixel gerundet, damit das Sampling-Raster stabil liegt.
@@ -719,8 +718,10 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 <WorldAnchor x={(48 * 1.2) / 2} y={0} scale={view.scale} z={7}>
                   <div
                     style={{
-                      position: 'absolute', bottom: 8, left: 0, transform: 'translateX(-50%)',
-                      width: 180, backgroundColor: 'rgba(12,12,16,0.94)',
+                      // Öffnet nach UNTEN-rechts in die leere Hallenfläche — nach oben
+                      // verdeckte die Blase das EG-Etagen-Schild (Vision-Review Etappe 1).
+                      position: 'absolute', top: -4, left: 36,
+                      width: 230, backgroundColor: 'rgba(12,12,16,0.94)',
                       border: `1px solid ${StoryModeColors.borderLight}`, color: '#e8e4d8',
                       fontFamily: "'VT323', monospace", fontSize: 12, lineHeight: 1.4, padding: '6px 8px',
                     }}
@@ -839,6 +840,10 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                   backgroundColor: hoverShaft ? StoryModeColors.warning : 'rgba(10,10,14,0.8)',
                   border: `1px solid ${StoryModeColors.borderLight}`,
                   whiteSpace: 'nowrap',
+                  // WorldAnchor nimmt den Teilbaum aus dem Hit-Testing — die Plakette
+                  // selbst bleibt klickbar (bubbelt zum Schacht-Button, Review-Fix).
+                  pointerEvents: 'auto',
+                  cursor: 'pointer',
                 }}
               >
                 ETAGEN ▲▼

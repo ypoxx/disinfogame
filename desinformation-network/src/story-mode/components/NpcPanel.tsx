@@ -473,7 +473,7 @@ export function NpcPanel({
             <div className="mb-4 flex justify-center">
               <Icon name="npcs" size={40} title="Kontakte" fallback="NPC" />
             </div>
-            <p>Wahlen Sie einen Kontakt aus der Liste</p>
+            <p>Wählen Sie einen Kontakt aus der Liste</p>
           </div>
         </div>
       )}
@@ -574,7 +574,7 @@ export function NpcPanel({
               color: StoryModeColors.textMuted,
             }}
           >
-            <span>{npcs.length} Kontakte verfugbar</span>
+            <span>{npcs.length} Kontakte verfügbar</span>
             <span>{npcs.filter(n => n.relationshipLevel >= 2).length} vertraut</span>
           </div>
         </div>

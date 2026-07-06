@@ -385,7 +385,8 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
 
   if (!primaryObjective) return null;
 
-  const progress = primaryObjective.target > 0 ? (primaryObjective.progress / primaryObjective.target) * 100 : 0;
+  // B22: `progress` ist bereits der richtungs-bewusste Engine-Prozentwert (0–100).
+  const progress = Math.max(0, Math.min(100, primaryObjective.progress));
 
   return (
     <button

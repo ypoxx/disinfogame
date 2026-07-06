@@ -24,13 +24,21 @@ export function StatsPanel({
   const primaryObjectives = objectives.filter(o => o.type === 'primary');
   const secondaryObjectives = objectives.filter(o => o.type === 'secondary');
 
-  const getProgressColor = (current: number, target: number) => {
-    const progress = current / target;
-    if (progress >= 1) return StoryModeColors.success;
-    if (progress >= 0.7) return StoryModeColors.warning;
-    if (progress >= 0.4) return StoryModeColors.agencyBlue;
+  // B22: Farbe/Balken hängen am richtungs-bewussten Engine-Fortschritt (0–100) —
+  // der alte Quotient current/target war beim Senk-Ziel (100→40) ab Start „voll".
+  const getProgressColor = (progressPct: number) => {
+    if (progressPct >= 100) return StoryModeColors.success;
+    if (progressPct >= 70) return StoryModeColors.warning;
+    if (progressPct >= 40) return StoryModeColors.agencyBlue;
     return StoryModeColors.danger;
   };
+  const progressPct = (obj: { progress: number }) => Math.max(0, Math.min(100, obj.progress));
+  // Ziel-Beschriftung je Kategorie: Senk-Ziel zeigt Stand+Marke, Halte-Ziel nur die Marke
+  // (obj_survive führt kein lebendes currentValue — „jetzt 0" wäre erfunden).
+  const zielText = (obj: { category?: string; currentValue: number; targetValue: number }) =>
+    obj.category === 'survival'
+      ? `unter ${obj.targetValue} halten`
+      : `Stand ${Math.round(obj.currentValue)} · Ziel unter ${obj.targetValue}`;
 
   const content = (
     <div className={`flex-1 overflow-y-auto ${variant === 'sidebar' ? 'p-3 space-y-3' : 'p-6 space-y-6'}`}>
@@ -286,12 +294,12 @@ export function StatsPanel({
                   {obj.completed ? '✓' : '○'} {obj.label_de}
                 </span>
                 <span
-                  className="font-bold"
+                  className="font-bold whitespace-nowrap shrink-0"
                   style={{
-                    color: getProgressColor(obj.currentValue, obj.targetValue),
+                    color: getProgressColor(progressPct(obj)),
                   }}
                 >
-                  {obj.currentValue} / {obj.targetValue}
+                  {zielText(obj)}
                 </span>
               </div>
               <div
@@ -301,8 +309,8 @@ export function StatsPanel({
                 <div
                   className="h-full transition-all"
                   style={{
-                    width: `${Math.min((obj.currentValue / obj.targetValue) * 100, 100)}%`,
-                    backgroundColor: getProgressColor(obj.currentValue, obj.targetValue),
+                    width: `${progressPct(obj)}%`,
+                    backgroundColor: getProgressColor(progressPct(obj)),
                   }}
                 />
               </div>
@@ -341,12 +349,12 @@ export function StatsPanel({
                     {obj.completed ? '✓' : '○'} {obj.label_de}
                   </span>
                   <span
-                    className="font-bold"
+                    className="font-bold whitespace-nowrap shrink-0"
                     style={{
-                      color: getProgressColor(obj.currentValue, obj.targetValue),
+                      color: getProgressColor(progressPct(obj)),
                     }}
                   >
-                    {obj.currentValue} / {obj.targetValue}
+                    {zielText(obj)}
                   </span>
                 </div>
                 <div
@@ -356,8 +364,8 @@ export function StatsPanel({
                   <div
                     className="h-full transition-all"
                     style={{
-                      width: `${Math.min((obj.currentValue / obj.targetValue) * 100, 100)}%`,
-                      backgroundColor: getProgressColor(obj.currentValue, obj.targetValue),
+                      width: `${progressPct(obj)}%`,
+                      backgroundColor: getProgressColor(progressPct(obj)),
                     }}
                   />
                 </div>
