@@ -37,6 +37,8 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 >   **L0 Stil-Lock entschieden: Materialwelt „Behörden-Akte"** (Papier/Karteikarten/Stempel)
 >   → kanonisch als Stil-Bibel **§4.7**; Mockups generiert (0,80 $). Nächste Session:
 >   Sofort-Paket (Review P1/P2/P4) + L1 Papier-Material-Kit (Kickoff-Prompt im Plan §7).
+>   **Standlinien-Trio bereits hier behoben** (B6/B7/B8 + „wuetend"-Label): Tür-Trim,
+>   PixelSprite-flex-end, walkY-Offset — Nach-Messung 17→1 Geometrie-Befund, Gate grün.
 
 **Stand:** 2026-07-05 (ETAPPE 5 „Fertig" — der Versionssprung, TEILWEISE) · Branch
 `claude/etappe-5-handoff-setup-29psoe` (Draft-PR, baut auf Etappe 0–4) · Gate grün

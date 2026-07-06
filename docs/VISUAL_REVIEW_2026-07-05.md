@@ -93,6 +93,15 @@ Befund-Familien**, P3–P5 sind Einzelkorrekturen.
 
 ### P2 — Realitätssicht/Standlinien (Messwerte aus §1 + Wahrnehmung bestätigt)
 
+> **✅ UPDATE 2026-07-06: B6/B7/B8 in dieser Session BEHOBEN** (Owner-Go „was flott
+> geht, hier erledigen"): Tür-Assets getrimmt + auf gemeinsame bodenbündige Leinwand
+> normalisiert (110×173) · PixelSprite-Bodenbündigkeit via flex-end (Statisten/
+> Pförtner/Walker/Tür-Dummies; Walker brauchte zusätzlich lineHeight:0 gegen den
+> Inline-Baseline-Spalt) · walkY-Offset −6 entfernt · Mood-Label „wuetend"→„wütend"
+> (MOOD_LABEL_DE, Teil von B18). **Nach-Messung (runs/visual-review/nach-fix2):
+> 17 → 1 Geometrie-Befund** — übrig nur die Shredder-Maßstabsfrage (owner-geschmack).
+> Gate grün (tsc 0 · vitest 575 · build). B9–B12 bleiben für die Bau-Session.
+
 | # | Befund | Beleg | Kategorie |
 |---|---|---|---|
 | B6 | **Statisten/Pförtner/Walker/Tür-Dummies schweben 11–16 px** über der Wand-Fuß-Linie („Füße enden mitten im Wandsockel") — EIN `PixelSprite`-Container-Fix heilt alle vier Figuren-Typen. V7-Fehler-Typ an neuer Stelle. | building_etage3/4, overlay-Renders, §1.1 | code-fix |

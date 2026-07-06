@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { StoryModeColors } from '../theme';
+import { MOOD_LABEL_DE, type Mood } from '../audience/audienceModel';
 import type { NightReport } from '../engine/ImmuneSystem';
 import type { TrancheResult } from '../engine/Finanzen';
 
@@ -172,7 +173,7 @@ export function DayReport({
                     <li key={seg.label}>
                       <div className="flex justify-between text-xs mb-0.5">
                         <span style={{ color: StoryModeColors.textPrimary }}>{seg.label}</span>
-                        <span style={{ color: StoryModeColors.textSecondary }}>{seg.mood}</span>
+                        <span style={{ color: StoryModeColors.textSecondary }}>{MOOD_LABEL_DE[seg.mood as Mood] ?? seg.mood}</span>
                       </div>
                       <div
                         className="h-2 rounded-sm overflow-hidden"
