@@ -153,34 +153,15 @@ export const FLOOR_AMBIENT: Record<string, AmbientFigure[]> = {
 /**
  * Anzeigehöhe der Statisten (px): 112 px ≈ 1,53 m — bewusst etwas kleiner als
  * der Avatar (128 px = 1,75 m), damit der Spieler heraussticht. WICHTIG (Review
- * B12d): EINE Konstante für ALLE stehenden Statisten (FLOOR_AMBIENT,
- * FLOOR_WALKERS, DOOR_TRAFFIC) — keine Figur bekommt eine eigene Höhe, sonst
- * wirken nebeneinanderstehende Statisten wie falsch skaliert.
+ * B12d): EINE Konstante für ALLE Statisten (stehende FLOOR_AMBIENT wie laufende
+ * ambientLife-Agenten) — keine Figur bekommt eine eigene Höhe, sonst wirken
+ * nebeneinanderstehende Statisten wie falsch skaliert.
+ *
+ * LB „Lebendiges Gebäude": Die früheren CSS-Pendel-Walker (FLOOR_WALKERS) und
+ * Tür-Dummies mit Opacity-Zyklus (DOOR_TRAFFIC) sind durch echte Routen-Agenten
+ * in `ambientLife.ts` ersetzt (Türen statt Einfaden, Plan §3b c).
  */
 export const AMBIENT_HEIGHT = 112;
-
-/** Strang 5 (Bewegung): ein hin- und herlaufender Statist je Etage (Lauf-Zyklus),
- *  pendelt zwischen xFracA und xFracB im Flur. Reine Atmosphäre, keine Mechanik. */
-export interface AmbientWalker {
-  figureWalk: string;
-  xFracA: number;
-  xFracB: number;
-}
-export const FLOOR_WALKERS: Record<string, AmbientWalker[]> = {
-  etage3: [{ figureWalk: 'figure_cleaner_walk', xFracA: 0.34, xFracB: 0.62 }],
-};
-
-/** Strang 5 (Bewegung): Tür-Dummies — an Nicht-Spieler-Türen taucht periodisch jemand
- *  auf und verschwindet wieder (ein-/ausgehen, D13). `delayS` versetzt die Zyklen. */
-export interface DoorDummy {
-  figure: string;
-  xFrac: number;
-  delayS: number;
-}
-export const DOOR_TRAFFIC: Record<string, DoorDummy[]> = {
-  etage4: [{ figure: 'figure_clerk', xFrac: 0.5, delayS: 1 }],   // Operationszentrale-Tür
-  etage3: [{ figure: 'figure_clerk', xFrac: 0.83, delayS: 8 }],  // Newsroom-Tür
-};
 
 /**
  * P7/§14.4 (#1) — Umgebungshumor: klickbare Propaganda-Plakate.

@@ -17,9 +17,8 @@ import {
   DECOR_HEIGHT,
   FLOOR_AMBIENT,
   AMBIENT_HEIGHT,
-  FLOOR_WALKERS,
-  DOOR_TRAFFIC,
 } from '../building/corridorDecor';
+import { AMBIENT_AGENTS, AMBIENT_TIMING } from '../building/ambientLife';
 
 /** Aktiv nur im expliziten Ernte-Modus (?vqa=1). */
 export function vqaEnabled(): boolean {
@@ -40,7 +39,10 @@ export function installVqaBase(): void {
     ...(w.__VQA__ ?? {}),
     STAGE,
     layout: getBuildingLayout(),
-    decor: { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, FLOOR_WALKERS, DOOR_TRAFFIC },
+    decor: { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT },
+    // LB: Routen-Statisten (ambientLife) — `ambientNudge(level)` wird vom
+    // AmbientLifeLayer nachgereicht, sobald die Bühne steht.
+    ambient: { AMBIENT_AGENTS, AMBIENT_TIMING },
     setMinutes: (m: number) => useDayClockStore.setState({ minutes: Math.max(0, Math.min(540, m)) }),
     getMinutes: () => useDayClockStore.getState().minutes,
     setPortrait: (portraitId: string, name = 'Tester') => usePlayerProfile.getState().setProfile(name, portraitId),

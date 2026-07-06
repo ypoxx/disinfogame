@@ -1008,6 +1008,35 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       `cleaner. ${CHROMA_PROMPT} ${styleObject()}`,
   });
 
+  // Lauf-Zyklus für den Akten-Boten (LB „Lebendiges Gebäude": Statisten laufen echte
+  // Routen — der Kollege braucht dafür ein Walk-Sheet passend zu figure_clerk).
+  shots.push({
+    id: 'figure_clerk_walk',
+    type: 'sheet',
+    kind: 'figure',
+    priority: 'nice',
+    chroma: true,
+    frameWidth: 48,
+    frameHeight: 96,
+    cols: 8,
+    rows: 1,
+    size: { w: 384, h: 96 },
+    animations: { walk: { row: 0, frames: 8, frameTime: 100, loop: true } },
+    seed: seedFor('figure_clerk_walk'),
+    referenceId: 'figure_clerk',
+    prompt:
+      `An 8-frame pixel art sprite sheet of the SAME young MALE office clerk as in the ` +
+      `reference image — a young MAN with short dark hair, grey shirt, dark trousers (NO skirt, ` +
+      `NOT a woman), a beige folder under one arm, identical colors as the reference — walking ` +
+      `to the right, strict side view, full body from head to feet. Horizontal layout, exactly 8 ` +
+      `evenly spaced frames in one row, the SAME character with identical outfit and colors in ` +
+      `every frame, forming one full walk cycle with clearly DIFFERENT leg poses (heel strike, ` +
+      `weight sink, swing-through, reach — for both legs), the free arm swinging opposite to ` +
+      `the legs, head bobbing about 2 pixels. Adjacent frames MUST differ visibly, especially ` +
+      `the legs. CRITICAL: EVERY frame on the SAME flat solid magenta (#FF00FF) fill — NO ` +
+      `background, NO floor, NO scenery, ONLY the walking clerk. ${CHROMA_PROMPT} ${styleObject()}`,
+  });
+
   // --- SFX / Musik ---
   for (const [id, text, durationSeconds, priority] of SFX) {
     shots.push({ id, type: 'sfx', kind: 'sfx', priority, sfx: { text, durationSeconds } });

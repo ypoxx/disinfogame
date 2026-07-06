@@ -11,7 +11,7 @@
  * - Kamera folgt der Etage des Avatars (vertikal, weich).
  * Jedes Bild hat einen CSS-Fallback — ohne Manifest bleibt die Bühne funktional.
  */
-import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { snapPixelScale, snapToDevicePixel } from './pixelScale';
 import { useDpr } from '../hooks/usePixelFit';
@@ -19,12 +19,14 @@ import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
 import { usePlayerProfile, playerWalkSheetId, playerIdleSheetId } from '../stores/playerProfileStore';
 import { skyGradientForMinutes, skylineLayersForMinutes } from './skyTime';
-import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, FLOOR_WALKERS, DOOR_TRAFFIC, POSTER_SLOGANS, shredderLine, coffeeLine, volksbrauseLine, employeeOfMonth, plantAsset, plantLine, type AmbientFigure } from './corridorDecor';
+import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, POSTER_SLOGANS, shredderLine, coffeeLine, volksbrauseLine, employeeOfMonth, plantAsset, plantLine, type AmbientFigure } from './corridorDecor';
+import { createAmbientLife, tickAmbientLife, sampleAmbient, nudgeAmbient, ambientWalkFrameTimeMs, type AmbientFigureSnapshot } from './ambientLife';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
 import { PixelSprite } from '../assets/PixelSprite';
 import { playSound } from '../utils/SoundSystem';
+import { publishVqa } from '../harness/vqaHook';
 
 /**
  * Lauf-Takt an die Navigator-Geschwindigkeit koppeln (kein „Foot Sliding"):
@@ -97,16 +99,12 @@ export interface BuildingStageProps {
 
 const layout = getBuildingLayout();
 
-/** Globale Keyframes der Bühne (einmalig, Präfix bs-). */
+/** Globale Keyframes der Bühne (einmalig, Präfix bs-).
+ *  LB: Die früheren Statisten-Keyframes (bs-walk-move/-flip, bs-door-traffic)
+ *  sind entfallen — Bewegung kommt jetzt aus ambientLife (echte Routen). */
 const STAGE_KEYFRAMES = `
   @keyframes bs-blink { 0%,100%{opacity:1} 50%{opacity:.15} }
   @keyframes bs-glow { 0%,100%{box-shadow:0 0 6px 2px rgba(255,200,80,.25)} 50%{box-shadow:0 0 10px 3px rgba(255,200,80,.5)} }
-  /* Strang 5: Statist pendelt im Flur (Bewegung), Sprite klappt am Wendepunkt. */
-  @keyframes bs-walk-move { 0%{transform:translateX(0)} 50%{transform:translateX(var(--bs-walk-d))} 100%{transform:translateX(0)} }
-  @keyframes bs-walk-flip { 0%,49%{transform:scaleX(1)} 50%,99%{transform:scaleX(-1)} 100%{transform:scaleX(1)} }
-  /* Strang 5: Tür-Dummy taucht kurz auf (ein-/ausgehen) und verschwindet wieder. */
-  @keyframes bs-door-traffic { 0%,7%{opacity:0} 13%,40%{opacity:1} 47%,100%{opacity:0} }
-  @media (prefers-reduced-motion: reduce) { [data-bs-walker]{animation:none !important} [data-bs-walker] *{animation:none !important} [data-bs-dummy]{opacity:0 !important;animation:none !important} }
 `;
 
 /** Tür eines Raums — sanftes Überblenden zwischen Zu/Auf (R2: kein harter Bild-Tausch). */
@@ -173,38 +171,108 @@ function AmbientPerson({ a, left, top, height, viewScale }: { a: AmbientFigure; 
   );
 }
 
-/** Strang 5 (Bewegung): ein Statist, der zwischen zwei Punkten im Flur hin- und herläuft. */
-function AmbientWalker({ figureWalk, leftA, d, top, height }: { figureWalk: string; leftA: number; d: number; top: number; height: number }) {
-  const dur = Math.max(6, Math.round(d / 26)); // ~26 px/s, ruhiges Tempo
-  const outer = {
-    position: 'absolute', left: leftA, top, height, zIndex: 2, pointerEvents: 'none',
-    animation: `bs-walk-move ${dur}s linear infinite`, '--bs-walk-d': `${d}px`,
-    display: 'flex', alignItems: 'flex-end', // Füße auf die Wand-Fuß-Linie (B6)
-  } as CSSProperties;
-  return (
-    <div data-bs-walker="" aria-hidden style={outer}>
-      {/* lineHeight 0: sonst hebt der Inline-Baseline-Abstand den Sprite ~6 px an. */}
-      <div style={{ animation: `bs-walk-flip ${dur}s linear infinite`, lineHeight: 0 }}>
-        <PixelSprite sheetId={figureWalk} animation="walk" fallback="" scale={height / 96} title="" />
-      </div>
-    </div>
+/** Feste Saat für die Ambient-Routen: reproduzierbare Abläufe (auch für die
+ *  Visual-Review-Ernte); Varianz kommt aus dem PRNG innerhalb des Tages. */
+const AMBIENT_SEED = 0x1b2026;
+
+/** prefers-reduced-motion, re-subscribed und jsdom-sicher (kein matchMedia dort). */
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(
+    () => typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   );
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = () => setReduced(mq.matches);
+    mq.addEventListener?.('change', onChange);
+    return () => mq.removeEventListener?.('change', onChange);
+  }, []);
+  return reduced;
 }
 
-/** Strang 5 (Bewegung): Tür-Dummy, der periodisch an einer Tür auftaucht und verschwindet. */
-function DoorDummy({ figure, left, top, height, delayS }: { figure: string; left: number; top: number; height: number; delayS: number }) {
+const figuresEqual = (a: AmbientFigureSnapshot[], b: AmbientFigureSnapshot[]) =>
+  a.length === b.length &&
+  a.every((f, i) => f.id === b[i].id && f.x === b[i].x && f.floorLevel === b[i].floorLevel && f.anim === b[i].anim && f.facing === b[i].facing);
+
+/**
+ * LB „Lebendiges Gebäude" (Plan §3b c): Abspielkopf der ambientLife-Routen.
+ * Eigene Komponente, damit der 60-Hz-Takt NUR diesen kleinen Teilbaum rendert;
+ * die Bühne selbst erfährt nur die (seltenen) Tür-Fenster über onDoorsChange.
+ * Figuren erscheinen/verschwinden ausschließlich durch Türen — kein Fade.
+ */
+function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]) => void }) {
+  const assets = useAssets();
+  const [figures, setFigures] = useState<AmbientFigureSnapshot[]>([]);
+  const doorsKeyRef = useRef('');
+  const reduced = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (reduced) {
+      // Ruhe-Modus: keine laufenden Statisten (stehende bleiben — statisch, klickbar).
+      setFigures([]);
+      if (doorsKeyRef.current !== '') {
+        doorsKeyRef.current = '';
+        onDoorsChange([]);
+      }
+      return;
+    }
+    const state = createAmbientLife(AMBIENT_SEED);
+    // Ernte-Hilfe (?vqa=1): Auftritt auf einer Ziel-Etage sofort fällig stellen.
+    publishVqa({ ambientNudge: (level: number) => nudgeAmbient(state, level, performance.now()) });
+    let raf = 0;
+    const loop = (now: number) => {
+      tickAmbientLife(state, now);
+      const snap = sampleAmbient(state, now);
+      setFigures((prev) => (figuresEqual(prev, snap.figures) ? prev : snap.figures));
+      const key = snap.openDoorRoomIds.join('|');
+      if (key !== doorsKeyRef.current) {
+        doorsKeyRef.current = key;
+        onDoorsChange(snap.openDoorRoomIds);
+      }
+      raf = window.requestAnimationFrame(loop);
+    };
+    raf = window.requestAnimationFrame(loop);
+    return () => window.cancelAnimationFrame(raf);
+  }, [reduced, onDoorsChange]);
+
   return (
-    <div
-      data-bs-dummy=""
-      aria-hidden
-      style={{
-        position: 'absolute', left, top, height, transform: 'translateX(-50%)', zIndex: 2, pointerEvents: 'none',
-        animation: `bs-door-traffic 17s ease-in-out ${delayS}s infinite`, opacity: 0,
-        display: 'flex', alignItems: 'flex-end', justifyContent: 'center', // Füße auf die Linie (B6)
-      }}
-    >
-      <PixelSprite sheetId={figure} animation="idle" fallback="" scale={height / 96} title="" />
-    </div>
+    <>
+      {figures.map((f) => {
+        const floor = layout.floors.find((fl) => fl.level === f.floorLevel);
+        if (!floor || !assets.imageUrl(f.sheet)) return null;
+        return (
+          <div
+            key={f.id}
+            data-bs-walker=""
+            aria-hidden
+            style={{
+              position: 'absolute',
+              left: f.x,
+              top: floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT, // Füße auf die Wand-Fuß-Linie (B6)
+              width: (AMBIENT_HEIGHT / 96) * 48,
+              height: AMBIENT_HEIGHT,
+              transform: 'translateX(-50%)',
+              zIndex: 5, // vor der Tür (4), hinter dem Avatar (6): tritt sichtbar aus dem Türrahmen
+              pointerEvents: 'none',
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'center',
+              lineHeight: 0,
+            }}
+          >
+            <PixelSprite
+              sheetId={f.sheet}
+              animation={f.anim}
+              fallback=""
+              flip={f.facing === -1}
+              scale={AMBIENT_HEIGHT / 96}
+              frameTimeMs={f.anim === 'walk' ? ambientWalkFrameTimeMs(f.speedPxS, AMBIENT_HEIGHT) : undefined}
+              title=""
+            />
+          </div>
+        );
+      })}
+    </>
   );
 }
 
@@ -216,6 +284,8 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   const [hoverRoom, setHoverRoom] = useState<string | null>(null);
   const [hoverShaft, setHoverShaft] = useState(false);
   const [pfoertnerOpen, setPfoertnerOpen] = useState(false); // Strang 5: Pförtner-Sprechblase
+  // LB: Türen, die gerade von Ambient-Statisten benutzt werden (RoomDoor-Blende).
+  const [ambientDoors, setAmbientDoors] = useState<string[]>([]);
   // P7/§14.4: angeklicktes Detail-Objekt (Plakat/Reißwolf/Kaffeeküche/Automat/…): Vergrößerung + Spruch.
   const [poster, setPoster] = useState<{ url: string; titel_de: string; slogan_de: string } | null>(null);
   // P7/§14.4 (#8): bei jedem Klick auf die „Mitarbeiter des Monats"-Wand wechselt der Deckname.
@@ -560,31 +630,6 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 const top = floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT;
                 return <AmbientPerson key={`${floor.id}-amb-${i}`} a={a} left={cx} top={top} height={AMBIENT_HEIGHT} viewScale={view.scale} />;
               })}
-              {/* Strang 5 (Bewegung): hin- und herlaufender Statist (z. B. Reinigung). */}
-              {!isLobby && (FLOOR_WALKERS[floor.id] ?? []).map((w, i) => {
-                if (!assets.imageUrl(w.figureWalk)) return null;
-                const playableW = layout.shaft.x - STAGE.pillarWidth;
-                const xA = STAGE.pillarWidth + w.xFracA * playableW;
-                const xB = STAGE.pillarWidth + w.xFracB * playableW;
-                const top = floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT;
-                return (
-                  <AmbientWalker
-                    key={`${floor.id}-walk-${i}`}
-                    figureWalk={w.figureWalk}
-                    leftA={Math.min(xA, xB)}
-                    d={Math.abs(xB - xA)}
-                    top={top}
-                    height={AMBIENT_HEIGHT}
-                  />
-                );
-              })}
-              {/* Strang 5 (Bewegung): Tür-Dummies — taucht periodisch an einer Tür auf. */}
-              {!isLobby && (DOOR_TRAFFIC[floor.id] ?? []).map((dm, i) => {
-                if (!assets.imageUrl(dm.figure)) return null;
-                const cx = STAGE.pillarWidth + dm.xFrac * (layout.shaft.x - STAGE.pillarWidth);
-                const top = floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT;
-                return <DoorDummy key={`${floor.id}-dummy-${i}`} figure={dm.figure} left={cx} top={top} height={AMBIENT_HEIGHT} delayS={dm.delayS} />;
-              })}
               {/* Decken-Platte über der Etage */}
               <div
                 style={{
@@ -643,7 +688,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               : '#ffd479';
           return (
             <div key={room.id}>
-              <RoomDoor room={room} open={nav.openDoorRoomId === room.id} />
+              <RoomDoor room={room} open={nav.openDoorRoomId === room.id || ambientDoors.includes(room.id)} />
               {/* Türschild über der Tür — welt-verankert, nativ gerastert (B1/E35).
                   Sitzt in der DECKEN-Band-Spur (bottom 20), damit es nicht mit dem
                   Etagen-Schild kollidiert — native Rasterung braucht 2× Welt-Platz. */}
@@ -856,6 +901,9 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             </WorldAnchor>
           </button>
         )}
+
+        {/* LB: Routen-Statisten (erscheinen/verschwinden durch Türen, ambientLife) */}
+        <AmbientLifeLayer onDoorsChange={setAmbientDoors} />
 
         {/* Avatar (läuft/steht) */}
         {!nav.avatarInCabin && (

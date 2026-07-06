@@ -55,16 +55,14 @@ export function measureStageGeometry() {
     const r = span.getBoundingClientRect();
     if (r.width < 2 || r.height < 2) continue;
     if (st.opacity === '0' || st.visibility === 'hidden') continue;
-    // Kontext-Label: Avatar / Walker / Dummy / klickbare Statisten.
+    // Kontext-Label: Avatar / Routen-Statist (ambientLife) / klickbare Statisten.
     const ctx = span.closest('[data-testid="building-avatar"]')
       ? 'avatar'
       : span.closest('[data-bs-walker]')
         ? 'walker'
-        : span.closest('[data-bs-dummy]')
-          ? 'doorDummy'
-          : span.closest('button')
-            ? 'clickableFigure'
-            : 'sprite';
+        : span.closest('button')
+          ? 'clickableFigure'
+          : 'sprite';
     els.push({ kind: 'sprite', context: ctx, assetId: id, stage: toStage(r), opacity: Number(st.opacity) });
   }
   return {

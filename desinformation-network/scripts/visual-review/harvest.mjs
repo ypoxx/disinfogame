@@ -602,24 +602,35 @@ if (DO_CLIPS) {
     await page.getByRole('option', { name: /Medien-Zentrum/i }).first().click({ timeout: 2000 }).catch(() => {});
   });
 
-  await buildingClip('clip_walker_reinigung', 'Pendelnder Statist (Reinigung, Etage 3) — Laufrichtung/Flip am Wendepunkt', 15000, async (page) => {
-    await page.keyboard.press('f');
-    await sleep(600);
-    await page.getByRole('option', { name: /Newsroom/i }).first().click({ timeout: 2000 }).catch(() => {});
-    await sleep(8000);
-    await page.evaluate(() => {
-      const ui = window.__VQA__?.ui;
-      if (ui) { ui.setShowNewsroom(false); }
+  // LB „Lebendiges Gebäude" (Abnahme §3b c): 30-s-Fenster je Etage — Statisten
+  // erscheinen aus Türen, laufen echte Routen, verschwinden in Türen (kein Fade,
+  // kein Teleport). `ambientNudge(level)` stellt den nächsten Auftritt sofort
+  // fällig (wiederholt, bis ein verborgener Agent frei ist).
+  const ambientClip = (floorId, level, roomRe) =>
+    buildingClip(`clip_ambient_${floorId}`, `LB: Routen-Statisten auf ${floorId} (30-s-Abnahmefenster: Tür auf → heraustreten → Route → Tür zu)`, 34000, async (page) => {
+      await page.keyboard.press('f');
+      await sleep(600);
+      await page.getByRole('option', { name: roomRe }).first().click({ timeout: 2000 }).catch(() => {});
+      await sleep(9000);
+      await dismissAll(page);
+      await vqa(page, () => window.__VQA__.ui.setViewMode('building')).catch(() => {});
+      await sleep(400);
+      await page.evaluate((lvl) => {
+        const tryNudge = () => !!window.__VQA__?.ambientNudge?.(lvl);
+        if (!tryNudge()) {
+          const t = setInterval(() => { if (tryNudge()) clearInterval(t); }, 2500);
+          setTimeout(() => clearInterval(t), 28000);
+        }
+        // Zweiter Auftritt in der Fenster-Mitte (falls ein weiterer Agent frei ist).
+        setTimeout(() => window.__VQA__?.ambientNudge?.(lvl), 16000);
+      }, level);
     });
-  });
 
-  await buildingClip('clip_door_dummy', 'Tür-Dummy taucht periodisch an einer Tür auf (17s-Zyklus, Etage 4)', 19000, async (page) => {
-    await page.keyboard.press('f');
-    await sleep(600);
-    await page.getByRole('option', { name: /Medien-Zentrum/i }).first().click({ timeout: 2000 }).catch(() => {});
-    await sleep(9000);
-    await page.evaluate(() => window.__VQA__?.dismissDialog && window.__VQA__.dismissDialog());
-  });
+  await ambientClip('etage4', 4, /Medien-Zentrum/i);
+  await ambientClip('etage3', 3, /Newsroom/i);
+  await ambientClip('etage2', 2, /Feld-Operationen/i);
+  await ambientClip('etage1', 1, /Direktor/i);
+  await ambientClip('keller', -1, /Finanzen/i);
 
   await buildingClip('clip_daynight_sweep', 'Tagesuhr-Sweep 09:00→18:00 in ~11s (Himmel, Skyline-Blenden, Tönung)', 13000, async (page) => {
     await page.evaluate(() => {
