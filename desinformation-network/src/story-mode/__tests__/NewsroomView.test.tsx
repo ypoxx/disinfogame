@@ -145,6 +145,8 @@ describe('derivePosts', () => {
       headline: 'Propagandawelle erfasst Social Media',
       tier: 'mittel',
       kind: 'eigen',
+      category: 'massnahme',
+      motifId: 'bc_social_feed',
     },
     {
       id: 'bc_broadcast_002',
@@ -154,6 +156,8 @@ describe('derivePosts', () => {
       headline: 'Gegenreaktion im Fernsehen',
       tier: 'klein',
       kind: 'gegenreaktion',
+      category: 'gegenreaktion',
+      motifId: 'bc_gegenwind',
     },
   ];
 
