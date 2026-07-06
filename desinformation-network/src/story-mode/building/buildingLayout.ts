@@ -91,7 +91,9 @@ function computeLayout(): BuildingLayout {
 
   const floors: FloorLayout[] = floorsRaw.map((f, idx) => {
     const y = roofHeight + idx * (floorHeight + slabHeight);
-    return { ...f, y, walkY: y + floorHeight - avatarSize - 6 };
+    // Avatar-Unterkante exakt auf der Wand-Fuß-Linie — der frühere −6-Offset
+    // ließ ihn als einzige Klasse über der Linie stehen (Review B8).
+    return { ...f, y, walkY: y + floorHeight - avatarSize };
   });
   const height = roofHeight + floors.length * (floorHeight + slabHeight) + groundHeight;
 

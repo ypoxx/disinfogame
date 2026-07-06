@@ -130,7 +130,9 @@ function AmbientPerson({ a, left, top, height }: { a: AmbientFigure; left: numbe
         onClick={() => setOpen((o) => !o)}
         aria-label={`${a.who} ansprechen`}
         title={`${a.who} ansprechen`}
-        style={{ width: (height / 96) * 48, height, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+        // flex-end: Sprite-Unterkante = Container-Unterkante = Wand-Fuß-Linie
+        // (sonst steht die Figur um die Skalierungs-Differenz zu hoch — Review B6).
+        style={{ width: (height / 96) * 48, height, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
       >
         <PixelSprite sheetId={a.figure} animation="idle" fallback="" scale={height / 96} title={a.who} />
       </button>
@@ -142,12 +144,14 @@ function AmbientPerson({ a, left, top, height }: { a: AmbientFigure; left: numbe
 function AmbientWalker({ figureWalk, leftA, d, top, height }: { figureWalk: string; leftA: number; d: number; top: number; height: number }) {
   const dur = Math.max(6, Math.round(d / 26)); // ~26 px/s, ruhiges Tempo
   const outer = {
-    position: 'absolute', left: leftA, top, zIndex: 2, pointerEvents: 'none',
+    position: 'absolute', left: leftA, top, height, zIndex: 2, pointerEvents: 'none',
     animation: `bs-walk-move ${dur}s linear infinite`, '--bs-walk-d': `${d}px`,
+    display: 'flex', alignItems: 'flex-end', // Füße auf die Wand-Fuß-Linie (B6)
   } as CSSProperties;
   return (
     <div data-bs-walker="" aria-hidden style={outer}>
-      <div style={{ animation: `bs-walk-flip ${dur}s linear infinite` }}>
+      {/* lineHeight 0: sonst hebt der Inline-Baseline-Abstand den Sprite ~6 px an. */}
+      <div style={{ animation: `bs-walk-flip ${dur}s linear infinite`, lineHeight: 0 }}>
         <PixelSprite sheetId={figureWalk} animation="walk" fallback="" scale={height / 96} title="" />
       </div>
     </div>
@@ -161,8 +165,9 @@ function DoorDummy({ figure, left, top, height, delayS }: { figure: string; left
       data-bs-dummy=""
       aria-hidden
       style={{
-        position: 'absolute', left, top, transform: 'translateX(-50%)', zIndex: 2, pointerEvents: 'none',
+        position: 'absolute', left, top, height, transform: 'translateX(-50%)', zIndex: 2, pointerEvents: 'none',
         animation: `bs-door-traffic 17s ease-in-out ${delayS}s infinite`, opacity: 0,
+        display: 'flex', alignItems: 'flex-end', justifyContent: 'center', // Füße auf die Linie (B6)
       }}
     >
       <PixelSprite sheetId={figure} animation="idle" fallback="" scale={height / 96} title="" />
@@ -667,7 +672,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 onClick={() => setPfoertnerOpen((o) => !o)}
                 aria-label="Pförtner ansprechen"
                 title="Pförtner ansprechen"
-                style={{ width: 48 * 1.2, height: pH, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+                style={{ width: 48 * 1.2, height: pH, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
               >
                 <PixelSprite sheetId="figure_pfoertner" animation="idle" fallback="" scale={1.2} title="Pförtner" />
               </button>

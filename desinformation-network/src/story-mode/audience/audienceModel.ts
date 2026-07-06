@@ -16,6 +16,15 @@ import audienceData from '../data/audience.json';
 export type Mood = 'ruhig' | 'verunsichert' | 'wuetend' | 'misstrauisch';
 export type Channel = 'tv' | 'print' | 'social';
 
+/** Anzeige-Labels der Stimmungen — die Mood-IDs sind ASCII (Keys), sichtbarer
+ *  Text braucht die Umlaut-Form (Review B18: DayReport zeigte rohes „wuetend"). */
+export const MOOD_LABEL_DE: Record<Mood, string> = {
+  ruhig: 'ruhig',
+  verunsichert: 'verunsichert',
+  wuetend: 'wütend',
+  misstrauisch: 'misstrauisch',
+};
+
 export interface AudienceSegment {
   id: string;
   label_de: string;

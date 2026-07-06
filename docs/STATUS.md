@@ -9,6 +9,44 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `GESAMTKONZEPT_VISUELL.md` → dieses Dokument für den aktuellen Bau-Stand.
 > Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
+**Stand:** 2026-07-05 (VISUAL-COHERENCE-REVIEW — Befunde + Plan, KEINE Fixes) · Branch
+`claude/visual-coherence-review-26f8av` (Draft-PR #95) · Gate grün (`tsc 0` · `vitest 575` · `build`).
+> Optisches Gesamt-Review per wiederverwendbarer Playwright-Ernte + orchestriertem Vision-Review.
+> **Zentrale Ergebnisse: `docs/VISUAL_REVIEW_2026-07-05.md`** (P1–P5 priorisiert nach Code-Fix /
+> Asset-Korrektur / neues Asset / Owner-Geschmack; Voll-Liste `_BEFUNDE.json`; Owner-Galerie verlinkt).
+> - **Harness (wiederverwendbar):** `desinformation-network/scripts/visual-review/` — Ernte über
+>   ALLE Screens/Zustände (Tag/Nacht, alle Etagen, 5 Raum-Nahsichten, Panels/Modals, Tageszyklus,
+>   3 echte Wahlabend-Enden per Force-End + 4 Fixture-Branches, EndReport) + 11 Video-Clips +
+>   Boden-Linien-Overlays + Geometrie-Dumps; `?vqa=1`-Hook (sonst inert), Fixture-Bühne `vqa.html`.
+> - **Realitätssicht (pixelgenau, ohne KI):** Standlinien-Klassen versetzt — Props 0 px / Avatar
+>   +6 px / Türen +7,5 px (eingebacktes Padding) / Statisten +11–16 px (PixelSprite-Ausrichtung,
+>   V7-Fehlertyp neu bei Strang 5); sichtbare Türhöhe 1,77 m = 1,01 H statt Soll 1,15 H; übrige
+>   Möbel-Skala konsistent. Welt-Ebene wird **nicht-ganzzahlig skaliert** (§4.1-Wurzelverstoß).
+> - **Vision-Review:** 172 Roh-Befunde aus 16 Prüf-Bündeln (Gemini 3.1 als Zweitmeinung, Videos
+>   mit Gemini als Haupt-Prüfer) → adversarial verifiziert: **115 bestätigt** / 37 widerlegt /
+>   7 Duplikate. Schwerste Funde u. a.: Alt-Enden-Raster im End-Report („Enthüllung ✓" bei jedem
+>   Branch), leerer CSS-TvSet (E17), Web-Sidebar/Floating-Widgets (V14/V6 offen), Fahrstuhl-Z-Order,
+>   Umlaut-/Englisch-Reste. Regressions-Sweep: V9/V16 halten, V7 hält am Avatar (neu bei Statisten),
+>   V13 teilbehoben (Hotspot-Geometrie verrutscht), V14/V6 offen.
+> - **NICHTS generiert/gefixt** (Owner-Vorgabe): Shot-List Paket 0 (0 €, Trim+Code) / A (TV-Studio,
+>   ~1,10 $) / B (Wohnzimmer, ~1,35 $) / C (Kür, ~3 $) mit Budget-Ansage wartet auf Freigabe.
+> - **Harness-Backlog:** 15 Ernte-Lücken mit Rezepten (`_BEFUNDE.json → luecken`); Nebenbefund:
+>   `requestNachspielzeit()` hat keinen UI-Aufrufer (Zielbild-§5b-Lücke).
+> - **Update 2026-07-06 — UI-LUXUS-PAKET beschlossen** (Owner: „Komplett Luxus"):
+>   Plan `PLAN_2026-07-06_UI_LUXUS.md` (L0–L8, diegetisches Mapping, 6–8 Sessions).
+>   **L0 Stil-Lock entschieden: Materialwelt „Behörden-Akte"** (Papier/Karteikarten/Stempel)
+>   → kanonisch als Stil-Bibel **§4.7**; Mockups generiert (0,80 $). Nächste Session:
+>   Sofort-Paket (Review P1/P2/P4) + L1 Papier-Material-Kit (Kickoff-Prompt im Plan §7).
+>   **Standlinien-Trio bereits hier behoben** (B6/B7/B8 + „wuetend"-Label): Tür-Trim,
+>   PixelSprite-flex-end, walkY-Offset — Nach-Messung 17→1 Geometrie-Befund, Gate grün.
+> - **Update 2026-07-06 (2) — PR #95 GEMERGT (Owner-Go).** Neue bindende Owner-Aufträge
+>   in `PLAN_2026-07-06_UI_LUXUS.md` §3b: **Doppel-Review-Kontrakt** je Etappe (Code
+>   adversarial + Harvest-Vision-Review) inkl. State-of-the-Art-Memo · **Auflösungs-
+>   Etappe** früh (Integer-Scaling §4.1, Porträt-Zuschnitte, V16) · **neue Etappe LB
+>   „Lebendiges Gebäude"** (Statisten mit freien Routen via BuildingNavigator, Erscheinen/
+>   Verschwinden durch TÜREN statt Ein-/Ausfaden). **Frische Session: Kickoff-Prompt in
+>   Plan §7, neuer Branch von main.**
+
 **Stand:** 2026-07-05 (ETAPPE 5 „Fertig" — der Versionssprung, TEILWEISE) · Branch
 `claude/etappe-5-handoff-setup-29psoe` (Draft-PR, baut auf Etappe 0–4) · Gate grün
 (`tsc 0` · `vitest 575` · `build`; beide Sim-Gates tragfähig, greedy 15/24, low_risk 1/24).
