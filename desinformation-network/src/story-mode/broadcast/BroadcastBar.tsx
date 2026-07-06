@@ -146,7 +146,7 @@ function CollapsedStrip({ audience, onToggle }: { audience: AudienceBroadcastSta
           flexShrink: 0,
         }}
       >
-        {item ? '◉ ON AIR' : '○ STANDBY'}
+        {item ? '● ON AIR' : '○ STANDBY'}
       </span>
       <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: '#c8c8b8', flexShrink: 0 }}>
         MINISTERIUM SENDET
@@ -213,12 +213,12 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
               paddingLeft: 4,
             }}
           >
-            {item.kind === 'gegenreaktion' ? 'GEGENWIND: ' : '⬢ '}
+            {item.kind === 'gegenreaktion' ? 'GEGENWIND: ' : '● '}
             {item.headline}
           </span>
         ) : (
           <span style={{ width: '100%', textAlign: 'center', fontSize: 10, color: '#5a7a5a', fontFamily: "'VT323', monospace" }}>
-            ▚▞ KEIN SIGNAL ▚▞
+            ··· KEIN SIGNAL ···
           </span>
         )}
         {!isPrint && (
@@ -246,7 +246,7 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
           zIndex: 3,
         }}
       >
-        {item ? (isPrint ? '◉ DRUCK' : '◉ ON AIR') : '○ STANDBY'}
+        {item ? (isPrint ? '● DRUCK' : '● ON AIR') : '○ STANDBY'}
       </span>
     </div>
   );
@@ -403,7 +403,7 @@ export function BroadcastBar({ audience, expanded, onToggle, wohnzimmerAlphabet 
       {/* Mitte: Wirkung + Verlauf */}
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6, fontFamily: "'VT323', monospace" }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontFamily: StoryModeFonts.label, fontSize: 11, fontWeight: 700, letterSpacing: 2, color: '#c8c8b8' }}>⬢ MINISTERIUM SENDET</span>
+          <span style={{ fontFamily: StoryModeFonts.label, fontSize: 11, fontWeight: 700, letterSpacing: 2, color: '#c8c8b8' }}>● MINISTERIUM SENDET</span>
           {item && (
             <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', color: '#0d0d0d', backgroundColor: TIER_COLOR[item.tier] }}>
               {TIER_LABEL[item.tier]}
@@ -440,7 +440,7 @@ export function BroadcastBar({ audience, expanded, onToggle, wohnzimmerAlphabet 
             audience.history.slice(0, 3).map((h) => (
               // v3: danger ist Tinte — Gegenreaktion auf der dunklen Leiste in hellem v2-Rot.
               <div key={h.id} style={{ fontSize: 11, color: h.kind === 'gegenreaktion' ? '#E5484D' : '#9aa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {h.kind === 'gegenreaktion' ? '' : '⬢'} [{h.tier.toUpperCase()}] {h.headline}
+                {h.kind === 'gegenreaktion' ? '' : '●'} [{h.tier.toUpperCase()}] {h.headline}
               </div>
             ))
           )}

@@ -1625,9 +1625,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         />
       )}
 
-      {/* Action Queue Widget — im Gespräch und am Terminal ausgeblendet (das
-          Widget überlappte sonst die Vorgangsblätter; geplant wird am Korkbrett). */}
-      {state.gamePhase === 'playing' && !state.currentDialog && !showTerminal && (
+      {/* Action Queue Widget — im Gespräch, am Terminal UND bei ausgeklapptem
+          Broadcast ausgeblendet (das Floating-Widget überlappte sonst die
+          Vorgangsblätter bzw. das Publikums-Wohnzimmer; geplant wird am Korkbrett). */}
+      {state.gamePhase === 'playing' && !state.currentDialog && !showTerminal && !broadcastExpanded && (
         <ActionQueueWidget
           queue={state.actionQueue}
           currentResources={{
