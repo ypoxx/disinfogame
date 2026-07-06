@@ -39,6 +39,13 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 >   Sofort-Paket (Review P1/P2/P4) + L1 Papier-Material-Kit (Kickoff-Prompt im Plan §7).
 >   **Standlinien-Trio bereits hier behoben** (B6/B7/B8 + „wuetend"-Label): Tür-Trim,
 >   PixelSprite-flex-end, walkY-Offset — Nach-Messung 17→1 Geometrie-Befund, Gate grün.
+> - **Update 2026-07-06 (2) — PR #95 GEMERGT (Owner-Go).** Neue bindende Owner-Aufträge
+>   in `PLAN_2026-07-06_UI_LUXUS.md` §3b: **Doppel-Review-Kontrakt** je Etappe (Code
+>   adversarial + Harvest-Vision-Review) inkl. State-of-the-Art-Memo · **Auflösungs-
+>   Etappe** früh (Integer-Scaling §4.1, Porträt-Zuschnitte, V16) · **neue Etappe LB
+>   „Lebendiges Gebäude"** (Statisten mit freien Routen via BuildingNavigator, Erscheinen/
+>   Verschwinden durch TÜREN statt Ein-/Ausfaden). **Frische Session: Kickoff-Prompt in
+>   Plan §7, neuer Branch von main.**
 
 **Stand:** 2026-07-05 (ETAPPE 5 „Fertig" — der Versionssprung, TEILWEISE) · Branch
 `claude/etappe-5-handoff-setup-29psoe` (Draft-PR, baut auf Etappe 0–4) · Gate grün

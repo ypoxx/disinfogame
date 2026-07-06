@@ -49,6 +49,44 @@ Sidebar), V6 (Floating-Widgets) und V14 (Web-Sidebar) nicht kosmetisch, sondern 
 **Gesamt: 6–8 Bau-Sessions · API-Bilder ~40–80 $ · SFX im Pipeline-Budget.**
 (Die Bild-Kosten sind Cent-Beträge pro Stück; die Währung sind die Sessions.)
 
+## 3b. Owner-Aufträge vom 2026-07-06 (nach Merge-Entscheid — BINDEND)
+
+**(a) Doppel-Review-Kontrakt — gilt für JEDE Etappe dieses Plans:**
+Abnahme erst, wenn BEIDE Reviews grün sind:
+1. **Implementierungs-Review:** adversariales Code-Review des Etappen-Diffs
+   (Korrektheit, M8-Gerüst, keine Verbotslisten-Verstöße im Code).
+2. **Visuelles Review:** Harvest-Lauf (`scripts/visual-review/`) über die berührten
+   Screens inkl. Clips + Boden-Linien-Overlays + Gemini-Zweitmeinung, Befunde
+   adversarial verifiziert — wie im Gesamt-Review 2026-07-05.
+Zu Beginn der frischen Session zusätzlich EINMALIG: kurze Recherche „State of the
+Art" (diegetische Game-UI-Praxis, Pixel-Perfect-/Integer-Scaling-Techniken inkl.
+devicePixelRatio/Letterboxing, lebendige NPC-Routinen in Aufbauspielen) →
+1-Seiten-Memo, fließt in Auflösungs-Etappe, L1/L2 und LB ein.
+
+**(b) Auflösungs-Etappe (Pflicht, FRÜH — Teil des Sofort-Pakets vor L1):**
+- §4.1 wirklich herstellen: Welt-Bühne nur ganzzahlig skalieren (480×270 × N,
+  Letterbox/Rand-Ausgleich statt krummem `cover`/Faktor 0,544) — der größte
+  Schärfe-Gewinn des ganzen Vorhabens (Review B1).
+- Raum-Nahsicht + NPC-Halbfiguren auf saubere Skalen; Porträt-Zuschnitte der
+  Avatar-Wahl vereinheitlichen (Paket-D-Re-Framing); Hi-Res-Avatar-Frage (V16)
+  hier entscheiden.
+
+**(c) Neue Etappe LB „Lebendiges Gebäude" (nach L1, vor oder parallel zu L2):**
+Owner-Befund: Statisten wirken unnatürlich — „wenige Schritte links/rechts" und
+Ein-/Ausfaden. Soll-Verhalten:
+- **Freie Wege:** Statisten laufen echte Routen über die ganze Etage (Ziel = Türen/
+  Räume), nicht Pendel-Animationen. Technik: den vorhandenen `BuildingNavigator`
+  wiederverwenden (pure TS, getestet, kennt doorX/Etagen/Fahrstuhl) — Ambient-NPCs
+  werden Navigator-Instanzen mit ruhigem Tempo statt CSS-Keyframes.
+- **Kein Ein-/Ausfaden:** Figuren ERSCHEINEN aus sich öffnenden Türen und
+  VERSCHWINDEN in ihnen (bestehende RoomDoor-Auf/Zu-Blende + Z-Reihenfolge nutzen;
+  Tür-Dummies und `bs-door-traffic`-Opacity-Zyklen werden ersetzt).
+- Reinigung wandert Etagen ab (Fahrstuhl-Nutzung optional als Ausbaustufe);
+  Frequenz ruhig — Bewegung ist Gefühl/Rhythmus, keine Unruhe (SOUL §3.4).
+- **Akzeptanz:** 30-s-Clip je Etage ohne Fade-Artefakte und ohne Teleports;
+  Statisten bleiben `pointer-events`-frei bzw. klickbar wie bisher; Geometrie-Audit
+  weiterhin 0 Standlinien-Befunde; Doppel-Review-Kontrakt (a) erfüllt.
+
 ## 4. UX-Entscheidungen dieses Plans (Owner kann einsprechen)
 
 1. **EIN Planungs-Ort:** Das Terminal WÄHLT Maßnahmen, das Korkbrett PLANT/ZEIGT sie.
@@ -83,8 +121,12 @@ Sidebar), V6 (Floating-Widgets) und V14 (Web-Sidebar) nicht kosmetisch, sondern 
 ## 7. Kickoff-Prompt für die nächste Bau-Session
 
 > „Lies SOUL.md → STATUS.md → VISUAL_REVIEW_2026-07-05.md (§2, §2b, §6) →
-> PLAN_2026-07-06_UI_LUXUS.md → GESAMTKONZEPT_VISUELL.md §4.7 (Stil-Lock:
-> **Behörden-Akte**). Baue zuerst das Sofort-Paket (Review P1/P2/P4), dann L1
-> (Papier-Material-Kit generieren mit Vision-QC — Prompts nach §4.7-Pflichten —
-> + alle Panels umkleiden). Gate + Ernte-Vergleich (scripts/visual-review) nach
-> jedem Schritt; Draft-PR aktualisieren."
+> PLAN_2026-07-06_UI_LUXUS.md (BESONDERS §3b: Doppel-Review-Kontrakt, Auflösungs-
+> Etappe, LB ‚Lebendiges Gebäude') → GESAMTKONZEPT_VISUELL.md §4.7 (Stil-Lock:
+> **Behörden-Akte**). PR #95 ist gemergt — starte einen frischen Branch von main.
+> Reihenfolge: (0) State-of-the-Art-Memo (§3b a) → (1) Sofort-Paket-Rest inkl.
+> **Auflösungs-Etappe/Integer-Scaling** (§3b b) → (2) L1 Papier-Material-Kit
+> (Prompts nach §4.7-Pflichten, Vision-QC) + alle Panels umkleiden → (3) LB
+> ‚Lebendiges Gebäude' (§3b c) → (4) L2 Terminal. JEDE Etappe: Gate grün +
+> Doppel-Review (Code adversarial + Harvest-Vision-Review) VOR dem Weiterziehen;
+> Standlinien-Trio (B6/B7/B8) und Stil-Lock sind bereits erledigt."
