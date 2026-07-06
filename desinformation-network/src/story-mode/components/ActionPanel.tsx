@@ -196,8 +196,9 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
         ${isHighlighted ? 'animate-pulse' : ''}
       `}
       style={{
+        // v3 §4.7: verbrauchte Karten = vergilbtes Papier (statt dunkler Kante als Fläche).
         backgroundColor: action.isUsed
-          ? StoryModeColors.border
+          ? StoryModeColors.lightConcrete
           : isRecommended
           ? 'rgba(255, 215, 0, 0.05)' // Slight gold tint for recommended
           : StoryModeColors.surfaceLight,
@@ -236,7 +237,8 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
           <div
             className="text-xs px-2 py-0.5 border font-bold whitespace-nowrap"
             style={{
-              backgroundColor: StoryModeColors.background,
+              // §4.7 Stempel-Optik: Rahmen + Tinte auf Papier statt dunkler Füllung.
+              backgroundColor: 'transparent',
               borderColor: StoryModeColors.agencyBlue,
               color: StoryModeColors.agencyBlue,
             }}
@@ -263,7 +265,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
           <span
             className="text-xs px-2 py-0.5 border whitespace-nowrap"
             style={{
-              backgroundColor: StoryModeColors.background,
+              backgroundColor: 'transparent',
               borderColor: StoryModeColors.warning,
               color: StoryModeColors.warning,
             }}
@@ -276,7 +278,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
           <span
             className="text-xs px-2 py-0.5 border"
             style={{
-              backgroundColor: StoryModeColors.background,
+              backgroundColor: 'transparent',
               borderColor: StoryModeColors.agencyBlue,
               color: StoryModeColors.agencyBlue,
             }}
@@ -288,7 +290,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
           <span
             className="text-xs px-2 py-0.5 border"
             style={{
-              backgroundColor: StoryModeColors.background,
+              backgroundColor: 'transparent',
               borderColor: StoryModeColors.danger,
               color: StoryModeColors.danger,
             }}
@@ -300,7 +302,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
           <span
             className="text-xs px-2 py-0.5 border"
             style={{
-              backgroundColor: StoryModeColors.background,
+              backgroundColor: 'transparent',
               borderColor: StoryModeColors.ministryRed,
               color: StoryModeColors.ministryRed,
             }}
@@ -334,7 +336,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
                 key={npcId}
                 className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 px-2 py-1"
                 style={{
-                  backgroundColor: StoryModeColors.background,
+                  backgroundColor: 'transparent',
                   border: `1px solid ${StoryModeColors.borderLight}`,
                 }}
               >
@@ -370,7 +372,8 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
         <div
           className="mt-2 p-2 border text-xs space-y-1"
           style={{
-            backgroundColor: StoryModeColors.background,
+            // §4.7: Vorschau-Kasten = leicht abgesetztes Papier, Tinten-Text bleibt lesbar.
+            backgroundColor: StoryModeColors.surface,
             borderColor: StoryModeColors.borderLight,
           }}
         >
@@ -452,8 +455,9 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
         <div
           className="mt-2 text-xs font-bold text-center py-1"
           style={{
-            backgroundColor: StoryModeColors.border,
-            color: StoryModeColors.textMuted,
+            // §4.7 Stempel-Slip: vergilbtes Papier + Tinte statt dunkler Fläche mit Tinten-Text.
+            backgroundColor: StoryModeColors.oldPaper,
+            color: StoryModeColors.textSecondary,
           }}
         >
           ✓ BEREITS VERWENDET
@@ -463,8 +467,8 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
         <div
           className="mt-2 text-xs font-bold text-center py-1"
           style={{
-            backgroundColor: StoryModeColors.border,
-            color: StoryModeColors.textMuted,
+            backgroundColor: StoryModeColors.oldPaper,
+            color: StoryModeColors.textSecondary,
           }}
         >
           GESPERRT
@@ -491,9 +495,10 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
               onClick={onAddToQueue}
               className="flex-1 px-3 py-1.5 border-2 text-xs font-bold transition-all hover:brightness-110 active:translate-y-0.5"
               style={{
+                // v3: warning ist jetzt Tinte — auf dunkler Oliv-Fläche heller Papier-Text.
                 backgroundColor: StoryModeColors.militaryOlive,
                 borderColor: StoryModeColors.darkOlive,
-                color: StoryModeColors.warning,
+                color: StoryModeColors.surfaceLight,
               }}
               title="Aufs Korkbrett anheften (Sendeplan)"
             >
@@ -644,7 +649,8 @@ export function ActionPanel({
           onChange={e => setSearchQuery(e.target.value)}
           className="w-full px-3 py-1 text-sm font-mono border-2"
           style={{
-            backgroundColor: StoryModeColors.background,
+            // §4.7: Eingabefeld = Papier-Slip im Kraftband, Tinten-Text.
+            backgroundColor: StoryModeColors.surfaceLight,
             borderColor: StoryModeColors.borderLight,
             color: StoryModeColors.textPrimary,
           }}
@@ -656,7 +662,8 @@ export function ActionPanel({
   const actionsList = (
     <div
       className="flex-1 overflow-y-auto p-3"
-      style={{ backgroundColor: StoryModeColors.background }}
+      // §4.7 Regel 3: große Panel-Fläche = Papier, nicht Kraftpapier-Träger.
+      style={{ backgroundColor: StoryModeColors.surface }}
     >
       {filteredActions.length === 0 ? (
         <div
@@ -693,7 +700,8 @@ export function ActionPanel({
     <div
       className="px-3 py-2 border-t-2 flex items-center justify-between"
       style={{
-        backgroundColor: StoryModeColors.darkConcrete,
+        // §4.7: Status-Fußleiste = Papier, damit die Tinten-Akzente (warning/agencyBlue) lesbar bleiben.
+        backgroundColor: StoryModeColors.surfaceLight,
         borderColor: StoryModeColors.border,
       }}
     >

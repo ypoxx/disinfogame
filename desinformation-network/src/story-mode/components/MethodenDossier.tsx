@@ -75,7 +75,9 @@ export function MethodenDossier({ isOpen, onClose, highlightMethodId }: Methoden
               className="w-full text-left p-2 border-b"
               style={{
                 borderColor: StoryModeColors.borderLight,
-                backgroundColor: m.id === selected.id ? StoryModeColors.surface : 'transparent',
+                // v3: Auswahl als „gezogene Karte" (dunklerer Papier-Ton) — surface wäre
+                // auf der surface-Fläche des PixelModal unsichtbar.
+                backgroundColor: m.id === selected.id ? StoryModeColors.oldPaper : 'transparent',
               }}
             >
               <div className="flex items-center gap-2">

@@ -46,7 +46,8 @@ export function StatsPanel({
       <div
         className="border-2 p-4"
         style={{
-          backgroundColor: StoryModeColors.darkConcrete,
+          // §4.7 Regel 3: Inhalts-Kästen = Papier (Tinten-/Stempel-Farben bleiben lesbar).
+          backgroundColor: StoryModeColors.surfaceLight,
           borderColor: StoryModeColors.border,
         }}
       >
@@ -97,7 +98,7 @@ export function StatsPanel({
       <div
         className="border-2 p-4"
         style={{
-          backgroundColor: StoryModeColors.darkConcrete,
+          backgroundColor: StoryModeColors.surfaceLight,
           borderColor: StoryModeColors.border,
         }}
       >
@@ -125,7 +126,7 @@ export function StatsPanel({
             </div>
             <div
               className="h-4 w-full"
-              style={{ backgroundColor: StoryModeColors.background }}
+              style={{ backgroundColor: StoryModeColors.lightConcrete }}
             >
               <div
                 className="h-full transition-all"
@@ -152,7 +153,7 @@ export function StatsPanel({
             </div>
             <div
               className="h-4 w-full"
-              style={{ backgroundColor: StoryModeColors.background }}
+              style={{ backgroundColor: StoryModeColors.lightConcrete }}
             >
               <div
                 className="h-full transition-all"
@@ -185,7 +186,7 @@ export function StatsPanel({
             </div>
             <div
               className="h-4 w-full"
-              style={{ backgroundColor: StoryModeColors.background }}
+              style={{ backgroundColor: StoryModeColors.lightConcrete }}
             >
               <div
                 className="h-full transition-all"
@@ -221,7 +222,7 @@ export function StatsPanel({
             </div>
             <div
               className="h-4 w-full"
-              style={{ backgroundColor: StoryModeColors.background }}
+              style={{ backgroundColor: StoryModeColors.lightConcrete }}
             >
               <div
                 className="h-full transition-all"
@@ -251,7 +252,7 @@ export function StatsPanel({
             </div>
             <div
               className="h-4 w-full"
-              style={{ backgroundColor: StoryModeColors.background }}
+              style={{ backgroundColor: StoryModeColors.lightConcrete }}
             >
               <div
                 className="h-full transition-all"
@@ -269,7 +270,7 @@ export function StatsPanel({
       <div
         className="border-2 p-4"
         style={{
-          backgroundColor: StoryModeColors.darkConcrete,
+          backgroundColor: StoryModeColors.surfaceLight,
           borderColor: StoryModeColors.ministryRed,
         }}
       >
@@ -304,7 +305,7 @@ export function StatsPanel({
               </div>
               <div
                 className="h-3 w-full"
-                style={{ backgroundColor: StoryModeColors.background }}
+                style={{ backgroundColor: StoryModeColors.lightConcrete }}
               >
                 <div
                   className="h-full transition-all"
@@ -324,7 +325,7 @@ export function StatsPanel({
         <div
           className="border-2 p-4"
           style={{
-            backgroundColor: StoryModeColors.darkConcrete,
+            backgroundColor: StoryModeColors.surfaceLight,
             borderColor: StoryModeColors.militaryOlive,
           }}
         >
@@ -359,7 +360,7 @@ export function StatsPanel({
                 </div>
                 <div
                   className="h-2 w-full"
-                  style={{ backgroundColor: StoryModeColors.background }}
+                  style={{ backgroundColor: StoryModeColors.lightConcrete }}
                 >
                   <div
                     className="h-full transition-all"
@@ -389,7 +390,8 @@ export function StatsPanel({
           }}
         >
           <Icon name="stats" size={16} title="Statistik" />
-          <h2 className="font-bold text-sm" style={{ color: StoryModeColors.warning }}>
+          {/* v3: warning ist Tinte — auf dem dunklen Blau-Kopfband heller Papier-Text. */}
+          <h2 className="font-bold text-sm" style={{ color: StoryModeColors.surfaceLight }}>
             KAMPAGNEN-STATISTIK
           </h2>
         </div>
@@ -424,7 +426,7 @@ export function StatsPanel({
         >
           <div className="flex items-center gap-3">
             <Icon name="broadcast" size={24} title="Statistik" />
-            <h2 className="font-bold text-xl" style={{ color: StoryModeColors.warning }}>
+            <h2 className="font-bold text-xl" style={{ color: StoryModeColors.surfaceLight }}>
               KAMPAGNEN-STATISTIK
             </h2>
           </div>
@@ -432,9 +434,10 @@ export function StatsPanel({
             onClick={onClose}
             className="px-4 py-1 font-bold border-2 transition-all hover:brightness-110"
             style={{
+              // Dunkler Knopf → heller Text (§4.7 Regel 2).
               backgroundColor: StoryModeColors.darkConcrete,
               borderColor: StoryModeColors.border,
-              color: StoryModeColors.textPrimary,
+              color: StoryModeColors.surfaceLight,
             }}
           >
             SCHLIESSEN [ESC]
@@ -447,7 +450,8 @@ export function StatsPanel({
         <div
           className="px-6 py-3 border-t-2 text-xs text-center"
           style={{
-            backgroundColor: StoryModeColors.darkConcrete,
+            // §4.7: Fußleiste = Papier, Tinten-Text bleibt.
+            backgroundColor: StoryModeColors.surfaceLight,
             borderColor: StoryModeColors.border,
             color: StoryModeColors.textMuted,
           }}

@@ -39,7 +39,9 @@ export function DayClock() {
       <div
         className="flex items-center gap-2 px-3 py-1.5 border-2 font-bold font-mono"
         style={{
-          backgroundColor: StoryModeColors.darkConcrete,
+          // Papier-Chip statt Kraftpapier (§4.7): die Zustandsfarben (Tinte/Marker/Rot)
+          // sind auf heller Fläche lesbar, auf dunklem Träger nicht.
+          backgroundColor: StoryModeColors.surface,
           borderColor: StoryModeColors.border,
           color,
           boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',

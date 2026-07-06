@@ -122,8 +122,9 @@ export function EventsPanel({
                 <span
                   className="text-xs px-2 py-0.5"
                   style={{
-                    backgroundColor: StoryModeColors.darkConcrete,
-                    color: StoryModeColors.textMuted,
+                    // §4.7: Zähl-Chip = Papier-Slip mit Tinte statt dunkler Fläche.
+                    backgroundColor: StoryModeColors.lightConcrete,
+                    color: StoryModeColors.textSecondary,
                   }}
                 >
                   {groupedEvents[category].length}
@@ -138,7 +139,8 @@ export function EventsPanel({
                     className="border-l-4 pl-4 py-3 transition-all"
                     style={{
                       borderLeftColor: getSeverityColor(event.severity),
-                      backgroundColor: 'rgba(0,0,0,0.2)',
+                      // §4.7: Meldung = helle Karteikarte statt Abdunklungs-Tint.
+                      backgroundColor: StoryModeColors.surfaceLight,
                     }}
                   >
                     {/* Event Header */}
@@ -147,18 +149,22 @@ export function EventsPanel({
                         <span
                           className="font-bold text-xs px-2 py-0.5"
                           style={{
-                            backgroundColor: getSeverityColor(event.severity),
-                            color: event.severity === 'warning' ? StoryModeColors.background : '#fff',
+                            // §4.7 Stempel: Rahmen + Tinte auf Papier, kein Flächen-Rot.
+                            backgroundColor: 'transparent',
+                            border: `1px solid ${getSeverityColor(event.severity)}`,
+                            color: getSeverityColor(event.severity),
                           }}
                         >
                           {getSeverityLabel(event.severity)}
                         </span>
                         {!event.read && (
+                          // §4.7: gestempelt statt geblinkt — Blinken bleibt dem HUD-Alarm vorbehalten.
                           <span
-                            className="text-xs px-2 py-0.5 animate-pulse"
+                            className="text-xs px-2 py-0.5"
                             style={{
-                              backgroundColor: StoryModeColors.ministryRed,
-                              color: '#fff',
+                              backgroundColor: 'transparent',
+                              border: `1px solid ${StoryModeColors.ministryRed}`,
+                              color: StoryModeColors.ministryRed,
                             }}
                           >
                             NEU
@@ -205,12 +211,13 @@ export function EventsPanel({
         <div
           className="px-3 py-2 border-b-2 flex items-center gap-2"
           style={{
-            backgroundColor: StoryModeColors.militaryOlive,
+            // v3: militaryOlive ist Tinten-Olive, kein Flächen-Grün → Kraftband + heller Text.
+            backgroundColor: StoryModeColors.darkConcrete,
             borderColor: StoryModeColors.border,
           }}
         >
           <Icon name="events" size={16} title="Welt-Ereignisse" fallback="E" />
-          <h2 className="font-bold text-sm" style={{ color: StoryModeColors.warning }}>
+          <h2 className="font-bold text-sm" style={{ color: StoryModeColors.surfaceLight }}>
             WELT-EREIGNISSE
           </h2>
           <span
@@ -247,14 +254,15 @@ export function EventsPanel({
           <div
             className="px-6 py-4 border-b-4 flex justify-between items-center"
             style={{
-              backgroundColor: StoryModeColors.militaryOlive,
+              // v3: Kraftband statt Oliv-Fläche (militaryOlive = Tinte).
+              backgroundColor: StoryModeColors.darkConcrete,
               borderColor: StoryModeColors.border,
             }}
           >
             <div className="flex items-center gap-3">
               <Icon name="events" size={24} title="Welt-Ereignisse" fallback="E" />
               <div>
-                <h2 className="font-bold text-xl" style={{ color: StoryModeColors.warning }}>
+                <h2 className="font-bold text-xl" style={{ color: StoryModeColors.surfaceLight }}>
                   WELT-EREIGNISSE
                 </h2>
                 <span className="text-xs" style={{ color: 'rgba(255,255,255,0.7)' }}>
@@ -266,9 +274,10 @@ export function EventsPanel({
               onClick={onClose}
               className="px-4 py-1 font-bold border-2 transition-all hover:brightness-110"
               style={{
+                // Dunkler Knopf → heller Text (§4.7 Regel 2).
                 backgroundColor: StoryModeColors.darkConcrete,
                 borderColor: StoryModeColors.border,
-                color: StoryModeColors.textPrimary,
+                color: StoryModeColors.surfaceLight,
               }}
             >
               SCHLIESSEN [ESC]
@@ -281,7 +290,8 @@ export function EventsPanel({
           <div
             className="px-6 py-3 border-t-4 flex justify-between items-center"
             style={{
-              backgroundColor: StoryModeColors.darkConcrete,
+              // §4.7: Fußleiste = Papier, damit Tinten-Legende lesbar bleibt.
+              backgroundColor: StoryModeColors.surfaceLight,
               borderColor: StoryModeColors.border,
             }}
           >

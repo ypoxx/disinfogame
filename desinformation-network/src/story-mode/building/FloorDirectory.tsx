@@ -129,7 +129,8 @@ export function FloorDirectory({ npcs, onSelect, onClose, currentFloorLevel }: F
           className="px-4 py-3 flex items-center justify-between shrink-0"
           style={{ backgroundColor: StoryModeColors.darkConcrete, borderBottom: `2px solid ${StoryModeColors.border}` }}
         >
-          <span className="font-bold tracking-wider" style={{ color: StoryModeColors.textPrimary }}>
+          {/* v3 §4.7: dunkles Kraftband-Kopf → helle Beschriftung (wie PixelModal) */}
+          <span className="font-bold tracking-wider" style={{ color: StoryModeColors.surfaceLight }}>
             GEBÄUDE — ETAGEN
           </span>
           <button
@@ -137,7 +138,7 @@ export function FloorDirectory({ npcs, onSelect, onClose, currentFloorLevel }: F
             aria-label="Schließen"
             title="Schließen (Esc)"
             className="w-7 h-7 flex items-center justify-center border-2 hover:brightness-125 transition-all"
-            style={{ borderColor: StoryModeColors.borderLight, color: StoryModeColors.textSecondary, background: 'transparent' }}
+            style={{ borderColor: StoryModeColors.lightConcrete, color: StoryModeColors.surfaceLight, background: 'transparent' }}
           >
             ✕
           </button>

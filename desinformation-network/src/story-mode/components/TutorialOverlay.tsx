@@ -306,7 +306,8 @@ export function TutorialOverlay({
             style={{
               backgroundColor: StoryModeColors.darkRed,
               borderColor: StoryModeColors.border,
-              color: StoryModeColors.warning,
+              // Auf dem dunkelroten Chip muss der Zähler Papier-hell sein (§4.7 Regel 2).
+              color: StoryModeColors.document,
             }}
           >
             {currentStep + 1} / {totalSteps}
@@ -338,7 +339,8 @@ export function TutorialOverlay({
               style={{
                 backgroundColor: isLastStep ? StoryModeColors.militaryOlive : StoryModeColors.agencyBlue,
                 borderColor: StoryModeColors.border,
-                color: StoryModeColors.warning,
+                // Auf dunklem Oliv/Blau muss die Beschriftung Papier-hell sein (§4.7 Regel 2).
+                color: StoryModeColors.document,
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
               }}
             >
@@ -348,10 +350,10 @@ export function TutorialOverlay({
         </div>
       </div>
 
-      {/* Skip hint */}
+      {/* Skip hint — liegt auf dem dunklen Scrim → heller Papier-Ton statt Tinte (§4.7 Regel 2). */}
       <div
         className="fixed bottom-4 left-1/2 transform -translate-x-1/2 text-xs"
-        style={{ color: StoryModeColors.textMuted }}
+        style={{ color: StoryModeColors.lightConcrete }}
       >
         Drücken Sie ESC um das Tutorial zu überspringen
       </div>

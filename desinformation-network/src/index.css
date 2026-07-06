@@ -162,7 +162,9 @@
   }
 
   body {
-    @apply bg-gray-100 text-gray-900;
+    /* Kraftpapier-Träger hinter allem (§4.7) statt Web-Grau. */
+    background-color: #2e2820;
+    color: #2b2620;
   }
 
   /* Fokus-Sichtbarkeit pixel-konform: KEIN blauer Web-Ring/Glow (Verbotsliste, §4.6),
@@ -499,23 +501,31 @@
   user-select: none;
 }
 
-/* Scrollbar styles */
+/* Scrollbar im Material „Behörden-Akte" (§4.7): eckige Tinten-Leiste auf Papier,
+   keine runden Web-Pillen (§4.6). */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100 rounded-full;
+  background: #cbbf9f;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-full hover:bg-gray-400;
+  background: #6e6046;
+  border: 2px solid #cbbf9f;
+  border-radius: 0;
 }
 
-/* Selection styles */
+::-webkit-scrollbar-thumb:hover {
+  background: #554836;
+}
+
+/* Text-Auswahl: Marker-Gelb auf Papier statt Web-Blau. */
 ::selection {
-  @apply bg-blue-100 text-blue-900;
+  background: #e3c878;
+  color: #2b2620;
 }
 
 /* Accessibility: Animationen für Nutzer mit Bewegungs-Empfindlichkeit stilllegen

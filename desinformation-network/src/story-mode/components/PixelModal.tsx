@@ -12,6 +12,7 @@
  */
 import { useEffect, type CSSProperties, type ReactNode } from 'react';
 import { StoryModeColors } from '../theme';
+import { useAssets } from '../assets/useAssets';
 import { PixelFrame, type FrameVariant } from './PixelFrame';
 
 export interface PixelModalProps {
@@ -55,6 +56,10 @@ export function PixelModal({
   bodyStyle,
   children,
 }: PixelModalProps): React.JSX.Element | null {
+  // Kopfband-Material (ui_header_band): Kraftpapier mit Naht + roter Index-Linie
+  // (§4.7). Fehlt das Asset, trägt die darkConcrete-Fläche allein.
+  const assets = useAssets();
+  const headerBandUrl = assets.imageUrl('ui_header_band');
   // Esc schließt (E33: Tastatur). Nur aktiv, solange offen.
   useEffect(() => {
     if (!open || !onClose || !closeOnEsc) return;
@@ -83,14 +88,24 @@ export function PixelModal({
         onClick={(e: React.MouseEvent) => e.stopPropagation()}
       >
         {title !== undefined && (
+          // Kopfband = Kraftpapier-Träger mit Creme-Beschriftung (§4.7: Kopfbänder
+          // dürfen dunkel sein; Rot bleibt Stempeln/Alarm vorbehalten).
           <div
             className="px-4 py-3 flex items-center justify-between shrink-0"
             style={{
               backgroundColor: StoryModeColors.darkConcrete,
+              ...(headerBandUrl
+                ? {
+                    backgroundImage: `url(${headerBandUrl})`,
+                    backgroundRepeat: 'repeat-x',
+                    backgroundSize: 'auto 100%',
+                    imageRendering: 'pixelated',
+                  }
+                : {}),
               borderBottom: `2px solid ${StoryModeColors.border}`,
             }}
           >
-            <div className="font-bold tracking-wider" style={{ color: StoryModeColors.textPrimary }}>
+            <div className="font-bold tracking-wider" style={{ color: StoryModeColors.surfaceLight }}>
               {title}
             </div>
             {onClose && (
@@ -101,8 +116,8 @@ export function PixelModal({
                 className="w-7 h-7 flex items-center justify-center border-2 hover:brightness-125 transition-all"
                 style={{
                   backgroundColor: 'transparent',
-                  borderColor: StoryModeColors.borderLight,
-                  color: StoryModeColors.textSecondary,
+                  borderColor: StoryModeColors.lightConcrete,
+                  color: StoryModeColors.surfaceLight,
                 }}
               >
                 ✕

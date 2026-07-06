@@ -263,10 +263,12 @@ export function NarrativeBoard({
                     }}
                     title={t.hint}
                   >
-                    <span style={{ color: StoryModeColors.danger }}>⟜</span>
+                    {/* v3: danger/warning sind Tinten — auf dem dunklen Faden-Streifen
+                        bleiben die hellen v2-Signalwerte (diegetisch). */}
+                    <span style={{ color: '#E5484D' }}>⟜</span>
                     <span className="font-bold">{t.name}</span>
                     <span style={{ color: '#d9c6a3' }}>{t.hint}</span>
-                    <span className="ml-auto font-bold" style={{ color: urgent ? StoryModeColors.danger : StoryModeColors.warning }}>
+                    <span className="ml-auto font-bold" style={{ color: urgent ? '#E5484D' : '#F0B429' }}>
                       läuft ab in {t.expiresIn} {t.expiresIn === 1 ? 'Phase' : 'Phasen'}
                     </span>
                   </div>
@@ -290,7 +292,8 @@ export function NarrativeBoard({
                   onClick={() => setFocusSpur(spur)}
                   className="px-2 py-2 min-h-[64px] flex items-center gap-2 flex-wrap"
                   style={{
-                    border: `2px dashed ${isOver ? StoryModeColors.warning : isFocus ? StoryModeColors.ministryRed : 'rgba(0,0,0,0.35)'}`,
+                    // v3: warning ist Marker-Tinte — Drop-Hinweis auf Kork braucht das helle v2-Amber.
+                    border: `2px dashed ${isOver ? '#F0B429' : isFocus ? StoryModeColors.ministryRed : 'rgba(0,0,0,0.35)'}`,
                     backgroundColor: isOver ? 'rgba(240,180,41,0.10)' : 'rgba(0,0,0,0.12)',
                   }}
                 >
@@ -356,11 +359,12 @@ export function NarrativeBoard({
           <span className="text-[11px]" style={{ color: '#c9b48f' }}>
             {queue.length} angeheftet
           </span>
+          {/* v3: danger ist Tinte — Überzieh-Warnung auf dunkler Fußleiste in hellem v2-Rot. */}
           <span className="text-[11px] flex items-center gap-2" style={{ color: StoryModeColors.document }}>
-            <span className={planCost.budget > resources.budget ? '' : ''} style={{ color: planCost.budget > resources.budget ? StoryModeColors.danger : '#d9c6a3' }}>
+            <span className={planCost.budget > resources.budget ? '' : ''} style={{ color: planCost.budget > resources.budget ? '#E5484D' : '#d9c6a3' }}>
               <Icon name="budget" size={12} title="Budget" /> {planCost.budget}K/{resources.budget}K
             </span>
-            <span style={{ color: planCost.actionPoints > resources.actionPoints ? StoryModeColors.danger : '#d9c6a3' }}>
+            <span style={{ color: planCost.actionPoints > resources.actionPoints ? '#E5484D' : '#d9c6a3' }}>
               <Icon name="mission" size={12} title="AP" /> {planCost.actionPoints}/{resources.actionPoints} AP
             </span>
           </span>
@@ -446,7 +450,8 @@ function ActionCard({ action, onPin, onExecuteNow }: { action: BoardAction; onPi
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-[12px] font-bold leading-tight">{action.label_de}</span>
-        <span className="text-[9px] px-1 shrink-0" style={{ backgroundColor: LEGAL_COLOR[action.legality], color: '#0d0d0d' }}>
+        {/* v3: Legalitäts-Tinten sind dunkler — helle Schrift auf legal/illegal (grau bleibt dunkel-auf-amber). */}
+        <span className="text-[9px] px-1 shrink-0" style={{ backgroundColor: LEGAL_COLOR[action.legality], color: action.legality === 'grey' ? '#0d0d0d' : '#fff' }}>
           {action.legality === 'legal' ? 'LEGAL' : action.legality === 'grey' ? 'GRAU' : 'ILLEGAL'}
         </span>
       </div>

@@ -1971,6 +1971,96 @@
       "styleVersion": "v2"
     },
     {
+      "id": "ui_badge_set",
+      "type": "image",
+      "file": "images/ui_badge_set.png",
+      "chosen": true,
+      "provider": "gemini-3.1-flash-image",
+      "prompt": "a pixel art set of SIX rubber-stamp impressions on flat magenta, arranged in a 2x3 grid with clear gaps: rectangular ink stamp outlines with slightly rough stamped edges, in dark red and anthracite ink, each stamp is an EMPTY bordered rectangle with a short row of illegible placeholder dashes inside (no real words, no letters), one round stamp with a star silhouette, one diagonal banner-shaped stamp. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Muted bureaucratic file-folder palette: warm manila beige and cream paper surfaces, kraft-paper brown backing, dark anthracite ink accents, a single ministry-red accent ONLY where explicitly asked. Crisp clean high-resolution pixel art, flat frontal view, no gradients, no drop shadows, no real-world logos, no emblems, almost no text (placeholder dashes only where asked).",
+      "seed": 144691,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "ui_bar_segments",
+      "type": "image",
+      "file": "images/ui_bar_segments.png",
+      "chosen": true,
+      "provider": "gemini-3.1-flash-image",
+      "prompt": "a pixel art game progress bar kit on flat magenta: THREE horizontal bars stacked with clear gaps — (1) an empty bar: a paper strip with a dark ink outline and small tick marks, (2) the same bar half-filled with flat anthracite ink segments (clearly separate rectangular segments with 2px gaps), (3) the same bar fully filled with dark-red ink segments; no text. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Muted bureaucratic file-folder palette: warm manila beige and cream paper surfaces, kraft-paper brown backing, dark anthracite ink accents, a single ministry-red accent ONLY where explicitly asked. Crisp clean high-resolution pixel art, flat frontal view, no gradients, no drop shadows, no real-world logos, no emblems, almost no text (placeholder dashes only where asked).",
+      "seed": 55256,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "ui_clipboard_frame",
+      "type": "image",
+      "file": "images/ui_clipboard_frame.png",
+      "chosen": true,
+      "provider": "gemini-3.1-flash-image",
+      "prompt": "a single isolated pixel art clipboard for a game UI on flat magenta: a kraft-paper brown clipboard board with a metal clip at the top holding a stack of two cream paper sheets, flat frontal view, the paper sheets are EMPTY (no text, no lines except two faint placeholder dashes at the top), nothing else in the image. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Muted bureaucratic file-folder palette: warm manila beige and cream paper surfaces, kraft-paper brown backing, dark anthracite ink accents, a single ministry-red accent ONLY where explicitly asked. Crisp clean high-resolution pixel art, flat frontal view, no gradients, no drop shadows, no real-world logos, no emblems, almost no text (placeholder dashes only where asked).",
+      "seed": 578156,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "ui_frame_alarm",
+      "type": "image",
+      "file": "images/ui_frame_alarm.png",
+      "chosen": true,
+      "provider": "gemini-3.1-flash-image",
+      "prompt": "a SINGLE empty square frame for a game UI, drawn as an urgent ministry file border: cream paper field with a bold dark-red rubber-stamped double border line, slightly rough stamped ink edges (2px jitter), designed as a 9-slice frame (edges perfectly uniform and repeatable along each side, corners self-contained). Muted bureaucratic file-folder palette: warm manila beige and cream paper surfaces, kraft-paper brown backing, dark anthracite ink accents, a single ministry-red accent ONLY where explicitly asked. Crisp clean high-resolution pixel art, flat frontal view, no gradients, no drop shadows, no real-world logos, no emblems, almost no text (placeholder dashes only where asked).",
+      "seed": 368471,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "ui_frame_light",
+      "type": "image",
+      "file": "images/ui_frame_light.png",
+      "chosen": true,
+      "provider": "gemini-3.1-flash-image",
+      "prompt": "a SINGLE empty square frame for a game UI, drawn as a thin manila paper card border: a light cream paper sheet edge with a subtle 2px darker paper fold line as border, hollow transparent-looking flat center filled with plain cream paper, corners slightly rounded by a 2px pixel step (no smooth curves), designed as a 9-slice frame (edges must be perfectly uniform and repeatable along each side). Muted bureaucratic file-folder palette: warm manila beige and cream paper surfaces, kraft-paper brown backing, dark anthracite ink accents, a single ministry-red accent ONLY where explicitly asked. Crisp clean high-resolution pixel art, flat frontal view, no gradients, no drop shadows, no real-world logos, no emblems, almost no text (placeholder dashes only where asked).",
+      "seed": 266843,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "ui_frame_standard",
+      "type": "image",
+      "file": "images/ui_frame_standard.png",
+      "chosen": true,
+      "provider": "gemini-3.1-flash-image",
+      "prompt": "a SINGLE empty square frame for a game UI, drawn as a manila file-folder border: kraft-paper brown outer edge, cream paper inner field, a 4px layered paper-stack edge with one visible fold line, NO clip and NO decoration on the edges (they must be plain and uniform for slicing), designed as a 9-slice frame (edges perfectly uniform and repeatable along each side, corners self-contained). Muted bureaucratic file-folder palette: warm manila beige and cream paper surfaces, kraft-paper brown backing, dark anthracite ink accents, a single ministry-red accent ONLY where explicitly asked. Crisp clean high-resolution pixel art, flat frontal view, no gradients, no drop shadows, no real-world logos, no emblems, almost no text (placeholder dashes only where asked).",
+      "seed": 624005,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "ui_header_band",
+      "type": "image",
+      "file": "images/ui_header_band.png",
+      "chosen": true,
+      "provider": "gemini-3.1-flash-image",
+      "prompt": "a seamless horizontally tileable header band texture: a plain strip of dark kraft-paper with a stitched top edge and a thin ministry-red index line along the bottom edge, COMPLETELY EMPTY surface — absolutely NO text, NO letters, NO words, NO icons, NO symbols, NO buttons, ONLY the plain paper material, flat, PERFECTLY seamless horizontally (left and right edges continue each other exactly). Muted bureaucratic file-folder palette: warm manila beige and cream paper surfaces, kraft-paper brown backing, dark anthracite ink accents, a single ministry-red accent ONLY where explicitly asked. Crisp clean high-resolution pixel art, flat frontal view, no gradients, no drop shadows, no real-world logos, no emblems, almost no text (placeholder dashes only where asked).",
+      "seed": 55217,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "ui_panel_dark",
+      "type": "image",
+      "file": "images/ui_panel_dark.png",
+      "chosen": true,
+      "provider": "gemini-3.1-flash-image",
+      "prompt": "a seamless tileable texture of dark kraft-paper cardboard backing in deep warm brown, extremely subtle fiber grain, PERFECTLY seamless when tiled (left/right and top/bottom edges continue each other exactly), very low contrast. Muted bureaucratic file-folder palette: warm manila beige and cream paper surfaces, kraft-paper brown backing, dark anthracite ink accents, a single ministry-red accent ONLY where explicitly asked. Crisp clean high-resolution pixel art, flat frontal view, no gradients, no drop shadows, no real-world logos, no emblems, almost no text (placeholder dashes only where asked).",
+      "seed": 116026,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "ui_panel_paper",
+      "type": "image",
+      "file": "images/ui_panel_paper.png",
+      "chosen": true,
+      "provider": "gemini-3.1-flash-image",
+      "prompt": "a seamless tileable texture of plain warm cream office paper with extremely subtle fiber grain and two or three very faint pixel speckles, PERFECTLY seamless when tiled (left/right and top/bottom edges continue each other exactly), very low contrast. Muted bureaucratic file-folder palette: warm manila beige and cream paper surfaces, kraft-paper brown backing, dark anthracite ink accents, a single ministry-red accent ONLY where explicitly asked. Crisp clean high-resolution pixel art, flat frontal view, no gradients, no drop shadows, no real-world logos, no emblems, almost no text (placeholder dashes only where asked).",
+      "seed": 36084,
+      "styleVersion": "v1"
+    },
+    {
       "id": "music_calm_archive",
       "type": "music",
       "file": "sounds/music_calm_archive.mp3",

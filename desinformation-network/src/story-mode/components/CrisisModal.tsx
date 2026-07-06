@@ -80,8 +80,8 @@ export function CrisisModal({
         variant="alarm"
         className="w-full max-w-5xl max-h-[90vh] mx-4 flex flex-col overflow-hidden"
         style={{
+          // §4.7: Dringlichkeit wird GESTEMPELT (Severity-Rand), nicht geblinkt.
           borderColor: getSeverityColor(),
-          animation: crisis.severity === 'critical' ? 'pulse 2s ease-in-out infinite' : undefined,
         }}
         onClick={(e: React.MouseEvent) => e.stopPropagation()}
       >
@@ -93,13 +93,13 @@ export function CrisisModal({
             borderColor: StoryModeColors.border,
           }}
         >
-          {/* Deadline Warning */}
+          {/* Deadline Warning — statischer Stempel statt Blinken (§4.7) */}
           {phasesRemaining !== undefined && phasesRemaining <= 3 && (
-            <div className="absolute top-2 left-2 flex items-center gap-2 animate-pulse">
-              <div className="w-3 h-3 rounded-full bg-white" />
-              <span className="text-xs font-bold" style={{ color: '#fff' }}>
-                FRIST: {phasesRemaining} PHASEN
-              </span>
+            <div
+              className="absolute top-2 left-2 px-2 py-0.5 border-2 text-xs font-bold"
+              style={{ borderColor: 'rgba(255,255,255,0.9)', color: '#fff' }}
+            >
+              FRIST: {phasesRemaining} PHASEN
             </div>
           )}
 
@@ -170,7 +170,8 @@ export function CrisisModal({
                   disabled={!affordable}
                   className="w-full text-left p-6 border-4 transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed relative"
                   style={{
-                    backgroundColor: affordable ? StoryModeColors.surface : StoryModeColors.darkConcrete,
+                    // v3: auch gesperrte Wahl bleibt PAPIER (gedimmt), sonst Tinte auf Dunkel.
+                    backgroundColor: affordable ? StoryModeColors.surface : StoryModeColors.oldPaper,
                     borderColor: isRisky ? StoryModeColors.danger : StoryModeColors.border,
                   }}
                 >
@@ -203,9 +204,9 @@ export function CrisisModal({
                       <div
                         className="flex items-center gap-1 px-2 py-1 border"
                         style={{
-                          backgroundColor: currentResources.budget >= choice.cost.budget ? StoryModeColors.background : StoryModeColors.danger,
+                          backgroundColor: currentResources.budget >= choice.cost.budget ? StoryModeColors.surfaceLight : StoryModeColors.danger,
                           borderColor: StoryModeColors.border,
-                          color: currentResources.budget >= choice.cost.budget ? StoryModeColors.warning : '#fff',
+                          color: currentResources.budget >= choice.cost.budget ? StoryModeColors.textPrimary : '#fff',
                         }}
                       >
                         <Icon name="budget" size={12} title="Budget" fallback="¤" />
@@ -216,7 +217,7 @@ export function CrisisModal({
                       <div
                         className="flex items-center gap-1 px-2 py-1 border"
                         style={{
-                          backgroundColor: StoryModeColors.background,
+                          backgroundColor: StoryModeColors.surfaceLight,
                           borderColor: StoryModeColors.danger,
                           color: StoryModeColors.danger,
                         }}
@@ -229,7 +230,7 @@ export function CrisisModal({
                       <div
                         className="flex items-center gap-1 px-2 py-1 border"
                         style={{
-                          backgroundColor: StoryModeColors.background,
+                          backgroundColor: StoryModeColors.surfaceLight,
                           borderColor: StoryModeColors.danger,
                           color: StoryModeColors.danger,
                         }}
@@ -240,8 +241,9 @@ export function CrisisModal({
                     )}
                     {isRisky && (
                       <div
-                        className="px-2 py-1 border animate-pulse font-bold"
+                        className="px-2 py-1 border font-bold"
                         style={{
+                          // Statischer Rot-Stempel statt Blinken (§4.7)
                           backgroundColor: StoryModeColors.danger,
                           borderColor: StoryModeColors.darkRed,
                           color: '#fff',
@@ -280,7 +282,8 @@ export function CrisisModal({
             <div
               className="mt-6 p-4 border-4"
               style={{
-                backgroundColor: phasesRemaining <= 2 ? '#1a0000' : StoryModeColors.surface,
+                // v3: Warn-Box bleibt Papier; Dringlichkeit trägt der Stempel-Rand.
+                backgroundColor: StoryModeColors.surface,
                 borderColor: phasesRemaining <= 2 ? StoryModeColors.danger : StoryModeColors.warning,
               }}
             >
@@ -299,13 +302,6 @@ export function CrisisModal({
           )}
         </div>
       </PixelFrame>
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.8; }
-        }
-      `}</style>
     </div>
   );
 }

@@ -71,8 +71,8 @@ export function BetrayalEventModal({
         variant="alarm"
         className="w-full max-w-4xl max-h-[90vh] mx-4 flex flex-col overflow-hidden"
         style={{
+          // §4.7: gestempelter Severity-Rand statt Puls-Animation.
           borderColor: getSeverityColor(),
-          animation: 'pulse 1.5s ease-in-out 3',
         }}
       >
         {/* ALERT HEADER */}
@@ -83,11 +83,11 @@ export function BetrayalEventModal({
             borderColor: StoryModeColors.border,
           }}
         >
-          {/* Blinkende Warnlampen (CSS-only, kein Emoji) */}
-          <div className="absolute top-2 left-2 flex gap-2 animate-pulse">
-            <div className="w-3 h-3 rounded-full bg-white" />
-            <div className="w-3 h-3 rounded-full bg-white" style={{ animationDelay: '0.5s' }} />
-            <div className="w-3 h-3 rounded-full bg-white" style={{ animationDelay: '1s' }} />
+          {/* Statische Pixel-Marken statt blinkender Lampen (§4.7: gestempelt, nicht geblinkt) */}
+          <div className="absolute top-2 left-2 flex gap-2">
+            <div className="w-3 h-3 bg-white" />
+            <div className="w-3 h-3 bg-white" />
+            <div className="w-3 h-3 bg-white" />
           </div>
 
           <div className="text-center">
@@ -110,11 +110,11 @@ export function BetrayalEventModal({
             </div>
           </div>
 
-          {/* Blinkende Warnlampen rechts */}
-          <div className="absolute top-2 right-2 flex gap-2 animate-pulse">
-            <div className="w-3 h-3 rounded-full bg-white" />
-            <div className="w-3 h-3 rounded-full bg-white" style={{ animationDelay: '0.5s' }} />
-            <div className="w-3 h-3 rounded-full bg-white" style={{ animationDelay: '1s' }} />
+          {/* Statische Pixel-Marken rechts */}
+          <div className="absolute top-2 right-2 flex gap-2">
+            <div className="w-3 h-3 bg-white" />
+            <div className="w-3 h-3 bg-white" />
+            <div className="w-3 h-3 bg-white" />
           </div>
         </div>
 
@@ -124,7 +124,8 @@ export function BetrayalEventModal({
           <div
             className="mb-6 p-4 border-4 text-center"
             style={{
-              backgroundColor: StoryModeColors.background,
+              // v3: Karteikarte (hell) statt Kraftpapier-dunkel — Tinte lesbar.
+              backgroundColor: StoryModeColors.surfaceLight,
               borderColor: getSeverityColor(),
             }}
           >
@@ -162,7 +163,8 @@ export function BetrayalEventModal({
           <div
             className="mb-6 p-6 border-4"
             style={{
-              backgroundColor: '#1a0000',
+              // v3: Papier-Fläche; die Dringlichkeit trägt der rote Stempel-Rand.
+              backgroundColor: StoryModeColors.surfaceLight,
               borderColor: getSeverityColor(),
             }}
           >
@@ -181,7 +183,7 @@ export function BetrayalEventModal({
                   key={idx}
                   className="p-3 border-2 flex items-start gap-3"
                   style={{
-                    backgroundColor: StoryModeColors.background,
+                    backgroundColor: StoryModeColors.surface,
                     borderColor: StoryModeColors.border,
                   }}
                 >
@@ -204,9 +206,10 @@ export function BetrayalEventModal({
           {/* Warning Box — nur bei katastrophalem Verrat */}
           {event.severity === 'catastrophic' && (
             <div
-              className="p-4 border-4 text-center animate-pulse"
+              className="p-4 border-4 text-center"
               style={{
-                backgroundColor: '#1a0000',
+                // Statischer Stempel-Kasten (Rand + Tinte) statt Puls (§4.7).
+                backgroundColor: StoryModeColors.surfaceLight,
                 borderColor: getSeverityColor(),
               }}
             >
@@ -245,13 +248,6 @@ export function BetrayalEventModal({
           </button>
         </div>
       </PixelFrame>
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.7; }
-        }
-      `}</style>
     </div>
   );
 }

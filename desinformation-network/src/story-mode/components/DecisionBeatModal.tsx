@@ -119,7 +119,8 @@ export function DecisionBeatModal({ isVisible, beat, result, recommendedOptionId
             <button
               onClick={onClose}
               className="w-full p-3 border-4 font-bold hover:brightness-110 active:translate-y-0.5"
-              style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.border, color: StoryModeColors.textPrimary }}
+              // v3 §4.7: dunkles Kraftband → helle Beschriftung (Tinte wäre unlesbar).
+              style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.border, color: StoryModeColors.surfaceLight }}
             >
               ZURÜCK AN DIE ARBEIT
             </button>
@@ -138,7 +139,8 @@ export function DecisionBeatModal({ isVisible, beat, result, recommendedOptionId
                   onClick={() => onChoose(opt.id)}
                   className="w-full text-left p-4 border-4 transition-all hover:brightness-110 active:translate-y-0.5"
                   style={{
-                    backgroundColor: StoryModeColors.darkConcrete,
+                    // v3 §4.7: Options-Karten sind Papier — Tinten-Text bleibt lesbar.
+                    backgroundColor: StoryModeColors.surface,
                     borderColor: StoryModeColors.border,
                     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
                   }}
@@ -171,7 +173,8 @@ export function DecisionBeatModal({ isVisible, beat, result, recommendedOptionId
         {/* Footer */}
         <div
           className="px-6 py-3 border-t-4 text-center text-xs shrink-0"
-          style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.border, color: StoryModeColors.textMuted }}
+          // v3: Fußzeile Papier + Tinte (wie PixelModal-Footer)
+          style={{ backgroundColor: StoryModeColors.surface, borderColor: StoryModeColors.border, color: StoryModeColors.textMuted }}
         >
           Keine Option ist überall die beste — jede zahlt woanders.
         </div>

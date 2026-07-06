@@ -66,7 +66,8 @@ function ChangelogOverlay({ onClose }: { onClose: () => void }): JSX.Element {
         >
           <span
             style={{
-              color: StoryModeColors.warning,
+              // v3 §4.7: dunkles Kopfband → helle Beschriftung
+              color: StoryModeColors.surfaceLight,
               fontWeight: 700,
               letterSpacing: '0.1em',
               fontSize: '0.9rem',
@@ -79,8 +80,8 @@ function ChangelogOverlay({ onClose }: { onClose: () => void }): JSX.Element {
             aria-label="Changelog schließen"
             style={{
               background: 'none',
-              border: `2px solid ${StoryModeColors.borderLight}`,
-              color: StoryModeColors.textSecondary,
+              border: `2px solid ${StoryModeColors.lightConcrete}`,
+              color: StoryModeColors.surfaceLight,
               cursor: 'pointer',
               fontFamily: "'VT323', monospace",
               fontSize: '1rem',
@@ -93,8 +94,8 @@ function ChangelogOverlay({ onClose }: { onClose: () => void }): JSX.Element {
               (e.currentTarget as HTMLButtonElement).style.borderColor = '#fff';
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.color = StoryModeColors.textSecondary;
-              (e.currentTarget as HTMLButtonElement).style.borderColor = StoryModeColors.borderLight;
+              (e.currentTarget as HTMLButtonElement).style.color = StoryModeColors.surfaceLight;
+              (e.currentTarget as HTMLButtonElement).style.borderColor = StoryModeColors.lightConcrete;
             }}
           >
             ✕
@@ -319,7 +320,8 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
         {/* Haupttitel */}
         <h1
           style={{
-            color: StoryModeColors.warning,
+            // v3: warning ist Marker-Tinte — Titel über dem Nachtbild bleibt helles v2-Amber (diegetisch).
+            color: '#F0B429',
             // Press Start 2P (Headlines-Set): läuft deutlich breiter → kleinere clamp + engeres Tracking,
             // damit „OPERATION: WESTUNION" auf schmalen Schirmen nicht überläuft (Preview gegenprüfen).
             fontFamily: StoryModeFonts.display,
@@ -331,7 +333,7 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
             marginBottom: 8,
             textAlign: 'center',
             animation: 'ts-flicker 3.5s ease-in-out 0.8s both, ts-fade-slide .6s ease .3s both',
-            textShadow: `0 0 18px ${StoryModeColors.warning}66`,
+            textShadow: `0 0 18px #F0B42966`,
           }}
         >
           OPERATION: WESTUNION
@@ -340,7 +342,8 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
         {/* Untertitel */}
         <p
           style={{
-            color: StoryModeColors.textSecondary,
+            // v3: dunkles Nachtbild → heller Papier-Ton statt Tinten-Token.
+            color: StoryModeColors.lightConcrete,
             fontSize: '0.95rem',
             letterSpacing: '0.08em',
             margin: 0,
@@ -404,7 +407,8 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
             style={{
               background: 'none',
               border: `2px solid ${StoryModeColors.borderLight}`,
-              color: StoryModeColors.textSecondary,
+              // v3: dunkles Nachtbild → helle Papier-Töne statt Tinten-Token.
+              color: StoryModeColors.lightConcrete,
               fontSize: '0.8rem',
               letterSpacing: '0.06em',
               padding: '5px 12px',
@@ -413,11 +417,11 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
               transition: 'color 150ms, border-color 150ms',
             }}
             onMouseEnter={(e): void => {
-              (e.currentTarget as HTMLButtonElement).style.color = StoryModeColors.textPrimary;
-              (e.currentTarget as HTMLButtonElement).style.borderColor = StoryModeColors.textPrimary;
+              (e.currentTarget as HTMLButtonElement).style.color = StoryModeColors.document;
+              (e.currentTarget as HTMLButtonElement).style.borderColor = StoryModeColors.document;
             }}
             onMouseLeave={(e): void => {
-              (e.currentTarget as HTMLButtonElement).style.color = StoryModeColors.textSecondary;
+              (e.currentTarget as HTMLButtonElement).style.color = StoryModeColors.lightConcrete;
               (e.currentTarget as HTMLButtonElement).style.borderColor = StoryModeColors.borderLight;
             }}
           >
@@ -425,7 +429,7 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
           </button>
           <span
             style={{
-              color: StoryModeColors.textMuted,
+              color: StoryModeColors.lightConcrete,
               fontSize: '0.72rem',
               letterSpacing: '0.04em',
             }}
@@ -439,8 +443,9 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
           style={{
             marginTop: 16,
             padding: '6px 12px',
-            border: `1px solid ${StoryModeColors.warning}`,
-            color: StoryModeColors.warning,
+            // v3: warning ist Marker-Tinte — über dem Nachtbild helles v2-Amber (diegetisch).
+            border: `1px solid #F0B429`,
+            color: '#F0B429',
             fontSize: '0.68rem',
             letterSpacing: '0.04em',
             textAlign: 'center',
@@ -458,7 +463,8 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
             marginTop: 10,
             background: 'none',
             border: 'none',
-            color: StoryModeColors.textMuted,
+            // v3: dunkles Nachtbild → heller Papier-Ton statt Tinten-Token.
+            color: StoryModeColors.lightConcrete,
             fontSize: '0.68rem',
             letterSpacing: '0.06em',
             textAlign: 'center',
@@ -469,10 +475,10 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
             transition: 'color 150ms',
           }}
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.color = StoryModeColors.textSecondary;
+            (e.currentTarget as HTMLButtonElement).style.color = StoryModeColors.document;
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.color = StoryModeColors.textMuted;
+            (e.currentTarget as HTMLButtonElement).style.color = StoryModeColors.lightConcrete;
           }}
         >
           v{GAME_VERSION} · Build {BUILD_STAMP} — Vorabversion für Testspieler

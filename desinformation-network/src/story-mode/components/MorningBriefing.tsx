@@ -209,7 +209,8 @@ export function MorningBriefing({ phase, risk, trustProgress, budget, attention,
               }}
             />
           ) : (
-            <span className="text-sm font-bold" style={{ color: StoryModeColors.textSecondary }}>DIR.</span>
+            /* Auf dem roten Porträt-Band muss der Fallback hell sein (§4.7 Regel 2). */
+            <span className="text-sm font-bold" style={{ color: StoryModeColors.document }}>DIR.</span>
           )}
         </div>
 

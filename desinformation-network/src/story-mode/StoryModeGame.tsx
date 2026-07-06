@@ -115,6 +115,63 @@ function PauseMenu({ onResume, onSave, onExit }: {
       className="fixed inset-0 flex items-center justify-center z-50"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
     >
+      {/* PIXEL-Regler „Dienstplan-Tafel" (Plan L1, §4.7): eckiger Tinten-Schieber auf
+          segmentierter Leiste. Die repeating-linear-gradient-Stopps sind HARTE Kanten
+          (Pixel-Raster als Skalen-Striche), kein weicher Verlauf — §4.6-konform. */}
+      <style>{`
+        input[type="range"].bs-pixel-range {
+          -webkit-appearance: none;
+          appearance: none;
+          height: 18px;
+          background: transparent;
+          cursor: pointer;
+        }
+        input[type="range"].bs-pixel-range:focus-visible {
+          outline: 2px solid ${StoryModeColors.agencyBlue};
+          outline-offset: 1px;
+        }
+        input[type="range"].bs-pixel-range::-webkit-slider-runnable-track {
+          height: 10px;
+          border: 2px solid ${StoryModeColors.border};
+          border-radius: 0;
+          background-color: ${StoryModeColors.surface};
+          background-image: repeating-linear-gradient(
+            to right,
+            ${StoryModeColors.textSecondary} 0 2px,
+            transparent 2px 8px
+          );
+        }
+        input[type="range"].bs-pixel-range::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 10px;
+          height: 18px;
+          margin-top: -6px;
+          border: 2px solid ${StoryModeColors.textPrimary};
+          border-radius: 0;
+          background: ${StoryModeColors.darkConcrete};
+          box-shadow: none;
+        }
+        input[type="range"].bs-pixel-range::-moz-range-track {
+          height: 6px;
+          border: 2px solid ${StoryModeColors.border};
+          border-radius: 0;
+          background-color: ${StoryModeColors.surface};
+          background-image: repeating-linear-gradient(
+            to right,
+            ${StoryModeColors.textSecondary} 0 2px,
+            transparent 2px 8px
+          );
+        }
+        input[type="range"].bs-pixel-range::-moz-range-thumb {
+          width: 10px;
+          height: 18px;
+          border: 2px solid ${StoryModeColors.textPrimary};
+          border-radius: 0;
+          background: ${StoryModeColors.darkConcrete};
+          box-shadow: none;
+        }
+      `}</style>
       <div
         className="w-80 border-4"
         style={{
@@ -126,9 +183,10 @@ function PauseMenu({ onResume, onSave, onExit }: {
         <div
           className="px-6 py-4 border-b-4 text-center font-bold"
           style={{
+            // v3 §4.7: dunkles Kopfband → helle Beschriftung (Tinte wäre unlesbar)
             backgroundColor: StoryModeColors.agencyBlue,
             borderColor: StoryModeColors.border,
-            color: StoryModeColors.warning,
+            color: StoryModeColors.surfaceLight,
           }}
         >
           PAUSE
@@ -153,18 +211,18 @@ function PauseMenu({ onResume, onSave, onExit }: {
             style={{
               backgroundColor: StoryModeColors.militaryOlive,
               borderColor: StoryModeColors.darkOlive,
-              color: StoryModeColors.warning,
+              color: StoryModeColors.surfaceLight,
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
             }}
           >
             SPEICHERN
           </button>
 
-          {/* Sound Settings */}
+          {/* Sound Settings — v3: „Dienstplan-Tafel" aus Papier (Karteikarte statt Dunkelfläche) */}
           <div
             className="w-full p-3 border-2"
             style={{
-              backgroundColor: StoryModeColors.background,
+              backgroundColor: StoryModeColors.surfaceLight,
               borderColor: StoryModeColors.borderLight,
             }}
           >
@@ -181,7 +239,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
                 style={{
                   backgroundColor: soundOn ? StoryModeColors.militaryOlive : StoryModeColors.concrete,
                   borderColor: soundOn ? StoryModeColors.darkOlive : StoryModeColors.borderLight,
-                  color: soundOn ? StoryModeColors.warning : StoryModeColors.textSecondary,
+                  color: soundOn ? StoryModeColors.surfaceLight : StoryModeColors.textSecondary,
                 }}
               >
                 {soundOn ? 'AN' : 'AUS'}
@@ -197,8 +255,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
                   step="0.1"
                   value={volume}
                   onChange={handleVolumeChange}
-                  className="flex-1"
-                  style={{ accentColor: StoryModeColors.ministryRed }}
+                  className="flex-1 bs-pixel-range"
                 />
                 <Icon name="soundOn" size={14} title="Laut" fallback="+" />
               </div>
@@ -219,8 +276,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
                       value={channels[ch]}
                       onChange={(e) => handleChannel(ch, parseFloat(e.target.value))}
                       aria-label={`Lautstärke ${label}`}
-                      className="flex-1"
-                      style={{ accentColor: StoryModeColors.agencyBlue }}
+                      className="flex-1 bs-pixel-range"
                     />
                   </div>
                 ))}

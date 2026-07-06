@@ -772,6 +772,80 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
     });
   }
 
+  // --- L1 UI-Material-Kit „Behörden-Akte" (Stil-Bibel §4.7, Plan 2026-07-06 L1) ---
+  // Die gesamte Bedienung ist aus Papier/Akte gemacht: Manila-Mappen, Karteikarten,
+  // Stempel. §4.7-Pflichten: no real-world logos, no emblems, almost no text;
+  // Text bleibt Engine-Ebene (E35) — nur Platzhalter-Striche.
+  const PAPER_STYLE =
+    'Muted bureaucratic file-folder palette: warm manila beige and cream paper surfaces, ' +
+    'kraft-paper brown backing, dark anthracite ink accents, a single ministry-red accent ' +
+    'ONLY where explicitly asked. Crisp clean high-resolution pixel art, flat frontal view, ' +
+    'no gradients, no drop shadows, no real-world logos, no emblems, almost no text ' +
+    '(placeholder dashes only where asked).';
+  const UI_KIT = [
+    ['ui_frame_light', '1:1', { w: 256, h: 256 }, false,
+      'a SINGLE empty square frame for a game UI, drawn as a thin manila paper card border: ' +
+      'a light cream paper sheet edge with a subtle 2px darker paper fold line as border, ' +
+      'hollow transparent-looking flat center filled with plain cream paper, corners slightly ' +
+      'rounded by a 2px pixel step (no smooth curves), designed as a 9-slice frame (edges must ' +
+      'be perfectly uniform and repeatable along each side)'],
+    ['ui_frame_standard', '1:1', { w: 256, h: 256 }, false,
+      'a SINGLE empty square frame for a game UI, drawn as a manila file-folder border: ' +
+      'kraft-paper brown outer edge, cream paper inner field, a 4px layered paper-stack edge ' +
+      'with one visible fold line, NO clip and NO decoration on the edges (they must be plain ' +
+      'and uniform for slicing), designed as a ' +
+      '9-slice frame (edges perfectly uniform and repeatable along each side, corners self-contained)'],
+    ['ui_frame_alarm', '1:1', { w: 256, h: 256 }, false,
+      'a SINGLE empty square frame for a game UI, drawn as an urgent ministry file border: ' +
+      'cream paper field with a bold dark-red rubber-stamped double border line, slightly ' +
+      'rough stamped ink edges (2px jitter), designed as a 9-slice frame (edges perfectly ' +
+      'uniform and repeatable along each side, corners self-contained)'],
+    ['ui_panel_paper', '1:1', { w: 512, h: 512 }, false,
+      'a seamless tileable texture of plain warm cream office paper with extremely subtle ' +
+      'fiber grain and two or three very faint pixel speckles, PERFECTLY seamless when tiled ' +
+      '(left/right and top/bottom edges continue each other exactly), very low contrast'],
+    ['ui_panel_dark', '1:1', { w: 512, h: 512 }, false,
+      'a seamless tileable texture of dark kraft-paper cardboard backing in deep warm brown, ' +
+      'extremely subtle fiber grain, PERFECTLY seamless when tiled (left/right and top/bottom ' +
+      'edges continue each other exactly), very low contrast'],
+    ['ui_header_band', '21:9', { w: 1344, h: 192 }, false,
+      'a seamless horizontally tileable header band texture: a plain strip of dark kraft-paper ' +
+      'with a stitched top edge and a thin ministry-red index line along the bottom edge, ' +
+      'COMPLETELY EMPTY surface — absolutely NO text, NO letters, NO words, NO icons, NO ' +
+      'symbols, NO buttons, ONLY the plain paper material, flat, PERFECTLY seamless ' +
+      'horizontally (left and right edges continue each other exactly)'],
+    ['ui_bar_segments', '16:9', { w: 1024, h: 576 }, true,
+      'a pixel art game progress bar kit on flat magenta: THREE horizontal bars stacked with ' +
+      'clear gaps — (1) an empty bar: a paper strip with a dark ink outline and small tick ' +
+      'marks, (2) the same bar half-filled with flat anthracite ink segments (clearly separate ' +
+      'rectangular segments with 2px gaps), (3) the same bar fully filled with dark-red ink ' +
+      'segments; no text'],
+    ['ui_badge_set', '1:1', { w: 512, h: 512 }, true,
+      'a pixel art set of SIX rubber-stamp impressions on flat magenta, arranged in a 2x3 grid ' +
+      'with clear gaps: rectangular ink stamp outlines with slightly rough stamped edges, in ' +
+      'dark red and anthracite ink, each stamp is an EMPTY bordered rectangle with a short row ' +
+      'of illegible placeholder dashes inside (no real words, no letters), one round stamp with ' +
+      'a star silhouette, one diagonal banner-shaped stamp'],
+    ['ui_clipboard_frame', '3:4', { w: 768, h: 1024 }, true,
+      'a single isolated pixel art clipboard for a game UI on flat magenta: a kraft-paper brown ' +
+      'clipboard board with a metal clip at the top holding a stack of two cream paper sheets, ' +
+      'flat frontal view, the paper sheets are EMPTY (no text, no lines except two faint ' +
+      'placeholder dashes at the top), nothing else in the image'],
+  ];
+  for (const [id, aspectRatio, size, chroma, hint] of UI_KIT) {
+    shots.push({
+      id,
+      type: 'image',
+      kind: 'ui',
+      priority: 'must',
+      aspectRatio,
+      size,
+      chroma,
+      seed: seedFor(id),
+      prompt: `${hint}. ${chroma ? CHROMA_PROMPT + ' ' : ''}${PAPER_STYLE}`,
+    });
+  }
+
   // --- Pixel-Icons (E30: ein Icon-Vokabular statt Emojis) ---
   for (const [id, hint] of ICONS) {
     shots.push({

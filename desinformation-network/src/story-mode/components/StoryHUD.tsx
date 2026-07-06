@@ -268,7 +268,9 @@ function AbwehrBar({ value, stageInfo }: AbwehrBarProps) {
                   top: '-1px',
                   bottom: '-1px',
                   width: '2px',
-                  backgroundColor: fired ? StoryModeColors.textPrimary : 'rgba(0,0,0,0.55)',
+                  // „gezündet = hell": textPrimary ist seit v3 Tinte (dunkel) — auf dem
+                  // dunklen Balken-Träger muss die Kerbe Papier-hell sein (§4.7 Regel 2).
+                  backgroundColor: fired ? StoryModeColors.document : 'rgba(0,0,0,0.55)',
                 }}
               />
             );
@@ -346,7 +348,8 @@ function PhaseDisplay({ phase }: PhaseDisplayProps) {
         <div className="text-[10px]" style={{ color: StoryModeColors.textSecondary }}>
           TAG {phase.current}
         </div>
-        <div className="font-bold text-sm" style={{ color: StoryModeColors.document }}>
+        {/* Papier-Ton wäre auf der hellen HUD-Leiste unsichtbar → Tinte (§4.7 Regel 1). */}
+        <div className="font-bold text-sm" style={{ color: StoryModeColors.textPrimary }}>
           {daysLeft === 0 ? 'WAHLTAG' : `WAHL IN ${daysLeft} T.`}
         </div>
       </div>
@@ -460,11 +463,12 @@ export function StoryHUD({
       {/* E29: Puls-Keyframe einmalig ins DOM */}
       <style>{HUD_PULSE_STYLE}</style>
 
-      {/* Top Bar */}
+      {/* Top Bar — Papierfläche (§4.7: auch der Spiel-UI-Rand ist aus Papier);
+          die Tinten-Labels und Akzent-Werte bleiben darauf lesbar. */}
       <div
         className="fixed top-0 left-0 right-0 z-40 border-b-4"
         style={{
-          backgroundColor: StoryModeColors.darkConcrete,
+          backgroundColor: StoryModeColors.surface,
           borderColor: StoryModeColors.border,
         }}
       >

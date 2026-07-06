@@ -413,7 +413,8 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
                 >
                   <div className="flex justify-between items-start gap-4">
                     <div className="flex-1">
-                      <span className="text-sm" style={{ color: StoryModeColors.warning }}>
+                      {/* v3: warning ist Tinte — auf dem roten Auswahl-Zustand helle Schrift. */}
+                      <span className="text-sm" style={{ color: selectedChoice === choice.id ? '#fff' : StoryModeColors.warning }}>
                         [{index + 1}]
                       </span>{' '}
                       {choice.text}

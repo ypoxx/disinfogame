@@ -111,7 +111,8 @@ export function AdvisorPanel({
               }}
               className="w-8 h-8 border-2 flex items-center justify-center hover:brightness-110 transition-all text-xs"
               style={{
-                backgroundColor: StoryModeColors.background,
+                // §4.7: Karteikarten-Chip = Papier + Tinten-Initiale (statt dunkler Fläche).
+                backgroundColor: StoryModeColors.document,
                 borderColor: topRec ? getPriorityColor(topRec.priority) : StoryModeColors.borderLight,
                 color: StoryModeColors.textPrimary,
               }}
@@ -140,20 +141,21 @@ export function AdvisorPanel({
       <div
         className="border-b-2 p-3 flex items-center justify-between"
         style={{
-          backgroundColor: StoryModeColors.militaryOlive,
-          borderColor: StoryModeColors.darkOlive,
+          // v3: militaryOlive ist Tinten-Olive, kein Flächen-Grün → Kraftband + heller Text.
+          backgroundColor: StoryModeColors.darkConcrete,
+          borderColor: StoryModeColors.border,
         }}
       >
         <div>
           <h3
             className="font-bold text-sm tracking-wider"
-            style={{ color: StoryModeColors.warning }}
+            style={{ color: StoryModeColors.surfaceLight }}
           >
             BERATER
           </h3>
           <p
             className="text-xs mt-0.5"
-            style={{ color: StoryModeColors.textSecondary }}
+            style={{ color: StoryModeColors.lightConcrete }}
           >
             Empfehlungen vom Team
           </p>
@@ -162,7 +164,7 @@ export function AdvisorPanel({
           <button
             onClick={onToggleCollapse}
             className="p-1 hover:brightness-110 transition-all"
-            style={{ color: StoryModeColors.warning }}
+            style={{ color: StoryModeColors.surfaceLight }}
             title="Einklappen"
           >
                       </button>
@@ -188,10 +190,11 @@ export function AdvisorPanel({
                 onMouseLeave={() => setHoveredNpc(null)}
                 className="w-full text-left border-2 p-3 transition-all hover:brightness-110 active:translate-y-0.5 relative"
                 style={{
-                  backgroundColor: isHovered ? StoryModeColors.background : StoryModeColors.concrete,
+                  // §4.7: Berater-Karte = Papier (Tinten-Text); Hover hellt zur Karteikarte auf.
+                  backgroundColor: isHovered ? StoryModeColors.surfaceLight : StoryModeColors.surface,
                   borderColor: topRec ? getPriorityColor(topRec.priority) : StoryModeColors.borderLight,
                   // Stil-Bibel: dezenter Pixel-Innenrand statt Verbots-Schlagschatten/Glow.
-                  // Kritische Priorität bleibt über die rote Rahmenfarbe + pulsenden Indikator sichtbar.
+                  // Kritische Priorität bleibt über die rote Rahmenfarbe sichtbar (gestempelt, nicht geblinkt).
                   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
                 }}
               >
@@ -225,9 +228,9 @@ export function AdvisorPanel({
                     <div
                       className="text-xs ml-2 font-bold"
                       style={{
+                        // §4.7: Dringlichkeit wird gestempelt, nicht geblinkt (kein Pulse mehr).
                         color: getPriorityColor(topRec.priority),
                         letterSpacing: '0.08em',
-                        animation: topRec.priority === 'critical' ? 'pulse 2s infinite' : undefined,
                       }}
                       title={topRec.priority.toUpperCase()}
                     >
@@ -241,7 +244,7 @@ export function AdvisorPanel({
                   <div
                     className="h-1.5 border"
                     style={{
-                      backgroundColor: StoryModeColors.background,
+                      backgroundColor: StoryModeColors.lightConcrete,
                       borderColor: StoryModeColors.borderLight,
                     }}
                   >
@@ -296,21 +299,14 @@ export function AdvisorPanel({
       <div
         className="border-t-2 p-2 text-xs text-center"
         style={{
-          backgroundColor: StoryModeColors.background,
+          // §4.7: Fußleiste = Papier, Tinten-Text bleibt.
+          backgroundColor: StoryModeColors.surfaceLight,
           borderColor: StoryModeColors.borderLight,
           color: StoryModeColors.textSecondary,
         }}
       >
         Klicken für Details
       </div>
-
-      {/* Pulse animation for critical */}
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-      `}</style>
     </div>
   );
 }

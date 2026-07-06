@@ -248,7 +248,8 @@ function Gauge({ label, value, invert }: { label: string; value: number | null; 
           {value === null ? '—' : formatPct(v)}
         </span>
       </div>
-      <div style={{ position: 'relative', height: 9, backgroundColor: StoryModeColors.background, border: `1px solid ${StoryModeColors.border}` }}>
+      {/* v3 (§4.7): Balken-Bahn als Papier statt dunklem Träger — Tinten-Füllung bleibt lesbar. */}
+      <div style={{ position: 'relative', height: 9, backgroundColor: StoryModeColors.oldPaper, border: `1px solid ${StoryModeColors.border}` }}>
         <div
           data-oa-fill=""
           style={{
@@ -410,8 +411,9 @@ export function OperationsAkteView({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 14, fontWeight: 900, letterSpacing: 3, color: StoryModeColors.textPrimary }}>OPERATIONS-AKTE</span>
-            <span style={{ fontSize: 9, letterSpacing: 1, color: StoryModeColors.textMuted }}>
+            {/* v3: Kopfband bleibt dunkel → helle Papier-Töne statt Tinten-Token. */}
+            <span style={{ fontSize: 14, fontWeight: 900, letterSpacing: 3, color: StoryModeColors.document }}>OPERATIONS-AKTE</span>
+            <span style={{ fontSize: 9, letterSpacing: 1, color: StoryModeColors.lightConcrete }}>
               AZ WU-{String(targets.length)}{String(carriers.length)}/{String(platforms.length)} · SONDEROPERATIONEN
             </span>
             <span
@@ -435,7 +437,7 @@ export function OperationsAkteView({
             style={{
               background: 'none',
               border: `2px solid ${StoryModeColors.ministryRed}`,
-              color: StoryModeColors.textPrimary,
+              color: StoryModeColors.document,
               fontSize: 15,
               fontWeight: 900,
               width: 28,
@@ -612,7 +614,8 @@ export function OperationsAkteView({
                 style={{
                   marginTop: 4,
                   padding: '7px 9px',
-                  backgroundColor: StoryModeColors.background,
+                  // v3 (§4.7): Info-Box als helles Papier-Blatt — Tinten-Text bleibt lesbar.
+                  backgroundColor: StoryModeColors.surfaceLight,
                   border: `1px solid ${StoryModeColors.border}`,
                   fontSize: 10,
                   lineHeight: 1.45,
@@ -635,7 +638,8 @@ export function OperationsAkteView({
               style={{
                 marginTop: 10,
                 padding: '8px 10px',
-                backgroundColor: StoryModeColors.background,
+                // v3 (§4.7): Vorschau-Zettel als helles Papier — Tinten-Text bleibt lesbar.
+                backgroundColor: StoryModeColors.surfaceLight,
                 border: `1px dashed ${StoryModeColors.borderLight}`,
                 minHeight: 46,
               }}

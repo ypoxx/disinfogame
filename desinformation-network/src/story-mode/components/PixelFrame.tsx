@@ -1,20 +1,21 @@
 /**
  * PixelFrame — EIN gerahmter Pixel-Container statt der ~14 verschiedenen
  * CSS-Brutalismus-Varianten (border-4/8 + Glow- ODER harter Schlagschatten).
- * Stil-Bibel A4: klare, harte Pixel-Kante + dezenter Innen-Highlight, KEIN
- * abgerundeter Web-Look, KEIN Schlagschatten als Stilträger. Drei Gewichte.
  *
- * Hinweis: bewusst CSS-basiert (kein 9-Slice-Asset nötig) — kohärent, leicht,
- * sofort auf alle Modals/Panels anwendbar. Ein echtes 9-Slice-Asset kann später
- * transparent darunter gelegt werden, ohne die API zu ändern.
+ * v3 „Behörden-Akte" (Stil-Bibel §4.7, L1): Der Rahmen ist aus PAPIER —
+ * Creme-Fläche (mit kachelbarer Papier-Textur, sobald das Asset da ist),
+ * dunkle Akten-Kante, 2-px-Pixel-VERSATZKANTE statt Web-Schatten (das Papier
+ * „liegt auf"). Drei Gewichte: light (Karteikarte) / standard (Mappe) /
+ * alarm (rot gestempelter Rand). Jedes Material hat einen CSS-Fallback.
  */
 import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
 import { StoryModeColors } from '../theme';
+import { useAssets } from '../assets/useAssets';
 
 export type FrameVariant = 'standard' | 'alarm' | 'light';
 
 const VARIANT: Record<FrameVariant, { border: string; bg: string; width: number }> = {
-  standard: { border: StoryModeColors.borderLight, bg: StoryModeColors.surface, width: 2 },
+  standard: { border: StoryModeColors.border, bg: StoryModeColors.surface, width: 2 },
   alarm: { border: StoryModeColors.ministryRed, bg: StoryModeColors.surface, width: 3 },
   light: { border: StoryModeColors.borderLight, bg: StoryModeColors.surfaceLight, width: 1 },
 };
@@ -28,15 +29,26 @@ export interface PixelFrameProps extends HTMLAttributes<HTMLDivElement> {
 
 export function PixelFrame({ children, variant = 'standard', className, style, ...rest }: PixelFrameProps): JSX.Element {
   const v = VARIANT[variant];
+  const assets = useAssets();
+  // Papier-Textur (ui_panel_paper) unter dem Inhalt — sehr kontrastarm, Text bleibt
+  // Engine-Ebene (E35). Fehlt das Asset, trägt die Flächenfarbe allein.
+  const paperUrl = assets.imageUrl('ui_panel_paper');
   return (
     <div
       className={className}
       style={{
         backgroundColor: v.bg,
+        ...(paperUrl
+          ? {
+              backgroundImage: `url(${paperUrl})`,
+              backgroundRepeat: 'repeat',
+              backgroundSize: '256px 256px',
+            }
+          : {}),
         border: `${v.width}px solid ${v.border}`,
         borderRadius: 0,
-        // dezenter Pixel-Innenrand statt Web-Schatten (oben hell, unten dunkel)
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
+        // §4.7: Papier liegt mit harter 2-px-Versatzkante auf (KEIN weicher Schatten).
+        boxShadow: `2px 2px 0 rgba(30, 25, 18, 0.55)`,
         imageRendering: 'pixelated',
         ...style,
       }}
@@ -48,4 +60,3 @@ export function PixelFrame({ children, variant = 'standard', className, style, .
 }
 
 export default PixelFrame;
-

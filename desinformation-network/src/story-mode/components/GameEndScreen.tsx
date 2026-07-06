@@ -53,7 +53,8 @@ const ENDING_CONFIGS: Record<EndingType, {
     icon: '',
     color: StoryModeColors.militaryOlive,
     borderColor: StoryModeColors.darkOlive,
-    accentColor: StoryModeColors.warning,
+    // Auf dem dunklen Oliv-Kopfband muss der Titel Papier-hell sein (§4.7 Regel 2).
+    accentColor: StoryModeColors.document,
     showMoralReflection: true,
   },
   defeat: {
@@ -67,7 +68,8 @@ const ENDING_CONFIGS: Record<EndingType, {
     icon: '→',
     color: StoryModeColors.agencyBlue,
     borderColor: StoryModeColors.darkBlue,
-    accentColor: StoryModeColors.warning,
+    // Auf dem dunklen Blau-Kopfband muss der Titel Papier-hell sein (§4.7 Regel 2).
+    accentColor: StoryModeColors.document,
     showMoralReflection: true,
   },
   moral_redemption: {
@@ -159,7 +161,8 @@ function StatsGrid({ stats }: { stats: GameEndData['stats'] }) {
     <div
       className="grid grid-cols-4 gap-3 p-4 border-2"
       style={{
-        backgroundColor: StoryModeColors.background,
+        // Helle Karteikarte statt dunklem Kraftpapier — Tinten-Labels/Akzent-Werte lesbar (§4.7 Regel 3).
+        backgroundColor: StoryModeColors.surfaceLight,
         borderColor: StoryModeColors.borderLight,
       }}
     >
@@ -249,8 +252,10 @@ export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenP
           <div
             className="mt-6 p-4 border-l-4 font-mono text-sm italic"
             style={{
-              backgroundColor: StoryModeColors.background,
-              borderColor: StoryModeColors.document,
+              // Helle Zitat-Karte statt Kraftpapier; der Papier-Ton als Randfarbe wäre
+              // darauf unsichtbar → Papier-Rand (borderLight) (§4.7 Regel 3).
+              backgroundColor: StoryModeColors.surfaceLight,
+              borderColor: StoryModeColors.borderLight,
               color: StoryModeColors.textSecondary,
             }}
           >
@@ -262,7 +267,8 @@ export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenP
             <div
               className="mt-4 p-4 border-2 text-center"
               style={{
-                backgroundColor: StoryModeColors.darkConcrete,
+                // Helle Fläche statt Kraftpapier — der rote Rand bleibt als Stempel-Akzent (§4.7).
+                backgroundColor: StoryModeColors.surfaceLight,
                 borderColor: StoryModeColors.ministryRed,
               }}
             >
@@ -286,7 +292,8 @@ export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenP
               style={{
                 backgroundColor: StoryModeColors.agencyBlue,
                 borderColor: StoryModeColors.darkBlue,
-                color: StoryModeColors.warning,
+                // Auf dunklem Blau muss die Beschriftung Papier-hell sein (§4.7 Regel 2).
+                color: StoryModeColors.document,
               }}
             >
               {showEducation ? '▼ LERNEFFEKT VERBERGEN' : 'LERNEFFEKT ANZEIGEN'}
@@ -296,7 +303,8 @@ export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenP
               <div
                 className="mt-2 p-4 border-2 font-mono text-sm"
                 style={{
-                  backgroundColor: StoryModeColors.background,
+                  // Helle Karteikarte statt Kraftpapier (§4.7 Regel 3).
+                  backgroundColor: StoryModeColors.surfaceLight,
                   borderColor: StoryModeColors.agencyBlue,
                   color: StoryModeColors.textPrimary,
                 }}
@@ -315,7 +323,8 @@ export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenP
                 style={{
                   backgroundColor: StoryModeColors.militaryOlive,
                   borderColor: StoryModeColors.darkOlive,
-                  color: StoryModeColors.warning,
+                  // Auf dunklem Oliv muss die Beschriftung Papier-hell sein (§4.7 Regel 2).
+                  color: StoryModeColors.document,
                 }}
               >
                 {showTrustChart ? '▼ VERTRAUENSANALYSE VERBERGEN' : 'VERTRAUENSANALYSE ANZEIGEN'}
