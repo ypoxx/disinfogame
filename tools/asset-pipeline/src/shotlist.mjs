@@ -483,6 +483,42 @@ const MUSIC = [
     60_000,
     'nice',
   ],
+  // --- Klang-Vielfalt (Luxus-Sound): zusätzliche gleichwertige Tracks je Lage-Band,
+  //     damit kein Band ein einsamer Loop ist. Jeder Track ist bewusst ein Geschwister
+  //     seines Anker-Tracks (gleiche Klangwelt), keine Stil-Abweichung (Behörden-Akte).
+  // Ruhiges Band (Geschwister von calm_archive/night_city):
+  [
+    'music_calm_dossier',
+    'very calm cold-war archive room at dusk, warm tape pads, sparse muted vibraphone, faint clock tick, distant muffled corridor, loopable instrumental',
+    60_000,
+    'nice',
+  ],
+  // Spiel-Band (Geschwister von gameplay):
+  [
+    'music_gameplay_teletype',
+    'quiet bureaucratic work mood, soft teletype rhythm, muted upright bass, faint distant radio chatter, sparse muted piano, loopable instrumental',
+    60_000,
+    'nice',
+  ],
+  [
+    'music_gameplay_corridor',
+    'understated cold-war office undercurrent, low sustained pad, sparse pizzicato bass, faint ventilation hum, occasional muted brass note, loopable instrumental',
+    60_000,
+    'nice',
+  ],
+  // Angespanntes Band (Geschwister von tense):
+  [
+    'music_tense_pursuit',
+    'tense cold-war surveillance pulse, low strings, insistent ticking percussion, muted brass stabs, rising unease, loopable instrumental',
+    45_000,
+    'nice',
+  ],
+  [
+    'music_tense_lockdown',
+    'cold dread, deep drone, sparse metallic percussion, muffled distant alarm bell, low brass swell, oppressive, loopable instrumental',
+    45_000,
+    'nice',
+  ],
 ];
 
 function readJson(file) {

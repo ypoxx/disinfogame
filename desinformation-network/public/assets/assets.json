@@ -2078,9 +2078,30 @@
       "provider": "elevenlabs"
     },
     {
+      "id": "music_calm_dossier",
+      "type": "music",
+      "file": "sounds/music_calm_dossier.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
       "id": "music_gameplay",
       "type": "music",
       "file": "sounds/music_gameplay.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "music_gameplay_corridor",
+      "type": "music",
+      "file": "sounds/music_gameplay_corridor.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "music_gameplay_teletype",
+      "type": "music",
+      "file": "sounds/music_gameplay_teletype.mp3",
       "chosen": true,
       "provider": "elevenlabs"
     },
@@ -2095,6 +2116,20 @@
       "id": "music_tense",
       "type": "music",
       "file": "sounds/music_tense.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "music_tense_lockdown",
+      "type": "music",
+      "file": "sounds/music_tense_lockdown.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "music_tense_pursuit",
+      "type": "music",
+      "file": "sounds/music_tense_pursuit.mp3",
       "chosen": true,
       "provider": "elevenlabs"
     },

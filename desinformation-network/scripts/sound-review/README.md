@@ -54,6 +54,25 @@ Ausgabe: eine Tabelle (vorher → nachher) plus ein Report unter `runs/`
 (`loudness-latest.json`, gitignored). Ausreißer werden markiert (`⚠` Lautheit,
 `🔇` zu leise → neu erzeugen).
 
+## 2b. Musik-Lautheit ohne ffmpeg — `measure-loudness.mjs`
+
+Wenn `ffmpeg` fehlt (Erzeuger-Container ohne Installations-Recht; Playwrights
+gebündeltes ffmpeg hat weder `loudnorm` noch mp3-Decoder), misst dieses Werkzeug
+die Musik-Lautheit über **Chromiums Web-Audio `decodeAudioData`** — denselben
+Decoder, mit dem das Spiel abspielt:
+
+```bash
+cd desinformation-network
+node scripts/sound-review/measure-loudness.mjs            # alle music_*
+node scripts/sound-review/measure-loudness.mjs --only music_gameplay,music_tense
+```
+
+Kennzahl: gated RMS in dBFS (relativer Lautheits-Proxy für Musikbetten) + Sample-Peak.
+Report → `runs/music-loudness-latest.json` (gitignored). Angeglichen wird **nicht**
+destruktiv, sondern über den Per-Track-Trim `MUSIC_TRIM_DB` in
+`src/story-mode/utils/soundDirector.ts` (der Player senkt lautere Tracks beim Abspielen
+auf ihren Band-Anker ab). Details: `docs/SOUND_REVIEW_2026-07-06.md` §8.
+
 ## 3. Warum kein „Screenshot"?
 
 Klang lässt sich nicht knipsen. Der Report (`runs/loudness-latest.json`) ist das

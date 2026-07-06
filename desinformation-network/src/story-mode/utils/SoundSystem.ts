@@ -11,6 +11,7 @@
  */
 
 import { getAssetRegistry } from '../assets/AssetRegistry';
+import { musicTrimGain } from './soundDirector';
 
 type SoundType =
   | 'click'
@@ -376,6 +377,7 @@ class SoundSystem {
     next.loop = !rotate; // Pool > 1 → nicht loopen, 'ended' rotiert zum nächsten Track
     next.volume = 0;
     const prev = this.musicElement;
+    const prevId = this.musicAssetId; // für den korrekten Ausblend-Pegel (eigener Trim)
     this.musicElement = next;
     this.musicAssetId = assetId;
     if (rotate) {
@@ -384,18 +386,21 @@ class SoundSystem {
     void next.play().catch(() => { /* Autoplay-Policy: still bis zur Interaktion */ });
 
     if (this.musicFadeHandle) { clearInterval(this.musicFadeHandle); this.musicFadeHandle = null; }
-    const target = this.musicTargetVolume();
+    // Ziel-Pegel je Element inkl. eigenem Lautheits-Trim (Angleichung an den Band-Anker).
+    const base = this.musicTargetVolume();
+    const targetNext = base * musicTrimGain(assetId);
+    const targetPrev = base * musicTrimGain(prevId);
     const stepMs = 40, dur = 700;
     let t = 0;
     this.musicFadeHandle = setInterval(() => {
       t += stepMs;
       const k = Math.min(1, t / dur);
-      try { next.volume = target * k; } catch { /* ignore */ }
-      if (prev) { try { prev.volume = target * (1 - k); } catch { /* ignore */ } }
+      try { next.volume = targetNext * k; } catch { /* ignore */ }
+      if (prev) { try { prev.volume = targetPrev * (1 - k); } catch { /* ignore */ } }
       if (k >= 1) {
         if (this.musicFadeHandle) { clearInterval(this.musicFadeHandle); this.musicFadeHandle = null; }
         if (prev && prev !== next) { try { prev.pause(); } catch { /* ignore */ } }
-        try { next.volume = this.musicTargetVolume(); } catch { /* ignore */ }
+        try { next.volume = this.musicTargetVolume() * musicTrimGain(this.musicAssetId); } catch { /* ignore */ }
       }
     }, stepMs);
   }
@@ -411,7 +416,7 @@ class SoundSystem {
   /** Musik-Lautstärke neu setzen (berücksichtigt Master, Kanal und Ducking). */
   private applyMusicVolume(): void {
     if (!this.musicElement || this.musicFadeHandle) return; // während Crossfade steuert der Fade
-    this.musicElement.volume = this.musicTargetVolume();
+    this.musicElement.volume = this.musicTargetVolume() * musicTrimGain(this.musicAssetId);
   }
 
   stopMusic(): void {
