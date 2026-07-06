@@ -82,7 +82,14 @@ audience_macher.png (96×48, 2 Frames à 48×48)
 
 Beide Animationsframes tragen ihn → er flackert nicht, er steht **konstant im Spiel**. Kein
 anderes `audience_*`-Sheet hat das. Ursache: Export-/Isolations-Fehler bei der
-Asset-Erzeugung. **Fix: Sheet neu trimmen/repainten (0 $).**
+Asset-Erzeugung (der 1–2 px breite Rahmen-Ring, slate/violett, saß auf dem äußersten
+Frame-Rand; die Figur liegt vollständig im Innern bei x∈[3,44], y∈[1,46]).
+
+> **✅ BEHOBEN (2026-07-06):** Rahmen-Ring in **beiden** Frames auf transparent gesetzt
+> (Rand-Deckung L/R/T/B jetzt 0.00; nur 422 Rand-Pixel entfernt, Figur unangetastet —
+> 2853→2431 opake Pixel). Beleg: `review-evidence/2026-07-06/fix_macher_rahmen_vorher_nachher.png`
+> (Vorher/Nachher, beide Frames) + `publikum_wohnzimmer_nach_F1.png` (Kasten weg im Kontext).
+> Reine Pixel-Bearbeitung des PNG (gleiche 96×48-Maße/Frames), kein Code/`assets.json` berührt.
 
 ### F2 — **Paletten-/Stil-Bruch im Figuren-Set** 🟠 (neu, messbar)
 Das Set stammt sichtbar aus zwei „Bädern": warm & satt (macher, bohemien) vs. kalt &
@@ -101,6 +108,14 @@ Drei von fünf Figuren haben praktisch **null** warme Pixel — der Raum dagegen
 golden. Das ist kein Geschmack, das ist ein objektiver Bruch und verletzt das
 **`styleHome()`-Mandat** (warm) für Heim-Szenen (Shot-List Paket B warnt wörtlich vor dem
 „Propaganda-Fabrik-Look", wenn Heim-Assets kalt geraten).
+
+**Wurzel (aus `assets.json`):** Die `audience_*`-Sprite-Prompts fordern explizit die
+**kühle Ministeriums-Palette** — wörtlich „cool, clean, slightly desaturated modern palette:
+cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF) … no saturated candy colors, no pastel
+tones … state ministry interior". Die Figuren wurden also für das **Behörden-Interieur**
+gestylt, nicht fürs warme Wohnzimmer, in dem sie sitzen. Deshalb ist der saubere Fix ein
+**Regen mit `styleHome()`** (warm, gleicher Seed/`referenceId`), nicht bloß ein Hue-Shift —
+ein reiner Recolor kaschiert nur, die Prompt-Vorgabe bleibt sonst falsch.
 
 ### F3 — **„Sticker-Effekt": keine Schatten, keine Lichtannahme** 🟠 (neu)
 Die Figuren werfen keinen Schatten aufs Polster und nehmen das warme Lampenlicht nicht an →
@@ -148,7 +163,7 @@ aus. Das ist behebbar, ohne den gewollten Kontrast aufzugeben.
 
 | # | Maßnahme | Aufwand | Wirkung |
 |---|---|---|---|
-| **P1** | **F1 fixen:** Rahmen aus `audience_macher.png` (beide Frames) entfernen/trimmen | Minuten, 0 $ | sichtbarer Bug weg |
+| ~~**P1**~~ ✅ | ~~**F1 fixen:** Rahmen aus `audience_macher.png` (beide Frames) entfernen~~ **— erledigt 2026-07-06** | Minuten, 0 $ | sichtbarer Bug weg |
 | **P2** | **F2 fixen:** die 3 kalten Sprites in die warme Heim-Palette ziehen (recolor **oder** `referenceId`-Regen mit `styleHome()`, gleicher Seed) | 3–5 Shots ≈ 1,5 $ **oder** Handarbeit | Figuren gehören in den Raum |
 | **P3** | **F3:** weiche Drop-Shadows unter die Figuren + leichter warmer Licht-Overlay (10–15 %); Outlines abmildern | Code/CSS + Asset | Sticker-Effekt weg |
 | **P4** | **T1:** Testbild neu pixeln (solide Farben, eingebrannte Scanlines) | Handarbeit, 0 $ | Röhre wirkt echt |
