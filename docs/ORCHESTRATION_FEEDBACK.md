@@ -233,3 +233,27 @@ Offen für die Roadmap (priorisiert nach Gutachten):
     von `GameEndState.type` (4→2) mussten die Consumer (GameEndScreen/EndReport) NICHT
     angefasst werden: ihre breiteren Unions akzeptieren den schmaleren Typ weiter. Die
     unerreichbaren Zweige sind toter, aber harmloser Code — spart Churn, ohne zu brechen.
+
+## Session 2026-07-05/06 — Visual-Coherence-Review (Ernte + Orchester)
+
+18. **Workflow-`args` kam im Runtime nicht an** (alle Agent-Prompts enthielten
+    `undefined`-Pfade — beim Original-Lauf wie bei scriptPath-Läufen). Gegenmittel:
+    Konfiguration als Konstante ins Workflow-Script einbacken (Generator-Script erzeugt
+    Shard-Varianten). Vor jedem großen Lauf: ersten Agent-Prompt im Transcript-Dir
+    gegenlesen (30 Sekunden, spart einen kompletten Fehllauf).
+19. **4-Kern-Container ⇒ nur 2 parallele Agenten pro Workflow** (Cap = cores−2).
+    Für breite Fan-outs in MEHRERE parallele Workflows sharden (3 Shards = 6 Agenten).
+20. **Lange Orchester überleben Kontext-/Container-Pausen nicht zuverlässig** — die
+    Shards hingen nach ~4,5 h ohne Rückgabe. Ergebnisse sind aber vollständig aus
+    `journal.jsonl` + Agent-Prompts rekonstruierbar (Verifier-Prompts enthalten die
+    Befunde inline → Join über [index]). Muster: Finder-/Verifier-Ergebnisse nie NUR
+    im Workflow-Return transportieren.
+21. **Ernte-Artefakte von Spiel-Befunden trennen:** Adversariale Verifizierer haben
+    37/172 Befunde verworfen — überwiegend Tag-1-Leerzustände und Harness-Fehler
+    (Escape pausiert das Spiel; Morgenbriefing erscheint verzögert und ist ein
+    role="button" mit aria-label ≠ sichtbarem Text). Pre-Shot-Guards + `ensurePlaying`
+    gehören in jede künftige Ernte.
+22. **Playwright-ffmpeg ist gestrippt** (kein fps-Filter): Frames nur per `-ss`-Seek
+    ziehen. Video-Reviews: Gemini 3.1 Pro nimmt webm inline (<19 MB) und liefert
+    sekundengenaue Timing-Befunde; Claude-Gegenkontrolle über 4–6 Seek-Standbilder
+    funktioniert gut.
