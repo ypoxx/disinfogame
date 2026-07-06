@@ -163,14 +163,40 @@ aus. Das ist behebbar, ohne den gewollten Kontrast aufzugeben.
 
 | # | Maßnahme | Aufwand | Wirkung |
 |---|---|---|---|
-| ~~**P1**~~ ✅ | ~~**F1 fixen:** Rahmen aus `audience_macher.png` (beide Frames) entfernen~~ **— erledigt 2026-07-06** | Minuten, 0 $ | sichtbarer Bug weg |
-| **P2** | **F2 fixen:** die 3 kalten Sprites in die warme Heim-Palette ziehen (recolor **oder** `referenceId`-Regen mit `styleHome()`, gleicher Seed) | 3–5 Shots ≈ 1,5 $ **oder** Handarbeit | Figuren gehören in den Raum |
-| **P3** | **F3:** weiche Drop-Shadows unter die Figuren + leichter warmer Licht-Overlay (10–15 %); Outlines abmildern | Code/CSS + Asset | Sticker-Effekt weg |
-| **P4** | **T1:** Testbild neu pixeln (solide Farben, eingebrannte Scanlines) | Handarbeit, 0 $ | Röhre wirkt echt |
-| **P5** | **F4/F5:** Mood-Filter entschärfen; Figuren tiefer/hinter den UI-Rand | Code | Stimmung statt Bug-Look |
+| ~~**P1**~~ ✅ | ~~**F1:** Rahmen aus `audience_macher.png` (beide Frames) entfernen~~ **— erledigt 2026-07-06** | Minuten, 0 $ | sichtbarer Bug weg |
+| **P2** ◐ | **F2:** die 3 kalten Sprites in die warme Heim-Palette ziehen — **interim: Warm-Balance-Pass erledigt (0 $)**; `styleHome()`-Regen bleibt der „perfekte" Schritt (owner-freigabepflichtig) | 3–5 Shots ≈ 1,5 $ | Figuren gehören in den Raum |
+| ~~**P3**~~ ✅ | ~~**F3:** Kontakt-/Drop-Shadows unter die Figuren~~ **— erledigt** | Code/CSS, 0 $ | Sticker-Effekt reduziert |
+| ~~**P4**~~ ✅ | ~~**T1:** Testbild neu pixeln (solide Farben, Scanlines)~~ **— erledigt** | Handarbeit, 0 $ | Röhre wirkt echt |
+| ~~**P5**~~ ✅ | ~~**F4/F5:** Mood-Filter entschärfen; Sockel-Schatten unten~~ **— erledigt** | Code, 0 $ | Stimmung statt Bug-Look |
 
 **Reihenfolge:** P1 (Bug) → P3 (Integration, größter Kohärenz-Gewinn pro Aufwand) → P2
 (Palette) → P4/P5. P1/P3/P4/P5 sind reine Handarbeit/Code (0 $), nur P2 braucht ggf. Regen.
+
+## 4b. Umsetzung 2026-07-06 (Fix-Pass, „besser → perfekt")
+
+Alles 0 $, ohne KI-Generierung. Belege in `review-evidence/2026-07-06/`
+(`broadcast_bar_nach_alle_fixes.png`, `publikum_wohnzimmer_nach_alle_fixes.png`,
+`fix_testbild_und_warme_sprites.png`).
+
+- **F1** ✅ Rahmen aus `audience_macher.png` entfernt (s. §F1).
+- **T1** ✅ `hud_tv_testcard.png` neu gepixelt (128×96, solide EBU/SMPTE-Balken +
+  Castellation + Graustufen-Treppe + Kreis/Fadenkreuz + feines Raster; keine Verläufe/kein
+  Banding) — statt des herunterskalierten Alt-Bilds.
+- **F4** ✅ `MOOD_FILTER.misstrauisch` entschärft: `hue-rotate(165deg)` raus →
+  `saturate(0.72) brightness(0.9) contrast(1.05)`. Kein Blaugrün-„Zombie" mehr; die
+  bohemien-Figur bleibt warm. (verunsichert/wuetend ebenfalls milder.)
+- **F3/F5** ✅ `BroadcastBar.tsx`: pro Figur Kontakt-Schatten (radial) + `drop-shadow`,
+  plus weicher Sockel-Schatten (Gradient) am unteren Raum-Rand → Figuren sind geerdet, die
+  harte Fuß-Schnittkante sinkt ein statt zu schweben.
+- **F2** ◐ **interim:** Warm-Weißabgleich der 3 kalten Sprites
+  (`optimiererin`/`besorgte_mitte`/`zorniger`; R×1.16+12 / G×1.05+5 / B×0.80−3, Alpha
+  erhalten). Nimmt den „Leichen"-Blaustich raus, Detail bleibt. **Der saubere „perfekte"
+  Schritt bleibt der `styleHome()`-Regen** (kühle Ministeriums-Prompts → warme Heim-Prompts,
+  gleicher Seed) — owner-freigabepflichtig, wenige $.
+
+**Gate grün:** `tsc --noEmit` sauber · `vitest run` 630/630 · `npm run build` ok.
+**Offen für „perfekt":** F2-Regen (Palette) und die Texel-Dichte-/Outline-Vereinheitlichung
+zwischen grobem TV, feinem Raum und mittleren Figuren (§3) — beides jenseits von 0 $.
 
 ---
 

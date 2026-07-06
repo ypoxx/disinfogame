@@ -52,12 +52,15 @@ const KEYFRAMES = `
   @keyframes bb-blink { 0%,100% { opacity: 1 } 50% { opacity: .25 } }
 `;
 
-/** Stimmung → Bildfilter der Figur (ruhig = neutral). */
+/** Stimmung → Bildfilter der Figur (ruhig = neutral).
+ *  v4 (Review 2026-07-06 F4): entschärft — der frühere `hue-rotate(165deg)` färbte
+ *  warme Figuren blaugrün ein und las sich wie ein Render-Bug statt wie „misstrauisch".
+ *  Stimmung jetzt über Blässe/Kühle statt Farbdrehung; Badge/Haltung tragen die Deutung. */
 const MOOD_FILTER: Record<Mood, string> = {
   ruhig: 'none',
-  verunsichert: 'grayscale(0.45) brightness(0.85)',
-  wuetend: 'sepia(0.6) hue-rotate(-28deg) saturate(2.4)',
-  misstrauisch: 'hue-rotate(165deg) saturate(0.55) brightness(0.8)',
+  verunsichert: 'grayscale(0.3) brightness(0.9)',
+  wuetend: 'sepia(0.35) hue-rotate(-16deg) saturate(1.7)',
+  misstrauisch: 'saturate(0.72) brightness(0.9) contrast(1.05)',
 };
 
 const MOOD_LABEL: Record<Mood, string> = {
@@ -287,6 +290,21 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
       <span style={{ position: 'absolute', top: 4, left: 8, fontFamily: StoryModeFonts.label, fontSize: 10, fontWeight: 700, letterSpacing: 1, color: '#c8c8b8', backgroundColor: 'rgba(10,10,14,0.7)', padding: '1px 6px', zIndex: 3 }}>
         PUBLIKUM — WESTUNION
       </span>
+      {/* v4 (F5): weicher Sockel-Schatten unten — die hart abgeschnittenen Beine sinken in den
+          Polster-Schatten ein statt frei über der Panel-Kante zu schweben (Review 2026-07-06). */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 38,
+          background: 'linear-gradient(to top, rgba(12,10,8,0.5) 0%, rgba(12,10,8,0) 100%)',
+          zIndex: 1,
+          pointerEvents: 'none',
+        }}
+      />
       {/* Repräsentative Teilmenge (das Sofa fasst nicht alle 8 — Owner: nicht alle sitzen);
           mittig, Rand-Polster, kleinere Skala → Köpfe werden oben NICHT abgeschnitten. */}
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 14, display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 12, padding: '0 16px', zIndex: 2 }}>
@@ -352,8 +370,32 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
                   {quoteFor(seg.id, seg.mood)}
                 </span>
               )}
-              <span style={{ filter: MOOD_FILTER[seg.mood], transition: 'filter 600ms ease' }}>
-                <PixelSprite sheetId={figure} animation="idle" fallback="" scale={2.2} title={seg.label_de} />
+              {/* v4 (F3): Kontakt-Schatten erdet die Figur aufs Polster, drop-shadow gibt Tiefe —
+                  gegen den „Sticker"-Effekt (Review 2026-07-06). Mood bleibt als Zusatz-Filter. */}
+              <span style={{ position: 'relative', display: 'inline-flex', justifyContent: 'center' }}>
+                <span
+                  aria-hidden
+                  style={{
+                    position: 'absolute',
+                    left: '50%',
+                    bottom: 3,
+                    transform: 'translateX(-50%)',
+                    width: '64%',
+                    height: 9,
+                    background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 72%)',
+                    zIndex: 0,
+                  }}
+                />
+                <span
+                  style={{
+                    position: 'relative',
+                    zIndex: 1,
+                    filter: `${MOOD_FILTER[seg.mood] === 'none' ? '' : MOOD_FILTER[seg.mood] + ' '}drop-shadow(0 2px 1px rgba(0,0,0,0.4))`,
+                    transition: 'filter 600ms ease',
+                  }}
+                >
+                  <PixelSprite sheetId={figure} animation="idle" fallback="" scale={2.2} title={seg.label_de} />
+                </span>
               </span>
               {/* Überzeugungs-Sockel: füllt sich mit der Wirkung der Desinformation */}
               <span
