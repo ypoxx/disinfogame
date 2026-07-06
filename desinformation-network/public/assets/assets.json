@@ -3181,6 +3181,34 @@
       "file": "sounds/voice_marina_topic_viral.mp3",
       "chosen": true,
       "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_narrator_door",
+      "type": "voice",
+      "file": "sounds/voice_narrator_door.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_narrator_floor",
+      "type": "voice",
+      "file": "sounds/voice_narrator_floor.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_narrator_lobby",
+      "type": "voice",
+      "file": "sounds/voice_narrator_lobby.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "voice_narrator_ride",
+      "type": "voice",
+      "file": "sounds/voice_narrator_ride.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
     }
   ]
 }
