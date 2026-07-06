@@ -56,6 +56,27 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 >   96-px-Nativhöhe — reale Proportion schlägt Texel-Reinheit (Review §1.2 stuft die
 >   Klasse als konsistent ein); Deko-Props behalten ihre Welt-Höhen (Resample-Batch
 >   wäre L1-Material-Session). Stühle-¾-Perspektive/Lobby-Tiefe = Owner-Geschmack, offen.
+> - **Etappe 2 ✅ (L1) — Material-Welt „Behörden-Akte":** theme.ts-v3-Token-Flip
+>   (Papierflächen + Anthrazit-Tinte + Kraftband; EIN Hebel kippt alle Panels) +
+>   Material-Kit generiert (Flash-Modell, ~1,7 $, Vision-QC: 9-Slice-Rahmen ×3,
+>   Papier-/Kraft-Kacheln, Kopfband [Regen wegen Text-Leck], Balken-Kit, Stempel-Set,
+>   Klemmbrett — Rahmen/Stempel/Klemmbrett werden in L2/L3 konsumiert). PixelFrame =
+>   Papier + Kachel + 2-px-Versatzkante; PixelModal-Kopf = getöntes Kraftband.
+>   Kontrast-Sweep über ~40 Komponenten (4 Agenten + zentral): dunkle Bänder → helle
+>   Schrift, Flächen → Papier+Tinte, Chips → STEMPEL, Dringlichkeits-Blinken raus,
+>   CTAs als Stempel-Knöpfe (stampCtaStyle), Pausenmenü-Pixel-Regler.
+>   **Doppel-Review ERFÜLLT:** (1) Code adversarial: 46 Roh → 24 bestätigt, alle
+>   gefixt — Wurzel-Fix Palette v3.1 (Tinten WCAG-fest nachgerechnet), Balken-Tracks
+>   hell, übersehene Dunkel-Szenen (Wahlabend-Finale war 1,3:1!, Auftragswahl, ☰,
+>   Toast), Welt-Signale lokal hell (WORLD_AMBER/RED), getPriorityColor v3.
+>   (2) Harvest-Vision (2 Runden + Nach-Shots): Kraftband statt Groß-Blau, Briefing-
+>   Band, Deck-Karten/Legalität als Stempel; Ernte-Harness gehärtet (Auto-Feierabend-
+>   Drift: Uhr-Resets, 17:58-Sweep, dismissAll kennt Report — mehrere Gemini-Befunde
+>   waren dieses Scrim-Artefakt, per frischer Ernte widerlegt; CRT-Newsroom/Video-
+>   Kacheln bewusst dunkel-diegetisch bestätigt). Gate: tsc 0 · vitest 587 · build.
+>   **Nebenbefunde (L6/P4-Nachsweep):** Briefing-Vorgriff kann englische Krisen-
+>   Ticker zeigen (Übersetzungspfad umgangen); Icon-Text-Fallback erbt currentColor
+>   (nur relevant, wenn Assets fehlen).
 
 **Stand:** 2026-07-05 (VISUAL-COHERENCE-REVIEW — Befunde + Plan, KEINE Fixes) · Branch
 `claude/visual-coherence-review-26f8av` (Draft-PR #95) · Gate grün (`tsc 0` · `vitest 575` · `build`).
