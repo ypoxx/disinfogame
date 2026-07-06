@@ -9,6 +9,7 @@ import { useEffect, useRef } from 'react';
 import { BuildingStage, type StageNpc } from '../building/BuildingStage';
 import { useNavigator, resetAvatarPosition } from '../building/useNavigator';
 import { entryPosition } from '../building/BuildingNavigator';
+import { playVoiceLine, stopVoiceLine } from '../utils/SoundSystem';
 
 export interface ArrivalSequenceProps {
   npcs: StageNpc[];
@@ -60,6 +61,7 @@ export function ArrivalSequence({ npcs, onDone }: ArrivalSequenceProps): JSX.Ele
 
   // Skip: Tastatur (Escape, Enter, Leertaste) + Klick auf die Bühne.
   const handleSkip = (): void => {
+    stopVoiceLine(); // Erzähler verstummt beim Überspringen.
     nav.skip();   // skip() ruft den goTo-Callback selbst → fireDone wird dort ausgelöst.
     fireDone();   // Fallback falls skip ohne Callback (kein goTo aktiv).
   };
@@ -77,8 +79,17 @@ export function ArrivalSequence({ npcs, onDone }: ArrivalSequenceProps): JSX.Ele
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Caption-Text: wechselt je nach Navigations-Modus und Etage.
-  const caption = resolveCaption(nav.mode, nav.pos.floorLevel);
+  // Caption-Text + Erzähler-Zeile: wechseln je nach Navigations-Modus und Etage.
+  const capKey = captionKey(nav.mode, nav.pos.floorLevel);
+  const caption = NARRATION[capKey];
+
+  // Erzähler-Voiceover (Daniel): zu jeder Caption die passende Zeile; eine
+  // laufende wird beim Wechsel gestoppt (playVoiceLine ist single-channel).
+  useEffect(() => {
+    playVoiceLine(`voice_narrator_${capKey}`);
+  }, [capKey]);
+  // Beim Verlassen der Sequenz verstummt der Erzähler.
+  useEffect(() => () => stopVoiceLine(), []);
 
   return (
     <div
@@ -186,22 +197,24 @@ export function ArrivalSequence({ npcs, onDone }: ArrivalSequenceProps): JSX.Ele
 }
 
 // ---------------------------------------------------------------------------
-// Caption-Auflösung (mode + Etage → Schreibmaschinen-Text)
+// Caption-Auflösung (mode + Etage → Schreibmaschinen-Text + Erzähler-Zeile)
 // ---------------------------------------------------------------------------
 
-function resolveCaption(mode: string, floorLevel: number): string {
-  if (mode === 'ride') {
-    return 'Der Aufzug ächzt. Irgendwo über Ihnen rattert ein Fernschreiber.';
-  }
-  if (mode === 'door') {
-    return 'Zimmer 1-01. Der Direktor erwartet Sie.';
-  }
-  // idle oder walk — Etage 0 = Lobby.
-  if (Math.round(floorLevel) === 0) {
-    return 'Ihr erster Arbeitstag. Der Pförtner sieht nicht auf — Ihr Name steht bereits auf der Liste.';
-  }
-  // Höhere Etagen (walk/idle nach Fahrstuhl).
-  return 'Etage 1 — Abteilung für Sonderoperationen. Der Flur riecht nach kaltem Kaffee.';
+/** Abschnitte der Ankunft; jeder trägt Caption UND Erzähler-Asset (voice_narrator_<key>). */
+type CaptionKey = 'lobby' | 'ride' | 'floor' | 'door';
+
+const NARRATION: Record<CaptionKey, string> = {
+  lobby: 'Ihr erster Arbeitstag. Der Pförtner sieht nicht auf — Ihr Name steht bereits auf der Liste.',
+  ride: 'Der Aufzug ächzt. Irgendwo über Ihnen rattert ein Fernschreiber.',
+  floor: 'Etage 1 — Abteilung für Sonderoperationen. Der Flur riecht nach kaltem Kaffee.',
+  door: 'Zimmer 1-01. Der Direktor erwartet Sie.',
+};
+
+function captionKey(mode: string, floorLevel: number): CaptionKey {
+  if (mode === 'ride') return 'ride';
+  if (mode === 'door') return 'door';
+  if (Math.round(floorLevel) === 0) return 'lobby'; // idle/walk auf Etage 0
+  return 'floor'; // höhere Etagen nach dem Fahrstuhl
 }
 
 export default ArrivalSequence;
