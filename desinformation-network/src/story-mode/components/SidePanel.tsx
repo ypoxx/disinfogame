@@ -38,7 +38,9 @@ function TabBar() {
             <div
               className="text-[9px] font-bold mt-0.5 tracking-wider"
               style={{
-                color: isActive ? StoryModeColors.textPrimary : StoryModeColors.textMuted,
+                // Karteireiter (§4.7): aktiver Reiter = Papier + Tinte, inaktive
+                // liegen auf dem Kraftband → helle Beschriftung.
+                color: isActive ? StoryModeColors.textPrimary : StoryModeColors.lightConcrete,
               }}
             >
               {meta.label}

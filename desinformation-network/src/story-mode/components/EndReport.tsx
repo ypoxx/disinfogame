@@ -937,16 +937,17 @@ export function EndReport({
           maxWidth: '720px',
           width: '100%',
           backgroundColor: StoryModeColors.surface,
-          border: `3px solid ${StoryModeColors.agencyBlue}`,
+          border: `3px solid ${StoryModeColors.border}`,
           boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
           fontFamily: "'VT323', monospace",
         }}
       >
-        {/* ── 1. KOPF ── dunkles Kopfband bleibt (§4.7 Regel 3), Text darauf hell statt Tinte. */}
+        {/* ── 1. KOPF ── Kraftpapier-Kopfband (§4.7) statt Groß-Blau (Vision-Review E2):
+            das Blau las sich als Web-App-Header, Kraftband + helle Schrift = Akte. */}
         <div
           style={{
-            backgroundColor: StoryModeColors.agencyBlue,
-            borderBottom: `3px solid ${StoryModeColors.darkBlue}`,
+            backgroundColor: StoryModeColors.darkConcrete,
+            borderBottom: `3px solid ${StoryModeColors.border}`,
             padding: '20px 24px',
           }}
         >

@@ -107,6 +107,9 @@ async function clickButton(page, re, { timeout = 2500 } = {}) {
 /** Offene Dialoge/Views/Briefings schließen, bis die Bühne frei ist. */
 async function dismissAll(page, { maxTries = 16 } = {}) {
   for (let i = 0; i < maxTries; i++) {
+    // Tagesbericht (falls der Feierabend ausgelöst wurde): NÄCHSTER TAG klickt
+    // den Report weg — das folgende Morgenbriefing fängt die nächste Runde ab.
+    if (await clickButton(page, /NÄCHSTER TAG/i, { timeout: 400 })) { await sleep(900); continue; }
     // Morgenbriefing & Co.: expliziter Bestätigungs-Knopf hat Vorrang.
     if (await clickButton(page, /Morgenbriefing weiter|^Verstanden/i, { timeout: 400 })) { await sleep(400); continue; }
     const st = await vqa(page, () => ({
@@ -294,7 +297,9 @@ if (wanted('title')) {
   }
 
   // Tageszeiten-Reihe auf Etage 1 (Avatar steht): 6 Stützpunkte der Tagesuhr.
-  for (const [mins, label] of [[0, '0900'], [180, '1200'], [324, '1425'], [420, '1600'], [486, '1706'], [540, '1800']]) {
+  // 538 statt 540: exakt 18:00 löst den Auto-Feierabend aus (dayEnded) und der
+  // Tagesbericht legt sich über ALLE Folge-Shots (Ernte-Artefakt Etappe 2).
+  for (const [mins, label] of [[0, '0900'], [180, '1200'], [324, '1425'], [420, '1600'], [486, '1706'], [538, '1800']]) {
     await vqa(page, (m) => window.__VQA__.setMinutes(m), mins);
     await sleep(1600); // Sky-Transition 800ms + Skyline-Blende 1200ms
     await shot(page, `sky_${label}`, { bundle: 'daynight', desc: `Tageszeit-Stimmung um ${label.slice(0, 2)}:${label.slice(2)} Uhr (Himmel/Skyline/Tönung)` });
@@ -321,6 +326,10 @@ if (wanted('title')) {
   await page.locator('button[aria-label$="ansprechen"]').first().click({ timeout: 1500 }).catch(() => {});
 
   // ── Büro + Panels + Spiel-UI ──
+  // Uhr zurückstellen: Wege kosten Spielzeit (K1) — die Gebäude-Tour kann sonst
+  // 18:00 überschreiten und der Auto-Feierabend legt den Tagesbericht über alles.
+  await vqa(page, () => window.__VQA__.setMinutes(240)).catch(() => {});
+  await dismissAll(page);
   await ensurePlaying(page);
   await vqa(page, () => window.__VQA__.ui.setViewMode('office'));
   await sleep(1000);
@@ -378,6 +387,8 @@ if (wanted('title')) {
   await sleep(400);
 
   // ── Raum-Nahsichten: jeden NPC ansprechen (direkt, ohne Laufweg) ──
+  await vqa(page, () => window.__VQA__.setMinutes(240)).catch(() => {});
+  await dismissAll(page);
   await ensurePlaying(page);
   await vqa(page, () => window.__VQA__.ui.setViewMode('building'));
   await sleep(600);

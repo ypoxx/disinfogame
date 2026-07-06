@@ -6,7 +6,7 @@
  * vor der Ankunfts-Sequenz.
  */
 import { useState } from 'react';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, stampCtaStyle } from '../theme';
 import { useAssets } from '../assets/useAssets';
 import { Icon } from './Icon';
 import { PLAYER_PORTRAITS, playerPortraitAssetId, usePlayerProfile } from '../stores/playerProfileStore';
@@ -111,12 +111,8 @@ export function AvatarChoice({ onConfirm }: AvatarChoiceProps): React.JSX.Elemen
 
         <button
           onClick={confirm}
-          className="w-full py-3 border-4 font-bold text-lg transition-all hover:brightness-110 active:translate-y-0.5"
-          style={{
-            backgroundColor: StoryModeColors.ministryRed,
-            borderColor: StoryModeColors.darkRed,
-            color: '#fff',
-          }}
+          className="w-full py-3 font-bold text-lg transition-all hover:brightness-95 active:translate-y-0.5"
+          style={stampCtaStyle}
         >
           MISSION BEGINNEN ▸
         </button>

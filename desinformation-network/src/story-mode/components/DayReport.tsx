@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, stampCtaStyle } from '../theme';
 import { MOOD_LABEL_DE, type Mood } from '../audience/audienceModel';
 import type { NightReport } from '../engine/ImmuneSystem';
 import type { TrancheResult } from '../engine/Finanzen';
@@ -339,13 +339,8 @@ export function DayReport({
           <div className="text-center pb-6">
             <button
               onClick={onNextDay}
-              className="px-8 py-3 border-4 font-bold text-lg uppercase tracking-wider transition-all hover:brightness-110 active:translate-y-0.5"
-              style={{
-                backgroundColor: StoryModeColors.ministryRed,
-                borderColor: StoryModeColors.darkRed,
-                color: '#fff',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-              }}
+              className="px-8 py-3 font-bold text-lg uppercase tracking-wider transition-all hover:brightness-95 active:translate-y-0.5"
+              style={stampCtaStyle}
             >
               Nächster Tag ▸
             </button>

@@ -63,3 +63,19 @@ export const StoryModeFonts = {
 export const createBrutalistButton = (baseColor: string) => ({
   base: `bg-[${baseColor}] border-2 hover:brightness-110 transition-all active:translate-y-0.5`,
 });
+
+/**
+ * Stempel-Knopf (§4.7): Primär-Aktionen sind GESTEMPELT statt rot geflutet —
+ * Papierfläche, roter Doppelring (Rand + Innenring via inset-Ringe), rote
+ * Stempel-Tinte. Rot bleibt damit Stempel/Kopfband vorbehalten.
+ */
+export const stampCtaStyle = {
+  backgroundColor: StoryModeColors.surfaceLight,
+  border: `2px solid ${StoryModeColors.ministryRed}`,
+  boxShadow: `inset 0 0 0 2px ${StoryModeColors.surfaceLight}, inset 0 0 0 3px ${StoryModeColors.ministryRed}`,
+  color: StoryModeColors.ministryRed,
+  fontWeight: 900,
+  letterSpacing: 2,
+  textTransform: 'uppercase',
+  cursor: 'pointer',
+} as const;

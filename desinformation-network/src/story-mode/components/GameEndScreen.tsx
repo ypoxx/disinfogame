@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, stampCtaStyle } from '../theme';
 import { globalRandom } from '../../services/globalRandom';
 import { TrustEvolutionChart, type TrustHistoryPoint } from '../../components/TrustEvolutionChart';
 import type { Actor } from '../../game-logic/types';
@@ -352,13 +352,8 @@ export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenP
           <div className="flex gap-4 mt-8">
             <button
               onClick={onRestart}
-              className="flex-1 py-4 border-4 font-bold text-lg transition-all hover:brightness-110 active:translate-y-1"
-              style={{
-                backgroundColor: StoryModeColors.ministryRed,
-                borderColor: StoryModeColors.darkRed,
-                color: '#fff',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-              }}
+              className="flex-1 py-4 font-bold text-lg transition-all hover:brightness-95 active:translate-y-1"
+              style={stampCtaStyle}
             >
               NOCHMAL SPIELEN
             </button>
