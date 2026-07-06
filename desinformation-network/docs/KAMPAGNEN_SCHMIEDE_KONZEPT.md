@@ -51,8 +51,25 @@ CampaignSeed ──► AkteSelection ──► OperationsAkteView(initialSelecti
 - `targets.json` · `milieu` (`wu_bohemien` …) → Ziel im Sweet-Spot-Milieu.
 - `carriers.json` / `platforms.json` · `milieus[]` → Verbreiter/Plattform mit Milieu-Treffer.
 - Personas nutzen die Kurzform (`zorniger`), Audience/Targets die `wu_`-Form
-  → `toSegmentKey()` normalisiert. 3 der 8 Milieus haben (noch) kein Ziel
-  → Teil-Empfehlung („Ziel in der Akte noch wählen").
+  → `toSegmentKey()` normalisiert. **Alle 8 Milieus haben ein Ziel** (Roster auf 9
+  Archetypen erweitert: `t_erfolgscoach`, `t_mittelstandsredner`, `t_protestredner`),
+  jede Empfehlung ist damit voll vorbefüllt. Invariante geprüft in
+  `TargetMilieuCoverage.test.ts`.
+
+## Erkenntnis-Dossier (über Runden)
+
+Jede beauftragte Fokusgruppe legt ihre Sweet Spots (≥ +40 %) als **Erkenntnisse** im
+`dossierStore` ab — dedupliziert über die id (`appeal_segment`), stärkerer Wert und
+früheste Entdeckungs-Phase bleiben. Aus dem wachsenden Bestand leitet `detectArcs()`
+höherstufige **Kampagnen-Arcs** ab:
+
+- **Flächenbrand** — ein Appell zündet in ≥3 Milieus → breit über mehrere Kanäle streuen.
+- **Zwei-Fronten-Narrativ** — die zwei stärksten Befunde mit unterschiedlichem Appell in
+  unterschiedlichen Milieus → beide Milieus parallel anspielen.
+
+Der Ergebnis-Screen zeigt das Dossier als Befund-Chips + Arc-Karten. Reine Logik in
+`audience/dossierModel.ts` (getestet), Persistenz im `stores/dossierStore.ts`
+(Reset in `startGame`, noch nicht in Save/Load — wie `directorStore`).
 
 ## Dateien
 
@@ -63,14 +80,15 @@ CampaignSeed ──► AkteSelection ──► OperationsAkteView(initialSelecti
 | Ergebnis-Screen (Matrix + Empfehlungskarten) | `src/story-mode/components/FokusgruppePreTest.tsx` |
 | Vorbelegung + Analyse-Streifen | `src/story-mode/components/OperationsAkteView.tsx` |
 | Konsequenz („Zähne") | `src/game-logic/StoryEngineAdapter.ts` → `playOperation` |
-| Verdrahtung (Seed-Zustand, Brücke) | `src/story-mode/StoryModeGame.tsx` |
-| Tests | `__tests__/kampagnenSchmiede.test.ts`, `FokusgruppePreTest.test.tsx`, `OperationsAkteView.test.tsx`, `PlayOperation.test.ts` |
+| Erkenntnis-Dossier (Logik + Store) | `src/story-mode/audience/dossierModel.ts`, `src/story-mode/stores/dossierStore.ts` |
+| Ziel-Roster (9 Archetypen, alle 8 Milieus) | `src/story-mode/data/targets.json` |
+| Verdrahtung (Seed-Zustand, Brücke, Dossier) | `src/story-mode/StoryModeGame.tsx` |
+| Tests | `kampagnenSchmiede.test.ts`, `dossierModel.test.ts`, `FokusgruppePreTest.test.tsx`, `OperationsAkteView.test.tsx`, `PlayOperation.test.ts`, `TargetMilieuCoverage.test.ts` |
 
 ## Erweiterungs-Ideen (nicht umgesetzt)
 
-- **Erkenntnis-Dossier**: Befunde über Runden hinweg sammeln, zu Kampagnen-Arcs
-  kombinieren (dockt am bestehenden Combo-System an).
+- **Arc → Ein-Klick-Sequenz**: Ein Zwei-Fronten-Arc befüllt nacheinander zwei Akten
+  (aktuell ist der Arc ein strategischer Hinweis, das Starten läuft über die Empfehlungen).
 - **Benannte Personas als Vorschau**: „Doreen kippt · Henrike wird misstrauisch
   → +Enttarnungs-Risiko" direkt in der Start-Vorschau.
-- **Ziele für die drei ziel-losen Milieus** (`wu_optimiererin`, `wu_macher`,
-  `wu_zorniger`) ergänzen, damit jede Empfehlung voll vorbefüllt.
+- **Dossier in Save/Load**: Befunde überleben aktuell nur die Session (wie `directorStore`).

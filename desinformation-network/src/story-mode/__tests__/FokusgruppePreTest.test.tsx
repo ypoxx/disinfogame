@@ -110,5 +110,47 @@ describe('FokusgruppePreTest — Kampagnen-Schmiede', () => {
     expect(screen.queryByTestId('pretest-empfehlungen')).toBeNull();
     // Matrix funktioniert auch ohne Rosters (nur Personas + Stichprobe).
     expect(screen.getByTestId('pretest-matrix')).toBeTruthy();
+    // Ohne dossier-Prop kein Dossier (rückwärtskompatibel).
+    expect(screen.queryByTestId('pretest-dossier')).toBeNull();
+  });
+});
+
+// ─── Erkenntnis-Dossier: Befunde sammeln + Arcs ───────────────────────────────
+
+import type { Erkenntnis } from '../audience/dossierModel';
+
+describe('FokusgruppePreTest — Erkenntnis-Dossier', () => {
+  it('meldet Befunde bei Beauftragung + zeigt Dossier mit Zwei-Fronten-Arc', async () => {
+    const user = userEvent.setup();
+    const onRecord = vi.fn<(f: Erkenntnis[]) => void>();
+    render(
+      <FokusgruppePreTest
+        personas={POP}
+        budget={100}
+        onCommission={() => {}}
+        segments={SEGMENTS}
+        dossier={[]}
+        phase={2}
+        onRecordFindings={onRecord}
+        onClose={() => {}}
+      />,
+    );
+    await user.click(screen.getByTestId('pretest-commission')); // Default = alle Milieus
+
+    // Befunde ans Dossier gemeldet (Sweet Spots: hope@optimiererin, fear@mitte, anger@zorniger).
+    expect(onRecord).toHaveBeenCalledOnce();
+    const found = onRecord.mock.calls[0][0];
+    // opt hat trust 0.4 == Schwelle → zählt ebenfalls als Sweet Spot.
+    expect(found.map((f) => f.id).sort()).toEqual([
+      'anger_wu_zorniger',
+      'fear_wu_besorgte_mitte',
+      'hope_wu_optimiererin',
+      'trust_wu_optimiererin',
+    ]);
+    expect(found.every((f) => f.phase === 2)).toBe(true);
+
+    // Dossier-Sektion sichtbar; drei Sweet Spots ergeben einen Zwei-Fronten-Arc.
+    expect(screen.getByTestId('pretest-dossier')).toBeTruthy();
+    expect(screen.getByTestId('pretest-arc-zwei_fronten')).toBeTruthy();
   });
 });

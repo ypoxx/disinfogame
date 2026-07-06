@@ -58,6 +58,7 @@ import { useDayClockStore, TIME_COST } from './stores/dayClockStore';
 import { installVqaBase, publishVqa } from './harness/vqaHook';
 import { usePanelStore } from './stores/panelStore';
 import { useDirectorStore } from './stores/directorStore';
+import { useDossierStore } from './stores/dossierStore';
 import { SidePanel } from './components/SidePanel';
 import { LagebildView } from './components/LagebildView';
 import { NarrativeBoard } from './components/NarrativeBoard';
@@ -368,6 +369,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const directorBeat = useDirectorStore((s) => s.currentBeat);
   // Spine Slice 4: ein offener Entscheidungs-Beat, den die UI nach dem Briefing präsentiert.
   const pendingDecisionBeatId = useDirectorStore((s) => s.pendingDecisionBeatId);
+  // Erkenntnis-Dossier: über Runden gesammelte Fokusgruppen-Befunde (Sweet Spots + Arcs).
+  const dossierFindings = useDossierStore((s) => s.findings);
   const [showEncyclopedia, setShowEncyclopedia] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [selectedAdvisorNpc, setSelectedAdvisorNpc] = useState<string | null>(null);
@@ -1253,6 +1256,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               setShowPreTest(false);
               setShowOperationsAkte(true);
             }}
+            // Erkenntnis-Dossier: Befunde sammeln (über Runden) + Arcs ableiten.
+            dossier={dossierFindings}
+            phase={state.storyPhase.number}
+            onRecordFindings={(f) => useDossierStore.getState().record(f)}
             onClose={() => setShowPreTest(false)}
           />
         )}

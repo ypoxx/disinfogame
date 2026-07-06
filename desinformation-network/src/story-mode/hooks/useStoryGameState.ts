@@ -26,6 +26,7 @@ import type { AuftragId } from '../engine/Auftraege';
 import { pickNext, type DirectorInputs } from '../engine/StoryDirector';
 import { unresolvedDecisionCandidates } from '../engine/DecisionBeats';
 import { useDirectorStore } from '../stores/directorStore';
+import { useDossierStore } from '../stores/dossierStore';
 import { playSound } from '../utils/SoundSystem';
 import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
 import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
@@ -601,6 +602,8 @@ export function useStoryGameState(seed?: string) {
 
     // Slice 4: Director-Zustand frisch (kein Beat/Pending aus einem früheren Spiel).
     useDirectorStore.getState().reset();
+    // Erkenntnis-Dossier zurücksetzen (keine Befunde aus einem früheren Spiel).
+    useDossierStore.getState().reset();
     setDecisionBeatResult(null);
 
     // Load available actions from engine

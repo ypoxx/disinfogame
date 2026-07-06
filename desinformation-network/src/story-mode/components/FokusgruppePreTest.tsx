@@ -30,6 +30,13 @@ import {
   type SegmentInfo,
 } from '../audience/kampagnenSchmiede';
 import type { Target, Carrier, Platform } from '../battlefield/BattlefieldChain';
+import {
+  findingsFromMatrix,
+  mergeFindings,
+  detectArcs,
+  type Erkenntnis,
+  type KampagnenArc,
+} from '../audience/dossierModel';
 
 /** Budget-Kosten einer Beauftragung (bewusst moderat — Testen soll sich lohnen). */
 export const FOKUSGRUPPE_COST = 8;
@@ -75,6 +82,13 @@ export interface FokusgruppePreTestProps {
   saturation?: number;
   /** Empfehlung starten → Aufrufer öffnet die Operations-Akte vorbefüllt. */
   onLaunchCampaign?: (seed: CampaignSeed) => void;
+  // ── Erkenntnis-Dossier (optional): Befunde über Runden sammeln ──
+  /** Bereits gesammelte Erkenntnisse (aus dem dossierStore). */
+  dossier?: Erkenntnis[];
+  /** Aktuelle Phase — stempelt neue Befunde. */
+  phase?: number;
+  /** Neue Sweet-Spot-Befunde ans Dossier melden (bei Beauftragung). */
+  onRecordFindings?: (findings: Erkenntnis[]) => void;
   onClose: () => void;
 }
 
@@ -92,6 +106,9 @@ export function FokusgruppePreTest({
   factcheckPressure,
   saturation,
   onLaunchCampaign,
+  dossier,
+  phase,
+  onRecordFindings,
   onClose,
 }: FokusgruppePreTestProps): React.JSX.Element {
   const assets = useAssets();
@@ -110,6 +127,11 @@ export function FokusgruppePreTest({
     if (!canCommission) return;
     onCommission();
     setResult(preTest(appeal, personas, sample));
+    // Erkenntnis-Dossier: die entdeckten Sweet Spots dieser Befragung festhalten.
+    if (onRecordFindings) {
+      const found = findingsFromMatrix(buildWirkungsMatrix(personas, sample), phase ?? 0);
+      if (found.length > 0) onRecordFindings(found);
+    }
   };
 
   return (
@@ -232,6 +254,8 @@ export function FokusgruppePreTest({
           factcheckPressure={factcheckPressure}
           saturation={saturation}
           onLaunchCampaign={onLaunchCampaign}
+          dossier={dossier}
+          phase={phase}
         />
       )}
       </div>
@@ -252,6 +276,8 @@ interface ResultProps {
   factcheckPressure?: number;
   saturation?: number;
   onLaunchCampaign?: (seed: CampaignSeed) => void;
+  dossier?: Erkenntnis[];
+  phase?: number;
 }
 
 function PreTestResultView({
@@ -267,6 +293,8 @@ function PreTestResultView({
   factcheckPressure,
   saturation,
   onLaunchCampaign,
+  dossier,
+  phase,
 }: ResultProps): React.JSX.Element {
   const byId = new Map(personas.map((p) => [p.id, p]));
 
@@ -289,6 +317,11 @@ function PreTestResultView({
   }, [personas, sample, segments, targets, carriers, platforms, factcheckPressure, saturation, onLaunchCampaign]);
 
   const segLabelById = new Map((segments ?? []).map((s) => [s.id, s.label_de]));
+
+  // Erkenntnis-Dossier: gesammelte Befunde (inkl. dieser Runde) + daraus abgeleitete Arcs.
+  const roundFindings = useMemo(() => findingsFromMatrix(matrix, phase ?? 0), [matrix, phase]);
+  const allFindings = useMemo(() => mergeFindings(dossier ?? [], roundFindings), [dossier, roundFindings]);
+  const arcs = useMemo(() => detectArcs(allFindings, segLabelById), [allFindings, segLabelById]);
 
   return (
     <div>
@@ -325,6 +358,41 @@ function PreTestResultView({
               <EmpfehlungCard key={emp.id} emp={emp} onLaunch={() => onLaunchCampaign(emp.seed)} />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Erkenntnis-Dossier: über Runden gesammelte Sweet Spots + verdichtete Arcs. */}
+      {dossier !== undefined && allFindings.length > 0 && (
+        <div data-testid="pretest-dossier" style={{ marginBottom: 18 }}>
+          <div style={{ fontFamily: StoryModeFonts.label, fontSize: 13, color: '#3a7acc', letterSpacing: 1, marginBottom: 8 }}>
+            ERKENNTNIS-DOSSIER · {allFindings.length} SWEET SPOT{allFindings.length === 1 ? '' : 'S'}
+          </div>
+          {/* Befund-Chips */}
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: arcs.length > 0 ? 10 : 0 }}>
+            {allFindings
+              .slice()
+              .sort((a, b) => b.value - a.value)
+              .map((f) => (
+                <span
+                  key={f.id}
+                  style={{
+                    fontSize: 10,
+                    padding: '2px 7px',
+                    border: '1px solid #3a7acc',
+                    background: 'rgba(58,122,204,0.10)',
+                    color: StoryModeColors.document,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {APPEAL_LABEL[f.appeal]} · {segLabelById.get(f.segmentId) ?? f.segmentId.replace(/^wu_/, '')}{' '}
+                  <span style={{ color: '#8fb8e8' }}>+{Math.round(f.value * 100)}</span>
+                </span>
+              ))}
+          </div>
+          {/* Kampagnen-Arcs (verdichtete Strategie über mehrere Befunde) */}
+          {arcs.map((arc) => (
+            <ArcCard key={arc.id} arc={arc} />
+          ))}
         </div>
       )}
 
@@ -530,6 +598,35 @@ function EmpfehlungCard({ emp, onLaunch }: { emp: KampagnenEmpfehlung; onLaunch:
       >
         KAMPAGNE STARTEN ▸
       </button>
+    </div>
+  );
+}
+
+// ─── Kampagnen-Arc-Karte (verdichtete Strategie aus mehreren Befunden) ────────
+
+function ArcCard({ arc }: { arc: KampagnenArc }): React.JSX.Element {
+  const isBrand = arc.kind === 'flaechenbrand';
+  const accent = isBrand ? '#F0B429' : '#8fb8e8';
+  return (
+    <div
+      data-testid={`pretest-arc-${arc.kind}`}
+      style={{
+        border: `1px solid ${isBrand ? '#c8960c' : '#3a7acc'}`,
+        background: isBrand ? 'rgba(200,150,12,0.10)' : 'rgba(58,122,204,0.10)',
+        padding: '6px 9px',
+        marginBottom: 6,
+        display: 'flex',
+        gap: 8,
+        alignItems: 'baseline',
+        flexWrap: 'wrap',
+      }}
+    >
+      <span style={{ fontSize: 11, fontWeight: 900, color: accent, letterSpacing: 0.5, whiteSpace: 'nowrap' }}>
+        ◆ {arc.title_de}
+      </span>
+      <span style={{ fontSize: 10, color: StoryModeColors.lightConcrete, lineHeight: 1.35, flex: 1, minWidth: 180 }}>
+        {arc.rationale_de}
+      </span>
     </div>
   );
 }
