@@ -38,6 +38,14 @@ export const AMBIENT_TIMING = {
   vanishFrac: 0.75,
 } as const;
 
+/**
+ * Verpasster-Termin-Schwelle: Liegt ein geplanter Auftritt weiter als dies in
+ * der Vergangenheit (rAF pausierte im Hintergrund-Tab o. Ä.), wird NEU
+ * gestaffelt statt geplant — sonst träten alle gleichzeitig fälligen Agenten
+ * im selben Frame auf (Massen-Spawn, Code-Review Etappe 3 [hoch]).
+ */
+export const STALE_APPOINTMENT_MS = 3000;
+
 export interface AmbientAgentDef {
   id: string;
   /** 8-Frame-Lauf-Sheet (Seitenansicht, läuft nach rechts). */
@@ -92,6 +100,8 @@ export interface AmbientAgentState {
   journey: AmbientSegment[];
   /** Wann die nächste Reise geplant wird (verborgen bis dahin). */
   nextJourneyAt: number;
+  /** Ernte-Anstoß (nudgeAmbient): Termin ist stale-immun, bis er geplant wurde. */
+  nudged?: boolean;
 }
 
 export interface AmbientLifeState {
@@ -238,6 +248,13 @@ export function tickAmbientLife(state: AmbientLifeState, now: number): void {
       }
     }
     if (agent.journey.length === 0 && now >= agent.nextJourneyAt) {
+      if (!agent.nudged && now - agent.nextJourneyAt > STALE_APPOINTMENT_MS) {
+        // Termin weit verpasst (Uhr sprang, z. B. Hintergrund-Tab): frisch
+        // staffeln statt alle fälligen Agenten im selben Frame auftreten zu lassen.
+        agent.nextJourneyAt = now + between(agent.rng, 800, AMBIENT_TIMING.pauseMaxMs);
+        continue;
+      }
+      agent.nudged = false;
       agent.journey = planJourney(agent, state.layout, now);
       if (agent.journey.length === 0) {
         // Etage ohne benutzbare Tür (sollte es nicht geben): Etage überspringen.
@@ -256,6 +273,7 @@ export function nudgeAmbient(state: AmbientLifeState, level: number, now: number
   if (!candidate) return false;
   candidate.floorIdx = candidate.def.floorLevels.indexOf(level);
   candidate.nextJourneyAt = now;
+  candidate.nudged = true; // stale-immun (der Abspielkopf kann noch im Preload stehen)
   return true;
 }
 

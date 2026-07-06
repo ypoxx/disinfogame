@@ -9,8 +9,8 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `GESAMTKONZEPT_VISUELL.md` → dieses Dokument für den aktuellen Bau-Stand.
 > Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
-**Stand:** 2026-07-06 (UI-LUXUS-PAKET, Bau-Session — Etappen 0+1) · Branch
-`claude/ui-luxus-package-1szmrw` · Gate grün (`tsc 0` · `vitest 586` · `build`).
+**Stand:** 2026-07-06 (UI-LUXUS-PAKET, Bau-Session — Etappen 0–3) · Branch
+`claude/ui-luxus-package-1szmrw` (Draft-PR #96) · Gate grün (`tsc 0` · `vitest 604` · `build`).
 > Umsetzung von `PLAN_2026-07-06_UI_LUXUS.md` mit Doppel-Review-Kontrakt (§3b a).
 > - **Etappe 0 ✅ — State-of-the-Art-Memo:** `MEMO_2026-07-06_STATE_OF_THE_ART.md`
 >   (Integer-Scaling/devicePixelRatio-Formeln · diegetische Papier-/CRT-UI-Lehren
@@ -77,6 +77,36 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 >   **Nebenbefunde (L6/P4-Nachsweep):** Briefing-Vorgriff kann englische Krisen-
 >   Ticker zeigen (Übersetzungspfad umgangen); Icon-Text-Fallback erbt currentColor
 >   (nur relevant, wenn Assets fehlen).
+> - **Etappe 3 ✅ (LB) — „Lebendiges Gebäude":** Statisten laufen ECHTE Routen über
+>   ihre Etage (Ziele = Türen via `planRoute`, ruhige ~44 px/s ± 22 %) und erscheinen/
+>   verschwinden AUSSCHLIESSLICH durch sich öffnende Türen (RoomDoor-Blende) — die
+>   CSS-Pendel (FLOOR_WALKERS) und Opacity-Tür-Dummies (DOOR_TRAFFIC) sind ersetzt.
+>   NEU `building/ambientLife.ts` (pure, mulberry32-seeded State-Machine: Tür-Beat
+>   650 ms → Route → Kontext-Idle 2–4 s → Tür-Beat → Pause 9–20 s; Reinigung wandert
+>   die Etagen reihum, Boten je Arbeitsetage; Lobby + Spieler-Büro tabu) +
+>   `AmbientLifeLayer` (rAF-Abspielkopf im eigenen Teilbaum; Bühne re-rendert nur
+>   bei Tür-Fenster-Wechseln; Lauf-Takt ans Tempo gekoppelt = kein Foot-Sliding;
+>   prefers-reduced-motion → keine Laufwege). NEU Asset `figure_clerk_walk`
+>   (8-Frame-Walk zum Clerk-Idle; Erst-Wurf falsche Person → Re-Roll Seed 41577,
+>   Vision-QC ✅). 16 pure Tests + jsdom-Render-Test (pointer-events-frei, kein
+>   Fade, RoomDoor-Ambient-Klausel).
+>   **Doppel-Review ERFÜLLT:** (1) Code adversarial (5 Dimensionen, 29 Agenten:
+>   24 Roh → 9 bestätigt / 15 widerlegt, alle bestätigten gefixt) — Wurzel-Fix
+>   [hoch] Zeitbasis: Epoche je Mount statt rohem rAF-Timestamp + Stale-Klemme +
+>   Saat je Mount (vorher: Massen-Spawn ALLER Agenten bei jedem Büro↔Gebäude-
+>   Remount, sogar 2 Figuren aus derselben Tür; Remount-Messung jetzt: Auftritte
+>   6,5/11,5/18,5/26,8 s gestaffelt, max 2 Türen gleichzeitig); Pipeline-Referenzen
+>   lösen jetzt auch sheets/ auf (clerk_walk entstand ohne Referenz) + Warnung;
+>   Timing-Invarianten + engere Teleport-Toleranz als Tests fixiert; Ernte-Clips
+>   ankern das Fenster am angenommenen Nudge (44 s). (2) Harvest-Vision: Geometrie-
+>   Audit 0 Standlinien-Befunde (18 Walker-Messungen alle exakt auf der Linie;
+>   nur bekannter Shredder-Owner-Geschmack); 5×Abnahme-Clips je Etage; 1 echter
+>   Gemini-Befund (Lazy-Load-Pop-in der Walk-Sheets in frischen Kontexten →
+>   Sheet-Preload vor Ambient-Start) gefixt; übrige Claims adversarial widerlegt
+>   (Frame-Beweise: Figur exakt im Türrahmen; Live-DOM 630 Samples, 0 Flip-
+>   Verstöße, Opacity konstant 1; Geminis etage1-Clip-Urteil selbst: „keine
+>   Befunde"). Ambient-Türen bewusst stumm (Sound nur beim Spieler).
+>   Gate: tsc 0 · vitest 604 · build.
 
 **Stand:** 2026-07-05 (VISUAL-COHERENCE-REVIEW — Befunde + Plan, KEINE Fixes) · Branch
 `claude/visual-coherence-review-26f8av` (Draft-PR #95) · Gate grün (`tsc 0` · `vitest 575` · `build`).

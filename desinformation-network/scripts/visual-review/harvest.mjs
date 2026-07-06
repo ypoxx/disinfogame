@@ -602,12 +602,13 @@ if (DO_CLIPS) {
     await page.getByRole('option', { name: /Medien-Zentrum/i }).first().click({ timeout: 2000 }).catch(() => {});
   });
 
-  // LB „Lebendiges Gebäude" (Abnahme §3b c): 30-s-Fenster je Etage — Statisten
+  // LB „Lebendiges Gebäude" (Abnahme §3b c): Abnahmefenster je Etage — Statisten
   // erscheinen aus Türen, laufen echte Routen, verschwinden in Türen (kein Fade,
-  // kein Teleport). `ambientNudge(level)` stellt den nächsten Auftritt sofort
-  // fällig (wiederholt, bis ein verborgener Agent frei ist).
+  // kein Teleport). Das Fenster startet erst, wenn der Nudge ANGENOMMEN wurde
+  // (Review E3: fire-and-forget verpasste auf Reinigungs-Etagen den Tür-zu-Beat),
+  // und ist lang genug für einen vollen Zyklus (Tür → Route → Idle → Tür, ~25–40 s).
   const ambientClip = (floorId, level, roomRe) =>
-    buildingClip(`clip_ambient_${floorId}`, `LB: Routen-Statisten auf ${floorId} (30-s-Abnahmefenster: Tür auf → heraustreten → Route → Tür zu)`, 34000, async (page) => {
+    buildingClip(`clip_ambient_${floorId}`, `LB: Routen-Statisten auf ${floorId} (Abnahmefenster: Tür auf → heraustreten → Route → Tür zu)`, 44000, async (page) => {
       await page.keyboard.press('f');
       await sleep(600);
       await page.getByRole('option', { name: roomRe }).first().click({ timeout: 2000 }).catch(() => {});
@@ -615,14 +616,13 @@ if (DO_CLIPS) {
       await dismissAll(page);
       await vqa(page, () => window.__VQA__.ui.setViewMode('building')).catch(() => {});
       await sleep(400);
+      // Warten, bis ein verborgener Agent den Auftritt übernimmt (Fenster-Anker).
+      await page
+        .waitForFunction((lvl) => window.__VQA__?.ambientNudge?.(lvl) === true, level, { timeout: 25000, polling: 1000 })
+        .catch(() => {});
+      // Zweiter Auftritt in der Fenster-Mitte (falls ein weiterer Agent frei ist).
       await page.evaluate((lvl) => {
-        const tryNudge = () => !!window.__VQA__?.ambientNudge?.(lvl);
-        if (!tryNudge()) {
-          const t = setInterval(() => { if (tryNudge()) clearInterval(t); }, 2500);
-          setTimeout(() => clearInterval(t), 28000);
-        }
-        // Zweiter Auftritt in der Fenster-Mitte (falls ein weiterer Agent frei ist).
-        setTimeout(() => window.__VQA__?.ambientNudge?.(lvl), 16000);
+        setTimeout(() => window.__VQA__?.ambientNudge?.(lvl), 20000);
       }, level);
     });
 

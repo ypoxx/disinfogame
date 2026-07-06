@@ -66,7 +66,9 @@ describe('ambientLife (LB)', () => {
         const prev = samples[i - 1].figures.get(id);
         if (!prev) continue; // gerade aus einer Tür getreten — kein Bewegungs-Check
         expect(prev.floorLevel, `${id} wechselt sichtbar die Etage`).toBe(f.floorLevel);
-        const maxDx = (f.speedPxS * STEP_MS) / 1000 + 0.5;
+        // Enges Epsilon statt +0,5 px Slack: 18 % Übergeschwindigkeit (echtes
+        // Foot-Sliding) überlebte die lockere Grenze (Review-Mutationstest).
+        const maxDx = (f.speedPxS * STEP_MS) / 1000 + 0.01;
         expect(Math.abs(f.x - prev.x), `${id} springt bei t=${samples[i].t}`).toBeLessThanOrEqual(maxDx);
       }
     }
@@ -217,6 +219,41 @@ describe('ambientLife (LB)', () => {
         expect(ambientDoorsForLevel(layout, level).length, `${def.id}: Etage ${level} ohne Tür`).toBeGreaterThan(0);
       }
     }
+  });
+
+  it('Blenden-Timing-Invarianten: Tür ist sichtbar offen, wenn Figuren sie nutzen', () => {
+    const T = AMBIENT_TIMING;
+    // Tür-Beat im ruhigen Memo-§3-Fenster (0,5–1 s).
+    expect(T.doorBeatMs).toBeGreaterThanOrEqual(500);
+    expect(T.doorBeatMs).toBeLessThanOrEqual(1000);
+    // RoomDoor blendet in 240 ms — die Figur darf erst NACH offener Blende
+    // erscheinen, die Tür muss VOR Ankunft offen sein und nach dem
+    // Heraustreten kurz offen bleiben (sonst wirkt es wie Teleport/Fade).
+    expect(T.emergeFrac * T.doorBeatMs).toBeGreaterThanOrEqual(240);
+    expect(T.doorLeadMs).toBeGreaterThanOrEqual(240);
+    expect(T.doorTailMs).toBeGreaterThan(0);
+    // Die Figur verschwindet, BEVOR die Tür wieder schließt.
+    expect(T.vanishFrac).toBeGreaterThan(0.5);
+    expect(T.vanishFrac).toBeLessThan(1);
+  });
+
+  it('verpasste Termine werden neu gestaffelt (kein Massen-Auftritt nach Uhr-Sprung)', () => {
+    const state = createAmbientLife(9);
+    // Uhr springt weit hinter ALLE Erst-Termine (Remount/Hintergrund-Tab-Fall).
+    tickAmbientLife(state, 120_000);
+    // Niemand tritt sofort auf …
+    expect(sampleAmbient(state, 120_000).figures).toHaveLength(0);
+    for (const a of state.agents) {
+      expect(a.journey).toHaveLength(0);
+      // … alle Termine liegen frisch gestaffelt in der Zukunft.
+      expect(a.nextJourneyAt).toBeGreaterThan(120_000);
+    }
+    const times = state.agents.map((a) => Math.round(a.nextJourneyAt));
+    expect(new Set(times).size).toBe(times.length); // gestaffelt, nicht synchron
+    // Ein Ernte-Nudge bleibt trotz Uhr-Sprungs sofort wirksam (stale-immun).
+    expect(nudgeAmbient(state, 3, 121_000)).toBe(true);
+    tickAmbientLife(state, 125_000);
+    expect(state.agents.some((a) => a.journey.length > 0 && a.journey[0].floorLevel === 3)).toBe(true);
   });
 
   it('Lauf-Takt koppelt an das Tempo (schneller ⇒ kürzere Frames) und ist geklemmt', () => {

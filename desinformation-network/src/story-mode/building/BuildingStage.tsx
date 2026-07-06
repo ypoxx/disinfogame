@@ -171,9 +171,11 @@ function AmbientPerson({ a, left, top, height, viewScale }: { a: AmbientFigure; 
   );
 }
 
-/** Feste Saat für die Ambient-Routen: reproduzierbare Abläufe (auch für die
+/** Basis-Saat für die Ambient-Routen: reproduzierbare Abläufe (auch für die
  *  Visual-Review-Ernte); Varianz kommt aus dem PRNG innerhalb des Tages. */
 const AMBIENT_SEED = 0x1b2026;
+/** Mount-Zähler für die Saat-Ableitung je Bühnen-Mount (s. AmbientLifeLayer). */
+let ambientMountSeq = 0;
 
 /** prefers-reduced-motion, re-subscribed und jsdom-sicher (kein matchMedia dort). */
 function usePrefersReducedMotion(): boolean {
@@ -216,12 +218,20 @@ function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]
       }
       return;
     }
-    const state = createAmbientLife(AMBIENT_SEED);
+    // Saat je Mount ableiten: Büro↔Gebäude remountet die Bühne — mit fester
+    // Saat wiederholte sich exakt dieselbe Choreographie bei jeder Rückkehr
+    // (Review [hoch]). Identische Interaktions-Folge (Ernte) bleibt deterministisch.
+    const state = createAmbientLife((AMBIENT_SEED ^ (ambientMountSeq++ * 0x85ebca6b)) >>> 0);
+    // Epoche verankern: ambientLife rechnet ab 0, rAF liefert Zeit seit
+    // Seitenladen — ohne Offset wären beim (Re-)Mount alle firstAppearanceMs-
+    // Termine längst verstrichen → Massen-Auftritt im ersten Frame (Review [hoch]).
+    const epoch = performance.now();
     // Ernte-Hilfe (?vqa=1): Auftritt auf einer Ziel-Etage sofort fällig stellen.
-    publishVqa({ ambientNudge: (level: number) => nudgeAmbient(state, level, performance.now()) });
+    publishVqa({ ambientNudge: (level: number) => nudgeAmbient(state, level, performance.now() - epoch) });
     let raf = 0;
     let cancelled = false;
-    const loop = (now: number) => {
+    const loop = (rafNow: number) => {
+      const now = rafNow - epoch;
       tickAmbientLife(state, now);
       const snap = sampleAmbient(state, now);
       setFigures((prev) => (figuresEqual(prev, snap.figures) ? prev : snap.figures));

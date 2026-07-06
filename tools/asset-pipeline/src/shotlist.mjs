@@ -1022,7 +1022,9 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
     rows: 1,
     size: { w: 384, h: 96 },
     animations: { walk: { row: 0, frames: 8, frameTime: 100, loop: true } },
-    seed: seedFor('figure_clerk_walk'),
+    // Gewinner-Seed festgeschrieben (Vision-QC: Erst-Wurf mit seedFor() zeigte
+    // eine falsche Person; Re-Roll 41577 passt zum figure_clerk-Idle).
+    seed: 41577,
     referenceId: 'figure_clerk',
     prompt:
       `An 8-frame pixel art sprite sheet of the SAME young MALE office clerk as in the ` +
