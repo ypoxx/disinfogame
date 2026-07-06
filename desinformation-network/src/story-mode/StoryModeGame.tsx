@@ -647,16 +647,21 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         if (showTerminal && key !== 'a') return;
         switch (key) {
           // L2: A öffnet das Vorgangs-Terminal (die Aktionen-Seitenleiste ist Geschichte).
-          case 'a':
+          case 'a': {
             if (showTerminal) {
               // Beim Schließen per A den Berater-Sprung mit nullen (staler Highlight, E4).
               setShowTerminal(false);
               setHighlightActionId(null);
-            } else if (!showNewsroom && !showBoard && !showLagebild && !showOperationsAkte && !showFokusgruppe && !showPreTest) {
-              // Nicht unsichtbar UNTER Vollbild-Views mounten (Overlay-Stack, E4).
+            } else if (
+              // Nicht unsichtbar UNTER einem anderen Vollbild-Overlay mounten
+              // (Overlay-Stack, E4 — inkl. Dossier/Hilfe, Verify-Nachtrag).
+              !showNewsroom && !showBoard && !showLagebild && !showOperationsAkte &&
+              !showFokusgruppe && !showPreTest && !showEncyclopedia && !showShortcuts
+            ) {
               setShowTerminal(true);
             }
             break;
+          }
           case 'n': togglePanel('news'); break;
           case 's': togglePanel('stats'); break;
           case 'p': togglePanel('npcs'); break;
@@ -672,7 +677,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleBroadcast, setShowEncyclopedia, showShortcuts, setShowShortcuts, showTerminal, showNewsroom, showBoard, showLagebild, showOperationsAkte, showFokusgruppe, showPreTest]);
+  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleBroadcast, showEncyclopedia, setShowEncyclopedia, showShortcuts, setShowShortcuts, showTerminal, showNewsroom, showBoard, showLagebild, showOperationsAkte, showFokusgruppe, showPreTest]);
 
   // K9 Stufe 1: Autosave bei jedem Phasenwechsel (nur während 'playing').
   // saveGame kommt aus useStoryGameState und wird auch im Pausemenü genutzt.
