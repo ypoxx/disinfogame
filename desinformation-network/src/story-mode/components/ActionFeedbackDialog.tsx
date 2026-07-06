@@ -80,7 +80,8 @@ export function ActionFeedbackDialog({
     return (
       <div
         className="border-2 p-4"
-        style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.agencyBlue }}
+        // v3 §4.7: Info-Karte = Papier, Tinten-Blau bleibt lesbar.
+        style={{ backgroundColor: StoryModeColors.surfaceLight, borderColor: StoryModeColors.agencyBlue }}
       >
         <h3
           className="font-bold mb-1 text-sm flex items-center gap-2"
@@ -116,7 +117,8 @@ export function ActionFeedbackDialog({
       <div
         className="border-2 p-3 text-xs"
         style={{
-          backgroundColor: StoryModeColors.darkConcrete,
+          // v3: kühler Kastenstempel auf Papier (Rand + Tinte)
+          backgroundColor: StoryModeColors.surfaceLight,
           borderColor: StoryModeColors.borderLight,
         }}
       >
@@ -138,7 +140,7 @@ export function ActionFeedbackDialog({
     return (
       <div
         className="border-2 p-3"
-        style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.agencyBlue }}
+        style={{ backgroundColor: StoryModeColors.surfaceLight, borderColor: StoryModeColors.agencyBlue }}
       >
         <div className="flex justify-between items-center">
           <span className="font-bold text-sm" style={{ color: StoryModeColors.agencyBlue }}>
@@ -166,7 +168,7 @@ export function ActionFeedbackDialog({
       : m === 'verunsichert'
         ? StoryModeColors.warning
         : m === 'misstrauisch'
-          ? StoryModeColors.document
+          ? StoryModeColors.agencyBlue // v3: Papier-Ton wäre auf Papier unsichtbar → Tinten-Blau
           : StoryModeColors.textMuted;
   const moodLabel = (m: string) =>
     m === 'wuetend' ? 'wütend' : m === 'verunsichert' ? 'verunsichert' : m === 'misstrauisch' ? 'misstrauisch' : 'ruhig';
@@ -175,7 +177,8 @@ export function ActionFeedbackDialog({
     return (
       <div
         className="border-2 p-3"
-        style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.ministryRed }}
+        // v3: Papier-Karte mit rotem Stempel-Rand (Rot bleibt Stempel/Alarm).
+        style={{ backgroundColor: StoryModeColors.surfaceLight, borderColor: StoryModeColors.ministryRed }}
       >
         <h3 className="font-bold mb-2 text-sm" style={{ color: StoryModeColors.ministryRed }}>
           ◍ PUBLIKUM — STIMMUNG IM LAND
@@ -274,7 +277,8 @@ export function ActionFeedbackDialog({
             <div
               className="px-6 py-4 border-b-2"
               style={{
-                backgroundColor: StoryModeColors.darkConcrete,
+                // v3: Bilanz-Fläche = Papier (Tinten-Werte lesbar)
+                backgroundColor: StoryModeColors.surfaceLight,
                 borderColor: StoryModeColors.border,
               }}
             >
@@ -296,7 +300,7 @@ export function ActionFeedbackDialog({
                           : StoryModeColors.danger,
                       }}
                     >
-                      {cumulativeChanges.budget > 0 ? '+$' : '-$'}{Math.abs(cumulativeChanges.budget)}K
+                      {cumulativeChanges.budget > 0 ? '+' : '-'}{Math.abs(cumulativeChanges.budget)}K
                     </span>
                   </div>
                 )}
@@ -370,7 +374,8 @@ export function ActionFeedbackDialog({
                 key={index}
                 className="border-2"
                 style={{
-                  backgroundColor: StoryModeColors.background,
+                  // v3: Schritt-Karte = Papier statt Kraftpapier-dunkel
+                  backgroundColor: StoryModeColors.surface,
                   borderColor: getOutcomeColor(actionResult),
                 }}
               >
@@ -393,7 +398,7 @@ export function ActionFeedbackDialog({
                     <span
                       className="font-bold text-xs px-2 py-1 border"
                       style={{
-                        backgroundColor: StoryModeColors.background,
+                        backgroundColor: StoryModeColors.surface,
                         borderColor: StoryModeColors.borderLight,
                         color: StoryModeColors.textSecondary,
                       }}
@@ -420,8 +425,9 @@ export function ActionFeedbackDialog({
                       <div
                         className="p-4 border-l-4"
                         style={{
-                          backgroundColor: StoryModeColors.background,
-                          borderColor: StoryModeColors.document,
+                          // v3: Zitat-Karte hell; Akzentkante in sichtbarer Tinte
+                          backgroundColor: StoryModeColors.surfaceLight,
+                          borderColor: StoryModeColors.borderLight,
                         }}
                       >
                         <div
@@ -447,7 +453,7 @@ export function ActionFeedbackDialog({
                       <div
                         className="border-2 p-3"
                         style={{
-                          backgroundColor: StoryModeColors.concrete,
+                          backgroundColor: StoryModeColors.surfaceLight,
                           borderColor: StoryModeColors.borderLight,
                         }}
                       >
@@ -469,7 +475,7 @@ export function ActionFeedbackDialog({
                                     : StoryModeColors.danger,
                                 }}
                               >
-                                {actionResult.resourceChanges.budget > 0 ? '+$' : '-$'}{Math.abs(actionResult.resourceChanges.budget)}K
+                                {actionResult.resourceChanges.budget > 0 ? '+' : '-'}{Math.abs(actionResult.resourceChanges.budget)}K
                               </span>
                             </div>
                           )}
@@ -504,7 +510,7 @@ export function ActionFeedbackDialog({
                       <div
                         className="border-2 p-3"
                         style={{
-                          backgroundColor: StoryModeColors.concrete,
+                          backgroundColor: StoryModeColors.surfaceLight,
                           borderColor: StoryModeColors.warning,
                         }}
                       >
@@ -575,7 +581,8 @@ export function ActionFeedbackDialog({
           <div
             className="text-center py-3 border-2"
             style={{
-              backgroundColor: StoryModeColors.background,
+              // v3: Karteikarte hell — Tinten-Titel lesbar
+              backgroundColor: StoryModeColors.surfaceLight,
               borderColor: StoryModeColors.border,
             }}
           >
@@ -592,8 +599,9 @@ export function ActionFeedbackDialog({
             <div
               className="p-4 border-l-4"
               style={{
-                backgroundColor: StoryModeColors.background,
-                borderColor: StoryModeColors.document,
+                // v3: Zitat-Karte hell; Akzentkante in sichtbarer Tinte
+                backgroundColor: StoryModeColors.surfaceLight,
+                borderColor: StoryModeColors.borderLight,
               }}
             >
               <div
@@ -619,7 +627,7 @@ export function ActionFeedbackDialog({
             <div
               className="border-2 p-4"
               style={{
-                backgroundColor: StoryModeColors.darkConcrete,
+                backgroundColor: StoryModeColors.surfaceLight,
                 borderColor: StoryModeColors.border,
               }}
             >
@@ -627,7 +635,7 @@ export function ActionFeedbackDialog({
                 className="font-bold mb-3 text-sm"
                 style={{ color: StoryModeColors.textSecondary }}
               >
-                RESSOURCEN-ANDERUNGEN
+                RESSOURCEN-ÄNDERUNGEN
               </h3>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 {singleResult.resourceChanges.budget !== undefined && singleResult.resourceChanges.budget !== 0 && (
@@ -641,13 +649,13 @@ export function ActionFeedbackDialog({
                           : StoryModeColors.danger,
                       }}
                     >
-                      {singleResult.resourceChanges.budget > 0 ? '+$' : '-$'}{Math.abs(singleResult.resourceChanges.budget)}K
+                      {singleResult.resourceChanges.budget > 0 ? '+' : '-'}{Math.abs(singleResult.resourceChanges.budget)}K
                     </span>
                   </div>
                 )}
                 {singleResult.resourceChanges.capacity !== undefined && singleResult.resourceChanges.capacity !== 0 && (
                   <div className="flex justify-between">
-                    <span style={{ color: StoryModeColors.textMuted }}>Kapazitat:</span>
+                    <span style={{ color: StoryModeColors.textMuted }}>Kapazität:</span>
                     <span
                       className="font-bold"
                       style={{
@@ -722,7 +730,7 @@ export function ActionFeedbackDialog({
             <div
               className="border-2 p-4"
               style={{
-                backgroundColor: StoryModeColors.darkConcrete,
+                backgroundColor: StoryModeColors.surfaceLight,
                 borderColor: StoryModeColors.agencyBlue,
               }}
             >
@@ -753,7 +761,7 @@ export function ActionFeedbackDialog({
             <div
               className="border-2 p-4"
               style={{
-                backgroundColor: StoryModeColors.darkConcrete,
+                backgroundColor: StoryModeColors.surfaceLight,
                 borderColor: StoryModeColors.warning,
               }}
             >
@@ -770,7 +778,8 @@ export function ActionFeedbackDialog({
           {/* Completed Combos - Celebration */}
           {singleResult.completedCombos && singleResult.completedCombos.length > 0 && (
             <div
-              className="border-4 p-4 animate-pulse-soft"
+              className="border-4 p-4"
+              // §4.7: gestempelt statt geblinkt — statischer Rahmen, kein Puls.
               style={{
                 backgroundColor: 'rgba(139, 92, 246, 0.15)',
                 borderColor: COMBO_COLORS.ready,
@@ -787,7 +796,7 @@ export function ActionFeedbackDialog({
                   key={i}
                   className="border-2 p-3 mt-2"
                   style={{
-                    backgroundColor: StoryModeColors.background,
+                    backgroundColor: StoryModeColors.surfaceLight,
                     borderColor: COMBO_COLORS.active,
                   }}
                 >
@@ -821,7 +830,7 @@ export function ActionFeedbackDialog({
                         <span><Icon name="moral" size={14} title="Emotional" fallback="Emot." /> -{combo.bonus.emotionalDamage}</span>
                       )}
                       {combo.bonus.moneyRefund && (
-                        <span><Icon name="budget" size={14} title="Rückzahlung" fallback="$" /> ${combo.bonus.moneyRefund}K</span>
+                        <span><Icon name="budget" size={14} title="Rückzahlung" fallback="¤" /> {combo.bonus.moneyRefund}K</span>
                       )}
                     </div>
                   )}
@@ -835,7 +844,7 @@ export function ActionFeedbackDialog({
             <div
               className="border-2 p-4"
               style={{
-                backgroundColor: StoryModeColors.darkConcrete,
+                backgroundColor: StoryModeColors.surfaceLight,
                 borderColor: COMBO_COLORS.building,
               }}
             >
@@ -852,7 +861,7 @@ export function ActionFeedbackDialog({
                     key={i}
                     className="border p-2"
                     style={{
-                      backgroundColor: StoryModeColors.background,
+                      backgroundColor: StoryModeColors.surface,
                       borderColor: StoryModeColors.borderLight,
                     }}
                   >
@@ -911,7 +920,7 @@ export function ActionFeedbackDialog({
             <div
               className="border-2 p-4"
               style={{
-                backgroundColor: StoryModeColors.darkConcrete,
+                backgroundColor: StoryModeColors.surfaceLight,
                 borderColor: StoryModeColors.agencyBlue,
               }}
             >
@@ -928,7 +937,7 @@ export function ActionFeedbackDialog({
                     key={i}
                     className="border p-2 text-xs"
                     style={{
-                      backgroundColor: StoryModeColors.background,
+                      backgroundColor: StoryModeColors.surface,
                       borderColor: modifier.isVulnerable ? StoryModeColors.success : StoryModeColors.danger,
                     }}
                   >
@@ -960,7 +969,8 @@ export function ActionFeedbackDialog({
           {/* Betrayal Warnings */}
           {singleResult.betrayalWarnings && singleResult.betrayalWarnings.length > 0 && (
             <div
-              className="border-2 p-4 animate-pulse-soft"
+              className="border-2 p-4"
+              // §4.7: Warnung wird gestempelt (roter Rand), nicht geblinkt.
               style={{
                 backgroundColor: 'rgba(255, 71, 71, 0.15)',
                 borderColor: StoryModeColors.danger,
@@ -979,7 +989,7 @@ export function ActionFeedbackDialog({
                     key={i}
                     className="border p-3 text-xs"
                     style={{
-                      backgroundColor: StoryModeColors.background,
+                      backgroundColor: StoryModeColors.surfaceLight,
                       borderColor: StoryModeColors.danger,
                     }}
                   >

@@ -9,8 +9,9 @@
  * Animationen mit Präfix fg-, prefers-reduced-motion global abgedeckt.
  */
 
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import { useAssets } from '../assets/useAssets';
+import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
 import { StoryModeColors } from '../theme';
 import type { Mood } from '../audience/audienceModel';
 
@@ -51,11 +52,12 @@ const MOOD_COLOR: Record<Mood, string> = {
   misstrauisch: '#1a3a5a',
 };
 
-/** Randfarbe je Stimmung. */
+/** Randfarbe je Stimmung — auf den dunklen Video-Kacheln (diegetisch);
+ *  v3: danger ist jetzt Tinte, daher hartkodiert das helle v2-Rot. */
 const MOOD_BORDER: Record<Mood, string> = {
   ruhig: '#4a8a4a',
   verunsichert: '#c8960c',
-  wuetend: StoryModeColors.danger,
+  wuetend: '#E5484D',
   misstrauisch: '#3a7acc',
 };
 
@@ -290,7 +292,8 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
               fontSize: 12,
               fontWeight: 900,
               fontFamily: "'VT323', monospace",
-              color: StoryModeColors.textPrimary,
+              // v3: Kachel bleibt dunkel-diegetisch → heller Papier-Ton statt Tinte.
+              color: StoryModeColors.document,
               letterSpacing: 0.5,
               whiteSpace: 'nowrap',
               overflow: 'hidden',
@@ -303,7 +306,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
             style={{
               fontSize: 10,
               fontFamily: "'VT323', monospace",
-              color: StoryModeColors.textMuted,
+              color: StoryModeColors.lightConcrete,
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -336,7 +339,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
           fontSize: 10,
           fontFamily: "'VT323', monospace",
           fontStyle: 'italic',
-          color: StoryModeColors.textMuted,
+          color: StoryModeColors.lightConcrete,
           lineHeight: 1.4,
           borderBottom: `1px solid rgba(40,40,40,0.8)`,
         }}
@@ -374,7 +377,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
             margin: 0,
             fontSize: 11,
             fontFamily: "'VT323', monospace",
-            color: StoryModeColors.textPrimary,
+            color: StoryModeColors.document,
             lineHeight: 1.5,
           }}
           data-testid={`fg-comment-${persona.segmentId}`}
@@ -396,6 +399,12 @@ export function FokusgruppeView({
 }: FokusgruppeViewProps): React.JSX.Element {
   const assets = useAssets();
   const bgUrl = assets.imageUrl('room_analyse');
+
+  // (B1) Pixel-sauberer Cover-Snap statt freiem `cover` (≈ ×0,94 = Matsch).
+  const containerRef = useRef<HTMLDivElement>(null);
+  const areaSize = useElementSize(containerRef);
+  const bgNat = useNaturalSize(bgUrl);
+  const bgSnap = usePixelCover(areaSize, bgNat);
 
   // Escape schließt die Ansicht
   const handleKeyDown = useCallback(
@@ -426,6 +435,7 @@ export function FokusgruppeView({
 
   return (
     <div
+      ref={containerRef}
       role="dialog"
       aria-modal="true"
       aria-label="Fokusgruppe Westunion"
@@ -450,7 +460,10 @@ export function FokusgruppeView({
             position: 'absolute',
             inset: 0,
             backgroundImage: `url(${bgUrl})`,
-            backgroundSize: 'cover',
+            // (B1) Ganzzahl-/Stammbruch-Faktor statt freiem `cover`;
+            // Fallback vor Bildmaß-Kenntnis = bisheriges cover (ein Frame lang).
+            backgroundSize: bgSnap ? `${bgSnap.width}px ${bgSnap.height}px` : 'cover',
+            backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
             imageRendering: 'pixelated',
           }}
@@ -503,7 +516,8 @@ export function FokusgruppeView({
               fontSize: 11,
               fontWeight: 900,
               fontFamily: "'VT323', monospace",
-              color: StoryModeColors.danger,
+              // v3: danger ist Tinte — REC-Licht bleibt helles v2-Rot (diegetisch).
+              color: '#E5484D',
               letterSpacing: 1,
               animation: 'fg-rec-blink 1.2s ease-in-out infinite',
               opacity: recVisible ? 1 : 0.15,
@@ -518,7 +532,7 @@ export function FokusgruppeView({
               fontSize: 13,
               fontWeight: 900,
               letterSpacing: 3,
-              color: StoryModeColors.textPrimary,
+              color: StoryModeColors.document,
             }}
           >
             FOKUSGRUPPE
@@ -528,7 +542,7 @@ export function FokusgruppeView({
               fontSize: 10,
               fontWeight: 400,
               letterSpacing: 2,
-              color: StoryModeColors.textMuted,
+              color: StoryModeColors.lightConcrete,
             }}
           >
             — WESTUNION
@@ -540,9 +554,10 @@ export function FokusgruppeView({
               style={{
                 fontSize: 10,
                 fontFamily: "'VT323', monospace",
-                color: StoryModeColors.warning,
+                // v3: warning ist Marker-Tinte — auf dem dunklen Kopfband helles v2-Amber.
+                color: '#F0B429',
                 backgroundColor: 'rgba(40,30,5,0.7)',
-                border: `1px solid ${StoryModeColors.warning}`,
+                border: `1px solid #F0B429`,
                 padding: '1px 8px',
                 letterSpacing: 0.5,
                 maxWidth: 320,
@@ -561,9 +576,10 @@ export function FokusgruppeView({
               style={{
                 fontSize: 10,
                 fontFamily: "'VT323', monospace",
-                color: StoryModeColors.agencyBlue,
+                // v3: agencyBlue ist Tinte — auf dem dunklen Kopfband helleres Blau.
+                color: '#3a7acc',
                 backgroundColor: 'rgba(5,20,40,0.7)',
-                border: `1px solid ${StoryModeColors.agencyBlue}`,
+                border: `1px solid #3a7acc`,
                 padding: '1px 8px',
                 letterSpacing: 0.5,
                 maxWidth: 320,
@@ -581,11 +597,11 @@ export function FokusgruppeView({
         {/* Schließen-Button ✕ (Escape) */}
         <button
           onClick={onClose}
-          aria-label="Fokusgruppe schliessen"
+          aria-label="Fokusgruppe schließen"
           style={{
             background: 'none',
             border: `2px solid ${StoryModeColors.ministryRed}`,
-            color: StoryModeColors.textPrimary,
+            color: StoryModeColors.document,
             fontSize: 16,
             fontFamily: "'VT323', monospace",
             fontWeight: 900,
@@ -623,7 +639,7 @@ export function FokusgruppeView({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: StoryModeColors.textMuted,
+              color: StoryModeColors.lightConcrete,
               fontSize: 13,
               fontFamily: "'VT323', monospace",
               letterSpacing: 1,
@@ -671,7 +687,7 @@ export function FokusgruppeView({
             textAlign: 'center',
             fontSize: 9,
             fontFamily: "'VT323', monospace",
-            color: StoryModeColors.textMuted,
+            color: StoryModeColors.lightConcrete,
             letterSpacing: 1,
             flexShrink: 0,
           }}

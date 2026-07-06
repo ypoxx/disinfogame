@@ -6,7 +6,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { ActionPanel, type StoryAction, type MaschenVorschau } from '../components/ActionPanel';
+import { ActionCard, type StoryAction, type MaschenVorschau } from '../components/ActionCard';
 
 function baseAction(overrides: Partial<StoryAction> = {}): StoryAction {
   return {
@@ -34,15 +34,13 @@ const vorschau: MaschenVorschau = {
   multiplikator: 0.3,
 };
 
-describe('ActionPanel — Maschen-Stempel (E7)', () => {
+describe('ActionCard — Maschen-Stempel (E7)', () => {
   it('rendert Stempel-Chips samt Familien-Label, wenn getMaschenVorschau eine Vorschau liefert', () => {
     render(
-      <ActionPanel
-        actions={[baseAction()]}
-        availableResources={{ budget: 100, capacity: 100, actionPoints: 3 }}
-        onSelectAction={() => {}}
-        onClose={() => {}}
-        isVisible
+      <ActionCard
+        action={baseAction()}
+        canAfford
+        onSelect={() => {}}
         getMaschenVorschau={() => vorschau}
       />,
     );
@@ -56,12 +54,10 @@ describe('ActionPanel — Maschen-Stempel (E7)', () => {
 
   it('rendert keine Stempel-Zeile, wenn getMaschenVorschau null liefert (Aktion ist keine Masche)', () => {
     render(
-      <ActionPanel
-        actions={[baseAction()]}
-        availableResources={{ budget: 100, capacity: 100, actionPoints: 3 }}
-        onSelectAction={() => {}}
-        onClose={() => {}}
-        isVisible
+      <ActionCard
+        action={baseAction()}
+        canAfford
+        onSelect={() => {}}
         getMaschenVorschau={() => null}
       />,
     );
@@ -72,12 +68,10 @@ describe('ActionPanel — Maschen-Stempel (E7)', () => {
 
   it('bleibt ohne die Prop rückwärtskompatibel (kein Absturz, keine Stempel-Zeile)', () => {
     render(
-      <ActionPanel
-        actions={[baseAction()]}
-        availableResources={{ budget: 100, capacity: 100, actionPoints: 3 }}
-        onSelectAction={() => {}}
-        onClose={() => {}}
-        isVisible
+      <ActionCard
+        action={baseAction()}
+        canAfford
+        onSelect={() => {}}
       />,
     );
     expect(screen.queryByText(/FRISCH/)).not.toBeInTheDocument();

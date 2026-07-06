@@ -12,6 +12,7 @@ dokumentiert für den Rückwärtsgang.
 | `OfficeScreen.tsx` | CSS-gezeichnetes Büro (Hotspots als geometrische Formen, „Papers Please"-Skizze) | `src/story-mode/components/PlayerOfficeView.tsx` (generiertes Raumbild `room_spieler_buero` + Hotspots auf dieselben Panels) |
 | `studio/BlueprintStudio.tsx` | Entwurfs-Dashboard (#dash): Publikums-Modell-Spielwiese | Publikum läuft jetzt im Spiel: `src/story-mode/broadcast/` (Taste B) |
 | `studio/StudioScene.tsx` | Gezeichneter Gebäude-Schnitt (#studio/#blueprint), Vorstudie | `src/story-mode/building/BuildingStage.tsx` (Pixel-Querschnitt aus Baukasten-Assets) |
+| `ActionPanel-sidebar-modal.tsx` | Aktionen-Auswahl als rechte Seitenleiste + Vollbild-Modal (`variant`-Prop). Nach dem L2-Umbau (2026-07-06, „Komplett Luxus") toter Produktionscode: Maßnahmen wählt jetzt das Vorgangs-**Terminal** (Taste A, „Terminal WÄHLT, Korkbrett PLANT"). | `src/story-mode/components/TerminalView.tsx` + `terminalCuration.ts` (M2-Kuratierung). Der Kern der Karte lebt weiter als `src/story-mode/components/ActionCard.tsx` (M1-Vorgangsblatt, von TerminalView konsumiert). |
 
 Nur im Git-Verlauf (vollständig ersetzt, nicht kopiert):
 

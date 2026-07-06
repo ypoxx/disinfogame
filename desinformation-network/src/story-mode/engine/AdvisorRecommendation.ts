@@ -87,7 +87,7 @@ export interface AdvisorRecommendation {
   // ========== Actions ==========
   /**
    * Array of action IDs recommended by NPC
-   * These actions will be highlighted in ActionPanel
+   * These actions will be highlighted in the L2 TerminalView (Vorgangs-Terminal)
    * Can be empty if recommendation is informational only
    */
   suggestedActions: string[];
@@ -389,10 +389,10 @@ export function getPriorityWeight(priority: RecommendationPriority): number {
 export function getPriorityColor(priority: RecommendationPriority): string {
   // v2-Palette (Stil-Bibel) statt generischer Tailwind-Hexwerte — kohärent mit StoryModeColors.
   const colors: Record<RecommendationPriority, string> = {
-    critical: '#E5484D', // danger
-    high: '#F0B429', // warning
-    medium: '#5BA66A', // success
-    low: '#828A95', // textMuted
+    critical: '#9E2F26' /* v3 danger */, // danger
+    high: '#6E4A0E' /* v3 warning */, // warning
+    medium: '#31572E' /* v3 success */, // success
+    low: '#5F5439' /* v3 textMuted */, // textMuted
   };
   return colors[priority];
 }

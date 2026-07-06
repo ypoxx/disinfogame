@@ -6,7 +6,7 @@
  * vor der Ankunfts-Sequenz.
  */
 import { useState } from 'react';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, stampCtaStyle } from '../theme';
 import { useAssets } from '../assets/useAssets';
 import { Icon } from './Icon';
 import { PLAYER_PORTRAITS, playerPortraitAssetId, usePlayerProfile } from '../stores/playerProfileStore';
@@ -34,17 +34,19 @@ export function AvatarChoice({ onConfirm }: AvatarChoiceProps): React.JSX.Elemen
   };
 
   return (
+    // v3 (§4.7): Personalakte ist PAPIER — kein dunkler Web-Verlauf mehr (Verbotsliste §4.6);
+    // der PixelFrame liefert die helle Akten-Fläche, der Text bleibt Tinte.
     <PixelModal
       open
       variant="alarm"
       maxWidthClass="max-w-lg"
       backdrop={0.97}
-      style={{ background: 'linear-gradient(180deg, #05070d 0%, #11131c 100%)' }}
     >
       {/* Eigener farbiger Kopf */}
       <div
         className="px-6 py-3 border-b-4 text-center font-bold tracking-wider"
-        style={{ backgroundColor: StoryModeColors.ministryRed, borderColor: StoryModeColors.border, color: StoryModeColors.warning }}
+        // v3: rotes Kopfband → helle Papier-Beschriftung (warning ist jetzt Tinte).
+        style={{ backgroundColor: StoryModeColors.ministryRed, borderColor: StoryModeColors.border, color: StoryModeColors.surfaceLight }}
       >
         IHRE PERSONALAKTE
       </div>
@@ -81,7 +83,8 @@ export function AvatarChoice({ onConfirm }: AvatarChoiceProps): React.JSX.Elemen
                 )}
                 <span
                   className="absolute bottom-0 inset-x-0 text-[10px] py-0.5 text-center"
-                  style={{ backgroundColor: 'rgba(10,10,14,0.78)', color: selected ? StoryModeColors.warning : '#c8c8b8' }}
+                  // v3: warning ist Tinte — auf dem dunklen Namensband helles v2-Amber.
+                  style={{ backgroundColor: 'rgba(10,10,14,0.78)', color: selected ? '#F0B429' : '#c8c8b8' }}
                 >
                   {opt.label}
                 </span>
@@ -100,19 +103,16 @@ export function AvatarChoice({ onConfirm }: AvatarChoiceProps): React.JSX.Elemen
           onKeyDown={(e) => { if (e.key === 'Enter') confirm(); }}
           maxLength={24}
           className="w-full px-3 py-2 mb-5 border-2 font-mono"
-          style={{ backgroundColor: StoryModeColors.background, borderColor: StoryModeColors.borderLight, color: StoryModeColors.textPrimary }}
+          // v3: Formularfeld als helles Papier + Tinte (statt dunklem Träger + Tinte).
+          style={{ backgroundColor: StoryModeColors.surfaceLight, borderColor: StoryModeColors.borderLight, color: StoryModeColors.textPrimary }}
           placeholder="Ihr Deckname"
           aria-label="Ihr Name"
         />
 
         <button
           onClick={confirm}
-          className="w-full py-3 border-4 font-bold text-lg transition-all hover:brightness-110 active:translate-y-0.5"
-          style={{
-            backgroundColor: StoryModeColors.ministryRed,
-            borderColor: StoryModeColors.darkRed,
-            color: '#fff',
-          }}
+          className="w-full py-3 font-bold text-lg transition-all hover:brightness-95 active:translate-y-0.5"
+          style={stampCtaStyle}
         >
           MISSION BEGINNEN ▸
         </button>

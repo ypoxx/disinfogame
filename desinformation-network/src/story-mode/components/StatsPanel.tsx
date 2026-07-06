@@ -24,13 +24,21 @@ export function StatsPanel({
   const primaryObjectives = objectives.filter(o => o.type === 'primary');
   const secondaryObjectives = objectives.filter(o => o.type === 'secondary');
 
-  const getProgressColor = (current: number, target: number) => {
-    const progress = current / target;
-    if (progress >= 1) return StoryModeColors.success;
-    if (progress >= 0.7) return StoryModeColors.warning;
-    if (progress >= 0.4) return StoryModeColors.agencyBlue;
+  // B22: Farbe/Balken hängen am richtungs-bewussten Engine-Fortschritt (0–100) —
+  // der alte Quotient current/target war beim Senk-Ziel (100→40) ab Start „voll".
+  const getProgressColor = (progressPct: number) => {
+    if (progressPct >= 100) return StoryModeColors.success;
+    if (progressPct >= 70) return StoryModeColors.warning;
+    if (progressPct >= 40) return StoryModeColors.agencyBlue;
     return StoryModeColors.danger;
   };
+  const progressPct = (obj: { progress: number }) => Math.max(0, Math.min(100, obj.progress));
+  // Ziel-Beschriftung je Kategorie: Senk-Ziel zeigt Stand+Marke, Halte-Ziel nur die Marke
+  // (obj_survive führt kein lebendes currentValue — „jetzt 0" wäre erfunden).
+  const zielText = (obj: { category?: string; currentValue: number; targetValue: number }) =>
+    obj.category === 'survival'
+      ? `unter ${obj.targetValue} halten`
+      : `Stand ${Math.round(obj.currentValue)} · Ziel unter ${obj.targetValue}`;
 
   const content = (
     <div className={`flex-1 overflow-y-auto ${variant === 'sidebar' ? 'p-3 space-y-3' : 'p-6 space-y-6'}`}>
@@ -38,7 +46,8 @@ export function StatsPanel({
       <div
         className="border-2 p-4"
         style={{
-          backgroundColor: StoryModeColors.darkConcrete,
+          // §4.7 Regel 3: Inhalts-Kästen = Papier (Tinten-/Stempel-Farben bleiben lesbar).
+          backgroundColor: StoryModeColors.surfaceLight,
           borderColor: StoryModeColors.border,
         }}
       >
@@ -89,7 +98,7 @@ export function StatsPanel({
       <div
         className="border-2 p-4"
         style={{
-          backgroundColor: StoryModeColors.darkConcrete,
+          backgroundColor: StoryModeColors.surfaceLight,
           borderColor: StoryModeColors.border,
         }}
       >
@@ -102,20 +111,22 @@ export function StatsPanel({
         <div className="space-y-4">
           {/* Budget */}
           <div>
-            <div className="flex justify-between mb-1">
-              <span style={{ color: StoryModeColors.textSecondary }}>
+            <div className="flex justify-between gap-2 mb-1">
+              <span className="min-w-0" style={{ color: StoryModeColors.textSecondary }}>
                 <Icon name="budget" size={14} title="Budget" /> BUDGET
               </span>
+              {/* B23/B24: symbolfrei („150K"); nowrap + shrink-0, damit der Wert
+                  in der schmalen Seitenleiste nie mehr zu „15" gekappt wird. */}
               <span
-                className="font-bold"
+                className="font-bold whitespace-nowrap shrink-0"
                 style={{ color: StoryModeColors.warning }}
               >
-                ${resources.budget}K
+                {resources.budget}K
               </span>
             </div>
             <div
               className="h-4 w-full"
-              style={{ backgroundColor: StoryModeColors.background }}
+              style={{ backgroundColor: StoryModeColors.lightConcrete }}
             >
               <div
                 className="h-full transition-all"
@@ -142,7 +153,7 @@ export function StatsPanel({
             </div>
             <div
               className="h-4 w-full"
-              style={{ backgroundColor: StoryModeColors.background }}
+              style={{ backgroundColor: StoryModeColors.lightConcrete }}
             >
               <div
                 className="h-full transition-all"
@@ -175,7 +186,7 @@ export function StatsPanel({
             </div>
             <div
               className="h-4 w-full"
-              style={{ backgroundColor: StoryModeColors.background }}
+              style={{ backgroundColor: StoryModeColors.lightConcrete }}
             >
               <div
                 className="h-full transition-all"
@@ -211,7 +222,7 @@ export function StatsPanel({
             </div>
             <div
               className="h-4 w-full"
-              style={{ backgroundColor: StoryModeColors.background }}
+              style={{ backgroundColor: StoryModeColors.lightConcrete }}
             >
               <div
                 className="h-full transition-all"
@@ -241,7 +252,7 @@ export function StatsPanel({
             </div>
             <div
               className="h-4 w-full"
-              style={{ backgroundColor: StoryModeColors.background }}
+              style={{ backgroundColor: StoryModeColors.lightConcrete }}
             >
               <div
                 className="h-full transition-all"
@@ -259,7 +270,7 @@ export function StatsPanel({
       <div
         className="border-2 p-4"
         style={{
-          backgroundColor: StoryModeColors.darkConcrete,
+          backgroundColor: StoryModeColors.surfaceLight,
           borderColor: StoryModeColors.ministryRed,
         }}
       >
@@ -284,23 +295,23 @@ export function StatsPanel({
                   {obj.completed ? '✓' : '○'} {obj.label_de}
                 </span>
                 <span
-                  className="font-bold"
+                  className="font-bold whitespace-nowrap shrink-0"
                   style={{
-                    color: getProgressColor(obj.currentValue, obj.targetValue),
+                    color: getProgressColor(progressPct(obj)),
                   }}
                 >
-                  {obj.currentValue} / {obj.targetValue}
+                  {zielText(obj)}
                 </span>
               </div>
               <div
                 className="h-3 w-full"
-                style={{ backgroundColor: StoryModeColors.background }}
+                style={{ backgroundColor: StoryModeColors.lightConcrete }}
               >
                 <div
                   className="h-full transition-all"
                   style={{
-                    width: `${Math.min((obj.currentValue / obj.targetValue) * 100, 100)}%`,
-                    backgroundColor: getProgressColor(obj.currentValue, obj.targetValue),
+                    width: `${progressPct(obj)}%`,
+                    backgroundColor: getProgressColor(progressPct(obj)),
                   }}
                 />
               </div>
@@ -314,7 +325,7 @@ export function StatsPanel({
         <div
           className="border-2 p-4"
           style={{
-            backgroundColor: StoryModeColors.darkConcrete,
+            backgroundColor: StoryModeColors.surfaceLight,
             borderColor: StoryModeColors.militaryOlive,
           }}
         >
@@ -339,23 +350,23 @@ export function StatsPanel({
                     {obj.completed ? '✓' : '○'} {obj.label_de}
                   </span>
                   <span
-                    className="font-bold"
+                    className="font-bold whitespace-nowrap shrink-0"
                     style={{
-                      color: getProgressColor(obj.currentValue, obj.targetValue),
+                      color: getProgressColor(progressPct(obj)),
                     }}
                   >
-                    {obj.currentValue} / {obj.targetValue}
+                    {zielText(obj)}
                   </span>
                 </div>
                 <div
                   className="h-2 w-full"
-                  style={{ backgroundColor: StoryModeColors.background }}
+                  style={{ backgroundColor: StoryModeColors.lightConcrete }}
                 >
                   <div
                     className="h-full transition-all"
                     style={{
-                      width: `${Math.min((obj.currentValue / obj.targetValue) * 100, 100)}%`,
-                      backgroundColor: getProgressColor(obj.currentValue, obj.targetValue),
+                      width: `${progressPct(obj)}%`,
+                      backgroundColor: getProgressColor(progressPct(obj)),
                     }}
                   />
                 </div>
@@ -374,12 +385,14 @@ export function StatsPanel({
         <div
           className="px-3 py-2 border-b-2 flex items-center gap-2"
           style={{
-            backgroundColor: StoryModeColors.agencyBlue,
+            // v3 §4.7: Kraftband statt Groß-Blau (Vision-Review E2 Runde 2).
+            backgroundColor: StoryModeColors.darkConcrete,
             borderColor: StoryModeColors.border,
           }}
         >
           <Icon name="stats" size={16} title="Statistik" />
-          <h2 className="font-bold text-sm" style={{ color: StoryModeColors.warning }}>
+          {/* v3: warning ist Tinte — auf dem dunklen Blau-Kopfband heller Papier-Text. */}
+          <h2 className="font-bold text-sm" style={{ color: StoryModeColors.surfaceLight }}>
             KAMPAGNEN-STATISTIK
           </h2>
         </div>
@@ -414,7 +427,7 @@ export function StatsPanel({
         >
           <div className="flex items-center gap-3">
             <Icon name="broadcast" size={24} title="Statistik" />
-            <h2 className="font-bold text-xl" style={{ color: StoryModeColors.warning }}>
+            <h2 className="font-bold text-xl" style={{ color: StoryModeColors.surfaceLight }}>
               KAMPAGNEN-STATISTIK
             </h2>
           </div>
@@ -422,9 +435,10 @@ export function StatsPanel({
             onClick={onClose}
             className="px-4 py-1 font-bold border-2 transition-all hover:brightness-110"
             style={{
+              // Dunkler Knopf → heller Text (§4.7 Regel 2).
               backgroundColor: StoryModeColors.darkConcrete,
               borderColor: StoryModeColors.border,
-              color: StoryModeColors.textPrimary,
+              color: StoryModeColors.surfaceLight,
             }}
           >
             SCHLIESSEN [ESC]
@@ -437,7 +451,8 @@ export function StatsPanel({
         <div
           className="px-6 py-3 border-t-2 text-xs text-center"
           style={{
-            backgroundColor: StoryModeColors.darkConcrete,
+            // §4.7: Fußleiste = Papier, Tinten-Text bleibt.
+            backgroundColor: StoryModeColors.surfaceLight,
             borderColor: StoryModeColors.border,
             color: StoryModeColors.textMuted,
           }}

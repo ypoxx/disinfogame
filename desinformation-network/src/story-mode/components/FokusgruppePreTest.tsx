@@ -28,10 +28,12 @@ const APPEALS: { id: MessageAppeal; label: string; desc: string }[] = [
   { id: 'trust', label: 'Seriosität', desc: 'Establishment, Institutionen' },
 ];
 
+// Auf den dunklen Video-Kacheln (diegetisch); v3: danger ist jetzt Tinte,
+// daher hartkodiert das helle v2-Rot.
 const MOOD_COLOR: Record<PersonaMood, string> = {
   zustimmend: '#6a8a6a',
-  skeptisch: StoryModeColors.warning,
-  ablehnend: StoryModeColors.danger,
+  skeptisch: '#F0B429' /* hell: dunkle Video-Kulisse */,
+  ablehnend: '#E5484D',
 };
 const MOOD_LABEL: Record<PersonaMood, string> = {
   zustimmend: 'Zustimmung',
@@ -78,7 +80,8 @@ export function FokusgruppePreTest({ personas, budget, onCommission, onClose }: 
       data-testid="fokusgruppe-pretest"
       style={{
         position: 'fixed', inset: 0, zIndex: 1100,
-        color: StoryModeColors.textPrimary, fontFamily: StoryModeFonts.world,
+        // v3: Raum bleibt dunkel-diegetisch → heller Papier-Ton statt Tinten-Token.
+        color: StoryModeColors.document, fontFamily: StoryModeFonts.world,
       }}
     >
       {/* Diegetischer Hintergrund: Einwegspiegel-Beobachtungsraum (room_analyse) statt schwarzem Panel.
@@ -96,10 +99,10 @@ export function FokusgruppePreTest({ personas, budget, onCommission, onClose }: 
       {/* Inhalt über dem Raum */}
       <div style={{ position: 'relative', zIndex: 2, height: '100%', display: 'flex', flexDirection: 'column', padding: '18px 20px', overflowY: 'auto', boxSizing: 'border-box' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 12 }}>
-        <span style={{ fontFamily: StoryModeFonts.label, fontSize: 16, color: StoryModeColors.warning, letterSpacing: 2 }}>
+        <span style={{ fontFamily: StoryModeFonts.label, fontSize: 16, color: '#F0B429' /* hell: dunkle Video-Kulisse */, letterSpacing: 2 }}>
           ZIELGRUPPEN-ANALYSE
         </span>
-        <span style={{ fontSize: 14, color: StoryModeColors.textSecondary }}>Fokusgruppe beauftragen</span>
+        <span style={{ fontSize: 14, color: StoryModeColors.lightConcrete }}>Fokusgruppe beauftragen</span>
         <button
           onClick={onClose}
           aria-label="Schließen"
@@ -112,7 +115,7 @@ export function FokusgruppePreTest({ personas, budget, onCommission, onClose }: 
       {!result ? (
         <>
           {/* Schritt 1: Appell */}
-          <div style={{ fontSize: 13, color: StoryModeColors.textSecondary, marginBottom: 6 }}>1 · Welche Botschaft testen?</div>
+          <div style={{ fontSize: 13, color: StoryModeColors.lightConcrete, marginBottom: 6 }}>1 · Welche Botschaft testen?</div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
             {APPEALS.map((a) => (
               <button
@@ -121,19 +124,19 @@ export function FokusgruppePreTest({ personas, budget, onCommission, onClose }: 
                 aria-pressed={appeal === a.id}
                 style={{
                   textAlign: 'left', padding: '8px 12px', cursor: 'pointer',
-                  border: `2px solid ${appeal === a.id ? StoryModeColors.warning : StoryModeColors.borderLight}`,
-                  background: appeal === a.id ? 'rgba(232,178,58,0.12)' : 'transparent', color: StoryModeColors.textPrimary,
+                  border: `2px solid ${appeal === a.id ? '#F0B429' /* hell: dunkle Video-Kulisse */ : StoryModeColors.borderLight}`,
+                  background: appeal === a.id ? 'rgba(232,178,58,0.12)' : 'transparent', color: StoryModeColors.document,
                 }}
               >
                 <div style={{ fontWeight: 700 }}>{a.label}</div>
-                <div style={{ fontSize: 11, color: StoryModeColors.textMuted }}>{a.desc}</div>
+                <div style={{ fontSize: 11, color: StoryModeColors.lightConcrete }}>{a.desc}</div>
               </button>
             ))}
           </div>
 
           {/* Schritt 2: Stichprobe */}
-          <div style={{ fontSize: 13, color: StoryModeColors.textSecondary, marginBottom: 6 }}>
-            2 · Wen befragen? <span style={{ color: StoryModeColors.textMuted }}>(Vorsicht: eine einseitige Auswahl verzerrt das Ergebnis.)</span>
+          <div style={{ fontSize: 13, color: StoryModeColors.lightConcrete, marginBottom: 6 }}>
+            2 · Wen befragen? <span style={{ color: StoryModeColors.lightConcrete }}>(Vorsicht: eine einseitige Auswahl verzerrt das Ergebnis.)</span>
           </div>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 18 }}>
             {personas.map((p) => {
@@ -146,12 +149,12 @@ export function FokusgruppePreTest({ personas, budget, onCommission, onClose }: 
                   data-testid={`pretest-sample-${p.id}`}
                   style={{
                     width: 150, textAlign: 'left', padding: 8, cursor: 'pointer',
-                    border: `2px solid ${on ? StoryModeColors.warning : StoryModeColors.borderLight}`,
-                    background: on ? 'rgba(232,178,58,0.10)' : 'transparent', color: StoryModeColors.textPrimary, opacity: on ? 1 : 0.6,
+                    border: `2px solid ${on ? '#F0B429' /* hell: dunkle Video-Kulisse */ : StoryModeColors.borderLight}`,
+                    background: on ? 'rgba(232,178,58,0.10)' : 'transparent', color: StoryModeColors.document, opacity: on ? 1 : 0.6,
                   }}
                 >
                   <div style={{ fontWeight: 700 }}>{p.name}</div>
-                  <div style={{ fontSize: 11, color: StoryModeColors.textMuted }}>{p.milieu}</div>
+                  <div style={{ fontSize: 11, color: StoryModeColors.lightConcrete }}>{p.milieu}</div>
                 </button>
               );
             })}
@@ -169,7 +172,8 @@ export function FokusgruppePreTest({ personas, budget, onCommission, onClose }: 
             BEFRAGUNG BEAUFTRAGEN ▸ <span style={{ fontWeight: 400, fontSize: 12 }}>(kostet {FOKUSGRUPPE_COST} Budget + eine Phase)</span>
           </button>
           {!affordable && (
-            <div data-testid="pretest-unaffordable" style={{ marginTop: 8, fontSize: 12, color: StoryModeColors.danger }}>
+            // v3: danger ist Tinte — auf dem dunklen Raum helles v2-Rot (diegetisch).
+            <div data-testid="pretest-unaffordable" style={{ marginTop: 8, fontSize: 12, color: '#E5484D' }}>
               Budget zu niedrig ({budget} / {FOKUSGRUPPE_COST}).
             </div>
           )}
@@ -195,8 +199,9 @@ function PreTestResultView({ result, personas, assets, onReset }: ResultProps): 
     <div>
       {/* Prognose vs. Realität */}
       <div style={{ marginBottom: 14 }}>
-        <Bar label="Ihre Prognose (Stichprobe)" value={result.predictedReception} color={StoryModeColors.warning} testid="pretest-predicted" />
-        <Bar label="Tatsächliche Gesamtwirkung" value={result.trueReception} color={StoryModeColors.agencyBlue} testid="pretest-true" />
+        <Bar label="Ihre Prognose (Stichprobe)" value={result.predictedReception} color={'#F0B429' /* hell: dunkle Video-Kulisse */} testid="pretest-predicted" />
+        {/* v3: agencyBlue ist Tinte — auf dem dunklen Raum helleres Blau (diegetisch). */}
+        <Bar label="Tatsächliche Gesamtwirkung" value={result.trueReception} color="#3a7acc" testid="pretest-true" />
       </div>
 
       {result.warning && (
@@ -204,7 +209,7 @@ function PreTestResultView({ result, personas, assets, onReset }: ResultProps): 
           data-testid="pretest-warning"
           style={{
             border: `2px solid ${StoryModeColors.danger}`, background: 'rgba(194,37,59,0.12)', padding: '8px 12px',
-            marginBottom: 14, fontSize: 13, color: StoryModeColors.textPrimary,
+            marginBottom: 14, fontSize: 13, color: StoryModeColors.document,
           }}
         >
           ⚠ {result.warning}
@@ -223,17 +228,17 @@ function PreTestResultView({ result, personas, assets, onReset }: ResultProps): 
                 {url ? (
                   <img src={url} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'pixelated' }} />
                 ) : (
-                  <span style={{ fontFamily: StoryModeFonts.display, fontSize: 22, color: StoryModeColors.textMuted }}>
+                  <span style={{ fontFamily: StoryModeFonts.display, fontSize: 22, color: StoryModeColors.lightConcrete }}>
                     {p.name.split(' ').map((s) => s[0]).join('')}
                   </span>
                 )}
               </div>
               <div style={{ padding: 8 }}>
                 <div style={{ fontWeight: 700 }}>{p.name}</div>
-                <div style={{ fontSize: 11, color: StoryModeColors.textMuted, marginBottom: 4 }}>{p.milieu}</div>
+                <div style={{ fontSize: 11, color: StoryModeColors.lightConcrete, marginBottom: 4 }}>{p.milieu}</div>
                 <div style={{ fontSize: 12, color: MOOD_COLOR[r.mood], fontWeight: 700 }}>{MOOD_LABEL[r.mood]}</div>
                 {p.vulnerabilities.length > 0 && (
-                  <div style={{ fontSize: 11, color: StoryModeColors.textSecondary, marginTop: 4 }}>
+                  <div style={{ fontSize: 11, color: StoryModeColors.lightConcrete, marginTop: 4 }}>
                     Einwand: {p.vulnerabilities[0]}
                   </div>
                 )}
@@ -256,7 +261,7 @@ function PreTestResultView({ result, personas, assets, onReset }: ResultProps): 
 function Bar({ label, value, color, testid }: { label: string; value: number; color: string; testid: string }): React.JSX.Element {
   return (
     <div style={{ marginBottom: 6 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: StoryModeColors.textSecondary }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: StoryModeColors.lightConcrete }}>
         <span>{label}</span>
         <span data-testid={testid} style={{ color }}>{value >= 0 ? '+' : ''}{Math.round(value * 100)} %</span>
       </div>

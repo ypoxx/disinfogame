@@ -109,7 +109,8 @@ export function GrievanceModal({
             <div className="text-xs font-bold mb-2" style={{ color: StoryModeColors.textSecondary }}>
               RISIKOANALYSE
             </div>
-            <div className="relative h-4 bg-black border-2" style={{ borderColor: StoryModeColors.border }}>
+            {/* §4.7: Kraftpapier-Track statt hartem Schwarz. */}
+            <div className="relative h-4 border-2" style={{ backgroundColor: StoryModeColors.oldPaper, borderColor: StoryModeColors.border }}>
               <div
                 className="absolute inset-0 transition-all duration-500"
                 style={{
@@ -120,13 +121,15 @@ export function GrievanceModal({
               />
               <div
                 className="absolute inset-0 flex items-center justify-center text-xs font-bold"
-                style={{ color: totalRisk >= 30 ? '#fff' : StoryModeColors.textPrimary }}
+                // Dunkler Track → immer heller Text (Tinten-textPrimary war darauf unlesbar).
+                style={{ color: StoryModeColors.textPrimary }}
               >
                 {totalRisk}%
               </div>
             </div>
+            {/* §4.7: gestempelt statt geblinkt — Alarm trägt die rote Tinte, kein animate-pulse. */}
             {totalRisk >= 70 && (
-              <div className="mt-2 text-xs font-bold animate-pulse flex items-center gap-1" style={{ color: StoryModeColors.danger }}>
+              <div className="mt-2 text-xs font-bold flex items-center gap-1" style={{ color: StoryModeColors.danger }}>
                 <Icon name="risk" size={14} title="Warnung" fallback="!" /> WARNUNG: VERRAT STEHT UNMITTELBAR BEVOR!
               </div>
             )}
@@ -174,7 +177,7 @@ export function GrievanceModal({
                     </div>
 
                     {/* Severity Bar */}
-                    <div className="relative h-1 bg-black mt-2">
+                    <div className="relative h-1 mt-2" style={{ backgroundColor: StoryModeColors.lightConcrete }}>
                       <div
                         className="absolute inset-0"
                         style={{
@@ -259,7 +262,8 @@ export function GrievanceModal({
                     key={redLine}
                     className="px-2 py-1 text-xs font-bold border"
                     style={{
-                      backgroundColor: StoryModeColors.background,
+                      // §4.7 Stempel: Rahmen + rote Tinte auf Papier statt dunkler Fläche.
+                      backgroundColor: 'transparent',
                       borderColor: StoryModeColors.danger,
                       color: StoryModeColors.danger,
                     }}

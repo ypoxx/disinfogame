@@ -26,11 +26,11 @@ export function BetrayalWarningBadge({
 
   const getWarningColor = () => {
     switch (warningLevel) {
-      case 1: return StoryModeColors.warning;  // Yellow - early warning
+      case 1: return '#F0B429';  // hell — Badge liegt auf dunklem Chip
       case 2: return '#FF8C00';                 // Orange - mid warning
       case 3: return '#FF4500';                 // Red-orange - critical
       case 4: return StoryModeColors.danger;   // Red - imminent
-      default: return StoryModeColors.warning;
+      default: return '#F0B429';
     }
   };
 

@@ -107,6 +107,9 @@ async function clickButton(page, re, { timeout = 2500 } = {}) {
 /** Offene Dialoge/Views/Briefings schließen, bis die Bühne frei ist. */
 async function dismissAll(page, { maxTries = 16 } = {}) {
   for (let i = 0; i < maxTries; i++) {
+    // Tagesbericht (falls der Feierabend ausgelöst wurde): NÄCHSTER TAG klickt
+    // den Report weg — das folgende Morgenbriefing fängt die nächste Runde ab.
+    if (await clickButton(page, /NÄCHSTER TAG/i, { timeout: 400 })) { await sleep(900); continue; }
     // Morgenbriefing & Co.: expliziter Bestätigungs-Knopf hat Vorrang.
     if (await clickButton(page, /Morgenbriefing weiter|^Verstanden/i, { timeout: 400 })) { await sleep(400); continue; }
     const st = await vqa(page, () => ({
@@ -278,6 +281,16 @@ if (wanted('title')) {
   await page.keyboard.press('Escape');
   await sleep(300);
 
+  // L2: Vorgangs-Terminal (Taste A) — Tür-Auswahl (M2) und Archiv-Schublade.
+  await page.keyboard.press('a');
+  await sleep(1000);
+  await shot(page, 'terminal_vorgaenge', { bundle: 'panels', desc: 'Vorgangs-Terminal (L2): kuratierte Tür-Auswahl mit M1-Vorgangsblättern (Wirkung/Preis/Frische-Stempel)' });
+  await clickButton(page, /ARCHIV \(/i);
+  await sleep(700);
+  await shot(page, 'terminal_archiv', { bundle: 'panels', desc: 'Vorgangs-Terminal (L2): ARCHIV-Schublade mit Filter-/Such-/Porträt-Zeile (voller Katalog)' });
+  await page.keyboard.press('Escape');
+  await sleep(400);
+
   // Alle Etagen ablaufen: je Etage ein Ziel-Raum (öffnet sich → wird geschlossen),
   // dann Flur-Shot mit Overlay + Geometrie (Avatar steht vor der Tür).
   const floorTargets = [
@@ -294,13 +307,18 @@ if (wanted('title')) {
   }
 
   // Tageszeiten-Reihe auf Etage 1 (Avatar steht): 6 Stützpunkte der Tagesuhr.
-  for (const [mins, label] of [[0, '0900'], [180, '1200'], [324, '1425'], [420, '1600'], [486, '1706'], [540, '1800']]) {
+  // 538 statt 540: exakt 18:00 löst den Auto-Feierabend aus (dayEnded) und der
+  // Tagesbericht legt sich über ALLE Folge-Shots (Ernte-Artefakt Etappe 2).
+  for (const [mins, label] of [[0, '0900'], [180, '1200'], [324, '1425'], [420, '1600'], [486, '1706'], [538, '1800']]) {
     await vqa(page, (m) => window.__VQA__.setMinutes(m), mins);
     await sleep(1600); // Sky-Transition 800ms + Skyline-Blende 1200ms
     await shot(page, `sky_${label}`, { bundle: 'daynight', desc: `Tageszeit-Stimmung um ${label.slice(0, 2)}:${label.slice(2)} Uhr (Himmel/Skyline/Tönung)` });
   }
   // Nacht in der Lobby (Regressions-Blick: Lobby-Kacheln + Nacht-Skyline).
   await gotoRoom(page, /Lobby/i, { close: false, maxWaitMs: 30000 });
+  // Der Weg kostet Spielzeit — Uhr erst NACH Ankunft auf 17:58 pinnen, sonst
+  // kippt der Auto-Feierabend doch noch (Code-Review E2).
+  await vqa(page, () => window.__VQA__.setMinutes(538)).catch(() => {});
   await sleep(1200);
   await shot(page, 'building_lobby_night', { bundle: 'daynight', desc: 'Lobby bei Nacht (18:00, Tönung + Nacht-Skyline)', overlay: true, geometry: true });
   await vqa(page, () => window.__VQA__.setMinutes(180));
@@ -321,6 +339,10 @@ if (wanted('title')) {
   await page.locator('button[aria-label$="ansprechen"]').first().click({ timeout: 1500 }).catch(() => {});
 
   // ── Büro + Panels + Spiel-UI ──
+  // Uhr zurückstellen: Wege kosten Spielzeit (K1) — die Gebäude-Tour kann sonst
+  // 18:00 überschreiten und der Auto-Feierabend legt den Tagesbericht über alles.
+  await vqa(page, () => window.__VQA__.setMinutes(240)).catch(() => {});
+  await dismissAll(page);
   await ensurePlaying(page);
   await vqa(page, () => window.__VQA__.ui.setViewMode('office'));
   await sleep(1000);
@@ -336,8 +358,9 @@ if (wanted('title')) {
   await openByHotspot('NARRATIV-TAFEL', 'board_korkbrett', 'Narrativ-Tafel / Korkbrett (Kampagnen-Planer)');
   await openByHotspot('LAGEBILD', 'lagebild', 'Lagebild-Ansicht (TV im Büro)');
 
+  // L2: Taste A gehört jetzt dem Vorgangs-Terminal (eigene Shots terminal_*) —
+  // der frühere 'panel_actions'-Eintrag schoss nur ein Duplikat unter irreführendem Namen.
   for (const [key, id, desc] of [
-    ['a', 'panel_actions', 'Seiten-Panel: Aktionen (Planungs-Karten mit Werte-Vorschau/Stempeln)'],
     ['n', 'panel_news', 'Seiten-Panel: Nachrichten'],
     ['s', 'panel_stats', 'Seiten-Panel: Statistiken/Gesellschaft'],
     ['p', 'panel_npcs', 'Seiten-Panel: Kontakte/NPCs'],
@@ -378,6 +401,8 @@ if (wanted('title')) {
   await sleep(400);
 
   // ── Raum-Nahsichten: jeden NPC ansprechen (direkt, ohne Laufweg) ──
+  await vqa(page, () => window.__VQA__.setMinutes(240)).catch(() => {});
+  await dismissAll(page);
   await ensurePlaying(page);
   await vqa(page, () => window.__VQA__.ui.setViewMode('building'));
   await sleep(600);
@@ -419,8 +444,13 @@ if (wanted('title')) {
     await shot(page, 'action_feedback', { bundle: 'panels', desc: 'Ergebnis einer ausgeführten Aktion (Feedback/Quittung, M1/M5)' });
     await dismissAll(page);
   }
-  await page.keyboard.press('a');
-  await sleep(300);
+  // L2: AUSFÜHREN schließt das Terminal selbst — ein blindes zweites 'a'
+  // ÖFFNETE es wieder (Review E4: decision_beat-Shot entstand über dem Schirm).
+  const terminalNochOffen = await page.evaluate(() => !!document.querySelector('[data-testid="terminal-view"]'));
+  if (terminalNochOffen) {
+    await page.keyboard.press('a');
+    await sleep(300);
+  }
   await ensurePlaying(page);
   await vqa(page, () => window.__VQA__.directorStore.setState({ pendingDecisionBeatId: 'stadtrat' })).catch(() => {});
   await sleep(900);
@@ -588,24 +618,35 @@ if (DO_CLIPS) {
     await page.getByRole('option', { name: /Medien-Zentrum/i }).first().click({ timeout: 2000 }).catch(() => {});
   });
 
-  await buildingClip('clip_walker_reinigung', 'Pendelnder Statist (Reinigung, Etage 3) — Laufrichtung/Flip am Wendepunkt', 15000, async (page) => {
-    await page.keyboard.press('f');
-    await sleep(600);
-    await page.getByRole('option', { name: /Newsroom/i }).first().click({ timeout: 2000 }).catch(() => {});
-    await sleep(8000);
-    await page.evaluate(() => {
-      const ui = window.__VQA__?.ui;
-      if (ui) { ui.setShowNewsroom(false); }
+  // LB „Lebendiges Gebäude" (Abnahme §3b c): Abnahmefenster je Etage — Statisten
+  // erscheinen aus Türen, laufen echte Routen, verschwinden in Türen (kein Fade,
+  // kein Teleport). Das Fenster startet erst, wenn der Nudge ANGENOMMEN wurde
+  // (Review E3: fire-and-forget verpasste auf Reinigungs-Etagen den Tür-zu-Beat),
+  // und ist lang genug für einen vollen Zyklus (Tür → Route → Idle → Tür, ~25–40 s).
+  const ambientClip = (floorId, level, roomRe) =>
+    buildingClip(`clip_ambient_${floorId}`, `LB: Routen-Statisten auf ${floorId} (Abnahmefenster: Tür auf → heraustreten → Route → Tür zu)`, 44000, async (page) => {
+      await page.keyboard.press('f');
+      await sleep(600);
+      await page.getByRole('option', { name: roomRe }).first().click({ timeout: 2000 }).catch(() => {});
+      await sleep(9000);
+      await dismissAll(page);
+      await vqa(page, () => window.__VQA__.ui.setViewMode('building')).catch(() => {});
+      await sleep(400);
+      // Warten, bis ein verborgener Agent den Auftritt übernimmt (Fenster-Anker).
+      await page
+        .waitForFunction((lvl) => window.__VQA__?.ambientNudge?.(lvl) === true, level, { timeout: 25000, polling: 1000 })
+        .catch(() => {});
+      // Zweiter Auftritt in der Fenster-Mitte (falls ein weiterer Agent frei ist).
+      await page.evaluate((lvl) => {
+        setTimeout(() => window.__VQA__?.ambientNudge?.(lvl), 20000);
+      }, level);
     });
-  });
 
-  await buildingClip('clip_door_dummy', 'Tür-Dummy taucht periodisch an einer Tür auf (17s-Zyklus, Etage 4)', 19000, async (page) => {
-    await page.keyboard.press('f');
-    await sleep(600);
-    await page.getByRole('option', { name: /Medien-Zentrum/i }).first().click({ timeout: 2000 }).catch(() => {});
-    await sleep(9000);
-    await page.evaluate(() => window.__VQA__?.dismissDialog && window.__VQA__.dismissDialog());
-  });
+  await ambientClip('etage4', 4, /Medien-Zentrum/i);
+  await ambientClip('etage3', 3, /Newsroom/i);
+  await ambientClip('etage2', 2, /Feld-Operationen/i);
+  await ambientClip('etage1', 1, /Direktor/i);
+  await ambientClip('keller', -1, /Finanzen/i);
 
   await buildingClip('clip_daynight_sweep', 'Tagesuhr-Sweep 09:00→18:00 in ~11s (Himmel, Skyline-Blenden, Tönung)', 13000, async (page) => {
     await page.evaluate(() => {

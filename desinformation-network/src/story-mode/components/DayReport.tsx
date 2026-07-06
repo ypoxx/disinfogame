@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, stampCtaStyle } from '../theme';
 import { MOOD_LABEL_DE, type Mood } from '../audience/audienceModel';
 import type { NightReport } from '../engine/ImmuneSystem';
 import type { TrancheResult } from '../engine/Finanzen';
@@ -124,7 +124,8 @@ export function DayReport({
         <div className="max-w-5xl mx-auto">
           {/* Kopf */}
           <div className="text-center mb-6 animate-fade-in" style={{ opacity: 0, animationFillMode: 'forwards' }}>
-            <div className="text-xs uppercase tracking-[0.3em]" style={{ color: StoryModeColors.textSecondary }}>
+            {/* Dunkler Scrim → heller Papier-Ton statt Tinte (§4.7 Regel 2). */}
+            <div className="text-xs uppercase tracking-[0.3em]" style={{ color: StoryModeColors.document }}>
               Redaktionsschluss
             </div>
             <h2
@@ -150,9 +151,10 @@ export function DayReport({
                   <div
                     className="inline-block px-3 py-1 border-2 text-xs font-bold uppercase"
                     style={{
+                      // Dunkler Stempel-Träger → Text hell (Marker-Gelb ist auf Kraftpapier unlesbar, §4.7).
                       backgroundColor: StoryModeColors.darkConcrete,
                       borderColor: StoryModeColors.warning,
-                      color: StoryModeColors.warning,
+                      color: StoryModeColors.document,
                     }}
                   >
                     Wirkung: {tierLabel ?? '—'}
@@ -177,7 +179,7 @@ export function DayReport({
                       </div>
                       <div
                         className="h-2 rounded-sm overflow-hidden"
-                        style={{ backgroundColor: StoryModeColors.border }}
+                        style={{ backgroundColor: StoryModeColors.oldPaper }}
                       >
                         <div
                           className="h-full transition-all duration-500"
@@ -223,11 +225,12 @@ export function DayReport({
             </ReportColumn>
           </div>
 
-          {/* Kennzahlen-Zeile */}
+          {/* Kennzahlen-Zeile — Papierfläche statt Kraftpapier: die Tinten-Labels
+              (RISIKO/BUDGET/AUFMERKSAMKEIT, Deutungshoheit) bleiben lesbar (§4.7 Regel 3). */}
           <div
             className="border-2 p-4 mb-6 animate-fade-in"
             style={{
-              backgroundColor: StoryModeColors.darkConcrete,
+              backgroundColor: StoryModeColors.surface,
               borderColor: StoryModeColors.border,
               opacity: 0,
               animationDelay: '0.36s',
@@ -240,7 +243,8 @@ export function DayReport({
                 value={`${Math.round(resources.risk)}%`}
                 color={resources.risk >= 70 ? StoryModeColors.danger : StoryModeColors.warning}
               />
-              <Metric label="Budget" value={`$${resources.budget}K`} color={StoryModeColors.document} />
+              {/* Papier-Ton auf Papierfläche wäre unsichtbar → Tinte. */}
+              <Metric label="Budget" value={`${resources.budget}K`} color={StoryModeColors.textPrimary} />
               <Metric
                 label="Aufmerksamkeit"
                 value={`${Math.round(resources.attention)}%`}
@@ -274,7 +278,8 @@ export function DayReport({
             <div
               className="border-2 p-4 mb-6 animate-fade-in"
               style={{
-                backgroundColor: StoryModeColors.darkConcrete,
+                // Papierfläche statt Kraftpapier — Tinten-Text bleibt (§4.7 Regel 3).
+                backgroundColor: StoryModeColors.surface,
                 borderColor: StoryModeColors.border,
                 opacity: 0,
                 animationDelay: '0.42s',
@@ -312,7 +317,8 @@ export function DayReport({
             <div
               className="border-2 p-4 mb-6 animate-fade-in"
               style={{
-                backgroundColor: StoryModeColors.darkConcrete,
+                // Papierfläche statt Kraftpapier — Tinten-Text bleibt (§4.7 Regel 3).
+                backgroundColor: StoryModeColors.surface,
                 borderColor: tranchePreview.auszahlung < 0 ? StoryModeColors.ministryRed : StoryModeColors.border,
                 opacity: 0,
                 animationDelay: '0.5s',
@@ -333,13 +339,8 @@ export function DayReport({
           <div className="text-center pb-6">
             <button
               onClick={onNextDay}
-              className="px-8 py-3 border-4 font-bold text-lg uppercase tracking-wider transition-all hover:brightness-110 active:translate-y-0.5"
-              style={{
-                backgroundColor: StoryModeColors.ministryRed,
-                borderColor: StoryModeColors.darkRed,
-                color: '#fff',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-              }}
+              className="px-8 py-3 font-bold text-lg uppercase tracking-wider transition-all hover:brightness-95 active:translate-y-0.5"
+              style={stampCtaStyle}
             >
               Nächster Tag ▸
             </button>

@@ -191,6 +191,17 @@ function useTypewriter(text: string, speed: number = 30, enabled: boolean = true
 export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }: DialogBoxProps) {
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
 
+  // B24: Scroll-Hinweis für die gedeckelte Options-Liste — ohne ihn wirkte die
+  // letzte Option „halb abgeschnitten", weil nichts anzeigte, dass unten mehr liegt.
+  const choicesRef = useRef<HTMLDivElement>(null);
+  const [choicesScrollHint, setChoicesScrollHint] = useState(false);
+  const updateChoicesScrollHint = () => {
+    const el = choicesRef.current;
+    if (!el) return;
+    // Toleranz gegen Subpixel-Rundung; am Listenende verschwindet der Hinweis.
+    setChoicesScrollHint(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
+  };
+
   const { displayedText, isComplete, skipToEnd } = useTypewriter(
     message?.text || '',
     45, // Slowed down from 25ms to 45ms per character for better readability
@@ -222,6 +233,16 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
     if (voiceAssetId) playVoiceLine(voiceAssetId);
     return () => stopVoiceLine();
   }, [voiceAssetId, assets]);
+
+  // B24: Hinweis neu messen, sobald die Options-Liste (nach dem Tippen) erscheint
+  // oder die Nachricht wechselt — erst dann existiert die Scroll-Box im DOM.
+  // Auch bei Viewport-Änderung (maxHeight ist vh-abhängig, Review Etappe 1).
+  const choicesCount = message?.choices?.length ?? 0;
+  useEffect(() => {
+    updateChoicesScrollHint();
+    window.addEventListener('resize', updateChoicesScrollHint);
+    return () => window.removeEventListener('resize', updateChoicesScrollHint);
+  }, [isComplete, choicesCount, message?.text]);
 
   if (!isVisible || !message) return null;
 
@@ -316,7 +337,7 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
           {/* Betrayal Warning Banner */}
           {message.npcBetrayalWarning && (
             <div
-              className="mb-4 p-3 border-2 flex items-start gap-2 animate-pulse"
+              className="mb-4 p-3 border-2 flex items-start gap-2"
               style={{
                 backgroundColor: StoryModeColors.danger + '20',
                 borderColor: StoryModeColors.danger,
@@ -339,7 +360,7 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
             {displayedText}
             {!isComplete && (
               <span
-                className="animate-pulse ml-1"
+                className="animate-pulse ml-1" /* CRT-Cursor-Blink: diegetisch (Memo §2.6) */
                 style={{ color: StoryModeColors.warning }}
               >
                 ▌
@@ -348,11 +369,19 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
           </div>
 
           {/* Choices — Höhe gedeckelt + scrollbar, damit der Dialog bei vielen
-              Optionen (Maßnahmen + Themen) nicht den ganzen Raum zudeckt (A3). */}
+              Optionen (Maßnahmen + Themen) nicht den ganzen Raum zudeckt (A3).
+              B24: Wrapper trägt die Verlaufskante + „▼ MEHR" als Scroll-Affordance,
+              pb-2 hält die letzte Option von der Unterkante frei. */}
           {isComplete && message.choices && message.choices.length > 0 && (
             <div
-              className="mt-4 space-y-2 border-t-4 pt-4 overflow-y-auto"
-              style={{ borderColor: StoryModeColors.borderLight, maxHeight: '40vh' }}
+              className="relative mt-4 border-t-4 pt-4"
+              style={{ borderColor: StoryModeColors.borderLight }}
+            >
+            <div
+              ref={choicesRef}
+              onScroll={updateChoicesScrollHint}
+              className="space-y-2 overflow-y-auto pb-2"
+              style={{ maxHeight: '40vh' }}
             >
               {message.choices.map((choice, index) => (
                 <button
@@ -384,7 +413,8 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
                 >
                   <div className="flex justify-between items-start gap-4">
                     <div className="flex-1">
-                      <span className="text-sm" style={{ color: StoryModeColors.warning }}>
+                      {/* v3: warning ist Tinte — auf dem roten Auswahl-Zustand helle Schrift. */}
+                      <span className="text-sm" style={{ color: selectedChoice === choice.id ? '#fff' : StoryModeColors.warning }}>
                         [{index + 1}]
                       </span>{' '}
                       {choice.text}
@@ -398,19 +428,39 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
                       <div className="text-xs whitespace-nowrap" style={{ color: StoryModeColors.textSecondary }}>
                         {choice.cost.ap ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}><Icon name="capacity" size={12} />{choice.cost.ap} AP</span> : null}
                         {choice.cost.ap && choice.cost.budget && <span> | </span>}
-                        {choice.cost.budget ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}><Icon name="budget" size={12} />${choice.cost.budget}K</span> : null}
+                        {/* B23: Kosten symbolfrei („40K"). */}
+                        {choice.cost.budget ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}><Icon name="budget" size={12} />{choice.cost.budget}K</span> : null}
                       </div>
                     )}
                   </div>
                 </button>
               ))}
             </div>
+            {/* B24: statischer Pixel-Marker, solange unten weitere Optionen liegen
+                (§4.6: kein Web-Verlauf, kein Blinken — „gestempelt statt geblinkt");
+                pointer-events-none, damit Klicks die Optionen darunter erreichen. */}
+            {choicesScrollHint && (
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 flex items-end justify-center">
+                <span
+                  className="text-xs font-bold"
+                  style={{
+                    color: StoryModeColors.warning,
+                    backgroundColor: 'rgba(10,10,14,0.92)',
+                    border: `1px solid ${StoryModeColors.borderLight}`,
+                    padding: '1px 8px',
+                  }}
+                >
+                  ▼ MEHR
+                </span>
+              </div>
+            )}
+            </div>
           )}
 
           {/* Continue Indicator */}
           {isComplete && !message.choices && (
             <div
-              className="text-center mt-4 text-sm animate-pulse"
+              className="text-center mt-4 text-sm"
               style={{ color: StoryModeColors.textSecondary }}
             >
               Weiter ▸

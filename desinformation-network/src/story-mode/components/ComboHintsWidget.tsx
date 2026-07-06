@@ -47,7 +47,8 @@ export function ComboHintsWidget({ hints }: ComboHintsWidgetProps) {
             key={hint.comboId}
             className="p-2 border"
             style={{
-              backgroundColor: StoryModeColors.background,
+              // §4.7: Hinweis-Karte = Papier (Tinten-Text), keine dunkle Fläche.
+              backgroundColor: StoryModeColors.surfaceLight,
               borderColor: StoryModeColors.border,
             }}
           >
@@ -63,8 +64,9 @@ export function ComboHintsWidget({ hints }: ComboHintsWidgetProps) {
 
             {/* Progress Bar */}
             <div
-              className="h-1 mb-2 bg-black border"
-              style={{ borderColor: StoryModeColors.border }}
+              className="h-1 mb-2 border"
+              // Heller Track: die Tinten-blaue Füllung war auf Schwarz unsichtbar.
+              style={{ backgroundColor: StoryModeColors.lightConcrete, borderColor: StoryModeColors.border }}
             >
               <div
                 className="h-full transition-all"

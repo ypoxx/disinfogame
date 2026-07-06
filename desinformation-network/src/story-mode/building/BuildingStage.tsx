@@ -11,18 +11,22 @@
  * - Kamera folgt der Etage des Avatars (vertikal, weich).
  * Jedes Bild hat einen CSS-Fallback — ohne Manifest bleibt die Bühne funktional.
  */
-import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
+import { snapPixelScale, snapToDevicePixel } from './pixelScale';
+import { useDpr } from '../hooks/usePixelFit';
 import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
 import { usePlayerProfile, playerWalkSheetId, playerIdleSheetId } from '../stores/playerProfileStore';
 import { skyGradientForMinutes, skylineLayersForMinutes } from './skyTime';
-import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, FLOOR_WALKERS, DOOR_TRAFFIC, POSTER_SLOGANS, shredderLine, coffeeLine, volksbrauseLine, employeeOfMonth, plantAsset, plantLine, type AmbientFigure } from './corridorDecor';
+import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, POSTER_SLOGANS, shredderLine, coffeeLine, volksbrauseLine, employeeOfMonth, plantAsset, plantLine, type AmbientFigure } from './corridorDecor';
+import { createAmbientLife, tickAmbientLife, sampleAmbient, nudgeAmbient, ambientWalkFrameTimeMs, AMBIENT_AGENTS, type AmbientFigureSnapshot } from './ambientLife';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
 import { PixelSprite } from '../assets/PixelSprite';
 import { playSound } from '../utils/SoundSystem';
+import { publishVqa } from '../harness/vqaHook';
 
 /**
  * Lauf-Takt an die Navigator-Geschwindigkeit koppeln (kein „Foot Sliding"):
@@ -31,8 +35,36 @@ import { playSound } from '../utils/SoundSystem';
 const WALK_CYCLE_STRIDE_PX = 192;
 const WALK_FRAME_TIME_MS = Math.round((WALK_CYCLE_STRIDE_PX / NAV_SPEED.walkPxPerSecond) * 1000 / 8);
 
+// Welt-Ebene: Signal-/Hover-Farben bleiben HELL (die Welt ist dunkel; die
+// v3.1-Papier-Tinten sind dafür zu dunkel — §4.7 gilt der Bedienung, nicht der Welt).
+const WORLD_AMBER = '#F0B429';
+const WORLD_RED = '#E5484D';
+
 /** Wie viel breiter als das Gebäude der Bildausschnitt ist (Stadt links/rechts). */
 const CITY_MARGIN_FACTOR = 1.45;
+
+/** Native Höhe der Skyline-/Untergrund-Bänder (2016×864) — für welt-kohärente Skalierung. */
+const CITY_BAND_NATIVE_H = 864;
+const STREET_BAND_NATIVE_H = 192;
+
+/**
+ * Welt-verankerte Text-/Bedien-Beschriftung (E35, Memo §1 „Mischbetrieb"):
+ * Position in Welt-Koordinaten, Rasterung NATIV — der Wrapper kehrt die
+ * Bühnen-Skalierung um; Inhalte positionieren sich in css-px relativ zum Anker.
+ * Ohne dies rastert die Pixel-Font im herunterskalierten Welt-Layer matschig (B1).
+ */
+function WorldAnchor({ x, y, scale, z, children }: { x: number; y: number; scale: number; z?: number; children: ReactNode }) {
+  return (
+    <div
+      style={{
+        position: 'absolute', left: x, top: y, width: 0, height: 0, zIndex: z,
+        transform: `scale(${1 / scale})`, transformOrigin: 'top left', pointerEvents: 'none',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
 export interface StageNpc {
   id: string;
@@ -67,16 +99,12 @@ export interface BuildingStageProps {
 
 const layout = getBuildingLayout();
 
-/** Globale Keyframes der Bühne (einmalig, Präfix bs-). */
+/** Globale Keyframes der Bühne (einmalig, Präfix bs-).
+ *  LB: Die früheren Statisten-Keyframes (bs-walk-move/-flip, bs-door-traffic)
+ *  sind entfallen — Bewegung kommt jetzt aus ambientLife (echte Routen). */
 const STAGE_KEYFRAMES = `
   @keyframes bs-blink { 0%,100%{opacity:1} 50%{opacity:.15} }
   @keyframes bs-glow { 0%,100%{box-shadow:0 0 6px 2px rgba(255,200,80,.25)} 50%{box-shadow:0 0 10px 3px rgba(255,200,80,.5)} }
-  /* Strang 5: Statist pendelt im Flur (Bewegung), Sprite klappt am Wendepunkt. */
-  @keyframes bs-walk-move { 0%{transform:translateX(0)} 50%{transform:translateX(var(--bs-walk-d))} 100%{transform:translateX(0)} }
-  @keyframes bs-walk-flip { 0%,49%{transform:scaleX(1)} 50%,99%{transform:scaleX(-1)} 100%{transform:scaleX(1)} }
-  /* Strang 5: Tür-Dummy taucht kurz auf (ein-/ausgehen) und verschwindet wieder. */
-  @keyframes bs-door-traffic { 0%,7%{opacity:0} 13%,40%{opacity:1} 47%,100%{opacity:0} }
-  @media (prefers-reduced-motion: reduce) { [data-bs-walker]{animation:none !important} [data-bs-walker] *{animation:none !important} [data-bs-dummy]{opacity:0 !important;animation:none !important} }
 `;
 
 /** Tür eines Raums — sanftes Überblenden zwischen Zu/Auf (R2: kein harter Bild-Tausch). */
@@ -110,21 +138,24 @@ function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
 }
 
 /** Strang 5: anklickbarer Flur-Statist mit Flavor-Sprechblase (Mini-Dialog, D13). */
-function AmbientPerson({ a, left, top, height }: { a: AmbientFigure; left: number; top: number; height: number }) {
+function AmbientPerson({ a, left, top, height, viewScale }: { a: AmbientFigure; left: number; top: number; height: number; viewScale: number }) {
   const [open, setOpen] = useState(false);
   return (
     <div style={{ position: 'absolute', left, top, transform: 'translateX(-50%)', zIndex: 5 }}>
       {open && (
-        <div
-          style={{
-            position: 'absolute', bottom: height + 6, left: '50%', transform: 'translateX(-50%)',
-            width: 230, backgroundColor: 'rgba(12,12,16,0.94)', border: `1px solid ${StoryModeColors.borderLight}`,
-            color: '#e8e4d8', fontFamily: "'VT323', monospace", fontSize: 11, lineHeight: 1.4, padding: '6px 8px', zIndex: 7,
-          }}
-        >
-          <span style={{ display: 'block', fontSize: 8, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 2 }}>{a.who}</span>
-          {a.line}
-        </div>
+        // Sprechblase welt-verankert über der Figurenmitte, aber nativ gerastert (B1/E35).
+        <WorldAnchor x={(height / 96) * 48 / 2} y={0} scale={viewScale} z={7}>
+          <div
+            style={{
+              position: 'absolute', bottom: 8, left: 0, transform: 'translateX(-50%)',
+              width: 170, backgroundColor: 'rgba(12,12,16,0.94)', border: `1px solid ${StoryModeColors.borderLight}`,
+              color: '#e8e4d8', fontFamily: "'VT323', monospace", fontSize: 12, lineHeight: 1.4, padding: '6px 8px',
+            }}
+          >
+            <span style={{ display: 'block', fontSize: 9, letterSpacing: 1, color: '#a89f8c', marginBottom: 2 }}>{a.who}</span>
+            {a.line}
+          </div>
+        </WorldAnchor>
       )}
       <button
         onClick={() => setOpen((o) => !o)}
@@ -140,38 +171,144 @@ function AmbientPerson({ a, left, top, height }: { a: AmbientFigure; left: numbe
   );
 }
 
-/** Strang 5 (Bewegung): ein Statist, der zwischen zwei Punkten im Flur hin- und herläuft. */
-function AmbientWalker({ figureWalk, leftA, d, top, height }: { figureWalk: string; leftA: number; d: number; top: number; height: number }) {
-  const dur = Math.max(6, Math.round(d / 26)); // ~26 px/s, ruhiges Tempo
-  const outer = {
-    position: 'absolute', left: leftA, top, height, zIndex: 2, pointerEvents: 'none',
-    animation: `bs-walk-move ${dur}s linear infinite`, '--bs-walk-d': `${d}px`,
-    display: 'flex', alignItems: 'flex-end', // Füße auf die Wand-Fuß-Linie (B6)
-  } as CSSProperties;
-  return (
-    <div data-bs-walker="" aria-hidden style={outer}>
-      {/* lineHeight 0: sonst hebt der Inline-Baseline-Abstand den Sprite ~6 px an. */}
-      <div style={{ animation: `bs-walk-flip ${dur}s linear infinite`, lineHeight: 0 }}>
-        <PixelSprite sheetId={figureWalk} animation="walk" fallback="" scale={height / 96} title="" />
-      </div>
-    </div>
+/** Basis-Saat für die Ambient-Routen: reproduzierbare Abläufe (auch für die
+ *  Visual-Review-Ernte); Varianz kommt aus dem PRNG innerhalb des Tages. */
+const AMBIENT_SEED = 0x1b2026;
+/** Mount-Zähler für die Saat-Ableitung je Bühnen-Mount (s. AmbientLifeLayer). */
+let ambientMountSeq = 0;
+
+/** prefers-reduced-motion, re-subscribed und jsdom-sicher (kein matchMedia dort). */
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(
+    () => typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   );
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = () => setReduced(mq.matches);
+    mq.addEventListener?.('change', onChange);
+    return () => mq.removeEventListener?.('change', onChange);
+  }, []);
+  return reduced;
 }
 
-/** Strang 5 (Bewegung): Tür-Dummy, der periodisch an einer Tür auftaucht und verschwindet. */
-function DoorDummy({ figure, left, top, height, delayS }: { figure: string; left: number; top: number; height: number; delayS: number }) {
+const figuresEqual = (a: AmbientFigureSnapshot[], b: AmbientFigureSnapshot[]) =>
+  a.length === b.length &&
+  a.every((f, i) => f.id === b[i].id && f.x === b[i].x && f.floorLevel === b[i].floorLevel && f.anim === b[i].anim && f.facing === b[i].facing);
+
+/**
+ * LB „Lebendiges Gebäude" (Plan §3b c): Abspielkopf der ambientLife-Routen.
+ * Eigene Komponente, damit der 60-Hz-Takt NUR diesen kleinen Teilbaum rendert;
+ * die Bühne selbst erfährt nur die (seltenen) Tür-Fenster über onDoorsChange.
+ * Figuren erscheinen/verschwinden ausschließlich durch Türen — kein Fade.
+ */
+function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]) => void }) {
+  const assets = useAssets();
+  const [figures, setFigures] = useState<AmbientFigureSnapshot[]>([]);
+  const doorsKeyRef = useRef('');
+  const reduced = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (reduced) {
+      // Ruhe-Modus: keine laufenden Statisten (stehende bleiben — statisch, klickbar).
+      setFigures([]);
+      if (doorsKeyRef.current !== '') {
+        doorsKeyRef.current = '';
+        onDoorsChange([]);
+      }
+      return;
+    }
+    // Saat je Mount ableiten: Büro↔Gebäude remountet die Bühne — mit fester
+    // Saat wiederholte sich exakt dieselbe Choreographie bei jeder Rückkehr
+    // (Review [hoch]). Identische Interaktions-Folge (Ernte) bleibt deterministisch.
+    const state = createAmbientLife((AMBIENT_SEED ^ (ambientMountSeq++ * 0x85ebca6b)) >>> 0);
+    // Epoche verankern: ambientLife rechnet ab 0, rAF liefert Zeit seit
+    // Seitenladen — ohne Offset wären beim (Re-)Mount alle firstAppearanceMs-
+    // Termine längst verstrichen → Massen-Auftritt im ersten Frame (Review [hoch]).
+    const epoch = performance.now();
+    // Ernte-Hilfe (?vqa=1): Auftritt auf einer Ziel-Etage sofort fällig stellen.
+    publishVqa({ ambientNudge: (level: number) => nudgeAmbient(state, level, performance.now() - epoch) });
+    let raf = 0;
+    let cancelled = false;
+    const loop = (rafNow: number) => {
+      const now = rafNow - epoch;
+      tickAmbientLife(state, now);
+      const snap = sampleAmbient(state, now);
+      setFigures((prev) => (figuresEqual(prev, snap.figures) ? prev : snap.figures));
+      const key = snap.openDoorRoomIds.join('|');
+      if (key !== doorsKeyRef.current) {
+        doorsKeyRef.current = key;
+        onDoorsChange(snap.openDoorRoomIds);
+      }
+      raf = window.requestAnimationFrame(loop);
+    };
+    // Sheets VORLADEN, bevor die Uhr startet: Die Walk-Sheets laden sonst erst
+    // beim allerersten Auftritt — die Figur wäre während des Tür-Beats noch
+    // unsichtbar (Bild lädt) und „ploppt" dann mitten im Flur ein (Vision-
+    // Review Etappe 3: las wie Fade-in bei geschlossener Tür). 4-s-Deckel,
+    // damit ein hängendes Bild die Belebung nicht dauerhaft blockiert.
+    const sheetUrls = AMBIENT_AGENTS.flatMap((a) => [a.walkSheet, a.idleSheet])
+      .map((id) => assets.imageUrl(id))
+      .filter((u): u is string => !!u);
+    const preload = Promise.all(
+      sheetUrls.map(
+        (url) =>
+          new Promise<void>((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+            img.src = url;
+          }),
+      ),
+    );
+    const deadline = new Promise<void>((resolve) => window.setTimeout(resolve, 4000));
+    Promise.race([preload, deadline]).then(() => {
+      if (!cancelled) raf = window.requestAnimationFrame(loop);
+    });
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(raf);
+    };
+  }, [reduced, onDoorsChange, assets]);
+
   return (
-    <div
-      data-bs-dummy=""
-      aria-hidden
-      style={{
-        position: 'absolute', left, top, height, transform: 'translateX(-50%)', zIndex: 2, pointerEvents: 'none',
-        animation: `bs-door-traffic 17s ease-in-out ${delayS}s infinite`, opacity: 0,
-        display: 'flex', alignItems: 'flex-end', justifyContent: 'center', // Füße auf die Linie (B6)
-      }}
-    >
-      <PixelSprite sheetId={figure} animation="idle" fallback="" scale={height / 96} title="" />
-    </div>
+    <>
+      {figures.map((f) => {
+        const floor = layout.floors.find((fl) => fl.level === f.floorLevel);
+        if (!floor || !assets.imageUrl(f.sheet)) return null;
+        return (
+          <div
+            key={f.id}
+            data-bs-walker={f.id}
+            aria-hidden
+            style={{
+              position: 'absolute',
+              left: f.x,
+              top: floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT, // Füße auf die Wand-Fuß-Linie (B6)
+              width: (AMBIENT_HEIGHT / 96) * 48,
+              height: AMBIENT_HEIGHT,
+              transform: 'translateX(-50%)',
+              zIndex: 5, // vor der Tür (4), hinter dem Avatar (6): tritt sichtbar aus dem Türrahmen
+              pointerEvents: 'none',
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'center',
+              lineHeight: 0,
+            }}
+          >
+            <PixelSprite
+              sheetId={f.sheet}
+              animation={f.anim}
+              fallback=""
+              flip={f.facing === -1}
+              scale={AMBIENT_HEIGHT / 96}
+              frameTimeMs={f.anim === 'walk' ? ambientWalkFrameTimeMs(f.speedPxS, AMBIENT_HEIGHT) : undefined}
+              title=""
+            />
+          </div>
+        );
+      })}
+    </>
   );
 }
 
@@ -183,6 +320,8 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   const [hoverRoom, setHoverRoom] = useState<string | null>(null);
   const [hoverShaft, setHoverShaft] = useState(false);
   const [pfoertnerOpen, setPfoertnerOpen] = useState(false); // Strang 5: Pförtner-Sprechblase
+  // LB: Türen, die gerade von Ambient-Statisten benutzt werden (RoomDoor-Blende).
+  const [ambientDoors, setAmbientDoors] = useState<string[]>([]);
   // P7/§14.4: angeklicktes Detail-Objekt (Plakat/Reißwolf/Kaffeeküche/Automat/…): Vergrößerung + Spruch.
   const [poster, setPoster] = useState<{ url: string; titel_de: string; slogan_de: string } | null>(null);
   // P7/§14.4 (#8): bei jedem Klick auf die „Mitarbeiter des Monats"-Wand wechselt der Deckname.
@@ -193,13 +332,18 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
     if (frame === 0 || frame === 4) playSound('footsteps');
   }, []);
 
+  // dpr über den re-subscribenden Hook (Review-Fix: eine feste dppx-Query erkennt
+  // nur den ERSTEN Wechsel — useDpr registriert nach jedem Wechsel neu, Memo §1).
+  const dpr = useDpr();
   useLayoutEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const update = () =>
       setView({
         // Gebäude schmaler als der Schirm: Stadt bleibt links/rechts sichtbar.
-        scale: Math.max(0.15, el.clientWidth / (layout.width * CITY_MARGIN_FACTOR)),
+        // §4.1/B1: nur pixel-saubere Faktoren (physisch ganzzahlig bzw. Stammbruch) —
+        // der frühere freie Float (~0,544) hat die gesamte Welt-Ebene weichgezeichnet.
+        scale: snapPixelScale(el.clientWidth / (layout.width * CITY_MARGIN_FACTOR), dpr),
         h: el.clientHeight,
         w: el.clientWidth,
       });
@@ -207,13 +351,15 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
     const obs = new ResizeObserver(update);
     obs.observe(el);
     return () => obs.disconnect();
-  }, []);
+  }, [dpr]);
 
   // Kamera: Etage des Avatars vertikal zentrieren (geklemmt auf Gebäudegrenzen).
+  // Offsets auf ganze Geräte-Pixel gerundet, damit das Sampling-Raster stabil liegt.
   const avatarFloor = layout.floors.find((f) => f.level === Math.round(nav.pos.floorLevel));
   const focusY = (avatarFloor ? avatarFloor.y + STAGE.floorHeight / 2 : layout.height / 2) * view.scale;
   const stageH = layout.height * view.scale;
-  const cameraY = Math.max(0, Math.min(Math.max(0, stageH - view.h), focusY - view.h / 2));
+  const cameraY = snapToDevicePixel(Math.max(0, Math.min(Math.max(0, stageH - view.h), focusY - view.h / 2)));
+  const stageLeft = snapToDevicePixel((view.w - layout.width * view.scale) / 2);
 
   const pillarUrl = assets.imageUrl('bld_facade_pillar');
   const slabUrl = assets.imageUrl('bld_floor_slab');
@@ -253,11 +399,11 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
     : (avatarFloorLayout?.walkY ?? 0) - STAGE.floorStrip; // Füße auf der Wand-Fuß-Linie
 
   // Stadt-Geometrie (im Container-Maß, hinter der skalierten Bühne).
-  const groundScreenY = (layout.height - STAGE.groundHeight) * view.scale - cameraY;
+  const groundScreenY = snapToDevicePixel((layout.height - STAGE.groundHeight) * view.scale - cameraY);
   // Untergrund: Erde/Rohre hinter & unter dem Keller (unterste Etage), damit die
   // Skyline nicht „hängt" und der Keller als unterirdisch lesbar wird (Owner-Befund).
   const lowestFloorY = layout.floors.length > 0 ? layout.floors[layout.floors.length - 1].y : layout.height - STAGE.floorHeight;
-  const undergroundTopY = (lowestFloorY - STAGE.slabHeight) * view.scale - cameraY;
+  const undergroundTopY = snapToDevicePixel((lowestFloorY - STAGE.slabHeight) * view.scale - cameraY);
 
   return (
     <div
@@ -277,8 +423,9 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           left: 0,
           right: 0,
           bottom: Math.max(0, view.h - groundScreenY),
-          // Skyline groß, aber Anzeige unter Native-Höhe (864) → scharf statt hochskaliert.
-          height: Math.min(view.h * 0.72, 760),
+          // Skyline im WELT-Maßstab (native 864 × Bühnen-Scale): eine Stadt, ein
+          // Faktor — und pixel-sauber statt des früheren freien Deckels (B1).
+          height: CITY_BAND_NATIVE_H * view.scale,
           backgroundImage: `url(${url})`,
           backgroundRepeat: 'repeat-x',
           backgroundSize: 'auto 100%',
@@ -313,7 +460,9 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             ? {
                 backgroundImage: `url(${undergroundUrl ?? streetUrl})`,
                 backgroundRepeat: 'repeat-x',
-                backgroundSize: 'auto 100%',
+                // Band im Welt-Maßstab (statt „100 % der Restfläche" = freier Faktor);
+                // unterhalb füllt die backgroundColor die Erde auf.
+                backgroundSize: `auto ${(undergroundUrl ? CITY_BAND_NATIVE_H : STREET_BAND_NATIVE_H) * view.scale}px`,
                 backgroundPosition: 'center top',
                 imageRendering: 'pixelated',
               }
@@ -322,17 +471,31 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
         }}
       />
 
-      {/* ───── Das Gebäude (skalierte Bühne, mittig) ───── */}
+      {/* ───── Das Gebäude (pixel-saubere Bühne, mittig) ─────
+          Zwei Ebenen (Memo §1): außen NUR die Kamerafahrt (transition),
+          innen NUR die statische Skalierung — so interpoliert die Transition
+          nie den Scale (Zwischenwerte = Matsch) und Offsets bleiben ganzzahlig. */}
       <div
         style={{
           position: 'absolute',
-          left: '50%',
+          left: stageLeft,
+          top: 0,
+          width: layout.width * view.scale,
+          height: layout.height * view.scale,
+          transform: `translateY(${-cameraY}px)`,
+          transition: 'transform 700ms ease-in-out',
+        }}
+      >
+      <div
+        data-testid="building-stage-world"
+        style={{
+          position: 'absolute',
+          left: 0,
           top: 0,
           width: layout.width,
           height: layout.height,
-          transform: `translateX(-50%) scale(${view.scale}) translateY(${-cameraY / view.scale}px)`,
-          transformOrigin: 'top center',
-          transition: 'transform 700ms ease-in-out',
+          transform: `scale(${view.scale})`,
+          transformOrigin: 'top left',
         }}
       >
         {/* Dach mit Antenne */}
@@ -373,7 +536,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               width: 8,
               height: 8,
               borderRadius: 8,
-              backgroundColor: StoryModeColors.danger,
+              backgroundColor: WORLD_RED,
               animation: 'bs-blink 1.8s ease-in-out infinite',
             }}
           />
@@ -444,7 +607,9 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 const baseline = floor.y + STAGE.floorHeight - STAGE.floorStrip; // Wand-Fuß-Linie
                 const top = d.mount === 'floor'
                   ? baseline - h
-                  : floor.y + STAGE.floorHeight * 0.36 - h / 2; // Wand-Objekte oberes Drittel
+                  // Wand-Objekte oberes Drittel; yOffset = per-Objekt-Korrektur
+                  // (B12b: z. B. Wanduhr auf 2,0 m statt Brusthöhe).
+                  : floor.y + STAGE.floorHeight * 0.36 - h / 2 + (d.yOffset ?? 0);
                 // P7/§14.4: anklickbare, state-reaktive Umgebung — alle nutzen dasselbe Detail-Overlay.
                 // Plakate (Spruch), Reißwolf (Entdeckungsdruck), Kaffeeküche (Wirtschaftslage),
                 // Volksbrause (Narrativ/Auftrag), Mitarbeiter-Wand (Deckname zyklisch), Pflanze (Moral).
@@ -499,32 +664,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 if (!assets.imageUrl(a.figure)) return null;
                 const cx = STAGE.pillarWidth + a.xFrac * (layout.shaft.x - STAGE.pillarWidth);
                 const top = floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT;
-                return <AmbientPerson key={`${floor.id}-amb-${i}`} a={a} left={cx} top={top} height={AMBIENT_HEIGHT} />;
-              })}
-              {/* Strang 5 (Bewegung): hin- und herlaufender Statist (z. B. Reinigung). */}
-              {!isLobby && (FLOOR_WALKERS[floor.id] ?? []).map((w, i) => {
-                if (!assets.imageUrl(w.figureWalk)) return null;
-                const playableW = layout.shaft.x - STAGE.pillarWidth;
-                const xA = STAGE.pillarWidth + w.xFracA * playableW;
-                const xB = STAGE.pillarWidth + w.xFracB * playableW;
-                const top = floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT;
-                return (
-                  <AmbientWalker
-                    key={`${floor.id}-walk-${i}`}
-                    figureWalk={w.figureWalk}
-                    leftA={Math.min(xA, xB)}
-                    d={Math.abs(xB - xA)}
-                    top={top}
-                    height={AMBIENT_HEIGHT}
-                  />
-                );
-              })}
-              {/* Strang 5 (Bewegung): Tür-Dummies — taucht periodisch an einer Tür auf. */}
-              {!isLobby && (DOOR_TRAFFIC[floor.id] ?? []).map((dm, i) => {
-                if (!assets.imageUrl(dm.figure)) return null;
-                const cx = STAGE.pillarWidth + dm.xFrac * (layout.shaft.x - STAGE.pillarWidth);
-                const top = floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT;
-                return <DoorDummy key={`${floor.id}-dummy-${i}`} figure={dm.figure} left={cx} top={top} height={AMBIENT_HEIGHT} delayS={dm.delayS} />;
+                return <AmbientPerson key={`${floor.id}-amb-${i}`} a={a} left={cx} top={top} height={AMBIENT_HEIGHT} viewScale={view.scale} />;
               })}
               {/* Decken-Platte über der Etage */}
               <div
@@ -546,25 +686,26 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                   zIndex: 3,
                 }}
               />
-              {/* Etagen-Schild */}
-              <div
-                style={{
-                  position: 'absolute',
-                  left: STAGE.pillarWidth + 8,
-                  top: floor.y + 8,
-                  padding: '3px 8px',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  letterSpacing: 1,
-                  color: '#c8c8b8',
-                  backgroundColor: 'rgba(10,10,14,0.72)',
-                  border: '1px solid #34353d',
-                  zIndex: 5,
-                  pointerEvents: 'none',
-                }}
-              >
-                {floor.label_de}
-              </div>
+              {/* Etagen-Schild — welt-verankert, nativ gerastert (B1/E35) */}
+              <WorldAnchor x={STAGE.pillarWidth + 8} y={floor.y + 8} scale={view.scale} z={5}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    whiteSpace: 'nowrap',
+                    padding: '2px 6px',
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: 1,
+                    color: '#c8c8b8',
+                    backgroundColor: 'rgba(10,10,14,0.72)',
+                    border: '1px solid #34353d',
+                  }}
+                >
+                  {floor.label_de}
+                </div>
+              </WorldAnchor>
             </div>
           );
         })}
@@ -577,35 +718,38 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           const hovered = hoverRoom === room.id;
           const isTarget = nav.targetRoomId === room.id;
           const lampColor = npc?.inCrisis
-            ? StoryModeColors.danger
+            ? WORLD_RED
             : npc && !npc.available
               ? '#444'
               : '#ffd479';
           return (
             <div key={room.id}>
-              <RoomDoor room={room} open={nav.openDoorRoomId === room.id} />
-              {/* Türschild über der Tür */}
-              <span
-                style={{
-                  position: 'absolute',
-                  left: room.doorX - 110,
-                  width: 220,
-                  top: room.y + room.h - STAGE.doorHeight - STAGE.floorStrip - 34,
-                  textAlign: 'center',
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: hovered || isTarget ? '#0d0d0d' : '#e8e4d8',
-                  backgroundColor: hovered || isTarget ? StoryModeColors.warning : 'rgba(10,10,14,0.78)',
-                  border: `1px solid ${npc?.inCrisis ? StoryModeColors.danger : '#3a3b43'}`,
-                  padding: '2px 4px',
-                  zIndex: 5,
-                  pointerEvents: 'none',
-                  transition: 'background-color 140ms ease, color 140ms ease',
-                }}
-              >
-                {room.label_de}
-                {npc ? ` · ${npc.name.split(' ')[0]}` : ''}
-              </span>
+              <RoomDoor room={room} open={nav.openDoorRoomId === room.id || ambientDoors.includes(room.id)} />
+              {/* Türschild über der Tür — welt-verankert, nativ gerastert (B1/E35).
+                  Sitzt in der DECKEN-Band-Spur (bottom 20), damit es nicht mit dem
+                  Etagen-Schild kollidiert — native Rasterung braucht 2× Welt-Platz. */}
+              <WorldAnchor x={room.doorX} y={room.y + room.h - STAGE.doorHeight - STAGE.floorStrip} scale={view.scale} z={5}>
+                <span
+                  style={{
+                    position: 'absolute',
+                    bottom: 20,
+                    left: 0,
+                    transform: 'translateX(-50%)',
+                    whiteSpace: 'nowrap',
+                    textAlign: 'center',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: hovered || isTarget ? '#0d0d0d' : '#e8e4d8',
+                    backgroundColor: hovered || isTarget ? WORLD_AMBER : 'rgba(10,10,14,0.78)',
+                    border: `1px solid ${npc?.inCrisis ? WORLD_RED : '#3a3b43'}`,
+                    padding: '1px 4px',
+                    transition: 'background-color 140ms ease, color 140ms ease',
+                  }}
+                >
+                  {room.label_de}
+                  {npc ? ` · ${npc.name.split(' ')[0]}` : ''}
+                </span>
+              </WorldAnchor>
               {/* Status-Lampe neben der Tür (Krise blinkt rot) */}
               <span
                 style={{
@@ -637,7 +781,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                   width: STAGE.doorWidth + 48,
                   height: STAGE.doorHeight + 40,
                   background: 'transparent',
-                  border: hovered ? `2px solid ${StoryModeColors.warning}` : '2px solid transparent',
+                  border: hovered ? `2px solid ${WORLD_AMBER}` : '2px solid transparent',
                   cursor: clickable ? 'pointer' : 'default',
                   zIndex: 6,
                 }}
@@ -656,17 +800,22 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           return (
             <div style={{ position: 'absolute', left: px, top: pBottom - pH, transform: 'translateX(-50%)', zIndex: 5 }}>
               {pfoertnerOpen && pfoertnerLine && (
-                <div
-                  style={{
-                    position: 'absolute', bottom: pH + 6, left: '50%', transform: 'translateX(-50%)',
-                    width: 240, maxWidth: 240, backgroundColor: 'rgba(12,12,16,0.94)',
-                    border: `1px solid ${StoryModeColors.borderLight}`, color: '#e8e4d8',
-                    fontFamily: "'VT323', monospace", fontSize: 11, lineHeight: 1.4, padding: '6px 8px', zIndex: 7,
-                  }}
-                >
-                  <span style={{ display: 'block', fontSize: 8, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 2 }}>PFÖRTNER</span>
-                  {pfoertnerLine}
-                </div>
+                // Sprechblase welt-verankert über der Figurenmitte, nativ gerastert (B1/E35).
+                <WorldAnchor x={(48 * 1.2) / 2} y={0} scale={view.scale} z={7}>
+                  <div
+                    style={{
+                      // Öffnet nach UNTEN-rechts in die leere Hallenfläche — nach oben
+                      // verdeckte die Blase das EG-Etagen-Schild (Vision-Review Etappe 1).
+                      position: 'absolute', top: -4, left: 36,
+                      width: 230, backgroundColor: 'rgba(12,12,16,0.94)',
+                      border: `1px solid ${StoryModeColors.borderLight}`, color: '#e8e4d8',
+                      fontFamily: "'VT323', monospace", fontSize: 12, lineHeight: 1.4, padding: '6px 8px',
+                    }}
+                  >
+                    <span style={{ display: 'block', fontSize: 9, letterSpacing: 1, color: '#a89f8c', marginBottom: 2 }}>PFÖRTNER</span>
+                    {pfoertnerLine}
+                  </div>
+                </WorldAnchor>
               )}
               <button
                 onClick={() => setPfoertnerOpen((o) => !o)}
@@ -715,17 +864,27 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
         >
           {cabinClosedUrl && cabinOpenUrl ? (
             <>
-              {/* R5: sanftes Überblenden Türen auf/zu statt hartem Bild-Tausch */}
-              <img src={cabinClosedUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill', imageRendering: 'pixelated', opacity: nav.cabinDoorsOpen ? 0 : 1, transition: 'opacity 300ms ease' }} />
-              <img src={cabinOpenUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill', imageRendering: 'pixelated', opacity: nav.cabinDoorsOpen ? 1 : 0, transition: 'opacity 300ms ease' }} />
+              {/* R5: sanftes Überblenden Türen auf/zu statt hartem Bild-Tausch.
+                  B9-Z-Ordnung: offenes Kabinenbild UNTER dem Avatar, geschlossene
+                  Türen DARÜBER — so verdecken zugefahrene Türen die Figur, statt
+                  dass die Türnaht durch sie hindurchläuft. */}
+              <img src={cabinOpenUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill', imageRendering: 'pixelated', opacity: nav.cabinDoorsOpen ? 1 : 0, transition: 'opacity 300ms ease', zIndex: 1 }} />
+              {nav.avatarInCabin && (
+                <span style={{ position: 'absolute', left: '50%', bottom: 22, transform: 'translateX(-50%)', zIndex: 2 }}>
+                  <PixelSprite sheetId={avatarIdleSheet} animation="idle" fallback="•" scale={2} title="Sie" />
+                </span>
+              )}
+              <img src={cabinClosedUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill', imageRendering: 'pixelated', opacity: nav.cabinDoorsOpen ? 0 : 1, transition: 'opacity 300ms ease', zIndex: 3 }} />
             </>
           ) : (
-            <div style={{ width: '100%', height: '100%', backgroundColor: '#2a2b33', border: '3px solid #44454d', boxSizing: 'border-box' }} />
-          )}
-          {nav.avatarInCabin && (
-            <span style={{ position: 'absolute', left: '50%', bottom: 22, transform: 'translateX(-50%)', zIndex: 4 }}>
-              <PixelSprite sheetId={avatarIdleSheet} animation="idle" fallback="•" scale={1.5} title="Sie" />
-            </span>
+            <>
+              <div style={{ width: '100%', height: '100%', backgroundColor: '#2a2b33', border: '3px solid #44454d', boxSizing: 'border-box' }} />
+              {nav.avatarInCabin && (
+                <span style={{ position: 'absolute', left: '50%', bottom: 22, transform: 'translateX(-50%)', zIndex: 2 }}>
+                  <PixelSprite sheetId={avatarIdleSheet} animation="idle" fallback="•" scale={2} title="Sie" />
+                </span>
+              )}
+            </>
           )}
         </div>
 
@@ -744,32 +903,43 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               width: layout.shaft.w,
               height: layout.shaft.bottomY - layout.shaft.topY + STAGE.slabHeight,
               background: hoverShaft ? 'rgba(240,180,41,0.06)' : 'transparent',
-              border: `2px solid ${hoverShaft ? StoryModeColors.warning : 'transparent'}`,
+              border: `2px solid ${hoverShaft ? WORLD_AMBER : 'transparent'}`,
               cursor: 'pointer',
               zIndex: 5,
             }}
           >
-            {/* Ruf-Plakette oben am Schacht — macht den Fahrstuhl als Bedienelement kenntlich */}
-            <span
-              style={{
-                position: 'absolute',
-                left: '50%',
-                top: 6,
-                transform: 'translateX(-50%)',
-                fontSize: 12,
-                fontWeight: 700,
-                letterSpacing: 1,
-                padding: '2px 6px',
-                color: hoverShaft ? '#0d0d0d' : '#c8c8b8',
-                backgroundColor: hoverShaft ? StoryModeColors.warning : 'rgba(10,10,14,0.8)',
-                border: `1px solid ${StoryModeColors.borderLight}`,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              ETAGEN ▲▼
-            </span>
+            {/* Ruf-Plakette am Schachtkopf (über der Traufe) — welt-verankert, nativ
+                gerastert (B1); sitzt ÜBER der Türschild-Spur von Etage 4, sonst
+                kollidieren beide seit der nativen Rasterung. */}
+            <WorldAnchor x={layout.shaft.w / 2} y={-48} scale={view.scale}>
+              <span
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  transform: 'translateX(-50%)',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  padding: '2px 6px',
+                  color: hoverShaft ? '#0d0d0d' : '#c8c8b8',
+                  backgroundColor: hoverShaft ? WORLD_AMBER : 'rgba(10,10,14,0.8)',
+                  border: `1px solid ${StoryModeColors.borderLight}`,
+                  whiteSpace: 'nowrap',
+                  // WorldAnchor nimmt den Teilbaum aus dem Hit-Testing — die Plakette
+                  // selbst bleibt klickbar (bubbelt zum Schacht-Button, Review-Fix).
+                  pointerEvents: 'auto',
+                  cursor: 'pointer',
+                }}
+              >
+                ETAGEN ▲▼
+              </span>
+            </WorldAnchor>
           </button>
         )}
+
+        {/* LB: Routen-Statisten (erscheinen/verschwinden durch Türen, ambientLife) */}
+        <AmbientLifeLayer onDoorsChange={setAmbientDoors} />
 
         {/* Avatar (läuft/steht) */}
         {!nav.avatarInCabin && (
@@ -801,6 +971,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           </span>
         )}
       </div>
+      </div>
 
       {/* Tag/Nacht-Tönung (H30): aus der Tages-Uhr — kühler Morgen, neutraler Mittag,
           zum Redaktionsschluss hin tiefblaue Abend-/Nacht-Stimmung über der Stadt. */}
@@ -830,13 +1001,13 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             }}
           />
           <div style={{ maxWidth: 520, textAlign: 'center' }}>
-            <div style={{ fontFamily: "'VT323', monospace", fontWeight: 900, letterSpacing: 3, color: StoryModeColors.warning, fontSize: 14, marginBottom: 6 }}>
+            <div style={{ fontFamily: "'VT323', monospace", fontWeight: 900, letterSpacing: 3, color: WORLD_AMBER, fontSize: 14, marginBottom: 6 }}>
               {poster.titel_de}
             </div>
             <div style={{ fontFamily: "'VT323', monospace", color: '#e8e4d8', fontSize: 13, lineHeight: 1.5, fontStyle: 'italic' }}>
               „{poster.slogan_de}"
             </div>
-            <div style={{ fontFamily: "'VT323', monospace", color: StoryModeColors.textMuted, fontSize: 10, marginTop: 12 }}>
+            <div style={{ fontFamily: "'VT323', monospace", color: '#a89f8c', fontSize: 10, marginTop: 12 }}>
               (Klicken zum Schließen)
             </div>
           </div>

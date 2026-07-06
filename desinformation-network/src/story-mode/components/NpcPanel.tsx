@@ -121,8 +121,10 @@ export function NpcPanel({
               selectedNpc?.id === npc.id ? 'border-l-4' : ''
             }`}
             style={{
+              // §4.7: gewählte Karteikarte = helleres Papier (Tinten-Text bleibt),
+              // Markierung trägt die linke Warn-Kante — nicht mehr die dunkle Fläche.
               backgroundColor: selectedNpc?.id === npc.id
-                ? StoryModeColors.darkConcrete
+                ? StoryModeColors.surfaceLight
                 : StoryModeColors.surface,
               borderColor: StoryModeColors.border,
               borderLeftColor: selectedNpc?.id === npc.id
@@ -142,7 +144,7 @@ export function NpcPanel({
                   alignItems: 'center',
                   justifyContent: 'center',
                   border: `2px solid ${getRelationshipColor(npc.relationshipLevel)}`,
-                  backgroundColor: StoryModeColors.background,
+                  backgroundColor: StoryModeColors.document,
                   fontWeight: 'bold',
                   fontSize: '1.25rem',
                   color: StoryModeColors.textPrimary,
@@ -178,8 +180,10 @@ export function NpcPanel({
                   <span
                     className="text-xs px-2 py-0.5 mt-1 inline-block"
                     style={{
-                      backgroundColor: StoryModeColors.danger,
-                      color: '#fff',
+                      // §4.7 Stempel statt Flächen-Rot: Rahmen + Tinte auf Papier.
+                      backgroundColor: 'transparent',
+                      border: `1px solid ${StoryModeColors.danger}`,
+                      color: StoryModeColors.danger,
                     }}
                   >
                     NICHT VERFUGBAR
@@ -202,7 +206,7 @@ export function NpcPanel({
               <div className="w-16">
                 <div
                   className="h-2 w-full"
-                  style={{ backgroundColor: StoryModeColors.background }}
+                  style={{ backgroundColor: StoryModeColors.lightConcrete }}
                 >
                   <div
                     className="h-full transition-all"
@@ -236,7 +240,7 @@ export function NpcPanel({
                 justifyContent: 'center',
                 margin: '0 auto 12px',
                 border: `3px solid ${getRelationshipColor(selectedNpc.relationshipLevel)}`,
-                backgroundColor: StoryModeColors.background,
+                backgroundColor: StoryModeColors.document,
                 fontWeight: 'bold',
                 fontSize: '1.875rem',
                 color: StoryModeColors.textPrimary,
@@ -260,7 +264,8 @@ export function NpcPanel({
             variant="standard"
             style={{
               padding: 16,
-              backgroundColor: StoryModeColors.background,
+              // §4.7: Detail-Kasten = Papier (Tinten-Text), keine dunkle Fläche.
+              backgroundColor: StoryModeColors.surfaceLight,
             }}
           >
             <h4
@@ -333,7 +338,7 @@ export function NpcPanel({
               </div>
               <div
                 className="h-2 w-full"
-                style={{ backgroundColor: StoryModeColors.darkConcrete }}
+                style={{ backgroundColor: StoryModeColors.lightConcrete }}
               >
                 <div
                   className="h-full transition-all"
@@ -368,7 +373,7 @@ export function NpcPanel({
             variant="standard"
             style={{
               padding: 16,
-              backgroundColor: StoryModeColors.background,
+              backgroundColor: StoryModeColors.surfaceLight,
             }}
           >
             <h4
@@ -390,7 +395,7 @@ export function NpcPanel({
             </div>
             <div
               className="h-3 w-full mb-2"
-              style={{ backgroundColor: StoryModeColors.darkConcrete }}
+              style={{ backgroundColor: StoryModeColors.lightConcrete }}
             >
               <div
                 className="h-full transition-all"
@@ -418,7 +423,7 @@ export function NpcPanel({
               variant="standard"
               style={{
                 padding: 16,
-                backgroundColor: StoryModeColors.background,
+                backgroundColor: StoryModeColors.surfaceLight,
                 border: `2px solid ${StoryModeColors.agencyBlue}`,
               }}
             >
@@ -434,7 +439,8 @@ export function NpcPanel({
                     key={i}
                     className="px-2 py-1 text-xs"
                     style={{
-                      backgroundColor: StoryModeColors.darkConcrete,
+                      // §4.7 Stempel: Rahmen + Tinten-Blau auf Papier.
+                      backgroundColor: 'transparent',
                       color: StoryModeColors.agencyBlue,
                       border: `1px solid ${StoryModeColors.agencyBlue}`,
                     }}
@@ -454,7 +460,7 @@ export function NpcPanel({
             style={{
               backgroundColor: selectedNpc.available
                 ? StoryModeColors.ministryRed
-                : StoryModeColors.concrete,
+                : StoryModeColors.lightConcrete,
               borderColor: selectedNpc.available
                 ? StoryModeColors.darkRed
                 : StoryModeColors.border,
@@ -473,7 +479,7 @@ export function NpcPanel({
             <div className="mb-4 flex justify-center">
               <Icon name="npcs" size={40} title="Kontakte" fallback="NPC" />
             </div>
-            <p>Wahlen Sie einen Kontakt aus der Liste</p>
+            <p>Wählen Sie einen Kontakt aus der Liste</p>
           </div>
         </div>
       )}
@@ -487,7 +493,7 @@ export function NpcPanel({
         <div
           className="px-3 py-2 border-b-2 flex items-center gap-2"
           style={{
-            backgroundColor: StoryModeColors.warning,
+            backgroundColor: StoryModeColors.darkConcrete,
             borderColor: StoryModeColors.border,
           }}
         >
@@ -536,7 +542,7 @@ export function NpcPanel({
           <div
             className="px-6 py-4 border-b-4 flex justify-between items-center"
             style={{
-              backgroundColor: StoryModeColors.warning,
+              backgroundColor: StoryModeColors.darkConcrete,
               borderColor: StoryModeColors.border,
             }}
           >
@@ -550,9 +556,10 @@ export function NpcPanel({
               onClick={onClose}
               className="px-4 py-1 font-bold border-2 transition-all hover:brightness-110"
               style={{
+                // Dunkler Knopf → heller Text (§4.7 Regel 2).
                 backgroundColor: StoryModeColors.darkConcrete,
                 borderColor: StoryModeColors.border,
-                color: StoryModeColors.textPrimary,
+                color: StoryModeColors.surfaceLight,
               }}
             >
               SCHLIESSEN [ESC]
@@ -569,12 +576,13 @@ export function NpcPanel({
           <div
             className="px-6 py-3 border-t-4 text-xs flex justify-between"
             style={{
-              backgroundColor: StoryModeColors.darkConcrete,
+              // §4.7: Fußleiste = Papier, Tinten-Text bleibt.
+              backgroundColor: StoryModeColors.surfaceLight,
               borderColor: StoryModeColors.border,
               color: StoryModeColors.textMuted,
             }}
           >
-            <span>{npcs.length} Kontakte verfugbar</span>
+            <span>{npcs.length} Kontakte verfügbar</span>
             <span>{npcs.filter(n => n.relationshipLevel >= 2).length} vertraut</span>
           </div>
         </div>

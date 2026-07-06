@@ -192,11 +192,20 @@ async function generateImageShot(shot, dir, budget, log, force) {
   const seed = Number.isFinite(seedOverride) ? seedOverride : shot.seed;
 
   // Stimmungs-Varianten referenzieren das Basis-Porträt (gleiches Gesicht).
+  // Referenzen können Bilder ODER Sheets sein — beide Ordner absuchen und bei
+  // fehlender Referenz LAUT warnen statt still ohne zu generieren (Review E3:
+  // figure_clerk_walk entstand ohne die gewollte figure_clerk-Referenz).
   const referenceImagesBase64 = [];
   if (shot.referenceId) {
-    const refPath = path.join(dir, 'images', `${shot.referenceId}.png`);
-    if (fs.existsSync(refPath)) {
+    const candidates = [
+      path.join(dir, 'images', `${shot.referenceId}.png`),
+      path.join(dir, 'sheets', `${shot.referenceId}.png`),
+    ];
+    const refPath = candidates.find((p) => fs.existsSync(p));
+    if (refPath) {
       referenceImagesBase64.push(fs.readFileSync(refPath).toString('base64'));
+    } else {
+      console.warn(`  ⚠️ Referenz "${shot.referenceId}" nicht gefunden (${candidates.join(' | ')}) — generiere OHNE Referenz.`);
     }
   }
 

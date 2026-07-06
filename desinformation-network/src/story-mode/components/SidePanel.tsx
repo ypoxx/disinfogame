@@ -8,7 +8,8 @@ import { Icon, type IconName } from './Icon';
 
 function TabBar() {
   const { activePanel, togglePanel } = usePanelStore();
-  const panels: PanelId[] = ['actions', 'npcs', 'news', 'events', 'mission', 'stats'];
+  // L2: 'actions' lebt jetzt im Vorgangs-Terminal (Taste A) — kein Reiter mehr.
+  const panels: PanelId[] = ['npcs', 'news', 'events', 'mission', 'stats'];
 
   return (
     <div
@@ -38,7 +39,9 @@ function TabBar() {
             <div
               className="text-[9px] font-bold mt-0.5 tracking-wider"
               style={{
-                color: isActive ? StoryModeColors.textPrimary : StoryModeColors.textMuted,
+                // Karteireiter (§4.7): aktiver Reiter = Papier + Tinte, inaktive
+                // liegen auf dem Kraftband → helle Beschriftung.
+                color: isActive ? StoryModeColors.textPrimary : StoryModeColors.lightConcrete,
               }}
             >
               {meta.label}

@@ -246,7 +246,7 @@ describe('NewsroomView', () => {
     render(
       <NewsroomView posts={samplePosts} trending={sampleTrending} onClose={onClose} />,
     );
-    const btn = screen.getByRole('button', { name: /newsroom schliessen/i });
+    const btn = screen.getByRole('button', { name: /newsroom schließen/i });
     await userEvent.click(btn);
     expect(onClose).toHaveBeenCalledOnce();
   });
@@ -254,7 +254,7 @@ describe('NewsroomView', () => {
   it('rendert auch ohne Posts und Trending-Topics ohne Fehler', () => {
     render(<NewsroomView posts={[]} trending={[]} onClose={noopClose} />);
     // Fallback-Texte statt Kacheln
-    expect(screen.getByText(/Keine Beitraege vorhanden/)).toBeTruthy();
+    expect(screen.getByText(/Keine Beiträge vorhanden/)).toBeTruthy();
     expect(screen.getByText(/Keine Trends/)).toBeTruthy();
   });
 });

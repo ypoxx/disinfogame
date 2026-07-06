@@ -33,13 +33,15 @@ const BADGE_LABEL: Record<WohnzimmerBadge, string> = {
   einsam: 'EI',
 };
 
-/** Kühle Farbgebung — kein Feier-Grün, keine Alarm-Ästhetik. */
+/** Kühle Farbgebung — kein Feier-Grün, keine Alarm-Ästhetik.
+ *  v3: Badges sitzen auf dunklem Chip — Text-/danger-Tinten wären unlesbar,
+ *  daher helle Papier-Töne bzw. das helle v2-Rot (diegetische Sendeleiste). */
 const BADGE_COLOR: Record<WohnzimmerBadge, string> = {
-  fahne: StoryModeColors.agencyBlue,
-  zeitung: StoryModeColors.textSecondary,
+  fahne: '#3a7acc',
+  zeitung: StoryModeColors.lightConcrete,
   abwinken: StoryModeColors.warning,
-  streit: StoryModeColors.danger,
-  einsam: StoryModeColors.textMuted,
+  streit: '#E5484D',
+  einsam: StoryModeColors.concrete,
 };
 
 const KEYFRAMES = `
@@ -71,10 +73,12 @@ const TIER_LABEL: Record<BroadcastTier, string> = {
   gross: 'GROSSE WIRKUNG',
 };
 
+// v3: danger ist Tinte — der GROSS-Stempel auf der dunklen Leiste trägt
+// das helle v2-Rot, damit die schwarze Chip-Schrift lesbar bleibt.
 const TIER_COLOR: Record<BroadcastTier, string> = {
   klein: '#8a8a7a',
   mittel: StoryModeColors.warning,
-  gross: StoryModeColors.danger,
+  gross: '#E5484D',
 };
 
 /**
@@ -136,12 +140,13 @@ function CollapsedStrip({ audience, onToggle }: { audience: AudienceBroadcastSta
           fontSize: 11,
           fontWeight: 700,
           letterSpacing: 1,
-          color: item ? StoryModeColors.danger : '#6a7',
+          // v3: danger ist Tinte — ON-AIR-Licht bleibt helles v2-Rot (diegetisch).
+          color: item ? '#E5484D' : '#6a7',
           animation: item ? 'bb-blink 1.4s ease-in-out infinite' : undefined,
           flexShrink: 0,
         }}
       >
-        {item ? '◉ ON AIR' : '○ STANDBY'}
+        {item ? '● ON AIR' : '○ STANDBY'}
       </span>
       <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: '#c8c8b8', flexShrink: 0 }}>
         MINISTERIUM SENDET
@@ -167,6 +172,9 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
   const item = audience.lastItem;
   const isPrint = item?.channel === 'print';
   const frameUrl = assets.imageUrl(isPrint ? 'hud_paper_frame' : 'hud_tv_frame');
+  // Sendepause-Testbild fürs Röhren-TV (nur im Standby, kein Print): füllt die
+  // Bildröhre statt eines toten „KEIN SIGNAL"-Textes.
+  const testcardUrl = !item && !isPrint ? assets.imageUrl('hud_tv_testcard') : null;
 
   // Inhaltsfenster relativ zum Rahmenbild (TV: Bildröhre links, Zeitung: Foto-Loch mittig).
   const hole: CSSProperties = isPrint
@@ -208,12 +216,19 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
               paddingLeft: 4,
             }}
           >
-            {item.kind === 'gegenreaktion' ? 'GEGENWIND: ' : '⬢ '}
+            {item.kind === 'gegenreaktion' ? 'GEGENWIND: ' : '● '}
             {item.headline}
           </span>
+        ) : testcardUrl ? (
+          // Sendepause: klassisches Testbild füllt die Röhre (Scanlines liegen darüber).
+          <img
+            src={testcardUrl}
+            alt=""
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'pixelated' }}
+          />
         ) : (
           <span style={{ width: '100%', textAlign: 'center', fontSize: 10, color: '#5a7a5a', fontFamily: "'VT323', monospace" }}>
-            ▚▞ KEIN SIGNAL ▚▞
+            ··· KEIN SIGNAL ···
           </span>
         )}
         {!isPrint && (
@@ -235,12 +250,13 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
           left: 6,
           fontSize: 10,
           fontWeight: 700,
-          color: StoryModeColors.danger,
+          // v3: danger ist Tinte — ON-AIR-Licht bleibt helles v2-Rot (diegetisch).
+          color: '#E5484D',
           animation: item ? 'bb-blink 1.4s ease-in-out infinite' : undefined,
           zIndex: 3,
         }}
       >
-        {item ? (isPrint ? '◉ DRUCK' : '◉ ON AIR') : '○ STANDBY'}
+        {item ? (isPrint ? '● DRUCK' : '● ON AIR') : '○ STANDBY'}
       </span>
     </div>
   );
@@ -353,7 +369,8 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
                     display: 'block',
                     width: `${Math.round(seg.belief * 100)}%`,
                     height: '100%',
-                    backgroundColor: seg.belief > 0.6 ? StoryModeColors.danger : seg.belief > 0.4 ? StoryModeColors.warning : '#6a8a6a',
+                    // v3: danger ist Tinte — auf dem dunklen Sockel das helle v2-Rot.
+                    backgroundColor: seg.belief > 0.6 ? '#E5484D' : seg.belief > 0.4 ? StoryModeColors.warning : '#6a8a6a',
                     transition: 'width 600ms ease',
                   }}
                 />
@@ -396,7 +413,7 @@ export function BroadcastBar({ audience, expanded, onToggle, wohnzimmerAlphabet 
       {/* Mitte: Wirkung + Verlauf */}
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6, fontFamily: "'VT323', monospace" }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontFamily: StoryModeFonts.label, fontSize: 11, fontWeight: 700, letterSpacing: 2, color: '#c8c8b8' }}>⬢ MINISTERIUM SENDET</span>
+          <span style={{ fontFamily: StoryModeFonts.label, fontSize: 11, fontWeight: 700, letterSpacing: 2, color: '#c8c8b8' }}>● MINISTERIUM SENDET</span>
           {item && (
             <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', color: '#0d0d0d', backgroundColor: TIER_COLOR[item.tier] }}>
               {TIER_LABEL[item.tier]}
@@ -431,8 +448,9 @@ export function BroadcastBar({ audience, expanded, onToggle, wohnzimmerAlphabet 
             </span>
           ) : (
             audience.history.slice(0, 3).map((h) => (
-              <div key={h.id} style={{ fontSize: 11, color: h.kind === 'gegenreaktion' ? StoryModeColors.danger : '#9aa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {h.kind === 'gegenreaktion' ? '' : '⬢'} [{h.tier.toUpperCase()}] {h.headline}
+              // v3: danger ist Tinte — Gegenreaktion auf der dunklen Leiste in hellem v2-Rot.
+              <div key={h.id} style={{ fontSize: 11, color: h.kind === 'gegenreaktion' ? '#E5484D' : '#9aa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {h.kind === 'gegenreaktion' ? '' : '●'} [{h.tier.toUpperCase()}] {h.headline}
               </div>
             ))
           )}

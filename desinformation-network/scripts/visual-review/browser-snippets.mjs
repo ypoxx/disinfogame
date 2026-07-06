@@ -15,10 +15,13 @@ export function measureStageGeometry() {
   const container = document.querySelector('[data-testid="building-stage"]');
   if (!container) return { error: 'building-stage nicht im DOM' };
   const layout = V.layout;
-  // Die skalierte Bühne ist das Kind mit inline width == layout.width.
-  const stageEl = Array.from(container.children).find(
-    (el) => el instanceof HTMLElement && el.style.width === `${layout.width}px`,
-  );
+  // Seit dem Ebenen-Split (Auflösungs-Etappe) trägt die skalierte Welt-Ebene eine
+  // eigene testid; Fallback = alte Heuristik (Kind mit inline width == layout.width).
+  const stageEl =
+    container.querySelector('[data-testid="building-stage-world"]') ??
+    Array.from(container.children).find(
+      (el) => el instanceof HTMLElement && el.style.width === `${layout.width}px`,
+    );
   if (!stageEl) return { error: 'Bühnen-Element nicht gefunden' };
   const sb = stageEl.getBoundingClientRect();
   const scale = sb.width / layout.width;
@@ -52,16 +55,14 @@ export function measureStageGeometry() {
     const r = span.getBoundingClientRect();
     if (r.width < 2 || r.height < 2) continue;
     if (st.opacity === '0' || st.visibility === 'hidden') continue;
-    // Kontext-Label: Avatar / Walker / Dummy / klickbare Statisten.
+    // Kontext-Label: Avatar / Routen-Statist (ambientLife) / klickbare Statisten.
     const ctx = span.closest('[data-testid="building-avatar"]')
       ? 'avatar'
       : span.closest('[data-bs-walker]')
         ? 'walker'
-        : span.closest('[data-bs-dummy]')
-          ? 'doorDummy'
-          : span.closest('button')
-            ? 'clickableFigure'
-            : 'sprite';
+        : span.closest('button')
+          ? 'clickableFigure'
+          : 'sprite';
     els.push({ kind: 'sprite', context: ctx, assetId: id, stage: toStage(r), opacity: Number(st.opacity) });
   }
   return {
@@ -92,9 +93,11 @@ export function drawFloorLineOverlay() {
   const container = document.querySelector('[data-testid="building-stage"]');
   if (!container) return false;
   const layout = V.layout;
-  const stageEl = Array.from(container.children).find(
-    (el) => el instanceof HTMLElement && el.style.width === `${layout.width}px`,
-  );
+  const stageEl =
+    container.querySelector('[data-testid="building-stage-world"]') ??
+    Array.from(container.children).find(
+      (el) => el instanceof HTMLElement && el.style.width === `${layout.width}px`,
+    );
   if (!stageEl) return false;
   // Self-contained halten: page.evaluate serialisiert NUR diese Funktion.
   for (const el of stageEl.querySelectorAll('[data-vqa-overlay]')) el.remove();

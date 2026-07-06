@@ -40,6 +40,8 @@ export interface BoardObjective {
   targetValue: number;
   completed: boolean;
   isPrimary: boolean;
+  /** Engine-Kategorie: 'survival' = Halte-Ziel ohne lebendes currentValue (B22). */
+  category?: string;
 }
 
 export interface BoardThread {
@@ -231,7 +233,14 @@ export function NarrativeBoard({
                 >
                   <Icon name="mission" size={12} title="Ziel" />
                   <span className="text-[11px] font-bold">{o.isPrimary ? 'ZIEL' : 'Nebenziel'}: {o.label_de}</span>
-                  <span className="text-[11px]">{o.currentValue}/{o.targetValue}{o.completed ? ' ✓' : ''}</span>
+                  {/* B22: „100/40" las sich als „100 von 40". Halte-Ziele (survival)
+                      führen kein lebendes currentValue — dort nur die Marke. */}
+                  <span className="text-[11px]">
+                    {o.category === 'survival'
+                      ? `unter ${o.targetValue} halten`
+                      : `Stand ${Math.round(o.currentValue)} · Ziel unter ${o.targetValue}`}
+                    {o.completed ? ' ✓' : ''}
+                  </span>
                 </div>
               ))}
             </div>
@@ -254,10 +263,12 @@ export function NarrativeBoard({
                     }}
                     title={t.hint}
                   >
-                    <span style={{ color: StoryModeColors.danger }}>⟜</span>
+                    {/* v3: danger/warning sind Tinten — auf dem dunklen Faden-Streifen
+                        bleiben die hellen v2-Signalwerte (diegetisch). */}
+                    <span style={{ color: '#E5484D' }}>⟜</span>
                     <span className="font-bold">{t.name}</span>
                     <span style={{ color: '#d9c6a3' }}>{t.hint}</span>
-                    <span className="ml-auto font-bold" style={{ color: urgent ? StoryModeColors.danger : StoryModeColors.warning }}>
+                    <span className="ml-auto font-bold" style={{ color: urgent ? '#E5484D' : '#F0B429' }}>
                       läuft ab in {t.expiresIn} {t.expiresIn === 1 ? 'Phase' : 'Phasen'}
                     </span>
                   </div>
@@ -281,7 +292,8 @@ export function NarrativeBoard({
                   onClick={() => setFocusSpur(spur)}
                   className="px-2 py-2 min-h-[64px] flex items-center gap-2 flex-wrap"
                   style={{
-                    border: `2px dashed ${isOver ? StoryModeColors.warning : isFocus ? StoryModeColors.ministryRed : 'rgba(0,0,0,0.35)'}`,
+                    // v3: warning ist Marker-Tinte — Drop-Hinweis auf Kork braucht das helle v2-Amber.
+                    border: `2px dashed ${isOver ? '#F0B429' : isFocus ? StoryModeColors.ministryRed : 'rgba(0,0,0,0.35)'}`,
                     backgroundColor: isOver ? 'rgba(240,180,41,0.10)' : 'rgba(0,0,0,0.12)',
                   }}
                 >
@@ -347,11 +359,12 @@ export function NarrativeBoard({
           <span className="text-[11px]" style={{ color: '#c9b48f' }}>
             {queue.length} angeheftet
           </span>
+          {/* v3: danger ist Tinte — Überzieh-Warnung auf dunkler Fußleiste in hellem v2-Rot. */}
           <span className="text-[11px] flex items-center gap-2" style={{ color: StoryModeColors.document }}>
-            <span className={planCost.budget > resources.budget ? '' : ''} style={{ color: planCost.budget > resources.budget ? StoryModeColors.danger : '#d9c6a3' }}>
-              <Icon name="budget" size={12} title="Budget" /> ${planCost.budget}K/${resources.budget}K
+            <span className={planCost.budget > resources.budget ? '' : ''} style={{ color: planCost.budget > resources.budget ? '#E5484D' : '#d9c6a3' }}>
+              <Icon name="budget" size={12} title="Budget" /> {planCost.budget}K/{resources.budget}K
             </span>
-            <span style={{ color: planCost.actionPoints > resources.actionPoints ? StoryModeColors.danger : '#d9c6a3' }}>
+            <span style={{ color: planCost.actionPoints > resources.actionPoints ? '#E5484D' : '#d9c6a3' }}>
               <Icon name="mission" size={12} title="AP" /> {planCost.actionPoints}/{resources.actionPoints} AP
             </span>
           </span>
@@ -361,9 +374,10 @@ export function NarrativeBoard({
               disabled={!canPlay}
               className="px-4 py-1.5 border-2 font-bold text-sm transition-all"
               style={{
-                backgroundColor: canPlay ? StoryModeColors.success : StoryModeColors.darkConcrete,
-                borderColor: canPlay ? '#15803d' : StoryModeColors.borderLight,
-                color: '#fff',
+                // v3 §4.7: Stempel-Knopf (Papier + Erfolgs-Ring) statt Grün-Fläche.
+                backgroundColor: canPlay ? StoryModeColors.surfaceLight : StoryModeColors.lightConcrete,
+                borderColor: canPlay ? StoryModeColors.success : StoryModeColors.borderLight,
+                color: canPlay ? StoryModeColors.success : StoryModeColors.textMuted,
                 cursor: canPlay ? 'pointer' : 'not-allowed',
                 opacity: canPlay ? 1 : 0.6,
               }}
@@ -374,7 +388,7 @@ export function NarrativeBoard({
             <button
               onClick={() => { if (queue.length) { playSound('click'); onClear(); } }}
               className="px-3 py-1.5 border-2 font-bold text-sm transition-all hover:brightness-110"
-              style={{ backgroundColor: StoryModeColors.ministryRed, borderColor: StoryModeColors.darkRed, color: '#fff' }}
+              style={{ backgroundColor: StoryModeColors.surfaceLight, borderColor: StoryModeColors.ministryRed, color: StoryModeColors.ministryRed }}
               title="Tafel leeren"
             >
               LEEREN
@@ -437,12 +451,13 @@ function ActionCard({ action, onPin, onExecuteNow }: { action: BoardAction; onPi
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-[12px] font-bold leading-tight">{action.label_de}</span>
-        <span className="text-[9px] px-1 shrink-0" style={{ backgroundColor: LEGAL_COLOR[action.legality], color: '#0d0d0d' }}>
+        {/* v3 §4.7: Legalität als STEMPEL (Rahmen + Tinte) statt gefüllter Pille. */}
+        <span className="text-[9px] px-1 shrink-0 border" style={{ borderColor: LEGAL_COLOR[action.legality], color: LEGAL_COLOR[action.legality], backgroundColor: 'transparent' }}>
           {action.legality === 'legal' ? 'LEGAL' : action.legality === 'grey' ? 'GRAU' : 'ILLEGAL'}
         </span>
       </div>
       <div className="flex flex-wrap gap-1 text-[10px]">
-        {!!action.costs.budget && <span style={{ color: '#5a3a12' }}><Icon name="budget" size={10} title="Budget" /> ${action.costs.budget}K</span>}
+        {!!action.costs.budget && <span style={{ color: '#5a3a12' }}><Icon name="budget" size={10} title="Budget" /> {action.costs.budget}K</span>}
         {!!action.costs.actionPoints && <span style={{ color: '#5a3a12' }}><Icon name="mission" size={10} title="AP" /> {action.costs.actionPoints} AP</span>}
         {!!action.costs.capacity && <span style={{ color: '#5a3a12' }}><Icon name="capacity" size={10} title="Kapazität" /> {action.costs.capacity}</span>}
       </div>
@@ -451,7 +466,8 @@ function ActionCard({ action, onPin, onExecuteNow }: { action: BoardAction; onPi
           onClick={onPin}
           disabled={dis}
           className="flex-1 px-2 py-1 text-[11px] font-bold border-2 hover:brightness-110 disabled:opacity-50"
-          style={{ backgroundColor: StoryModeColors.militaryOlive, borderColor: StoryModeColors.darkOlive, color: StoryModeColors.document, cursor: dis ? 'not-allowed' : 'pointer' }}
+          // v3 §4.7: Papier-Knopf mit Oliv-Tinte statt Oliv-Fläche (Vision-Review E2).
+          style={{ backgroundColor: StoryModeColors.surfaceLight, borderColor: StoryModeColors.militaryOlive, color: StoryModeColors.darkOlive, cursor: dis ? 'not-allowed' : 'pointer' }}
           title="An die fokussierte Spur anheften (Enter)"
         >
           ANHEFTEN
@@ -460,7 +476,7 @@ function ActionCard({ action, onPin, onExecuteNow }: { action: BoardAction; onPi
           onClick={onExecuteNow}
           disabled={dis}
           className="px-2 py-1 text-[11px] font-bold border-2 hover:brightness-110 disabled:opacity-50"
-          style={{ backgroundColor: StoryModeColors.ministryRed, borderColor: StoryModeColors.darkRed, color: '#fff', cursor: dis ? 'not-allowed' : 'pointer' }}
+          style={{ backgroundColor: StoryModeColors.surfaceLight, borderColor: StoryModeColors.ministryRed, color: StoryModeColors.ministryRed, cursor: dis ? 'not-allowed' : 'pointer' }}
           title="Sofort ausspielen"
         >
           SOFORT

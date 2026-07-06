@@ -41,7 +41,7 @@ export const STAGE = {
   groundHeight: 96,
   doorWidth: 96,
   doorHeight: 144,
-  avatarSize: 128, // 32px-Frames ×4 (Proportionsregel)
+  avatarSize: 128, // 64px-Frames ×2 (Proportionsregel; bei Bühnen-Scale ½ ⇒ 1:1 nativ)
   /** Höhe des Boden-Streifens unten im Flur: Türen/Deko/Avatar stehen auf der
    *  WAND-FUSS-Linie (Oberkante dieses Streifens), nicht auf der vorderen Bodenkante. */
   floorStrip: 40,

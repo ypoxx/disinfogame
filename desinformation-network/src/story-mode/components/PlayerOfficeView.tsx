@@ -5,10 +5,11 @@
  * Vollbild-Hintergrund; darüber liegen unsichtbare Hotspot-Buttons, die
  * die bestehenden Seiten-Panels öffnen. Kein CSS-Nachbau der Möbel.
  */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Icon } from './Icon';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
+import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
 import { playSound } from '../utils/SoundSystem';
 import { usePlayerProfile, playerPortraitAssetId } from '../stores/playerProfileStore';
 
@@ -138,6 +139,12 @@ export function PlayerOfficeView({
   const assets = useAssets();
   const bgUrl = assets.imageUrl('room_spieler_buero');
 
+  // (B1) Pixel-sauberer Cover-Snap statt freiem `cover` (≈ ×0,94 = Matsch).
+  const containerRef = useRef<HTMLDivElement>(null);
+  const areaSize = useElementSize(containerRef);
+  const bgNat = useNaturalSize(bgUrl);
+  const bgSnap = usePixelCover(areaSize, bgNat);
+
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [tutorialVisible, setTutorialVisible] = useState<boolean>(showTutorialHints);
 
@@ -186,6 +193,7 @@ export function PlayerOfficeView({
 
   return (
     <div
+      ref={containerRef}
       style={{
         position: 'relative',
         width: '100%',
@@ -205,7 +213,10 @@ export function PlayerOfficeView({
             position: 'absolute',
             inset: 0,
             backgroundImage: `url(${bgUrl})`,
-            backgroundSize: 'cover',
+            // (B1) Ganzzahl-/Stammbruch-Faktor statt freiem `cover`;
+            // Fallback vor Bildmaß-Kenntnis = bisheriges cover (ein Frame lang).
+            backgroundSize: bgSnap ? `${bgSnap.width}px ${bgSnap.height}px` : 'cover',
+            backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center bottom',
             imageRendering: 'pixelated',
           }}
@@ -222,7 +233,8 @@ export function PlayerOfficeView({
             justifyContent: 'center',
           }}
         >
-          <span style={{ color: StoryModeColors.textMuted, fontSize: 14 }}>
+          {/* v3: dunkler Träger → heller Papier-Ton statt Tinten-Token. */}
+          <span style={{ color: StoryModeColors.lightConcrete, fontSize: 14 }}>
             Büro wird geladen…
           </span>
         </div>
@@ -289,7 +301,8 @@ export function PlayerOfficeView({
               // Ruhezustand: KEIN Rechteck-Ring mehr (wirkte wie Drahtgitter über den
               // Möbeln, „zwei Welten"); stattdessen dezente Eck-Marken (s. CornerTicks).
               // Hover/Fokus: kräftige Outline + Inset-Highlight.
-              outline: isHovered ? `2px solid ${StoryModeColors.warning}` : 'none',
+              // v3: warning ist Marker-Tinte — über dem Raumfoto helles v2-Amber (passt zu CornerTicks).
+              outline: isHovered ? `2px solid #F0B429` : 'none',
               outlineOffset: -1,
               boxShadow: isHovered ? 'inset 0 0 0 9999px rgba(255,255,255,0.08)' : 'none',
               transition: 'outline 120ms ease, box-shadow 120ms ease',
@@ -378,10 +391,11 @@ export function PlayerOfficeView({
               animation: 'po-hint-pulse 2s ease-in-out infinite',
             }}
           >
+            {/* v3: warning ist Marker-Tinte — Tutorial-Marker über dem Foto in hellem v2-Amber. */}
             <span
               style={{
                 fontSize: 20,
-                color: StoryModeColors.warning,
+                color: '#F0B429',
                 textShadow: '0 0 6px #000, 1px 1px 0 #000',
                 fontWeight: 900,
               }}
@@ -392,7 +406,7 @@ export function PlayerOfficeView({
               style={{
                 backgroundColor: 'rgba(0,0,0,0.82)',
                 color: '#e8e4d8',
-                border: `1px solid ${StoryModeColors.warning}`,
+                border: `1px solid #F0B429`,
                 padding: '1px 5px',
                 fontSize: 9,
                 fontFamily: "'VT323', monospace",
@@ -511,8 +525,9 @@ function Dienstausweis(): React.JSX.Element {
         )}
       </span>
       <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
-        <span style={{ fontSize: 9, color: StoryModeColors.textSecondary, letterSpacing: 1 }}>SONDEROPERATIONEN</span>
-        <span style={{ fontSize: 12, fontWeight: 700, color: StoryModeColors.textPrimary, fontFamily: "'VT323', monospace" }}>{name}</span>
+        {/* v3: dunkler Ausweis-Grund → helle Papier-Töne statt Tinten-Token. */}
+        <span style={{ fontSize: 9, color: StoryModeColors.lightConcrete, letterSpacing: 1 }}>SONDEROPERATIONEN</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: StoryModeColors.document, fontFamily: "'VT323', monospace" }}>{name}</span>
       </span>
     </div>
   );

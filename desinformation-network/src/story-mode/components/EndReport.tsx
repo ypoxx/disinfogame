@@ -355,7 +355,8 @@ function MethodsSection({ methods, operationsSummary }: MethodsSectionProps) {
       {episodeLearnings.length > 0 && (
         <div
           style={{
-            backgroundColor: StoryModeColors.darkConcrete,
+            // Helle Karteikarte statt Kraftpapier — Tinten-Text bleibt lesbar (§4.7 Regel 3).
+            backgroundColor: StoryModeColors.surfaceLight,
             border: `1px solid ${StoryModeColors.agencyBlue}`,
             borderLeft: `3px solid ${StoryModeColors.agencyBlue}`,
             padding: '8px 12px',
@@ -378,7 +379,8 @@ function MethodsSection({ methods, operationsSummary }: MethodsSectionProps) {
       {hasOps && (
         <div
           style={{
-            backgroundColor: StoryModeColors.darkConcrete,
+            // Helle Karteikarte statt Kraftpapier (§4.7 Regel 3).
+            backgroundColor: StoryModeColors.surfaceLight,
             border: `1px solid ${StoryModeColors.borderLight}`,
             padding: '8px 12px',
             marginBottom: '12px',
@@ -403,7 +405,8 @@ function MethodsSection({ methods, operationsSummary }: MethodsSectionProps) {
           <div
             key={m.id}
             style={{
-              backgroundColor: StoryModeColors.background,
+              // Helle Karteikarte statt dunklem Kraftpapier (§4.7 Regel 3).
+              backgroundColor: StoryModeColors.surfaceLight,
               border: `1px solid ${StoryModeColors.borderLight}`,
               borderLeft: `3px solid ${severityColor(m.severity)}`,
               padding: '10px 12px',
@@ -502,14 +505,15 @@ function RennenChart({
 
   return (
     <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ maxWidth: '100%', display: 'block' }} aria-label="Das Rennen: Sonntagsfrage gegen Abwehr">
-      <rect width={W} height={H} fill={StoryModeColors.background} rx={2} />
+      {/* Papier-Diagrammfläche: Tinten-Linien/-Beschriftungen sind auf Kraftpapier unlesbar (§4.7 Regel 3). */}
+      <rect width={W} height={H} fill={StoryModeColors.surfaceLight} />
       {/* Schwelle (Sieglinie der Sonntagsfrage) */}
       <line x1={PAD.left} y1={schwelleY} x2={PAD.left + cW} y2={schwelleY} stroke={StoryModeColors.success} strokeWidth={1.2} strokeDasharray="6 3" />
       <text x={PAD.left + cW + 2} y={schwelleY + 4} fontSize={9} fill={StoryModeColors.success}>Ziel</text>
       {/* Abwehr-100-Linie (Verlustlinie) = oben (frac 1.0) */}
       <text x={PAD.left + cW + 2} y={toY(1) + 4} fontSize={9} fill={StoryModeColors.danger}>100</text>
       {/* ABWEHR (Gegner) */}
-      <path d={abPath} fill="none" stroke={StoryModeColors.danger} strokeWidth={2} strokeLinejoin="round" />
+      <path d={abPath} fill="none" stroke={StoryModeColors.tech} strokeWidth={2} strokeLinejoin="round" />
       {/* SONNTAGSFRAGE (wir) */}
       <path d={sfPath} fill="none" stroke={StoryModeColors.ministryRed} strokeWidth={2.4} strokeLinejoin="round" />
       {/* X-Achse */}
@@ -585,8 +589,8 @@ function TrustLineChart({ trustHistory }: TrustLineChartProps) {
       style={{ maxWidth: '100%', display: 'block' }}
       aria-label="Vertrauensverlauf über die Amtszeit"
     >
-      {/* Hintergrund */}
-      <rect width={W} height={H} fill={StoryModeColors.background} rx={2} />
+      {/* Hintergrund — Papier-Diagrammfläche (§4.7 Regel 3). */}
+      <rect width={W} height={H} fill={StoryModeColors.surfaceLight} />
 
       {/* Y-Rasterlinien */}
       {yTicks.map(v => (
@@ -752,12 +756,13 @@ function LegalityBars({ legal, grey, illegal }: LegalityBarsProps) {
                 {bar.count} ({pct} %)
               </span>
             </div>
-            {/* Balken */}
+            {/* Balken — Papier-Träger: die Tinten-Füllungen (Oliv/Gelbbraun/Rot) sind
+                auf Kraftpapier nicht mehr unterscheidbar (§4.7 Regel 3). */}
             <div
               style={{
                 height: '16px',
-                backgroundColor: StoryModeColors.darkConcrete,
-                borderRadius: '2px',
+                backgroundColor: StoryModeColors.oldPaper,
+                borderRadius: 0,
                 overflow: 'hidden',
                 border: `1px solid ${StoryModeColors.borderLight}`,
               }}
@@ -932,16 +937,17 @@ export function EndReport({
           maxWidth: '720px',
           width: '100%',
           backgroundColor: StoryModeColors.surface,
-          border: `3px solid ${StoryModeColors.agencyBlue}`,
+          border: `3px solid ${StoryModeColors.border}`,
           boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
           fontFamily: "'VT323', monospace",
         }}
       >
-        {/* ── 1. KOPF ── */}
+        {/* ── 1. KOPF ── Kraftpapier-Kopfband (§4.7) statt Groß-Blau (Vision-Review E2):
+            das Blau las sich als Web-App-Header, Kraftband + helle Schrift = Akte. */}
         <div
           style={{
-            backgroundColor: StoryModeColors.agencyBlue,
-            borderBottom: `3px solid ${StoryModeColors.darkBlue}`,
+            backgroundColor: StoryModeColors.darkConcrete,
+            borderBottom: `3px solid ${StoryModeColors.border}`,
             padding: '20px 24px',
           }}
         >
@@ -949,7 +955,7 @@ export function EndReport({
             style={{
               fontSize: '10px',
               letterSpacing: '0.15em',
-              color: StoryModeColors.textSecondary,
+              color: StoryModeColors.lightConcrete,
               textTransform: 'uppercase',
               marginBottom: '4px',
             }}
@@ -960,7 +966,7 @@ export function EndReport({
             style={{
               fontSize: '22px',
               fontWeight: 'bold',
-              color: StoryModeColors.warning,
+              color: StoryModeColors.surfaceLight,
               margin: '0 0 6px',
             }}
           >
@@ -969,7 +975,7 @@ export function EndReport({
           <p
             style={{
               fontSize: '13px',
-              color: StoryModeColors.textPrimary,
+              color: StoryModeColors.document,
               margin: '0 0 8px',
             }}
           >
@@ -978,23 +984,23 @@ export function EndReport({
           <div
             style={{
               fontSize: '11px',
-              color: StoryModeColors.textSecondary,
+              color: StoryModeColors.lightConcrete,
             }}
           >
             Kampagne:{' '}
-            <span style={{ color: StoryModeColors.textPrimary }}>
+            <span style={{ color: StoryModeColors.surfaceLight }}>
               {`${phasesPlayed} ${phasesPlayed === 1 ? 'Tag' : 'Tage'} bis zum Wahltag`}
             </span>
             {' · '}
             Aktionen gesamt:{' '}
-            <span style={{ color: StoryModeColors.textPrimary }}>
+            <span style={{ color: StoryModeColors.surfaceLight }}>
               {completedActionIds.length}
             </span>
             {finalTrustPct !== null && (
               <>
                 {' · '}
                 Finales Vertrauen:{' '}
-                <span style={{ color: StoryModeColors.textPrimary }}>
+                <span style={{ color: StoryModeColors.surfaceLight }}>
                   {finalTrustPct} %
                 </span>
               </>
@@ -1028,7 +1034,8 @@ export function EndReport({
                       letterSpacing: '0.08em',
                       textTransform: 'uppercase',
                       color: StoryModeColors.textPrimary,
-                      backgroundColor: StoryModeColors.background,
+                      // Heller Stempel-Chip statt Kraftpapier — Tinte bleibt lesbar (§4.7).
+                      backgroundColor: StoryModeColors.surfaceLight,
                       border: `1px solid ${StoryModeColors.borderLight}`,
                       padding: '2px 8px',
                     }}
@@ -1053,7 +1060,8 @@ export function EndReport({
               {endingStyle.replayHints_de.length > 0 && (
                 <div
                   style={{
-                    backgroundColor: StoryModeColors.background,
+                    // Helle Karteikarte statt Kraftpapier (§4.7 Regel 3).
+                    backgroundColor: StoryModeColors.surfaceLight,
                     border: `1px solid ${StoryModeColors.borderLight}`,
                     padding: '8px 10px',
                     marginBottom: '4px',
@@ -1095,7 +1103,8 @@ export function EndReport({
               <SectionHeading>Das Rennen</SectionHeading>
               <div
                 style={{
-                  backgroundColor: StoryModeColors.background,
+                  // Papier-Träger passend zur hellen Diagrammfläche (§4.7 Regel 3).
+                  backgroundColor: StoryModeColors.surfaceLight,
                   border: `1px solid ${StoryModeColors.borderLight}`,
                   padding: '8px',
                   marginBottom: '4px',
@@ -1113,7 +1122,8 @@ export function EndReport({
           <SectionHeading>Vertrauensverlauf</SectionHeading>
           <div
             style={{
-              backgroundColor: StoryModeColors.background,
+              // Papier-Träger passend zur hellen Diagrammfläche (§4.7 Regel 3).
+              backgroundColor: StoryModeColors.surfaceLight,
               border: `1px solid ${StoryModeColors.borderLight}`,
               padding: '8px',
               marginBottom: '4px',
@@ -1186,7 +1196,8 @@ export function EndReport({
                 <div
                   key={i}
                   style={{
-                    backgroundColor: StoryModeColors.darkConcrete,
+                    // Helle Karteikarte statt Kraftpapier — Akzent-/Tinten-Text bleibt lesbar (§4.7 Regel 3).
+                    backgroundColor: StoryModeColors.surfaceLight,
                     border: `1px solid ${p.direction === 'down' ? StoryModeColors.danger : StoryModeColors.militaryOlive}`,
                     padding: '8px 12px',
                     fontSize: '12px',
@@ -1227,9 +1238,11 @@ export function EndReport({
                 <div
                   key={cat.key}
                   style={{
+                    // Papierkarten statt dunkler Kacheln (§4.7 Regel 3); das erreichte Ende
+                    // hebt sich als hellere Karte mit Marker-Rand ab.
                     backgroundColor: isReached
-                      ? StoryModeColors.darkBlue
-                      : StoryModeColors.darkConcrete,
+                      ? StoryModeColors.surfaceLight
+                      : StoryModeColors.surface,
                     border: `1px solid ${isReached ? StoryModeColors.warning : StoryModeColors.borderLight}`,
                     padding: '8px 10px',
                     fontSize: '11px',

@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { StoryModeColors } from './theme';
+import { StoryModeColors, stampCtaStyle } from './theme';
 import { GAME_VERSION } from './version';
 import { DialogBox } from './components/DialogBox';
 import { StoryHUD } from './components/StoryHUD';
-import { ActionPanel } from './components/ActionPanel';
+import { TerminalView } from './components/TerminalView';
 import { ActionQueueWidget } from './components/ActionQueueWidget';
 import { NewsPanel } from './components/NewsPanel';
 import { StatsPanel } from './components/StatsPanel';
@@ -115,6 +115,63 @@ function PauseMenu({ onResume, onSave, onExit }: {
       className="fixed inset-0 flex items-center justify-center z-50"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
     >
+      {/* PIXEL-Regler „Dienstplan-Tafel" (Plan L1, §4.7): eckiger Tinten-Schieber auf
+          segmentierter Leiste. Die repeating-linear-gradient-Stopps sind HARTE Kanten
+          (Pixel-Raster als Skalen-Striche), kein weicher Verlauf — §4.6-konform. */}
+      <style>{`
+        input[type="range"].bs-pixel-range {
+          -webkit-appearance: none;
+          appearance: none;
+          height: 18px;
+          background: transparent;
+          cursor: pointer;
+        }
+        input[type="range"].bs-pixel-range:focus-visible {
+          outline: 2px solid ${StoryModeColors.agencyBlue};
+          outline-offset: 1px;
+        }
+        input[type="range"].bs-pixel-range::-webkit-slider-runnable-track {
+          height: 10px;
+          border: 2px solid ${StoryModeColors.border};
+          border-radius: 0;
+          background-color: ${StoryModeColors.surface};
+          background-image: repeating-linear-gradient(
+            to right,
+            ${StoryModeColors.textSecondary} 0 2px,
+            transparent 2px 8px
+          );
+        }
+        input[type="range"].bs-pixel-range::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 10px;
+          height: 18px;
+          margin-top: -6px;
+          border: 2px solid ${StoryModeColors.textPrimary};
+          border-radius: 0;
+          background: ${StoryModeColors.darkConcrete};
+          box-shadow: none;
+        }
+        input[type="range"].bs-pixel-range::-moz-range-track {
+          height: 6px;
+          border: 2px solid ${StoryModeColors.border};
+          border-radius: 0;
+          background-color: ${StoryModeColors.surface};
+          background-image: repeating-linear-gradient(
+            to right,
+            ${StoryModeColors.textSecondary} 0 2px,
+            transparent 2px 8px
+          );
+        }
+        input[type="range"].bs-pixel-range::-moz-range-thumb {
+          width: 10px;
+          height: 18px;
+          border: 2px solid ${StoryModeColors.textPrimary};
+          border-radius: 0;
+          background: ${StoryModeColors.darkConcrete};
+          box-shadow: none;
+        }
+      `}</style>
       <div
         className="w-80 border-4"
         style={{
@@ -126,9 +183,10 @@ function PauseMenu({ onResume, onSave, onExit }: {
         <div
           className="px-6 py-4 border-b-4 text-center font-bold"
           style={{
-            backgroundColor: StoryModeColors.agencyBlue,
+            // v3 §4.7: Kraftband (statt Groß-Blau) → helle Beschriftung.
+            backgroundColor: StoryModeColors.darkConcrete,
             borderColor: StoryModeColors.border,
-            color: StoryModeColors.warning,
+            color: StoryModeColors.surfaceLight,
           }}
         >
           PAUSE
@@ -137,34 +195,29 @@ function PauseMenu({ onResume, onSave, onExit }: {
         <div className="p-4 flex flex-col gap-3">
           <button
             onClick={onResume}
-            className="w-full py-3 border-2 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
-            style={{
-              backgroundColor: StoryModeColors.ministryRed,
-              borderColor: StoryModeColors.darkRed,
-              color: '#fff',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-            }}
+            className="w-full py-3 font-bold transition-all hover:brightness-95 active:translate-y-0.5"
+            style={stampCtaStyle}
           >
             FORTSETZEN
           </button>
           <button
             onClick={onSave}
-            className="w-full py-3 border-2 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
+            className="w-full py-3 border-2 font-bold transition-all hover:brightness-95 active:translate-y-0.5"
             style={{
-              backgroundColor: StoryModeColors.militaryOlive,
-              borderColor: StoryModeColors.darkOlive,
-              color: StoryModeColors.warning,
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
+              // v3 §4.7: Papier-Knopf mit Tinten-Rahmen statt Oliv-Fläche.
+              backgroundColor: StoryModeColors.surfaceLight,
+              borderColor: StoryModeColors.militaryOlive,
+              color: StoryModeColors.darkOlive,
             }}
           >
             SPEICHERN
           </button>
 
-          {/* Sound Settings */}
+          {/* Sound Settings — v3: „Dienstplan-Tafel" aus Papier (Karteikarte statt Dunkelfläche) */}
           <div
             className="w-full p-3 border-2"
             style={{
-              backgroundColor: StoryModeColors.background,
+              backgroundColor: StoryModeColors.surfaceLight,
               borderColor: StoryModeColors.borderLight,
             }}
           >
@@ -181,7 +234,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
                 style={{
                   backgroundColor: soundOn ? StoryModeColors.militaryOlive : StoryModeColors.concrete,
                   borderColor: soundOn ? StoryModeColors.darkOlive : StoryModeColors.borderLight,
-                  color: soundOn ? StoryModeColors.warning : StoryModeColors.textSecondary,
+                  color: soundOn ? StoryModeColors.surfaceLight : StoryModeColors.textSecondary,
                 }}
               >
                 {soundOn ? 'AN' : 'AUS'}
@@ -197,8 +250,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
                   step="0.1"
                   value={volume}
                   onChange={handleVolumeChange}
-                  className="flex-1"
-                  style={{ accentColor: StoryModeColors.ministryRed }}
+                  className="flex-1 bs-pixel-range"
                 />
                 <Icon name="soundOn" size={14} title="Laut" fallback="+" />
               </div>
@@ -219,8 +271,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
                       value={channels[ch]}
                       onChange={(e) => handleChannel(ch, parseFloat(e.target.value))}
                       aria-label={`Lautstärke ${label}`}
-                      className="flex-1"
-                      style={{ accentColor: StoryModeColors.agencyBlue }}
+                      className="flex-1 bs-pixel-range"
                     />
                   </div>
                 ))}
@@ -321,6 +372,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [selectedAdvisorNpc, setSelectedAdvisorNpc] = useState<string | null>(null);
   const [highlightActionId, setHighlightActionId] = useState<string | null>(null);
+  // L2 „Herzstück 1": Vollbild-Terminal WÄHLT Maßnahmen (ersetzt die Aktionen-
+  // Seitenleiste ersatzlos — geplant/gezeigt wird am Korkbrett, Plan §4.1).
+  const [showTerminal, setShowTerminal] = useState(false);
   const [batchActionResults, setBatchActionResults] = useState<ActionResult[] | null>(null);
   const [selectedGrievanceNpc, setSelectedGrievanceNpc] = useState<string | null>(null);
   // Geführter Einstieg: Title → Ankunfts-Sequenz (Lobby/Fahrstuhl/Zentrale) → Direktor-Dialog.
@@ -547,6 +601,15 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           setShowShortcuts(false);
           return;
         }
+        // L2: Terminal vor Panel/Pause — normalerweise fängt der Capture-Listener
+        // des Terminals das Esc schon ab (stopImmediatePropagation); dieser Zweig
+        // ist die Absicherung, damit die Kette das Terminal KENNT (Review E4 [hoch]:
+        // Esc schloss das Terminal UND öffnete das Pausenmenü).
+        if (showTerminal) {
+          setShowTerminal(false);
+          setHighlightActionId(null);
+          return;
+        }
         // First priority: close active sidebar panel
         if (activePanel) {
           setActivePanel(null);
@@ -578,8 +641,27 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       }
       // Panel & view shortcuts (only when playing and no dialog open)
       if (state.gamePhase === 'playing' && !state.currentDialog) {
-        switch (e.key.toLowerCase()) {
-          case 'a': togglePanel('actions'); break;
+        const key = e.key.toLowerCase();
+        // Am offenen Terminal wirkt nur A (schließen) — andere Panel-Hotkeys
+        // öffneten sonst unsichtbar HINTER dem Schirm Seitenleisten-Reiter (E4).
+        if (showTerminal && key !== 'a') return;
+        switch (key) {
+          // L2: A öffnet das Vorgangs-Terminal (die Aktionen-Seitenleiste ist Geschichte).
+          case 'a': {
+            if (showTerminal) {
+              // Beim Schließen per A den Berater-Sprung mit nullen (staler Highlight, E4).
+              setShowTerminal(false);
+              setHighlightActionId(null);
+            } else if (
+              // Nicht unsichtbar UNTER einem anderen Vollbild-Overlay mounten
+              // (Overlay-Stack, E4 — inkl. Dossier/Hilfe, Verify-Nachtrag).
+              !showNewsroom && !showBoard && !showLagebild && !showOperationsAkte &&
+              !showFokusgruppe && !showPreTest && !showEncyclopedia && !showShortcuts
+            ) {
+              setShowTerminal(true);
+            }
+            break;
+          }
           case 'n': togglePanel('news'); break;
           case 's': togglePanel('stats'); break;
           case 'p': togglePanel('npcs'); break;
@@ -595,7 +677,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleBroadcast, setShowEncyclopedia, showShortcuts, setShowShortcuts]);
+  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleBroadcast, showEncyclopedia, setShowEncyclopedia, showShortcuts, setShowShortcuts, showTerminal, showNewsroom, showBoard, showLagebild, showOperationsAkte, showFokusgruppe, showPreTest]);
 
   // K9 Stufe 1: Autosave bei jedem Phasenwechsel (nur während 'playing').
   // saveGame kommt aus useStoryGameState und wird auch im Pausemenü genutzt.
@@ -751,9 +833,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           onClick={() => setShowEndReport(true)}
           className="fixed bottom-4 right-4 z-50 px-4 py-3 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
           style={{
-            backgroundColor: StoryModeColors.agencyBlue,
-            borderColor: StoryModeColors.darkBlue,
-            color: StoryModeColors.warning,
+            // v3 §4.7: Kraftband-Knopf mit heller Schrift (warning war Tinte auf Blau).
+            backgroundColor: StoryModeColors.darkConcrete,
+            borderColor: StoryModeColors.border,
+            color: StoryModeColors.document,
             boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
           }}
         >
@@ -837,7 +920,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         objectives={state.objectives.map(o => ({
           id: o.id,
           title: o.label_de,
-          progress: o.currentValue,
+          // B22: richtungs-bewusster Engine-Fortschritt (0–100), NICHT currentValue —
+          // beim Senk-Ziel (Vertrauen 100→40) wäre der Balken sonst ab Start voll.
+          progress: o.progress,
           target: o.targetValue,
           isCompleted: o.completed,
           isPrimary: o.type === 'primary',
@@ -863,7 +948,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             aria-label="Pause / Menü"
             title="Pause / Menü (Esc)"
             className="w-8 h-8 flex items-center justify-center border-2 font-bold hover:brightness-125"
-            style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.textPrimary }}
+            style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.lightConcrete }}
           >
             ☰
           </button>
@@ -872,7 +957,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             aria-label="HUD einblenden"
             title="HUD einblenden (H)"
             className="h-8 px-2 flex items-center gap-1 border-2 text-xs font-bold hover:brightness-125"
-            style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.textSecondary }}
+            style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.lightConcrete }}
           >
             <Icon name="stats" size={12} title="HUD" fallback="HUD" /> HUD · H
           </button>
@@ -943,7 +1028,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             />
           ) : (
             <PlayerOfficeView
-              onOpenActions={() => togglePanel('actions')}
+              onOpenActions={() => setShowTerminal(true)}
               onOpenNews={() => togglePanel('news')}
               onOpenLagebild={() => setShowLagebild(true)}
               onOpenNpcs={() => togglePanel('npcs')}
@@ -981,64 +1066,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           )}
         </div>
 
-        {/* Sidebar Panel System */}
+        {/* Sidebar Panel System (L2: Aktionen leben jetzt im Vorgangs-Terminal) */}
         <SidePanel>
-          {activePanel === 'actions' && (
-            <ActionPanel
-              isVisible={true}
-              variant="sidebar"
-              actions={state.availableActions.map(a => ({
-                id: a.id,
-                phase: a.phase,
-                label_de: a.label_de,
-                label_en: a.label_en,
-                narrative_de: a.narrative_de,
-                costs: {
-                  budget: a.costs.budget,
-                  capacity: a.costs.capacity,
-                  risk: a.costs.risk,
-                  attention: a.costs.attention,
-                  moral_weight: a.costs.moralWeight,
-                },
-                npc_affinity: a.npcAffinity,
-                legality: a.legality,
-                tags: a.tags,
-                prerequisites: a.prerequisites,
-                disarm_ref: a.disarmRef,
-                effects: a.effects,
-                isUnlocked: a.available,
-                isUsed: !a.available && a.unavailableReason === 'Already used',
-              }))}
-              // S0 (Review 2026-06-20): kein Jahres-Gate mehr — stattdessen die Aktionen der
-              // aktiven Episoden-Stränge hervorheben/zuerst zeigen (kuratieren statt Katalog, M2).
-              episodeActionIds={Array.from(
-                new Set((state.activeEpisodes ?? []).flatMap((ep) => ep.einklink_aktionen)),
-              )}
-              availableResources={{
-                budget: state.resources.budget,
-                capacity: state.resources.capacity,
-                actionPoints: state.resources.actionPointsRemaining,
-              }}
-              onSelectAction={(actionId) => {
-                const result = executeAction(actionId);
-                setActivePanel(null);
-                setHighlightActionId(null);
-                if (result) {
-                  setShowActionFeedback(true);
-                }
-              }}
-              onAddToQueue={(actionId) => {
-                addToQueue(actionId);
-              }}
-              onClose={() => {
-                setActivePanel(null);
-                setHighlightActionId(null);
-              }}
-              recommendations={state.recommendations}
-              highlightActionId={highlightActionId}
-              getMaschenVorschau={(actionId) => state.engine.getMaschenVorschau(actionId)}
-            />
-          )}
           {activePanel === 'news' && (
             <NewsPanel
               isVisible={true}
@@ -1095,6 +1124,62 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         </SidePanel>
       </div>
       </div>
+
+        {/* L2 „Herzstück 1": Vorgangs-Terminal — WÄHLT Maßnahmen (M1-Karten,
+            M2-Kuratierung + ARCHIV); geplant wird am Korkbrett (Plan §4.1). */}
+        {showTerminal && (
+          <TerminalView
+            actions={state.availableActions.map(a => ({
+              id: a.id,
+              phase: a.phase,
+              label_de: a.label_de,
+              label_en: a.label_en,
+              narrative_de: a.narrative_de,
+              costs: {
+                budget: a.costs.budget,
+                capacity: a.costs.capacity,
+                risk: a.costs.risk,
+                attention: a.costs.attention,
+                moral_weight: a.costs.moralWeight,
+              },
+              npc_affinity: a.npcAffinity,
+              legality: a.legality,
+              tags: a.tags,
+              prerequisites: a.prerequisites,
+              disarm_ref: a.disarmRef,
+              effects: a.effects,
+              isUnlocked: a.available,
+              isUsed: !a.available && a.unavailableReason === 'Already used',
+            }))}
+            episodeActionIds={Array.from(
+              new Set((state.activeEpisodes ?? []).flatMap((ep) => ep.einklink_aktionen)),
+            )}
+            availableResources={{
+              budget: state.resources.budget,
+              capacity: state.resources.capacity,
+              actionPoints: state.resources.actionPointsRemaining,
+            }}
+            onExecuteAction={(actionId) => {
+              const result = executeAction(actionId);
+              setShowTerminal(false);
+              setHighlightActionId(null);
+              if (result) {
+                setShowActionFeedback(true);
+              }
+            }}
+            onAddToQueue={(actionId) => {
+              addToQueue(actionId);
+            }}
+            queueCount={state.actionQueue.length}
+            onClose={() => {
+              setShowTerminal(false);
+              setHighlightActionId(null);
+            }}
+            recommendations={state.recommendations}
+            highlightActionId={highlightActionId}
+            getMaschenVorschau={(actionId) => state.engine.getMaschenVorschau(actionId)}
+          />
+        )}
 
         {/* Newsroom (K5/B15): Social-Feed-Monitor, betreten über den Newsroom-Raum */}
         {showNewsroom && (
@@ -1184,6 +1269,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               targetValue: o.targetValue,
               completed: o.completed,
               isPrimary: o.type === 'primary',
+              category: o.category,
             }))}
             actions={state.availableActions.map((a) => ({
               id: a.id,
@@ -1367,10 +1453,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         >
           <div
             className="mx-4 max-w-md w-full border-4 p-6"
-            style={{ backgroundColor: StoryModeColors.surface, borderColor: StoryModeColors.ministryRed }}
+            style={{ backgroundColor: StoryModeColors.surface, borderColor: StoryModeColors.border }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="font-bold text-lg mb-4" style={{ color: StoryModeColors.warning }}>
+            {/* v3 §4.7: Akten-Rahmen statt Alarm-Rot (Rot-Disziplin, P5-Befund). */}
+            <h2 className="font-bold text-lg mb-4" style={{ color: StoryModeColors.textPrimary }}>
               TASTENKÜRZEL
             </h2>
             <div className="grid grid-cols-1 gap-1 text-sm">
@@ -1464,10 +1551,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         <div
           className="fixed bottom-4 right-4 px-4 py-2 border-2 font-bold animate-fade-in z-50"
           style={{
-            backgroundColor: StoryModeColors.militaryOlive,
-            borderColor: StoryModeColors.darkOlive,
-            color: StoryModeColors.warning,
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
+            // v3 §4.7: Papier-Quittung mit Erfolgs-Tinte (Oliv-Fläche + warning war 1,5:1).
+            backgroundColor: StoryModeColors.surfaceLight,
+            borderColor: StoryModeColors.success,
+            color: StoryModeColors.success,
           }}
         >
           {saveMessage}
@@ -1530,15 +1617,18 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           recommendations={state.recommendations}
           onClose={() => setSelectedAdvisorNpc(null)}
           onSelectAction={(actionId) => {
+            // L2: Berater-Sprung landet im Terminal (Archiv öffnet + scrollt hin).
             setHighlightActionId(actionId);
-            setActivePanel('actions');
+            setShowTerminal(true);
             setSelectedAdvisorNpc(null);
           }}
         />
       )}
 
-      {/* Action Queue Widget — im Gespräch ausgeblendet (kein Overlay über dem Dialog) */}
-      {state.gamePhase === 'playing' && !state.currentDialog && (
+      {/* Action Queue Widget — im Gespräch, am Terminal UND bei ausgeklapptem
+          Broadcast ausgeblendet (das Floating-Widget überlappte sonst die
+          Vorgangsblätter bzw. das Publikums-Wohnzimmer; geplant wird am Korkbrett). */}
+      {state.gamePhase === 'playing' && !state.currentDialog && !showTerminal && !broadcastExpanded && (
         <ActionQueueWidget
           queue={state.actionQueue}
           currentResources={{

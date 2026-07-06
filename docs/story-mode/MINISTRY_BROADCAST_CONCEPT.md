@@ -92,3 +92,37 @@ ist das Zielbild für die Inszenierung je Stufe.
 - Assets: `hud_tv_frame`, `hud_paper_frame`, `audience_room`, 6 Figuren-Sheets,
   `sfx_applause`, `sfx_tv_on`, `sfx_world_event`, `sfx_crisis` — Talkshow/Sonder-
   sendung brauchen nur 1–2 weitere Bilder (Studio-Set, Banner).
+
+---
+
+## 7. Owner-Entscheidung 2026-07-06 (BINDEND) — voller diegetischer Ausbau
+
+Nach der Preview-Sichtung der UI-Luxus-Etappen hat der Owner das bislang
+„bewusst kleine" v1 (Text-Ticker + Zeitungs-Schlagzeile) als **zu klein gedacht**
+verworfen. Verbindliche Richtung für die nächste Bau-Session:
+
+- **Jedes wichtige Ereignis bekommt ein EIGENES Bild bzw. eine Mini-Animation** im
+  Fernseher — nicht nur eine Textzeile. Das gilt für: ausgespielte Maßnahmen
+  (nach Kanal/Masche/Tier), Gegenreaktionen/Faktenchecks, Krisen/Weltereignisse
+  (Sondersendung), Enttarnung, Wahltag/Wochenschau. Die „Format-Palette" (§3) und
+  die „Wirkungs-Treppe" (§4) sind damit das Soll — nicht mehr optional.
+- **Alles als Pixel-Art-Assets** (Pipeline, `styleObject()`/`styleHome()`/
+  `styleCore()` je nach Motiv, Vision-QC-Pflicht), **diegetisch** in der Röhre/
+  Zeitung — kein CSS-Platzhalter mehr, wo ein Bild hingehört. E35 gilt: kein
+  gebackener Text, keine realen Symbole.
+- **Mini-Animationen**: mehrframige Sheets (wie die Figuren) für kurze
+  Sendungs-Loops (z. B. Talkshow-Schnitt, Störbild-Flackern bei Gegenwind,
+  Krisen-Banner-Puls). Timing über `useSprite`/`PixelSprite` wie im Gebäude.
+- Damit fällt die frühere Zurückhaltung „reine Anzeige-Schicht": `BroadcastItem`
+  braucht ein **Bild-/Sheet-Feld** (Motiv-Auswahl je Ereignis-Typ), und die
+  Zuordnung Ereignis→Motiv gehört sauber dokumentiert (Datenfeld an actions.json
+  bzw. eine gepflegte Mapping-Tabelle — Diskussionspunkt §5.2 ist damit
+  entschieden: erst Mapping-Tabelle, später in die Aktions-Daten).
+
+Offen bleibt bewusst (nicht Teil des Bild-Ausbaus): die **mechanische Rückkopplung**
+Publikum→Spiel (§5.3) — das bleibt eine separate Balancing-Entscheidung.
+
+**Bestehende Bausteine, auf denen der Ausbau aufsetzt:** `hud_tv_testcard` (neu,
+Sendepause-Testbild), `hud_tv_frame`/`hud_paper_frame` (Rahmen mit Alpha-Loch),
+`BroadcastScreen`/`AudienceRoom` in `broadcast/BroadcastBar.tsx`,
+`broadcastMapping.ts` (`mapActionToBroadcast`).

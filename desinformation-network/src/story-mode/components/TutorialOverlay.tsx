@@ -154,18 +154,14 @@ Tipp: Kombinieren Sie komplementäre Aktionen für maximalen Effekt!`,
   },
   {
     id: 'actions',
-    title: 'Aktionen',
-    content: `Aktionen sind Ihre Werkzeuge. Es gibt 110 verschiedene Aktionen in 8 Kategorien:
+    title: 'Das Vorgangs-Terminal',
+    content: `Am Terminal in Ihrem Büro (oder mit Taste A) wählen Sie Ihre Maßnahmen.
 
-• Analyse & Strategie (legal)
-• Infrastruktur aufbauen (teils legal)
-• Content erstellen (teils illegal)
-• Distribution & Verstärkung
-• Politik & Lobbying
-• Gesellschaftliche Spaltung
-• Gezielte Angriffe
+Die Eingangsseite zeigt die HEUTE passenden Vorgänge; der volle Katalog liegt in der Schublade „ARCHIV".
 
-Illegale Aktionen sind effektiver, aber riskanter.`,
+Jedes Vorgangsblatt trägt VOR dem Klick Wirkung, Preis und einen Frische-Stempel (FRISCH / BEKANNT / VERBRANNT) je Ziel-Milieu — verbrannte Maschen verpuffen.
+
+Ausführen wirkt sofort; Anheften plant den Vorgang am Korkbrett.`,
     position: 'center',
     highlight: 'actions',
   },
@@ -306,7 +302,8 @@ export function TutorialOverlay({
             style={{
               backgroundColor: StoryModeColors.darkRed,
               borderColor: StoryModeColors.border,
-              color: StoryModeColors.warning,
+              // Auf dem dunkelroten Chip muss der Zähler Papier-hell sein (§4.7 Regel 2).
+              color: StoryModeColors.document,
             }}
           >
             {currentStep + 1} / {totalSteps}
@@ -338,7 +335,8 @@ export function TutorialOverlay({
               style={{
                 backgroundColor: isLastStep ? StoryModeColors.militaryOlive : StoryModeColors.agencyBlue,
                 borderColor: StoryModeColors.border,
-                color: StoryModeColors.warning,
+                // Auf dunklem Oliv/Blau muss die Beschriftung Papier-hell sein (§4.7 Regel 2).
+                color: StoryModeColors.document,
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
               }}
             >
@@ -348,10 +346,10 @@ export function TutorialOverlay({
         </div>
       </div>
 
-      {/* Skip hint */}
+      {/* Skip hint — liegt auf dem dunklen Scrim → heller Papier-Ton statt Tinte (§4.7 Regel 2). */}
       <div
         className="fixed bottom-4 left-1/2 transform -translate-x-1/2 text-xs"
-        style={{ color: StoryModeColors.textMuted }}
+        style={{ color: StoryModeColors.lightConcrete }}
       >
         Drücken Sie ESC um das Tutorial zu überspringen
       </div>

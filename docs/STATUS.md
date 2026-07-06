@@ -9,6 +9,137 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `GESAMTKONZEPT_VISUELL.md` → dieses Dokument für den aktuellen Bau-Stand.
 > Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
+**Stand:** 2026-07-06 (UI-LUXUS-PAKET — Etappen 0–4 GEMERGT via PR #96) · Gate grün
+(`tsc 0` · `vitest 630` · `build`). **Übergabe: `docs/HANDOFF_2026-07-06_UI_LUXUS.md`.**
+> Nach der Owner-Preview-Sichtung zusätzlich gefixt: Cover-Snap-Letterbox (Räume/Büros
+> füllen wieder), Queue-Widget verdeckte das Publikums-Wohnzimmer, kaputte TV-Glyphen;
+> NEU `hud_tv_testcard` (Sendepause-Testbild).
+> **Owner-Richtung NEU (bindend):** Broadcast voll diegetisch ausbauen — jedes wichtige
+> Ereignis bekommt ein eigenes Pixel-Art-Bild/Mini-Animation im TV (nicht nur Text).
+> Details: `MINISTRY_BROADCAST_CONCEPT.md` §7. **Das ist die Priorität der nächsten Session.**
+> Offen außerdem: L3–L8 des Plans (Korkbrett, Kontakte, HUD, Tageszyklus, Klang, Playtest).
+> Umsetzung von `PLAN_2026-07-06_UI_LUXUS.md` mit Doppel-Review-Kontrakt (§3b a).
+> - **Etappe 0 ✅ — State-of-the-Art-Memo:** `MEMO_2026-07-06_STATE_OF_THE_ART.md`
+>   (Integer-Scaling/devicePixelRatio-Formeln · diegetische Papier-/CRT-UI-Lehren
+>   [Papers Please/Obra Dinn/Duskers] · Ambient-NPC-Routinen [Stardew/ONI/Highrise]).
+> - **Etappe 1 ✅ (Code) — Auflösungs-Etappe + Sofort-Paket-Rest:**
+>   **B1-Kern:** Welt-Bühne nur noch pixel-sauber skaliert (`pixelScale.ts`, physisch
+>   ganzzahlig/Stammbruch inkl. dpr; Kamera-/Skalier-Ebenen-Split; Geräte-Pixel-Offsets;
+>   Scale 0,544→**0,5 exakt**, Avatar rendert 1:1 nativ — Browser-Smoke belegt).
+>   Welt-Text nativ gerastert (WorldAnchor-Gegenskalierung: Türschilder/Etagen-Schilder/
+>   Sprechblasen/ETAGEN-Plakette, in getrennten Beschriftungs-Spuren). Raum-Nahsicht +
+>   alle Vollbild-Views auf Cover-Snap (`usePixelFit`-Hooks). Tür-Assets auf ihre
+>   96×144-Welt-Box resampelt (Verzerrung raus, `scripts/fit-door-assets.mjs`).
+>   Skyline/Untergrund welt-kohärent am Bühnen-Scale. **B2/B21:** Pixel-Weltschrift als
+>   globaler Default, Inter/Web-Sans entfernt, Ligaturen aus. **B9:** Fahrstuhl-Z-Ordnung
+>   + Tür-Beat-Choreografie. **B11/B12:** Shredder-Fehlplatzierung (war das „Fragment"),
+>   Kaffeeküche, Wanduhr (yOffset 2,0 m), Statisten-Konstante. **B19–B24:** Umlaute,
+>   Englisch-Reste (Netz-Lauschposten/Themen im Aufwind/Netz-Ticker; interne Tags von
+>   der Karte entfernt, M4-Präzedenz), Ziel-Chip/Balken richtungs-bewusst, $-Währung →
+>   symbolfrei, Abschnitt-Fixes (Uhr/Stats/Dialog-Option/Beat-Modal-Scroll).
+>   **V16-Entscheid:** KEINE HD-Neugenerierung — nach Integer-Scaling rendert der
+>   64-px-Avatar 1:1 nativ; „zu pixelig" war primär der Matsch-Faktor (Texel-Dichte-
+>   Konsistenz schlägt Auflösung; Owner-Blick am Preview bestätigt das oder kippt es).
+>   **Generierung (Budget-Freigabe, ~1,80 $):** 6 Spieler-Porträts re-framed
+>   (einheitlicher Bust-Zuschnitt; f2-Rahmen-Ausschuss + m2/f1 nachgeneriert;
+>   m2 behält kanonischen Koffer — Rest-Feintuning = Owner-Geschmack) +
+>   `bld_underground` neu OHNE Röntgen-Räume (B10 ✅, Vision-QC bestätigt).
+>   **Doppel-Review-Kontrakt (§3b a) ERFÜLLT:**
+>   (1) Code adversarial (Workflow, 4 Dimensionen → 17 Roh-Befunde → 16 bestätigt /
+>   1 widerlegt, ALLE bestätigten gefixt): snapCoverScale-contain-Zweig (hoch),
+>   dpr-Listener-Resubscribe (`useDpr`), useNaturalSize-Stale/onerror, Navigator-
+>   Tür-Beat-Race, ETAGEN-Plakette klick-tot, DialogBox-Scroll-Hinweis §4.6-konform
+>   (Stempel statt Verlauf/Puls) + resize-reaktiv, B22-Familie überall richtungs-
+>   bewusst inkl. obj_survive-Sonderfall (HUD/Stats/Lagebild/Mission/Korkbrett),
+>   „→"-Glyphe (fehlt den Pixel-Fonts) ersetzt, B19-Nachzügler.
+>   (2) Harvest-Vision (volle Ernte 102 Artefakte + Nach-Shots, Gemini-Zweitmeinung,
+>   adversarial verifiziert): Fahrstuhl-B9 in allen 3 Phasen bestätigt sauber;
+>   Pförtner-Blase verdeckte EG-Schild → öffnet jetzt nach unten-rechts (gefixt);
+>   4 Gemini-Befunde widerlegt (VT323 ≠ Web-Sans per Pixel-Zoom belegt; „Figuren
+>   vor Fahrstuhltüren" = Fehldeutung). Geometrie-Audit: weiterhin 1 Befund
+>   (Shredder-Maßstab = bekannter Owner-Geschmack). Gate final: tsc 0 ·
+>   vitest 587 · build · Smoke Scale=0,5/0 Fehler.
+> - **Bewusst NICHT gemacht:** Statisten-Figuren behalten 112 px (1,53 m) trotz
+>   96-px-Nativhöhe — reale Proportion schlägt Texel-Reinheit (Review §1.2 stuft die
+>   Klasse als konsistent ein); Deko-Props behalten ihre Welt-Höhen (Resample-Batch
+>   wäre L1-Material-Session). Stühle-¾-Perspektive/Lobby-Tiefe = Owner-Geschmack, offen.
+> - **Etappe 2 ✅ (L1) — Material-Welt „Behörden-Akte":** theme.ts-v3-Token-Flip
+>   (Papierflächen + Anthrazit-Tinte + Kraftband; EIN Hebel kippt alle Panels) +
+>   Material-Kit generiert (Flash-Modell, ~1,7 $, Vision-QC: 9-Slice-Rahmen ×3,
+>   Papier-/Kraft-Kacheln, Kopfband [Regen wegen Text-Leck], Balken-Kit, Stempel-Set,
+>   Klemmbrett — Rahmen/Stempel/Klemmbrett werden in L2/L3 konsumiert). PixelFrame =
+>   Papier + Kachel + 2-px-Versatzkante; PixelModal-Kopf = getöntes Kraftband.
+>   Kontrast-Sweep über ~40 Komponenten (4 Agenten + zentral): dunkle Bänder → helle
+>   Schrift, Flächen → Papier+Tinte, Chips → STEMPEL, Dringlichkeits-Blinken raus,
+>   CTAs als Stempel-Knöpfe (stampCtaStyle), Pausenmenü-Pixel-Regler.
+>   **Doppel-Review ERFÜLLT:** (1) Code adversarial: 46 Roh → 24 bestätigt, alle
+>   gefixt — Wurzel-Fix Palette v3.1 (Tinten WCAG-fest nachgerechnet), Balken-Tracks
+>   hell, übersehene Dunkel-Szenen (Wahlabend-Finale war 1,3:1!, Auftragswahl, ☰,
+>   Toast), Welt-Signale lokal hell (WORLD_AMBER/RED), getPriorityColor v3.
+>   (2) Harvest-Vision (2 Runden + Nach-Shots): Kraftband statt Groß-Blau, Briefing-
+>   Band, Deck-Karten/Legalität als Stempel; Ernte-Harness gehärtet (Auto-Feierabend-
+>   Drift: Uhr-Resets, 17:58-Sweep, dismissAll kennt Report — mehrere Gemini-Befunde
+>   waren dieses Scrim-Artefakt, per frischer Ernte widerlegt; CRT-Newsroom/Video-
+>   Kacheln bewusst dunkel-diegetisch bestätigt). Gate: tsc 0 · vitest 587 · build.
+>   **Nebenbefunde (L6/P4-Nachsweep):** Briefing-Vorgriff kann englische Krisen-
+>   Ticker zeigen (Übersetzungspfad umgangen); Icon-Text-Fallback erbt currentColor
+>   (nur relevant, wenn Assets fehlen).
+> - **Etappe 3 ✅ (LB) — „Lebendiges Gebäude":** Statisten laufen ECHTE Routen über
+>   ihre Etage (Ziele = Türen via `planRoute`, ruhige ~44 px/s ± 22 %) und erscheinen/
+>   verschwinden AUSSCHLIESSLICH durch sich öffnende Türen (RoomDoor-Blende) — die
+>   CSS-Pendel (FLOOR_WALKERS) und Opacity-Tür-Dummies (DOOR_TRAFFIC) sind ersetzt.
+>   NEU `building/ambientLife.ts` (pure, mulberry32-seeded State-Machine: Tür-Beat
+>   650 ms → Route → Kontext-Idle 2–4 s → Tür-Beat → Pause 9–20 s; Reinigung wandert
+>   die Etagen reihum, Boten je Arbeitsetage; Lobby + Spieler-Büro tabu) +
+>   `AmbientLifeLayer` (rAF-Abspielkopf im eigenen Teilbaum; Bühne re-rendert nur
+>   bei Tür-Fenster-Wechseln; Lauf-Takt ans Tempo gekoppelt = kein Foot-Sliding;
+>   prefers-reduced-motion → keine Laufwege). NEU Asset `figure_clerk_walk`
+>   (8-Frame-Walk zum Clerk-Idle; Erst-Wurf falsche Person → Re-Roll Seed 41577,
+>   Vision-QC ✅). 16 pure Tests + jsdom-Render-Test (pointer-events-frei, kein
+>   Fade, RoomDoor-Ambient-Klausel).
+>   **Doppel-Review ERFÜLLT:** (1) Code adversarial (5 Dimensionen, 29 Agenten:
+>   24 Roh → 9 bestätigt / 15 widerlegt, alle bestätigten gefixt) — Wurzel-Fix
+>   [hoch] Zeitbasis: Epoche je Mount statt rohem rAF-Timestamp + Stale-Klemme +
+>   Saat je Mount (vorher: Massen-Spawn ALLER Agenten bei jedem Büro↔Gebäude-
+>   Remount, sogar 2 Figuren aus derselben Tür; Remount-Messung jetzt: Auftritte
+>   6,5/11,5/18,5/26,8 s gestaffelt, max 2 Türen gleichzeitig); Pipeline-Referenzen
+>   lösen jetzt auch sheets/ auf (clerk_walk entstand ohne Referenz) + Warnung;
+>   Timing-Invarianten + engere Teleport-Toleranz als Tests fixiert; Ernte-Clips
+>   ankern das Fenster am angenommenen Nudge (44 s). (2) Harvest-Vision: Geometrie-
+>   Audit 0 Standlinien-Befunde (18 Walker-Messungen alle exakt auf der Linie;
+>   nur bekannter Shredder-Owner-Geschmack); 5×Abnahme-Clips je Etage; 1 echter
+>   Gemini-Befund (Lazy-Load-Pop-in der Walk-Sheets in frischen Kontexten →
+>   Sheet-Preload vor Ambient-Start) gefixt; übrige Claims adversarial widerlegt
+>   (Frame-Beweise: Figur exakt im Türrahmen; Live-DOM 630 Samples, 0 Flip-
+>   Verstöße, Opacity konstant 1; Geminis etage1-Clip-Urteil selbst: „keine
+>   Befunde"). Ambient-Türen bewusst stumm (Sound nur beim Spieler).
+>   Gate: tsc 0 · vitest 604 · build.
+> - **Etappe 4 ✅ (L2) — Vorgangs-Terminal (Herzstück 1):** Vollbild-CRT-Terminal
+>   ERSETZT die Aktionen-Seitenleiste ersatzlos („Terminal WÄHLT, Korkbrett PLANT",
+>   §4.1) — Taste A, Büro-Hotspot „AKTIONEN PLANEN" und Berater-Sprung führen alle
+>   dorthin; `'actions'`-Reiter aus panelStore/SidePanel raus. NEU `TerminalView.tsx`
+>   (dunkler Phosphor-Schirm als Welt-Objekt wie die Newsroom-CRTs; Volltontext +
+>   SEPARATER, abschaltbarer + persistenter Scanline-Layer, Memo §2.6, nie in den
+>   Text gebacken; Tastatur-/CRT-Klang). M1: die Karte (NEU `ActionCard.tsx`, aus dem
+>   gelöschten ActionPanel extrahiert; Container → `archive/`) trägt Wirkung + Preis +
+>   FRISCH/BEKANNT/VERBRANNT je Ziel-Milieu VOR dem Klick (nie die Matrix-Zahl, E6).
+>   M2 (NEU `terminalCuration.ts`, pure): Tür zeigt 3–8 anlassbezogene Vorgänge
+>   (Strang→Empfehlung→leistbar+frisch→Rest; nie gesperrt/verbraucht), voller Katalog
+>   in der ARCHIV-Schublade (Legalitäts-Filter, Suche, Porträt-Zeile = Zuträger-Filter
+>   nach NPC-Affinität). Anheft-Zähler in der Fußzeile (Queue-Widget am Terminal aus).
+>   **Doppel-Review ERFÜLLT:** (1) Code adversarial (5 Dimensionen; 7 bestätigt /
+>   28 widerlegt-bzw.-proaktiv-gefixt) — Wurzel-Fix [hoch] ESC-Regression: Esc schloss
+>   das Terminal UND öffnete das Pausenmenü (die Esc-Kette kannte showTerminal nicht,
+>   nachdem der activePanel-Schutz mit der Sidebar entfiel) → Capture-Listener +
+>   stopImmediatePropagation (Muster NarrativeBoard/PixelModal) + Terminal-Vorrang in
+>   der Kette; Integrations-Smoke belegt ESC-ohne-Pause; ActionPanel-Totcode archiviert;
+>   Hotkey-Leck/Overlay-Stack/stale-Highlight/Berater-Sprung-bei-offenem-Terminal
+>   gefixt; TutorialOverlay-Text auf Terminal aktualisiert; harvest-Duplikat-Shot raus.
+>   (2) Harvest-Vision: 1 Befund (Sekundärtext-Kontrast ~4,9:1 → textDim ~8,7:1 +
+>   Vollton-Chips) gefixt und per Nach-Shot bestätigt; „Leerzeile" per DOM-Beweis
+>   widerlegt; ▚/│ (fehlende Pixel-Glyphen, B22-Klasse) ersetzt.
+>   Gate: tsc 0 · vitest 630 · build · Integrations-Smoke (ESC/A/Hotkey, 0 Fehler).
+
 **Stand:** 2026-07-05 (VISUAL-COHERENCE-REVIEW — Befunde + Plan, KEINE Fixes) · Branch
 `claude/visual-coherence-review-26f8av` (Draft-PR #95) · Gate grün (`tsc 0` · `vitest 575` · `build`).
 > Optisches Gesamt-Review per wiederverwendbarer Playwright-Ernte + orchestriertem Vision-Review.

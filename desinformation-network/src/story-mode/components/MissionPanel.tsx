@@ -49,7 +49,8 @@ export function MissionPanel({
       <div
         className="p-4 text-center border-4"
         style={{
-          backgroundColor: StoryModeColors.background,
+          // §4.7: Akten-Deckblatt = Papier mit rotem Stempelrahmen (kein dunkler Träger).
+          backgroundColor: StoryModeColors.document,
           borderColor: StoryModeColors.ministryRed,
         }}
       >
@@ -57,12 +58,14 @@ export function MissionPanel({
           className="text-xs font-bold mb-2"
           style={{ color: StoryModeColors.ministryRed }}
         >
-          STRENG GEHEIM - NUR FUR AUTORISIERTES PERSONAL
+          STRENG GEHEIM - NUR FÜR AUTORISIERTES PERSONAL
         </div>
         <div className="text-4xl mb-2">⬢</div>
+        {/* §4.7: Operationsname als roter Stempel auf dem Papier-Deckblatt
+            (warning-Tinte wäre auf hellem Papier zu kontrastarm). */}
         <h1
           className="text-2xl font-bold"
-          style={{ color: StoryModeColors.warning }}
+          style={{ color: StoryModeColors.ministryRed }}
         >
           OPERATION: WESTUNION
         </h1>
@@ -70,7 +73,7 @@ export function MissionPanel({
           className="text-sm mt-2"
           style={{ color: StoryModeColors.textSecondary }}
         >
-          Abteilung fur Sonderoperationen
+          Abteilung für Sonderoperationen
         </div>
       </div>
 
@@ -78,7 +81,8 @@ export function MissionPanel({
       <div
         className="border-4 p-4"
         style={{
-          backgroundColor: StoryModeColors.darkConcrete,
+          // §4.7 Regel 3: Inhalts-Kasten = Papier.
+          backgroundColor: StoryModeColors.surfaceLight,
           borderColor: StoryModeColors.agencyBlue,
         }}
       >
@@ -92,8 +96,9 @@ export function MissionPanel({
           <span
             className="px-3 py-1 font-bold"
             style={{
+              // Dunkles Tinten-Blau als Fläche → heller Papier-Text (§4.7 Regel 2).
               backgroundColor: StoryModeColors.agencyBlue,
-              color: StoryModeColors.warning,
+              color: StoryModeColors.surfaceLight,
             }}
           >
             TAG {phase.number} / WAHL IN {Math.max(0, (phase.electionDay ?? 40) - phase.number)} TAGEN
@@ -124,8 +129,8 @@ export function MissionPanel({
         >
           Sie wurden beauftragt, die demokratischen Institutionen von Westunion
           systematisch zu untergraben. Nutzen Sie Desinformation, soziale Spaltung
-          und strategische Manipulation, um das Vertrauen der Bevolkerung in ihre
-          Regierung zu zerstoren.
+          und strategische Manipulation, um das Vertrauen der Bevölkerung in ihre
+          Regierung zu zerstören.
         </p>
         <p style={{ color: StoryModeColors.textSecondary }}>
           Denken Sie daran: Jede Aktion hat Konsequenzen. Handeln Sie klug.
@@ -137,7 +142,7 @@ export function MissionPanel({
       {auftrag && (
         <div
           className="border-4 p-4"
-          style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.warning }}
+          style={{ backgroundColor: StoryModeColors.surfaceLight, borderColor: StoryModeColors.warning }}
         >
           <h3 className="font-bold mb-1 flex items-center gap-2" style={{ color: StoryModeColors.warning }}>
             <Icon name="mission" size={16} title="Auftrag" fallback="◎" /> AUFTRAG: {auftrag.titel_de.toUpperCase()}
@@ -167,10 +172,10 @@ export function MissionPanel({
                     </span>
                     <span style={{ color: reached ? StoryModeColors.success : StoryModeColors.textSecondary }}>
                       {reached ? '✓ ' : ''}
-                      jetzt {Math.round(cur)} → Ziel {s.ziel}
+                      jetzt {Math.round(cur)} · Ziel {s.ziel}
                     </span>
                   </div>
-                  <div className="h-2 w-full" style={{ backgroundColor: StoryModeColors.border }}>
+                  <div className="h-2 w-full" style={{ backgroundColor: StoryModeColors.lightConcrete }}>
                     <div
                       className="h-full transition-all"
                       style={{ width: `${pct}%`, backgroundColor: reached ? StoryModeColors.success : StoryModeColors.warning }}
@@ -187,7 +192,7 @@ export function MissionPanel({
       <div
         className="border-4 p-4"
         style={{
-          backgroundColor: StoryModeColors.darkConcrete,
+          backgroundColor: StoryModeColors.surfaceLight,
           borderColor: StoryModeColors.ministryRed,
         }}
       >
@@ -203,9 +208,10 @@ export function MissionPanel({
               key={obj.id}
               className="flex items-start gap-3 p-3"
               style={{
+                // §4.7: offene Ziele = Papier-Karte (Tinten-Text), nicht Kraftpapier-dunkel.
                 backgroundColor: obj.completed
                   ? 'rgba(75, 181, 67, 0.2)'
-                  : StoryModeColors.background,
+                  : StoryModeColors.surface,
                 border: `2px solid ${
                   obj.completed ? StoryModeColors.success : StoryModeColors.border
                 }`,
@@ -236,7 +242,11 @@ export function MissionPanel({
                   className="text-sm mt-1"
                   style={{ color: StoryModeColors.textSecondary }}
                 >
-                  Fortschritt: {obj.currentValue} / {obj.targetValue}
+                  {/* B22: „100 / 40" las sich als „100 von 40". Halte-Ziele (survival)
+                      führen kein lebendes currentValue — dort nur die Marke. */}
+                  {obj.category === 'survival'
+                    ? `unter ${obj.targetValue} halten`
+                    : `Stand ${Math.round(obj.currentValue)} · Ziel unter ${obj.targetValue}`}
                 </div>
               </div>
             </div>
@@ -249,7 +259,7 @@ export function MissionPanel({
         <div
           className="border-4 p-4"
           style={{
-            backgroundColor: StoryModeColors.darkConcrete,
+            backgroundColor: StoryModeColors.surfaceLight,
             borderColor: StoryModeColors.militaryOlive,
           }}
         >
@@ -265,7 +275,7 @@ export function MissionPanel({
                 key={obj.id}
                 className="flex items-center gap-3 p-2"
                 style={{
-                  backgroundColor: StoryModeColors.background,
+                  backgroundColor: StoryModeColors.surface,
                   border: `1px solid ${StoryModeColors.border}`,
                 }}
               >
@@ -339,7 +349,8 @@ export function MissionPanel({
           }}
         >
           <Icon name="mission" size={16} title="Mission" fallback="M" />
-          <h2 className="font-bold text-sm" style={{ color: StoryModeColors.warning }}>
+          {/* v3: warning ist Tinte — auf dem roten Kopfband heller Papier-Text. */}
+          <h2 className="font-bold text-sm" style={{ color: StoryModeColors.surfaceLight }}>
             MISSION BRIEFING
           </h2>
         </div>
@@ -376,7 +387,7 @@ export function MissionPanel({
           >
             <div className="flex items-center gap-3">
               <Icon name="mission" size={24} title="Mission" fallback="M" />
-              <h2 className="font-bold text-xl" style={{ color: StoryModeColors.warning }}>
+              <h2 className="font-bold text-xl" style={{ color: StoryModeColors.surfaceLight }}>
                 MISSION BRIEFING
               </h2>
             </div>
@@ -384,9 +395,10 @@ export function MissionPanel({
               onClick={onClose}
               className="px-4 py-1 font-bold border-2 transition-all hover:brightness-110"
               style={{
+                // Dunkler Knopf → heller Text (§4.7 Regel 2).
                 backgroundColor: StoryModeColors.darkConcrete,
                 borderColor: StoryModeColors.border,
-                color: StoryModeColors.textPrimary,
+                color: StoryModeColors.surfaceLight,
               }}
             >
               SCHLIESSEN [ESC]
@@ -399,7 +411,8 @@ export function MissionPanel({
           <div
             className="px-6 py-3 border-t-4 flex justify-between text-xs"
             style={{
-              backgroundColor: StoryModeColors.darkConcrete,
+              // §4.7: Fußleiste = Papier, Tinten-Text bleibt.
+              backgroundColor: StoryModeColors.surfaceLight,
               borderColor: StoryModeColors.border,
               color: StoryModeColors.textMuted,
             }}

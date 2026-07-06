@@ -257,7 +257,7 @@ const BUILDING_KIT = [
     '21:9',
     { w: 2016, h: 864 },
     false,
-    'underground cross-section of soil and bedrock behind a building basement, for a side-scrolling pixel game background: horizontal layered earth strata in dark cool browns and slate-greys, a few horizontal embedded pipes, cables and concrete foundation slabs with rebar, scattered small rocks and roots, getting darker toward the bottom; cool dark earthy palette, crisp clean high-resolution pixel art, seamlessly tileable from left to right, flat frontal view, no people, no text',
+    'underground cross-section of solid soil and bedrock behind a building basement, for a side-scrolling pixel game background: horizontal layered earth strata in dark cool browns and slate-greys, a few horizontal embedded pipes, cables and concrete foundation slabs with rebar, scattered small rocks and roots, getting darker toward the bottom; STRICTLY solid ground only — absolutely NO rooms, NO interiors, NO furniture, NO monitors, NO server racks, NO windows, NO lit spaces of any kind inside the earth (x-ray views of basements are forbidden); cool dark earthy palette, crisp clean high-resolution pixel art, seamlessly tileable from left to right, flat frontal view, no people, no text',
     'must',
   ],
   [
@@ -741,9 +741,18 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       aspectRatio: '1:1',
       size: { w: 1024, h: 1024 },
       seed: seedFor(id),
+      // Paket-D-Re-Framing (Review §2b): einheitlicher Zuschnitt über die ganze
+      // Familie — gleiche Kopf-Größe, gleiche Schulterhöhe im Raster. Referenz =
+      // das Bestandsbild (gleiche Person/Gesicht), nur die KADRIERUNG wird normiert.
+      referenceId: id,
       prompt:
-        `A pixel art character portrait, head and shoulders, facing slightly left, neutral expression. ` +
-        `${hint}. Plain dark concrete wall background. No text. ${style}`,
+        `A pixel art character portrait of the SAME person as in the reference image — ` +
+        `identical face, hair and outfit. Re-frame it with a STRICT uniform crop: ` +
+        `head-and-shoulders bust, front-facing turned slightly left, the head is exactly ` +
+        `40 percent of the image height, the eye line sits on the upper-third line, ` +
+        `the bottom edge cuts at mid-chest, generous even margin above the hair. ` +
+        `${hint}. Background: one PLAIN FLAT dark concrete wall only — NO interior scene, ` +
+        `NO furniture, NO windows, NO corridors. No text. ${style}`,
     });
   }
 
@@ -760,6 +769,80 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       prompt:
         `A pixel art character portrait, head and shoulders, facing slightly left, neutral expression. ` +
         `${hint}. Plain dark concrete wall background. No text. ${style}`,
+    });
+  }
+
+  // --- L1 UI-Material-Kit „Behörden-Akte" (Stil-Bibel §4.7, Plan 2026-07-06 L1) ---
+  // Die gesamte Bedienung ist aus Papier/Akte gemacht: Manila-Mappen, Karteikarten,
+  // Stempel. §4.7-Pflichten: no real-world logos, no emblems, almost no text;
+  // Text bleibt Engine-Ebene (E35) — nur Platzhalter-Striche.
+  const PAPER_STYLE =
+    'Muted bureaucratic file-folder palette: warm manila beige and cream paper surfaces, ' +
+    'kraft-paper brown backing, dark anthracite ink accents, a single ministry-red accent ' +
+    'ONLY where explicitly asked. Crisp clean high-resolution pixel art, flat frontal view, ' +
+    'no gradients, no drop shadows, no real-world logos, no emblems, almost no text ' +
+    '(placeholder dashes only where asked).';
+  const UI_KIT = [
+    ['ui_frame_light', '1:1', { w: 256, h: 256 }, false,
+      'a SINGLE empty square frame for a game UI, drawn as a thin manila paper card border: ' +
+      'a light cream paper sheet edge with a subtle 2px darker paper fold line as border, ' +
+      'hollow transparent-looking flat center filled with plain cream paper, corners slightly ' +
+      'rounded by a 2px pixel step (no smooth curves), designed as a 9-slice frame (edges must ' +
+      'be perfectly uniform and repeatable along each side)'],
+    ['ui_frame_standard', '1:1', { w: 256, h: 256 }, false,
+      'a SINGLE empty square frame for a game UI, drawn as a manila file-folder border: ' +
+      'kraft-paper brown outer edge, cream paper inner field, a 4px layered paper-stack edge ' +
+      'with one visible fold line, NO clip and NO decoration on the edges (they must be plain ' +
+      'and uniform for slicing), designed as a ' +
+      '9-slice frame (edges perfectly uniform and repeatable along each side, corners self-contained)'],
+    ['ui_frame_alarm', '1:1', { w: 256, h: 256 }, false,
+      'a SINGLE empty square frame for a game UI, drawn as an urgent ministry file border: ' +
+      'cream paper field with a bold dark-red rubber-stamped double border line, slightly ' +
+      'rough stamped ink edges (2px jitter), designed as a 9-slice frame (edges perfectly ' +
+      'uniform and repeatable along each side, corners self-contained)'],
+    ['ui_panel_paper', '1:1', { w: 512, h: 512 }, false,
+      'a seamless tileable texture of plain warm cream office paper with extremely subtle ' +
+      'fiber grain and two or three very faint pixel speckles, PERFECTLY seamless when tiled ' +
+      '(left/right and top/bottom edges continue each other exactly), very low contrast'],
+    ['ui_panel_dark', '1:1', { w: 512, h: 512 }, false,
+      'a seamless tileable texture of dark kraft-paper cardboard backing in deep warm brown, ' +
+      'extremely subtle fiber grain, PERFECTLY seamless when tiled (left/right and top/bottom ' +
+      'edges continue each other exactly), very low contrast'],
+    ['ui_header_band', '21:9', { w: 1344, h: 192 }, false,
+      'a seamless horizontally tileable header band texture: a plain strip of dark kraft-paper ' +
+      'with a stitched top edge and a thin ministry-red index line along the bottom edge, ' +
+      'COMPLETELY EMPTY surface — absolutely NO text, NO letters, NO words, NO icons, NO ' +
+      'symbols, NO buttons, ONLY the plain paper material, flat, PERFECTLY seamless ' +
+      'horizontally (left and right edges continue each other exactly)'],
+    ['ui_bar_segments', '16:9', { w: 1024, h: 576 }, true,
+      'a pixel art game progress bar kit on flat magenta: THREE horizontal bars stacked with ' +
+      'clear gaps — (1) an empty bar: a paper strip with a dark ink outline and small tick ' +
+      'marks, (2) the same bar half-filled with flat anthracite ink segments (clearly separate ' +
+      'rectangular segments with 2px gaps), (3) the same bar fully filled with dark-red ink ' +
+      'segments; no text'],
+    ['ui_badge_set', '1:1', { w: 512, h: 512 }, true,
+      'a pixel art set of SIX rubber-stamp impressions on flat magenta, arranged in a 2x3 grid ' +
+      'with clear gaps: rectangular ink stamp outlines with slightly rough stamped edges, in ' +
+      'dark red and anthracite ink, each stamp is an EMPTY bordered rectangle with a short row ' +
+      'of illegible placeholder dashes inside (no real words, no letters), one round stamp with ' +
+      'a star silhouette, one diagonal banner-shaped stamp'],
+    ['ui_clipboard_frame', '3:4', { w: 768, h: 1024 }, true,
+      'a single isolated pixel art clipboard for a game UI on flat magenta: a kraft-paper brown ' +
+      'clipboard board with a metal clip at the top holding a stack of two cream paper sheets, ' +
+      'flat frontal view, the paper sheets are EMPTY (no text, no lines except two faint ' +
+      'placeholder dashes at the top), nothing else in the image'],
+  ];
+  for (const [id, aspectRatio, size, chroma, hint] of UI_KIT) {
+    shots.push({
+      id,
+      type: 'image',
+      kind: 'ui',
+      priority: 'must',
+      aspectRatio,
+      size,
+      chroma,
+      seed: seedFor(id),
+      prompt: `${hint}. ${chroma ? CHROMA_PROMPT + ' ' : ''}${PAPER_STYLE}`,
     });
   }
 
@@ -810,6 +893,30 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       prompt: `A pixel art game asset: ${hint}. ${chroma ? `${CHROMA_PROMPT} ` : ''}${id === 'audience_room' ? styleHome() : style}`,
     });
   }
+
+  // Sendepause-Testbild fürs Röhren-TV (linker Broadcast-Bildschirm im Standby).
+  // Vollbild-Grafik (kein Chroma, füllt das Bildröhren-Loch), klassische Testkarte.
+  // E35: absolut KEIN Text/keine Zahlen/keine Senderkennung.
+  shots.push({
+    id: 'hud_tv_testcard',
+    type: 'image',
+    kind: 'hud',
+    priority: 'nice',
+    aspectRatio: '4:3',
+    size: { w: 512, h: 384 },
+    seed: seedFor('hud_tv_testcard'),
+    prompt:
+      `A classic retro television TEST CARD / test pattern that FILLS the whole image edge to ` +
+      `edge (full-frame flat graphic — NO tv set, NO frame, NO room, NO border, ONLY the test ` +
+      `pattern itself). Composition: a row of vertical colour bars across the top and another ` +
+      `across the bottom, a large central circle containing a fine grid and a thin crosshair, a ` +
+      `horizontal greyscale step-wedge, small square convergence/resolution patches in the four ` +
+      `corners. Slightly muted, slightly desaturated retro CRT colours (clearly distinct hues but ` +
+      `NOT neon, NOT candy) fitting a cool desaturated palette. Perfectly flat, frontal, ` +
+      `orthographic, symmetric. Crisp clean 16-bit pixel art, hard geometric edges, subtle grain. ` +
+      `ABSOLUTELY NO letters, NO numbers, NO words, NO station name, NO clock, NO readable text of ` +
+      `any kind anywhere. No real-world national symbols, no logos, no emblems.`,
+  });
 
   // --- Publikums-Figuren (sitzend, 2-Frame-Idle, Chroma-Sheet) ---
   for (const [id, hint] of AUDIENCE_FIGURES) {
@@ -923,6 +1030,37 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       `frames MUST differ visibly, especially the legs. CRITICAL: EVERY frame on the SAME flat ` +
       `solid magenta (#FF00FF) fill — NO background, NO floor, NO scenery, ONLY the walking ` +
       `cleaner. ${CHROMA_PROMPT} ${styleObject()}`,
+  });
+
+  // Lauf-Zyklus für den Akten-Boten (LB „Lebendiges Gebäude": Statisten laufen echte
+  // Routen — der Kollege braucht dafür ein Walk-Sheet passend zu figure_clerk).
+  shots.push({
+    id: 'figure_clerk_walk',
+    type: 'sheet',
+    kind: 'figure',
+    priority: 'nice',
+    chroma: true,
+    frameWidth: 48,
+    frameHeight: 96,
+    cols: 8,
+    rows: 1,
+    size: { w: 384, h: 96 },
+    animations: { walk: { row: 0, frames: 8, frameTime: 100, loop: true } },
+    // Gewinner-Seed festgeschrieben (Vision-QC: Erst-Wurf mit seedFor() zeigte
+    // eine falsche Person; Re-Roll 41577 passt zum figure_clerk-Idle).
+    seed: 41577,
+    referenceId: 'figure_clerk',
+    prompt:
+      `An 8-frame pixel art sprite sheet of the SAME young MALE office clerk as in the ` +
+      `reference image — a young MAN with short dark hair, grey shirt, dark trousers (NO skirt, ` +
+      `NOT a woman), a beige folder under one arm, identical colors as the reference — walking ` +
+      `to the right, strict side view, full body from head to feet. Horizontal layout, exactly 8 ` +
+      `evenly spaced frames in one row, the SAME character with identical outfit and colors in ` +
+      `every frame, forming one full walk cycle with clearly DIFFERENT leg poses (heel strike, ` +
+      `weight sink, swing-through, reach — for both legs), the free arm swinging opposite to ` +
+      `the legs, head bobbing about 2 pixels. Adjacent frames MUST differ visibly, especially ` +
+      `the legs. CRITICAL: EVERY frame on the SAME flat solid magenta (#FF00FF) fill — NO ` +
+      `background, NO floor, NO scenery, ONLY the walking clerk. ${CHROMA_PROMPT} ${styleObject()}`,
   });
 
   // --- SFX / Musik ---

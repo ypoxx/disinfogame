@@ -11,8 +11,9 @@
  * die Loader-Listen, die Bewertung über evaluateOperationParams. Konzept/Skizze:
  * docs/STRANG34_P2_VERBREITER_PLATTFORM_KONZEPT.md (§4 Trade-off, §5 Kette, §6 Schema).
  */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StoryModeColors } from '../theme';
+import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
 import {
   evaluateOperationParams,
   resolveOperationParams,
@@ -144,7 +145,7 @@ function StepHeader({ num, title, hint }: { num: string; title: string; hint?: s
         style={{
           fontSize: 10,
           fontWeight: 900,
-          color: '#0d0d0d',
+          color: '#fff',
           backgroundColor: StoryModeColors.ministryRed,
           padding: '1px 6px',
           letterSpacing: 1,
@@ -247,7 +248,8 @@ function Gauge({ label, value, invert }: { label: string; value: number | null; 
           {value === null ? '—' : formatPct(v)}
         </span>
       </div>
-      <div style={{ position: 'relative', height: 9, backgroundColor: StoryModeColors.background, border: `1px solid ${StoryModeColors.border}` }}>
+      {/* v3 (§4.7): Balken-Bahn als Papier statt dunklem Träger — Tinten-Füllung bleibt lesbar. */}
+      <div style={{ position: 'relative', height: 9, backgroundColor: StoryModeColors.oldPaper, border: `1px solid ${StoryModeColors.border}` }}>
         <div
           data-oa-fill=""
           style={{
@@ -280,6 +282,12 @@ export function OperationsAkteView({
   onClose,
 }: OperationsAkteViewProps): React.JSX.Element {
   const [sel, setSel] = useState<AkteSelection>(EMPTY_SELECTION);
+
+  // (B1) Pixel-sauberer Cover-Snap fürs Raum-Backdrop statt freiem `cover`.
+  const containerRef = useRef<HTMLDivElement>(null);
+  const areaSize = useElementSize(containerRef);
+  const backdropNat = useNaturalSize(backdropUrl);
+  const backdropSnap = usePixelCover(areaSize, backdropNat);
 
   // Ökonomie-Helfer: ohne Props (Standalone/Test) gilt alles als nutzbar.
   const economy = Boolean(carrierStates || acquiredKompromat);
@@ -341,6 +349,7 @@ export function OperationsAkteView({
 
   return (
     <div
+      ref={containerRef}
       role="dialog"
       aria-modal="true"
       aria-label="Operations-Akte"
@@ -358,7 +367,13 @@ export function OperationsAkteView({
         ...(backdropUrl
           ? {
               backgroundImage: `linear-gradient(rgba(8,8,10,0.86), rgba(8,8,10,0.86)), url(${backdropUrl})`,
-              backgroundSize: 'cover',
+              // (B1) Snap nur für die url-Ebene (Ebene 2); der Gradient (Ebene 1)
+              // füllt mit `auto` weiter die ganze Fläche. Fallback vor
+              // Bildmaß-Kenntnis = bisheriges cover (ein Frame lang).
+              backgroundSize: backdropSnap
+                ? `auto, ${backdropSnap.width}px ${backdropSnap.height}px`
+                : 'cover',
+              backgroundRepeat: 'no-repeat',
               backgroundPosition: 'center',
               imageRendering: 'pixelated' as const,
             }
@@ -396,8 +411,9 @@ export function OperationsAkteView({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 14, fontWeight: 900, letterSpacing: 3, color: StoryModeColors.textPrimary }}>OPERATIONS-AKTE</span>
-            <span style={{ fontSize: 9, letterSpacing: 1, color: StoryModeColors.textMuted }}>
+            {/* v3: Kopfband bleibt dunkel → helle Papier-Töne statt Tinten-Token. */}
+            <span style={{ fontSize: 14, fontWeight: 900, letterSpacing: 3, color: StoryModeColors.document }}>OPERATIONS-AKTE</span>
+            <span style={{ fontSize: 9, letterSpacing: 1, color: StoryModeColors.lightConcrete }}>
               AZ WU-{String(targets.length)}{String(carriers.length)}/{String(platforms.length)} · SONDEROPERATIONEN
             </span>
             <span
@@ -417,11 +433,11 @@ export function OperationsAkteView({
           </div>
           <button
             onClick={onClose}
-            aria-label="Operations-Akte schliessen"
+            aria-label="Operations-Akte schließen"
             style={{
               background: 'none',
               border: `2px solid ${StoryModeColors.ministryRed}`,
-              color: StoryModeColors.textPrimary,
+              color: StoryModeColors.document,
               fontSize: 15,
               fontWeight: 900,
               width: 28,
@@ -598,7 +614,8 @@ export function OperationsAkteView({
                 style={{
                   marginTop: 4,
                   padding: '7px 9px',
-                  backgroundColor: StoryModeColors.background,
+                  // v3 (§4.7): Info-Box als helles Papier-Blatt — Tinten-Text bleibt lesbar.
+                  backgroundColor: StoryModeColors.surfaceLight,
                   border: `1px solid ${StoryModeColors.border}`,
                   fontSize: 10,
                   lineHeight: 1.45,
@@ -621,7 +638,8 @@ export function OperationsAkteView({
               style={{
                 marginTop: 10,
                 padding: '8px 10px',
-                backgroundColor: StoryModeColors.background,
+                // v3 (§4.7): Vorschau-Zettel als helles Papier — Tinten-Text bleibt lesbar.
+                backgroundColor: StoryModeColors.surfaceLight,
                 border: `1px dashed ${StoryModeColors.borderLight}`,
                 minHeight: 46,
               }}

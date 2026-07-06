@@ -1,0 +1,809 @@
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { StoryModeColors } from '../theme';
+import { Icon } from './Icon';
+import type { AdvisorRecommendation } from '../engine/AdvisorRecommendation';
+import { societyDeltaFromAction } from '../engine/SocietyDynamics';
+import { SOCIETY_VALUE_META, type SocietyValueKey } from '../../game-logic/StoryEngineAdapter';
+import type { MaschenStempel } from '../engine/MaschenGedaechtnis';
+
+// ============================================
+// MASCHEN-STEMPEL (Etappe 4 Paket D, Zielbild §6/E7): FRISCH/BEKANNT/VERBRANNT
+// je Ziel-Milieu VOR dem Ausgeben — Vertrag s. StoryEngineAdapter.getMaschenVorschau.
+// Lokal definiert (Adapter/Engine bleiben unangetastet), damit ActionPanel wie
+// bisher rein props-getrieben bleibt.
+// ============================================
+
+/** Rückgabe von `engine.getMaschenVorschau(actionId)` — null, wenn keine Masche. */
+export interface MaschenVorschau {
+  familieId: string;
+  familieLabel: string;
+  stempel: Array<{ milieuId: string; milieuLabel: string; stempel: MaschenStempel }>;
+  multiplikator: number;
+}
+
+/** Kastenstempel-Optik: unauffällig → warnend → verbrannt. NIE den Multiplikator zeigen (E6). */
+const STEMPEL_COLOR: Record<MaschenStempel, string> = {
+  frisch: StoryModeColors.textSecondary,
+  bekannt: StoryModeColors.warning,
+  verbrannt: StoryModeColors.danger,
+};
+
+const STEMPEL_LABEL: Record<MaschenStempel, string> = {
+  frisch: 'FRISCH',
+  bekannt: 'BEKANNT',
+  verbrannt: 'VERBRANNT',
+};
+
+// ============================================
+// WIRKUNGS-VORSCHAU (M1 — Lesbarkeit am Entscheidungspunkt)
+// ============================================
+
+/** Label eines Gesellschaftswerts (reuse der kanonischen Meta). */
+function societyLabel(k: string): string {
+  return SOCIETY_VALUE_META[k as SocietyValueKey]?.label_de ?? k;
+}
+
+/**
+ * Schätzt die Gesellschaftswert-Wirkung EINER Aktion fürs Planen (rein, mult=1).
+ * Liefert die stärksten Verschiebungen (Betrag absteigend, max 3) — bewusst „≈",
+ * weil der echte Lauf den NPC-Assist-Multiplikator + Klemmung anwendet.
+ */
+export function previewSocietyDeltas(
+  effects: Record<string, unknown> | undefined,
+  legality: string,
+): { key: string; value: number }[] {
+  if (!effects) return [];
+  const delta = societyDeltaFromAction(effects, 1, {
+    legality,
+    impactScale: effects.impact_scale,
+  });
+  return (Object.entries(delta) as [string, number][])
+    .map(([key, value]) => ({ key, value: Math.round(value) }))
+    .filter(d => d.value !== 0)
+    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
+    .slice(0, 3);
+}
+
+// ============================================
+// TYPES
+// ============================================
+
+export interface StoryAction {
+  id: string;
+  phase: string;
+  label_de: string;
+  label_en?: string;
+  narrative_de?: string;
+  costs: {
+    budget?: number;
+    capacity?: number;
+    risk?: number;
+    attention?: number;
+    moral_weight?: number;
+  };
+  npc_affinity: string[];
+  legality: 'legal' | 'grey' | 'illegal';
+  tags: string[];
+  prerequisites?: string[];
+  unlocks?: string[];
+  disarm_ref?: string;
+  /** Roh-Effekte für die Wirkungs-Vorschau (M1). Nur Anzeige, keine Mechanik. */
+  effects?: Record<string, unknown>;
+  isUnlocked: boolean;
+  isUsed: boolean;
+}
+
+interface ActionPanelProps {
+  actions: StoryAction[];
+  /**
+   * @deprecated S0 (Review 2026-06-20): Das Terminal filtert NICHT mehr nach Spiel-Jahr
+   * (`ta0{year}`) — das versteckte die guten Aktionen jahrelang und brach die Episoden.
+   * Prop bleibt vorerst für Aufrufer-Kompatibilität, wird aber nicht zum Filtern genutzt.
+   */
+  currentPhase?: string;
+  /** Aktionen der aktiven Episoden-Stränge (M2): werden hervorgehoben + zuerst sortiert. */
+  episodeActionIds?: string[];
+  availableResources: {
+    budget: number;
+    capacity: number;
+    actionPoints: number;
+  };
+  onSelectAction: (actionId: string) => void;
+  onAddToQueue?: (actionId: string) => void;
+  onClose: () => void;
+  isVisible: boolean;
+  recommendations?: AdvisorRecommendation[];
+  highlightActionId?: string | null;
+  variant?: 'modal' | 'sidebar';
+  /** Etappe 4 (E7): Maschen-Vorschau je Aktion — optional, damit ActionPanel abwärtskompatibel bleibt. */
+  getMaschenVorschau?: (actionId: string) => MaschenVorschau | null;
+}
+
+// ============================================
+// FILTER TABS
+// ============================================
+
+type FilterTab = 'all' | 'legal' | 'grey' | 'illegal' | 'unlocked';
+
+const FILTER_TABS: { id: FilterTab; label: string; color: string }[] = [
+  { id: 'all', label: 'ALLE', color: StoryModeColors.textPrimary },
+  { id: 'legal', label: 'LEGAL', color: StoryModeColors.success },
+  { id: 'grey', label: 'GRAUZONE', color: StoryModeColors.warning },
+  { id: 'illegal', label: 'ILLEGAL', color: StoryModeColors.danger },
+  { id: 'unlocked', label: 'NEU', color: StoryModeColors.agencyBlue },
+];
+
+// ============================================
+// ACTION CARD COMPONENT
+// ============================================
+
+interface ActionCardProps {
+  action: StoryAction;
+  canAfford: boolean;
+  onSelect: () => void;
+  onAddToQueue?: () => void;
+  isRecommended?: boolean;
+  isEpisodeRelevant?: boolean;
+  isHighlighted?: boolean;
+  actionRef?: React.RefObject<HTMLDivElement>;
+  getMaschenVorschau?: (actionId: string) => MaschenVorschau | null;
+}
+
+/** Vorgangs-Karte (M1) — auch das L2-Terminal ruft sie als „Vorgangsblatt" auf. */
+export function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, isEpisodeRelevant, isHighlighted, actionRef, getMaschenVorschau }: ActionCardProps) {
+  // M1: Gesellschaftswert-Wirkung schon beim Planen (statt nur „1 NPC-Bonus").
+  const societyPreview = useMemo(
+    () => previewSocietyDeltas(action.effects, action.legality),
+    [action.effects, action.legality],
+  );
+  // E7: Maschen-Stempel VOR dem Ausgeben — null, wenn die Aktion keine Masche ist.
+  const maschenVorschau = useMemo(
+    () => getMaschenVorschau?.(action.id) ?? null,
+    [getMaschenVorschau, action.id],
+  );
+  const legalityColors = {
+    legal: StoryModeColors.success,
+    grey: StoryModeColors.warning,
+    illegal: StoryModeColors.danger,
+  };
+
+  const legalityLabels = {
+    legal: '✓ LEGAL',
+    grey: '! GRAUZONE',
+    illegal: '✕ ILLEGAL',
+  };
+
+  const isDisabled = !canAfford || action.isUsed || !action.isUnlocked;
+
+  // Determine border styling
+  const getBorderColor = () => {
+    if (action.isUsed) return StoryModeColors.border;
+    if (isRecommended) return '#FFD700'; // Gold for recommended
+    if (isEpisodeRelevant) return StoryModeColors.agencyBlue; // Aktueller Strang
+    return legalityColors[action.legality];
+  };
+
+  const getBorderWidth = () => {
+    if (isRecommended || isEpisodeRelevant) return '3px';
+    return '2px';
+  };
+
+  return (
+    <div
+      ref={actionRef as React.RefObject<HTMLDivElement>}
+      className={`
+        w-full text-left p-4 transition-all
+        ${isDisabled ? 'opacity-50' : ''}
+        
+      `}
+      style={{
+        // v3 §4.7: verbrauchte Karten = vergilbtes Papier (statt dunkler Kante als Fläche).
+        // Empfehlung = OPAKES warm getöntes Papier — die frühere rgba-Lasur wurde
+        // auf dem dunklen Terminal-Schirm durchsichtig (Karte las als Loch, L2).
+        backgroundColor: action.isUsed
+          ? StoryModeColors.lightConcrete
+          : isRecommended
+          ? '#EFE3BC'
+          : StoryModeColors.surfaceLight,
+        border: `${getBorderWidth()} solid ${getBorderColor()}`,
+        outline: isHighlighted ? `3px solid ${StoryModeColors.warning}` : undefined,
+        outlineOffset: isHighlighted ? 2 : undefined,
+        boxShadow: 'none',
+      }}
+    >
+      {/* Header */}
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <div
+              className="font-bold text-sm"
+              style={{ color: StoryModeColors.textPrimary }}
+            >
+              {action.label_de}
+            </div>
+            {isRecommended && (
+              <span
+                className="text-base"
+                style={{ color: '#FFD700' }}
+                title="Von NPCs empfohlen"
+              >
+                ★
+              </span>
+            )}
+          </div>
+          <div
+            className="text-xs mt-0.5"
+            style={{ color: legalityColors[action.legality] }}
+          >
+            {legalityLabels[action.legality]}
+          </div>
+        </div>
+        {isEpisodeRelevant && (
+          <div
+            className="text-xs px-2 py-0.5 border font-bold whitespace-nowrap"
+            style={{
+              // §4.7 Stempel-Optik: Rahmen + Tinte auf Papier statt dunkler Füllung.
+              backgroundColor: 'transparent',
+              borderColor: StoryModeColors.agencyBlue,
+              color: StoryModeColors.agencyBlue,
+            }}
+            title="Gehört zum aktuellen Episoden-Strang"
+          >
+            ● STRANG
+          </div>
+        )}
+      </div>
+
+      {/* Narrative */}
+      {action.narrative_de && (
+        <div
+          className="text-xs mb-3 line-clamp-2"
+          style={{ color: StoryModeColors.textSecondary }}
+        >
+          {action.narrative_de}
+        </div>
+      )}
+
+      {/* Costs */}
+      <div className="flex flex-wrap gap-2 mb-2">
+        {action.costs.budget && action.costs.budget > 0 && (
+          <span
+            className="text-xs px-2 py-0.5 border whitespace-nowrap"
+            style={{
+              backgroundColor: 'transparent',
+              borderColor: StoryModeColors.warning,
+              color: StoryModeColors.warning,
+            }}
+          >
+            {/* B23: Preis symbolfrei („40K"). */}
+            <Icon name="budget" size={14} title="Budget" /> {action.costs.budget}K
+          </span>
+        )}
+        {action.costs.capacity && action.costs.capacity > 0 && (
+          <span
+            className="text-xs px-2 py-0.5 border"
+            style={{
+              backgroundColor: 'transparent',
+              borderColor: StoryModeColors.agencyBlue,
+              color: StoryModeColors.agencyBlue,
+            }}
+          >
+            <Icon name="capacity" size={14} title="Kapazität" /> {action.costs.capacity}
+          </span>
+        )}
+        {action.costs.risk && action.costs.risk > 0 && (
+          <span
+            className="text-xs px-2 py-0.5 border"
+            style={{
+              backgroundColor: 'transparent',
+              borderColor: StoryModeColors.danger,
+              color: StoryModeColors.danger,
+            }}
+          >
+            <Icon name="risk" size={14} title="Risiko" /> +{action.costs.risk}%
+          </span>
+        )}
+        {action.costs.moral_weight && action.costs.moral_weight > 0 && (
+          <span
+            className="text-xs px-2 py-0.5 border"
+            style={{
+              backgroundColor: 'transparent',
+              borderColor: StoryModeColors.ministryRed,
+              color: StoryModeColors.ministryRed,
+            }}
+          >
+            <Icon name="moral" size={14} title="Moralische Last" /> +{action.costs.moral_weight}
+          </span>
+        )}
+      </div>
+
+      {/* Tags (internes Engine-Vokabular, 113 englische Keys) werden bewusst NICHT
+          mehr gerendert (B20/M4-Präzedenz „interne IDs raus von der Karte");
+          das L2-Terminal zeigt stattdessen kuratierte deutsche Kategorien. */}
+
+      {/* NPC Affinity */}
+      {action.npc_affinity.length > 0 && (
+        <div
+          className="mt-2 pt-2 border-t text-xs"
+          style={{ borderColor: StoryModeColors.borderLight }}
+        >
+          <div
+            className="font-bold mb-1"
+            style={{ color: StoryModeColors.textSecondary }}
+          >
+            <Icon name="npcs" size={14} title="NPCs" /> NPC-Vorteile:
+          </div>
+          <div className="space-y-1">
+            {/* B24: umbruchfähig statt hart gekappt — in der schmalen Seitenleiste
+                wurde „Kosten-Rabatt" sonst mitten im Wort abgeschnitten. */}
+            {action.npc_affinity.map(npcId => (
+              <div
+                key={npcId}
+                className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 px-2 py-1"
+                style={{
+                  backgroundColor: 'transparent',
+                  border: `1px solid ${StoryModeColors.borderLight}`,
+                }}
+              >
+                <span
+                  className="capitalize font-bold"
+                  style={{ color: StoryModeColors.agencyBlue }}
+                >
+                  {npcId}
+                </span>
+                <div className="flex flex-wrap justify-end gap-x-2 gap-y-0.5 text-xs">
+                  <span className="whitespace-nowrap" style={{ color: StoryModeColors.success }}>
+                    +10 Beziehung
+                  </span>
+                  {/* Note: Actual discount calculation would need NPC state here */}
+                  <span className="whitespace-nowrap" style={{ color: StoryModeColors.warning }}>
+                    Kosten-Rabatt
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div
+            className="text-xs mt-1 italic"
+            style={{ color: StoryModeColors.textMuted }}
+          >
+            Höhere Beziehung = größerer Rabatt (max. 30%)
+          </div>
+        </div>
+      )}
+
+      {/* Impact Preview (Phase 3.3) */}
+      {!isDisabled && (
+        <div
+          className="mt-2 p-2 border text-xs space-y-1"
+          style={{
+            // §4.7: Vorschau-Kasten = leicht abgesetztes Papier, Tinten-Text bleibt lesbar.
+            backgroundColor: StoryModeColors.surface,
+            borderColor: StoryModeColors.borderLight,
+          }}
+        >
+          <div className="font-bold mb-1" style={{ color: StoryModeColors.textSecondary }}>
+            AUSWIRKUNG:
+          </div>
+          {/* M1: Gesellschaftswert-Verschiebung schon hier sichtbar (≈ ohne NPC-Assist). */}
+          {societyPreview.length > 0 && (
+            <div className="flex flex-wrap gap-x-3 gap-y-0.5 mb-1">
+              {societyPreview.map(({ key, value }) => (
+                <span
+                  key={key}
+                  style={{ color: value > 0 ? StoryModeColors.warning : StoryModeColors.agencyBlue }}
+                  title="Geschätzte Wirkung auf die Gesellschaft"
+                >
+                  {societyLabel(key)} {value > 0 ? `▲ ≈+${value}` : `▼ ≈${value}`}
+                </span>
+              ))}
+            </div>
+          )}
+          {/* E7: Frische-Stempel je Ziel-Milieu — warnt VOR dem Ausgeben, nie eine
+              Matrix-Zahl (E6). Grauer Kastenstempel: Border statt Schatten/Glow. */}
+          {maschenVorschau && (
+            <div className="mb-1">
+              <span style={{ color: StoryModeColors.textMuted }}>
+                MASCHE: {maschenVorschau.familieLabel}
+              </span>
+              <div className="flex flex-wrap gap-1 mt-0.5">
+                {maschenVorschau.stempel.slice(0, 3).map((s) => (
+                  <span
+                    key={s.milieuId}
+                    className="px-1.5 py-0.5 border font-bold uppercase"
+                    style={{
+                      borderColor: STEMPEL_COLOR[s.stempel],
+                      color: STEMPEL_COLOR[s.stempel],
+                      backgroundColor: 'transparent',
+                      boxShadow: 'none',
+                    }}
+                    title={`${s.milieuLabel}: Masche ${STEMPEL_LABEL[s.stempel]}`}
+                  >
+                    {s.milieuLabel}: {STEMPEL_LABEL[s.stempel]}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+            {(action.costs.risk ?? 0) > 0 && (
+              <span style={{ color: (action.costs.risk ?? 0) > 10 ? StoryModeColors.danger : StoryModeColors.warning }}>
+                Risiko +{action.costs.risk}%
+              </span>
+            )}
+            {(action.costs.moral_weight ?? 0) > 0 && (
+              <span style={{ color: StoryModeColors.ministryRed }}>
+                Moral +{action.costs.moral_weight}
+              </span>
+            )}
+            {(action.costs.attention ?? 0) > 0 && (
+              <span style={{ color: StoryModeColors.danger }}>
+                Aufmerksamkeit +{action.costs.attention}%
+              </span>
+            )}
+            {action.legality === 'illegal' && (
+              <span style={{ color: StoryModeColors.danger }}>
+                Konsequenz wahrscheinlich
+              </span>
+            )}
+            {action.npc_affinity.length > 0 && (
+              <span style={{ color: StoryModeColors.success }}>
+                {action.npc_affinity.length} NPC-Bonus
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Status Badges */}
+      {action.isUsed && (
+        <div
+          className="mt-2 text-xs font-bold text-center py-1"
+          style={{
+            // §4.7 Stempel-Slip: vergilbtes Papier + Tinte statt dunkler Fläche mit Tinten-Text.
+            backgroundColor: StoryModeColors.oldPaper,
+            color: StoryModeColors.textSecondary,
+          }}
+        >
+          ✓ BEREITS VERWENDET
+        </div>
+      )}
+      {!action.isUnlocked && !action.isUsed && (
+        <div
+          className="mt-2 text-xs font-bold text-center py-1"
+          style={{
+            backgroundColor: StoryModeColors.oldPaper,
+            color: StoryModeColors.textSecondary,
+          }}
+        >
+          GESPERRT
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      {!isDisabled && (
+        <div className="flex gap-2 mt-3 pt-3 border-t" style={{ borderColor: StoryModeColors.borderLight }}>
+          <button
+            onClick={onSelect}
+            className="flex-1 px-3 py-1.5 border-2 text-xs font-bold transition-all hover:brightness-110 active:translate-y-0.5"
+            style={{
+              backgroundColor: StoryModeColors.success,
+              borderColor: '#15803d',
+              color: '#fff',
+            }}
+            title="Sofort ausführen"
+          >
+            AUSFÜHREN
+          </button>
+          {onAddToQueue && (
+            <button
+              onClick={onAddToQueue}
+              className="flex-1 px-3 py-1.5 border-2 text-xs font-bold transition-all hover:brightness-110 active:translate-y-0.5"
+              style={{
+                // v3: warning ist jetzt Tinte — auf dunkler Oliv-Fläche heller Papier-Text.
+                backgroundColor: StoryModeColors.militaryOlive,
+                borderColor: StoryModeColors.darkOlive,
+                color: StoryModeColors.surfaceLight,
+              }}
+              title="Aufs Korkbrett anheften (Sendeplan)"
+            >
+              + ANHEFTEN
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================
+// MAIN ACTION PANEL COMPONENT
+// ============================================
+
+export function ActionPanel({
+  actions,
+  episodeActionIds = [],
+  availableResources,
+  onSelectAction,
+  onAddToQueue,
+  onClose,
+  isVisible,
+  recommendations = [],
+  highlightActionId = null,
+  variant = 'modal',
+  getMaschenVorschau,
+}: ActionPanelProps) {
+  const [activeTab, setActiveTab] = useState<FilterTab>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const highlightedActionRef = useRef<HTMLDivElement>(null);
+
+  // Get all recommended action IDs
+  const recommendedActionIds = useMemo(() => {
+    const ids = new Set<string>();
+    recommendations.forEach(rec => {
+      rec.suggestedActions?.forEach(actionId => ids.add(actionId));
+    });
+    return ids;
+  }, [recommendations]);
+
+  // M2: Aktionen der aktiven Episoden-Stränge — werden hervorgehoben + zuerst gezeigt.
+  const episodeActionIdSet = useMemo(() => new Set(episodeActionIds), [episodeActionIds]);
+
+  // Check if action is recommended (stable reference via Set)
+  // NOTE: Do NOT use this function in useMemo deps - use recommendedActionIds instead
+
+  // Scroll to highlighted action
+  useEffect(() => {
+    if (highlightActionId && highlightedActionRef.current) {
+      highlightedActionRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [highlightActionId]);
+
+  const filteredActions = useMemo(() => {
+    // S0 (Review 2026-06-20): KEIN Jahres-/Phasen-Gate mehr. Früher zeigte das Terminal nur
+    // `ta0{year}` → im 1. Jahr nur Analyse-Aktionen, die guten Phänomen-Aktionen erst Jahr 4–8,
+    // und Episoden-Aktionen waren im Terminal unsichtbar. Jetzt: alle (freigeschalteten)
+    // Aktionen, anlass-relevante zuerst (M2).
+    let result = actions;
+
+    // Filter by tab
+    if (activeTab !== 'all') {
+      if (activeTab === 'unlocked') {
+        result = result.filter(a => a.isUnlocked && !a.isUsed);
+      } else {
+        result = result.filter(a => a.legality === activeTab);
+      }
+    }
+
+    // Filter by search
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        a =>
+          a.label_de.toLowerCase().includes(query) ||
+          a.tags.some(t => t.toLowerCase().includes(query)) ||
+          a.narrative_de?.toLowerCase().includes(query)
+      );
+    }
+
+    // Sort (M2): aktueller Episoden-Strang zuerst, dann Berater-Empfehlung, dann Rest.
+    // Stabil per Rang, damit die Reihenfolge innerhalb einer Stufe erhalten bleibt.
+    const rank = (id: string) =>
+      episodeActionIdSet.has(id) ? 0 : recommendedActionIds.has(id) ? 1 : 2;
+    result = [...result].sort((a, b) => rank(a.id) - rank(b.id));
+
+    return result;
+  }, [actions, activeTab, searchQuery, recommendedActionIds, episodeActionIdSet]);
+
+  const canAffordAction = (action: StoryAction) => {
+    if (action.costs.budget && action.costs.budget > availableResources.budget) {
+      return false;
+    }
+    if (action.costs.capacity && action.costs.capacity > availableResources.capacity) {
+      return false;
+    }
+    if (availableResources.actionPoints <= 0) {
+      return false;
+    }
+    return true;
+  };
+
+  if (!isVisible) return null;
+
+  // Shared content: Filter tabs, actions list, footer
+  const filterBar = (
+    <div
+      className={`flex gap-1 ${variant === 'sidebar' ? 'px-2 py-1.5 flex-wrap' : 'px-4 py-2'} border-b-2`}
+      style={{
+        backgroundColor: StoryModeColors.darkConcrete,
+        borderColor: StoryModeColors.borderLight,
+      }}
+    >
+      {FILTER_TABS.map(tab => (
+        <button
+          key={tab.id}
+          onClick={() => setActiveTab(tab.id)}
+          className={`
+            px-2 py-1 text-xs font-bold border-2 transition-all
+            ${activeTab === tab.id ? 'translate-y-0.5' : 'hover:brightness-110'}
+          `}
+          style={{
+            backgroundColor:
+              activeTab === tab.id ? tab.color : StoryModeColors.surface,
+            borderColor:
+              activeTab === tab.id ? StoryModeColors.border : StoryModeColors.borderLight,
+            color:
+              activeTab === tab.id ? '#fff' : tab.color,
+            boxShadow:
+              activeTab === tab.id ? 'none' : 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
+          }}
+        >
+          {tab.label}
+        </button>
+      ))}
+
+      {/* Search */}
+      <div className={variant === 'sidebar' ? 'w-full mt-1' : 'flex-1 ml-4'}>
+        <input
+          type="text"
+          placeholder="Aktionen suchen..."
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          className="w-full px-3 py-1 text-sm font-mono border-2"
+          style={{
+            // §4.7: Eingabefeld = Papier-Slip im Kraftband, Tinten-Text.
+            backgroundColor: StoryModeColors.surfaceLight,
+            borderColor: StoryModeColors.borderLight,
+            color: StoryModeColors.textPrimary,
+          }}
+        />
+      </div>
+    </div>
+  );
+
+  const actionsList = (
+    <div
+      className="flex-1 overflow-y-auto p-3"
+      // §4.7 Regel 3: große Panel-Fläche = Papier, nicht Kraftpapier-Träger.
+      style={{ backgroundColor: StoryModeColors.surface }}
+    >
+      {filteredActions.length === 0 ? (
+        <div
+          className="text-center py-8"
+          style={{ color: StoryModeColors.textSecondary }}
+        >
+          Keine Aktionen für aktuelle Filter verfügbar.
+        </div>
+      ) : (
+        <div className={variant === 'sidebar' ? 'space-y-3' : 'grid grid-cols-2 gap-3'}>
+          {filteredActions.map(action => {
+            const isHighlighted = highlightActionId === action.id;
+            return (
+              <ActionCard
+                key={action.id}
+                action={action}
+                canAfford={canAffordAction(action)}
+                onSelect={() => onSelectAction(action.id)}
+                onAddToQueue={onAddToQueue ? () => onAddToQueue(action.id) : undefined}
+                isRecommended={recommendedActionIds.has(action.id)}
+                isEpisodeRelevant={episodeActionIdSet.has(action.id)}
+                isHighlighted={isHighlighted}
+                actionRef={isHighlighted ? highlightedActionRef : undefined}
+                getMaschenVorschau={getMaschenVorschau}
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+
+  const footer = (
+    <div
+      className="px-3 py-2 border-t-2 flex items-center justify-between"
+      style={{
+        // §4.7: Status-Fußleiste = Papier, damit die Tinten-Akzente (warning/agencyBlue) lesbar bleiben.
+        backgroundColor: StoryModeColors.surfaceLight,
+        borderColor: StoryModeColors.border,
+      }}
+    >
+      <div className="flex gap-3 text-xs">
+        {/* B23: Kassenstand symbolfrei („150K"). */}
+        <span style={{ color: StoryModeColors.warning }}>
+          <Icon name="budget" size={14} title="Budget" /> {availableResources.budget}K
+        </span>
+        <span style={{ color: StoryModeColors.agencyBlue }}>
+          <Icon name="capacity" size={14} title="Kapazität" /> {availableResources.capacity}
+        </span>
+        <span style={{ color: StoryModeColors.textPrimary }}>
+          <Icon name="mission" size={14} title="Aktionspunkte" /> {availableResources.actionPoints} AP
+        </span>
+      </div>
+      <div
+        className="text-[10px]"
+        style={{ color: StoryModeColors.textMuted }}
+      >
+        Grau/Illegal erhöht Risiko
+      </div>
+    </div>
+  );
+
+  // Sidebar variant: render inline (no overlay)
+  if (variant === 'sidebar') {
+    return (
+      <div className="flex flex-col h-full">
+        <div
+          className="px-3 py-2 border-b-2 flex items-center justify-between"
+          style={{
+            backgroundColor: StoryModeColors.ministryRed,
+            borderColor: StoryModeColors.border,
+          }}
+        >
+          <div>
+            <h2 className="font-bold text-sm text-white">AKTIONEN · SCHNELLZUGRIFF</h2>
+            <p className="text-[10px] text-white/70">
+              Einzeln ausführen oder anheften · {filteredActions.length} verfügbar
+            </p>
+          </div>
+        </div>
+        {filterBar}
+        {actionsList}
+        {footer}
+      </div>
+    );
+  }
+
+  // Modal variant: original fullscreen overlay
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-8"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
+    >
+      <div
+        className="w-full max-w-4xl max-h-[90vh] flex flex-col border-2"
+        style={{
+          backgroundColor: StoryModeColors.surface,
+          borderColor: StoryModeColors.border,
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
+        }}
+      >
+        {/* Header */}
+        <div
+          className="flex items-center justify-between px-6 py-4 border-b-2"
+          style={{
+            backgroundColor: StoryModeColors.ministryRed,
+            borderColor: StoryModeColors.border,
+          }}
+        >
+          <div>
+            <h2 className="font-bold text-xl text-white">AKTIONEN · SCHNELLZUGRIFF</h2>
+            <p className="text-sm text-white/70">
+              Einzeln ausführen oder anheften · {filteredActions.length} verfügbar
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border-2 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
+            style={{
+              backgroundColor: StoryModeColors.darkRed,
+              borderColor: StoryModeColors.border,
+              color: '#fff',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
+            }}
+          >
+            ✕ SCHLIESSEN
+          </button>
+        </div>
+
+        {filterBar}
+        {actionsList}
+        {footer}
+      </div>
+    </div>
+  );
+}
+
+export default ActionPanel;

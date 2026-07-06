@@ -1,4 +1,4 @@
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, stampCtaStyle } from '../theme';
 import { Icon, type IconName } from './Icon';
 
 // E29: Keyframe für pulsierendes RISIKO bei ≥70 — einmalig injiziert.
@@ -122,7 +122,8 @@ function ResourceBar({
   const formatValue = () => {
     switch (format) {
       case 'currency':
-        return `$${value}K`;
+        // B23: symbolfrei („150K") — kein „$" in der fiktiven Ost-Block-Welt.
+        return `${value}K`;
       case 'percent':
         return `${Math.round(value)}%`;
       default:
@@ -182,10 +183,10 @@ function ResourceBar({
         </div>
         {percentage !== undefined && (
           <div
-            className="rounded-sm overflow-hidden"
+            className="overflow-hidden"
             style={{
               height: isPrimary ? '4px' : '3px',
-              backgroundColor: StoryModeColors.border,
+              backgroundColor: StoryModeColors.oldPaper,
             }}
           >
             <div
@@ -245,8 +246,8 @@ function AbwehrBar({ value, stageInfo }: AbwehrBarProps) {
         </div>
         <div className="relative" style={{ height: '4px' }}>
           <div
-            className="rounded-sm overflow-hidden h-full"
-            style={{ backgroundColor: StoryModeColors.border }}
+            className="overflow-hidden h-full"
+            style={{ backgroundColor: StoryModeColors.oldPaper }}
           >
             <div
               className="h-full transition-all duration-300"
@@ -267,7 +268,9 @@ function AbwehrBar({ value, stageInfo }: AbwehrBarProps) {
                   top: '-1px',
                   bottom: '-1px',
                   width: '2px',
-                  backgroundColor: fired ? StoryModeColors.textPrimary : 'rgba(0,0,0,0.55)',
+                  // „gezündet = hell": textPrimary ist seit v3 Tinte (dunkel) — auf dem
+                  // dunklen Balken-Träger muss die Kerbe Papier-hell sein (§4.7 Regel 2).
+                  backgroundColor: fired ? StoryModeColors.document : 'rgba(0,0,0,0.55)',
                 }}
               />
             );
@@ -307,7 +310,7 @@ function SonntagsfrageBar({ info }: { info: SonntagsfrageInfo }) {
           </span>
         </div>
         <div className="relative" style={{ height: '4px' }}>
-          <div className="rounded-sm overflow-hidden h-full" style={{ backgroundColor: StoryModeColors.border }}>
+          <div className="overflow-hidden h-full" style={{ backgroundColor: StoryModeColors.oldPaper }}>
             <div
               className="h-full transition-all duration-300"
               style={{ width: `${barPct}%`, backgroundColor: reached ? StoryModeColors.success : StoryModeColors.ministryRed }}
@@ -345,7 +348,8 @@ function PhaseDisplay({ phase }: PhaseDisplayProps) {
         <div className="text-[10px]" style={{ color: StoryModeColors.textSecondary }}>
           TAG {phase.current}
         </div>
-        <div className="font-bold text-sm" style={{ color: StoryModeColors.document }}>
+        {/* Papier-Ton wäre auf der hellen HUD-Leiste unsichtbar → Tinte (§4.7 Regel 1). */}
+        <div className="font-bold text-sm" style={{ color: StoryModeColors.textPrimary }}>
           {daysLeft === 0 ? 'WAHLTAG' : `WAHL IN ${daysLeft} T.`}
         </div>
       </div>
@@ -384,7 +388,8 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
 
   if (!primaryObjective) return null;
 
-  const progress = primaryObjective.target > 0 ? (primaryObjective.progress / primaryObjective.target) * 100 : 0;
+  // B22: `progress` ist bereits der richtungs-bewusste Engine-Prozentwert (0–100).
+  const progress = Math.max(0, Math.min(100, primaryObjective.progress));
 
   return (
     <button
@@ -418,7 +423,7 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
         {primaryObjective.title}
       </div>
       <div
-        className="h-1 mt-1 rounded-sm overflow-hidden"
+        className="h-1 mt-1 overflow-hidden"
         style={{ backgroundColor: StoryModeColors.border }}
       >
         <div
@@ -458,11 +463,12 @@ export function StoryHUD({
       {/* E29: Puls-Keyframe einmalig ins DOM */}
       <style>{HUD_PULSE_STYLE}</style>
 
-      {/* Top Bar */}
+      {/* Top Bar — Papierfläche (§4.7: auch der Spiel-UI-Rand ist aus Papier);
+          die Tinten-Labels und Akzent-Werte bleiben darauf lesbar. */}
       <div
         className="fixed top-0 left-0 right-0 z-40 border-b-4"
         style={{
-          backgroundColor: StoryModeColors.darkConcrete,
+          backgroundColor: StoryModeColors.surface,
           borderColor: StoryModeColors.border,
         }}
       >
@@ -544,13 +550,8 @@ export function StoryHUD({
             {onEndPhase && (
               <button
                 onClick={onEndPhase}
-                className="px-4 py-1.5 border-2 font-bold text-sm transition-all hover:brightness-110 active:translate-y-0.5"
-                style={{
-                  backgroundColor: StoryModeColors.ministryRed,
-                  borderColor: StoryModeColors.darkRed,
-                  color: '#fff',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-                }}
+                className="px-4 py-1.5 font-bold text-sm transition-all hover:brightness-95 active:translate-y-0.5"
+                style={stampCtaStyle}
               >
                 PHASE BEENDEN →
               </button>

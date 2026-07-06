@@ -66,8 +66,10 @@ export function ActionQueueWidget({
       <div
         className="fixed bottom-4 right-4 w-12 h-12 border-2 flex items-center justify-center cursor-pointer hover:brightness-110 transition-all"
         style={{
-          backgroundColor: StoryModeColors.militaryOlive,
-          borderColor: StoryModeColors.darkOlive,
+          // v3 §4.7: militaryOlive ist Tinten-Olive, kein Flächen-Grün → Kraftpapier + heller Inhalt.
+          backgroundColor: StoryModeColors.darkConcrete,
+          borderColor: StoryModeColors.border,
+          color: StoryModeColors.surfaceLight,
           zIndex: 45,
         }}
         onClick={onToggleCollapse}
@@ -102,24 +104,25 @@ export function ActionQueueWidget({
         zIndex: 45,
       }}
     >
-      {/* Header */}
+      {/* Header — v3 §4.7: darkConcrete-Kraftband mit hellem Text (militaryOlive = Tinte,
+          kein Flächen-Grün mehr; Owner-Vorgabe für dieses Kopfband). */}
       <div
         className="border-b-2 p-3 flex items-center justify-between"
         style={{
-          backgroundColor: StoryModeColors.militaryOlive,
-          borderColor: StoryModeColors.darkOlive,
+          backgroundColor: StoryModeColors.darkConcrete,
+          borderColor: StoryModeColors.border,
         }}
       >
         <div className="flex-1">
           <h3
             className="font-bold text-sm tracking-wider"
-            style={{ color: StoryModeColors.warning }}
+            style={{ color: StoryModeColors.surfaceLight }}
           >
             <Icon name="actions" size={16} title="Aktionen" /> AKTIONEN-WARTESCHLANGE
           </h3>
           <p
             className="text-xs mt-0.5"
-            style={{ color: StoryModeColors.textSecondary }}
+            style={{ color: StoryModeColors.lightConcrete }}
           >
             {queue.length} Aktion{queue.length !== 1 ? 'en' : ''} geplant
           </p>
@@ -128,7 +131,7 @@ export function ActionQueueWidget({
           <button
             onClick={onToggleCollapse}
             className="p-1 hover:brightness-110 transition-all text-xl"
-            style={{ color: StoryModeColors.warning }}
+            style={{ color: StoryModeColors.surfaceLight }}
             title="Einklappen"
           >
             ▼
@@ -139,7 +142,8 @@ export function ActionQueueWidget({
       {/* Queue List */}
       <div
         className="flex-1 overflow-y-auto p-2 space-y-2"
-        style={{ backgroundColor: StoryModeColors.background }}
+        // §4.7 Regel 3: Listen-Fläche = Papier, nicht Kraftpapier-Träger.
+        style={{ backgroundColor: StoryModeColors.surface }}
       >
         {isEmpty ? (
           <div
@@ -173,7 +177,8 @@ export function ActionQueueWidget({
                   <span
                     className="font-bold text-xs px-1.5 py-0.5 border"
                     style={{
-                      backgroundColor: StoryModeColors.background,
+                      // §4.7 Stempel: Rahmen + Tinte auf Papier.
+                      backgroundColor: 'transparent',
                       borderColor: StoryModeColors.borderLight,
                       color: StoryModeColors.textSecondary,
                     }}
@@ -204,19 +209,19 @@ export function ActionQueueWidget({
                   <span
                     className="text-xs px-1.5 py-0.5 border"
                     style={{
-                      backgroundColor: StoryModeColors.background,
+                      backgroundColor: 'transparent',
                       borderColor: StoryModeColors.warning,
                       color: StoryModeColors.warning,
                     }}
                   >
-                    <Icon name="budget" size={14} title="Budget" /> ${action.costs.budget}K
+                    <Icon name="budget" size={14} title="Budget" /> {action.costs.budget}K
                   </span>
                 )}
                 {action.costs.capacity && action.costs.capacity > 0 && (
                   <span
                     className="text-xs px-1.5 py-0.5 border"
                     style={{
-                      backgroundColor: StoryModeColors.background,
+                      backgroundColor: 'transparent',
                       borderColor: StoryModeColors.agencyBlue,
                       color: StoryModeColors.agencyBlue,
                     }}
@@ -228,7 +233,7 @@ export function ActionQueueWidget({
                   <span
                     className="text-xs px-1.5 py-0.5 border"
                     style={{
-                      backgroundColor: StoryModeColors.background,
+                      backgroundColor: 'transparent',
                       borderColor: StoryModeColors.textPrimary,
                       color: StoryModeColors.textPrimary,
                     }}
@@ -247,7 +252,8 @@ export function ActionQueueWidget({
         <div
           className="border-t-2 p-3"
           style={{
-            backgroundColor: StoryModeColors.concrete,
+            // §4.7: Fußbereich = Papier, damit die Tinten-Chips lesbar bleiben.
+            backgroundColor: StoryModeColors.surfaceLight,
             borderColor: StoryModeColors.borderLight,
           }}
         >
@@ -263,10 +269,11 @@ export function ActionQueueWidget({
               <span
                 className="text-xs px-2 py-1 border"
                 style={{
+                  // §4.7 Stempel-Chip: Papier + Rahmen; roter Tint nur im Überzogen-Alarm.
                   backgroundColor:
                     totalCosts.budget > currentResources.budget
                       ? 'rgba(255, 0, 0, 0.1)'
-                      : StoryModeColors.background,
+                      : 'transparent',
                   borderColor:
                     totalCosts.budget > currentResources.budget
                       ? StoryModeColors.danger
@@ -278,7 +285,7 @@ export function ActionQueueWidget({
                   fontWeight: 'bold',
                 }}
               >
-                <Icon name="budget" size={14} title="Budget" /> ${totalCosts.budget}K / ${currentResources.budget}K
+                <Icon name="budget" size={14} title="Budget" /> {totalCosts.budget}K / {currentResources.budget}K
               </span>
               <span
                 className="text-xs px-2 py-1 border"
@@ -286,7 +293,7 @@ export function ActionQueueWidget({
                   backgroundColor:
                     totalCosts.capacity > currentResources.capacity
                       ? 'rgba(255, 0, 0, 0.1)'
-                      : StoryModeColors.background,
+                      : 'transparent',
                   borderColor:
                     totalCosts.capacity > currentResources.capacity
                       ? StoryModeColors.danger
@@ -306,7 +313,7 @@ export function ActionQueueWidget({
                   backgroundColor:
                     totalCosts.actionPoints > currentResources.actionPoints
                       ? 'rgba(255, 0, 0, 0.1)'
-                      : StoryModeColors.background,
+                      : 'transparent',
                   borderColor:
                     totalCosts.actionPoints > currentResources.actionPoints
                       ? StoryModeColors.danger

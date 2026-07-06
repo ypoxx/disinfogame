@@ -135,7 +135,8 @@ export function ConsequenceModal({
                   onClick={() => onChoice(choice.id)}
                   className="w-full text-left p-4 border-4 transition-all hover:brightness-110 active:translate-y-0.5"
                   style={{
-                    backgroundColor: StoryModeColors.darkConcrete,
+                    // v3 §4.7: Wahl-Karten sind Papier (Tinte lesbar), nicht Kraftpapier-dunkel.
+                    backgroundColor: StoryModeColors.surface,
                     borderColor: StoryModeColors.border,
                     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
                   }}
@@ -151,7 +152,7 @@ export function ConsequenceModal({
                       <div className="flex gap-2 text-xs">
                         {choice.cost.budget && (
                           <span style={{ color: StoryModeColors.warning }}>
-                            -${choice.cost.budget}K
+                            -{choice.cost.budget}K
                           </span>
                         )}
                         {choice.cost.risk && (
@@ -183,7 +184,8 @@ export function ConsequenceModal({
         <div
           className="px-6 py-3 border-t-4 text-center text-xs"
           style={{
-            backgroundColor: StoryModeColors.darkConcrete,
+            // v3: Fußzeile Papier + Tinte (wie PixelModal-Footer)
+            backgroundColor: StoryModeColors.surface,
             borderColor: StoryModeColors.border,
             color: StoryModeColors.textMuted,
           }}

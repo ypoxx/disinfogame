@@ -106,29 +106,30 @@ export function AdvisorDetailModal({
         <div
           className="border-b-2 p-4 flex items-center justify-between"
           style={{
-            backgroundColor: StoryModeColors.militaryOlive,
-            borderColor: StoryModeColors.darkOlive,
+            // v3: militaryOlive ist Tinten-Olive, kein Flächen-Grün → Kraft-Kopfband + heller Text.
+            backgroundColor: StoryModeColors.darkConcrete,
+            borderColor: StoryModeColors.border,
           }}
         >
           <div className="flex-1">
             <h2
               className="font-bold text-xl tracking-wider"
-              style={{ color: StoryModeColors.warning }}
+              style={{ color: StoryModeColors.surfaceLight }}
             >
               {npc.name}
             </h2>
             <p
               className="text-sm mt-1"
-              style={{ color: StoryModeColors.textSecondary }}
+              style={{ color: StoryModeColors.lightConcrete }}
             >
               {npc.title_de}
             </p>
             <div className="flex gap-4 mt-2 text-xs">
-              <span style={{ color: StoryModeColors.textSecondary }}>
-                Moral: <span style={{ color: StoryModeColors.textPrimary }}>{npc.morale}%</span>
+              <span style={{ color: StoryModeColors.lightConcrete }}>
+                Moral: <span style={{ color: StoryModeColors.surfaceLight }}>{npc.morale}%</span>
               </span>
-              <span style={{ color: StoryModeColors.textSecondary }}>
-                Beziehung: <span style={{ color: StoryModeColors.textPrimary }}>
+              <span style={{ color: StoryModeColors.lightConcrete }}>
+                Beziehung: <span style={{ color: StoryModeColors.surfaceLight }}>
                   {getRelationshipText(npc.relationshipLevel)}
                 </span>
               </span>
@@ -138,7 +139,7 @@ export function AdvisorDetailModal({
           <button
             onClick={onClose}
             className="p-2 hover:brightness-110 transition-all text-2xl font-bold"
-            style={{ color: StoryModeColors.danger }}
+            style={{ color: StoryModeColors.surfaceLight }}
             title="Schließen (ESC)"
           >
             ✕
@@ -164,7 +165,8 @@ export function AdvisorDetailModal({
                 key={rec.id}
                 className="border-2 p-4"
                 style={{
-                  backgroundColor: StoryModeColors.background,
+                  // §4.7: Empfehlungs-Karte = Papier (Tinten-Text), Priorität trägt der Rahmen.
+                  backgroundColor: StoryModeColors.surfaceLight,
                   borderColor: getPriorityColor(rec.priority),
                 }}
               >
@@ -178,7 +180,7 @@ export function AdvisorDetailModal({
                         width: 12,
                         height: 12,
                         backgroundColor: getPriorityColor(rec.priority),
-                        animation: rec.priority === 'critical' ? 'pulse 2s infinite' : undefined,
+                        // §4.7: gestempelt, nicht geblinkt — kein Pulse mehr.
                         flexShrink: 0,
                       }}
                     />
@@ -224,7 +226,7 @@ export function AdvisorDetailModal({
                     style={{
                       color: StoryModeColors.textSecondary,
                       borderColor: StoryModeColors.borderLight,
-                      backgroundColor: StoryModeColors.concrete,
+                      backgroundColor: StoryModeColors.lightConcrete,
                     }}
                   >
                     <span className="font-bold">Analyse: </span>
@@ -251,9 +253,10 @@ export function AdvisorDetailModal({
                           }}
                           className="px-3 py-1.5 border-2 text-xs font-bold transition-all hover:brightness-110 active:translate-y-0.5"
                           style={{
+                            // v3: warning ist Tinte — auf dunkler Oliv-Fläche heller Papier-Text.
                             backgroundColor: StoryModeColors.militaryOlive,
                             borderColor: StoryModeColors.darkOlive,
-                            color: StoryModeColors.warning,
+                            color: StoryModeColors.surfaceLight,
                           }}
                           title="Zum Terminal"
                         >

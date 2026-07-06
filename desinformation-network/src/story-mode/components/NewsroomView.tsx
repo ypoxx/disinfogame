@@ -12,6 +12,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAssets } from '../assets/useAssets';
 import { StoryModeColors } from '../theme';
+import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
 
 // ─── Öffentliche Typen ─────────────────────────────────────────────────────────
 
@@ -294,7 +295,8 @@ function PostCard({ post, isFirst = false }: PostCardProps): React.JSX.Element {
             margin: 0,
             fontSize: 11,
             fontFamily: "'VT323', monospace",
-            color: StoryModeColors.textPrimary,
+            // v3: Monitor bleibt dunkel-diegetisch → heller Papier-Ton statt Tinten-Token.
+            color: StoryModeColors.document,
             lineHeight: 1.4,
             // 2-Zeilen-Clamp via -webkit-line-clamp
             display: '-webkit-box',
@@ -314,7 +316,7 @@ function PostCard({ post, isFirst = false }: PostCardProps): React.JSX.Element {
             marginTop: 5,
             fontSize: 10,
             fontFamily: "'VT323', monospace",
-            color: StoryModeColors.textMuted,
+            color: StoryModeColors.lightConcrete,
           }}
         >
           <span>
@@ -362,7 +364,7 @@ function TrendingRow({ item, maxVolume }: TrendingRowProps): React.JSX.Element {
             fontSize: 10,
             fontFamily: "'VT323', monospace",
             fontWeight: 700,
-            color: StoryModeColors.textPrimary,
+            color: StoryModeColors.document,
             letterSpacing: 0.5,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -372,11 +374,12 @@ function TrendingRow({ item, maxVolume }: TrendingRowProps): React.JSX.Element {
         >
           {item.topic}
         </span>
-        {/* Pfeil: ▲ steigend, ▽ fallend */}
+        {/* Pfeil: ▲ steigend, ▽ fallend — v3: danger ist jetzt Tinte, auf dem
+            dunklen Monitor bleibt das helle v2-Signalrot (diegetisch). */}
         <span
           style={{
             fontSize: 12,
-            color: item.rising ? StoryModeColors.danger : StoryModeColors.textMuted,
+            color: item.rising ? '#E5484D' : StoryModeColors.lightConcrete,
             fontFamily: "'VT323', monospace",
             flexShrink: 0,
           }}
@@ -402,7 +405,7 @@ function TrendingRow({ item, maxVolume }: TrendingRowProps): React.JSX.Element {
               width: barWidthPct,
               '--nr-bar-w': barWidthPct,
               backgroundColor: item.rising
-                ? StoryModeColors.danger
+                ? '#E5484D'
                 : StoryModeColors.concrete,
               animation: 'nr-bar-grow 0.6s ease-out both',
             } as React.CSSProperties
@@ -414,7 +417,7 @@ function TrendingRow({ item, maxVolume }: TrendingRowProps): React.JSX.Element {
       <div
         style={{
           fontSize: 9,
-          color: StoryModeColors.textMuted,
+          color: StoryModeColors.lightConcrete,
           fontFamily: "'VT323', monospace",
           marginTop: 2,
           textAlign: 'right',
@@ -436,6 +439,13 @@ export function NewsroomView({
 }: NewsroomViewProps): React.JSX.Element {
   const assets = useAssets();
   const bgUrl = assets.imageUrl('room_newsroom');
+
+  // §4.1/B1: pixel-sauberer Cover-Snap statt freiem `cover`-Faktor.
+  // Solange Fläche/Bildmaße unbekannt sind, bleibt das bisherige Verhalten (Fallback).
+  const rootRef = useRef<HTMLDivElement>(null);
+  const rootSize = useElementSize(rootRef);
+  const bgNat = useNaturalSize(bgUrl);
+  const bgSnap = usePixelCover(rootSize, bgNat);
 
   // Feed-Container: manuelle Scroll-Steuerung bei Hover
   const feedRef = useRef<HTMLDivElement>(null);
@@ -464,6 +474,7 @@ export function NewsroomView({
 
   return (
     <div
+      ref={rootRef}
       role="dialog"
       aria-modal="true"
       aria-label="Newsroom Netzwerk-Monitor"
@@ -488,7 +499,9 @@ export function NewsroomView({
             position: 'absolute',
             inset: 0,
             backgroundImage: `url(${bgUrl})`,
-            backgroundSize: 'cover',
+            // B1: ganzzahlig gesnappte Cover-Größe — kein Pixel-Verschmieren durch ×0,9x.
+            backgroundSize: bgSnap ? `${bgSnap.width}px ${bgSnap.height}px` : 'cover',
+            backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
             imageRendering: 'pixelated',
             // Dunkler Verlauf für Lesbarkeit der UI-Elemente
@@ -558,7 +571,7 @@ export function NewsroomView({
               fontSize: 13,
               fontWeight: 900,
               letterSpacing: 3,
-              color: StoryModeColors.textPrimary,
+              color: StoryModeColors.document,
             }}
           >
             NEWSROOM
@@ -568,7 +581,7 @@ export function NewsroomView({
               fontSize: 10,
               fontWeight: 400,
               letterSpacing: 2,
-              color: StoryModeColors.textMuted,
+              color: StoryModeColors.lightConcrete,
             }}
           >
             — NETZWERK-MONITOR
@@ -578,11 +591,11 @@ export function NewsroomView({
         {/* Schließen-Button ✕ */}
         <button
           onClick={onClose}
-          aria-label="Newsroom schliessen"
+          aria-label="Newsroom schließen"
           style={{
             background: 'none',
             border: `2px solid ${StoryModeColors.ministryRed}`,
-            color: StoryModeColors.textPrimary,
+            color: StoryModeColors.document,
             fontSize: 16,
             fontFamily: "'VT323', monospace",
             fontWeight: 900,
@@ -592,7 +605,7 @@ export function NewsroomView({
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            animation: 'nr-close-pulse 2.5s ease-in-out infinite',
+            
           }}
         >
           ✕
@@ -648,10 +661,11 @@ export function NewsroomView({
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: StoryModeColors.agencyBlue }}>
+                  {/* v3: agencyBlue ist Tinte — auf dem dunklen Panel helleres Blau (diegetisch). */}
+                  <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: '#3a7acc' }}>
                     GEGENSEITE — {gegenseite.format_de.toUpperCase()}
                   </span>
-                  <span style={{ fontSize: 9, color: StoryModeColors.textMuted }} title="Stand der Aufklärung">
+                  <span style={{ fontSize: 9, color: StoryModeColors.lightConcrete }} title="Stand der Aufklärung">
                     Aufklärung {Math.round(gegenseite.awareness * 100)}%
                   </span>
                 </div>
@@ -672,7 +686,7 @@ export function NewsroomView({
                   )}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     {gegenseite.lines.map((line, i) => (
-                      <p key={i} style={{ margin: '2px 0', fontSize: 11, lineHeight: 1.4, color: StoryModeColors.textPrimary }}>
+                      <p key={i} style={{ margin: '2px 0', fontSize: 11, lineHeight: 1.4, color: StoryModeColors.document }}>
                         {line}
                       </p>
                     ))}
@@ -694,7 +708,9 @@ export function NewsroomView({
                 flexShrink: 0,
               }}
             >
-              SOCIAL FEED — {posts.length} BEITRAEGE
+              {/* B20: englischer Panel-Titel eingedeutscht (Behörden-Ton); Kopfzeile
+                  oben heißt bereits „NETZWERK-MONITOR" — hier daher der Ticker. */}
+              NETZ-TICKER — {posts.length} BEITRÄGE
             </div>
 
             {/* Scrollender Feed */}
@@ -738,13 +754,13 @@ export function NewsroomView({
                     alignItems: 'center',
                     justifyContent: 'center',
                     height: '100%',
-                    color: StoryModeColors.textMuted,
+                    color: StoryModeColors.lightConcrete,
                     fontSize: 12,
                     fontFamily: "'VT323', monospace",
                     letterSpacing: 1,
                   }}
                 >
-                  Keine Beitraege vorhanden
+                  Keine Beiträge vorhanden
                 </div>
               )}
             </div>
@@ -768,11 +784,12 @@ export function NewsroomView({
                 fontSize: 10,
                 fontWeight: 700,
                 letterSpacing: 2,
-                color: StoryModeColors.danger,
+                // v3: danger ist Tinte — auf dem dunklen Monitor helles v2-Rot (diegetisch).
+                color: '#E5484D',
                 flexShrink: 0,
               }}
             >
-              TRENDING TOPICS
+              THEMEN IM AUFWIND
             </div>
 
             {/* Topic-Liste */}
@@ -790,7 +807,7 @@ export function NewsroomView({
               ) : (
                 <div
                   style={{
-                    color: StoryModeColors.textMuted,
+                    color: StoryModeColors.lightConcrete,
                     fontSize: 11,
                     fontFamily: "'VT323', monospace",
                     marginTop: 12,

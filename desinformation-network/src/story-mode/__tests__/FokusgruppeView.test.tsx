@@ -206,7 +206,7 @@ describe('FokusgruppeView', () => {
     render(
       <FokusgruppeView segments={twoSegments} lastHeadline={null} onClose={onClose} />,
     );
-    const btn = screen.getByRole('button', { name: /fokusgruppe schliessen/i });
+    const btn = screen.getByRole('button', { name: /fokusgruppe schließen/i });
     await userEvent.click(btn);
     expect(onClose).toHaveBeenCalledOnce();
   });

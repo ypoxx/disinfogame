@@ -63,13 +63,16 @@ export function NewsPanel({
               return (
               <div
                 key={news.id}
+                // §4.7: gestempelt statt geblinkt — das frühere animate-pulse-soft entfällt.
                 className={`border-2 p-4 cursor-pointer transition-all hover:brightness-110 ${
                   !news.read ? 'border-l-4' : ''
-                } ${isDefensiveAI && !news.read ? 'animate-pulse-soft' : ''}`}
+                }`}
                 style={{
+                  // §4.7: gelesen = vergilbtes Papier, ungelesen = frisches Papier —
+                  // Tinten-Text bleibt auf beiden lesbar.
                   backgroundColor: news.read
-                    ? StoryModeColors.background
-                    : StoryModeColors.darkConcrete,
+                    ? StoryModeColors.lightConcrete
+                    : StoryModeColors.surfaceLight,
                   borderColor: news.read
                     ? StoryModeColors.border
                     : getSeverityColor(news.severity),
@@ -87,26 +90,30 @@ export function NewsPanel({
                     >
                       {news.type.replace('_', ' ')}
                     </span>
+                    {/* §4.7 Stempel-Chips: Rahmen + Tinte auf Papier, kein Flächen-Rot. */}
                     {isDefensiveAI && (
                       <span className="text-xs px-2 py-0.5 font-bold" style={{
-                        backgroundColor: StoryModeColors.ministryRed,
-                        color: '#fff',
+                        backgroundColor: 'transparent',
+                        border: `1px solid ${StoryModeColors.ministryRed}`,
+                        color: StoryModeColors.ministryRed,
                       }}>
                         DEFENSIVE AI
                       </span>
                     )}
                     {news.pinned && (
                       <span className="text-xs px-2 py-0.5" style={{
-                        backgroundColor: StoryModeColors.warning,
-                        color: StoryModeColors.background,
+                        backgroundColor: 'transparent',
+                        border: `1px solid ${StoryModeColors.warning}`,
+                        color: StoryModeColors.warning,
                       }}>
                         GEPINNT
                       </span>
                     )}
                     {!news.read && (
                       <span className="text-xs px-2 py-0.5" style={{
-                        backgroundColor: StoryModeColors.danger,
-                        color: '#fff',
+                        backgroundColor: 'transparent',
+                        border: `1px solid ${StoryModeColors.danger}`,
+                        color: StoryModeColors.danger,
                       }}>
                         NEU
                       </span>
@@ -145,15 +152,10 @@ export function NewsPanel({
                     }}
                     className="px-3 py-1 text-xs font-bold border-2 transition-all hover:brightness-110"
                     style={{
-                      backgroundColor: news.pinned
-                        ? StoryModeColors.warning
-                        : StoryModeColors.concrete,
-                      borderColor: news.pinned
-                        ? '#A37F1A'
-                        : StoryModeColors.borderLight,
-                      color: news.pinned
-                        ? StoryModeColors.background
-                        : StoryModeColors.textPrimary,
+                      // v3 §4.7: Stempel statt gefülltem Chip — gepinnt = gestempelt.
+                      backgroundColor: news.pinned ? StoryModeColors.oldPaper : 'transparent',
+                      borderColor: news.pinned ? StoryModeColors.warning : StoryModeColors.borderLight,
+                      color: news.pinned ? StoryModeColors.warning : StoryModeColors.textSecondary,
                     }}
                   >
                     {news.pinned ? 'ANGEPINNT' : 'ANPINNEN'}
@@ -171,7 +173,8 @@ export function NewsPanel({
     <div
       className="px-3 py-2 border-t-2 text-xs"
       style={{
-        backgroundColor: StoryModeColors.darkConcrete,
+        // §4.7: Fußleiste = Papier, Tinten-Text bleibt.
+        backgroundColor: StoryModeColors.surfaceLight,
         borderColor: StoryModeColors.border,
         color: StoryModeColors.textMuted,
       }}
@@ -235,9 +238,10 @@ export function NewsPanel({
             onClick={onClose}
             className="px-4 py-1 font-bold border-2 transition-all hover:brightness-110"
             style={{
+              // Dunkler Knopf → heller Text (§4.7 Regel 2).
               backgroundColor: StoryModeColors.darkConcrete,
               borderColor: StoryModeColors.border,
-              color: StoryModeColors.textPrimary,
+              color: StoryModeColors.surfaceLight,
             }}
           >
             SCHLIESSEN [ESC]
