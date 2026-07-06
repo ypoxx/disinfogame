@@ -29,7 +29,10 @@ const CRT = {
   bezelEdge: '#3a3128',
   screen: '#0a120d', // Schirm-Grund
   green: '#8CF2B0', // Volltontext
-  greenDim: '#4E8F68',
+  // Sekundär-TEXT heller als die Rahmen: #4E8F68 lag bei ~4,9:1 — für die
+  // 10-px-Pixelfont zu schwach (Vision-Review L2); #6FBF8F ≈ 8,7:1.
+  textDim: '#6FBF8F',
+  greenDim: '#4E8F68', // Rahmen/Trenner (kein Fließtext)
   grid: '#16241b', // Trennlinien auf dem Schirm
   amber: '#F0B429',
 } as const;
@@ -167,7 +170,7 @@ export function TerminalView({
       style={{
         backgroundColor: active ? CRT.green : 'transparent',
         borderColor: active ? CRT.green : CRT.greenDim,
-        color: active ? CRT.screen : CRT.greenDim,
+        color: active ? CRT.screen : CRT.textDim,
       }}
     >
       {label} ({count})
@@ -205,7 +208,7 @@ export function TerminalView({
               <div className="font-bold text-sm truncate" style={{ color: CRT.green }}>
                 ▚ VORGANGS-TERMINAL · ABT. SONDEROPERATIONEN
               </div>
-              <div className="text-[10px]" style={{ color: CRT.greenDim }}>
+              <div className="text-[10px]" style={{ color: CRT.textDim }}>
                 {archiv
                   ? 'ARCHIV: vollständiger Maßnahmen-Katalog'
                   : 'HEUTE RELEVANT: Strang · Empfehlung · frische Maschen'}
@@ -215,7 +218,7 @@ export function TerminalView({
               <button
                 onClick={() => setRoehre((r) => !r)}
                 className="px-2 py-1 text-[10px] font-bold border"
-                style={{ borderColor: CRT.greenDim, color: roehre ? CRT.green : CRT.greenDim }}
+                style={{ borderColor: CRT.greenDim, color: roehre ? CRT.green : CRT.textDim }}
                 title="Scanline-Layer an/aus (Memo §2.6)"
               >
                 RÖHRE {roehre ? 'AN' : 'AUS'}
@@ -251,7 +254,7 @@ export function TerminalView({
                     style={{
                       backgroundColor: activeTab === tab.id ? CRT.greenDim : 'transparent',
                       borderColor: CRT.greenDim,
-                      color: activeTab === tab.id ? CRT.screen : CRT.greenDim,
+                      color: activeTab === tab.id ? CRT.screen : CRT.textDim,
                     }}
                   >
                     {tab.label}
@@ -280,7 +283,7 @@ export function TerminalView({
               className="flex flex-wrap items-center gap-2 px-3 py-1.5 border-b-2"
               style={{ borderColor: CRT.grid }}
             >
-              <span className="text-[10px]" style={{ color: CRT.greenDim }}>
+              <span className="text-[10px]" style={{ color: CRT.textDim }}>
                 ZUTRÄGER:
               </span>
               {npcIds.map((npcId) => {
@@ -299,7 +302,7 @@ export function TerminalView({
                     style={{
                       backgroundColor: active ? CRT.greenDim : 'transparent',
                       borderColor: active ? CRT.green : CRT.greenDim,
-                      color: active ? CRT.screen : CRT.greenDim,
+                      color: active ? CRT.screen : CRT.textDim,
                     }}
                     title={`Vorgänge mit ${npcId}-Vorteil`}
                   >
@@ -322,7 +325,7 @@ export function TerminalView({
           {/* Vorgangs-Liste: Papier-Blätter, die der Schirm „aufgerufen" hat */}
           <div className="flex-1 min-h-0 overflow-y-auto p-3">
             {liste.length === 0 ? (
-              <div className="text-center py-10 text-sm" style={{ color: CRT.greenDim }}>
+              <div className="text-center py-10 text-sm" style={{ color: CRT.textDim }}>
                 KEIN VORGANG FÜR DIESE ABFRAGE.
               </div>
             ) : (
@@ -357,7 +360,7 @@ export function TerminalView({
               </div>
             )}
             {!archiv && (
-              <div className="text-center mt-3 text-[10px]" style={{ color: CRT.greenDim }}>
+              <div className="text-center mt-3 text-[10px]" style={{ color: CRT.textDim }}>
                 WEITERE MASSNAHMEN: SCHUBLADE „ARCHIV" — GEPLANT WIRD AM KORKBRETT.
               </div>
             )}
@@ -379,7 +382,7 @@ export function TerminalView({
                 <Icon name="mission" size={14} title="Aktionspunkte" /> {availableResources.actionPoints} AP
               </span>
             </div>
-            <span style={{ color: availableResources.actionPoints > 0 ? CRT.greenDim : CRT.amber }}>
+            <span style={{ color: availableResources.actionPoints > 0 ? CRT.textDim : CRT.amber }}>
               {availableResources.actionPoints > 0 ? 'SYSTEM BEREIT' : 'KEINE AKTIONSPUNKTE — PHASE BEENDEN'}
             </span>
           </div>
