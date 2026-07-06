@@ -1,13 +1,12 @@
 /**
- * broadcastMapping — PROVISORISCHE Brücke zwischen Spiel-Aktionen und Publikums-Modell.
+ * broadcastMapping — Brücke zwischen Spiel-Ereignissen und der Broadcast-Anzeige.
  *
- * Die Aktions-Tags sind operativ (infrastructure, recruitment, …), die
- * Publikums-Themen soziologisch (energie_angst, misstrauen_medien, …) — eine
- * inhaltlich saubere Zuordnung braucht das breitere „Ministerium sendet"-Konzept
- * (Schlagzeilen, Talkshows mit Agenten, Zeitungen) und eine Owner-Diskussion.
- * Festgehalten in docs/story-mode/MINISTRY_BROADCAST_CONCEPT.md — diese Tabelle
- * ist bewusst klein, sichtbar und leicht austauschbar (reine Anzeige-Schicht,
- * KEINE Rückwirkung auf die Spielmechanik).
+ * Baut aus Aktions-Ergebnissen bzw. erzählerischen Ereignissen (Krise/Enttarnung/…)
+ * `BroadcastItem`s: Kanal + Themen fürs Publikums-Modell UND — seit dem Owner-Ausbau
+ * 2026-07-06 (MINISTRY_BROADCAST_CONCEPT.md §7) — ein `motifId` je Ereignis (die
+ * gepflegte Ereignis→Motiv-Tabelle liegt in `broadcastMotifs.ts`). Reine Anzeige-
+ * Schicht: KEINE Rückwirkung auf die Spielmechanik (die mechanische Publikums-
+ * Rückkopplung bleibt bewusst eine separate Balancing-Frage, §5.3).
  */
 import type { ActionResult } from '../../game-logic/StoryEngineAdapter';
 import type { Channel, Mood } from '../audience/audienceModel';

@@ -16,7 +16,7 @@ import {
   type SocietyMood,
 } from '../audience/audienceModel';
 import { broadcastForEvent, broadcastForWochenschau, mapActionToBroadcast, type BroadcastItem } from './broadcastMapping';
-import type { Channel } from '../audience/audienceModel';
+import type { Channel, Mood } from '../audience/audienceModel';
 import type { ActionResult } from '../../game-logic/StoryEngineAdapter';
 import type { Episode } from '../engine/EpisodeLoader';
 
@@ -48,7 +48,7 @@ export interface BroadcastNarrativeEvent {
 }
 
 /** Display-only Stimmungs-Nudge je Ereignis (§4 „Segment wird misstrauisch/blau"). */
-const EVENT_MOOD: Partial<Record<BroadcastNarrativeEvent['category'], import('../audience/audienceModel').Mood>> = {
+const EVENT_MOOD: Partial<Record<BroadcastNarrativeEvent['category'], Mood>> = {
   faktencheck: 'misstrauisch',
   enttarnung: 'misstrauisch',
   krise: 'verunsichert',
@@ -112,26 +112,6 @@ export function useAudienceBroadcast(
     });
   }, [lastActionResult, riskLevel]);
 
-  // Erzählerisches Ereignis (Krise/Enttarnung/Faktencheck/Wahltag) → eigene Sendung
-  // mit eigenem Motiv (§7). Keine gezielte Botschaft → kein reactToEffect; nur ein
-  // display-seitiger Stimmungs-Nudge der überzeugten Segmente (§4-Wirkungs-Treppe).
-  useEffect(() => {
-    if (!narrativeEvent || narrativeEvent.key === seenEventKey.current) return;
-    seenEventKey.current = narrativeEvent.key;
-    const item = broadcastForEvent(narrativeEvent);
-    setLastItem(item);
-    setLastReaction(null);
-    setHistory((h) => [item, ...h].slice(0, HISTORY_LIMIT));
-    const nudge = EVENT_MOOD[narrativeEvent.category];
-    if (nudge) {
-      setCountry((c) => ({
-        ...c,
-        // Nur die (noch) überzeugten Milieus werden nachdenklich — kein globaler Reset.
-        segments: c.segments.map((s) => (s.belief > 0.45 ? { ...s, mood: nudge } : s)),
-      }));
-    }
-  }, [narrativeEvent]);
-
   // Phasenwechsel → Wochenschau (wenn diese Runde gesendet wurde) + Abklingen.
   const lastPhase = useRef(phaseNumber);
   useEffect(() => {
@@ -154,6 +134,29 @@ export function useAudienceBroadcast(
       }),
     }));
   }, [phaseNumber]);
+
+  // Erzählerisches Ereignis (Krise/Enttarnung/Faktencheck/Wahltag) → eigene Sendung
+  // mit eigenem Motiv (§7). Keine gezielte Botschaft → kein reactToEffect; nur ein
+  // display-seitiger Stimmungs-Nudge der überzeugten Segmente (§4-Wirkungs-Treppe).
+  // BEWUSST als LETZTER Effekt: fällt ein Ereignis mit einem Phasenwechsel zusammen,
+  // sticht das Ereignis (Krise/Enttarnung) die routinemäßige Wochenschau (letztes
+  // setLastItem gewinnt).
+  useEffect(() => {
+    if (!narrativeEvent || narrativeEvent.key === seenEventKey.current) return;
+    seenEventKey.current = narrativeEvent.key;
+    const item = broadcastForEvent(narrativeEvent);
+    setLastItem(item);
+    setLastReaction(null);
+    setHistory((h) => [item, ...h].slice(0, HISTORY_LIMIT));
+    const nudge = EVENT_MOOD[narrativeEvent.category];
+    if (nudge) {
+      setCountry((c) => ({
+        ...c,
+        // Nur die (noch) überzeugten Milieus werden nachdenklich — kein globaler Reset.
+        segments: c.segments.map((s) => (s.belief > 0.45 ? { ...s, mood: nudge } : s)),
+      }));
+    }
+  }, [narrativeEvent]);
 
   return { country, lastItem, lastReaction, history };
 }

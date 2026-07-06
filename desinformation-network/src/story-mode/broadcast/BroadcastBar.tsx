@@ -244,14 +244,17 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
   const item = audience.lastItem;
   const motif = item ? motifFor(item.motifId) : null;
   const isPrint = motif?.surface === 'print';
-  const frameUrl = assets.imageUrl(isPrint ? 'hud_paper_frame' : 'hud_tv_frame');
+  // Presse-Motive SIND schon eine ganze Zeitung (4:3, wie der Container) → Vollbild OHNE
+  // Rahmen: kein „Zeitung in der Zeitung", kein Loch-Versatz (das 3:4-Zeitungsbild würde
+  // im Querformat-Container letterboxen). TV/Netz nutzen weiter die Röhre mit Bildschirm-Loch.
+  const frameUrl = !isPrint ? assets.imageUrl('hud_tv_frame') : null;
   // Sendepause-Testbild fürs Röhren-TV (nur im Standby, kein Print): füllt die
   // Bildröhre statt eines toten „KEIN SIGNAL"-Textes.
   const testcardUrl = !item ? assets.imageUrl('hud_tv_testcard') : null;
 
-  // Inhaltsfenster relativ zum Rahmenbild (TV: Bildröhre links, Zeitung: Foto-Loch mittig).
+  // Inhaltsfenster: TV = Bildröhre links; Presse = Vollbild (die ganze Fläche).
   const hole: CSSProperties = isPrint
-    ? { left: '16%', top: '30%', width: '68%', height: '34%' }
+    ? { left: 0, top: 0, right: 0, bottom: 0 }
     : { left: '17%', top: '29%', width: '48%', height: '45%' };
 
   return (
@@ -262,6 +265,9 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
           alt=""
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', imageRendering: 'pixelated', zIndex: 2, pointerEvents: 'none' }}
         />
+      ) : isPrint ? (
+        // Presse: kein Röhren-Rahmen, nur ein schmaler dunkler Falz als Abschluss.
+        <div style={{ position: 'absolute', inset: 0, border: '3px solid #6b6455', zIndex: 2, pointerEvents: 'none' }} />
       ) : (
         <div style={{ position: 'absolute', inset: 0, border: '4px solid #3a3b43', backgroundColor: '#15161c', zIndex: 2 }} />
       )}

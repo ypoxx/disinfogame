@@ -126,3 +126,38 @@ Publikum→Spiel (§5.3) — das bleibt eine separate Balancing-Entscheidung.
 Sendepause-Testbild), `hud_tv_frame`/`hud_paper_frame` (Rahmen mit Alpha-Loch),
 `BroadcastScreen`/`AudienceRoom` in `broadcast/BroadcastBar.tsx`,
 `broadcastMapping.ts` (`mapActionToBroadcast`).
+
+---
+
+## 8. Umsetzungs-Stand 2026-07-06 (§7 GEBAUT)
+
+Der volle diegetische Ausbau ist umgesetzt (Branch `claude/broadcast-diegetic-visuals`):
+
+- **Motiv-Tabelle** `broadcast/broadcastMotifs.ts` (pur, getestet): 17 kuratierte
+  Motive. `BroadcastItem` trägt jetzt `motifId` + `category`. Auflösung entlang aller
+  drei Achsen ohne 18×3×3-Kombinatorik:
+  - **Masche** (die 18 Atlas-Familien → 6 sichtbar unterschiedliche TV-Archetypen:
+    Bots · Fälschung · Spaltung · Kompromat · Straße · Firehose) — Klassifikation aus
+    der Engine (`methodFamilyForTags`, EIN Vokabular).
+  - **Kanal**: TV = Masche-Motiv · Presse = Notiz/Aufmacher je Tier · Netz = Feed/Viral.
+  - **Tier**: GROSS-Wirkung übernimmt die **Sondersendung** (`bc_tv_sonder`).
+  - **Ereignisse**: Faktencheck · Krise · Enttarnung · Wahltag · Wochenschau · Gegenwind
+    — je eigenes Motiv (`motifForCategory`).
+- **Anzeige** `BroadcastScreen`/`MotifView`: das Motiv-Bild ist jetzt der PRIMÄRE
+  TV-Inhalt (füllt das Bildröhren-/Foto-Loch), die Schlagzeile läuft als Untertitel-
+  Band darunter (Engine-Text, kein gebackener Text — E35). Mini-Animationen als CSS-
+  Loops (Krisen-/Sondersendungs-Puls, Störbild-Flackern beim Faktencheck, Sirene bei
+  Enttarnung) + die bestehende Scanline.
+- **Ereignis-Feed** `useAudienceBroadcast`: Krise/Gegenmaßnahme(Faktencheck)/Spielende
+  (Enttarnung bzw. Wahltag) werden aus dem vorhandenen State abgeleitet und als eigene
+  Sendung gezeigt; am Phasen-Ende läuft eine **Wochenschau**. Rein Anzeige — die
+  mechanische Publikums-Rückkopplung (§5.3) bleibt bewusst offen.
+- **Assets**: 17 Vollbild-TV-Motive über die Pipeline (`shotlist.mjs`, Vorlage
+  `hud_tv_testcard`), Vision-QC bestanden, E35-konform (abstrakte Kritzel statt Text,
+  keine realen Symbole).
+
+**Offen / nächstes Inkrement:** genuine mehrframige Sheets (useSprite/PixelSprite) für
+die Loops — die Pipeline montiert Sheets bisher nur aus Chroma-Subjekten (`repackSheet`),
+nicht aus Vollbild-Szenen; dafür braucht sie erst einen Frame-Montage-Helfer. Bis dahin
+tragen die CSS-Loops die Bewegung (die Owner-genannten Beispiele Puls/Flackern sind
+genau CSS-Effekte).

@@ -299,3 +299,43 @@ Offen für die Roadmap (priorisiert nach Gutachten):
     (4 Prüfstränge statt 40) nach den Fixes. Lehre: Roh-Befunde sind billig, Verifikation
     teuer; bei Budget-Druck die Verifikation auf die tatsächlich bestätigten/gefixten
     Punkte fokussieren statt jeden Roh-Verdacht einzeln zu widerlegen.
+
+## Lehren aus dem Broadcast-Ausbau „diegetisch" (2026-07-06, §7)
+
+29. **Kombinatorik kuratieren statt generieren.** „Motiv je Kanal/Masche/Tier" wäre
+    18×3×3 = 162 Assets. Gelöst als ZWEI Achsen mit gemeinsamem Vokabular: 6 sichtbar
+    unterschiedliche Masche-Archetypen (die 18 Atlas-Familien darauf abgebildet) ×
+    Kanal-Format × Tier-Override (Sondersendung bei GROSS). Ergebnis: 17 kuratierte
+    Motive statt 162 — voll testbar (Totalität + „kein Waise"), Cent-Budget. Die
+    Familie→Archetyp-Karte ist Anzeige-Sache; die Tag→Familie-Klassifikation bleibt in
+    der Engine (`methodFamilyForTags` wiederverwendet) → EIN Vokabular, kein Drift.
+30. **Vision-QC fängt Semantik-Fehlgriffe, die kein Gate sieht.** „a stern NEWS ANCHOR
+    silhouette" → das Modell malte einen SCHIFFS-Anker (Anker = anchor). tsc/vitest/build
+    waren grün; nur der Bild-Blick fand es. Fix: Wort vermeiden („news presenter, a
+    PERSON"), Negativ-Klausel („NO ship anchor, NO emblem"), Gewinner-Seed festschreiben
+    (Muster figure_clerk_walk). Regel: JEDES generierte Motiv ansehen, bevor es zählt —
+    besonders bei Homonymen/Fachbegriffen im Prompt.
+31. **Kontaktbogen zuerst, Einzelbild danach.** 17 Motive einzeln lesen frisst Kontext.
+    Ein sharp-Montage-Kontaktbogen (4er-Raster, je 256×192 + Label) zeigt alle auf
+    einen Blick → grobe Fehlgriffe (der Anker) sofort sichtbar; nur die Text-Leck-
+    Verdächtigen (Zeitung/Wahltag/Stempel) dann in Nativ-Auflösung gegen E35 prüfen.
+32. **Vollbild-Sheets passen NICHT in die Chroma-Sheet-Pipeline.** `repackSheet` montiert
+    nur freigestellte SUBJEKTE auf Magenta (findet „Posen", zentriert/bodenbündig). Ein
+    Vollbild-TV-Loop hat keinen Magenta-Rand → Fallback = harte Fill-Skalierung =
+    Verzerrung. Konsequenz: die Owner-genannten Loops (Krisen-Puls, Störbild-Flackern,
+    Sirene) laufen als CSS über statischen Motiven — visuell identisch, robust. Genuine
+    mehrframige Vollbild-Sheets brauchen erst einen Frame-Montage-Helfer (z. B. 1 hohes/
+    breites Bild → N Crops selbst montieren) — als nächstes Inkrement dokumentiert.
+33. **Anzeige-Integration ohne teure Spielstand-Fahrt prüfen.** Statt den vollen
+    Spielfluss bis zur Broadcast-Leiste zu fahren, spiegelt eine schlanke Standalone-
+    HTML die EXAKTE `BroadcastScreen`-Struktur (Rahmen-Overlay + Alpha-Loch-Geometrie +
+    Motiv-cover + Untertitel-Band + Scanline + Motion) mit den echten Assets → 1
+    Playwright-Screenshot bestätigt „Motiv sitzt im Bildröhren-Loch, Untertitel lesbar".
+    Divergenz-Risiko klein, wenn man die CSS 1:1 aus der Komponente kopiert.
+34. **Erzähl-Ereignisse in eine reine Anzeige-Schicht einspeisen, ohne Kopplung.** Krise/
+    Enttarnung/Faktencheck/Wahltag kommen NICHT aus einem Aktions-Ergebnis. Statt die
+    Engine anzufassen: ein optionaler `narrativeEvent`-Feed (5. Hook-Arg), Dedupe per
+    `key`, aus bereits vorhandenem State abgeleitet (`gameEnd`/`activeStageCountermeasure`/
+    `activeCrisis`) per `useMemo` mit klarem Vorrang. Die Publikums-Rückkopplung bleibt
+    bewusst getrennt (Owner: separate Balancing-Frage) — der Hook mutiert nur die
+    Anzeige-Stimmung, nie die Sieg-Mathematik.

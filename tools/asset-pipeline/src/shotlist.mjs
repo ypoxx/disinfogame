@@ -1038,9 +1038,13 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       'one social post card centred with a steep rising cyan engagement line-graph shooting up behind ' +
       'it and many small heart/like and up-arrow shapes bursting outward — something going viral'],
     ['bc_tv_sonder', 'tv',
-      'a breaking-news studio: a stern anchor silhouette behind a desk with a large abstract graphic ' +
-      'panel beside them and a bold dark-red lower banner bar (blank, no text) across the bottom — a ' +
-      'special report'],
+      'a breaking-news TV studio: the silhouette of a news presenter (a PERSON — head, shoulders and ' +
+      'torso, seated upright, facing forward) behind a broadcast desk, a large abstract graphic panel ' +
+      'glowing on the wall beside them, and a bold dark-red lower banner bar (blank, no text) across ' +
+      'the bottom — a special report. NO ship anchor, NO emblem, NO logo',
+      // Gewinner-Seed festgeschrieben (Vision-QC: seedFor() zeichnete einen SCHIFFS-Anker
+      // statt eines Nachrichten-Sprechers; Re-Roll 284419 + Umformulierung passt).
+      284419],
     ['bc_faktencheck', 'tv',
       'a big official rubber-stamp shape — a bold dark-red ring with a thick diagonal bar — slammed ' +
       'over a faded, blurred image behind it, with a magnifier shape at the side; the stamp reads as ' +
@@ -1064,7 +1068,7 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       'a lone viewer silhouette on a sofa turning away from the TV with a doubtful shrug, a small ' +
       'crumpled letter and a question-mark-shaped scribble floating above — public doubt and pushback'],
   ];
-  for (const [id, surface, hint] of BROADCAST_MOTIFS) {
+  for (const [id, surface, hint, seedPin] of BROADCAST_MOTIFS) {
     shots.push({
       id,
       type: 'image',
@@ -1072,7 +1076,7 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       priority: 'nice',
       aspectRatio: '4:3',
       size: { w: 512, h: 384 },
-      seed: seedFor(id),
+      seed: seedPin ?? seedFor(id),
       prompt: `${hint}. ${surface === 'print' ? BROADCAST_PRINT_STYLE : BROADCAST_TV_STYLE}`,
     });
   }
