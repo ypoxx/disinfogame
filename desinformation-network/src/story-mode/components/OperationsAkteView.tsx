@@ -54,6 +54,8 @@ export interface OperationsAkteViewProps {
   onAusspielen: (params: OperationParams, result: OperationResult) => void;
   /** Optionale Vorbelegung (Kampagnen-Schmiede): öffnet die Akte mit vorausgewählten Feldern. */
   initialSelection?: AkteSelection;
+  /** Verbleibende Kampagnen einer geplanten Arc-Sequenz (nur Anzeige). */
+  sequenceRemaining?: number;
   onClose: () => void;
 }
 
@@ -288,6 +290,7 @@ export function OperationsAkteView({
   onAcquireKompromat,
   onAusspielen,
   initialSelection,
+  sequenceRemaining,
   onClose,
 }: OperationsAkteViewProps): React.JSX.Element {
   // Vorbelegung (Kampagnen-Schmiede) seedet die Auswahl beim Öffnen; sonst leerer Aktendeckel.
@@ -485,6 +488,11 @@ export function OperationsAkteView({
             {sel.analysis.biasWarned && (
               <span style={{ color: StoryModeColors.danger, fontWeight: 700 }}>
                 ⚠ Stichprobe war einseitig — echte Wirkung evtl. schwächer.
+              </span>
+            )}
+            {sequenceRemaining !== undefined && sequenceRemaining > 0 && (
+              <span data-testid="oa-sequence-remaining" style={{ marginLeft: 'auto', color: '#2a5a9c', fontWeight: 700 }}>
+                SEQUENZ · noch {sequenceRemaining}
               </span>
             )}
           </div>

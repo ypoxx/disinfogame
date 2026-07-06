@@ -85,10 +85,20 @@ Der Ergebnis-Screen zeigt das Dossier als Befund-Chips + Arc-Karten. Reine Logik
 | Verdrahtung (Seed-Zustand, Brücke, Dossier) | `src/story-mode/StoryModeGame.tsx` |
 | Tests | `kampagnenSchmiede.test.ts`, `dossierModel.test.ts`, `FokusgruppePreTest.test.tsx`, `OperationsAkteView.test.tsx`, `PlayOperation.test.ts`, `TargetMilieuCoverage.test.ts` |
 
-## Erweiterungs-Ideen (nicht umgesetzt)
+## Ausbau (umgesetzt)
 
-- **Arc → Ein-Klick-Sequenz**: Ein Zwei-Fronten-Arc befüllt nacheinander zwei Akten
-  (aktuell ist der Arc ein strategischer Hinweis, das Starten läuft über die Empfehlungen).
-- **Benannte Personas als Vorschau**: „Doreen kippt · Henrike wird misstrauisch
-  → +Enttarnungs-Risiko" direkt in der Start-Vorschau.
-- **Dossier in Save/Load**: Befunde überleben aktuell nur die Session (wie `directorStore`).
+- **Benannte Persona-Vorschau.** Jede Empfehlung zeigt, wer im Ziel-Milieu kippt
+  (Empfänglichkeit ≥ 0.5) und wer — milieu-übergreifend — Manipulation wittert
+  (≤ −0.5) und damit das Enttarnungs-Risiko treibt (`personaForecast`).
+- **Arc → Ein-Klick-Sequenz.** Ein Arc bietet „Sequenz planen ▸": die erste Kampagne
+  öffnet die Akte vorbefüllt, der Rest wartet in einer Warteschlange und rückt nach
+  jedem Ausspielen nach (`operationQueue` + `seedKey`-Remount; `buildSeedForSegment`
+  baut je Milieu/Appell den Seed). Die Akte zeigt „SEQUENZ · noch N".
+- **Dossier in Save/Load.** `saveGame`/`loadGame` sichern und laden das Dossier neben
+  dem Engine-Spielstand (`storyMode_save_dossier`); `dossierStore.hydrate()` setzt es.
+
+## Weitere Ideen (offen)
+
+- Arc-Sequenz mit automatischem Verbreiter-Aufbau/Kompromat-Beschaffung pro Schritt.
+- Fallen-basierte Arcs („Keil": ein Appell zündet hier, stößt dort ab) — braucht
+  Trap-Persistenz im Dossier (aktuell nur Sweet Spots).

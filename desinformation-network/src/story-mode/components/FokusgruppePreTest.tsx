@@ -20,6 +20,7 @@ import {
 import {
   buildWirkungsMatrix,
   recommendCampaigns,
+  buildSeedForSegment,
   APPEAL_LABEL,
   APPEALS as ALL_APPEALS,
   type CellClass,
@@ -82,6 +83,8 @@ export interface FokusgruppePreTestProps {
   saturation?: number;
   /** Empfehlung starten → Aufrufer öffnet die Operations-Akte vorbefüllt. */
   onLaunchCampaign?: (seed: CampaignSeed) => void;
+  /** Arc planen → Aufrufer reiht die Kampagnen als Sequenz ein (mehrere Akten nacheinander). */
+  onPlanCampaigns?: (seeds: CampaignSeed[]) => void;
   // ── Erkenntnis-Dossier (optional): Befunde über Runden sammeln ──
   /** Bereits gesammelte Erkenntnisse (aus dem dossierStore). */
   dossier?: Erkenntnis[];
@@ -106,6 +109,7 @@ export function FokusgruppePreTest({
   factcheckPressure,
   saturation,
   onLaunchCampaign,
+  onPlanCampaigns,
   dossier,
   phase,
   onRecordFindings,
@@ -254,6 +258,7 @@ export function FokusgruppePreTest({
           factcheckPressure={factcheckPressure}
           saturation={saturation}
           onLaunchCampaign={onLaunchCampaign}
+          onPlanCampaigns={onPlanCampaigns}
           dossier={dossier}
           phase={phase}
         />
@@ -276,6 +281,7 @@ interface ResultProps {
   factcheckPressure?: number;
   saturation?: number;
   onLaunchCampaign?: (seed: CampaignSeed) => void;
+  onPlanCampaigns?: (seeds: CampaignSeed[]) => void;
   dossier?: Erkenntnis[];
   phase?: number;
 }
@@ -293,6 +299,7 @@ function PreTestResultView({
   factcheckPressure,
   saturation,
   onLaunchCampaign,
+  onPlanCampaigns,
   dossier,
   phase,
 }: ResultProps): React.JSX.Element {
@@ -390,9 +397,33 @@ function PreTestResultView({
               ))}
           </div>
           {/* Kampagnen-Arcs (verdichtete Strategie über mehrere Befunde) */}
-          {arcs.map((arc) => (
-            <ArcCard key={arc.id} arc={arc} />
-          ))}
+          {arcs.map((arc) => {
+            // Arc → Sequenz startklarer Seeds (nur mit Rostern + Sequenz-Callback).
+            const seeds: CampaignSeed[] =
+              onPlanCampaigns && targets && carriers && platforms
+                ? arc.findingIds
+                    .map((fid) => allFindings.find((f) => f.id === fid))
+                    .filter((f): f is Erkenntnis => Boolean(f))
+                    .map(
+                      (f) =>
+                        buildSeedForSegment(f.segmentId, f.appeal, {
+                          targets,
+                          carriers,
+                          platforms,
+                          factcheckPressure,
+                          saturation,
+                        }).seed,
+                    )
+                : [];
+            return (
+              <ArcCard
+                key={arc.id}
+                arc={arc}
+                count={seeds.length}
+                onPlan={onPlanCampaigns && seeds.length > 0 ? () => onPlanCampaigns(seeds) : undefined}
+              />
+            );
+          })}
         </div>
       )}
 
@@ -580,6 +611,17 @@ function EmpfehlungCard({ emp, onLaunch }: { emp: KampagnenEmpfehlung; onLaunch:
       {emp.partial && (
         <div style={{ padding: '0 9px 6px', fontSize: 9, color: '#F0B429' }}>Ziel in der Akte noch wählen.</div>
       )}
+      {/* Benannte Vorschau: wer kippt, wer Manipulation wittert (Enttarnungs-Risiko). */}
+      {(emp.forecast.flips.length > 0 || emp.forecast.resists.length > 0) && (
+        <div style={{ padding: '0 9px 7px', fontSize: 9, lineHeight: 1.4 }}>
+          {emp.forecast.flips.length > 0 && (
+            <div style={{ color: '#6a8a6a' }}>▸ Kippt: {emp.forecast.flips.join(', ')}</div>
+          )}
+          {emp.forecast.resists.length > 0 && (
+            <div style={{ color: '#E5484D' }}>▸ Wittert Manipulation: {emp.forecast.resists.join(', ')} → +Risiko</div>
+          )}
+        </div>
+      )}
       <button
         type="button"
         data-testid={`pretest-launch-${emp.segmentId}`}
@@ -604,7 +646,7 @@ function EmpfehlungCard({ emp, onLaunch }: { emp: KampagnenEmpfehlung; onLaunch:
 
 // ─── Kampagnen-Arc-Karte (verdichtete Strategie aus mehreren Befunden) ────────
 
-function ArcCard({ arc }: { arc: KampagnenArc }): React.JSX.Element {
+function ArcCard({ arc, count, onPlan }: { arc: KampagnenArc; count?: number; onPlan?: () => void }): React.JSX.Element {
   const isBrand = arc.kind === 'flaechenbrand';
   const accent = isBrand ? '#F0B429' : '#8fb8e8';
   return (
@@ -617,7 +659,7 @@ function ArcCard({ arc }: { arc: KampagnenArc }): React.JSX.Element {
         marginBottom: 6,
         display: 'flex',
         gap: 8,
-        alignItems: 'baseline',
+        alignItems: 'center',
         flexWrap: 'wrap',
       }}
     >
@@ -627,6 +669,26 @@ function ArcCard({ arc }: { arc: KampagnenArc }): React.JSX.Element {
       <span style={{ fontSize: 10, color: StoryModeColors.lightConcrete, lineHeight: 1.35, flex: 1, minWidth: 180 }}>
         {arc.rationale_de}
       </span>
+      {onPlan && (
+        <button
+          type="button"
+          data-testid={`pretest-plan-${arc.kind}`}
+          onClick={onPlan}
+          style={{
+            flexShrink: 0,
+            padding: '4px 10px',
+            fontSize: 11,
+            fontWeight: 700,
+            fontFamily: "'VT323', monospace",
+            cursor: 'pointer',
+            color: '#1a1a1a',
+            border: `2px solid ${isBrand ? '#c8960c' : '#3a7acc'}`,
+            background: accent,
+          }}
+        >
+          SEQUENZ PLANEN ▸{count ? ` (${count})` : ''}
+        </button>
+      )}
     </div>
   );
 }

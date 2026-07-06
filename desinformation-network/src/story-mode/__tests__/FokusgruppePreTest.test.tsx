@@ -91,6 +91,9 @@ describe('FokusgruppePreTest — Kampagnen-Schmiede', () => {
     expect(screen.getByTestId('pretest-matrix')).toBeTruthy();
     expect(screen.getByTestId('matrix-cell-fear-wu_besorgte_mitte').textContent).toBe('+80');
 
+    // Benannte Vorschau: „Besorgt" kippt beim Angst-Appell (worried, fear 0.8).
+    expect(screen.getByTestId('pretest-empfehlung-wu_besorgte_mitte').textContent).toMatch(/Kippt:.*Besorgt/);
+
     // Baustein 1: Empfehlung für die Mitte mit vorbefülltem Ziel → Klick reicht den Seed durch.
     expect(screen.getByTestId('pretest-empfehlungen')).toBeTruthy();
     await user.click(screen.getByTestId('pretest-launch-wu_besorgte_mitte'));
@@ -152,5 +155,32 @@ describe('FokusgruppePreTest — Erkenntnis-Dossier', () => {
     // Dossier-Sektion sichtbar; drei Sweet Spots ergeben einen Zwei-Fronten-Arc.
     expect(screen.getByTestId('pretest-dossier')).toBeTruthy();
     expect(screen.getByTestId('pretest-arc-zwei_fronten')).toBeTruthy();
+  });
+
+  it('Arc-Sequenz: „Sequenz planen" reicht mehrere Seeds durch', async () => {
+    const user = userEvent.setup();
+    const onPlan = vi.fn<(seeds: CampaignSeed[]) => void>();
+    render(
+      <FokusgruppePreTest
+        personas={POP}
+        budget={100}
+        onCommission={() => {}}
+        segments={SEGMENTS}
+        targets={TARGETS}
+        carriers={CARRIERS}
+        platforms={PLATFORMS}
+        dossier={[]}
+        phase={2}
+        onRecordFindings={() => {}}
+        onPlanCampaigns={onPlan}
+        onClose={() => {}}
+      />,
+    );
+    await user.click(screen.getByTestId('pretest-commission'));
+
+    // Der Zwei-Fronten-Arc bietet eine planbare Sequenz aus zwei Kampagnen.
+    await user.click(screen.getByTestId('pretest-plan-zwei_fronten'));
+    expect(onPlan).toHaveBeenCalledOnce();
+    expect(onPlan.mock.calls[0][0]).toHaveLength(2);
   });
 });

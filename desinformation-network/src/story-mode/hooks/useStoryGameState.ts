@@ -1623,6 +1623,8 @@ export function useStoryGameState(seed?: string) {
     const savedState = engine.saveState();
     localStorage.setItem('storyMode_save', savedState);
     localStorage.setItem('storyMode_save_timestamp', new Date().toISOString());
+    // Erkenntnis-Dossier mit dem Spielstand sichern (lebt außerhalb der Engine).
+    localStorage.setItem('storyMode_save_dossier', JSON.stringify(useDossierStore.getState().findings));
     return true;
   }, [engine]);
 
@@ -1644,6 +1646,14 @@ export function useStoryGameState(seed?: string) {
       refreshAvailableActions();
       setGamePhase('playing');
 
+      // Erkenntnis-Dossier zum Spielstand wiederherstellen (leerer Bestand, falls keins gesichert).
+      try {
+        const rawDossier = localStorage.getItem('storyMode_save_dossier');
+        useDossierStore.getState().hydrate(rawDossier ? JSON.parse(rawDossier) : []);
+      } catch {
+        useDossierStore.getState().hydrate([]);
+      }
+
       return true;
     } catch (error) {
       storyLogger.error('Failed to load save:', error);
@@ -1658,6 +1668,7 @@ export function useStoryGameState(seed?: string) {
   const deleteSaveGame = useCallback(() => {
     localStorage.removeItem('storyMode_save');
     localStorage.removeItem('storyMode_save_timestamp');
+    localStorage.removeItem('storyMode_save_dossier');
   }, []);
 
   // ============================================

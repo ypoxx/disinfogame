@@ -151,6 +151,16 @@ export interface KampagnenEmpfehlung {
   expected: { reach: number; impact: number; exposureRisk: number } | null;
   /** true, wenn kein Ziel im Milieu existiert → Seed teil-vorbefüllt (Ziel offen). */
   partial: boolean;
+  /** Benannte Vorschau: wer kippt, wer Manipulation wittert (Enttarnungs-Risiko). */
+  forecast: PersonaForecast;
+}
+
+/** Namen (Vornamen) der Personas, die auf einen Appell auffällig reagieren. */
+export interface PersonaForecast {
+  /** Kippen mit → starke Zustimmung. */
+  flips: string[];
+  /** Wittern Manipulation → Widerstand, treibt das Enttarnungs-Risiko. */
+  resists: string[];
 }
 
 export interface RecommendContext {
@@ -207,6 +217,78 @@ function pickPlatforms(platforms: Platform[], segmentId: string): Platform[] {
   return [...pool].sort((a, b) => b.reach - a.reach).slice(0, matching.length > 0 ? 2 : 1);
 }
 
+const firstName = (name: string): string => name.split(/\s+/)[0];
+
+/**
+ * Benannte Vorschau: wer im Ziel-Milieu kippt (starke Zustimmung ≥ 0.5) und wer —
+ * milieu-übergreifend — Manipulation wittert (≤ −0.5) und damit das Enttarnungs-Risiko treibt.
+ */
+export function personaForecast(
+  personas: Persona[],
+  appeal: MessageAppeal,
+  segmentId: string,
+): PersonaForecast {
+  const rec = (p: Persona): number => p.receptivity[appeal] ?? 0;
+  const flips = personas
+    .filter((p) => toSegmentKey(p.segmentId) === segmentId && rec(p) >= 0.5)
+    .sort((a, b) => rec(b) - rec(a))
+    .slice(0, 2)
+    .map((p) => firstName(p.name));
+  const resists = personas
+    .filter((p) => rec(p) <= -0.5)
+    .sort((a, b) => rec(a) - rec(b))
+    .slice(0, 2)
+    .map((p) => firstName(p.name));
+  return { flips, resists };
+}
+
+/** Ergebnis des Seed-Baus für ein Milieu (für Empfehlungen UND Arc-Sequenzen). */
+export interface SeedBuild {
+  seed: CampaignSeed;
+  expected: { reach: number; impact: number; exposureRisk: number } | null;
+  /** true, wenn kein Ziel im Milieu existiert → Seed teil-vorbefüllt. */
+  partial: boolean;
+}
+
+/**
+ * Baut eine startklare Operations-Vorbelegung für (Milieu, Appell): Ziel + Schwäche +
+ * Verbreiter + Plattform-Mix, samt erwarteter Engine-Wirkung. Wiederverwendbar für die
+ * Empfehlungen der laufenden Befragung UND die Kampagnen-Arcs des Dossiers.
+ */
+export function buildSeedForSegment(
+  segmentId: string,
+  appeal: MessageAppeal,
+  ctx: { targets: Target[]; carriers: Carrier[]; platforms: Platform[]; factcheckPressure?: number; saturation?: number },
+): SeedBuild {
+  const targetPick = pickTarget(ctx.targets, segmentId);
+  const carrier = pickCarrier(ctx.carriers, segmentId);
+  const pickedPlatforms = pickPlatforms(ctx.platforms, segmentId);
+  const partial = targetPick === null;
+
+  let expected: SeedBuild['expected'] = null;
+  if (targetPick && carrier && pickedPlatforms.length > 0) {
+    const vuln = targetPick.target.vulnerabilities.find((v) => v.id === targetPick.vulnId)!;
+    const res = evaluateOperation({
+      target: targetPick.target,
+      vulnerability: vuln,
+      carrier,
+      platforms: pickedPlatforms,
+      factcheckPressure: ctx.factcheckPressure,
+      saturation: ctx.saturation,
+    });
+    expected = { reach: res.reach, impact: res.impact, exposureRisk: res.exposureRisk };
+  }
+
+  const seed: CampaignSeed = {
+    targetId: targetPick?.target.id ?? null,
+    vulnId: targetPick?.vulnId ?? null,
+    carrierId: carrier?.id ?? null,
+    platformIds: pickedPlatforms.map((p) => p.id),
+    analysis: { appeal, segmentId },
+  };
+  return { seed, expected, partial };
+}
+
 /**
  * Leitet aus der befragten Stichprobe 1–N startklare Kampagnen ab: je Milieu der stärkste
  * positive Appell, priorisiert nach (Wirkung × Milieu-Größe × Luft nach oben). Sweet Spots
@@ -241,26 +323,15 @@ export function recommendCampaigns(ctx: RecommendContext): KampagnenEmpfehlung[]
     const size = seg?.size ?? 0.1;
     const headroom = 1 - (seg?.belief ?? 0.3);
 
-    const targetPick = pickTarget(targets, segmentId);
-    const carrier = pickCarrier(carriers, segmentId);
-    const pickedPlatforms = pickPlatforms(platforms, segmentId);
-    const partial = targetPick === null;
-
-    // Erwartete Engine-Wirkung nur, wenn Ziel + Verbreiter + Plattform bestimmbar.
-    let expected: KampagnenEmpfehlung['expected'] = null;
-    if (targetPick && carrier && pickedPlatforms.length > 0) {
-      const vuln = targetPick.target.vulnerabilities.find((v) => v.id === targetPick.vulnId)!;
-      const res = evaluateOperation({
-        target: targetPick.target,
-        vulnerability: vuln,
-        carrier,
-        platforms: pickedPlatforms,
-        factcheckPressure: ctx.factcheckPressure,
-        saturation: ctx.saturation,
-      });
-      expected = { reach: res.reach, impact: res.impact, exposureRisk: res.exposureRisk };
-    }
-
+    // Startklare Vorbelegung (Ziel/Schwäche/Verbreiter/Plattform) + erwartete Wirkung.
+    const { seed, expected, partial } = buildSeedForSegment(segmentId, appeal, {
+      targets,
+      carriers,
+      platforms,
+      factcheckPressure: ctx.factcheckPressure,
+      saturation: ctx.saturation,
+    });
+    // Analyse-Herkunft der Empfehlung anreichern (Prognose/Wahrheit/Bias → treibt die „Zähne").
     const analysis: OperationAnalysis = {
       appeal,
       segmentId,
@@ -268,15 +339,11 @@ export function recommendCampaigns(ctx: RecommendContext): KampagnenEmpfehlung[]
       trueReception: trueVal,
       biasWarned,
     };
-    const seed: CampaignSeed = {
-      targetId: targetPick?.target.id ?? null,
-      vulnId: targetPick?.vulnId ?? null,
-      carrierId: carrier?.id ?? null,
-      platformIds: pickedPlatforms.map((p) => p.id),
-      analysis,
-    };
+    seed.analysis = analysis;
 
-    const targetName = targetPick?.target.name ?? 'ein Ziel im Milieu';
+    const target = targets.find((t) => t.id === seed.targetId);
+    const carrier = carriers.find((c) => c.id === seed.carrierId);
+    const targetName = target?.name ?? 'ein Ziel im Milieu';
     const carrierName = carrier?.label_de ?? 'einen Verbreiter';
     const rationale_de = biasWarned
       ? `${APPEAL_LABEL[appeal]} schien bei „${label}" stark (+${Math.round(predicted * 100)} %) — doch die Stichprobe war einseitig. Der echte Milieu-Wert liegt bei +${Math.round(trueVal * 100)} %.`
@@ -298,6 +365,7 @@ export function recommendCampaigns(ctx: RecommendContext): KampagnenEmpfehlung[]
       biasWarned,
       expected,
       partial,
+      forecast: personaForecast(personas, appeal, segmentId),
       score,
     });
   }

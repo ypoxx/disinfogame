@@ -10,6 +10,8 @@ import {
   buildWirkungsMatrix,
   classifyCell,
   recommendCampaigns,
+  buildSeedForSegment,
+  personaForecast,
   toSegmentKey,
   type SegmentInfo,
 } from '../audience/kampagnenSchmiede';
@@ -131,5 +133,40 @@ describe('recommendCampaigns', () => {
   it('limit begrenzt die Anzahl der Empfehlungen', () => {
     const recs = recommendCampaigns({ ...baseCtx, sampleIds: POP.map((p) => p.id), limit: 1 });
     expect(recs).toHaveLength(1);
+  });
+
+  it('Empfehlung trägt eine benannte Persona-Vorschau (forecast)', () => {
+    const recs = recommendCampaigns({ ...baseCtx, sampleIds: POP.map((p) => p.id) });
+    const mitte = recs.find((r) => r.segmentId === 'wu_besorgte_mitte')!;
+    expect(mitte.forecast.flips).toContain('Besorgt'); // worried, fear 0.8
+  });
+});
+
+describe('personaForecast', () => {
+  it('flips = starke Zustimmer im Milieu, resists = Manipulations-Wittrer überall', () => {
+    // trust: lib +0.6 (Liberale) kippt; angry1 −0.8 wittert Manipulation.
+    const f = personaForecast(POP, 'trust', 'wu_liberale');
+    expect(f.flips).toContain('Liberal');
+    expect(f.resists).toContain('Wütend');
+  });
+});
+
+describe('buildSeedForSegment', () => {
+  it('volles Milieu: Ziel/Schwäche/Verbreiter/Plattform + erwartete Wirkung', () => {
+    const b = buildSeedForSegment('wu_besorgte_mitte', 'fear', { targets: TARGETS, carriers: CARRIERS, platforms: PLATFORMS });
+    expect(b.partial).toBe(false);
+    expect(b.seed.targetId).toBe('t_mitte');
+    expect(b.seed.carrierId).toBe('c_mitte');
+    expect(b.seed.platformIds).toContain('p_mitte');
+    expect(b.seed.analysis.appeal).toBe('fear');
+    expect(b.expected).not.toBeNull();
+  });
+
+  it('ziel-loses Milieu: Teil-Seed (Ziel offen), Verbreiter fällt auf Rauschen zurück', () => {
+    const b = buildSeedForSegment('wu_zorniger', 'anger', { targets: TARGETS, carriers: CARRIERS, platforms: PLATFORMS });
+    expect(b.partial).toBe(true);
+    expect(b.seed.targetId).toBeNull();
+    expect(b.seed.carrierId).toBe('c_none');
+    expect(b.expected).toBeNull();
   });
 });

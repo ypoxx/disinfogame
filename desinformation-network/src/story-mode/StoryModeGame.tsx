@@ -421,6 +421,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [showOperationsAkte, setShowOperationsAkte] = useState(false);
   // Kampagnen-Schmiede: von der Fokusgruppe empfohlener Operations-Seed befüllt die Akte vor.
   const [operationSeed, setOperationSeed] = useState<AkteSelection | null>(null);
+  // Arc-Sequenz: weitere Seeds, die nach dem Ausspielen nacheinander in die Akte nachrücken.
+  const [operationQueue, setOperationQueue] = useState<AkteSelection[]>([]);
+  // Bump erzwingt Remount der Akte, damit ein neuer Seed die Auswahl frisch initialisiert.
+  const [seedKey, setSeedKey] = useState(0);
   // 2f: Narrativ-Tafel (Korkbrett) — diegetisches Planungs-Herzstück, Pinnwand im Büro.
   const [showBoard, setShowBoard] = useState(false);
   // 2e: Lagebild — „auf einen Blick"-Übersicht am Wand-Monitor (löst das Dashboard ab).
@@ -1253,6 +1257,17 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             onLaunchCampaign={(seed) => {
               // Empfehlung übernehmen → Akte vorbefüllt öffnen (Pre-Test schließen).
               setOperationSeed(seed);
+              setOperationQueue([]);
+              setSeedKey((k) => k + 1);
+              setShowPreTest(false);
+              setShowOperationsAkte(true);
+            }}
+            onPlanCampaigns={(seeds) => {
+              // Arc-Sequenz: erste Kampagne in die Akte, Rest wartet in der Warteschlange.
+              if (seeds.length === 0) return;
+              setOperationSeed(seeds[0]);
+              setOperationQueue(seeds.slice(1));
+              setSeedKey((k) => k + 1);
               setShowPreTest(false);
               setShowOperationsAkte(true);
             }}
@@ -1268,6 +1283,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             Faktencheck/Sättigung speisen sich aus der Lage (attention/risk → 0..1). */}
         {showOperationsAkte && (
           <OperationsAkteView
+            key={seedKey}
+            sequenceRemaining={operationQueue.length}
             targets={loadTargets()}
             carriers={loadCarriers()}
             platforms={loadPlatforms()}
@@ -1281,11 +1298,19 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             initialSelection={operationSeed ?? undefined}
             onAusspielen={(params) => {
               playOperation(params);
-              setShowOperationsAkte(false);
-              setOperationSeed(null);
-              setBroadcastExpanded(true);
+              if (operationQueue.length > 0) {
+                // Arc-Sequenz: nächste Kampagne rückt vorbefüllt in die Akte nach.
+                setOperationSeed(operationQueue[0]);
+                setOperationQueue((q) => q.slice(1));
+                setSeedKey((k) => k + 1);
+                setBroadcastExpanded(true);
+              } else {
+                setShowOperationsAkte(false);
+                setOperationSeed(null);
+                setBroadcastExpanded(true);
+              }
             }}
-            onClose={() => { setShowOperationsAkte(false); setOperationSeed(null); }}
+            onClose={() => { setShowOperationsAkte(false); setOperationSeed(null); setOperationQueue([]); }}
           />
         )}
 

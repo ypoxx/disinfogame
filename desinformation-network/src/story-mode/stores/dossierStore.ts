@@ -12,11 +12,14 @@ interface DossierState {
   findings: Erkenntnis[];
   /** Neue Befunde einer Befragung einmischen (dedupe über Runden). */
   record: (incoming: Erkenntnis[]) => void;
+  /** Vollständiger Ersatz (Save/Load): das geladene Dossier setzen. */
+  hydrate: (findings: Erkenntnis[]) => void;
   reset: () => void;
 }
 
 export const useDossierStore = create<DossierState>((set) => ({
   findings: [],
   record: (incoming) => set((s) => ({ findings: mergeFindings(s.findings, incoming) })),
+  hydrate: (findings) => set({ findings }),
   reset: () => set({ findings: [] }),
 }));
