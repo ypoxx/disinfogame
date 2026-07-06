@@ -10,7 +10,7 @@
 export interface AmbienceContext {
   viewMode: 'building' | 'office';
   dialogNpcId?: string | null;
-  overlay?: 'newsroom' | 'fokusgruppe' | 'akte' | 'lagebild' | 'board' | null;
+  overlay?: 'newsroom' | 'fokusgruppe' | 'akte' | 'lagebild' | 'board' | 'broadcast' | 'wahlabend' | null;
   /** Nur im laufenden Spiel klingt es; sonst Stille. */
   active?: boolean;
 }
@@ -30,6 +30,8 @@ export function ambienceForContext(ctx: AmbienceContext): string | null {
     case 'newsroom': return 'sfx_amb_newsroom';
     case 'fokusgruppe': return 'sfx_amb_zentrale'; // Einwegspiegel-Beobachtungsraum
     case 'akte': return 'sfx_amb_cyber';           // Operationszentrale (Technik-Brummen)
+    case 'broadcast': return 'sfx_amb_wohnzimmer';  // Publikums-Wohnzimmer (warm)
+    case 'wahlabend': return 'sfx_amb_tvstudio';    // Wahlabend-TV-Studio (kühl, angespannt)
     case 'lagebild':
     case 'board':
     case null:
