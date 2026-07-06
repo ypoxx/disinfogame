@@ -9,8 +9,8 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `GESAMTKONZEPT_VISUELL.md` → dieses Dokument für den aktuellen Bau-Stand.
 > Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
-**Stand:** 2026-07-06 (UI-LUXUS-PAKET, Bau-Session — Etappen 0–3) · Branch
-`claude/ui-luxus-package-1szmrw` (Draft-PR #96) · Gate grün (`tsc 0` · `vitest 604` · `build`).
+**Stand:** 2026-07-06 (UI-LUXUS-PAKET, Bau-Session — Etappen 0–4) · Branch
+`claude/ui-luxus-package-1szmrw` (Draft-PR #96) · Gate grün (`tsc 0` · `vitest 630` · `build`).
 > Umsetzung von `PLAN_2026-07-06_UI_LUXUS.md` mit Doppel-Review-Kontrakt (§3b a).
 > - **Etappe 0 ✅ — State-of-the-Art-Memo:** `MEMO_2026-07-06_STATE_OF_THE_ART.md`
 >   (Integer-Scaling/devicePixelRatio-Formeln · diegetische Papier-/CRT-UI-Lehren
@@ -107,6 +107,31 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 >   Verstöße, Opacity konstant 1; Geminis etage1-Clip-Urteil selbst: „keine
 >   Befunde"). Ambient-Türen bewusst stumm (Sound nur beim Spieler).
 >   Gate: tsc 0 · vitest 604 · build.
+> - **Etappe 4 ✅ (L2) — Vorgangs-Terminal (Herzstück 1):** Vollbild-CRT-Terminal
+>   ERSETZT die Aktionen-Seitenleiste ersatzlos („Terminal WÄHLT, Korkbrett PLANT",
+>   §4.1) — Taste A, Büro-Hotspot „AKTIONEN PLANEN" und Berater-Sprung führen alle
+>   dorthin; `'actions'`-Reiter aus panelStore/SidePanel raus. NEU `TerminalView.tsx`
+>   (dunkler Phosphor-Schirm als Welt-Objekt wie die Newsroom-CRTs; Volltontext +
+>   SEPARATER, abschaltbarer + persistenter Scanline-Layer, Memo §2.6, nie in den
+>   Text gebacken; Tastatur-/CRT-Klang). M1: die Karte (NEU `ActionCard.tsx`, aus dem
+>   gelöschten ActionPanel extrahiert; Container → `archive/`) trägt Wirkung + Preis +
+>   FRISCH/BEKANNT/VERBRANNT je Ziel-Milieu VOR dem Klick (nie die Matrix-Zahl, E6).
+>   M2 (NEU `terminalCuration.ts`, pure): Tür zeigt 3–8 anlassbezogene Vorgänge
+>   (Strang→Empfehlung→leistbar+frisch→Rest; nie gesperrt/verbraucht), voller Katalog
+>   in der ARCHIV-Schublade (Legalitäts-Filter, Suche, Porträt-Zeile = Zuträger-Filter
+>   nach NPC-Affinität). Anheft-Zähler in der Fußzeile (Queue-Widget am Terminal aus).
+>   **Doppel-Review ERFÜLLT:** (1) Code adversarial (5 Dimensionen; 7 bestätigt /
+>   28 widerlegt-bzw.-proaktiv-gefixt) — Wurzel-Fix [hoch] ESC-Regression: Esc schloss
+>   das Terminal UND öffnete das Pausenmenü (die Esc-Kette kannte showTerminal nicht,
+>   nachdem der activePanel-Schutz mit der Sidebar entfiel) → Capture-Listener +
+>   stopImmediatePropagation (Muster NarrativeBoard/PixelModal) + Terminal-Vorrang in
+>   der Kette; Integrations-Smoke belegt ESC-ohne-Pause; ActionPanel-Totcode archiviert;
+>   Hotkey-Leck/Overlay-Stack/stale-Highlight/Berater-Sprung-bei-offenem-Terminal
+>   gefixt; TutorialOverlay-Text auf Terminal aktualisiert; harvest-Duplikat-Shot raus.
+>   (2) Harvest-Vision: 1 Befund (Sekundärtext-Kontrast ~4,9:1 → textDim ~8,7:1 +
+>   Vollton-Chips) gefixt und per Nach-Shot bestätigt; „Leerzeile" per DOM-Beweis
+>   widerlegt; ▚/│ (fehlende Pixel-Glyphen, B22-Klasse) ersetzt.
+>   Gate: tsc 0 · vitest 630 · build · Integrations-Smoke (ESC/A/Hotkey, 0 Fehler).
 
 **Stand:** 2026-07-05 (VISUAL-COHERENCE-REVIEW — Befunde + Plan, KEINE Fixes) · Branch
 `claude/visual-coherence-review-26f8av` (Draft-PR #95) · Gate grün (`tsc 0` · `vitest 575` · `build`).
