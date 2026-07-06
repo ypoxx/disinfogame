@@ -17,3 +17,11 @@ export {
 export { useAssets } from './useAssets';
 export { useSprite } from './useSprite';
 export type { SpriteRender } from './useSprite';
+export {
+  warmImageCache,
+  collectPreloadUrls,
+  isPriorityAsset,
+  PRIORITY_PREFIXES,
+  __resetPreloadCacheForTests,
+} from './preloadAssets';
+export type { PreloadUrls, WarmOptions } from './preloadAssets';

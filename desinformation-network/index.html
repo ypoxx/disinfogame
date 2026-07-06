@@ -9,6 +9,10 @@
     <title>Operation Westunion</title>
     <!-- B2/§4.5: EIN Schriftsystem — die Web-Sans (Inter) ist raus; die
          Pixel-Fonts liegen selbst gehostet in public/fonts/ (@font-face in index.css). -->
+    <!-- Titel-Fassade sofort vorladen: das allererste sichtbare Bild soll
+         nicht erst nach dem JS-Manifest-Fetch nachgeladen werden. Stabiler
+         public-Pfad; der JS-Preloader (assets/preloadAssets.ts) übernimmt den Rest. -->
+    <link rel="preload" as="image" href="/assets/images/building_exterior.png" fetchpriority="high" />
   </head>
   <body>
     <div id="root"></div>
