@@ -179,7 +179,7 @@ export function DayReport({
                       </div>
                       <div
                         className="h-2 rounded-sm overflow-hidden"
-                        style={{ backgroundColor: StoryModeColors.border }}
+                        style={{ backgroundColor: StoryModeColors.oldPaper }}
                       >
                         <div
                           className="h-full transition-all duration-500"

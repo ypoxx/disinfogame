@@ -374,9 +374,10 @@ export function NarrativeBoard({
               disabled={!canPlay}
               className="px-4 py-1.5 border-2 font-bold text-sm transition-all"
               style={{
-                backgroundColor: canPlay ? StoryModeColors.success : StoryModeColors.darkConcrete,
-                borderColor: canPlay ? '#15803d' : StoryModeColors.borderLight,
-                color: '#fff',
+                // v3 §4.7: Stempel-Knopf (Papier + Erfolgs-Ring) statt Grün-Fläche.
+                backgroundColor: canPlay ? StoryModeColors.surfaceLight : StoryModeColors.lightConcrete,
+                borderColor: canPlay ? StoryModeColors.success : StoryModeColors.borderLight,
+                color: canPlay ? StoryModeColors.success : StoryModeColors.textMuted,
                 cursor: canPlay ? 'pointer' : 'not-allowed',
                 opacity: canPlay ? 1 : 0.6,
               }}
@@ -387,7 +388,7 @@ export function NarrativeBoard({
             <button
               onClick={() => { if (queue.length) { playSound('click'); onClear(); } }}
               className="px-3 py-1.5 border-2 font-bold text-sm transition-all hover:brightness-110"
-              style={{ backgroundColor: StoryModeColors.ministryRed, borderColor: StoryModeColors.darkRed, color: '#fff' }}
+              style={{ backgroundColor: StoryModeColors.surfaceLight, borderColor: StoryModeColors.ministryRed, color: StoryModeColors.ministryRed }}
               title="Tafel leeren"
             >
               LEEREN
@@ -450,8 +451,8 @@ function ActionCard({ action, onPin, onExecuteNow }: { action: BoardAction; onPi
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-[12px] font-bold leading-tight">{action.label_de}</span>
-        {/* v3: Legalitäts-Tinten sind dunkler — helle Schrift auf legal/illegal (grau bleibt dunkel-auf-amber). */}
-        <span className="text-[9px] px-1 shrink-0" style={{ backgroundColor: LEGAL_COLOR[action.legality], color: action.legality === 'grey' ? '#0d0d0d' : '#fff' }}>
+        {/* v3 §4.7: Legalität als STEMPEL (Rahmen + Tinte) statt gefüllter Pille. */}
+        <span className="text-[9px] px-1 shrink-0 border" style={{ borderColor: LEGAL_COLOR[action.legality], color: LEGAL_COLOR[action.legality], backgroundColor: 'transparent' }}>
           {action.legality === 'legal' ? 'LEGAL' : action.legality === 'grey' ? 'GRAU' : 'ILLEGAL'}
         </span>
       </div>
@@ -465,7 +466,8 @@ function ActionCard({ action, onPin, onExecuteNow }: { action: BoardAction; onPi
           onClick={onPin}
           disabled={dis}
           className="flex-1 px-2 py-1 text-[11px] font-bold border-2 hover:brightness-110 disabled:opacity-50"
-          style={{ backgroundColor: StoryModeColors.militaryOlive, borderColor: StoryModeColors.darkOlive, color: StoryModeColors.document, cursor: dis ? 'not-allowed' : 'pointer' }}
+          // v3 §4.7: Papier-Knopf mit Oliv-Tinte statt Oliv-Fläche (Vision-Review E2).
+          style={{ backgroundColor: StoryModeColors.surfaceLight, borderColor: StoryModeColors.militaryOlive, color: StoryModeColors.darkOlive, cursor: dis ? 'not-allowed' : 'pointer' }}
           title="An die fokussierte Spur anheften (Enter)"
         >
           ANHEFTEN
@@ -474,7 +476,7 @@ function ActionCard({ action, onPin, onExecuteNow }: { action: BoardAction; onPi
           onClick={onExecuteNow}
           disabled={dis}
           className="px-2 py-1 text-[11px] font-bold border-2 hover:brightness-110 disabled:opacity-50"
-          style={{ backgroundColor: StoryModeColors.ministryRed, borderColor: StoryModeColors.darkRed, color: '#fff', cursor: dis ? 'not-allowed' : 'pointer' }}
+          style={{ backgroundColor: StoryModeColors.surfaceLight, borderColor: StoryModeColors.ministryRed, color: StoryModeColors.ministryRed, cursor: dis ? 'not-allowed' : 'pointer' }}
           title="Sofort ausspielen"
         >
           SOFORT

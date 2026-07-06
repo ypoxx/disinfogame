@@ -145,7 +145,7 @@ function StepHeader({ num, title, hint }: { num: string; title: string; hint?: s
         style={{
           fontSize: 10,
           fontWeight: 900,
-          color: '#0d0d0d',
+          color: '#fff',
           backgroundColor: StoryModeColors.ministryRed,
           padding: '1px 6px',
           letterSpacing: 1,

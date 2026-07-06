@@ -306,6 +306,9 @@ if (wanted('title')) {
   }
   // Nacht in der Lobby (Regressions-Blick: Lobby-Kacheln + Nacht-Skyline).
   await gotoRoom(page, /Lobby/i, { close: false, maxWaitMs: 30000 });
+  // Der Weg kostet Spielzeit — Uhr erst NACH Ankunft auf 17:58 pinnen, sonst
+  // kippt der Auto-Feierabend doch noch (Code-Review E2).
+  await vqa(page, () => window.__VQA__.setMinutes(538)).catch(() => {});
   await sleep(1200);
   await shot(page, 'building_lobby_night', { bundle: 'daynight', desc: 'Lobby bei Nacht (18:00, Tönung + Nacht-Skyline)', overlay: true, geometry: true });
   await vqa(page, () => window.__VQA__.setMinutes(180));

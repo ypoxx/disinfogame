@@ -33,12 +33,15 @@ export function PixelFrame({ children, variant = 'standard', className, style, .
   // Papier-Textur (ui_panel_paper) unter dem Inhalt — sehr kontrastarm, Text bleibt
   // Engine-Ebene (E35). Fehlt das Asset, trägt die Flächenfarbe allein.
   const paperUrl = assets.imageUrl('ui_panel_paper');
+  // Aufrufer-Override respektieren: wer eine eigene Flächenfarbe setzt, bekommt
+  // KEINE opake Papier-Kachel darübergelegt (Code-Review E2).
+  const hasBgOverride = style && 'backgroundColor' in style;
   return (
     <div
       className={className}
       style={{
         backgroundColor: v.bg,
-        ...(paperUrl
+        ...(paperUrl && !hasBgOverride
           ? {
               backgroundImage: `url(${paperUrl})`,
               backgroundRepeat: 'repeat',

@@ -30,10 +30,10 @@ export function AuftragSelect({ onChoose }: AuftragSelectProps): React.JSX.Eleme
       }}
     >
       <div style={{ textAlign: 'center', maxWidth: 560 }}>
-        <div style={{ fontSize: 10, letterSpacing: 2, color: StoryModeColors.textMuted, textTransform: 'uppercase' }}>
+        <div style={{ fontSize: 10, letterSpacing: 2, color: '#A89878' /* hell: Dunkel-Overlay */, textTransform: 'uppercase' }}>
           Kurator Volkov schiebt eine Akte über den Tisch
         </div>
-        <div style={{ fontSize: 13, lineHeight: 1.55, color: StoryModeColors.textSecondary, marginTop: 6 }}>
+        <div style={{ fontSize: 13, lineHeight: 1.55, color: '#C8BC9E', marginTop: 6 }}>
           „Das Vertrauen der Leute zu zersetzen, ist nur das Mittel. Das{' '}
           <span style={{ color: StoryModeColors.warning }}>Ziel</span> steht in der Akte. Daran misst die Zentrale Sie."
         </div>

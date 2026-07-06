@@ -1,4 +1,4 @@
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, stampCtaStyle } from '../theme';
 import { Icon, type IconName } from './Icon';
 
 // E29: Keyframe für pulsierendes RISIKO bei ≥70 — einmalig injiziert.
@@ -183,10 +183,10 @@ function ResourceBar({
         </div>
         {percentage !== undefined && (
           <div
-            className="rounded-sm overflow-hidden"
+            className="overflow-hidden"
             style={{
               height: isPrimary ? '4px' : '3px',
-              backgroundColor: StoryModeColors.border,
+              backgroundColor: StoryModeColors.oldPaper,
             }}
           >
             <div
@@ -246,8 +246,8 @@ function AbwehrBar({ value, stageInfo }: AbwehrBarProps) {
         </div>
         <div className="relative" style={{ height: '4px' }}>
           <div
-            className="rounded-sm overflow-hidden h-full"
-            style={{ backgroundColor: StoryModeColors.border }}
+            className="overflow-hidden h-full"
+            style={{ backgroundColor: StoryModeColors.oldPaper }}
           >
             <div
               className="h-full transition-all duration-300"
@@ -310,7 +310,7 @@ function SonntagsfrageBar({ info }: { info: SonntagsfrageInfo }) {
           </span>
         </div>
         <div className="relative" style={{ height: '4px' }}>
-          <div className="rounded-sm overflow-hidden h-full" style={{ backgroundColor: StoryModeColors.border }}>
+          <div className="overflow-hidden h-full" style={{ backgroundColor: StoryModeColors.oldPaper }}>
             <div
               className="h-full transition-all duration-300"
               style={{ width: `${barPct}%`, backgroundColor: reached ? StoryModeColors.success : StoryModeColors.ministryRed }}
@@ -423,7 +423,7 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
         {primaryObjective.title}
       </div>
       <div
-        className="h-1 mt-1 rounded-sm overflow-hidden"
+        className="h-1 mt-1 overflow-hidden"
         style={{ backgroundColor: StoryModeColors.border }}
       >
         <div
@@ -550,13 +550,8 @@ export function StoryHUD({
             {onEndPhase && (
               <button
                 onClick={onEndPhase}
-                className="px-4 py-1.5 border-2 font-bold text-sm transition-all hover:brightness-110 active:translate-y-0.5"
-                style={{
-                  backgroundColor: StoryModeColors.ministryRed,
-                  borderColor: StoryModeColors.darkRed,
-                  color: '#fff',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-                }}
+                className="px-4 py-1.5 font-bold text-sm transition-all hover:brightness-95 active:translate-y-0.5"
+                style={stampCtaStyle}
               >
                 PHASE BEENDEN →
               </button>

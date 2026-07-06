@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { StoryModeColors } from './theme';
+import { StoryModeColors, stampCtaStyle } from './theme';
 import { GAME_VERSION } from './version';
 import { DialogBox } from './components/DialogBox';
 import { StoryHUD } from './components/StoryHUD';
@@ -183,8 +183,8 @@ function PauseMenu({ onResume, onSave, onExit }: {
         <div
           className="px-6 py-4 border-b-4 text-center font-bold"
           style={{
-            // v3 §4.7: dunkles Kopfband → helle Beschriftung (Tinte wäre unlesbar)
-            backgroundColor: StoryModeColors.agencyBlue,
+            // v3 §4.7: Kraftband (statt Groß-Blau) → helle Beschriftung.
+            backgroundColor: StoryModeColors.darkConcrete,
             borderColor: StoryModeColors.border,
             color: StoryModeColors.surfaceLight,
           }}
@@ -195,24 +195,19 @@ function PauseMenu({ onResume, onSave, onExit }: {
         <div className="p-4 flex flex-col gap-3">
           <button
             onClick={onResume}
-            className="w-full py-3 border-2 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
-            style={{
-              backgroundColor: StoryModeColors.ministryRed,
-              borderColor: StoryModeColors.darkRed,
-              color: '#fff',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-            }}
+            className="w-full py-3 font-bold transition-all hover:brightness-95 active:translate-y-0.5"
+            style={stampCtaStyle}
           >
             FORTSETZEN
           </button>
           <button
             onClick={onSave}
-            className="w-full py-3 border-2 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
+            className="w-full py-3 border-2 font-bold transition-all hover:brightness-95 active:translate-y-0.5"
             style={{
-              backgroundColor: StoryModeColors.militaryOlive,
-              borderColor: StoryModeColors.darkOlive,
-              color: StoryModeColors.surfaceLight,
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
+              // v3 §4.7: Papier-Knopf mit Tinten-Rahmen statt Oliv-Fläche.
+              backgroundColor: StoryModeColors.surfaceLight,
+              borderColor: StoryModeColors.militaryOlive,
+              color: StoryModeColors.darkOlive,
             }}
           >
             SPEICHERN
@@ -807,9 +802,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           onClick={() => setShowEndReport(true)}
           className="fixed bottom-4 right-4 z-50 px-4 py-3 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
           style={{
-            backgroundColor: StoryModeColors.agencyBlue,
-            borderColor: StoryModeColors.darkBlue,
-            color: StoryModeColors.warning,
+            // v3 §4.7: Kraftband-Knopf mit heller Schrift (warning war Tinte auf Blau).
+            backgroundColor: StoryModeColors.darkConcrete,
+            borderColor: StoryModeColors.border,
+            color: StoryModeColors.document,
             boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
           }}
         >
@@ -921,7 +917,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             aria-label="Pause / Menü"
             title="Pause / Menü (Esc)"
             className="w-8 h-8 flex items-center justify-center border-2 font-bold hover:brightness-125"
-            style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.textPrimary }}
+            style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.lightConcrete }}
           >
             ☰
           </button>
@@ -930,7 +926,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             aria-label="HUD einblenden"
             title="HUD einblenden (H)"
             className="h-8 px-2 flex items-center gap-1 border-2 text-xs font-bold hover:brightness-125"
-            style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.textSecondary }}
+            style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.lightConcrete }}
           >
             <Icon name="stats" size={12} title="HUD" fallback="HUD" /> HUD · H
           </button>
@@ -1426,10 +1422,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         >
           <div
             className="mx-4 max-w-md w-full border-4 p-6"
-            style={{ backgroundColor: StoryModeColors.surface, borderColor: StoryModeColors.ministryRed }}
+            style={{ backgroundColor: StoryModeColors.surface, borderColor: StoryModeColors.border }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="font-bold text-lg mb-4" style={{ color: StoryModeColors.warning }}>
+            {/* v3 §4.7: Akten-Rahmen statt Alarm-Rot (Rot-Disziplin, P5-Befund). */}
+            <h2 className="font-bold text-lg mb-4" style={{ color: StoryModeColors.textPrimary }}>
               TASTENKÜRZEL
             </h2>
             <div className="grid grid-cols-1 gap-1 text-sm">
@@ -1523,10 +1520,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         <div
           className="fixed bottom-4 right-4 px-4 py-2 border-2 font-bold animate-fade-in z-50"
           style={{
-            backgroundColor: StoryModeColors.militaryOlive,
-            borderColor: StoryModeColors.darkOlive,
-            color: StoryModeColors.warning,
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
+            // v3 §4.7: Papier-Quittung mit Erfolgs-Tinte (Oliv-Fläche + warning war 1,5:1).
+            backgroundColor: StoryModeColors.surfaceLight,
+            borderColor: StoryModeColors.success,
+            color: StoryModeColors.success,
           }}
         >
           {saveMessage}

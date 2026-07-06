@@ -506,14 +506,14 @@ function RennenChart({
   return (
     <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ maxWidth: '100%', display: 'block' }} aria-label="Das Rennen: Sonntagsfrage gegen Abwehr">
       {/* Papier-Diagrammfläche: Tinten-Linien/-Beschriftungen sind auf Kraftpapier unlesbar (§4.7 Regel 3). */}
-      <rect width={W} height={H} fill={StoryModeColors.surfaceLight} rx={2} />
+      <rect width={W} height={H} fill={StoryModeColors.surfaceLight} />
       {/* Schwelle (Sieglinie der Sonntagsfrage) */}
       <line x1={PAD.left} y1={schwelleY} x2={PAD.left + cW} y2={schwelleY} stroke={StoryModeColors.success} strokeWidth={1.2} strokeDasharray="6 3" />
       <text x={PAD.left + cW + 2} y={schwelleY + 4} fontSize={9} fill={StoryModeColors.success}>Ziel</text>
       {/* Abwehr-100-Linie (Verlustlinie) = oben (frac 1.0) */}
       <text x={PAD.left + cW + 2} y={toY(1) + 4} fontSize={9} fill={StoryModeColors.danger}>100</text>
       {/* ABWEHR (Gegner) */}
-      <path d={abPath} fill="none" stroke={StoryModeColors.danger} strokeWidth={2} strokeLinejoin="round" />
+      <path d={abPath} fill="none" stroke={StoryModeColors.tech} strokeWidth={2} strokeLinejoin="round" />
       {/* SONNTAGSFRAGE (wir) */}
       <path d={sfPath} fill="none" stroke={StoryModeColors.ministryRed} strokeWidth={2.4} strokeLinejoin="round" />
       {/* X-Achse */}
@@ -590,7 +590,7 @@ function TrustLineChart({ trustHistory }: TrustLineChartProps) {
       aria-label="Vertrauensverlauf über die Amtszeit"
     >
       {/* Hintergrund — Papier-Diagrammfläche (§4.7 Regel 3). */}
-      <rect width={W} height={H} fill={StoryModeColors.surfaceLight} rx={2} />
+      <rect width={W} height={H} fill={StoryModeColors.surfaceLight} />
 
       {/* Y-Rasterlinien */}
       {yTicks.map(v => (
@@ -762,7 +762,7 @@ function LegalityBars({ legal, grey, illegal }: LegalityBarsProps) {
               style={{
                 height: '16px',
                 backgroundColor: StoryModeColors.oldPaper,
-                borderRadius: '2px',
+                borderRadius: 0,
                 overflow: 'hidden',
                 border: `1px solid ${StoryModeColors.borderLight}`,
               }}

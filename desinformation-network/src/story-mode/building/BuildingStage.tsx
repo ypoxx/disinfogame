@@ -33,6 +33,11 @@ import { playSound } from '../utils/SoundSystem';
 const WALK_CYCLE_STRIDE_PX = 192;
 const WALK_FRAME_TIME_MS = Math.round((WALK_CYCLE_STRIDE_PX / NAV_SPEED.walkPxPerSecond) * 1000 / 8);
 
+// Welt-Ebene: Signal-/Hover-Farben bleiben HELL (die Welt ist dunkel; die
+// v3.1-Papier-Tinten sind dafür zu dunkel — §4.7 gilt der Bedienung, nicht der Welt).
+const WORLD_AMBER = '#F0B429';
+const WORLD_RED = '#E5484D';
+
 /** Wie viel breiter als das Gebäude der Bildausschnitt ist (Stadt links/rechts). */
 const CITY_MARGIN_FACTOR = 1.45;
 
@@ -149,7 +154,7 @@ function AmbientPerson({ a, left, top, height, viewScale }: { a: AmbientFigure; 
               color: '#e8e4d8', fontFamily: "'VT323', monospace", fontSize: 12, lineHeight: 1.4, padding: '6px 8px',
             }}
           >
-            <span style={{ display: 'block', fontSize: 9, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 2 }}>{a.who}</span>
+            <span style={{ display: 'block', fontSize: 9, letterSpacing: 1, color: '#a89f8c', marginBottom: 2 }}>{a.who}</span>
             {a.line}
           </div>
         </WorldAnchor>
@@ -425,7 +430,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               width: 8,
               height: 8,
               borderRadius: 8,
-              backgroundColor: StoryModeColors.danger,
+              backgroundColor: WORLD_RED,
               animation: 'bs-blink 1.8s ease-in-out infinite',
             }}
           />
@@ -632,7 +637,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           const hovered = hoverRoom === room.id;
           const isTarget = nav.targetRoomId === room.id;
           const lampColor = npc?.inCrisis
-            ? StoryModeColors.danger
+            ? WORLD_RED
             : npc && !npc.available
               ? '#444'
               : '#ffd479';
@@ -654,8 +659,8 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                     fontSize: 11,
                     fontWeight: 700,
                     color: hovered || isTarget ? '#0d0d0d' : '#e8e4d8',
-                    backgroundColor: hovered || isTarget ? StoryModeColors.warning : 'rgba(10,10,14,0.78)',
-                    border: `1px solid ${npc?.inCrisis ? StoryModeColors.danger : '#3a3b43'}`,
+                    backgroundColor: hovered || isTarget ? WORLD_AMBER : 'rgba(10,10,14,0.78)',
+                    border: `1px solid ${npc?.inCrisis ? WORLD_RED : '#3a3b43'}`,
                     padding: '1px 4px',
                     transition: 'background-color 140ms ease, color 140ms ease',
                   }}
@@ -695,7 +700,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                   width: STAGE.doorWidth + 48,
                   height: STAGE.doorHeight + 40,
                   background: 'transparent',
-                  border: hovered ? `2px solid ${StoryModeColors.warning}` : '2px solid transparent',
+                  border: hovered ? `2px solid ${WORLD_AMBER}` : '2px solid transparent',
                   cursor: clickable ? 'pointer' : 'default',
                   zIndex: 6,
                 }}
@@ -726,7 +731,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                       fontFamily: "'VT323', monospace", fontSize: 12, lineHeight: 1.4, padding: '6px 8px',
                     }}
                   >
-                    <span style={{ display: 'block', fontSize: 9, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 2 }}>PFÖRTNER</span>
+                    <span style={{ display: 'block', fontSize: 9, letterSpacing: 1, color: '#a89f8c', marginBottom: 2 }}>PFÖRTNER</span>
                     {pfoertnerLine}
                   </div>
                 </WorldAnchor>
@@ -817,7 +822,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               width: layout.shaft.w,
               height: layout.shaft.bottomY - layout.shaft.topY + STAGE.slabHeight,
               background: hoverShaft ? 'rgba(240,180,41,0.06)' : 'transparent',
-              border: `2px solid ${hoverShaft ? StoryModeColors.warning : 'transparent'}`,
+              border: `2px solid ${hoverShaft ? WORLD_AMBER : 'transparent'}`,
               cursor: 'pointer',
               zIndex: 5,
             }}
@@ -837,7 +842,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                   letterSpacing: 1,
                   padding: '2px 6px',
                   color: hoverShaft ? '#0d0d0d' : '#c8c8b8',
-                  backgroundColor: hoverShaft ? StoryModeColors.warning : 'rgba(10,10,14,0.8)',
+                  backgroundColor: hoverShaft ? WORLD_AMBER : 'rgba(10,10,14,0.8)',
                   border: `1px solid ${StoryModeColors.borderLight}`,
                   whiteSpace: 'nowrap',
                   // WorldAnchor nimmt den Teilbaum aus dem Hit-Testing — die Plakette
@@ -912,13 +917,13 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             }}
           />
           <div style={{ maxWidth: 520, textAlign: 'center' }}>
-            <div style={{ fontFamily: "'VT323', monospace", fontWeight: 900, letterSpacing: 3, color: StoryModeColors.warning, fontSize: 14, marginBottom: 6 }}>
+            <div style={{ fontFamily: "'VT323', monospace", fontWeight: 900, letterSpacing: 3, color: WORLD_AMBER, fontSize: 14, marginBottom: 6 }}>
               {poster.titel_de}
             </div>
             <div style={{ fontFamily: "'VT323', monospace", color: '#e8e4d8', fontSize: 13, lineHeight: 1.5, fontStyle: 'italic' }}>
               „{poster.slogan_de}"
             </div>
-            <div style={{ fontFamily: "'VT323', monospace", color: StoryModeColors.textMuted, fontSize: 10, marginTop: 12 }}>
+            <div style={{ fontFamily: "'VT323', monospace", color: '#a89f8c', fontSize: 10, marginTop: 12 }}>
               (Klicken zum Schließen)
             </div>
           </div>

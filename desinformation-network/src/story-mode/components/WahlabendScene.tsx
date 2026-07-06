@@ -33,8 +33,8 @@ export interface WahlabendSceneProps {
 /** Ein Milieu-Reaktions-Bild fürs Wohnzimmer-Schnitt (belief hoch = jubelt, mittel = stumm, niedrig = schaltet ab). */
 function segmentReaktion(belief: number): { icon: string; text: string; color: string } {
   if (belief >= 60) return { icon: '▲', text: 'jubelt', color: StoryModeColors.ministryRed };
-  if (belief >= 35) return { icon: '■', text: 'sitzt stumm', color: StoryModeColors.textMuted };
-  return { icon: '○', text: 'schaltet ab', color: StoryModeColors.textSecondary };
+  if (belief >= 35) return { icon: '■', text: 'sitzt stumm', color: '#A89878' /* hell: Near-Black-Szene */ };
+  return { icon: '○', text: 'schaltet ab', color: '#C8BC9E' /* hell: Near-Black-Szene */ };
 }
 
 /**
@@ -181,11 +181,11 @@ export function WahlabendScene({
 
       {step === 0 ? (
         <div style={{ textAlign: 'center', animation: 'wa-rise 500ms ease-out' }}>
-          <div style={{ fontSize: 12, letterSpacing: 4, color: StoryModeColors.textMuted }}>WAHLTAG · WESTUNION</div>
+          <div style={{ fontSize: 12, letterSpacing: 4, color: '#A89878' }}>WAHLTAG · WESTUNION</div>
           <div style={{ fontSize: 40, fontWeight: 900, letterSpacing: 2, color: StoryModeColors.warning, marginTop: 8 }}>
             DIE HOCHRECHNUNG
           </div>
-          <div style={{ fontSize: 13, color: StoryModeColors.textSecondary, marginTop: 10 }}>
+          <div style={{ fontSize: 13, color: '#C8BC9E', marginTop: 10 }}>
             Das Büro ist dunkel. Nur der News-Fernseher läuft.
           </div>
         </div>
@@ -231,7 +231,7 @@ export function WahlabendScene({
       {/* Kurator-/Zentrale-Nachsatz + Wohnzimmer-Schnitt im letzten Schritt. */}
       {step >= LAST_STEP && (
         <div style={{ textAlign: 'center', maxWidth: 640, animation: 'wa-rise 600ms ease-out' }}>
-          <div style={{ fontSize: 14, color: StoryModeColors.textPrimary, marginBottom: 12 }}>
+          <div style={{ fontSize: 14, color: '#D8C9A8', marginBottom: 12 }}>
             {won
               ? 'Das Telefon. Der Kurator, eine Zeile, kühl: „Auftrag ausgeführt. Die Prämie ist angewiesen."'
               : branch === 'timeout'
@@ -262,7 +262,7 @@ export function WahlabendScene({
       )}
 
       {step < LAST_STEP && (
-        <div style={{ fontSize: 11, color: StoryModeColors.textMuted, letterSpacing: 1 }}>Klicken zum Fortfahren</div>
+        <div style={{ fontSize: 11, color: '#A89878', letterSpacing: 1 }}>Klicken zum Fortfahren</div>
       )}
     </div>
   );

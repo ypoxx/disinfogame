@@ -96,9 +96,12 @@ export function PixelModal({
               backgroundColor: StoryModeColors.darkConcrete,
               ...(headerBandUrl
                 ? {
-                    backgroundImage: `url(${headerBandUrl})`,
+                    // Flache Abdunklungs-Tönung über der Band-Textur: das Kraftpapier-
+                    // Asset ist heller als darkConcrete — ohne Tönung säuft die helle
+                    // Kopf-Beschriftung ab (Vision-Review E2 Runde 2).
+                    backgroundImage: `linear-gradient(rgba(36,30,22,0.55), rgba(36,30,22,0.55)), url(${headerBandUrl})`,
                     backgroundRepeat: 'repeat-x',
-                    backgroundSize: 'auto 100%',
+                    backgroundSize: 'auto 100%, auto 100%',
                     imageRendering: 'pixelated',
                   }
                 : {}),

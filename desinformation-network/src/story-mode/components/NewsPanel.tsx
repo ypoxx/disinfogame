@@ -152,15 +152,10 @@ export function NewsPanel({
                     }}
                     className="px-3 py-1 text-xs font-bold border-2 transition-all hover:brightness-110"
                     style={{
-                      backgroundColor: news.pinned
-                        ? StoryModeColors.warning
-                        : StoryModeColors.concrete,
-                      borderColor: news.pinned
-                        ? '#A37F1A'
-                        : StoryModeColors.borderLight,
-                      color: news.pinned
-                        ? StoryModeColors.background
-                        : StoryModeColors.textPrimary,
+                      // v3 §4.7: Stempel statt gefülltem Chip — gepinnt = gestempelt.
+                      backgroundColor: news.pinned ? StoryModeColors.oldPaper : 'transparent',
+                      borderColor: news.pinned ? StoryModeColors.warning : StoryModeColors.borderLight,
+                      color: news.pinned ? StoryModeColors.warning : StoryModeColors.textSecondary,
                     }}
                   >
                     {news.pinned ? 'ANGEPINNT' : 'ANPINNEN'}

@@ -605,7 +605,7 @@ export function NewsroomView({
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            animation: 'nr-close-pulse 2.5s ease-in-out infinite',
+            
           }}
         >
           ✕

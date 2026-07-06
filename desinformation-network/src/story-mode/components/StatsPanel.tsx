@@ -385,7 +385,8 @@ export function StatsPanel({
         <div
           className="px-3 py-2 border-b-2 flex items-center gap-2"
           style={{
-            backgroundColor: StoryModeColors.agencyBlue,
+            // v3 §4.7: Kraftband statt Groß-Blau (Vision-Review E2 Runde 2).
+            backgroundColor: StoryModeColors.darkConcrete,
             borderColor: StoryModeColors.border,
           }}
         >

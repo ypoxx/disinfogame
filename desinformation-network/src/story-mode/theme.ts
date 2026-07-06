@@ -27,11 +27,12 @@ export const StoryModeColors = {
   document: '#D8C9A8',
   oldPaper: '#C7B690',
 
-  // Akzent-Tinten (auf hellem Papier lesbar, dosiert)
-  warning: '#A8741A', // Marker-Gelbbraun (sparsam, §4.7)
-  danger: '#B3362C',
-  success: '#4C7A48',
-  tech: '#2E6E7A', // Petrol-Tinte für Bildschirme/Tech
+  // Akzent-Tinten (v3.1: WCAG-AA als Text auf surface/surfaceLight nachgerechnet —
+  // warning 5,0/5,8 · danger 4,6/5,3 · success 5,3/6,1 · tech 4,5/5,2)
+  warning: '#6E4A0E', // Marker-Ocker-Tinte (sparsam, §4.7)
+  danger: '#9E2F26',
+  success: '#31572E',
+  tech: '#275F6B', // Petrol-Tinte für Bildschirme/Tech
 
   // UI-Basis: Kraftpapier-Träger dunkel, Papierflächen hell
   background: '#2E2820',
@@ -40,10 +41,10 @@ export const StoryModeColors = {
   border: '#554836',
   borderLight: '#8A7A5F',
 
-  // Text = Tinte auf Papier (WCAG-AA auf surface/surfaceLight)
+  // Text = Tinte auf Papier (v3.1: alle drei ≥ 4,5:1 auf surface/surfaceLight)
   textPrimary: '#2B2620',
   textSecondary: '#544D3E',
-  textMuted: '#75694F',
+  textMuted: '#5F5439',
 };
 
 // Pixel-Schriftfamilien (P1-6) — selbst gehostet (public/fonts/, SIL OFL), via @font-face

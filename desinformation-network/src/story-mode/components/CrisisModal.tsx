@@ -182,7 +182,7 @@ export function CrisisModal({
                       backgroundColor: getSeverityColor(),
                       borderColor: StoryModeColors.border,
                       color: '#fff',
-                      borderRadius: '50%',
+                      borderRadius: 0,
                     }}
                   >
                     {index + 1}
@@ -241,12 +241,12 @@ export function CrisisModal({
                     )}
                     {isRisky && (
                       <div
-                        className="px-2 py-1 border font-bold"
+                        className="px-2 py-1 border-2 font-bold"
                         style={{
-                          // Statischer Rot-Stempel statt Blinken (§4.7)
-                          backgroundColor: StoryModeColors.danger,
-                          borderColor: StoryModeColors.darkRed,
-                          color: '#fff',
+                          // Stempel (§4.7): Rahmen + Tinte statt Farbfläche/Blinken.
+                          backgroundColor: 'transparent',
+                          borderColor: StoryModeColors.danger,
+                          color: StoryModeColors.danger,
                         }}
                       >
                         RISKANT
@@ -254,11 +254,11 @@ export function CrisisModal({
                     )}
                     {choice.requiresNPC && (
                       <div
-                        className="flex items-center gap-1 px-2 py-1 border"
+                        className="flex items-center gap-1 px-2 py-1 border-2"
                         style={{
-                          backgroundColor: StoryModeColors.agencyBlue,
-                          borderColor: StoryModeColors.darkBlue,
-                          color: '#fff',
+                          backgroundColor: 'transparent',
+                          borderColor: StoryModeColors.agencyBlue,
+                          color: StoryModeColors.agencyBlue,
                         }}
                       >
                         <Icon name="npcs" size={12} title="NPC" fallback="N" />

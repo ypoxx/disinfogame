@@ -193,7 +193,7 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
       className={`
         w-full text-left p-4 transition-all
         ${isDisabled ? 'opacity-50' : ''}
-        ${isHighlighted ? 'animate-pulse' : ''}
+        
       `}
       style={{
         // v3 §4.7: verbrauchte Karten = vergilbtes Papier (statt dunkler Kante als Fläche).
@@ -203,6 +203,8 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
           ? 'rgba(255, 215, 0, 0.05)' // Slight gold tint for recommended
           : StoryModeColors.surfaceLight,
         border: `${getBorderWidth()} solid ${getBorderColor()}`,
+        outline: isHighlighted ? `3px solid ${StoryModeColors.warning}` : undefined,
+        outlineOffset: isHighlighted ? 2 : undefined,
         boxShadow: 'none',
       }}
     >

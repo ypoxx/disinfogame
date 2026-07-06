@@ -32,7 +32,7 @@ const APPEALS: { id: MessageAppeal; label: string; desc: string }[] = [
 // daher hartkodiert das helle v2-Rot.
 const MOOD_COLOR: Record<PersonaMood, string> = {
   zustimmend: '#6a8a6a',
-  skeptisch: StoryModeColors.warning,
+  skeptisch: '#F0B429' /* hell: dunkle Video-Kulisse */,
   ablehnend: '#E5484D',
 };
 const MOOD_LABEL: Record<PersonaMood, string> = {
@@ -99,7 +99,7 @@ export function FokusgruppePreTest({ personas, budget, onCommission, onClose }: 
       {/* Inhalt über dem Raum */}
       <div style={{ position: 'relative', zIndex: 2, height: '100%', display: 'flex', flexDirection: 'column', padding: '18px 20px', overflowY: 'auto', boxSizing: 'border-box' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 12 }}>
-        <span style={{ fontFamily: StoryModeFonts.label, fontSize: 16, color: StoryModeColors.warning, letterSpacing: 2 }}>
+        <span style={{ fontFamily: StoryModeFonts.label, fontSize: 16, color: '#F0B429' /* hell: dunkle Video-Kulisse */, letterSpacing: 2 }}>
           ZIELGRUPPEN-ANALYSE
         </span>
         <span style={{ fontSize: 14, color: StoryModeColors.lightConcrete }}>Fokusgruppe beauftragen</span>
@@ -124,7 +124,7 @@ export function FokusgruppePreTest({ personas, budget, onCommission, onClose }: 
                 aria-pressed={appeal === a.id}
                 style={{
                   textAlign: 'left', padding: '8px 12px', cursor: 'pointer',
-                  border: `2px solid ${appeal === a.id ? StoryModeColors.warning : StoryModeColors.borderLight}`,
+                  border: `2px solid ${appeal === a.id ? '#F0B429' /* hell: dunkle Video-Kulisse */ : StoryModeColors.borderLight}`,
                   background: appeal === a.id ? 'rgba(232,178,58,0.12)' : 'transparent', color: StoryModeColors.document,
                 }}
               >
@@ -149,7 +149,7 @@ export function FokusgruppePreTest({ personas, budget, onCommission, onClose }: 
                   data-testid={`pretest-sample-${p.id}`}
                   style={{
                     width: 150, textAlign: 'left', padding: 8, cursor: 'pointer',
-                    border: `2px solid ${on ? StoryModeColors.warning : StoryModeColors.borderLight}`,
+                    border: `2px solid ${on ? '#F0B429' /* hell: dunkle Video-Kulisse */ : StoryModeColors.borderLight}`,
                     background: on ? 'rgba(232,178,58,0.10)' : 'transparent', color: StoryModeColors.document, opacity: on ? 1 : 0.6,
                   }}
                 >
@@ -199,7 +199,7 @@ function PreTestResultView({ result, personas, assets, onReset }: ResultProps): 
     <div>
       {/* Prognose vs. Realität */}
       <div style={{ marginBottom: 14 }}>
-        <Bar label="Ihre Prognose (Stichprobe)" value={result.predictedReception} color={StoryModeColors.warning} testid="pretest-predicted" />
+        <Bar label="Ihre Prognose (Stichprobe)" value={result.predictedReception} color={'#F0B429' /* hell: dunkle Video-Kulisse */} testid="pretest-predicted" />
         {/* v3: agencyBlue ist Tinte — auf dem dunklen Raum helleres Blau (diegetisch). */}
         <Bar label="Tatsächliche Gesamtwirkung" value={result.trueReception} color="#3a7acc" testid="pretest-true" />
       </div>

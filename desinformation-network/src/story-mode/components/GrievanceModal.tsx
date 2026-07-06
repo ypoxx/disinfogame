@@ -110,7 +110,7 @@ export function GrievanceModal({
               RISIKOANALYSE
             </div>
             {/* §4.7: Kraftpapier-Track statt hartem Schwarz. */}
-            <div className="relative h-4 border-2" style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.border }}>
+            <div className="relative h-4 border-2" style={{ backgroundColor: StoryModeColors.oldPaper, borderColor: StoryModeColors.border }}>
               <div
                 className="absolute inset-0 transition-all duration-500"
                 style={{
@@ -122,7 +122,7 @@ export function GrievanceModal({
               <div
                 className="absolute inset-0 flex items-center justify-center text-xs font-bold"
                 // Dunkler Track → immer heller Text (Tinten-textPrimary war darauf unlesbar).
-                style={{ color: StoryModeColors.surfaceLight }}
+                style={{ color: StoryModeColors.textPrimary }}
               >
                 {totalRisk}%
               </div>

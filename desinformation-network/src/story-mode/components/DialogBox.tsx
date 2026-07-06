@@ -337,7 +337,7 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
           {/* Betrayal Warning Banner */}
           {message.npcBetrayalWarning && (
             <div
-              className="mb-4 p-3 border-2 flex items-start gap-2 animate-pulse"
+              className="mb-4 p-3 border-2 flex items-start gap-2"
               style={{
                 backgroundColor: StoryModeColors.danger + '20',
                 borderColor: StoryModeColors.danger,
@@ -360,7 +360,7 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
             {displayedText}
             {!isComplete && (
               <span
-                className="animate-pulse ml-1"
+                className="animate-pulse ml-1" /* CRT-Cursor-Blink: diegetisch (Memo §2.6) */
                 style={{ color: StoryModeColors.warning }}
               >
                 ▌
@@ -460,7 +460,7 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
           {/* Continue Indicator */}
           {isComplete && !message.choices && (
             <div
-              className="text-center mt-4 text-sm animate-pulse"
+              className="text-center mt-4 text-sm"
               style={{ color: StoryModeColors.textSecondary }}
             >
               Weiter ▸
