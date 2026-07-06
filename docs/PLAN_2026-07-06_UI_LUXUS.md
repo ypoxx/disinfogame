@@ -36,7 +36,7 @@ Sidebar), V6 (Floating-Widgets) und V14 (Web-Sidebar) nicht kosmetisch, sondern 
 
 | Etappe | Inhalt | Aufwand | API-Budget |
 |---|---|---|---|
-| **L0 Stil-Lock** ✅ läuft | 3 Materialwelten als Mockups (Berater + Terminal je Welt); Owner wählt EINE → wird **§4.7 „UI-Material & Farben"** der Stil-Bibel; `theme.ts` bekommt Token-Mapping der Sieger-Welt | heute | ~2 $ |
+| **L0 Stil-Lock** ✅ **ENTSCHIEDEN: „A — Behörden-Akte"** | 3 Materialwelten als Mockups generiert (0,80 $); Owner-Wahl 2026-07-06: **Behörden-Akte** → als **§4.7** in der Stil-Bibel verankert; L1 zieht `theme.ts` auf Papier-Token um | ✅ erledigt | 0,80 $ |
 | **L1 Material-Kit + Umkleiden** | 9-Slice-Rahmen (leicht/standard/alarm), Panel-/Kopfband-Texturen, Pixel-Balken, Stempel-Badges, Klemmbrett; ALLE bestehenden Panels/Modals umgekleidet (CSS bleibt, Material wird Pixel); Pausenmenü-Regler | 1 Session | ~3–5 $ |
 | **L2 Terminal (Herzstück 1)** | Vollbild-Terminal ersetzt Aktionen-Sidebar; M1-Karten; M2-Kuratierung; Porträt-/Filter-Zeile; Tastatur-/CRT-Klang | 1–2 Sessions | ~5–8 $ |
 | **L3 Korkbrett = Planung (Herzstück 2)** | Queue → angeheftete Karten; rote Verfallsfäden; Anheft-/Abnehm-Animation; ComboHints als Zettel | 1–2 Sessions | ~4–6 $ |
@@ -83,7 +83,8 @@ Sidebar), V6 (Floating-Widgets) und V14 (Web-Sidebar) nicht kosmetisch, sondern 
 ## 7. Kickoff-Prompt für die nächste Bau-Session
 
 > „Lies SOUL.md → STATUS.md → VISUAL_REVIEW_2026-07-05.md (§2, §2b, §6) →
-> PLAN_2026-07-06_UI_LUXUS.md. Der Owner hat Materialwelt ‚[GEWINNER L0]' gewählt.
-> Baue zuerst das Sofort-Paket (Review P1/P2/P4), dann L1 (Material-Kit generieren
-> mit Vision-QC + alle Panels umkleiden). Gate + Ernte-Vergleich nach jedem Schritt;
-> Draft-PR aktualisieren."
+> PLAN_2026-07-06_UI_LUXUS.md → GESAMTKONZEPT_VISUELL.md §4.7 (Stil-Lock:
+> **Behörden-Akte**). Baue zuerst das Sofort-Paket (Review P1/P2/P4), dann L1
+> (Papier-Material-Kit generieren mit Vision-QC — Prompts nach §4.7-Pflichten —
+> + alle Panels umkleiden). Gate + Ernte-Vergleich (scripts/visual-review) nach
+> jedem Schritt; Draft-PR aktualisieren."

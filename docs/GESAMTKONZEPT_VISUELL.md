@@ -101,6 +101,23 @@ Gesichter/Möbel · abgerundete Web-Buttons/Pillen · Brutalismus-Schlagschatten
 Stilträger · `font-mono` als Weltschrift · Foto-Interieurs neben Pixel-Räumen ·
 krumme Skalierung.
 
+**4.7 UI-Material & Farben — Stil-Lock „Behörden-Akte" (Owner-Entscheidung 2026-07-06):**
+Die gesamte Bedienung (diegetisches UI + Spiel-UI-Rand) ist aus **Papier/Akte gemacht**:
+Manila-Mappen, Karteikarten, Büro-/Heftklammern, Klassifizierungs-Stempel.
+- **Palette:** warmes Akten-Beige/Creme (Papierflächen) · Kraftpapier-Braun (Träger) ·
+  Anthrazit-Tinte · Ministeriums-Rot NUR für Stempel/Kopfbänder · Warn-Gelb sparsam als Marker.
+- **Zustands-Sprache:** Stempel statt Badges (FRISCH/BEKANNT/VERBRANNT · HOCH · GEHEIM),
+  rote Fäden für Fristen, Büroklammer für Anhänge. Dringlichkeit wird GESTEMPELT, nicht
+  geblinkt (Blinken bleibt dem HUD-Alarm vorbehalten).
+- **Kontrast-Regel:** Papier ist hell → über der Spielwelt immer mit Abdunklungs-Scrim;
+  Papier liegt mit 1–2-px-Pixel-Versatzkante auf (keine Web-Schatten, §4.6 gilt).
+- **Text bleibt Engine-Ebene (E35):** UI-Assets ohne eingebackene Schrift (nur
+  Platzhalter-Striche); die Schreibmaschinen-Anmutung kommt aus der Pixel-Font.
+- **Generierungs-Pflicht:** Prompts immer mit „no real-world logos, no emblems, almost
+  no text" (Mockup-Lehre: das Modell malt sonst Social-Logos/Embleme hinein).
+- **Referenz:** Mockups `mock_panel_a_akte.png` / `mock_terminal_a_akte.png`
+  (Session 2026-07-06, `runs/visual-review/mockups/`); Umsetzung: `PLAN_2026-07-06_UI_LUXUS.md`.
+
 ## 5. Reihenfolge der Heilung
 
 1. 🔴-Fragen vom Owner beantworten lassen (`FRAGEN_2026-06-13.md`).

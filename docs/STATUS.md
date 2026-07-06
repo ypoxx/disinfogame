@@ -32,6 +32,11 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 >   ~1,10 $) / B (Wohnzimmer, ~1,35 $) / C (Kür, ~3 $) mit Budget-Ansage wartet auf Freigabe.
 > - **Harness-Backlog:** 15 Ernte-Lücken mit Rezepten (`_BEFUNDE.json → luecken`); Nebenbefund:
 >   `requestNachspielzeit()` hat keinen UI-Aufrufer (Zielbild-§5b-Lücke).
+> - **Update 2026-07-06 — UI-LUXUS-PAKET beschlossen** (Owner: „Komplett Luxus"):
+>   Plan `PLAN_2026-07-06_UI_LUXUS.md` (L0–L8, diegetisches Mapping, 6–8 Sessions).
+>   **L0 Stil-Lock entschieden: Materialwelt „Behörden-Akte"** (Papier/Karteikarten/Stempel)
+>   → kanonisch als Stil-Bibel **§4.7**; Mockups generiert (0,80 $). Nächste Session:
+>   Sofort-Paket (Review P1/P2/P4) + L1 Papier-Material-Kit (Kickoff-Prompt im Plan §7).
 
 **Stand:** 2026-07-05 (ETAPPE 5 „Fertig" — der Versionssprung, TEILWEISE) · Branch
 `claude/etappe-5-handoff-setup-29psoe` (Draft-PR, baut auf Etappe 0–4) · Gate grün
