@@ -54,7 +54,9 @@ if (totalBytes > 19 * 1024 * 1024) {
 
 const body = {
   contents: [{ role: 'user', parts }],
-  generationConfig: { temperature: 0.2, maxOutputTokens: 4096 },
+  // 16k: Denk-Modelle (gemini-3.x-pro) zählen ihre Thinking-Tokens mit —
+  // 4096 schnitt Video-Reviews mitten in der Antwort ab (Etappe-3-Befund).
+  generationConfig: { temperature: 0.2, maxOutputTokens: Number(process.env.GEMINI_MAX_OUTPUT_TOKENS || 16384) },
 };
 
 const res = await fetch(`${API}/models/${MODEL}:generateContent?key=${KEY}`, {

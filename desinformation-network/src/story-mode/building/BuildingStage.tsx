@@ -20,7 +20,7 @@ import { useDayClockStore } from '../stores/dayClockStore';
 import { usePlayerProfile, playerWalkSheetId, playerIdleSheetId } from '../stores/playerProfileStore';
 import { skyGradientForMinutes, skylineLayersForMinutes } from './skyTime';
 import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, POSTER_SLOGANS, shredderLine, coffeeLine, volksbrauseLine, employeeOfMonth, plantAsset, plantLine, type AmbientFigure } from './corridorDecor';
-import { createAmbientLife, tickAmbientLife, sampleAmbient, nudgeAmbient, ambientWalkFrameTimeMs, type AmbientFigureSnapshot } from './ambientLife';
+import { createAmbientLife, tickAmbientLife, sampleAmbient, nudgeAmbient, ambientWalkFrameTimeMs, AMBIENT_AGENTS, type AmbientFigureSnapshot } from './ambientLife';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
@@ -220,6 +220,7 @@ function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]
     // Ernte-Hilfe (?vqa=1): Auftritt auf einer Ziel-Etage sofort fällig stellen.
     publishVqa({ ambientNudge: (level: number) => nudgeAmbient(state, level, performance.now()) });
     let raf = 0;
+    let cancelled = false;
     const loop = (now: number) => {
       tickAmbientLife(state, now);
       const snap = sampleAmbient(state, now);
@@ -231,9 +232,34 @@ function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]
       }
       raf = window.requestAnimationFrame(loop);
     };
-    raf = window.requestAnimationFrame(loop);
-    return () => window.cancelAnimationFrame(raf);
-  }, [reduced, onDoorsChange]);
+    // Sheets VORLADEN, bevor die Uhr startet: Die Walk-Sheets laden sonst erst
+    // beim allerersten Auftritt — die Figur wäre während des Tür-Beats noch
+    // unsichtbar (Bild lädt) und „ploppt" dann mitten im Flur ein (Vision-
+    // Review Etappe 3: las wie Fade-in bei geschlossener Tür). 4-s-Deckel,
+    // damit ein hängendes Bild die Belebung nicht dauerhaft blockiert.
+    const sheetUrls = AMBIENT_AGENTS.flatMap((a) => [a.walkSheet, a.idleSheet])
+      .map((id) => assets.imageUrl(id))
+      .filter((u): u is string => !!u);
+    const preload = Promise.all(
+      sheetUrls.map(
+        (url) =>
+          new Promise<void>((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+            img.src = url;
+          }),
+      ),
+    );
+    const deadline = new Promise<void>((resolve) => window.setTimeout(resolve, 4000));
+    Promise.race([preload, deadline]).then(() => {
+      if (!cancelled) raf = window.requestAnimationFrame(loop);
+    });
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(raf);
+    };
+  }, [reduced, onDoorsChange, assets]);
 
   return (
     <>
@@ -243,7 +269,7 @@ function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]
         return (
           <div
             key={f.id}
-            data-bs-walker=""
+            data-bs-walker={f.id}
             aria-hidden
             style={{
               position: 'absolute',
