@@ -61,7 +61,7 @@ import { useDirectorStore } from './stores/directorStore';
 import { SidePanel } from './components/SidePanel';
 import { LagebildView } from './components/LagebildView';
 import { NarrativeBoard } from './components/NarrativeBoard';
-import { initAssetRegistry, useAssets } from './assets';
+import { initAssetRegistry, useAssets, warmImageCache } from './assets';
 import { playMusicPool, playAmbience, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound, setChannelVolume, getChannelVolume, type SoundChannel } from './utils/SoundSystem';
 import { ambienceForContext, musicPoolForState } from './utils/soundDirector';
 
@@ -534,8 +534,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const tutorial = useTutorial();
 
   // Asset-Manifest laden (public/assets/assets.json) — fehlt es, bleibt der CSS-Look.
+  // Direkt danach den Browser-Cache vorwärmen: Bilder werden im Hintergrund
+  // geladen (Räume/Porträts zuerst), damit sie beim Betreten sofort da sind
+  // statt erst beim Erscheinen nachzuladen. Läuft schon im Titelbildschirm.
   useEffect(() => {
-    void initAssetRegistry();
+    void initAssetRegistry().then((registry) => warmImageCache(registry));
   }, []);
 
   // Hintergrundmusik (music_theme_main), sobald gespielt wird — No-op ohne Asset.
