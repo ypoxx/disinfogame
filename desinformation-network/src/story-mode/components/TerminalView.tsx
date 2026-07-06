@@ -292,7 +292,13 @@ export function TerminalView({
             {modeButton('ARCHIV', archiv, () => { setArchiv(true); playSound('click'); }, actions.length)}
             {archiv && (
               <>
-                <span className="mx-1" style={{ color: CRT.greenDim }}>·</span>
+                {/* Sicht-Trenner als Kante statt Glyph (das „·"/„│" las als Stray-
+                    Pixel, Vision-Review) — greift die Grid-Farbe des Schirms auf. */}
+                <span
+                  aria-hidden
+                  className="self-stretch mx-1"
+                  style={{ width: 2, backgroundColor: CRT.grid }}
+                />
                 {FILTER_TABS.map((tab) => (
                   <button
                     key={tab.id}

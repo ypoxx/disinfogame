@@ -350,12 +350,15 @@ export function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecomm
             borderColor: StoryModeColors.borderLight,
           }}
         >
-          <div className="font-bold mb-1" style={{ color: StoryModeColors.textSecondary }}>
+          {/* mb-1 entfernt: der Kasten hat schon space-y-1 — sonst klaffte bei
+              Karten OHNE Gesellschafts-Vorschau eine Leerzeile vor „MASCHE:"
+              (Vision-Review, mehrfach als „leere Zeile" gemeldet). */}
+          <div className="font-bold" style={{ color: StoryModeColors.textSecondary }}>
             AUSWIRKUNG:
           </div>
           {/* M1: Gesellschaftswert-Verschiebung schon hier sichtbar (≈ ohne NPC-Assist). */}
           {societyPreview.length > 0 && (
-            <div className="flex flex-wrap gap-x-3 gap-y-0.5 mb-1">
+            <div className="flex flex-wrap gap-x-3 gap-y-0.5">
               {societyPreview.map(({ key, value }) => (
                 <span
                   key={key}
