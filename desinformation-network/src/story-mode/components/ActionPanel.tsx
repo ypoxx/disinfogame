@@ -149,7 +149,8 @@ interface ActionCardProps {
   getMaschenVorschau?: (actionId: string) => MaschenVorschau | null;
 }
 
-function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, isEpisodeRelevant, isHighlighted, actionRef, getMaschenVorschau }: ActionCardProps) {
+/** Vorgangs-Karte (M1) — auch das L2-Terminal ruft sie als „Vorgangsblatt" auf. */
+export function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, isEpisodeRelevant, isHighlighted, actionRef, getMaschenVorschau }: ActionCardProps) {
   // M1: Gesellschaftswert-Wirkung schon beim Planen (statt nur „1 NPC-Bonus").
   const societyPreview = useMemo(
     () => previewSocietyDeltas(action.effects, action.legality),
@@ -197,10 +198,12 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
       `}
       style={{
         // v3 §4.7: verbrauchte Karten = vergilbtes Papier (statt dunkler Kante als Fläche).
+        // Empfehlung = OPAKES warm getöntes Papier — die frühere rgba-Lasur wurde
+        // auf dem dunklen Terminal-Schirm durchsichtig (Karte las als Loch, L2).
         backgroundColor: action.isUsed
           ? StoryModeColors.lightConcrete
           : isRecommended
-          ? 'rgba(255, 215, 0, 0.05)' // Slight gold tint for recommended
+          ? '#EFE3BC'
           : StoryModeColors.surfaceLight,
         border: `${getBorderWidth()} solid ${getBorderColor()}`,
         outline: isHighlighted ? `3px solid ${StoryModeColors.warning}` : undefined,

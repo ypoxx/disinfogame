@@ -3,7 +3,7 @@ import { StoryModeColors, stampCtaStyle } from './theme';
 import { GAME_VERSION } from './version';
 import { DialogBox } from './components/DialogBox';
 import { StoryHUD } from './components/StoryHUD';
-import { ActionPanel } from './components/ActionPanel';
+import { TerminalView } from './components/TerminalView';
 import { ActionQueueWidget } from './components/ActionQueueWidget';
 import { NewsPanel } from './components/NewsPanel';
 import { StatsPanel } from './components/StatsPanel';
@@ -372,6 +372,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [selectedAdvisorNpc, setSelectedAdvisorNpc] = useState<string | null>(null);
   const [highlightActionId, setHighlightActionId] = useState<string | null>(null);
+  // L2 „Herzstück 1": Vollbild-Terminal WÄHLT Maßnahmen (ersetzt die Aktionen-
+  // Seitenleiste ersatzlos — geplant/gezeigt wird am Korkbrett, Plan §4.1).
+  const [showTerminal, setShowTerminal] = useState(false);
   const [batchActionResults, setBatchActionResults] = useState<ActionResult[] | null>(null);
   const [selectedGrievanceNpc, setSelectedGrievanceNpc] = useState<string | null>(null);
   // Geführter Einstieg: Title → Ankunfts-Sequenz (Lobby/Fahrstuhl/Zentrale) → Direktor-Dialog.
@@ -630,7 +633,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       // Panel & view shortcuts (only when playing and no dialog open)
       if (state.gamePhase === 'playing' && !state.currentDialog) {
         switch (e.key.toLowerCase()) {
-          case 'a': togglePanel('actions'); break;
+          // L2: A öffnet das Vorgangs-Terminal (die Aktionen-Seitenleiste ist Geschichte).
+          case 'a': setShowTerminal((v) => !v); break;
           case 'n': togglePanel('news'); break;
           case 's': togglePanel('stats'); break;
           case 'p': togglePanel('npcs'); break;
@@ -997,7 +1001,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             />
           ) : (
             <PlayerOfficeView
-              onOpenActions={() => togglePanel('actions')}
+              onOpenActions={() => setShowTerminal(true)}
               onOpenNews={() => togglePanel('news')}
               onOpenLagebild={() => setShowLagebild(true)}
               onOpenNpcs={() => togglePanel('npcs')}
@@ -1035,64 +1039,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           )}
         </div>
 
-        {/* Sidebar Panel System */}
+        {/* Sidebar Panel System (L2: Aktionen leben jetzt im Vorgangs-Terminal) */}
         <SidePanel>
-          {activePanel === 'actions' && (
-            <ActionPanel
-              isVisible={true}
-              variant="sidebar"
-              actions={state.availableActions.map(a => ({
-                id: a.id,
-                phase: a.phase,
-                label_de: a.label_de,
-                label_en: a.label_en,
-                narrative_de: a.narrative_de,
-                costs: {
-                  budget: a.costs.budget,
-                  capacity: a.costs.capacity,
-                  risk: a.costs.risk,
-                  attention: a.costs.attention,
-                  moral_weight: a.costs.moralWeight,
-                },
-                npc_affinity: a.npcAffinity,
-                legality: a.legality,
-                tags: a.tags,
-                prerequisites: a.prerequisites,
-                disarm_ref: a.disarmRef,
-                effects: a.effects,
-                isUnlocked: a.available,
-                isUsed: !a.available && a.unavailableReason === 'Already used',
-              }))}
-              // S0 (Review 2026-06-20): kein Jahres-Gate mehr — stattdessen die Aktionen der
-              // aktiven Episoden-Stränge hervorheben/zuerst zeigen (kuratieren statt Katalog, M2).
-              episodeActionIds={Array.from(
-                new Set((state.activeEpisodes ?? []).flatMap((ep) => ep.einklink_aktionen)),
-              )}
-              availableResources={{
-                budget: state.resources.budget,
-                capacity: state.resources.capacity,
-                actionPoints: state.resources.actionPointsRemaining,
-              }}
-              onSelectAction={(actionId) => {
-                const result = executeAction(actionId);
-                setActivePanel(null);
-                setHighlightActionId(null);
-                if (result) {
-                  setShowActionFeedback(true);
-                }
-              }}
-              onAddToQueue={(actionId) => {
-                addToQueue(actionId);
-              }}
-              onClose={() => {
-                setActivePanel(null);
-                setHighlightActionId(null);
-              }}
-              recommendations={state.recommendations}
-              highlightActionId={highlightActionId}
-              getMaschenVorschau={(actionId) => state.engine.getMaschenVorschau(actionId)}
-            />
-          )}
           {activePanel === 'news' && (
             <NewsPanel
               isVisible={true}
@@ -1149,6 +1097,61 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         </SidePanel>
       </div>
       </div>
+
+        {/* L2 „Herzstück 1": Vorgangs-Terminal — WÄHLT Maßnahmen (M1-Karten,
+            M2-Kuratierung + ARCHIV); geplant wird am Korkbrett (Plan §4.1). */}
+        {showTerminal && (
+          <TerminalView
+            actions={state.availableActions.map(a => ({
+              id: a.id,
+              phase: a.phase,
+              label_de: a.label_de,
+              label_en: a.label_en,
+              narrative_de: a.narrative_de,
+              costs: {
+                budget: a.costs.budget,
+                capacity: a.costs.capacity,
+                risk: a.costs.risk,
+                attention: a.costs.attention,
+                moral_weight: a.costs.moralWeight,
+              },
+              npc_affinity: a.npcAffinity,
+              legality: a.legality,
+              tags: a.tags,
+              prerequisites: a.prerequisites,
+              disarm_ref: a.disarmRef,
+              effects: a.effects,
+              isUnlocked: a.available,
+              isUsed: !a.available && a.unavailableReason === 'Already used',
+            }))}
+            episodeActionIds={Array.from(
+              new Set((state.activeEpisodes ?? []).flatMap((ep) => ep.einklink_aktionen)),
+            )}
+            availableResources={{
+              budget: state.resources.budget,
+              capacity: state.resources.capacity,
+              actionPoints: state.resources.actionPointsRemaining,
+            }}
+            onExecuteAction={(actionId) => {
+              const result = executeAction(actionId);
+              setShowTerminal(false);
+              setHighlightActionId(null);
+              if (result) {
+                setShowActionFeedback(true);
+              }
+            }}
+            onAddToQueue={(actionId) => {
+              addToQueue(actionId);
+            }}
+            onClose={() => {
+              setShowTerminal(false);
+              setHighlightActionId(null);
+            }}
+            recommendations={state.recommendations}
+            highlightActionId={highlightActionId}
+            getMaschenVorschau={(actionId) => state.engine.getMaschenVorschau(actionId)}
+          />
+        )}
 
         {/* Newsroom (K5/B15): Social-Feed-Monitor, betreten über den Newsroom-Raum */}
         {showNewsroom && (
@@ -1586,15 +1589,17 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           recommendations={state.recommendations}
           onClose={() => setSelectedAdvisorNpc(null)}
           onSelectAction={(actionId) => {
+            // L2: Berater-Sprung landet im Terminal (Archiv öffnet + scrollt hin).
             setHighlightActionId(actionId);
-            setActivePanel('actions');
+            setShowTerminal(true);
             setSelectedAdvisorNpc(null);
           }}
         />
       )}
 
-      {/* Action Queue Widget — im Gespräch ausgeblendet (kein Overlay über dem Dialog) */}
-      {state.gamePhase === 'playing' && !state.currentDialog && (
+      {/* Action Queue Widget — im Gespräch und am Terminal ausgeblendet (das
+          Widget überlappte sonst die Vorgangsblätter; geplant wird am Korkbrett). */}
+      {state.gamePhase === 'playing' && !state.currentDialog && !showTerminal && (
         <ActionQueueWidget
           queue={state.actionQueue}
           currentResources={{

@@ -4,7 +4,9 @@ import { create } from 'zustand';
 // TYPES
 // ============================================
 
-export type PanelId = 'actions' | 'npcs' | 'news' | 'events' | 'mission' | 'stats';
+// L2: 'actions' entfällt — Maßnahmen wählt das Vorgangs-Terminal (Taste A),
+// die Seitenleiste behält nur noch die Nachschlage-Reiter.
+export type PanelId = 'npcs' | 'news' | 'events' | 'mission' | 'stats';
 // Strang 2/2e: kein Dashboard mehr — nur noch Welt (Gebäude) und Raum-Nahsicht (Büro).
 export type ViewMode = 'office' | 'building';
 
@@ -81,7 +83,6 @@ export const usePanelStore = create<PanelState>((set) => ({
 
 // icon-Felder sind jetzt IconName-Strings (kein Emoji) — SidePanel rendert sie via <Icon>.
 export const PANEL_META: Record<PanelId, { icon: string; label: string; shortcut: string }> = {
-  actions: { icon: 'actions', label: 'AKTIONEN', shortcut: 'A' },
   npcs: { icon: 'npcs', label: 'KONTAKTE', shortcut: 'P' },
   news: { icon: 'news', label: 'NACHRICHTEN', shortcut: 'N' },
   events: { icon: 'events', label: 'EREIGNISSE', shortcut: 'E' },

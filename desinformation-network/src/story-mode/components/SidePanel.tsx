@@ -8,7 +8,8 @@ import { Icon, type IconName } from './Icon';
 
 function TabBar() {
   const { activePanel, togglePanel } = usePanelStore();
-  const panels: PanelId[] = ['actions', 'npcs', 'news', 'events', 'mission', 'stats'];
+  // L2: 'actions' lebt jetzt im Vorgangs-Terminal (Taste A) — kein Reiter mehr.
+  const panels: PanelId[] = ['npcs', 'news', 'events', 'mission', 'stats'];
 
   return (
     <div

@@ -281,6 +281,16 @@ if (wanted('title')) {
   await page.keyboard.press('Escape');
   await sleep(300);
 
+  // L2: Vorgangs-Terminal (Taste A) — Tür-Auswahl (M2) und Archiv-Schublade.
+  await page.keyboard.press('a');
+  await sleep(1000);
+  await shot(page, 'terminal_vorgaenge', { bundle: 'panels', desc: 'Vorgangs-Terminal (L2): kuratierte Tür-Auswahl mit M1-Vorgangsblättern (Wirkung/Preis/Frische-Stempel)' });
+  await clickButton(page, /ARCHIV \(/i);
+  await sleep(700);
+  await shot(page, 'terminal_archiv', { bundle: 'panels', desc: 'Vorgangs-Terminal (L2): ARCHIV-Schublade mit Filter-/Such-/Porträt-Zeile (voller Katalog)' });
+  await page.keyboard.press('Escape');
+  await sleep(400);
+
   // Alle Etagen ablaufen: je Etage ein Ziel-Raum (öffnet sich → wird geschlossen),
   // dann Flur-Shot mit Overlay + Geometrie (Avatar steht vor der Tür).
   const floorTargets = [
