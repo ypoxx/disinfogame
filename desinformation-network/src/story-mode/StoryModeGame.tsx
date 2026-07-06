@@ -562,6 +562,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     : showOperationsAkte ? 'akte'
     : showLagebild ? 'lagebild'
     : showBoard ? 'board'
+    : broadcastExpanded ? 'broadcast' // Publikums-Wohnzimmer-Kulisse (Luxus-Sound-Review)
     : null;
   useEffect(() => {
     const active = state.gamePhase === 'playing' || state.gamePhase === 'tutorial';
@@ -572,6 +573,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       active,
     }));
   }, [state.gamePhase, viewMode, ambienceOverlay, state.currentDialog, state.activeNpcId, assets]);
+
+  // Luxus-Sound-Review (L6): Fernschreiber-Ausdruck, wenn das Tagesfazit erscheint.
+  useEffect(() => {
+    if (showDayReport) playSound('teletype');
+  }, [showDayReport]);
 
   // Erster Büro-Besuch gesehen → Hinweise künftig nicht mehr zeigen.
   useEffect(() => {

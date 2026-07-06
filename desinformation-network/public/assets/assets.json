@@ -2148,6 +2148,20 @@
       "provider": "elevenlabs"
     },
     {
+      "id": "sfx_amb_tvstudio",
+      "type": "sfx",
+      "file": "sounds/sfx_amb_tvstudio.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_amb_wohnzimmer",
+      "type": "sfx",
+      "file": "sounds/sfx_amb_wohnzimmer.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
       "id": "sfx_amb_zentrale",
       "type": "sfx",
       "file": "sounds/sfx_amb_zentrale.mp3",
@@ -2165,6 +2179,13 @@
       "id": "sfx_betrayal",
       "type": "sfx",
       "file": "sounds/sfx_betrayal.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_calendar",
+      "type": "sfx",
+      "file": "sounds/sfx_calendar.mp3",
       "chosen": true,
       "provider": "elevenlabs"
     },
@@ -2225,6 +2246,13 @@
       "provider": "elevenlabs"
     },
     {
+      "id": "sfx_drawer",
+      "type": "sfx",
+      "file": "sounds/sfx_drawer.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
       "id": "sfx_elevator",
       "type": "sfx",
       "file": "sounds/sfx_elevator.mp3",
@@ -2281,6 +2309,13 @@
       "provider": "elevenlabs"
     },
     {
+      "id": "sfx_phone_dial",
+      "type": "sfx",
+      "file": "sounds/sfx_phone_dial.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
       "id": "sfx_phone_ring",
       "type": "sfx",
       "file": "sounds/sfx_phone_ring.mp3",
@@ -2288,9 +2323,37 @@
       "provider": "elevenlabs"
     },
     {
+      "id": "sfx_pin",
+      "type": "sfx",
+      "file": "sounds/sfx_pin.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_stamp",
+      "type": "sfx",
+      "file": "sounds/sfx_stamp.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
       "id": "sfx_success",
       "type": "sfx",
       "file": "sounds/sfx_success.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_teletype",
+      "type": "sfx",
+      "file": "sounds/sfx_teletype.mp3",
+      "chosen": true,
+      "provider": "elevenlabs"
+    },
+    {
+      "id": "sfx_terminal_key",
+      "type": "sfx",
+      "file": "sounds/sfx_terminal_key.mp3",
       "chosen": true,
       "provider": "elevenlabs"
     },

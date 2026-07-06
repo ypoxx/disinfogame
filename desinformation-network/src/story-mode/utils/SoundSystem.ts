@@ -39,7 +39,16 @@ type SoundType =
   | 'typewriter'
   | 'applause'
   // F39: dezenter Einzelton nach fertig getipptem Dialog-Text (kein Typing-Sound!)
-  | 'dialogEnd';
+  | 'dialogEnd'
+  // Luxus-Sound-Review: diegetische Klänge der fünf Kern-Interaktionen + L5/L6-Objekte.
+  // Asset-Dateien sfx_<snake> liegen vor; Verdrahtung erfolgt in den UI-Etappen L2–L7.
+  | 'stamp'        // Stempel FRISCH/BEKANNT/VERBRANNT (Terminal/Akte)
+  | 'pin'          // Karte ans Korkbrett heften (Planung)
+  | 'drawer'       // Akte/Karteikasten ziehen (Kontakte)
+  | 'phoneDial'    // Wählscheibe (rotes Telefon)
+  | 'terminalKey'  // Terminal-/CRT-Tastenanschlag (wählen)
+  | 'teletype'     // Fernschreiber-Ausdruck (Abendzeitung/Telegramm/Eilmeldung)
+  | 'calendar';    // Abreißkalender (Tageswechsel)
 
 /** Mixer-Kanäle (F37): getrennte Lautstärken über dem Master-Volume. */
 export type SoundChannel = 'music' | 'sfx' | 'voice';
@@ -163,6 +172,14 @@ const SOUND_CONFIGS: Record<SoundType, SoundConfig> = {
   applause: { frequency: 300, duration: 0.3, type: 'triangle', volume: 0.08, decay: true },
   // F39: kurzer, weicher Sinus — bewusst unauffällig (Endmarke, kein Tippgeräusch)
   dialogEnd: { frequency: 520, duration: 0.06, type: 'sine', volume: 0.05 },
+  // Luxus-Sound-Review: dezente Synth-Fallbacks; im Normalfall spielen die Asset-Dateien.
+  stamp: { frequency: 180, duration: 0.08, type: 'square', volume: 0.14, decay: true },
+  pin: { frequency: 900, duration: 0.03, type: 'square', volume: 0.06 },
+  drawer: { frequency: 140, duration: 0.18, type: 'sawtooth', volume: 0.1, decay: true },
+  phoneDial: { frequency: 480, duration: 0.12, type: 'sine', volume: 0.1, secondFreq: 620 },
+  terminalKey: { frequency: 700, duration: 0.04, type: 'square', volume: 0.07 },
+  teletype: { frequency: 300, duration: 0.12, type: 'square', volume: 0.1, decay: true },
+  calendar: { frequency: 520, duration: 0.09, type: 'sawtooth', volume: 0.08, decay: true },
 };
 
 /** Lautstärke-Faktor für Hintergrundmusik relativ zum Master-Volume. */

@@ -17,6 +17,10 @@ describe('ambienceForContext', () => {
     expect(ambienceForContext({ viewMode: 'office' })).toBe('sfx_amb_buero');
     expect(ambienceForContext({ viewMode: 'building' })).toBe('sfx_amb_lobby');
   });
+  it('Broadcast → Wohnzimmer-Kulisse, Wahlabend → TV-Studio (Luxus-Sound-Review)', () => {
+    expect(ambienceForContext({ viewMode: 'office', overlay: 'broadcast' })).toBe('sfx_amb_wohnzimmer');
+    expect(ambienceForContext({ viewMode: 'building', overlay: 'wahlabend' })).toBe('sfx_amb_tvstudio');
+  });
   it('inaktiv → Stille (null)', () => {
     expect(ambienceForContext({ viewMode: 'office', active: false })).toBeNull();
   });
