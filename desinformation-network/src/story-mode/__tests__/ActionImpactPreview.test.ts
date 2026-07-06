@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { previewSocietyDeltas } from '../components/ActionPanel';
+import { previewSocietyDeltas } from '../components/ActionCard';
 
 /**
  * S0 / M1 (Lesbarkeit am Entscheidungspunkt): Die Planungskarte zeigt die

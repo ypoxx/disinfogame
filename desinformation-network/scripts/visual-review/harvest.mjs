@@ -358,8 +358,9 @@ if (wanted('title')) {
   await openByHotspot('NARRATIV-TAFEL', 'board_korkbrett', 'Narrativ-Tafel / Korkbrett (Kampagnen-Planer)');
   await openByHotspot('LAGEBILD', 'lagebild', 'Lagebild-Ansicht (TV im Büro)');
 
+  // L2: Taste A gehört jetzt dem Vorgangs-Terminal (eigene Shots terminal_*) —
+  // der frühere 'panel_actions'-Eintrag schoss nur ein Duplikat unter irreführendem Namen.
   for (const [key, id, desc] of [
-    ['a', 'panel_actions', 'Seiten-Panel: Aktionen (Planungs-Karten mit Werte-Vorschau/Stempeln)'],
     ['n', 'panel_news', 'Seiten-Panel: Nachrichten'],
     ['s', 'panel_stats', 'Seiten-Panel: Statistiken/Gesellschaft'],
     ['p', 'panel_npcs', 'Seiten-Panel: Kontakte/NPCs'],
@@ -443,8 +444,13 @@ if (wanted('title')) {
     await shot(page, 'action_feedback', { bundle: 'panels', desc: 'Ergebnis einer ausgeführten Aktion (Feedback/Quittung, M1/M5)' });
     await dismissAll(page);
   }
-  await page.keyboard.press('a');
-  await sleep(300);
+  // L2: AUSFÜHREN schließt das Terminal selbst — ein blindes zweites 'a'
+  // ÖFFNETE es wieder (Review E4: decision_beat-Shot entstand über dem Schirm).
+  const terminalNochOffen = await page.evaluate(() => !!document.querySelector('[data-testid="terminal-view"]'));
+  if (terminalNochOffen) {
+    await page.keyboard.press('a');
+    await sleep(300);
+  }
   await ensurePlaying(page);
   await vqa(page, () => window.__VQA__.directorStore.setState({ pendingDecisionBeatId: 'stadtrat' })).catch(() => {});
   await sleep(900);

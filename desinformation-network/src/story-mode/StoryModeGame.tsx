@@ -601,6 +601,15 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           setShowShortcuts(false);
           return;
         }
+        // L2: Terminal vor Panel/Pause — normalerweise fängt der Capture-Listener
+        // des Terminals das Esc schon ab (stopImmediatePropagation); dieser Zweig
+        // ist die Absicherung, damit die Kette das Terminal KENNT (Review E4 [hoch]:
+        // Esc schloss das Terminal UND öffnete das Pausenmenü).
+        if (showTerminal) {
+          setShowTerminal(false);
+          setHighlightActionId(null);
+          return;
+        }
         // First priority: close active sidebar panel
         if (activePanel) {
           setActivePanel(null);
@@ -632,9 +641,22 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       }
       // Panel & view shortcuts (only when playing and no dialog open)
       if (state.gamePhase === 'playing' && !state.currentDialog) {
-        switch (e.key.toLowerCase()) {
+        const key = e.key.toLowerCase();
+        // Am offenen Terminal wirkt nur A (schließen) — andere Panel-Hotkeys
+        // öffneten sonst unsichtbar HINTER dem Schirm Seitenleisten-Reiter (E4).
+        if (showTerminal && key !== 'a') return;
+        switch (key) {
           // L2: A öffnet das Vorgangs-Terminal (die Aktionen-Seitenleiste ist Geschichte).
-          case 'a': setShowTerminal((v) => !v); break;
+          case 'a':
+            if (showTerminal) {
+              // Beim Schließen per A den Berater-Sprung mit nullen (staler Highlight, E4).
+              setShowTerminal(false);
+              setHighlightActionId(null);
+            } else if (!showNewsroom && !showBoard && !showLagebild && !showOperationsAkte && !showFokusgruppe && !showPreTest) {
+              // Nicht unsichtbar UNTER Vollbild-Views mounten (Overlay-Stack, E4).
+              setShowTerminal(true);
+            }
+            break;
           case 'n': togglePanel('news'); break;
           case 's': togglePanel('stats'); break;
           case 'p': togglePanel('npcs'); break;
@@ -650,7 +672,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleBroadcast, setShowEncyclopedia, showShortcuts, setShowShortcuts]);
+  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleBroadcast, setShowEncyclopedia, showShortcuts, setShowShortcuts, showTerminal, showNewsroom, showBoard, showLagebild, showOperationsAkte, showFokusgruppe, showPreTest]);
 
   // K9 Stufe 1: Autosave bei jedem Phasenwechsel (nur während 'playing').
   // saveGame kommt aus useStoryGameState und wird auch im Pausemenü genutzt.
@@ -1143,6 +1165,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             onAddToQueue={(actionId) => {
               addToQueue(actionId);
             }}
+            queueCount={state.actionQueue.length}
             onClose={() => {
               setShowTerminal(false);
               setHighlightActionId(null);

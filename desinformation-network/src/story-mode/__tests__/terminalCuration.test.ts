@@ -5,7 +5,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { kuratiereVorgaenge, istLeistbar, istVerbrannt } from '../components/terminalCuration';
-import type { StoryAction, MaschenVorschau } from '../components/ActionPanel';
+import type { StoryAction, MaschenVorschau } from '../components/ActionCard';
 
 const mkAction = (id: string, over: Partial<StoryAction> = {}): StoryAction => ({
   id,
@@ -87,10 +87,37 @@ describe('terminalCuration (M2)', () => {
     expect(tuer.map((a) => a.id)).toEqual(['frisch', 'verbrannt']);
   });
 
+  it('Rang: leistbar+verbrannt (3) steht VOR nicht leistbar (4)', () => {
+    // Mutationsschutz: vertauscht man Rang 3↔4, kippt diese Reihenfolge.
+    const actions = [
+      mkAction('teuer', { costs: { budget: 999, capacity: 1 } }),
+      mkAction('leistbar_verbrannt'),
+    ];
+    const tuer = kuratiereVorgaenge({
+      actions,
+      episodeActionIds: [],
+      recommendedActionIds: [],
+      resources: RES,
+      getMaschenVorschau: (id) => (id === 'leistbar_verbrannt' ? vorschau('verbrannt') : null),
+    });
+    // leistbar (auch verbrannt) schlägt nicht-leistbar.
+    expect(tuer.map((a) => a.id)).toEqual(['leistbar_verbrannt', 'teuer']);
+  });
+
+  it('max-Klammer: expliziter max wird auf 3..8 geklemmt', () => {
+    const actions = Array.from({ length: 12 }, (_, i) => mkAction(`a${i}`));
+    const base = { actions, episodeActionIds: [], recommendedActionIds: [], resources: RES };
+    expect(kuratiereVorgaenge({ ...base, max: 1 })).toHaveLength(3); // Boden 3
+    expect(kuratiereVorgaenge({ ...base, max: 5 })).toHaveLength(5); // dazwischen frei
+    expect(kuratiereVorgaenge({ ...base, max: 99 })).toHaveLength(8); // Deckel 8
+  });
+
   it('istVerbrannt: nur wenn ALLE Ziel-Milieus verbrannt sind (teilweise zählt nicht)', () => {
     expect(istVerbrannt(vorschau('verbrannt'))).toBe(true);
     expect(istVerbrannt(vorschau('bekannt'))).toBe(false);
     expect(istVerbrannt(null)).toBe(false);
+    // Leere Stempel-Liste ist NICHT verbrannt (keine Masche zu prüfen — Guard Z. 34).
+    expect(istVerbrannt({ familieId: 'f', familieLabel: 'F', stempel: [], multiplikator: 1 })).toBe(false);
     const teils: MaschenVorschau = {
       ...vorschau('verbrannt'),
       stempel: [

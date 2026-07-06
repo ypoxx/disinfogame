@@ -17,7 +17,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StoryModeColors } from '../theme';
 import { Icon } from './Icon';
 import type { AdvisorRecommendation } from '../engine/AdvisorRecommendation';
-import { ActionCard, type MaschenVorschau, type StoryAction } from './ActionPanel';
+import { ActionCard, type MaschenVorschau, type StoryAction } from './ActionCard';
 import { kuratiereVorgaenge, istLeistbar } from './terminalCuration';
 import { playSound } from '../utils/SoundSystem';
 import { useAssets } from '../assets/useAssets';
@@ -54,6 +54,9 @@ export interface TerminalViewProps {
   availableResources: { budget: number; capacity: number; actionPoints: number };
   onExecuteAction: (actionId: string) => void;
   onAddToQueue?: (actionId: string) => void;
+  /** Anzahl angehefteter Vorgänge (Korkbrett-Warteschlange) — Anheft-Feedback,
+   *  da das Floating-Widget am Terminal ausgeblendet ist. */
+  queueCount?: number;
   onClose: () => void;
   getMaschenVorschau?: (actionId: string) => MaschenVorschau | null;
   /** Vom Berater angesprungene Aktion: Archiv öffnet und scrollt dorthin. */
@@ -67,6 +70,7 @@ export function TerminalView({
   availableResources,
   onExecuteAction,
   onAddToQueue,
+  queueCount = 0,
   onClose,
   getMaschenVorschau,
   highlightActionId = null,
@@ -107,12 +111,41 @@ export function TerminalView({
     return [...ids].sort();
   }, [actions]);
   // Memo §2.6: Scanlines als separater, ABSCHALTBARER Layer (nie im Text).
-  const [roehre, setRoehre] = useState(true);
+  // Die Wahl wird persistiert — wer die Röhre abschaltet (Flimmer-Empfindlichkeit),
+  // soll sie nicht bei jedem Öffnen erneut abschalten müssen (Review E4).
+  const [roehre, setRoehre] = useState<boolean>(() => {
+    try {
+      return window.localStorage.getItem('storyMode_terminalRoehre') !== 'aus';
+    } catch {
+      return true;
+    }
+  });
+  const toggleRoehre = () => {
+    setRoehre((r) => {
+      try {
+        window.localStorage.setItem('storyMode_terminalRoehre', r ? 'aus' : 'an');
+      } catch {
+        // Privacy-Modus o. Ä.: Wahl gilt dann nur für diese Sitzung.
+      }
+      return !r;
+    });
+  };
   const highlightedRef = useRef<HTMLDivElement>(null);
 
+  const tvOnPlayed = useRef(false);
   useEffect(() => {
+    // Ref-Guard: StrictMode mountet doppelt — der Einschalt-Klang soll einmal spielen.
+    if (tvOnPlayed.current) return;
+    tvOnPlayed.current = true;
     playSound('tvOn'); // Einschalt-Klang des Arbeitsplatzes (L7 liefert Feinschliff-SFX)
   }, []);
+
+  useEffect(() => {
+    // Berater-Sprung auch bei BEREITS offenem Terminal: der useState-Initializer
+    // läuft nur beim Mount — ohne diesen Effect verpuffte ein späterer Sprung
+    // auf eine Nicht-Tür-Aktion (Review E4, logic).
+    if (highlightActionId && !kuratiertIds.has(highlightActionId)) setArchiv(true);
+  }, [highlightActionId, kuratiertIds]);
 
   useEffect(() => {
     // Optional chaining: jsdom (Tests) kennt scrollIntoView nicht.
@@ -121,16 +154,27 @@ export function TerminalView({
     }
   }, [highlightActionId, archiv]);
 
-  // Escape schließt (Muster NewsroomView).
+  // Escape schließt — als CAPTURE-Listener mit stopImmediatePropagation
+  // (Muster NarrativeBoard/PixelModal E33): sonst liefe derselbe Tastendruck in
+  // die Esc-Kette von StoryModeGame weiter und öffnete ZUSÄTZLICH das
+  // Pausenmenü (Review E4 [hoch], inkl. korrumpierter Ernte-Shots).
+  // Im ARCHIV-Suchfeld leert die erste Esc-Stufe nur die Suche.
   const handleKeyDown = useCallback(
     (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') onClose();
+      if (e.key !== 'Escape') return;
+      e.stopImmediatePropagation();
+      const target = e.target as HTMLElement | null;
+      if (target?.tagName === 'INPUT' && searchQuery) {
+        setSearchQuery('');
+        return;
+      }
+      onClose();
     },
-    [onClose],
+    [onClose, searchQuery],
   );
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => document.removeEventListener('keydown', handleKeyDown, { capture: true });
   }, [handleKeyDown]);
 
   const archivListe = useMemo(() => {
@@ -199,6 +243,9 @@ export function TerminalView({
           className="relative flex flex-col flex-1 min-h-0"
           style={{ backgroundColor: CRT.screen, border: `2px solid ${CRT.grid}` }}
         >
+          {/* Placeholder in Phosphor-Ton: Browser-Default-Grau wäre Fremdfarbe (Review E4). */}
+          <style>{`.crt-suchfeld::placeholder { color: ${CRT.greenDim}; opacity: 1; }`}</style>
+
           {/* Kopfzeile */}
           <div
             className="flex items-center justify-between px-3 py-2 border-b-2"
@@ -206,7 +253,7 @@ export function TerminalView({
           >
             <div className="min-w-0">
               <div className="font-bold text-sm truncate" style={{ color: CRT.green }}>
-                ▚ VORGANGS-TERMINAL · ABT. SONDEROPERATIONEN
+                VORGANGS-TERMINAL · ABT. SONDEROPERATIONEN
               </div>
               <div className="text-[10px]" style={{ color: CRT.textDim }}>
                 {archiv
@@ -216,7 +263,7 @@ export function TerminalView({
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <button
-                onClick={() => setRoehre((r) => !r)}
+                onClick={toggleRoehre}
                 className="px-2 py-1 text-[10px] font-bold border"
                 style={{ borderColor: CRT.greenDim, color: roehre ? CRT.green : CRT.textDim }}
                 title="Scanline-Layer an/aus (Memo §2.6)"
@@ -245,15 +292,16 @@ export function TerminalView({
             {modeButton('ARCHIV', archiv, () => { setArchiv(true); playSound('click'); }, actions.length)}
             {archiv && (
               <>
-                <span className="mx-1" style={{ color: CRT.grid }}>│</span>
+                <span className="mx-1" style={{ color: CRT.greenDim }}>·</span>
                 {FILTER_TABS.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className="px-2 py-0.5 text-[10px] font-bold border"
                     style={{
-                      backgroundColor: activeTab === tab.id ? CRT.greenDim : 'transparent',
-                      borderColor: CRT.greenDim,
+                      // Aktive Fläche VOLLTON-grün: screen-Tinte auf greenDim lag bei 4,9:1.
+                      backgroundColor: activeTab === tab.id ? CRT.green : 'transparent',
+                      borderColor: activeTab === tab.id ? CRT.green : CRT.greenDim,
                       color: activeTab === tab.id ? CRT.screen : CRT.textDim,
                     }}
                   >
@@ -266,7 +314,7 @@ export function TerminalView({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   aria-label="Vorgänge durchsuchen"
-                  className="flex-1 min-w-32 px-2 py-0.5 text-xs border"
+                  className="crt-suchfeld flex-1 min-w-32 px-2 py-0.5 text-xs border"
                   style={{
                     backgroundColor: 'transparent',
                     borderColor: CRT.greenDim,
@@ -300,7 +348,7 @@ export function TerminalView({
                     aria-pressed={active}
                     className="flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold border capitalize"
                     style={{
-                      backgroundColor: active ? CRT.greenDim : 'transparent',
+                      backgroundColor: active ? CRT.green : 'transparent',
                       borderColor: active ? CRT.green : CRT.greenDim,
                       color: active ? CRT.screen : CRT.textDim,
                     }}
@@ -380,6 +428,9 @@ export function TerminalView({
               </span>
               <span>
                 <Icon name="mission" size={14} title="Aktionspunkte" /> {availableResources.actionPoints} AP
+              </span>
+              <span style={{ color: queueCount > 0 ? CRT.green : CRT.textDim }} data-testid="terminal-queue-count">
+                <Icon name="actions" size={14} title="Angeheftet" /> ANGEHEFTET: {queueCount}
               </span>
             </div>
             <span style={{ color: availableResources.actionPoints > 0 ? CRT.textDim : CRT.amber }}>

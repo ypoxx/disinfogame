@@ -8,7 +8,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { afterEach } from 'vitest';
 import { TerminalView } from '../components/TerminalView';
-import type { StoryAction, MaschenVorschau } from '../components/ActionPanel';
+import type { StoryAction, MaschenVorschau } from '../components/ActionCard';
 
 const mkAction = (id: string, over: Partial<StoryAction> = {}): StoryAction => ({
   id,
@@ -68,10 +68,27 @@ describe('TerminalView (L2)', () => {
       multiplikator: 0.3,
     };
     const { container } = renderTerminal({ getMaschenVorschau: () => vorschau });
+    const maschenText = [...container.querySelectorAll('*')]
+      .map((el) => (el.childElementCount === 0 ? el.textContent ?? '' : ''))
+      .filter((t) => t.includes('MASCHE') || t.includes('Stadtmilieu'))
+      .join(' ');
     expect(container.textContent).toContain('MASCHE: Emotionalisierung');
     expect(container.textContent).toContain('Stadtmilieu: VERBRANNT');
-    // E6: Der Multiplikator (0,3) darf NIE als Zahl auftauchen.
-    expect(container.textContent).not.toContain('0.3');
+    // E6: die Masche-Zeilen dürfen GAR KEINE Ziffer tragen (nicht nur „0.3").
+    expect(maschenText).not.toMatch(/\d/);
+  });
+
+  it('E6-weit: der Multiplikator taucht in keiner Schreibweise auf', () => {
+    const vorschau: MaschenVorschau = {
+      familieId: 'f1',
+      familieLabel: 'Emotionalisierung',
+      stempel: [{ milieuId: 'm1', milieuLabel: 'Stadtmilieu', stempel: 'bekannt' }],
+      multiplikator: 0.6,
+    };
+    const { container } = renderTerminal({ getMaschenVorschau: () => vorschau });
+    for (const s of ['0.6', '0,6', '60%', '0.60']) {
+      expect(container.textContent).not.toContain(s);
+    }
   });
 
   it('AUSFÜHREN und ANHEFTEN reichen die Aktions-Id durch', () => {
@@ -137,8 +154,90 @@ describe('TerminalView (L2)', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('ohne Aktionspunkte meldet die Systemzeile PHASE BEENDEN', () => {
-    const { container } = renderTerminal({ availableResources: { ...RES, actionPoints: 0 } });
+  it('ohne Aktionspunkte meldet die Systemzeile PHASE BEENDEN und sperrt AUSFÜHREN', () => {
+    const { container, queryByText } = renderTerminal({ availableResources: { ...RES, actionPoints: 0 } });
     expect(container.textContent).toContain('KEINE AKTIONSPUNKTE');
+    // Sperrwirkung: ohne AP zeigt die Karte keinen AUSFÜHREN-Knopf (isDisabled).
+    expect(queryByText('AUSFÜHREN')).toBeNull();
+  });
+
+  it('ARCHIV-Filter LEGAL/ILLEGAL/NEU greifen einzeln', () => {
+    const actions = [
+      mkAction('l', { legality: 'legal', label_de: 'Legalvorgang' }),
+      mkAction('i', { legality: 'illegal', label_de: 'Illegalvorgang' }),
+      mkAction('n', { legality: 'legal', isUnlocked: true, isUsed: false, label_de: 'Neuvorgang' }),
+    ];
+    const { container, getByText } = renderTerminal({ actions });
+    fireEvent.click(getByText(/ARCHIV \(3\)/));
+    fireEvent.click(getByText('ILLEGAL'));
+    expect(container.textContent).toContain('Illegalvorgang');
+    expect(container.textContent).not.toContain('Legalvorgang');
+    fireEvent.click(getByText('LEGAL'));
+    expect(container.textContent).toContain('Legalvorgang');
+    expect(container.textContent).not.toContain('Illegalvorgang');
+    fireEvent.click(getByText('NEU'));
+    expect(container.textContent).toContain('Neuvorgang'); // isUnlocked && !isUsed
+  });
+
+  it('Suche greift auch über Narrativ und Tags', () => {
+    const actions = [
+      mkAction('a', { label_de: 'Erster', narrative_de: 'geheime Falschmeldung', tags: ['bot'] }),
+      mkAction('b', { label_de: 'Zweiter', narrative_de: 'harmlos', tags: ['presse'] }),
+    ];
+    const { container, getByText, getByLabelText } = renderTerminal({ actions });
+    fireEvent.click(getByText(/ARCHIV \(2\)/));
+    fireEvent.change(getByLabelText('Vorgänge durchsuchen'), { target: { value: 'falschmeldung' } });
+    expect(container.textContent).toContain('Erster');
+    expect(container.textContent).not.toContain('Zweiter');
+    fireEvent.change(getByLabelText('Vorgänge durchsuchen'), { target: { value: 'presse' } });
+    expect(container.textContent).toContain('Zweiter');
+    expect(container.textContent).not.toContain('Erster');
+  });
+
+  it('Empfehlungs-Pfad: empfohlene Aktion wird vor Rest einsortiert und gold-markiert', () => {
+    // TerminalView liest nur suggestedActions — Minimal-Stub (Typ gecastet).
+    const recommendations = [
+      { id: 'r1', npcId: 'x', suggestedActions: ['a5'] } as unknown as NonNullable<
+        Parameters<typeof TerminalView>[0]['recommendations']
+      >[number],
+    ];
+    const { container } = renderTerminal({ recommendations });
+    const text = container.textContent ?? '';
+    // a5 rutscht vor a0 (Empfehlung Rang 1 vs. Rest Rang 2).
+    expect(text.indexOf('Vorgang a5')).toBeLessThan(text.indexOf('Vorgang a0'));
+    // ★-Markierung (isRecommended) ist gesetzt.
+    expect(text).toContain('★');
+  });
+
+  it('Anheft-Feedback: Fußzeile zeigt den Angeheftet-Zähler', () => {
+    const { getByTestId } = renderTerminal({ queueCount: 3 });
+    expect(getByTestId('terminal-queue-count').textContent).toContain('ANGEHEFTET: 3');
+  });
+
+  it('ESC im ARCHIV-Suchfeld leert erst die Suche, schließt nicht sofort', () => {
+    const onClose = vi.fn();
+    const { getByText, getByLabelText } = renderTerminal({ onClose });
+    fireEvent.click(getByText(/ARCHIV \(/));
+    const input = getByLabelText('Vorgänge durchsuchen') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'plakat' } });
+    fireEvent.keyDown(input, { key: 'Escape' });
+    expect(onClose).not.toHaveBeenCalled();
+    expect(input.value).toBe('');
+    // Zweites ESC (leere Suche) schließt dann.
+    fireEvent.keyDown(input, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it('RÖHRE-Schalter persistiert die Wahl über localStorage', () => {
+    localStorage.removeItem('storyMode_terminalRoehre');
+    const { getByTitle, unmount, container } = renderTerminal();
+    expect(container.querySelector('[data-testid="terminal-scanlines"]')).toBeTruthy();
+    fireEvent.click(getByTitle(/Scanline-Layer/));
+    expect(localStorage.getItem('storyMode_terminalRoehre')).toBe('aus');
+    unmount();
+    // Frisch gemountet: Röhre bleibt aus.
+    const again = renderTerminal();
+    expect(again.container.querySelector('[data-testid="terminal-scanlines"]')).toBeNull();
+    localStorage.removeItem('storyMode_terminalRoehre');
   });
 });

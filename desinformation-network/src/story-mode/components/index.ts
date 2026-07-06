@@ -9,8 +9,9 @@ export type {
   ObjectiveInfo,
 } from './StoryHUD';
 
-export { ActionPanel } from './ActionPanel';
-export type { StoryAction as ActionPanelAction } from './ActionPanel';
+export { ActionCard } from './ActionCard';
+export type { StoryAction as ActionPanelAction } from './ActionCard';
+export { TerminalView } from './TerminalView';
 
 export { ActionQueueWidget } from './ActionQueueWidget';
 

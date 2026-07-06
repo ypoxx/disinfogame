@@ -154,18 +154,14 @@ Tipp: Kombinieren Sie komplementäre Aktionen für maximalen Effekt!`,
   },
   {
     id: 'actions',
-    title: 'Aktionen',
-    content: `Aktionen sind Ihre Werkzeuge. Es gibt 110 verschiedene Aktionen in 8 Kategorien:
+    title: 'Das Vorgangs-Terminal',
+    content: `Am Terminal in Ihrem Büro (oder mit Taste A) wählen Sie Ihre Maßnahmen.
 
-• Analyse & Strategie (legal)
-• Infrastruktur aufbauen (teils legal)
-• Content erstellen (teils illegal)
-• Distribution & Verstärkung
-• Politik & Lobbying
-• Gesellschaftliche Spaltung
-• Gezielte Angriffe
+Die Eingangsseite zeigt die HEUTE passenden Vorgänge; der volle Katalog liegt in der Schublade „ARCHIV".
 
-Illegale Aktionen sind effektiver, aber riskanter.`,
+Jedes Vorgangsblatt trägt VOR dem Klick Wirkung, Preis und einen Frische-Stempel (FRISCH / BEKANNT / VERBRANNT) je Ziel-Milieu — verbrannte Maschen verpuffen.
+
+Ausführen wirkt sofort; Anheften plant den Vorgang am Korkbrett.`,
     position: 'center',
     highlight: 'actions',
   },

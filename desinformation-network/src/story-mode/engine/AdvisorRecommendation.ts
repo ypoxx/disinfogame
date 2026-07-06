@@ -87,7 +87,7 @@ export interface AdvisorRecommendation {
   // ========== Actions ==========
   /**
    * Array of action IDs recommended by NPC
-   * These actions will be highlighted in ActionPanel
+   * These actions will be highlighted in the L2 TerminalView (Vorgangs-Terminal)
    * Can be empty if recommendation is informational only
    */
   suggestedActions: string[];

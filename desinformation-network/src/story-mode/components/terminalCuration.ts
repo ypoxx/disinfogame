@@ -11,7 +11,7 @@
  *   4 Rest (aktuell nicht leistbar)
  * Gesperrte/verbrauchte Aktionen erscheinen in der Tür NIE (nur im Archiv).
  */
-import type { StoryAction, MaschenVorschau } from './ActionPanel';
+import type { StoryAction, MaschenVorschau } from './ActionCard';
 
 export interface CurationInput {
   actions: StoryAction[];
