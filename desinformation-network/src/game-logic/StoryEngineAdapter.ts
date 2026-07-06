@@ -3995,6 +3995,10 @@ export class StoryEngineAdapter {
   private readonly KOMPROMAT_MORAL = 12;       // Beschaffung heiklen Materials = moralische Last
   private readonly OP_DEPLOY_MORAL = 7;        // Ausspielen des Kompromats = zusätzliche Last
   private readonly OP_BURN_MORAL = 5;          // verbranntes Asset / öffentlicher Schaden
+  // Kampagnen-Schmiede („Zähne"): auf geschönter Wunsch-Stichprobe gebaute Kampagne verpufft.
+  private readonly OP_BIAS_EFFECT_FACTOR = 0.45; // echte Zielgruppe reagiert schwächer → weniger Erosion
+  private readonly OP_BIAS_ATTENTION_SPIKE = 6;  // sichtbarer Fehlschlag zieht Gegner-Aufmerksamkeit
+  private readonly OP_BIAS_MORAL = 3;            // verpuffte Wirkung, aber Mittel doch eingesetzt
 
   // Operations-Bilanz (für End-Report + Methoden-Atlas).
   private operationsPlayed = 0;
@@ -5096,6 +5100,13 @@ export class StoryEngineAdapter {
       return { success: false, reason: 'Operation unvollständig', params, result: null, broadcastResult: null };
     }
 
+    // ── Baustein 3 („Zähne"): Kampagne auf geschönter Wunsch-Stichprobe gebaut? ──────
+    // Die Analyse hatte gewarnt (biasWarned) — die echte Zielgruppe reagiert schwächer
+    // als die Fokusgruppen-Prognose. Deterministisch: die Vertrauens-Erosion wird gedämpft,
+    // dazu ein sichtbarer öffentlicher Fehlschlag (siehe unten). Ohne Warnung: voller Effekt.
+    const biasBackfire = Boolean(params.analysis?.biasWarned);
+    const opEffectFactor = biasBackfire ? this.OP_BIAS_EFFECT_FACTOR : 1;
+
     // Moderater Lage-Effekt: Enttarnungs-Risiko hebt das Entdeckungsrisiko, Wirkung
     // erzeugt Gegner-Aufmerksamkeit. Beides geklammert in 0..100.
     const clamp100 = (x: number) => Math.max(0, Math.min(100, x));
@@ -5115,7 +5126,8 @@ export class StoryEngineAdapter {
     // ── „Loop schließen" (1/2): der ERTRAG einer gelungenen Operation ──────────────
     // Wirkung gegen das Ziel erodiert das Institutionen-Vertrauen (das Sieg-Ziel) —
     // erst dadurch lohnt sich der Aufwand (Verbreiter aufbauen + Kompromat) überhaupt.
-    let trustDelta = -(result.impact * this.OP_TRUST_EROSION);
+    // opEffectFactor < 1 dämpft die Erosion, wenn die Kampagne auf einer Wunsch-Stichprobe ruht.
+    let trustDelta = -(result.impact * this.OP_TRUST_EROSION * opEffectFactor);
     this.applyInstitutionalTrustDelta(trustDelta);
 
     // Etappe 3 (Paket E): Eine gelungene Operation mobilisiert zusätzlich die uns-nahe
@@ -5183,6 +5195,26 @@ export class StoryEngineAdapter {
     });
 
     this.actionHistory.push({ phase: this.storyPhase.number, actionId: synthAction.id, result: broadcastResult });
+
+    // ── Baustein 3 („Zähne"): sichtbarer Fehlschlag der Wunsch-Stichproben-Kampagne ──
+    if (biasBackfire) {
+      this.storyResources.attention = clamp100(this.storyResources.attention + this.OP_BIAS_ATTENTION_SPIKE);
+      this.storyResources.moralWeight += this.OP_BIAS_MORAL;
+      const predictedPct = Math.round((params.analysis?.predictedReception ?? 0) * 100);
+      const truePct = Math.round((params.analysis?.trueReception ?? 0) * 100);
+      this.newsEvents.unshift({
+        id: `news_bias_${synthAction.id}_${Date.now()}`,
+        phase: this.storyPhase.number,
+        headline_de: 'Kampagne verpufft: Zielgruppe reagiert anders als erwartet',
+        headline_en: 'Campaign misfires: target audience reacts differently than expected',
+        description_de: `Die Analyse hatte vor der einseitigen Stichprobe gewarnt — statt +${predictedPct}% blieb die echte Wirkung bei rund +${truePct}%.`,
+        description_en: `The analysis had flagged the skewed sample — instead of +${predictedPct}% the real effect landed near +${truePct}%.`,
+        type: 'consequence',
+        severity: 'warning',
+        read: false,
+        pinned: false,
+      });
+    }
 
     // ── „Loop schließen" (2/2): Enttarnung = echter öffentlicher Rückschlag ────────
     // Hohe Exposure in einem bereits heißen Informationsraum verbrennt das Asset

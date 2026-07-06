@@ -46,3 +46,69 @@ describe('FokusgruppePreTest', () => {
     expect(screen.getByTestId('pretest-unaffordable')).toBeTruthy();
   });
 });
+
+// ─── Kampagnen-Schmiede: Matrix + Empfehlungen (Brücke Analyse → Tat) ──────────
+
+import type { Target, Carrier, Platform } from '../battlefield/BattlefieldChain';
+import type { SegmentInfo, CampaignSeed } from '../audience/kampagnenSchmiede';
+
+const SEGMENTS: SegmentInfo[] = [
+  { id: 'wu_optimiererin', label_de: 'Die Optimierer', milieu: 'performer', size: 0.1, belief: 0.2 },
+  { id: 'wu_besorgte_mitte', label_de: 'Die besorgte Mitte', milieu: 'buergerlich', size: 0.2, belief: 0.3 },
+  { id: 'wu_zorniger', label_de: 'Die Abgehängten', milieu: 'prekaer', size: 0.12, belief: 0.5 },
+];
+const TARGETS: Target[] = [
+  { id: 't_mitte', name: 'Rolf Veen', role_de: 'Hinterbänkler', milieu: 'wu_besorgte_mitte', fiktiv: true, standing: 0.5, vulnerabilities: [{ id: 'schulden', label_de: 'Spielschulden', heikelheit: 0.7, glaubwuerdigkeit: 0.7 }] },
+];
+const CARRIERS: Carrier[] = [
+  { id: 'c_mitte', label_de: 'Frontmedium', reach: 0.8, credibility: 0.55, exposure: 0.7, milieus: ['wu_besorgte_mitte'], buildCost: { budget: 22, capacity: 3, phases: 2 } },
+  { id: 'c_none', label_de: 'Bot-Netz', reach: 0.9, credibility: 0.15, exposure: 0.85, milieus: [], buildCost: { budget: 12, capacity: 2, phases: 1 } },
+];
+const PLATFORMS: Platform[] = [
+  { id: 'p_mitte', label_de: 'Video', reach: 0.75, decay: 0.4, moderation: 0.5, milieus: ['wu_besorgte_mitte'] },
+];
+
+describe('FokusgruppePreTest — Kampagnen-Schmiede', () => {
+  it('Ergebnis zeigt Wirkungs-Matrix + Empfehlungen; „Kampagne starten" liefert den Seed', async () => {
+    const user = userEvent.setup();
+    const onLaunch = vi.fn<(seed: CampaignSeed) => void>();
+    render(
+      <FokusgruppePreTest
+        personas={POP}
+        budget={100}
+        onCommission={() => {}}
+        segments={SEGMENTS}
+        targets={TARGETS}
+        carriers={CARRIERS}
+        platforms={PLATFORMS}
+        onLaunchCampaign={onLaunch}
+        onClose={() => {}}
+      />,
+    );
+    await user.click(screen.getByTestId('pretest-commission')); // Default-Stichprobe = alle Milieus
+
+    // Baustein 2: Matrix ist da, ein Sweet Spot der Mitte (fear +80).
+    expect(screen.getByTestId('pretest-matrix')).toBeTruthy();
+    expect(screen.getByTestId('matrix-cell-fear-wu_besorgte_mitte').textContent).toBe('+80');
+
+    // Baustein 1: Empfehlung für die Mitte mit vorbefülltem Ziel → Klick reicht den Seed durch.
+    expect(screen.getByTestId('pretest-empfehlungen')).toBeTruthy();
+    await user.click(screen.getByTestId('pretest-launch-wu_besorgte_mitte'));
+    expect(onLaunch).toHaveBeenCalledOnce();
+    const seed = onLaunch.mock.calls[0][0];
+    expect(seed.targetId).toBe('t_mitte');
+    expect(seed.carrierId).toBe('c_mitte');
+    expect(seed.platformIds).toContain('p_mitte');
+    expect(seed.analysis.segmentId).toBe('wu_besorgte_mitte');
+    expect(seed.analysis.appeal).toBe('fear');
+  });
+
+  it('ohne Rosters/Callback: keine Empfehlungen (rückwärtskompatibel)', async () => {
+    const user = userEvent.setup();
+    render(<FokusgruppePreTest personas={POP} budget={100} onCommission={() => {}} onClose={() => {}} />);
+    await user.click(screen.getByTestId('pretest-commission'));
+    expect(screen.queryByTestId('pretest-empfehlungen')).toBeNull();
+    // Matrix funktioniert auch ohne Rosters (nur Personas + Stichprobe).
+    expect(screen.getByTestId('pretest-matrix')).toBeTruthy();
+  });
+});

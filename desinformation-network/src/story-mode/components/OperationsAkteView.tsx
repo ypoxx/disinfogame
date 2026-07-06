@@ -14,11 +14,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StoryModeColors } from '../theme';
 import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
+import { APPEAL_LABEL } from '../audience/kampagnenSchmiede';
+import type { MessageAppeal } from '../audience/fokusgruppeModel';
 import {
   evaluateOperationParams,
   resolveOperationParams,
   kompromatCost,
   type Carrier,
+  type OperationAnalysis,
   type OperationParams,
   type OperationResult,
   type Platform,
@@ -49,6 +52,8 @@ export interface OperationsAkteViewProps {
   onAcquireKompromat?: (targetId: string, vulnId: string) => void;
   /** Auswahl als params + bewertetes Resultat — der Orchestrator spielt aus. */
   onAusspielen: (params: OperationParams, result: OperationResult) => void;
+  /** Optionale Vorbelegung (Kampagnen-Schmiede): öffnet die Akte mit vorausgewählten Feldern. */
+  initialSelection?: AkteSelection;
   onClose: () => void;
 }
 
@@ -59,6 +64,8 @@ export interface AkteSelection {
   vulnId: string | null;
   carrierId: string | null;
   platformIds: string[];
+  /** Herkunft aus der Zielgruppen-Analyse (Kampagnen-Schmiede) — reicht bis zur Engine durch. */
+  analysis?: OperationAnalysis;
 }
 
 export const EMPTY_SELECTION: AkteSelection = {
@@ -75,6 +82,7 @@ export function operationParamsOf(sel: AkteSelection): OperationParams {
     vulnerability: sel.vulnId ?? undefined,
     carrier: sel.carrierId ?? undefined,
     platforms: sel.platformIds.length > 0 ? sel.platformIds : undefined,
+    analysis: sel.analysis,
   };
 }
 
@@ -279,9 +287,11 @@ export function OperationsAkteView({
   onBuildCarrier,
   onAcquireKompromat,
   onAusspielen,
+  initialSelection,
   onClose,
 }: OperationsAkteViewProps): React.JSX.Element {
-  const [sel, setSel] = useState<AkteSelection>(EMPTY_SELECTION);
+  // Vorbelegung (Kampagnen-Schmiede) seedet die Auswahl beim Öffnen; sonst leerer Aktendeckel.
+  const [sel, setSel] = useState<AkteSelection>(initialSelection ?? EMPTY_SELECTION);
 
   // (B1) Pixel-sauberer Cover-Snap fürs Raum-Backdrop statt freiem `cover`.
   const containerRef = useRef<HTMLDivElement>(null);
@@ -448,6 +458,37 @@ export function OperationsAkteView({
             ✕
           </button>
         </header>
+
+        {/* Analyse-Empfehlung: die Akte kam vorbefüllt aus der Zielgruppen-Analyse (Kampagnen-Schmiede). */}
+        {sel.analysis?.appeal && (
+          <div
+            data-testid="oa-analysis-strip"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '5px 14px',
+              backgroundColor: sel.analysis.biasWarned ? 'rgba(194,37,59,0.12)' : 'rgba(58,122,204,0.10)',
+              borderBottom: `1px solid ${sel.analysis.biasWarned ? StoryModeColors.danger : '#3a7acc'}`,
+              flexShrink: 0,
+              fontSize: 10,
+            }}
+          >
+            <span style={{ fontWeight: 900, letterSpacing: 1, color: sel.analysis.biasWarned ? StoryModeColors.danger : '#2a5a9c' }}>
+              ◆ AUS DER ZIELGRUPPEN-ANALYSE
+            </span>
+            <span style={{ color: '#4a4030' }}>
+              {APPEAL_LABEL[sel.analysis.appeal as MessageAppeal] ?? sel.analysis.appeal}
+              {typeof sel.analysis.predictedReception === 'number' &&
+                ` · Prognose +${Math.round(sel.analysis.predictedReception * 100)} %`}
+            </span>
+            {sel.analysis.biasWarned && (
+              <span style={{ color: StoryModeColors.danger, fontWeight: 700 }}>
+                ⚠ Stichprobe war einseitig — echte Wirkung evtl. schwächer.
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Körper: links Auswahl, rechts Wirkungs-Analyse */}
         <div style={{ display: 'flex', minHeight: 0, flex: 1 }}>

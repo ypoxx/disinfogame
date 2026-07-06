@@ -46,7 +46,7 @@ import { FokusgruppeView } from './components/FokusgruppeView';
 import { FokusgruppePreTest, FOKUSGRUPPE_COST } from './components/FokusgruppePreTest';
 import personasJson from './data/personas.json';
 import type { Persona } from './audience/fokusgruppeModel';
-import { OperationsAkteView } from './components/OperationsAkteView';
+import { OperationsAkteView, type AkteSelection } from './components/OperationsAkteView';
 import { loadTargets, loadCarriers, loadPlatforms } from './battlefield/BattlefieldChain';
 import { DayClock } from './components/DayClock';
 import { Icon } from './components/Icon';
@@ -416,6 +416,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   }, [state.gamePhase]);
   // P2: Operations-Akte (Operationszentrale, Etage 4) — Verbreiter×Plattform-Operation.
   const [showOperationsAkte, setShowOperationsAkte] = useState(false);
+  // Kampagnen-Schmiede: von der Fokusgruppe empfohlener Operations-Seed befüllt die Akte vor.
+  const [operationSeed, setOperationSeed] = useState<AkteSelection | null>(null);
   // 2f: Narrativ-Tafel (Korkbrett) — diegetisches Planungs-Herzstück, Pinnwand im Büro.
   const [showBoard, setShowBoard] = useState(false);
   // 2e: Lagebild — „auf einen Blick"-Übersicht am Wand-Monitor (löst das Dashboard ab).
@@ -1232,6 +1234,25 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             personas={personasJson.personas as unknown as Persona[]}
             budget={state.resources.budget}
             onCommission={() => { if (commissionFokusgruppe(FOKUSGRUPPE_COST)) endPhase(); }}
+            // Kampagnen-Schmiede: Rosters + Lage speisen die Empfehlungen (Brücke Analyse → Tat).
+            segments={audience.country.segments.map((seg) => ({
+              id: seg.id,
+              label_de: seg.label_de,
+              milieu: seg.milieu,
+              size: seg.size,
+              belief: seg.belief,
+            }))}
+            targets={loadTargets()}
+            carriers={loadCarriers()}
+            platforms={loadPlatforms()}
+            factcheckPressure={state.resources.attention / 100}
+            saturation={state.resources.risk / 100}
+            onLaunchCampaign={(seed) => {
+              // Empfehlung übernehmen → Akte vorbefüllt öffnen (Pre-Test schließen).
+              setOperationSeed(seed);
+              setShowPreTest(false);
+              setShowOperationsAkte(true);
+            }}
             onClose={() => setShowPreTest(false)}
           />
         )}
@@ -1250,12 +1271,14 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             acquiredKompromat={state.acquiredKompromat}
             onBuildCarrier={(id) => buildCarrier(id)}
             onAcquireKompromat={(targetId, vulnId) => acquireKompromat(targetId, vulnId)}
+            initialSelection={operationSeed ?? undefined}
             onAusspielen={(params) => {
               playOperation(params);
               setShowOperationsAkte(false);
+              setOperationSeed(null);
               setBroadcastExpanded(true);
             }}
-            onClose={() => setShowOperationsAkte(false)}
+            onClose={() => { setShowOperationsAkte(false); setOperationSeed(null); }}
           />
         )}
 

@@ -85,6 +85,36 @@ describe('StoryEngineAdapter.playOperation (P2 Operations-Akte + Ökonomie)', ()
     expect(engine.getNewsEvents().some((n) => n.headline_de === out.result!.headline_de)).toBe(true);
   });
 
+  it('Baustein 3 („Zähne"): gewarnte Wunsch-Stichprobe dämpft die Erosion + „verpufft"-Nachricht', () => {
+    const trustOf = (e: StoryEngineAdapter): number =>
+      e.getObjectives().find((o) => o.id === 'obj_destabilize')!.currentValue;
+    const p = fullParams();
+
+    // A: identische Operation OHNE Analyse-Warnung → voller Effekt.
+    const engineA = createStoryEngine('bias-seed');
+    prepare(engineA, p);
+    const beforeA = trustOf(engineA);
+    const outA = engineA.playOperation(p);
+    const dropA = beforeA - trustOf(engineA);
+
+    // B: dieselbe Operation, aber aus einer gewarnten Wunsch-Stichprobe.
+    const engineB = createStoryEngine('bias-seed');
+    prepare(engineB, p);
+    const beforeB = trustOf(engineB);
+    const outB = engineB.playOperation({
+      ...p,
+      analysis: { biasWarned: true, predictedReception: 0.8, trueReception: 0.3 },
+    });
+    const dropB = beforeB - trustOf(engineB);
+
+    expect(outA.success).toBe(true);
+    expect(outB.success).toBe(true);
+    expect(dropB).toBeGreaterThan(0);       // Wirkung bleibt vorhanden …
+    expect(dropB).toBeLessThan(dropA);      // … aber deutlich schwächer als ohne Bias.
+    expect(engineB.getNewsEvents().some((n) => /verpufft/i.test(n.headline_de))).toBe(true);
+    expect(engineA.getNewsEvents().some((n) => /verpufft/i.test(n.headline_de))).toBe(false);
+  });
+
   it('Enttarnung: hoch-exponierter Verbreiter verbrennt im heißen Informationsraum', () => {
     // Bot-Netz (hohe exposure) auf moderierter Plattform → exposureRisk hoch.
     const t = loadTargets()[2]; // Hinterbänkler, vuln heikelheit 0.7

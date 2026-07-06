@@ -7,7 +7,7 @@
  * Props-getrieben (kein Hook auf Spiel-State) → isoliert testbar. Porträts kommen
  * aus dem Asset-Registry (persona_<id>_<mood>), mit Initialen-Fallback.
  */
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAssets } from '../assets/useAssets';
 import { StoryModeColors, StoryModeFonts } from '../theme';
 import {
@@ -17,6 +17,19 @@ import {
   type PersonaMood,
   type PreTestResult,
 } from '../audience/fokusgruppeModel';
+import {
+  buildWirkungsMatrix,
+  recommendCampaigns,
+  APPEAL_LABEL,
+  APPEALS as ALL_APPEALS,
+  type CellClass,
+  type WirkungsMatrix,
+  type MatrixCell,
+  type KampagnenEmpfehlung,
+  type CampaignSeed,
+  type SegmentInfo,
+} from '../audience/kampagnenSchmiede';
+import type { Target, Carrier, Platform } from '../battlefield/BattlefieldChain';
 
 /** Budget-Kosten einer Beauftragung (bewusst moderat — Testen soll sich lohnen). */
 export const FOKUSGRUPPE_COST = 8;
@@ -47,13 +60,40 @@ export interface FokusgruppePreTestProps {
   budget: number;
   /** Beauftragung bestätigt — Aufrufer zieht Budget (FOKUSGRUPPE_COST) ab + kostet eine Phase. */
   onCommission: () => void;
+  // ── Kampagnen-Schmiede (optional): erst mit diesen Props erscheinen Empfehlungen ──
+  /** Audience-Milieus (Größe/Glaube) — priorisieren die Empfehlungen. */
+  segments?: SegmentInfo[];
+  /** Ziel-Roster (Operations-Akte) für die Vorbelegung. */
+  targets?: Target[];
+  /** Verbreiter-Roster. */
+  carriers?: Carrier[];
+  /** Plattform-Roster. */
+  platforms?: Platform[];
+  /** Aktueller Faktencheck-/Gegendruck 0..1 (erwartete Wirkung). */
+  factcheckPressure?: number;
+  /** Sättigung des Informationsraums 0..1. */
+  saturation?: number;
+  /** Empfehlung starten → Aufrufer öffnet die Operations-Akte vorbefüllt. */
+  onLaunchCampaign?: (seed: CampaignSeed) => void;
   onClose: () => void;
 }
 
 /** -1..1 → 0..100 % für die Balkenbreite. */
 const pct = (v: number): number => Math.round(((v + 1) / 2) * 100);
 
-export function FokusgruppePreTest({ personas, budget, onCommission, onClose }: FokusgruppePreTestProps): React.JSX.Element {
+export function FokusgruppePreTest({
+  personas,
+  budget,
+  onCommission,
+  segments,
+  targets,
+  carriers,
+  platforms,
+  factcheckPressure,
+  saturation,
+  onLaunchCampaign,
+  onClose,
+}: FokusgruppePreTestProps): React.JSX.Element {
   const assets = useAssets();
   const bgUrl = assets.imageUrl('room_analyse'); // Einwegspiegel-Beobachtungsraum (diegetisch)
   const [appeal, setAppeal] = useState<MessageAppeal>('hope');
@@ -179,7 +219,20 @@ export function FokusgruppePreTest({ personas, budget, onCommission, onClose }: 
           )}
         </>
       ) : (
-        <PreTestResultView result={result} personas={personas} assets={assets} onReset={() => setResult(null)} />
+        <PreTestResultView
+          result={result}
+          personas={personas}
+          sample={sample}
+          assets={assets}
+          onReset={() => setResult(null)}
+          segments={segments}
+          targets={targets}
+          carriers={carriers}
+          platforms={platforms}
+          factcheckPressure={factcheckPressure}
+          saturation={saturation}
+          onLaunchCampaign={onLaunchCampaign}
+        />
       )}
       </div>
     </div>
@@ -189,12 +242,54 @@ export function FokusgruppePreTest({ personas, budget, onCommission, onClose }: 
 interface ResultProps {
   result: PreTestResult;
   personas: Persona[];
+  sample: string[];
   assets: ReturnType<typeof useAssets>;
   onReset: () => void;
+  segments?: SegmentInfo[];
+  targets?: Target[];
+  carriers?: Carrier[];
+  platforms?: Platform[];
+  factcheckPressure?: number;
+  saturation?: number;
+  onLaunchCampaign?: (seed: CampaignSeed) => void;
 }
 
-function PreTestResultView({ result, personas, assets, onReset }: ResultProps): React.JSX.Element {
+function PreTestResultView({
+  result,
+  personas,
+  sample,
+  assets,
+  onReset,
+  segments,
+  targets,
+  carriers,
+  platforms,
+  factcheckPressure,
+  saturation,
+  onLaunchCampaign,
+}: ResultProps): React.JSX.Element {
   const byId = new Map(personas.map((p) => [p.id, p]));
+
+  // Baustein 2: Wirkungs-Matrix (Appell × Milieu) über die befragte Stichprobe.
+  const matrix = useMemo(() => buildWirkungsMatrix(personas, sample), [personas, sample]);
+
+  // Baustein 1: Kampagnen-Empfehlungen — nur mit den Operations-Rostern + Start-Callback.
+  const recommendations = useMemo<KampagnenEmpfehlung[]>(() => {
+    if (!targets || !carriers || !platforms || !onLaunchCampaign) return [];
+    return recommendCampaigns({
+      personas,
+      sampleIds: sample,
+      segments: segments ?? [],
+      targets,
+      carriers,
+      platforms,
+      factcheckPressure,
+      saturation,
+    });
+  }, [personas, sample, segments, targets, carriers, platforms, factcheckPressure, saturation, onLaunchCampaign]);
+
+  const segLabelById = new Map((segments ?? []).map((s) => [s.id, s.label_de]));
+
   return (
     <div>
       {/* Prognose vs. Realität */}
@@ -213,6 +308,23 @@ function PreTestResultView({ result, personas, assets, onReset }: ResultProps): 
           }}
         >
           ⚠ {result.warning}
+        </div>
+      )}
+
+      {/* Baustein 2: Wirkungs-Landkarte — wo welcher Appell zündet (Sweet Spot) oder zurückschlägt (Falle). */}
+      <WirkungsMatrixView matrix={matrix} segLabelById={segLabelById} />
+
+      {/* Baustein 1: Kampagnen-Empfehlungen — startklare Operationen aus den Sweet Spots. */}
+      {recommendations.length > 0 && onLaunchCampaign && (
+        <div data-testid="pretest-empfehlungen" style={{ marginBottom: 18 }}>
+          <div style={{ fontFamily: StoryModeFonts.label, fontSize: 13, color: '#F0B429', letterSpacing: 1, marginBottom: 8 }}>
+            EMPFEHLUNGEN DER ANALYSE-ABTEILUNG
+          </div>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            {recommendations.map((emp) => (
+              <EmpfehlungCard key={emp.id} emp={emp} onLaunch={() => onLaunchCampaign(emp.seed)} />
+            ))}
+          </div>
         </div>
       )}
 
@@ -253,6 +365,170 @@ function PreTestResultView({ result, personas, assets, onReset }: ResultProps): 
         style={{ padding: '8px 16px', fontSize: 13, border: `2px solid ${StoryModeColors.borderLight}`, background: 'transparent', color: '#ccc', cursor: 'pointer' }}
       >
         ◂ Neue Befragung
+      </button>
+    </div>
+  );
+}
+
+// ─── Wirkungs-Matrix (Appell × Milieu) ────────────────────────────────────────
+
+/** Farb-/Textcode je Zellen-Klasse — auf der dunklen, diegetischen Video-Kulisse. */
+const CELL_STYLE: Record<CellClass, { bg: string; fg: string; border: string }> = {
+  sweet: { bg: '#2f6b2f', fg: '#e6f2e6', border: '#4a8a4a' },
+  gut: { bg: '#4a5626', fg: '#eef0d2', border: '#7a8a3a' },
+  neutral: { bg: '#33343c', fg: '#a8a8b0', border: '#4a4a52' },
+  falle: { bg: '#7a1f22', fg: '#f5dada', border: '#c0333a' },
+  unbekannt: { bg: '#14151b', fg: '#4a4b53', border: '#26262e' },
+};
+
+function WirkungsMatrixView({
+  matrix,
+  segLabelById,
+}: {
+  matrix: WirkungsMatrix;
+  segLabelById: Map<string, string>;
+}): React.JSX.Element {
+  const cols = matrix.segmentIds;
+  const cellFor = (appeal: MessageAppeal, seg: string): MatrixCell =>
+    matrix.cells.find((c) => c.appeal === appeal && c.segmentId === seg)!;
+  const shortLabel = (id: string): string =>
+    (segLabelById.get(id) ?? id.replace(/^wu_/, '')).replace(/^Die /, '');
+
+  return (
+    <div data-testid="pretest-matrix" style={{ marginBottom: 16 }}>
+      <div style={{ fontFamily: StoryModeFonts.label, fontSize: 13, color: '#F0B429', letterSpacing: 1, marginBottom: 8 }}>
+        WIRKUNGS-LANDKARTE · APPELL × MILIEU
+      </div>
+      <div style={{ overflowX: 'auto' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: `70px repeat(${cols.length}, minmax(48px, 1fr))`,
+            gap: 2,
+            minWidth: 70 + cols.length * 50,
+          }}
+        >
+          {/* Kopfzeile: Milieu-Kürzel */}
+          <div />
+          {cols.map((seg) => (
+            <div
+              key={`h-${seg}`}
+              title={segLabelById.get(seg) ?? seg}
+              style={{ fontSize: 9, color: StoryModeColors.lightConcrete, textAlign: 'center', padding: '2px 1px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+            >
+              {shortLabel(seg)}
+            </div>
+          ))}
+
+          {/* Zeilen: je Appell eine Reihe */}
+          {ALL_APPEALS.map((appeal) => (
+            <FragmentRow key={appeal} appeal={appeal} cols={cols} cellFor={cellFor} />
+          ))}
+        </div>
+      </div>
+      <div style={{ fontSize: 9, color: StoryModeColors.lightConcrete, marginTop: 6, letterSpacing: 0.5 }}>
+        <span style={{ color: CELL_STYLE.sweet.border }}>██ Sweet Spot</span> ·{' '}
+        <span style={{ color: CELL_STYLE.falle.border }}>██ Falle (schlägt zurück)</span> · ? unbefragt
+      </div>
+    </div>
+  );
+}
+
+/** Eine Matrix-Zeile (Appell-Label + Milieu-Zellen). */
+function FragmentRow({
+  appeal,
+  cols,
+  cellFor,
+}: {
+  appeal: MessageAppeal;
+  cols: string[];
+  cellFor: (appeal: MessageAppeal, seg: string) => MatrixCell;
+}): React.JSX.Element {
+  return (
+    <>
+      <div style={{ fontSize: 10, color: StoryModeColors.document, display: 'flex', alignItems: 'center', paddingRight: 4, whiteSpace: 'nowrap' }}>
+        {APPEAL_LABEL[appeal]}
+      </div>
+      {cols.map((seg) => {
+        const c = cellFor(appeal, seg);
+        const st = CELL_STYLE[c.klass];
+        const text = c.value === null ? '?' : `${c.value >= 0 ? '+' : ''}${Math.round(c.value * 100)}`;
+        return (
+          <div
+            key={`${appeal}-${seg}`}
+            data-testid={`matrix-cell-${appeal}-${seg}`}
+            title={c.value === null ? 'nicht befragt' : `${c.sampled} befragt`}
+            style={{
+              backgroundColor: st.bg,
+              color: st.fg,
+              border: `1px solid ${st.border}`,
+              fontSize: 11,
+              fontWeight: 700,
+              textAlign: 'center',
+              padding: '4px 1px',
+            }}
+          >
+            {text}
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
+// ─── Empfehlungs-Karte (Brücke Analyse → Operations-Akte) ─────────────────────
+
+function EmpfehlungCard({ emp, onLaunch }: { emp: KampagnenEmpfehlung; onLaunch: () => void }): React.JSX.Element {
+  const warn = emp.biasWarned;
+  return (
+    <div
+      data-testid={`pretest-empfehlung-${emp.segmentId}`}
+      style={{
+        width: 236,
+        display: 'flex',
+        flexDirection: 'column',
+        border: `2px solid ${warn ? '#E5484D' : '#3a7acc'}`,
+        background: warn ? 'rgba(120,30,34,0.18)' : 'rgba(12,20,34,0.7)',
+      }}
+    >
+      <div style={{ padding: '6px 9px', borderBottom: `1px solid ${warn ? '#E5484D' : '#3a7acc'}`, background: 'rgba(5,8,14,0.55)' }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: StoryModeColors.document, lineHeight: 1.2 }}>{emp.title_de}</div>
+        {warn && (
+          <div style={{ fontSize: 9, fontWeight: 700, color: '#E5484D', letterSpacing: 0.5, marginTop: 2 }}>⚠ RISIKO: WUNSCH-STICHPROBE</div>
+        )}
+      </div>
+      <div style={{ padding: '7px 9px', fontSize: 10, color: StoryModeColors.lightConcrete, lineHeight: 1.4, flex: 1 }}>
+        {emp.rationale_de}
+      </div>
+      {emp.expected && (
+        <div style={{ display: 'flex', gap: 8, padding: '0 9px 6px', fontSize: 9, color: StoryModeColors.lightConcrete }}>
+          <span title="erwartete Reichweite">Reichw. {Math.round(emp.expected.reach * 100)}%</span>
+          <span title="erwartete Wirkung">Wirk. {Math.round(emp.expected.impact * 100)}%</span>
+          <span title="Enttarnungs-Risiko" style={{ color: emp.expected.exposureRisk >= 0.66 ? '#E5484D' : StoryModeColors.lightConcrete }}>
+            Enttarn. {Math.round(emp.expected.exposureRisk * 100)}%
+          </span>
+        </div>
+      )}
+      {emp.partial && (
+        <div style={{ padding: '0 9px 6px', fontSize: 9, color: '#F0B429' }}>Ziel in der Akte noch wählen.</div>
+      )}
+      <button
+        type="button"
+        data-testid={`pretest-launch-${emp.segmentId}`}
+        onClick={onLaunch}
+        style={{
+          margin: '0 9px 9px',
+          padding: '7px 10px',
+          fontSize: 12,
+          fontWeight: 700,
+          fontFamily: "'VT323', monospace",
+          cursor: 'pointer',
+          color: '#fff',
+          border: `2px solid ${StoryModeColors.darkRed}`,
+          background: StoryModeColors.ministryRed,
+        }}
+      >
+        KAMPAGNE STARTEN ▸
       </button>
     </div>
   );
