@@ -18,6 +18,15 @@ Belege sind verifiziert (Datei:Zeile bzw. Daten-Zählung). Entscheidungen wurden
 > Quelle: `DECISIONS_2026-07-04_TRANSKRIPT_SIEG.md` + `ZIELBILD_2026-07-04_WETTRENNEN.md`.
 > NPC-Roster, Zähl-Fakten, Kunst-Richtung und Pro-Mode-Archivierung gelten unverändert.
 
+> 🔄 **AMENDMENT 2026-07-06 (Owner-Entscheid, bindend):** Die NPC-Dialoge werden von einem flachen
+> Aktions-Menü zu einer **NPC-Berater-Regie** („voller Wurf") umgebaut: zuständige Figuren bieten ihre
+> Aktionen **erzählerisch** an (3-Takt: Aufschlag → Wahl → substanzielle Bestätigung), **konkurrieren**
+> um knappe Ressourcen, **reagieren aufeinander** — und der didaktische Kern lautet **„überzeugend ≠
+> richtig"** (der glatteste Pitch darf die falsche Wahl sein; der Fokusgruppen-Pre-Test ist der
+> Wahrheits-Check). KI nur zur **Autoren-Zeit** (Offline-Formulierungsbank, eingebacken), nicht zur
+> Laufzeit. Der frühere „Dialog-Review" ist damit das **Abnahme-Gate hinten**, nicht der Kern.
+> **Quelle & Prinzipien-Wahrheit:** `AUFTRAG_2026-07-06_NPC_REGIE_VOLLER_WURF.md`.
+
 ---
 
 ## 1. NPC-Roster  ✅ entschieden
