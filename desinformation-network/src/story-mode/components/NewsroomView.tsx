@@ -12,6 +12,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAssets } from '../assets/useAssets';
 import { StoryModeColors } from '../theme';
+import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
 
 // ─── Öffentliche Typen ─────────────────────────────────────────────────────────
 
@@ -437,6 +438,13 @@ export function NewsroomView({
   const assets = useAssets();
   const bgUrl = assets.imageUrl('room_newsroom');
 
+  // §4.1/B1: pixel-sauberer Cover-Snap statt freiem `cover`-Faktor.
+  // Solange Fläche/Bildmaße unbekannt sind, bleibt das bisherige Verhalten (Fallback).
+  const rootRef = useRef<HTMLDivElement>(null);
+  const rootSize = useElementSize(rootRef);
+  const bgNat = useNaturalSize(bgUrl);
+  const bgSnap = usePixelCover(rootSize, bgNat);
+
   // Feed-Container: manuelle Scroll-Steuerung bei Hover
   const feedRef = useRef<HTMLDivElement>(null);
   const [isHovering, setIsHovering] = useState(false);
@@ -464,6 +472,7 @@ export function NewsroomView({
 
   return (
     <div
+      ref={rootRef}
       role="dialog"
       aria-modal="true"
       aria-label="Newsroom Netzwerk-Monitor"
@@ -488,7 +497,9 @@ export function NewsroomView({
             position: 'absolute',
             inset: 0,
             backgroundImage: `url(${bgUrl})`,
-            backgroundSize: 'cover',
+            // B1: ganzzahlig gesnappte Cover-Größe — kein Pixel-Verschmieren durch ×0,9x.
+            backgroundSize: bgSnap ? `${bgSnap.width}px ${bgSnap.height}px` : 'cover',
+            backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
             imageRendering: 'pixelated',
             // Dunkler Verlauf für Lesbarkeit der UI-Elemente
@@ -578,7 +589,7 @@ export function NewsroomView({
         {/* Schließen-Button ✕ */}
         <button
           onClick={onClose}
-          aria-label="Newsroom schliessen"
+          aria-label="Newsroom schließen"
           style={{
             background: 'none',
             border: `2px solid ${StoryModeColors.ministryRed}`,
@@ -694,7 +705,9 @@ export function NewsroomView({
                 flexShrink: 0,
               }}
             >
-              SOCIAL FEED — {posts.length} BEITRAEGE
+              {/* B20: englischer Panel-Titel eingedeutscht (Behörden-Ton); Kopfzeile
+                  oben heißt bereits „NETZWERK-MONITOR" — hier daher der Ticker. */}
+              NETZ-TICKER — {posts.length} BEITRÄGE
             </div>
 
             {/* Scrollender Feed */}
@@ -744,7 +757,7 @@ export function NewsroomView({
                     letterSpacing: 1,
                   }}
                 >
-                  Keine Beitraege vorhanden
+                  Keine Beiträge vorhanden
                 </div>
               )}
             </div>
@@ -772,7 +785,7 @@ export function NewsroomView({
                 flexShrink: 0,
               }}
             >
-              TRENDING TOPICS
+              THEMEN IM AUFWIND
             </div>
 
             {/* Topic-Liste */}

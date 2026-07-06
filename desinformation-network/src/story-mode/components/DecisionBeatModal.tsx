@@ -48,7 +48,8 @@ function KostenChips({ kosten }: { kosten: { risk?: number; attention?: number; 
   const items: string[] = [];
   if (kosten.risk) items.push(`${kosten.risk > 0 ? '+' : ''}${kosten.risk}% Risiko`);
   if (kosten.attention) items.push(`${kosten.attention > 0 ? '+' : ''}${kosten.attention}% Aufmerksamkeit`);
-  if (kosten.budget) items.push(`${kosten.budget > 0 ? '+' : '-'}$${Math.abs(kosten.budget)}K`);
+  // B23: Budget symbolfrei („-40K") — kein „$" in der fiktiven Ost-Block-Welt.
+  if (kosten.budget) items.push(`${kosten.budget > 0 ? '+' : '-'}${Math.abs(kosten.budget)}K`);
   if (kosten.moralWeight) items.push(`${kosten.moralWeight > 0 ? '+' : ''}${kosten.moralWeight} Moral`);
   if (items.length === 0) return null;
   return (
@@ -63,10 +64,12 @@ export function DecisionBeatModal({ isVisible, beat, result, recommendedOptionId
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(0,0,0,0.9)' }}>
-      <PixelFrame variant="standard" className="w-full max-w-xl mx-4">
+      {/* B24: nie höher als der Bildschirm — Kopf/Fuß bleiben fix, der Mittelteil
+          (Optionen) scrollt innen; sonst wurde Option D unterhalb der Kante gekappt. */}
+      <PixelFrame variant="standard" className="w-full max-w-xl mx-4 max-h-[100vh] flex flex-col min-h-0">
         {/* Header */}
         <div
-          className="px-6 py-4 border-b-4"
+          className="px-6 py-4 border-b-4 shrink-0"
           style={{ backgroundColor: StoryModeColors.ministryRed, borderColor: StoryModeColors.border }}
         >
           <h2 className="font-bold text-xl" style={{ color: '#fff' }}>{beat.name_de}</h2>
@@ -77,7 +80,7 @@ export function DecisionBeatModal({ isVisible, beat, result, recommendedOptionId
 
         {result ? (
           /* === Ergebnis-Ansicht === */
-          <div className="p-6 space-y-4">
+          <div className="p-6 space-y-4 flex-1 min-h-0 overflow-y-auto">
             <h3 className="text-lg font-bold" style={{ color: StoryModeColors.textPrimary }}>
               {result.optionLabel_de}
             </h3>
@@ -123,7 +126,7 @@ export function DecisionBeatModal({ isVisible, beat, result, recommendedOptionId
           </div>
         ) : (
           /* === Auswahl-Ansicht === */
-          <div className="p-6 space-y-4">
+          <div className="p-6 space-y-4 flex-1 min-h-0 overflow-y-auto">
             <p className="text-sm" style={{ color: StoryModeColors.textSecondary }}>{beat.anlass_de}</p>
             <h4 className="font-bold text-sm" style={{ color: StoryModeColors.textSecondary }}>
               IHRE ENTSCHEIDUNG (abgewogen gegen: {beat.kostenAchse_de}):
@@ -167,7 +170,7 @@ export function DecisionBeatModal({ isVisible, beat, result, recommendedOptionId
 
         {/* Footer */}
         <div
-          className="px-6 py-3 border-t-4 text-center text-xs"
+          className="px-6 py-3 border-t-4 text-center text-xs shrink-0"
           style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.border, color: StoryModeColors.textMuted }}
         >
           Keine Option ist überall die beste — jede zahlt woanders.

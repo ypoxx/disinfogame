@@ -102,15 +102,17 @@ export function StatsPanel({
         <div className="space-y-4">
           {/* Budget */}
           <div>
-            <div className="flex justify-between mb-1">
-              <span style={{ color: StoryModeColors.textSecondary }}>
+            <div className="flex justify-between gap-2 mb-1">
+              <span className="min-w-0" style={{ color: StoryModeColors.textSecondary }}>
                 <Icon name="budget" size={14} title="Budget" /> BUDGET
               </span>
+              {/* B23/B24: symbolfrei („150K"); nowrap + shrink-0, damit der Wert
+                  in der schmalen Seitenleiste nie mehr zu „15" gekappt wird. */}
               <span
-                className="font-bold"
+                className="font-bold whitespace-nowrap shrink-0"
                 style={{ color: StoryModeColors.warning }}
               >
-                ${resources.budget}K
+                {resources.budget}K
               </span>
             </div>
             <div

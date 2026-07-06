@@ -240,7 +240,7 @@ export function DayReport({
                 value={`${Math.round(resources.risk)}%`}
                 color={resources.risk >= 70 ? StoryModeColors.danger : StoryModeColors.warning}
               />
-              <Metric label="Budget" value={`$${resources.budget}K`} color={StoryModeColors.document} />
+              <Metric label="Budget" value={`${resources.budget}K`} color={StoryModeColors.document} />
               <Metric
                 label="Aufmerksamkeit"
                 value={`${Math.round(resources.attention)}%`}

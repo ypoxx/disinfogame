@@ -33,7 +33,9 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        // B2/§4.5: EIN Schriftsystem — auch `font-sans`/Preflight fallen auf die
+        // Pixel-Weltschrift (Inter ist entfernt; keine Web-Sans mehr im Spiel).
+        sans: ['VT323', 'ui-monospace', 'monospace'],
         // Weltschrift (P1-6): VT323 als Pixel-Monospace; `font-mono` kippt damit überall auf den Pixel-Look.
         mono: ['VT323', 'ui-monospace', 'Menlo', 'Monaco', 'monospace'],
         // Headlines + Mini-Labels (Pixel-Set) — über `font-display` / `font-pixel` nutzbar.

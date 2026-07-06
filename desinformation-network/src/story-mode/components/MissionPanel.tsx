@@ -57,7 +57,7 @@ export function MissionPanel({
           className="text-xs font-bold mb-2"
           style={{ color: StoryModeColors.ministryRed }}
         >
-          STRENG GEHEIM - NUR FUR AUTORISIERTES PERSONAL
+          STRENG GEHEIM - NUR FÜR AUTORISIERTES PERSONAL
         </div>
         <div className="text-4xl mb-2">⬢</div>
         <h1
@@ -70,7 +70,7 @@ export function MissionPanel({
           className="text-sm mt-2"
           style={{ color: StoryModeColors.textSecondary }}
         >
-          Abteilung fur Sonderoperationen
+          Abteilung für Sonderoperationen
         </div>
       </div>
 
@@ -124,8 +124,8 @@ export function MissionPanel({
         >
           Sie wurden beauftragt, die demokratischen Institutionen von Westunion
           systematisch zu untergraben. Nutzen Sie Desinformation, soziale Spaltung
-          und strategische Manipulation, um das Vertrauen der Bevolkerung in ihre
-          Regierung zu zerstoren.
+          und strategische Manipulation, um das Vertrauen der Bevölkerung in ihre
+          Regierung zu zerstören.
         </p>
         <p style={{ color: StoryModeColors.textSecondary }}>
           Denken Sie daran: Jede Aktion hat Konsequenzen. Handeln Sie klug.
@@ -236,7 +236,9 @@ export function MissionPanel({
                   className="text-sm mt-1"
                   style={{ color: StoryModeColors.textSecondary }}
                 >
-                  Fortschritt: {obj.currentValue} / {obj.targetValue}
+                  {/* B22: „100 / 40" las sich als „100 von 40" — beide Hauptziele sind
+                      Senk-/Halte-Ziele (Wert unter die Marke drücken bzw. halten). */}
+                  Stand {Math.round(obj.currentValue)} → Ziel unter {obj.targetValue}
                 </div>
               </div>
             </div>

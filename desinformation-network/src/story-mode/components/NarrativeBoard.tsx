@@ -231,7 +231,9 @@ export function NarrativeBoard({
                 >
                   <Icon name="mission" size={12} title="Ziel" />
                   <span className="text-[11px] font-bold">{o.isPrimary ? 'ZIEL' : 'Nebenziel'}: {o.label_de}</span>
-                  <span className="text-[11px]">{o.currentValue}/{o.targetValue}{o.completed ? ' ✓' : ''}</span>
+                  {/* B22: „100/40" las sich als „100 von 40" — beide Missionsziele sind
+                      Senk-/Halte-Ziele (Wert unter die Marke drücken bzw. halten). */}
+                  <span className="text-[11px]">jetzt {Math.round(o.currentValue)} → Ziel unter {o.targetValue}{o.completed ? ' ✓' : ''}</span>
                 </div>
               ))}
             </div>
@@ -349,7 +351,7 @@ export function NarrativeBoard({
           </span>
           <span className="text-[11px] flex items-center gap-2" style={{ color: StoryModeColors.document }}>
             <span className={planCost.budget > resources.budget ? '' : ''} style={{ color: planCost.budget > resources.budget ? StoryModeColors.danger : '#d9c6a3' }}>
-              <Icon name="budget" size={12} title="Budget" /> ${planCost.budget}K/${resources.budget}K
+              <Icon name="budget" size={12} title="Budget" /> {planCost.budget}K/{resources.budget}K
             </span>
             <span style={{ color: planCost.actionPoints > resources.actionPoints ? StoryModeColors.danger : '#d9c6a3' }}>
               <Icon name="mission" size={12} title="AP" /> {planCost.actionPoints}/{resources.actionPoints} AP
@@ -442,7 +444,7 @@ function ActionCard({ action, onPin, onExecuteNow }: { action: BoardAction; onPi
         </span>
       </div>
       <div className="flex flex-wrap gap-1 text-[10px]">
-        {!!action.costs.budget && <span style={{ color: '#5a3a12' }}><Icon name="budget" size={10} title="Budget" /> ${action.costs.budget}K</span>}
+        {!!action.costs.budget && <span style={{ color: '#5a3a12' }}><Icon name="budget" size={10} title="Budget" /> {action.costs.budget}K</span>}
         {!!action.costs.actionPoints && <span style={{ color: '#5a3a12' }}><Icon name="mission" size={10} title="AP" /> {action.costs.actionPoints} AP</span>}
         {!!action.costs.capacity && <span style={{ color: '#5a3a12' }}><Icon name="capacity" size={10} title="Kapazität" /> {action.costs.capacity}</span>}
       </div>

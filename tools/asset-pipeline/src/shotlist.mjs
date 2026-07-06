@@ -257,7 +257,7 @@ const BUILDING_KIT = [
     '21:9',
     { w: 2016, h: 864 },
     false,
-    'underground cross-section of soil and bedrock behind a building basement, for a side-scrolling pixel game background: horizontal layered earth strata in dark cool browns and slate-greys, a few horizontal embedded pipes, cables and concrete foundation slabs with rebar, scattered small rocks and roots, getting darker toward the bottom; cool dark earthy palette, crisp clean high-resolution pixel art, seamlessly tileable from left to right, flat frontal view, no people, no text',
+    'underground cross-section of solid soil and bedrock behind a building basement, for a side-scrolling pixel game background: horizontal layered earth strata in dark cool browns and slate-greys, a few horizontal embedded pipes, cables and concrete foundation slabs with rebar, scattered small rocks and roots, getting darker toward the bottom; STRICTLY solid ground only — absolutely NO rooms, NO interiors, NO furniture, NO monitors, NO server racks, NO windows, NO lit spaces of any kind inside the earth (x-ray views of basements are forbidden); cool dark earthy palette, crisp clean high-resolution pixel art, seamlessly tileable from left to right, flat frontal view, no people, no text',
     'must',
   ],
   [
@@ -741,8 +741,16 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       aspectRatio: '1:1',
       size: { w: 1024, h: 1024 },
       seed: seedFor(id),
+      // Paket-D-Re-Framing (Review §2b): einheitlicher Zuschnitt über die ganze
+      // Familie — gleiche Kopf-Größe, gleiche Schulterhöhe im Raster. Referenz =
+      // das Bestandsbild (gleiche Person/Gesicht), nur die KADRIERUNG wird normiert.
+      referenceId: id,
       prompt:
-        `A pixel art character portrait, head and shoulders, facing slightly left, neutral expression. ` +
+        `A pixel art character portrait of the SAME person as in the reference image — ` +
+        `identical face, hair and outfit. Re-frame it with a STRICT uniform crop: ` +
+        `head-and-shoulders bust, front-facing turned slightly left, the head is exactly ` +
+        `40 percent of the image height, the eye line sits on the upper-third line, ` +
+        `the bottom edge cuts at mid-chest, generous even margin above the hair. ` +
         `${hint}. Plain dark concrete wall background. No text. ${style}`,
     });
   }

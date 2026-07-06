@@ -7,6 +7,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useAssets } from '../assets/useAssets';
+import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
 import { StoryModeColors, StoryModeFonts } from '../theme';
 import { isSoundEnabled, setSoundEnabled, playMusic } from '../utils/SoundSystem';
 import { GAME_VERSION, BUILD_STAMP, CHANGELOG } from '../version';
@@ -172,6 +173,12 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
   const assets = useAssets();
   const bgUrl = assets.imageUrl('building_exterior');
 
+  // (B1) Pixel-sauberer Cover-Snap statt freiem `cover` (≈ ×0,94 = Matsch).
+  const containerRef = useRef<HTMLDivElement>(null);
+  const areaSize = useElementSize(containerRef);
+  const bgNat = useNaturalSize(bgUrl);
+  const bgSnap = usePixelCover(areaSize, bgNat);
+
   // Lokaler Spiegel des Sound-Zustands (SoundSystem ist kein React-Store).
   const [soundOn, setSoundOn] = useState<boolean>(() => isSoundEnabled());
   // H48: Changelog-Overlay-Zustand.
@@ -218,7 +225,10 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
   const bgStyle: React.CSSProperties = bgUrl
     ? {
         backgroundImage: `url(${bgUrl})`,
-        backgroundSize: 'cover',
+        // (B1) Ganzzahl-/Stammbruch-Faktor statt freiem `cover`;
+        // Fallback vor Bildmaß-Kenntnis = bisheriges cover (ein Frame lang).
+        backgroundSize: bgSnap ? `${bgSnap.width}px ${bgSnap.height}px` : 'cover',
+        backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center',
         imageRendering: 'pixelated',
       }
@@ -228,6 +238,7 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
 
   return (
     <div
+      ref={containerRef}
       style={{
         position: 'fixed',
         inset: 0,

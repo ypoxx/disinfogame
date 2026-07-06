@@ -191,6 +191,17 @@ function useTypewriter(text: string, speed: number = 30, enabled: boolean = true
 export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }: DialogBoxProps) {
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
 
+  // B24: Scroll-Hinweis für die gedeckelte Options-Liste — ohne ihn wirkte die
+  // letzte Option „halb abgeschnitten", weil nichts anzeigte, dass unten mehr liegt.
+  const choicesRef = useRef<HTMLDivElement>(null);
+  const [choicesScrollHint, setChoicesScrollHint] = useState(false);
+  const updateChoicesScrollHint = () => {
+    const el = choicesRef.current;
+    if (!el) return;
+    // Toleranz gegen Subpixel-Rundung; am Listenende verschwindet der Hinweis.
+    setChoicesScrollHint(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
+  };
+
   const { displayedText, isComplete, skipToEnd } = useTypewriter(
     message?.text || '',
     45, // Slowed down from 25ms to 45ms per character for better readability
@@ -222,6 +233,13 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
     if (voiceAssetId) playVoiceLine(voiceAssetId);
     return () => stopVoiceLine();
   }, [voiceAssetId, assets]);
+
+  // B24: Hinweis neu messen, sobald die Options-Liste (nach dem Tippen) erscheint
+  // oder die Nachricht wechselt — erst dann existiert die Scroll-Box im DOM.
+  const choicesCount = message?.choices?.length ?? 0;
+  useEffect(() => {
+    updateChoicesScrollHint();
+  }, [isComplete, choicesCount, message?.text]);
 
   if (!isVisible || !message) return null;
 
@@ -348,11 +366,19 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
           </div>
 
           {/* Choices — Höhe gedeckelt + scrollbar, damit der Dialog bei vielen
-              Optionen (Maßnahmen + Themen) nicht den ganzen Raum zudeckt (A3). */}
+              Optionen (Maßnahmen + Themen) nicht den ganzen Raum zudeckt (A3).
+              B24: Wrapper trägt die Verlaufskante + „▼ MEHR" als Scroll-Affordance,
+              pb-2 hält die letzte Option von der Unterkante frei. */}
           {isComplete && message.choices && message.choices.length > 0 && (
             <div
-              className="mt-4 space-y-2 border-t-4 pt-4 overflow-y-auto"
-              style={{ borderColor: StoryModeColors.borderLight, maxHeight: '40vh' }}
+              className="relative mt-4 border-t-4 pt-4"
+              style={{ borderColor: StoryModeColors.borderLight }}
+            >
+            <div
+              ref={choicesRef}
+              onScroll={updateChoicesScrollHint}
+              className="space-y-2 overflow-y-auto pb-2"
+              style={{ maxHeight: '40vh' }}
             >
               {message.choices.map((choice, index) => (
                 <button
@@ -398,12 +424,32 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
                       <div className="text-xs whitespace-nowrap" style={{ color: StoryModeColors.textSecondary }}>
                         {choice.cost.ap ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}><Icon name="capacity" size={12} />{choice.cost.ap} AP</span> : null}
                         {choice.cost.ap && choice.cost.budget && <span> | </span>}
-                        {choice.cost.budget ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}><Icon name="budget" size={12} />${choice.cost.budget}K</span> : null}
+                        {/* B23: Kosten symbolfrei („40K"). */}
+                        {choice.cost.budget ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}><Icon name="budget" size={12} />{choice.cost.budget}K</span> : null}
                       </div>
                     )}
                   </div>
                 </button>
               ))}
+            </div>
+            {/* B24: Verlaufskante + Pfeil, solange unten weitere Optionen liegen;
+                pointer-events-none, damit Klicks die Optionen darunter erreichen. */}
+            {choicesScrollHint && (
+              <div
+                className="pointer-events-none absolute bottom-0 left-0 right-0 flex items-end justify-center"
+                style={{
+                  height: '32px',
+                  background: `linear-gradient(to bottom, transparent, ${StoryModeColors.surface})`,
+                }}
+              >
+                <span
+                  className="text-xs font-bold animate-pulse"
+                  style={{ color: StoryModeColors.warning }}
+                >
+                  ▼ MEHR
+                </span>
+              </div>
+            )}
             </div>
           )}
 

@@ -5,10 +5,11 @@
  * Vollbild-Hintergrund; darüber liegen unsichtbare Hotspot-Buttons, die
  * die bestehenden Seiten-Panels öffnen. Kein CSS-Nachbau der Möbel.
  */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Icon } from './Icon';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
+import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
 import { playSound } from '../utils/SoundSystem';
 import { usePlayerProfile, playerPortraitAssetId } from '../stores/playerProfileStore';
 
@@ -138,6 +139,12 @@ export function PlayerOfficeView({
   const assets = useAssets();
   const bgUrl = assets.imageUrl('room_spieler_buero');
 
+  // (B1) Pixel-sauberer Cover-Snap statt freiem `cover` (≈ ×0,94 = Matsch).
+  const containerRef = useRef<HTMLDivElement>(null);
+  const areaSize = useElementSize(containerRef);
+  const bgNat = useNaturalSize(bgUrl);
+  const bgSnap = usePixelCover(areaSize, bgNat);
+
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [tutorialVisible, setTutorialVisible] = useState<boolean>(showTutorialHints);
 
@@ -186,6 +193,7 @@ export function PlayerOfficeView({
 
   return (
     <div
+      ref={containerRef}
       style={{
         position: 'relative',
         width: '100%',
@@ -205,7 +213,10 @@ export function PlayerOfficeView({
             position: 'absolute',
             inset: 0,
             backgroundImage: `url(${bgUrl})`,
-            backgroundSize: 'cover',
+            // (B1) Ganzzahl-/Stammbruch-Faktor statt freiem `cover`;
+            // Fallback vor Bildmaß-Kenntnis = bisheriges cover (ein Frame lang).
+            backgroundSize: bgSnap ? `${bgSnap.width}px ${bgSnap.height}px` : 'cover',
+            backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center bottom',
             imageRendering: 'pixelated',
           }}

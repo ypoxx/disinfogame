@@ -296,7 +296,7 @@ export function ActionFeedbackDialog({
                           : StoryModeColors.danger,
                       }}
                     >
-                      {cumulativeChanges.budget > 0 ? '+$' : '-$'}{Math.abs(cumulativeChanges.budget)}K
+                      {cumulativeChanges.budget > 0 ? '+' : '-'}{Math.abs(cumulativeChanges.budget)}K
                     </span>
                   </div>
                 )}
@@ -469,7 +469,7 @@ export function ActionFeedbackDialog({
                                     : StoryModeColors.danger,
                                 }}
                               >
-                                {actionResult.resourceChanges.budget > 0 ? '+$' : '-$'}{Math.abs(actionResult.resourceChanges.budget)}K
+                                {actionResult.resourceChanges.budget > 0 ? '+' : '-'}{Math.abs(actionResult.resourceChanges.budget)}K
                               </span>
                             </div>
                           )}
@@ -627,7 +627,7 @@ export function ActionFeedbackDialog({
                 className="font-bold mb-3 text-sm"
                 style={{ color: StoryModeColors.textSecondary }}
               >
-                RESSOURCEN-ANDERUNGEN
+                RESSOURCEN-ÄNDERUNGEN
               </h3>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 {singleResult.resourceChanges.budget !== undefined && singleResult.resourceChanges.budget !== 0 && (
@@ -641,13 +641,13 @@ export function ActionFeedbackDialog({
                           : StoryModeColors.danger,
                       }}
                     >
-                      {singleResult.resourceChanges.budget > 0 ? '+$' : '-$'}{Math.abs(singleResult.resourceChanges.budget)}K
+                      {singleResult.resourceChanges.budget > 0 ? '+' : '-'}{Math.abs(singleResult.resourceChanges.budget)}K
                     </span>
                   </div>
                 )}
                 {singleResult.resourceChanges.capacity !== undefined && singleResult.resourceChanges.capacity !== 0 && (
                   <div className="flex justify-between">
-                    <span style={{ color: StoryModeColors.textMuted }}>Kapazitat:</span>
+                    <span style={{ color: StoryModeColors.textMuted }}>Kapazität:</span>
                     <span
                       className="font-bold"
                       style={{
@@ -821,7 +821,7 @@ export function ActionFeedbackDialog({
                         <span><Icon name="moral" size={14} title="Emotional" fallback="Emot." /> -{combo.bonus.emotionalDamage}</span>
                       )}
                       {combo.bonus.moneyRefund && (
-                        <span><Icon name="budget" size={14} title="Rückzahlung" fallback="$" /> ${combo.bonus.moneyRefund}K</span>
+                        <span><Icon name="budget" size={14} title="Rückzahlung" fallback="¤" /> {combo.bonus.moneyRefund}K</span>
                       )}
                     </div>
                   )}

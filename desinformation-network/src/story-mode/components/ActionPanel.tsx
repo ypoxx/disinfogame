@@ -261,14 +261,15 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
       <div className="flex flex-wrap gap-2 mb-2">
         {action.costs.budget && action.costs.budget > 0 && (
           <span
-            className="text-xs px-2 py-0.5 border"
+            className="text-xs px-2 py-0.5 border whitespace-nowrap"
             style={{
               backgroundColor: StoryModeColors.background,
               borderColor: StoryModeColors.warning,
               color: StoryModeColors.warning,
             }}
           >
-            <Icon name="budget" size={14} title="Budget" /> ${action.costs.budget}K
+            {/* B23: Preis symbolfrei („40K"). */}
+            <Icon name="budget" size={14} title="Budget" /> {action.costs.budget}K
           </span>
         )}
         {action.costs.capacity && action.costs.capacity > 0 && (
@@ -309,29 +310,9 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
         )}
       </div>
 
-      {/* Tags */}
-      <div className="flex flex-wrap gap-1">
-        {action.tags.slice(0, 3).map(tag => (
-          <span
-            key={tag}
-            className="text-xs px-1.5 py-0.5"
-            style={{
-              backgroundColor: StoryModeColors.border,
-              color: StoryModeColors.textMuted,
-            }}
-          >
-            #{tag}
-          </span>
-        ))}
-        {action.tags.length > 3 && (
-          <span
-            className="text-xs px-1.5 py-0.5"
-            style={{ color: StoryModeColors.textMuted }}
-          >
-            +{action.tags.length - 3}
-          </span>
-        )}
-      </div>
+      {/* Tags (internes Engine-Vokabular, 113 englische Keys) werden bewusst NICHT
+          mehr gerendert (B20/M4-Präzedenz „interne IDs raus von der Karte");
+          das L2-Terminal zeigt stattdessen kuratierte deutsche Kategorien. */}
 
       {/* NPC Affinity */}
       {action.npc_affinity.length > 0 && (
@@ -346,10 +327,12 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
             <Icon name="npcs" size={14} title="NPCs" /> NPC-Vorteile:
           </div>
           <div className="space-y-1">
+            {/* B24: umbruchfähig statt hart gekappt — in der schmalen Seitenleiste
+                wurde „Kosten-Rabatt" sonst mitten im Wort abgeschnitten. */}
             {action.npc_affinity.map(npcId => (
               <div
                 key={npcId}
-                className="flex items-center justify-between gap-2 px-2 py-1"
+                className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 px-2 py-1"
                 style={{
                   backgroundColor: StoryModeColors.background,
                   border: `1px solid ${StoryModeColors.borderLight}`,
@@ -361,12 +344,12 @@ function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecommended, 
                 >
                   {npcId}
                 </span>
-                <div className="flex gap-2 text-xs">
-                  <span style={{ color: StoryModeColors.success }}>
+                <div className="flex flex-wrap justify-end gap-x-2 gap-y-0.5 text-xs">
+                  <span className="whitespace-nowrap" style={{ color: StoryModeColors.success }}>
                     +10 Beziehung
                   </span>
                   {/* Note: Actual discount calculation would need NPC state here */}
-                  <span style={{ color: StoryModeColors.warning }}>
+                  <span className="whitespace-nowrap" style={{ color: StoryModeColors.warning }}>
                     Kosten-Rabatt
                   </span>
                 </div>
@@ -715,8 +698,9 @@ export function ActionPanel({
       }}
     >
       <div className="flex gap-3 text-xs">
+        {/* B23: Kassenstand symbolfrei („150K"). */}
         <span style={{ color: StoryModeColors.warning }}>
-          <Icon name="budget" size={14} title="Budget" /> ${availableResources.budget}K
+          <Icon name="budget" size={14} title="Budget" /> {availableResources.budget}K
         </span>
         <span style={{ color: StoryModeColors.agencyBlue }}>
           <Icon name="capacity" size={14} title="Kapazität" /> {availableResources.capacity}

@@ -149,7 +149,14 @@
 /* Custom base styles */
 @layer base {
   html {
-    font-family: system-ui, -apple-system, sans-serif;
+    /* B2 (§4.5): EIN Schriftsystem — die Pixel-Weltschrift ist der Default.
+       Der frühere system-ui-Default ließ jede Komponente ohne expliziten
+       Pixel-Font (TitleScreen-Menü, Avatar-Wahl, `inherit`-Buttons) in
+       glatter Web-Sans rendern — der erste Eindruck brach die Stil-Bibel. */
+    font-family: 'VT323', ui-monospace, monospace;
+    /* B21: ff/fi/fl-Ligaturen wirken im Pixel-Raster wie fehlende Buchstaben. */
+    font-variant-ligatures: none;
+    font-feature-settings: 'liga' 0, 'clig' 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }

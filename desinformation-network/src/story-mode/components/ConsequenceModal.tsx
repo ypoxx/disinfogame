@@ -151,7 +151,7 @@ export function ConsequenceModal({
                       <div className="flex gap-2 text-xs">
                         {choice.cost.budget && (
                           <span style={{ color: StoryModeColors.warning }}>
-                            -${choice.cost.budget}K
+                            -{choice.cost.budget}K
                           </span>
                         )}
                         {choice.cost.risk && (

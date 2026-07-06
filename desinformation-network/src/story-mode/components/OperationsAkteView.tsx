@@ -11,8 +11,9 @@
  * die Loader-Listen, die Bewertung über evaluateOperationParams. Konzept/Skizze:
  * docs/STRANG34_P2_VERBREITER_PLATTFORM_KONZEPT.md (§4 Trade-off, §5 Kette, §6 Schema).
  */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StoryModeColors } from '../theme';
+import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
 import {
   evaluateOperationParams,
   resolveOperationParams,
@@ -281,6 +282,12 @@ export function OperationsAkteView({
 }: OperationsAkteViewProps): React.JSX.Element {
   const [sel, setSel] = useState<AkteSelection>(EMPTY_SELECTION);
 
+  // (B1) Pixel-sauberer Cover-Snap fürs Raum-Backdrop statt freiem `cover`.
+  const containerRef = useRef<HTMLDivElement>(null);
+  const areaSize = useElementSize(containerRef);
+  const backdropNat = useNaturalSize(backdropUrl);
+  const backdropSnap = usePixelCover(areaSize, backdropNat);
+
   // Ökonomie-Helfer: ohne Props (Standalone/Test) gilt alles als nutzbar.
   const economy = Boolean(carrierStates || acquiredKompromat);
   const carrierStateOf = (id: string): string => carrierStates?.[id] ?? 'aktiv';
@@ -341,6 +348,7 @@ export function OperationsAkteView({
 
   return (
     <div
+      ref={containerRef}
       role="dialog"
       aria-modal="true"
       aria-label="Operations-Akte"
@@ -358,7 +366,13 @@ export function OperationsAkteView({
         ...(backdropUrl
           ? {
               backgroundImage: `linear-gradient(rgba(8,8,10,0.86), rgba(8,8,10,0.86)), url(${backdropUrl})`,
-              backgroundSize: 'cover',
+              // (B1) Snap nur für die url-Ebene (Ebene 2); der Gradient (Ebene 1)
+              // füllt mit `auto` weiter die ganze Fläche. Fallback vor
+              // Bildmaß-Kenntnis = bisheriges cover (ein Frame lang).
+              backgroundSize: backdropSnap
+                ? `auto, ${backdropSnap.width}px ${backdropSnap.height}px`
+                : 'cover',
+              backgroundRepeat: 'no-repeat',
               backgroundPosition: 'center',
               imageRendering: 'pixelated' as const,
             }

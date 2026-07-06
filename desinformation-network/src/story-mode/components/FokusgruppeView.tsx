@@ -9,8 +9,9 @@
  * Animationen mit Präfix fg-, prefers-reduced-motion global abgedeckt.
  */
 
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import { useAssets } from '../assets/useAssets';
+import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
 import { StoryModeColors } from '../theme';
 import type { Mood } from '../audience/audienceModel';
 
@@ -397,6 +398,12 @@ export function FokusgruppeView({
   const assets = useAssets();
   const bgUrl = assets.imageUrl('room_analyse');
 
+  // (B1) Pixel-sauberer Cover-Snap statt freiem `cover` (≈ ×0,94 = Matsch).
+  const containerRef = useRef<HTMLDivElement>(null);
+  const areaSize = useElementSize(containerRef);
+  const bgNat = useNaturalSize(bgUrl);
+  const bgSnap = usePixelCover(areaSize, bgNat);
+
   // Escape schließt die Ansicht
   const handleKeyDown = useCallback(
     (e: KeyboardEvent): void => {
@@ -426,6 +433,7 @@ export function FokusgruppeView({
 
   return (
     <div
+      ref={containerRef}
       role="dialog"
       aria-modal="true"
       aria-label="Fokusgruppe Westunion"
@@ -450,7 +458,10 @@ export function FokusgruppeView({
             position: 'absolute',
             inset: 0,
             backgroundImage: `url(${bgUrl})`,
-            backgroundSize: 'cover',
+            // (B1) Ganzzahl-/Stammbruch-Faktor statt freiem `cover`;
+            // Fallback vor Bildmaß-Kenntnis = bisheriges cover (ein Frame lang).
+            backgroundSize: bgSnap ? `${bgSnap.width}px ${bgSnap.height}px` : 'cover',
+            backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
             imageRendering: 'pixelated',
           }}

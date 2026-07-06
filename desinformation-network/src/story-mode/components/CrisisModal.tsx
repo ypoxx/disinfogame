@@ -208,8 +208,8 @@ export function CrisisModal({
                           color: currentResources.budget >= choice.cost.budget ? StoryModeColors.warning : '#fff',
                         }}
                       >
-                        <Icon name="budget" size={12} title="Budget" fallback="$" />
-                        ${choice.cost.budget}K
+                        <Icon name="budget" size={12} title="Budget" fallback="¤" />
+                        {choice.cost.budget}K
                       </div>
                     )}
                     {choice.cost.attention !== undefined && choice.cost.attention > 0 && (

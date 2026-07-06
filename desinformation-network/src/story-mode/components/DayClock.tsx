@@ -43,6 +43,10 @@ export function DayClock() {
           borderColor: StoryModeColors.border,
           color,
           boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
+          // B24: Platz für die fixe Berater-Schnellzugriffs-Spalte (AdvisorPanel,
+          // w-12 = 48px am rechten Rand, gleiche z-Ebene) — ohne den Versatz
+          // verschwand die Uhr dahinter (nur „13" lesbar).
+          marginRight: 52,
           ...pulse,
         }}
         title="Arbeitstag 09:00–18:00 — Handlungen kosten Zeit"

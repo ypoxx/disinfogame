@@ -209,7 +209,7 @@ export function ActionQueueWidget({
                       color: StoryModeColors.warning,
                     }}
                   >
-                    <Icon name="budget" size={14} title="Budget" /> ${action.costs.budget}K
+                    <Icon name="budget" size={14} title="Budget" /> {action.costs.budget}K
                   </span>
                 )}
                 {action.costs.capacity && action.costs.capacity > 0 && (
@@ -278,7 +278,7 @@ export function ActionQueueWidget({
                   fontWeight: 'bold',
                 }}
               >
-                <Icon name="budget" size={14} title="Budget" /> ${totalCosts.budget}K / ${currentResources.budget}K
+                <Icon name="budget" size={14} title="Budget" /> {totalCosts.budget}K / {currentResources.budget}K
               </span>
               <span
                 className="text-xs px-2 py-1 border"

@@ -122,7 +122,8 @@ function ResourceBar({
   const formatValue = () => {
     switch (format) {
       case 'currency':
-        return `$${value}K`;
+        // B23: symbolfrei („150K") — kein „$" in der fiktiven Ost-Block-Welt.
+        return `${value}K`;
       case 'percent':
         return `${Math.round(value)}%`;
       default:

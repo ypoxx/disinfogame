@@ -15,10 +15,13 @@ export function measureStageGeometry() {
   const container = document.querySelector('[data-testid="building-stage"]');
   if (!container) return { error: 'building-stage nicht im DOM' };
   const layout = V.layout;
-  // Die skalierte Bühne ist das Kind mit inline width == layout.width.
-  const stageEl = Array.from(container.children).find(
-    (el) => el instanceof HTMLElement && el.style.width === `${layout.width}px`,
-  );
+  // Seit dem Ebenen-Split (Auflösungs-Etappe) trägt die skalierte Welt-Ebene eine
+  // eigene testid; Fallback = alte Heuristik (Kind mit inline width == layout.width).
+  const stageEl =
+    container.querySelector('[data-testid="building-stage-world"]') ??
+    Array.from(container.children).find(
+      (el) => el instanceof HTMLElement && el.style.width === `${layout.width}px`,
+    );
   if (!stageEl) return { error: 'Bühnen-Element nicht gefunden' };
   const sb = stageEl.getBoundingClientRect();
   const scale = sb.width / layout.width;
@@ -92,9 +95,11 @@ export function drawFloorLineOverlay() {
   const container = document.querySelector('[data-testid="building-stage"]');
   if (!container) return false;
   const layout = V.layout;
-  const stageEl = Array.from(container.children).find(
-    (el) => el instanceof HTMLElement && el.style.width === `${layout.width}px`,
-  );
+  const stageEl =
+    container.querySelector('[data-testid="building-stage-world"]') ??
+    Array.from(container.children).find(
+      (el) => el instanceof HTMLElement && el.style.width === `${layout.width}px`,
+    );
   if (!stageEl) return false;
   // Self-contained halten: page.evaluate serialisiert NUR diese Funktion.
   for (const el of stageEl.querySelectorAll('[data-vqa-overlay]')) el.remove();

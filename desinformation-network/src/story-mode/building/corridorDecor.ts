@@ -15,6 +15,15 @@ export interface DecorPlacement {
   /** 0..1 — horizontale Position als Anteil der Flur-Spielfläche. */
   xFrac: number;
   mount: 'floor' | 'wall';
+  /**
+   * Nur für mount 'wall': vertikaler Versatz in Stage-px, der auf die
+   * Standard-Wand-Formel addiert wird (top = floor.y + floorHeight·0,36 − h/2
+   * + yOffset; negativ = höher). Warum: Die Standard-Formel hängt ALLE
+   * Wand-Objekte mit Mitte ~1,4 m (Augenhöhe) — für Plakate/Tafeln richtig,
+   * für eine Wanduhr zu tief (Review B12b). Ein globaler Formel-Umbau würde
+   * die korrekten Objekte mitverschieben, daher pro Objekt.
+   */
+  yOffset?: number;
 }
 
 /** Anzeigehöhe (px) je Deko-Asset — reale Höhe × ~75 px/m. */
@@ -141,7 +150,13 @@ export const FLOOR_AMBIENT: Record<string, AmbientFigure[]> = {
     line: 'Viel los heute oben. Ich bring nur die Akten rum, von dem anderen halt ich mich fern.',
   }],
 };
-/** Anzeigehöhe der Statisten (px) — etwas kleiner als der Avatar (128). */
+/**
+ * Anzeigehöhe der Statisten (px): 112 px ≈ 1,53 m — bewusst etwas kleiner als
+ * der Avatar (128 px = 1,75 m), damit der Spieler heraussticht. WICHTIG (Review
+ * B12d): EINE Konstante für ALLE stehenden Statisten (FLOOR_AMBIENT,
+ * FLOOR_WALKERS, DOOR_TRAFFIC) — keine Figur bekommt eine eigene Höhe, sonst
+ * wirken nebeneinanderstehende Statisten wie falsch skaliert.
+ */
 export const AMBIENT_HEIGHT = 112;
 
 /** Strang 5 (Bewegung): ein hin- und herlaufender Statist je Etage (Lauf-Zyklus),
@@ -182,7 +197,12 @@ export const FLOOR_DECOR: Record<string, DecorPlacement[]> = {
   etage4: [
     { id: 'prop_plant_tall', xFrac: 0.04, mount: 'floor' },
     { id: 'prop_poster_a', xFrac: 0.33, mount: 'wall' },
-    { id: 'prop_shredder', xFrac: 0.63, mount: 'floor' }, // Operationszentrale: OPSEC-Humor
+    // Review B11: Bei xFrac 0,63 (cx 895) stand der Shredder fast deckungsgleich
+    // HINTER der Operationszentrale-Tür (Box 824–920, z-Index über der Deko) —
+    // sichtbar blieb nur ein ~11-px-Sliver am Türrahmen, der wie ein kaputtes
+    // Sprite-Fragment las. 0,78 ⇒ cx 1096, mittig in der Tür-Lücke zur
+    // Medien-Zentrum-Tür (je ~140 px Luft); OPSEC-Humor bleibt an der Zentrale.
+    { id: 'prop_shredder', xFrac: 0.78, mount: 'floor' },
     { id: 'prop_trashcan', xFrac: 0.965, mount: 'floor' },
   ],
   etage3: [
@@ -192,8 +212,15 @@ export const FLOOR_DECOR: Record<string, DecorPlacement[]> = {
   ],
   etage2: [
     { id: 'prop_plant_tall', xFrac: 0.05, mount: 'floor' }, // welk/grün je Moral (§14.4 #4)
-    { id: 'prop_clock_wall', xFrac: 0.2, mount: 'wall' },
-    { id: 'prop_coffee_station', xFrac: 0.66, mount: 'floor' }, // Kaffeeküche: Sorten = Wirtschaftslage (§14.4 #2)
+    // Review B12b: Standard-Wandhöhe hängte die Uhr-Mitte auf 1,41 m Brusthöhe;
+    // −43 px hebt sie auf 2,00 m (146 px über der Wand-Fuß-Linie — übliche
+    // Uhr-Hänghöhe). xFrac 0,35 statt 0,2, damit die höher hängende Uhr nicht
+    // hinter dem nativ gerasterten Etagen-Schild (oben links) verschwindet.
+    { id: 'prop_clock_wall', xFrac: 0.35, mount: 'wall', yOffset: -43 },
+    // Review B12a: Bei xFrac 0,66 (cx 935) ragte die Theke 34 px hinter Katjas
+    // Türblatt (Box 824–920) — die Maschine „klebte" an der Türkante (Möbel im
+    // Türweg). 0,72 ⇒ linke Möbelkante 967 = ~47 px Luft zur Türkante (Soll ≥ 20).
+    { id: 'prop_coffee_station', xFrac: 0.72, mount: 'floor' }, // Kaffeeküche: Sorten = Wirtschaftslage (§14.4 #2)
     { id: 'prop_bench', xFrac: 0.88, mount: 'floor' },
   ],
   etage1: [

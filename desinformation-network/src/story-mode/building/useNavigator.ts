@@ -162,11 +162,16 @@ export function useNavigator(initial?: AvatarPosition): UseNavigatorResult {
         if (step.kind === 'elevator') {
           const travelMs = step.durationMs - 2 * NAV_SPEED.elevatorDoorMs;
           playSound('elevator');
-          // Phase 1: Türen öffnen, Avatar steigt ein.
+          // B9-Choreografie (Memo §3.5 „Tür-Beat"): Einsteigen passiert SICHTBAR
+          // bei offener Tür — nicht im selben Tick wie das Schließen (Plopp).
+          // Phase 1: Türen öffnen; Avatar steigt ein, WÄHREND sie offen sind.
           setState((s) => ({ ...s, mode: 'ride', cabinLevel: step.fromLevel, cabinDoorsOpen: true }));
+          later(Math.round(NAV_SPEED.elevatorDoorMs * 0.55), () => {
+            setState((s) => ({ ...s, avatarInCabin: true }));
+          });
           later(NAV_SPEED.elevatorDoorMs, () => {
-            // Phase 2: Türen zu, Kabine fährt.
-            setState((s) => ({ ...s, cabinDoorsOpen: false, avatarInCabin: true }));
+            // Phase 2: Türen zu (Avatar ist schon drin), Kabine fährt.
+            setState((s) => ({ ...s, cabinDoorsOpen: false }));
             const t0 = performance.now();
             const tick = (now: number) => {
               if (run.cancelled) return;
@@ -176,14 +181,16 @@ export function useNavigator(initial?: AvatarPosition): UseNavigatorResult {
               if (t < 1) {
                 run.raf = window.requestAnimationFrame(tick);
               } else {
-                // Phase 3: Türen auf, Avatar steigt aus.
-                setState((s) => ({
-                  ...s,
-                  cabinLevel: step.toLevel,
-                  cabinDoorsOpen: true,
-                  avatarInCabin: false,
-                  pos: { floorLevel: step.toLevel, x: step.x },
-                }));
+                // Phase 3: Türen auf — Avatar bleibt erst sichtbar in der Kabine
+                // stehen und tritt dann heraus (Tür-Beat statt Plopp).
+                setState((s) => ({ ...s, cabinLevel: step.toLevel, cabinDoorsOpen: true }));
+                later(Math.round(NAV_SPEED.elevatorDoorMs * 0.55), () => {
+                  setState((s) => ({
+                    ...s,
+                    avatarInCabin: false,
+                    pos: { floorLevel: step.toLevel, x: step.x },
+                  }));
+                });
                 later(NAV_SPEED.elevatorDoorMs, () => {
                   setState((s) => ({ ...s, cabinDoorsOpen: false }));
                   runStep(index + 1);

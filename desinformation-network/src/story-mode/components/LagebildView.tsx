@@ -79,7 +79,7 @@ function SocietyAuftragBlock({ resources, vertrauen, auftrag }: {
 function ResourceCard({ icon, label, value, format, color, danger }: {
   icon: ReactNode; label: string; value: number; format: 'currency' | 'percent' | 'number'; color: string; danger?: boolean;
 }) {
-  const formatted = format === 'currency' ? `$${value}K` : format === 'percent' ? `${Math.round(value)}%` : `${value}`;
+  const formatted = format === 'currency' ? `${value}K` : format === 'percent' ? `${Math.round(value)}%` : `${value}`;
   return (
     <div className="p-2 border-2" style={{ backgroundColor: StoryModeColors.surface, borderColor: danger ? StoryModeColors.danger : StoryModeColors.border }}>
       <div className="flex items-center gap-2 mb-1">
@@ -102,12 +102,16 @@ function ObjectivesBlock({ objectives }: { objectives: Objective[] }) {
       </div>
       <div className="space-y-2">
         {primary.slice(0, 4).map((obj) => {
-          const progress = obj.targetValue > 0 ? Math.min(100, (obj.currentValue / obj.targetValue) * 100) : 0;
+          // B22: richtungs-bewusster Fortschritt aus der Engine — der alte Quotient
+          // currentValue/targetValue zeigte beim Senk-Ziel (Vertrauen 100 → unter 40)
+          // von Anfang an einen vollen Balken.
+          const progress = Math.max(0, Math.min(100, obj.progress));
           return (
             <div key={obj.id}>
               <div className="flex justify-between text-xs mb-0.5">
                 <span style={{ color: obj.completed ? StoryModeColors.success : StoryModeColors.textPrimary }}>{obj.completed ? '✓ ' : ''}{obj.label_de}</span>
-                <span style={{ color: StoryModeColors.textMuted }}>{obj.currentValue}/{obj.targetValue}</span>
+                {/* B22: „100/40" las sich als „100 von 40" — Ziel ist, UNTER die Marke zu kommen. */}
+                <span style={{ color: StoryModeColors.textMuted }}>jetzt {Math.round(obj.currentValue)} → Ziel unter {obj.targetValue}</span>
               </div>
               <div className="h-1.5 bg-black/30 overflow-hidden">
                 <div className="h-full" style={{ width: `${progress}%`, backgroundColor: obj.completed ? StoryModeColors.success : StoryModeColors.militaryOlive }} />
