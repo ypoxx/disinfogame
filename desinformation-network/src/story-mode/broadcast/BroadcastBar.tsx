@@ -172,6 +172,9 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
   const item = audience.lastItem;
   const isPrint = item?.channel === 'print';
   const frameUrl = assets.imageUrl(isPrint ? 'hud_paper_frame' : 'hud_tv_frame');
+  // Sendepause-Testbild fürs Röhren-TV (nur im Standby, kein Print): füllt die
+  // Bildröhre statt eines toten „KEIN SIGNAL"-Textes.
+  const testcardUrl = !item && !isPrint ? assets.imageUrl('hud_tv_testcard') : null;
 
   // Inhaltsfenster relativ zum Rahmenbild (TV: Bildröhre links, Zeitung: Foto-Loch mittig).
   const hole: CSSProperties = isPrint
@@ -216,6 +219,13 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
             {item.kind === 'gegenreaktion' ? 'GEGENWIND: ' : '● '}
             {item.headline}
           </span>
+        ) : testcardUrl ? (
+          // Sendepause: klassisches Testbild füllt die Röhre (Scanlines liegen darüber).
+          <img
+            src={testcardUrl}
+            alt=""
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'pixelated' }}
+          />
         ) : (
           <span style={{ width: '100%', textAlign: 'center', fontSize: 10, color: '#5a7a5a', fontFamily: "'VT323', monospace" }}>
             ··· KEIN SIGNAL ···

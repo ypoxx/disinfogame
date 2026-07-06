@@ -211,6 +211,16 @@
       "styleVersion": "v1"
     },
     {
+      "id": "hud_tv_testcard",
+      "type": "image",
+      "file": "images/hud_tv_testcard.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "A classic retro television TEST CARD / test pattern that FILLS the whole image edge to edge (full-frame flat graphic — NO tv set, NO frame, NO room, NO border, ONLY the test pattern itself). Composition: a row of vertical colour bars across the top and another across the bottom, a large central circle containing a fine grid and a thin crosshair, a horizontal greyscale step-wedge, small square convergence/resolution patches in the four corners. Slightly muted, slightly desaturated retro CRT colours (clearly distinct hues but NOT neon, NOT candy) fitting a cool desaturated palette. Perfectly flat, frontal, orthographic, symmetric. Crisp clean 16-bit pixel art, hard geometric edges, subtle grain. ABSOLUTELY NO letters, NO numbers, NO words, NO station name, NO clock, NO readable text of any kind anywhere. No real-world national symbols, no logos, no emblems.",
+      "seed": 813995,
+      "styleVersion": "v1"
+    },
+    {
       "id": "icon_actions",
       "type": "image",
       "file": "images/icon_actions.png",

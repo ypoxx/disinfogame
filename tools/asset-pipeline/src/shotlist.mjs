@@ -894,6 +894,30 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
     });
   }
 
+  // Sendepause-Testbild fürs Röhren-TV (linker Broadcast-Bildschirm im Standby).
+  // Vollbild-Grafik (kein Chroma, füllt das Bildröhren-Loch), klassische Testkarte.
+  // E35: absolut KEIN Text/keine Zahlen/keine Senderkennung.
+  shots.push({
+    id: 'hud_tv_testcard',
+    type: 'image',
+    kind: 'hud',
+    priority: 'nice',
+    aspectRatio: '4:3',
+    size: { w: 512, h: 384 },
+    seed: seedFor('hud_tv_testcard'),
+    prompt:
+      `A classic retro television TEST CARD / test pattern that FILLS the whole image edge to ` +
+      `edge (full-frame flat graphic — NO tv set, NO frame, NO room, NO border, ONLY the test ` +
+      `pattern itself). Composition: a row of vertical colour bars across the top and another ` +
+      `across the bottom, a large central circle containing a fine grid and a thin crosshair, a ` +
+      `horizontal greyscale step-wedge, small square convergence/resolution patches in the four ` +
+      `corners. Slightly muted, slightly desaturated retro CRT colours (clearly distinct hues but ` +
+      `NOT neon, NOT candy) fitting a cool desaturated palette. Perfectly flat, frontal, ` +
+      `orthographic, symmetric. Crisp clean 16-bit pixel art, hard geometric edges, subtle grain. ` +
+      `ABSOLUTELY NO letters, NO numbers, NO words, NO station name, NO clock, NO readable text of ` +
+      `any kind anywhere. No real-world national symbols, no logos, no emblems.`,
+  });
+
   // --- Publikums-Figuren (sitzend, 2-Frame-Idle, Chroma-Sheet) ---
   for (const [id, hint] of AUDIENCE_FIGURES) {
     shots.push({
