@@ -40,20 +40,30 @@ export function snapToDevicePixel(cssPx: number, dpr: number = currentDpr()): nu
 }
 
 export type CoverSnap = {
-  /** pixel-sauberer Scale fürs Bild */
+  /** Scale fürs Bild (bei 'cover' pixel-sauber, bei 'cover-soft' exakt). */
   scale: number;
-  /** cover = leichter Zuschnitt (Bild ≥ Fläche) · contain = Bild kleiner, Rand-Ausgleich */
-  mode: 'cover' | 'contain';
-  /** Anzeigegröße in css-px */
+  /**
+   * cover = pixel-saubere Stufe, füllt mit ≤ maxCrop Zuschnitt ·
+   * cover-soft = EXAKTES Cover (füllt genau, minimal weich), wenn keine saubere
+   * Stufe ohne großen Zuschnitt passt. Ein Hintergrund FÜLLT immer die Fläche —
+   * nie Letterbox/„Briefmarke" (Owner-Befund 2026-07-06: Räume dürfen NICHT
+   * kleiner als die Fläche sein).
+   */
+  mode: 'cover' | 'cover-soft';
+  /** Anzeigegröße in css-px (≥ Fläche). */
   width: number;
   height: number;
 };
 
 /**
- * Ersatz für `background-size: cover` (Review B1: cover ≈ ×0,94 = Matsch):
- * wählt den pixel-sauberen Scale, der die Fläche mit ≤ `maxCrop` Zuschnitt
- * füllt — sonst die nächstkleinere Stufe mit Rand-Ausgleich (Letterbox,
- * diegetisch als Scrim/Rahmen, §4.7-Kontrast-Regel).
+ * Ersatz für `background-size: cover` (Review B1: freier cover ≈ ×0,94 = Matsch):
+ * wählt den pixel-sauberen Scale, der die Fläche mit ≤ `maxCrop` Zuschnitt füllt.
+ * Würde die saubere Stufe zu viel abschneiden (Seitenverhältnis passt nicht),
+ * fällt es NICHT mehr auf Letterbox zurück (Regression 2026-07-06: Räume/Büros
+ * schrumpften mittig in den schwarzen Rand), sondern auf EXAKTES Cover: die
+ * Fläche wird bildfüllend bedeckt, der Preis ist eine minimale Weichzeichnung —
+ * für einen statischen Hintergrund akzeptabel, für die Welt-Ebene (BuildingStage,
+ * `snapPixelScale`) gilt weiter die harte Pixel-Regel.
  */
 export function snapCoverScale(
   areaW: number,
@@ -64,19 +74,16 @@ export function snapCoverScale(
   maxCrop = 0.2,
 ): CoverSnap {
   if (areaW <= 0 || areaH <= 0 || nativeW <= 0 || nativeH <= 0) {
-    return { scale: 1, mode: 'contain', width: nativeW, height: nativeH };
+    return { scale: 1, mode: 'cover-soft', width: nativeW, height: nativeH };
   }
   const coverFit = Math.max(areaW / nativeW, areaH / nativeH);
   const up = snapPixelScaleUp(coverFit, dpr);
-  // Zuschnitt-Anteil, wenn wir auf `up` vergrößern (größte der beiden Achsen).
+  // Zuschnitt-Anteil, wenn wir auf die saubere Stufe `up` vergrößern.
   const cropW = 1 - areaW / (nativeW * up);
   const cropH = 1 - areaH / (nativeH * up);
   if (Math.max(cropW, cropH) <= maxCrop) {
     return { scale: up, mode: 'cover', width: nativeW * up, height: nativeH * up };
   }
-  // contain snappt am CONTAIN-Fit (min der Achsen), nicht am Cover-Fit — sonst
-  // überragt „contain" die Fläche (Review Etappe 1: Ultrawide schnitt 41 % ab).
-  const containFit = Math.min(areaW / nativeW, areaH / nativeH);
-  const down = snapPixelScale(containFit, dpr);
-  return { scale: down, mode: 'contain', width: nativeW * down, height: nativeH * down };
+  // Saubere Stufe schnitte zu viel ab → exaktes Cover (füllt genau, minimal weich).
+  return { scale: coverFit, mode: 'cover-soft', width: nativeW * coverFit, height: nativeH * coverFit };
 }

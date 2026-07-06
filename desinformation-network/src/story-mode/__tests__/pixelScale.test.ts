@@ -72,31 +72,35 @@ describe('snapCoverScale', () => {
     expect(r.width).toBe(1344);
   });
 
-  it('weicht auf contain aus, wenn der Zuschnitt zu groß würde', () => {
-    // Fläche verlangt ×1,45 → ×2 wäre 27 % Zuschnitt → contain bei ×1
+  it('weicht auf exaktes Cover aus (füllt weiter), wenn der Zuschnitt zu groß würde', () => {
+    // Fläche verlangt ×1,45 → saubere Stufe ×2 wäre >maxCrop → exaktes Cover.
     const r = snapCoverScale(1950, 1080, 1344, 768, 1, 0.2);
-    expect(r.mode).toBe('contain');
-    expect(r.scale).toBe(1);
+    expect(r.mode).toBe('cover-soft');
+    // Bildfüllend: Anzeige ≥ Fläche auf beiden Achsen (nie Letterbox).
+    expect(r.width).toBeGreaterThanOrEqual(1950);
+    expect(r.height).toBeGreaterThanOrEqual(1080);
+    expect(r.scale).toBeCloseTo(Math.max(1950 / 1344, 1080 / 768), 5);
   });
 
-  it('liefert immer pixel-saubere Faktoren', () => {
+  it('cover-Modus liefert pixel-saubere Faktoren (die soft-Stufe darf exakt sein)', () => {
     for (const [w, h] of [[800, 600], [1920, 1080], [1280, 720], [400, 300]] as const) {
       const r = snapCoverScale(w, h, 1344, 768, 1);
-      expect(isClean(r.scale)).toBe(true);
+      if (r.mode === 'cover') expect(isClean(r.scale)).toBe(true);
+      // In JEDEM Fall bildfüllend.
+      expect(r.width).toBeGreaterThanOrEqual(w);
+      expect(r.height).toBeGreaterThanOrEqual(h);
     }
   });
 
-  it('contain überragt die Fläche NIE (Review-Fix: Snap am Contain-Fit)', () => {
-    // Ultrawide: up=3 hätte 61 % Zuschnitt → contain muss ≤ Fläche bleiben.
+  it('füllt die Fläche IMMER — nie Letterbox, auch bei Ultrawide (Owner-Fix 2026-07-06)', () => {
+    const EPS = 1e-6; // exaktes Cover trifft die Kante bis auf Float-Rundung genau
+    // Ultrawide: saubere Stufe würde 61 % abschneiden → exaktes Cover füllt.
     const r1 = snapCoverScale(3440, 900, 1344, 768, 1);
-    expect(r1.mode).toBe('contain');
-    expect(r1.width).toBeLessThanOrEqual(3440);
-    expect(r1.height).toBeLessThanOrEqual(900);
-    expect(r1.scale).toBe(1);
-    // Gleichheits-Falle: coverFit=2 exakt, Zuschnitt 29,7 % > maxCrop —
-    // contain darf NICHT dieselbe verworfene Stufe zurückgeben.
+    expect(r1.width).toBeGreaterThanOrEqual(3440 - EPS);
+    expect(r1.height).toBeGreaterThanOrEqual(900 - EPS);
+    // Gleichheits-Falle: coverFit=2 exakt, Zuschnitt 29,7 % > maxCrop.
     const r2 = snapCoverScale(2688, 1080, 1344, 768, 1, 0.2);
-    expect(r2.mode).toBe('contain');
-    expect(r2.height).toBeLessThanOrEqual(1080);
+    expect(r2.width).toBeGreaterThanOrEqual(2688 - EPS);
+    expect(r2.height).toBeGreaterThanOrEqual(1080 - EPS);
   });
 });
