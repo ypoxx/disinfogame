@@ -34,6 +34,9 @@ export interface MaschenVortestViewProps {
   /** Freie Stichproben-Auswahl freigeschaltet (Profi/spätere Phase)? Sonst nur geführt. */
   allowFreeSample: boolean;
   freeSampleLockHint?: string;
+  /** Einmalige Eintritts-Karte (Marina erklärt die Resonanzgruppen) beim ersten Betreten. */
+  showIntro?: boolean;
+  onIntroDismiss?: () => void;
   runVortest: (actionId: string, sampleIds: string[]) => MaschenVortestResult | null;
   onCommission: () => void;
   onLaunchMasche: (actionId: string) => void;
@@ -78,6 +81,8 @@ export function MaschenVortestView({
   cost,
   allowFreeSample,
   freeSampleLockHint,
+  showIntro = false,
+  onIntroDismiss,
   runVortest,
   onCommission,
   onLaunchMasche,
@@ -138,7 +143,9 @@ export function MaschenVortestView({
           Acht Resonanzgruppen, ein Querschnitt. Testen Sie eine Masche, bevor Westunion sie hört.
         </div>
 
-        {!result ? (
+        {showIntro ? (
+          <AnalyseIntro onDismiss={onIntroDismiss} />
+        ) : !result ? (
           <>
             {/* Schritt 1: Masche */}
             <div style={{ fontSize: 13, color: StoryModeColors.lightConcrete, marginBottom: 6 }}>1 · Welche Masche testen?</div>
@@ -221,6 +228,38 @@ export function MaschenVortestView({
           />
         )}
       </div>
+    </div>
+  );
+}
+
+// ─── Eintritts-Karte (Marina erklärt die Resonanzgruppen, einmalig) ────────────
+
+function AnalyseIntro({ onDismiss }: { onDismiss?: () => void }): React.JSX.Element {
+  return (
+    <div data-testid="mv-intro" style={{ maxWidth: 620, margin: '8px auto', border: '2px solid #3a7acc', background: 'rgba(10,14,22,0.72)', padding: '18px 22px' }}>
+      <div style={{ fontFamily: StoryModeFonts.label, fontSize: 12, color: '#8fb8e8', letterSpacing: 1.5, marginBottom: 10 }}>
+        MARINA PETROVA · ANALYSE-ABTEILUNG
+      </div>
+      <p style={{ fontSize: 14, fontStyle: 'italic', color: '#e6dcc0', lineHeight: 1.6, margin: '0 0 10px' }}>
+        »Bevor Sie hier auch nur eine Zeile senden — setzen Sie sich. Westunion ist kein Block, den man
+        am Stück umdreht. Wir teilen die Leute in <b>acht Resonanzgruppen</b>: wer worauf anspringt.«
+      </p>
+      <p style={{ fontSize: 14, fontStyle: 'italic', color: '#e6dcc0', lineHeight: 1.6, margin: '0 0 10px' }}>
+        »Die <b>Abgehängten</b> glauben jedem, der gegen ‚die da oben' wettert. Die <b>Aufgeklärten</b>
+        riechen eine Masche schon am dritten Wort. Dieselbe Botschaft — zwei Welten.«
+      </p>
+      <p style={{ fontSize: 14, fontStyle: 'italic', color: '#e6dcc0', lineHeight: 1.6, margin: '0 0 14px' }}>
+        »Also: erst hier vortesten, wen eine Masche trifft und wer sie längst durchschaut. <b>Dann</b> senden.
+        Wer blind sendet, verbrennt seine besten Karten an Leuten, die eh schon dagegen sind.«
+      </p>
+      <button
+        type="button"
+        data-testid="mv-intro-dismiss"
+        onClick={onDismiss}
+        style={{ padding: '9px 18px', fontSize: 14, fontWeight: 700, cursor: 'pointer', color: '#fff', border: '2px solid #2a5a9a', background: '#3a7acc' }}
+      >
+        Verstanden ▸
+      </button>
     </div>
   );
 }

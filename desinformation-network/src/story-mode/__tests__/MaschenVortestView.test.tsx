@@ -136,6 +136,23 @@ describe('MaschenVortestView', () => {
     expect((screen.getByTestId('mv-gruppe-wu_zorniger') as HTMLButtonElement).disabled).toBe(true);
   });
 
+  it('Eintritts-Karte beim ersten Betreten: Marina erklärt, Picker erst nach „Verstanden"', async () => {
+    const user = userEvent.setup();
+    const onIntroDismiss = vi.fn();
+    renderView({ showIntro: true, onIntroDismiss });
+    // Intro sichtbar, Masche-Picker noch nicht.
+    expect(screen.getByTestId('mv-intro').textContent).toMatch(/Resonanzgruppen/);
+    expect(screen.queryByTestId('mv-masche-11.4')).toBeNull();
+    await user.click(screen.getByTestId('mv-intro-dismiss'));
+    expect(onIntroDismiss).toHaveBeenCalledOnce();
+  });
+
+  it('ohne Intro (schon gesehen) führt direkt zum Masche-Picker', () => {
+    renderView({ showIntro: false });
+    expect(screen.queryByTestId('mv-intro')).toBeNull();
+    expect(screen.getByTestId('mv-masche-11.4')).toBeTruthy();
+  });
+
   it('freigeschaltete Profi-Schublade lässt die Stichprobe zuschneiden', async () => {
     const user = userEvent.setup();
     const props = renderView({ allowFreeSample: true });

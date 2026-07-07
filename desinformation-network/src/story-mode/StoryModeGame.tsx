@@ -438,6 +438,16 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       return true;
     }
   });
+  // Analyse-Raum: einmalige Eintritts-Karte (Marina erklärt die Resonanzgruppen).
+  const [analyseIntroSeen, setAnalyseIntroSeen] = useState<boolean>(() => {
+    try {
+      return !!window.localStorage.getItem('storyMode_analyseIntroSeen');
+    } catch {
+      return false;
+    }
+  });
+  // Sitzungs-Flag: wurde die Zielgruppen-Analyse überhaupt geöffnet? (speist den „ungetestet senden"-Nudge)
+  const [analyseVisited, setAnalyseVisited] = useState(false);
 
   // Count world events
   const worldEventCount = state.newsEvents.filter(e => e.type === 'world_event').length;
@@ -1024,7 +1034,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               onEnterOffice={() => setViewMode('office')}
               onEnterRoom={(roomId) => {
                 if (roomId === 'newsroom') setShowNewsroom(true);
-                else if (roomId === 'analyse') setShowPreTest(true);
+                else if (roomId === 'analyse') { setShowPreTest(true); setAnalyseVisited(true); }
                 else if (roomId === 'operations') setShowOperationsAkte(true);
               }}
               walkHome={walkHome}
@@ -1246,6 +1256,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             // Profi-Stichprobe (freie Auswahl) erst nach der Einarbeitung — geführter Querschnitt ist Standard.
             allowFreeSample={state.storyPhase.number >= 8}
             freeSampleLockHint="Erst wenn die Resonanzgruppen sitzen, dürfen Sie die Stichprobe selbst schneiden."
+            // Einmalige Eintritts-Karte beim ersten Betreten (über Sessions persistiert).
+            showIntro={!analyseIntroSeen}
+            onIntroDismiss={() => {
+              setAnalyseIntroSeen(true);
+              try { window.localStorage.setItem('storyMode_analyseIntroSeen', '1'); } catch { /* localStorage unavailable */ }
+            }}
             runVortest={(actionId, sampleIds) => state.engine.getSegmentVortest(actionId, sampleIds)}
             onCommission={() => { if (commissionFokusgruppe(FOKUSGRUPPE_COST)) endPhase(); }}
             onLaunchMasche={(actionId) => { addToQueue(actionId); setShowPreTest(false); }}
@@ -1427,6 +1443,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               attention={state.resources.attention}
               auftragTitel={state.engine.getAuftrag().titel_de}
               beatHook={directorBeat?.vorgriffZeile_de}
+              // Nudge: Maschen im Sendeplan, aber die Zielgruppen-Analyse nie geöffnet.
+              pendingUntested={state.actionQueue.length > 0 && !analyseVisited}
               onDone={() => setBriefedPhase(state.storyPhase.number)}
             />
           )}

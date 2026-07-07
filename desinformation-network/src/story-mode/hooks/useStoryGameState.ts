@@ -141,6 +141,7 @@ function getTopicLabel(topic: string): string {
     content: 'Über Inhalte',
     platforms: 'Über Plattformen',
     viral: 'Über Viralität',
+    publikum: 'Über das Publikum',
     // Alexei topics
     infrastructure: 'Über Infrastruktur',
     bots: 'Über Bot-Netzwerke',
