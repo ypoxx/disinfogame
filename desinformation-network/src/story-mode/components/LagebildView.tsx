@@ -22,55 +22,73 @@ interface LagebildViewProps {
   npcs: NPCState[];
   unreadNewsCount: number;
   worldEventCount: number;
-  /** P0-3: Herzstück sichtbar machen — Institutionen-Vertrauen (aus obj_destabilize). */
-  vertrauen: number;
-  /** P0-3: laufender strategischer Auftrag (Titel + Fortschritt 0..1). */
-  auftrag: { titel_de: string; progress: number };
+  /** N2: das Wettrennen — dieselben Größen wie das HUD (Zielbild §6). */
+  sonntagsfrage: { pollPct: number; thresholdPct: number };
+  abwehr: number;
+  abwehrStages: { stages: readonly number[]; fired: number[] };
+  /** Laufender strategischer Auftrag (Titel). */
+  auftrag: { titel_de: string };
   onClose: () => void;
 }
 
 /**
- * P0-3: GESELLSCHAFT + AUFTRAG im Lagebild. Bisher lebte das Herzstück (Werte + Auftrag)
- * nur in der default-versteckten HUD-Leiste; das diegetische Übersichts-Objekt zeigte es
- * gar nicht. Werte kommen aus `resources` (sichtbares Set) + Vertrauen aus dem Ziel.
+ * N2 (PLAN 2026-07-07): DAS RENNEN statt Gesellschafts-Meter. Das Lagebild sprach
+ * das Alt-Vokabular (Risiko/Aufmerksamkeit als Karten, Informationslast-Meter,
+ * „Auftrags-Fortschritt %") — jetzt zeigt es dieselben zwei Läufer wie das HUD:
+ * Sonntagsfrage mit Zielstrich, Abwehr mit Stufen-Marken (§6/§12.4).
  */
-function SocietyAuftragBlock({ resources, vertrauen, auftrag }: {
-  resources: StoryResources; vertrauen: number; auftrag: { titel_de: string; progress: number };
+function RennenBlock({ sonntagsfrage, abwehr, abwehrStages, auftrag }: {
+  sonntagsfrage: { pollPct: number; thresholdPct: number };
+  abwehr: number;
+  abwehrStages: { stages: readonly number[]; fired: number[] };
+  auftrag: { titel_de: string };
 }) {
-  const meters = [
-    { label: 'Vertrauen', value: vertrauen, color: StoryModeColors.agencyBlue },
-    { label: 'Polarisierung', value: resources.polarisierung, color: StoryModeColors.ministryRed },
-    { label: 'Informationslast', value: resources.informationslast, color: StoryModeColors.warning },
-    { label: 'Zynismus', value: resources.zynismus, color: StoryModeColors.danger },
-  ];
-  const pct = Math.round(Math.min(100, Math.max(0, auftrag.progress * 100)));
+  const scaleMax = Math.max(sonntagsfrage.pollPct, sonntagsfrage.thresholdPct) + 6;
+  const barPct = Math.min(100, (sonntagsfrage.pollPct / scaleMax) * 100);
+  const linePct = Math.min(100, (sonntagsfrage.thresholdPct / scaleMax) * 100);
+  const reached = sonntagsfrage.pollPct >= sonntagsfrage.thresholdPct;
+  const abwehrPct = Math.max(0, Math.min(100, abwehr));
   return (
-    <div className="p-3 border-2 mb-4" style={{ backgroundColor: StoryModeColors.surface, borderColor: StoryModeColors.border }}>
+    <div className="p-3 border-2 mb-4" style={{ backgroundColor: StoryModeColors.surface, borderColor: StoryModeColors.border }} data-testid="lagebild-rennen">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-bold" style={{ color: StoryModeColors.textSecondary }}>GESELLSCHAFT</span>
+        <span className="text-xs font-bold" style={{ color: StoryModeColors.textSecondary }}>DAS RENNEN</span>
         <span className="text-xs truncate max-w-[55%]" style={{ color: StoryModeColors.textMuted }} title={`Auftrag: ${auftrag.titel_de}`}>
           Auftrag: <span style={{ color: StoryModeColors.textPrimary }}>{auftrag.titel_de}</span>
         </span>
       </div>
-      <div className="grid grid-cols-4 gap-3 mb-3">
-        {meters.map((m) => (
-          <div key={m.label}>
-            <div className="flex justify-between text-[10px] mb-0.5">
-              <span style={{ color: StoryModeColors.textSecondary }}>{m.label}</span>
-              <span style={{ color: StoryModeColors.textMuted }}>{Math.round(m.value)}%</span>
-            </div>
-            <div className="h-1.5 bg-black/30 overflow-hidden">
-              <div className="h-full" style={{ width: `${Math.min(100, Math.max(0, m.value))}%`, backgroundColor: m.color }} />
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* Läufer 1 — Sonntagsfrage mit Zielstrich */}
       <div className="flex justify-between text-[10px] mb-0.5">
-        <span style={{ color: StoryModeColors.textSecondary }}>Auftrags-Fortschritt</span>
-        <span style={{ color: StoryModeColors.textMuted }}>{pct}%</span>
+        <span style={{ color: StoryModeColors.textSecondary }}>SONNTAGSFRAGE</span>
+        <span style={{ color: StoryModeColors.warning, fontWeight: 700 }}>
+          {sonntagsfrage.pollPct.toFixed(1)} % · Schwelle {sonntagsfrage.thresholdPct.toFixed(0)} %
+        </span>
       </div>
-      <div className="h-2 bg-black/30 overflow-hidden">
-        <div className="h-full" style={{ width: `${pct}%`, backgroundColor: StoryModeColors.militaryOlive }} />
+      <div className="relative mb-3" style={{ height: 8 }}>
+        <div className="h-full bg-black/30 overflow-hidden">
+          <div className="h-full" style={{ width: `${barPct}%`, backgroundColor: reached ? StoryModeColors.success : StoryModeColors.ministryRed }} />
+        </div>
+        <div className="absolute" style={{ left: `${linePct}%`, top: -2, bottom: -2, width: 2, backgroundColor: StoryModeColors.warning }} title="Machtwechsel-Schwelle" />
+      </div>
+      {/* Läufer 2 — Abwehr mit Stufen-Marken */}
+      <div className="flex justify-between text-[10px] mb-0.5">
+        <span style={{ color: StoryModeColors.textSecondary }}>ABWEHR</span>
+        <span style={{ color: StoryModeColors.danger, fontWeight: 700 }}>{Math.round(abwehrPct)}/100</span>
+      </div>
+      <div className="relative" style={{ height: 8 }}>
+        <div className="h-full bg-black/30 overflow-hidden">
+          <div className="h-full" style={{ width: `${abwehrPct}%`, backgroundColor: StoryModeColors.danger }} />
+        </div>
+        {abwehrStages.stages.map((stage) => (
+          <div
+            key={stage}
+            className="absolute"
+            title={`Stufe ${stage}${abwehrStages.fired.includes(stage) ? ' — gezündet' : ''}`}
+            style={{
+              left: `${stage}%`, top: -2, bottom: -2, width: 2,
+              backgroundColor: abwehrStages.fired.includes(stage) ? StoryModeColors.document : 'rgba(0,0,0,0.55)',
+            }}
+          />
+        ))}
       </div>
     </div>
   );
@@ -172,7 +190,7 @@ function TeamBlock({ npcs }: { npcs: NPCState[] }) {
   );
 }
 
-export function LagebildView({ resources, phase, objectives, newsEvents, npcs, unreadNewsCount, worldEventCount, vertrauen, auftrag, onClose }: LagebildViewProps): React.JSX.Element {
+export function LagebildView({ resources, phase, objectives, newsEvents, npcs, unreadNewsCount, worldEventCount, sonntagsfrage, abwehr, abwehrStages, auftrag, onClose }: LagebildViewProps): React.JSX.Element {
   return (
     <PixelModal
       open
@@ -182,21 +200,21 @@ export function LagebildView({ resources, phase, objectives, newsEvents, npcs, u
       title={<span><Icon name="dashboard" size={14} title="Lagebild" /> LAGEBILD — TAG {phase.number} · WAHL IN {Math.max(0, (phase.electionDay ?? 40) - phase.number)} TAGEN</span>}
     >
       <div className="p-4 font-mono">
-        {/* Ressourcen */}
-        <div className="grid grid-cols-5 gap-2 mb-4">
-          <ResourceCard icon={<Icon name="budget" size={16} title="Budget" />} label="BUDGET" value={resources.budget} format="currency" color={StoryModeColors.warning} danger={resources.budget < 20} />
+        {/* N2: Das Rennen zuerst — dieselben zwei Läufer wie das HUD (§6). */}
+        <RennenBlock sonntagsfrage={sonntagsfrage} abwehr={abwehr} abwehrStages={abwehrStages} auftrag={auftrag} />
+
+        {/* Mittel des Hauses. Risiko/Aufmerksamkeit sind KEINE Anzeigen mehr (§12.4) —
+            sie fließen in die ABWEHR; die moralische Last bleibt (nicht gestrichen). */}
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          <ResourceCard icon={<Icon name="budget" size={16} title="Budget" />} label="KASSE" value={resources.budget} format="currency" color={StoryModeColors.warning} danger={resources.budget < 20} />
           <ResourceCard icon={<Icon name="capacity" size={16} title="Kapazität" />} label="KAPAZITÄT" value={resources.capacity} format="number" color={StoryModeColors.agencyBlue} />
-          <ResourceCard icon={<Icon name="risk" size={16} title="Risiko" />} label="RISIKO" value={resources.risk} format="percent" color={StoryModeColors.ministryRed} danger={resources.risk > 60} />
-          <ResourceCard icon={<Icon name="attention" size={16} title="Aufmerksamkeit" />} label="AUFMERKSAMKEIT" value={resources.attention} format="percent" color={StoryModeColors.danger} danger={resources.attention > 70} />
           <ResourceCard icon={<Icon name="moral" size={16} title="Moral" />} label="MORAL. LAST" value={resources.moralWeight} format="number" color={StoryModeColors.ministryRed} danger={resources.moralWeight > 60} />
         </div>
 
-        {/* P0-3: Herzstück — Gesellschaftswerte + Auftrags-Fortschritt */}
-        <SocietyAuftragBlock resources={resources} vertrauen={vertrauen} auftrag={auftrag} />
-
-        {/* Drei Spalten: Ziele · Nachrichten · Team */}
+        {/* Drei Spalten: Ziele · Nachrichten · Team. N2: das Primärziel spricht
+            jetzt oben das Rennen — hier bleiben nur die Halte-Ziele (survival). */}
         <div className="grid grid-cols-3 gap-3">
-          <ObjectivesBlock objectives={objectives} />
+          <ObjectivesBlock objectives={objectives.filter((o) => o.category === 'survival')} />
           <NewsBlock newsEvents={newsEvents} unreadCount={unreadNewsCount} />
           <TeamBlock npcs={npcs} />
         </div>

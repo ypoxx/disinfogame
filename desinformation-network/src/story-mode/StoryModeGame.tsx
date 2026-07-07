@@ -922,16 +922,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           actionPoints: state.resources.actionPointsRemaining,
           maxActionPoints: state.resources.actionPointsMax,
         }}
-        objectives={state.objectives.map(o => ({
-          id: o.id,
-          title: o.label_de,
-          // B22: richtungs-bewusster Engine-Fortschritt (0–100), NICHT currentValue —
-          // beim Senk-Ziel (Vertrauen 100→40) wäre der Balken sonst ab Start voll.
-          progress: o.progress,
-          target: o.targetValue,
-          isCompleted: o.completed,
-          isPrimary: o.type === 'primary',
-        }))}
         sonntagsfrage={(() => {
           const wa = state.engine.getWahlabendData();
           return { pollPct: wa.finalPollPct, thresholdPct: wa.thresholdPct, auftragTitel: state.engine.getAuftrag().titel_de };
@@ -1270,6 +1260,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         {/* Narrativ-Tafel (2f): Sendeplan — Maßnahmen anheften, Gelegenheits-Fäden, ausspielen */}
         {showBoard && (
           <NarrativeBoard
+            sonntagsfrage={(() => {
+              const wa = state.engine.getWahlabendData();
+              return { pollPct: wa.finalPollPct, thresholdPct: wa.thresholdPct };
+            })()}
+            abwehr={state.engine.getAbwehr()}
             objectives={state.objectives.map((o) => ({
               id: o.id,
               label_de: o.label_de,
@@ -1350,8 +1345,13 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             npcs={state.npcs}
             unreadNewsCount={state.unreadNewsCount}
             worldEventCount={worldEventCount}
-            vertrauen={state.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100}
-            auftrag={{ titel_de: state.engine.getAuftrag().titel_de, progress: state.engine.getAuftragProgress() }}
+            sonntagsfrage={(() => {
+              const wa = state.engine.getWahlabendData();
+              return { pollPct: wa.finalPollPct, thresholdPct: wa.thresholdPct };
+            })()}
+            abwehr={state.engine.getAbwehr()}
+            abwehrStages={state.engine.getAbwehrStageInfo()}
+            auftrag={{ titel_de: state.engine.getAuftrag().titel_de }}
             onClose={() => setShowLagebild(false)}
           />
         )}

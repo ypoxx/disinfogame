@@ -58,6 +58,10 @@ interface NarrativeBoardProps {
   queue: QueuedAction[];
   threads: BoardThread[];
   resources: { budget: number; capacity: number; actionPoints: number };
+  /** N2 (PLAN 2026-07-07): das Wettrennen als Kopf-Notiz — die zwei Läufer
+   *  ersetzen das Alt-Vokabular („destabilisieren unter 40"). */
+  sonntagsfrage?: { pollPct: number; thresholdPct: number };
+  abwehr?: number;
   /** E2: gleichzeitige Narrativ-Spuren (Start 2, max 3). */
   narrativeSlots?: number;
   onPin: (actionId: string) => void;
@@ -90,6 +94,8 @@ export function NarrativeBoard({
   queue,
   threads,
   resources,
+  sonntagsfrage,
+  abwehr,
   narrativeSlots = 2,
   onPin,
   onUnpin,
@@ -121,10 +127,15 @@ export function NarrativeBoard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queue, slots]);
 
-  // Missionsziele zuerst die primären (Anker des Sendeplans).
+  // N2: Liegt das Wettrennen an (sonntagsfrage-Prop), sprechen die Kopf-Notizen
+  // dessen Vokabular — die primären Alt-Ziele („destabilisieren") entfallen dann;
+  // Halte-Ziele (Nicht enttarnt werden) bleiben. Ohne Prop: altes Verhalten.
   const sortedObjectives = useMemo(
-    () => [...objectives].sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary)).slice(0, 4),
-    [objectives],
+    () => [...objectives]
+      .filter((o) => (sonntagsfrage ? !o.isPrimary : true))
+      .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary))
+      .slice(0, 4),
+    [objectives, sonntagsfrage],
   );
 
   // Deck nach zuständigem NPC/Büro gruppieren (Entscheidung 1: Maßnahmen je Büro,
@@ -217,9 +228,43 @@ export function NarrativeBoard({
             imageRendering: 'pixelated',
           }}
         >
-          {/* Missionsziele als Kopf-Notizen (volle Mission bleibt auf der Tafel — A1) */}
-          {sortedObjectives.length > 0 && (
+          {/* Kopf-Notizen: das Wettrennen (N2) + Halte-Ziele — volle Mission in der Akte (M). */}
+          {(sortedObjectives.length > 0 || sonntagsfrage) && (
             <div className="mb-3 flex flex-wrap gap-2">
+              {sonntagsfrage && (
+                <div
+                  className="px-3 py-1.5 inline-flex items-center gap-2"
+                  style={{
+                    backgroundColor: StoryModeColors.document,
+                    color: '#241a0f',
+                    border: '2px solid #2c1f12',
+                    transform: 'rotate(-0.6deg)',
+                  }}
+                  data-testid="board-sonntagsfrage"
+                >
+                  <Icon name="mission" size={12} title="Sonntagsfrage" />
+                  <span className="text-[11px] font-bold">ZIEL: SONNTAGSFRAGE</span>
+                  <span className="text-[11px]">
+                    {sonntagsfrage.pollPct.toFixed(1)} % · über {sonntagsfrage.thresholdPct.toFixed(0)} % am Wahltag
+                  </span>
+                </div>
+              )}
+              {sonntagsfrage && abwehr !== undefined && (
+                <div
+                  className="px-3 py-1.5 inline-flex items-center gap-2"
+                  style={{
+                    backgroundColor: StoryModeColors.oldPaper,
+                    color: '#241a0f',
+                    border: '2px solid #6b5436',
+                    transform: 'rotate(0.7deg)',
+                  }}
+                  data-testid="board-abwehr"
+                >
+                  <Icon name="risk" size={12} title="Abwehr" />
+                  <span className="text-[11px] font-bold">ABWEHR</span>
+                  <span className="text-[11px]">{Math.round(abwehr)}/100 — bei 100 ist Schluss</span>
+                </div>
+              )}
               {sortedObjectives.map((o, i) => (
                 <div
                   key={o.id}

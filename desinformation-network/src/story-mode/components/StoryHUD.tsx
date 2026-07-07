@@ -31,15 +31,6 @@ export interface StoryPhaseInfo {
   maxActionPoints: number;
 }
 
-export interface ObjectiveInfo {
-  id: string;
-  title: string;
-  progress: number;
-  target: number;
-  isCompleted: boolean;
-  isPrimary: boolean;
-}
-
 /**
  * Gesellschaftswerte fürs HUD (B2/P1, O3: 4 sichtbar, niedrigschwellig).
  * Vertrauen kommt aus obj_destabilize; der Rest aus den neuen Zustandsfeldern.
@@ -72,7 +63,6 @@ export interface SonntagsfrageInfo {
 interface StoryHUDProps {
   resources: StoryResources;
   phase: StoryPhaseInfo;
-  objectives: ObjectiveInfo[];
   /** DEPRECATED (Etappe 5, §6): die 8 Gesellschaftswerte verschwinden als HUD-Anzeige
    *  (Wohnzimmer-Alphabet ersetzt sie). Prop bleibt optional für Rückwärts-Kompatibilität. */
   society?: SocietyInfo;
@@ -86,7 +76,6 @@ interface StoryHUDProps {
   exposureCountdown?: number | null;
   onEndPhase?: () => void;
   onOpenMenu?: () => void;
-  onOpenObjectives?: () => void;
   /** E1/2g: HUD wieder ausblenden (nur auf Knopfdruck sichtbar). */
   onHideHud?: () => void;
 }
@@ -373,73 +362,11 @@ function PhaseDisplay({ phase }: PhaseDisplayProps) {
   );
 }
 
-// ============================================
-// OBJECTIVE TRACKER COMPONENT
-// ============================================
-
-interface ObjectiveTrackerProps {
-  objectives: ObjectiveInfo[];
-  onClick?: () => void;
-}
-
-function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
-  const primaryObjective = objectives.find(o => o.isPrimary && !o.isCompleted);
-  const completedCount = objectives.filter(o => o.isCompleted).length;
-
-  if (!primaryObjective) return null;
-
-  // B22: `progress` ist bereits der richtungs-bewusste Engine-Prozentwert (0–100).
-  const progress = Math.max(0, Math.min(100, primaryObjective.progress));
-
-  return (
-    <button
-      onClick={onClick}
-      className="text-left px-3 py-2 border-2 transition-all hover:brightness-110"
-      style={{
-        backgroundColor: StoryModeColors.surfaceLight,
-        borderColor: StoryModeColors.border,
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-      }}
-    >
-      <div className="flex items-center gap-2 mb-1">
-        <Icon name="mission" size={14} title="Aktuelles Ziel" fallback="Z" />
-        <span
-          className="text-xs font-bold uppercase"
-          style={{ color: StoryModeColors.textSecondary }}
-        >
-          Aktuelles Ziel
-        </span>
-        <span
-          className="text-xs ml-auto"
-          style={{ color: StoryModeColors.textMuted }}
-        >
-          {completedCount}/{objectives.length}
-        </span>
-      </div>
-      <div
-        className="text-sm font-mono truncate max-w-[200px]"
-        style={{ color: StoryModeColors.textPrimary }}
-      >
-        {primaryObjective.title}
-      </div>
-      <div
-        className="h-1 mt-1 overflow-hidden"
-        style={{ backgroundColor: StoryModeColors.border }}
-      >
-        <div
-          className="h-full transition-all duration-300"
-          style={{
-            width: `${progress}%`,
-            backgroundColor: StoryModeColors.militaryOlive,
-          }}
-        />
-      </div>
-    </button>
-  );
-}
-
 // (Etappe 5, §6: Der frühere „SocietyStrip" — 4 Gesellschaftswerte im HUD — ist entfallen.
-//  Die Gesellschaft zeigt sich als Bild, nie als Balken: das Wohnzimmer-Alphabet.)
+//  Die Gesellschaft zeigt sich als Bild, nie als Balken: das Wohnzimmer-Alphabet.
+//  N2, PLAN 2026-07-07: Auch der ObjectiveTracker ist entfallen — er war Anzeige Nr. 5
+//  (§6 erlaubt GENAU vier Größen) und sprach das Alt-Vokabular „destabilisieren";
+//  Ziele wohnen in der Akte (MissionPanel, Taste M) und an der Narrativ-Tafel.)
 
 // ============================================
 // MAIN STORY HUD COMPONENT
@@ -448,14 +375,12 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
 export function StoryHUD({
   resources,
   phase,
-  objectives,
   sonntagsfrage,
   abwehr,
   abwehrStageInfo,
   exposureCountdown,
   onEndPhase,
   onOpenMenu,
-  onOpenObjectives,
   onHideHud,
 }: StoryHUDProps) {
   return (
@@ -560,14 +485,6 @@ export function StoryHUD({
         </div>
       </div>
 
-      {/* Bottom Left: das laufende Ziel (die Akte). Die 8 Gesellschaftswerte sind aus dem
-          HUD verschwunden (Zielbild §6) — das Wohnzimmer-Alphabet zeigt die Gesellschaft. */}
-      <div className="fixed bottom-4 left-4 z-30 flex flex-col gap-2">
-        <ObjectiveTracker
-          objectives={objectives}
-          onClick={onOpenObjectives}
-        />
-      </div>
     </>
   );
 }
