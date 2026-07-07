@@ -63,7 +63,9 @@ export const usePanelStore = create<PanelState>((set) => ({
   toggleAdvisor: () =>
     set((state) => ({ advisorCollapsed: !state.advisorCollapsed })),
 
-  queueCollapsed: false,
+  // N0 (PLAN 2026-07-07): eingeklappt starten — das default-offene Leer-Panel
+  // verdeckte den FEIERABEND-Knopf der Büro-Unterleiste.
+  queueCollapsed: true,
   toggleQueue: () =>
     set((state) => ({ queueCollapsed: !state.queueCollapsed })),
 
@@ -73,7 +75,7 @@ export const usePanelStore = create<PanelState>((set) => ({
       viewMode: 'building',
       broadcastExpanded: false,
       advisorCollapsed: true,
-      queueCollapsed: false,
+      queueCollapsed: true,
     }),
 }));
 

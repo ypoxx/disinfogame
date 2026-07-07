@@ -20,7 +20,6 @@ import { WahlabendScene } from './components/WahlabendScene';
 import { MethodenDossier } from './components/MethodenDossier';
 import { AdvisorPanel } from './components/AdvisorPanel';
 import { AdvisorDetailModal } from './components/AdvisorDetailModal';
-import { BetrayalWarningBadge } from './components/BetrayalWarningBadge';
 import { GrievanceModal } from './components/GrievanceModal';
 import { BetrayalEventModal } from './components/BetrayalEventModal';
 import { StageCountermeasureModal } from './components/StageCountermeasureModal';
@@ -563,6 +562,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     : showLagebild ? 'lagebild'
     : showBoard ? 'board'
     : null;
+
+  // N0 (PLAN 2026-07-07): Vollbild-Overlays verdecken das Dauer-Chrome (Eck-Cluster,
+  // Berater-Leiste, Queue) — EIN Flag statt z-Index-Wettrüsten je Element.
+  const fullscreenOverlayOpen =
+    showTerminal || showNewsroom || showBoard || showLagebild ||
+    showOperationsAkte || showFokusgruppe || showPreTest || showEncyclopedia;
   useEffect(() => {
     const active = state.gamePhase === 'playing' || state.gamePhase === 'tutorial';
     playAmbience(ambienceForContext({
@@ -940,30 +945,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       />
       )}
 
-      {/* Dezenter, IMMER auffindbarer Einstieg (E1): Pause + HUD einblenden, wenn HUD aus */}
-      {!hudVisible && (state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
-        <div className="fixed top-1.5 right-1.5 z-50 flex gap-1">
-          <button
-            onClick={pauseGame}
-            aria-label="Pause / Menü"
-            title="Pause / Menü (Esc)"
-            className="w-8 h-8 flex items-center justify-center border-2 font-bold hover:brightness-125"
-            style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.lightConcrete }}
-          >
-            ☰
-          </button>
-          <button
-            onClick={() => setHudVisible(true)}
-            aria-label="HUD einblenden"
-            title="HUD einblenden (H)"
-            className="h-8 px-2 flex items-center gap-1 border-2 text-xs font-bold hover:brightness-125"
-            style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.lightConcrete }}
-          >
-            <Icon name="stats" size={12} title="HUD" fallback="HUD" /> HUD · H
-          </button>
-        </div>
-      )}
-
       {/* Main Layout (Padding nur, wenn HUD sichtbar) */}
       <div className={`${hudVisible ? 'pt-[52px]' : ''} h-full flex flex-col`}>
         {/* Sub-HUD Bar: Betrayal + Consequence — Teil des HUD-Rands, nur mit HUD sichtbar */}
@@ -1047,10 +1028,36 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             <NpcRoomView npcId={state.activeNpcId} mood={state.currentDialog.mood} />
           )}
 
-          {/* Tagesuhr (K1): Handlungen kosten Zeit, 18:00 = Redaktionsschluss */}
-          {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
-            <div className="absolute top-2 right-2 z-40">
+          {/* N0: EIN Eck-Cluster oben rechts — Tagesuhr + Pause + HUD-Einstieg in einer
+              Reihe. Vorher lagen der fixe Knopf-Block (z-50) und die Uhr (z-40)
+              übereinander: die Uhrzeit war im Grundzustand unlesbar. Der Cluster lebt
+              in der Welt-Fläche (rückt mit dem Seitenpanel mit) und verschwindet unter
+              Vollbild-Overlays. Der HUD-eigene MENÜ/H-Knopf übernimmt bei HUD an. */}
+          {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !fullscreenOverlayOpen && (
+            <div className="absolute top-2 right-2 z-40 flex items-center gap-1">
               <DayClock />
+              {!hudVisible && (
+                <>
+                  <button
+                    onClick={pauseGame}
+                    aria-label="Pause / Menü"
+                    title="Pause / Menü (Esc)"
+                    className="w-8 h-8 flex items-center justify-center border-2 font-bold hover:brightness-125"
+                    style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.lightConcrete }}
+                  >
+                    ☰
+                  </button>
+                  <button
+                    onClick={() => setHudVisible(true)}
+                    aria-label="HUD einblenden"
+                    title="HUD einblenden (H)"
+                    className="h-8 px-2 flex items-center gap-1 border-2 text-xs font-bold hover:brightness-125"
+                    style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.lightConcrete }}
+                  >
+                    <Icon name="stats" size={12} title="HUD" fallback="HUD" /> HUD · H
+                  </button>
+                </>
+              )}
             </div>
           )}
           </div>
@@ -1581,8 +1588,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       />
 
       {/* Advisor Panel — während eines Gesprächs ausgeblendet (freie Sicht aufs NPC-Gespräch
-          + dessen Maßnahmen-Optionen; Empfehlungen erscheinen jetzt diegetisch im Dialog). */}
-      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !state.currentDialog && (
+          + dessen Maßnahmen-Optionen; Empfehlungen erscheinen jetzt diegetisch im Dialog).
+          N0: unter Vollbild-Overlays ebenfalls aus — die Leiste schwebte über Terminal/Tafel. */}
+      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !state.currentDialog && !fullscreenOverlayOpen && (
         <AdvisorPanel
           npcs={state.npcs.map(npc => ({
             id: npc.id,
@@ -1625,10 +1633,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         />
       )}
 
-      {/* Action Queue Widget — im Gespräch, am Terminal UND bei ausgeklapptem
+      {/* Action Queue Widget — im Gespräch, unter Vollbild-Overlays UND bei ausgeklapptem
           Broadcast ausgeblendet (das Floating-Widget überlappte sonst die
-          Vorgangsblätter bzw. das Publikums-Wohnzimmer; geplant wird am Korkbrett). */}
-      {state.gamePhase === 'playing' && !state.currentDialog && !showTerminal && !broadcastExpanded && (
+          Vorgangsblätter bzw. das Publikums-Wohnzimmer; geplant wird am Korkbrett).
+          N0: leer gar nicht rendern — das Leer-Panel verdeckte nur den FEIERABEND-Knopf. */}
+      {state.gamePhase === 'playing' && !state.currentDialog && !fullscreenOverlayOpen && !broadcastExpanded && state.actionQueue.length > 0 && (
         <ActionQueueWidget
           queue={state.actionQueue}
           currentResources={{
@@ -1654,9 +1663,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       )}
 
       {/* Combo Hints Widget — im Gespräch ausgeblendet (kein Floating über dem Dialog) */}
-      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !state.currentDialog && state.comboHints && state.comboHints.length > 0 && (
+      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !state.currentDialog && !fullscreenOverlayOpen && state.comboHints && state.comboHints.length > 0 && (
         <div
-          className="fixed bottom-4 left-4 w-80 z-20"
+          className="fixed bottom-16 left-4 w-80 z-20"
           style={{ maxHeight: '40vh', overflowY: 'auto' }}
         >
           <ComboHintsWidget hints={state.comboHints} />
