@@ -184,8 +184,10 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
     ? { left: '16%', top: '30%', width: '68%', height: '34%' }
     : { left: '17%', top: '29%', width: '48%', height: '45%' };
 
+  // v4 (Owner 2026-07-06): Röhren-TV im Gesamtverhältnis größer — füllt die
+  // Leisten-Höhe fast ganz und wird zum linken Blickfang (statt schmaler Kachel).
   return (
-    <div style={{ position: 'relative', width: 230, height: 172, flexShrink: 0 }}>
+    <div style={{ position: 'relative', width: 273, height: 204, flexShrink: 0 }}>
       {frameUrl ? (
         <img
           src={frameUrl}
@@ -378,11 +380,11 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
                   style={{
                     position: 'absolute',
                     left: '50%',
-                    bottom: 3,
+                    bottom: 2,
                     transform: 'translateX(-50%)',
-                    width: '64%',
-                    height: 9,
-                    background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 72%)',
+                    width: '72%',
+                    height: 13,
+                    background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0) 68%)',
                     zIndex: 0,
                   }}
                 />
@@ -390,7 +392,7 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
                   style={{
                     position: 'relative',
                     zIndex: 1,
-                    filter: `${MOOD_FILTER[seg.mood] === 'none' ? '' : MOOD_FILTER[seg.mood] + ' '}drop-shadow(0 2px 1px rgba(0,0,0,0.4))`,
+                    filter: `${MOOD_FILTER[seg.mood] === 'none' ? '' : MOOD_FILTER[seg.mood] + ' '}drop-shadow(0 3px 2px rgba(0,0,0,0.5))`,
                     transition: 'filter 600ms ease',
                   }}
                 >

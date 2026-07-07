@@ -13,7 +13,7 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import { BUILDING_JSON, NPCS_JSON } from './paths.mjs';
-import { styleCore, styleObject, styleHome } from './styleguide.mjs';
+import { styleCore, styleObject, styleHome, styleHomeFigure } from './styleguide.mjs';
 import { CHROMA_PROMPT } from './transparency.mjs';
 
 /** Deterministischer Seed je Shot-id (reproduzierbare Läufe). */
@@ -1000,7 +1000,7 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
         `NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. ` +
         `Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with ` +
         `identical outfit and colors in every frame, only a subtle idle motion changes (blink, ` +
-        `small head turn, slight breathing). ${CHROMA_PROMPT} ${style}`,
+        `small head turn, slight breathing). ${CHROMA_PROMPT} ${styleHomeFigure()}`,
     });
   }
 

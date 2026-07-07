@@ -195,8 +195,42 @@ Alles 0 $, ohne KI-Generierung. Belege in `review-evidence/2026-07-06/`
   gleicher Seed) — owner-freigabepflichtig, wenige $.
 
 **Gate grün:** `tsc --noEmit` sauber · `vitest run` 630/630 · `npm run build` ok.
-**Offen für „perfekt":** F2-Regen (Palette) und die Texel-Dichte-/Outline-Vereinheitlichung
-zwischen grobem TV, feinem Raum und mittleren Figuren (§3) — beides jenseits von 0 $.
+
+## 4c. Ausbau 2026-07-07 (Owner „Punkt 1+2, Budget frei, schön & perfekt" + größerer TV)
+
+Belege: `audience_figuren_REGEN_8er_set.png`, `publikum_wohnzimmer_REGEN.png`,
+`broadcast_bar_REGEN_groesserer_tv.png` (in `review-evidence/2026-07-06/`).
+
+- **F2 „perfekt" statt interim (Regen):** Neue Prompt-Anmutung **`styleHomeFigure()`**
+  (`tools/asset-pipeline/src/styleguide.mjs`) — warm, homelig beleuchtet, **weiche farbige
+  Outlines (selout)** statt hartem Schwarz, ohne „home interior"-Satz (sonst malt das Modell
+  einen Raum). Alle **8 Publikums-Figuren neu generiert** (Gemini `gemini-3-pro-image`, je
+  eigener Seed) → einheitlich warm, „aus einem Guss", passend zum Wohnzimmer. Der frühere
+  Kalt-Paletten-Bruch (F2) ist damit an der Wurzel behoben (Prompt war vorher `styleCore()`
+  = kühles Ministerium).
+- **Kohärenz (Punkt 2):** Selout-Outlines + warme Palette + einheitliches Set schließen
+  Outline-/Farb-Bruch zum Raum. Rest-Delta (leicht unruhigere Textur/Texel-Dichte der
+  48-px-Figuren ggü. dem feinen Raum) bleibt — echte Angleichung bräuchte höher aufgelöste
+  Frames (64 px) und ist als „darüber hinaus" notiert.
+- **Rand-Bereinigung:** Chroma-Key-Magenta-/Weiß-Säume in mehreren Durchgängen entfernt
+  (Magenta-Defringe → kantenbeschränkte Rosa/Blau/Weiß-Erosion → Hell-Saum-Erosion nur an
+  Silhouetten-Rändern, Innendetail geschützt). Auf dunklem Grund praktisch saumfrei.
+- **F3 verstärkt:** Kontaktschatten (breiter/dunkler) + kräftigeres `drop-shadow` → Figuren
+  deutlich besser geerdet (Gemini: „Sticker-Effekt weitgehend weg").
+- **Punkt 3 — größerer TV:** `BroadcastScreen` von 230×172 auf **273×204** — der Röhren-TV
+  füllt die Leisten-Höhe jetzt aus und ist linker Blickfang (Testbild/Loch/Scanlines skalieren
+  %-basiert mit).
+
+**Gemini-Verlauf (Zweitmeinung, dieselbe Skala):** 5/10 (Säume/Sticker) → 6/10 (wärmer) →
+**7/10** („solide und stimmig, fügt sich gut in die UI ein"). Verbleibendes Gemini-#1:
+**gerichtete Lampen-Beleuchtung von links** (warme Highlights links, tiefere Schatten rechts)
+— der letzte „perfekt"-Schliff, per Lighting-Regen-Runde.
+
+**Gate grün:** `tsc` sauber · `vitest` 630/630 · `build` ok · `assets.json` valide (316 Assets).
+*(Nebenbei: `tools/asset-pipeline` hat 2 **vorbestehende**, unabhängige Test-Fails —
+`prop_server_rack`-Brutalismus + ein 64-px-Sheet — unverändert durch diese Arbeit.)*
+**Offen für „darüber hinaus":** höher aufgelöste Figuren-Frames (Texel-Dichte) + gerichtete
+Lampen-Beleuchtung.
 
 ---
 
