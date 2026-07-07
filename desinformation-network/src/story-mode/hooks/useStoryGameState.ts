@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   StoryEngineAdapter,
   createStoryEngine,
@@ -31,6 +31,8 @@ import { playSound } from '../utils/SoundSystem';
 import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
 import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
 import { getBetrayalSystem } from '../engine/BetrayalSystem';
+import { getActionLoader } from '../engine/ActionLoader';
+import { buildAngebot, renderBestaetigung, renderWettstreit, renderUebergangen } from '../engine/BeraterRegie';
 import type { BetrayalState, BetrayalEvent, BetrayalWarning, BetrayalGrievance } from '../engine/BetrayalSystem';
 import { getCrisisMomentSystem } from '../engine/CrisisMomentSystem';
 import type { ActiveCrisis, CrisisResolution } from '../engine/CrisisMomentSystem';
@@ -96,7 +98,9 @@ function buildQueuedAction(
  * Kontextuelle Maßnahmen-Angebote eines NPCs als Dialog-Optionen (Aktion aus Dialog, P1a).
  * Gefiltert nach `npc_affinity` + Verfügbarkeit (freigeschaltet & ungenutzt). Owner-Entscheidung 1:
  * Maßnahmen entstehen im Gespräch beim zuständigen NPC, nicht aus einer flachen Liste am Brett.
- * Beschriftung mit der plakativen Überschrift (B5), Präfix ▸ grenzt sie von Gesprächsthemen ab.
+ * Beschriftung mit dem Plan-Namen (Infinitiv `label_de`) — ein Angebot, etwas zu
+ * TUN, nicht die Perfekt-Schlagzeile (die beschreibt das erledigte Ergebnis und
+ * erzeugt sonst einen Tempus-Widerspruch). Präfix ▸ grenzt sie von Gesprächsthemen ab.
  */
 export function buildActionOfferChoices(
   actions: StoryAction[],
@@ -108,9 +112,23 @@ export function buildActionOfferChoices(
     .slice(0, max)
     .map((a) => ({
       id: `action_${a.id}`,
-      text: `▸ ${a.headline_de || a.label_de}`,
+      text: `▸ ${a.label_de}`,
       cost: { ap: 1, budget: a.costs.budget },
     }));
+}
+
+/**
+ * R2/R4 (Berater-Regie): Menge der NPC-ids, die aktuell ein verfügbares
+ * Maßnahmen-Angebot in ihrem Korb haben. Grundlage für „konkurrierende
+ * Angebote" (Wettstreit-Spitze) und „übergangen werden".
+ */
+export function npcsWithOffers(actions: StoryAction[]): Set<string> {
+  const set = new Set<string>();
+  for (const a of actions) {
+    if (!a.available) continue;
+    for (const npc of a.npcAffinity ?? []) set.add(npc);
+  }
+  return set;
 }
 
 /**
@@ -432,6 +450,11 @@ export function useStoryGameState(seed?: string) {
   // Dialog
   const [currentDialog, setCurrentDialog] = useState<DialogState | null>(null);
 
+  // R4 (Berater-Regie): NPCs, die bei einer Angebots-Entscheidung übergangen
+  // wurden — beim nächsten Besuch reagieren sie darauf. In-Session (Ref, keine
+  // Persistenz über Save/Load — s. AUFTRAG_2026-07-06 §Folgeschritte).
+  const passedOverRef = useRef<Set<string>>(new Set());
+
   // Advisor System
   const [recommendations, setRecommendations] = useState<AdvisorRecommendation[]>([]);
 
@@ -612,6 +635,7 @@ export function useStoryGameState(seed?: string) {
     useDirectorStore.getState().reset();
     // Erkenntnis-Dossier zurücksetzen (keine Befunde aus einem früheren Spiel).
     useDossierStore.getState().reset();
+    passedOverRef.current.clear(); // R4: übergangene NPCs nicht ins neue Spiel schleppen
     setDecisionBeatResult(null);
 
     // Load available actions from engine
@@ -682,11 +706,28 @@ export function useStoryGameState(seed?: string) {
       if (action) {
         setActionQueue(prev => [...prev, buildQueuedAction(action)]);
         playSound('click');
-        const headline = action.headline_de || action.label_de;
+        // R4: Alle anderen NPCs, die JETZT ebenfalls ein Angebot hätten, gelten
+        // als übergangen — sie reagieren beim nächsten Besuch (nicht der gewählte).
+        for (const rival of npcsWithOffers(availableActions)) {
+          if (rival !== activeNpcId) passedOverRef.current.add(rival);
+        }
+        passedOverRef.current.delete(activeNpcId);
+        // 3. Takt der Berater-Regie (Auftrag 2026-07-06): substanzielle Bestätigung
+        // in der Stimme des NPCs — Ziel/Wirkung/Freischaltung statt betoniertem
+        // Einheitssatz. `getActionLoader` liefert die Roh-Aktion (unlocks/effects),
+        // Labels der Freischaltungen werden über denselben Loader aufgelöst.
+        const loader = getActionLoader();
+        const raw = loader.getAction(action.id);
+        const bestaetigung = raw
+          ? renderBestaetigung(
+              buildAngebot(raw, activeNpcId, (id) => loader.getAction(id)?.label_de),
+              Math.random(),
+            )
+          : `Verstanden. Ich bringe „${action.label_de}" auf den Weg.`;
         setCurrentDialog({
           speaker: npc?.name || activeNpcId,
           speakerTitle: npc?.role_de,
-          text: `Gut. „${headline}" liegt jetzt auf dem Sendeplan. An der Narrativ-Tafel ordnen Sie die Maßnahme ein und spielen sie aus.`,
+          text: bestaetigung,
           mood: 'neutral',
           choices: [
             { id: 'back_to_npc', text: 'Weitere Maßnahme besprechen' },
@@ -1543,6 +1584,29 @@ export function useStoryGameState(seed?: string) {
     const episodeOffers = buildEpisodeOfferChoices(engine.getOfferableEpisodes(npcId));
     // P1a: kontextuelle Maßnahmen-Angebote dieses NPCs (Aktion aus Dialog).
     const actionOffers = buildActionOfferChoices(availableActions, npcId);
+
+    // R4 (Berater-Regie): Wurde dieser NPC bei einer früheren Angebots-
+    // Entscheidung übergangen, reagiert er beim Wiedersehen — in seiner Stimme.
+    if (passedOverRef.current.has(npcId)) {
+      const line = renderUebergangen(npcId, Math.random());
+      if (line) {
+        greetingText = `${line}\n\n${greetingText}`;
+        greetingVoiceId = undefined; // zusammengesetzter Text ist nicht vertont
+      }
+      passedOverRef.current.delete(npcId);
+    }
+
+    // R2 (Berater-Regie): Bietet dieser NPC Maßnahmen an und haben RIVALEN
+    // ebenfalls Angebote, stichelt er gelegentlich gegen die Konkurrenz
+    // (konkurrierende Angebote — macht die Wahl spürbar).
+    const rivalsPresent = [...npcsWithOffers(availableActions)].some((n) => n !== npcId);
+    if (actionOffers.length > 0 && rivalsPresent && Math.random() < 0.4) {
+      const jab = renderWettstreit(npcId, Math.random());
+      if (jab) {
+        greetingText = `${greetingText}\n\n${jab}`;
+        greetingVoiceId = undefined;
+      }
+    }
 
     setCurrentDialog({
       speaker: npc.name,

@@ -1,0 +1,92 @@
+{
+  "meta": {
+    "id": "story-mode.formulierungsbank",
+    "version": "1.0.0",
+    "created": "2026-07-07",
+    "description": "Autoren-Zeit-Formulierungsbank für die NPC-Berater-Regie (Auftrag 2026-07-06). Pro NPC × Slot mehrere in-character Varianten. Zur Laufzeit füllt BeraterRegie.ts die Platzhalter deterministisch — kein LLM im Spiel. Verbindliches Schreib-Gate: docs/NPC_VOICE_PROFILES.md (Marker/Tabus/Register). KEIN Möbel-/Dev-Vokabular (Sendeplan, Narrativ-Tafel, Maßnahme ausspielen).",
+    "slots": {
+      "ziel": "Name der Zielperson (Eigenname), z. B. 'Dr. Ferro' — nur wenn ein Ziel gebunden ist",
+      "wirkungNomen": "Nominalphrase der Wirkung, agreement-sicher als Akkusativ-Objekt gebaut, z. B. 'ihre wunden Punkte'",
+      "freischaltung": "in Anführungszeichen gesetzter Aktions-Name (Infinitiv), z. B. 'Person erpressen' — was danach möglich wird",
+      "budget": "Budget-Kosten als Zahl (Einheit steht im Template, nie im Slot)",
+      "kapazitaet": "Kapazitäts-Kosten als Zahl"
+    },
+    "regeln": [
+      "Jede Variante deklariert `needs`: die Slots, die sie zwingend braucht. Der Renderer wählt die reichste erfüllbare Variante.",
+      "Slots stehen an agreement-neutralen Stellen: freischaltung immer in Anführungszeichen (wirkt wie Eigenname), wirkungNomen als Akkusativ-Objekt.",
+      "Varianten mit needs:[] sind der sichere Rückfall, wenn nichts abgeleitet werden kann."
+    ]
+  },
+  "npcs": {
+    "direktor": {
+      "bestaetigung": [
+        { "needs": ["freischaltung"], "text_de": "Angenommen. Ist das erledigt, öffnet sich {freischaltung}. Enttäuschen Sie mich nicht.", "text_en": "Approved. Once it is done, {freischaltung} opens up. Do not disappoint me." },
+        { "needs": ["ziel", "freischaltung"], "text_de": "{ziel}. Gut. Danach steht {freischaltung} offen — und ich erwarte, dass Sie es nutzen.", "text_en": "{ziel}. Good. After that {freischaltung} is on the table — and I expect you to use it." },
+        { "needs": ["wirkungNomen"], "text_de": "Angenommen. Das bringt uns {wirkungNomen}. Ergebnisse, keine Absichten.", "text_en": "Approved. That gets us {wirkungNomen}. Results, not intentions." },
+        { "needs": [], "text_de": "Angenommen. Setzen Sie es um. Ich messe Sie am Ausgang.", "text_en": "Approved. Get it done. I judge you by the outcome." }
+      ],
+      "wettstreit": [
+        { "needs": [], "text_de": "Die anderen reden. Ich entscheide, was gebraucht wird.", "text_en": "The others talk. I decide what is needed." }
+      ],
+      "uebergangen": [
+        { "needs": [], "text_de": "Sie haben anders entschieden. Zur Kenntnis genommen. Es zählt, was am Ende auf dem Tisch liegt.", "text_en": "You decided otherwise. Noted. What counts is what lands on the table in the end." }
+      ]
+    },
+    "marina": {
+      "bestaetigung": [
+        { "needs": ["freischaltung"], "text_de": "Perfekt. Ist das durch, geht {freischaltung} — und das geht durch die Decke.", "text_en": "Perfect. Once that lands, {freischaltung} is in reach — and it goes through the roof." },
+        { "needs": ["ziel", "wirkungNomen"], "text_de": "{ziel}? Überlassen Sie das mir. In drei Tagen bringt uns das {wirkungNomen}.", "text_en": "{ziel}? Leave it to me. In three days that gets us {wirkungNomen}." },
+        { "needs": ["wirkungNomen"], "text_de": "Sehr gut. Das bringt uns {wirkungNomen} — Reichweite schlägt Wahrheit, jeden Tag.", "text_en": "Very good. That gets us {wirkungNomen} — reach beats truth, every day." },
+        { "needs": [], "text_de": "Genau mein Ding. Geben Sie mir das Thema, ich gebe Ihnen den Trend.", "text_en": "Exactly my thing. Give me the topic, I give you the trend." }
+      ],
+      "wettstreit": [
+        { "needs": [], "text_de": "Vergessen Sie die Vorsicht der anderen. Sichtbarkeit gewinnt, nicht Stille.", "text_en": "Forget the others' caution. Visibility wins, not silence." }
+      ],
+      "uebergangen": [
+        { "needs": [], "text_de": "Sie hätten den Trend haben können. Nächstes Mal hören Sie auf die, die weiß, wie Aufmerksamkeit funktioniert.", "text_en": "You could have had the trend. Next time listen to the one who knows how attention works." }
+      ]
+    },
+    "alexei": {
+      "bestaetigung": [
+        { "needs": ["freischaltung"], "text_de": "In Ordnung. Ist es sauber durch, steht {freischaltung} offen. Überdrehen Sie es nicht — jede Spur ist eine Spur.", "text_en": "Fine. Once it is clean, {freischaltung} is available. Do not overdo it — every trace is a trace." },
+        { "needs": ["wirkungNomen"], "text_de": "Machbar. Das bringt {wirkungNomen}. Es kauft Ihnen Zeit, keine Unsichtbarkeit.", "text_en": "Doable. That yields {wirkungNomen}. It buys you time, not invisibility." },
+        { "needs": ["ziel"], "text_de": "{ziel}, verstanden. Ich halte die Spuren flach. Wenn Sie drängen, sieht es jeder mit Logzugang.", "text_en": "{ziel}, understood. I keep the traces low. If you push, anyone with log access sees it." },
+        { "needs": [], "text_de": "In Ordnung. Ich setze es auf — vorsichtig. Ich habe gewarnt, falls es später eng wird.", "text_en": "Fine. I set it up — carefully. I warned you, in case it gets tight later." }
+      ],
+      "wettstreit": [
+        { "needs": [], "text_de": "Die anderen verkaufen Ihnen Tempo. Ich verkaufe Ihnen, dass es hinterher niemand nachweist.", "text_en": "The others sell you speed. I sell you that no one proves it afterward." }
+      ],
+      "uebergangen": [
+        { "needs": [], "text_de": "Sie sind den lauten Weg gegangen. Notiert. Ich sage nur: die Forensik vergisst nichts.", "text_en": "You took the loud road. Noted. I only say: forensics forgets nothing." }
+      ]
+    },
+    "katja": {
+      "bestaetigung": [
+        { "needs": ["ziel", "freischaltung"], "text_de": "Gut — ich nehme mir {ziel} vor. Ist das durch, steht {freischaltung} offen. Ihre Entscheidung, wie weit wir gehen.", "text_en": "Good — I take on {ziel}. Once it is done, {freischaltung} is open. Your call how far we go." },
+        { "needs": ["freischaltung"], "text_de": "Läuft. Wenn's steht, haben wir {freischaltung} in der Hand.", "text_en": "On it. When it holds, we have {freischaltung} in hand." },
+        { "needs": ["wirkungNomen"], "text_de": "Mach ich. Das bringt uns {wirkungNomen} — ohne Lärm, echte Gesichter.", "text_en": "I'll do it. That gets us {wirkungNomen} — no noise, real faces." },
+        { "needs": [], "text_de": "Verstanden. Ich setz das an; Sie hören von mir, wenn's steht.", "text_en": "Understood. I'll set it up; you hear from me when it holds." }
+      ],
+      "wettstreit": [
+        { "needs": [], "text_de": "Die reden über Reichweite und Logs. Im Feld hält kein Plan — aber meine Leute liefern.", "text_en": "They talk reach and logs. In the field no plan survives — but my people deliver." }
+      ],
+      "uebergangen": [
+        { "needs": [], "text_de": "Sie haben's anders geregelt. Passt. Meine Leute standen bereit — merken Sie sich das.", "text_en": "You handled it differently. Fine. My people were ready — remember that." }
+      ]
+    },
+    "igor": {
+      "bestaetigung": [
+        { "needs": ["freischaltung", "budget"], "text_de": "Gebucht: {budget} Taler. Ist es abgeschrieben, steht {freischaltung} offen. Jeder Taler hat einen Namen.", "text_en": "Booked: {budget} taler. Once amortized, {freischaltung} is available. Every taler has a name." },
+        { "needs": ["budget"], "text_de": "{budget} Taler, notiert. Das rechnet sich — knapp, aber es rechnet sich.", "text_en": "{budget} taler, logged. It pays off — barely, but it pays off." },
+        { "needs": ["wirkungNomen"], "text_de": "Gut. Das bringt {wirkungNomen}. Auf dem Papier sauber, drei Schichten dazwischen.", "text_en": "Good. That yields {wirkungNomen}. Clean on paper, three shells in between." },
+        { "needs": [], "text_de": "Verbucht. Ich lege die Spur so, dass sie im Prüfbericht nicht auftaucht.", "text_en": "Booked. I lay the trail so it never shows up in the audit." }
+      ],
+      "wettstreit": [
+        { "needs": [], "text_de": "Reichweite gemietet, Feld teuer, Technik riskant. Rechnen Sie nach, bevor Sie zahlen.", "text_en": "Reach is rented, field is costly, tech is risky. Do the math before you pay." }
+      ],
+      "uebergangen": [
+        { "needs": [], "text_de": "Sie haben teurer eingekauft, als nötig. Steht so in meinem Buch. Geld hinterlässt Fingerabdrücke.", "text_en": "You bought dearer than needed. It is in my book. Money leaves fingerprints." }
+      ]
+    }
+  }
+}

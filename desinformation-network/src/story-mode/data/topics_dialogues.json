@@ -108,8 +108,8 @@
       "deep": [
         {
           "id": "topic_mission_deep_1",
-          "text_de": "Unser Fortschritt liegt bei {objective_progress}. Das Risiko steht bei {risk_value} - {risk_state}.",
-          "text_en": "Our progress is at {objective_progress}. Risk is at {risk_value} - {risk_state}.",
+          "text_de": "Unser Fortschritt: {objective_progress}. Das Risiko: {risk_value} — {risk_state}.",
+          "text_en": "Our progress: {objective_progress}. Risk: {risk_value} — {risk_state}.",
           "tone": "analytical",
           "probability": 0.7,
           "phase_range": [
@@ -130,8 +130,8 @@
         },
         {
           "id": "topic_mission_deep_3",
-          "text_de": "Wir haben {budget_value} zur Verfügung - {budget_state}. Jede Aktion muss sich rechnen.",
-          "text_en": "We have {budget_value} available - {budget_state}. Every action must pay off.",
+          "text_de": "Wir haben {budget_value} zur Verfügung: {budget_state}. Jede Aktion muss sich rechnen.",
+          "text_en": "We have {budget_value} available: {budget_state}. Every action must pay off.",
           "tone": "pragmatic",
           "probability": 0.4,
           "phase_range": [
@@ -217,8 +217,8 @@
       "intro": [
         {
           "id": "topic_resources_intro_1",
-          "text_de": "Budget ist {budget_state}. Mit {budget_value} müssen wir priorisieren.",
-          "text_en": "Budget is {budget_state}. With {budget_value} we must prioritize.",
+          "text_de": "Budget ist {budget_state}: {budget_value}. Wir müssen priorisieren.",
+          "text_en": "Budget is {budget_state}: {budget_value}. We must prioritize.",
           "tone": "serious",
           "probability": 0.6,
           "phase_range": [
@@ -238,7 +238,7 @@
         },
         {
           "id": "topic_resources_intro_2",
-          "text_de": "Die Ressourcenlage ist {budget_state}. Die Zentrale wird nicht endlos nachschiessen.",
+          "text_de": "Die Ressourcenlage ist {budget_state}. Die Zentrale wird nicht endlos nachschießen.",
           "text_en": "The resource situation is {budget_state}. Central won't keep funding indefinitely.",
           "tone": "warning",
           "probability": 0.5,
@@ -270,8 +270,8 @@
         },
         {
           "id": "topic_resources_intro_4",
-          "text_de": "Mit {budget_value} können wir {budget_option_count} größere Operationen finanzieren.",
-          "text_en": "With {budget_value} we can fund {budget_option_count} major operations.",
+          "text_de": "Wir haben {budget_value}. Budget für größere Operationen: {budget_option_count}.",
+          "text_en": "We have {budget_value}. Budget for major operations: {budget_option_count}.",
           "tone": "analytical",
           "probability": 0.5,
           "phase_range": [
@@ -1389,8 +1389,8 @@
       "intro": [
         {
           "id": "topic_budget_intro_1",
-          "text_de": "Jeder Taler muss Rechenschaft ablegen. Das Budget ist {budget_state} mit {budget_value}.",
-          "text_en": "Every taler must be accounted for. Budget is {budget_state} at {budget_value}.",
+          "text_de": "Jeder Taler muss Rechenschaft ablegen. Das Budget ist {budget_state}: {budget_value}.",
+          "text_en": "Every taler must be accounted for. Budget is {budget_state}: {budget_value}.",
           "tone": "strict",
           "probability": 0.6,
           "phase_range": [
@@ -1431,8 +1431,8 @@
         },
         {
           "id": "topic_budget_intro_3",
-          "text_de": "Die Finanzlage ist {budget_state}. Mit {budget_value} haben wir Spielraum.",
-          "text_en": "Financial situation is {budget_state}. With {budget_value} we have room to maneuver.",
+          "text_de": "Die Finanzlage ist {budget_state}. Wir haben {budget_value} Spielraum.",
+          "text_en": "Financial situation is {budget_state}. We have {budget_value} of room to maneuver.",
           "tone": "satisfied",
           "probability": 0.4,
           "phase_range": [
@@ -1559,8 +1559,8 @@
         },
         {
           "id": "topic_fronts_deep_2",
-          "text_de": "Die Medienproduktionsfirma ist besonders nuetzlich - sie erklaert unsere Content-Aktivitaeten.",
-          "text_en": "The media production company is particularly useful - it explains our content activities.",
+          "text_de": "Die Medienproduktionsfirma ist besonders nützlich: Sie erklärt unsere Inhalte.",
+          "text_en": "The media production company is particularly useful: it explains our content.",
           "tone": "satisfied",
           "probability": 0.5,
           "phase_range": [
@@ -1801,7 +1801,7 @@
         },
         {
           "speaker": "katja",
-          "text_de": "Priorisieren? Meine Kontakte haben Jahre gekostet aufzubauen. Sie zu verlieren waere teurer.",
+          "text_de": "Priorisieren? Meine Kontakte haben Jahre gekostet. Sie zu verlieren wäre teurer.",
           "text_en": "Prioritize? My contacts took years to build. Losing them would be more expensive.",
           "tone": "passionate"
         }

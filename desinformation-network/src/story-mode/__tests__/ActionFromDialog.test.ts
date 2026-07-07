@@ -1,7 +1,9 @@
 /**
  * Test für P1a — „Aktion aus Dialog": kontextuelle Maßnahmen-Angebote eines NPCs.
  * buildActionOfferChoices filtert nach npc_affinity + Verfügbarkeit, deckelt die Anzahl
- * und beschriftet mit der plakativen Überschrift (B5).
+ * und beschriftet mit dem Plan-Namen (Infinitiv `label_de`) — NICHT der Perfekt-
+ * Schlagzeile `headline_de` (Berater-Regie 2026-07-06: ein Angebot, etwas zu TUN,
+ * darf keinen Tempus-Widerspruch „erledigt vs. geplant" erzeugen).
  */
 import { describe, it, expect } from 'vitest';
 import { buildActionOfferChoices } from '../hooks/useStoryGameState';
@@ -44,10 +46,11 @@ describe('buildActionOfferChoices (Aktion aus Dialog)', () => {
     expect(offers.map(o => o.id)).toEqual(['action_1.1']); // 1.4 ist nicht verfügbar
   });
 
-  it('Choice-Id folgt der action_-Konvention und Text nutzt die Überschrift (B5)', () => {
+  it('Choice-Id folgt der action_-Konvention und Text nutzt den Plan-Namen (label_de)', () => {
     const [offer] = buildActionOfferChoices(actions, 'igor');
     expect(offer.id).toBe('action_2.1');
-    expect(offer.text).toContain('Bot-Netzwerk gestartet');
+    expect(offer.text).toContain('Label 2.1'); // Infinitiv-Plan, nicht die Perfekt-Schlagzeile
+    expect(offer.text).not.toContain('Bot-Netzwerk gestartet');
     expect(offer.cost?.budget).toBe(5);
   });
 
@@ -56,9 +59,10 @@ describe('buildActionOfferChoices (Aktion aus Dialog)', () => {
     expect(buildActionOfferChoices(many, 'katja', 3)).toHaveLength(3);
   });
 
-  it('fällt auf label_de zurück, wenn keine Überschrift gesetzt ist', () => {
-    const [offer] = buildActionOfferChoices([mk('x.1', ['katja'], true)], 'katja');
-    expect(offer.text).toContain('Label x.1');
+  it('nutzt label_de auch dann, wenn eine Überschrift gesetzt ist (kein Tempus-Widerspruch)', () => {
+    const [offer] = buildActionOfferChoices(actions, 'marina'); // 1.1 hat headline „Zielgruppe durchleuchtet"
+    expect(offer.text).toContain('Label 1.1');
+    expect(offer.text).not.toContain('durchleuchtet');
   });
 
   it('gibt nichts zurück, wenn der NPC keine passenden Aktionen hat', () => {

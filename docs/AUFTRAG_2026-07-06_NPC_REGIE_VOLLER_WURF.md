@@ -9,6 +9,14 @@
 > **Verhältnis zur Wahrheit:** ergänzt `VISION_LOCK.md` (dort als Amendment verlinkt). Bei Widerspruch
 > gewinnt weiterhin **Code/Daten**.
 
+> ✅ **UMSETZUNGSSTAND 2026-07-07 (erster Wurf gebaut, Tests grün):** R0–R6 sind als lauffähiger
+> erster Durchstich implementiert — `engine/BeraterRegie.ts` (Angebot, 3-Takt-Bestätigung,
+> `audienceFit` R3, `renderWettstreit`/`renderUebergangen`), `data/formulierungsbank.json` (5 Stimmen),
+> Verdrahtung in `hooks/useStoryGameState.ts` (betonierter Satz ersetzt, `label_de` statt `headline_de`,
+> R2-Wettstreit + R4-Übergangen), Grammatik-Fixes (Taler/Talern, „1 … Operationen", Bindestrich-Kaskade,
+> ASCII-Umlaute) und das Review-Harness `scripts/dialogue-review/lint.mjs` (`npm run dialogue-review`).
+> Typecheck + Build + 636 Story-Tests grün. **Offene Folgeschritte** unten in §12.
+
 ---
 
 ## 0. Die essenziellen Owner-Gedanken (das, was „erinnert" werden muss)
@@ -159,18 +167,18 @@ können** — Chrom auf einem Auto ohne Lenkung. Reihenfolge: **Architektur → 
 
 ## 8. Etappen (jede: Gate grün = Doppel-Review + Merkmale + Verbotsliste)
 
-| Etappe | Inhalt | Ergebnis |
+| Etappe | Inhalt | Stand (2026-07-07) |
 |---|---|---|
-| **R0 — Naht sichtbar machen** | Ist-Stand-Test (was liefert die Aktion-aus-Dialog heute?), `Angebot`-Typ + Regisseur-Skelett, Feldtausch `label_de` statt `headline_de` als Sofort-Fix | „Führen" beginnt, kein Widerspruch mehr |
-| **R1 — 3-Takt-Regie (B1)** | Aufschlag → Wahl → substanzielle Bestätigung (Ziel/Wirkung/Freischaltung) in NPC-Stimme; Möbel-Vokabular raus | Wunsch-Ablauf steht für **eine** Figur |
-| **R2 — Konkurrierende Angebote (B2)** | mehrere NPC-Körbe pro Mission; Ressourcen-Wettstreit; Auswahl-Oberfläche | „alle fragen" wird spannend |
-| **R3 — Wahrheits-Check (B4)** | Pitch ↔ Fokusgruppe; überzeugend ≠ richtig wird spürbar | didaktischer Kern beißt |
-| **R4 — Reaktive Schicht (B3)** | NPCs reagieren auf begünstigt/übergangen; Rivalität/Groll; Lerneffekte | lebendiges Berater-Ensemble |
-| **R5 — Autoren-KI-Bank (B5)** | Offline-Generierung pro NPC×Slot×Familie, geprüft, eingebacken | Formulierungs-Luxus ohne Laufzeitkosten |
-| **R6 — Dialog-Luxus-Review** | Gate über alle Vorlagen + 886 Bestandszeilen (Grammatik/Persona/EN); Blind-Attribution; Ernte-Vergleich; **Vertonungs-Freigabe (D24)** | Abnahme + Sound-Studio entriegelt |
+| **R0 — Naht sichtbar machen** | `Angebot`-Typ + Regisseur, Feldtausch `label_de` statt `headline_de` | ✅ gebaut |
+| **R1 — 3-Takt-Regie (B1)** | substanzielle Bestätigung (Ziel/Wirkung/Freischaltung) in NPC-Stimme; Möbel-Vokabular raus | ✅ gebaut (Bestätigungs-Takt; Aufschlag-Takt = Begrüßung+Angebote, vorhanden) |
+| **R2 — Konkurrierende Angebote (B2)** | NPC-Körbe je `npc_affinity`; Wettstreit-Spitze wenn Rivalen Angebote haben | ⚙️ v1: Wettstreit-Zeile verdrahtet · **offen:** Sammel-Auswahl mehrerer Körbe nebeneinander (heute: pro NPC-Besuch) |
+| **R3 — Wahrheits-Check (B4)** | `audienceFit` (Aktion→Appell→personas-Rezeptivität) getrennt von `rhetorik` | ⚙️ v1: mechanische Trennung gebaut+getestet · **offen:** Sichtbarmachung in der Entscheidungs-UI + Kopplung an FokusgruppePreTest |
+| **R4 — Reaktive Schicht (B3)** | übergangene NPCs reagieren beim nächsten Besuch | ⚙️ v1: In-Session verdrahtet · **offen:** Persistenz (Save/Load + BetrayalSystem-Grievance `ignored`), begünstigt-Reaktion, back_to_npc-Pfad |
+| **R5 — Autoren-KI-Bank (B5)** | `data/formulierungsbank.json` (5 Stimmen × Slots), Laufzeit deterministisch | ⚙️ v1 handverfasst nach Steckbrief · **offen:** Offline-LLM-Erweiterung (mehr Varianten, EN-Parität), Ziel-Bindung (`{ziel}`) |
+| **R6 — Dialog-Luxus-Review** | Harness `scripts/dialogue-review/` + Baseline + Mechanik-Fixes | ✅ Harness+Fixes gebaut · **offen:** Persona-/EN-Review der 886 Bestandszeilen, `tone` vervollständigen, Debatten-ASCII-Umlaut-Sweep, Vertonungs-Freigabe (D24) |
 
 *(Feinausplanung je Etappe bei Baubeginn — dieser Auftrag ist die Richtungs- und Prinzipien-Wahrheit,
-nicht der Bauplan jeder Zeile.)*
+nicht der Bauplan jeder Zeile. „✅ gebaut" = erster Durchstich lauffähig+getestet, nicht „fertig poliert".)*
 
 ---
 
@@ -218,3 +226,37 @@ erpressen", Ziel z. B. Dr. Lena Ferro mit `reveals_weaknesses`):**
 - Verlinkt aus `VISION_LOCK.md` (Amendment 2026-07-06), `ROADMAP.md` (Track B) und `START_HERE.md`.
 - Suchbegriffe für spätere Sessions: *Berater-Regie · NPC-Angebot · konkurrierende Angebote ·
   überzeugend ≠ richtig · Autoren-Zeit-KI · voller Wurf · 3-Takt-Dialog.*
+
+---
+
+## 12. Offene Folgeschritte (Stand 2026-07-07) & Parallel-Session-Hinweis
+
+**Gebaute Dateien (erster Durchstich):** `engine/BeraterRegie.ts`, `data/formulierungsbank.json`,
+`scripts/dialogue-review/lint.mjs` (+README), `__tests__/BeraterRegie.test.ts`; geändert:
+`hooks/useStoryGameState.ts`, `data/topics_dialogues.json`, `data/insert_library.json`,
+`__tests__/ActionFromDialog.test.ts`, `package.json`.
+
+**Bewusst als Folgeschritt offen (nicht in diesem ersten Wurf):**
+1. **R4-Persistenz:** `passedOverRef` ist In-Session (React-Ref). Für Save/Load muss das Ereignis
+   in die Engine-Save-Schicht (`saveState`/`loadState`) — dort ist auch der `BetrayalSystem`-Zustand
+   noch **nicht** eingehängt (bekannte Lücke); die vorhandene, aber nie erzeugte Grievance
+   `type:'ignored'` ist der saubere Andockpunkt. Ebenso offen: die **begünstigt**-Reaktion.
+2. **R2-Sammel-Auswahl:** heute stichelt der besuchte NPC gegen Rivalen; die eigentliche
+   *Nebeneinander*-Auswahl mehrerer NPC-Körbe (eine Entscheidungs-Oberfläche) fehlt noch. Die
+   vorhandenen `debates` in `topics_dialogues.json` (alexei↔marina, igor↔katja, direktor↔marina)
+   sind das autorierte Substrat dafür — noch nicht an die Regie angeschlossen.
+3. **R3-Sichtbarkeit:** `audienceFit` ist berechnet und getestet, aber noch nicht in der UI/Entscheidung
+   sichtbar; Kopplung an `FokusgruppePreTest` (Aktion→Appell→Milieu) fehlt (Aktionen haben heute keine
+   feste Appell-Zuordnung — nur tags-Heuristik).
+4. **R6-Rest:** Persona-/EN-Review der ~886 Bestandszeilen, `tone` vervollständigen/verwerfen,
+   **Debatten-ASCII-Umlaut-Sweep** (`nuetzt`/`staerker`/`Opportunitaeten` — bewusst NICHT angefasst,
+   s. u.), dann Vertonungs-Freigabe (D24).
+5. **Ziel-Bindung `{ziel}`:** die Bestätigung nennt heute nur dann ein Ziel, wenn eines übergeben wird;
+   die Ziel-Auswahl (`targets.json` ↔ Aktion mit `targeting_specific`) ist noch nicht an die Regie geführt.
+
+> ⚠️ **Parallel-Session-Hinweis (Owner 2026-07-07):** Dieser Umbau berührt `useStoryGameState.ts`
+> und `topics_dialogues.json` — Dateien, an denen andere Sessions arbeiten könnten. Die **Debatten**
+> (`topics_dialogues.json` §debates) wurden BEWUSST nur minimal angefasst (ein `waere`-Fix), um
+> Konflikte zu vermeiden. Wenn sich eine parallele Session hier „verhakt": zuerst diesen Auftrag +
+> `HANDOFF_2026-07-07_NPC_REGIE.md` lesen, dann `git`-seitig zusammenführen (die Regie liegt gekapselt
+> in `engine/BeraterRegie.ts` + `data/formulierungsbank.json` — der Hook-Eingriff ist klein und lokal).
