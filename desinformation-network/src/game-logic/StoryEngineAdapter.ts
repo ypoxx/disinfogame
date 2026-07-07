@@ -152,6 +152,7 @@ import {
   type DaempfungsErklaerung,
 } from '../story-mode/engine/MaschenGedaechtnis';
 import { loadAudience, type AudienceSegment } from '../story-mode/audience/audienceModel';
+import { vortestMasche, type MaschenVortestResult } from '../story-mode/audience/maschenVortest';
 import { loadDisinfoMethods } from '../story-mode/engine/DisinfoMethodAtlas';
 
 import {
@@ -4619,6 +4620,24 @@ export class StoryEngineAdapter {
       })),
       multiplikator: d.multiplikator,
     };
+  }
+
+  /**
+   * Fokusgruppen-Vortest (Redesign): dieselbe Live-Kette wie getMaschenVorschau, aber über
+   * ALLE Resonanzgruppen und mit Resonanz/Wirkung/Stempel/geimpft je Gruppe. Read-through auf
+   * den echten Maschen-Zustand → wahre Vorschau des Wettrennens. Null, wenn Aktion unbekannt.
+   * `sampleSegmentIds` = befragte Stichprobe (Default: geführter Querschnitt = alle Gruppen).
+   */
+  getSegmentVortest(actionId: string, sampleSegmentIds?: string[]): MaschenVortestResult | null {
+    const loaded = this.actionLoader.getAction(actionId);
+    if (!loaded) return null;
+    const ids = sampleSegmentIds ?? this.audienceSegments.map((s) => s.id);
+    return vortestMasche(loaded.tags ?? [], ids, {
+      segmente: this.audienceSegments,
+      gedaechtnis: this.maschenGedaechtnis,
+      phase: this.storyPhase.number,
+      families: this.methodFamilies,
+    });
   }
 
   /**
