@@ -43,9 +43,10 @@ import { NpcRoomView } from './building/NpcRoomView';
 import { NewsroomView, derivePosts } from './components/NewsroomView';
 import { deriveGegenseite } from './engine/Gegenseite';
 import { FokusgruppeView } from './components/FokusgruppeView';
-import { FokusgruppePreTest, FOKUSGRUPPE_COST } from './components/FokusgruppePreTest';
+import { FOKUSGRUPPE_COST } from './components/FokusgruppePreTest';
+import { MaschenVortestView } from './components/MaschenVortestView';
 import personasJson from './data/personas.json';
-import type { Persona } from './audience/fokusgruppeModel';
+import type { PersonaLite } from './audience/maschenVortest';
 import { OperationsAkteView, type AkteSelection } from './components/OperationsAkteView';
 import { loadTargets, loadCarriers, loadPlatforms } from './battlefield/BattlefieldChain';
 import { DayClock } from './components/DayClock';
@@ -58,7 +59,6 @@ import { useDayClockStore, TIME_COST } from './stores/dayClockStore';
 import { installVqaBase, publishVqa } from './harness/vqaHook';
 import { usePanelStore } from './stores/panelStore';
 import { useDirectorStore } from './stores/directorStore';
-import { useDossierStore } from './stores/dossierStore';
 import { SidePanel } from './components/SidePanel';
 import { LagebildView } from './components/LagebildView';
 import { NarrativeBoard } from './components/NarrativeBoard';
@@ -369,8 +369,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const directorBeat = useDirectorStore((s) => s.currentBeat);
   // Spine Slice 4: ein offener Entscheidungs-Beat, den die UI nach dem Briefing präsentiert.
   const pendingDecisionBeatId = useDirectorStore((s) => s.pendingDecisionBeatId);
-  // Erkenntnis-Dossier: über Runden gesammelte Fokusgruppen-Befunde (Sweet Spots + Arcs).
-  const dossierFindings = useDossierStore((s) => s.findings);
   const [showEncyclopedia, setShowEncyclopedia] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [selectedAdvisorNpc, setSelectedAdvisorNpc] = useState<string | null>(null);
@@ -1237,43 +1235,20 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
         {/* Fokusgruppe Pre-Test (beauftragbar): Appell + Stichprobe testen, Sample-Bias aufdecken. */}
         {showPreTest && (
-          <FokusgruppePreTest
-            personas={personasJson.personas as unknown as Persona[]}
+          // Redesign: konkrete Masche gegen die 8 Resonanzgruppen vortesten (statt abstrakter Appelle).
+          // „MASCHE STARTEN" reiht genau diese Aktion in den Sendeplan (Brücke Analyse → Tat).
+          <MaschenVortestView
+            maschen={state.engine.getVortestMaschen()}
+            gruppen={audience.country.segments.map((seg) => ({ id: seg.id, label_de: seg.label_de, size: seg.size }))}
+            personas={personasJson.personas.map((p): PersonaLite => ({ name: p.name, segmentId: p.segmentId }))}
             budget={state.resources.budget}
+            cost={FOKUSGRUPPE_COST}
+            // Profi-Stichprobe (freie Auswahl) erst nach der Einarbeitung — geführter Querschnitt ist Standard.
+            allowFreeSample={state.storyPhase.number >= 8}
+            freeSampleLockHint="Erst wenn die Resonanzgruppen sitzen, dürfen Sie die Stichprobe selbst schneiden."
+            runVortest={(actionId, sampleIds) => state.engine.getSegmentVortest(actionId, sampleIds)}
             onCommission={() => { if (commissionFokusgruppe(FOKUSGRUPPE_COST)) endPhase(); }}
-            // Kampagnen-Schmiede: Rosters + Lage speisen die Empfehlungen (Brücke Analyse → Tat).
-            segments={audience.country.segments.map((seg) => ({
-              id: seg.id,
-              label_de: seg.label_de,
-              size: seg.size,
-              belief: seg.belief,
-            }))}
-            targets={loadTargets()}
-            carriers={loadCarriers()}
-            platforms={loadPlatforms()}
-            factcheckPressure={state.resources.attention / 100}
-            saturation={state.resources.risk / 100}
-            onLaunchCampaign={(seed) => {
-              // Empfehlung übernehmen → Akte vorbefüllt öffnen (Pre-Test schließen).
-              setOperationSeed(seed);
-              setOperationQueue([]);
-              setSeedKey((k) => k + 1);
-              setShowPreTest(false);
-              setShowOperationsAkte(true);
-            }}
-            onPlanCampaigns={(seeds) => {
-              // Arc-Sequenz: erste Kampagne in die Akte, Rest wartet in der Warteschlange.
-              if (seeds.length === 0) return;
-              setOperationSeed(seeds[0]);
-              setOperationQueue(seeds.slice(1));
-              setSeedKey((k) => k + 1);
-              setShowPreTest(false);
-              setShowOperationsAkte(true);
-            }}
-            // Erkenntnis-Dossier: Befunde sammeln (über Runden) + Arcs ableiten.
-            dossier={dossierFindings}
-            phase={state.storyPhase.number}
-            onRecordFindings={(f) => useDossierStore.getState().record(f)}
+            onLaunchMasche={(actionId) => { addToQueue(actionId); setShowPreTest(false); }}
             onClose={() => setShowPreTest(false)}
           />
         )}

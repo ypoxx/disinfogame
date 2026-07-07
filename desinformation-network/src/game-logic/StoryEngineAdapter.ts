@@ -152,7 +152,7 @@ import {
   type DaempfungsErklaerung,
 } from '../story-mode/engine/MaschenGedaechtnis';
 import { loadAudience, type AudienceSegment } from '../story-mode/audience/audienceModel';
-import { vortestMasche, type MaschenVortestResult } from '../story-mode/audience/maschenVortest';
+import { vortestMasche, cardRegister, type MaschenVortestResult, type MascheKarte } from '../story-mode/audience/maschenVortest';
 import { loadDisinfoMethods } from '../story-mode/engine/DisinfoMethodAtlas';
 
 import {
@@ -4628,6 +4628,25 @@ export class StoryEngineAdapter {
    * den echten Maschen-Zustand → wahre Vorschau des Wettrennens. Null, wenn Aktion unbekannt.
    * `sampleSegmentIds` = befragte Stichprobe (Default: geführter Querschnitt = alle Gruppen).
    */
+  /** Die botschaftstragenden Phänomen-Maschen (11.x) als Vortest-Karten (Draußen-O-Ton + Register). */
+  getVortestMaschen(): MascheKarte[] {
+    return this.actionLoader
+      .getAllActions()
+      .filter((a) => a.id.startsWith('11.'))
+      .map((a) => {
+        const reg = cardRegister(a.tags ?? [], this.methodFamilies);
+        return {
+          id: a.id,
+          label_de: a.label_de,
+          botschaft_de: a.botschaft_de ?? a.narrative_de ?? '',
+          headline_de: a.headline_de ?? '',
+          familieLabel: reg.familieLabel,
+          themen: reg.themen,
+          kanal: reg.kanal,
+        };
+      });
+  }
+
   getSegmentVortest(actionId: string, sampleSegmentIds?: string[]): MaschenVortestResult | null {
     const loaded = this.actionLoader.getAction(actionId);
     if (!loaded) return null;

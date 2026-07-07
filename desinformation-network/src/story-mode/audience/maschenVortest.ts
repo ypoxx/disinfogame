@@ -89,6 +89,82 @@ export interface VortestContext {
   families: FamilieRef[];
 }
 
+/** Eine im Vortest testbare Masche als Karte (Draußen-O-Ton + Register + Vorgriff). */
+export interface MascheKarte {
+  /** Aktions-id (z. B. „11.4") — die getestete Masche IST die spätere Aktion. */
+  id: string;
+  label_de: string;
+  /** Draußen-O-Ton (botschaft_de) oder Fallback narrative_de. */
+  botschaft_de: string;
+  /** Geghostete Sendungs-Headline (Vorgriff auf das Ausspielen). */
+  headline_de: string;
+  familieLabel: string | null;
+  themen: string[];
+  kanal: Channel;
+}
+
+// ─── Persona-O-Ton (§6): das Leitmotiv „Das ist doch…" kippt mit dem Stempel ────
+
+/** Minimal-Persona für den Stimmen-Vorgriff (Name + Gruppen-Zugehörigkeit). */
+export interface PersonaLite {
+  name: string;
+  /** Kurzform (`zorniger`) ODER `wu_`-Form — wird normalisiert. */
+  segmentId: string;
+}
+
+/** Eine repräsentative Stimme aus der Stichprobe (Vorgriff auf die Wohnzimmer-Reaktion). */
+export interface Stimme {
+  name: string;
+  gruppeLabel: string;
+  stempel: MaschenStempel;
+  geimpft: boolean;
+  /** Ein Satz in Anführungszeichen — die WELT darf laut sein. */
+  oTon: string;
+}
+
+const stimmeIntro = '»Das ist doch… ';
+/** Der O-Ton kippt am selben Satzanfang: von der Inhalts- zur Muster-/Quellen-Ebene (§6). */
+function oTonFuer(stempel: MaschenStempel, geimpft: boolean): string {
+  if (geimpft) return stimmeIntro + 'erst mal die Quelle. Von wem „hört man" das?«';
+  if (stempel === 'verbrannt') return stimmeIntro + 'immer dieselbe Masche. Nett versucht.«';
+  if (stempel === 'bekannt') return stimmeIntro + 'hatten wir das nicht schon?«';
+  return stimmeIntro + 'genau das, was hier alle spüren.«';
+}
+
+const kurzKey = (id: string): string => (id.startsWith('wu_') ? id : `wu_${id}`);
+
+/**
+ * Zwei repräsentative Stimmen zum Vortest: die stärkste (frische) Zustimmung und der
+ * schärfste (verbrannte/geimpfte) Widerstand — beide beginnen mit „Das ist doch…",
+ * enden aber verschieden (der Spieler hört die Impfung wirken). Rein/deterministisch.
+ */
+export function repraesentativeStimmen(segmente: SegmentVortest[], personas: PersonaLite[]): Stimme[] {
+  const personaFuer = (segId: string): string | null =>
+    personas.find((p) => kurzKey(p.segmentId) === segId)?.name ?? null;
+  const stimmeAus = (s: SegmentVortest): Stimme => ({
+    name: personaFuer(s.segmentId) ?? s.label_de,
+    gruppeLabel: s.label_de,
+    stempel: s.stempel,
+    geimpft: s.geimpft,
+    oTon: oTonFuer(s.stempel, s.geimpft),
+  });
+
+  const erreicht = segmente.filter((s) => s.reached && s.wirkung > 0.001);
+  // Zustimmung: stärkste Wirkung, noch frisch/bekannt und nicht geimpft.
+  const zustimmung = [...erreicht]
+    .filter((s) => !s.geimpft && s.stempel !== 'verbrannt')
+    .sort((a, b) => b.wirkung - a.wirkung)[0];
+  // Widerstand: die gewichtigste Gruppe, die wittert (geimpft ODER verbrannt).
+  const widerstand = [...segmente]
+    .filter((s) => s.wittert)
+    .sort((a, b) => b.gewicht - a.gewicht)[0];
+
+  const out: Stimme[] = [];
+  if (zustimmung) out.push(stimmeAus(zustimmung));
+  if (widerstand && widerstand.segmentId !== zustimmung?.segmentId) out.push(stimmeAus(widerstand));
+  return out;
+}
+
 /** Kühles Aktendeckel-Etikett einer Masche-Karte: Familie · Themen · Kanal (kein Lehrsatz). */
 export interface CardRegister {
   familieId: string | null;

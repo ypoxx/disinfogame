@@ -3,7 +3,8 @@
  * ECHTE Live-Kette (tags → Familie → Ziel-Gruppen → Stempel/Wirkung). Deterministisch.
  */
 import { describe, it, expect } from 'vitest';
-import { vortestMasche, cardRegister } from '../audience/maschenVortest';
+import { vortestMasche, cardRegister, repraesentativeStimmen } from '../audience/maschenVortest';
+import type { SegmentVortest } from '../audience/maschenVortest';
 import { loadAudience } from '../audience/audienceModel';
 import { leeresMaschenGedaechtnis, registriereEinsatz } from '../engine/MaschenGedaechtnis';
 import type { MethodFamilyRef } from '../engine/ImmuneSystem';
@@ -74,5 +75,48 @@ describe('vortestMasche', () => {
     expect(c.familieId).toBe('rumor_ecology');
     expect(c.themen).toContain('anti_establishment');
     expect(c.kanal).toBe('tv');
+  });
+});
+
+// ─── Persona-O-Ton (§6): das Motiv „Das ist doch…" kippt mit dem Stempel ────────
+
+const mkSeg = (over: Partial<SegmentVortest> & { segmentId: string; label_de: string }): SegmentVortest => ({
+  reached: true, resonanz: 1, gewicht: 0.3, stempel: 'frisch', geimpft: false,
+  wirkung: 1, wittert: false, kippNah: false, stoesseBisFahne: 2, ...over,
+});
+const STIMM_PERSONAS = [
+  { name: 'Doreen', segmentId: 'zorniger' },
+  { name: 'Dr. Hofer', segmentId: 'liberale' },
+];
+
+describe('repraesentativeStimmen', () => {
+  it('frische Zustimmung: Motiv auf Inhalts-Ebene, mit Persona-Name der Gruppe', () => {
+    const segmente = [
+      mkSeg({ segmentId: 'wu_zorniger', label_de: 'Die Abgehängten', wirkung: 1, stempel: 'frisch' }),
+      mkSeg({ segmentId: 'wu_liberale', label_de: 'Die Aufgeklärten', reached: false, wirkung: 0 }),
+    ];
+    const st = repraesentativeStimmen(segmente, STIMM_PERSONAS);
+    expect(st[0].name).toBe('Doreen');
+    expect(st[0].oTon).toMatch(/Das ist doch/);
+    expect(st[0].oTon).toMatch(/alle spüren/);
+  });
+
+  it('geimpfter Widerstand kippt dasselbe Motiv zur Quellen-Ebene', () => {
+    const segmente = [
+      mkSeg({ segmentId: 'wu_zorniger', label_de: 'Die Abgehängten', wirkung: 1, stempel: 'frisch' }),
+      mkSeg({ segmentId: 'wu_liberale', label_de: 'Die Aufgeklärten', wirkung: 0.2, gewicht: 0.4, geimpft: true, wittert: true }),
+    ];
+    const st = repraesentativeStimmen(segmente, STIMM_PERSONAS);
+    expect(st).toHaveLength(2);
+    const hofer = st.find((s) => s.name === 'Dr. Hofer')!;
+    expect(hofer.geimpft).toBe(true);
+    expect(hofer.oTon).toMatch(/Quelle/);
+    // Beide beginnen gleich, enden verschieden — der Spieler „hört" die Impfung.
+    expect(st.every((s) => s.oTon.startsWith('»Das ist doch…'))).toBe(true);
+  });
+
+  it('ohne erreichte Gruppe keine Stimme (nichts verfängt)', () => {
+    const segmente = [mkSeg({ segmentId: 'wu_liberale', label_de: 'Die Aufgeklärten', reached: false, wirkung: 0 })];
+    expect(repraesentativeStimmen(segmente, STIMM_PERSONAS)).toHaveLength(0);
   });
 });
