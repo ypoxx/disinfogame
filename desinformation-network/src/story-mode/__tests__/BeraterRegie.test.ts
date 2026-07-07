@@ -18,6 +18,7 @@ import {
 } from '../engine/BeraterRegie';
 import type { RawAction } from '../engine/ActionLoader';
 import { getActionLoader } from '../engine/ActionLoader';
+import bank from '../data/formulierungsbank.json';
 
 /** Minimale Roh-Aktion für die Appell-/Fit-Tests. */
 const mkAction = (tags: string[]): RawAction => ({
@@ -92,6 +93,20 @@ describe('BeraterRegie — renderVariante wählt die reichste erfüllbare Varian
   });
   it('nimmt die reichste, wenn a und b vorhanden', () => {
     expect(renderVariante(varianten, { a: 'X', b: 'Y' }, 0)).toBe('X und Y');
+  });
+
+  it('ist gegen NaN/negatives rng abgesichert (kein Absturz)', () => {
+    expect(renderVariante(varianten, { a: 'X' }, NaN)).toBe('mit X');
+    expect(renderVariante(varianten, { a: 'X' }, -1)).toBe('mit X');
+    expect(renderVariante(varianten, {}, 0.999)).toBe('schlicht');
+  });
+
+  it('Kosten von 0 füllen keinen budget/kapazitaet-Slot (kein „0 Taler")', () => {
+    // Igor-Variante braucht {budget}; bei budget=0 fällt sie auf eine kostenlose zurück.
+    const gratis = buildAngebot(mkAction([]), 'igor', resolveLabel);
+    gratis.kosten = { budget: 0, kapazitaet: 0 };
+    const text = renderBestaetigung(gratis, 0);
+    expect(text).not.toMatch(/\b0 Taler\b/);
   });
 });
 
@@ -171,5 +186,27 @@ describe('BeraterRegie — R2 Wettstreit & R4 Übergangen (jede Stimme vorhanden
   it('unbekannter NPC → null (kein Absturz)', () => {
     expect(renderWettstreit('niemand', 0)).toBeNull();
     expect(renderUebergangen('niemand', 0)).toBeNull();
+  });
+});
+
+describe('BeraterRegie — Bank-Integrität (keine unbekannten Slots)', () => {
+  const KNOWN = new Set(['ziel', 'wirkungNomen', 'freischaltung', 'budget', 'kapazitaet']);
+
+  it('jeder {slot} in der Formulierungsbank ist ein bekannter Slot', () => {
+    const offenders: string[] = [];
+    for (const [npc, groups] of Object.entries((bank as { npcs: Record<string, Record<string, Array<{ text_de: string; needs?: string[] }>>> }).npcs)) {
+      for (const [group, varianten] of Object.entries(groups)) {
+        for (const v of varianten) {
+          for (const m of v.text_de.matchAll(/\{(\w+)\}/g)) {
+            if (!KNOWN.has(m[1])) offenders.push(`${npc}.${group}: {${m[1]}}`);
+          }
+          // needs müssen ebenfalls bekannte Slots sein
+          for (const n of v.needs ?? []) {
+            if (!KNOWN.has(n)) offenders.push(`${npc}.${group}.needs: ${n}`);
+          }
+        }
+      }
+    }
+    expect(offenders, offenders.join(' · ')).toEqual([]);
   });
 });

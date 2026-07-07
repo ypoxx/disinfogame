@@ -1431,8 +1431,8 @@
         },
         {
           "id": "topic_budget_intro_3",
-          "text_de": "Die Finanzlage ist {budget_state}. Wir haben {budget_value} Spielraum.",
-          "text_en": "Financial situation is {budget_state}. We have {budget_value} of room to maneuver.",
+          "text_de": "Die Finanzlage ist {budget_state}. In der Kasse: {budget_value}.",
+          "text_en": "Financial situation is {budget_state}. In the coffers: {budget_value}.",
           "tone": "satisfied",
           "probability": 0.4,
           "phase_range": [

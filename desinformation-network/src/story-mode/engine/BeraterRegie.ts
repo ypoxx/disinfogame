@@ -240,8 +240,9 @@ function slotsFromAngebot(a: Angebot): Record<string, string | undefined> {
     ziel: a.ziel,
     wirkungNomen: a.wirkungNomen,
     freischaltung: a.freischaltung,
-    budget: a.kosten.budget != null ? String(a.kosten.budget) : undefined,
-    kapazitaet: a.kosten.kapazitaet != null ? String(a.kosten.kapazitaet) : undefined,
+    // Kosten nur als Slot, wenn > 0 — sonst „Gebucht: 0 Taler" bei Gratis-Aktionen.
+    budget: a.kosten.budget && a.kosten.budget > 0 ? String(a.kosten.budget) : undefined,
+    kapazitaet: a.kosten.kapazitaet && a.kosten.kapazitaet > 0 ? String(a.kosten.kapazitaet) : undefined,
   };
 }
 
@@ -266,7 +267,9 @@ export function renderVariante(
   if (erfuellbar.length === 0) return null;
   const maxNeeds = Math.max(...erfuellbar.map((v) => v.needs.length));
   const reichste = erfuellbar.filter((v) => v.needs.length === maxNeeds);
-  const idx = Math.min(reichste.length - 1, Math.floor(rng * reichste.length));
+  // rng defensiv: NaN/negativ → 0 (kein undefined-Zugriff); rng≥1 fängt Math.min.
+  const r = Number.isFinite(rng) && rng >= 0 ? rng : 0;
+  const idx = Math.min(reichste.length - 1, Math.floor(r * reichste.length));
   const chosen = reichste[idx];
   const template = (locale === 'en' && chosen.text_en) || chosen.text_de;
   return fillSlots(template, slots);

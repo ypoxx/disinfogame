@@ -707,11 +707,14 @@ export function useStoryGameState(seed?: string) {
         setActionQueue(prev => [...prev, buildQueuedAction(action)]);
         playSound('click');
         // R4: Alle anderen NPCs, die JETZT ebenfalls ein Angebot hätten, gelten
-        // als übergangen — sie reagieren beim nächsten Besuch (nicht der gewählte).
+        // als übergangen — sie reagieren beim nächsten Besuch. Mit-Eigentümer der
+        // GEWÄHLTEN Aktion (mehrfaches npc_affinity) sind NICHT übergangen.
+        const gewaehlteEigner = new Set<string>(action.npcAffinity ?? []);
+        gewaehlteEigner.add(activeNpcId);
         for (const rival of npcsWithOffers(availableActions)) {
-          if (rival !== activeNpcId) passedOverRef.current.add(rival);
+          if (!gewaehlteEigner.has(rival)) passedOverRef.current.add(rival);
         }
-        passedOverRef.current.delete(activeNpcId);
+        for (const eigner of gewaehlteEigner) passedOverRef.current.delete(eigner);
         // 3. Takt der Berater-Regie (Auftrag 2026-07-06): substanzielle Bestätigung
         // in der Stimme des NPCs — Ziel/Wirkung/Freischaltung statt betoniertem
         // Einheitssatz. `getActionLoader` liefert die Roh-Aktion (unlocks/effects),
@@ -1587,11 +1590,15 @@ export function useStoryGameState(seed?: string) {
 
     // R4 (Berater-Regie): Wurde dieser NPC bei einer früheren Angebots-
     // Entscheidung übergangen, reagiert er beim Wiedersehen — in seiner Stimme.
+    // Nicht jeder Snub wird vertont (entprellt), damit es nicht bei jedem Besuch
+    // grollt; die Markierung wird so oder so verbraucht.
     if (passedOverRef.current.has(npcId)) {
-      const line = renderUebergangen(npcId, Math.random());
-      if (line) {
-        greetingText = `${line}\n\n${greetingText}`;
-        greetingVoiceId = undefined; // zusammengesetzter Text ist nicht vertont
+      if (Math.random() < 0.5) {
+        const line = renderUebergangen(npcId, Math.random());
+        if (line) {
+          greetingText = `${line}\n\n${greetingText}`;
+          greetingVoiceId = undefined; // zusammengesetzter Text ist nicht vertont
+        }
       }
       passedOverRef.current.delete(npcId);
     }
@@ -1769,6 +1776,7 @@ export function useStoryGameState(seed?: string) {
 
     try {
       engine.loadState(savedState);
+      passedOverRef.current.clear(); // R4: In-Session-Groll nicht über einen Ladevorgang schleppen
 
       // Refresh all state from engine
       setStoryPhase(engine.getCurrentPhase());
@@ -1830,6 +1838,7 @@ export function useStoryGameState(seed?: string) {
   const resetGame = useCallback(() => {
     const newEngine = createStoryEngine();
     setEngine(newEngine);
+    passedOverRef.current.clear(); // R4: übergangene NPCs nicht ins neue Spiel schleppen
 
     setGamePhase('intro');
     setStoryPhase(newEngine.getCurrentPhase());
