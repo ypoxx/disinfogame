@@ -1,6 +1,6 @@
 # 🧵 KONZEPT — Die Narrativ-Tafel wird wahr
 
-**Status:** Entwurf zur Owner-Abnahme (Analyse verifiziert, Konzept neu) · **Datum:** 2026-07-07
+**Status:** ✅ Abgenommen (Owner 2026-07-07, F-A–F-D entschieden — §11) · T1 umgesetzt (dieser Branch) · **Datum:** 2026-07-07
 **Scope:** Story · **Setzt auf:** `ZIELBILD_2026-07-04_WETTRENNEN.md` (kanonisch) ·
 `PLAN_2026-07-06_UI_LUXUS.md` (§4.1 „Terminal WÄHLT, Korkbrett PLANT", Etappe L3 offen) ·
 `KONZEPT_2026-06-14_HERZSTUECK_EPISODEN_WERTE.md` (§3.4, §14 F7=A) · `BAUPLAN_2026-06-14_HERZSTUECK.md` (P4).
@@ -212,16 +212,20 @@ beschlossene L3-Etappe; T3/T4 nach der Broadcast-Priorität (STATUS) bzw. mit de
 | R4 | Sim kippt durch Cap | Cap gilt nur der Annahme, nicht der Auszahlung; Sim-Bänder vorher/nachher |
 | R5 | Noch ein Ort für Ziele (Doppel-Messung) | Tafel zeigt nur primäres Ziel + Verweis auf die Akte (7.) |
 
-## 11. Owner-Fragen (bitte per Nummer)
+## 11. Owner-Fragen — ✅ ENTSCHIEDEN (Owner-Transkript 2026-07-07)
 
-- **F-A — Deck-Auszug:** Katalog komplett raus von der Tafel (Empfehlung, §3.6) — oder eine
-  Mini-Leiste „Heutige Empfehlung" (3–5 kuratierte) auf der Tafel behalten?
-- **F-B — Slot 3:** Freischaltung über Akt 3 (Empfehlung), über Geld-Tranche (E18) — oder doch
-  Gebäude-Wachstum später echt bauen?
-- **F-C — Framing-Bonus:** Soll das Anheften ans richtige Narrativ zusätzlich eine kleine mechanische
-  Wirkung bekommen (z. B. +Resonanz im Episoden-Milieu)? Empfehlung: **erst NICHT** — Ehrlichkeit der
-  Fläche zuerst, Bonus nur mit Sim-Beleg als T4+.
-- **F-D — Queue-Widget:** ganz ersetzen durch Tafel+Mini-Chip (Empfehlung) oder als Vollwidget behalten?
+- **F-A — Deck-Auszug: Katalog komplett raus** (Empfehlung angenommen; Owner tendierte zur
+  Mini-Leiste). Begründung der Empfehlung: Eine Mini-Leiste wäre die DRITTE kuratierte Aktions-
+  Liste (Terminal-Tür zeigt schon 3–8) und öffnet den IA-Bruch erneut; der Terminal-Sprung
+  (Taste A/Knopf) fängt den Mehr-Klick ab; die Entscheidung ist asymmetrisch reversibel —
+  Leiste später hinzufügen ist billig, wegnehmen wäre ein Bruch. **Rückfalloption:** Zeigt der
+  Playtest (L8), dass der Sprung nervt, kommt eine „Heutige Empfehlung"-Leiste nach.
+- **F-B — Slot 3: über Akt 3** („Die Wahl kippen"), diegetisch als Genehmigung der Zentrale —
+  kein Gebäude-Wachstum (K40 bleibt ungebaut). Umsetzung in T3.
+- **F-C — KEIN Framing-Bonus.** Die Spur-Zuordnung bleibt ehrliche Organisation (Daten),
+  keine Zusatz-Mechanik.
+- **F-D — Queue-Widget ersetzt:** Mini-Chip „N angeheftet" (öffnet die Tafel); das Widget
+  liegt in `archive/story-mode-drafts/`.
 
 ## 12. Definition of Done
 

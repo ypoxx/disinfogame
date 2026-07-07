@@ -13,6 +13,7 @@ dokumentiert für den Rückwärtsgang.
 | `studio/BlueprintStudio.tsx` | Entwurfs-Dashboard (#dash): Publikums-Modell-Spielwiese | Publikum läuft jetzt im Spiel: `src/story-mode/broadcast/` (Taste B) |
 | `studio/StudioScene.tsx` | Gezeichneter Gebäude-Schnitt (#studio/#blueprint), Vorstudie | `src/story-mode/building/BuildingStage.tsx` (Pixel-Querschnitt aus Baukasten-Assets) |
 | `ActionPanel-sidebar-modal.tsx` | Aktionen-Auswahl als rechte Seitenleiste + Vollbild-Modal (`variant`-Prop). Nach dem L2-Umbau (2026-07-06, „Komplett Luxus") toter Produktionscode: Maßnahmen wählt jetzt das Vorgangs-**Terminal** (Taste A, „Terminal WÄHLT, Korkbrett PLANT"). | `src/story-mode/components/TerminalView.tsx` + `terminalCuration.ts` (M2-Kuratierung). Der Kern der Karte lebt weiter als `src/story-mode/components/ActionCard.tsx` (M1-Vorgangsblatt, von TerminalView konsumiert). |
+| `ActionQueueWidget.tsx` | Schwebendes Warteschlangen-Widget unten rechts (Queue-Liste + Kosten + AUSFÜHREN/LEEREN). Nach T1 „Die Tafel wird wahr" (2026-07-07, Owner-Entscheidung F-D) dritter Parallelweg: Die Queue wird an der **Narrativ-Tafel** verwaltet (EIN Planungsort, §4.1). | `src/story-mode/components/QueuePinChip.tsx` (Mini-Chip „N angeheftet" → öffnet die Tafel) + `NarrativeBoard.tsx` (Karten an Strang-Spuren, Lösen/Ausspielen/Leeren dort). |
 
 Nur im Git-Verlauf (vollständig ersetzt, nicht kopiert):
 

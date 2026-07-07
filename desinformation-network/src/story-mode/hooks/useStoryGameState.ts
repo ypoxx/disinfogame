@@ -326,6 +326,9 @@ export interface StoryGameState {
 
   // P4/B1: aktive Episoden-Stränge (Korkbrett-Spuren)
   activeEpisodes: Episode[];
+  // T1: heute/kürzlich ausgespielte Stränge — completeEpisode entfernt sie sofort
+  // aus activeEpisodes; ohne dieses Log fehlte dem Tagesfazit der Payoff-Moment.
+  episodeAbschluesse: { id: string; titel_de: string; phase: number; total: number }[];
 
   // Trust Evolution Tracking
   trustHistory: TrustHistoryPoint[];
@@ -435,6 +438,10 @@ export function useStoryGameState(seed?: string) {
 
   // P4/B1: aktive Episoden-Stränge (Korkbrett-Spuren). Reaktiv, damit das Brett mitzieht.
   const [activeEpisodes, setActiveEpisodes] = useState<Episode[]>(() => engine.getActiveEpisodes());
+  // T1: Abschluss-Log (ephemer, nicht im Save — nur fürs Tagesfazit des laufenden Tages).
+  const [episodeAbschluesse, setEpisodeAbschluesse] = useState<
+    { id: string; titel_de: string; phase: number; total: number }[]
+  >([]);
 
   // Trust Evolution Tracking
   const [trustHistory, setTrustHistory] = useState<TrustHistoryPoint[]>(() => {
@@ -1210,6 +1217,16 @@ export function useStoryGameState(seed?: string) {
     setActiveEpisodes(engine.getActiveEpisodes());
     setResources(engine.getResources()); // wirkt_auf hat die Gesellschaftswerte bewegt
     const phaseNo = engine.getCurrentPhase().number;
+    // T1: fürs Tagesfazit merken — der Strang ist ab jetzt nicht mehr in activeEpisodes.
+    setEpisodeAbschluesse((prev) => [
+      ...prev,
+      ...justCompleted.map((ep) => ({
+        id: ep.id,
+        titel_de: ep.titel_de,
+        phase: phaseNo,
+        total: ep.einklink_aktionen.length,
+      })),
+    ]);
     // Abschluss-Beat als News (nicht-intrusiv — kein Hijack einer laufenden Dialog-Box):
     setNewsEvents((prev) => [
       ...justCompleted.map((ep) => ({
@@ -1638,6 +1655,7 @@ export function useStoryGameState(seed?: string) {
       setObjectives(engine.getObjectives());
       setActiveConsequence(engine.getActiveConsequence());
       setActiveEpisodes(engine.getActiveEpisodes());
+      setEpisodeAbschluesse([]); // ephemer — gehört nicht zum geladenen Stand
       refreshAvailableActions();
       setGamePhase('playing');
 
@@ -1694,6 +1712,7 @@ export function useStoryGameState(seed?: string) {
     setCurrentDialog(null);
     setActiveNpcId(null);
     setActiveEpisodes(newEngine.getActiveEpisodes());
+    setEpisodeAbschluesse([]);
 
     // Reset trust tracking
     const actors = newEngine.getExtendedActors();
@@ -1751,6 +1770,7 @@ export function useStoryGameState(seed?: string) {
       carrierStates,
       acquiredKompromat,
       activeEpisodes,
+      episodeAbschluesse,
       getOperationsSummary: () => engine.getOperationsSummary(),
       getActionCatalog: () => engine.getActionCatalog(),
     } as StoryGameState,

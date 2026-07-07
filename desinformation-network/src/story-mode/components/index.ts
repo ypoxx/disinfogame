@@ -13,7 +13,8 @@ export { ActionCard } from './ActionCard';
 export type { StoryAction as ActionPanelAction } from './ActionCard';
 export { TerminalView } from './TerminalView';
 
-export { ActionQueueWidget } from './ActionQueueWidget';
+// ActionQueueWidget → archive/story-mode-drafts/ (F-D: Queue-Chip statt Widget, 2026-07-07)
+export { QueuePinChip } from './QueuePinChip';
 
 export { TutorialOverlay, useTutorial, TUTORIAL_STEPS } from './TutorialOverlay';
 export type { TutorialStep } from './TutorialOverlay';

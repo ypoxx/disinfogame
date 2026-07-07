@@ -18,3 +18,26 @@ export function isQueueBudgetFeasible(queue: QueuedAction[], budget: number): bo
   }
   return true;
 }
+
+/**
+ * Gesamt-Leistbarkeit des Sendeplans: Budget prefix-genau, Kapazität/AP als Summe.
+ * EIN Prädikat für Tafel (AUSSPIELEN-Gate) und Angeheftet-Chip (Warnfarbe),
+ * damit die beiden Signale nie auseinanderdriften.
+ */
+export function istPlanLeistbar(
+  queue: QueuedAction[],
+  resources: { budget: number; capacity: number; actionPoints: number },
+): boolean {
+  const summe = queue.reduce(
+    (a, q) => ({
+      capacity: a.capacity + (q.costs.capacity || 0),
+      actionPoints: a.actionPoints + (q.costs.actionPoints || 0),
+    }),
+    { capacity: 0, actionPoints: 0 },
+  );
+  return (
+    isQueueBudgetFeasible(queue, resources.budget) &&
+    summe.capacity <= resources.capacity &&
+    summe.actionPoints <= resources.actionPoints
+  );
+}

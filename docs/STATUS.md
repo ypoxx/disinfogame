@@ -9,7 +9,21 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `GESAMTKONZEPT_VISUELL.md` → dieses Dokument für den aktuellen Bau-Stand.
 > Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
-**Stand:** 2026-07-06 (UI-LUXUS-PAKET — Etappen 0–4 GEMERGT via PR #96) · Gate grün
+**Stand:** 2026-07-07 (NARRATIV-TAFEL T1 „Wahrmachen" — PR #106, Branch
+`claude/narrative-board-mechanics-bog18k`) · Gate grün (`tsc 0` · `vitest 646` · `build`).
+> **Owner-Anlass:** „Ich verstehe die Narrativ-Tafel immer noch nicht" → Analyse + Konzept
+> **`docs/KONZEPT_2026-07-07_NARRATIV_TAFEL_INTEGRATION.md`** (abgenommen, F-A–F-D
+> entschieden) und Etappe **T1 umgesetzt**: Spuren = aktive Episoden-Stränge (Zuordnung über
+> `einklink_aktionen` statt kosmetischer index%slots-Rotation), Wendungs-Frage + Stummel-
+> Fortschritt am Strang-Kopf, Karten-Deck raus von der Tafel (§4.1: Terminal WÄHLT —
+> Sprung-Knopf/Taste A), Tagesgeschäft-Spur, echte Verfallsdaten (Füllwert „99 Phasen" und
+> „(K40)"-Dev-Kürzel raus), Hotkey **T**, DayReport-Block „Die Stränge am Brett",
+> Sperr-Grund-Tooltip an der Terminal-Karte (ARCHIV), ActionQueueWidget → `QueuePinChip`
+> (F-D; Widget in `archive/story-mode-drafts/`). Offen: **T2** (L3-Luxus: Fäden/Reiter/SFX/
+> Assets) · **T3** (Engine-Cap ≤ Slots, „Strang abhängen", Slot 3 über Akt 3 — mit
+> Sim-Beleg) · **T4** (Akt-Reiter, NPC-Nebensätze). Voriger Stand (2026-07-06) unten.
+
+**Stand zuvor:** 2026-07-06 (UI-LUXUS-PAKET — Etappen 0–4 GEMERGT via PR #96) · Gate grün
 (`tsc 0` · `vitest 630` · `build`). **Übergabe: `docs/HANDOFF_2026-07-06_UI_LUXUS.md`.**
 > Nach der Owner-Preview-Sichtung zusätzlich gefixt: Cover-Snap-Letterbox (Räume/Büros
 > füllen wieder), Queue-Widget verdeckte das Publikums-Wohnzimmer, kaputte TV-Glyphen;
