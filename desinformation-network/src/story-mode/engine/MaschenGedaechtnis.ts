@@ -268,11 +268,16 @@ export function markiereFamilieBekannt(
  *  per E16 wirkt das Publikum jetzt mechanisch zurück, also zieht sie in die Engine;
  *  die Broadcast-Anzeige importiert von hier (EIN Vokabular). */
 export const KANAL_JE_TAG: Array<[string[], Channel]> = [
-  [['digital', 'automation', 'personas', 'persona', 'online', 'amplification', 'organic'], 'social'],
-  [['academic', 'institutional', 'legitimacy', 'financial', 'expert', 'education'], 'print'],
+  // Social-native Maschen (Bot-/Flut-Familie) laufen über soziale Kanäle.
+  [['digital', 'automation', 'personas', 'persona', 'online', 'amplification', 'organic', 'bots', 'coordinated', 'flooding'], 'social'],
+  // Erinnerungs-/Geschichts-Maschen tragen über gedruckte/etablierte Kanäle (Lokalpresse, Chroniken).
+  [['academic', 'institutional', 'legitimacy', 'financial', 'expert', 'education', 'memory', 'history'], 'print'],
 ];
 
-/** Tag → Publikums-Themen (Vokabular aus audience.json meta.vulnerabilities). */
+/** Tag → Publikums-Themen (Vokabular aus audience.json meta.vulnerabilities).
+ *  Etappe „Vortest": um die Phänomen-Familien (11.x) erweitert, damit jede Masche ein
+ *  eigenes Resonanzgruppen-Profil ausleuchtet (statt pauschal auf misstrauen_medien).
+ *  Wirkt auch im Wettrennen (registerMethodFamilyUse) — Balance über die Sim geprüft. */
 export const THEMEN_JE_TAG: Record<string, string[]> = {
   political: ['anti_establishment'],
   media: ['misstrauen_medien'],
@@ -286,6 +291,33 @@ export const THEMEN_JE_TAG: Record<string, string[]> = {
   operation: ['misstrauen_medien', 'anti_establishment'],
   recruitment: ['anti_establishment'],
   espionage: ['misstrauen_medien'],
+  // ── Phänomen-Familien (11.x) ──
+  // Überflutung / Firehose → Medien-Misstrauen.
+  flooding: ['misstrauen_medien'],
+  fact_checkers: ['misstrauen_medien'],
+  disruption: ['misstrauen_medien'],
+  trust: ['misstrauen_medien'],
+  // Gerüchte-Ökologie → „die da oben" + Medien-Misstrauen.
+  rumor: ['anti_establishment', 'misstrauen_medien'],
+  conspiracy: ['anti_establishment', 'misstrauen_medien'],
+  confusion: ['misstrauen_medien'],
+  // Zermürbung / Demobilisierung → Abstiegsangst + Anti-Establishment.
+  demoralization: ['abstiegs_angst', 'anti_establishment'],
+  fear: ['abstiegs_angst', 'sicherheits_beduerfnis'],
+  emotional: ['abstiegs_angst'],
+  election: ['anti_establishment'],
+  // Krisen-Vakuum → Sicherheitsbedürfnis + Energieangst.
+  crisis: ['sicherheits_beduerfnis', 'energie_angst'],
+  // Identitäts-/Loyalitätsfalle → Sicherheit/Nostalgie (Identität) + Gerechtigkeit/Establishment (Polarisierung).
+  identity: ['sicherheits_beduerfnis', 'nostalgie'],
+  nationalism: ['sicherheits_beduerfnis', 'nostalgie'],
+  polarization: ['soziale_gerechtigkeit', 'anti_establishment'],
+  loyalty: ['nostalgie'],
+  // Erinnerungskonflikt → Nostalgie.
+  memory: ['nostalgie'],
+  history: ['nostalgie'],
+  // Allgemeine Destabilisierung → Anti-Establishment.
+  destabilization: ['anti_establishment'],
 };
 
 export const STANDARD_THEMEN = ['misstrauen_medien'];
