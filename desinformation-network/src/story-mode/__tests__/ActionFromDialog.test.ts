@@ -68,4 +68,13 @@ describe('buildActionOfferChoices (Aktion aus Dialog)', () => {
   it('gibt nichts zurück, wenn der NPC keine passenden Aktionen hat', () => {
     expect(buildActionOfferChoices(actions, 'direktor')).toEqual([]);
   });
+
+  it('R3-Sichtbarkeit: zeigt den Publikums-Appell einer Aktion (Info, kein Urteil)', () => {
+    const angst = { ...mk('7.1', ['marina'], true), tags: ['fear'] } as StoryAction;
+    const neutral = mk('7.2', ['marina'], true); // tags: []
+    const [oAngst] = buildActionOfferChoices([angst], 'marina');
+    const [oNeutral] = buildActionOfferChoices([neutral], 'marina');
+    expect(oAngst.text).toContain('spielt auf Angst');
+    expect(oNeutral.text).not.toContain('spielt auf'); // Aufbau-Aktion → kein Appell-Marker
+  });
 });

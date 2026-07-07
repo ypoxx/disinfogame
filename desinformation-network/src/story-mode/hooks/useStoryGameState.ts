@@ -32,7 +32,7 @@ import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
 import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
 import { getBetrayalSystem } from '../engine/BetrayalSystem';
 import { getActionLoader } from '../engine/ActionLoader';
-import { buildAngebot, renderBestaetigung, renderWettstreit, renderUebergangen } from '../engine/BeraterRegie';
+import { buildAngebot, renderBestaetigung, renderWettstreit, renderUebergangen, appealAusTags, type MessageAppeal } from '../engine/BeraterRegie';
 import type { BetrayalState, BetrayalEvent, BetrayalWarning, BetrayalGrievance } from '../engine/BetrayalSystem';
 import { getCrisisMomentSystem } from '../engine/CrisisMomentSystem';
 import type { ActiveCrisis, CrisisResolution } from '../engine/CrisisMomentSystem';
@@ -94,6 +94,14 @@ function buildQueuedAction(
   };
 }
 
+/** R3-Sichtbarkeit: welchen Nerv eine Aktion beim Publikum spielt (Spieler-Wort). */
+const APPELL_WORT: Record<MessageAppeal, string> = {
+  hope: 'Hoffnung',
+  fear: 'Angst',
+  anger: 'Wut',
+  trust: 'Vertrauen',
+};
+
 /**
  * Kontextuelle Maßnahmen-Angebote eines NPCs als Dialog-Optionen (Aktion aus Dialog, P1a).
  * Gefiltert nach `npc_affinity` + Verfügbarkeit (freigeschaltet & ungenutzt). Owner-Entscheidung 1:
@@ -101,6 +109,10 @@ function buildQueuedAction(
  * Beschriftung mit dem Plan-Namen (Infinitiv `label_de`) — ein Angebot, etwas zu
  * TUN, nicht die Perfekt-Schlagzeile (die beschreibt das erledigte Ergebnis und
  * erzeugt sonst einen Tempus-Widerspruch). Präfix ▸ grenzt sie von Gesprächsthemen ab.
+ *
+ * R3-Sichtbarkeit (Berater-Regie): trägt die Aktion einen Publikums-Appell, wird
+ * er als „spielt auf Angst/Wut/…" angehängt — INFO, kein Urteil. Ob der Nerv beim
+ * Ziel-Milieu sitzt, muss der Spieler selbst wissen/prüfen (überzeugend ≠ richtig).
  */
 export function buildActionOfferChoices(
   actions: StoryAction[],
@@ -110,11 +122,15 @@ export function buildActionOfferChoices(
   return actions
     .filter((a) => a.available && a.npcAffinity?.includes(npcId))
     .slice(0, max)
-    .map((a) => ({
-      id: `action_${a.id}`,
-      text: `▸ ${a.label_de}`,
-      cost: { ap: 1, budget: a.costs.budget },
-    }));
+    .map((a) => {
+      const appeal = appealAusTags(a.tags);
+      const nerv = appeal ? ` · spielt auf ${APPELL_WORT[appeal]}` : '';
+      return {
+        id: `action_${a.id}`,
+        text: `▸ ${a.label_de}${nerv}`,
+        cost: { ap: 1, budget: a.costs.budget },
+      };
+    });
 }
 
 /**

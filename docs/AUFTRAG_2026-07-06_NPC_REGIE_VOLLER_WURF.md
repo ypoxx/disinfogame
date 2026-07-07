@@ -171,9 +171,9 @@ können** — Chrom auf einem Auto ohne Lenkung. Reihenfolge: **Architektur → 
 |---|---|---|
 | **R0 — Naht sichtbar machen** | `Angebot`-Typ + Regisseur, Feldtausch `label_de` statt `headline_de` | ✅ gebaut |
 | **R1 — 3-Takt-Regie (B1)** | substanzielle Bestätigung (Ziel/Wirkung/Freischaltung) in NPC-Stimme; Möbel-Vokabular raus | ✅ gebaut (Bestätigungs-Takt; Aufschlag-Takt = Begrüßung+Angebote, vorhanden) |
-| **R2 — Konkurrierende Angebote (B2)** | NPC-Körbe je `npc_affinity`; Wettstreit-Spitze wenn Rivalen Angebote haben | ⚙️ v1: Wettstreit-Zeile verdrahtet · **offen:** Sammel-Auswahl mehrerer Körbe nebeneinander (heute: pro NPC-Besuch) |
-| **R3 — Wahrheits-Check (B4)** | `audienceFit` (Aktion→Appell→personas-Rezeptivität) getrennt von `rhetorik` | ⚙️ v1: mechanische Trennung gebaut+getestet · **offen:** Sichtbarmachung in der Entscheidungs-UI + Kopplung an FokusgruppePreTest |
-| **R4 — Reaktive Schicht (B3)** | übergangene NPCs reagieren beim nächsten Besuch | ⚙️ v1: In-Session verdrahtet · **offen:** Persistenz (Save/Load + BetrayalSystem-Grievance `ignored`), begünstigt-Reaktion, back_to_npc-Pfad |
+| **R2 — Konkurrierende Angebote (B2)** | NPC-Körbe je `npc_affinity`; Wettstreit-Spitze wenn Rivalen Angebote haben | ⚙️ v1: Wettstreit-Zeile verdrahtet · **offen:** Debatten-Vollausbau (Sammel-Auswahl nebeneinander) — s. §12 |
+| **R3 — Wahrheits-Check (B4)** | `audienceFit` (Aktion→Appell→personas-Rezeptivität) getrennt von `rhetorik` | ⚙️ v1+: mechanische Trennung getestet **und** Appell im Angebot sichtbar („spielt auf Angst/Wut/…", Info ohne Urteil) · **offen:** Konsequenz-Rückmeldung nach dem Ausspielen |
+| **R4 — Reaktive Schicht (B3)** | übergangene NPCs reagieren beim nächsten Besuch | ✅ persistent: `passedOver` in der Engine + Save/Load, BetrayalSystem eingehängt · **offen:** begünstigt-Reaktion, back_to_npc-Pfad |
 | **R5 — Autoren-KI-Bank (B5)** | `data/formulierungsbank.json` (5 Stimmen × Slots), Laufzeit deterministisch | ⚙️ v1 handverfasst nach Steckbrief · **offen:** Offline-LLM-Erweiterung (mehr Varianten, EN-Parität), Ziel-Bindung (`{ziel}`) |
 | **R6 — Dialog-Luxus-Review** | Harness `scripts/dialogue-review/` + Baseline + Mechanik-Fixes | ✅ Harness+Fixes gebaut · **offen:** Persona-/EN-Review der 886 Bestandszeilen, `tone` vervollständigen, Debatten-ASCII-Umlaut-Sweep, Vertonungs-Freigabe (D24) |
 
@@ -236,27 +236,42 @@ erpressen", Ziel z. B. Dr. Lena Ferro mit `reveals_weaknesses`):**
 `hooks/useStoryGameState.ts`, `data/topics_dialogues.json`, `data/insert_library.json`,
 `__tests__/ActionFromDialog.test.ts`, `package.json`.
 
-**Bewusst als Folgeschritt offen (nicht in diesem ersten Wurf):**
-1. **R4-Persistenz:** `passedOverRef` ist In-Session (React-Ref). Für Save/Load muss das Ereignis
-   in die Engine-Save-Schicht (`saveState`/`loadState`) — dort ist auch der `BetrayalSystem`-Zustand
-   noch **nicht** eingehängt (bekannte Lücke); die vorhandene, aber nie erzeugte Grievance
-   `type:'ignored'` ist der saubere Andockpunkt. Ebenso offen: die **begünstigt**-Reaktion.
-2. **R2-Sammel-Auswahl:** heute stichelt der besuchte NPC gegen Rivalen; die eigentliche
-   *Nebeneinander*-Auswahl mehrerer NPC-Körbe (eine Entscheidungs-Oberfläche) fehlt noch. Die
-   vorhandenen `debates` in `topics_dialogues.json` (alexei↔marina, igor↔katja, direktor↔marina)
-   sind das autorierte Substrat dafür — noch nicht an die Regie angeschlossen.
-3. **R3-Sichtbarkeit:** `audienceFit` ist berechnet und getestet, aber noch nicht in der UI/Entscheidung
-   sichtbar; Kopplung an `FokusgruppePreTest` (Aktion→Appell→Milieu) fehlt (Aktionen haben heute keine
-   feste Appell-Zuordnung — nur tags-Heuristik).
-4. **R6-Rest:** Persona-/EN-Review der ~886 Bestandszeilen, `tone` vervollständigen/verwerfen,
-   **Debatten-ASCII-Umlaut-Sweep** (`nuetzt`/`staerker`/`Opportunitaeten` — bewusst NICHT angefasst,
-   s. u.), dann Vertonungs-Freigabe (D24).
-5. **Ziel-Bindung `{ziel}`:** die Bestätigung nennt heute nur dann ein Ziel, wenn eines übergeben wird;
-   die Ziel-Auswahl (`targets.json` ↔ Aktion mit `targeting_specific`) ist noch nicht an die Regie geführt.
+**✅ Seit dem ersten Wurf erledigt (2026-07-07, zweite Welle):**
+- **R4-Persistenz:** `passedOver` liegt jetzt in der Engine (`passedOverNpcs` + `markPassedOver`/
+  `takePassedOver`/`unmarkPassedOver`/`clearPassedOver`) und übersteht Save/Load; zusätzlich ist der
+  `BetrayalSystem`-Zustand in `saveState`/`loadState` eingehängt (bekannte Datenverlust-Lücke geschlossen).
+  Tests: `SaveLoadMigration.test.ts`.
+- **R3-Sichtbarkeit (v1):** der Publikums-Appell einer Aktion erscheint im Angebot („spielt auf
+  Angst/Wut/Hoffnung/Vertrauen") — Info ohne Urteil, damit „überzeugend ≠ richtig" erhalten bleibt.
+- **R6-Persona/EN-Luxus-Review:** 49 Zeilen über zwei Review-Agenten gefixt (systematische Rollen-
+  Brüche Igor/Katja/Alexei, Ton-/Tabu-Brüche, Anglizismen, ASCII-Umlaute inkl. Debatten-Sweep).
+- **`tone`-Entscheidung:** aus `dialogues.json` wird `tone` **nirgends gelesen** (totes Metadatum) →
+  bewusst NICHT vervollständigt (wäre verschwendete Arbeit).
 
-> ⚠️ **Parallel-Session-Hinweis (Owner 2026-07-07):** Dieser Umbau berührt `useStoryGameState.ts`
-> und `topics_dialogues.json` — Dateien, an denen andere Sessions arbeiten könnten. Die **Debatten**
-> (`topics_dialogues.json` §debates) wurden BEWUSST nur minimal angefasst (ein `waere`-Fix), um
-> Konflikte zu vermeiden. Wenn sich eine parallele Session hier „verhakt": zuerst diesen Auftrag +
-> `HANDOFF_2026-07-07_NPC_REGIE.md` lesen, dann `git`-seitig zusammenführen (die Regie liegt gekapselt
-> in `engine/BeraterRegie.ts` + `data/formulierungsbank.json` — der Hook-Eingriff ist klein und lokal).
+**Weiterhin offen (bewusst als eigenständige Features mit exaktem Andockpunkt — nicht halbgar gebaut):**
+1. **R2-Debatten-Vollausbau:** Die Auswahl `engine.getDebate(tags)` (→ `DialogLoader.getDebate`) und die
+   Resolution-Effekte `unlock_action`/`lock_action` (→ `StoryEngineAdapter.processDialogueResponse:6489`)
+   existieren bereits; die `debates` (alexei↔marina, igor↔katja, direktor↔marina) sind autoriert. **Fehlt:**
+   (a) Aktion→Debatten-Trigger-Tag-Mapping (Aktions-`tags` treffen `triggered_by_tags` wie `high_risk_action`
+   nicht direkt), (b) `firedDebates`-Tracking (einmal feuern, persistent), (c) Anzeige der Turns
+   (DialogBox rendert heute EINE Message — entweder zusammengesetzter Text oder neuer Multi-Turn-Modus),
+   (d) **Design-Call: wann/wie oft** eine Debatte feuert (UX-kritisch). Aufruf-Punkt: nach `executeAction`
+   im Hook.
+2. **Ziel-Bindung `{ziel}`:** Der Regisseur setzt `{ziel}` bereits ein, wenn ein Ziel übergeben wird
+   (`buildAngebot(..., zielName)`), und `renderBestaetigung` hat die Katja-Variante „ich nehme mir {ziel}
+   vor". **Fehlt:** eine Ziel-Auswahl beim targeting-Angebot (`targets.json` → Sub-Choices), damit der
+   Spieler wählt, *gegen wen*. Ohne echte Auswahl wäre ein automatisch geratenes Ziel verwirrend — daher
+   bewusst nicht geraten.
+3. **R3-Konsequenz:** Rückmeldung der tatsächlichen Publikumswirkung **nach** dem Ausspielen (Merkmal 5),
+   damit der Lerneffekt „der überzeugende Pitch verpuffte" rückblickend zündet.
+4. **begünstigt-Reaktion** (Gegenstück zu R4-übergangen) und der `back_to_npc`-Duplikat-Pfad (wendet R2/R4
+   nicht an).
+5. **Vertonungs-Freigabe (D24)** für die stabilisierten Texte.
+
+> ⚠️ **Parallel-Session-Hinweis (Owner 2026-07-07):** Dieser Umbau berührt `useStoryGameState.ts`,
+> `game-logic/StoryEngineAdapter.ts` (save/load + passedOver), `data/dialogues.json` und
+> `data/topics_dialogues.json` — Dateien, an denen andere Sessions arbeiten könnten. Wenn sich eine
+> parallele Session „verhakt": zuerst diesen Auftrag + `HANDOFF_2026-07-07_NPC_REGIE.md` lesen, dann
+> `git`-seitig zusammenführen. Die Regie liegt gekapselt in `engine/BeraterRegie.ts` +
+> `data/formulierungsbank.json`; die Hook-/Engine-Eingriffe sind klein und lokal markiert
+> (Kommentare „R4 (Berater-Regie)", „R3-Sichtbarkeit", „R2 (Berater-Regie)").
