@@ -776,6 +776,11 @@ export class StoryEngineAdapter {
    * Hook), damit der Groll Save/Load übersteht. Reine String-Menge.
    */
   private passedOverNpcs: Set<string> = new Set();
+  /**
+   * R2 (Berater-Regie): bereits ausgelöste Debatten — jede feuert nur einmal pro
+   * Kampagne. Persistent, damit ein Reload keine Debatte wiederholt.
+   */
+  private firedDebates: Set<string> = new Set();
   /** Slice 4: bereits aufgelöste Entscheidungs-Beats (damit der Director sie nicht erneut zieht). */
   private resolvedDecisionBeats: Set<string> = new Set();
   /** Schicht 3: Narrativ-Gedächtnis (welche Themen liefen wie oft, wie inokuliert). */
@@ -6365,6 +6370,16 @@ export class StoryEngineAdapter {
     this.passedOverNpcs.clear();
   }
 
+  // R2 (Berater-Regie): Debatten feuern einmal pro Kampagne.
+  /** Ist diese Debatte in dieser Kampagne schon gefeuert? */
+  hasDebateFired(debateId: string): boolean {
+    return this.firedDebates.has(debateId);
+  }
+  /** Markiert eine Debatte als gefeuert (nicht erneut auslösen). */
+  markDebateFired(debateId: string): void {
+    this.firedDebates.add(debateId);
+  }
+
   /**
    * Get NPC dialogue based on context
    * TD-006: Dynamic NPC dialogues from JSON (now uses DialogLoader for elaborate dialogues)
@@ -6957,6 +6972,8 @@ export class StoryEngineAdapter {
       episodesCompleted: Array.from(this.episodesCompleted),
       // R4 (Berater-Regie): „übergangen"-Groll + Groll-/Verrats-Zustand persistieren.
       passedOverNpcs: Array.from(this.passedOverNpcs),
+      // R2 (Berater-Regie): schon gefeuerte Debatten (einmal pro Kampagne).
+      firedDebates: Array.from(this.firedDebates),
       betrayalSystemState: this.betrayalSystem.exportState(),
       resolvedDecisionBeats: Array.from(this.resolvedDecisionBeats),
       narrativeMemory: this.narrativeMemory,
@@ -7046,6 +7063,8 @@ export class StoryEngineAdapter {
     }
     // R4 (Berater-Regie): Groll-Zustände laden (Default leer für alte Saves).
     this.passedOverNpcs = new Set(state.passedOverNpcs ?? []);
+    // R2 (Berater-Regie): schon gefeuerte Debatten laden.
+    this.firedDebates = new Set(state.firedDebates ?? []);
     if (state.betrayalSystemState) {
       this.betrayalSystem.importState(state.betrayalSystemState);
     }

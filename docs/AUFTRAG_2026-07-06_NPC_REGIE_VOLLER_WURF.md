@@ -171,7 +171,7 @@ können** — Chrom auf einem Auto ohne Lenkung. Reihenfolge: **Architektur → 
 |---|---|---|
 | **R0 — Naht sichtbar machen** | `Angebot`-Typ + Regisseur, Feldtausch `label_de` statt `headline_de` | ✅ gebaut |
 | **R1 — 3-Takt-Regie (B1)** | substanzielle Bestätigung (Ziel/Wirkung/Freischaltung) in NPC-Stimme; Möbel-Vokabular raus | ✅ gebaut (Bestätigungs-Takt; Aufschlag-Takt = Begrüßung+Angebote, vorhanden) |
-| **R2 — Konkurrierende Angebote (B2)** | NPC-Körbe je `npc_affinity`; Wettstreit-Spitze wenn Rivalen Angebote haben | ⚙️ v1: Wettstreit-Zeile verdrahtet · **offen:** Debatten-Vollausbau (Sammel-Auswahl nebeneinander) — s. §12 |
+| **R2 — Konkurrierende Angebote (B2)** | NPC-Körbe je `npc_affinity`; Wettstreit-Spitze; **emergente Debatten** (verzögert, Intervention am Sendeplan) | ✅ MVP gebaut (§13) · **offen:** mechanisches „Abmildern", Strategie-Debatte aus Aktionen, Multi-Turn-Porträt-Anzeige |
 | **R3 — Wahrheits-Check (B4)** | `audienceFit` (Aktion→Appell→personas-Rezeptivität) getrennt von `rhetorik` | ⚙️ v1+: mechanische Trennung getestet **und** Appell im Angebot sichtbar („spielt auf Angst/Wut/…", Info ohne Urteil) · **offen:** Konsequenz-Rückmeldung nach dem Ausspielen |
 | **R4 — Reaktive Schicht (B3)** | übergangene NPCs reagieren beim nächsten Besuch | ✅ persistent: `passedOver` in der Engine + Save/Load, BetrayalSystem eingehängt · **offen:** begünstigt-Reaktion, back_to_npc-Pfad |
 | **R5 — Autoren-KI-Bank (B5)** | `data/formulierungsbank.json` (5 Stimmen × Slots), Laufzeit deterministisch | ⚙️ v1 handverfasst nach Steckbrief · **offen:** Offline-LLM-Erweiterung (mehr Varianten, EN-Parität), Ziel-Bindung (`{ziel}`) |
@@ -310,3 +310,20 @@ Aus der Design-Diskussion (Owner-Transkript 2026-07-07):
 (`unlock_action`/`lock_action`, StoryEngineAdapter:6489) · `executeQueue` (manuell, Hook:1383) ·
 `endPhase`/`advancePhase` + `pickNext`/`directorStore` (Verzögerung/Beat) · `loadTargets()`
 (BattlefieldChain) für die Ziel-Auswahl.
+
+### ✅ Umsetzungsstand MVP (2026-07-07, dritte Welle)
+- **Ziel-Auswahl (A):** gebaut — Ziel-Aktion (`istZielAktion`) → zweite Dialog-Stufe „Gegen wen?" aus
+  `targets.json` → Bestätigung nennt `{ziel}`. Gemeinsamer `queueAndConfirm`-Weg.
+- **Debatten emergent:** gebaut — kontroverse Aktion beim Queuen (`deriveDebateTags` → `engine.getDebate`,
+  Bedingung/Phase gefiltert) merkt eine `pendingDebate` vor; sie zeigt sich VERZÖGERT am nächsten
+  `endPhase`, aber nur an einem sonst ruhigen Morgen (Krise/Konsequenz/Gegenmaßnahme/Spielende haben
+  Vorfahrt). Drei Wege: **Durchziehen** (Objektor grollt), **Abblasen** (aus dem Sendeplan; Vorschlagender
+  grollt; ist die Aktion schon ausgespielt → „zu spät"-Fall), **Abmildern** (niemand grollt). Jede Debatte
+  feuert einmal pro Kampagne (`firedDebates`, persistent). Tests: `DebattenRegie.test.ts`,
+  `SaveLoadMigration.test.ts`.
+- **MVP-Grenzen (bewusst, ehrlich):** „Abmildern" ist heute narrativ (kein mechanisches Halbieren des
+  Effekts); die Strategie-Debatte (`strategy_review`/`phase_milestone`) triggert nicht aus einer Aktion
+  (braucht einen Meilenstein-Kontext); die „gestaffelte Härte" ergibt sich aus dem Spielerverhalten
+  (spielt er die Queue vor dem Tageswechsel aus → „zu spät") statt aus einer expliziten Phasen-Staffelung;
+  die Anzeige ist der zusammengesetzte Wortwechsel (kein Zug-um-Zug-Porträtwechsel). Alles additiv
+  ausbaubar.

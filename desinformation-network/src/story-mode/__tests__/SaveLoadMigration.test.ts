@@ -87,4 +87,16 @@ describe('Save/Load-Migration (P0/R1)', () => {
     loaded.loadState(JSON.stringify(saved));
     expect(loaded.takePassedOver('igor')).toBe(false);
   });
+
+  it('R2: gefeuerte Debatten (firedDebates) überstehen Save/Load', () => {
+    const engine = createStoryEngine('save_r2');
+    expect(engine.hasDebateFired('debate_risk_vs_reach_1')).toBe(false);
+    engine.markDebateFired('debate_risk_vs_reach_1');
+    const blob = engine.saveState();
+
+    const other = createStoryEngine('other_r2');
+    other.loadState(blob);
+    expect(other.hasDebateFired('debate_risk_vs_reach_1')).toBe(true);
+    expect(other.hasDebateFired('debate_budget_vs_ops_1')).toBe(false);
+  });
 });

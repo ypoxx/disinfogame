@@ -34,6 +34,7 @@ import { getBetrayalSystem } from '../engine/BetrayalSystem';
 import { getActionLoader } from '../engine/ActionLoader';
 import { buildAngebot, renderBestaetigung, renderWettstreit, renderUebergangen, appealAusTags, istZielAktion, type MessageAppeal } from '../engine/BeraterRegie';
 import { loadTargets } from '../battlefield/BattlefieldChain';
+import type { Debate } from '../engine/DialogLoader';
 import type { BetrayalState, BetrayalEvent, BetrayalWarning, BetrayalGrievance } from '../engine/BetrayalSystem';
 import { getCrisisMomentSystem } from '../engine/CrisisMomentSystem';
 import type { ActiveCrisis, CrisisResolution } from '../engine/CrisisMomentSystem';
@@ -102,6 +103,27 @@ const APPELL_WORT: Record<MessageAppeal, string> = {
   anger: 'Wut',
   trust: 'Vertrauen',
 };
+
+/**
+ * R2 (Berater-Regie): leitet aus einer gequeueten Aktion die Debatten-Trigger-Tags
+ * ab (die Debatten in topics_dialogues.json feuern auf high_risk_action /
+ * viral_campaign / expensive_action / field_operation). Die eigentliche Auswahl
+ * (Phase + Zustands-Bedingung wie „Risiko ≥ 50") macht `engine.getDebate`.
+ */
+export function deriveDebateTags(action: StoryAction): string[] {
+  const tags = [...(action.tags ?? [])];
+  if ((action.costs?.risk ?? 0) >= 3) tags.push('high_risk_action');
+  if ((action.costs?.budget ?? 0) >= 10) tags.push('expensive_action');
+  const t = (action.tags ?? []).join(' ');
+  if (/viral|reach|amplif|media|content/i.test(t)) tags.push('viral_campaign');
+  if (/field|targeting|intelligence|infiltrat|contact/i.test(t)) tags.push('field_operation');
+  return tags;
+}
+
+/** Der Wortwechsel einer Debatte als ein Dialog-Text (Sprecher-Namen davor). */
+export function debateTurnsText(debate: Debate, nameOf: (npcId: string) => string): string {
+  return debate.turns.map((turn) => `${nameOf(turn.speaker)}: ${turn.text_de}`).join('\n\n');
+}
 
 /**
  * Kontextuelle Maßnahmen-Angebote eines NPCs als Dialog-Optionen (Aktion aus Dialog, P1a).
@@ -467,6 +489,17 @@ export function useStoryGameState(seed?: string) {
   // Dialog
   const [currentDialog, setCurrentDialog] = useState<DialogState | null>(null);
 
+  // R2 (Berater-Regie): eine ausgelöste, aber noch nicht gezeigte Debatte. Wird
+  // beim Queuen einer kontroversen Aktion gesetzt und ERST am nächsten
+  // Tageswechsel (endPhase) gezeigt — die diegetische Verzögerung (Owner §13).
+  const [pendingDebate, setPendingDebate] = useState<{
+    debate: Debate;
+    actionId: string;
+    queuedItemId: string;
+    proposerNpcId: string;
+    objectorNpcId: string;
+  } | null>(null);
+
   // Advisor System
   const [recommendations, setRecommendations] = useState<AdvisorRecommendation[]>([]);
 
@@ -720,8 +753,25 @@ export function useStoryGameState(seed?: string) {
       opts?: { targetId?: string; zielName?: string },
     ) => {
       const npc = engine.getNPCState(npcId);
-      setActionQueue(prev => [...prev, buildQueuedAction(action, opts?.targetId ? { targetId: opts.targetId } : undefined)]);
+      const queued = buildQueuedAction(action, opts?.targetId ? { targetId: opts.targetId } : undefined);
+      setActionQueue(prev => [...prev, queued]);
       playSound('click');
+      // R2: Ist die Aktion kontrovers genug, dass ein Rivale widerspricht? Dann
+      // Debatte vormerken — sie zeigt sich VERZÖGERT am nächsten Tageswechsel
+      // (Owner §13), nicht als Interrupt. engine.getDebate prüft Phase + Lage.
+      const debate = engine.getDebate(deriveDebateTags(action));
+      if (debate && !engine.hasDebateFired(debate.id) && debate.participants.includes(npcId)) {
+        const objector = debate.participants.find((p) => p !== npcId);
+        if (objector) {
+          setPendingDebate({
+            debate,
+            actionId: action.id,
+            queuedItemId: queued.id,
+            proposerNpcId: npcId,
+            objectorNpcId: objector,
+          });
+        }
+      }
       // R4: andere NPCs mit eigenem Angebot gelten als übergangen (Mit-Eigentümer
       // der gewählten Aktion nicht).
       const gewaehlteEigner = new Set<string>(action.npcAffinity ?? []);
@@ -785,6 +835,34 @@ export function useStoryGameState(seed?: string) {
       if (action && target) {
         queueAndConfirm(action, activeNpcId, { targetId: target.id, zielName: target.name });
       }
+      return;
+    }
+
+    // R2: Auflösung einer Debatte (Owner §13) — die nicht-dominierte Wahl. Der
+    // „Preis" ist immer eine Beziehung (R4-Groll). Ist die Aktion schon
+    // ausgespielt, greift „abblasen" ins Leere → der „zu spät"-Fall.
+    if (choiceId.startsWith('debate_')) {
+      const pd = pendingDebate;
+      setPendingDebate(null);
+      playSound('click');
+      if (!pd) { setCurrentDialog(null); return; }
+      const nameOf = (id: string) => engine.getNPCState(id)?.name ?? id;
+      let text: string;
+      if (choiceId === 'debate_durchziehen') {
+        engine.markPassedOver(pd.objectorNpcId); // der Widersprecher grollt
+        text = `Es bleibt, wie geplant. ${nameOf(pd.objectorNpcId)} sagt nichts mehr — merkt es sich aber.`;
+      } else if (choiceId === 'debate_abblasen') {
+        const present = actionQueue.some((q) => q.id === pd.queuedItemId);
+        if (present) setActionQueue((prev) => prev.filter((q) => q.id !== pd.queuedItemId));
+        engine.markPassedOver(pd.proposerNpcId); // der Vorschlagende grollt
+        text = present
+          ? `Vom Sendeplan genommen. ${nameOf(pd.proposerNpcId)} ist nicht begeistert.`
+          : `Zu spät — es lief schon. ${nameOf(pd.proposerNpcId)} zuckt mit den Schultern, ${nameOf(pd.objectorNpcId)} auch.`;
+      } else {
+        // abmildern: Mittelweg — niemand grollt, dafür bleibt der volle Effekt aus.
+        text = `Ein Mittelweg. Halb so laut, halb so riskant — keiner ganz zufrieden, keiner verprellt.`;
+      }
+      setCurrentDialog({ speaker: '', text, mood: 'neutral', choices: [{ id: 'dismiss', text: 'Weiter' }] });
       return;
     }
 
@@ -964,7 +1042,7 @@ export function useStoryGameState(seed?: string) {
     // Default: close dialog
     playSound('click');
     setCurrentDialog(null);
-  }, [activeNpcId, engine, recommendations, betrayalStates, availableActions]);
+  }, [activeNpcId, engine, recommendations, betrayalStates, availableActions, actionQueue, pendingDebate]);
 
   // ============================================
   // PHASE ACTIONS
@@ -1121,7 +1199,33 @@ export function useStoryGameState(seed?: string) {
       setGameEnd(endState);
       setGamePhase('ended');
     }
-  }, [engine, generateRecommendations, completedActions, recommendations]);
+
+    // R2: Verzögerte Debatte (Owner §13) — die gestern vorgemerkte Gegenmeinung
+    // „kommt an", jetzt am Tageswechsel. Nur an einem sonst ruhigen Morgen
+    // (Krise/Konsequenz/Gegenmaßnahme/Spielende haben Vorfahrt). Die Aktion liegt
+    // i.d.R. noch im Sendeplan → revidierbar; sonst greift der „zu spät"-Fall.
+    const morgenBelegt =
+      (result.triggeredConsequences.length > 0 && result.triggeredConsequences[0].requiresChoice) ||
+      triggeredCrises.length > 0 ||
+      !!pendingStageCm;
+    if (!endState && !morgenBelegt && pendingDebate) {
+      const nameOf = (id: string) => engine.getNPCState(id)?.name ?? id;
+      engine.markDebateFired(pendingDebate.debate.id);
+      playSound('notification');
+      setCurrentDialog({
+        speaker: 'Wortgefecht im Haus',
+        speakerTitle: `${nameOf(pendingDebate.proposerNpcId)} ↔ ${nameOf(pendingDebate.objectorNpcId)}`,
+        text: debateTurnsText(pendingDebate.debate, nameOf),
+        mood: 'neutral',
+        choices: [
+          { id: 'debate_durchziehen', text: 'Durchziehen — es bleibt auf dem Plan.' },
+          { id: 'debate_abblasen', text: 'Abblasen — vom Sendeplan nehmen.' },
+          { id: 'debate_abmildern', text: 'Abmildern — einen Mittelweg gehen.' },
+        ],
+      });
+      // pendingDebate bleibt gesetzt bis zur Auflösung (debate_-Zweig braucht es).
+    }
+  }, [engine, generateRecommendations, completedActions, recommendations, pendingDebate]);
 
   // ============================================
   // ACTION EXECUTION
