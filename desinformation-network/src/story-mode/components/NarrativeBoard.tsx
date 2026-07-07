@@ -107,11 +107,11 @@ export function NarrativeBoard({
   }, [queue, slots]);
 
   // N2: Liegt das Wettrennen an (sonntagsfrage-Prop), sprechen die Kopf-Notizen
-  // dessen Vokabular — die primären Alt-Ziele („destabilisieren") entfallen dann;
-  // Halte-Ziele (Nicht enttarnt werden) bleiben. Ohne Prop: altes Verhalten.
+  // dessen Vokabular — das Alt-Primärziel („destabilisieren") entfällt dann;
+  // Halte-Ziele bleiben (sie sind type=primary MIT category=survival, B22).
   const sortedObjectives = useMemo(
     () => [...objectives]
-      .filter((o) => (sonntagsfrage ? !o.isPrimary : true))
+      .filter((o) => (sonntagsfrage ? o.category === 'survival' : true))
       .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary))
       .slice(0, 4),
     [objectives, sonntagsfrage],
