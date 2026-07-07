@@ -1019,6 +1019,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               onExitToBuilding={() => setViewMode('building')}
               unreadNewsCount={state.unreadNewsCount}
               worldEventCount={worldEventCount}
+              pinnedActionCount={state.actionQueue.length}
               showTutorialHints={showOfficeHints}
             />
           )}
@@ -1589,8 +1590,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
       {/* Advisor Panel — während eines Gesprächs ausgeblendet (freie Sicht aufs NPC-Gespräch
           + dessen Maßnahmen-Optionen; Empfehlungen erscheinen jetzt diegetisch im Dialog).
-          N0: unter Vollbild-Overlays ebenfalls aus — die Leiste schwebte über Terminal/Tafel. */}
-      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !state.currentDialog && !fullscreenOverlayOpen && (
+          N0: unter Vollbild-Overlays UND bei offenem Seitenpanel aus — die fixe Leiste
+          schwebte sonst über Terminal/Tafel bzw. über dem Panel-Inhalt. */}
+      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !state.currentDialog && !fullscreenOverlayOpen && !activePanel && (
         <AdvisorPanel
           npcs={state.npcs.map(npc => ({
             id: npc.id,
