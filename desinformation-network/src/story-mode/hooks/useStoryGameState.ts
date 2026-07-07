@@ -32,7 +32,8 @@ import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
 import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
 import { getBetrayalSystem } from '../engine/BetrayalSystem';
 import { getActionLoader } from '../engine/ActionLoader';
-import { buildAngebot, renderBestaetigung, renderWettstreit, renderUebergangen, appealAusTags, type MessageAppeal } from '../engine/BeraterRegie';
+import { buildAngebot, renderBestaetigung, renderWettstreit, renderUebergangen, appealAusTags, istZielAktion, type MessageAppeal } from '../engine/BeraterRegie';
+import { loadTargets } from '../battlefield/BattlefieldChain';
 import type { BetrayalState, BetrayalEvent, BetrayalWarning, BetrayalGrievance } from '../engine/BetrayalSystem';
 import { getCrisisMomentSystem } from '../engine/CrisisMomentSystem';
 import type { ActiveCrisis, CrisisResolution } from '../engine/CrisisMomentSystem';
@@ -710,44 +711,79 @@ export function useStoryGameState(seed?: string) {
   const handleDialogChoice = useCallback((choiceId: string) => {
     // P1a: „Aktion aus Dialog" — die im Gespräch angebotene Maßnahme auf den
     // Sendeplan (Narrativ-Tafel) heften und das im Dialog bestätigen.
+    // Gemeinsamer Weg „Aktion auf den Sendeplan + substanzielle Bestätigung"
+    // (3. Takt der Berater-Regie). Genutzt vom direkten Angebot UND nach der
+    // Ziel-Auswahl. `zielName` fließt als {ziel} in die Bestätigung.
+    const queueAndConfirm = (
+      action: StoryAction,
+      npcId: string,
+      opts?: { targetId?: string; zielName?: string },
+    ) => {
+      const npc = engine.getNPCState(npcId);
+      setActionQueue(prev => [...prev, buildQueuedAction(action, opts?.targetId ? { targetId: opts.targetId } : undefined)]);
+      playSound('click');
+      // R4: andere NPCs mit eigenem Angebot gelten als übergangen (Mit-Eigentümer
+      // der gewählten Aktion nicht).
+      const gewaehlteEigner = new Set<string>(action.npcAffinity ?? []);
+      gewaehlteEigner.add(npcId);
+      for (const rival of npcsWithOffers(availableActions)) {
+        if (!gewaehlteEigner.has(rival)) engine.markPassedOver(rival);
+      }
+      for (const eigner of gewaehlteEigner) engine.unmarkPassedOver(eigner);
+      const loader = getActionLoader();
+      const raw = loader.getAction(action.id);
+      const bestaetigung = raw
+        ? renderBestaetigung(
+            buildAngebot(raw, npcId, (id) => loader.getAction(id)?.label_de, opts?.zielName),
+            Math.random(),
+          )
+        : `Verstanden. Ich bringe „${action.label_de}" auf den Weg.`;
+      setCurrentDialog({
+        speaker: npc?.name || npcId,
+        speakerTitle: npc?.role_de,
+        text: bestaetigung,
+        mood: 'neutral',
+        choices: [
+          { id: 'back_to_npc', text: 'Weitere Maßnahme besprechen' },
+          { id: 'dismiss', text: 'Erledigt' },
+        ],
+      });
+    };
+
+    // P1a: „Aktion aus Dialog". Bei Aktionen gegen eine Person kommt ZUERST die
+    // Ziel-Auswahl (Variante A, im Gespräch — Owner-Entscheid 2026-07-07).
     if (choiceId.startsWith('action_') && activeNpcId) {
       const actionId = choiceId.slice('action_'.length);
       const action = availableActions.find(a => a.id === actionId);
-      const npc = engine.getNPCState(activeNpcId);
-      if (action) {
-        setActionQueue(prev => [...prev, buildQueuedAction(action)]);
+      if (!action) return;
+      const raw = getActionLoader().getAction(action.id);
+      if (istZielAktion(raw?.effects)) {
+        const npc = engine.getNPCState(activeNpcId);
         playSound('click');
-        // R4: Alle anderen NPCs, die JETZT ebenfalls ein Angebot hätten, gelten
-        // als übergangen — sie reagieren beim nächsten Besuch. Mit-Eigentümer der
-        // GEWÄHLTEN Aktion (mehrfaches npc_affinity) sind NICHT übergangen.
-        const gewaehlteEigner = new Set<string>(action.npcAffinity ?? []);
-        gewaehlteEigner.add(activeNpcId);
-        for (const rival of npcsWithOffers(availableActions)) {
-          if (!gewaehlteEigner.has(rival)) engine.markPassedOver(rival);
-        }
-        for (const eigner of gewaehlteEigner) engine.unmarkPassedOver(eigner);
-        // 3. Takt der Berater-Regie (Auftrag 2026-07-06): substanzielle Bestätigung
-        // in der Stimme des NPCs — Ziel/Wirkung/Freischaltung statt betoniertem
-        // Einheitssatz. `getActionLoader` liefert die Roh-Aktion (unlocks/effects),
-        // Labels der Freischaltungen werden über denselben Loader aufgelöst.
-        const loader = getActionLoader();
-        const raw = loader.getAction(action.id);
-        const bestaetigung = raw
-          ? renderBestaetigung(
-              buildAngebot(raw, activeNpcId, (id) => loader.getAction(id)?.label_de),
-              Math.random(),
-            )
-          : `Verstanden. Ich bringe „${action.label_de}" auf den Weg.`;
         setCurrentDialog({
           speaker: npc?.name || activeNpcId,
           speakerTitle: npc?.role_de,
-          text: bestaetigung,
+          text: 'Gegen wen richten wir das?',
           mood: 'neutral',
           choices: [
-            { id: 'back_to_npc', text: 'Weitere Maßnahme besprechen' },
-            { id: 'dismiss', text: 'Erledigt' },
+            ...loadTargets().map(t => ({ id: `target_${t.id}|${action.id}`, text: `▸ ${t.name} — ${t.role_de}` })),
+            { id: 'back_to_npc', text: 'Doch nicht' },
           ],
         });
+        return;
+      }
+      queueAndConfirm(action, activeNpcId);
+      return;
+    }
+
+    // Ziel-Auswahl (zweite Stufe): Person gewählt → Aktion mit targetId heften,
+    // Bestätigung nennt das Ziel namentlich ({ziel}).
+    if (choiceId.startsWith('target_') && activeNpcId) {
+      const [targetId, actionId] = choiceId.slice('target_'.length).split('|');
+      const action = availableActions.find(a => a.id === actionId);
+      const target = loadTargets().find(t => t.id === targetId);
+      if (action && target) {
+        queueAndConfirm(action, activeNpcId, { targetId: target.id, zielName: target.name });
       }
       return;
     }

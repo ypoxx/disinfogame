@@ -275,3 +275,38 @@ erpressen", Ziel z. B. Dr. Lena Ferro mit `reveals_weaknesses`):**
 > `git`-seitig zusammenführen. Die Regie liegt gekapselt in `engine/BeraterRegie.ts` +
 > `data/formulierungsbank.json`; die Hook-/Engine-Eingriffe sind klein und lokal markiert
 > (Kommentare „R4 (Berater-Regie)", „R3-Sichtbarkeit", „R2 (Berater-Regie)").
+
+---
+
+## 13. Debatten-Mechanik & Ziel-Auswahl — Owner-Entscheid 2026-07-07 (bindend)
+
+Aus der Design-Diskussion (Owner-Transkript 2026-07-07):
+
+**Ziel-Auswahl = Variante A (im Gespräch).** Bei Aktionen gegen eine Person (Effekt
+`targeting_specific`/`reveals_weaknesses`/`target_damage`) folgt auf das Angebot eine zweite Stufe
+„gegen wen?" mit den Personen aus `targets.json`. Die Bestätigung nennt dann das Ziel namentlich
+(`{ziel}`). Grund des Owners: „Dialoge mehr und mehr Teil des Spiels, abwechslungsreicher."
+
+**Debatten = emergent (Standard) + selten sofort.** Owner verwirft die Knopf-Variante (langweilig).
+- **Verzögerung ist der Kern:** Die Gegenmeinung *poppt nicht auf*, sie *kommt an* — zeitversetzt über
+  den **Tageswechsel / das Morgenbriefing** (Owner: „in der echten Welt gibt es Verzögerungen, bis
+  jemand erfährt, was anderswo passiert"). Kein überfallendes Portrait.
+- **Standard-Kanal = Director-Beat (C):** Der vorhandene `StoryDirector` (`pickNext` + `directorStore`)
+  taktet die Debatte als Beat am Phasenende. Das löst zugleich das „wann feuert es"-Problem (nicht
+  zufällig-nervig, sondern dramaturgisch).
+- **Sofort im Gespräch (A) = seltenes Gewürz:** Sprichst du zufällig genau den Rivalen an, während die
+  heikle Aktion noch im Sendeplan liegt, platzt der Streit direkt heraus.
+- **Intervention am Sendeplan (die nicht-dominierte Wahl, Merkmal 3):** Solange die Aktion noch
+  *geplant* auf dem Korkbrett liegt (Queue, `executeQueue` ist manuell), ist die Debatte eine echte
+  Kreuzung:
+  - **Durchziehen** → Aktion bleibt, der widersprechende Rivale grollt (R4 `markPassedOver`).
+  - **Abblasen** → Aktion runter vom Plan, der *vorschlagende* NPC grollt.
+  - **Abmildern** → Mittelweg (halber Effekt/halbes Risiko), beide halb zufrieden.
+  Ist die Aktion schon ausgespielt, bleibt nur teure Schadensbegrenzung / der Lerneffekt.
+- **Härte gestaffelt:** früh in der Kampagne feuern Debatten rechtzeitig (revidierbar, Werkzeug lernen),
+  später auch mal „zu spät" (Spiel zieht an). Owner: „lass beides machen."
+
+**Andockpunkte (verifiziert):** `engine.getDebate(tags)` (Auswahl) · `processDialogueResponse`
+(`unlock_action`/`lock_action`, StoryEngineAdapter:6489) · `executeQueue` (manuell, Hook:1383) ·
+`endPhase`/`advancePhase` + `pickNext`/`directorStore` (Verzögerung/Beat) · `loadTargets()`
+(BattlefieldChain) für die Ziel-Auswahl.

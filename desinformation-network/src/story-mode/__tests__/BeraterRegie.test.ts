@@ -15,6 +15,7 @@ import {
   audienceFitForAction,
   renderWettstreit,
   renderUebergangen,
+  istZielAktion,
 } from '../engine/BeraterRegie';
 import type { RawAction } from '../engine/ActionLoader';
 import { getActionLoader } from '../engine/ActionLoader';
@@ -186,6 +187,22 @@ describe('BeraterRegie — R2 Wettstreit & R4 Übergangen (jede Stimme vorhanden
   it('unbekannter NPC → null (kein Absturz)', () => {
     expect(renderWettstreit('niemand', 0)).toBeNull();
     expect(renderUebergangen('niemand', 0)).toBeNull();
+  });
+});
+
+describe('BeraterRegie — Ziel-Erkennung (Ziel-Auswahl im Gespräch)', () => {
+  it('erkennt Aktionen gegen eine Person', () => {
+    expect(istZielAktion({ reveals_weaknesses: true })).toBe(true);
+    expect(istZielAktion({ targeting_specific: true })).toBe(true);
+    expect(istZielAktion({ target_damage: 2 })).toBe(true);
+  });
+  it('Aufbau-/Reichweiten-Aktionen zielen nicht auf eine Person', () => {
+    expect(istZielAktion({ reach_multiplier: 2 })).toBe(false);
+    expect(istZielAktion({ target_damage: 0 })).toBe(false);
+    expect(istZielAktion(undefined)).toBe(false);
+  });
+  it('echte Aktion 1.4 (Dossier) ist eine Ziel-Aktion', () => {
+    expect(istZielAktion(loader.getAction('1.4')!.effects)).toBe(true);
   });
 });
 

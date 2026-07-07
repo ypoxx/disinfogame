@@ -167,6 +167,19 @@ const MEAN_RECEPTIVITY: Record<MessageAppeal, number> = (() => {
   return acc;
 })();
 
+/**
+ * Zielt eine Aktion auf eine konkrete Person? Dann kommt im Gespräch die
+ * Ziel-Auswahl (Variante A, Owner-Entscheid 2026-07-07) vor der Bestätigung.
+ */
+export function istZielAktion(effects?: Record<string, unknown>): boolean {
+  if (!effects) return false;
+  return (
+    effects.targeting_specific === true ||
+    effects.reveals_weaknesses === true ||
+    (typeof effects.target_damage === 'number' && effects.target_damage > 0)
+  );
+}
+
 /** Leitet den Publikums-Appell einer Aktion aus ihren tags ab (oder null). */
 export function appealAusTags(tags: string[] | undefined): MessageAppeal | null {
   if (!tags) return null;
