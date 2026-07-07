@@ -141,3 +141,38 @@ export function hotspotAnchor(hs: OfficeHotspotDef): ImgPoint {
   const b = polygonBBox(hs.polygon);
   return [b.x + b.w / 2, b.y];
 }
+
+/**
+ * Sichtbarer Anteil der Hotspot-BBox im Container (0..1). Der Cover-Beschnitt
+ * (unten-zentriert) kann Zonen aus dem Sichtfeld schieben — die Tür horizontal
+ * bei schmalen Flächen, Wand-Monitor/Korkbrett vertikal bei flachen. Wer unter
+ * die Schwelle fällt, bekommt einen Ersatz-Knopf in der Unterleiste (A1).
+ */
+export function visibleFraction(
+  hs: OfficeHotspotDef,
+  t: CoverTransform,
+  area: { w: number; h: number },
+): number {
+  const r = rectToContainer(polygonBBox(hs.polygon), t);
+  const ix = Math.min(r.left + r.width, area.w) - Math.max(r.left, 0);
+  const iy = Math.min(r.top + r.height, area.h) - Math.max(r.top, 0);
+  const full = r.width * r.height;
+  if (full <= 0) return 0;
+  return (Math.max(0, ix) * Math.max(0, iy)) / full;
+}
+
+/**
+ * Anker in den sichtbaren Bereich clampen (Chips, Badges, Tutorial-Marker):
+ * beschnittene Ränder dürfen Hinweise nicht unsichtbar machen.
+ */
+export function clampAnchor(
+  pt: { x: number; y: number },
+  area: { w: number; h: number },
+  marginX = 70,
+  marginY = 28,
+): { x: number; y: number } {
+  return {
+    x: Math.max(marginX, Math.min(area.w - marginX, pt.x)),
+    y: Math.max(marginY, Math.min(area.h - 8, pt.y)),
+  };
+}

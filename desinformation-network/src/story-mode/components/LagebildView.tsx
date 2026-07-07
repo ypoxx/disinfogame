@@ -10,6 +10,7 @@
  */
 import type { ReactNode } from 'react';
 import { StoryModeColors } from '../theme';
+import { formatAbwehr, formatPollPct, formatSchwellePct, sonntagsfrageScale } from '../utils/rennen';
 import { Icon } from './Icon';
 import { PixelModal } from './PixelModal';
 import type { StoryResources, StoryPhase, NewsEvent, Objective, NPCState } from '../../game-logic/StoryEngineAdapter';
@@ -28,6 +29,10 @@ interface LagebildViewProps {
   abwehrStages: { stages: readonly number[]; fired: number[] };
   /** Laufender strategischer Auftrag (Titel). */
   auftrag: { titel_de: string };
+  /** Review B1: Maus-/Touch-Wege zu Akte + Statistik — die Panels haben keinen
+   *  Büro-Hotspot; ohne diese Sprünge wären sie nur per Hotkey erreichbar. */
+  onOpenMission?: () => void;
+  onOpenStats?: () => void;
   onClose: () => void;
 }
 
@@ -43,10 +48,8 @@ function RennenBlock({ sonntagsfrage, abwehr, abwehrStages, auftrag }: {
   abwehrStages: { stages: readonly number[]; fired: number[] };
   auftrag: { titel_de: string };
 }) {
-  const scaleMax = Math.max(sonntagsfrage.pollPct, sonntagsfrage.thresholdPct) + 6;
-  const barPct = Math.min(100, (sonntagsfrage.pollPct / scaleMax) * 100);
-  const linePct = Math.min(100, (sonntagsfrage.thresholdPct / scaleMax) * 100);
-  const reached = sonntagsfrage.pollPct >= sonntagsfrage.thresholdPct;
+  // Geteilte Skala/Formatierung (utils/rennen) — identisch zum HUD-Balken.
+  const { barPct, linePct, reached } = sonntagsfrageScale(sonntagsfrage.pollPct, sonntagsfrage.thresholdPct);
   const abwehrPct = Math.max(0, Math.min(100, abwehr));
   return (
     <div className="p-3 border-2 mb-4" style={{ backgroundColor: StoryModeColors.surface, borderColor: StoryModeColors.border }} data-testid="lagebild-rennen">
@@ -60,7 +63,7 @@ function RennenBlock({ sonntagsfrage, abwehr, abwehrStages, auftrag }: {
       <div className="flex justify-between text-[10px] mb-0.5">
         <span style={{ color: StoryModeColors.textSecondary }}>SONNTAGSFRAGE</span>
         <span style={{ color: StoryModeColors.warning, fontWeight: 700 }}>
-          {sonntagsfrage.pollPct.toFixed(1)} % · Schwelle {sonntagsfrage.thresholdPct.toFixed(0)} %
+          {formatPollPct(sonntagsfrage.pollPct)} · Schwelle {formatSchwellePct(sonntagsfrage.thresholdPct)}
         </span>
       </div>
       <div className="relative mb-3" style={{ height: 8 }}>
@@ -72,7 +75,7 @@ function RennenBlock({ sonntagsfrage, abwehr, abwehrStages, auftrag }: {
       {/* Läufer 2 — Abwehr mit Stufen-Marken */}
       <div className="flex justify-between text-[10px] mb-0.5">
         <span style={{ color: StoryModeColors.textSecondary }}>ABWEHR</span>
-        <span style={{ color: StoryModeColors.danger, fontWeight: 700 }}>{Math.round(abwehrPct)}/100</span>
+        <span style={{ color: StoryModeColors.danger, fontWeight: 700 }}>{formatAbwehr(abwehr)}</span>
       </div>
       <div className="relative" style={{ height: 8 }}>
         <div className="h-full bg-black/30 overflow-hidden">
@@ -95,9 +98,9 @@ function RennenBlock({ sonntagsfrage, abwehr, abwehrStages, auftrag }: {
 }
 
 function ResourceCard({ icon, label, value, format, color, danger }: {
-  icon: ReactNode; label: string; value: number; format: 'currency' | 'percent' | 'number'; color: string; danger?: boolean;
+  icon: ReactNode; label: string; value: number; format: 'currency' | 'number'; color: string; danger?: boolean;
 }) {
-  const formatted = format === 'currency' ? `${value}K` : format === 'percent' ? `${Math.round(value)}%` : `${value}`;
+  const formatted = format === 'currency' ? `${value}K` : `${value}`;
   return (
     <div className="p-2 border-2" style={{ backgroundColor: StoryModeColors.surface, borderColor: danger ? StoryModeColors.danger : StoryModeColors.border }}>
       <div className="flex items-center gap-2 mb-1">
@@ -109,14 +112,24 @@ function ResourceCard({ icon, label, value, format, color, danger }: {
   );
 }
 
-function ObjectivesBlock({ objectives }: { objectives: Objective[] }) {
+function ObjectivesBlock({ objectives, onOpenMission }: { objectives: Objective[]; onOpenMission?: () => void }) {
   const primary = objectives.filter((o) => o.type === 'primary');
-  const completed = objectives.filter((o) => o.completed).length;
   return (
     <div className="p-3 border-2" style={{ backgroundColor: StoryModeColors.surface, borderColor: StoryModeColors.border }}>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-bold" style={{ color: StoryModeColors.textSecondary }}>MISSIONSZIELE</span>
-        <span className="text-xs" style={{ color: StoryModeColors.textMuted }}>{completed}/{objectives.length} erledigt</span>
+        {/* N2/Review C4: nur noch Halte-Ziele — ein „x/y erledigt" über diese Liste las
+            sich als „alle Missionsziele erreicht", obwohl das Wahlziel oben offen ist. */}
+        <span className="text-xs font-bold" style={{ color: StoryModeColors.textSecondary }}>HALTE-ZIELE</span>
+        {onOpenMission && (
+          <button
+            onClick={onOpenMission}
+            className="text-xs border px-1.5 py-0.5 hover:brightness-110"
+            style={{ borderColor: StoryModeColors.borderLight, color: StoryModeColors.textSecondary, background: 'transparent' }}
+            title="Zur vollständigen Auftrags-Akte (Taste M)"
+          >
+            AKTE [M] ▸
+          </button>
+        )}
       </div>
       <div className="space-y-2">
         {primary.slice(0, 4).map((obj) => {
@@ -190,7 +203,7 @@ function TeamBlock({ npcs }: { npcs: NPCState[] }) {
   );
 }
 
-export function LagebildView({ resources, phase, objectives, newsEvents, npcs, unreadNewsCount, worldEventCount, sonntagsfrage, abwehr, abwehrStages, auftrag, onClose }: LagebildViewProps): React.JSX.Element {
+export function LagebildView({ resources, phase, objectives, newsEvents, npcs, unreadNewsCount, worldEventCount, sonntagsfrage, abwehr, abwehrStages, auftrag, onOpenMission, onOpenStats, onClose }: LagebildViewProps): React.JSX.Element {
   return (
     <PixelModal
       open
@@ -214,13 +227,25 @@ export function LagebildView({ resources, phase, objectives, newsEvents, npcs, u
         {/* Drei Spalten: Ziele · Nachrichten · Team. N2: das Primärziel spricht
             jetzt oben das Rennen — hier bleiben nur die Halte-Ziele (survival). */}
         <div className="grid grid-cols-3 gap-3">
-          <ObjectivesBlock objectives={objectives.filter((o) => o.category === 'survival')} />
+          <ObjectivesBlock objectives={objectives.filter((o) => o.category === 'survival')} onOpenMission={onOpenMission} />
           <NewsBlock newsEvents={newsEvents} unreadCount={unreadNewsCount} />
           <TeamBlock npcs={npcs} />
         </div>
 
-        <div className="mt-3 text-center text-[11px]" style={{ color: StoryModeColors.textMuted }}>
-          {worldEventCount > 0 ? `${worldEventCount} Welt-Ereignis(se) offen — am Fenster prüfen.` : 'Überblick. Details an den Büro-Objekten — Terminal · Pinnwand · Akten · Telefon.'}
+        <div className="mt-3 flex items-center justify-center gap-3 text-[11px]" style={{ color: StoryModeColors.textMuted }}>
+          <span>
+            {worldEventCount > 0 ? `${worldEventCount} Welt-Ereignis(se) offen — am Fenster prüfen.` : 'Überblick. Details an den Büro-Objekten — Terminal · Pinnwand · Akten · Telefon.'}
+          </span>
+          {onOpenStats && (
+            <button
+              onClick={onOpenStats}
+              className="border px-1.5 py-0.5 hover:brightness-110"
+              style={{ borderColor: StoryModeColors.borderLight, color: StoryModeColors.textSecondary, background: 'transparent' }}
+              title="Detail-Statistik öffnen (Taste S)"
+            >
+              STATISTIK [S] ▸
+            </button>
+          )}
         </div>
       </div>
     </PixelModal>

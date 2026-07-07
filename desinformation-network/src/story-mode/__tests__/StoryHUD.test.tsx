@@ -10,7 +10,7 @@ import { StoryHUD } from '../components/StoryHUD';
 const baseProps = {
   resources: { budget: 50, capacity: 60, risk: 20, attention: 15, moralWeight: 10 },
   phase: { current: 5, year: 1, month: 1, electionDay: 40, actionPoints: 3, maxActionPoints: 5 },
-  sonntagsfrage: { pollPct: 18, thresholdPct: 20, auftragTitel: 'Die Wahl' },
+  sonntagsfrage: { pollPct: 18, thresholdPct: 20 },
 };
 
 describe('StoryHUD — genau vier Größen (§6)', () => {

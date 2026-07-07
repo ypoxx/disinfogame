@@ -9,12 +9,14 @@ import {
   OFFICE_HOTSPOTS,
   OFFICE_IMG,
   OFFICE_DECOR,
+  clampAnchor,
   coverTransform,
   hotspotAnchor,
   imgToContainer,
   polygonBBox,
   rectToContainer,
   svgPoints,
+  visibleFraction,
 } from '../components/officeHotspots';
 
 describe('officeHotspots Daten', () => {
@@ -80,5 +82,29 @@ describe('Geometrie-Helfer', () => {
     expect(hotspotAnchor(window)).toEqual([800, 130]);
     const exit = OFFICE_HOTSPOTS.find((h) => h.id === 'exit')!;
     expect(hotspotAnchor(exit)).toEqual([138, 300]);
+  });
+
+  it('visibleFraction: volle Sicht = 1, seitlicher Beschnitt schneidet die Tür weg', () => {
+    const exit = OFFICE_HOTSPOTS.find((h) => h.id === 'exit')!;
+    const full = coverTransform({ w: 1344, h: 768 }, { width: 1344, height: 768 });
+    expect(visibleFraction(exit, full, { w: 1344, h: 768 })).toBe(1);
+    // Schmale Fläche (Panel offen, halbes Fenster): Cover-Soft ×1.22, offsetX ≈ −343
+    // → rechte Türkante bei ≈ −66 px: Tür KOMPLETT außerhalb (Befund A2/B3).
+    const narrow = coverTransform({ w: 960, h: 940 }, { width: 1344 * 1.224, height: 768 * 1.224 });
+    expect(visibleFraction(exit, narrow, { w: 960, h: 940 })).toBe(0);
+  });
+
+  it('visibleFraction: flacher Beschnitt versteckt den Wand-Monitor (tv)', () => {
+    const tv = OFFICE_HOTSPOTS.find((h) => h.id === 'tv')!;
+    // Weltfläche 1344×350 → offsetY = −418: der Monitor (y 221–356) liegt oberhalb.
+    const flat = coverTransform({ w: 1344, h: 350 }, { width: 1344, height: 768 });
+    expect(visibleFraction(tv, flat, { w: 1344, h: 350 })).toBe(0);
+  });
+
+  it('clampAnchor hält Anker im Sichtbereich', () => {
+    const area = { w: 800, h: 600 };
+    expect(clampAnchor({ x: -50, y: -20 }, area)).toEqual({ x: 70, y: 28 });
+    expect(clampAnchor({ x: 900, y: 700 }, area)).toEqual({ x: 730, y: 592 });
+    expect(clampAnchor({ x: 400, y: 300 }, area)).toEqual({ x: 400, y: 300 });
   });
 });

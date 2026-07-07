@@ -645,9 +645,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       // Panel & view shortcuts (only when playing and no dialog open)
       if (state.gamePhase === 'playing' && !state.currentDialog) {
         const key = e.key.toLowerCase();
-        // Am offenen Terminal wirkt nur A (schließen) — andere Panel-Hotkeys
-        // öffneten sonst unsichtbar HINTER dem Schirm Seitenleisten-Reiter (E4).
-        if (showTerminal && key !== 'a') return;
+        // Am offenen Terminal/an der Tafel wirkt nur A (schließen bzw. wechseln) —
+        // andere Panel-Hotkeys öffneten sonst unsichtbar HINTER dem Schirm (E4).
+        if ((showTerminal || showBoard) && key !== 'a') return;
         switch (key) {
           // L2: A öffnet das Vorgangs-Terminal (die Aktionen-Seitenleiste ist Geschichte).
           case 'a': {
@@ -655,10 +655,15 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               // Beim Schließen per A den Berater-Sprung mit nullen (staler Highlight, E4).
               setShowTerminal(false);
               setHighlightActionId(null);
+            } else if (showBoard) {
+              // Tafel → Terminal wechseln: der Tafel-Hinweis „Maßnahmen wählt das
+              // Terminal [A]" wäre sonst ein No-op (Review-Befund A5).
+              setShowBoard(false);
+              setShowTerminal(true);
             } else if (
               // Nicht unsichtbar UNTER einem anderen Vollbild-Overlay mounten
               // (Overlay-Stack, E4 — inkl. Dossier/Hilfe, Verify-Nachtrag).
-              !showNewsroom && !showBoard && !showLagebild && !showOperationsAkte &&
+              !showNewsroom && !showLagebild && !showOperationsAkte &&
               !showFokusgruppe && !showPreTest && !showEncyclopedia && !showShortcuts
             ) {
               setShowTerminal(true);
@@ -896,6 +901,17 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     );
   }
 
+  // N2 (Review-Befund): EIN Renn-Schnappschuss für HUD, Tafel und Lagebild —
+  // dieselbe Quelle, dasselbe Vokabular; keine drei Inline-Kopien der Abbildung.
+  const wahlabend = state.engine.getWahlabendData();
+  const sonntagsfrage = { pollPct: wahlabend.finalPollPct, thresholdPct: wahlabend.thresholdPct };
+  const abwehr = state.engine.getAbwehr();
+  const abwehrStageInfo = state.engine.getAbwehrStageInfo();
+  // N0 (Review-Befund): die Grundregel „Dauer-Chrome nur im freien Spiel" einmal
+  // ableiten — Element-Spezifika (!currentDialog, !activePanel) bleiben lokal.
+  const chromeVisible =
+    (state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !fullscreenOverlayOpen;
+
   // Main Game View
   return (
     <div
@@ -920,12 +936,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           actionPoints: state.resources.actionPointsRemaining,
           maxActionPoints: state.resources.actionPointsMax,
         }}
-        sonntagsfrage={(() => {
-          const wa = state.engine.getWahlabendData();
-          return { pollPct: wa.finalPollPct, thresholdPct: wa.thresholdPct, auftragTitel: state.engine.getAuftrag().titel_de };
-        })()}
-        abwehr={state.engine.getAbwehr()}
-        abwehrStageInfo={state.engine.getAbwehrStageInfo()}
+        sonntagsfrage={sonntagsfrage}
+        abwehr={abwehr}
+        abwehrStageInfo={abwehrStageInfo}
         exposureCountdown={state.engine.getExposureCountdown()}
         onEndPhase={requestEndDay}
         onOpenMenu={pauseGame}
@@ -1022,7 +1035,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               übereinander: die Uhrzeit war im Grundzustand unlesbar. Der Cluster lebt
               in der Welt-Fläche (rückt mit dem Seitenpanel mit) und verschwindet unter
               Vollbild-Overlays. Der HUD-eigene MENÜ/H-Knopf übernimmt bei HUD an. */}
-          {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !fullscreenOverlayOpen && (
+          {chromeVisible && (
             <div className="absolute top-2 right-2 z-40 flex items-center gap-1">
               <DayClock />
               {!hudVisible && (
@@ -1258,11 +1271,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         {/* Narrativ-Tafel (2f): Sendeplan — Maßnahmen anheften, Gelegenheits-Fäden, ausspielen */}
         {showBoard && (
           <NarrativeBoard
-            sonntagsfrage={(() => {
-              const wa = state.engine.getWahlabendData();
-              return { pollPct: wa.finalPollPct, thresholdPct: wa.thresholdPct };
-            })()}
-            abwehr={state.engine.getAbwehr()}
+            sonntagsfrage={sonntagsfrage}
+            abwehr={abwehr}
             objectives={state.objectives.map((o) => ({
               id: o.id,
               label_de: o.label_de,
@@ -1276,22 +1286,16 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             threads={[
               // P4/B1: aktive Episoden = die Stränge am Korkbrett (das „Warum"). Fortschritt =
               // Anteil der bereits gespielten Einklink-Aktionen dieser Episode.
-              ...(state.activeEpisodes ?? []).map((ep) => {
-                const total = ep.einklink_aktionen.length || 1;
-                const done = ep.einklink_aktionen.filter((id) => state.completedActions.includes(id)).length;
-                return {
-                  id: ep.id,
-                  name: ep.titel_de,
-                  hint: ep.wendung_de,
-                  progress: done / total,
-                  expiresIn: 99,
-                };
-              }),
+              ...(state.activeEpisodes ?? []).map((ep) => ({
+                id: ep.id,
+                name: ep.titel_de,
+                hint: ep.wendung_de,
+                expiresIn: 99,
+              })),
               ...(state.comboHints ?? []).map((h) => ({
                 id: h.comboId,
                 name: h.comboName,
                 hint: h.hint_de,
-                progress: h.progress,
                 expiresIn: h.expiresIn,
               })),
             ]}
@@ -1326,13 +1330,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             npcs={state.npcs}
             unreadNewsCount={state.unreadNewsCount}
             worldEventCount={worldEventCount}
-            sonntagsfrage={(() => {
-              const wa = state.engine.getWahlabendData();
-              return { pollPct: wa.finalPollPct, thresholdPct: wa.thresholdPct };
-            })()}
-            abwehr={state.engine.getAbwehr()}
-            abwehrStages={state.engine.getAbwehrStageInfo()}
+            sonntagsfrage={sonntagsfrage}
+            abwehr={abwehr}
+            abwehrStages={abwehrStageInfo}
             auftrag={{ titel_de: state.engine.getAuftrag().titel_de }}
+            onOpenMission={() => { setShowLagebild(false); setActivePanel('mission'); }}
+            onOpenStats={() => { setShowLagebild(false); setActivePanel('stats'); }}
             onClose={() => setShowLagebild(false)}
           />
         )}
@@ -1341,6 +1344,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         {showDayReport && (
           <DayReport
             phase={state.storyPhase.number}
+            pinnedCount={state.actionQueue.length}
             headline={audience.lastItem?.headline ?? null}
             tierLabel={audience.lastItem ? audience.lastItem.tier.toUpperCase() : null}
             audienceSegments={audience.country.segments.map((seg) => ({
@@ -1571,10 +1575,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
       {/* Advisor Panel — während eines Gesprächs ausgeblendet (freie Sicht aufs NPC-Gespräch
           + dessen Maßnahmen-Optionen; Empfehlungen erscheinen jetzt diegetisch im Dialog).
-          N0: unter Vollbild-Overlays UND bei offenem Seitenpanel aus — die fixe Leiste
-          schwebte sonst über Terminal/Tafel bzw. über dem Panel-Inhalt. */}
-      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !state.currentDialog && !fullscreenOverlayOpen && !activePanel && (
+          N0: unter Vollbild-Overlays aus; bei offenem Seitenpanel rückt die Leiste
+          daneben (Review-Befund B6: Empfehlungen blieben sonst unsichtbar). */}
+      {chromeVisible && !state.currentDialog && (
         <AdvisorPanel
+          rightOffsetPx={activePanel ? 420 : 0}
           npcs={state.npcs.map(npc => ({
             id: npc.id,
             name: npc.name,
@@ -1621,7 +1626,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           der Tafel-Hotspot im Büro trägt den Zähler (archive/story-mode-drafts/). */}
 
       {/* Combo Hints Widget — im Gespräch ausgeblendet (kein Floating über dem Dialog) */}
-      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !state.currentDialog && !fullscreenOverlayOpen && state.comboHints && state.comboHints.length > 0 && (
+      {chromeVisible && !state.currentDialog && state.comboHints && state.comboHints.length > 0 && (
         <div
           className="fixed bottom-16 left-4 w-80 z-20"
           style={{ maxHeight: '40vh', overflowY: 'auto' }}

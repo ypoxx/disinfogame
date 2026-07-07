@@ -1,5 +1,6 @@
 import { StoryModeColors, stampCtaStyle } from '../theme';
 import { Icon, type IconName } from './Icon';
+import { formatPollPct, sonntagsfrageScale } from '../utils/rennen';
 
 // E29: Keyframe für pulsierendes RISIKO bei ≥70 — einmalig injiziert.
 const HUD_PULSE_STYLE = `
@@ -31,19 +32,6 @@ export interface StoryPhaseInfo {
   maxActionPoints: number;
 }
 
-/**
- * Gesellschaftswerte fürs HUD (B2/P1, O3: 4 sichtbar, niedrigschwellig).
- * Vertrauen kommt aus obj_destabilize; der Rest aus den neuen Zustandsfeldern.
- */
-export interface SocietyInfo {
-  vertrauen: number;        // Institutionen-Vertrauen (0–100, sinkt = Auftrags-Mittel)
-  polarisierung: number;
-  informationslast: number;
-  zynismus: number;
-  /** P5: Titel des laufenden strategischen Auftrags („Vertrauen = Mittel, Auftrag = Ziel"). */
-  auftragTitel?: string;
-}
-
 /** Etappe 3 Paket A: Stufen-Marken + bereits gezündete Stufen (`engine.getAbwehrStageInfo()`). */
 export interface AbwehrStageInfo {
   stages: readonly number[];
@@ -56,16 +44,11 @@ export interface SonntagsfrageInfo {
   pollPct: number;
   /** Machtwechsel-Schwelle (%, = WIN_THRESHOLD in derselben Abbildung). */
   thresholdPct: number;
-  /** Titel des laufenden Auftrags („Die Wahl"). */
-  auftragTitel?: string;
 }
 
 interface StoryHUDProps {
   resources: StoryResources;
   phase: StoryPhaseInfo;
-  /** DEPRECATED (Etappe 5, §6): die 8 Gesellschaftswerte verschwinden als HUD-Anzeige
-   *  (Wohnzimmer-Alphabet ersetzt sie). Prop bleibt optional für Rückwärts-Kompatibilität. */
-  society?: SocietyInfo;
   /** Etappe 5: der eigene Rennläufer — die Sonntagsfrage (Zielbild §6, HUD-Größe 1). */
   sonntagsfrage?: SonntagsfrageInfo;
   /** Etappe 3 Paket D: der zweite Rennläufer — ABWEHR 0–100 (befördertes wehrhaftigkeit). */
@@ -281,11 +264,8 @@ function AbwehrBar({ value, stageInfo }: AbwehrBarProps) {
  * Balken wächst Richtung Schwelle, der Zielstrich zeigt, wie weit noch fehlt.
  */
 function SonntagsfrageBar({ info }: { info: SonntagsfrageInfo }) {
-  // Skala bis knapp über die Schwelle, damit der Zielstrich nicht am Rand klebt.
-  const scaleMax = Math.max(info.pollPct, info.thresholdPct) + 6;
-  const barPct = Math.min(100, (info.pollPct / scaleMax) * 100);
-  const linePct = Math.min(100, (info.thresholdPct / scaleMax) * 100);
-  const reached = info.pollPct >= info.thresholdPct;
+  // Geteilte Skala (utils/rennen) — Lagebild zeigt denselben Balken in groß.
+  const { barPct, linePct, reached } = sonntagsfrageScale(info.pollPct, info.thresholdPct);
   return (
     <div className="flex items-center gap-2" data-testid="sonntagsfrage-bar">
       <Icon name="mission" size={20} title="SONNTAGSFRAGE — Ihr Umfragewert" fallback="S" />
@@ -295,7 +275,7 @@ function SonntagsfrageBar({ info }: { info: SonntagsfrageInfo }) {
             SONNTAGSFRAGE
           </span>
           <span style={{ color: StoryModeColors.warning, fontWeight: 800, fontSize: '0.85rem' }}>
-            {info.pollPct.toFixed(1)}%
+            {formatPollPct(info.pollPct)}
           </span>
         </div>
         <div className="relative" style={{ height: '4px' }}>

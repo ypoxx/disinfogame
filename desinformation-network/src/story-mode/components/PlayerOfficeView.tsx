@@ -18,12 +18,14 @@ import {
   OFFICE_HOTSPOTS,
   OFFICE_IMG,
   OFFICE_DECOR,
+  clampAnchor,
   coverTransform,
   hotspotAnchor,
   imgToContainer,
   polygonBBox,
   rectToContainer,
   svgPoints,
+  visibleFraction,
   type CoverTransform,
   type OfficeHotspotDef,
   type OfficeHotspotId,
@@ -86,6 +88,18 @@ const TUTORIAL_MARKERS: TutorialMarker[] = [
   { hotspotId: 'tv',       num: '③', text: 'Lagebild'        },
 ];
 
+// Label-Chip-Farbe je Hotspot — Record statt switch: ein neuer Hotspot ohne
+// Farbeintrag ist damit ein Compile-Fehler, kein stiller Default.
+const CHIP_COLOR: Record<OfficeHotspotId, string> = {
+  computer: StoryModeColors.ministryRed,
+  phone:    StoryModeColors.warning,
+  board:    StoryModeColors.agencyBlue,
+  files:    StoryModeColors.danger,
+  tv:       StoryModeColors.agencyBlue,
+  window:   StoryModeColors.militaryOlive,
+  exit:     StoryModeColors.concrete,
+};
+
 // ─── Hilfskomponenten ─────────────────────────────────────────────────────────
 
 /** Vier dezente Eck-Marken (┌ ┐ └ ┘) an der Polygon-BBox als Ruhe-Hinweis. */
@@ -141,15 +155,25 @@ export function PlayerOfficeView({
   const bgNat = useNaturalSize(bgUrl);
   const bgSnap = usePixelCover(areaSize, bgNat);
 
-  // Bild→Container-Transformation. Ohne Asset (CSS-Fallback-Welt) bleiben die
-  // Zonen bedienbar (A1): contain-zentriert über der dunklen Fläche.
-  let t: CoverTransform | null = null;
-  if (bgSnap) {
-    t = coverTransform(areaSize, bgSnap);
-  } else if (!bgUrl && areaSize.w > 0 && areaSize.h > 0) {
-    const s = Math.min(areaSize.w / OFFICE_IMG.w, areaSize.h / OFFICE_IMG.h);
-    t = coverTransform(areaSize, { width: OFFICE_IMG.w * s, height: OFFICE_IMG.h * s });
-  }
+  // Bild→Container-Transformation. Ohne Snap (kein Asset, Ladefehler ODER Bild
+  // noch unterwegs) bleiben die Zonen bedienbar (A1): contain-zentriert — die
+  // alte Bedingung `!bgUrl` ließ das Büro bei einem 404 dauerhaft ohne einen
+  // einzigen Hotspot zurück (Review-Befund A1/B2).
+  const t: CoverTransform | null = (() => {
+    if (bgSnap) return coverTransform(areaSize, bgSnap);
+    if (areaSize.w > 0 && areaSize.h > 0) {
+      const s = Math.min(areaSize.w / OFFICE_IMG.w, areaSize.h / OFFICE_IMG.h);
+      return coverTransform(areaSize, { width: OFFICE_IMG.w * s, height: OFFICE_IMG.h * s });
+    }
+    return null;
+  })();
+
+  // Cover-Beschnitt-Wächter: Zonen, die (fast) ganz außerhalb liegen — Tür bei
+  // schmalen, Wand-Monitor/Korkbrett bei flachen Flächen — bekommen einen
+  // Ersatz-Knopf in der Unterleiste, statt stumm zu verschwinden (A2/B3/C3).
+  const croppedHotspots = t
+    ? OFFICE_HOTSPOTS.filter((hs) => visibleFraction(hs, t, areaSize) < 0.25)
+    : [];
 
   const [hoveredId, setHoveredId] = useState<OfficeHotspotId | null>(null);
   const [tutorialVisible, setTutorialVisible] = useState<boolean>(showTutorialHints);
@@ -182,20 +206,6 @@ export function PlayerOfficeView({
     if (id === 'window') return worldEventCount;
     if (id === 'board') return pinnedActionCount;
     return 0;
-  };
-
-  // Label-Chip-Farbe je Hotspot
-  const chipColor = (id: OfficeHotspotId): string => {
-    switch (id) {
-      case 'computer': return StoryModeColors.ministryRed;
-      case 'phone':    return StoryModeColors.warning;
-      case 'board':    return StoryModeColors.agencyBlue;
-      case 'files':    return StoryModeColors.danger;
-      case 'tv':       return StoryModeColors.agencyBlue;
-      case 'window':   return StoryModeColors.militaryOlive;
-      case 'exit':     return StoryModeColors.concrete;
-      default:         return StoryModeColors.surface;
-    }
   };
 
   const crt = t ? rectToContainer(OFFICE_DECOR.crtScreen, t) : null;
@@ -333,25 +343,28 @@ export function PlayerOfficeView({
       {/* Chips, Badges, Tutorial-Marker — HTML über dem SVG, per Transformation
           an den Polygon-Ankern ausgerichtet. */}
       {t && OFFICE_HOTSPOTS.map((hs) => {
-        const anchor = imgToContainer(hotspotAnchor(hs), t);
+        // Beschnittene Zonen: Chip/Badge übernimmt der Ersatz-Knopf der Unterleiste.
+        if (croppedHotspots.includes(hs)) return null;
+        // Anker/Badge-Ecke in den Sichtbereich clampen — der Cover-Beschnitt darf
+        // Hinweise nicht unsichtbar machen (Befunde A3/A4).
+        const anchor = clampAnchor(imgToContainer(hotspotAnchor(hs), t), areaSize);
         const badge = badgeFor(hs.id);
         const bbox = polygonBBox(hs.polygon);
-        const corner = imgToContainer([bbox.x + bbox.w, bbox.y], t);
+        const corner = clampAnchor(imgToContainer([bbox.x + bbox.w, bbox.y], t), areaSize, 14, 14);
         return (
           <div key={hs.id} style={{ pointerEvents: 'none' }}>
-            {/* Label-Chip (erscheint bei Hover/Fokus); horizontal geclampt,
-                damit er bei beschnittenem Bild (Cover) nicht aus dem Sichtfeld ragt. */}
+            {/* Label-Chip (erscheint bei Hover/Fokus) */}
             {hoveredId === hs.id && (
               <span
                 style={{
                   position: 'absolute',
-                  left: Math.max(70, Math.min(areaSize.w - 70, anchor.x)),
-                  top: Math.max(28, anchor.y - 8),
+                  left: anchor.x,
+                  top: anchor.y - 8,
                   transform: 'translate(-50%, -100%)',
                   whiteSpace: 'nowrap',
                   backgroundColor: '#0d0d0d',
                   color: '#e8e4d8',
-                  border: `2px solid ${chipColor(hs.id)}`,
+                  border: `2px solid ${CHIP_COLOR[hs.id]}`,
                   padding: '2px 8px',
                   fontSize: 11,
                   fontWeight: 700,
@@ -400,8 +413,9 @@ export function PlayerOfficeView({
       {/* Tutorial-Hints (nummerierte Marker) */}
       {t && tutorialVisible && TUTORIAL_MARKERS.map((marker) => {
         const hs = OFFICE_HOTSPOTS.find((h) => h.id === marker.hotspotId);
-        if (!hs) return null;
-        const anchor = imgToContainer(hotspotAnchor(hs), t);
+        if (!hs || croppedHotspots.includes(hs)) return null;
+        // Marker ist ~44 px hoch und hängt ÜBER dem Anker → y-Clamp entsprechend.
+        const anchor = clampAnchor(imgToContainer(hotspotAnchor(hs), t), areaSize, 70, 48);
         return (
           <div
             key={marker.hotspotId}
@@ -492,6 +506,36 @@ export function PlayerOfficeView({
 
         {/* Dienstausweis — gewähltes Spieler-Porträt + Name (K10/D27) */}
         <Dienstausweis />
+
+        {/* Ersatz-Knöpfe für Zonen, die der Cover-Beschnitt aus dem Sichtfeld
+            geschoben hat (schmale/flache Flächen) — sonst hätte das Büro z. B.
+            keinen Ausgang mehr (A1; Befunde A2/B3/C3). */}
+        {croppedHotspots.length > 0 && (
+          <span style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
+            {croppedHotspots.map((hs) => {
+              const badge = badgeFor(hs.id);
+              return (
+                <button
+                  key={hs.id}
+                  onClick={() => handleClick(hs.id)}
+                  style={{
+                    backgroundColor: 'rgba(10,10,14,0.6)',
+                    border: `2px solid ${CHIP_COLOR[hs.id]}`,
+                    color: '#e8e4d8',
+                    padding: '3px 8px',
+                    fontSize: 11,
+                    fontFamily: "'VT323', monospace",
+                    fontWeight: 700,
+                    letterSpacing: 1,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {hs.label}{badge > 0 ? ` (${badge})` : ''}
+                </button>
+              );
+            })}
+          </span>
+        )}
 
         {/* Feierabend: Tag beenden (diegetischer Heimweg-Auslöser) */}
         <button

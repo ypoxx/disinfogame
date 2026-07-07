@@ -16,6 +16,7 @@ import { StoryModeColors } from '../theme';
 import { Icon } from './Icon';
 import { playSound } from '../utils/SoundSystem';
 import { isQueueBudgetFeasible } from '../utils/queueAffordability';
+import { formatAbwehr, formatPollPct, formatSchwellePct } from '../utils/rennen';
 import type { QueuedAction } from '../hooks/useStoryGameState';
 
 // ─── Typen ────────────────────────────────────────────────────────────────────
@@ -35,7 +36,6 @@ export interface BoardThread {
   id: string;
   name: string;
   hint: string;
-  progress: number; // 0..1
   expiresIn: number; // Phasen bis Ablauf
 }
 
@@ -67,7 +67,6 @@ const SPUR_LABELS = ['SPUR A', 'SPUR B', 'SPUR C'];
 const KEYFRAMES = `
   @keyframes nb-pin-in { 0% { transform: scale(0.7); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
   @keyframes nb-thread-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
-  @keyframes nb-fade-in { from { opacity: 0; } to { opacity: 1; } }
 `;
 
 // ─── Komponente ───────────────────────────────────────────────────────────────
@@ -98,12 +97,10 @@ export function NarrativeBoard({
 
   // Angeheftete Karten (Queue) auf die aktiven Spuren verteilen (Index-Rotation —
   // die Spur ist diegetische Organisation; die Engine-Queue bleibt flach).
-  const laneOf = (index: number) => index % slots;
   const queueBySpur = useMemo(() => {
     const lanes: QueuedAction[][] = Array.from({ length: slots }, () => []);
-    queue.forEach((q, i) => lanes[laneOf(i)].push(q));
+    queue.forEach((q, i) => lanes[i % slots].push(q));
     return lanes;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queue, slots]);
 
   // N2: Liegt das Wettrennen an (sonntagsfrage-Prop), sprechen die Kopf-Notizen
@@ -198,7 +195,7 @@ export function NarrativeBoard({
                   <Icon name="mission" size={12} title="Sonntagsfrage" />
                   <span className="text-[11px] font-bold">ZIEL: SONNTAGSFRAGE</span>
                   <span className="text-[11px]">
-                    {sonntagsfrage.pollPct.toFixed(1)} % · über {sonntagsfrage.thresholdPct.toFixed(0)} % am Wahltag
+                    {formatPollPct(sonntagsfrage.pollPct)} · über {formatSchwellePct(sonntagsfrage.thresholdPct)} am Wahltag
                   </span>
                 </div>
               )}
@@ -215,7 +212,7 @@ export function NarrativeBoard({
                 >
                   <Icon name="risk" size={12} title="Abwehr" />
                   <span className="text-[11px] font-bold">ABWEHR</span>
-                  <span className="text-[11px]">{Math.round(abwehr)}/100 — bei 100 ist Schluss</span>
+                  <span className="text-[11px]">{formatAbwehr(abwehr)} — bei 100 ist Schluss</span>
                 </div>
               )}
               {sortedObjectives.map((o, i) => (

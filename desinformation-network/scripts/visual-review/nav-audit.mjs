@@ -47,6 +47,14 @@ async function dismissAll(page, { maxTries = 16 } = {}) {
       await sleep(350);
       continue;
     }
+    // Offene Funktions-Views schließen (wie harvest.mjs) — ein hängengebliebenes
+    // Lagebild/Board machte die Folge-Checks sonst falsch-negativ (Review-Befund).
+    await vqa(page, () => {
+      const ui = window.__VQA__?.ui;
+      if (!ui) return;
+      ui.setShowNewsroom(false); ui.setShowPreTest(false); ui.setShowOperationsAkte(false);
+      ui.setShowFokusgruppe(false); ui.setShowLagebild(false); ui.setShowBoard(false);
+    }).catch(() => {});
     return;
   }
 }
@@ -71,6 +79,10 @@ const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } })
 const page = await ctx.newPage();
 const pageErrors = [];
 page.on('pageerror', (e) => pageErrors.push(e.message));
+
+// Scheitert der Vorlauf (z. B. umbenannter Intro-Knopf → __VQA__.ui fehlt), soll das
+// Skript geordnet mit ✘-Summary enden statt mit Stacktrace + Chromium-Leiche.
+try {
 
 // Frische Partie bis ins Büro
 await page.goto(`${BASE}/?vqa=1`, { waitUntil: 'networkidle' });
@@ -176,7 +188,12 @@ await page.keyboard.press('h');
 check('Keine Seiten-Fehler (pageerror)', pageErrors.length === 0);
 if (pageErrors.length) console.log('pageerrors:', pageErrors.slice(0, 5));
 
-await browser.close();
+} catch (err) {
+  console.error('Audit-Ablauf abgebrochen:', err?.message ?? err);
+  check('Audit-Ablauf ohne Absturz', false);
+} finally {
+  await browser.close().catch(() => {});
+}
 const failed = results.filter((r) => !r.ok);
 console.log(`\n${results.length - failed.length}/${results.length} Checks bestanden.`);
 process.exit(failed.length ? 1 : 0);

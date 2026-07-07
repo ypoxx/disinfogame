@@ -161,23 +161,89 @@ Vermessung bleibt davon unberührt (Rest des Bilds pixelidentisch).
 
 ## 4. Definition of Done
 
-- [ ] FEIERABEND in jedem Zustand sichtbar und klickbar; Tagesuhr immer lesbar.
-- [ ] Kein Dauer-Chrome über Vollbild-Overlays.
-- [ ] Hotspot-Polygone liegen in allen getesteten Viewports/Zuständen auf den
+- [x] FEIERABEND in jedem Zustand sichtbar und klickbar; Tagesuhr immer lesbar.
+- [x] Kein Dauer-Chrome über Vollbild-Overlays.
+- [x] Hotspot-Polygone liegen in allen getesteten Viewports/Zuständen auf den
       Möbeln (Overlay-Screenshot-Nachweis); Marker/Badges/Animationen driftfrei.
-- [ ] Klickzonen sind Polygone (Treffer = Möbel-Silhouette, nicht BBox).
-- [ ] Kein UI-Element spricht mehr das Alt-Vokabular (destabilisieren/Risiko/
-      Aufmerksamkeit/Informationslast als Anzeige).
-- [ ] Aktion wählen hat genau einen sichtbaren Ort (Terminal), ausführen genau
+- [x] Klickzonen sind Polygone (Treffer = Möbel-Silhouette, nicht BBox).
+- [x] Kein UI-Element spricht mehr das Alt-Vokabular (destabilisieren/Risiko/
+      Aufmerksamkeit/Informationslast als Anzeige; StatsPanel-Detailmeter sind
+      als Abwehr-Zuflüsse beschriftet).
+- [x] Aktion wählen hat genau einen sichtbaren Ort (Terminal), ausführen genau
       zwei (Terminal sofort, Tafel ausspielen), Queue genau einen (Tafel).
-- [ ] Gates grün: `npm run build` + `npx tsc --noEmit` + `npx vitest run`.
-- [ ] Nachkontrolle: `nav-audit.mjs`-Ernte nachher, Sichtprüfung aller Punkte;
+- [x] Gates grün: `npm run build` + `npx tsc --noEmit` + `npx vitest run` (640).
+- [x] Nachkontrolle: `nav-audit.mjs` 15/15, Sichtprüfung aller Punkte;
       Code-Review über den Gesamtdiff.
 
 ## 5. Umsetzungs-Status
 
-- [ ] N0 Chrome-Fixes
-- [ ] N1 Hotspot-Vermessung + SVG-Polygone (+ optional Tür-Prop)
-- [ ] N2 Zielvokabular
-- [ ] N3 Dedup (Tab-Bar, Tafel-Katalog, Queue-Widget)
-- [ ] Verifikation + Review
+- [x] N0 Chrome-Fixes *(Commit „N0: Chrome-Kollisionen behoben")* — Queue-Widget
+      leer nicht gerendert/eingeklappt/bottom-24; Eck-Cluster Uhr+☰+HUD;
+      `fullscreenOverlayOpen`; ComboHints gehoben; toter Import raus.
+- [x] N1 Hotspot-Vermessung + SVG-Polygone *(Commit „N1: Präzise Büro-Hotspots")* —
+      `officeHotspots.ts` (7 Polygone, Bild-px, getestet), SVG-Overlay mit
+      Polygon-Treffern, LAGEBILD auf den Wand-Monitor oben links korrigiert,
+      Mikro-Animationen bildverankert, Chips geclampt, Fallback ohne Asset.
+      **Tür-Prop: nicht nötig** — Glastür + Hover-Chip + Eck-Marken reichen;
+      das Raumbild enthielt alle 7 Funktionen (kein neues Asset generiert).
+- [x] N2 Zielvokabular *(Commits „N2: Ein Zielvokabular", „N2-Fix: Halte-Ziel")* —
+      HUD-Tracker raus (§6), Tafel-Kopf = zwei Läufer, Lagebild = DAS RENNEN
+      (Risiko/Aufmerksamkeit/Informationslast raus), StatsPanel-Meter als
+      Abwehr-Zuflüsse beschriftet.
+- [x] N3 Dedup *(Commit „N3: Navigations-Dedup")* — Tab-Bar raus, Tafel ohne
+      Zweitkatalog (Terminal-Verweis), Queue-Widget → `archive/story-mode-drafts/`
+      (Queue lebt an der Tafel, Zähler-Badge am Tafel-Hotspot).
+- [x] Verifikation — Gates grün (`tsc 0` · `vitest 640` · `build`);
+      `scripts/visual-review/nav-audit.mjs` (neu, wiederverwendbar):
+      **15/15 Checks** (FEIERABEND sichtbar, Uhr lesbar, Monitor-Klick öffnet
+      Lagebild, kein Alt-Vokabular, kein Chrome über Overlays, Tafel ohne
+      Katalog, Panel ohne Tab-Bar, HUD ohne Tracker, keine pageerrors);
+      Drift-Probe 1280+1600 × Broadcast/Panel: Polygone kleben an den Möbeln.
+      Code-Review (8 Finder-Winkel + Verify) über den Gesamtdiff gelaufen —
+      Befunde und Fixes im PR dokumentiert.
+
+## 6. Code-Review-Befunde (2026-07-07) — gefixt in „Review-Fixes"-Commit
+
+Bestätigte Regressionen (alle behoben):
+1. **Bild-Ladefehler nahm dem Büro alle Klickzonen** (Fallback griff nur bei
+   fehlender Asset-URL) → Contain-Fallback greift jetzt immer ohne Snap.
+2. **Cover-Beschnitt konnte Zonen verstecken** (Tür horizontal bei schmalen,
+   Wand-Monitor/Korkbrett vertikal bei flachen Flächen; Lagebild wäre dann
+   unerreichbar) → `visibleFraction`-Wächter (getestet): beschnittene Zonen
+   bekommen Ersatz-Knöpfe in der Unterleiste; Chips/Badges/Marker geclampt.
+3. **MISSION/STATISTIK ohne Maus-/Touch-Weg** (Tab-Bar weg, kein Hotspot) →
+   Sprung-Knöpfe im Lagebild (AKTE [M] ▸ / STATISTIK [S] ▸).
+4. **Angeheftete Karten verfielen stumm beim Feierabend** (das erinnernde
+   Queue-Widget ist weg) → Tagesfazit nennt ungespielte Tafel-Karten.
+5. **Tafel-Hinweis „Terminal [A]" war ein No-op** bei offener Tafel → A wechselt
+   jetzt Tafel→Terminal; Hotkey-Guard deckt die Tafel mit ab (E4).
+6. **Tutorial lehrte entfernte UI** (Queue-Widget, Ziel-Tracker, Alt-Vokabular)
+   → Schritte „Planen an der Tafel" + „Das Rennen".
+7. **Lagebild „1/1 erledigt"** über Halte-Ziele las sich als „alles erreicht" →
+   Block heißt HALTE-ZIELE, ohne Zähler.
+8. **Berater-Empfehlungen bei offenem Panel unsichtbar** → Leiste rückt neben
+   das Panel (rightOffsetPx) statt zu verschwinden.
+9. Drift-Risiken: Renn-Skala/Format dreifach kopiert → `utils/rennen.ts`
+   (getestet) als eine Quelle; Renn-Schnappschuss EINmal im Render abgeleitet;
+   tote Props/Zweige entfernt (SocietyInfo, auftragTitel, percent-Karte,
+   BoardThread.progress, nb-fade-in, laneOf-Suppression, chipColor→Record).
+
+**Bewusst NICHT geändert** (Design-Entscheid): Pause/HUD am offenen Vollbild-
+Overlay — Esc schließt das Overlay, zweites Esc pausiert (Standard-Muster);
+die alten schwebenden Knöpfe ÜBER dem Terminal waren die N0-Bugklasse.
+
+## 7. Folgearbeiten (empfohlen, nicht Teil dieses Pakets)
+
+- **Overlay-Registry:** `fullscreenOverlayOpen` + 'a'-Hotkey-Guard +
+  `ambienceOverlay` pflegen dieselbe Overlay-Liste dreifach → ein
+  `activeOverlay: OverlayId | null` im panelStore (vor L4/L5 lohnend).
+- **Alt-Primärziel im Adapter kappen:** der „survival-only"-Filter liegt als
+  Fachregel in zwei Views; sauberer liefert der Adapter das überholte
+  `obj_destabilize` gar nicht mehr als anzeigbares Ziel aus.
+- **Ernte-Helfer konsolidieren:** `nav-audit.mjs` dupliziert
+  clickButton/dismissAll/Intro-Strecke aus `harvest.mjs` → nach
+  `browser-snippets.mjs` extrahieren.
+- **Stufen-Kerben teilen:** AbwehrBar (HUD) und RennenBlock (Lagebild)
+  zeichnen die 25/50/75-Kerben doppelt (inkl. §4.7-Farbregel).
+- `coverTransform`-Offsets optional per `snapToDevicePixel` runden
+  (Subpixel-Kante bei dpr>1; visuell aktuell nicht auffällig).
