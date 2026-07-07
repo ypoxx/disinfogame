@@ -18,17 +18,17 @@ import {
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
-const angry1: Persona = { id: 'angry1', name: 'Wütend A', milieu: 'Abgehängte', segmentId: 'zorniger', bio: '', vulnerabilities: ['Empörung'], receptivity: { hope: -0.7, fear: 0.2, anger: 0.9, trust: -0.8 } };
-const angry2: Persona = { id: 'angry2', name: 'Wütend B', milieu: 'Abgehängte', segmentId: 'zorniger', bio: '', vulnerabilities: ['Ohnmacht'], receptivity: { hope: -0.1, fear: 0.3, anger: 0.3, trust: -0.4 } };
-const worried: Persona = { id: 'worried', name: 'Besorgt', milieu: 'Mitte', segmentId: 'besorgte_mitte', bio: '', vulnerabilities: ['Abstiegsangst'], receptivity: { hope: -0.2, fear: 0.8, anger: 0.1, trust: -0.3 } };
-const lib: Persona = { id: 'lib', name: 'Liberal', milieu: 'Liberale', segmentId: 'liberale', bio: '', vulnerabilities: ['Seriosität'], receptivity: { hope: 0.35, fear: -0.3, anger: -0.4, trust: 0.6 } };
+const angry1: Persona = { id: 'angry1', name: 'Wütend A', gruppe: 'Abgehängte', segmentId: 'zorniger', bio: '', vulnerabilities: ['Empörung'], receptivity: { hope: -0.7, fear: 0.2, anger: 0.9, trust: -0.8 } };
+const angry2: Persona = { id: 'angry2', name: 'Wütend B', gruppe: 'Abgehängte', segmentId: 'zorniger', bio: '', vulnerabilities: ['Ohnmacht'], receptivity: { hope: -0.1, fear: 0.3, anger: 0.3, trust: -0.4 } };
+const worried: Persona = { id: 'worried', name: 'Besorgt', gruppe: 'Mitte', segmentId: 'besorgte_mitte', bio: '', vulnerabilities: ['Abstiegsangst'], receptivity: { hope: -0.2, fear: 0.8, anger: 0.1, trust: -0.3 } };
+const lib: Persona = { id: 'lib', name: 'Liberal', gruppe: 'Liberale', segmentId: 'liberale', bio: '', vulnerabilities: ['Seriosität'], receptivity: { hope: 0.35, fear: -0.3, anger: -0.4, trust: 0.6 } };
 
 const POP: Persona[] = [angry1, angry2, worried, lib];
 
 const SEGMENTS: SegmentInfo[] = [
-  { id: 'wu_zorniger', label_de: 'Die Abgehängten', milieu: 'prekaer', size: 0.12, belief: 0.3 },
-  { id: 'wu_besorgte_mitte', label_de: 'Die besorgte Mitte', milieu: 'buergerlich', size: 0.2, belief: 0.3 },
-  { id: 'wu_liberale', label_de: 'Die Liberalen', milieu: 'liberal', size: 0.1, belief: 0.3 },
+  { id: 'wu_zorniger', label_de: 'Die Abgehängten', size: 0.12, belief: 0.3 },
+  { id: 'wu_besorgte_mitte', label_de: 'Die besorgte Mitte', size: 0.2, belief: 0.3 },
+  { id: 'wu_liberale', label_de: 'Die Liberalen', size: 0.1, belief: 0.3 },
 ];
 
 // Ziele nur für Mitte + Liberale (Abgehängte bleiben ziel-los → Teil-Empfehlung).

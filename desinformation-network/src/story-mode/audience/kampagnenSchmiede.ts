@@ -112,13 +112,12 @@ export function buildWirkungsMatrix(personas: Persona[], sampleIds: string[]): W
 
 // ─── Kampagnen-Empfehlungen ───────────────────────────────────────────────────
 
-/** Minimal-Info je Audience-Milieu, die die Schmiede zum Priorisieren braucht. */
+/** Minimal-Info je Audience-Resonanzgruppe, die die Schmiede zum Priorisieren braucht. */
 export interface SegmentInfo {
   /** wu_-Form. */
   id: string;
   label_de: string;
-  milieu: string;
-  /** Bevölkerungsanteil 0..1 (gewichtet die Priorität — große Milieus zuerst). */
+  /** Bevölkerungsanteil 0..1 (gewichtet die Priorität — große Gruppen zuerst). */
   size: number;
   /** Aktueller Glaube ans gegnerische Narrativ 0..1 (1−belief = Luft nach oben). */
   belief: number;

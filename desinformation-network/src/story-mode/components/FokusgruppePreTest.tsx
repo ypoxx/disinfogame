@@ -220,7 +220,7 @@ export function FokusgruppePreTest({
                   }}
                 >
                   <div style={{ fontWeight: 700 }}>{p.name}</div>
-                  <div style={{ fontSize: 11, color: StoryModeColors.lightConcrete }}>{p.milieu}</div>
+                  <div style={{ fontSize: 11, color: StoryModeColors.lightConcrete }}>{p.gruppe}</div>
                 </button>
               );
             })}
@@ -446,7 +446,7 @@ function PreTestResultView({
               </div>
               <div style={{ padding: 8 }}>
                 <div style={{ fontWeight: 700 }}>{p.name}</div>
-                <div style={{ fontSize: 11, color: StoryModeColors.lightConcrete, marginBottom: 4 }}>{p.milieu}</div>
+                <div style={{ fontSize: 11, color: StoryModeColors.lightConcrete, marginBottom: 4 }}>{p.gruppe}</div>
                 <div style={{ fontSize: 12, color: MOOD_COLOR[r.mood], fontWeight: 700 }}>{MOOD_LABEL[r.mood]}</div>
                 {p.vulnerabilities.length > 0 && (
                   <div style={{ fontSize: 11, color: StoryModeColors.lightConcrete, marginTop: 4 }}>

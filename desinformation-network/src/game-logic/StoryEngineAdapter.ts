@@ -4943,7 +4943,7 @@ export class StoryEngineAdapter {
           .map((f) => this.methodFamilies.find((m) => m.id === f)?.label_de ?? f)
           .map((l) => `„${l}"`)
           .join(', ');
-        lines.push(`Prebunking wirkt: ${labels} ${familien.length > 1 ? 'gelten' : 'gilt'} in den erreichten Milieus als durchschaut${countered ? ' (abgeschwächt)' : ''}.`);
+        lines.push(`Prebunking wirkt: ${labels} ${familien.length > 1 ? 'gelten' : 'gilt'} in den erreichten Resonanzgruppen als durchschaut${countered ? ' (abgeschwächt)' : ''}.`);
         lines.push('Nur wer klassische Medien meidet, bleibt unerreicht.');
         storyLogger.log(`[MaschenGedaechtnis] Prebunking (cm24): ${familien.join(', ')} → ${erreichte.length} Milieus geimpft (Stärke ${staerke})`);
       } else {
@@ -6656,7 +6656,7 @@ export class StoryEngineAdapter {
         branch: 'immune',
         title_de: 'Das Land hält stand',
         title_en: 'The Country Holds',
-        description_de: 'Das Immunsystem der Gesellschaft hat Sie eingeholt: Faktenchecker, Behörden, abgestumpfte Milieus — Ihre Maschen verfangen nicht mehr. Die Operation ist wirkungslos geworden.',
+        description_de: 'Das Immunsystem der Gesellschaft hat Sie eingeholt: Faktenchecker, Behörden, abgestumpfte Resonanzgruppen — Ihre Maschen verfangen nicht mehr. Die Operation ist wirkungslos geworden.',
         description_en: 'The society\'s immune system has caught up with you: fact-checkers, agencies, hardened audiences — your schemes no longer stick. The operation has become inert.',
         stats,
         epilogue_de: 'In der Sondersendung laufen Ihre eigenen Schlagzeilen als Beweismittel — Masche für Masche erklärt, mit rotem GEFÄLSCHT-Stempel. Unten im Bild: Ihr Bürogebäude, Blaulicht.',

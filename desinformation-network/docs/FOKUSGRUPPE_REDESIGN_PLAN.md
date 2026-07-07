@@ -204,20 +204,20 @@ Aktion (`actionId` in `OperationAnalysis`, ohne Schema-Änderung).
 
 Jede Phase endet grün: `npm run build` + `npx tsc --noEmit` + `npx vitest run`.
 
-## 9 · Offene Owner-Entscheidungen (vor der Umsetzung)
+## 9 · Owner-Entscheidungen — BESCHLOSSEN (2026-07-07)
 
-1. **Umfang/Phasing:** Phase 0–4 zuerst (greifbarer Redesign ohne `receptivity` zu
-   töten), Phase 5 (tiefer Umbau + E16-Engine) separat später? — *Empfehlung: ja.*
-2. **Zahl oder Stempel:** Vortest zeigt nur Stempel/„N Stöße" (per „nie die Matrix als
-   Zahl"); konkrete „+3-5 Sonntagsfrage" erst mit dem E16-Engine-PR? — *Empfehlung: ja
-   (Stempel jetzt, Zahlen später).*
-3. **Neubenennung:** „Resonanzgruppe" + die 8 Namen (§5) bestätigen; Labels schärfen
-   (ein sauberer Namenssatz, größerer Diff) oder minimal (nur Sinus-Feld tauschen)?
-4. **Kanonische Einwand-Quelle** (E2/Prebunk): Familie-`counter_de` (mechanisch,
-   existiert) vs. Persona-`keim_de` (O-Ton) vs. Segment-Feld? — *Empfehlung:
-   `counter_de` als Rückgrat, Persona-`keim_de` als Flavor.*
-5. **Host der erzählerischen Persona-Reaktionen:** Pre-Test-Modal (wo die Aktion
-   bekannt ist) statt Ambient-`FokusgruppeView`? — *Empfehlung: Pre-Test-Modal.*
+1. **Umfang: ALLES in einem Zug.** Phase 0–5 werden umgesetzt, inkl. tiefem Umbau
+   (`receptivity` stilllegen, Dossier-Arcs migrieren) und dem E16-Engine-PR
+   (belief-Writeback + Kippen→fraktionsstärke). Intern phasenweise, jede Phase grün.
+2. **Anzeige: NUR Stempel/Stöße, keine Zahlen.** Der Vortest zeigt FRISCH/BEKANNT/
+   VERBRANNT + „noch N Stöße bis zur Parteifahne" — nie Prozente/„+3-5". Die E16-
+   Kippen-**Mechanik** wird gebaut (Teil von Umfang 1), aber im Vortest **qualitativ**
+   dargestellt. („Nie die Matrix als Zahl" bleibt bindend.)
+3. **Neubenennung: „Resonanzgruppen" + Namen schärfen.** Ein sauberer, einheitlicher
+   Namenssatz (§5), audience + personas in Deckung. IDs bleiben.
+4. **Einwand-Quelle:** Familie-`counter_de` als Rückgrat + Persona-`keim_de` als Flavor.
+5. **Host der Persona-Reaktionen:** Pre-Test-Modal (aktions-bewusst), nicht der
+   Ambient-`FokusgruppeView`.
 
 ## 10 · Bekannte Lücken / Waisen (mitdenken)
 

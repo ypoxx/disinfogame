@@ -24,7 +24,7 @@ const country: AudienceCountry = {
   id: 'test', label_de: 'Test',
   segments: [
     {
-      id: 's1', label_de: 'Seg 1', milieu: 'm', demographics: { age: 'x', lean: 'y' },
+      id: 's1', label_de: 'Seg 1', profil: 'm', demographics: { age: 'x', lean: 'y' },
       vulnerabilities: ['misstrauen_medien'], size: 0.5, mood: 'ruhig', belief: 0.3, reachedBy: ['tv'],
     },
   ],

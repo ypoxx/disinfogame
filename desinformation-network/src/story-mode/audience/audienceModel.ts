@@ -28,7 +28,8 @@ export const MOOD_LABEL_DE: Record<Mood, string> = {
 export interface AudienceSegment {
   id: string;
   label_de: string;
-  milieu: string;
+  /** Sinus-freier Struktur-Deskriptor der Resonanzgruppe (ersetzt das frühere 'milieu'). */
+  profil: string;
   demographics: { age: string; lean: string };
   /** IDs aus audience.json → meta.vulnerabilities */
   vulnerabilities: string[];

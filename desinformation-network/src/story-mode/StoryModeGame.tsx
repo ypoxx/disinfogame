@@ -1224,7 +1224,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             segments={audience.country.segments.map((seg) => ({
               id: seg.id,
               label_de: seg.label_de,
-              milieu: seg.milieu,
+              profil: seg.profil,
               mood: seg.mood,
               belief: seg.belief,
               vulnerabilities: seg.vulnerabilities,
@@ -1245,7 +1245,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             segments={audience.country.segments.map((seg) => ({
               id: seg.id,
               label_de: seg.label_de,
-              milieu: seg.milieu,
               size: seg.size,
               belief: seg.belief,
             }))}

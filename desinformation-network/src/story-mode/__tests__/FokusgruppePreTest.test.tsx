@@ -10,9 +10,9 @@ import { FokusgruppePreTest } from '../components/FokusgruppePreTest';
 import type { Persona } from '../audience/fokusgruppeModel';
 
 const POP: Persona[] = [
-  { id: 'opt', name: 'Optimist', milieu: 'Optimisten', segmentId: 'optimiererin', bio: '', vulnerabilities: ['FOMO'], receptivity: { hope: 0.8, fear: 0, anger: -0.6, trust: 0.4 } },
-  { id: 'worried', name: 'Besorgt', milieu: 'Mitte', segmentId: 'besorgte_mitte', bio: '', vulnerabilities: ['Abstiegsangst'], receptivity: { hope: -0.2, fear: 0.8, anger: 0.1, trust: -0.3 } },
-  { id: 'angry', name: 'Wütend', milieu: 'Abgehängte', segmentId: 'zorniger', bio: '', vulnerabilities: ['Empörung'], receptivity: { hope: -0.7, fear: 0.2, anger: 0.9, trust: -0.8 } },
+  { id: 'opt', name: 'Optimist', gruppe: 'Optimisten', segmentId: 'optimiererin', bio: '', vulnerabilities: ['FOMO'], receptivity: { hope: 0.8, fear: 0, anger: -0.6, trust: 0.4 } },
+  { id: 'worried', name: 'Besorgt', gruppe: 'Mitte', segmentId: 'besorgte_mitte', bio: '', vulnerabilities: ['Abstiegsangst'], receptivity: { hope: -0.2, fear: 0.8, anger: 0.1, trust: -0.3 } },
+  { id: 'angry', name: 'Wütend', gruppe: 'Abgehängte', segmentId: 'zorniger', bio: '', vulnerabilities: ['Empörung'], receptivity: { hope: -0.7, fear: 0.2, anger: 0.9, trust: -0.8 } },
 ];
 
 describe('FokusgruppePreTest', () => {
@@ -53,9 +53,9 @@ import type { Target, Carrier, Platform } from '../battlefield/BattlefieldChain'
 import type { SegmentInfo, CampaignSeed } from '../audience/kampagnenSchmiede';
 
 const SEGMENTS: SegmentInfo[] = [
-  { id: 'wu_optimiererin', label_de: 'Die Optimierer', milieu: 'performer', size: 0.1, belief: 0.2 },
-  { id: 'wu_besorgte_mitte', label_de: 'Die besorgte Mitte', milieu: 'buergerlich', size: 0.2, belief: 0.3 },
-  { id: 'wu_zorniger', label_de: 'Die Abgehängten', milieu: 'prekaer', size: 0.12, belief: 0.5 },
+  { id: 'wu_optimiererin', label_de: 'Die Optimierer', size: 0.1, belief: 0.2 },
+  { id: 'wu_besorgte_mitte', label_de: 'Die besorgte Mitte', size: 0.2, belief: 0.3 },
+  { id: 'wu_zorniger', label_de: 'Die Abgehängten', size: 0.12, belief: 0.5 },
 ];
 const TARGETS: Target[] = [
   { id: 't_mitte', name: 'Rolf Veen', role_de: 'Hinterbänkler', milieu: 'wu_besorgte_mitte', fiktiv: true, standing: 0.5, vulnerabilities: [{ id: 'schulden', label_de: 'Spielschulden', heikelheit: 0.7, glaubwuerdigkeit: 0.7 }] },
