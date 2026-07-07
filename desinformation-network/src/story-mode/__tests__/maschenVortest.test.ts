@@ -9,9 +9,9 @@ import { leeresMaschenGedaechtnis, registriereEinsatz } from '../engine/MaschenG
 import type { MethodFamilyRef } from '../engine/ImmuneSystem';
 
 const segmente = loadAudience()[0].segments;
-const FAMILIES: MethodFamilyRef[] = [
-  { id: 'rumor_ecology', label_de: 'Gerüchte-Ökologie', matchTags: ['rumor', 'confusion'] },
-];
+const FAMILIES = [
+  { id: 'rumor_ecology', label_de: 'Gerüchte-Ökologie', matchTags: ['rumor', 'confusion'], counter_de: 'Wer ist die Quelle? Ein „man hört" ist kein Beleg.' },
+] satisfies (MethodFamilyRef & { counter_de: string })[];
 const RUMOR = ['rumor', 'confusion', 'conspiracy'];
 const alleIds = segmente.map((s) => s.id);
 const seg = (r: ReturnType<typeof vortestMasche>, id: string) => r.segmente.find((s) => s.segmentId === id)!;
@@ -52,6 +52,21 @@ describe('vortestMasche', () => {
   it('deterministisch: gleiche Eingabe → gleiche Ausgabe', () => {
     const ctx = { segmente, gedaechtnis: leeresMaschenGedaechtnis(), phase: 3, families: FAMILIES };
     expect(vortestMasche(RUMOR, alleIds, ctx)).toEqual(vortestMasche(RUMOR, alleIds, ctx));
+  });
+
+  it('E2/E3: Einwand-Keim der Familie + Kipp-Nähe qualitativ (Stöße, keine Zahl)', () => {
+    const r = vortestMasche(RUMOR, alleIds, { segmente, gedaechtnis: leeresMaschenGedaechtnis(), phase: 1, families: FAMILIES });
+    // E2: der counter_de der getroffenen Familie ist der versteckte Einwand.
+    expect(r.einwand_de).toMatch(/Quelle/);
+    expect(r.einwandReife).toEqual({ einsaetze: 0, patchBei: 3 });
+    // E3: die Abgehängten (belief 0.50, volle Wirkung) stehen kurz vorm Umschlagen.
+    const zorn = seg(r, 'wu_zorniger');
+    expect(zorn.kippNah).toBe(true);
+    expect(zorn.stoesseBisFahne).toBe(2); // (0.75−0.50)/(1.0×0.2) = 2 Stöße
+    // Eine nicht resonante, erreichte Gruppe kippt nicht.
+    const mitte = seg(r, 'wu_besorgte_mitte');
+    expect(mitte.wirkung).toBe(0);
+    expect(mitte.kippNah).toBe(false);
   });
 
   it('cardRegister etikettiert Familie · Themen · Kanal', () => {

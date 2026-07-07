@@ -24,10 +24,19 @@ import {
   type MaschenStempel,
   type MaschenGedaechtnisState,
 } from '../engine/MaschenGedaechtnis';
-import { methodFamilyForTags, type MethodFamilyRef } from '../engine/ImmuneSystem';
+import { methodFamilyForTags, PATCH_EVERY_N_USES, type MethodFamilyRef } from '../engine/ImmuneSystem';
 
 /** Ab dieser effektiven Immunität gilt eine Gruppe als „geimpft" (identisch zum Wohnzimmer-Alphabet). */
 export const GEIMPFT_SCHWELLE = 0.15;
+/** Überzeugungs-Schwelle, ab der die Parteifahne im Fenster hängt (= broadcastMapping.FAHNE_BELIEF_SCHWELLE). */
+export const FAHNE_SCHWELLE = 0.75;
+/** Innerhalb so vieler Stöße bis zur Fahne gilt eine Gruppe als Kipp-Kandidat (E3, qualitativ). */
+export const KIPP_STOSS_NAH = 3;
+
+/** Familie inkl. Gegennarrativ-Text (counter_de) — die Live-Familien tragen ihn bereits. */
+export interface FamilieRef extends MethodFamilyRef {
+  counter_de?: string;
+}
 
 /** Vortest-Zeile je Resonanzgruppe. */
 export interface SegmentVortest {
@@ -45,6 +54,12 @@ export interface SegmentVortest {
   geimpft: boolean;
   /** Prognostizierte Aufnahme 0..1 = Resonanz × (Abnutzung × (1−Impfung)). */
   wirkung: number;
+  /** Wittert die Masche (geimpft ODER verbrannt) — Keim des Gegen-Narrativs (E2). */
+  wittert: boolean;
+  /** Kurz vorm Umschlagen (in ≤ KIPP_STOSS_NAH Stößen bis zur Fahne, E3). */
+  kippNah: boolean;
+  /** Qualitativ: geschätzte Stöße bis zur Parteifahne (keine Sonntagsfrage-Zahl). */
+  stoesseBisFahne: number;
 }
 
 export interface MaschenVortestResult {
@@ -61,13 +76,17 @@ export interface MaschenVortestResult {
   /** Bevölkerungsanteil in der Stichprobe (0..1). */
   representativeness: number;
   warning: string | null;
+  /** Versteckter Einwand (Gegennarrativ der Familie), den die ABWEHR später aufgreift (E2). */
+  einwand_de: string | null;
+  /** Reife des Einwands: wie oft die Familie schon lief, wann die Abwehr ihn aufgreift (E2). */
+  einwandReife: { einsaetze: number; patchBei: number } | null;
 }
 
 export interface VortestContext {
   segmente: AudienceSegment[];
   gedaechtnis: MaschenGedaechtnisState;
   phase: number;
-  families: MethodFamilyRef[];
+  families: FamilieRef[];
 }
 
 /** Kühles Aktendeckel-Etikett einer Masche-Karte: Familie · Themen · Kanal (kein Lehrsatz). */
@@ -109,6 +128,13 @@ export function vortestMasche(
     const mult = fam ? wirkungsMultiplikator(ctx.gedaechtnis, seg.id, fam.id, ctx.phase) : 1;
     const stempel: MaschenStempel = fam ? stempelFuer(ctx.gedaechtnis, seg.id, fam.id, ctx.phase) : 'frisch';
     const geimpft = fam ? effektiveImpfung(ctx.gedaechtnis, seg.id, fam.id, ctx.phase) >= GEIMPFT_SCHWELLE : false;
+    const wirkung = reached ? resonanz * mult : 0;
+    // E3: Stöße bis zur Fahne = Lücke bis zur Kipp-Schwelle / Überzeugungs-Gewinn je Einsatz
+    // (beliefDelta = Wirkung × 0,2, wie audienceModel.reactToEffect). Nur qualitativ, keine Punktzahl.
+    const luecke = FAHNE_SCHWELLE - seg.belief;
+    const deltaProStoss = wirkung * 0.2;
+    const stoesseBisFahne = luecke <= 0 ? 0 : deltaProStoss <= 0.001 ? 99 : Math.ceil(luecke / deltaProStoss);
+    const kippNah = stoesseBisFahne >= 1 && stoesseBisFahne <= KIPP_STOSS_NAH;
     return {
       segmentId: seg.id,
       label_de: seg.label_de,
@@ -117,7 +143,10 @@ export function vortestMasche(
       gewicht,
       stempel,
       geimpft,
-      wirkung: reached ? resonanz * mult : 0,
+      wirkung,
+      wittert: geimpft || stempel === 'verbrannt',
+      kippNah,
+      stoesseBisFahne,
     };
   });
   segmente.sort((a, b) => b.gewicht - a.gewicht);
@@ -154,6 +183,11 @@ export function vortestMasche(
     warning = 'Stichprobe deckt nicht die ganze Westunion ab — Ergebnis mit Vorsicht lesen.';
   }
 
+  // E2: der Gegennarrativ-Keim der Familie + wie oft sie schon lief (Reife bis zum Patch).
+  const einwand_de = fam ? (ctx.families.find((f) => f.id === fam.id)?.counter_de ?? null) : null;
+  const einsaetze = fam ? (ctx.gedaechtnis.familienEinsaetze[fam.id] ?? 0) : 0;
+  const einwandReife = fam ? { einsaetze, patchBei: PATCH_EVERY_N_USES } : null;
+
   return {
     familieId: fam?.id ?? null,
     familieLabel: fam?.label_de ?? null,
@@ -163,5 +197,7 @@ export function vortestMasche(
     sampleBias,
     representativeness,
     warning,
+    einwand_de,
+    einwandReife,
   };
 }
