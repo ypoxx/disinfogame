@@ -770,6 +770,12 @@ export class StoryEngineAdapter {
   private episodesOffered: Set<string> = new Set();
   private episodesActive: Set<string> = new Set();
   private episodesCompleted: Set<string> = new Set();
+  /**
+   * R4 (Berater-Regie): NPCs, die bei einer Angebots-Entscheidung übergangen
+   * wurden und beim nächsten Besuch darauf reagieren. In der Engine (statt im
+   * Hook), damit der Groll Save/Load übersteht. Reine String-Menge.
+   */
+  private passedOverNpcs: Set<string> = new Set();
   /** Slice 4: bereits aufgelöste Entscheidungs-Beats (damit der Director sie nicht erneut zieht). */
   private resolvedDecisionBeats: Set<string> = new Set();
   /** Schicht 3: Narrativ-Gedächtnis (welche Themen liefen wie oft, wie inokuliert). */
@@ -6341,6 +6347,24 @@ export class StoryEngineAdapter {
     return Array.from(this.npcStates.values());
   }
 
+  // R4 (Berater-Regie): „übergangen"-Groll, persistent über Save/Load.
+  /** Markiert einen NPC als übergangen (reagiert beim nächsten Besuch). */
+  markPassedOver(npcId: string): void {
+    this.passedOverNpcs.add(npcId);
+  }
+  /** Nimmt eine „übergangen"-Markierung zurück (z. B. weil er der Gewählte ist). */
+  unmarkPassedOver(npcId: string): void {
+    this.passedOverNpcs.delete(npcId);
+  }
+  /** True + verbraucht die Markierung, falls der NPC übergangen war. */
+  takePassedOver(npcId: string): boolean {
+    return this.passedOverNpcs.delete(npcId);
+  }
+  /** Räumt alle „übergangen"-Markierungen (neues Spiel). */
+  clearPassedOver(): void {
+    this.passedOverNpcs.clear();
+  }
+
   /**
    * Get NPC dialogue based on context
    * TD-006: Dynamic NPC dialogues from JSON (now uses DialogLoader for elaborate dialogues)
@@ -6931,6 +6955,9 @@ export class StoryEngineAdapter {
       episodesOffered: Array.from(this.episodesOffered),
       episodesActive: Array.from(this.episodesActive),
       episodesCompleted: Array.from(this.episodesCompleted),
+      // R4 (Berater-Regie): „übergangen"-Groll + Groll-/Verrats-Zustand persistieren.
+      passedOverNpcs: Array.from(this.passedOverNpcs),
+      betrayalSystemState: this.betrayalSystem.exportState(),
       resolvedDecisionBeats: Array.from(this.resolvedDecisionBeats),
       narrativeMemory: this.narrativeMemory,
       // P5-Auftrag
@@ -7016,6 +7043,11 @@ export class StoryEngineAdapter {
     const brettSlots = this.getNarrativeSlots();
     if (this.episodesActive.size > brettSlots) {
       this.episodesActive = new Set(Array.from(this.episodesActive).slice(0, brettSlots));
+    }
+    // R4 (Berater-Regie): Groll-Zustände laden (Default leer für alte Saves).
+    this.passedOverNpcs = new Set(state.passedOverNpcs ?? []);
+    if (state.betrayalSystemState) {
+      this.betrayalSystem.importState(state.betrayalSystemState);
     }
     this.resolvedDecisionBeats = new Set(state.resolvedDecisionBeats ?? []);
     this.narrativeMemory = state.narrativeMemory ?? {};

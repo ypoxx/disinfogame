@@ -468,7 +468,7 @@
       "deep": [
         {
           "id": "topic_risks_deep_1",
-          "text_de": "Die Hauptrisikofaktoren sind: Aggressive Operationen, mangelhafte Tarnung, und zu viele gleichzeitige Aktionen.",
+          "text_de": "Die Hauptrisikofaktoren sind: Aggressive Operationen, mangelhafte Tarnung und zu viele gleichzeitige Aktionen.",
           "text_en": "Main risk factors are: Aggressive operations, poor cover, and too many simultaneous actions.",
           "tone": "analytical",
           "probability": 0.6,
@@ -820,7 +820,7 @@
         },
         {
           "id": "topic_viral_deep_2",
-          "text_de": "Unsere Bot-Netzwerke geben den initialen Push. Danach übernehmen echte Nutzer.",
+          "text_de": "Unsere Bot-Netzwerke geben den ersten Anstoß. Danach übernehmen echte Nutzer.",
           "text_en": "Our bot networks provide the initial push. Then real users take over.",
           "tone": "technical",
           "probability": 0.5,
@@ -1234,8 +1234,8 @@
         },
         {
           "id": "topic_field_intro_2",
-          "text_de": "Jede Feldoperation hat unvorhergesehene Variablen. Das macht sie gefährlich - und wertvoll.",
-          "text_en": "Every field operation has unforeseen variables. That makes them dangerous - and valuable.",
+          "text_de": "Jede Feldoperation hat ihre Unbekannten. Das macht sie gefährlich — und wertvoll.",
+          "text_en": "Every field operation has its unknowns. That makes them dangerous — and valuable.",
           "tone": "serious",
           "probability": 0.5,
           "phase_range": [
@@ -1343,7 +1343,7 @@
         },
         {
           "id": "topic_contacts_deep_2",
-          "text_de": "Der beste Kontakt ist einer, der glaubt aus Ueberzeugung zu handeln, nicht für Geld.",
+          "text_de": "Der beste Kontakt ist einer, der glaubt, aus Überzeugung zu handeln, nicht für Geld.",
           "text_en": "The best contact is one who believes they act from conviction, not for money.",
           "tone": "cynical",
           "probability": 0.5,
@@ -1372,7 +1372,7 @@
             },
             {
               "id": "resp_contacts_deepen",
-              "text_de": "Bestehende vertiefen - zuverlaessiger.",
+              "text_de": "Bestehende vertiefen — zuverlässiger.",
               "text_en": "Deepen existing - more reliable.",
               "effect": "unlock_action",
               "payload": {
@@ -1410,7 +1410,7 @@
         },
         {
           "id": "topic_budget_intro_2",
-          "text_de": "*prüft Unterlagen* Die Zahlen luegen nicht. Wir müssen sparsamer werden.",
+          "text_de": "*prüft Unterlagen* Die Zahlen lügen nicht. Wir müssen sparsamer werden.",
           "text_en": "*checks documents* Numbers don't lie. We need to be more frugal.",
           "tone": "serious",
           "probability": 0.5,
@@ -1466,7 +1466,7 @@
         },
         {
           "id": "topic_budget_deep_2",
-          "text_de": "Die restlichen 30% kommen aus Tarnfirmen. Das ist legal riskant aber notwendig.",
+          "text_de": "Die restlichen 30% kommen aus Tarnfirmen. Das ist legal riskant, aber notwendig.",
           "text_en": "The remaining 30% comes from front companies. Legally risky but necessary.",
           "tone": "pragmatic",
           "probability": 0.5,
@@ -1572,7 +1572,7 @@
       "options": [
         {
           "id": "topic_fronts_option_1",
-          "text_de": "Sollen wir weitere Tarnfirmen gruenden?",
+          "text_de": "Sollen wir weitere Tarnfirmen gründen?",
           "text_en": "Should we establish more front companies?",
           "tone": "questioning",
           "responses": [
@@ -1616,7 +1616,7 @@
         },
         {
           "id": "topic_flow_intro_2",
-          "text_de": "Jede Transaktion hinterlaesst Spuren. Unsere Kunst ist es, die Spuren zu verwischen.",
+          "text_de": "Jede Transaktion hinterlässt Spuren. Unsere Kunst ist es, die Spuren zu verwischen.",
           "text_en": "Every transaction leaves traces. Our art is to obscure those traces.",
           "tone": "analytical",
           "probability": 0.5,
@@ -1630,7 +1630,7 @@
       "deep": [
         {
           "id": "topic_flow_deep_1",
-          "text_de": "Wir nutzen 3 Schichten: Offshore-Konten, Kryptowaehrungen, und Bargeldtransfers über Mittelsmnaenner.",
+          "text_de": "Wir nutzen 3 Schichten: Offshore-Konten, Kryptowährungen und Bargeldtransfers über Mittelsmänner.",
           "text_en": "We use 3 layers: Offshore accounts, cryptocurrencies, and cash transfers via intermediaries.",
           "tone": "technical",
           "probability": 0.6,
@@ -1655,7 +1655,7 @@
       "options": [
         {
           "id": "topic_flow_option_1",
-          "text_de": "Sollen wir unsere Geldwäsche-Kanaele diversifizieren?",
+          "text_de": "Sollen wir unsere Geldwäsche-Kanäle diversifizieren?",
           "text_en": "Should we diversify our money laundering channels?",
           "tone": "questioning",
           "responses": [
@@ -1714,13 +1714,13 @@
         },
         {
           "speaker": "alexei",
-          "text_de": "Reichweite nuetzt nichts, wenn wir aufgeflogen sind. Die westlichen Dienste werden aufmerksam.",
+          "text_de": "Reichweite nützt nichts, wenn wir aufgeflogen sind. Die westlichen Dienste werden aufmerksam.",
           "text_en": "Reach is useless if we're exposed. Western agencies are getting alert.",
           "tone": "serious"
         },
         {
           "speaker": "marina",
-          "text_de": "Wir sind staerker durch Schnelligkeit als durch Vorsicht. Opportunitaeten warten nicht.",
+          "text_de": "Wir sind stärker durch Schnelligkeit als durch Vorsicht. Gelegenheiten warten nicht.",
           "text_en": "We're stronger through speed than through caution. Opportunities don't wait.",
           "tone": "impatient"
         }
@@ -1789,7 +1789,7 @@
         },
         {
           "speaker": "katja",
-          "text_de": "*frustriert* Aber meine Leute im Feld brauchen Unterstuetzung! Ohne Ressourcen sind sie hilflos.",
+          "text_de": "*frustriert* Aber meine Leute im Feld brauchen Unterstützung! Ohne Ressourcen sind sie hilflos.",
           "text_en": "*frustrated* But my people in the field need support! Without resources they're helpless.",
           "tone": "emotional"
         },
@@ -1819,7 +1819,7 @@
           },
           {
             "id": "choose_field",
-            "text_de": "Katja hat recht - Feldoperationen unterstuetzen.",
+            "text_de": "Katja hat recht — Feldoperationen unterstützen.",
             "text_en": "Katja is right - support field operations.",
             "effect": "unlock_action",
             "payload": {
@@ -1880,8 +1880,8 @@
         },
         {
           "speaker": "direktor",
-          "text_de": "Es geht nicht nur um Budget. Die Strategie muss angepasst werden.",
-          "text_en": "It's not just about budget. The strategy must be adjusted.",
+          "text_de": "Es geht nicht nur um Budget. Passen Sie die Strategie an. Grundlegend.",
+          "text_en": "It's not just about budget. Adjust the strategy. Fundamentally.",
           "tone": "demanding"
         },
         {

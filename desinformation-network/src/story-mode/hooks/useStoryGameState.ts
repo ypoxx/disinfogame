@@ -450,11 +450,6 @@ export function useStoryGameState(seed?: string) {
   // Dialog
   const [currentDialog, setCurrentDialog] = useState<DialogState | null>(null);
 
-  // R4 (Berater-Regie): NPCs, die bei einer Angebots-Entscheidung übergangen
-  // wurden — beim nächsten Besuch reagieren sie darauf. In-Session (Ref, keine
-  // Persistenz über Save/Load — s. AUFTRAG_2026-07-06 §Folgeschritte).
-  const passedOverRef = useRef<Set<string>>(new Set());
-
   // Advisor System
   const [recommendations, setRecommendations] = useState<AdvisorRecommendation[]>([]);
 
@@ -635,7 +630,7 @@ export function useStoryGameState(seed?: string) {
     useDirectorStore.getState().reset();
     // Erkenntnis-Dossier zurücksetzen (keine Befunde aus einem früheren Spiel).
     useDossierStore.getState().reset();
-    passedOverRef.current.clear(); // R4: übergangene NPCs nicht ins neue Spiel schleppen
+    engine.clearPassedOver(); // R4: übergangene NPCs nicht ins neue Spiel schleppen
     setDecisionBeatResult(null);
 
     // Load available actions from engine
@@ -712,9 +707,9 @@ export function useStoryGameState(seed?: string) {
         const gewaehlteEigner = new Set<string>(action.npcAffinity ?? []);
         gewaehlteEigner.add(activeNpcId);
         for (const rival of npcsWithOffers(availableActions)) {
-          if (!gewaehlteEigner.has(rival)) passedOverRef.current.add(rival);
+          if (!gewaehlteEigner.has(rival)) engine.markPassedOver(rival);
         }
-        for (const eigner of gewaehlteEigner) passedOverRef.current.delete(eigner);
+        for (const eigner of gewaehlteEigner) engine.unmarkPassedOver(eigner);
         // 3. Takt der Berater-Regie (Auftrag 2026-07-06): substanzielle Bestätigung
         // in der Stimme des NPCs — Ziel/Wirkung/Freischaltung statt betoniertem
         // Einheitssatz. `getActionLoader` liefert die Roh-Aktion (unlocks/effects),
@@ -1592,7 +1587,7 @@ export function useStoryGameState(seed?: string) {
     // Entscheidung übergangen, reagiert er beim Wiedersehen — in seiner Stimme.
     // Nicht jeder Snub wird vertont (entprellt), damit es nicht bei jedem Besuch
     // grollt; die Markierung wird so oder so verbraucht.
-    if (passedOverRef.current.has(npcId)) {
+    if (engine.takePassedOver(npcId)) {
       if (Math.random() < 0.5) {
         const line = renderUebergangen(npcId, Math.random());
         if (line) {
@@ -1600,7 +1595,6 @@ export function useStoryGameState(seed?: string) {
           greetingVoiceId = undefined; // zusammengesetzter Text ist nicht vertont
         }
       }
-      passedOverRef.current.delete(npcId);
     }
 
     // R2 (Berater-Regie): Bietet dieser NPC Maßnahmen an und haben RIVALEN
@@ -1776,7 +1770,7 @@ export function useStoryGameState(seed?: string) {
 
     try {
       engine.loadState(savedState);
-      passedOverRef.current.clear(); // R4: In-Session-Groll nicht über einen Ladevorgang schleppen
+      // R4: passedOver kommt jetzt aus dem geladenen Engine-Zustand (persistent).
 
       // Refresh all state from engine
       setStoryPhase(engine.getCurrentPhase());
@@ -1837,8 +1831,7 @@ export function useStoryGameState(seed?: string) {
 
   const resetGame = useCallback(() => {
     const newEngine = createStoryEngine();
-    setEngine(newEngine);
-    passedOverRef.current.clear(); // R4: übergangene NPCs nicht ins neue Spiel schleppen
+    setEngine(newEngine); // frische Engine → passedOver (R4) automatisch leer
 
     setGamePhase('intro');
     setStoryPhase(newEngine.getCurrentPhase());

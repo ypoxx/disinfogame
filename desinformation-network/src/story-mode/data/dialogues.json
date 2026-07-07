@@ -1517,8 +1517,8 @@
         {
           "id": "kat_crisis_ethics",
           "condition": "moral_weight > 15",
-          "text_de": "Ich habe nachgedacht... Wir erzählen Geschichten, ja. Aber sind es die richtigen Geschichten?",
-          "text_en": "I've been thinking... We tell stories, yes. But are they the right stories?",
+          "text_de": "Ich hab nachgedacht... Wir schicken Leute raus, ja. Aber für die richtige Sache?",
+          "text_en": "I've been thinking... We send people out there, yes. But for the right cause?",
           "responses": [
             {
               "id": "resp_ideological",
@@ -2037,7 +2037,7 @@
       },
       "marina": {
         "id": "mar_first",
-        "text_de": "Oh, Sie sind der Neue? Ich bin Marina. Wenn Sie Daten brauchen - ich bin Ihre Frau.",
+        "text_de": "Oh, Sie sind der Neue? Ich bin Marina. Brauchen Sie Daten — dann sind Sie bei mir richtig.",
         "text_en": "Oh, you're the new one? I'm Marina. If you need data - I'm your woman."
       },
       "alexei": {
@@ -2047,29 +2047,29 @@
       },
       "katja": {
         "id": "kat_first",
-        "text_de": "Willkommen! Ich bin Katja. Ich mache die... kreativen Sachen. Was ist Ihre Geschichte?",
-        "text_en": "Welcome! I'm Katja. I do the... creative stuff. What's your story?"
+        "text_de": "Willkommen. Katja. Ich mache das, was draußen passiert. Und Sie — was können Sie?",
+        "text_en": "Welcome. Katja. I handle what happens out in the field. And you — what can you do?"
       },
       "igor": {
         "id": "igor_first",
-        "text_de": "*schaut kurz auf* Igor. Technik. Wenn etwas nicht funktioniert - meine Schuld. Wenn es funktioniert - auch meine.",
-        "text_en": "*looks up briefly* Igor. Tech. If something doesn't work - my fault. If it works - also mine."
+        "text_de": "*schaut kurz auf* Igor. Das Geld. Stimmt eine Zahl nicht — meine Schuld. Stimmt sie — auch meine.",
+        "text_en": "*looks up briefly* Igor. The money. If a number is off — my fault. If it's right — also mine."
       }
     },
     "game_end_dialogues": {
       "victory": {
         "direktor": "Sie haben Westunion gebrochen. Die Zentrale dankt Ihnen - im Stillen, versteht sich.",
         "marina": "Wir haben gewonnen... warum fühlt es sich dann so leer an?",
-        "alexei": "Ha! Wir haben es tatsächlich geschafft. Auf die nächste Herausforderung!",
-        "katja": "Unsere Geschichten haben die Welt verändert. Ob zum Besseren... wer weiß.",
-        "igor": "Mission abgeschlossen. Datenbanken gesichert. Zeit für das nächste Projekt."
+        "alexei": "Wir haben's geschafft. Diesmal. Nichts hält ewig — ich prüfe die Logs.",
+        "katja": "Wir haben's gedreht. Alle sind zurück. Ob's die Welt besser macht... wer weiß.",
+        "igor": "Abgerechnet. Die Konten sind sauber und leer. Zeit für die nächste Bilanz."
       },
       "defeat_exposed": {
         "direktor": "*kalt* Sie haben versagt. Unsere Wege trennen sich hier.",
         "marina": "Ich... ich wusste, dass das passieren würde. Irgendwann.",
         "alexei": "*flucht* Die Idioten haben uns erwischt. Wir hätten vorsichtiger sein sollen.",
-        "katja": "So endet unsere Geschichte also. Nicht gerade das Ende, das ich geschrieben hätte.",
-        "igor": "Sie haben meine Server gefunden. Das... hätte nicht passieren dürfen."
+        "katja": "So läuft es also aus. Nicht der Rückzug, den ich geplant hätte.",
+        "igor": "Sie sind der Geldspur gefolgt. Das... hätte nicht passieren dürfen."
       }
     },
     "recommendation_reactions": {
@@ -2132,7 +2132,7 @@
           },
           {
             "id": "mar_rec_followed_3",
-            "text_de": "Perfekt! Diese Analytics waren gold wert, oder?",
+            "text_de": "Perfekt! Die Zahlen waren Gold wert, oder?",
             "text_en": "Perfect! Those analytics were worth gold, right?",
             "mood": "proud"
           }
@@ -2152,8 +2152,8 @@
           },
           {
             "id": "mar_rec_ignored_3",
-            "text_de": "*seufzt* Vielleicht... vielleicht sind meine Daten doch nicht so gut, wie ich dachte.",
-            "text_en": "*sighs* Maybe... maybe my data isn't as good as I thought.",
+            "text_de": "*zieht eine Augenbraue hoch* Ihre Entscheidung. Aber die Zahlen hatten recht — das merken Sie noch.",
+            "text_en": "*raises an eyebrow* Your call. But the numbers were right — you'll see that soon enough.",
             "mood": "self-doubt"
           }
         ]
@@ -2162,40 +2162,40 @@
         "followed": [
           {
             "id": "vol_rec_followed_1",
-            "text_de": "Ha! Endlich jemand, der versteht, wie man Druck aufbaut!",
-            "text_en": "Ha! Finally someone who understands how to apply pressure!",
+            "text_de": "*prüft die Logs* Sie haben auf mich gehört. Keine Spur, die uns verrät. Selten.",
+            "text_en": "*checks the logs* You listened. No trace to give us away. Rare.",
             "mood": "energized"
           },
           {
             "id": "vol_rec_followed_2",
-            "text_de": "*grinst* Das war genau die richtige Entscheidung. Brutal effektiv.",
-            "text_en": "*grins* That was exactly the right decision. Brutally effective.",
+            "text_de": "*nickt* Richtig entschieden. Sauber, für niemanden nachvollziehbar.",
+            "text_en": "*nods* Right call. Clean, and traceable by no one.",
             "mood": "satisfied"
           },
           {
             "id": "vol_rec_followed_3",
-            "text_de": "So macht man das! Keine halben Sachen!",
-            "text_en": "That's how it's done! No half measures!",
+            "text_de": "So bleibt es dicht. Keine offenen Enden.",
+            "text_en": "That keeps it tight. No loose ends.",
             "mood": "approving"
           }
         ],
         "ignored": [
           {
             "id": "vol_rec_ignored_1",
-            "text_de": "*genervt* Sie sind zu weich. Ich sagte Ihnen, was zu tun ist!",
-            "text_en": "*annoyed* You're too soft. I told you what to do!",
+            "text_de": "*genervt* Ich habe vor genau dem gewarnt. Das hält der Forensik nicht stand.",
+            "text_en": "*annoyed* I warned you about exactly this. It won't hold up to forensics.",
             "mood": "frustrated"
           },
           {
             "id": "vol_rec_ignored_2",
-            "text_de": "Manchmal frage ich mich, ob Sie überhaupt gewinnen wollen.",
-            "text_en": "Sometimes I wonder if you even want to win.",
+            "text_de": "Manchmal frage ich mich, ob Sie meine Protokolle überhaupt lesen.",
+            "text_en": "Sometimes I wonder if you even read my protocols.",
             "mood": "disappointed"
           },
           {
             "id": "vol_rec_ignored_3",
-            "text_de": "*schüttelt den Kopf* Mit dieser Zögerlichkeit werden wir scheitern.",
-            "text_en": "*shakes head* With this hesitation we're going to fail.",
+            "text_de": "*schüttelt den Kopf* Mit dieser Schludrigkeit fliegen wir auf.",
+            "text_en": "*shakes head* With this sloppiness we'll get caught.",
             "mood": "warning"
           }
         ]
@@ -2246,14 +2246,14 @@
         "followed": [
           {
             "id": "igor_rec_followed_1",
-            "text_de": "*nickt* Logisch. Optimale Entscheidung basierend auf den Parametern.",
-            "text_en": "*nods* Logical. Optimal decision based on parameters.",
+            "text_de": "*nickt* Logisch. Rechnet sich — bis auf die zweite Stelle hinterm Komma.",
+            "text_en": "*nods* Logical. It adds up — down to the second decimal.",
             "mood": "satisfied"
           },
           {
             "id": "igor_rec_followed_2",
-            "text_de": "Gut. Die Systeme laufen stabiler, wenn man die Empfehlungen befolgt.",
-            "text_en": "Good. Systems run more stable when you follow recommendations.",
+            "text_de": "Gut. Die Bücher bleiben ruhig, wenn man auf die Zahlen hört.",
+            "text_en": "Good. The books stay quiet when you listen to the numbers.",
             "mood": "pleased"
           },
           {
@@ -2278,8 +2278,8 @@
           },
           {
             "id": "igor_rec_ignored_3",
-            "text_de": "*tippt auf Laptop* System-Performance sinkt bei ignorierten Empfehlungen.",
-            "text_en": "*types on laptop* System performance drops with ignored recommendations.",
+            "text_de": "*tippt* Ignorierte Empfehlungen stehen später als Verlust in den Büchern.",
+            "text_en": "*types* Ignored advice shows up later as a loss in the books.",
             "mood": "analytical"
           }
         ]

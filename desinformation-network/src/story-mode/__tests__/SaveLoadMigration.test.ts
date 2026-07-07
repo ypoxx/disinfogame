@@ -61,4 +61,30 @@ describe('Save/Load-Migration (P0/R1)', () => {
     expect(objs.length).toBeGreaterThan(0);
     expect(objs.some(o => o.id === 'obj_destabilize')).toBe(true);
   });
+
+  it('R4: „übergangen"-Groll (passedOver) übersteht Save/Load', () => {
+    const engine = createStoryEngine('save_r4');
+    engine.markPassedOver('igor');
+    engine.markPassedOver('marina');
+    const blob = engine.saveState();
+
+    const other = createStoryEngine('other_r4');
+    other.loadState(blob);
+    expect(other.takePassedOver('igor')).toBe(true);
+    expect(other.takePassedOver('marina')).toBe(true);
+    expect(other.takePassedOver('katja')).toBe(false); // war nie markiert
+    // takePassedOver ist konsumierend: zweiter Zugriff ist false
+    expect(other.takePassedOver('igor')).toBe(false);
+  });
+
+  it('R4: alter Save ohne passedOverNpcs lädt sauber (leer)', () => {
+    const engine = createStoryEngine('save_r4_old');
+    const saved = JSON.parse(engine.saveState());
+    delete saved.passedOverNpcs;
+    delete saved.betrayalSystemState;
+
+    const loaded = createStoryEngine('fresh_r4');
+    loaded.loadState(JSON.stringify(saved));
+    expect(loaded.takePassedOver('igor')).toBe(false);
+  });
 });
