@@ -301,14 +301,14 @@ const HUD_KIT = [
 
 // Publikums-Figuren: 8 moderne WESTLICHE Milieus (B13/K2, sitzend, 2-Frame-Idle, Chroma).
 const AUDIENCE_FIGURES = [
-  ['audience_optimiererin', 'a career woman in her mid 30s in a white blazer, holding a smoothie cup, sitting upright'],
-  ['audience_macher', 'a hands-on tradesman in his mid 40s in a fleece jacket and jeans, beer bottle on his knee'],
-  ['audience_bohemien', 'a young creative with tousled hair and round glasses, an unzipped hoodie worn open with the HOOD DOWN (head bare and fully visible), headphones resting on the shoulders, sitting back relaxed and watching the TV, head upright'],
-  ['audience_besorgte_mitte', 'a woman around 55 in a polo shirt with a tablet on her lap, reading glasses'],
-  ['audience_zorniger', 'a frustrated man in a faded t-shirt, arms crossed, cigarette behind the ear'],
-  ['audience_idealistin', 'a woman in her mid 30s in a linen shirt with a tote bag leaning against the sofa'],
-  ['audience_eigenheimer', 'a retired man in a knitted cardigan with a cat on his lap and a tablet'],
-  ['audience_liberale', 'a woman around 60 with round glasses, folded quality newspaper, podcast earphones around the neck'],
+  ['audience_optimiererin', 'a career woman in her mid 30s with shoulder-length dark-brown hair tied back, in a white blazer, holding a smoothie cup, sitting upright'],
+  ['audience_macher', 'a hands-on tradesman in his mid 40s with short brown hair and a full beard, in a fleece jacket and jeans, beer bottle on his knee'],
+  ['audience_bohemien', 'a young creative with tousled chestnut hair and round glasses, an unzipped hoodie worn open with the HOOD DOWN (head bare and fully visible), headphones resting on the shoulders, sitting back relaxed and watching the TV, head upright'],
+  ['audience_besorgte_mitte', 'a woman around 55 with a chin-length grey-brown bob haircut, in a polo shirt with a tablet on her lap, reading glasses'],
+  ['audience_zorniger', 'a frustrated man with short receding dark hair and stubble, in a faded t-shirt, arms crossed, cigarette behind the ear'],
+  ['audience_idealistin', 'a woman in her mid 30s with long loosely-tied auburn hair, in a linen shirt with a tote bag leaning against the sofa'],
+  ['audience_eigenheimer', 'a retired man with neatly combed grey hair, in a knitted cardigan with a cat on his lap and a tablet'],
+  ['audience_liberale', 'a woman around 60 with short silver-grey curly hair and round glasses, folded quality newspaper, podcast earphones around the neck'],
 ];
 
 // Fokusgruppe-Personas (Pre-Test/Nachanalyse): Halbporträts mit 3 Stimmungs-Mimiken.
@@ -977,31 +977,77 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
   });
 
   // --- Publikums-Figuren (sitzend, 2-Frame-Idle, Chroma-Sheet) ---
+  // 2026-07-07 (Owner): 72×96-Zellen statt 48×48 — im Spiel 1:1 nativ gerendert
+  // (Pixeldichte!), KOMPAKTE Pose (4 Figuren teilen sich die 305-px-Sofa-Breite),
+  // großes lesbares Gesicht (Mimik trägt die Stimmung, s. Mood-Varianten unten).
+  const AUDIENCE_POSE =
+    `drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a ` +
+    `COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa ` +
+    `watching TV: knees together directly in front, the lower legs dropping down to the feet, ` +
+    `elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER ` +
+    `than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT ` +
+    `cropped at the waist or knees). The head is relatively large for a game sprite (about one ` +
+    `quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth ` +
+    `visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; ` +
+    `leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture ` +
+    `and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame.`;
+  const AUDIENCE_SHEET_LAYOUT =
+    `Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with ` +
+    `identical outfit and colors in every frame, only a subtle idle motion changes (blink, ` +
+    `small head turn, slight breathing).`;
+  /** Stimmungs-Mimik (Wohnzimmer): Gesicht UND Körpersprache, damit die Stimmung
+   *  auch in 96 px klar lesbar ist (Owner: „anhand der Mimik die Stimmung erkennen"). */
+  const AUDIENCE_MOODS = {
+    verunsichert:
+      `a visibly WORRIED, anxious facial expression (raised inner eyebrows, wide uneasy eyes, ` +
+      `tense downturned mouth) and anxious body language: shoulders hunched up, one hand raised ` +
+      `to the mouth or chest`,
+    wuetend:
+      `a visibly ANGRY facial expression (deeply furrowed brows angled down toward the nose, ` +
+      `glaring eyes, mouth open in an angry shout or tightly gritted) and angry body language: ` +
+      `leaning slightly forward, one fist clenched and raised`,
+    misstrauisch:
+      `a visibly DISTRUSTFUL, sceptical facial expression (narrowed eyes glancing sideways, one ` +
+      `raised eyebrow, tight sceptical mouth) and guarded body language: arms crossed over the ` +
+      `chest, head slightly turned away while the eyes look toward the viewer`,
+  };
   for (const [id, hint] of AUDIENCE_FIGURES) {
     shots.push({
       id,
       type: 'sheet',
       kind: 'hud',
       priority: 'must',
-      frameWidth: 48,
-      frameHeight: 48,
+      frameWidth: 72,
+      frameHeight: 96,
       cols: 2,
       rows: 1,
-      size: { w: 96, h: 48 },
+      size: { w: 144, h: 96 },
       animations: { idle: { row: 0, frames: 2, frameTime: 600, loop: true } },
       seed: seedFor(id),
       prompt:
-        `A 2-frame pixel art sprite sheet of ${hint}, drawn in a CLEARLY SEATED pose as if ` +
-        `relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the ` +
-        `knees bent forward, the lower legs drop down to the feet, the back is slightly reclined ` +
-        `and the hands rest on the lap. The FULL head sits upright on the shoulders and is clearly ` +
-        `visible and unobstructed — NOT bowed down, NOT hidden by a hood/hair, NOT cropped at the ` +
-        `top edge; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, ` +
-        `NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. ` +
-        `Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with ` +
-        `identical outfit and colors in every frame, only a subtle idle motion changes (blink, ` +
-        `small head turn, slight breathing). ${CHROMA_PROMPT} ${styleHomeFigure()}`,
+        `A 2-frame pixel art sprite sheet of ${hint}, ${AUDIENCE_POSE} The person looks calm and ` +
+        `relaxed (neutral-content expression). ${AUDIENCE_SHEET_LAYOUT} ${CHROMA_PROMPT} ${styleHomeFigure()}`,
     });
+    for (const [mood, expr] of Object.entries(AUDIENCE_MOODS)) {
+      shots.push({
+        id: `${id}_${mood}`,
+        type: 'sheet',
+        kind: 'hud',
+        priority: 'must',
+        frameWidth: 72,
+        frameHeight: 96,
+        cols: 2,
+        rows: 1,
+        size: { w: 144, h: 96 },
+        animations: { idle: { row: 0, frames: 2, frameTime: 600, loop: true } },
+        seed: seedFor(id),
+        referenceId: id,
+        prompt:
+          `Same pixel art character as in the reference sprite sheet — identical person, identical ` +
+          `hair, identical outfit and colors, same art style and same compact seated pose base — ` +
+          `but now with ${expr}. ${AUDIENCE_POSE} ${AUDIENCE_SHEET_LAYOUT} ${CHROMA_PROMPT} ${styleHomeFigure()}`,
+      });
+    }
   }
 
   // --- Fokusgruppe-Personas: Anker (skeptisch) + 2 referenzierte Stimmungs-Mimiken ---

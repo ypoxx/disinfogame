@@ -232,6 +232,41 @@ Belege: `audience_figuren_REGEN_8er_set.png`, `publikum_wohnzimmer_REGEN.png`,
 **Offen für „darüber hinaus":** höher aufgelöste Figuren-Frames (Texel-Dichte) + gerichtete
 Lampen-Beleuchtung.
 
+## 4d. HD-Ausbau 2026-07-07 (Owner: „Pixeldichte deutlich besser, pixelgenau sitzen, Stimmung per MIMIK")
+
+Owner-Klarstellung: Licht unwichtig — wichtig sind (1) deutlich feinere Pixeldichte,
+(2) pixelgenaues Sitzen auf dem Sofa, (3) Stimmung **an der Mimik** ablesbar (Kern-Idee).
+Belege: `audience_HD_8er_set.png`, `publikum_HD_sitzordnung.png`, `mimik_matrix_blindtest.png`,
+`broadcast_bar_HD_final.png`.
+
+- **Pixeldichte:** Figuren-Frames von 48×48 auf **72×96** verdoppelt und im Spiel **1:1 nativ**
+  gerendert (`scale 1` statt 2,2× Hochskalierung — §4.1 Integer-Regel jetzt auch hier erfüllt).
+  Kopf ≈ ¼ der Figur → Gesichter mit klar lesbaren Augen/Brauen/Mund. Prompt erzwingt
+  Ganzkörper („NOT a bust") + kompakte Sitzpose; Frisuren jetzt explizit je Figur (der erste
+  Wurf machte die besorgte Mitte glatzköpfig).
+- **Pixelgenaues Sitzen:** Sofa-Geometrie per Messraster vermessen (Overlay-Render):
+  sitzbar x≈150–455 zwischen den Armlehnen, Kissen-Vorderkante b≈52, Boden b≈10. Die alte
+  zentrierte Flex-Reihe setzte die linke Figur NEBEN das Sofa (auf den Beistelltisch!);
+  jetzt **4 feste, vermessene Sitzplätze** (`SEAT_LEFTS` 152/228/304/380, Zelle 72 px,
+  Fußlinie b13) — Oberschenkel auf der Kissenkante, Füße an der Bodenlinie.
+  *(Methodik-Notiz: dpr3-Screenshots mit knappem Fenster schneiden unten ab — Messung/QC
+  ab jetzt mit dpr2 + höherem Fenster; frühere Nahsicht-Renders waren unten gekappt.)*
+- **Mimik statt Filter:** **32 Sheets** generiert — 8 Basis-Figuren (ruhig) + **24
+  Stimmungs-Varianten** (verunsichert/wuetend/misstrauisch je Figur) via `referenceId`
+  aufs Basis-Sheet + gleicher Seed (Persona-Muster) → gleiche Person, gleiche Kleidung,
+  andere Mimik + Körpersprache (Hand am Mund / Faust + offener Mund / verschränkte Arme +
+  Seitenblick). `BroadcastBar` wählt das Sheet nach `seg.mood` (`audience_<id>_<mood>`),
+  der alte Farb-Filter ist nur noch Registry-Fallback. QC-Scan über alle 32 Sheets
+  (Zellen-Inhalt, Segmente, Höhe) fand 1 Repack-Defekt (macher_verunsichert, beide Posen
+  in einer Zelle) → mit `PIPELINE_SEED_OVERRIDE` neu gewürfelt, sauber.
+- **Blindtest (Gemini, ohne Labels): 8/8 Stimmungen korrekt erkannt**; im Wohnzimmer-Bild
+  den misstrauischen Bohemien korrekt als Abweichler identifiziert — das Mimik-Ziel ist
+  objektiv erfüllt. Pixel-Qualität 7/10, Gesamtbild 6/10; „aufgesetzt"-Rest (5/10) durch
+  3-px-tieferes Einsinken in die Kissen adressiert (SEAT_BOTTOM 16→13).
+
+**Gate grün:** `tsc` sauber · `vitest` 630/630 · `build` ok · `assets.json` valide
+(**340** Assets: +24 Mood-Sheets). Pipeline-Tests unverändert (2 Vorbestands-Fails, fremd).
+
 ---
 
 ## 5. Gemini 3.1 Pro — Zweitmeinung (Zusammenfassung)

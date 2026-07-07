@@ -2436,11 +2436,71 @@
       "file": "sheets/audience_besorgte_mitte.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a woman around 55 in a polo shirt with a tablet on her lap, reading glasses, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. The FULL head sits upright on the shoulders and is clearly visible and unobstructed — NOT bowed down, NOT hidden by a hood/hair, NOT cropped at the top edge; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "prompt": "A 2-frame pixel art sprite sheet of a woman around 55 with a chin-length grey-brown bob haircut, in a polo shirt with a tablet on her lap, reading glasses, drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. The person looks calm and relaxed (neutral-content expression). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
       "seed": 74014,
       "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_besorgte_mitte_misstrauisch",
+      "type": "sheet",
+      "file": "sheets/audience_besorgte_mitte_misstrauisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly DISTRUSTFUL, sceptical facial expression (narrowed eyes glancing sideways, one raised eyebrow, tight sceptical mouth) and guarded body language: arms crossed over the chest, head slightly turned away while the eyes look toward the viewer. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 74014,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_besorgte_mitte_verunsichert",
+      "type": "sheet",
+      "file": "sheets/audience_besorgte_mitte_verunsichert.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly WORRIED, anxious facial expression (raised inner eyebrows, wide uneasy eyes, tense downturned mouth) and anxious body language: shoulders hunched up, one hand raised to the mouth or chest. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 74014,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_besorgte_mitte_wuetend",
+      "type": "sheet",
+      "file": "sheets/audience_besorgte_mitte_wuetend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly ANGRY facial expression (deeply furrowed brows angled down toward the nose, glaring eyes, mouth open in an angry shout or tightly gritted) and angry body language: leaning slightly forward, one fist clenched and raised. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 74014,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
       "animations": {
         "idle": {
           "row": 0,
@@ -2456,11 +2516,71 @@
       "file": "sheets/audience_bohemien.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a young creative with tousled hair and round glasses, an unzipped hoodie worn open with the HOOD DOWN (head bare and fully visible), headphones resting on the shoulders, sitting back relaxed and watching the TV, head upright, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. The FULL head sits upright on the shoulders and is clearly visible and unobstructed — NOT bowed down, NOT hidden by a hood/hair, NOT cropped at the top edge; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "prompt": "A 2-frame pixel art sprite sheet of a young creative with tousled chestnut hair and round glasses, an unzipped hoodie worn open with the HOOD DOWN (head bare and fully visible), headphones resting on the shoulders, sitting back relaxed and watching the TV, head upright, drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. The person looks calm and relaxed (neutral-content expression). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
       "seed": 808892,
       "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_bohemien_misstrauisch",
+      "type": "sheet",
+      "file": "sheets/audience_bohemien_misstrauisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly DISTRUSTFUL, sceptical facial expression (narrowed eyes glancing sideways, one raised eyebrow, tight sceptical mouth) and guarded body language: arms crossed over the chest, head slightly turned away while the eyes look toward the viewer. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 808892,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_bohemien_verunsichert",
+      "type": "sheet",
+      "file": "sheets/audience_bohemien_verunsichert.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly WORRIED, anxious facial expression (raised inner eyebrows, wide uneasy eyes, tense downturned mouth) and anxious body language: shoulders hunched up, one hand raised to the mouth or chest. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 808892,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_bohemien_wuetend",
+      "type": "sheet",
+      "file": "sheets/audience_bohemien_wuetend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly ANGRY facial expression (deeply furrowed brows angled down toward the nose, glaring eyes, mouth open in an angry shout or tightly gritted) and angry body language: leaning slightly forward, one fist clenched and raised. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 808892,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
       "animations": {
         "idle": {
           "row": 0,
@@ -2476,11 +2596,71 @@
       "file": "sheets/audience_eigenheimer.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a retired man in a knitted cardigan with a cat on his lap and a tablet, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. The FULL head sits upright on the shoulders and is clearly visible and unobstructed — NOT bowed down, NOT hidden by a hood/hair, NOT cropped at the top edge; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "prompt": "A 2-frame pixel art sprite sheet of a retired man with neatly combed grey hair, in a knitted cardigan with a cat on his lap and a tablet, drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. The person looks calm and relaxed (neutral-content expression). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
       "seed": 53128,
       "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_eigenheimer_misstrauisch",
+      "type": "sheet",
+      "file": "sheets/audience_eigenheimer_misstrauisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly DISTRUSTFUL, sceptical facial expression (narrowed eyes glancing sideways, one raised eyebrow, tight sceptical mouth) and guarded body language: arms crossed over the chest, head slightly turned away while the eyes look toward the viewer. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 53128,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_eigenheimer_verunsichert",
+      "type": "sheet",
+      "file": "sheets/audience_eigenheimer_verunsichert.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly WORRIED, anxious facial expression (raised inner eyebrows, wide uneasy eyes, tense downturned mouth) and anxious body language: shoulders hunched up, one hand raised to the mouth or chest. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 53128,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_eigenheimer_wuetend",
+      "type": "sheet",
+      "file": "sheets/audience_eigenheimer_wuetend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly ANGRY facial expression (deeply furrowed brows angled down toward the nose, glaring eyes, mouth open in an angry shout or tightly gritted) and angry body language: leaning slightly forward, one fist clenched and raised. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 53128,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
       "animations": {
         "idle": {
           "row": 0,
@@ -2496,11 +2676,71 @@
       "file": "sheets/audience_idealistin.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a woman in her mid 30s in a linen shirt with a tote bag leaning against the sofa, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. The FULL head sits upright on the shoulders and is clearly visible and unobstructed — NOT bowed down, NOT hidden by a hood/hair, NOT cropped at the top edge; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "prompt": "A 2-frame pixel art sprite sheet of a woman in her mid 30s with long loosely-tied auburn hair, in a linen shirt with a tote bag leaning against the sofa, drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. The person looks calm and relaxed (neutral-content expression). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
       "seed": 832249,
       "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_idealistin_misstrauisch",
+      "type": "sheet",
+      "file": "sheets/audience_idealistin_misstrauisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly DISTRUSTFUL, sceptical facial expression (narrowed eyes glancing sideways, one raised eyebrow, tight sceptical mouth) and guarded body language: arms crossed over the chest, head slightly turned away while the eyes look toward the viewer. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 832249,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_idealistin_verunsichert",
+      "type": "sheet",
+      "file": "sheets/audience_idealistin_verunsichert.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly WORRIED, anxious facial expression (raised inner eyebrows, wide uneasy eyes, tense downturned mouth) and anxious body language: shoulders hunched up, one hand raised to the mouth or chest. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 832249,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_idealistin_wuetend",
+      "type": "sheet",
+      "file": "sheets/audience_idealistin_wuetend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly ANGRY facial expression (deeply furrowed brows angled down toward the nose, glaring eyes, mouth open in an angry shout or tightly gritted) and angry body language: leaning slightly forward, one fist clenched and raised. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 832249,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
       "animations": {
         "idle": {
           "row": 0,
@@ -2516,11 +2756,71 @@
       "file": "sheets/audience_liberale.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a woman around 60 with round glasses, folded quality newspaper, podcast earphones around the neck, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. The FULL head sits upright on the shoulders and is clearly visible and unobstructed — NOT bowed down, NOT hidden by a hood/hair, NOT cropped at the top edge; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "prompt": "A 2-frame pixel art sprite sheet of a woman around 60 with short silver-grey curly hair and round glasses, folded quality newspaper, podcast earphones around the neck, drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. The person looks calm and relaxed (neutral-content expression). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
       "seed": 275642,
       "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_liberale_misstrauisch",
+      "type": "sheet",
+      "file": "sheets/audience_liberale_misstrauisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly DISTRUSTFUL, sceptical facial expression (narrowed eyes glancing sideways, one raised eyebrow, tight sceptical mouth) and guarded body language: arms crossed over the chest, head slightly turned away while the eyes look toward the viewer. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 275642,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_liberale_verunsichert",
+      "type": "sheet",
+      "file": "sheets/audience_liberale_verunsichert.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly WORRIED, anxious facial expression (raised inner eyebrows, wide uneasy eyes, tense downturned mouth) and anxious body language: shoulders hunched up, one hand raised to the mouth or chest. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 275642,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_liberale_wuetend",
+      "type": "sheet",
+      "file": "sheets/audience_liberale_wuetend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly ANGRY facial expression (deeply furrowed brows angled down toward the nose, glaring eyes, mouth open in an angry shout or tightly gritted) and angry body language: leaning slightly forward, one fist clenched and raised. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 275642,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
       "animations": {
         "idle": {
           "row": 0,
@@ -2536,11 +2836,71 @@
       "file": "sheets/audience_macher.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a hands-on tradesman in his mid 40s in a fleece jacket and jeans, beer bottle on his knee, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. The FULL head sits upright on the shoulders and is clearly visible and unobstructed — NOT bowed down, NOT hidden by a hood/hair, NOT cropped at the top edge; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "prompt": "A 2-frame pixel art sprite sheet of a hands-on tradesman in his mid 40s with short brown hair and a full beard, in a fleece jacket and jeans, beer bottle on his knee, drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. The person looks calm and relaxed (neutral-content expression). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
       "seed": 260936,
       "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_macher_misstrauisch",
+      "type": "sheet",
+      "file": "sheets/audience_macher_misstrauisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly DISTRUSTFUL, sceptical facial expression (narrowed eyes glancing sideways, one raised eyebrow, tight sceptical mouth) and guarded body language: arms crossed over the chest, head slightly turned away while the eyes look toward the viewer. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 260936,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_macher_verunsichert",
+      "type": "sheet",
+      "file": "sheets/audience_macher_verunsichert.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly WORRIED, anxious facial expression (raised inner eyebrows, wide uneasy eyes, tense downturned mouth) and anxious body language: shoulders hunched up, one hand raised to the mouth or chest. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 771234,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_macher_wuetend",
+      "type": "sheet",
+      "file": "sheets/audience_macher_wuetend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly ANGRY facial expression (deeply furrowed brows angled down toward the nose, glaring eyes, mouth open in an angry shout or tightly gritted) and angry body language: leaning slightly forward, one fist clenched and raised. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 260936,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
       "animations": {
         "idle": {
           "row": 0,
@@ -2556,11 +2916,71 @@
       "file": "sheets/audience_optimiererin.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a career woman in her mid 30s in a white blazer, holding a smoothie cup, sitting upright, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. The FULL head sits upright on the shoulders and is clearly visible and unobstructed — NOT bowed down, NOT hidden by a hood/hair, NOT cropped at the top edge; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "prompt": "A 2-frame pixel art sprite sheet of a career woman in her mid 30s with shoulder-length dark-brown hair tied back, in a white blazer, holding a smoothie cup, sitting upright, drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. The person looks calm and relaxed (neutral-content expression). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
       "seed": 350343,
       "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_optimiererin_misstrauisch",
+      "type": "sheet",
+      "file": "sheets/audience_optimiererin_misstrauisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly DISTRUSTFUL, sceptical facial expression (narrowed eyes glancing sideways, one raised eyebrow, tight sceptical mouth) and guarded body language: arms crossed over the chest, head slightly turned away while the eyes look toward the viewer. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 350343,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_optimiererin_verunsichert",
+      "type": "sheet",
+      "file": "sheets/audience_optimiererin_verunsichert.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly WORRIED, anxious facial expression (raised inner eyebrows, wide uneasy eyes, tense downturned mouth) and anxious body language: shoulders hunched up, one hand raised to the mouth or chest. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 350343,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_optimiererin_wuetend",
+      "type": "sheet",
+      "file": "sheets/audience_optimiererin_wuetend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly ANGRY facial expression (deeply furrowed brows angled down toward the nose, glaring eyes, mouth open in an angry shout or tightly gritted) and angry body language: leaning slightly forward, one fist clenched and raised. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 350343,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
       "animations": {
         "idle": {
           "row": 0,
@@ -2576,11 +2996,71 @@
       "file": "sheets/audience_zorniger.png",
       "chosen": true,
       "provider": "gemini-3-pro-image",
-      "prompt": "A 2-frame pixel art sprite sheet of a frustrated man in a faded t-shirt, arms crossed, cigarette behind the ear, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. The FULL head sits upright on the shoulders and is clearly visible and unobstructed — NOT bowed down, NOT hidden by a hood/hair, NOT cropped at the top edge; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "prompt": "A 2-frame pixel art sprite sheet of a frustrated man with short receding dark hair and stubble, in a faded t-shirt, arms crossed, cigarette behind the ear, drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. The person looks calm and relaxed (neutral-content expression). Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
       "seed": 179953,
       "styleVersion": "v1",
-      "frameWidth": 48,
-      "frameHeight": 48,
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_zorniger_misstrauisch",
+      "type": "sheet",
+      "file": "sheets/audience_zorniger_misstrauisch.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly DISTRUSTFUL, sceptical facial expression (narrowed eyes glancing sideways, one raised eyebrow, tight sceptical mouth) and guarded body language: arms crossed over the chest, head slightly turned away while the eyes look toward the viewer. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 179953,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_zorniger_verunsichert",
+      "type": "sheet",
+      "file": "sheets/audience_zorniger_verunsichert.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly WORRIED, anxious facial expression (raised inner eyebrows, wide uneasy eyes, tense downturned mouth) and anxious body language: shoulders hunched up, one hand raised to the mouth or chest. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 179953,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 2,
+          "frameTime": 600,
+          "loop": true
+        }
+      }
+    },
+    {
+      "id": "audience_zorniger_wuetend",
+      "type": "sheet",
+      "file": "sheets/audience_zorniger_wuetend.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "Same pixel art character as in the reference sprite sheet — identical person, identical hair, identical outfit and colors, same art style and same compact seated pose base — but now with a visibly ANGRY facial expression (deeply furrowed brows angled down toward the nose, glaring eyes, mouth open in an angry shout or tightly gritted) and angry body language: leaning slightly forward, one fist clenched and raised. drawn as a COMPLETE seated person visible from the top of the head down to the feet, in a COMPACT, UPRIGHT SEATED pose as if sitting close together with others on a shared sofa watching TV: knees together directly in front, the lower legs dropping down to the feet, elbows close to the body, hands on the lap, back upright — the figure is clearly TALLER than wide, and the legs and feet MUST be included (NOT a bust, NOT a half figure, NOT cropped at the waist or knees). The head is relatively large for a game sprite (about one quarter of the total figure height) with a clearly readable face (eyes, eyebrows and mouth visible as distinct pixels), upright on the shoulders, NOT bowed, NOT hidden, NOT cropped; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft warm highlights and soft shadows. Believable everyday clothing in warm, friendly, lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so the figure blends into a warm home. No saturated candy colors, no pastel-only look. No real-world national symbols, no readable text.",
+      "seed": 179953,
+      "styleVersion": "v1",
+      "frameWidth": 72,
+      "frameHeight": 96,
       "animations": {
         "idle": {
           "row": 0,

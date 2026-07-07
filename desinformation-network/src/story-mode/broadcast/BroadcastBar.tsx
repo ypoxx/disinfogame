@@ -52,16 +52,25 @@ const KEYFRAMES = `
   @keyframes bb-blink { 0%,100% { opacity: 1 } 50% { opacity: .25 } }
 `;
 
-/** Stimmung → Bildfilter der Figur (ruhig = neutral).
- *  v4 (Review 2026-07-06 F4): entschärft — der frühere `hue-rotate(165deg)` färbte
- *  warme Figuren blaugrün ein und las sich wie ein Render-Bug statt wie „misstrauisch".
- *  Stimmung jetzt über Blässe/Kühle statt Farbdrehung; Badge/Haltung tragen die Deutung. */
+/** Stimmung → Bildfilter der Figur — NUR noch Fallback, falls das Mimik-Sheet
+ *  `audience_<id>_<mood>` fehlt (v5: Stimmung trägt die MIMIK der Figur selbst,
+ *  Owner 2026-07-07 — „anhand der Mimik die Stimmung erkennen"). Bewusst subtil. */
 const MOOD_FILTER: Record<Mood, string> = {
   ruhig: 'none',
   verunsichert: 'grayscale(0.3) brightness(0.9)',
   wuetend: 'sepia(0.35) hue-rotate(-16deg) saturate(1.7)',
   misstrauisch: 'saturate(0.72) brightness(0.9) contrast(1.05)',
 };
+
+/** Sitzplätze auf dem Sofa (pixelvermessen, Messraster 2026-07-07): sitzbarer
+ *  Bereich x≈150–455 zwischen den Armlehnen; 4 Zellen à 72 px, Fußlinie 16 px
+ *  über dem Panel-Boden → Oberschenkel landen auf der Kissen-Vorderkante (b≈52),
+ *  die Füße (b16, Boden b10) verschwinden im Sockel-Schatten. */
+const SEAT_LEFTS = [152, 228, 304, 380];
+const SEAT_WIDTH = 72;
+// 13 statt 16: Figuren sinken 3 px in die Kissen (Gemini-QC: „aufgesetzt"),
+// Füße landen damit fast exakt auf der Boden-Linie (b≈10).
+const SEAT_BOTTOM = 13;
 
 const MOOD_LABEL: Record<Mood, string> = {
   ruhig: 'ruhig',
@@ -307,11 +316,19 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
           pointerEvents: 'none',
         }}
       />
-      {/* Repräsentative Teilmenge (das Sofa fasst nicht alle 8 — Owner: nicht alle sitzen);
-          mittig, Rand-Polster, kleinere Skala → Köpfe werden oben NICHT abgeschnitten. */}
-      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 14, display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 12, padding: '0 16px', zIndex: 2 }}>
-        {audience.country.segments.slice(0, 4).map((seg) => {
+      {/* v5 (Owner 2026-07-07): PIXELGENAUES SITZEN — 4 vermessene Sofa-Plätze
+          (SEAT_LEFTS) statt zentrierter Flex-Reihe (die setzte die linke Figur neben
+          das Sofa auf den Beistelltisch). Sprites 72×96 nativ (scale 1, §4.1) —
+          repräsentative Teilmenge, das Sofa fasst nicht alle 8 Milieus. */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none' }}>
+        {audience.country.segments.slice(0, 4).map((seg, seatIndex) => {
           const figure = FIGURE_BY_SEGMENT[seg.id] ?? 'audience_besorgte_mitte';
+          // v5: Stimmung = MIMIK — eigenes Sheet je Mood (audience_<id>_<mood>);
+          // fehlt es (Registry-Fallback), bleibt der subtile Farb-Filter.
+          const moodSheetId = seg.mood === 'ruhig' ? figure : `${figure}_${seg.mood}`;
+          const hasMoodSheet = assets.sheet(moodSheetId) !== null;
+          const sheetId = hasMoodSheet ? moodSheetId : figure;
+          const fallbackFilter = hasMoodSheet ? 'none' : MOOD_FILTER[seg.mood];
           const reaction = reactionBySegment.get(seg.id);
           const showBubble = reaction && Math.abs(reaction.beliefDelta) >= 0.04;
           // Wohnzimmer-Alphabet (Zielbild §6): feste Bildsprache, ein Badge bedeutet
@@ -326,7 +343,14 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
           return (
             <div
               key={seg.id}
-              style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+              style={{
+                position: 'absolute',
+                left: SEAT_LEFTS[seatIndex] ?? SEAT_LEFTS[SEAT_LEFTS.length - 1],
+                bottom: SEAT_BOTTOM,
+                width: SEAT_WIDTH,
+                height: 96,
+                pointerEvents: 'auto',
+              }}
               title={`${seg.label_de} — ${MOOD_LABEL[seg.mood]}, Überzeugung ${(seg.belief * 100).toFixed(0)}%`}
             >
               {badgeResult.badge && (
@@ -373,17 +397,17 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
                 </span>
               )}
               {/* v4 (F3): Kontakt-Schatten erdet die Figur aufs Polster, drop-shadow gibt Tiefe —
-                  gegen den „Sticker"-Effekt (Review 2026-07-06). Mood bleibt als Zusatz-Filter. */}
-              <span style={{ position: 'relative', display: 'inline-flex', justifyContent: 'center' }}>
+                  gegen den „Sticker"-Effekt (Review 2026-07-06). */}
+              <span style={{ position: 'absolute', inset: 0, display: 'inline-flex', justifyContent: 'center', alignItems: 'flex-end' }}>
                 <span
                   aria-hidden
                   style={{
                     position: 'absolute',
                     left: '50%',
-                    bottom: 2,
+                    bottom: 0,
                     transform: 'translateX(-50%)',
-                    width: '72%',
-                    height: 13,
+                    width: '84%',
+                    height: 12,
                     background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0) 68%)',
                     zIndex: 0,
                   }}
@@ -392,11 +416,12 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
                   style={{
                     position: 'relative',
                     zIndex: 1,
-                    filter: `${MOOD_FILTER[seg.mood] === 'none' ? '' : MOOD_FILTER[seg.mood] + ' '}drop-shadow(0 3px 2px rgba(0,0,0,0.5))`,
+                    filter: `${fallbackFilter === 'none' ? '' : fallbackFilter + ' '}drop-shadow(0 3px 2px rgba(0,0,0,0.5))`,
                     transition: 'filter 600ms ease',
                   }}
                 >
-                  <PixelSprite sheetId={figure} animation="idle" fallback="" scale={2.2} title={seg.label_de} />
+                  {/* scale 1 = native 72×96-Frames (§4.1 Integer/Pixel-Dichte, v5) */}
+                  <PixelSprite sheetId={sheetId} animation="idle" fallback="" scale={1} title={seg.label_de} />
                 </span>
               </span>
               {/* Überzeugungs-Sockel: füllt sich mit der Wirkung der Desinformation */}
@@ -406,7 +431,7 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-label={`${seg.label_de}: Überzeugung ${Math.round(seg.belief * 100)}%, Stimmung ${MOOD_LABEL[seg.mood]}`}
-                style={{ width: 40, height: 4, marginTop: 2, backgroundColor: 'rgba(0,0,0,0.55)' }}
+                style={{ position: 'absolute', left: '50%', bottom: -13, transform: 'translateX(-50%)', width: 40, height: 4, backgroundColor: 'rgba(0,0,0,0.55)' }}
               >
                 <span
                   style={{
