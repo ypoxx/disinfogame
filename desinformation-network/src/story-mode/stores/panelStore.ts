@@ -30,10 +30,6 @@ interface PanelState {
   advisorCollapsed: boolean;
   toggleAdvisor: () => void;
 
-  // Action queue widget
-  queueCollapsed: boolean;
-  toggleQueue: () => void;
-
   // Reset all UI state (call on game restart)
   resetUI: () => void;
 }
@@ -63,11 +59,8 @@ export const usePanelStore = create<PanelState>((set) => ({
   toggleAdvisor: () =>
     set((state) => ({ advisorCollapsed: !state.advisorCollapsed })),
 
-  // N0 (PLAN 2026-07-07): eingeklappt starten — das default-offene Leer-Panel
-  // verdeckte den FEIERABEND-Knopf der Büro-Unterleiste.
-  queueCollapsed: true,
-  toggleQueue: () =>
-    set((state) => ({ queueCollapsed: !state.queueCollapsed })),
+  // (N3, PLAN 2026-07-07: `queueCollapsed`/`toggleQueue` entfallen — das schwebende
+  //  Queue-Widget ist in der Narrativ-Tafel aufgegangen.)
 
   resetUI: () =>
     set({
@@ -75,7 +68,6 @@ export const usePanelStore = create<PanelState>((set) => ({
       viewMode: 'building',
       broadcastExpanded: false,
       advisorCollapsed: true,
-      queueCollapsed: true,
     }),
 }));
 

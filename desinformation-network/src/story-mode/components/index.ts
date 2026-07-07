@@ -12,8 +12,6 @@ export { ActionCard } from './ActionCard';
 export type { StoryAction as ActionPanelAction } from './ActionCard';
 export { TerminalView } from './TerminalView';
 
-export { ActionQueueWidget } from './ActionQueueWidget';
-
 export { TutorialOverlay, useTutorial, TUTORIAL_STEPS } from './TutorialOverlay';
 export type { TutorialStep } from './TutorialOverlay';
 

@@ -1,57 +1,10 @@
 import { StoryModeColors } from '../theme';
-import { usePanelStore, PANEL_META, type PanelId } from '../stores/panelStore';
-import { Icon, type IconName } from './Icon';
+import { usePanelStore } from '../stores/panelStore';
 
-// ============================================
-// TAB BAR
-// ============================================
-
-function TabBar() {
-  const { activePanel, togglePanel } = usePanelStore();
-  // L2: 'actions' lebt jetzt im Vorgangs-Terminal (Taste A) — kein Reiter mehr.
-  const panels: PanelId[] = ['npcs', 'news', 'events', 'mission', 'stats'];
-
-  return (
-    <div
-      className="flex border-b-4"
-      style={{
-        backgroundColor: StoryModeColors.darkConcrete,
-        borderColor: StoryModeColors.border,
-      }}
-    >
-      {panels.map((id) => {
-        const meta = PANEL_META[id];
-        const isActive = activePanel === id;
-        return (
-          <button
-            key={id}
-            onClick={() => togglePanel(id)}
-            className="flex-1 py-2 px-1 text-center transition-all hover:brightness-125 relative"
-            style={{
-              backgroundColor: isActive ? StoryModeColors.surface : 'transparent',
-              borderBottom: isActive ? `3px solid ${StoryModeColors.ministryRed}` : '3px solid transparent',
-            }}
-            title={`${meta.label} [${meta.shortcut}]`}
-          >
-            <div className="flex justify-center leading-none">
-              <Icon name={meta.icon as IconName} size={18} title={meta.label} fallback={meta.label[0]} />
-            </div>
-            <div
-              className="text-[9px] font-bold mt-0.5 tracking-wider"
-              style={{
-                // Karteireiter (§4.7): aktiver Reiter = Papier + Tinte, inaktive
-                // liegen auf dem Kraftband → helle Beschriftung.
-                color: isActive ? StoryModeColors.textPrimary : StoryModeColors.lightConcrete,
-              }}
-            >
-              {meta.label}
-            </div>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
+// N3 (PLAN 2026-07-07): Die Tab-Bar ist entfallen — sie war das vierte parallele
+// Navigationssystem (neben Büro-Hotspots, Hotkeys und Berater-Leiste). Panels
+// öffnen über die Büro-Objekte bzw. die Hotkeys (N/S/P/M/E, ?-Hilfe); jedes
+// Panel bringt seinen eigenen Kopf mit Titel + Schließen mit.
 
 // ============================================
 // SIDE PANEL CONTAINER
@@ -62,7 +15,7 @@ interface SidePanelProps {
 }
 
 export function SidePanel({ children }: SidePanelProps) {
-  const { activePanel, setActivePanel } = usePanelStore();
+  const activePanel = usePanelStore((s) => s.activePanel);
 
   if (!activePanel) return null;
 
@@ -76,9 +29,6 @@ export function SidePanel({ children }: SidePanelProps) {
         borderColor: StoryModeColors.border,
       }}
     >
-      {/* Tab Bar */}
-      <TabBar />
-
       {/* Panel Content */}
       <div className="flex-1 overflow-hidden flex flex-col">
         {children}

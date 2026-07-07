@@ -13,6 +13,7 @@ dokumentiert für den Rückwärtsgang.
 | `studio/BlueprintStudio.tsx` | Entwurfs-Dashboard (#dash): Publikums-Modell-Spielwiese | Publikum läuft jetzt im Spiel: `src/story-mode/broadcast/` (Taste B) |
 | `studio/StudioScene.tsx` | Gezeichneter Gebäude-Schnitt (#studio/#blueprint), Vorstudie | `src/story-mode/building/BuildingStage.tsx` (Pixel-Querschnitt aus Baukasten-Assets) |
 | `ActionPanel-sidebar-modal.tsx` | Aktionen-Auswahl als rechte Seitenleiste + Vollbild-Modal (`variant`-Prop). Nach dem L2-Umbau (2026-07-06, „Komplett Luxus") toter Produktionscode: Maßnahmen wählt jetzt das Vorgangs-**Terminal** (Taste A, „Terminal WÄHLT, Korkbrett PLANT"). | `src/story-mode/components/TerminalView.tsx` + `terminalCuration.ts` (M2-Kuratierung). Der Kern der Karte lebt weiter als `src/story-mode/components/ActionCard.tsx` (M1-Vorgangsblatt, von TerminalView konsumiert). |
+| `ActionQueueWidget.tsx` | Schwebende Aktionen-Warteschlange unten rechts (eigenes Ausführen/Leeren; default-offen verdeckte sie den FEIERABEND-Knopf). Archiviert 2026-07-07 (PLAN NAV-Entschlackung N3): die Queue lebt an der **Narrativ-Tafel** (angeheftete Karten, AUSSPIELEN/LEEREN); der Tafel-Hotspot im Büro trägt den Angeheftet-Zähler. Rückwärtsgang zusätzlich: Export in `components/index.ts`, Mount in `StoryModeGame.tsx`, `queueCollapsed`/`toggleQueue` in `stores/panelStore.ts` wiederherstellen. | `src/story-mode/components/NarrativeBoard.tsx` (Spuren) + Badge am Board-Hotspot (`PlayerOfficeView`) |
 
 Nur im Git-Verlauf (vollständig ersetzt, nicht kopiert):
 

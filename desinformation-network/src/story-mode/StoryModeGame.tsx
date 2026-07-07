@@ -4,7 +4,6 @@ import { GAME_VERSION } from './version';
 import { DialogBox } from './components/DialogBox';
 import { StoryHUD } from './components/StoryHUD';
 import { TerminalView } from './components/TerminalView';
-import { ActionQueueWidget } from './components/ActionQueueWidget';
 import { NewsPanel } from './components/NewsPanel';
 import { StatsPanel } from './components/StatsPanel';
 import { NpcPanel } from './components/NpcPanel';
@@ -355,7 +354,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     activePanel, togglePanel, setActivePanel,
     broadcastExpanded, toggleBroadcast, setBroadcastExpanded,
     advisorCollapsed, toggleAdvisor,
-    queueCollapsed, toggleQueue,
     viewMode, setViewMode,
     resetUI,
   } = usePanelStore();
@@ -1274,18 +1272,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               isPrimary: o.type === 'primary',
               category: o.category,
             }))}
-            actions={state.availableActions.map((a) => ({
-              id: a.id,
-              label_de: a.label_de,
-              narrative_de: a.narrative_de,
-              costs: { budget: a.costs.budget, capacity: a.costs.capacity },
-              legality: a.legality,
-              available: a.available,
-              unavailableReason: a.unavailableReason,
-              // Zuständiges Büro für die Gruppierung (Entscheidung 1). Fallback „Ministerium",
-              // u. a. für die bekannte Affinitäts-Inkonsistenz (volkov≠NPC-Id, s. STATUS.md).
-              npc: state.npcs.find((n) => n.id === a.npcAffinity?.[0])?.name ?? 'Ministerium',
-            }))}
             queue={state.actionQueue}
             threads={[
               // P4/B1: aktive Episoden = die Stränge am Korkbrett (das „Warum"). Fortschritt =
@@ -1314,12 +1300,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               capacity: state.resources.capacity,
               actionPoints: state.resources.actionPointsRemaining,
             }}
-            onPin={(actionId) => addToQueue(actionId)}
             onUnpin={(queueItemId) => removeFromQueue(queueItemId)}
-            onExecuteNow={(actionId) => {
-              const result = executeAction(actionId);
-              if (result) setShowActionFeedback(true);
-            }}
             onPlay={async () => {
               const results = await executeQueue();
               if (results && results.length > 0) {
@@ -1635,34 +1616,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         />
       )}
 
-      {/* Action Queue Widget — im Gespräch, unter Vollbild-Overlays UND bei ausgeklapptem
-          Broadcast ausgeblendet (das Floating-Widget überlappte sonst die
-          Vorgangsblätter bzw. das Publikums-Wohnzimmer; geplant wird am Korkbrett).
-          N0: leer gar nicht rendern — das Leer-Panel verdeckte nur den FEIERABEND-Knopf. */}
-      {state.gamePhase === 'playing' && !state.currentDialog && !fullscreenOverlayOpen && !broadcastExpanded && state.actionQueue.length > 0 && (
-        <ActionQueueWidget
-          queue={state.actionQueue}
-          currentResources={{
-            budget: state.resources.budget,
-            capacity: state.resources.capacity,
-            actionPoints: state.resources.actionPointsRemaining,
-          }}
-          onRemove={removeFromQueue}
-          onClear={clearQueue}
-          onExecute={async () => {
-            const results = await executeQueue();
-            if (results && results.length > 0) {
-              const validResults = results.filter(r => r !== null);
-              if (validResults.length > 0) {
-                setBatchActionResults(validResults as ActionResult[]);
-                setShowActionFeedback(true);
-              }
-            }
-          }}
-          isCollapsed={queueCollapsed}
-          onToggleCollapse={toggleQueue}
-        />
-      )}
+      {/* N3 (PLAN 2026-07-07): Das schwebende Queue-Widget ist in der Narrativ-Tafel
+          aufgegangen (L3-Kern) — die Queue lebt als angeheftete Karten an der Tafel,
+          der Tafel-Hotspot im Büro trägt den Zähler (archive/story-mode-drafts/). */}
 
       {/* Combo Hints Widget — im Gespräch ausgeblendet (kein Floating über dem Dialog) */}
       {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !state.currentDialog && !fullscreenOverlayOpen && state.comboHints && state.comboHints.length > 0 && (

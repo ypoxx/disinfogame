@@ -3,16 +3,15 @@
  * Herzstück (Strang 2 / 2f). Sie ist unser „Sendeplan" (GESAMTKONZEPT §2):
  *
  *  - 2–3 laufende Narrative als SPUREN (E2: Start 2, max 3 via Gebäude-Wachstum).
- *  - Maßnahmen-Karten werden an eine Spur ANGEHEFTET (ziehen ODER „Anheften"/Enter).
  *  - Gelegenheits-Fenster als ROTE FÄDEN mit Ablaufdatum (Combos mit Verfall).
- *  - Die heutige Aktions-Liste ist hier INHALT, kein paralleles Panel (D-D).
  *
- * A1: nichts geht verloren — Anheften = addToQueue, Lösen = removeFromQueue,
- * „Sofort" = executeAction, „Ausspielen" = executeQueue. Engine unangetastet.
- * Voll tastaturbedienbar (E33): Karten sind fokussierbar, Enter heftet an.
- * Ziehen ist die Zusatz-Geste, nicht die einzige (kein „verkleidetes Dropdown").
+ * N3 (PLAN 2026-07-07): Der Zweitkatalog („MASSNAHMEN je Büro" samt SOFORT)
+ * ist entfallen — Regel §4.1: das TERMINAL wählt Maßnahmen (Taste A, dort
+ * „Anheften"), die TAFEL plant und spielt aus. A1: nichts geht verloren —
+ * Lösen = removeFromQueue, „Ausspielen" = executeQueue; Wählen/Sofort lebt
+ * am Terminal. Engine unangetastet.
  */
-import { useEffect, useMemo, useState, type DragEvent } from 'react';
+import { useEffect, useMemo } from 'react';
 import { StoryModeColors } from '../theme';
 import { Icon } from './Icon';
 import { playSound } from '../utils/SoundSystem';
@@ -20,18 +19,6 @@ import { isQueueBudgetFeasible } from '../utils/queueAffordability';
 import type { QueuedAction } from '../hooks/useStoryGameState';
 
 // ─── Typen ────────────────────────────────────────────────────────────────────
-
-export interface BoardAction {
-  id: string;
-  label_de: string;
-  narrative_de: string;
-  costs: { budget?: number; capacity?: number; actionPoints?: number };
-  legality: 'legal' | 'grey' | 'illegal';
-  available: boolean;
-  unavailableReason?: string;
-  /** Zuständiger NPC/Büro (Anzeige) — gruppiert das Deck (Entscheidung 1). */
-  npc?: string;
-}
 
 export interface BoardObjective {
   id: string;
@@ -54,7 +41,6 @@ export interface BoardThread {
 
 interface NarrativeBoardProps {
   objectives: BoardObjective[];
-  actions: BoardAction[];
   queue: QueuedAction[];
   threads: BoardThread[];
   resources: { budget: number; capacity: number; actionPoints: number };
@@ -64,15 +50,13 @@ interface NarrativeBoardProps {
   abwehr?: number;
   /** E2: gleichzeitige Narrativ-Spuren (Start 2, max 3). */
   narrativeSlots?: number;
-  onPin: (actionId: string) => void;
   onUnpin: (queueItemId: string) => void;
-  onExecuteNow: (actionId: string) => void;
   onPlay: () => void;
   onClear: () => void;
   onClose: () => void;
 }
 
-const LEGAL_COLOR: Record<BoardAction['legality'], string> = {
+const LEGAL_COLOR: Record<QueuedAction['legality'], string> = {
   legal: StoryModeColors.success,
   grey: StoryModeColors.warning,
   illegal: StoryModeColors.danger,
@@ -90,23 +74,18 @@ const KEYFRAMES = `
 
 export function NarrativeBoard({
   objectives,
-  actions,
   queue,
   threads,
   resources,
   sonntagsfrage,
   abwehr,
   narrativeSlots = 2,
-  onPin,
   onUnpin,
-  onExecuteNow,
   onPlay,
   onClear,
   onClose,
 }: NarrativeBoardProps): React.JSX.Element {
   const slots = Math.max(1, Math.min(3, narrativeSlots));
-  const [dragOverSpur, setDragOverSpur] = useState<number | null>(null);
-  const [focusSpur, setFocusSpur] = useState(0); // Ziel-Spur für „Anheften"/Enter (Tastatur)
 
   // Esc schließt (E33) — Capture + Stop, damit nicht zusätzlich das Pausemenü greift.
   useEffect(() => {
@@ -137,32 +116,6 @@ export function NarrativeBoard({
       .slice(0, 4),
     [objectives, sonntagsfrage],
   );
-
-  // Deck nach zuständigem NPC/Büro gruppieren (Entscheidung 1: Maßnahmen je Büro,
-  // nicht als flache Gesamtliste). Reihenfolge stabil nach erstem Auftreten.
-  const actionsByNpc = useMemo(() => {
-    const groups = new Map<string, BoardAction[]>();
-    for (const a of actions) {
-      const key = a.npc || 'Ministerium';
-      const list = groups.get(key);
-      if (list) list.push(a);
-      else groups.set(key, [a]);
-    }
-    return Array.from(groups.entries());
-  }, [actions]);
-
-  const pin = (actionId: string, spur: number) => {
-    setFocusSpur(spur);
-    playSound('paper');
-    onPin(actionId);
-  };
-
-  const onDrop = (e: DragEvent, spur: number) => {
-    e.preventDefault();
-    setDragOverSpur(null);
-    const actionId = e.dataTransfer.getData('text/actionId');
-    if (actionId) pin(actionId, spur);
-  };
 
   const planCost = queue.reduce(
     (a, q) => ({
@@ -326,20 +279,13 @@ export function NarrativeBoard({
           <div className="flex flex-col gap-2 mb-4">
             {Array.from({ length: slots }).map((_, spur) => {
               const cards = queueBySpur[spur] ?? [];
-              const isFocus = spur === focusSpur;
-              const isOver = dragOverSpur === spur;
               return (
                 <div
                   key={spur}
-                  onDragOver={(e) => { e.preventDefault(); setDragOverSpur(spur); }}
-                  onDragLeave={() => setDragOverSpur((s) => (s === spur ? null : s))}
-                  onDrop={(e) => onDrop(e, spur)}
-                  onClick={() => setFocusSpur(spur)}
                   className="px-2 py-2 min-h-[64px] flex items-center gap-2 flex-wrap"
                   style={{
-                    // v3: warning ist Marker-Tinte — Drop-Hinweis auf Kork braucht das helle v2-Amber.
-                    border: `2px dashed ${isOver ? '#F0B429' : isFocus ? StoryModeColors.ministryRed : 'rgba(0,0,0,0.35)'}`,
-                    backgroundColor: isOver ? 'rgba(240,180,41,0.10)' : 'rgba(0,0,0,0.12)',
+                    border: '2px dashed rgba(0,0,0,0.35)',
+                    backgroundColor: 'rgba(0,0,0,0.12)',
                   }}
                 >
                   <span className="text-[10px] font-bold tracking-widest w-14 shrink-0" style={{ color: '#e6d3ad' }}>
@@ -347,7 +293,7 @@ export function NarrativeBoard({
                   </span>
                   {cards.length === 0 ? (
                     <span className="text-[11px]" style={{ color: '#c9b48f' }}>
-                      Karte hierher ziehen oder „Anheften" — heutige Sendung dieser Spur.
+                      Nichts angeheftet — Maßnahmen wählt das Terminal [A], „Anheften" legt sie hierher.
                     </span>
                   ) : (
                     cards.map((q) => (
@@ -370,33 +316,10 @@ export function NarrativeBoard({
             )}
           </div>
 
-          {/* Karten-Deck: verfügbare Maßnahmen, nach zuständigem Büro/NPC gruppiert */}
-          <div className="text-[10px] font-bold tracking-widest mb-1" style={{ color: '#e6d3ad' }}>
-            MASSNAHMEN — je Büro; auf eine Spur ziehen oder „Anheften"
+          {/* N3 (§4.1): KEIN Zweitkatalog mehr — das Terminal wählt, die Tafel plant. */}
+          <div className="text-[11px] px-2 py-1.5 inline-block" style={{ color: '#241a0f', backgroundColor: '#c9b48f' }}>
+            Maßnahmen WÄHLT das Vorgangs-Terminal am Schreibtisch [A] — „Anheften" schickt sie auf diese Tafel.
           </div>
-          {actions.length === 0 && (
-            <span className="text-[11px]" style={{ color: '#c9b48f' }}>Aktuell keine Maßnahmen verfügbar.</span>
-          )}
-          {actionsByNpc.map(([npc, list]) => (
-            <div key={npc} className="mb-3">
-              <div
-                className="text-[11px] font-bold mb-1 px-1 inline-block"
-                style={{ color: '#241a0f', backgroundColor: '#c9b48f' }}
-              >
-                {npc}
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {list.map((a) => (
-                  <ActionCard
-                    key={a.id}
-                    action={a}
-                    onPin={() => pin(a.id, focusSpur)}
-                    onExecuteNow={() => a.available && onExecuteNow(a.id)}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
         </div>
 
         {/* Fuß: Plan-Kosten + Ausspielen/Leeren */}
@@ -466,66 +389,6 @@ function PinnedCard({ q, onUnpin }: { q: QueuedAction; onUnpin: () => void }): R
           <span className="text-[11px] font-bold max-w-[150px] truncate" title={q.label}>{q.label}</span>
           <button onClick={onUnpin} aria-label={`${q.label} lösen`} title="Lösen" className="text-xs" style={{ color: StoryModeColors.danger }}>✕</button>
         </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Maßnahmen-Karte (Deck) ───────────────────────────────────────────────────
-
-function ActionCard({ action, onPin, onExecuteNow }: { action: BoardAction; onPin: () => void; onExecuteNow: () => void }): React.JSX.Element {
-  const dis = !action.available;
-  const onDragStart = (e: DragEvent) => {
-    if (dis) { e.preventDefault(); return; }
-    e.dataTransfer.setData('text/actionId', action.id);
-    e.dataTransfer.effectAllowed = 'copy';
-  };
-  return (
-    <div
-      draggable={!dis}
-      onDragStart={onDragStart}
-      className="flex flex-col gap-1 p-2"
-      style={{
-        backgroundColor: dis ? '#b6a988' : StoryModeColors.oldPaper,
-        color: '#241a0f',
-        border: `2px solid ${LEGAL_COLOR[action.legality]}`,
-        cursor: dis ? 'not-allowed' : 'grab',
-        opacity: dis ? 0.6 : 1,
-      }}
-      title={dis ? (action.unavailableReason || 'Nicht verfügbar') : action.narrative_de}
-    >
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-[12px] font-bold leading-tight">{action.label_de}</span>
-        {/* v3 §4.7: Legalität als STEMPEL (Rahmen + Tinte) statt gefüllter Pille. */}
-        <span className="text-[9px] px-1 shrink-0 border" style={{ borderColor: LEGAL_COLOR[action.legality], color: LEGAL_COLOR[action.legality], backgroundColor: 'transparent' }}>
-          {action.legality === 'legal' ? 'LEGAL' : action.legality === 'grey' ? 'GRAU' : 'ILLEGAL'}
-        </span>
-      </div>
-      <div className="flex flex-wrap gap-1 text-[10px]">
-        {!!action.costs.budget && <span style={{ color: '#5a3a12' }}><Icon name="budget" size={10} title="Budget" /> {action.costs.budget}K</span>}
-        {!!action.costs.actionPoints && <span style={{ color: '#5a3a12' }}><Icon name="mission" size={10} title="AP" /> {action.costs.actionPoints} AP</span>}
-        {!!action.costs.capacity && <span style={{ color: '#5a3a12' }}><Icon name="capacity" size={10} title="Kapazität" /> {action.costs.capacity}</span>}
-      </div>
-      <div className="flex gap-1 mt-0.5">
-        <button
-          onClick={onPin}
-          disabled={dis}
-          className="flex-1 px-2 py-1 text-[11px] font-bold border-2 hover:brightness-110 disabled:opacity-50"
-          // v3 §4.7: Papier-Knopf mit Oliv-Tinte statt Oliv-Fläche (Vision-Review E2).
-          style={{ backgroundColor: StoryModeColors.surfaceLight, borderColor: StoryModeColors.militaryOlive, color: StoryModeColors.darkOlive, cursor: dis ? 'not-allowed' : 'pointer' }}
-          title="An die fokussierte Spur anheften (Enter)"
-        >
-          ANHEFTEN
-        </button>
-        <button
-          onClick={onExecuteNow}
-          disabled={dis}
-          className="px-2 py-1 text-[11px] font-bold border-2 hover:brightness-110 disabled:opacity-50"
-          style={{ backgroundColor: StoryModeColors.surfaceLight, borderColor: StoryModeColors.ministryRed, color: StoryModeColors.ministryRed, cursor: dis ? 'not-allowed' : 'pointer' }}
-          title="Sofort ausspielen"
-        >
-          SOFORT
-        </button>
       </div>
     </div>
   );
