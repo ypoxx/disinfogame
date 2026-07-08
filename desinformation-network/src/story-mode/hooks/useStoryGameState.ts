@@ -723,7 +723,20 @@ export function useStoryGameState(seed?: string) {
     setComboHints(hints);
   }, [engine, generateRecommendations]);
 
+  // R2: Wird die GERADE GEZEIGTE Debatte per Leertaste/Escape geschlossen (statt
+  // über eine der drei Optionen), gilt sie als „durchgezogen" — Aktion bleibt, der
+  // Widersprecher grollt, pendingDebate wird geräumt. NUR wenn der offene Dialog
+  // wirklich die Debatte ist (choices `debate_`), sonst würde ein normaler Dismiss
+  // die noch nicht gezeigte, vorgemerkte Debatte fälschlich verwerfen.
+  const aufloesenFallsDebatteOffen = useCallback(() => {
+    if (pendingDebate && currentDialog?.choices?.some((c) => c.id.startsWith('debate_'))) {
+      engine.markPassedOver(pendingDebate.objectorNpcId);
+      setPendingDebate(null);
+    }
+  }, [engine, pendingDebate, currentDialog]);
+
   const continueDialog = useCallback(() => {
+    aufloesenFallsDebatteOffen();
     if (gamePhase === 'tutorial') {
       // Move to next tutorial step or start playing
       setGamePhase('playing');
@@ -734,12 +747,13 @@ export function useStoryGameState(seed?: string) {
     } else {
       setCurrentDialog(null);
     }
-  }, [gamePhase, generateRecommendations]);
+  }, [gamePhase, generateRecommendations, aufloesenFallsDebatteOffen]);
 
   const dismissDialog = useCallback(() => {
+    aufloesenFallsDebatteOffen();
     setCurrentDialog(null);
     setActiveNpcId(null);
-  }, []);
+  }, [aufloesenFallsDebatteOffen]);
 
   const handleDialogChoice = useCallback((choiceId: string) => {
     // P1a: „Aktion aus Dialog" — die im Gespräch angebotene Maßnahme auf den
@@ -1208,7 +1222,7 @@ export function useStoryGameState(seed?: string) {
       (result.triggeredConsequences.length > 0 && result.triggeredConsequences[0].requiresChoice) ||
       triggeredCrises.length > 0 ||
       !!pendingStageCm;
-    if (!endState && !morgenBelegt && pendingDebate) {
+    if (!endState && !morgenBelegt && pendingDebate && !engine.hasDebateFired(pendingDebate.debate.id)) {
       const nameOf = (id: string) => engine.getNPCState(id)?.name ?? id;
       engine.markDebateFired(pendingDebate.debate.id);
       playSound('notification');
