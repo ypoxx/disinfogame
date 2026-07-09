@@ -139,6 +139,7 @@ import {
   impfeFaktencheck,
   zielMilieusFuerTags,
   gewichteterMultiplikator,
+  wirkungsMultiplikator,
   erklaereDaempfung,
   stempelFuer,
   effektiveAbstumpfung,
@@ -151,8 +152,8 @@ import {
   type ZielMilieu,
   type DaempfungsErklaerung,
 } from '../story-mode/engine/MaschenGedaechtnis';
-import { loadAudience, type AudienceSegment } from '../story-mode/audience/audienceModel';
-import { vortestMasche, cardRegister, type MaschenVortestResult, type MascheKarte } from '../story-mode/audience/maschenVortest';
+import { loadAudience, BELIEF_PRO_STOSS, type AudienceSegment } from '../story-mode/audience/audienceModel';
+import { vortestMasche, cardRegister, FAHNE_SCHWELLE, type MaschenVortestResult, type MascheKarte } from '../story-mode/audience/maschenVortest';
 import { loadDisinfoMethods } from '../story-mode/engine/DisinfoMethodAtlas';
 
 import {
@@ -799,6 +800,16 @@ export class StoryEngineAdapter {
   private maschenGedaechtnis: MaschenGedaechtnisState = leeresMaschenGedaechtnis();
   /** Publikums-Segmente (8 Milieus) — einmal geladen, für Ziel-Ableitung + Alphabet. */
   private readonly audienceSegments: AudienceSegment[] = loadAudience()[0]?.segments ?? [];
+  /**
+   * E16-Rückwirkung: der LEBENDE Überzeugungsstand je Gruppe. Startet aus audience.json und
+   * wandert im Rennen (belief-Writeback je Masche) — die statischen Segmente bleiben unberührt.
+   * Damit wird die Vortest-Vorschau „noch N Stöße bis zur Fahne" über einen Lauf eingelöst.
+   */
+  private segmentBelief: Record<string, number> = Object.fromEntries(
+    this.audienceSegments.map((s) => [s.id, s.belief]),
+  );
+  /** Gruppen, die schon über die Kipp-Schwelle (Parteifahne) gegangen sind — feuert einmal. */
+  private gekippteGruppen: Set<string> = new Set();
   /** Dämpfung der ZULETZT ausgeführten Aktion (für die E5-Quittung im Ergebnis). */
   private lastMaschenDaempfung: {
     familieId: string;
@@ -4506,10 +4517,36 @@ export class StoryEngineAdapter {
    * Abwehr-Sprung + TV-Nachricht + die Familie gilt ÜBERALL als bekannt —
    * EIN System statt der alten globalen Zählung (HANDOFF Falle 6).
    */
+  /** Segmente mit dem LEBENDEN belief-Stand (E16) — für Vortest und Kipp-Prüfung. */
+  private liveSegments(): AudienceSegment[] {
+    return this.audienceSegments.map((s) => ({ ...s, belief: this.segmentBelief[s.id] ?? s.belief }));
+  }
+
+  /**
+   * E16-Rückwirkung — belief-Writeback: jede getroffene Gruppe rückt um `Wirkung × BELIEF_PRO_STOSS`
+   * näher an die Parteifahne. Die Wirkung ist identisch zur Vortest-Vorschau (Resonanz × Multiplikator),
+   * damit „noch N Stöße bis zur Fahne" über einen Lauf tatsächlich eingelöst wird. Kein Zerfall:
+   * die Abnutzung (Multiplikator sinkt) und die Abwehr (Patch) sind die natürliche Bremse.
+   */
+  private schreibeBeliefZurueck(ziele: ZielMilieu[], familieId: string): void {
+    const phase = this.storyPhase.number;
+    for (const z of ziele) {
+      const wirkung = z.resonanz * wirkungsMultiplikator(this.maschenGedaechtnis, z.id, familieId, phase);
+      if (wirkung <= 0) continue;
+      const vorher = this.segmentBelief[z.id] ?? 0;
+      this.segmentBelief[z.id] = Math.max(0, Math.min(1, vorher + wirkung * BELIEF_PRO_STOSS));
+    }
+  }
+
   private registerMethodFamilyUse(tags: string[]): void {
     const family = methodFamilyForTags(tags, this.methodFamilies);
     if (!family) return;
     const ziele = zielMilieusFuerTags(tags, this.audienceSegments);
+    // E16-Rückwirkung: die Masche schiebt den lebenden Überzeugungsstand der getroffenen
+    // Gruppen — mit GENAU der Wirkung, die auch der Vortest vorhersagt (Resonanz × Abnutzung
+    // × (1−Impfung) × BELIEF_PRO_STOSS). Vor registriereEinsatz, damit der Multiplikator den
+    // Stand VOR diesem Einsatz spiegelt (wie ihn das Publikum diese Runde erlebt).
+    this.schreibeBeliefZurueck(ziele, family.id);
     // Abnutzung NUR in den resonanten Milieus (Zielbild §7: „Milieu wechseln" bleibt
     // ein echter Ausweg) — die Vorschau/Dämpfung mittelt trotzdem über alle Ziele.
     const brennende = brennendeMilieus(ziele).map((z) => z.id);
@@ -4652,7 +4689,8 @@ export class StoryEngineAdapter {
     if (!loaded) return null;
     const ids = sampleSegmentIds ?? this.audienceSegments.map((s) => s.id);
     return vortestMasche(loaded.tags ?? [], ids, {
-      segmente: this.audienceSegments,
+      // E16: der Vortest liest den LEBENDEN belief-Stand — „noch N Stöße" spiegelt den echten Lauf.
+      segmente: this.liveSegments(),
       gedaechtnis: this.maschenGedaechtnis,
       phase: this.storyPhase.number,
       families: this.methodFamilies,
@@ -6824,6 +6862,9 @@ export class StoryEngineAdapter {
       noiseAttentionToday: this.noiseAttentionToday,
       // Etappe 4: das Maschen-Gedächtnis ersetzt die alte globale Familien-Zählung.
       maschenGedaechtnis: this.maschenGedaechtnis,
+      // E16-Rückwirkung: lebender belief-Stand + bereits gekippte Gruppen.
+      segmentBelief: this.segmentBelief,
+      gekippteGruppen: Array.from(this.gekippteGruppen),
       patchedFamilies: Array.from(this.patchedFamilies),
       firedAbwehrStages: Array.from(this.firedAbwehrStages),
       pendingAbwehrStages: this.pendingAbwehrStages,
@@ -6902,6 +6943,12 @@ export class StoryEngineAdapter {
     // GLOBALE Familien-Zählung wird als Einsatz-Historie übernommen; bereits gepatchte
     // Familien gelten überall als bekannt (Patch-Folge nachgezogen, kein Wissensverlust).
     this.maschenGedaechtnis = state.maschenGedaechtnis ?? leeresMaschenGedaechtnis();
+    // E16 — lebender belief-Stand. Alte Saves (ohne Feld) starten auf dem audience.json-Grundstand,
+    // damit sie ohne Kipp-Vorsprung, aber lauffähig weiterspielen (additiv/rückwärtskompatibel).
+    this.segmentBelief =
+      (state.segmentBelief as Record<string, number> | undefined) ??
+      Object.fromEntries(this.audienceSegments.map((s) => [s.id, s.belief]));
+    this.gekippteGruppen = new Set(state.gekippteGruppen ?? []);
     this.lastMaschenDaempfung = null;
     // Review-Befund 1: sonst impft der erste Faktencheck nach dem Laden die
     // Familie/Milieus des VORIGEN Spiels in den geladenen Zustand hinein.

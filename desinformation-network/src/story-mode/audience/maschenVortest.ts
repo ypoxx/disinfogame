@@ -13,7 +13,7 @@
  * reicht den Live-Zustand herein; die UI konsumiert nur das fertige Row-Objekt.
  */
 
-import type { AudienceSegment, Channel } from './audienceModel';
+import { BELIEF_PRO_STOSS, type AudienceSegment, type Channel } from './audienceModel';
 import {
   zielMilieusFuerTags,
   stempelFuer,
@@ -206,9 +206,9 @@ export function vortestMasche(
     const geimpft = fam ? effektiveImpfung(ctx.gedaechtnis, seg.id, fam.id, ctx.phase) >= GEIMPFT_SCHWELLE : false;
     const wirkung = reached ? resonanz * mult : 0;
     // E3: Stöße bis zur Fahne = Lücke bis zur Kipp-Schwelle / Überzeugungs-Gewinn je Einsatz
-    // (beliefDelta = Wirkung × 0,2, wie audienceModel.reactToEffect). Nur qualitativ, keine Punktzahl.
+    // (beliefDelta = Wirkung × BELIEF_PRO_STOSS — identisch zum echten Writeback im Rennen). Nur qualitativ.
     const luecke = FAHNE_SCHWELLE - seg.belief;
-    const deltaProStoss = wirkung * 0.2;
+    const deltaProStoss = wirkung * BELIEF_PRO_STOSS;
     const stoesseBisFahne = luecke <= 0 ? 0 : deltaProStoss <= 0.001 ? 99 : Math.ceil(luecke / deltaProStoss);
     const kippNah = stoesseBisFahne >= 1 && stoesseBisFahne <= KIPP_STOSS_NAH;
     return {

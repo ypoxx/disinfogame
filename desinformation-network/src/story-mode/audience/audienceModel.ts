@@ -116,6 +116,13 @@ export interface SocietyMood {
   zynismus: number;
 }
 
+/**
+ * Überzeugungs-Gewinn EINES Einsatzes je Wirkungs-Einheit (E16). Kanonische Konstante:
+ * dieselbe Zahl steuert die Anzeige-Reaktion (reactToEffect), den Vortest („noch N Stöße
+ * bis zur Fahne") UND den echten belief-Writeback im Wettrennen — so bleibt die Vorschau ehrlich.
+ */
+export const BELIEF_PRO_STOSS = 0.2;
+
 /** Reaktion eines Landes auf einen Effekt (pro Segment + Gesamt-Quote). */
 export function reactToEffect(country: AudienceCountry, effect: Effect, society?: SocietyMood): CountryReaction {
   const baseIntensity = clamp01(effect.intensity ?? 0.5);
@@ -131,7 +138,7 @@ export function reactToEffect(country: AudienceCountry, effect: Effect, society?
     // Auch wenig resonante Erreichte „sehen" es (Grundreichweite 0.3), Resonanz gewichtet den Rest.
     // Reichweite hängt auch an der Intensität → Entdeckungs-Risiko (gedämpfte Intensität) senkt die Quote.
     const reach = reached ? seg.size * (0.3 + 0.7 * resonance) * (0.4 + 0.6 * intensity) : 0;
-    const beliefDelta = effectiveness * 0.2;
+    const beliefDelta = effectiveness * BELIEF_PRO_STOSS;
     let newMood = nextMood(seg.mood, effectiveness);
     // Hoher Zynismus: aus „verunsichert" wird Rückzug/Misstrauen statt Wut.
     if (cynical && reached && newMood === 'verunsichert') newMood = 'misstrauisch';
