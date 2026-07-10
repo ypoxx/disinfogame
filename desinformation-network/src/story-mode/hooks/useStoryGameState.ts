@@ -695,11 +695,31 @@ export function useStoryGameState(seed?: string) {
 
     // P4/B1: „Episode aufnehmen" — der NPC bietet eine Geschichte an, der Spieler nimmt
     // sie als aktiven Strang aufs Korkbrett; die Einklink-Aktionen landen auf dem Sendeplan.
+    // T3 (KONZEPT §3.2): Das Brett hat Kapazität — voll heißt entscheiden, nicht stapeln.
     if (choiceId.startsWith('episode_') && activeNpcId) {
       const episodeId = choiceId.slice('episode_'.length);
       const ep = getEpisode(episodeId);
       const npc = engine.getNPCState(activeNpcId);
-      if (ep && engine.activateEpisode(episodeId)) {
+      if (!ep) return;
+      const aktive = engine.getActiveEpisodes();
+      if (aktive.length >= engine.getNarrativeSlots()) {
+        // Fokus ist eine Ressource: annehmen = einen laufenden Strang abhängen.
+        setCurrentDialog({
+          speaker: npc?.name || activeNpcId,
+          speakerTitle: npc?.role_de,
+          text: `Das Brett ist voll — ${aktive.length} Stränge laufen. Für „${ep.titel_de}" müssten wir einen abhängen. Er verfällt dann ohne Wirkung, bleibt aber im Angebot, solange die Lage passt.`,
+          mood: 'neutral',
+          choices: [
+            ...aktive.map((alt) => ({
+              id: `tausche_${alt.id}||${episodeId}`,
+              text: `„${alt.titel_de}" abhängen`,
+            })),
+            { id: 'back_to_npc', text: 'Ablehnen — alles bleibt, wie es ist' },
+          ],
+        });
+        return;
+      }
+      if (engine.activateEpisode(episodeId)) {
         playSound('click');
         setActiveEpisodes(engine.getActiveEpisodes());
         // Einklink-Aktionen, die verfügbar sind, auf den Sendeplan heften.
@@ -713,6 +733,36 @@ export function useStoryGameState(seed?: string) {
           speaker: npc?.name || activeNpcId,
           speakerTitle: npc?.role_de,
           text: `${ep.lage_de}\n\n— ${ep.wendung_de}\n\n(„${ep.titel_de}" liegt jetzt als Strang auf dem Korkbrett.${pinned.length > 0 ? ' Die passenden Maßnahmen sind auf dem Sendeplan.' : ''})`,
+          mood: 'neutral',
+          choices: [
+            { id: 'back_to_npc', text: 'Weiter besprechen' },
+            { id: 'dismiss', text: 'An die Arbeit' },
+          ],
+        });
+      }
+      return;
+    }
+
+    // T3: Strang-Tausch — der alte hängt ab (verfällt ohne Auszahlung; seine Karten
+    // rutschen ans Tagesgeschäft), der neue kommt aufs Brett samt Einklink-Karten.
+    if (choiceId.startsWith('tausche_') && activeNpcId) {
+      const [altId, neuId] = choiceId.slice('tausche_'.length).split('||');
+      const ep = getEpisode(neuId);
+      const alt = getEpisode(altId);
+      const npc = engine.getNPCState(activeNpcId);
+      if (ep && engine.abandonEpisode(altId) && engine.activateEpisode(neuId)) {
+        playSound('paper');
+        setActiveEpisodes(engine.getActiveEpisodes());
+        const pinned = ep.einklink_aktionen
+          .map(id => availableActions.find(a => a.id === id))
+          .filter((a): a is StoryAction => !!a);
+        if (pinned.length > 0) {
+          setActionQueue(prev => [...prev, ...pinned.map(a => buildQueuedAction(a))]);
+        }
+        setCurrentDialog({
+          speaker: npc?.name || activeNpcId,
+          speakerTitle: npc?.role_de,
+          text: `„${alt?.titel_de ?? altId}" ist abgehängt.\n\n${ep.lage_de}\n\n— ${ep.wendung_de}\n\n(„${ep.titel_de}" liegt jetzt als Strang auf dem Korkbrett.${pinned.length > 0 ? ' Die passenden Maßnahmen sind auf dem Sendeplan.' : ''})`,
           mood: 'neutral',
           choices: [
             { id: 'back_to_npc', text: 'Weiter besprechen' },

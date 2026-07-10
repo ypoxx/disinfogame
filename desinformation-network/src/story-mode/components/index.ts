@@ -32,5 +32,5 @@ export type { CrisisMoment, CrisisChoice } from '../engine/CrisisMomentSystem';
 // ActorEffectivenessWidget entfernt (verwaist, kein Importeur) — 2026-05-31
 export type { ActorEffectivenessModifier } from '../engine/ExtendedActorLoader';
 
-export { ComboHintsWidget } from './ComboHintsWidget';
+// ComboHintsWidget → archive/story-mode-drafts/ (T2/L3: Zettel am Korkbrett, 2026-07-08)
 export type { ComboHint } from '../engine/StoryComboSystem';

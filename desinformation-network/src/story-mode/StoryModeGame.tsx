@@ -25,7 +25,6 @@ import { BetrayalWarningBadge } from './components/BetrayalWarningBadge';
 import { GrievanceModal } from './components/GrievanceModal';
 import { BetrayalEventModal } from './components/BetrayalEventModal';
 import { StageCountermeasureModal } from './components/StageCountermeasureModal';
-import { ComboHintsWidget } from './components/ComboHintsWidget';
 import { CrisisModal } from './components/CrisisModal';
 import { BetrayalIndicators } from './components/BetrayalIndicators';
 import { ConsequenceTimeline } from './components/ConsequenceTimeline';
@@ -539,6 +538,13 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     aktionen: ep.einklink_aktionen,
     erledigt: ep.einklink_aktionen.filter((id) => state.completedActions.includes(id)),
   }));
+
+  // T4: stockt eine Spur? Aktiver Strang mit offenen Sendungen, von denen keine
+  // angeheftet ist — der Kurator erinnert im Morgenbriefing an die Tafel.
+  const stockendeSpur = strangStatus.find((s) => {
+    const offen = s.aktionen.filter((id) => !s.erledigt.includes(id));
+    return offen.length > 0 && !offen.some((id) => state.actionQueue.some((q) => q.actionId === id));
+  });
 
   // Tutorial system
   const tutorial = useTutorial();
@@ -1334,7 +1340,13 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               name: h.comboName,
               hint: h.hint_de,
               expiresIn: h.expiresIn,
+              // T2/L3: der nächste Schritt wandert vom Floating-Widget auf den Zettel.
+              nextAction: h.nextAction_de,
             }))}
+            // T3/T4: Brett-Kapazität + Akt-Band + Umfrage-Horizont aus der Engine.
+            slots={state.engine.getNarrativeSlots()}
+            akt={{ nummer: state.engine.getAkt().nummer, titel: state.engine.getAkt().titel_de }}
+            naechsteSonntagsfrageIn={state.engine.getNaechsteSonntagsfrageIn()}
             queue={state.actionQueue}
             resources={{
               budget: state.resources.budget,
@@ -1441,6 +1453,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               attention={state.resources.attention}
               auftragTitel={state.engine.getAuftrag().titel_de}
               beatHook={directorBeat?.vorgriffZeile_de}
+              spurHinweis={stockendeSpur
+                ? `Spur „${stockendeSpur.titel}" stockt — keine Sendung geplant. Die passenden Maßnahmen liegen im Terminal obenan.`
+                : undefined}
               onDone={() => setBriefedPhase(state.storyPhase.number)}
             />
           )}
@@ -1687,15 +1702,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         />
       )}
 
-      {/* Combo Hints Widget — im Gespräch ausgeblendet (kein Floating über dem Dialog) */}
-      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !state.currentDialog && state.comboHints && state.comboHints.length > 0 && (
-        <div
-          className="fixed bottom-4 left-4 w-80 z-20"
-          style={{ maxHeight: '40vh', overflowY: 'auto' }}
-        >
-          <ComboHintsWidget hints={state.comboHints} />
-        </div>
-      )}
+      {/* T2/L3: Das Combo-Hints-Widget ist als Zettel in der Narrativ-Tafel
+          aufgegangen (V6 zu, EIN Planungsort) — archive/story-mode-drafts/. */}
 
       {/* Betrayal System Modals */}
       {state.activeBetrayalEvent && (

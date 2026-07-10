@@ -122,6 +122,34 @@ describe('NarrativeBoard — Spur = Strang', () => {
   });
 });
 
+describe('NarrativeBoard — Kapazität, Akt & Fenster-Zettel (T2–T4)', () => {
+  it('zeigt freie Spuren und die gesperrte dritte Spur (F-B: Akt 3 statt K40)', () => {
+    renderBoard({ strands: [STRAENGE[0]], queue: [] });
+    expect(screen.getAllByTestId('lane-frei')).toHaveLength(1);
+    expect(screen.getByTestId('lane-gesperrt').textContent).toContain('Akt 3');
+  });
+
+  it('blendet die Sperr-Zeile aus, sobald drei Spuren genehmigt sind', () => {
+    renderBoard({ slots: 3 });
+    expect(screen.queryByTestId('lane-gesperrt')).not.toBeInTheDocument();
+    // 2 Stränge aktiv + 1 freie Spur = volle Kapazität sichtbar.
+    expect(screen.getAllByTestId('lane-frei')).toHaveLength(1);
+  });
+
+  it('zeigt Akt-Band und Sonntagsfrage-Zettel (T4)', () => {
+    renderBoard({ akt: { nummer: 2, titel: 'Den Zweifel säen' }, naechsteSonntagsfrageIn: 3 });
+    expect(screen.getByTestId('akt-band').textContent).toContain('AKT 2');
+    expect(screen.getByText('Nächste Sonntagsfrage in 3 Tagen')).toBeInTheDocument();
+  });
+
+  it('Fenster-Zettel trägt den nächsten Schritt (Erbe des Floating-Widgets)', () => {
+    renderBoard({
+      windows: [{ id: 'w1', name: 'Wahl-Fenster', hint: 'Empörung verfängt doppelt', expiresIn: 2, nextAction: 'Bot-Netz aktivieren' }],
+    });
+    expect(screen.getByText(/Nächster Schritt: Bot-Netz aktivieren/)).toBeInTheDocument();
+  });
+});
+
 describe('istPlanLeistbar — EIN Prädikat für Tafel-Gate und Chip-Warnung', () => {
   const res = { budget: 50, capacity: 10, actionPoints: 5 };
   const teuer = { ...karte('q1', 'x'), costs: { budget: 60, actionPoints: 1 } };

@@ -9,8 +9,26 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `GESAMTKONZEPT_VISUELL.md` → dieses Dokument für den aktuellen Bau-Stand.
 > Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
-**Stand:** 2026-07-07 (NARRATIV-TAFEL T1 „Wahrmachen" — PR #106, Branch
-`claude/narrative-board-mechanics-bog18k`) · Gate grün (`tsc 0` · `vitest 646` · `build`).
+**Stand:** 2026-07-08 (NARRATIV-TAFEL T1–T4 KOMPLETT — PR #106, Branch
+`claude/narrative-board-mechanics-bog18k`) · Gate grün (`tsc 0` · `vitest 660` · `build`,
+beide Sim-Gates unverändert).
+> **T2 (L3-Optik, ohne Asset-Budget):** echte rote Fäden vom Karteireiter zu jeder
+> angehefteten Karte (gemessenes SVG je Spur); Gelegenheits-Fenster als **Zettel am
+> Kork** mit Verfallsfaden + „Nächster Schritt" — das Floating-ComboHints-Widget ist
+> darin aufgegangen (V6 zu; `archive/story-mode-drafts/`). Offen bleibt NUR das
+> kostenpflichtige Asset-/SFX-Paket (Kork-Kacheln, Faden-Sprites, Papier-SFX via
+> pixel-asset-pipeline — braucht Budget-Ansage) + Harvest-Vision-Review.
+> **T3 (Fokus-Mechanik, simuliert):** `activateEpisode` hat einen **Brett-Cap**
+> (B6: Start 2 Spuren), volles Brett → NPC-Dialog-Entscheidung „Strang abhängen?"
+> (`abandonEpisode`: verfällt ohne wirkt_auf, kehrt in den Pool zurück, gespielte
+> Einklink-Aktionen bleiben angerechnet), Save-Guard für Altstände; **Spur 3
+> genehmigt die Zentrale mit Akt 3** (F-B — statt Gebäude-Wachstum/K40).
+> **T4 (Vertiefung):** `getAkt()` (Kampagnen-Drittel → „Keil/Zweifel/Wahl", Band
+> über den Spuren), Sonntagsfrage-Zettel („nächste Umfrage in N Tagen"),
+> Morgenbriefing-Hinweis „Spur X stockt" (Kurator zeigt aufs Brett).
+> Tests: `EpisodeSlots.test.ts` (Cap/Abhängen/Save-Guard/Akte) + Board-Tests
+> erweitert. Offen nach diesem PR: Asset-/SFX-Paket (Budget) · Harvest-Vision-
+> Review · Playtest-Kriterium L8 („3 Fragen in ≤10 s").
 > **Owner-Anlass:** „Ich verstehe die Narrativ-Tafel immer noch nicht" → Analyse + Konzept
 > **`docs/KONZEPT_2026-07-07_NARRATIV_TAFEL_INTEGRATION.md`** (abgenommen, F-A–F-D
 > entschieden) und Etappe **T1 umgesetzt**: Spuren = aktive Episoden-Stränge (Zuordnung über

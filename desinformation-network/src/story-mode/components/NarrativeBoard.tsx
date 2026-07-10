@@ -14,7 +14,7 @@
  * LEEREN = clearQueue; Anheften geschieht am Terminal (addToQueue). Engine unangetastet.
  * Esc schließt (E33, Capture + Stop — Muster PixelModal).
  */
-import { useEffect, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { StoryModeColors } from '../theme';
 import { Icon } from './Icon';
 import { playSound } from '../utils/SoundSystem';
@@ -77,6 +77,8 @@ export interface BoardWindow {
   name: string;
   hint: string;
   expiresIn: number; // Tage bis Verfall
+  /** T2: nächster Schritt des Fensters (übernimmt das alte ComboHints-Widget). */
+  nextAction?: string;
 }
 
 interface NarrativeBoardProps {
@@ -85,6 +87,12 @@ interface NarrativeBoardProps {
   windows: BoardWindow[];
   queue: QueuedAction[];
   resources: { budget: number; capacity: number; actionPoints: number };
+  /** T3: Spuren des Bretts (Start 2; die dritte genehmigt die Zentrale mit Akt 3). */
+  slots?: number;
+  /** T4: Akt-Dramaturgie der Kampagne (Zielbild §8) als Band über den Spuren. */
+  akt?: { nummer: number; titel: string };
+  /** T4: Tage bis zur nächsten Sonntagsfrage (0 = heute Abend; null = ausblenden). */
+  naechsteSonntagsfrageIn?: number | null;
   onUnpin: (queueItemId: string) => void;
   onPlay: () => void;
   onClear: () => void;
@@ -131,6 +139,9 @@ export function NarrativeBoard({
   windows,
   queue,
   resources,
+  slots = 2,
+  akt,
+  naechsteSonntagsfrageIn = null,
   onUnpin,
   onPlay,
   onClear,
@@ -219,7 +230,7 @@ export function NarrativeBoard({
           }}
         >
           {/* Missionsziele als Kopf-Notizen (volle Messung wohnt in der Akte — Taste M) */}
-          {sortedObjectives.length > 0 && (
+          {(sortedObjectives.length > 0 || naechsteSonntagsfrageIn !== null) && (
             <div className="mb-3 flex flex-wrap gap-2">
               {sortedObjectives.map((o, i) => (
                 <div
@@ -239,50 +250,72 @@ export function NarrativeBoard({
                   </span>
                 </div>
               ))}
+              {/* T4: der Wochen-Spannungsbogen als Planungshorizont — schaffe ich
+                  den Strang, bevor die nächste Umfrage misst? */}
+              {naechsteSonntagsfrageIn !== null && (
+                <div className="px-3 py-1.5 inline-flex items-center gap-2" style={noteStyle(false, 0.5)}>
+                  <span className="text-[11px]">
+                    {naechsteSonntagsfrageIn === 0
+                      ? 'Sonntagsfrage: heute Abend'
+                      : `Nächste Sonntagsfrage in ${naechsteSonntagsfrageIn} ${naechsteSonntagsfrageIn === 1 ? 'Tag' : 'Tagen'}`}
+                  </span>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Rote Fäden: Gelegenheits-Fenster mit echtem Verfall */}
+          {/* Gelegenheits-Fenster als Zettel am Kork (T2/L3: das ComboHints-Widget
+              ist hier aufgegangen — V6 zu), mit rotem Verfallsfaden am Rand. */}
           {windows.length > 0 && (
-            <div className="mb-3 flex flex-col gap-1">
-              {windows.map((w) => {
+            <div className="mb-3 flex flex-wrap gap-2">
+              {windows.map((w, i) => {
                 const urgent = w.expiresIn <= 1;
                 return (
                   <div
                     key={w.id}
-                    className="flex items-center gap-2 px-2 py-1 text-xs"
+                    className="px-2 py-1 inline-flex flex-col text-xs max-w-sm"
                     style={{
-                      backgroundColor: 'rgba(20,8,8,0.6)',
+                      ...noteStyle(false, i % 2 ? 0.6 : -0.7),
                       borderLeft: `4px solid ${urgent ? StoryModeColors.danger : StoryModeColors.ministryRed}`,
-                      color: StoryModeColors.document,
                       animation: urgent ? 'nb-thread-pulse 1.2s ease-in-out infinite' : undefined,
                     }}
                     title={w.hint}
                   >
-                    {/* v3: danger/warning sind Tinten — auf dem dunklen Faden-Streifen
-                        bleiben die hellen v2-Signalwerte (diegetisch). */}
-                    <span style={{ color: '#E5484D' }}>⟜</span>
-                    <span className="font-bold">{w.name}</span>
-                    <span style={{ color: '#d9c6a3' }}>{w.hint}</span>
-                    {/* expiresIn kommt als Phasen; seit dem Zielbild gilt 1 Phase = 1 Tag. */}
-                    <span className="ml-auto font-bold" style={{ color: urgent ? '#E5484D' : '#F0B429' }}>
-                      läuft ab in {w.expiresIn} {w.expiresIn === 1 ? 'Tag' : 'Tagen'}
+                    <span className="flex items-center gap-2">
+                      <span style={{ color: StoryModeColors.ministryRed }}>⟜</span>
+                      <span className="font-bold text-[11px]">{w.name}</span>
+                      {/* expiresIn kommt als Phasen; seit dem Zielbild gilt 1 Phase = 1 Tag. */}
+                      <span className="ml-auto font-bold text-[10px]" style={{ color: urgent ? StoryModeColors.danger : '#8a5a12' }}>
+                        läuft ab in {w.expiresIn} {w.expiresIn === 1 ? 'Tag' : 'Tagen'}
+                      </span>
                     </span>
+                    <span className="text-[10px]" style={{ color: '#5a3a12' }}>{w.hint}</span>
+                    {w.nextAction && (
+                      <span className="text-[10px] italic" style={{ color: '#5a3a12' }}>
+                        Nächster Schritt: {w.nextAction}
+                      </span>
+                    )}
                   </div>
                 );
               })}
             </div>
           )}
 
-          {/* Spuren = aktive Episoden-Stränge */}
+          {/* T4: Akt-Band — beantwortet die Mittelspiel-Frage „Was mache ich JETZT?"
+              (Zielbild §8: Keil → Zweifel → Wahl). */}
+          {akt && (
+            <div
+              className="mb-2 px-3 py-1 inline-block font-bold text-[11px] tracking-widest"
+              style={{ backgroundColor: '#2c1f12', color: StoryModeColors.document }}
+              data-testid="akt-band"
+            >
+              AKT {akt.nummer} — {akt.titel.toUpperCase()}
+            </div>
+          )}
+
+          {/* Spuren = aktive Episoden-Stränge; freie Spuren zeigen die Kapazität
+              (T3/B6: Fokus ist eine Ressource — das Brett trägt nicht alles). */}
           <div className="flex flex-col gap-3 mb-4">
-            {strands.length === 0 && (
-              <div className="px-3 py-2 inline-block max-w-md" style={noteStyle(false, -0.5)}>
-                <span className="text-[11px]">
-                  Noch kein Strang auf dem Brett — das Team bietet Episoden an, wenn die Lage passt.
-                </span>
-              </div>
-            )}
             {strands.map((strand) => (
               <StrandLane
                 key={strand.id}
@@ -291,6 +324,39 @@ export function NarrativeBoard({
                 onUnpin={onUnpin}
               />
             ))}
+            {Array.from({ length: Math.max(0, slots - strands.length) }).map((_, i) => (
+              <div
+                key={`frei-${i}`}
+                className="px-2 py-2 min-h-[48px] flex items-center gap-2"
+                style={{ border: '2px dashed rgba(0,0,0,0.35)', backgroundColor: 'rgba(0,0,0,0.08)' }}
+                data-testid="lane-frei"
+              >
+                <span className="text-[10px] font-bold tracking-widest w-28 shrink-0" style={{ color: '#bfa988' }}>
+                  FREIE SPUR
+                </span>
+                <span className="text-[11px]" style={{ color: '#c9b48f' }}>
+                  {strands.length === 0 && i === 0
+                    ? 'Noch kein Strang auf dem Brett — das Team bietet Episoden an, wenn die Lage passt.'
+                    : 'Platz für einen weiteren Strang.'}
+                </span>
+              </div>
+            ))}
+            {/* F-B: Die dritte Spur ist keine Gebäude-Mechanik mehr, sondern hängt
+                diegetisch am Endspurt der Kampagne. */}
+            {slots < 3 && (
+              <div
+                className="px-2 py-1.5 flex items-center gap-2"
+                style={{ border: '2px dashed rgba(0,0,0,0.2)', opacity: 0.55 }}
+                data-testid="lane-gesperrt"
+              >
+                <span className="text-[10px] font-bold tracking-widest w-28 shrink-0" style={{ color: '#bfa988' }}>
+                  DRITTE SPUR
+                </span>
+                <span className="text-[11px]" style={{ color: '#bfa988' }}>
+                  Genehmigt die Zentrale, sobald der Endspurt beginnt (Akt 3).
+                </span>
+              </div>
+            )}
 
             {/* Tagesgeschäft: alles Geplante ohne Strang-Bezug */}
             <div
@@ -389,19 +455,72 @@ function StrandLane({
 }): React.JSX.Element {
   const total = strand.aktionen.length;
   const done = strand.erledigt.length;
+
+  // T2: echte rote Fäden vom Karteireiter zu jeder angehefteten Karte — die
+  // Detektiv-Korkwand, die die Metapher verspricht. Gemessen statt geraten
+  // (flex-wrap bricht unvorhersehbar um); statisch, kein Puls (reduced-motion).
+  const laneRef = useRef<HTMLDivElement>(null);
+  const headRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef(new Map<string, HTMLElement>());
+  const [faeden, setFaeden] = useState<{ x1: number; y1: number; x2: number; y2: number }[]>([]);
+  useLayoutEffect(() => {
+    const messen = () => {
+      const lane = laneRef.current;
+      const head = headRef.current;
+      if (!lane || !head || cards.length === 0) { setFaeden([]); return; }
+      const lr = lane.getBoundingClientRect();
+      const hr = head.getBoundingClientRect();
+      // Der Faden hängt an der rechten Unterkante des Reiters …
+      const hx = hr.right - lr.left - 6;
+      const hy = hr.bottom - lr.top - 4;
+      const segs: { x1: number; y1: number; x2: number; y2: number }[] = [];
+      for (const q of cards) {
+        const el = cardRefs.current.get(q.id);
+        if (!el) continue;
+        const cr = el.getBoundingClientRect();
+        // … und endet an der Pin-Nadel der Karte (obere Mitte).
+        segs.push({ x1: hx, y1: hy, x2: cr.left - lr.left + cr.width / 2, y2: cr.top - lr.top + 2 });
+      }
+      setFaeden(segs);
+    };
+    messen();
+    window.addEventListener('resize', messen);
+    return () => window.removeEventListener('resize', messen);
+  }, [cards]);
+
   return (
     <div
-      className="px-2 py-2 flex flex-col gap-2"
+      ref={laneRef}
+      className="relative px-2 py-2 flex flex-col gap-2"
       style={{
         border: `2px dashed ${StoryModeColors.ministryRed}`,
         backgroundColor: 'rgba(0,0,0,0.12)',
       }}
       data-testid={`lane-strand-${strand.id}`}
     >
+      {faeden.length > 0 && (
+        <svg
+          className="absolute inset-0 w-full h-full"
+          style={{ pointerEvents: 'none' }}
+          aria-hidden
+          data-testid="strang-faeden"
+        >
+          {faeden.map((f, i) => (
+            <line
+              key={i}
+              x1={f.x1} y1={f.y1} x2={f.x2} y2={f.y2}
+              stroke={StoryModeColors.ministryRed}
+              strokeWidth={2}
+              strokeLinecap="round"
+              opacity={0.75}
+            />
+          ))}
+        </svg>
+      )}
       {/* Karteireiter: Titel gestempelt, Wendung als Randnotiz — die Dilemma-Frage
           ist sonst nirgends nachlesbar (sie fiel bisher nach dem Dialog weg). */}
       <div className="flex items-start gap-2 flex-wrap">
-        <div className="px-2 py-1 inline-flex flex-col" style={noteStyle(true, -0.4)}>
+        <div ref={headRef} className="px-2 py-1 inline-flex flex-col" style={noteStyle(true, -0.4)}>
           <span className="text-[11px] font-bold tracking-wider uppercase">⟜ {strand.titel}</span>
           <span className="text-[10px] italic" style={{ color: '#5a3a12' }}>{strand.wendung}</span>
         </div>
@@ -441,7 +560,17 @@ function StrandLane({
             Keine Sendung dieses Strangs geplant — die passenden Maßnahmen liegen im Terminal obenan (● Strang).
           </span>
         ) : (
-          cards.map((q) => <PinnedCard key={q.id} q={q} onUnpin={() => onUnpin(q.id)} />)
+          cards.map((q) => (
+            <span
+              key={q.id}
+              ref={(el) => {
+                if (el) cardRefs.current.set(q.id, el);
+                else cardRefs.current.delete(q.id);
+              }}
+            >
+              <PinnedCard q={q} onUnpin={() => onUnpin(q.id)} />
+            </span>
+          ))
         )}
       </div>
     </div>

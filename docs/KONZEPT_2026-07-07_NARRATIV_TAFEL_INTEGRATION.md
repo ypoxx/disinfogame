@@ -1,6 +1,7 @@
 # 🧵 KONZEPT — Die Narrativ-Tafel wird wahr
 
-**Status:** ✅ Abgenommen (Owner 2026-07-07, F-A–F-D entschieden — §11) · T1 umgesetzt (dieser Branch) · **Datum:** 2026-07-07
+**Status:** ✅ Abgenommen (Owner 2026-07-07, F-A–F-D entschieden — §11) · **T1–T4 umgesetzt**
+(2026-07-08, dieser Branch; offen: Asset-/SFX-Paket mit Budget-Ansage + Harvest-Vision-Review + L8-Playtest) · **Datum:** 2026-07-07
 **Scope:** Story · **Setzt auf:** `ZIELBILD_2026-07-04_WETTRENNEN.md` (kanonisch) ·
 `PLAN_2026-07-06_UI_LUXUS.md` (§4.1 „Terminal WÄHLT, Korkbrett PLANT", Etappe L3 offen) ·
 `KONZEPT_2026-06-14_HERZSTUECK_EPISODEN_WERTE.md` (§3.4, §14 F7=A) · `BAUPLAN_2026-06-14_HERZSTUECK.md` (P4).
