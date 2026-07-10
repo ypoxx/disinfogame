@@ -233,6 +233,34 @@ Jede Phase endet grün: `npm run build` + `npx tsc --noEmit` + `npx vitest run`.
 - **`FokusgruppeView` aktions-bewusst machen** (falls dort O-Ton landet) — neue Prop
   vom Orchestrator nötig.
 
+## 11 · Umsetzungs-Stand (2026-07-09/10)
+
+**Geliefert (Phasen 0–5, jede Phase grün, PR #100):**
+- **0a** Resonanzgruppen statt Sinus-Milieus (lizenzfrei), Namen geschärft, IDs stabil.
+- **0b** `THEMEN_JE_TAG`/`KANAL_JE_TAG` um die Phänomen-Tags geschärft (Sim-geprüft).
+- **1** `botschaft_de` (Draußen-O-Ton) an allen 18 Phänomen-Maschen + `cardRegister`;
+  EIN reines Vortest-Modul (`maschenVortest.ts`), das die ECHTE Live-Kette liest.
+- **2** Die vier Stempel-Vorschauen (FRISCH/BEKANNT/VERBRANNT · geimpft/wittert ·
+  versteckter Einwand + Reife-Ampel · Kipp-Nähe qualitativ „noch N Stöße").
+- **3** `MaschenVortestView`: Karten-Picker + geführte Stichprobe (8 Gruppen, Bias 0)
+  + gesperrte Profi-Schublade (Gate = Phase); Persona-O-Ton kippt frisch↔verbrannt
+  (§6). Analyse-Raum darauf verdrahtet. „Nur Stempel/Stöße" gewahrt.
+- **4** Diegetisches Onboarding: Marina-Eintrittskarte, Topic „Über das Publikum",
+  Morgenbriefing-Nudge „ungetestet gesendet → Etage 3".
+- **5 (E16)** belief-Writeback macht den Vortest ehrlich; Kippen → Fraktionsstärke
+  (zweischneidig: Reward + Entdeckungsrisiko), gegen beide Balance-Sims kalibriert.
+  `FokusgruppePreTest.tsx` (alter Appell-Vortest) archiviert.
+
+**Bewusst zurückgestellt (dokumentiert, kein toter Code):** Das vollständige
+*Stilllegen* von `receptivity`/`buildWirkungsMatrix`/`MessageAppeal` und die
+Dossier-Arc-Migration auf Masche/Familie. Grund: diese Module sind **kein** toter
+Code mehr, sondern hängen an LEBENDEN PR-#100-Flächen — `OperationsAkteView`
+(Appell-Etikett `APPEAL_LABEL` + Wirkungs-Landkarte) und der Dossier-Save/Load in
+`useStoryGameState`. Sie zu entfernen ist ein **Feature-Umbau** (regressiert PR-#100-
+Funktionen), kein Archivieren — und gehört in einen eigenen, sim-abgesicherten PR,
+nicht in diesen. Der Analyse-**Einstieg** (die Owner-Kritik) ist bereits appellfrei;
+`receptivity` speist nur noch die separate Operations-Akte, nicht den Vortest.
+
 ---
 
 *Erarbeitet mit einem Understand-Durchlauf (5 Leser) + einem Design-Durchlauf

@@ -43,7 +43,7 @@ import { NpcRoomView } from './building/NpcRoomView';
 import { NewsroomView, derivePosts } from './components/NewsroomView';
 import { deriveGegenseite } from './engine/Gegenseite';
 import { FokusgruppeView } from './components/FokusgruppeView';
-import { FOKUSGRUPPE_COST } from './components/FokusgruppePreTest';
+import { FOKUSGRUPPE_COST } from './audience/fokusgruppeKosten';
 import { MaschenVortestView } from './components/MaschenVortestView';
 import personasJson from './data/personas.json';
 import type { PersonaLite } from './audience/maschenVortest';
