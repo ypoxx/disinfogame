@@ -202,7 +202,10 @@ export class ConsequenceSystem {
       // Calculate probability based on use count
       // P0-1 Fix: Default max to 1.0 when undefined to prevent NaN
       const baseProbability = def.probability.base;
-      const increasePerUse = def.probability.per_use_increase;
+      // P1-Fix 2026-07: per_use_increase fehlt in 21/24 Definitionen → ohne Default
+      // ergab `undefined * 1.5 = NaN` und (wegen 0 * NaN = NaN) eine NaN-Wahrscheinlichkeit,
+      // sodass `roll < NaN` immer false war und die Konsequenz NIE feuerte.
+      const increasePerUse = def.probability.per_use_increase ?? 0;
       const maxProbability = def.probability.max ?? 1.0;
 
       // BALANCE FIX 2026-01-14: Apply minimum probability boost
