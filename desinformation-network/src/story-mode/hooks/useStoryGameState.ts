@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   StoryEngineAdapter,
   createStoryEngine,
@@ -31,6 +31,10 @@ import { playSound } from '../utils/SoundSystem';
 import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
 import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
 import { getBetrayalSystem } from '../engine/BetrayalSystem';
+import { getActionLoader } from '../engine/ActionLoader';
+import { buildAngebot, renderBestaetigung, renderWettstreit, renderUebergangen, appealAusTags, istZielAktion, type MessageAppeal } from '../engine/BeraterRegie';
+import { loadTargets } from '../battlefield/BattlefieldChain';
+import type { Debate } from '../engine/DialogLoader';
 import type { BetrayalState, BetrayalEvent, BetrayalWarning, BetrayalGrievance } from '../engine/BetrayalSystem';
 import { getCrisisMomentSystem } from '../engine/CrisisMomentSystem';
 import type { ActiveCrisis, CrisisResolution } from '../engine/CrisisMomentSystem';
@@ -92,11 +96,46 @@ function buildQueuedAction(
   };
 }
 
+/** R3-Sichtbarkeit: welchen Nerv eine Aktion beim Publikum spielt (Spieler-Wort). */
+const APPELL_WORT: Record<MessageAppeal, string> = {
+  hope: 'Hoffnung',
+  fear: 'Angst',
+  anger: 'Wut',
+  trust: 'Vertrauen',
+};
+
+/**
+ * R2 (Berater-Regie): leitet aus einer gequeueten Aktion die Debatten-Trigger-Tags
+ * ab (die Debatten in topics_dialogues.json feuern auf high_risk_action /
+ * viral_campaign / expensive_action / field_operation). Die eigentliche Auswahl
+ * (Phase + Zustands-Bedingung wie „Risiko ≥ 50") macht `engine.getDebate`.
+ */
+export function deriveDebateTags(action: StoryAction): string[] {
+  const tags = [...(action.tags ?? [])];
+  if ((action.costs?.risk ?? 0) >= 3) tags.push('high_risk_action');
+  if ((action.costs?.budget ?? 0) >= 10) tags.push('expensive_action');
+  const t = (action.tags ?? []).join(' ');
+  if (/viral|reach|amplif|media|content/i.test(t)) tags.push('viral_campaign');
+  if (/field|targeting|intelligence|infiltrat|contact/i.test(t)) tags.push('field_operation');
+  return tags;
+}
+
+/** Der Wortwechsel einer Debatte als ein Dialog-Text (Sprecher-Namen davor). */
+export function debateTurnsText(debate: Debate, nameOf: (npcId: string) => string): string {
+  return debate.turns.map((turn) => `${nameOf(turn.speaker)}: ${turn.text_de}`).join('\n\n');
+}
+
 /**
  * Kontextuelle Maßnahmen-Angebote eines NPCs als Dialog-Optionen (Aktion aus Dialog, P1a).
  * Gefiltert nach `npc_affinity` + Verfügbarkeit (freigeschaltet & ungenutzt). Owner-Entscheidung 1:
  * Maßnahmen entstehen im Gespräch beim zuständigen NPC, nicht aus einer flachen Liste am Brett.
- * Beschriftung mit der plakativen Überschrift (B5), Präfix ▸ grenzt sie von Gesprächsthemen ab.
+ * Beschriftung mit dem Plan-Namen (Infinitiv `label_de`) — ein Angebot, etwas zu
+ * TUN, nicht die Perfekt-Schlagzeile (die beschreibt das erledigte Ergebnis und
+ * erzeugt sonst einen Tempus-Widerspruch). Präfix ▸ grenzt sie von Gesprächsthemen ab.
+ *
+ * R3-Sichtbarkeit (Berater-Regie): trägt die Aktion einen Publikums-Appell, wird
+ * er als „spielt auf Angst/Wut/…" angehängt — INFO, kein Urteil. Ob der Nerv beim
+ * Ziel-Milieu sitzt, muss der Spieler selbst wissen/prüfen (überzeugend ≠ richtig).
  */
 export function buildActionOfferChoices(
   actions: StoryAction[],
@@ -106,11 +145,29 @@ export function buildActionOfferChoices(
   return actions
     .filter((a) => a.available && a.npcAffinity?.includes(npcId))
     .slice(0, max)
-    .map((a) => ({
-      id: `action_${a.id}`,
-      text: `▸ ${a.headline_de || a.label_de}`,
-      cost: { ap: 1, budget: a.costs.budget },
-    }));
+    .map((a) => {
+      const appeal = appealAusTags(a.tags);
+      const nerv = appeal ? ` · spielt auf ${APPELL_WORT[appeal]}` : '';
+      return {
+        id: `action_${a.id}`,
+        text: `▸ ${a.label_de}${nerv}`,
+        cost: { ap: 1, budget: a.costs.budget },
+      };
+    });
+}
+
+/**
+ * R2/R4 (Berater-Regie): Menge der NPC-ids, die aktuell ein verfügbares
+ * Maßnahmen-Angebot in ihrem Korb haben. Grundlage für „konkurrierende
+ * Angebote" (Wettstreit-Spitze) und „übergangen werden".
+ */
+export function npcsWithOffers(actions: StoryAction[]): Set<string> {
+  const set = new Set<string>();
+  for (const a of actions) {
+    if (!a.available) continue;
+    for (const npc of a.npcAffinity ?? []) set.add(npc);
+  }
+  return set;
 }
 
 /**
@@ -432,6 +489,17 @@ export function useStoryGameState(seed?: string) {
   // Dialog
   const [currentDialog, setCurrentDialog] = useState<DialogState | null>(null);
 
+  // R2 (Berater-Regie): eine ausgelöste, aber noch nicht gezeigte Debatte. Wird
+  // beim Queuen einer kontroversen Aktion gesetzt und ERST am nächsten
+  // Tageswechsel (endPhase) gezeigt — die diegetische Verzögerung (Owner §13).
+  const [pendingDebate, setPendingDebate] = useState<{
+    debate: Debate;
+    actionId: string;
+    queuedItemId: string;
+    proposerNpcId: string;
+    objectorNpcId: string;
+  } | null>(null);
+
   // Advisor System
   const [recommendations, setRecommendations] = useState<AdvisorRecommendation[]>([]);
 
@@ -612,6 +680,7 @@ export function useStoryGameState(seed?: string) {
     useDirectorStore.getState().reset();
     // Erkenntnis-Dossier zurücksetzen (keine Befunde aus einem früheren Spiel).
     useDossierStore.getState().reset();
+    engine.clearPassedOver(); // R4: übergangene NPCs nicht ins neue Spiel schleppen
     setDecisionBeatResult(null);
 
     // Load available actions from engine
@@ -654,7 +723,20 @@ export function useStoryGameState(seed?: string) {
     setComboHints(hints);
   }, [engine, generateRecommendations]);
 
+  // R2: Wird die GERADE GEZEIGTE Debatte per Leertaste/Escape geschlossen (statt
+  // über eine der drei Optionen), gilt sie als „durchgezogen" — Aktion bleibt, der
+  // Widersprecher grollt, pendingDebate wird geräumt. NUR wenn der offene Dialog
+  // wirklich die Debatte ist (choices `debate_`), sonst würde ein normaler Dismiss
+  // die noch nicht gezeigte, vorgemerkte Debatte fälschlich verwerfen.
+  const aufloesenFallsDebatteOffen = useCallback(() => {
+    if (pendingDebate && currentDialog?.choices?.some((c) => c.id.startsWith('debate_'))) {
+      engine.markPassedOver(pendingDebate.objectorNpcId);
+      setPendingDebate(null);
+    }
+  }, [engine, pendingDebate, currentDialog]);
+
   const continueDialog = useCallback(() => {
+    aufloesenFallsDebatteOffen();
     if (gamePhase === 'tutorial') {
       // Move to next tutorial step or start playing
       setGamePhase('playing');
@@ -665,35 +747,136 @@ export function useStoryGameState(seed?: string) {
     } else {
       setCurrentDialog(null);
     }
-  }, [gamePhase, generateRecommendations]);
+  }, [gamePhase, generateRecommendations, aufloesenFallsDebatteOffen]);
 
   const dismissDialog = useCallback(() => {
+    aufloesenFallsDebatteOffen();
     setCurrentDialog(null);
     setActiveNpcId(null);
-  }, []);
+  }, [aufloesenFallsDebatteOffen]);
 
   const handleDialogChoice = useCallback((choiceId: string) => {
     // P1a: „Aktion aus Dialog" — die im Gespräch angebotene Maßnahme auf den
     // Sendeplan (Narrativ-Tafel) heften und das im Dialog bestätigen.
+    // Gemeinsamer Weg „Aktion auf den Sendeplan + substanzielle Bestätigung"
+    // (3. Takt der Berater-Regie). Genutzt vom direkten Angebot UND nach der
+    // Ziel-Auswahl. `zielName` fließt als {ziel} in die Bestätigung.
+    const queueAndConfirm = (
+      action: StoryAction,
+      npcId: string,
+      opts?: { targetId?: string; zielName?: string },
+    ) => {
+      const npc = engine.getNPCState(npcId);
+      const queued = buildQueuedAction(action, opts?.targetId ? { targetId: opts.targetId } : undefined);
+      setActionQueue(prev => [...prev, queued]);
+      playSound('click');
+      // R2: Ist die Aktion kontrovers genug, dass ein Rivale widerspricht? Dann
+      // Debatte vormerken — sie zeigt sich VERZÖGERT am nächsten Tageswechsel
+      // (Owner §13), nicht als Interrupt. engine.getDebate prüft Phase + Lage.
+      const debate = engine.getDebate(deriveDebateTags(action));
+      if (debate && !engine.hasDebateFired(debate.id) && debate.participants.includes(npcId)) {
+        const objector = debate.participants.find((p) => p !== npcId);
+        if (objector) {
+          setPendingDebate({
+            debate,
+            actionId: action.id,
+            queuedItemId: queued.id,
+            proposerNpcId: npcId,
+            objectorNpcId: objector,
+          });
+        }
+      }
+      // R4: andere NPCs mit eigenem Angebot gelten als übergangen (Mit-Eigentümer
+      // der gewählten Aktion nicht).
+      const gewaehlteEigner = new Set<string>(action.npcAffinity ?? []);
+      gewaehlteEigner.add(npcId);
+      for (const rival of npcsWithOffers(availableActions)) {
+        if (!gewaehlteEigner.has(rival)) engine.markPassedOver(rival);
+      }
+      for (const eigner of gewaehlteEigner) engine.unmarkPassedOver(eigner);
+      const loader = getActionLoader();
+      const raw = loader.getAction(action.id);
+      const bestaetigung = raw
+        ? renderBestaetigung(
+            buildAngebot(raw, npcId, (id) => loader.getAction(id)?.label_de, opts?.zielName),
+            Math.random(),
+          )
+        : `Verstanden. Ich bringe „${action.label_de}" auf den Weg.`;
+      setCurrentDialog({
+        speaker: npc?.name || npcId,
+        speakerTitle: npc?.role_de,
+        text: bestaetigung,
+        mood: 'neutral',
+        choices: [
+          { id: 'back_to_npc', text: 'Weitere Maßnahme besprechen' },
+          { id: 'dismiss', text: 'Erledigt' },
+        ],
+      });
+    };
+
+    // P1a: „Aktion aus Dialog". Bei Aktionen gegen eine Person kommt ZUERST die
+    // Ziel-Auswahl (Variante A, im Gespräch — Owner-Entscheid 2026-07-07).
     if (choiceId.startsWith('action_') && activeNpcId) {
       const actionId = choiceId.slice('action_'.length);
       const action = availableActions.find(a => a.id === actionId);
-      const npc = engine.getNPCState(activeNpcId);
-      if (action) {
-        setActionQueue(prev => [...prev, buildQueuedAction(action)]);
+      if (!action) return;
+      const raw = getActionLoader().getAction(action.id);
+      if (istZielAktion(raw?.effects)) {
+        const npc = engine.getNPCState(activeNpcId);
         playSound('click');
-        const headline = action.headline_de || action.label_de;
         setCurrentDialog({
           speaker: npc?.name || activeNpcId,
           speakerTitle: npc?.role_de,
-          text: `Gut. „${headline}" liegt jetzt auf dem Sendeplan. An der Narrativ-Tafel ordnen Sie die Maßnahme ein und spielen sie aus.`,
+          text: 'Gegen wen richten wir das?',
           mood: 'neutral',
           choices: [
-            { id: 'back_to_npc', text: 'Weitere Maßnahme besprechen' },
-            { id: 'dismiss', text: 'Erledigt' },
+            ...loadTargets().map(t => ({ id: `target_${t.id}|${action.id}`, text: `▸ ${t.name} — ${t.role_de}` })),
+            { id: 'back_to_npc', text: 'Doch nicht' },
           ],
         });
+        return;
       }
+      queueAndConfirm(action, activeNpcId);
+      return;
+    }
+
+    // Ziel-Auswahl (zweite Stufe): Person gewählt → Aktion mit targetId heften,
+    // Bestätigung nennt das Ziel namentlich ({ziel}).
+    if (choiceId.startsWith('target_') && activeNpcId) {
+      const [targetId, actionId] = choiceId.slice('target_'.length).split('|');
+      const action = availableActions.find(a => a.id === actionId);
+      const target = loadTargets().find(t => t.id === targetId);
+      if (action && target) {
+        queueAndConfirm(action, activeNpcId, { targetId: target.id, zielName: target.name });
+      }
+      return;
+    }
+
+    // R2: Auflösung einer Debatte (Owner §13) — die nicht-dominierte Wahl. Der
+    // „Preis" ist immer eine Beziehung (R4-Groll). Ist die Aktion schon
+    // ausgespielt, greift „abblasen" ins Leere → der „zu spät"-Fall.
+    if (choiceId.startsWith('debate_')) {
+      const pd = pendingDebate;
+      setPendingDebate(null);
+      playSound('click');
+      if (!pd) { setCurrentDialog(null); return; }
+      const nameOf = (id: string) => engine.getNPCState(id)?.name ?? id;
+      let text: string;
+      if (choiceId === 'debate_durchziehen') {
+        engine.markPassedOver(pd.objectorNpcId); // der Widersprecher grollt
+        text = `Es bleibt, wie geplant. ${nameOf(pd.objectorNpcId)} sagt nichts mehr — merkt es sich aber.`;
+      } else if (choiceId === 'debate_abblasen') {
+        const present = actionQueue.some((q) => q.id === pd.queuedItemId);
+        if (present) setActionQueue((prev) => prev.filter((q) => q.id !== pd.queuedItemId));
+        engine.markPassedOver(pd.proposerNpcId); // der Vorschlagende grollt
+        text = present
+          ? `Vom Sendeplan genommen. ${nameOf(pd.proposerNpcId)} ist nicht begeistert.`
+          : `Zu spät — es lief schon. ${nameOf(pd.proposerNpcId)} zuckt mit den Schultern, ${nameOf(pd.objectorNpcId)} auch.`;
+      } else {
+        // abmildern: Mittelweg — niemand grollt, dafür bleibt der volle Effekt aus.
+        text = `Ein Mittelweg. Halb so laut, halb so riskant — keiner ganz zufrieden, keiner verprellt.`;
+      }
+      setCurrentDialog({ speaker: '', text, mood: 'neutral', choices: [{ id: 'dismiss', text: 'Weiter' }] });
       return;
     }
 
@@ -873,7 +1056,7 @@ export function useStoryGameState(seed?: string) {
     // Default: close dialog
     playSound('click');
     setCurrentDialog(null);
-  }, [activeNpcId, engine, recommendations, betrayalStates, availableActions]);
+  }, [activeNpcId, engine, recommendations, betrayalStates, availableActions, actionQueue, pendingDebate]);
 
   // ============================================
   // PHASE ACTIONS
@@ -1030,7 +1213,33 @@ export function useStoryGameState(seed?: string) {
       setGameEnd(endState);
       setGamePhase('ended');
     }
-  }, [engine, generateRecommendations, completedActions, recommendations]);
+
+    // R2: Verzögerte Debatte (Owner §13) — die gestern vorgemerkte Gegenmeinung
+    // „kommt an", jetzt am Tageswechsel. Nur an einem sonst ruhigen Morgen
+    // (Krise/Konsequenz/Gegenmaßnahme/Spielende haben Vorfahrt). Die Aktion liegt
+    // i.d.R. noch im Sendeplan → revidierbar; sonst greift der „zu spät"-Fall.
+    const morgenBelegt =
+      (result.triggeredConsequences.length > 0 && result.triggeredConsequences[0].requiresChoice) ||
+      triggeredCrises.length > 0 ||
+      !!pendingStageCm;
+    if (!endState && !morgenBelegt && pendingDebate && !engine.hasDebateFired(pendingDebate.debate.id)) {
+      const nameOf = (id: string) => engine.getNPCState(id)?.name ?? id;
+      engine.markDebateFired(pendingDebate.debate.id);
+      playSound('notification');
+      setCurrentDialog({
+        speaker: 'Wortgefecht im Haus',
+        speakerTitle: `${nameOf(pendingDebate.proposerNpcId)} ↔ ${nameOf(pendingDebate.objectorNpcId)}`,
+        text: debateTurnsText(pendingDebate.debate, nameOf),
+        mood: 'neutral',
+        choices: [
+          { id: 'debate_durchziehen', text: 'Durchziehen — es bleibt auf dem Plan.' },
+          { id: 'debate_abblasen', text: 'Abblasen — vom Sendeplan nehmen.' },
+          { id: 'debate_abmildern', text: 'Abmildern — einen Mittelweg gehen.' },
+        ],
+      });
+      // pendingDebate bleibt gesetzt bis zur Auflösung (debate_-Zweig braucht es).
+    }
+  }, [engine, generateRecommendations, completedActions, recommendations, pendingDebate]);
 
   // ============================================
   // ACTION EXECUTION
@@ -1544,6 +1753,32 @@ export function useStoryGameState(seed?: string) {
     // P1a: kontextuelle Maßnahmen-Angebote dieses NPCs (Aktion aus Dialog).
     const actionOffers = buildActionOfferChoices(availableActions, npcId);
 
+    // R4 (Berater-Regie): Wurde dieser NPC bei einer früheren Angebots-
+    // Entscheidung übergangen, reagiert er beim Wiedersehen — in seiner Stimme.
+    // Nicht jeder Snub wird vertont (entprellt), damit es nicht bei jedem Besuch
+    // grollt; die Markierung wird so oder so verbraucht.
+    if (engine.takePassedOver(npcId)) {
+      if (Math.random() < 0.5) {
+        const line = renderUebergangen(npcId, Math.random());
+        if (line) {
+          greetingText = `${line}\n\n${greetingText}`;
+          greetingVoiceId = undefined; // zusammengesetzter Text ist nicht vertont
+        }
+      }
+    }
+
+    // R2 (Berater-Regie): Bietet dieser NPC Maßnahmen an und haben RIVALEN
+    // ebenfalls Angebote, stichelt er gelegentlich gegen die Konkurrenz
+    // (konkurrierende Angebote — macht die Wahl spürbar).
+    const rivalsPresent = [...npcsWithOffers(availableActions)].some((n) => n !== npcId);
+    if (actionOffers.length > 0 && rivalsPresent && Math.random() < 0.4) {
+      const jab = renderWettstreit(npcId, Math.random());
+      if (jab) {
+        greetingText = `${greetingText}\n\n${jab}`;
+        greetingVoiceId = undefined;
+      }
+    }
+
     setCurrentDialog({
       speaker: npc.name,
       speakerTitle: npc.role_de,
@@ -1705,6 +1940,7 @@ export function useStoryGameState(seed?: string) {
 
     try {
       engine.loadState(savedState);
+      // R4: passedOver kommt jetzt aus dem geladenen Engine-Zustand (persistent).
 
       // Refresh all state from engine
       setStoryPhase(engine.getCurrentPhase());
@@ -1765,7 +2001,7 @@ export function useStoryGameState(seed?: string) {
 
   const resetGame = useCallback(() => {
     const newEngine = createStoryEngine();
-    setEngine(newEngine);
+    setEngine(newEngine); // frische Engine → passedOver (R4) automatisch leer
 
     setGamePhase('intro');
     setStoryPhase(newEngine.getCurrentPhase());
