@@ -75,6 +75,42 @@
         { "id": "altzitate", "label_de": "Radikale Altzitate", "heikelheit": 0.5, "glaubwuerdigkeit": 0.7, "beschafft": false },
         { "id": "gruppenstreit", "label_de": "Interner Gruppenstreit", "heikelheit": 0.3, "glaubwuerdigkeit": 0.5, "beschafft": false }
       ]
+    },
+    {
+      "id": "t_erfolgscoach",
+      "name": "Elias Vent",
+      "role_de": "Gefeierter Erfolgs-Coach",
+      "milieu": "wu_optimiererin",
+      "fiktiv": true,
+      "standing": 0.75,
+      "vulnerabilities": [
+        { "id": "geschoenter_lebenslauf", "label_de": "Geschönter Lebenslauf", "heikelheit": 0.4, "glaubwuerdigkeit": 0.7, "beschafft": false },
+        { "id": "dubioses_coaching", "label_de": "Dubioses Coaching-Geschäft", "heikelheit": 0.6, "glaubwuerdigkeit": 0.6, "beschafft": false }
+      ]
+    },
+    {
+      "id": "t_mittelstandsredner",
+      "name": "Gero Falk",
+      "role_de": "Lautstarker Mittelstands-Sprecher",
+      "milieu": "wu_macher",
+      "fiktiv": true,
+      "standing": 0.65,
+      "vulnerabilities": [
+        { "id": "schwarzarbeit", "label_de": "Vorwurf der Schwarzarbeit", "heikelheit": 0.6, "glaubwuerdigkeit": 0.7, "beschafft": false },
+        { "id": "subventionstrick", "label_de": "Ausgereizte Subventionen", "heikelheit": 0.4, "glaubwuerdigkeit": 0.5, "beschafft": false }
+      ]
+    },
+    {
+      "id": "t_protestredner",
+      "name": "Timo Kranz",
+      "role_de": "Reichweitenstarker Protest-Streamer",
+      "milieu": "wu_zorniger",
+      "fiktiv": true,
+      "standing": 0.55,
+      "vulnerabilities": [
+        { "id": "veruntreute_spenden", "label_de": "Veruntreute Spendengelder", "heikelheit": 0.6, "glaubwuerdigkeit": 0.6, "beschafft": false },
+        { "id": "alter_gewaltaufruf", "label_de": "Alter Gewaltaufruf", "heikelheit": 0.7, "glaubwuerdigkeit": 0.7, "beschafft": false }
+      ]
     }
   ]
 }

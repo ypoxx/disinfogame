@@ -21,14 +21,14 @@ const twoSegments: FokusgruppeSegmentInput[] = [
   {
     id: 'wu_besorgte_mitte',
     label_de: 'Die besorgte Mitte',
-    milieu: 'buergerlich',
+    profil: 'buergerlich',
     mood: 'verunsichert',
     belief: 0.45,
   },
   {
     id: 'wu_zorniger',
     label_de: 'Die Abgehängten',
-    milieu: 'prekaer',
+    profil: 'prekaer',
     mood: 'wuetend',
     belief: 0.55,
   },
