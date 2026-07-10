@@ -324,7 +324,35 @@ entlang der vorhandenen Sektionen (Finanzen, WorldEvents, Episoden, News) Module
 
 ---
 
-## 6. Methodik
+## 6. Lage der offenen PRs (Nachtrag 2026-07-10, je PR tiefengeprüft)
+
+Alle 9 weiteren offenen PRs wurden zusätzlich kontrolliert — die fünf substanziellen je durch einen
+eigenen Prüfer (Diff-Review, Test-Merge gegen aktuellen main in eigenem Worktree, Testläufe).
+main ist seit Erstellung der PRs weitergezogen (#100 Zielgruppenanalyse, #106 Narrativ-Tafel,
+#107 NAV-Entschlackung) — **zwei PRs sind „auf dem Branch grün, auf dem Merge-Stand kaputt"**,
+was ohne CI (H-04) niemand bemerkt hätte.
+
+| PR | Inhalt | Urteil | Kern |
+|---|---|---|---|
+| **#105** Klang-Vielfalt | 5 Musik-Tracks, 3er-Pools, Lautheits-Trim | **✅ Mergen** | Alles nachgemessen und bestätigt; konfliktfrei gegen main. H-12 (Crossfade-Waisen) bleibt, tritt durch Rotation öfter auf → 5-Zeilen-Fix zeitnah als Mini-PR. |
+| **#99** Visual-Review TV/Publikum | laut Text „nur Bewertung" | **✅ Mergen, aber PR-Text aktualisieren** | Branch enthält real 53 Dateien/984 Zeilen inkl. Asset-Fixes (regenerierte Publikums-Sheets, Testcard) — Beschreibung und Inhalt sind auseinandergelaufen. Merge selbst sauber. |
+| **#102** Berater-Regie | 3-Takt-Regie, Groll/Debatten, Ziel-Auswahl | **🔧 Rebasen + 2 Mini-Fixes, dann mergen** | Substanz gut (BeraterRegie.ts pur; behebt H-08 teilweise via BetrayalSystem.exportState; 41 Tests verifiziert grün). Fixes: `pendingDebate` leakt über Neustart/Laden in fremde Kampagne (3 Zeilen); „Abmildern" verspricht einen Preis ohne Mechanik (dominante Gratis-Option). main-Konflikte: 2 triviale additive Hunks. |
+| **#104** Eröffnungs-Stimmen | Cast-Vorstellung, Volkov-Intro 40 Tage | **🔧 Überarbeiten, dann mergen** | Bricht deterministisch `shotlist.test.mjs` (2-Zeilen-Fix) und `metNpcs` fehlt in saveState/loadState (4 Zeilen, Muster liegt in #102 vor). main-Konflikt: 1 Hunk (main-Seite nehmen). Nach #102+#104: Erstbegegnungs-Guard nachziehen (Regie-Dekoration kann die vertonte Vorstellungszeile entwerten). |
+| **#101** Broadcast-Motive | 17 TV-Motive, Sondersendungen | **🔧 Rebasen mit Entscheidung, dann mergen** | Kern sauber und gut getestet. Aber semantischer Konflikt mit #100: Kanal-Vokabular routet Bot-Tags jetzt auf „social" → 2 Tests nach Merge rot, 2 der 17 Motive faktisch unerreichbar — Routing-Entscheidung nötig (Masche-Vorrang vs. Kanal-Format). Erbt H-07 (TV-Sondersendung hängt am Hook-Wurf, News am Adapter-Wurf). +5,4 MB True-Color-PNGs in den Eager-Preload (H-02-Muster; quantisieren). |
+| **#94** Etappe-5-Follow-up | Tag-0-Hoax, impact_scale-Bake, 143→79, WIN_THRESHOLD 1.0 | **⛔ Überarbeiten — nicht einfach mergen** | Isoliert solide (Bake exakt nachgerechnet, Archiv-Liste referenz-sicher auch gegen neuen main, Tutorial sauber UI-only). Aber: (1) Merge kompiliert nicht (ActionCard übergibt entferntes `impactScale`); (2) Balance-Gate kollabiert auf dem Merge-Stand (3/8 rot, low_risk verliert 1/24 statt ≥12 — „Passivität verliert" ist invertiert); (3) WIN_THRESHOLD 1.0 ist mathematisch ein No-Op (Zielmarken exakt re-skaliert) — H-14 bleibt offen; (4) Kalibrierung wurde gegen das tote Konsequenzen-System (H-01) gefittet. **Reihenfolge: erst H-01-NaN-Fix auf main, dann #94 rebasen und EINMAL neu kalibrieren** (sonst zweimal), dabei H-14 (Wahltag-Check) mitnehmen. |
+| **#29** (Dez) strict:false-Fix | | **🗑️ Schließen** | Obsolet — main baut heute mit `strict: true` grün. |
+| **#61** (März) UX-Redesign | | **🗑️ Schließen** | Ändert `src/admin/`-SpriteStudio/Netlify-Functions der Vor-Pivot-Ära; zweimal überholt. |
+| **#62** (April) KI-Taktiken | | **🗑️ Schließen, Ideen sichern** | Editiert nicht mehr existente (`GameState.ts`) bzw. als tot identifizierte Dateien (`ability-definitions-v2.json`). Die 4 Taktik-Ideen (Deepfake, LLM-Poisoning, personalisiertes Targeting, Fake-Portal-Netz) als Content-Backlog notieren. |
+
+**Empfohlene Abarbeitung:** #105 → #99 (Text fixen) → #102 (Rebase + 2 Fixes) → #104 (Fixes + Rebase)
+→ Erstbegegnungs-Guard-Follow-up → #101 (Rebase + Routing-Entscheidung) → H-01-Fix auf main →
+#94 (Rebase + Neu-Kalibrierung + H-14) → #29/#61/#62 schließen. Die Manifest-Änderungen
+(#99/#101/#104/#105 in assets.json/shotlist.mjs) sind paarweise merge-tree-konfliktfrei (additiv,
+disjunkte Regionen) — nach jedem Merge trotzdem Manifest-Validator + Suite auf dem Ergebnis laufen
+lassen. Der doppelte „grün auf Branch, rot nach Merge"-Fund (#94, #101) ist das stärkste
+Praxis-Argument für den CI-Workflow aus Paket A.
+
+## 7. Methodik
 
 13 unabhängige Agenten: 9 Befund-Dimensionen (mit programmatischen Eigen-Checks: JSON-Kreuzreferenz-
 Skripte, madge-Läufe, PIL-Bildanalyse, Bundle-Vermessung, eigene vitest-/Sim-Läufe) + 4 adversariale
