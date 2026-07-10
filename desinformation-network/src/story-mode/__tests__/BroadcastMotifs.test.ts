@@ -156,16 +156,25 @@ describe('motifForCategory + motif()', () => {
 });
 
 describe('mapActionToBroadcast — trägt Motiv + Kategorie', () => {
-  it('Erfolg = Maßnahme-Motiv je Kanal/Masche/Tier (mittel → Masche)', () => {
+  it('Erfolg über den Netz-Kanal (bots-Tags sind social) → Feed-Motiv', () => {
+    // Engine-Klassifikation (KANAL_JE_TAG): bots/coordinated/flooding laufen über „Netz".
     const item = mapActionToBroadcast(fakeResult(['bots']), 10);
     expect(item.category).toBe('massnahme');
     expect(item.kind).toBe('eigen');
     expect(item.tier).toBe('mittel');
-    // tv-Kanal (bots-Tags sind nicht print/social) → Masche-Motiv
-    expect(item.motifId).toBe('bc_masche_bots');
+    expect(item.motifId).toBe('bc_social_feed');
   });
-  it('GROSS-Wirkung übernimmt die Sondersendung', () => {
+  it('GROSS über den Netz-Kanal → Viral-Motiv', () => {
     const big = mapActionToBroadcast(fakeResult(['bots'], true, 'Grosswirkung', 20), 90);
+    expect(big.tier).toBe('gross');
+    expect(big.motifId).toBe('bc_social_viral');
+  });
+  it('TV-Kanal: mittel → Masche-Motiv, GROSS übernimmt die Sondersendung', () => {
+    // deepfake ist weder social noch print → tv-Kanal.
+    const mid = mapActionToBroadcast(fakeResult(['deepfake']), 10);
+    expect(mid.tier).toBe('mittel');
+    expect(mid.motifId).toMatch(/^bc_masche_/);
+    const big = mapActionToBroadcast(fakeResult(['deepfake'], true, 'Grosswirkung', 20), 90);
     expect(big.tier).toBe('gross');
     expect(big.motifId).toBe('bc_tv_sonder');
   });
