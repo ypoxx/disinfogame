@@ -1,19 +1,27 @@
 /**
- * broadcastMapping — PROVISORISCHE Brücke zwischen Spiel-Aktionen und Publikums-Modell.
+ * broadcastMapping — Brücke zwischen Spiel-Ereignissen und der Broadcast-Anzeige.
  *
- * Die Aktions-Tags sind operativ (infrastructure, recruitment, …), die
- * Publikums-Themen soziologisch (energie_angst, misstrauen_medien, …) — eine
- * inhaltlich saubere Zuordnung braucht das breitere „Ministerium sendet"-Konzept
- * (Schlagzeilen, Talkshows mit Agenten, Zeitungen) und eine Owner-Diskussion.
- * Festgehalten in docs/story-mode/MINISTRY_BROADCAST_CONCEPT.md — diese Tabelle
- * ist bewusst klein, sichtbar und leicht austauschbar (reine Anzeige-Schicht,
- * KEINE Rückwirkung auf die Spielmechanik).
+ * Baut aus Aktions-Ergebnissen bzw. erzählerischen Ereignissen (Krise/Enttarnung/…)
+ * `BroadcastItem`s: Kanal + Themen fürs Publikums-Modell UND — seit dem Owner-Ausbau
+ * 2026-07-06 (MINISTRY_BROADCAST_CONCEPT.md §7) — ein `motifId` je Ereignis (die
+ * gepflegte Ereignis→Motiv-Tabelle liegt in `broadcastMotifs.ts`). Reine Anzeige-
+ * Schicht: KEINE Rückwirkung auf die Spielmechanik (die mechanische Publikums-
+ * Rückkopplung bleibt bewusst eine separate Balancing-Frage, §5.3).
  */
 import type { ActionResult } from '../../game-logic/StoryEngineAdapter';
 import type { Channel, Mood } from '../audience/audienceModel';
 import { kanalFuerTags, themenFuerTags } from '../engine/MaschenGedaechtnis';
+import {
+  motifForCategory,
+  motifForMeasure,
+  type BroadcastCategory,
+  type BroadcastMotifId,
+  type BroadcastTier,
+} from './broadcastMotifs';
 
-export type BroadcastTier = 'klein' | 'mittel' | 'gross';
+// BroadcastTier + BroadcastCategory leben jetzt in broadcastMotifs (die Motiv-Tabelle
+// ist die untere Schicht) — hier re-exportiert, damit bestehende Importe tragen.
+export type { BroadcastTier, BroadcastCategory } from './broadcastMotifs';
 
 export interface BroadcastItem {
   id: string;
@@ -27,6 +35,10 @@ export interface BroadcastItem {
   tier: BroadcastTier;
   /** Eigene Maßnahme oder Gegenreaktion (gescheiterte Aktion = öffentlicher Rückschlag). */
   kind: 'eigen' | 'gegenreaktion';
+  /** Ereignis-Klasse (Konzept §3/§4) — bestimmt zusammen mit Kanal/Tier/Masche das Motiv. */
+  category: BroadcastCategory;
+  /** Das Pixel-Art-Motiv im Fernseher (Owner 2026-07-06, §7): jedes Ereignis ein eigenes Bild. */
+  motifId: BroadcastMotifId;
 }
 
 // Etappe 4: Die Tag→Kanal/Themen-Tabellen sind in die Engine gezogen
@@ -58,14 +70,72 @@ export function mapActionToBroadcast(result: ActionResult, riskLevel: number, ep
   // B5: plakative Aktions-Überschrift NUR bei Erfolg; bei Misserfolg/Gegenreaktion die
   // narrative Überschrift (Fehler-/Rückschlag-Text wie „Nicht genug Ressourcen"), Codex-Review #80.
   const baseHeadline = (result.success && result.action.headline_de) || result.narrative?.headline_de || result.action.label_de;
+  const tier = tierForIntensity(intensity);
+  // Owner 2026-07-06 (§7): jedes Ereignis ein eigenes Motiv. Erfolg = Maßnahme-Motiv
+  // (je Kanal/Masche/Tier); Misserfolg = öffentlicher Rückschlag (Gegenwind).
+  const category: BroadcastCategory = result.success ? 'massnahme' : 'gegenreaktion';
+  const motifId = result.success ? motifForMeasure(channel, tier, tags) : motifForCategory('gegenreaktion');
   return {
     id: `${result.action.id}_${Date.now()}`,
     channel,
     themes,
     intensity,
     headline: episodeTitle ? `${episodeTitle}: ${baseHeadline}` : baseHeadline,
-    tier: tierForIntensity(intensity),
+    tier,
     kind: result.success ? 'eigen' : 'gegenreaktion',
+    category,
+    motifId,
+  };
+}
+
+/**
+ * Erzählerische Sendung (kein Aktions-Ergebnis) → Broadcast-Eintrag: Faktencheck der
+ * Gegenseite, Krise/Sondersendung, Enttarnung, Wahlabend, Wochenschau. Der Owner-Ausbau
+ * (§7) verlangt auch für diese Ereignisse ein eigenes Motiv statt einer Textzeile.
+ *
+ * Kein `reactToEffect` hier: diese Sendungen sind Rahmen/Kontext, keine gezielte
+ * Botschaft an ein Milieu — die Stimmungs-Färbung setzt der Hook separat (Krise →
+ * verunsichert, Enttarnung → misstrauisch), damit die reine Anzeige-Trennung bleibt.
+ */
+export function broadcastForEvent(input: {
+  key: string;
+  category: Exclude<BroadcastCategory, 'massnahme'>;
+  headline: string;
+  channel?: Channel;
+  themes?: string[];
+  tier?: BroadcastTier;
+}): BroadcastItem {
+  const tier = input.tier ?? (input.category === 'krise' || input.category === 'enttarnung' ? 'gross' : 'mittel');
+  return {
+    id: `${input.category}_${input.key}`,
+    channel: input.channel ?? 'tv',
+    themes: input.themes ?? [],
+    intensity: tier === 'gross' ? 0.85 : 0.5,
+    headline: input.headline,
+    tier,
+    // Gegenreaktion/Faktencheck/Enttarnung sind Gegenwind; Krise/Wahltag/Wochenschau neutral.
+    kind:
+      input.category === 'gegenreaktion' || input.category === 'faktencheck' || input.category === 'enttarnung'
+        ? 'gegenreaktion'
+        : 'eigen',
+    category: input.category,
+    motifId: motifForCategory(input.category),
+  };
+}
+
+/** Wochenschau am Phasen-Ende (Konzept §3): Zusammenschau der Sendungen der Runde. */
+export function broadcastForWochenschau(phase: number, sendungen: number): BroadcastItem {
+  return {
+    id: `wochenschau_p${phase}`,
+    channel: 'tv',
+    themes: [],
+    intensity: 0.5,
+    headline:
+      sendungen === 1 ? 'Wochenschau: 1 Sendung diese Runde' : `Wochenschau: ${sendungen} Sendungen diese Runde`,
+    tier: 'mittel',
+    kind: 'eigen',
+    category: 'wochenschau',
+    motifId: motifForCategory('wochenschau'),
   };
 }
 

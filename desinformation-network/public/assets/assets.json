@@ -11,6 +11,176 @@
       "styleVersion": "v1"
     },
     {
+      "id": "bc_enttarnung",
+      "type": "image",
+      "file": "images/bc_enttarnung.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "an investigative reveal: a bright interrogation spotlight cone cutting down onto a shadowy hooded figure whose mask/cover is being pulled away, beside a pinned cork-board network of photos linked by dark-red string — the campaign is exposed. A full-frame flat pixel-art graphic that FILLS the whole image edge to edge — NO television set, NO tv frame, NO room, NO outer border, ONLY the on-screen picture itself. Retro CRT broadcast look: bold readable silhouettes and a few large shapes that stay legible at a small size, hard geometric edges, subtle scanline grain. Cool, slightly desaturated palette (cool greys #262A31, #3A3F47, #9AA1AC, #E7EAEF, with dosed dark-red #C2253B and cyan #34C6D8 accents). Crisp clean 16-bit pixel art, flat frontal, orthographic. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind anywhere — where text would appear, draw only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 562317,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bc_faktencheck",
+      "type": "image",
+      "file": "images/bc_faktencheck.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "a big official rubber-stamp shape — a bold dark-red ring with a thick diagonal bar — slammed over a faded, blurred image behind it, with a magnifier shape at the side; the stamp reads as a fact-check overlay (but contains NO letters). A full-frame flat pixel-art graphic that FILLS the whole image edge to edge — NO television set, NO tv frame, NO room, NO outer border, ONLY the on-screen picture itself. Retro CRT broadcast look: bold readable silhouettes and a few large shapes that stay legible at a small size, hard geometric edges, subtle scanline grain. Cool, slightly desaturated palette (cool greys #262A31, #3A3F47, #9AA1AC, #E7EAEF, with dosed dark-red #C2253B and cyan #34C6D8 accents). Crisp clean 16-bit pixel art, flat frontal, orthographic. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind anywhere — where text would appear, draw only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 982177,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bc_gegenwind",
+      "type": "image",
+      "file": "images/bc_gegenwind.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "a lone viewer silhouette on a sofa turning away from the TV with a doubtful shrug, a small crumpled letter and a question-mark-shaped scribble floating above — public doubt and pushback. A full-frame flat pixel-art graphic that FILLS the whole image edge to edge — NO television set, NO tv frame, NO room, NO outer border, ONLY the on-screen picture itself. Retro CRT broadcast look: bold readable silhouettes and a few large shapes that stay legible at a small size, hard geometric edges, subtle scanline grain. Cool, slightly desaturated palette (cool greys #262A31, #3A3F47, #9AA1AC, #E7EAEF, with dosed dark-red #C2253B and cyan #34C6D8 accents). Crisp clean 16-bit pixel art, flat frontal, orthographic. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind anywhere — where text would appear, draw only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 609729,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bc_krise",
+      "type": "image",
+      "file": "images/bc_krise.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "an emergency broadcast: bold dark-red alert banner bars across the top and bottom, a warning-triangle silhouette centred over a dim building/map shape, cool tense lighting — a crisis. A full-frame flat pixel-art graphic that FILLS the whole image edge to edge — NO television set, NO tv frame, NO room, NO outer border, ONLY the on-screen picture itself. Retro CRT broadcast look: bold readable silhouettes and a few large shapes that stay legible at a small size, hard geometric edges, subtle scanline grain. Cool, slightly desaturated palette (cool greys #262A31, #3A3F47, #9AA1AC, #E7EAEF, with dosed dark-red #C2253B and cyan #34C6D8 accents). Crisp clean 16-bit pixel art, flat frontal, orthographic. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind anywhere — where text would appear, draw only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 962787,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bc_masche_bots",
+      "type": "image",
+      "file": "images/bc_masche_bots.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "a dense grid-swarm of many identical small glowing phone/screen rectangles filling the frame, each showing the SAME tiny abstract icon, a few thin cyan lines linking them — one message copied everywhere at once, coordinated and inauthentic. A full-frame flat pixel-art graphic that FILLS the whole image edge to edge — NO television set, NO tv frame, NO room, NO outer border, ONLY the on-screen picture itself. Retro CRT broadcast look: bold readable silhouettes and a few large shapes that stay legible at a small size, hard geometric edges, subtle scanline grain. Cool, slightly desaturated palette (cool greys #262A31, #3A3F47, #9AA1AC, #E7EAEF, with dosed dark-red #C2253B and cyan #34C6D8 accents). Crisp clean 16-bit pixel art, flat frontal, orthographic. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind anywhere — where text would appear, draw only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 546197,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bc_masche_fake",
+      "type": "image",
+      "file": "images/bc_masche_fake.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "a large central portrait-head silhouette split vertically: one half crisp, the other half glitching and pixel-torn with cyan scan-tear artifacts, and a smaller duplicate copy of the same head beside it — a fabricated, too-perfect deepfake image. A full-frame flat pixel-art graphic that FILLS the whole image edge to edge — NO television set, NO tv frame, NO room, NO outer border, ONLY the on-screen picture itself. Retro CRT broadcast look: bold readable silhouettes and a few large shapes that stay legible at a small size, hard geometric edges, subtle scanline grain. Cool, slightly desaturated palette (cool greys #262A31, #3A3F47, #9AA1AC, #E7EAEF, with dosed dark-red #C2253B and cyan #34C6D8 accents). Crisp clean 16-bit pixel art, flat frontal, orthographic. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind anywhere — where text would appear, draw only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 364593,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bc_masche_firehose",
+      "type": "image",
+      "file": "images/bc_masche_firehose.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "many overlapping speech-bubble and megaphone shapes blasting outward in every direction and nearly drowning one small lone magnifier/checkmark shape in a corner — an overwhelming firehose of noise. A full-frame flat pixel-art graphic that FILLS the whole image edge to edge — NO television set, NO tv frame, NO room, NO outer border, ONLY the on-screen picture itself. Retro CRT broadcast look: bold readable silhouettes and a few large shapes that stay legible at a small size, hard geometric edges, subtle scanline grain. Cool, slightly desaturated palette (cool greys #262A31, #3A3F47, #9AA1AC, #E7EAEF, with dosed dark-red #C2253B and cyan #34C6D8 accents). Crisp clean 16-bit pixel art, flat frontal, orthographic. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind anywhere — where text would appear, draw only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 999727,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bc_masche_kompromat",
+      "type": "image",
+      "file": "images/bc_masche_kompromat.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "a shadowy hand pulling a document out of a manila dossier folder under a hard spotlight, a cracked portrait photo clipped to it, dark noir lighting with a single dark-red accent — character assassination / leak. A full-frame flat pixel-art graphic that FILLS the whole image edge to edge — NO television set, NO tv frame, NO room, NO outer border, ONLY the on-screen picture itself. Retro CRT broadcast look: bold readable silhouettes and a few large shapes that stay legible at a small size, hard geometric edges, subtle scanline grain. Cool, slightly desaturated palette (cool greys #262A31, #3A3F47, #9AA1AC, #E7EAEF, with dosed dark-red #C2253B and cyan #34C6D8 accents). Crisp clean 16-bit pixel art, flat frontal, orthographic. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind anywhere — where text would appear, draw only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 915269,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bc_masche_spaltung",
+      "type": "image",
+      "file": "images/bc_masche_spaltung.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "a TV talk-panel split into two opposing halves by a jagged dark-red crack down the middle, an angry crowd silhouette on each side leaning away from the other, a few raised-fist shapes — emotional polarization. A full-frame flat pixel-art graphic that FILLS the whole image edge to edge — NO television set, NO tv frame, NO room, NO outer border, ONLY the on-screen picture itself. Retro CRT broadcast look: bold readable silhouettes and a few large shapes that stay legible at a small size, hard geometric edges, subtle scanline grain. Cool, slightly desaturated palette (cool greys #262A31, #3A3F47, #9AA1AC, #E7EAEF, with dosed dark-red #C2253B and cyan #34C6D8 accents). Crisp clean 16-bit pixel art, flat frontal, orthographic. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind anywhere — where text would appear, draw only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 419492,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bc_masche_strasse",
+      "type": "image",
+      "file": "images/bc_masche_strasse.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "a silhouetted crowd marching in a street holding blank abstract placards with a megaphone, seen from a low news-camera angle, cool dusk light and a plain dark-red banner shape — offline mobilization. A full-frame flat pixel-art graphic that FILLS the whole image edge to edge — NO television set, NO tv frame, NO room, NO outer border, ONLY the on-screen picture itself. Retro CRT broadcast look: bold readable silhouettes and a few large shapes that stay legible at a small size, hard geometric edges, subtle scanline grain. Cool, slightly desaturated palette (cool greys #262A31, #3A3F47, #9AA1AC, #E7EAEF, with dosed dark-red #C2253B and cyan #34C6D8 accents). Crisp clean 16-bit pixel art, flat frontal, orthographic. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind anywhere — where text would appear, draw only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 15562,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bc_print_headline",
+      "type": "image",
+      "file": "images/bc_print_headline.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "a bold front-page layout: one large framed news photo across the upper half and a thick heavy block of scribble-line headline bars beneath it dominating the page — a big splash. A full-frame flat pixel-art graphic of a vintage NEWSPAPER surface that FILLS the whole image edge to edge — slightly yellowed off-white paper, dark ink, text columns suggested ONLY by rows of abstract scribble lines (NEVER real letters), a bold horizontal rule, and a framed photo block. Crisp clean 16-bit pixel art, flat frontal, orthographic, muted desaturated ink palette. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind — only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 841013,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bc_print_notice",
+      "type": "image",
+      "file": "images/bc_print_notice.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "a small framed news photo block low in one corner surrounded by narrow columns of scribble lines — a minor page-three brief, understated. A full-frame flat pixel-art graphic of a vintage NEWSPAPER surface that FILLS the whole image edge to edge — slightly yellowed off-white paper, dark ink, text columns suggested ONLY by rows of abstract scribble lines (NEVER real letters), a bold horizontal rule, and a framed photo block. Crisp clean 16-bit pixel art, flat frontal, orthographic, muted desaturated ink palette. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind — only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 320539,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bc_social_feed",
+      "type": "image",
+      "file": "images/bc_social_feed.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "a vertical social-media feed of stacked post cards filling the screen, each card with a small round avatar, rows of scribble text and a little image thumbnail, on a cool app-grey background — an ordinary scrolling timeline. A full-frame flat pixel-art graphic that FILLS the whole image edge to edge — NO television set, NO tv frame, NO room, NO outer border, ONLY the on-screen picture itself. Retro CRT broadcast look: bold readable silhouettes and a few large shapes that stay legible at a small size, hard geometric edges, subtle scanline grain. Cool, slightly desaturated palette (cool greys #262A31, #3A3F47, #9AA1AC, #E7EAEF, with dosed dark-red #C2253B and cyan #34C6D8 accents). Crisp clean 16-bit pixel art, flat frontal, orthographic. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind anywhere — where text would appear, draw only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 427621,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bc_social_viral",
+      "type": "image",
+      "file": "images/bc_social_viral.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "one social post card centred with a steep rising cyan engagement line-graph shooting up behind it and many small heart/like and up-arrow shapes bursting outward — something going viral. A full-frame flat pixel-art graphic that FILLS the whole image edge to edge — NO television set, NO tv frame, NO room, NO outer border, ONLY the on-screen picture itself. Retro CRT broadcast look: bold readable silhouettes and a few large shapes that stay legible at a small size, hard geometric edges, subtle scanline grain. Cool, slightly desaturated palette (cool greys #262A31, #3A3F47, #9AA1AC, #E7EAEF, with dosed dark-red #C2253B and cyan #34C6D8 accents). Crisp clean 16-bit pixel art, flat frontal, orthographic. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind anywhere — where text would appear, draw only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 635270,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bc_tv_sonder",
+      "type": "image",
+      "file": "images/bc_tv_sonder.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "a breaking-news TV studio: the silhouette of a news presenter (a PERSON — head, shoulders and torso, seated upright, facing forward) behind a broadcast desk, a large abstract graphic panel glowing on the wall beside them, and a bold dark-red lower banner bar (blank, no text) across the bottom — a special report. NO ship anchor, NO emblem, NO logo. A full-frame flat pixel-art graphic that FILLS the whole image edge to edge — NO television set, NO tv frame, NO room, NO outer border, ONLY the on-screen picture itself. Retro CRT broadcast look: bold readable silhouettes and a few large shapes that stay legible at a small size, hard geometric edges, subtle scanline grain. Cool, slightly desaturated palette (cool greys #262A31, #3A3F47, #9AA1AC, #E7EAEF, with dosed dark-red #C2253B and cyan #34C6D8 accents). Crisp clean 16-bit pixel art, flat frontal, orthographic. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind anywhere — where text would appear, draw only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 284419,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bc_wahltag",
+      "type": "image",
+      "file": "images/bc_wahltag.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "an election-night results screen: several tall vertical result bars of different heights in cool grey with one taller leading dark-red bar, a simple parliament hemicycle silhouette of dots below, and a big BLANK number panel (no digits) — results coming in. A full-frame flat pixel-art graphic that FILLS the whole image edge to edge — NO television set, NO tv frame, NO room, NO outer border, ONLY the on-screen picture itself. Retro CRT broadcast look: bold readable silhouettes and a few large shapes that stay legible at a small size, hard geometric edges, subtle scanline grain. Cool, slightly desaturated palette (cool greys #262A31, #3A3F47, #9AA1AC, #E7EAEF, with dosed dark-red #C2253B and cyan #34C6D8 accents). Crisp clean 16-bit pixel art, flat frontal, orthographic. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind anywhere — where text would appear, draw only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 457774,
+      "styleVersion": "v1"
+    },
+    {
+      "id": "bc_wochenschau",
+      "type": "image",
+      "file": "images/bc_wochenschau.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "a vintage newsreel montage: a horizontal strip of three framed film-cells across the screen, each cell holding a different tiny silhouetted scene, with sprocket-hole edges along the top and bottom, warm-grey archival tone — a weekly recap. A full-frame flat pixel-art graphic that FILLS the whole image edge to edge — NO television set, NO tv frame, NO room, NO outer border, ONLY the on-screen picture itself. Retro CRT broadcast look: bold readable silhouettes and a few large shapes that stay legible at a small size, hard geometric edges, subtle scanline grain. Cool, slightly desaturated palette (cool greys #262A31, #3A3F47, #9AA1AC, #E7EAEF, with dosed dark-red #C2253B and cyan #34C6D8 accents). Crisp clean 16-bit pixel art, flat frontal, orthographic. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind anywhere — where text would appear, draw only abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.",
+      "seed": 122009,
+      "styleVersion": "v1"
+    },
+    {
       "id": "bld_city_far",
       "type": "image",
       "file": "images/bld_city_far.png",

@@ -14,6 +14,7 @@ import { useAssets } from '../assets/useAssets';
 import { PixelSprite } from '../assets/PixelSprite';
 import { StoryModeColors, StoryModeFonts } from '../theme';
 import { FIGURE_BY_SEGMENT, wohnzimmerBadgeFor, type BroadcastTier, type WohnzimmerBadge } from './broadcastMapping';
+import { motif as motifFor, type BroadcastMotif } from './broadcastMotifs';
 import type { AudienceBroadcastState } from './useAudienceBroadcast';
 import type { Mood } from '../audience/audienceModel';
 
@@ -50,6 +51,9 @@ const KEYFRAMES = `
   @keyframes bb-ticker { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
   @keyframes bb-bubble { 0% { transform: translateY(4px); opacity: 0 } 15% { opacity: 1 } 85% { opacity: 1 } 100% { transform: translateY(-6px); opacity: 0 } }
   @keyframes bb-blink { 0%,100% { opacity: 1 } 50% { opacity: .25 } }
+  @keyframes bb-pulse-red { 0%,100% { box-shadow: inset 0 0 0 2px rgba(229,72,77,0); } 50% { box-shadow: inset 0 0 14px 2px rgba(229,72,77,0.85); } }
+  @keyframes bb-siren { 0%,100% { opacity: 0 } 25% { opacity: 0.5 } 50% { opacity: 0 } 75% { opacity: 0.32 } }
+  @keyframes bb-flicker { 0% { opacity: 0.05 } 33% { opacity: 0.28 } 66% { opacity: 0.10 } 100% { opacity: 0.22 } }
 `;
 
 /** Stimmung → Bildfilter der Figur (ruhig = neutral). */
@@ -166,19 +170,91 @@ function CollapsedStrip({ audience, onToggle }: { audience: AudienceBroadcastSta
   );
 }
 
+/**
+ * Das Motiv im Bildschirm/Foto-Loch (Owner 2026-07-06, §7): jedes Ereignis ein eigenes
+ * Pixel-Art-Bild, mit CSS-Mini-Animation je Motiv (Krisen-Puls/Sirene/Störbild-Flackern
+ * — die Owner-genannten Loops). Fehlt das Asset noch, zeigt ein großer Glyph den
+ * Motiv-Sinn (Projektdisziplin: jedes Bild hat einen Fallback). Die Beschriftung bleibt
+ * Engine-Ebene (Untertitel-Band, NIE ins Bild gebacken — E35).
+ */
+function MotifView({ motif, item }: { motif: BroadcastMotif; item: { headline: string; kind: string } }) {
+  const assets = useAssets();
+  const imageUrl = assets.imageUrl(motif.assetId);
+  const isPrint = motif.surface === 'print';
+  const gegenwind = item.kind === 'gegenreaktion';
+
+  return (
+    <>
+      {/* 1) Das Motiv — statisches Pixel-Art-Bild, sonst großer Glyph (Fallback). */}
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={motif.caption_de}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'pixelated' }}
+          />
+        ) : (
+          <span style={{ fontSize: 34, lineHeight: 1, filter: isPrint ? 'grayscale(1) contrast(1.1)' : 'none' }} title={motif.caption_de}>
+            {motif.glyph}
+          </span>
+        )}
+      </div>
+
+      {/* 2) CSS-Mini-Animation je Motiv (Owner: „Krisen-Banner-Puls/Störbild-Flackern"). */}
+      {motif.motion === 'pulse-red' && (
+        <div style={{ position: 'absolute', inset: 0, animation: 'bb-pulse-red 1.1s ease-in-out infinite', pointerEvents: 'none', zIndex: 2 }} />
+      )}
+      {motif.motion === 'siren' && (
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: '#E5484D', mixBlendMode: 'screen', animation: 'bb-siren 0.9s steps(2) infinite', pointerEvents: 'none', zIndex: 2 }} />
+      )}
+      {motif.motion === 'flicker' && (
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: '#cfe8ff', mixBlendMode: 'overlay', animation: 'bb-flicker 0.5s steps(3) infinite', pointerEvents: 'none', zIndex: 2 }} />
+      )}
+
+      {/* 3) Untertitel-Band (Engine-Text, kein gebackener Text): trägt die Schlagzeile. */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          padding: '1px 4px',
+          fontSize: 9,
+          lineHeight: 1.2,
+          fontWeight: 700,
+          fontFamily: "'VT323', monospace",
+          color: gegenwind ? '#ffd6d6' : isPrint ? '#f4ecd6' : '#d8ffd8',
+          backgroundColor: 'rgba(6,8,10,0.82)',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          zIndex: 3,
+        }}
+      >
+        {gegenwind ? 'GEGENWIND: ' : ''}
+        {item.headline}
+      </div>
+    </>
+  );
+}
+
 /** Röhren-TV bzw. Zeitung mit der aktuellen „Sendung". */
 function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
   const assets = useAssets();
   const item = audience.lastItem;
-  const isPrint = item?.channel === 'print';
-  const frameUrl = assets.imageUrl(isPrint ? 'hud_paper_frame' : 'hud_tv_frame');
+  const motif = item ? motifFor(item.motifId) : null;
+  const isPrint = motif?.surface === 'print';
+  // Presse-Motive SIND schon eine ganze Zeitung (4:3, wie der Container) → Vollbild OHNE
+  // Rahmen: kein „Zeitung in der Zeitung", kein Loch-Versatz (das 3:4-Zeitungsbild würde
+  // im Querformat-Container letterboxen). TV/Netz nutzen weiter die Röhre mit Bildschirm-Loch.
+  const frameUrl = !isPrint ? assets.imageUrl('hud_tv_frame') : null;
   // Sendepause-Testbild fürs Röhren-TV (nur im Standby, kein Print): füllt die
   // Bildröhre statt eines toten „KEIN SIGNAL"-Textes.
-  const testcardUrl = !item && !isPrint ? assets.imageUrl('hud_tv_testcard') : null;
+  const testcardUrl = !item ? assets.imageUrl('hud_tv_testcard') : null;
 
-  // Inhaltsfenster relativ zum Rahmenbild (TV: Bildröhre links, Zeitung: Foto-Loch mittig).
+  // Inhaltsfenster: TV = Bildröhre links; Presse = Vollbild (die ganze Fläche).
   const hole: CSSProperties = isPrint
-    ? { left: '16%', top: '30%', width: '68%', height: '34%' }
+    ? { left: 0, top: 0, right: 0, bottom: 0 }
     : { left: '17%', top: '29%', width: '48%', height: '45%' };
 
   return (
@@ -189,6 +265,9 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
           alt=""
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', imageRendering: 'pixelated', zIndex: 2, pointerEvents: 'none' }}
         />
+      ) : isPrint ? (
+        // Presse: kein Röhren-Rahmen, nur ein schmaler dunkler Falz als Abschluss.
+        <div style={{ position: 'absolute', inset: 0, border: '3px solid #6b6455', zIndex: 2, pointerEvents: 'none' }} />
       ) : (
         <div style={{ position: 'absolute', inset: 0, border: '4px solid #3a3b43', backgroundColor: '#15161c', zIndex: 2 }} />
       )}
@@ -204,21 +283,8 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
           zIndex: 1,
         }}
       >
-        {item ? (
-          <span
-            style={{
-              whiteSpace: 'nowrap',
-              fontSize: 11,
-              fontWeight: 700,
-              fontFamily: "'VT323', monospace",
-              color: isPrint ? '#26221a' : '#9be89b',
-              animation: 'bb-ticker 9s linear infinite',
-              paddingLeft: 4,
-            }}
-          >
-            {item.kind === 'gegenreaktion' ? 'GEGENWIND: ' : '● '}
-            {item.headline}
-          </span>
+        {item && motif ? (
+          <MotifView motif={motif} item={item} />
         ) : testcardUrl ? (
           // Sendepause: klassisches Testbild füllt die Röhre (Scanlines liegen darüber).
           <img
@@ -239,6 +305,7 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
               background: 'repeating-linear-gradient(transparent 0 2px, rgba(140,255,140,0.16) 2px 3px)',
               animation: 'bb-scan 1.6s steps(2) infinite',
               pointerEvents: 'none',
+              zIndex: 4,
             }}
           />
         )}
@@ -253,7 +320,7 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
           // v3: danger ist Tinte — ON-AIR-Licht bleibt helles v2-Rot (diegetisch).
           color: '#E5484D',
           animation: item ? 'bb-blink 1.4s ease-in-out infinite' : undefined,
-          zIndex: 3,
+          zIndex: 5,
         }}
       >
         {item ? (isPrint ? '● DRUCK' : '● ON AIR') : '○ STANDBY'}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { StoryModeColors, stampCtaStyle } from './theme';
 import { GAME_VERSION } from './version';
 import { DialogBox } from './components/DialogBox';
@@ -37,7 +37,7 @@ import { AvatarChoice } from './components/AvatarChoice';
 import { BuildingView } from './building/BuildingView';
 import { pfoertnerLine as computePfoertnerLine, dominantMood } from './building/pfoertner';
 import { BroadcastBar } from './broadcast/BroadcastBar';
-import { useAudienceBroadcast } from './broadcast/useAudienceBroadcast';
+import { useAudienceBroadcast, type BroadcastNarrativeEvent } from './broadcast/useAudienceBroadcast';
 import { NpcRoomView } from './building/NpcRoomView';
 import { NewsroomView, derivePosts } from './components/NewsroomView';
 import { deriveGegenseite } from './engine/Gegenseite';
@@ -450,11 +450,38 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   // Count world events
   const worldEventCount = state.newsEvents.filter(e => e.type === 'world_event').length;
 
+  // Owner 2026-07-06 (§7): erzählerische Ereignisse → eigene Sendung mit eigenem Motiv.
+  // Ein Ereignis nach Vorrang (Spielende > Gegenmaßnahme > Krise); `key`-Wechsel = neue Sendung.
+  const broadcastEvent = useMemo((): BroadcastNarrativeEvent | null => {
+    if (state.gameEnd) {
+      const branch = state.gameEnd.branch;
+      // exposed/immune = die Operation wurde gestoppt (Enttarnung); victory/timeout = Wahlabend.
+      if (branch === 'exposed' || branch === 'immune' || (!branch && state.gameEnd.type === 'defeat')) {
+        return { key: `end_${branch ?? state.gameEnd.type}`, category: 'enttarnung', headline: state.gameEnd.title_de };
+      }
+      return { key: `end_${branch ?? state.gameEnd.type}`, category: 'wahltag', headline: state.gameEnd.title_de };
+    }
+    if (state.activeStageCountermeasure) {
+      const cm = state.activeStageCountermeasure;
+      return { key: `cm_${cm.definition.id}_${cm.stage}`, category: 'faktencheck', headline: cm.definition.label_de };
+    }
+    if (state.activeCrisis) {
+      return { key: `crisis_${state.activeCrisis.id}`, category: 'krise', headline: state.activeCrisis.crisis.name_de };
+    }
+    return null;
+  }, [state.gameEnd, state.activeStageCountermeasure, state.activeCrisis]);
+
   // Publikum/Broadcast (Taste B) — reine Anzeige-Schicht über audienceModel.
-  const audience = useAudienceBroadcast(state.lastActionResult, state.storyPhase.number, state.resources.risk, {
-    activeEpisodes: state.activeEpisodes,
-    society: { polarisierung: state.resources.polarisierung, zynismus: state.resources.zynismus },
-  });
+  const audience = useAudienceBroadcast(
+    state.lastActionResult,
+    state.storyPhase.number,
+    state.resources.risk,
+    {
+      activeEpisodes: state.activeEpisodes,
+      society: { polarisierung: state.resources.polarisierung, zynismus: state.resources.zynismus },
+    },
+    broadcastEvent
+  );
 
   // Auto-Peek (2d): Der Streifen ist permanent sichtbar; jede neue „Sendung" klappt
   // kurz das volle Wohnzimmer aus, damit der Feedback-Loop (Tat → Publikum reagiert)

@@ -976,6 +976,111 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       `any kind anywhere. No real-world national symbols, no logos, no emblems.`,
   });
 
+  // --- Broadcast-Motive (Owner 2026-07-06, MINISTRY_BROADCAST_CONCEPT.md §7) ---
+  // Jedes wichtige Ereignis bekommt ein EIGENES Vollbild-TV-Motiv (statt Textzeile).
+  // Vorlage: hud_tv_testcard (Vollbild-Grafik, füllt das Bildröhren-Loch). E35: absolut
+  // KEIN lesbarer Text/keine realen Symbole — wo Text stünde, nur abstrakte Kritzel.
+  // IDs müssen mit broadcastMotifs.ts (MOTIF_CATALOG) übereinstimmen.
+  const BROADCAST_TV_STYLE =
+    'A full-frame flat pixel-art graphic that FILLS the whole image edge to edge — NO ' +
+    'television set, NO tv frame, NO room, NO outer border, ONLY the on-screen picture itself. ' +
+    'Retro CRT broadcast look: bold readable silhouettes and a few large shapes that stay legible ' +
+    'at a small size, hard geometric edges, subtle scanline grain. Cool, slightly desaturated ' +
+    'palette (cool greys #262A31, #3A3F47, #9AA1AC, #E7EAEF, with dosed dark-red #C2253B and cyan ' +
+    '#34C6D8 accents). Crisp clean 16-bit pixel art, flat frontal, orthographic. ABSOLUTELY NO ' +
+    'letters, NO numbers, NO words, NO readable text of any kind anywhere — where text would ' +
+    'appear, draw only abstract scribble marks. No real-world national symbols, no logos, no ' +
+    'emblems, no real flags.';
+  const BROADCAST_PRINT_STYLE =
+    'A full-frame flat pixel-art graphic of a vintage NEWSPAPER surface that FILLS the whole image ' +
+    'edge to edge — slightly yellowed off-white paper, dark ink, text columns suggested ONLY by ' +
+    'rows of abstract scribble lines (NEVER real letters), a bold horizontal rule, and a framed ' +
+    'photo block. Crisp clean 16-bit pixel art, flat frontal, orthographic, muted desaturated ink ' +
+    'palette. ABSOLUTELY NO letters, NO numbers, NO words, NO readable text of any kind — only ' +
+    'abstract scribble marks. No real-world national symbols, no logos, no emblems, no real flags.';
+  // [id, surface('print' → Zeitungs-Stil, sonst TV-Stil), Motiv-Beschreibung]
+  const BROADCAST_MOTIFS = [
+    ['bc_masche_bots', 'tv',
+      'a dense grid-swarm of many identical small glowing phone/screen rectangles filling the frame, ' +
+      'each showing the SAME tiny abstract icon, a few thin cyan lines linking them — one message ' +
+      'copied everywhere at once, coordinated and inauthentic'],
+    ['bc_masche_fake', 'tv',
+      'a large central portrait-head silhouette split vertically: one half crisp, the other half ' +
+      'glitching and pixel-torn with cyan scan-tear artifacts, and a smaller duplicate copy of the ' +
+      'same head beside it — a fabricated, too-perfect deepfake image'],
+    ['bc_masche_spaltung', 'tv',
+      'a TV talk-panel split into two opposing halves by a jagged dark-red crack down the middle, an ' +
+      'angry crowd silhouette on each side leaning away from the other, a few raised-fist shapes — ' +
+      'emotional polarization'],
+    ['bc_masche_kompromat', 'tv',
+      'a shadowy hand pulling a document out of a manila dossier folder under a hard spotlight, a ' +
+      'cracked portrait photo clipped to it, dark noir lighting with a single dark-red accent — ' +
+      'character assassination / leak'],
+    ['bc_masche_strasse', 'tv',
+      'a silhouetted crowd marching in a street holding blank abstract placards with a megaphone, seen ' +
+      'from a low news-camera angle, cool dusk light and a plain dark-red banner shape — offline ' +
+      'mobilization'],
+    ['bc_masche_firehose', 'tv',
+      'many overlapping speech-bubble and megaphone shapes blasting outward in every direction and ' +
+      'nearly drowning one small lone magnifier/checkmark shape in a corner — an overwhelming ' +
+      'firehose of noise'],
+    ['bc_print_notice', 'print',
+      'a small framed news photo block low in one corner surrounded by narrow columns of scribble ' +
+      'lines — a minor page-three brief, understated'],
+    ['bc_print_headline', 'print',
+      'a bold front-page layout: one large framed news photo across the upper half and a thick heavy ' +
+      'block of scribble-line headline bars beneath it dominating the page — a big splash'],
+    ['bc_social_feed', 'tv',
+      'a vertical social-media feed of stacked post cards filling the screen, each card with a small ' +
+      'round avatar, rows of scribble text and a little image thumbnail, on a cool app-grey ' +
+      'background — an ordinary scrolling timeline'],
+    ['bc_social_viral', 'tv',
+      'one social post card centred with a steep rising cyan engagement line-graph shooting up behind ' +
+      'it and many small heart/like and up-arrow shapes bursting outward — something going viral'],
+    ['bc_tv_sonder', 'tv',
+      'a breaking-news TV studio: the silhouette of a news presenter (a PERSON — head, shoulders and ' +
+      'torso, seated upright, facing forward) behind a broadcast desk, a large abstract graphic panel ' +
+      'glowing on the wall beside them, and a bold dark-red lower banner bar (blank, no text) across ' +
+      'the bottom — a special report. NO ship anchor, NO emblem, NO logo',
+      // Gewinner-Seed festgeschrieben (Vision-QC: seedFor() zeichnete einen SCHIFFS-Anker
+      // statt eines Nachrichten-Sprechers; Re-Roll 284419 + Umformulierung passt).
+      284419],
+    ['bc_faktencheck', 'tv',
+      'a big official rubber-stamp shape — a bold dark-red ring with a thick diagonal bar — slammed ' +
+      'over a faded, blurred image behind it, with a magnifier shape at the side; the stamp reads as ' +
+      'a fact-check overlay (but contains NO letters)'],
+    ['bc_krise', 'tv',
+      'an emergency broadcast: bold dark-red alert banner bars across the top and bottom, a warning-' +
+      'triangle silhouette centred over a dim building/map shape, cool tense lighting — a crisis'],
+    ['bc_enttarnung', 'tv',
+      'an investigative reveal: a bright interrogation spotlight cone cutting down onto a shadowy ' +
+      'hooded figure whose mask/cover is being pulled away, beside a pinned cork-board network of ' +
+      'photos linked by dark-red string — the campaign is exposed'],
+    ['bc_wahltag', 'tv',
+      'an election-night results screen: several tall vertical result bars of different heights in ' +
+      'cool grey with one taller leading dark-red bar, a simple parliament hemicycle silhouette of ' +
+      'dots below, and a big BLANK number panel (no digits) — results coming in'],
+    ['bc_wochenschau', 'tv',
+      'a vintage newsreel montage: a horizontal strip of three framed film-cells across the screen, ' +
+      'each cell holding a different tiny silhouetted scene, with sprocket-hole edges along the top ' +
+      'and bottom, warm-grey archival tone — a weekly recap'],
+    ['bc_gegenwind', 'tv',
+      'a lone viewer silhouette on a sofa turning away from the TV with a doubtful shrug, a small ' +
+      'crumpled letter and a question-mark-shaped scribble floating above — public doubt and pushback'],
+  ];
+  for (const [id, surface, hint, seedPin] of BROADCAST_MOTIFS) {
+    shots.push({
+      id,
+      type: 'image',
+      kind: 'broadcast',
+      priority: 'nice',
+      aspectRatio: '4:3',
+      size: { w: 512, h: 384 },
+      seed: seedPin ?? seedFor(id),
+      prompt: `${hint}. ${surface === 'print' ? BROADCAST_PRINT_STYLE : BROADCAST_TV_STYLE}`,
+    });
+  }
+
   // --- Publikums-Figuren (sitzend, 2-Frame-Idle, Chroma-Sheet) ---
   for (const [id, hint] of AUDIENCE_FIGURES) {
     shots.push({
