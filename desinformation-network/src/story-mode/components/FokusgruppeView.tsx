@@ -20,7 +20,7 @@ import type { Mood } from '../audience/audienceModel';
 export interface FokusgruppeSegmentInput {
   id: string;
   label_de: string;
-  milieu?: string;
+  profil?: string;
   mood: string;
   belief: number;
   vulnerabilities?: string[];

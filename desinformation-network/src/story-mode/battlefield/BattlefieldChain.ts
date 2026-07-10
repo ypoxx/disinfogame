@@ -149,6 +149,26 @@ export function loadPlatforms(): Platform[] {
 // Spielstand serialisierbar (nur ids) und die UI kann live rechnen, ohne State zu
 // duplizieren. Siehe docs/STRANG34_P2_VERBREITER_PLATTFORM_KONZEPT.md §5/§6.
 
+/**
+ * Herkunft einer Operation aus der Zielgruppen-Analyse (Kampagnen-Schmiede).
+ * Rein serialisierbare Daten (Spielstand-tauglich) — treibt die Konsequenz-Logik:
+ * wurde die Kampagne auf einer geschönten Wunsch-Stichprobe gebaut (`biasWarned`),
+ * reagiert die echte Zielgruppe schwächer als die Prognose („Zähne", P2/§Konsequenz).
+ * Appell/Segment bleiben `string` (keine Kopplung an das Audience-Modul, saubere Schicht).
+ */
+export interface OperationAnalysis {
+  /** Getesteter Appell (hope/fear/anger/trust) — nur zur Nachverfolgung/Anzeige. */
+  appeal?: string;
+  /** Ziel-Milieu der Empfehlung (wu_-Form). */
+  segmentId?: string;
+  /** Prognose der Stichprobe (−1..1) — was der Spieler „sah". */
+  predictedReception?: number;
+  /** Wahre Gesamtwirkung im Milieu (−1..1). */
+  trueReception?: number;
+  /** true, wenn die Analyse vor einer einseitigen Stichprobe gewarnt hat. */
+  biasWarned?: boolean;
+}
+
 /** Auswahl einer Operation als ids (additiv an der Aktion, `kompromat` reserviert für P2b). */
 export interface OperationParams {
   target?: string;
@@ -156,6 +176,8 @@ export interface OperationParams {
   carrier?: string;
   platforms?: string[];
   kompromat?: string;
+  /** Optionale Analyse-Herkunft (Kampagnen-Schmiede) — nur Daten, ohne Wirkung auf die Bewertung. */
+  analysis?: OperationAnalysis;
 }
 
 /** Aufgelöste Operation — null, wo eine Auswahl (noch) fehlt; `platforms` immer Array. */

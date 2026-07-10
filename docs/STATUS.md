@@ -557,6 +557,16 @@ V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
   → in P1c-Content rebalancieren (Igor/Finanz-Aktionen ergänzen, Marina entlasten).
 - **`npm run lint` defekt** — keine ESLint-Config im Repo; Gate stützt sich auf tsc/build/vitest.
 - **Pixel-Font** blockiert (Netz-Policy) — `font-mono`-Reste bis lizenzfreie Datei vorliegt.
+- **Grafik-Ladezeit / Asset-Dateigröße** (Hinweis 2026-07-06, PR #97):
+  Bilder wurden bisher erst beim Mounten der Komponente geladen → sichtbares „Reinploppen"
+  beim Betreten eines Raums. **✅ behoben:** gestufter Hintergrund-Preloader
+  (`src/story-mode/assets/preloadAssets.ts`, aufgerufen in `StoryModeGame`) wärmt den
+  Browser-Cache schon im Titelbildschirm vor (Räume/Porträts/UI zuerst, Rest im Leerlauf);
+  zusätzlich `<link rel="preload">` fürs Titelbild in `index.html`.
+  **Offener Folgeschritt (noch NICHT umgesetzt, bewusst zurückgestellt):** die Raum-/Porträt-PNGs
+  sind ~1,5–2 MB groß (Assets gesamt ~195 MB). Eine Konvertierung nach **WebP/AVIF** würde
+  Preload und Erstladen zusätzlich deutlich beschleunigen und die Gesamtgröße spürbar senken —
+  sinnvoller nächster Performance-Schritt, wenn die Ladezeiten weiter gedrückt werden sollen.
 
 ## 🛠️ Werkzeuge
 

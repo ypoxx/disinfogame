@@ -41,10 +41,11 @@ import { NpcRoomView } from './building/NpcRoomView';
 import { NewsroomView, derivePosts } from './components/NewsroomView';
 import { deriveGegenseite } from './engine/Gegenseite';
 import { FokusgruppeView } from './components/FokusgruppeView';
-import { FokusgruppePreTest, FOKUSGRUPPE_COST } from './components/FokusgruppePreTest';
+import { FOKUSGRUPPE_COST } from './audience/fokusgruppeKosten';
+import { MaschenVortestView } from './components/MaschenVortestView';
 import personasJson from './data/personas.json';
-import type { Persona } from './audience/fokusgruppeModel';
-import { OperationsAkteView } from './components/OperationsAkteView';
+import type { PersonaLite } from './audience/maschenVortest';
+import { OperationsAkteView, type AkteSelection } from './components/OperationsAkteView';
 import { loadTargets, loadCarriers, loadPlatforms } from './battlefield/BattlefieldChain';
 import { DayClock } from './components/DayClock';
 import { Icon } from './components/Icon';
@@ -59,7 +60,7 @@ import { useDirectorStore } from './stores/directorStore';
 import { SidePanel } from './components/SidePanel';
 import { LagebildView } from './components/LagebildView';
 import { NarrativeBoard } from './components/NarrativeBoard';
-import { initAssetRegistry, useAssets } from './assets';
+import { initAssetRegistry, useAssets, warmImageCache } from './assets';
 import { playMusicPool, playAmbience, isSoundEnabled, setSoundEnabled, getSoundVolume, setSoundVolume, playSound, setChannelVolume, getChannelVolume, type SoundChannel } from './utils/SoundSystem';
 import { ambienceForContext, musicPoolForState } from './utils/soundDirector';
 
@@ -413,6 +414,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   }, [state.gamePhase]);
   // P2: Operations-Akte (Operationszentrale, Etage 4) — Verbreiter×Plattform-Operation.
   const [showOperationsAkte, setShowOperationsAkte] = useState(false);
+  // Kampagnen-Schmiede: von der Fokusgruppe empfohlener Operations-Seed befüllt die Akte vor.
+  const [operationSeed, setOperationSeed] = useState<AkteSelection | null>(null);
+  // Arc-Sequenz: weitere Seeds, die nach dem Ausspielen nacheinander in die Akte nachrücken.
+  const [operationQueue, setOperationQueue] = useState<AkteSelection[]>([]);
+  // Bump erzwingt Remount der Akte, damit ein neuer Seed die Auswahl frisch initialisiert.
+  const [seedKey, setSeedKey] = useState(0);
   // 2f: Narrativ-Tafel (Korkbrett) — diegetisches Planungs-Herzstück, Pinnwand im Büro.
   const [showBoard, setShowBoard] = useState(false);
   // 2e: Lagebild — „auf einen Blick"-Übersicht am Wand-Monitor (löst das Dashboard ab).
@@ -428,6 +435,16 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       return true;
     }
   });
+  // Analyse-Raum: einmalige Eintritts-Karte (Marina erklärt die Resonanzgruppen).
+  const [analyseIntroSeen, setAnalyseIntroSeen] = useState<boolean>(() => {
+    try {
+      return !!window.localStorage.getItem('storyMode_analyseIntroSeen');
+    } catch {
+      return false;
+    }
+  });
+  // Sitzungs-Flag: wurde die Zielgruppen-Analyse überhaupt geöffnet? (speist den „ungetestet senden"-Nudge)
+  const [analyseVisited, setAnalyseVisited] = useState(false);
 
   // Count world events
   const worldEventCount = state.newsEvents.filter(e => e.type === 'world_event').length;
@@ -531,8 +548,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const tutorial = useTutorial();
 
   // Asset-Manifest laden (public/assets/assets.json) — fehlt es, bleibt der CSS-Look.
+  // Direkt danach den Browser-Cache vorwärmen: Bilder werden im Hintergrund
+  // geladen (Räume/Porträts zuerst), damit sie beim Betreten sofort da sind
+  // statt erst beim Erscheinen nachzuladen. Läuft schon im Titelbildschirm.
   useEffect(() => {
-    void initAssetRegistry();
+    void initAssetRegistry().then((registry) => warmImageCache(registry));
   }, []);
 
   // Hintergrundmusik (music_theme_main), sobald gespielt wird — No-op ohne Asset.
@@ -559,6 +579,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     : showOperationsAkte ? 'akte'
     : showLagebild ? 'lagebild'
     : showBoard ? 'board'
+    : broadcastExpanded ? 'broadcast' // Publikums-Wohnzimmer-Kulisse (Luxus-Sound-Review)
     : null;
 
   // N0 (PLAN 2026-07-07): Vollbild-Overlays verdecken das Dauer-Chrome (Eck-Cluster,
@@ -575,6 +596,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       active,
     }));
   }, [state.gamePhase, viewMode, ambienceOverlay, state.currentDialog, state.activeNpcId, assets]);
+
+  // Luxus-Sound-Review (L6): Fernschreiber-Ausdruck, wenn das Tagesfazit erscheint.
+  useEffect(() => {
+    if (showDayReport) playSound('teletype');
+  }, [showDayReport]);
 
   // Erster Büro-Besuch gesehen → Hinweise künftig nicht mehr zeigen.
   useEffect(() => {
@@ -999,7 +1025,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               onEnterOffice={() => setViewMode('office')}
               onEnterRoom={(roomId) => {
                 if (roomId === 'newsroom') setShowNewsroom(true);
-                else if (roomId === 'analyse') setShowPreTest(true);
+                else if (roomId === 'analyse') { setShowPreTest(true); setAnalyseVisited(true); }
                 else if (roomId === 'operations') setShowOperationsAkte(true);
               }}
               walkHome={walkHome}
@@ -1224,7 +1250,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             segments={audience.country.segments.map((seg) => ({
               id: seg.id,
               label_de: seg.label_de,
-              milieu: seg.milieu,
+              profil: seg.profil,
               mood: seg.mood,
               belief: seg.belief,
               vulnerabilities: seg.vulnerabilities,
@@ -1237,10 +1263,26 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
         {/* Fokusgruppe Pre-Test (beauftragbar): Appell + Stichprobe testen, Sample-Bias aufdecken. */}
         {showPreTest && (
-          <FokusgruppePreTest
-            personas={personasJson.personas as unknown as Persona[]}
+          // Redesign: konkrete Masche gegen die 8 Resonanzgruppen vortesten (statt abstrakter Appelle).
+          // „MASCHE STARTEN" reiht genau diese Aktion in den Sendeplan (Brücke Analyse → Tat).
+          <MaschenVortestView
+            maschen={state.engine.getVortestMaschen()}
+            gruppen={audience.country.segments.map((seg) => ({ id: seg.id, label_de: seg.label_de, size: seg.size }))}
+            personas={personasJson.personas.map((p): PersonaLite => ({ name: p.name, segmentId: p.segmentId }))}
             budget={state.resources.budget}
+            cost={FOKUSGRUPPE_COST}
+            // Profi-Stichprobe (freie Auswahl) erst nach der Einarbeitung — geführter Querschnitt ist Standard.
+            allowFreeSample={state.storyPhase.number >= 8}
+            freeSampleLockHint="Erst wenn die Resonanzgruppen sitzen, dürfen Sie die Stichprobe selbst schneiden."
+            // Einmalige Eintritts-Karte beim ersten Betreten (über Sessions persistiert).
+            showIntro={!analyseIntroSeen}
+            onIntroDismiss={() => {
+              setAnalyseIntroSeen(true);
+              try { window.localStorage.setItem('storyMode_analyseIntroSeen', '1'); } catch { /* localStorage unavailable */ }
+            }}
+            runVortest={(actionId, sampleIds) => state.engine.getSegmentVortest(actionId, sampleIds)}
             onCommission={() => { if (commissionFokusgruppe(FOKUSGRUPPE_COST)) endPhase(); }}
+            onLaunchMasche={(actionId) => { addToQueue(actionId); setShowPreTest(false); }}
             onClose={() => setShowPreTest(false)}
           />
         )}
@@ -1249,6 +1291,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             Faktencheck/Sättigung speisen sich aus der Lage (attention/risk → 0..1). */}
         {showOperationsAkte && (
           <OperationsAkteView
+            key={seedKey}
+            sequenceRemaining={operationQueue.length}
             targets={loadTargets()}
             carriers={loadCarriers()}
             platforms={loadPlatforms()}
@@ -1259,12 +1303,22 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             acquiredKompromat={state.acquiredKompromat}
             onBuildCarrier={(id) => buildCarrier(id)}
             onAcquireKompromat={(targetId, vulnId) => acquireKompromat(targetId, vulnId)}
+            initialSelection={operationSeed ?? undefined}
             onAusspielen={(params) => {
               playOperation(params);
-              setShowOperationsAkte(false);
-              setBroadcastExpanded(true);
+              if (operationQueue.length > 0) {
+                // Arc-Sequenz: nächste Kampagne rückt vorbefüllt in die Akte nach.
+                setOperationSeed(operationQueue[0]);
+                setOperationQueue((q) => q.slice(1));
+                setSeedKey((k) => k + 1);
+                setBroadcastExpanded(true);
+              } else {
+                setShowOperationsAkte(false);
+                setOperationSeed(null);
+                setBroadcastExpanded(true);
+              }
             }}
-            onClose={() => setShowOperationsAkte(false)}
+            onClose={() => { setShowOperationsAkte(false); setOperationSeed(null); setOperationQueue([]); }}
           />
         )}
 
@@ -1391,6 +1445,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               attention={state.resources.attention}
               auftragTitel={state.engine.getAuftrag().titel_de}
               beatHook={directorBeat?.vorgriffZeile_de}
+              // Nudge: Maschen im Sendeplan, aber die Zielgruppen-Analyse nie geöffnet.
+              pendingUntested={state.actionQueue.length > 0 && !analyseVisited}
               onDone={() => setBriefedPhase(state.storyPhase.number)}
             />
           )}

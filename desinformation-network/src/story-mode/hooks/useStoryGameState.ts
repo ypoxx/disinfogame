@@ -26,6 +26,7 @@ import type { AuftragId } from '../engine/Auftraege';
 import { pickNext, type DirectorInputs } from '../engine/StoryDirector';
 import { unresolvedDecisionCandidates } from '../engine/DecisionBeats';
 import { useDirectorStore } from '../stores/directorStore';
+import { useDossierStore } from '../stores/dossierStore';
 import { playSound } from '../utils/SoundSystem';
 import { getAdvisorEngine } from '../engine/NPCAdvisorEngine';
 import type { AdvisorRecommendation, WorldEventSnapshot } from '../engine/AdvisorRecommendation';
@@ -140,6 +141,7 @@ function getTopicLabel(topic: string): string {
     content: 'Über Inhalte',
     platforms: 'Über Plattformen',
     viral: 'Über Viralität',
+    publikum: 'Über das Publikum',
     // Alexei topics
     infrastructure: 'Über Infrastruktur',
     bots: 'Über Bot-Netzwerke',
@@ -601,6 +603,8 @@ export function useStoryGameState(seed?: string) {
 
     // Slice 4: Director-Zustand frisch (kein Beat/Pending aus einem früheren Spiel).
     useDirectorStore.getState().reset();
+    // Erkenntnis-Dossier zurücksetzen (keine Befunde aus einem früheren Spiel).
+    useDossierStore.getState().reset();
     setDecisionBeatResult(null);
 
     // Load available actions from engine
@@ -1620,6 +1624,8 @@ export function useStoryGameState(seed?: string) {
     const savedState = engine.saveState();
     localStorage.setItem('storyMode_save', savedState);
     localStorage.setItem('storyMode_save_timestamp', new Date().toISOString());
+    // Erkenntnis-Dossier mit dem Spielstand sichern (lebt außerhalb der Engine).
+    localStorage.setItem('storyMode_save_dossier', JSON.stringify(useDossierStore.getState().findings));
     return true;
   }, [engine]);
 
@@ -1641,6 +1647,14 @@ export function useStoryGameState(seed?: string) {
       refreshAvailableActions();
       setGamePhase('playing');
 
+      // Erkenntnis-Dossier zum Spielstand wiederherstellen (leerer Bestand, falls keins gesichert).
+      try {
+        const rawDossier = localStorage.getItem('storyMode_save_dossier');
+        useDossierStore.getState().hydrate(rawDossier ? JSON.parse(rawDossier) : []);
+      } catch {
+        useDossierStore.getState().hydrate([]);
+      }
+
       return true;
     } catch (error) {
       storyLogger.error('Failed to load save:', error);
@@ -1655,6 +1669,7 @@ export function useStoryGameState(seed?: string) {
   const deleteSaveGame = useCallback(() => {
     localStorage.removeItem('storyMode_save');
     localStorage.removeItem('storyMode_save_timestamp');
+    localStorage.removeItem('storyMode_save_dossier');
   }, []);
 
   // ============================================

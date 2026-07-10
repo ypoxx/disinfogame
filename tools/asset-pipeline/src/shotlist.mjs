@@ -401,17 +401,18 @@ const ICONS = [
 // SFX: alle SoundTypes des Spiels (SoundSystem.ts) in snake_case + Gebäude-Sounds.
 const SFX = [
   ['sfx_click', 'short dry mechanical button click, UI sound', 0.6, 'must'],
-  ['sfx_success', 'short positive two-tone confirmation chime, retro game UI', 0.8, 'must'],
+  // Luxus-Sound-Review S4 (Diegese-Sweep): „retro game UI"-Klänge → Behörden-Akte-Objekte.
+  ['sfx_success', 'a small brass desk bell ding followed by a soft rubber stamp on paper, warm bureaucratic confirmation', 0.8, 'must'],
   ['sfx_warning', 'short tense warning buzz, muted, bureaucratic alarm', 0.8, 'must'],
-  ['sfx_error', 'short harsh negative buzzer, low, retro game UI', 0.8, 'must'],
+  ['sfx_error', 'a short dull buzzer on an old office intercom, muted negative rejection', 0.8, 'must'],
   ['sfx_notification', 'soft single notification ping, typewriter bell character', 0.7, 'must'],
   ['sfx_phase_end', 'short stamp on paper plus page turn, bureaucratic end-of-round', 1.2, 'must'],
   ['sfx_consequence', 'low ominous swell with a paper rustle, consequence revealed', 1.5, 'must'],
-  ['sfx_combo', 'quick ascending three-note retro arpeggio, triumphant but muted', 1.0, 'nice'],
+  ['sfx_combo', 'three rubber stamps hitting paper in quick succession, building momentum, satisfying and dry', 1.0, 'nice'],
   ['sfx_crisis', 'low alarming drone with distant siren character, crisis begins', 2.0, 'must'],
   ['sfx_betrayal', 'shocking low dissonant sting, dramatic betrayal reveal', 1.8, 'must'],
   ['sfx_moral_shift', 'dark subtle descending tone, moral weight shift', 1.2, 'nice'],
-  ['sfx_opportunity_open', 'bright short unlock chime, hopeful, retro', 0.8, 'nice'],
+  ['sfx_opportunity_open', 'a desk drawer lock turning open with a soft key click and a hopeful paper rustle', 0.8, 'nice'],
   ['sfx_countermeasure', 'descending two-tone threat motif, opponent reacts', 1.0, 'nice'],
   ['sfx_world_event', 'newsflash sting: teletype burst plus short brass hit', 1.5, 'nice'],
   ['sfx_door_open', 'heavy wooden office door opens with old hinges', 1.2, 'nice'],
@@ -424,12 +425,25 @@ const SFX = [
   ['sfx_typewriter', 'short mechanical typewriter burst ending with the carriage bell', 1.2, 'nice'],
   ['sfx_applause', 'small studio audience applause, muffled vintage broadcast quality', 2.0, 'nice'],
   ['sfx_dialog_end', 'single very soft short low typewriter thock, gentle, quiet', 0.3, 'nice'],
+  // Luxus-Sound-Review S3 (Deckungs-Lücken): diegetische Klänge für die fünf Kern-
+  // Interaktionen (wählen/anheften/stempeln/Akte/Telefon) + L5/L6-Objekte. Bereit
+  // für die UI-Luxus-Etappen L2–L7; SoundType-API + Synth-Fallback existieren.
+  ['sfx_stamp', 'a loud firm rubber stamp slammed down onto a paper document, sharp mechanical ka-chunk, close-miked, prominent and punchy', 0.6, 'nice'],
+  ['sfx_pin', 'a sharp crisp thumb tack punched into a cork board, a quick woody pop, close-miked and prominent', 0.4, 'nice'],
+  ['sfx_drawer', 'a metal filing cabinet drawer rolling open and stopping, office archive', 0.9, 'nice'],
+  ['sfx_phone_dial', 'an old rotary telephone dial turned once and released spinning back, single digit', 1.0, 'nice'],
+  ['sfx_terminal_key', 'a single mechanical key press on an old computer terminal keyboard, soft clack', 0.3, 'nice'],
+  ['sfx_teletype', 'a short burst of an old teletype machine printing a message on paper, mechanical clatter', 1.2, 'nice'],
+  ['sfx_calendar', 'a single page torn off a tear-off desk calendar, quick paper rip', 0.6, 'nice'],
   ['sfx_amb_lobby', 'large echoing entrance hall room tone with distant footsteps and a revolving door swoosh, loopable', 10.0, 'nice'],
   ['sfx_amb_buero', 'quiet office room tone with a ticking wall clock and faint radiator hum, loopable', 10.0, 'nice'],
   ['sfx_amb_keller', 'deep basement room tone with low electrical hum and occasional pipe knock, loopable', 10.0, 'nice'],
   ['sfx_amb_newsroom', 'busy newsroom room tone with soft keyboard typing and CRT monitor hum, loopable', 10.0, 'nice'],
   ['sfx_amb_cyber', 'server room tone with computer fans and soft electronic beeps, loopable', 10.0, 'nice'],
   ['sfx_amb_zentrale', 'stately office room tone with a slow pendulum clock and distant telephone ring, loopable', 10.0, 'nice'],
+  // Neue Atmos (Luxus-Sound-Review S5): Wahlabend-TV-Studio + Publikums-Wohnzimmer.
+  ['sfx_amb_tvstudio', 'election-night television studio room tone, low broadcast hum, distant desk activity and a muffled control room, cool and tense, loopable', 10.0, 'nice'],
+  ['sfx_amb_wohnzimmer', 'cozy 1980s living room tone, faint television murmur in the next room, a softly ticking clock and an occasional chair creak, warm, loopable', 10.0, 'nice'],
 ];
 
 const MUSIC = [

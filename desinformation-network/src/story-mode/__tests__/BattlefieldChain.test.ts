@@ -83,8 +83,8 @@ describe('BattlefieldChain (P2c Zustandsmaschine)', () => {
     }
   });
 
-  it('Daten-Loader liefern den fiktiven Roster (6 Ziele, 8 Verbreiter, 5 Plattformen)', () => {
-    expect(loadTargets().length).toBe(6);
+  it('Daten-Loader liefern den fiktiven Roster (9 Ziele, 8 Verbreiter, 5 Plattformen)', () => {
+    expect(loadTargets().length).toBe(9);
     expect(loadCarriers().length).toBe(8);
     expect(loadPlatforms().length).toBe(5);
     expect(loadTargets().every((t) => t.fiktiv === true)).toBe(true);

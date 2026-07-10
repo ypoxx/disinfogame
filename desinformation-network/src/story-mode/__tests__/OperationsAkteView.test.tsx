@@ -175,3 +175,53 @@ describe('OperationsAkteView — Ökonomie-Gate (Aufbauen/Beschaffen)', () => {
     expect(onAusspielen).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('OperationsAkteView — Vorbelegung (Kampagnen-Schmiede)', () => {
+  const targets = loadTargets();
+  const carriers = loadCarriers();
+  const platforms = loadPlatforms();
+
+  it('initialSelection seedet die Auswahl + zeigt den Analyse-Streifen mit Bias-Warnung', () => {
+    const t = targets[0];
+    const v = t.vulnerabilities[0];
+    const c = carriers[0];
+    const p = platforms[0];
+    render(
+      <OperationsAkteView
+        targets={targets}
+        carriers={carriers}
+        platforms={platforms}
+        onAusspielen={vi.fn()}
+        onClose={vi.fn()}
+        initialSelection={{
+          targetId: t.id,
+          vulnId: v.id,
+          carrierId: c.id,
+          platformIds: [p.id],
+          analysis: { appeal: 'fear', segmentId: t.milieu, predictedReception: 0.7, trueReception: 0.4, biasWarned: true },
+        }}
+      />,
+    );
+
+    // Auswahl vorbefüllt: Ziel ist gedrückt.
+    expect(screen.getByTestId(`oa-target-${t.id}`).getAttribute('aria-pressed')).toBe('true');
+
+    // Analyse-Streifen sichtbar, Appell benannt, Bias-Warnung da.
+    const strip = screen.getByTestId('oa-analysis-strip');
+    expect(strip.textContent).toMatch(/Abstiegsangst/);
+    expect(strip.textContent).toMatch(/einseitig/);
+  });
+
+  it('ohne initialSelection: kein Analyse-Streifen (rückwärtskompatibel)', () => {
+    render(
+      <OperationsAkteView
+        targets={targets}
+        carriers={carriers}
+        platforms={platforms}
+        onAusspielen={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+    expect(screen.queryByTestId('oa-analysis-strip')).toBeNull();
+  });
+});
