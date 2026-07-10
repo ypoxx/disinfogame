@@ -99,6 +99,8 @@ export interface StoryAction {
   effects?: Record<string, unknown>;
   isUnlocked: boolean;
   isUsed: boolean;
+  /** Sperr-Grund als Tooltip am GESPERRT-Badge (zog von der Narrativ-Tafel um, T1). */
+  unavailableReason?: string;
 }
 
 // ============================================
@@ -141,7 +143,11 @@ export function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecomm
     illegal: '✕ ILLEGAL',
   };
 
-  const isDisabled = !canAfford || action.isUsed || !action.isUnlocked;
+  // Gesperrt/verbraucht dimmt die Karte; knappe Kasse NICHT — Anheften (Planen)
+  // bleibt möglich, nur AUSFÜHREN braucht Deckung. Die alte Tafel erlaubte genau
+  // das (A1), und der Kredit-Fall wird erst in Queue-Reihenfolge leistbar
+  // (prefix-genau, s. utils/queueAffordability).
+  const gesperrt = action.isUsed || !action.isUnlocked;
 
   // Determine border styling
   const getBorderColor = () => {
@@ -161,7 +167,7 @@ export function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecomm
       ref={actionRef as React.RefObject<HTMLDivElement>}
       className={`
         w-full text-left p-4 transition-all
-        ${isDisabled ? 'opacity-50' : ''}
+        ${gesperrt ? 'opacity-50' : ''}
         
       `}
       style={{
@@ -341,7 +347,7 @@ export function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecomm
       )}
 
       {/* Impact Preview (Phase 3.3) */}
-      {!isDisabled && (
+      {!gesperrt && (
         <div
           className="mt-2 p-2 border text-xs space-y-1"
           style={{
@@ -446,23 +452,27 @@ export function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecomm
             backgroundColor: StoryModeColors.oldPaper,
             color: StoryModeColors.textSecondary,
           }}
+          title={action.unavailableReason || undefined}
         >
           GESPERRT
         </div>
       )}
 
       {/* Action Buttons */}
-      {!isDisabled && (
+      {!gesperrt && (
         <div className="flex gap-2 mt-3 pt-3 border-t" style={{ borderColor: StoryModeColors.borderLight }}>
           <button
-            onClick={onSelect}
+            onClick={() => { if (canAfford) onSelect(); }}
+            disabled={!canAfford}
             className="flex-1 px-3 py-1.5 border-2 text-xs font-bold transition-all hover:brightness-110 active:translate-y-0.5"
             style={{
-              backgroundColor: StoryModeColors.success,
-              borderColor: '#15803d',
+              backgroundColor: canAfford ? StoryModeColors.success : StoryModeColors.border,
+              borderColor: canAfford ? '#15803d' : StoryModeColors.borderLight,
               color: '#fff',
+              cursor: canAfford ? 'pointer' : 'not-allowed',
+              opacity: canAfford ? 1 : 0.6,
             }}
-            title="Sofort ausführen"
+            title={canAfford ? 'Sofort ausführen' : 'Jetzt nicht leistbar — Anheften geht trotzdem (gezahlt wird beim Ausspielen)'}
           >
             AUSFÜHREN
           </button>

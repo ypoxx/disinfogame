@@ -1,9 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { StoryModeColors, stampCtaStyle } from './theme';
 import { GAME_VERSION } from './version';
 import { DialogBox } from './components/DialogBox';
 import { StoryHUD } from './components/StoryHUD';
 import { TerminalView } from './components/TerminalView';
+import { QueuePinChip } from './components/QueuePinChip';
+import { istPlanLeistbar } from './utils/queueAffordability';
 import { NewsPanel } from './components/NewsPanel';
 import { StatsPanel } from './components/StatsPanel';
 import { NpcPanel } from './components/NpcPanel';
@@ -22,7 +24,6 @@ import { AdvisorDetailModal } from './components/AdvisorDetailModal';
 import { GrievanceModal } from './components/GrievanceModal';
 import { BetrayalEventModal } from './components/BetrayalEventModal';
 import { StageCountermeasureModal } from './components/StageCountermeasureModal';
-import { ComboHintsWidget } from './components/ComboHintsWidget';
 import { CrisisModal } from './components/CrisisModal';
 import { BetrayalIndicators } from './components/BetrayalIndicators';
 import { ConsequenceTimeline } from './components/ConsequenceTimeline';
@@ -544,6 +545,23 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     ? Math.max(0, Math.min(1, (100 - destabObjective.currentValue) / Math.max(1, 100 - destabObjective.targetValue)))
     : 0;
 
+  // T1: EINE Quelle für den Strang-Stand — Tafel-Stummel und Tagesfazit lesen
+  // dieselbe Ableitung (der Abschluss-Check selbst lebt im Hook, P0-1).
+  const strangStatus = (state.activeEpisodes ?? []).map((ep) => ({
+    id: ep.id,
+    titel: ep.titel_de,
+    wendung: ep.wendung_de,
+    aktionen: ep.einklink_aktionen,
+    erledigt: ep.einklink_aktionen.filter((id) => state.completedActions.includes(id)),
+  }));
+
+  // T4: stockt eine Spur? Aktiver Strang mit offenen Sendungen, von denen keine
+  // angeheftet ist — der Kurator erinnert im Morgenbriefing an die Tafel.
+  const stockendeSpur = strangStatus.find((s) => {
+    const offen = s.aktionen.filter((id) => !s.erledigt.includes(id));
+    return offen.length > 0 && !offen.some((id) => state.actionQueue.some((q) => q.actionId === id));
+  });
+
   // Tutorial system
   const tutorial = useTutorial();
 
@@ -618,6 +636,26 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   // Das Overlay bleibt über das Pausenmenü/Hilfe erreichbar (tutorial.start()).
   // Review-Befund: Doppel-Onboarding zerstörte den Einstieg (Game-Design-Gutachten B1).
 
+  // E4-Wächter: EIN Prädikat für „ein Vollbild-Overlay/Ablauf blockiert gerade" —
+  // Hotkeys (A/T) und der Angeheftet-Chip teilen es, damit Tafel/Terminal nie
+  // unsichtbar UNTER einem Overlay mounten (Terminal/Tafel selbst sind ausgenommen,
+  // ihre Fälle behandelt der Handler explizit).
+  const vollbildOverlayOffen =
+    showNewsroom || showLagebild || showOperationsAkte || showFokusgruppe ||
+    showPreTest || showEncyclopedia || showShortcuts || showDayReport ||
+    walkHome || showActionFeedback ||
+    // Codex-Review #106: Pflicht-Modals zählen mit — Krise (z-70), Verrat und
+    // anstehender Entscheidungs-Beat laufen in gamePhase 'playing'; T/A dürfen
+    // die Tafel/das Terminal nicht darüber mounten (z-80 verdeckte die Wahl).
+    !!state.activeCrisis || !!state.activeBetrayalEvent || !!pendingDecisionBeatId;
+
+  // §4.1-Sprung: Tafel (plant) → Terminal (wählt) — Taste A und Tafel-Knopf
+  // müssen sich identisch verhalten, darum EIN Handler.
+  const openTerminalFromBoard = useCallback(() => {
+    setShowBoard(false);
+    setShowTerminal(true);
+  }, []);
+
   // Keyboard shortcuts (centralized - replaces OfficeScreen's duplicate handler)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -637,6 +675,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         if (showTerminal) {
           setShowTerminal(false);
           setHighlightActionId(null);
+          return;
+        }
+        // T1: dieselbe Absicherung für die Tafel — ihr Capture-Listener fängt Esc
+        // normalerweise ab, aber die Kette muss sie kennen (E4-Muster Terminal).
+        if (showBoard) {
+          setShowBoard(false);
           return;
         }
         // First priority: close active sidebar panel
@@ -671,9 +715,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       // Panel & view shortcuts (only when playing and no dialog open)
       if (state.gamePhase === 'playing' && !state.currentDialog) {
         const key = e.key.toLowerCase();
-        // Am offenen Terminal/an der Tafel wirkt nur A (schließen bzw. wechseln) —
-        // andere Panel-Hotkeys öffneten sonst unsichtbar HINTER dem Schirm (E4).
-        if ((showTerminal || showBoard) && key !== 'a') return;
+        // Am offenen Terminal wirkt nur A (schließen) — andere Panel-Hotkeys
+        // öffneten sonst unsichtbar HINTER dem Schirm Seitenleisten-Reiter (E4).
+        if (showTerminal && key !== 'a') return;
+        // An der offenen Tafel wirken nur T (schließen) und A (Sprung ins
+        // Terminal — der §4.1-Weg „wählen dort, planen hier"); E4-Muster.
+        if (showBoard && key !== 't' && key !== 'a') return;
         switch (key) {
           // L2: A öffnet das Vorgangs-Terminal (die Aktionen-Seitenleiste ist Geschichte).
           case 'a': {
@@ -682,17 +729,21 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               setShowTerminal(false);
               setHighlightActionId(null);
             } else if (showBoard) {
-              // Tafel → Terminal wechseln: der Tafel-Hinweis „Maßnahmen wählt das
-              // Terminal [A]" wäre sonst ein No-op (Review-Befund A5).
-              setShowBoard(false);
-              setShowTerminal(true);
-            } else if (
+              // Tafel → Terminal: wählen und anheften, dann zurück planen.
+              openTerminalFromBoard();
+            } else if (!vollbildOverlayOffen) {
               // Nicht unsichtbar UNTER einem anderen Vollbild-Overlay mounten
-              // (Overlay-Stack, E4 — inkl. Dossier/Hilfe, Verify-Nachtrag).
-              !showNewsroom && !showLagebild && !showOperationsAkte &&
-              !showFokusgruppe && !showPreTest && !showEncyclopedia && !showShortcuts
-            ) {
+              // (Overlay-Stack, E4 — geteiltes Prädikat, s. vollbildOverlayOffen).
               setShowTerminal(true);
+            }
+            break;
+          }
+          // T1: T öffnet/schließt die Narrativ-Tafel (planen) — Overlay-Stack wie A.
+          case 't': {
+            if (showBoard) {
+              setShowBoard(false);
+            } else if (!vollbildOverlayOffen) {
+              setShowBoard(true);
             }
             break;
           }
@@ -711,7 +762,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleBroadcast, showEncyclopedia, setShowEncyclopedia, showShortcuts, setShowShortcuts, showTerminal, showNewsroom, showBoard, showLagebild, showOperationsAkte, showFokusgruppe, showPreTest]);
+  }, [state.gamePhase, state.currentDialog, pauseGame, resumeGame, continueDialog, dismissDialog, handleDialogChoice, activePanel, togglePanel, setActivePanel, toggleBroadcast, showEncyclopedia, setShowEncyclopedia, showShortcuts, setShowShortcuts, showTerminal, showNewsroom, showBoard, showLagebild, showOperationsAkte, showFokusgruppe, showPreTest, vollbildOverlayOffen, openTerminalFromBoard]);
 
   // K9 Stufe 1: Autosave bei jedem Phasenwechsel (nur während 'playing').
   // saveGame kommt aus useStoryGameState und wird auch im Pausemenü genutzt.
@@ -1185,6 +1236,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               effects: a.effects,
               isUnlocked: a.available,
               isUsed: !a.available && a.unavailableReason === 'Already used',
+              // T1: Sperr-Grund war nur auf der Tafel sichtbar — zieht ins ARCHIV um.
+              unavailableReason: a.unavailableReason,
             }))}
             episodeActionIds={Array.from(
               new Set((state.activeEpisodes ?? []).flatMap((ep) => ep.einklink_aktionen)),
@@ -1322,7 +1375,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           />
         )}
 
-        {/* Narrativ-Tafel (2f): Sendeplan — Maßnahmen anheften, Gelegenheits-Fäden, ausspielen */}
+        {/* Narrativ-Tafel (T1 „Wahrmachen"): Spuren = aktive Episoden-Stränge,
+            Karten hängen an ihrem Strang (einklink_aktionen), Fortschritt als
+            Stummel; gewählt wird am Terminal (§4.1), hier wird geplant/gesendet. */}
         {showBoard && (
           <NarrativeBoard
             sonntagsfrage={sonntagsfrage}
@@ -1336,31 +1391,34 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               isPrimary: o.type === 'primary',
               category: o.category,
             }))}
+            strands={strangStatus}
+            windows={(state.comboHints ?? []).map((h) => ({
+              id: h.comboId,
+              name: h.comboName,
+              hint: h.hint_de,
+              expiresIn: h.expiresIn,
+              // T2/L3: der nächste Schritt wandert vom Floating-Widget auf den Zettel.
+              nextAction: h.nextAction_de,
+            }))}
+            // T2-Luxus: Kork-Kachel (Fallback = CSS-Punktraster in der Komponente).
+            korkUrl={assets.imageUrl('ui_cork_tile') ?? undefined}
+            // T3/T4: Brett-Kapazität + Akt-Band + Umfrage-Horizont aus der Engine.
+            slots={state.engine.getNarrativeSlots()}
+            akt={{ nummer: state.engine.getAkt().nummer, titel: state.engine.getAkt().titel_de }}
+            naechsteSonntagsfrageIn={state.engine.getNaechsteSonntagsfrageIn()}
             queue={state.actionQueue}
-            threads={[
-              // P4/B1: aktive Episoden = die Stränge am Korkbrett (das „Warum"). Fortschritt =
-              // Anteil der bereits gespielten Einklink-Aktionen dieser Episode.
-              ...(state.activeEpisodes ?? []).map((ep) => ({
-                id: ep.id,
-                name: ep.titel_de,
-                hint: ep.wendung_de,
-                expiresIn: 99,
-              })),
-              ...(state.comboHints ?? []).map((h) => ({
-                id: h.comboId,
-                name: h.comboName,
-                hint: h.hint_de,
-                expiresIn: h.expiresIn,
-              })),
-            ]}
             resources={{
               budget: state.resources.budget,
               capacity: state.resources.capacity,
               actionPoints: state.resources.actionPointsRemaining,
             }}
             onUnpin={(queueItemId) => removeFromQueue(queueItemId)}
+            onOpenTerminal={openTerminalFromBoard}
             onPlay={async () => {
               const results = await executeQueue();
+              // Tafel schließen, BEVOR das Feedback-Modal aufgeht — sonst schluckt
+              // ihr Capture-Esc-Listener das Esc des darüberliegenden Modals.
+              setShowBoard(false);
               if (results && results.length > 0) {
                 const valid = results.filter((r) => r !== null);
                 if (valid.length > 0) {
@@ -1416,6 +1474,20 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               attention: state.resources.attention,
             }}
             trustProgress={trustProgress}
+            // T1: Strang-Stand am Abend (KONZEPT 2026-07-07 §4.1). Heute ausgespielte
+            // Stränge verlassen activeEpisodes sofort (P0-1) — sie kommen aus dem
+            // Abschluss-Log, sonst fehlte genau am Payoff-Tag das „ausgespielt ✓".
+            straenge={[
+              ...strangStatus.map((s) => ({
+                id: s.id,
+                titel: s.titel,
+                done: s.erledigt.length,
+                total: s.aktionen.length,
+              })),
+              ...state.episodeAbschluesse
+                .filter((a) => a.phase === state.storyPhase.number)
+                .map((a) => ({ id: a.id, titel: a.titel_de, done: a.total, total: a.total })),
+            ]}
             // VORSCHAU statt Rückblick: Das Tagesfazit erscheint VOR endPhase — es
             // weist die KOMMENDE Nacht aus (deterministisch aus dem Ist-Zustand).
             nightReport={state.engine.getNightPreview()}
@@ -1445,7 +1517,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               attention={state.resources.attention}
               auftragTitel={state.engine.getAuftrag().titel_de}
               beatHook={directorBeat?.vorgriffZeile_de}
-              // Nudge: Maschen im Sendeplan, aber die Zielgruppen-Analyse nie geöffnet.
+              spurHinweis={stockendeSpur
+                ? `Spur „${stockendeSpur.titel}" stockt — keine Sendung geplant. Die passenden Maßnahmen liegen im Terminal obenan.`
+                : undefined}
+              // Nudge (main): Maschen im Sendeplan, aber die Zielgruppen-Analyse nie geöffnet.
               pendingUntested={state.actionQueue.length > 0 && !analyseVisited}
               onDone={() => setBriefedPhase(state.storyPhase.number)}
             />
@@ -1512,6 +1587,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             <div className="grid grid-cols-1 gap-1 text-sm">
               {([
                 ['A', 'Terminal / Aktionen'],
+                ['T', 'Narrativ-Tafel (Sendeplan)'],
                 ['N', 'Nachrichten'],
                 ['S', 'Statistik'],
                 ['P', 'Personal (NPCs)'],
@@ -1677,19 +1753,26 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         />
       )}
 
-      {/* N3 (PLAN 2026-07-07): Das schwebende Queue-Widget ist in der Narrativ-Tafel
-          aufgegangen (L3-Kern) — die Queue lebt als angeheftete Karten an der Tafel,
-          der Tafel-Hotspot im Büro trägt den Zähler (archive/story-mode-drafts/). */}
-
-      {/* Combo Hints Widget — im Gespräch ausgeblendet (kein Floating über dem Dialog) */}
-      {chromeVisible && !state.currentDialog && state.comboHints && state.comboHints.length > 0 && (
-        <div
-          className="fixed bottom-16 left-4 w-80 z-20"
-          style={{ maxHeight: '40vh', overflowY: 'auto' }}
-        >
-          <ComboHintsWidget hints={state.comboHints} />
-        </div>
+      {/* Angeheftet-Chip (F-D): die Queue wird an der Tafel verwaltet (EIN
+          Planungsort, §4.1) — hier nur die Sprungmarke. Im Gespräch, am Terminal,
+          an offener Tafel, bei Broadcast-Vollbild UND unter jedem Vollbild-Overlay
+          aus (gleiches E4-Prädikat wie die Hotkeys — der Klick darf die Tafel
+          nicht unter Report/Heimweg/Modal mounten). */}
+      {state.gamePhase === 'playing' && !state.currentDialog && !showTerminal && !showBoard &&
+        !broadcastExpanded && !vollbildOverlayOffen && state.actionQueue.length > 0 && (
+        <QueuePinChip
+          count={state.actionQueue.length}
+          warnung={!istPlanLeistbar(state.actionQueue, {
+            budget: state.resources.budget,
+            capacity: state.resources.capacity,
+            actionPoints: state.resources.actionPointsRemaining,
+          })}
+          onOpenBoard={() => setShowBoard(true)}
+        />
       )}
+
+      {/* T2/L3: Das Combo-Hints-Widget ist als Zettel in der Narrativ-Tafel
+          aufgegangen (V6 zu, EIN Planungsort) — archive/story-mode-drafts/. */}
 
       {/* Betrayal System Modals */}
       {state.activeBetrayalEvent && (

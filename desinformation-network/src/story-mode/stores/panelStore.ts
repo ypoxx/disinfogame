@@ -59,8 +59,8 @@ export const usePanelStore = create<PanelState>((set) => ({
   toggleAdvisor: () =>
     set((state) => ({ advisorCollapsed: !state.advisorCollapsed })),
 
-  // (N3, PLAN 2026-07-07: `queueCollapsed`/`toggleQueue` entfallen — das schwebende
-  //  Queue-Widget ist in der Narrativ-Tafel aufgegangen.)
+  // queueCollapsed/toggleQueue entfielen mit dem ActionQueueWidget (F-D/N3, 2026-07-07):
+  // die Queue lebt an der Tafel, der QueuePinChip kennt keinen Collapse-Zustand.
 
   resetUI: () =>
     set({

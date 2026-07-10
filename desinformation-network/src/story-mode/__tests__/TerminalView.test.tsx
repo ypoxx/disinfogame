@@ -155,10 +155,17 @@ describe('TerminalView (L2)', () => {
   });
 
   it('ohne Aktionspunkte meldet die Systemzeile PHASE BEENDEN und sperrt AUSFÜHREN', () => {
-    const { container, queryByText } = renderTerminal({ availableResources: { ...RES, actionPoints: 0 } });
+    const { container, getAllByText, queryAllByText } = renderTerminal({
+      availableResources: { ...RES, actionPoints: 0 },
+      onAddToQueue: vi.fn(),
+    });
     expect(container.textContent).toContain('KEINE AKTIONSPUNKTE');
-    // Sperrwirkung: ohne AP zeigt die Karte keinen AUSFÜHREN-Knopf (isDisabled).
-    expect(queryByText('AUSFÜHREN')).toBeNull();
+    // T1: AUSFÜHREN ist gesperrt (disabled), ANHEFTEN bleibt — Vorausplanen für
+    // morgen ist erlaubt, gezahlt wird erst beim Ausspielen (A1/Kredit-Fall).
+    for (const btn of getAllByText('AUSFÜHREN')) {
+      expect((btn as HTMLButtonElement).disabled).toBe(true);
+    }
+    expect(queryAllByText('+ ANHEFTEN').length).toBeGreaterThan(0);
   });
 
   it('ARCHIV-Filter LEGAL/ILLEGAL/NEU greifen einzeln', () => {

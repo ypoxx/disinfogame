@@ -2011,6 +2011,16 @@
       "styleVersion": "v1"
     },
     {
+      "id": "ui_cork_tile",
+      "type": "image",
+      "file": "images/ui_cork_tile.png",
+      "chosen": true,
+      "provider": "gemini-3-pro-image",
+      "prompt": "a seamless tileable texture of a warm mid-brown CORK pin board surface, ONLY the uniform cork granule speckle in slightly lighter and darker warm browns around a #7a5a36 base tone, PERFECTLY seamless when tiled (left/right and top/bottom edges continue each other exactly), low contrast, completely uniform surface — ABSOLUTELY NO dashes, NO dark marks, NO placeholder marks, NO text, NO objects, NO pins, NO pin pricks, NO paper notes, NO borders, NO corners. Muted bureaucratic file-folder palette: warm manila beige and cream paper surfaces, kraft-paper brown backing, dark anthracite ink accents, a single ministry-red accent ONLY where explicitly asked. Crisp clean high-resolution pixel art, flat frontal view, no gradients, no drop shadows, no real-world logos, no emblems, almost no text (placeholder dashes only where asked).",
+      "seed": 790740,
+      "styleVersion": "v1"
+    },
+    {
       "id": "ui_frame_alarm",
       "type": "image",
       "file": "images/ui_frame_alarm.png",

@@ -822,6 +822,14 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
       'a seamless tileable texture of dark kraft-paper cardboard backing in deep warm brown, ' +
       'extremely subtle fiber grain, PERFECTLY seamless when tiled (left/right and top/bottom ' +
       'edges continue each other exactly), very low contrast'],
+    // T2-Luxus Narrativ-Tafel: die Korkfläche als echte Textur (statt CSS-Punktraster).
+    ['ui_cork_tile', '1:1', { w: 512, h: 512 }, false,
+      'a seamless tileable texture of a warm mid-brown CORK pin board surface, ONLY the ' +
+      'uniform cork granule speckle in slightly lighter and darker warm browns around a ' +
+      '#7a5a36 base tone, PERFECTLY seamless when tiled (left/right and top/bottom edges ' +
+      'continue each other exactly), low contrast, completely uniform surface — ' +
+      'ABSOLUTELY NO dashes, NO dark marks, NO placeholder marks, NO text, NO objects, ' +
+      'NO pins, NO pin pricks, NO paper notes, NO borders, NO corners'],
     ['ui_header_band', '21:9', { w: 1344, h: 192 }, false,
       'a seamless horizontally tileable header band texture: a plain strip of dark kraft-paper ' +
       'with a stitched top edge and a thin ministry-red index line along the bottom edge, ' +

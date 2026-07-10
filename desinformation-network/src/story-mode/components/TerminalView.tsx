@@ -398,7 +398,9 @@ export function TerminalView({
                       onAddToQueue={
                         onAddToQueue
                           ? () => {
-                              playSound('typewriter');
+                              // T2-SFX: Anheften klingt nach Pinnnadel im Kork (sfx_pin,
+                              // Klang-Ernte #98), nicht nach Terminal-Tastatur.
+                              playSound('pin');
                               onAddToQueue(action.id);
                             }
                           : undefined

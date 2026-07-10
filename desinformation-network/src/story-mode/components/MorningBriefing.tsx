@@ -25,6 +25,8 @@ interface MorningBriefingProps {
   auftragTitel?: string;
   /** Spine Slice 2: Vorgriffszeile des vom Director gekürten Beats (Marina). */
   beatHook?: string;
+  /** T4: Hinweis auf einen stockenden Brett-Strang (keine Sendung geplant). */
+  spurHinweis?: string;
   /** Maschen im Sendeplan, aber die Zielgruppen-Analyse wurde diese Sitzung nie geöffnet. */
   pendingUntested?: boolean;
   onDone: () => void;
@@ -143,7 +145,7 @@ export function deriveBriefingHint(s: BriefingState): BriefingHint {
   };
 }
 
-export function MorningBriefing({ phase, risk, trustProgress, budget, attention, auftragTitel, beatHook, pendingUntested, onDone }: MorningBriefingProps) {
+export function MorningBriefing({ phase, risk, trustProgress, budget, attention, auftragTitel, beatHook, spurHinweis, pendingUntested, onDone }: MorningBriefingProps) {
   const assets = useAssets();
   // T2/#7: Tag 1 bekommt eine eigene, gerichtete Eröffnung (statt der laufenden
   // Lage-Logik): sie erklärt die Kern-Schleife und verweist auf EINE klare Anlaufstelle.
@@ -266,6 +268,26 @@ export function MorningBriefing({ phase, risk, trustProgress, budget, attention,
               <span style={{ color: StoryModeColors.textSecondary }}>{hint.pointer}</span>
             </p>
           </div>
+
+          {/* T4: stockender Strang — der Kurator erinnert an die Tafel, ohne zu
+              klicken (diegetisch, wie der Warnhinweis darüber). */}
+          {spurHinweis && (
+            <div className="mt-2 pt-2 border-t-2" style={{ borderColor: StoryModeColors.borderLight }}>
+              <span
+                className="text-xs font-bold uppercase tracking-wider"
+                style={{ color: StoryModeColors.ministryRed }}
+              >
+                Das Brett
+              </span>
+              <p
+                className="font-mono text-xs leading-relaxed mt-1"
+                style={{ color: StoryModeColors.textPrimary }}
+                data-testid="spur-hinweis"
+              >
+                {spurHinweis}
+              </p>
+            </div>
+          )}
 
           {/* Spine Slice 2: Marinas Vorgriff auf den nächsten Beat (wenn gesetzt). */}
           {beatHook && (

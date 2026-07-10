@@ -26,6 +26,8 @@ interface DayReportProps {
   counterHeadlines: string[];
   resources: { risk: number; budget: number; attention: number };
   trustProgress: number; // 0–100 (Ministerium Institutionen)
+  /** T1 (KONZEPT 2026-07-07 §4.1): Stand der Brett-Stränge — schließt den Tages-Loop. */
+  straenge?: { id: string; titel: string; done: number; total: number }[];
   /** Etappe 3 Paket D: Nacht-Transparenz — null an Tag 1 (keine Nacht vergangen). */
   nightReport?: NightReport | null;
   /** Etappe 5 (E18): projizierte Tranche der Zentrale für die kommende Nacht (sonst null). */
@@ -97,6 +99,7 @@ export function DayReport({
   counterHeadlines,
   resources,
   trustProgress,
+  straenge = [],
   nightReport,
   tranchePreview,
   pinnedCount = 0,
@@ -274,6 +277,35 @@ export function DayReport({
               </div>
             </div>
           </div>
+
+          {/* Die Stränge am Brett (T1): wie weit jede laufende Episode ist —
+              vorher war der Strang-Fortschritt nirgends im Spiel ablesbar. */}
+          {straenge.length > 0 && (
+            <div
+              className="border-2 p-4 mb-6 animate-fade-in"
+              style={{
+                // Papierfläche statt Kraftpapier — Tinten-Text bleibt (§4.7 Regel 3).
+                backgroundColor: StoryModeColors.surface,
+                borderColor: StoryModeColors.border,
+                opacity: 0,
+                animationDelay: '0.4s',
+                animationFillMode: 'forwards',
+              }}
+              data-testid="straenge-row"
+            >
+              <div className="text-xs uppercase tracking-wider mb-1" style={{ color: StoryModeColors.textSecondary }}>
+                Die Stränge am Brett
+              </div>
+              {straenge.map((s) => (
+                <p key={s.id} className="font-mono text-sm" style={{ color: StoryModeColors.textPrimary }}>
+                  {s.titel}: {s.done}/{s.total}
+                  {s.done >= s.total
+                    ? ' — ausgespielt ✓'
+                    : ` — noch ${s.total - s.done} ${s.total - s.done === 1 ? 'Sendung' : 'Sendungen'}`}
+                </p>
+              ))}
+            </div>
+          )}
 
           {/* Nacht-Transparenz (Etappe 3 Paket D): das Rennen wird jeden Abend fühlbar —
               wer den zweiten Läufer nicht bremst, sieht hier, warum Nichtstun verliert.

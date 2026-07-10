@@ -4116,13 +4116,32 @@ export class StoryEngineAdapter {
     if (getEpisode(episodeId)) this.episodesOffered.add(episodeId);
   }
 
-  /** Heftet eine Episode als aktiven Strang ans Korkbrett (Spur). */
+  /**
+   * Heftet eine Episode als aktiven Strang ans Korkbrett (Spur).
+   * T3: Das Brett hat endlich Kapazität (B6: ≤3 Narrative) — ist es voll,
+   * schlägt die Annahme fehl; der Tausch läuft über `abandonEpisode` (Dialog).
+   */
   activateEpisode(episodeId: string): boolean {
     const ep = getEpisode(episodeId);
     if (!ep || this.episodesActive.has(episodeId) || this.episodesCompleted.has(episodeId)) return false;
+    if (this.episodesActive.size >= this.getNarrativeSlots()) return false;
     this.episodesOffered.add(episodeId);
     this.episodesActive.add(episodeId);
     storyLogger.log(`[Episode] aktiviert: ${ep.titel_de}`);
+    return true;
+  }
+
+  /**
+   * T3: Strang abhängen — der Strang verfällt OHNE `wirkt_auf`-Auszahlung.
+   * Bewusst NICHT nach `episodesCompleted`: solange der Auslöser gilt, kehrt die
+   * Episode in den Angebots-Pool zurück (R1-Gegenmittel — nichts geht verloren);
+   * bereits gespielte Einklink-Aktionen bleiben in `completedActions` angerechnet.
+   */
+  abandonEpisode(episodeId: string): boolean {
+    if (!this.episodesActive.has(episodeId)) return false;
+    this.episodesActive.delete(episodeId);
+    const ep = getEpisode(episodeId);
+    storyLogger.log(`[Episode] abgehängt: ${ep?.titel_de ?? episodeId}`);
     return true;
   }
 
@@ -4362,6 +4381,33 @@ export class StoryEngineAdapter {
   getElectionInfo(): { day: number; electionDay: number; daysRemaining: number } {
     const day = this.storyPhase.number;
     return { day, electionDay: this.electionDay, daysRemaining: Math.max(0, this.electionDay - day) };
+  }
+
+  /**
+   * T4: Die Akt-Dramaturgie der Kampagne (Zielbild §8) als lesbarer Zustand —
+   * abgeleitet aus der Kampagnen-Uhr (Drittel), kein eigener Speicherzustand.
+   */
+  getAkt(): { nummer: 1 | 2 | 3; titel_de: string } {
+    const { day, electionDay } = this.getElectionInfo();
+    const drittel = electionDay / 3;
+    if (day <= Math.round(drittel)) return { nummer: 1, titel_de: 'Den Keil treiben' };
+    if (day <= Math.round(drittel * 2)) return { nummer: 2, titel_de: 'Den Zweifel säen' };
+    return { nummer: 3, titel_de: 'Die Wahl kippen' };
+  }
+
+  /**
+   * T3 (KONZEPT 2026-07-07 §3.2, Owner F-B): Spuren des Korkbretts — Start 2,
+   * die dritte genehmigt die Zentrale mit Akt 3 (Endspurt). B6: ≤3 Narrative.
+   */
+  getNarrativeSlots(): number {
+    return this.getAkt().nummer >= 3 ? 3 : 2;
+  }
+
+  /** T4: Tage bis zur nächsten Sonntagsfrage (0 = sie erscheint heute Abend). */
+  getNaechsteSonntagsfrageIn(): number {
+    const day = this.storyPhase.number;
+    const rest = day % this.POLL_EVERY_PHASES;
+    return rest === 0 ? 0 : this.POLL_EVERY_PHASES - rest;
   }
 
   /**
@@ -6963,6 +7009,14 @@ export class StoryEngineAdapter {
     this.episodesOffered = new Set(state.episodesOffered ?? []);
     this.episodesActive = new Set(state.episodesActive ?? []);
     this.episodesCompleted = new Set(state.episodesCompleted ?? []);
+    // T3-Save-Guard: Altstände (vor dem Brett-Cap) können mehr aktive Stränge
+    // tragen als das Brett Spuren hat — die ältesten bleiben, der Rest kehrt in
+    // den Angebots-Pool zurück (Auslöser entscheiden über die Wiederkehr).
+    // storyPhase/electionDay sind hier bereits geladen → getNarrativeSlots stimmt.
+    const brettSlots = this.getNarrativeSlots();
+    if (this.episodesActive.size > brettSlots) {
+      this.episodesActive = new Set(Array.from(this.episodesActive).slice(0, brettSlots));
+    }
     this.resolvedDecisionBeats = new Set(state.resolvedDecisionBeats ?? []);
     this.narrativeMemory = state.narrativeMemory ?? {};
     // Auftrag (Default „wahl" für alte Saves ohne Feld — Etappe 1: EIN Auftrag „Die Wahl").

@@ -328,6 +328,9 @@ export interface StoryGameState {
 
   // P4/B1: aktive Episoden-Stränge (Korkbrett-Spuren)
   activeEpisodes: Episode[];
+  // T1: heute/kürzlich ausgespielte Stränge — completeEpisode entfernt sie sofort
+  // aus activeEpisodes; ohne dieses Log fehlte dem Tagesfazit der Payoff-Moment.
+  episodeAbschluesse: { id: string; titel_de: string; phase: number; total: number }[];
 
   // Trust Evolution Tracking
   trustHistory: TrustHistoryPoint[];
@@ -437,6 +440,10 @@ export function useStoryGameState(seed?: string) {
 
   // P4/B1: aktive Episoden-Stränge (Korkbrett-Spuren). Reaktiv, damit das Brett mitzieht.
   const [activeEpisodes, setActiveEpisodes] = useState<Episode[]>(() => engine.getActiveEpisodes());
+  // T1: Abschluss-Log (ephemer, nicht im Save — nur fürs Tagesfazit des laufenden Tages).
+  const [episodeAbschluesse, setEpisodeAbschluesse] = useState<
+    { id: string; titel_de: string; phase: number; total: number }[]
+  >([]);
 
   // Trust Evolution Tracking
   const [trustHistory, setTrustHistory] = useState<TrustHistoryPoint[]>(() => {
@@ -692,11 +699,31 @@ export function useStoryGameState(seed?: string) {
 
     // P4/B1: „Episode aufnehmen" — der NPC bietet eine Geschichte an, der Spieler nimmt
     // sie als aktiven Strang aufs Korkbrett; die Einklink-Aktionen landen auf dem Sendeplan.
+    // T3 (KONZEPT §3.2): Das Brett hat Kapazität — voll heißt entscheiden, nicht stapeln.
     if (choiceId.startsWith('episode_') && activeNpcId) {
       const episodeId = choiceId.slice('episode_'.length);
       const ep = getEpisode(episodeId);
       const npc = engine.getNPCState(activeNpcId);
-      if (ep && engine.activateEpisode(episodeId)) {
+      if (!ep) return;
+      const aktive = engine.getActiveEpisodes();
+      if (aktive.length >= engine.getNarrativeSlots()) {
+        // Fokus ist eine Ressource: annehmen = einen laufenden Strang abhängen.
+        setCurrentDialog({
+          speaker: npc?.name || activeNpcId,
+          speakerTitle: npc?.role_de,
+          text: `Das Brett ist voll — ${aktive.length} Stränge laufen. Für „${ep.titel_de}" müssten wir einen abhängen. Er verfällt dann ohne Wirkung, bleibt aber im Angebot, solange die Lage passt.`,
+          mood: 'neutral',
+          choices: [
+            ...aktive.map((alt) => ({
+              id: `tausche_${alt.id}||${episodeId}`,
+              text: `„${alt.titel_de}" abhängen`,
+            })),
+            { id: 'back_to_npc', text: 'Ablehnen — alles bleibt, wie es ist' },
+          ],
+        });
+        return;
+      }
+      if (engine.activateEpisode(episodeId)) {
         playSound('click');
         setActiveEpisodes(engine.getActiveEpisodes());
         // Einklink-Aktionen, die verfügbar sind, auf den Sendeplan heften.
@@ -710,6 +737,36 @@ export function useStoryGameState(seed?: string) {
           speaker: npc?.name || activeNpcId,
           speakerTitle: npc?.role_de,
           text: `${ep.lage_de}\n\n— ${ep.wendung_de}\n\n(„${ep.titel_de}" liegt jetzt als Strang auf dem Korkbrett.${pinned.length > 0 ? ' Die passenden Maßnahmen sind auf dem Sendeplan.' : ''})`,
+          mood: 'neutral',
+          choices: [
+            { id: 'back_to_npc', text: 'Weiter besprechen' },
+            { id: 'dismiss', text: 'An die Arbeit' },
+          ],
+        });
+      }
+      return;
+    }
+
+    // T3: Strang-Tausch — der alte hängt ab (verfällt ohne Auszahlung; seine Karten
+    // rutschen ans Tagesgeschäft), der neue kommt aufs Brett samt Einklink-Karten.
+    if (choiceId.startsWith('tausche_') && activeNpcId) {
+      const [altId, neuId] = choiceId.slice('tausche_'.length).split('||');
+      const ep = getEpisode(neuId);
+      const alt = getEpisode(altId);
+      const npc = engine.getNPCState(activeNpcId);
+      if (ep && engine.abandonEpisode(altId) && engine.activateEpisode(neuId)) {
+        playSound('paper');
+        setActiveEpisodes(engine.getActiveEpisodes());
+        const pinned = ep.einklink_aktionen
+          .map(id => availableActions.find(a => a.id === id))
+          .filter((a): a is StoryAction => !!a);
+        if (pinned.length > 0) {
+          setActionQueue(prev => [...prev, ...pinned.map(a => buildQueuedAction(a))]);
+        }
+        setCurrentDialog({
+          speaker: npc?.name || activeNpcId,
+          speakerTitle: npc?.role_de,
+          text: `„${alt?.titel_de ?? altId}" ist abgehängt.\n\n${ep.lage_de}\n\n— ${ep.wendung_de}\n\n(„${ep.titel_de}" liegt jetzt als Strang auf dem Korkbrett.${pinned.length > 0 ? ' Die passenden Maßnahmen sind auf dem Sendeplan.' : ''})`,
           mood: 'neutral',
           choices: [
             { id: 'back_to_npc', text: 'Weiter besprechen' },
@@ -1195,6 +1252,9 @@ export function useStoryGameState(seed?: string) {
   // gespielt sind, löst sich der Strang auf: `completeEpisode` wendet `wirkt_auf` auf die
   // Gesellschaftswerte an und merkt den Lernmoment für den End-Report vor. (Zuvor wurde
   // completeEpisode NUR in Tests aufgerufen — der Strang füllte sich optisch, zahlte aber nie aus.)
+  // Codex-Review #106: `activeEpisodes` gehört in die Deps — ein per Tausch WIEDER
+  // aufgenommener Strang, dessen Aktionen längst gespielt sind, muss sofort auszahlen
+  // (completedActions ändert sich in dem Moment nicht).
   // Effekt statt Inline-Check, weil `completedActions` nicht in den executeAction-Deps steht
   // (sonst Stale-Closure). completeEpisode ist idempotent → StrictMode-Doppellauf unkritisch.
   useEffect(() => {
@@ -1214,6 +1274,16 @@ export function useStoryGameState(seed?: string) {
     setActiveEpisodes(engine.getActiveEpisodes());
     setResources(engine.getResources()); // wirkt_auf hat die Gesellschaftswerte bewegt
     const phaseNo = engine.getCurrentPhase().number;
+    // T1: fürs Tagesfazit merken — der Strang ist ab jetzt nicht mehr in activeEpisodes.
+    setEpisodeAbschluesse((prev) => [
+      ...prev,
+      ...justCompleted.map((ep) => ({
+        id: ep.id,
+        titel_de: ep.titel_de,
+        phase: phaseNo,
+        total: ep.einklink_aktionen.length,
+      })),
+    ]);
     // Abschluss-Beat als News (nicht-intrusiv — kein Hijack einer laufenden Dialog-Box):
     setNewsEvents((prev) => [
       ...justCompleted.map((ep) => ({
@@ -1230,7 +1300,7 @@ export function useStoryGameState(seed?: string) {
       })),
       ...prev,
     ]);
-  }, [completedActions, engine]);
+  }, [completedActions, activeEpisodes, engine]);
 
   // ============================================
   // P2 OPERATIONS-AKTE (params-Durchstich)
@@ -1644,6 +1714,7 @@ export function useStoryGameState(seed?: string) {
       setObjectives(engine.getObjectives());
       setActiveConsequence(engine.getActiveConsequence());
       setActiveEpisodes(engine.getActiveEpisodes());
+      setEpisodeAbschluesse([]); // ephemer — gehört nicht zum geladenen Stand
       refreshAvailableActions();
       setGamePhase('playing');
 
@@ -1709,6 +1780,7 @@ export function useStoryGameState(seed?: string) {
     setCurrentDialog(null);
     setActiveNpcId(null);
     setActiveEpisodes(newEngine.getActiveEpisodes());
+    setEpisodeAbschluesse([]);
 
     // Reset trust tracking
     const actors = newEngine.getExtendedActors();
@@ -1766,6 +1838,7 @@ export function useStoryGameState(seed?: string) {
       carrierStates,
       acquiredKompromat,
       activeEpisodes,
+      episodeAbschluesse,
       getOperationsSummary: () => engine.getOperationsSummary(),
       getActionCatalog: () => engine.getActionCatalog(),
     } as StoryGameState,
