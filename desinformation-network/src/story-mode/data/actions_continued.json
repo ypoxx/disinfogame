@@ -29,7 +29,11 @@
         "trust_erosion": 0.27,
         "effectiveness_boost": 0.27,
         "backlash_risk": 0.13,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.35
       }
     },
     {
@@ -56,7 +60,11 @@
         "content_quality": 0.16,
         "virality_boost": 0.29,
         "deniability": 0.45,
-        "impact_scale": "low"
+        "impact_scale": "low",
+        "organic_reach": 0.1,
+        "political_influence": 0.125,
+        "divisiveness_bonus": 0.1083,
+        "emotional_impact": 0.1125
       }
     },
     {
@@ -81,9 +89,12 @@
       ],
       "effects": {
         "content_quality": 0.25,
-        "emotional_impact": 0.31,
+        "emotional_impact": 0.6475,
         "deniability": 0.32,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325
       }
     },
     {
@@ -113,7 +124,11 @@
         "content_quality": 0.22,
         "detection_difficulty": 0.46,
         "deniability": 0.48,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
       }
     },
     {
@@ -146,7 +161,11 @@
         "detection_difficulty": 0.36,
         "effectiveness_boost": 0.28,
         "backlash_risk": 0.2,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -179,7 +198,11 @@
         "detection_difficulty": 0.46,
         "effectiveness_boost": 0.22,
         "backlash_risk": 0.25,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -211,7 +234,11 @@
         "credibility_theft": 0.32,
         "effectiveness_boost": 0.24,
         "backlash_risk": 0.22,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -239,7 +266,11 @@
         "content_quality": 0.19,
         "effectiveness_boost": 0.29,
         "backlash_risk": 0.22,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -266,7 +297,11 @@
         "content_quality": 0.19,
         "polarization": 0.26,
         "deniability": 0.36,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -296,7 +331,11 @@
         "content_quality": 0.21,
         "social_division": 0.16,
         "deniability": 0.47,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
       }
     },
     {
@@ -322,7 +361,11 @@
       "effects": {
         "content_quality": 0.17,
         "deniability": 0.39,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
       }
     },
     {
@@ -349,7 +392,11 @@
       "effects": {
         "content_quality": 0.17,
         "deniability": 0.49,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -376,7 +423,11 @@
         "content_quality": 0.25,
         "social_division": 0.17,
         "deniability": 0.46,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
       }
     },
     {
@@ -392,9 +443,7 @@
         "capacity": 3,
         "risk": 5
       },
-      "prerequisites": [
-        "2.15"
-      ],
+      "prerequisites": [],
       "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": [
@@ -405,7 +454,8 @@
       "effects": {
         "content_quality": 0.15,
         "sustainability": 0.55,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3
       }
     },
     {
@@ -435,7 +485,11 @@
         "content_quality": 0.19,
         "effectiveness_boost": 0.18,
         "backlash_risk": 0.13,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -461,7 +515,11 @@
       "effects": {
         "content_quality": 0.2,
         "deniability": 0.46,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -490,7 +548,8 @@
       "effects": {
         "content_quality": 0.23,
         "sustainability": 0.45,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2
       }
     },
     {
@@ -518,7 +577,11 @@
         "content_quality": 0.15,
         "effectiveness_boost": 0.24,
         "backlash_risk": 0.26,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -554,7 +617,11 @@
         "deniability": 0.6,
         "long_term_influence": 0.55,
         "ai_contamination": 0.4,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     }
   ],
@@ -581,7 +648,8 @@
       ],
       "effects": {
         "sustainability": 0.49,
-        "impact_scale": "low"
+        "impact_scale": "low",
+        "organic_reach": 0.1
       }
     },
     {
@@ -610,7 +678,11 @@
       "effects": {
         "network_reach": 0.28,
         "deniability": 0.42,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
       }
     },
     {
@@ -635,7 +707,8 @@
       ],
       "effects": {
         "sustainability": 0.54,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2
       }
     },
     {
@@ -661,7 +734,8 @@
       "effects": {
         "platform_presence": true,
         "sustainability": 0.56,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2
       }
     },
     {
@@ -686,7 +760,8 @@
       ],
       "effects": {
         "sustainability": 0.53,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2
       }
     },
     {
@@ -714,7 +789,11 @@
       ],
       "effects": {
         "deniability": 0.38,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -740,7 +819,11 @@
       "effects": {
         "influence_gain": 0.25,
         "deniability": 0.42,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -765,7 +848,8 @@
       ],
       "effects": {
         "sustainability": 0.49,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2
       }
     },
     {
@@ -793,7 +877,11 @@
       ],
       "effects": {
         "deniability": 0.46,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
       }
     },
     {
@@ -818,7 +906,11 @@
       ],
       "effects": {
         "deniability": 0.41,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -846,7 +938,11 @@
       ],
       "effects": {
         "deniability": 0.48,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -862,9 +958,7 @@
         "capacity": 2,
         "risk": 6
       },
-      "prerequisites": [
-        "2.15"
-      ],
+      "prerequisites": [],
       "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
@@ -875,7 +969,11 @@
       ],
       "effects": {
         "deniability": 0.3,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -904,7 +1002,8 @@
       ],
       "effects": {
         "sustainability": 0.55,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3
       }
     },
     {
@@ -920,9 +1019,7 @@
         "capacity": 2,
         "risk": 6
       },
-      "prerequisites": [
-        "2.9"
-      ],
+      "prerequisites": [],
       "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": [
@@ -933,7 +1030,8 @@
       ],
       "effects": {
         "sustainability": 0.51,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3
       }
     },
     {
@@ -962,7 +1060,8 @@
       ],
       "effects": {
         "sustainability": 0.54,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3
       }
     }
   ],
@@ -995,7 +1094,11 @@
         "automation_level": 0.49,
         "effectiveness_boost": 0.16,
         "backlash_risk": 0.25,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -1021,7 +1124,11 @@
       "effects": {
         "reach_multiplier": 1.52,
         "deniability": 0.35,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
       }
     },
     {
@@ -1053,7 +1160,11 @@
         "target_damage": 0.39,
         "effectiveness_boost": 0.23,
         "backlash_risk": 0.29,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -1081,7 +1192,11 @@
       "effects": {
         "reach_multiplier": 1.44,
         "deniability": 0.4,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1111,7 +1226,11 @@
       "effects": {
         "reach_multiplier": 1.57,
         "deniability": 0.41,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1137,7 +1256,11 @@
       "effects": {
         "reach_multiplier": 1.66,
         "deniability": 0.49,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1162,7 +1285,11 @@
       "effects": {
         "reach_multiplier": 1.24,
         "deniability": 0.49,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
       }
     },
     {
@@ -1191,7 +1318,11 @@
       "effects": {
         "reach_multiplier": 1.21,
         "deniability": 0.32,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1220,7 +1351,11 @@
       "effects": {
         "reach_multiplier": 1.28,
         "deniability": 0.36,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
       }
     },
     {
@@ -1246,7 +1381,11 @@
       "effects": {
         "reach_multiplier": 1.67,
         "deniability": 0.5,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1275,7 +1414,11 @@
       "effects": {
         "reach_multiplier": 1.28,
         "deniability": 0.46,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1301,7 +1444,8 @@
       "effects": {
         "reach_multiplier": 1.2,
         "sustainability": 0.55,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3
       }
     }
   ],
@@ -1331,7 +1475,11 @@
       "effects": {
         "effectiveness_boost": 0.17,
         "backlash_risk": 0.18,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -1356,7 +1504,11 @@
       "effects": {
         "social_division": 0.28,
         "deniability": 0.34,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1371,10 +1523,7 @@
         "capacity": 2,
         "risk": 6
       },
-      "prerequisites": [
-        "2.9",
-        "2.18"
-      ],
+      "prerequisites": ["2.18"],
       "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": [
@@ -1385,7 +1534,8 @@
       "effects": {
         "political_leverage": 0.22,
         "sustainability": 0.51,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3
       }
     },
     {
@@ -1400,9 +1550,7 @@
         "capacity": 3,
         "risk": 10
       },
-      "prerequisites": [
-        "6.3"
-      ],
+      "prerequisites": [],
       "npc_affinity": ["direktor"],
       "legality": "grey",
       "tags": [
@@ -1412,7 +1560,11 @@
       ],
       "effects": {
         "deniability": 0.41,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1436,7 +1588,11 @@
       ],
       "effects": {
         "deniability": 0.36,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1461,7 +1617,11 @@
       "effects": {
         "political_leverage": 0.17,
         "deniability": 0.49,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1491,7 +1651,11 @@
       "effects": {
         "effectiveness_boost": 0.17,
         "backlash_risk": 0.26,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -1515,7 +1679,11 @@
       ],
       "effects": {
         "deniability": 0.36,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1542,7 +1710,11 @@
       ],
       "effects": {
         "deniability": 0.35,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1557,9 +1729,7 @@
         "capacity": 3,
         "risk": 5
       },
-      "prerequisites": [
-        "2.14"
-      ],
+      "prerequisites": [],
       "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": [
@@ -1569,7 +1739,8 @@
       ],
       "effects": {
         "sustainability": 0.49,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3
       }
     }
   ],
@@ -1595,7 +1766,8 @@
       ],
       "effects": {
         "sustainability": 0.5,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2
       }
     },
     {
@@ -1620,7 +1792,11 @@
       "effects": {
         "social_division": 0.21,
         "deniability": 0.34,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
       }
     },
     {
@@ -1645,7 +1821,11 @@
       "effects": {
         "influence_gain": 0.25,
         "deniability": 0.36,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1669,7 +1849,11 @@
       ],
       "effects": {
         "deniability": 0.49,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1693,7 +1877,11 @@
       ],
       "effects": {
         "deniability": 0.3,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1722,7 +1910,11 @@
       "effects": {
         "social_division": 0.21,
         "deniability": 0.36,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1746,7 +1938,11 @@
       ],
       "effects": {
         "deniability": 0.44,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1771,7 +1967,8 @@
       ],
       "effects": {
         "sustainability": 0.58,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3
       }
     }
   ],
@@ -1801,7 +1998,11 @@
         "target_damage": 0.23,
         "effectiveness_boost": 0.29,
         "backlash_risk": 0.11,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -1828,7 +2029,11 @@
         "targeting_precision": 0.33,
         "target_damage": 0.29,
         "deniability": 0.32,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1843,9 +2048,7 @@
         "capacity": 2,
         "risk": 8
       },
-      "prerequisites": [
-        "1.8"
-      ],
+      "prerequisites": [],
       "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": [
@@ -1856,7 +2059,11 @@
       "effects": {
         "targeting_precision": 0.38,
         "deniability": 0.42,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1881,7 +2088,11 @@
       "effects": {
         "targeting_precision": 0.38,
         "deniability": 0.3,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -1908,7 +2119,11 @@
         "targeting_precision": 0.34,
         "effectiveness_boost": 0.21,
         "backlash_risk": 0.25,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -1935,7 +2150,11 @@
         "targeting_precision": 0.34,
         "effectiveness_boost": 0.24,
         "backlash_risk": 0.2,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -1966,7 +2185,11 @@
         "targeting_precision": 0.3,
         "effectiveness_boost": 0.23,
         "backlash_risk": 0.15,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -1995,7 +2218,11 @@
       "effects": {
         "targeting_precision": 0.33,
         "deniability": 0.49,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -2022,7 +2249,11 @@
         "targeting_precision": 0.21,
         "effectiveness_boost": 0.22,
         "backlash_risk": 0.18,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -2037,9 +2268,7 @@
         "capacity": 2,
         "risk": 5
       },
-      "prerequisites": [
-        "2.20"
-      ],
+      "prerequisites": [],
       "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": [
@@ -2051,7 +2280,11 @@
         "targeting_precision": 0.26,
         "asset_acquisition": true,
         "deniability": 0.47,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -2080,7 +2313,11 @@
         "targeting_precision": 0.26,
         "effectiveness_boost": 0.2,
         "backlash_risk": 0.23,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -2105,7 +2342,11 @@
       "effects": {
         "targeting_precision": 0.2,
         "deniability": 0.34,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -2131,7 +2372,11 @@
         "targeting_precision": 0.23,
         "effectiveness_boost": 0.19,
         "backlash_risk": 0.16,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     },
     {
@@ -2159,7 +2404,11 @@
       "effects": {
         "targeting_precision": 0.28,
         "deniability": 0.4,
-        "impact_scale": "medium"
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
       }
     },
     {
@@ -2187,7 +2436,11 @@
       "effects": {
         "targeting_precision": 0.33,
         "deniability": 0.45,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
       }
     },
     {
@@ -2205,9 +2458,7 @@
         "risk": 18,
         "moral_weight": 8
       },
-      "prerequisites": [
-        "2.20"
-      ],
+      "prerequisites": [],
       "npc_affinity": ["katja"],
       "legality": "illegal",
       "tags": [
@@ -2221,7 +2472,11 @@
         "social_division": 0.35,
         "deniability": 0.55,
         "backlash_risk": 0.4,
-        "impact_scale": "high"
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
       }
     }
   ]

@@ -19,7 +19,14 @@
       "npc_affinity": ["alexei"],
       "legality": "grey",
       "tags": ["flooding", "amplification", "scale", "confusion", "destabilization"],
-      "effects": { "flooding": 0.2, "impact_scale": "medium" }
+      "effects": {
+        "flooding": 0.2,
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
+      }
     },
     {
       "id": "11.2",
@@ -35,7 +42,15 @@
       "npc_affinity": ["alexei"],
       "legality": "illegal",
       "tags": ["flooding", "bots", "automation", "amplification", "coordinated"],
-      "effects": { "flooding": 0.4, "reach_multiplier": 1.4, "impact_scale": "high" }
+      "effects": {
+        "flooding": 0.4,
+        "reach_multiplier": 1.4,
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
+      }
     },
     {
       "id": "11.3",
@@ -51,7 +66,14 @@
       "npc_affinity": ["alexei", "marina"],
       "legality": "grey",
       "tags": ["flooding", "fact_checkers", "disruption", "trust"],
-      "effects": { "flooding": 0.3, "impact_scale": "high" }
+      "effects": {
+        "flooding": 0.3,
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
+      }
     },
 
     {
@@ -68,7 +90,14 @@
       "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": ["rumor", "confusion", "narrative", "conspiracy"],
-      "effects": { "rumor_mutation": 0.25, "impact_scale": "medium" }
+      "effects": {
+        "rumor_mutation": 0.25,
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
+      }
     },
     {
       "id": "11.5",
@@ -84,7 +113,14 @@
       "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": ["rumor", "confusion", "narrative", "destabilization"],
-      "effects": { "rumor_mutation": 0.4, "impact_scale": "high" }
+      "effects": {
+        "rumor_mutation": 0.4,
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
+      }
     },
     {
       "id": "11.6",
@@ -100,7 +136,14 @@
       "npc_affinity": ["katja", "marina"],
       "legality": "grey",
       "tags": ["rumor", "narrative", "confusion", "conspiracy"],
-      "effects": { "rumor_mutation": 0.3, "impact_scale": "medium" }
+      "effects": {
+        "rumor_mutation": 0.3,
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
+      }
     },
 
     {
@@ -117,7 +160,14 @@
       "npc_affinity": ["marina"],
       "legality": "grey",
       "tags": ["demoralization", "fear", "emotional", "destabilization"],
-      "effects": { "demoralization": 0.3, "impact_scale": "medium" }
+      "effects": {
+        "demoralization": 0.3,
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
+      }
     },
     {
       "id": "11.8",
@@ -133,7 +183,14 @@
       "npc_affinity": ["marina", "katja"],
       "legality": "grey",
       "tags": ["demoralization", "emotional", "fear", "narrative"],
-      "effects": { "demoralization": 0.4, "emotional_impact": 0.3, "impact_scale": "high" }
+      "effects": {
+        "demoralization": 0.4,
+        "emotional_impact": 0.6375,
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325
+      }
     },
     {
       "id": "11.9",
@@ -149,7 +206,14 @@
       "npc_affinity": ["marina"],
       "legality": "illegal",
       "tags": ["demoralization", "destabilization", "election"],
-      "effects": { "demoralization": 0.35, "impact_scale": "high" }
+      "effects": {
+        "demoralization": 0.35,
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
+      }
     },
 
     {
@@ -166,7 +230,14 @@
       "npc_affinity": ["direktor"],
       "legality": "grey",
       "tags": ["crisis", "confusion", "destabilization", "narrative"],
-      "effects": { "crisis_window": 0.4, "impact_scale": "high" }
+      "effects": {
+        "crisis_window": 0.4,
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
+      }
     },
     {
       "id": "11.11",
@@ -182,7 +253,14 @@
       "npc_affinity": ["direktor", "marina"],
       "legality": "grey",
       "tags": ["crisis", "confusion", "media", "narrative"],
-      "effects": { "crisis_window": 0.3, "impact_scale": "medium" }
+      "effects": {
+        "crisis_window": 0.3,
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
+      }
     },
     {
       "id": "11.12",
@@ -198,7 +276,14 @@
       "npc_affinity": ["direktor"],
       "legality": "illegal",
       "tags": ["crisis", "destabilization", "fear", "conspiracy"],
-      "effects": { "crisis_window": 0.5, "impact_scale": "high" }
+      "effects": {
+        "crisis_window": 0.5,
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
+      }
     },
 
     {
@@ -215,7 +300,15 @@
       "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": ["identity", "polarization", "loyalty", "narrative"],
-      "effects": { "loyalty_trap": 0.3, "social_division": 0.2, "impact_scale": "medium" }
+      "effects": {
+        "loyalty_trap": 0.3,
+        "social_division": 0.2,
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
+      }
     },
     {
       "id": "11.14",
@@ -231,7 +324,15 @@
       "npc_affinity": ["katja", "marina"],
       "legality": "grey",
       "tags": ["identity", "polarization", "nationalism", "emotional"],
-      "effects": { "loyalty_trap": 0.4, "social_division": 0.3, "impact_scale": "high" }
+      "effects": {
+        "loyalty_trap": 0.4,
+        "social_division": 0.3,
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
+      }
     },
     {
       "id": "11.15",
@@ -247,7 +348,14 @@
       "npc_affinity": ["katja"],
       "legality": "illegal",
       "tags": ["identity", "loyalty", "harassment", "polarization"],
-      "effects": { "loyalty_trap": 0.45, "impact_scale": "high" }
+      "effects": {
+        "loyalty_trap": 0.45,
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
+      }
     },
 
     {
@@ -264,7 +372,15 @@
       "npc_affinity": ["direktor", "marina"],
       "legality": "grey",
       "tags": ["memory", "history", "identity", "narrative", "conspiracy"],
-      "effects": { "memory_conflict": 0.3, "social_division": 0.2, "impact_scale": "medium" }
+      "effects": {
+        "memory_conflict": 0.3,
+        "social_division": 0.2,
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
+      }
     },
     {
       "id": "11.17",
@@ -280,7 +396,14 @@
       "npc_affinity": ["direktor"],
       "legality": "grey",
       "tags": ["memory", "history", "narrative", "conspiracy", "identity"],
-      "effects": { "memory_conflict": 0.4, "impact_scale": "high" }
+      "effects": {
+        "memory_conflict": 0.4,
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
+      }
     },
     {
       "id": "11.18",
@@ -296,7 +419,15 @@
       "npc_affinity": ["direktor", "marina"],
       "legality": "illegal",
       "tags": ["memory", "history", "polarization", "identity", "destabilization"],
-      "effects": { "memory_conflict": 0.5, "social_division": 0.3, "impact_scale": "high" }
+      "effects": {
+        "memory_conflict": 0.5,
+        "social_division": 0.3,
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
+      }
     }
   ]
 }

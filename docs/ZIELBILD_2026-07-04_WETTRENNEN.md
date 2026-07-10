@@ -384,8 +384,8 @@ Verstärker, Kompromat). Pleite ist kein eigener Game-Over, sondern die Würgesc
   - **Carry-forward Etappe 5:** greedy Richtung Korridor-Mitte + „jeder Verlustweg ≥ 15 %"
     (Aktions-Kuratierung); Wohnzimmer-Alphabet als echtes Asset-Paket (Budget-Ansage);
     optional Sim-Referenz „rotierend".
-- **Etappe 5 — „Fertig" (der Versionssprung): 🟡 TEILWEISE (2026-07-05).** Geliefert (Gate grün,
-  `tsc 0`·`vitest 575`·`build`, beide Sim-Gates tragfähig): **Kurator-Rename** (Volkov = Verbindung
+- **Etappe 5 — „Fertig" (der Versionssprung): ✅ ERLEDIGT (2026-07-05, inkl. Follow-up).** Geliefert (Gate grün,
+  `tsc 0`·`vitest 579`·`build`, beide Sim-Gates 8× flakefrei): **Kurator-Rename** (Volkov = Verbindung
   zur Zentrale, §10) · **Geld-Tranchen** (`engine/Finanzen.ts`, E18: die Zentrale zahlt nach
   Fortschritt, Pleite = Würgeschlinge; Save 2.3.0) · **Enden-Beschnitt** (EIN Sieg-, DREI
   Verlustwege; broke/moral/escape als Game-Over raus, `GameEndState.type`=victory|defeat+branch) ·
@@ -395,15 +395,20 @@ Verstärker, Kompromat). Pleite ist kein eigener Game-Over, sondern die Würgesc
   AuftragSelect (EINE Akte „Die Wahl", §8) · **Endreport-Ausbau** (Läufer-Kurven „Das Rennen"; Jahres-
   Achse-Degeneration behoben) · **Aktions-Invariante** als dauerhaftes Gate (jede Aktion bewegt einen
   Läufer).
-  - ⚠️ **DEFERRED (Balance-Follow-up, `HANDOFF_2026-07-05B_ETAPPE5_FOLLOWUP.md`):** Die Aktions-
-    **Reduktion 143→60–80**, die **impact_scale-Abschaffung** und **WIN_THRESHOLD→1.0** sind
-    GEKOPPELT — empirisch belegt (dieselbe Session): impact_scale-Aktionen entfernen bricht greedy
-    (58 %→12 %, sie treiben verdeckt den Fortschritt); Legal/Low-Risk entfernen macht Passivität zu
-    stark (4 %→75 %). Die Kuratierung braucht daher zuerst explizite Läufer-Effekte je Aktion, dann
-    die Reduktion + Neukalibrierung. Die Invariante ist die Leitplanke dafür.
-  - **Ebenfalls offen:** Tag-0-Hoax-Update (O7 — **beschlossen** hier in §10/§15, bestätigt 2026-07-05:
-    als Zwei-Balken-Tutorial bauen; die alte „NICHT beschlossen"-Kopfzeile der Idee-Datei war überholt) ·
-    TV-/Wohnzimmer-Alphabet-Assets (pixel-asset-pipeline, Budget-Ansage).
+  - ✅ **Follow-up ERLEDIGT (Balance-Session 2026-07-05):** Die drei GEKOPPELTEN Teile sind zusammen
+    kalibriert. **(1) impact_scale abgeschafft:** die verdeckte Baseline ist weg, ihr exakter Beitrag
+    per Bake in explizite, leck-freie Effekt-Keys je Aktion geschrieben (113 Aktionen, semantisch exakt
+    verifiziert; die Sieg-Mathematik bleibt unberührt). **(2) Reduktion 143→79:** `ARCHIVED_ACTION_IDS`
+    (64 referenz-sichere IDs aus dem Draw, Daten erhalten). **(3) WIN_THRESHOLD→1.0:** Sieg = jede Achse
+    GANZ erreicht (Zielmarken balance-neutral re-skaliert); „Passivität verliert" ohne Clutter über die
+    schärfere Zeit-Abwehr (`BASELINE_PER_DAY` 0.22→0.38). Balance 8× flakefrei: greedy 9–11/24 (Korridor),
+    random 23–24, low_risk 2–8 (§3d); **beide Haupt-Verlustwege lebendig** (Immun 19–28 UND Enttarnung
+    7–12 — der Etappe-3/4-Carry-forward ist erledigt; Timeout bleibt im Headless-Sim struktur. selten).
+  - ✅ **Tag-0-Hoax-Zwei-Balken-Tutorial gebaut (O7, §10/§15):** `Tag0HoaxTutorial.tsx` (Arrival→Tag-0→
+    Vergabe); folgenlose Probier-Zone, ein Milieu glaubt den Hoax, Ferros Faktencheck = erster echter
+    Abwehr-Tick (`applyTag0FactcheckTick`, nur UI-Pfad → Sim unberührt). Browser-Smoke bestätigt.
+  - **Ebenfalls offen (Owner-Budget):** TV-/Wohnzimmer-Alphabet-Assets (pixel-asset-pipeline, Budget-Ansage);
+    Nachspielzeit-UI-Trigger (`requestNachspielzeit` existiert, braucht noch ein Kurator-Angebot).
 
 **Weitere Test-Disziplin:** Characterization-Tests vor jedem Eingriff; Save-Format: bewusster
 Versions-Bruch mit klarer Meldung (der Sieg-Semantik-Wechsel macht Altstände bedeutungslos); die

@@ -33,6 +33,7 @@ import { PlayerOfficeView } from './components/PlayerOfficeView';
 import { TitleScreen } from './components/TitleScreen';
 import { ArrivalSequence } from './components/ArrivalSequence';
 import { AuftragSelect } from './components/AuftragSelect';
+import { Tag0HoaxTutorial } from './components/Tag0HoaxTutorial';
 import { AvatarChoice } from './components/AvatarChoice';
 import { BuildingView } from './building/BuildingView';
 import { pfoertnerLine as computePfoertnerLine, dominantMood } from './building/pfoertner';
@@ -410,8 +411,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   // Ankunfts-Sequenz), nicht mehr ein Overlay über der bereits laufenden Welt. Bei Neustart
   // (→ 'intro') re-armt der Schritt; geladene Spielstände überspringen ihn (Auftrag steht schon).
   const [showAuftrag, setShowAuftrag] = useState(false);
+  // Tag-0-Hoax-Tutorial (Zielbild §10, O7) — der folgenlose Zwei-Balken-Aha-Beat läuft
+  // NACH der Ankunft und VOR der Vergabe-Szene. Bei Neustart (→ 'intro') re-armt er.
+  const [showTag0, setShowTag0] = useState(false);
   useEffect(() => {
-    if (state.gamePhase === 'intro') setShowAuftrag(false);
+    if (state.gamePhase === 'intro') { setShowAuftrag(false); setShowTag0(false); }
   }, [state.gamePhase]);
   // P2: Operations-Akte (Operationszentrale, Etage 4) — Verbreiter×Plattform-Operation.
   const [showOperationsAkte, setShowOperationsAkte] = useState(false);
@@ -820,8 +824,24 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         <ArrivalSequence
           npcs={state.npcs}
           onDone={() => {
-            // Direktor empfangen → er erteilt jetzt den Auftrag (P1-9), DANN öffnet sich die Welt.
+            // Direktor empfangen → Marinas folgenlose Probier-Zone (Tag-0-Hoax, §10),
+            // DANN die Auftrags-Vergabe, DANN öffnet sich die Welt.
             setShowArrival(false);
+            setShowTag0(true);
+          }}
+        />
+      );
+    }
+    if (showTag0) {
+      return (
+        <Tag0HoaxTutorial
+          portraitUrl={assets.imageUrl('portrait_marina') ?? undefined}
+          onComplete={() => {
+            // Ferros Faktencheck im Tutorial ist der erste echte Abwehr-Tick — das
+            // Immunsystem beginnt buchstäblich hier (Zielbild §10). Der Tick bleibt in
+            // der Partie erhalten (startGame recreatet die Engine nicht).
+            state.engine.applyTag0FactcheckTick();
+            setShowTag0(false);
             setShowAuftrag(true);
           }}
         />

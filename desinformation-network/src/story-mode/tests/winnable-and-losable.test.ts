@@ -172,31 +172,37 @@ function runOne(strategy: Strategy, seed: string, maxPhases: number): SimResult 
   };
 }
 
-// Zielbild-Zielbänder — ETAPPE 3 (Immunsystem) scharfgeschaltet, soweit tragfähig.
-// Das Wettrennen (ABWEHR als zweiter Läufer) steht: aggressives Spiel fliegt jetzt am
-// IMMUNSYSTEM auf (Lärm → Abwehr → „Das Land hält stand"), nicht mehr an einer
-// Sofort-Enttarnung. Beobachtete, stabile Verteilung über viele Läufe (Sim ist durch
-// `globalRandom` im Engine-Kern inhärent ±2–3 verrauscht — die Floors haben Luft):
-//   greedy   ~33–58 %  (der Zielbild-Korridor 30–60 %: das Immunsystem bändigt Rambo-Spiel)
-//   random   ~92–100 % (moderates, uninformiertes Spiel gelingt meist — SOUL §6 „Spaß zuerst")
-//   low_risk ~17–42 %  (reine Passivität wird bestraft — Zielbild §3d: „Abwarten verliert")
-// Kalibriert auf die /24-Stichprobe (72 Partien). Beobachtete Bänder über viele Läufe:
-//   greedy   ~7–12 / 24  (29–50 %, Median ~42 % → Zielbild-Korridor 30–60 %)
-//   random   ~23–24 / 24 (96–100 %)
-//   low_risk ~7–15 / 24  (29–63 %; seed-abhängige Verteidiger-Spawns streuen breit)
-// Die Floors haben Luft für die inhärente `globalRandom`-Verrauschung des Engine-Kerns.
+// Zielbild-Zielbänder — ETAPPE 5 (Kuratierung + WIN_THRESHOLD 1.0) scharfgeschaltet.
+// Das Wettrennen (ABWEHR als zweiter Läufer) steht; nach der Aktions-Kuratierung (143→~79,
+// kein Legal-Clutter mehr, das passives Spiel „parkte") + der schärferen Zeit-Abwehr
+// (BASELINE_PER_DAY 0.22→0.38) verliert reines Abwarten jetzt ROBUST am Immunsystem, und
+// Enttarnung ist als zweiter Verlustweg zurück. WIN_THRESHOLD ist auf 1.0 gezogen: der Sieg
+// verlangt, JEDE Signatur-Achse GANZ zu erreichen (Zielmarken in Auftraege.ts entsprechend
+// re-kalibriert). Beobachtete, stabile Verteilung über 8 Läufe (Sim durch `globalRandom` im
+// Engine-Kern inhärent ±2 verrauscht — die Floors haben Luft):
+//   greedy   ~9–11 / 24  (38–46 %, Zielbild-Korridor 30–60 %: das Immunsystem bändigt Rambo)
+//   random   ~23–24 / 24 (96–100 %: moderates Spiel gelingt meist — SOUL §6 „Spaß zuerst")
+//   low_risk ~2–8 / 24   (8–33 %: reine Passivität wird bestraft — Zielbild §3d)
+//   Verlustwege: immun 19–28/72 · Enttarnung 7–12/72 (beide lebendig); Timeout struktur. 0.
 const TARGET_BANDS = {
-  greedyWinsMin: 5,          // greedy nie chancenlos (Rambo wird gebändigt, nicht ausgelöscht)
-  greedyWinsMax: 17,         // … und nie unbesiegbar → Median im 30–60 %-Korridor
-  lowRiskLossesMin: 5,       // reine Vorsicht ist KEIN sicherer Weg (Immunsystem holt auf)
-  lowRiskWinsMax: 22,        // … und ist zugleich nicht chancenlos-verboten (kein 0/100)
-  immunePathMin: 10,         // der NEUE Verlustweg „Das Land hält stand" feuert robust
+  greedyWinsMin: 6,          // greedy nie chancenlos (Rambo wird gebändigt, nicht ausgelöscht)
+  greedyWinsMax: 15,         // … und nie unbesiegbar → Median im 30–60 %-Korridor
+  lowRiskLossesMin: 12,      // Etappe 5: reine Passivität VERLIERT jetzt robust (§3d) —
+                             // die Kuratierung (kein Legal-Clutter mehr) + die schärfere
+                             // Zeit-Abwehr (BASELINE_PER_DAY) lassen das Abwarten am
+                             // Immunsystem scheitern (low_risk wins 2–8/24).
+  lowRiskWinsMax: 12,        // … und Passivität ist kein sicherer Weg mehr (war ≤22)
+  immunePathMin: 14,         // „Das Land hält stand" feuert robust (19–28/72)
+  exposedMin: 4,             // Etappe 5: Enttarnung ist WIEDER ein lebendiger Verlustweg
+                             // (7–12/72, ~10–16 %) statt ausgehungert (Etappe 4: 3–4 %).
   aggregateWinsMin: 15,      // gewinnbar
   aggregateLossesMin: 15,    // verlierbar
-  // NOCH NICHT tragfähig (Carry-forward Etappe 5): „jeder Verlustweg ≥ 15 %". Der
-  // Immun-Weg dominiert (~94 %), Enttarnung feuert nur dünn (0–7 %), weil der Sim-
-  // Rambo schon vorher an der Abwehr scheitert. Die Aktions-Kuratierung (Etappe 5)
-  // formt den Aktions-Draw um und wird die Enttarnung wieder in den Vordergrund holen.
+  // Rest-Lücke zur Aspiration „jeder Verlustweg ≥ 15 %" (Zielbild): Enttarnung liegt bei
+  // ~10–16 % (mal knapp unter 15 %), TIMEOUT („Wahlabend verloren") feuert im Headless-Sim
+  // gar nicht — die drei Archetypen (greedy/random/low_risk) lösen sich IMMER vorher auf
+  // (Sieg oder Tod vor Tag 40). Timeout ist ein Echt-Spieler-Pfad (zögerliches, gemischtes
+  // Spiel), den diese Archetypen strukturell nicht ausüben. Ehrlich dokumentiert statt
+  // erzwungen — Immun + Enttarnung sind beide lebendig, das war das Etappe-5-Ziel.
 };
 
 /** Zählt Niederlagen nach Ende-Titel über eine Strategie-Teilmenge. */
@@ -252,6 +258,7 @@ describe('GEWINNBAR-UND-VERLIERBAR-Gate (Etappe 0)', () => {
   const greedyWins = byStrategy('greedy').filter(r => r.outcome === 'victory').length;
   const lowRiskLosses = byStrategy('low_risk').filter(r => r.outcome === 'defeat').length;
   const immuneLosses = defeats.filter(d => d.endTitle === 'The Country Holds').length;
+  const exposedLosses = defeats.filter(d => d.endTitle === 'Exposed').length;
 
   it('ist GEWINNBAR (genug Siege im Aggregat)', () => {
     expect(wins.length).toBeGreaterThanOrEqual(TARGET_BANDS.aggregateWinsMin);
@@ -284,6 +291,13 @@ describe('GEWINNBAR-UND-VERLIERBAR-Gate (Etappe 0)', () => {
     expect(immuneLosses).toBeGreaterThanOrEqual(TARGET_BANDS.immunePathMin);
   });
 
+  it('holt den Verlustweg „Enttarnung" zurück in den Vordergrund (Etappe 5)', () => {
+    // Carry-forward aus Etappe 3/4 erledigt: die Aktions-Kuratierung formt den Draw so um,
+    // dass aggressives Spiel wieder AUFFLIEGT (Risiko ≥ Schwelle), statt immer vorher am
+    // Immunsystem zu scheitern. Enttarnung ist damit ein zweiter lebendiger Verlustweg.
+    expect(exposedLosses).toBeGreaterThanOrEqual(TARGET_BANDS.exposedMin);
+  });
+
   it('ist im OUTCOME deterministisch reproduzierbar (gleiche Seed → gleicher Ausgang)', () => {
     // Nur der Ausgang (Sieg/Niederlage) wird gepinnt — die exakte End-Phase driftet wegen
     // des nicht vollständig isolierbaren Legacy-Singleton-Graphs und ist KEIN Gate-Kriterium.
@@ -292,9 +306,10 @@ describe('GEWINNBAR-UND-VERLIERBAR-Gate (Etappe 0)', () => {
     expect(a.outcome).toBe(b.outcome);
   });
 
-  // Anker, damit die dokumentierten Carry-forward-Konstanten nicht verwaisen (Etappe 5):
-  it('dokumentiert den offenen Verlustwege-Ausgleich als Carry-forward', () => {
-    expect(TARGET_BANDS.greedyWinsMin).toBeGreaterThan(0);
-    expect(lossesByTitle(byStrategy('greedy'), 'The Country Holds')).toBeGreaterThanOrEqual(0);
+  // Anker: beide Haupt-Verlustwege sind über die greedy-Strategie belegt (Etappe 5 erledigt
+  // den Verlustwege-Ausgleich zwischen Immun und Enttarnung; Timeout bleibt struktur. selten).
+  it('greedy scheitert an BEIDEN Läufer-Wegen (Immunsystem UND Enttarnung)', () => {
+    const g = byStrategy('greedy');
+    expect(lossesByTitle(g, 'The Country Holds') + lossesByTitle(g, 'Exposed')).toBeGreaterThan(0);
   });
 });

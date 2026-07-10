@@ -745,7 +745,7 @@ export class StoryEngineAdapter {
   // Etappe 3 (Paket E): 0.5 → 0.6 — mit dem Immunsystem (Regeneration + Dämpfung) darf die
   // Latte höher liegen; passives Drift-Spiel erreicht das Plateau (~0.53) nicht mehr.
   // Der Rest des Wegs Richtung 1.0 folgt mit der Aktions-Kuratierung (Etappe 5).
-  private readonly WIN_THRESHOLD = 0.6;
+  private readonly WIN_THRESHOLD = 1.0;
   // P2-7: Track world event cooldowns (eventId -> last triggered phase)
   private worldEventCooldowns: Map<string, number> = new Map();
   private readonly WORLD_EVENT_COOLDOWN = 6;   // Etappe 2: 6 Tage Cooldown (vorher 12 Phasen = „1 Jahr")
@@ -4816,6 +4816,17 @@ export class StoryEngineAdapter {
     return this.storyResources.wehrhaftigkeit;
   }
 
+  /**
+   * Tag-0-Hoax-Tutorial (Zielbild §10, O7): Ferros Faktencheck im folgenlosen
+   * Sandbox-Moment ist der ERSTE sichtbare Abwehr-Tick — das Immunsystem beginnt
+   * buchstäblich im Tutorial. Klein + einmalig, ohne Spieler-Kosten. Öffentlicher
+   * Wrapper um `raiseAbwehr` (die Onboarding-Schicht darf die Abwehr genau hier anheben).
+   * Wird NUR im UI-Pfad aufgerufen (nie im Sim) → das Balance-Gate bleibt unberührt.
+   */
+  applyTag0FactcheckTick(): void {
+    this.raiseAbwehr(this.TAG0_ABWEHR_TICK);
+  }
+
   /** Ermittler-Countdown (Restphasen) oder null — für die SITUATIVE HUD-Warnung (Zielbild §12.4). */
   getExposureCountdown(): number | null {
     return this.exposureCountdown;
@@ -4998,6 +5009,7 @@ export class StoryEngineAdapter {
   };
   private readonly COUNTER_COST_BUDGET = 25;   // kontern kostet Geld (E18: Geld = Druck)
   private readonly SIT_OUT_ABWEHR = 4;         // aussitzen füttert die Abwehr
+  private readonly TAG0_ABWEHR_TICK = 3;       // Tag-0-Tutorial: Ferros Faktencheck = erster Abwehr-Tick (§10)
   private readonly DISTRACT_RISK = 6;          // ablenken erkauft Ruhe mit Risiko
   private readonly DISTRACT_ATTENTION_RELIEF = 4;
   private readonly BAN_DAYS = 4;               // Plattform-Sperre: Kanal X Tage grau
@@ -5699,7 +5711,6 @@ export class StoryEngineAdapter {
     // gespiegelt (das bleibt die UI-Bilanz der Aktion).
     let societyDelta = societyDeltaFromAction(actionEffects, effectivenessMultiplier, {
       legality: loadedAction.legality,
-      impactScale: actionEffects.impact_scale,
     });
     // Krisenfenster (P3): solange aktiv, wirkt JEDE Aktion verstärkt.
     if (this.crisisWindowPhasesLeft > 0) {

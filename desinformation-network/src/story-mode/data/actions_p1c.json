@@ -18,7 +18,14 @@
       "npc_affinity": ["igor"],
       "legality": "illegal",
       "tags": ["financial", "funding", "risk"],
-      "effects": { "funding_injection": true, "impact_scale": "medium" }
+      "effects": {
+        "funding_injection": true,
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.35
+      }
     },
     {
       "id": "9.2",
@@ -34,7 +41,15 @@
       "npc_affinity": ["igor"],
       "legality": "illegal",
       "tags": ["financial", "opsec", "defense"],
-      "effects": { "risk_reduction": 0.2, "opsec_bonus": true, "impact_scale": "low" }
+      "effects": {
+        "risk_reduction": 0.2,
+        "opsec_bonus": true,
+        "impact_scale": "low",
+        "organic_reach": 0.1,
+        "political_influence": 0.125,
+        "divisiveness_bonus": 0.1083,
+        "emotional_impact": 0.175
+      }
     },
     {
       "id": "9.3",
@@ -50,7 +65,15 @@
       "npc_affinity": ["igor"],
       "legality": "grey",
       "tags": ["financial", "funding", "crypto"],
-      "effects": { "funding_injection": true, "deniability": 0.4, "impact_scale": "medium" }
+      "effects": {
+        "funding_injection": true,
+        "deniability": 0.4,
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
+      }
     },
     {
       "id": "9.4",
@@ -66,7 +89,14 @@
       "npc_affinity": ["igor"],
       "legality": "illegal",
       "tags": ["financial", "fraud"],
-      "effects": { "funding_injection": true, "impact_scale": "low" }
+      "effects": {
+        "funding_injection": true,
+        "impact_scale": "low",
+        "organic_reach": 0.1,
+        "political_influence": 0.125,
+        "divisiveness_bonus": 0.1083,
+        "emotional_impact": 0.175
+      }
     },
     {
       "id": "9.5",
@@ -82,7 +112,15 @@
       "npc_affinity": ["igor"],
       "legality": "grey",
       "tags": ["financial", "funding", "recruitment"],
-      "effects": { "funding_injection": true, "sustainability": 0.5, "impact_scale": "high" }
+      "effects": {
+        "funding_injection": true,
+        "sustainability": 0.5,
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
+      }
     },
     {
       "id": "9.6",
@@ -98,7 +136,12 @@
       "npc_affinity": ["igor"],
       "legality": "legal",
       "tags": ["financial", "opsec"],
-      "effects": { "opsec_bonus": true, "risk_reduction": 0.08, "impact_scale": "low" }
+      "effects": {
+        "opsec_bonus": true,
+        "risk_reduction": 0.08,
+        "impact_scale": "low",
+        "organic_reach": 0.1
+      }
     },
     {
       "id": "9.7",
@@ -114,7 +157,15 @@
       "npc_affinity": ["igor"],
       "legality": "grey",
       "tags": ["financial", "cover", "infrastructure"],
-      "effects": { "financial_cover": true, "opsec_bonus": true, "impact_scale": "medium" }
+      "effects": {
+        "financial_cover": true,
+        "opsec_bonus": true,
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
+      }
     },
     {
       "id": "9.8",
@@ -130,7 +181,12 @@
       "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": ["analysis", "optimization", "research"],
-      "effects": { "message_optimization": true, "targeting_bonus": 0.18, "impact_scale": "low" }
+      "effects": {
+        "message_optimization": true,
+        "targeting_bonus": 0.18,
+        "impact_scale": "low",
+        "organic_reach": 0.1
+      }
     },
     {
       "id": "9.9",
@@ -146,7 +202,14 @@
       "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": ["recruitment", "field", "organic"],
-      "effects": { "organic_reach": true, "deniability": 0.4, "impact_scale": "medium" }
+      "effects": {
+        "organic_reach": 0.2,
+        "deniability": 0.4,
+        "impact_scale": "medium",
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
+      }
     },
     {
       "id": "9.10",
@@ -158,11 +221,20 @@
       "narrative_de": "Ein lange aufgebauter Kontakt, der bisher unauffällig blieb. Jetzt ziehen wir den Faden.",
       "narrative_en": "A long-cultivated contact who stayed quiet. Now we pull the thread.",
       "costs": { "budget": 10, "capacity": 2, "risk": 7, "moral_weight": 2 },
-      "prerequisites": ["2.20"],
+      "prerequisites": [],
       "npc_affinity": ["katja"],
       "legality": "illegal",
       "tags": ["field", "espionage"],
-      "effects": { "insider_access": true, "effectiveness_boost": 0.2, "backlash_risk": 0.15, "impact_scale": "high" }
+      "effects": {
+        "insider_access": true,
+        "effectiveness_boost": 0.2,
+        "backlash_risk": 0.15,
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
+      }
     },
     {
       "id": "9.11",
@@ -178,7 +250,15 @@
       "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": ["field", "intelligence", "targeting"],
-      "effects": { "reveals_weaknesses": true, "targeting_precision": 0.3, "impact_scale": "medium" }
+      "effects": {
+        "reveals_weaknesses": true,
+        "targeting_precision": 0.3,
+        "impact_scale": "medium",
+        "organic_reach": 0.2,
+        "political_influence": 0.25,
+        "divisiveness_bonus": 0.2167,
+        "emotional_impact": 0.225
+      }
     },
     {
       "id": "9.12",
@@ -194,7 +274,15 @@
       "npc_affinity": ["direktor"],
       "legality": "grey",
       "tags": ["political", "influence"],
-      "effects": { "political_leverage": 0.25, "deniability": 0.45, "impact_scale": "high" }
+      "effects": {
+        "political_leverage": 0.25,
+        "deniability": 0.45,
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
+      }
     },
     {
       "id": "9.13",
@@ -210,7 +298,12 @@
       "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": ["political", "legitimacy"],
-      "effects": { "legitimacy_boost": 0.2, "sustainability": 0.5, "impact_scale": "medium" }
+      "effects": {
+        "legitimacy_boost": 0.2,
+        "sustainability": 0.5,
+        "impact_scale": "medium",
+        "organic_reach": 0.2
+      }
     },
     {
       "id": "9.14",
@@ -226,7 +319,16 @@
       "npc_affinity": ["alexei"],
       "legality": "illegal",
       "tags": ["technical", "hacking", "leak"],
-      "effects": { "target_damage": 0.35, "effectiveness_boost": 0.25, "backlash_risk": 0.25, "impact_scale": "high" }
+      "effects": {
+        "target_damage": 0.35,
+        "effectiveness_boost": 0.25,
+        "backlash_risk": 0.25,
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.525
+      }
     },
     {
       "id": "9.15",
@@ -242,7 +344,15 @@
       "npc_affinity": ["alexei"],
       "legality": "grey",
       "tags": ["infrastructure", "ai", "automation", "upgrade"],
-      "effects": { "amplification_bonus": 0.4, "detection_difficulty": 0.5, "impact_scale": "high" }
+      "effects": {
+        "amplification_bonus": 0.4,
+        "detection_difficulty": 0.5,
+        "impact_scale": "high",
+        "organic_reach": 0.3,
+        "political_influence": 0.375,
+        "divisiveness_bonus": 0.325,
+        "emotional_impact": 0.3375
+      }
     }
   ]
 }

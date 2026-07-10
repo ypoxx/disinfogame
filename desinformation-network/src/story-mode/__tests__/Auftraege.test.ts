@@ -21,8 +21,9 @@ describe('Auftrags-Daten', () => {
 
   it('auftragProgress steigt, wenn die Signatur-Werte ihr Ziel ansteuern', () => {
     const keil = AUFTRAEGE.keil; // polarisierung↑, fragmentierung↑, diskursqualitaet↓
-    const low = auftragProgress(keil, { polarisierung: 50, fragmentierung: 50, diskursqualitaet: 50 });
-    const high = auftragProgress(keil, { polarisierung: 65, fragmentierung: 45, diskursqualitaet: 40 });
+    // Zielmarken kuratiert (Etappe 5, WIN_THRESHOLD 1.0): keil = polar 25→49, frag 15→33, diskurs 70→52.
+    const low = auftragProgress(keil, { polarisierung: 35, fragmentierung: 22, diskursqualitaet: 62 });
+    const high = auftragProgress(keil, { polarisierung: 45, fragmentierung: 30, diskursqualitaet: 55 });
     expect(high).toBeGreaterThan(low);
     expect(high).toBeGreaterThan(0.8);
   });

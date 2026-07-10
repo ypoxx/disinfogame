@@ -12,7 +12,7 @@ describe('Atlas-Abdeckung der echten Aktionsdaten', () => {
   it('die meisten echten Aktionen lassen sich einer Methode zuordnen (keine Bildungs-Lücken)', () => {
     const engine = createStoryEngine('atlas-cov');
     const catalog = engine.getActionCatalog();
-    expect(catalog.length).toBeGreaterThan(100); // ~125 Aktionen
+    expect(catalog.length).toBeGreaterThan(55); // kuratierter Katalog (Etappe 5: 143→~79)
 
     const mappedTags = new Set<string>();
     for (const m of loadDisinfoMethods()) for (const t of m.matchTags) mappedTags.add(t);

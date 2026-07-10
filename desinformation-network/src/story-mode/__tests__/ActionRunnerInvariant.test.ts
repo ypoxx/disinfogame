@@ -9,15 +9,14 @@
  * ABWEHR bewegt: risk ≠ 0 (Lärm, auch senkend = Bremse) · attention > 0 · legality illegal
  *   (implizite +2 Aufmerksamkeit) — alles Zuflüsse des ImmuneSystem.
  * SONNTAGSFRAGE bewegt: ein von SocietyDynamics gelesener Sieg-Achsen-Key · reach_multiplier>1
- *   · impact_scale (grey/illegal, Baseline-Kopplung) · aggressive Phase (implizite trust_erosion).
+ *   · aggressive Phase (implizite trust_erosion).
  *
- * HINWEIS (Balance-Befund): Die weitere Reduktion 143 → 60–80 ist NICHT balance-neutral
- * machbar, solange `impact_scale` das Wirkmodell ist — fast jede „Grundrauschen"-Aktion
- * treibt über die impact_scale-Baseline verdeckt den Sonntagsfrage-Fortschritt. Empirisch:
- * Entfernen von impact_scale-Aktionen lässt greedy einbrechen (58 %→12 %), Entfernen von
- * Legal/Low-Risk-Aktionen macht passives Spiel zu stark (low_risk 4 %→75 %). Die Kuratierung
- * ist damit an die impact_scale-Abschaffung GEKOPPELT (Zielbild §12.7) → dediziertes
- * Balance-Follow-up (siehe Handoff). Diese Invariante ist die tragende Leitplanke dafür.
+ * ETAPPE 5 (Zielbild §12.7): `impact_scale` ist als WIRKMODELL ABGESCHAFFT. Sein exakter
+ * Beitrag wurde per Bake in EXPLIZITE Effekt-Keys je Aktion geschrieben (amplification_base/
+ * political_leverage/polarization/emotional_impact); die SocietyDynamics-Baseline ist entfernt.
+ * Deshalb zählt impact_scale hier NICHT mehr als Läufer-Beweger — jede Aktion muss ihre
+ * Wirkung über explizite Keys (oder Abwehr-Kosten) tragen. Das macht die Kuratierung
+ * (143→60–80) gefahrlos: löschen entfernt genau die sichtbare Wirkung dieser Aktion.
  */
 import { describe, it, expect } from 'vitest';
 import { getActionLoader } from '../engine/ActionLoader';
@@ -43,7 +42,7 @@ function movesSonntagsfrage(a: { effects?: Record<string, unknown>; legality: st
   const e = a.effects ?? {};
   if (SIEG_KEYS.some((k) => num(e[k]) > 0)) return true;
   if (num(e.reach_multiplier) > 1) return true;
-  if (['high', 'medium', 'low'].includes(e.impact_scale as string) && (a.legality === 'grey' || a.legality === 'illegal')) return true;
+  // impact_scale zählt NICHT mehr (Etappe 5: als Wirkmodell abgeschafft, s. Kopf).
   if (AGGRESSIVE_PHASES.includes(a.phase)) return true;
   return false;
 }
@@ -52,10 +51,9 @@ describe('Aktions-Invariante (Etappe 5): jede Aktion bewegt einen Läufer', () =
   const actions = getActionLoader().getAllActions();
 
   it('lädt den vollständigen Aktionskatalog', () => {
-    // Die Reduktion Richtung 60–80 ist an die impact_scale-Abschaffung gekoppelt
-    // (s. Kopf) → deferred. Diese Invariante gilt für JEDE geladene Aktion, unabhängig
-    // von der Katalog-Größe.
-    expect(actions.length).toBeGreaterThan(60);
+    // Nach der Kuratierung (143→60–80) liegt der Katalog im Zielkorridor. Diese
+    // Invariante gilt für JEDE geladene Aktion, unabhängig von der Katalog-Größe.
+    expect(actions.length).toBeGreaterThan(55);
   });
 
   it('bewegt für JEDE Aktion mindestens einen der zwei Läufer', () => {

@@ -273,7 +273,7 @@
         "wedge_topics": true
       },
       "prerequisites": ["1.1"],
-      "unlocks": ["3.10", "7.6"],
+      "unlocks": ["3.10"],
       "npc_affinity": ["marina"],
       "legality": "legal",
       "tags": ["analysis", "division", "strategy"]
@@ -297,7 +297,7 @@
         "counter_intelligence": true
       },
       "prerequisites": [],
-      "unlocks": ["8.3"],
+      "unlocks": [],
       "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": ["intelligence", "defense"]
@@ -371,7 +371,7 @@
         "amplification_base": 0.3
       },
       "prerequisites": [],
-      "unlocks": ["2.2", "5.1", "5.5"],
+      "unlocks": ["2.2", "5.1"],
       "npc_affinity": ["alexei"],
       "legality": "illegal",
       "tags": ["infrastructure", "automation", "digital"]
@@ -490,7 +490,7 @@
         "website_unlocks": true
       },
       "prerequisites": [],
-      "unlocks": ["3.5", "3.7"],
+      "unlocks": ["3.5"],
       "npc_affinity": ["alexei"],
       "legality": "grey",
       "tags": ["infrastructure", "technical"]
@@ -538,7 +538,7 @@
         "offline_presence": true
       },
       "prerequisites": [],
-      "unlocks": ["4.13", "6.9"],
+      "unlocks": ["6.9"],
       "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": ["infrastructure", "institutional", "cover"]
@@ -562,7 +562,7 @@
         "media_access": true
       },
       "prerequisites": [],
-      "unlocks": ["4.14", "6.8"],
+      "unlocks": [],
       "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": ["infrastructure", "institutional", "legitimacy"]
@@ -587,7 +587,7 @@
         "expert_pool": true
       },
       "prerequisites": [],
-      "unlocks": ["2.15", "3.15", "4.12"],
+      "unlocks": ["3.15"],
       "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": ["infrastructure", "institutional", "legitimacy", "academic"]
@@ -635,7 +635,7 @@
         "party_access": true
       },
       "prerequisites": [],
-      "unlocks": ["6.1", "6.3"],
+      "unlocks": ["6.1"],
       "npc_affinity": ["igor"],
       "legality": "illegal",
       "tags": ["infrastructure", "political", "funding"]
@@ -684,7 +684,7 @@
         "long_term_influence": true
       },
       "prerequisites": [],
-      "unlocks": ["6.10"],
+      "unlocks": [],
       "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": ["infrastructure", "institutional", "education", "long_term"]
@@ -708,7 +708,7 @@
         "legitimacy_boost": 0.2
       },
       "prerequisites": [],
-      "unlocks": ["4.12", "3.14"],
+      "unlocks": [],
       "npc_affinity": ["marina"],
       "legality": "illegal",
       "tags": ["infrastructure", "persona", "expert"]
@@ -733,7 +733,7 @@
         "academic_network": true
       },
       "prerequisites": [],
-      "unlocks": ["4.12", "3.15"],
+      "unlocks": ["3.15"],
       "npc_affinity": ["katja"],
       "legality": "grey",
       "tags": ["recruitment", "expert", "mice"]
@@ -757,7 +757,7 @@
         "story_placement": true
       },
       "prerequisites": [],
-      "unlocks": ["4.6", "4.10"],
+      "unlocks": [],
       "npc_affinity": ["katja"],
       "legality": "illegal",
       "tags": ["recruitment", "media", "mice"]
@@ -781,7 +781,7 @@
         "insider_info": true
       },
       "prerequisites": [],
-      "unlocks": ["6.3", "6.7", "8.8"],
+      "unlocks": ["6.7", "8.8"],
       "npc_affinity": ["direktor"],
       "legality": "legal",
       "tags": ["recruitment", "political", "networking"]
@@ -831,7 +831,7 @@
         "reliable_asset": true
       },
       "prerequisites": ["1.4"],
-      "unlocks": ["8.10"],
+      "unlocks": [],
       "npc_affinity": ["katja"],
       "legality": "illegal",
       "tags": ["recruitment", "mice", "espionage"]

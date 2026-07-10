@@ -23,14 +23,6 @@ function num(v: unknown): number {
   return typeof v === 'number' && Number.isFinite(v) ? v : 0;
 }
 
-/** Qualitatives impact_scale → Gewicht (95 Aktionen tragen es; allgemeiner „Lärm"-Treiber). */
-function impactWeight(scale: unknown): number {
-  if (scale === 'high') return 1.5;
-  if (scale === 'medium') return 1.0;
-  if (scale === 'low') return 0.5;
-  return 0;
-}
-
 function addDelta(d: SocietyDelta, key: SocietyValueKey, value: number): void {
   if (value === 0) return;
   d[key] = (d[key] ?? 0) + value;
@@ -43,7 +35,7 @@ function addDelta(d: SocietyDelta, key: SocietyValueKey, value: number): void {
 export function societyDeltaFromAction(
   effects: Record<string, unknown> | undefined | null,
   mult: number,
-  ctx: { legality?: string; impactScale?: unknown },
+  ctx: { legality?: string },
 ): SocietyDelta {
   const d: SocietyDelta = {};
   if (!effects) return d;
@@ -107,28 +99,14 @@ export function societyDeltaFromAction(
   }
   // (crisis_window wird in der Engine als temporärer Wirkungs-Multiplikator behandelt.)
 
-  // Baseline-„Lärm": nur WENIGE Aktionen tragen explizite Spaltungs-/Reichweiten-Keys,
-  // deshalb treibt das allgemeine impact_scale die Werte breit (sonst bleiben sie tot).
-  // Aggressive (grey/illegal) Aktionen polarisieren und verrohen — niedrigschwellige
-  // Aktionen kaum. So differenzieren sich Strategien hörbar. (P1-Kopplung verstärkt: der
-  // vertrauens-erodierende Aggressiv-Pfad bewegt nun auch die Auftrags-Werte spürbar — sonst
-  // bleibt der Auftrag ein toter Anzeige-Layer, dessen Signatur nie nennenswert reift.)
-  const iw = impactWeight(ctx.impactScale);
-  if (iw > 0) {
-    addDelta(d, 'informationslast', iw * mult * 0.5);
-    if (ctx.legality === 'grey' || ctx.legality === 'illegal') {
-      addDelta(d, 'polarisierung', iw * mult * 1.3);
-      addDelta(d, 'zynismus', iw * mult * 0.9);
-      // Etappe 1: aggressive Aktionen mobilisieren die uns-nahe (radikale) Kraft — sonst
-      // bleibt fraktionsstaerke der einsame Flaschenhals der Wahl-Signatur (nur ~6 Aktionen
-      // tragen political_*). Thematisch: Spalten/Demoralisieren stärkt die Radikalen.
-      addDelta(d, 'fraktionsstaerke', iw * mult * 1.0);
-    }
-    if (ctx.legality === 'illegal') {
-      addDelta(d, 'zynismus', iw * mult * 0.5);
-      addDelta(d, 'diskursqualitaet', -iw * mult * 0.6);
-    }
-  }
+  // Etappe 5 (Zielbild §12.7): impact_scale ist als WIRKMODELL ABGESCHAFFT. Die frühere
+  // „Baseline-Lärm"-Kopplung (ein verdecktes qualitatives Gewicht trieb breit die Werte)
+  // ist ersatzlos entfernt — ihr exakter Beitrag wurde per Bake in EXPLIZITE Effekt-Keys
+  // je Aktion geschrieben (amplification_base/political_leverage/polarization/emotional_impact,
+  // je nach Legalität). Jede Aktion trägt ihre Läufer-Wirkung jetzt LOKAL und SICHTBAR, was
+  // die Kuratierung (143→60–80) gefahrlos macht: löschen entfernt genau die sichtbare Wirkung
+  // dieser Aktion, kein verstecktes globales Balancing mehr. `impact_scale` bleibt nur noch
+  // ein Anzeige-Hinweis (ActionPanel), die Engine liest es nicht mehr.
 
   return d;
 }

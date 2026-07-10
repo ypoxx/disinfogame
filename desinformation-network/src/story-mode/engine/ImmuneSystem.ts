@@ -44,7 +44,7 @@ export const DEFENDER_FACTOR = 0.7;
 /** Eskalations-Bonus je armsRaceLevel-Stufe (wie getTrustRegeneration). */
 export const ARMS_RACE_ESCALATION = 0.25;
 /** Zeitgrundrauschen je Tag — reines Abwarten verliert (Zielbild §3d). */
-export const BASELINE_PER_DAY = 0.22;
+export const BASELINE_PER_DAY = 0.38;
 /** „Gepatcht": Abwehr-Sprung, wenn eine Maschen-Familie durchschaut wird. Etappe 4:
  *  4 → 3, denn der Patch stempelt die Familie zusätzlich ÜBERALL als BEKANNT
  *  (Wirkungs-Dämpfung) — derselbe Auslöser darf nicht doppelt voll strafen (Falle 10). */
