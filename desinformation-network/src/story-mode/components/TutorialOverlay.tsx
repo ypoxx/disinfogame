@@ -135,22 +135,19 @@ Nutzen Sie die Expertise Ihres Teams!`,
     highlight: 'advisors',
   },
   {
+    // N3: Das schwebende Queue-Widget ist Geschichte — geplant wird an der Tafel.
     id: 'queue',
-    title: 'Aktionen-Warteschlange',
-    content: `Planen Sie mehrere Aktionen im Voraus!
+    title: 'Planen an der Narrativ-Tafel',
+    content: `Planen Sie mehrere Maßnahmen im Voraus!
 
-[Liste] WARTESCHLANGE (unten rechts): AUSFÜHREN - Aktion sofort starten
-+ EINREIHEN - Zur Warteschlange hinzufügen
+Am TERMINAL (Taste A): AUSFÜHREN wirkt sofort, ANHEFTEN schickt die Maßnahme ans Korkbrett.
 
-BATCH-AUSFÜHRUNG:
-1. Mehrere Aktionen einreihen
-2. Gesamtkosten überprüfen
-3. Alle auf einmal ausführen
-4. Detaillierte Gesamt-Bilanz sehen
+An der TAFEL (Korkbrett im Büro): angeheftete Karten prüfen, Gesamtkosten sehen, mit AUSSPIELEN alle auf einmal senden.
 
-Tipp: Kombinieren Sie komplementäre Aktionen für maximalen Effekt!`,
-    position: 'right',
-    highlight: 'queue',
+Der Zähler am Korkbrett zeigt, wie viel dort hängt.
+
+Tipp: Kombinieren Sie komplementäre Maßnahmen für maximalen Effekt!`,
+    position: 'center',
   },
   {
     id: 'actions',
@@ -180,17 +177,17 @@ Konsequenzen treten verzögert ein. Manchmal haben Sie Wahlmöglichkeiten.`,
     position: 'center',
   },
   {
+    // N2: Das Wettrennen ist das Ziel-Vokabular — nicht mehr „Vertrauen unter 40 %".
     id: 'objectives',
-    title: 'Ihre Ziele',
-    content: `Hauptziel: Institutionelles Vertrauen unter 40% senken.
+    title: 'Das Rennen',
+    content: `Zwei Läufer rennen auf den Wahltag zu:
 
-Nebenziel: Nicht enttarnt werden (Risiko < 85%).
+SONNTAGSFRAGE - Ihr Läufer. Bringen Sie die Partei über die Schwelle, bevor die Kampagne endet.
 
-Die Fortschrittsanzeige zeigt Ihren aktuellen Stand. Erreichen Sie Ihr Ziel in 10 Jahren, gewinnen Sie.
+ABWEHR - ihr Läufer. Das Immunsystem der Gesellschaft: erreicht es 100, ist die Operation aufgeflogen.
 
-Aber bedenken Sie: Es gibt verschiedene Enden - manche besser als andere.`,
-    position: 'bottom',
-    highlight: 'objectives',
+Beide Balken zeigt das HUD (Taste H), das Lagebild am Wand-Monitor und die Tafel. Halten Sie außerdem das Risiko unten - eine Untersuchung endet mit Enttarnung.`,
+    position: 'center',
   },
   {
     id: 'endings',
@@ -368,12 +365,10 @@ function getHighlightPosition(highlight: string): React.CSSProperties {
       return { bottom: 0, left: 0, right: 0, height: '250px' };
     case 'actions':
       return { top: '50%', left: '50%', width: '600px', height: '400px', transform: 'translate(-50%, -50%)' };
-    case 'objectives':
-      return { bottom: '20px', left: '20px', width: '250px', height: '100px' };
+    // ('objectives'/'queue' entfallen — Ziel-Tracker und Queue-Widget gibt es
+    //  seit N2/N3 nicht mehr; die Schritte erklären jetzt ohne Spotlight.)
     case 'advisors':
       return { top: '64px', right: 0, width: '320px', bottom: 0 };
-    case 'queue':
-      return { bottom: '16px', right: '16px', width: '384px', height: '360px' };
     default:
       return {};
   }

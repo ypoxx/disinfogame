@@ -4,7 +4,6 @@ import { GAME_VERSION } from './version';
 import { DialogBox } from './components/DialogBox';
 import { StoryHUD } from './components/StoryHUD';
 import { TerminalView } from './components/TerminalView';
-import { ActionQueueWidget } from './components/ActionQueueWidget';
 import { NewsPanel } from './components/NewsPanel';
 import { StatsPanel } from './components/StatsPanel';
 import { NpcPanel } from './components/NpcPanel';
@@ -20,7 +19,6 @@ import { WahlabendScene } from './components/WahlabendScene';
 import { MethodenDossier } from './components/MethodenDossier';
 import { AdvisorPanel } from './components/AdvisorPanel';
 import { AdvisorDetailModal } from './components/AdvisorDetailModal';
-import { BetrayalWarningBadge } from './components/BetrayalWarningBadge';
 import { GrievanceModal } from './components/GrievanceModal';
 import { BetrayalEventModal } from './components/BetrayalEventModal';
 import { StageCountermeasureModal } from './components/StageCountermeasureModal';
@@ -357,7 +355,6 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     activePanel, togglePanel, setActivePanel,
     broadcastExpanded, toggleBroadcast, setBroadcastExpanded,
     advisorCollapsed, toggleAdvisor,
-    queueCollapsed, toggleQueue,
     viewMode, setViewMode,
     resetUI,
   } = usePanelStore();
@@ -584,6 +581,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     : showBoard ? 'board'
     : broadcastExpanded ? 'broadcast' // Publikums-Wohnzimmer-Kulisse (Luxus-Sound-Review)
     : null;
+
+  // N0 (PLAN 2026-07-07): Vollbild-Overlays verdecken das Dauer-Chrome (Eck-Cluster,
+  // Berater-Leiste, Queue) — EIN Flag statt z-Index-Wettrüsten je Element.
+  const fullscreenOverlayOpen =
+    showTerminal || showNewsroom || showBoard || showLagebild ||
+    showOperationsAkte || showFokusgruppe || showPreTest || showEncyclopedia;
   useEffect(() => {
     const active = state.gamePhase === 'playing' || state.gamePhase === 'tutorial';
     playAmbience(ambienceForContext({
@@ -668,9 +671,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       // Panel & view shortcuts (only when playing and no dialog open)
       if (state.gamePhase === 'playing' && !state.currentDialog) {
         const key = e.key.toLowerCase();
-        // Am offenen Terminal wirkt nur A (schließen) — andere Panel-Hotkeys
-        // öffneten sonst unsichtbar HINTER dem Schirm Seitenleisten-Reiter (E4).
-        if (showTerminal && key !== 'a') return;
+        // Am offenen Terminal/an der Tafel wirkt nur A (schließen bzw. wechseln) —
+        // andere Panel-Hotkeys öffneten sonst unsichtbar HINTER dem Schirm (E4).
+        if ((showTerminal || showBoard) && key !== 'a') return;
         switch (key) {
           // L2: A öffnet das Vorgangs-Terminal (die Aktionen-Seitenleiste ist Geschichte).
           case 'a': {
@@ -678,10 +681,15 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               // Beim Schließen per A den Berater-Sprung mit nullen (staler Highlight, E4).
               setShowTerminal(false);
               setHighlightActionId(null);
+            } else if (showBoard) {
+              // Tafel → Terminal wechseln: der Tafel-Hinweis „Maßnahmen wählt das
+              // Terminal [A]" wäre sonst ein No-op (Review-Befund A5).
+              setShowBoard(false);
+              setShowTerminal(true);
             } else if (
               // Nicht unsichtbar UNTER einem anderen Vollbild-Overlay mounten
               // (Overlay-Stack, E4 — inkl. Dossier/Hilfe, Verify-Nachtrag).
-              !showNewsroom && !showBoard && !showLagebild && !showOperationsAkte &&
+              !showNewsroom && !showLagebild && !showOperationsAkte &&
               !showFokusgruppe && !showPreTest && !showEncyclopedia && !showShortcuts
             ) {
               setShowTerminal(true);
@@ -919,6 +927,17 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
     );
   }
 
+  // N2 (Review-Befund): EIN Renn-Schnappschuss für HUD, Tafel und Lagebild —
+  // dieselbe Quelle, dasselbe Vokabular; keine drei Inline-Kopien der Abbildung.
+  const wahlabend = state.engine.getWahlabendData();
+  const sonntagsfrage = { pollPct: wahlabend.finalPollPct, thresholdPct: wahlabend.thresholdPct };
+  const abwehr = state.engine.getAbwehr();
+  const abwehrStageInfo = state.engine.getAbwehrStageInfo();
+  // N0 (Review-Befund): die Grundregel „Dauer-Chrome nur im freien Spiel" einmal
+  // ableiten — Element-Spezifika (!currentDialog, !activePanel) bleiben lokal.
+  const chromeVisible =
+    (state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !fullscreenOverlayOpen;
+
   // Main Game View
   return (
     <div
@@ -943,51 +962,14 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           actionPoints: state.resources.actionPointsRemaining,
           maxActionPoints: state.resources.actionPointsMax,
         }}
-        objectives={state.objectives.map(o => ({
-          id: o.id,
-          title: o.label_de,
-          // B22: richtungs-bewusster Engine-Fortschritt (0–100), NICHT currentValue —
-          // beim Senk-Ziel (Vertrauen 100→40) wäre der Balken sonst ab Start voll.
-          progress: o.progress,
-          target: o.targetValue,
-          isCompleted: o.completed,
-          isPrimary: o.type === 'primary',
-        }))}
-        sonntagsfrage={(() => {
-          const wa = state.engine.getWahlabendData();
-          return { pollPct: wa.finalPollPct, thresholdPct: wa.thresholdPct, auftragTitel: state.engine.getAuftrag().titel_de };
-        })()}
-        abwehr={state.engine.getAbwehr()}
-        abwehrStageInfo={state.engine.getAbwehrStageInfo()}
+        sonntagsfrage={sonntagsfrage}
+        abwehr={abwehr}
+        abwehrStageInfo={abwehrStageInfo}
         exposureCountdown={state.engine.getExposureCountdown()}
         onEndPhase={requestEndDay}
         onOpenMenu={pauseGame}
         onHideHud={() => setHudVisible(false)}
       />
-      )}
-
-      {/* Dezenter, IMMER auffindbarer Einstieg (E1): Pause + HUD einblenden, wenn HUD aus */}
-      {!hudVisible && (state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
-        <div className="fixed top-1.5 right-1.5 z-50 flex gap-1">
-          <button
-            onClick={pauseGame}
-            aria-label="Pause / Menü"
-            title="Pause / Menü (Esc)"
-            className="w-8 h-8 flex items-center justify-center border-2 font-bold hover:brightness-125"
-            style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.lightConcrete }}
-          >
-            ☰
-          </button>
-          <button
-            onClick={() => setHudVisible(true)}
-            aria-label="HUD einblenden"
-            title="HUD einblenden (H)"
-            className="h-8 px-2 flex items-center gap-1 border-2 text-xs font-bold hover:brightness-125"
-            style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.lightConcrete }}
-          >
-            <Icon name="stats" size={12} title="HUD" fallback="HUD" /> HUD · H
-          </button>
-        </div>
       )}
 
       {/* Main Layout (Padding nur, wenn HUD sichtbar) */}
@@ -1064,6 +1046,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               onExitToBuilding={() => setViewMode('building')}
               unreadNewsCount={state.unreadNewsCount}
               worldEventCount={worldEventCount}
+              pinnedActionCount={state.actionQueue.length}
               showTutorialHints={showOfficeHints}
             />
           )}
@@ -1073,10 +1056,36 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             <NpcRoomView npcId={state.activeNpcId} mood={state.currentDialog.mood} />
           )}
 
-          {/* Tagesuhr (K1): Handlungen kosten Zeit, 18:00 = Redaktionsschluss */}
-          {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && (
-            <div className="absolute top-2 right-2 z-40">
+          {/* N0: EIN Eck-Cluster oben rechts — Tagesuhr + Pause + HUD-Einstieg in einer
+              Reihe. Vorher lagen der fixe Knopf-Block (z-50) und die Uhr (z-40)
+              übereinander: die Uhrzeit war im Grundzustand unlesbar. Der Cluster lebt
+              in der Welt-Fläche (rückt mit dem Seitenpanel mit) und verschwindet unter
+              Vollbild-Overlays. Der HUD-eigene MENÜ/H-Knopf übernimmt bei HUD an. */}
+          {chromeVisible && (
+            <div className="absolute top-2 right-2 z-40 flex items-center gap-1">
               <DayClock />
+              {!hudVisible && (
+                <>
+                  <button
+                    onClick={pauseGame}
+                    aria-label="Pause / Menü"
+                    title="Pause / Menü (Esc)"
+                    className="w-8 h-8 flex items-center justify-center border-2 font-bold hover:brightness-125"
+                    style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.lightConcrete }}
+                  >
+                    ☰
+                  </button>
+                  <button
+                    onClick={() => setHudVisible(true)}
+                    aria-label="HUD einblenden"
+                    title="HUD einblenden (H)"
+                    className="h-8 px-2 flex items-center gap-1 border-2 text-xs font-bold hover:brightness-125"
+                    style={{ backgroundColor: StoryModeColors.darkConcrete, borderColor: StoryModeColors.borderLight, color: StoryModeColors.lightConcrete }}
+                  >
+                    <Icon name="stats" size={12} title="HUD" fallback="HUD" /> HUD · H
+                  </button>
+                </>
+              )}
             </div>
           )}
           </div>
@@ -1316,6 +1325,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         {/* Narrativ-Tafel (2f): Sendeplan — Maßnahmen anheften, Gelegenheits-Fäden, ausspielen */}
         {showBoard && (
           <NarrativeBoard
+            sonntagsfrage={sonntagsfrage}
+            abwehr={abwehr}
             objectives={state.objectives.map((o) => ({
               id: o.id,
               label_de: o.label_de,
@@ -1325,38 +1336,20 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               isPrimary: o.type === 'primary',
               category: o.category,
             }))}
-            actions={state.availableActions.map((a) => ({
-              id: a.id,
-              label_de: a.label_de,
-              narrative_de: a.narrative_de,
-              costs: { budget: a.costs.budget, capacity: a.costs.capacity },
-              legality: a.legality,
-              available: a.available,
-              unavailableReason: a.unavailableReason,
-              // Zuständiges Büro für die Gruppierung (Entscheidung 1). Fallback „Ministerium",
-              // u. a. für die bekannte Affinitäts-Inkonsistenz (volkov≠NPC-Id, s. STATUS.md).
-              npc: state.npcs.find((n) => n.id === a.npcAffinity?.[0])?.name ?? 'Ministerium',
-            }))}
             queue={state.actionQueue}
             threads={[
               // P4/B1: aktive Episoden = die Stränge am Korkbrett (das „Warum"). Fortschritt =
               // Anteil der bereits gespielten Einklink-Aktionen dieser Episode.
-              ...(state.activeEpisodes ?? []).map((ep) => {
-                const total = ep.einklink_aktionen.length || 1;
-                const done = ep.einklink_aktionen.filter((id) => state.completedActions.includes(id)).length;
-                return {
-                  id: ep.id,
-                  name: ep.titel_de,
-                  hint: ep.wendung_de,
-                  progress: done / total,
-                  expiresIn: 99,
-                };
-              }),
+              ...(state.activeEpisodes ?? []).map((ep) => ({
+                id: ep.id,
+                name: ep.titel_de,
+                hint: ep.wendung_de,
+                expiresIn: 99,
+              })),
               ...(state.comboHints ?? []).map((h) => ({
                 id: h.comboId,
                 name: h.comboName,
                 hint: h.hint_de,
-                progress: h.progress,
                 expiresIn: h.expiresIn,
               })),
             ]}
@@ -1365,12 +1358,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               capacity: state.resources.capacity,
               actionPoints: state.resources.actionPointsRemaining,
             }}
-            onPin={(actionId) => addToQueue(actionId)}
             onUnpin={(queueItemId) => removeFromQueue(queueItemId)}
-            onExecuteNow={(actionId) => {
-              const result = executeAction(actionId);
-              if (result) setShowActionFeedback(true);
-            }}
             onPlay={async () => {
               const results = await executeQueue();
               if (results && results.length > 0) {
@@ -1396,8 +1384,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             npcs={state.npcs}
             unreadNewsCount={state.unreadNewsCount}
             worldEventCount={worldEventCount}
-            vertrauen={state.objectives.find(o => o.id === 'obj_destabilize')?.currentValue ?? 100}
-            auftrag={{ titel_de: state.engine.getAuftrag().titel_de, progress: state.engine.getAuftragProgress() }}
+            sonntagsfrage={sonntagsfrage}
+            abwehr={abwehr}
+            abwehrStages={abwehrStageInfo}
+            auftrag={{ titel_de: state.engine.getAuftrag().titel_de }}
+            onOpenMission={() => { setShowLagebild(false); setActivePanel('mission'); }}
+            onOpenStats={() => { setShowLagebild(false); setActivePanel('stats'); }}
             onClose={() => setShowLagebild(false)}
           />
         )}
@@ -1406,6 +1398,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         {showDayReport && (
           <DayReport
             phase={state.storyPhase.number}
+            pinnedCount={state.actionQueue.length}
             headline={audience.lastItem?.headline ?? null}
             tierLabel={audience.lastItem ? audience.lastItem.tier.toUpperCase() : null}
             audienceSegments={audience.country.segments.map((seg) => ({
@@ -1637,9 +1630,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       />
 
       {/* Advisor Panel — während eines Gesprächs ausgeblendet (freie Sicht aufs NPC-Gespräch
-          + dessen Maßnahmen-Optionen; Empfehlungen erscheinen jetzt diegetisch im Dialog). */}
-      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !state.currentDialog && (
+          + dessen Maßnahmen-Optionen; Empfehlungen erscheinen jetzt diegetisch im Dialog).
+          N0: unter Vollbild-Overlays aus; bei offenem Seitenpanel rückt die Leiste
+          daneben (Review-Befund B6: Empfehlungen blieben sonst unsichtbar). */}
+      {chromeVisible && !state.currentDialog && (
         <AdvisorPanel
+          rightOffsetPx={activePanel ? 420 : 0}
           npcs={state.npcs.map(npc => ({
             id: npc.id,
             name: npc.name,
@@ -1681,38 +1677,14 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
         />
       )}
 
-      {/* Action Queue Widget — im Gespräch, am Terminal UND bei ausgeklapptem
-          Broadcast ausgeblendet (das Floating-Widget überlappte sonst die
-          Vorgangsblätter bzw. das Publikums-Wohnzimmer; geplant wird am Korkbrett). */}
-      {state.gamePhase === 'playing' && !state.currentDialog && !showTerminal && !broadcastExpanded && (
-        <ActionQueueWidget
-          queue={state.actionQueue}
-          currentResources={{
-            budget: state.resources.budget,
-            capacity: state.resources.capacity,
-            actionPoints: state.resources.actionPointsRemaining,
-          }}
-          onRemove={removeFromQueue}
-          onClear={clearQueue}
-          onExecute={async () => {
-            const results = await executeQueue();
-            if (results && results.length > 0) {
-              const validResults = results.filter(r => r !== null);
-              if (validResults.length > 0) {
-                setBatchActionResults(validResults as ActionResult[]);
-                setShowActionFeedback(true);
-              }
-            }
-          }}
-          isCollapsed={queueCollapsed}
-          onToggleCollapse={toggleQueue}
-        />
-      )}
+      {/* N3 (PLAN 2026-07-07): Das schwebende Queue-Widget ist in der Narrativ-Tafel
+          aufgegangen (L3-Kern) — die Queue lebt als angeheftete Karten an der Tafel,
+          der Tafel-Hotspot im Büro trägt den Zähler (archive/story-mode-drafts/). */}
 
       {/* Combo Hints Widget — im Gespräch ausgeblendet (kein Floating über dem Dialog) */}
-      {(state.gamePhase === 'playing' || state.gamePhase === 'tutorial') && !state.currentDialog && state.comboHints && state.comboHints.length > 0 && (
+      {chromeVisible && !state.currentDialog && state.comboHints && state.comboHints.length > 0 && (
         <div
-          className="fixed bottom-4 left-4 w-80 z-20"
+          className="fixed bottom-16 left-4 w-80 z-20"
           style={{ maxHeight: '40vh', overflowY: 'auto' }}
         >
           <ComboHintsWidget hints={state.comboHints} />

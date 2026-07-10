@@ -168,8 +168,9 @@ export function StatsPanel({
           {/* Risk */}
           <div>
             <div className="flex justify-between mb-1">
+              {/* N2 (§12.4): keine eigenständige Größe mehr — Zufluss der ABWEHR. */}
               <span style={{ color: StoryModeColors.textSecondary }}>
-                <Icon name="risk" size={14} title="Risiko" /> RISIKO
+                <Icon name="risk" size={14} title="Risiko — Zufluss der Abwehr" /> RISIKO (→ ABWEHR)
               </span>
               <span
                 className="font-bold"
@@ -206,8 +207,9 @@ export function StatsPanel({
           {/* Attention */}
           <div>
             <div className="flex justify-between mb-1">
+              {/* N2 (§12.4): keine eigenständige Größe mehr — Zufluss der ABWEHR. */}
               <span style={{ color: StoryModeColors.textSecondary }}>
-                <Icon name="attention" size={14} title="Aufmerksamkeit" /> AUFMERKSAMKEIT
+                <Icon name="attention" size={14} title="Aufmerksamkeit — Zufluss der Abwehr" /> AUFMERKS. (→ ABWEHR)
               </span>
               <span
                 className="font-bold"

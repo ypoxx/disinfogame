@@ -33,6 +33,8 @@ interface AdvisorPanelProps {
   onToggleCollapse?: () => void;
   betrayalStates?: Map<string, BetrayalState>;
   onOpenGrievances?: (npcId: string) => void;
+  /** N0: bei offenem Seitenpanel rückt die Leiste daneben, statt es zu überdecken. */
+  rightOffsetPx?: number;
 }
 
 // ============================================
@@ -47,6 +49,7 @@ export function AdvisorPanel({
   onToggleCollapse,
   betrayalStates,
   onOpenGrievances,
+  rightOffsetPx = 0,
 }: AdvisorPanelProps) {
   const [hoveredNpc, setHoveredNpc] = useState<string | null>(null);
 
@@ -84,8 +87,9 @@ export function AdvisorPanel({
   if (isCollapsed) {
     return (
       <div
-        className="fixed right-0 top-16 bottom-0 w-12 border-l-4 flex flex-col items-center py-4 gap-2"
+        className="fixed top-16 bottom-0 w-12 border-l-4 flex flex-col items-center py-4 gap-2"
         style={{
+          right: rightOffsetPx,
           backgroundColor: StoryModeColors.surface,
           borderColor: StoryModeColors.ministryRed,
           zIndex: 40,
@@ -130,8 +134,9 @@ export function AdvisorPanel({
   // Full view
   return (
     <div
-      className="fixed right-0 top-16 bottom-0 w-80 border-l-4 flex flex-col"
+      className="fixed top-16 bottom-0 w-80 border-l-4 flex flex-col"
       style={{
+        right: rightOffsetPx,
         backgroundColor: StoryModeColors.surface,
         borderColor: StoryModeColors.ministryRed,
         zIndex: 40,

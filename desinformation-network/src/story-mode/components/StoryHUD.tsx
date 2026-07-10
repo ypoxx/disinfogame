@@ -1,5 +1,6 @@
 import { StoryModeColors, stampCtaStyle } from '../theme';
 import { Icon, type IconName } from './Icon';
+import { formatPollPct, sonntagsfrageScale } from '../utils/rennen';
 
 // E29: Keyframe für pulsierendes RISIKO bei ≥70 — einmalig injiziert.
 const HUD_PULSE_STYLE = `
@@ -31,28 +32,6 @@ export interface StoryPhaseInfo {
   maxActionPoints: number;
 }
 
-export interface ObjectiveInfo {
-  id: string;
-  title: string;
-  progress: number;
-  target: number;
-  isCompleted: boolean;
-  isPrimary: boolean;
-}
-
-/**
- * Gesellschaftswerte fürs HUD (B2/P1, O3: 4 sichtbar, niedrigschwellig).
- * Vertrauen kommt aus obj_destabilize; der Rest aus den neuen Zustandsfeldern.
- */
-export interface SocietyInfo {
-  vertrauen: number;        // Institutionen-Vertrauen (0–100, sinkt = Auftrags-Mittel)
-  polarisierung: number;
-  informationslast: number;
-  zynismus: number;
-  /** P5: Titel des laufenden strategischen Auftrags („Vertrauen = Mittel, Auftrag = Ziel"). */
-  auftragTitel?: string;
-}
-
 /** Etappe 3 Paket A: Stufen-Marken + bereits gezündete Stufen (`engine.getAbwehrStageInfo()`). */
 export interface AbwehrStageInfo {
   stages: readonly number[];
@@ -65,17 +44,11 @@ export interface SonntagsfrageInfo {
   pollPct: number;
   /** Machtwechsel-Schwelle (%, = WIN_THRESHOLD in derselben Abbildung). */
   thresholdPct: number;
-  /** Titel des laufenden Auftrags („Die Wahl"). */
-  auftragTitel?: string;
 }
 
 interface StoryHUDProps {
   resources: StoryResources;
   phase: StoryPhaseInfo;
-  objectives: ObjectiveInfo[];
-  /** DEPRECATED (Etappe 5, §6): die 8 Gesellschaftswerte verschwinden als HUD-Anzeige
-   *  (Wohnzimmer-Alphabet ersetzt sie). Prop bleibt optional für Rückwärts-Kompatibilität. */
-  society?: SocietyInfo;
   /** Etappe 5: der eigene Rennläufer — die Sonntagsfrage (Zielbild §6, HUD-Größe 1). */
   sonntagsfrage?: SonntagsfrageInfo;
   /** Etappe 3 Paket D: der zweite Rennläufer — ABWEHR 0–100 (befördertes wehrhaftigkeit). */
@@ -86,7 +59,6 @@ interface StoryHUDProps {
   exposureCountdown?: number | null;
   onEndPhase?: () => void;
   onOpenMenu?: () => void;
-  onOpenObjectives?: () => void;
   /** E1/2g: HUD wieder ausblenden (nur auf Knopfdruck sichtbar). */
   onHideHud?: () => void;
 }
@@ -292,11 +264,8 @@ function AbwehrBar({ value, stageInfo }: AbwehrBarProps) {
  * Balken wächst Richtung Schwelle, der Zielstrich zeigt, wie weit noch fehlt.
  */
 function SonntagsfrageBar({ info }: { info: SonntagsfrageInfo }) {
-  // Skala bis knapp über die Schwelle, damit der Zielstrich nicht am Rand klebt.
-  const scaleMax = Math.max(info.pollPct, info.thresholdPct) + 6;
-  const barPct = Math.min(100, (info.pollPct / scaleMax) * 100);
-  const linePct = Math.min(100, (info.thresholdPct / scaleMax) * 100);
-  const reached = info.pollPct >= info.thresholdPct;
+  // Geteilte Skala (utils/rennen) — Lagebild zeigt denselben Balken in groß.
+  const { barPct, linePct, reached } = sonntagsfrageScale(info.pollPct, info.thresholdPct);
   return (
     <div className="flex items-center gap-2" data-testid="sonntagsfrage-bar">
       <Icon name="mission" size={20} title="SONNTAGSFRAGE — Ihr Umfragewert" fallback="S" />
@@ -306,7 +275,7 @@ function SonntagsfrageBar({ info }: { info: SonntagsfrageInfo }) {
             SONNTAGSFRAGE
           </span>
           <span style={{ color: StoryModeColors.warning, fontWeight: 800, fontSize: '0.85rem' }}>
-            {info.pollPct.toFixed(1)}%
+            {formatPollPct(info.pollPct)}
           </span>
         </div>
         <div className="relative" style={{ height: '4px' }}>
@@ -373,73 +342,11 @@ function PhaseDisplay({ phase }: PhaseDisplayProps) {
   );
 }
 
-// ============================================
-// OBJECTIVE TRACKER COMPONENT
-// ============================================
-
-interface ObjectiveTrackerProps {
-  objectives: ObjectiveInfo[];
-  onClick?: () => void;
-}
-
-function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
-  const primaryObjective = objectives.find(o => o.isPrimary && !o.isCompleted);
-  const completedCount = objectives.filter(o => o.isCompleted).length;
-
-  if (!primaryObjective) return null;
-
-  // B22: `progress` ist bereits der richtungs-bewusste Engine-Prozentwert (0–100).
-  const progress = Math.max(0, Math.min(100, primaryObjective.progress));
-
-  return (
-    <button
-      onClick={onClick}
-      className="text-left px-3 py-2 border-2 transition-all hover:brightness-110"
-      style={{
-        backgroundColor: StoryModeColors.surfaceLight,
-        borderColor: StoryModeColors.border,
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-      }}
-    >
-      <div className="flex items-center gap-2 mb-1">
-        <Icon name="mission" size={14} title="Aktuelles Ziel" fallback="Z" />
-        <span
-          className="text-xs font-bold uppercase"
-          style={{ color: StoryModeColors.textSecondary }}
-        >
-          Aktuelles Ziel
-        </span>
-        <span
-          className="text-xs ml-auto"
-          style={{ color: StoryModeColors.textMuted }}
-        >
-          {completedCount}/{objectives.length}
-        </span>
-      </div>
-      <div
-        className="text-sm font-mono truncate max-w-[200px]"
-        style={{ color: StoryModeColors.textPrimary }}
-      >
-        {primaryObjective.title}
-      </div>
-      <div
-        className="h-1 mt-1 overflow-hidden"
-        style={{ backgroundColor: StoryModeColors.border }}
-      >
-        <div
-          className="h-full transition-all duration-300"
-          style={{
-            width: `${progress}%`,
-            backgroundColor: StoryModeColors.militaryOlive,
-          }}
-        />
-      </div>
-    </button>
-  );
-}
-
 // (Etappe 5, §6: Der frühere „SocietyStrip" — 4 Gesellschaftswerte im HUD — ist entfallen.
-//  Die Gesellschaft zeigt sich als Bild, nie als Balken: das Wohnzimmer-Alphabet.)
+//  Die Gesellschaft zeigt sich als Bild, nie als Balken: das Wohnzimmer-Alphabet.
+//  N2, PLAN 2026-07-07: Auch der ObjectiveTracker ist entfallen — er war Anzeige Nr. 5
+//  (§6 erlaubt GENAU vier Größen) und sprach das Alt-Vokabular „destabilisieren";
+//  Ziele wohnen in der Akte (MissionPanel, Taste M) und an der Narrativ-Tafel.)
 
 // ============================================
 // MAIN STORY HUD COMPONENT
@@ -448,14 +355,12 @@ function ObjectiveTracker({ objectives, onClick }: ObjectiveTrackerProps) {
 export function StoryHUD({
   resources,
   phase,
-  objectives,
   sonntagsfrage,
   abwehr,
   abwehrStageInfo,
   exposureCountdown,
   onEndPhase,
   onOpenMenu,
-  onOpenObjectives,
   onHideHud,
 }: StoryHUDProps) {
   return (
@@ -560,14 +465,6 @@ export function StoryHUD({
         </div>
       </div>
 
-      {/* Bottom Left: das laufende Ziel (die Akte). Die 8 Gesellschaftswerte sind aus dem
-          HUD verschwunden (Zielbild §6) — das Wohnzimmer-Alphabet zeigt die Gesellschaft. */}
-      <div className="fixed bottom-4 left-4 z-30 flex flex-col gap-2">
-        <ObjectiveTracker
-          objectives={objectives}
-          onClick={onOpenObjectives}
-        />
-      </div>
     </>
   );
 }

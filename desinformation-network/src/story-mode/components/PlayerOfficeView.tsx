@@ -2,8 +2,10 @@
  * PlayerOfficeView — Spielerbüro als begehbarer Pixel-Art-Raum.
  *
  * Das generierte Raumfoto (room_spieler_buero, 1344×768) dient als
- * Vollbild-Hintergrund; darüber liegen unsichtbare Hotspot-Buttons, die
- * die bestehenden Seiten-Panels öffnen. Kein CSS-Nachbau der Möbel.
+ * Vollbild-Hintergrund; darüber liegt EIN SVG in Bild-Koordinaten mit
+ * präzisen Möbel-Polygonen als Klickzonen (PLAN 2026-07-07, N1) — kein
+ * %-vom-Container-Raster mehr, das bei Layout-Änderungen von den Möbeln
+ * driftete. Kein CSS-Nachbau der Möbel.
  */
 import { useState, useCallback, useRef } from 'react';
 import { Icon } from './Icon';
@@ -12,6 +14,22 @@ import { useAssets } from '../assets/useAssets';
 import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
 import { playSound } from '../utils/SoundSystem';
 import { usePlayerProfile, playerPortraitAssetId } from '../stores/playerProfileStore';
+import {
+  OFFICE_HOTSPOTS,
+  OFFICE_IMG,
+  OFFICE_DECOR,
+  clampAnchor,
+  coverTransform,
+  hotspotAnchor,
+  imgToContainer,
+  polygonBBox,
+  rectToContainer,
+  svgPoints,
+  visibleFraction,
+  type CoverTransform,
+  type OfficeHotspotDef,
+  type OfficeHotspotId,
+} from './officeHotspots';
 
 // ─── Typen ────────────────────────────────────────────────────────────────────
 
@@ -28,24 +46,16 @@ interface PlayerOfficeViewProps {
   onExitToBuilding: () => void;
   unreadNewsCount: number;
   worldEventCount: number;
+  /** N3: angeheftete Maßnahmen — Zähler-Badge an der Narrativ-Tafel. */
+  pinnedActionCount?: number;
   /** Erste Sitzung: nummerierte Hinweis-Marker einblenden. */
   showTutorialHints?: boolean;
-}
-
-/** Einzelner Hotspot — Position und Größe in % der Containerfläche. */
-interface HotspotDef {
-  id: string;
-  label: string;
-  left: number;   // % von links
-  top: number;    // % von oben
-  width: number;  // % Breite
-  height: number; // % Höhe
 }
 
 // ─── Keyframes (Präfix po-) ───────────────────────────────────────────────────
 
 const KEYFRAMES = `
-  @keyframes po-tv-flicker {
+  @keyframes po-screen-flicker {
     0%,100% { opacity: 0.10; }
     20%      { opacity: 0.05; }
     40%      { opacity: 0.18; }
@@ -66,57 +76,56 @@ const KEYFRAMES = `
   }
 `;
 
-// ─── Hotspot-Definitionen (Koordinaten anhand des Bildes room_spieler_buero) ──
-//
-// Bild 1344×768 px. Objekte und ihre ungefähren Pixel-Bereiche:
-//   CRT-Terminal (Monitor + Tastatur):  ca. x 440–755 px, y 270–510 px → links≈33% top≈35% w≈24% h≈31%
-//   Rotes Telefon auf dem Schreibtisch: ca. x 295–430 px, y 430–555 px → links≈22% top≈56% w≈10% h≈16%
-//   Pinnwand/Korkbrett (an der Wand):   ca. x 200–560 px, y 50–385 px  → links≈15% top≈7%  w≈27% h≈43%
-//   Akten/Bücher (rechts am Schreibt.): ca. x 730–900 px, y 430–530 px → links≈54% top≈56% w≈13% h≈13%
-//   Fernseher (kleines Gerät rechts):   ca. x 1120–1300px, y 370–570px → links≈83% top≈48% w≈13% h≈26%
-//   Fenster (Mitte, Jalousie):          ca. x 680–980 px, y 30–320 px  → links≈51% top≈4%  w≈22% h≈38%
-//   Linker Bildrand (Poster/Ausgang):   ca. x 0–95 px,   y 0–768 px   → links≈0%  top≈0%  w≈7%  h≈100%
-
-const HOTSPOTS: HotspotDef[] = [
-  { id: 'computer', label: 'AKTIONEN PLANEN',     left: 33, top: 35, width: 24, height: 31 },
-  { id: 'phone',    label: 'KONTAKTE',             left: 22, top: 56, width: 10, height: 16 },
-  { id: 'board',    label: 'NARRATIV-TAFEL',        left: 15, top:  7, width: 27, height: 43 },
-  { id: 'files',    label: 'NACHRICHTEN',          left: 54, top: 56, width: 13, height: 13 },
-  { id: 'tv',       label: 'LAGEBILD',               left: 83, top: 48, width: 13, height: 26 },
-  { id: 'window',   label: 'WELT-EREIGNISSE',      left: 51, top:  4, width: 22, height: 38 },
-  // 2g: Diegetischer Ausgang über die Tür am linken Bildrand (ersetzt den
-  // „GEBÄUDE"-Web-Button der Unterleiste — Bedienung diegetisch).
-  { id: 'exit',     label: '← GEBÄUDE',             left:  0, top:  0, width:  6, height: 100 },
-];
-
-// Tutorial-Marker (Computer, Pinnwand, TV)
+// Tutorial-Marker (Computer, Pinnwand, Wand-Monitor)
 interface TutorialMarker {
-  hotspotId: string;
+  hotspotId: OfficeHotspotId;
   num: string;
   text: string;
 }
 const TUTORIAL_MARKERS: TutorialMarker[] = [
   { hotspotId: 'computer', num: '①', text: 'Aktionen planen' },
   { hotspotId: 'board',    num: '②', text: 'Tafel planen'    },
-  { hotspotId: 'tv',       num: '③', text: 'Lagebild'       },
+  { hotspotId: 'tv',       num: '③', text: 'Lagebild'        },
 ];
 
-// ─── Hilfsfunktionen ──────────────────────────────────────────────────────────
+// Label-Chip-Farbe je Hotspot — Record statt switch: ein neuer Hotspot ohne
+// Farbeintrag ist damit ein Compile-Fehler, kein stiller Default.
+const CHIP_COLOR: Record<OfficeHotspotId, string> = {
+  computer: StoryModeColors.ministryRed,
+  phone:    StoryModeColors.warning,
+  board:    StoryModeColors.agencyBlue,
+  files:    StoryModeColors.danger,
+  tv:       StoryModeColors.agencyBlue,
+  window:   StoryModeColors.militaryOlive,
+  exit:     StoryModeColors.concrete,
+};
 
-function hotspotByIdPos(id: string): HotspotDef | undefined {
-  return HOTSPOTS.find((h) => h.id === id);
-}
+// ─── Hilfskomponenten ─────────────────────────────────────────────────────────
 
-/** Vier dezente Eck-Marken (┌ ┐ └ ┘) als Ruhe-Hinweis für eine Klickfläche —
- *  ersetzt das durchgehende Rechteck, das wie ein Drahtgitter über den Möbeln wirkte. */
-function CornerTicks({ color }: { color: string }): React.JSX.Element {
-  const base: React.CSSProperties = { position: 'absolute', width: 9, height: 9, pointerEvents: 'none' };
+/** Vier dezente Eck-Marken (┌ ┐ └ ┘) an der Polygon-BBox als Ruhe-Hinweis. */
+function CornerTicks({ hs }: { hs: OfficeHotspotDef }): React.JSX.Element {
+  const b = polygonBBox(hs.polygon);
+  const len = 12; // Bild-px
+  const c = 'rgba(240,180,41,0.45)';
+  const corners = [
+    `M ${b.x} ${b.y + len} L ${b.x} ${b.y} L ${b.x + len} ${b.y}`,
+    `M ${b.x + b.w - len} ${b.y} L ${b.x + b.w} ${b.y} L ${b.x + b.w} ${b.y + len}`,
+    `M ${b.x + b.w} ${b.y + b.h - len} L ${b.x + b.w} ${b.y + b.h} L ${b.x + b.w - len} ${b.y + b.h}`,
+    `M ${b.x + len} ${b.y + b.h} L ${b.x} ${b.y + b.h} L ${b.x} ${b.y + b.h - len}`,
+  ];
   return (
     <>
-      <span aria-hidden style={{ ...base, top: 3, left: 3, borderTop: `2px solid ${color}`, borderLeft: `2px solid ${color}` }} />
-      <span aria-hidden style={{ ...base, top: 3, right: 3, borderTop: `2px solid ${color}`, borderRight: `2px solid ${color}` }} />
-      <span aria-hidden style={{ ...base, bottom: 3, left: 3, borderBottom: `2px solid ${color}`, borderLeft: `2px solid ${color}` }} />
-      <span aria-hidden style={{ ...base, bottom: 3, right: 3, borderBottom: `2px solid ${color}`, borderRight: `2px solid ${color}` }} />
+      {corners.map((d, i) => (
+        <path
+          key={i}
+          d={d}
+          fill="none"
+          stroke={c}
+          strokeWidth={2}
+          vectorEffect="non-scaling-stroke"
+          pointerEvents="none"
+        />
+      ))}
     </>
   );
 }
@@ -134,6 +143,7 @@ export function PlayerOfficeView({
   onExitToBuilding,
   unreadNewsCount,
   worldEventCount,
+  pinnedActionCount = 0,
   showTutorialHints = false,
 }: PlayerOfficeViewProps): React.JSX.Element {
   const assets = useAssets();
@@ -145,7 +155,27 @@ export function PlayerOfficeView({
   const bgNat = useNaturalSize(bgUrl);
   const bgSnap = usePixelCover(areaSize, bgNat);
 
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  // Bild→Container-Transformation. Ohne Snap (kein Asset, Ladefehler ODER Bild
+  // noch unterwegs) bleiben die Zonen bedienbar (A1): contain-zentriert — die
+  // alte Bedingung `!bgUrl` ließ das Büro bei einem 404 dauerhaft ohne einen
+  // einzigen Hotspot zurück (Review-Befund A1/B2).
+  const t: CoverTransform | null = (() => {
+    if (bgSnap) return coverTransform(areaSize, bgSnap);
+    if (areaSize.w > 0 && areaSize.h > 0) {
+      const s = Math.min(areaSize.w / OFFICE_IMG.w, areaSize.h / OFFICE_IMG.h);
+      return coverTransform(areaSize, { width: OFFICE_IMG.w * s, height: OFFICE_IMG.h * s });
+    }
+    return null;
+  })();
+
+  // Cover-Beschnitt-Wächter: Zonen, die (fast) ganz außerhalb liegen — Tür bei
+  // schmalen, Wand-Monitor/Korkbrett bei flachen Flächen — bekommen einen
+  // Ersatz-Knopf in der Unterleiste, statt stumm zu verschwinden (A2/B3/C3).
+  const croppedHotspots = t
+    ? OFFICE_HOTSPOTS.filter((hs) => visibleFraction(hs, t, areaSize) < 0.25)
+    : [];
+
+  const [hoveredId, setHoveredId] = useState<OfficeHotspotId | null>(null);
   const [tutorialVisible, setTutorialVisible] = useState<boolean>(showTutorialHints);
 
   // Jeder Hotspot-Klick blendet Tutorial aus.
@@ -155,7 +185,7 @@ export function PlayerOfficeView({
 
   // Klick-Handler je Hotspot
   const handleClick = useCallback(
-    (id: string): void => {
+    (id: OfficeHotspotId): void => {
       dismissTutorial();
       switch (id) {
         case 'computer': playSound('typewriter'); onOpenActions();   break;
@@ -171,25 +201,15 @@ export function PlayerOfficeView({
   );
 
   // Badge-Zähler je Hotspot
-  const badgeFor = (id: string): number => {
+  const badgeFor = (id: OfficeHotspotId): number => {
     if (id === 'files') return unreadNewsCount;
     if (id === 'window') return worldEventCount;
+    if (id === 'board') return pinnedActionCount;
     return 0;
   };
 
-  // Label-Chip-Farbe je Hotspot
-  const chipColor = (id: string): string => {
-    switch (id) {
-      case 'computer': return StoryModeColors.ministryRed;
-      case 'phone':    return StoryModeColors.warning;
-      case 'board':    return StoryModeColors.agencyBlue;
-      case 'files':    return StoryModeColors.danger;
-      case 'tv':       return StoryModeColors.agencyBlue;
-      case 'window':   return StoryModeColors.militaryOlive;
-      case 'exit':     return StoryModeColors.concrete;
-      default:         return StoryModeColors.surface;
-    }
-  };
+  const crt = t ? rectToContainer(OFFICE_DECOR.crtScreen, t) : null;
+  const wall = t ? rectToContainer(OFFICE_DECOR.wallScreen, t) : null;
 
   return (
     <div
@@ -240,94 +260,116 @@ export function PlayerOfficeView({
         </div>
       )}
 
-      {/* Mikro-Animationen: TV-Flacker-Overlay */}
-      <div
-        style={{
-          position: 'absolute',
-          // TV-Bildfläche innerhalb des Hotspots (grobe Näherung: innere ~60%)
-          left: '85%',
-          top: '51%',
-          width: '9%',
-          height: '15%',
-          backgroundColor: '#c8d8ff',
-          opacity: 0.10,
-          pointerEvents: 'none',
-          animation: 'po-tv-flicker 1.3s steps(3) infinite',
-          zIndex: 2,
-        }}
-      />
+      {/* Mikro-Animationen — in Bild-Koordinaten verankert (kein Drift):
+          CRT-Glühen auf dem Röhrenschirm, Flackern auf dem Wand-Monitor. */}
+      {crt && (
+        <div
+          style={{
+            position: 'absolute',
+            ...crt,
+            borderRadius: 2,
+            pointerEvents: 'none',
+            animation: hoveredId === 'computer' ? undefined : 'po-crt-glow 2.4s ease-in-out infinite',
+            zIndex: 2,
+          }}
+        />
+      )}
+      {wall && (
+        <div
+          style={{
+            position: 'absolute',
+            ...wall,
+            backgroundColor: '#c8d8ff',
+            opacity: 0.1,
+            pointerEvents: 'none',
+            animation: 'po-screen-flicker 1.3s steps(3) infinite',
+            zIndex: 2,
+          }}
+        />
+      )}
 
-      {/* Mikro-Animation: CRT-Bildschirm-Glühen */}
-      <div
-        style={{
-          position: 'absolute',
-          left: '36%',
-          top: '36%',
-          width: '20%',
-          height: '17%',
-          borderRadius: 2,
-          pointerEvents: 'none',
-          animation: hoveredId === 'computer' ? undefined : 'po-crt-glow 2.4s ease-in-out infinite',
-          zIndex: 2,
-        }}
-      />
+      {/* Klickzonen: EIN SVG in Bild-Koordinaten über der gesnappten Bildfläche.
+          Treffer-Fläche = Möbel-Polygon (nicht BBox); Hover/Fokus = Kontur. */}
+      {t && (
+        <svg
+          viewBox={`0 0 ${OFFICE_IMG.w} ${OFFICE_IMG.h}`}
+          preserveAspectRatio="none"
+          style={{
+            position: 'absolute',
+            left: t.offsetX,
+            top: t.offsetY,
+            width: OFFICE_IMG.w * t.scaleX,
+            height: OFFICE_IMG.h * t.scaleY,
+            zIndex: 10,
+            overflow: 'visible',
+          }}
+        >
+          {OFFICE_HOTSPOTS.map((hs) => {
+            const isHovered = hoveredId === hs.id;
+            return (
+              <g key={hs.id}>
+                {/* Ruhe-Hinweis: nur vier kleine Ecken statt voller Rahmen */}
+                {!isHovered && <CornerTicks hs={hs} />}
+                <polygon
+                  points={svgPoints(hs.polygon)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={hs.label}
+                  onClick={() => handleClick(hs.id)}
+                  onMouseEnter={() => setHoveredId(hs.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                  onFocus={() => setHoveredId(hs.id)}
+                  onBlur={() => setHoveredId(null)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleClick(hs.id);
+                    }
+                  }}
+                  fill={isHovered ? 'rgba(255,255,255,0.08)' : 'transparent'}
+                  stroke={isHovered ? '#F0B429' : 'none'}
+                  strokeWidth={2}
+                  vectorEffect="non-scaling-stroke"
+                  style={{ cursor: 'pointer', outline: 'none', pointerEvents: 'all' }}
+                >
+                  <title>{hs.label}</title>
+                </polygon>
+              </g>
+            );
+          })}
+        </svg>
+      )}
 
-      {/* Hotspots */}
-      {HOTSPOTS.map((hs) => {
-        const isHovered = hoveredId === hs.id;
+      {/* Chips, Badges, Tutorial-Marker — HTML über dem SVG, per Transformation
+          an den Polygon-Ankern ausgerichtet. */}
+      {t && OFFICE_HOTSPOTS.map((hs) => {
+        // Beschnittene Zonen: Chip/Badge übernimmt der Ersatz-Knopf der Unterleiste.
+        if (croppedHotspots.includes(hs)) return null;
+        // Anker/Badge-Ecke in den Sichtbereich clampen — der Cover-Beschnitt darf
+        // Hinweise nicht unsichtbar machen (Befunde A3/A4).
+        const anchor = clampAnchor(imgToContainer(hotspotAnchor(hs), t), areaSize);
         const badge = badgeFor(hs.id);
-        const color = chipColor(hs.id);
+        const bbox = polygonBBox(hs.polygon);
+        const corner = clampAnchor(imgToContainer([bbox.x + bbox.w, bbox.y], t), areaSize, 14, 14);
         return (
-          <button
-            key={hs.id}
-            onClick={() => handleClick(hs.id)}
-            onMouseEnter={() => setHoveredId(hs.id)}
-            onMouseLeave={() => setHoveredId(null)}
-            onFocus={() => setHoveredId(hs.id)}
-            onBlur={() => setHoveredId(null)}
-            title={hs.label}
-            aria-label={hs.label}
-            style={{
-              position: 'absolute',
-              left: `${hs.left}%`,
-              top: `${hs.top}%`,
-              width: `${hs.width}%`,
-              height: `${hs.height}%`,
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              padding: 0,
-              zIndex: 10,
-              // Ruhezustand: KEIN Rechteck-Ring mehr (wirkte wie Drahtgitter über den
-              // Möbeln, „zwei Welten"); stattdessen dezente Eck-Marken (s. CornerTicks).
-              // Hover/Fokus: kräftige Outline + Inset-Highlight.
-              // v3: warning ist Marker-Tinte — über dem Raumfoto helles v2-Amber (passt zu CornerTicks).
-              outline: isHovered ? `2px solid #F0B429` : 'none',
-              outlineOffset: -1,
-              boxShadow: isHovered ? 'inset 0 0 0 9999px rgba(255,255,255,0.08)' : 'none',
-              transition: 'outline 120ms ease, box-shadow 120ms ease',
-            }}
-          >
-            {/* Ruhe-Hinweis: nur vier kleine Ecken statt voller Rahmen */}
-            {!isHovered && <CornerTicks color="rgba(240,180,41,0.45)" />}
+          <div key={hs.id} style={{ pointerEvents: 'none' }}>
             {/* Label-Chip (erscheint bei Hover/Fokus) */}
-            {isHovered && (
+            {hoveredId === hs.id && (
               <span
                 style={{
                   position: 'absolute',
-                  bottom: '105%',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
+                  left: anchor.x,
+                  top: anchor.y - 8,
+                  transform: 'translate(-50%, -100%)',
                   whiteSpace: 'nowrap',
                   backgroundColor: '#0d0d0d',
                   color: '#e8e4d8',
-                  border: `2px solid ${color}`,
+                  border: `2px solid ${CHIP_COLOR[hs.id]}`,
                   padding: '2px 8px',
                   fontSize: 11,
                   fontWeight: 700,
                   fontFamily: "'VT323', monospace",
                   letterSpacing: 1,
-                  pointerEvents: 'none',
                   zIndex: 20,
                   imageRendering: 'pixelated',
                 }}
@@ -336,13 +378,14 @@ export function PlayerOfficeView({
               </span>
             )}
 
-            {/* Badge (roter Zähler) */}
+            {/* Badge (roter Zähler) an der BBox-Ecke oben rechts */}
             {badge > 0 && (
               <span
                 style={{
                   position: 'absolute',
-                  top: '-6px',
-                  right: '-6px',
+                  left: corner.x,
+                  top: corner.y,
+                  transform: 'translate(-50%, -50%)',
                   minWidth: 20,
                   height: 20,
                   display: 'flex',
@@ -355,7 +398,7 @@ export function PlayerOfficeView({
                   fontSize: 11,
                   fontWeight: 700,
                   fontFamily: "'VT323', monospace",
-                  pointerEvents: 'none',
+                  padding: '0 3px',
                   zIndex: 21,
                   animation: 'po-badge-pulse 1.6s ease-in-out infinite',
                 }}
@@ -363,25 +406,24 @@ export function PlayerOfficeView({
                 {badge}
               </span>
             )}
-          </button>
+          </div>
         );
       })}
 
       {/* Tutorial-Hints (nummerierte Marker) */}
-      {tutorialVisible && TUTORIAL_MARKERS.map((marker) => {
-        const hs = hotspotByIdPos(marker.hotspotId);
-        if (!hs) return null;
-        // Marker mittig über dem Hotspot
-        const markerLeft = hs.left + hs.width / 2;
-        const markerTop = hs.top;
+      {t && tutorialVisible && TUTORIAL_MARKERS.map((marker) => {
+        const hs = OFFICE_HOTSPOTS.find((h) => h.id === marker.hotspotId);
+        if (!hs || croppedHotspots.includes(hs)) return null;
+        // Marker ist ~44 px hoch und hängt ÜBER dem Anker → y-Clamp entsprechend.
+        const anchor = clampAnchor(imgToContainer(hotspotAnchor(hs), t), areaSize, 70, 48);
         return (
           <div
             key={marker.hotspotId}
             style={{
               position: 'absolute',
-              left: `${markerLeft}%`,
-              top: `${markerTop}%`,
-              transform: 'translateX(-50%)',
+              left: anchor.x,
+              top: anchor.y,
+              transform: 'translate(-50%, -100%)',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -426,7 +468,8 @@ export function PlayerOfficeView({
           onClick={() => setTutorialVisible(false)}
           style={{
             position: 'absolute',
-            top: 12,
+            // Unter dem Eck-Cluster (Uhr/Pause/HUD, N0) — top-12 kollidierte damit.
+            top: 52,
             right: 12,
             backgroundColor: StoryModeColors.militaryOlive,
             border: `2px solid ${StoryModeColors.darkOlive}`,
@@ -459,10 +502,40 @@ export function PlayerOfficeView({
           zIndex: 15,
         }}
       >
-        {/* Ausgang ist jetzt diegetisch: Tür-Hotspot am linken Bildrand (2g). */}
+        {/* Ausgang ist diegetisch: Glastür-Polygon am linken Bildrand. */}
 
         {/* Dienstausweis — gewähltes Spieler-Porträt + Name (K10/D27) */}
         <Dienstausweis />
+
+        {/* Ersatz-Knöpfe für Zonen, die der Cover-Beschnitt aus dem Sichtfeld
+            geschoben hat (schmale/flache Flächen) — sonst hätte das Büro z. B.
+            keinen Ausgang mehr (A1; Befunde A2/B3/C3). */}
+        {croppedHotspots.length > 0 && (
+          <span style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
+            {croppedHotspots.map((hs) => {
+              const badge = badgeFor(hs.id);
+              return (
+                <button
+                  key={hs.id}
+                  onClick={() => handleClick(hs.id)}
+                  style={{
+                    backgroundColor: 'rgba(10,10,14,0.6)',
+                    border: `2px solid ${CHIP_COLOR[hs.id]}`,
+                    color: '#e8e4d8',
+                    padding: '3px 8px',
+                    fontSize: 11,
+                    fontFamily: "'VT323', monospace",
+                    fontWeight: 700,
+                    letterSpacing: 1,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {hs.label}{badge > 0 ? ` (${badge})` : ''}
+                </button>
+              );
+            })}
+          </span>
+        )}
 
         {/* Feierabend: Tag beenden (diegetischer Heimweg-Auslöser) */}
         <button
