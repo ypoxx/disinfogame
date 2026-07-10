@@ -93,6 +93,8 @@ interface NarrativeBoardProps {
   akt?: { nummer: number; titel: string };
   /** T4: Tage bis zur nächsten Sonntagsfrage (0 = heute Abend; null = ausblenden). */
   naechsteSonntagsfrageIn?: number | null;
+  /** T2-Luxus: echte Kork-Kachel (ui_cork_tile); ohne Asset bleibt das CSS-Punktraster. */
+  korkUrl?: string;
   onUnpin: (queueItemId: string) => void;
   onPlay: () => void;
   onClear: () => void;
@@ -142,6 +144,7 @@ export function NarrativeBoard({
   slots = 2,
   akt,
   naechsteSonntagsfrageIn = null,
+  korkUrl,
   onUnpin,
   onPlay,
   onClear,
@@ -217,15 +220,16 @@ export function NarrativeBoard({
           </button>
         </div>
 
-        {/* Korkfläche */}
+        {/* Korkfläche — echte Kachel (ui_cork_tile), CSS-Punktraster als Fallback. */}
         <div
           className="flex-1 min-h-0 overflow-y-auto p-4"
           style={{
             backgroundColor: '#7a5a36',
-            backgroundImage:
-              'radial-gradient(rgba(0,0,0,0.16) 1px, transparent 1px), radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)',
-            backgroundSize: '6px 6px, 6px 6px',
-            backgroundPosition: '0 0, 3px 3px',
+            backgroundImage: korkUrl
+              ? `url(${korkUrl})`
+              : 'radial-gradient(rgba(0,0,0,0.16) 1px, transparent 1px), radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)',
+            backgroundSize: korkUrl ? '512px 512px' : '6px 6px, 6px 6px',
+            backgroundPosition: korkUrl ? undefined : '0 0, 3px 3px',
             imageRendering: 'pixelated',
           }}
         >
@@ -412,7 +416,8 @@ export function NarrativeBoard({
           </span>
           <span className="ml-auto flex gap-2">
             <button
-              onClick={() => { if (canPlay) { playSound('click'); onPlay(); } }}
+              // T2-SFX: Ausspielen = Stempelschlag (sfx_stamp — „VOLLZOGEN."-Ton, E8).
+              onClick={() => { if (canPlay) { playSound('stamp'); onPlay(); } }}
               disabled={!canPlay}
               className="px-4 py-1.5 border-2 font-bold text-sm transition-all"
               style={{
@@ -596,7 +601,15 @@ function PinnedCard({ q, onUnpin }: { q: QueuedAction; onUnpin: () => void }): R
         <span style={{ position: 'absolute', top: -5, left: '50%', transform: 'translateX(-50%)', ...PIN_NEEDLE_STYLE }} />
         <div className="flex items-center gap-2">
           <span className="text-[11px] font-bold max-w-[150px] truncate" title={q.label}>{q.label}</span>
-          <button onClick={onUnpin} aria-label={`${q.label} lösen`} title="Lösen" className="text-xs" style={{ color: StoryModeColors.danger }}>✕</button>
+          <button
+            onClick={() => { playSound('pin'); onUnpin(); }}
+            aria-label={`${q.label} lösen`}
+            title="Lösen"
+            className="text-xs"
+            style={{ color: StoryModeColors.danger }}
+          >
+            ✕
+          </button>
         </div>
         {/* Einzelkosten je Karte — beim Trimmen eines überzogenen Plans muss
             ablesbar sein, WELCHE Karte teuer ist (das konnte das alte Widget). */}

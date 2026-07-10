@@ -1248,6 +1248,9 @@ export function useStoryGameState(seed?: string) {
   // gespielt sind, löst sich der Strang auf: `completeEpisode` wendet `wirkt_auf` auf die
   // Gesellschaftswerte an und merkt den Lernmoment für den End-Report vor. (Zuvor wurde
   // completeEpisode NUR in Tests aufgerufen — der Strang füllte sich optisch, zahlte aber nie aus.)
+  // Codex-Review #106: `activeEpisodes` gehört in die Deps — ein per Tausch WIEDER
+  // aufgenommener Strang, dessen Aktionen längst gespielt sind, muss sofort auszahlen
+  // (completedActions ändert sich in dem Moment nicht).
   // Effekt statt Inline-Check, weil `completedActions` nicht in den executeAction-Deps steht
   // (sonst Stale-Closure). completeEpisode ist idempotent → StrictMode-Doppellauf unkritisch.
   useEffect(() => {
@@ -1293,7 +1296,7 @@ export function useStoryGameState(seed?: string) {
       })),
       ...prev,
     ]);
-  }, [completedActions, engine]);
+  }, [completedActions, activeEpisodes, engine]);
 
   // ============================================
   // P2 OPERATIONS-AKTE (params-Durchstich)

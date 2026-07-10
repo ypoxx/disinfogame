@@ -621,7 +621,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   const vollbildOverlayOffen =
     showNewsroom || showLagebild || showOperationsAkte || showFokusgruppe ||
     showPreTest || showEncyclopedia || showShortcuts || showDayReport ||
-    walkHome || showActionFeedback;
+    walkHome || showActionFeedback ||
+    // Codex-Review #106: Pflicht-Modals zählen mit — Krise (z-70), Verrat und
+    // anstehender Entscheidungs-Beat laufen in gamePhase 'playing'; T/A dürfen
+    // die Tafel/das Terminal nicht darüber mounten (z-80 verdeckte die Wahl).
+    !!state.activeCrisis || !!state.activeBetrayalEvent || !!pendingDecisionBeatId;
 
   // §4.1-Sprung: Tafel (plant) → Terminal (wählt) — Taste A und Tafel-Knopf
   // müssen sich identisch verhalten, darum EIN Handler.
@@ -1343,6 +1347,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               // T2/L3: der nächste Schritt wandert vom Floating-Widget auf den Zettel.
               nextAction: h.nextAction_de,
             }))}
+            // T2-Luxus: Kork-Kachel (Fallback = CSS-Punktraster in der Komponente).
+            korkUrl={assets.imageUrl('ui_cork_tile') ?? undefined}
             // T3/T4: Brett-Kapazität + Akt-Band + Umfrage-Horizont aus der Engine.
             slots={state.engine.getNarrativeSlots()}
             akt={{ nummer: state.engine.getAkt().nummer, titel: state.engine.getAkt().titel_de }}

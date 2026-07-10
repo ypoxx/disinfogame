@@ -15,9 +15,13 @@ beide Sim-Gates unverändert).
 > **T2 (L3-Optik, ohne Asset-Budget):** echte rote Fäden vom Karteireiter zu jeder
 > angehefteten Karte (gemessenes SVG je Spur); Gelegenheits-Fenster als **Zettel am
 > Kork** mit Verfallsfaden + „Nächster Schritt" — das Floating-ComboHints-Widget ist
-> darin aufgegangen (V6 zu; `archive/story-mode-drafts/`). Offen bleibt NUR das
-> kostenpflichtige Asset-/SFX-Paket (Kork-Kacheln, Faden-Sprites, Papier-SFX via
-> pixel-asset-pipeline — braucht Budget-Ansage) + Harvest-Vision-Review.
+> darin aufgegangen (V6 zu; `archive/story-mode-drafts/`).
+> **Asset-/SFX-Paket (Budget-Freigabe 2026-07-10):** `ui_cork_tile` generiert
+> (2 Bilder ≈ Cent-Betrag, Vision-QC ✓, 1. Wurf hatte Dash-Artefakte → Re-Roll) und
+> als Korkfläche verdrahtet (CSS-Punktraster bleibt Fallback); die Klang-Ernte #98
+> hatte `sfx_pin`/`sfx_stamp`/`sfx_paper` schon geliefert — jetzt verdrahtet:
+> Anheften = Pinnnadel, Ausspielen/Lösen = Stempel/Nadel statt Generik-Klicks.
+> Offen: Harvest-Vision-Review über die neuen Screens.
 > **T3 (Fokus-Mechanik, simuliert):** `activateEpisode` hat einen **Brett-Cap**
 > (B6: Start 2 Spuren), volles Brett → NPC-Dialog-Entscheidung „Strang abhängen?"
 > (`abandonEpisode`: verfällt ohne wirkt_auf, kehrt in den Pool zurück, gespielte
