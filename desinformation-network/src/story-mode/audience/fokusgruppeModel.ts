@@ -14,7 +14,8 @@ export type PersonaMood = 'zustimmend' | 'skeptisch' | 'ablehnend';
 export interface Persona {
   id: string;
   name: string;
-  milieu: string;
+  /** Anzeigename der Resonanzgruppe (deckungsgleich mit audience.json label_de). */
+  gruppe: string;
   segmentId: string;
   bio: string;
   vulnerabilities: string[];
@@ -91,14 +92,14 @@ export function preTest(
     warning = 'Keine Personas befragt — keine Aussage möglich.';
   } else if (repr < 0.6 && sampleBias > 0.15) {
     warning =
-      'Einseitige Stichprobe: Sie haben überwiegend Zustimmungs-Milieus befragt. ' +
+      'Einseitige Stichprobe: Sie haben überwiegend Zustimmungs-Gruppen befragt. ' +
       'Die Prognose bestätigt vor allem Sie selbst — die echte Wirkung liegt darunter.';
   } else if (repr < 0.6 && sampleBias < -0.15) {
     warning =
-      'Einseitige Stichprobe: überwiegend ablehnende Milieus befragt. ' +
+      'Einseitige Stichprobe: überwiegend ablehnende Gruppen befragt. ' +
       'Die Prognose ist pessimistischer als die echte Wirkung.';
   } else if (repr < 0.6) {
-    warning = 'Stichprobe deckt nicht alle Milieus ab — Ergebnis mit Vorsicht lesen.';
+    warning = 'Stichprobe deckt nicht alle Resonanzgruppen ab — Ergebnis mit Vorsicht lesen.';
   }
 
   return {

@@ -27,6 +27,8 @@ interface MorningBriefingProps {
   beatHook?: string;
   /** T4: Hinweis auf einen stockenden Brett-Strang (keine Sendung geplant). */
   spurHinweis?: string;
+  /** Maschen im Sendeplan, aber die Zielgruppen-Analyse wurde diese Sitzung nie geöffnet. */
+  pendingUntested?: boolean;
   onDone: () => void;
 }
 
@@ -91,12 +93,15 @@ export interface BriefingState {
   attention: number;     // 0..100
   budget: number;        // Tausend Euro
   trustProgress: number; // 0..1
+  /** Maschen im Sendeplan, aber die Zielgruppen-Analyse wurde diese Sitzung nie geöffnet. */
+  pendingUntested?: boolean;
 }
 
 /**
  * Den drängendsten Tageshinweis deterministisch ableiten.
  * Priorität nach Dringlichkeit: drohende Enttarnung (Verlust) > leere Kasse
- * (handlungsunfähig) > erwachende Gegenseite > stockender Fortschritt > gute Lage.
+ * (handlungsunfähig) > erwachende Gegenseite > ungetestet senden (Etage 3) >
+ * stockender Fortschritt > gute Lage.
  * Verweist je Lage auf das ZUSTÄNDIGE Büro (Büro-Labels aus building.json).
  */
 export function deriveBriefingHint(s: BriefingState): BriefingHint {
@@ -119,6 +124,13 @@ export function deriveBriefingHint(s: BriefingState): BriefingHint {
       pointer: 'Lassen Sie sich von Katja in den Feld-Operationen sagen, wer da gegen uns ermittelt.',
     };
   }
+  // Marina-Nudge: im Begriff zu senden, aber nie getestet → auf die Zielgruppen-Analyse verweisen.
+  if (s.pendingUntested) {
+    return {
+      problem: 'Sie haben Maschen im Sendeplan — getestet ist noch keine davon.',
+      pointer: 'Marina wartet in der Zielgruppen-Analyse (Etage 3): dort sehen Sie, wen eine Masche trifft und wer sie durchschaut, ehe Westunion sie hört.',
+    };
+  }
   if (s.trustProgress < 0.4) {
     return {
       problem: `Beim Vertrauensbruch kommen wir kaum voran — erst ${trustPct} % des Ziels.`,
@@ -133,7 +145,7 @@ export function deriveBriefingHint(s: BriefingState): BriefingHint {
   };
 }
 
-export function MorningBriefing({ phase, risk, trustProgress, budget, attention, auftragTitel, beatHook, spurHinweis, onDone }: MorningBriefingProps) {
+export function MorningBriefing({ phase, risk, trustProgress, budget, attention, auftragTitel, beatHook, spurHinweis, pendingUntested, onDone }: MorningBriefingProps) {
   const assets = useAssets();
   // T2/#7: Tag 1 bekommt eine eigene, gerichtete Eröffnung (statt der laufenden
   // Lage-Logik): sie erklärt die Kern-Schleife und verweist auf EINE klare Anlaufstelle.
@@ -152,7 +164,7 @@ export function MorningBriefing({ phase, risk, trustProgress, budget, attention,
         problem: 'Ihr erster Schritt: Öffnen Sie das Terminal (Taste A) und führen Sie eine Maßnahme aus.',
         pointer: 'Im Ergebnis sehen Sie sofort, wie sie Gesellschaft, Auftrag und Publikum bewegt — daran richten Sie die nächsten Züge aus. (Taste ? zeigt alle Tastenkürzel.)',
       }
-    : deriveBriefingHint({ risk, attention, budget, trustProgress });
+    : deriveBriefingHint({ risk, attention, budget, trustProgress, pendingUntested });
 
   // Porträt: mood-spezifisch, sonst Basis-Porträt; null → CSS-Fallback unten.
   const portraitUrl =

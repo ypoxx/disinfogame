@@ -19,6 +19,7 @@ import { StoryModeColors } from '../theme';
 import { Icon } from './Icon';
 import { playSound } from '../utils/SoundSystem';
 import { isQueueBudgetFeasible, istPlanLeistbar } from '../utils/queueAffordability';
+import { formatAbwehr, formatPollPct, formatSchwellePct } from '../utils/rennen';
 import type { QueuedAction } from '../hooks/useStoryGameState';
 
 const LEGAL_COLOR: Record<QueuedAction['legality'], string> = {
@@ -95,6 +96,10 @@ interface NarrativeBoardProps {
   naechsteSonntagsfrageIn?: number | null;
   /** T2-Luxus: echte Kork-Kachel (ui_cork_tile); ohne Asset bleibt das CSS-Punktraster. */
   korkUrl?: string;
+  /** N2 (main, PLAN 2026-07-07): das Wettrennen als Kopf-Notiz — die zwei Läufer
+   *  ersetzen das Alt-Vokabular („destabilisieren unter 40"). */
+  sonntagsfrage?: { pollPct: number; thresholdPct: number };
+  abwehr?: number;
   onUnpin: (queueItemId: string) => void;
   onPlay: () => void;
   onClear: () => void;
@@ -145,6 +150,8 @@ export function NarrativeBoard({
   akt,
   naechsteSonntagsfrageIn = null,
   korkUrl,
+  sonntagsfrage,
+  abwehr,
   onUnpin,
   onPlay,
   onClear,
@@ -163,9 +170,15 @@ export function NarrativeBoard({
   const verteilung = useMemo(() => verteileKarten(queue, strands), [queue, strands]);
 
   // Missionsziele zuerst die primären (Anker des Sendeplans).
+  // N2: Liegt das Wettrennen an (sonntagsfrage-Prop), sprechen die Kopf-Notizen
+  // dessen Vokabular — das Alt-Primärziel („destabilisieren") entfällt dann;
+  // Halte-Ziele bleiben (sie sind type=primary MIT category=survival, B22).
   const sortedObjectives = useMemo(
-    () => [...objectives].sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary)).slice(0, 4),
-    [objectives],
+    () => [...objectives]
+      .filter((o) => (sonntagsfrage ? o.category === 'survival' : true))
+      .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary))
+      .slice(0, 4),
+    [objectives, sonntagsfrage],
   );
 
   const planCost = queue.reduce(
@@ -234,8 +247,33 @@ export function NarrativeBoard({
           }}
         >
           {/* Missionsziele als Kopf-Notizen (volle Messung wohnt in der Akte — Taste M) */}
-          {(sortedObjectives.length > 0 || naechsteSonntagsfrageIn !== null) && (
+          {(sortedObjectives.length > 0 || naechsteSonntagsfrageIn !== null || sonntagsfrage) && (
             <div className="mb-3 flex flex-wrap gap-2">
+              {/* N2 (main): die zwei Läufer des Rennens als Kopf-Notizen. */}
+              {sonntagsfrage && (
+                <div
+                  className="px-3 py-1.5 inline-flex items-center gap-2"
+                  style={noteStyle(true, -0.6)}
+                  data-testid="board-sonntagsfrage"
+                >
+                  <Icon name="mission" size={12} title="Sonntagsfrage" />
+                  <span className="text-[11px] font-bold">ZIEL: SONNTAGSFRAGE</span>
+                  <span className="text-[11px]">
+                    {formatPollPct(sonntagsfrage.pollPct)} · über {formatSchwellePct(sonntagsfrage.thresholdPct)} am Wahltag
+                  </span>
+                </div>
+              )}
+              {sonntagsfrage && abwehr !== undefined && (
+                <div
+                  className="px-3 py-1.5 inline-flex items-center gap-2"
+                  style={noteStyle(false, 0.7)}
+                  data-testid="board-abwehr"
+                >
+                  <Icon name="risk" size={12} title="Abwehr" />
+                  <span className="text-[11px] font-bold">ABWEHR</span>
+                  <span className="text-[11px]">{formatAbwehr(abwehr)} — bei 100 ist Schluss</span>
+                </div>
+              )}
               {sortedObjectives.map((o, i) => (
                 <div
                   key={o.id}

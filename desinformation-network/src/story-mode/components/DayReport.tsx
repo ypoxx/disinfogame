@@ -32,6 +32,9 @@ interface DayReportProps {
   nightReport?: NightReport | null;
   /** Etappe 5 (E18): projizierte Tranche der Zentrale für die kommende Nacht (sonst null). */
   tranchePreview?: TrancheResult | null;
+  /** N3 (Review-Befund B5): angeheftete, nicht ausgespielte Maßnahmen an der Tafel —
+   *  das schwebende Queue-Widget erinnerte früher daran, jetzt tut es das Fazit. */
+  pinnedCount?: number;
   onNextDay: () => void;
 }
 
@@ -99,6 +102,7 @@ export function DayReport({
   straenge = [],
   nightReport,
   tranchePreview,
+  pinnedCount = 0,
   onNextDay,
 }: DayReportProps) {
   // Weiter auch per Enter.
@@ -364,6 +368,24 @@ export function DayReport({
               <p className="font-mono text-sm" style={{ color: StoryModeColors.textPrimary }}>
                 {tranchePreview.text_de}
               </p>
+            </div>
+          )}
+
+          {/* Angeheftete, nicht ausgespielte Maßnahmen (B5): stiller Verfall wäre
+              die Überraschung, die E5/E7 verbieten — ein Satz genügt. */}
+          {pinnedCount > 0 && (
+            <div
+              className="border-2 p-3 mb-6 font-mono text-sm"
+              style={{
+                backgroundColor: StoryModeColors.surface,
+                borderColor: StoryModeColors.warning,
+                color: StoryModeColors.textPrimary,
+              }}
+              data-testid="pinned-reminder"
+            >
+              {pinnedCount === 1
+                ? 'Eine Maßnahme hängt noch ungespielt an der Tafel — sie wartet dort auf morgen.'
+                : `${pinnedCount} Maßnahmen hängen noch ungespielt an der Tafel — sie warten dort auf morgen.`}
             </div>
           )}
 

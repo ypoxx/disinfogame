@@ -59,7 +59,7 @@ export const usePanelStore = create<PanelState>((set) => ({
   toggleAdvisor: () =>
     set((state) => ({ advisorCollapsed: !state.advisorCollapsed })),
 
-  // queueCollapsed/toggleQueue entfielen mit dem ActionQueueWidget (F-D 2026-07-07):
+  // queueCollapsed/toggleQueue entfielen mit dem ActionQueueWidget (F-D/N3, 2026-07-07):
   // die Queue lebt an der Tafel, der QueuePinChip kennt keinen Collapse-Zustand.
 
   resetUI: () =>

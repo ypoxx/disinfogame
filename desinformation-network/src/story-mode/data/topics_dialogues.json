@@ -851,6 +851,85 @@
         }
       ]
     },
+    "publikum": {
+      "core_message": "Westunion ist kein Block - acht Resonanzgruppen, jede springt auf etwas anderes an",
+      "intro": [
+        {
+          "id": "topic_publikum_intro_1",
+          "text_de": "Westunion ist kein Block, den man am Stück umdreht. Wir teilen die Leute in acht Resonanzgruppen - wer worauf anspringt.",
+          "text_en": "Westunion isn't one bloc you flip all at once. We split people into eight resonance groups - who responds to what.",
+          "tone": "analytical",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "marina",
+          "responses": [
+            {
+              "id": "resp_publikum_detail",
+              "text_de": "Wie finde ich heraus, wen eine Masche trifft?",
+              "text_en": "How do I find out whom a trick lands with?",
+              "effect": "neutral",
+              "leads_to": "topic_publikum_deep_1"
+            }
+          ]
+        },
+        {
+          "id": "topic_publikum_intro_2",
+          "text_de": "Die Abgehängten glauben jedem, der gegen 'die da oben' wettert. Die Aufgeklärten riechen eine Masche schon am dritten Wort.",
+          "text_en": "The Left-Behind believe anyone railing against 'those up top'. The Enlightened smell a trick by the third word.",
+          "tone": "cynical",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "marina"
+        },
+        {
+          "id": "topic_publikum_intro_3",
+          "text_de": "Dieselbe Botschaft trifft die eine Gruppe ins Herz und lässt die nächste kalt. Der ganze Trick ist, vorher zu wissen, welche.",
+          "text_en": "The same message hits one group in the heart and leaves the next cold. The whole trick is knowing which, beforehand.",
+          "tone": "enthusiastic",
+          "probability": 0.4,
+          "phase_range": [1, 120],
+          "npc_id": "marina"
+        }
+      ],
+      "deep": [
+        {
+          "id": "topic_publikum_deep_1",
+          "text_de": "In der Zielgruppen-Analyse auf Etage 3 testen Sie eine Masche an einem Querschnitt - Sie sehen sofort, wen sie trifft und wer sie längst durchschaut.",
+          "text_en": "In Audience Analysis on floor three you test a trick against a cross-section - you see at once whom it lands with and who's already seen through it.",
+          "tone": "explanatory",
+          "probability": 0.6,
+          "phase_range": [1, 120],
+          "npc_id": "marina",
+          "responses": [
+            {
+              "id": "resp_publikum_wear",
+              "text_de": "Und wenn ich eine Masche zu oft benutze?",
+              "text_en": "And if I use a trick too often?",
+              "effect": "neutral",
+              "leads_to": "topic_publikum_deep_2"
+            }
+          ]
+        },
+        {
+          "id": "topic_publikum_deep_2",
+          "text_de": "Verbrennen Sie eine Masche zu oft, stumpft die Gruppe ab - und die Faktenchecker impfen die Aufgeklärten. Danach zieht derselbe Trick dort nie wieder.",
+          "text_en": "Burn a trick too often and the group goes numb - and the fact-checkers inoculate the Enlightened. After that the same trick never works there again.",
+          "tone": "analytical",
+          "probability": 0.5,
+          "phase_range": [1, 120],
+          "npc_id": "marina"
+        },
+        {
+          "id": "topic_publikum_deep_3",
+          "text_de": "Der Fehler der Anfänger: nur die Gruppe befragen, die ohnehin zustimmt. Dann klingt alles nach Erfolg - bis Sie senden und nichts passiert.",
+          "text_en": "The beginner's mistake: only poll the group that already agrees. Then everything sounds like success - until you broadcast and nothing happens.",
+          "tone": "cynical",
+          "probability": 0.4,
+          "phase_range": [1, 120],
+          "npc_id": "marina"
+        }
+      ]
+    },
     "infrastructure": {
       "core_message": "Unsere Server sind über mehrere Länder verteilt für maximale Sicherheit",
       "intro": [

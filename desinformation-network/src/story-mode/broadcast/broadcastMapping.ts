@@ -117,7 +117,7 @@ export interface WohnzimmerBadgeResult {
  */
 export function wohnzimmerBadgeFor(input: WohnzimmerBadgeInput): WohnzimmerBadgeResult {
   if (input.belief >= FAHNE_BELIEF_SCHWELLE) {
-    return { badge: 'fahne', title_de: 'Milieu gekippt — Parteifahne im Fenster.' };
+    return { badge: 'fahne', title_de: 'Resonanzgruppe gekippt — Parteifahne im Fenster.' };
   }
   if (input.bild === 'zeitung') {
     return { badge: 'zeitung', title_de: input.grund_de };

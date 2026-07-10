@@ -139,6 +139,7 @@ import {
   impfeFaktencheck,
   zielMilieusFuerTags,
   gewichteterMultiplikator,
+  wirkungsMultiplikator,
   erklaereDaempfung,
   stempelFuer,
   effektiveAbstumpfung,
@@ -151,7 +152,8 @@ import {
   type ZielMilieu,
   type DaempfungsErklaerung,
 } from '../story-mode/engine/MaschenGedaechtnis';
-import { loadAudience, type AudienceSegment } from '../story-mode/audience/audienceModel';
+import { loadAudience, BELIEF_PRO_STOSS, type AudienceSegment } from '../story-mode/audience/audienceModel';
+import { vortestMasche, cardRegister, FAHNE_SCHWELLE, type MaschenVortestResult, type MascheKarte } from '../story-mode/audience/maschenVortest';
 import { loadDisinfoMethods } from '../story-mode/engine/DisinfoMethodAtlas';
 
 import {
@@ -798,6 +800,16 @@ export class StoryEngineAdapter {
   private maschenGedaechtnis: MaschenGedaechtnisState = leeresMaschenGedaechtnis();
   /** Publikums-Segmente (8 Milieus) — einmal geladen, für Ziel-Ableitung + Alphabet. */
   private readonly audienceSegments: AudienceSegment[] = loadAudience()[0]?.segments ?? [];
+  /**
+   * E16-Rückwirkung: der LEBENDE Überzeugungsstand je Gruppe. Startet aus audience.json und
+   * wandert im Rennen (belief-Writeback je Masche) — die statischen Segmente bleiben unberührt.
+   * Damit wird die Vortest-Vorschau „noch N Stöße bis zur Fahne" über einen Lauf eingelöst.
+   */
+  private segmentBelief: Record<string, number> = Object.fromEntries(
+    this.audienceSegments.map((s) => [s.id, s.belief]),
+  );
+  /** Gruppen, die schon über die Kipp-Schwelle (Parteifahne) gegangen sind — feuert einmal. */
+  private gekippteGruppen: Set<string> = new Set();
   /** Dämpfung der ZULETZT ausgeführten Aktion (für die E5-Quittung im Ergebnis). */
   private lastMaschenDaempfung: {
     familieId: string;
@@ -3992,9 +4004,15 @@ export class StoryEngineAdapter {
   private readonly OP_BURN_RISK_SPIKE = 12;    // Enttarnung hebt das Entdeckungsrisiko sprunghaft
   private readonly OP_BURN_ATTENTION_SPIKE = 8;
   private readonly OP_FRAKTION_MOBILIZE = 2.5; // Etappe 3: Operation mobilisiert die radikale Kraft
+  private readonly KIPP_FRAKTION = 6;          // E16: eine gekippte Gruppe stärkt die Fraktion (× Gruppengröße)
+  private readonly KIPP_RISK = 2;              // E16: der sichtbare Massen-Übertritt hebt das Entdeckungsrisiko (Gegengewicht)
   private readonly KOMPROMAT_MORAL = 12;       // Beschaffung heiklen Materials = moralische Last
   private readonly OP_DEPLOY_MORAL = 7;        // Ausspielen des Kompromats = zusätzliche Last
   private readonly OP_BURN_MORAL = 5;          // verbranntes Asset / öffentlicher Schaden
+  // Kampagnen-Schmiede („Zähne"): auf geschönter Wunsch-Stichprobe gebaute Kampagne verpufft.
+  private readonly OP_BIAS_EFFECT_FACTOR = 0.45; // echte Zielgruppe reagiert schwächer → weniger Erosion
+  private readonly OP_BIAS_ATTENTION_SPIKE = 6;  // sichtbarer Fehlschlag zieht Gegner-Aufmerksamkeit
+  private readonly OP_BIAS_MORAL = 3;            // verpuffte Wirkung, aber Mittel doch eingesetzt
 
   // Operations-Bilanz (für End-Report + Methoden-Atlas).
   private operationsPlayed = 0;
@@ -4547,10 +4565,69 @@ export class StoryEngineAdapter {
    * Abwehr-Sprung + TV-Nachricht + die Familie gilt ÜBERALL als bekannt —
    * EIN System statt der alten globalen Zählung (HANDOFF Falle 6).
    */
+  /** Segmente mit dem LEBENDEN belief-Stand (E16) — für Vortest und Kipp-Prüfung. */
+  private liveSegments(): AudienceSegment[] {
+    return this.audienceSegments.map((s) => ({ ...s, belief: this.segmentBelief[s.id] ?? s.belief }));
+  }
+
+  /**
+   * E16-Rückwirkung — belief-Writeback: jede getroffene Gruppe rückt um `Wirkung × BELIEF_PRO_STOSS`
+   * näher an die Parteifahne. Die Wirkung ist identisch zur Vortest-Vorschau (Resonanz × Multiplikator),
+   * damit „noch N Stöße bis zur Fahne" über einen Lauf tatsächlich eingelöst wird. Kein Zerfall:
+   * die Abnutzung (Multiplikator sinkt) und die Abwehr (Patch) sind die natürliche Bremse.
+   */
+  private schreibeBeliefZurueck(ziele: ZielMilieu[], familieId: string): void {
+    const phase = this.storyPhase.number;
+    for (const z of ziele) {
+      const wirkung = z.resonanz * wirkungsMultiplikator(this.maschenGedaechtnis, z.id, familieId, phase);
+      if (wirkung <= 0) continue;
+      const vorher = this.segmentBelief[z.id] ?? 0;
+      const nachher = Math.max(0, Math.min(1, vorher + wirkung * BELIEF_PRO_STOSS));
+      this.segmentBelief[z.id] = nachher;
+      // E16-Kippen: überschreitet eine Gruppe die Parteifahne, kippt sie EINMALIG zur
+      // radikalen Kraft — das stärkt die Fraktion (größen-gewichtet) und meldet sich in der Welt.
+      if (nachher >= FAHNE_SCHWELLE && vorher < FAHNE_SCHWELLE && !this.gekippteGruppen.has(z.id)) {
+        this.gekippteGruppen.add(z.id);
+        this.kippenBelohnung(z.id);
+      }
+    }
+  }
+
+  /**
+   * Eine Gruppe ist gekippt — zweischneidig: die Fraktion wächst (× Größe), aber der laute,
+   * sichtbare Massen-Übertritt hebt das Entdeckungsrisiko. Aggressives Dauer-Kippen beschleunigt
+   * so NICHT gratis den Sieg, sondern erkauft ihn mit Enttarnungs-Nähe. + TV-Meldung.
+   */
+  private kippenBelohnung(segmentId: string): void {
+    const seg = this.audienceSegments.find((s) => s.id === segmentId);
+    if (!seg) return;
+    this.applySocietyDelta({ fraktionsstaerke: seg.size * this.KIPP_FRAKTION });
+    this.storyResources.risk = Math.min(100, this.storyResources.risk + this.KIPP_RISK);
+    const label = seg.label_de;
+    this.newsEvents.unshift({
+      id: `kippen_${segmentId}_${this.storyPhase.number}`,
+      phase: this.storyPhase.number,
+      headline_de: `${label} kippt`,
+      headline_en: `${label} tips over`,
+      description_de: `Eine ganze Gruppe schwenkt offen zur radikalen Kraft — was gestern Gerücht war, ist heute ihre Überzeugung.`,
+      description_en: `A whole group openly swings to the radical force — yesterday's rumor is today's conviction.`,
+      type: 'world_event',
+      severity: 'success',
+      read: false,
+      pinned: false,
+    });
+    storyLogger.log(`[E16] Gruppe gekippt: ${segmentId} → Fraktion +${(seg.size * this.KIPP_FRAKTION).toFixed(1)}`);
+  }
+
   private registerMethodFamilyUse(tags: string[]): void {
     const family = methodFamilyForTags(tags, this.methodFamilies);
     if (!family) return;
     const ziele = zielMilieusFuerTags(tags, this.audienceSegments);
+    // E16-Rückwirkung: die Masche schiebt den lebenden Überzeugungsstand der getroffenen
+    // Gruppen — mit GENAU der Wirkung, die auch der Vortest vorhersagt (Resonanz × Abnutzung
+    // × (1−Impfung) × BELIEF_PRO_STOSS). Vor registriereEinsatz, damit der Multiplikator den
+    // Stand VOR diesem Einsatz spiegelt (wie ihn das Publikum diese Runde erlebt).
+    this.schreibeBeliefZurueck(ziele, family.id);
     // Abnutzung NUR in den resonanten Milieus (Zielbild §7: „Milieu wechseln" bleibt
     // ein echter Ausweg) — die Vorschau/Dämpfung mittelt trotzdem über alle Ziele.
     const brennende = brennendeMilieus(ziele).map((z) => z.id);
@@ -4661,6 +4738,44 @@ export class StoryEngineAdapter {
       })),
       multiplikator: d.multiplikator,
     };
+  }
+
+  /**
+   * Fokusgruppen-Vortest (Redesign): dieselbe Live-Kette wie getMaschenVorschau, aber über
+   * ALLE Resonanzgruppen und mit Resonanz/Wirkung/Stempel/geimpft je Gruppe. Read-through auf
+   * den echten Maschen-Zustand → wahre Vorschau des Wettrennens. Null, wenn Aktion unbekannt.
+   * `sampleSegmentIds` = befragte Stichprobe (Default: geführter Querschnitt = alle Gruppen).
+   */
+  /** Die botschaftstragenden Phänomen-Maschen (11.x) als Vortest-Karten (Draußen-O-Ton + Register). */
+  getVortestMaschen(): MascheKarte[] {
+    return this.actionLoader
+      .getAllActions()
+      .filter((a) => a.id.startsWith('11.'))
+      .map((a) => {
+        const reg = cardRegister(a.tags ?? [], this.methodFamilies);
+        return {
+          id: a.id,
+          label_de: a.label_de,
+          botschaft_de: a.botschaft_de ?? a.narrative_de ?? '',
+          headline_de: a.headline_de ?? '',
+          familieLabel: reg.familieLabel,
+          themen: reg.themen,
+          kanal: reg.kanal,
+        };
+      });
+  }
+
+  getSegmentVortest(actionId: string, sampleSegmentIds?: string[]): MaschenVortestResult | null {
+    const loaded = this.actionLoader.getAction(actionId);
+    if (!loaded) return null;
+    const ids = sampleSegmentIds ?? this.audienceSegments.map((s) => s.id);
+    return vortestMasche(loaded.tags ?? [], ids, {
+      // E16: der Vortest liest den LEBENDEN belief-Stand — „noch N Stöße" spiegelt den echten Lauf.
+      segmente: this.liveSegments(),
+      gedaechtnis: this.maschenGedaechtnis,
+      phase: this.storyPhase.number,
+      families: this.methodFamilies,
+    });
   }
 
   /**
@@ -4985,7 +5100,7 @@ export class StoryEngineAdapter {
           .map((f) => this.methodFamilies.find((m) => m.id === f)?.label_de ?? f)
           .map((l) => `„${l}"`)
           .join(', ');
-        lines.push(`Prebunking wirkt: ${labels} ${familien.length > 1 ? 'gelten' : 'gilt'} in den erreichten Milieus als durchschaut${countered ? ' (abgeschwächt)' : ''}.`);
+        lines.push(`Prebunking wirkt: ${labels} ${familien.length > 1 ? 'gelten' : 'gilt'} in den erreichten Resonanzgruppen als durchschaut${countered ? ' (abgeschwächt)' : ''}.`);
         lines.push('Nur wer klassische Medien meidet, bleibt unerreicht.');
         storyLogger.log(`[MaschenGedaechtnis] Prebunking (cm24): ${familien.join(', ')} → ${erreichte.length} Milieus geimpft (Stärke ${staerke})`);
       } else {
@@ -5142,6 +5257,13 @@ export class StoryEngineAdapter {
       return { success: false, reason: 'Operation unvollständig', params, result: null, broadcastResult: null };
     }
 
+    // ── Baustein 3 („Zähne"): Kampagne auf geschönter Wunsch-Stichprobe gebaut? ──────
+    // Die Analyse hatte gewarnt (biasWarned) — die echte Zielgruppe reagiert schwächer
+    // als die Fokusgruppen-Prognose. Deterministisch: die Vertrauens-Erosion wird gedämpft,
+    // dazu ein sichtbarer öffentlicher Fehlschlag (siehe unten). Ohne Warnung: voller Effekt.
+    const biasBackfire = Boolean(params.analysis?.biasWarned);
+    const opEffectFactor = biasBackfire ? this.OP_BIAS_EFFECT_FACTOR : 1;
+
     // Moderater Lage-Effekt: Enttarnungs-Risiko hebt das Entdeckungsrisiko, Wirkung
     // erzeugt Gegner-Aufmerksamkeit. Beides geklammert in 0..100.
     const clamp100 = (x: number) => Math.max(0, Math.min(100, x));
@@ -5161,7 +5283,8 @@ export class StoryEngineAdapter {
     // ── „Loop schließen" (1/2): der ERTRAG einer gelungenen Operation ──────────────
     // Wirkung gegen das Ziel erodiert das Institutionen-Vertrauen (das Sieg-Ziel) —
     // erst dadurch lohnt sich der Aufwand (Verbreiter aufbauen + Kompromat) überhaupt.
-    let trustDelta = -(result.impact * this.OP_TRUST_EROSION);
+    // opEffectFactor < 1 dämpft die Erosion, wenn die Kampagne auf einer Wunsch-Stichprobe ruht.
+    let trustDelta = -(result.impact * this.OP_TRUST_EROSION * opEffectFactor);
     this.applyInstitutionalTrustDelta(trustDelta);
 
     // Etappe 3 (Paket E): Eine gelungene Operation mobilisiert zusätzlich die uns-nahe
@@ -5229,6 +5352,26 @@ export class StoryEngineAdapter {
     });
 
     this.actionHistory.push({ phase: this.storyPhase.number, actionId: synthAction.id, result: broadcastResult });
+
+    // ── Baustein 3 („Zähne"): sichtbarer Fehlschlag der Wunsch-Stichproben-Kampagne ──
+    if (biasBackfire) {
+      this.storyResources.attention = clamp100(this.storyResources.attention + this.OP_BIAS_ATTENTION_SPIKE);
+      this.storyResources.moralWeight += this.OP_BIAS_MORAL;
+      const predictedPct = Math.round((params.analysis?.predictedReception ?? 0) * 100);
+      const truePct = Math.round((params.analysis?.trueReception ?? 0) * 100);
+      this.newsEvents.unshift({
+        id: `news_bias_${synthAction.id}_${Date.now()}`,
+        phase: this.storyPhase.number,
+        headline_de: 'Kampagne verpufft: Zielgruppe reagiert anders als erwartet',
+        headline_en: 'Campaign misfires: target audience reacts differently than expected',
+        description_de: `Die Analyse hatte vor der einseitigen Stichprobe gewarnt — statt +${predictedPct}% blieb die echte Wirkung bei rund +${truePct}%.`,
+        description_en: `The analysis had flagged the skewed sample — instead of +${predictedPct}% the real effect landed near +${truePct}%.`,
+        type: 'consequence',
+        severity: 'warning',
+        read: false,
+        pinned: false,
+      });
+    }
 
     // ── „Loop schließen" (2/2): Enttarnung = echter öffentlicher Rückschlag ────────
     // Hohe Exposure in einem bereits heißen Informationsraum verbrennt das Asset
@@ -6670,7 +6813,7 @@ export class StoryEngineAdapter {
         branch: 'immune',
         title_de: 'Das Land hält stand',
         title_en: 'The Country Holds',
-        description_de: 'Das Immunsystem der Gesellschaft hat Sie eingeholt: Faktenchecker, Behörden, abgestumpfte Milieus — Ihre Maschen verfangen nicht mehr. Die Operation ist wirkungslos geworden.',
+        description_de: 'Das Immunsystem der Gesellschaft hat Sie eingeholt: Faktenchecker, Behörden, abgestumpfte Resonanzgruppen — Ihre Maschen verfangen nicht mehr. Die Operation ist wirkungslos geworden.',
         description_en: 'The society\'s immune system has caught up with you: fact-checkers, agencies, hardened audiences — your schemes no longer stick. The operation has become inert.',
         stats,
         epilogue_de: 'In der Sondersendung laufen Ihre eigenen Schlagzeilen als Beweismittel — Masche für Masche erklärt, mit rotem GEFÄLSCHT-Stempel. Unten im Bild: Ihr Bürogebäude, Blaulicht.',
@@ -6800,6 +6943,9 @@ export class StoryEngineAdapter {
       noiseAttentionToday: this.noiseAttentionToday,
       // Etappe 4: das Maschen-Gedächtnis ersetzt die alte globale Familien-Zählung.
       maschenGedaechtnis: this.maschenGedaechtnis,
+      // E16-Rückwirkung: lebender belief-Stand + bereits gekippte Gruppen.
+      segmentBelief: this.segmentBelief,
+      gekippteGruppen: Array.from(this.gekippteGruppen),
       patchedFamilies: Array.from(this.patchedFamilies),
       firedAbwehrStages: Array.from(this.firedAbwehrStages),
       pendingAbwehrStages: this.pendingAbwehrStages,
@@ -6886,6 +7032,12 @@ export class StoryEngineAdapter {
     // GLOBALE Familien-Zählung wird als Einsatz-Historie übernommen; bereits gepatchte
     // Familien gelten überall als bekannt (Patch-Folge nachgezogen, kein Wissensverlust).
     this.maschenGedaechtnis = state.maschenGedaechtnis ?? leeresMaschenGedaechtnis();
+    // E16 — lebender belief-Stand. Alte Saves (ohne Feld) starten auf dem audience.json-Grundstand,
+    // damit sie ohne Kipp-Vorsprung, aber lauffähig weiterspielen (additiv/rückwärtskompatibel).
+    this.segmentBelief =
+      (state.segmentBelief as Record<string, number> | undefined) ??
+      Object.fromEntries(this.audienceSegments.map((s) => [s.id, s.belief]));
+    this.gekippteGruppen = new Set(state.gekippteGruppen ?? []);
     this.lastMaschenDaempfung = null;
     // Review-Befund 1: sonst impft der erste Faktencheck nach dem Laden die
     // Familie/Milieus des VORIGEN Spiels in den geladenen Zustand hinein.

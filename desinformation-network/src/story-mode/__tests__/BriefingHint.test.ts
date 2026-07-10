@@ -50,6 +50,22 @@ describe('deriveBriefingHint (konkrete Direktor-Hinweise)', () => {
     expect(h.pointer).toContain('Marina');
   });
 
+  it('nudged auf die Zielgruppen-Analyse (Etage 3), wenn ungetestet gesendet wird', () => {
+    const h = deriveBriefingHint({ ...base, pendingUntested: true });
+    expect(h.problem.toLowerCase()).toContain('sendeplan');
+    expect(h.pointer).toContain('Zielgruppen-Analyse');
+    expect(h.pointer).toContain('Etage 3');
+  });
+
+  it('akute Bedrohungen (Risiko/Gegenseite) haben Vorrang vor dem Ungetestet-Nudge', () => {
+    expect(deriveBriefingHint({ ...base, pendingUntested: true, risk: 80 }).pointer).toContain('Alexei');
+    expect(deriveBriefingHint({ ...base, pendingUntested: true, attention: 66 }).pointer).toContain('Katja');
+  });
+
+  it('ohne pendingUntested bleibt die bisherige Leiter unverändert', () => {
+    expect(deriveBriefingHint({ ...base, trustProgress: 0.2 }).pointer).toContain('Marina');
+  });
+
   it('liefert immer Problem UND Pointer (nie leer)', () => {
     for (const s of [base, { ...base, risk: 99 }, { ...base, budget: 0 }]) {
       const h = deriveBriefingHint(s);

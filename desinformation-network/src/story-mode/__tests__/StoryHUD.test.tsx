@@ -10,9 +10,15 @@ import { StoryHUD } from '../components/StoryHUD';
 const baseProps = {
   resources: { budget: 50, capacity: 60, risk: 20, attention: 15, moralWeight: 10 },
   phase: { current: 5, year: 1, month: 1, electionDay: 40, actionPoints: 3, maxActionPoints: 5 },
-  objectives: [],
-  sonntagsfrage: { pollPct: 18, thresholdPct: 20, auftragTitel: 'Die Wahl' },
+  sonntagsfrage: { pollPct: 18, thresholdPct: 20 },
 };
+
+describe('StoryHUD — genau vier Größen (§6)', () => {
+  it('N2: kein Ziel-Tracker mehr im HUD (Alt-Vokabular „Aktuelles Ziel" entfällt)', () => {
+    render(<StoryHUD {...baseProps} abwehr={10} abwehrStageInfo={{ stages: [25, 50, 75], fired: [] }} />);
+    expect(screen.queryByText('Aktuelles Ziel')).not.toBeInTheDocument();
+  });
+});
 
 describe('StoryHUD — ABWEHR-Balken', () => {
   it('rendert ABWEHR-Balken mit Wert und drei Stufen-Marken, wenn abwehr gesetzt ist', () => {

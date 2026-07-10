@@ -6,7 +6,6 @@ export { StoryHUD } from './StoryHUD';
 export type {
   StoryResources,
   StoryPhaseInfo,
-  ObjectiveInfo,
 } from './StoryHUD';
 
 export { ActionCard } from './ActionCard';

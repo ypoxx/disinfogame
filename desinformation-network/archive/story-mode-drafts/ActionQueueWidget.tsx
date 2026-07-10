@@ -64,7 +64,7 @@ export function ActionQueueWidget({
   if (isCollapsed) {
     return (
       <div
-        className="fixed bottom-4 right-4 w-12 h-12 border-2 flex items-center justify-center cursor-pointer hover:brightness-110 transition-all"
+        className="fixed bottom-24 right-4 w-12 h-12 border-2 flex items-center justify-center cursor-pointer hover:brightness-110 transition-all"
         style={{
           // v3 §4.7: militaryOlive ist Tinten-Olive, kein Flächen-Grün → Kraftpapier + heller Inhalt.
           backgroundColor: StoryModeColors.darkConcrete,
@@ -96,8 +96,10 @@ export function ActionQueueWidget({
 
   // Full view
   return (
+    // N0: bottom-24 statt bottom-4 — das Widget lag über der Büro-Unterleiste
+    // (FEIERABEND) bzw. dem Broadcast-Streifen.
     <div
-      className="fixed bottom-4 right-4 w-96 max-h-[60vh] border-2 flex flex-col"
+      className="fixed bottom-24 right-4 w-96 max-h-[60vh] border-2 flex flex-col"
       style={{
         backgroundColor: StoryModeColors.surface,
         borderColor: StoryModeColors.darkOlive,

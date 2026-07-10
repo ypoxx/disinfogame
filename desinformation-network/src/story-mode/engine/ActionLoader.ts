@@ -26,6 +26,8 @@ export interface RawAction {
   headline_en?: string;
   narrative_de?: string;
   narrative_en?: string;
+  /** Draußen-O-Ton: wie die Botschaft in der Welt ankommt (ein Satz, für die Vortest-Karte). */
+  botschaft_de?: string;
   costs: {
     budget?: number;
     capacity?: number;
