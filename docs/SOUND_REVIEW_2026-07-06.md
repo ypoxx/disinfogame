@@ -105,16 +105,60 @@ Kontrakt** (Code adversarial + Hör-Review mit KI-Zweitmeinung).
 | **S2 Mix-Fundament** | Lautheit + Anti-Clipping | ✅ (dieses Doc) |
 | **S3 Deckungs-Lücken** | diegetische SFX für Kern-Interaktionen | ✅ Assets · Verdrahtung mit L2–L7 |
 | **S4 Diegese-Sweep** | „retro"-Klänge → Behörde | ✅ (4 Upgrades) · Rest laufend |
-| **S5 Ambience/Musik** | Kulissen + adaptive Bänder gegen Klang-Bibel | teils (2 neue Atmos) |
+| **S5 Ambience/Musik** | Kulissen + adaptive Bänder gegen Klang-Bibel | ✅ Klang-Vielfalt: alle drei Lauf-Bänder gepoolt (je 3 Tracks), lautheits-angeglichen (§8) |
 | **S6 Voice-Politur** | ~51 Stimmen | **bewusst später** (Texte final) |
 | **S7 = UI-Luxus L7** | fünf Kern-Interaktionen klingen+bewegen sich | wartet auf L2–L7 |
 | **S8 Härtung + Playtest** | Kopfhörer-Test, Barrierefreiheit (Mute/Kanäle/Untertitel), Ernte-Gesamtvergleich | offen |
+
+## 8. Klang-Vielfalt (S5) — jedes Lauf-Band ist ein Pool, lautheits-angeglichen ohne ffmpeg
+
+**Was gebaut wurde:** Die adaptive Musik hatte bisher nur *ein* gepooltes Band (ruhig,
+2 Tracks); `gameplay` und `tense` — die man **am längsten** hört — waren einsame Loops
+(Ermüdungs-Risiko aus §6). Jetzt sind **alle drei Lauf-Bänder** gleichwertige 3er-Pools
+(zufällige Auswahl + Rotation + Crossfade, Mechanik lag schon vor):
+
+| Band | Anker (Bestand) | neu (Geschwister im selben Stil) |
+|---|---|---|
+| ruhig | `calm_archive`, `night_city` | `calm_dossier` |
+| gameplay | `gameplay` | `gameplay_teletype`, `gameplay_corridor` |
+| tense | `tense` | `tense_pursuit`, `tense_lockdown` |
+
+**+5 Tracks** über ElevenLabs `/music`, kanonisch in der Shot-Liste (`MUSIC`-Array).
+Die Spielenden (`victory`/`tense`) bleiben bewusst **einzeln** — ein Ende ist ein Moment,
+kein Loop. Musik wird **nicht** vorgeladen (streamt bei Bedarf) → Erst-Ladekosten ~0.
+
+**Mix ohne ffmpeg (der Kern-Trick).** In der Erzeuger-Umgebung war `ffmpeg` nicht
+installierbar (apt-Deps 404, statischer Build via GitHub-Release 403; Playwrights
+gebündeltes ffmpeg ist ein Minimal-Build ohne `loudnorm`/`ebur128`/mp3-Decoder). Der
+S2-Normalisierungspfad lief also nicht. Ersatz in zwei Teilen:
+
+1. **Messen:** `scripts/sound-review/measure-loudness.mjs` misst jeden `music_*`-Track
+   über **Chromiums Web-Audio `decodeAudioData`** (derselbe Decoder wie im Spiel) —
+   gated RMS in dBFS + Sample-Peak. Das ist das browsergestützte, *messbare* Belegstück
+   (Report `runs/music-loudness-latest.json`, gitignored), das der Wahrnehmungs-Schicht
+   bislang fehlte. Befund: die Rohausgabe streute **6,6 dB** (−17,2 … −23,8 dBFS); die
+   Zusatz-Tracks kamen 3–5 dB **lauter** als ihre Anker.
+2. **Angleichen (nicht-destruktiv):** statt die mp3 neu zu encodieren, senkt der Player
+   jeden Zusatz-Track beim Abspielen um einen gemessenen dB-Wert ab
+   (`MUSIC_TRIM_DB`/`musicTrimGain` in `soundDirector.ts`, angewandt in `SoundSystem`
+   für Crossfade + Rotation + Lautstärke). Nur Absenkungen → nie Clipping, nie
+   Grundrausch-Anhebung. Anker-Tracks bleiben unverändert.
+
+**Belegte Wirkung** (effektiv = gemessener RMS + Trim): die *effektive* Band-Spanne
+sinkt auf **gameplay 0,04 dB · tense 0,05 dB** (roh 3,8 bzw. 5,3 dB). Der ruhige Pool
+behält seine vorbestehende 2,9-dB-Spanne (archive↔night_city, bewusst unangetastet);
+`calm_dossier` landet mittig. Ergebnis: Pool-Rotation ohne hörbaren Lautheits-Sprung.
 
 ## 6. Ehrlichkeits-Bilanz (ungeschönt)
 
 - **Kein Ohr im Spiel:** verifiziert ist *Lautheit/Clipping* (messbar), nicht der
   *ästhetische* Eindruck. Ein Hör-Panel + KI-Zweitmeinung (S8) steht aus — genau die
   Schicht b des Visual-Reviews, hier noch offen.
+- **Die 5 neuen Musik-Tracks (§8) sind ungehört:** Prompts sind bewusst *Geschwister*
+  der freigegebenen Anker (gleiche Klangwelt), und die *Lautheit* ist gemessen +
+  angeglichen — aber ob jeder Track ästhetisch trägt, ist nicht verifiziert. Der
+  nächste Schritt ist genau das Hör-Panel (S8); ein Ausreißer lässt sich billig
+  einzeln neu erzeugen (`generate --audio --only <id> --live --force`).
 - **`sfx_pin`** ist leise (Quelle −36 dBFS, gedeckelt hochgezogen). Für ein Tack-
   Geräusch vertretbar; bei Bedarf mit anderem Klangbild neu erzeugen.
 - **Stimmen unangetastet** (Owner-Vorgabe): 58 `voice_*`-Dateien bleiben wie sie sind.
@@ -128,5 +172,7 @@ Kontrakt** (Code adversarial + Hör-Review mit KI-Zweitmeinung).
 
 Erreicht: konsistente Lautheit je Klasse · 0 Clipping · Diegese-Sweep der gröbsten
 Verbotslisten-Verstöße · zwei Kern-Interaktions-Klänge live + Rest als bereite Assets ·
-Harness + Report · Gate grün. Offen: S0 Klang-Lock formalisieren, S7-Verdrahtung an
-L2–L7, S8 Hör-Playtest + Barrierefreiheit, Stimmen nach finalen Texten.
+**Klang-Vielfalt: alle drei Lauf-Bänder gepoolt (je 3), lautheits-angeglichen ohne
+ffmpeg (§8)** · Harness + Report (inkl. browsergestützte Musik-Lautheit) · Gate grün.
+Offen: S0 Klang-Lock formalisieren, S7-Verdrahtung an L2–L7, S8 Hör-Playtest (jetzt
+inkl. der 5 neuen Tracks) + Barrierefreiheit, Stimmen nach finalen Texten.

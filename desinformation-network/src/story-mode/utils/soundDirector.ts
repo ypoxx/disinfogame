@@ -44,19 +44,54 @@ export function ambienceForContext(ctx: AmbienceContext): string | null {
 }
 
 /**
- * Adaptive Musik: Lage bestimmt das Band. Pro Band kann es MEHRERE gleichwertige
- * Tracks geben (Pool) → zufällige Auswahl + Rotation, damit früh hörbar ist, dass
- * es verschiedene Musik gibt. Das ruhige Anfangs-Band ist bewusst gepoolt.
+ * Adaptive Musik: Lage bestimmt das Band. Pro Band gibt es MEHRERE gleichwertige
+ * Tracks (Pool) → zufällige Auswahl + Rotation, damit man früh hört, dass es
+ * verschiedene Musik gibt, und kein Band ein einsamer Loop ist (Klang-Vielfalt,
+ * Luxus-Sound). Der Anker-Track (der ursprüngliche einzelne) steht bewusst
+ * zuerst → `musicForState` bleibt deterministisch rückwärtskompatibel.
+ *
+ * Die Zusatz-Tracks sind stilistische Geschwister ihres Ankers (gleiche Klangwelt,
+ * Behörden-Akte/Cold-War), keine Stil-Abweichung. Lautheit ist über `musicTrimGain`
+ * an den Anker angeglichen (siehe unten), damit die Rotation nicht springt.
  */
 export function musicPoolForState(s: { risk: number; gameEnded?: boolean; won?: boolean }): string[] {
   if (s.gameEnded) return s.won ? ['music_victory'] : ['music_tense'];
-  if (s.risk >= 66) return ['music_tense'];
-  if (s.risk >= 33) return ['music_gameplay'];
-  // Ruhiges Band: zwei Stimmungen im selben Stil (night_city war bisher ungenutzt).
-  return ['music_calm_archive', 'music_night_city'];
+  if (s.risk >= 66) return ['music_tense', 'music_tense_pursuit', 'music_tense_lockdown'];
+  if (s.risk >= 33) return ['music_gameplay', 'music_gameplay_teletype', 'music_gameplay_corridor'];
+  // Ruhiges Band: drei Stimmungen im selben Stil.
+  return ['music_calm_archive', 'music_night_city', 'music_calm_dossier'];
 }
 
-/** Einzeltrack (deterministisch = erstes Pool-Element). Rückwärtskompatibel/testbar. */
+/** Einzeltrack (deterministisch = erstes Pool-Element = Anker). Rückwärtskompatibel/testbar. */
 export function musicForState(s: { risk: number; gameEnded?: boolean; won?: boolean }): string {
   return musicPoolForState(s)[0];
+}
+
+/**
+ * Nicht-destruktive Lautheits-Angleichung je Musik-Track (dB, ≤ 0 = Absenkung).
+ *
+ * Ersatz für den ffmpeg-`loudnorm`-Schritt, der in Erzeuger-Umgebungen ohne
+ * ffmpeg nicht läuft: Die Rohausgabe von ElevenLabs `/music` ist lauter als die
+ * (früher auf −18 LUFS normalisierte) Bestandsbibliothek. Statt die mp3 destruktiv
+ * neu zu encodieren, senkt der Player jeden Zusatz-Track beim Abspielen um diesen
+ * dB-Wert ab, sodass er im gated-RMS auf dem Niveau seines Band-Ankers landet.
+ *
+ * Werte gemessen mit `scripts/sound-review/measure-loudness.mjs` (Chromium/Web-Audio):
+ *   Anker gameplay −21,85 · tense −22,49 · calm-Mittel −22,39 dBFS.
+ * Nur Absenkungen → nie Clipping, nie Anheben des Grundrauschens. Anker-Tracks
+ * (nicht gelistet) bleiben bei 0 dB unverändert.
+ */
+export const MUSIC_TRIM_DB: Record<string, number> = {
+  music_calm_dossier: -2.4,
+  music_gameplay_teletype: -3.8,
+  music_gameplay_corridor: -1.5,
+  music_tense_pursuit: -4.2,
+  music_tense_lockdown: -5.3,
+};
+
+/** Linearer Verstärkungsfaktor (0..1) für einen Track; 1 = unverändert. */
+export function musicTrimGain(assetId: string | null | undefined): number {
+  if (!assetId) return 1;
+  const db = MUSIC_TRIM_DB[assetId];
+  return db === undefined ? 1 : Math.pow(10, db / 20);
 }

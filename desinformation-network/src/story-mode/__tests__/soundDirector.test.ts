@@ -2,7 +2,7 @@
  * soundDirector (pure): Raum-Kulisse je Kontext + adaptive Musik je Lage.
  */
 import { describe, it, expect } from 'vitest';
-import { ambienceForContext, musicForState, musicPoolForState } from '../utils/soundDirector';
+import { ambienceForContext, musicForState, musicPoolForState, musicTrimGain, MUSIC_TRIM_DB } from '../utils/soundDirector';
 
 describe('ambienceForContext', () => {
   it('Overlay hat Vorrang vor Ansicht/Gespräch', () => {
@@ -39,15 +39,36 @@ describe('musicForState', () => {
 });
 
 describe('musicPoolForState', () => {
-  it('ruhiges Band ist gepoolt (Abwechslung), höhere Bänder einzeln', () => {
-    expect(musicPoolForState({ risk: 10 })).toEqual(['music_calm_archive', 'music_night_city']);
-    expect(musicPoolForState({ risk: 40 })).toEqual(['music_gameplay']);
-    expect(musicPoolForState({ risk: 80 })).toEqual(['music_tense']);
-    expect(musicPoolForState({ risk: 10, gameEnded: true, won: true })).toEqual(['music_victory']);
+  it('jedes Lauf-Band ist gepoolt (Klang-Vielfalt: drei gleichwertige Tracks)', () => {
+    expect(musicPoolForState({ risk: 10 })).toEqual(['music_calm_archive', 'music_night_city', 'music_calm_dossier']);
+    expect(musicPoolForState({ risk: 40 })).toEqual(['music_gameplay', 'music_gameplay_teletype', 'music_gameplay_corridor']);
+    expect(musicPoolForState({ risk: 80 })).toEqual(['music_tense', 'music_tense_pursuit', 'music_tense_lockdown']);
   });
-  it('musicForState bleibt das erste Pool-Element (deterministisch)', () => {
+  it('Spielende bleibt bewusst einzeln (Sieg/Niederlage)', () => {
+    expect(musicPoolForState({ risk: 10, gameEnded: true, won: true })).toEqual(['music_victory']);
+    expect(musicPoolForState({ risk: 80, gameEnded: true, won: false })).toEqual(['music_tense']);
+  });
+  it('musicForState bleibt das erste Pool-Element = Anker (deterministisch, rückwärtskompatibel)', () => {
     for (const risk of [10, 40, 80]) {
       expect(musicForState({ risk })).toBe(musicPoolForState({ risk })[0]);
     }
+  });
+});
+
+describe('musicTrimGain', () => {
+  it('Anker-Tracks + Unbekanntes bleiben unverändert (Faktor 1)', () => {
+    expect(musicTrimGain('music_gameplay')).toBe(1);
+    expect(musicTrimGain('music_tense')).toBe(1);
+    expect(musicTrimGain(null)).toBe(1);
+    expect(musicTrimGain('gibt_es_nicht')).toBe(1);
+  });
+  it('Zusatz-Tracks werden nur abgesenkt (Faktor < 1, nie Anhebung → kein Clipping)', () => {
+    for (const id of Object.keys(MUSIC_TRIM_DB)) {
+      const gain = musicTrimGain(id);
+      expect(gain).toBeGreaterThan(0);
+      expect(gain).toBeLessThan(1);
+    }
+    // −3,8 dB → ~0,646 (gameplay_teletype, der lauteste Ausreißer im gameplay-Band)
+    expect(musicTrimGain('music_gameplay_teletype')).toBeCloseTo(0.646, 2);
   });
 });
