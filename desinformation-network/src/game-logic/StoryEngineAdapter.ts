@@ -4004,6 +4004,8 @@ export class StoryEngineAdapter {
   private readonly OP_BURN_RISK_SPIKE = 12;    // Enttarnung hebt das Entdeckungsrisiko sprunghaft
   private readonly OP_BURN_ATTENTION_SPIKE = 8;
   private readonly OP_FRAKTION_MOBILIZE = 2.5; // Etappe 3: Operation mobilisiert die radikale Kraft
+  private readonly KIPP_FRAKTION = 6;          // E16: eine gekippte Gruppe stärkt die Fraktion (× Gruppengröße)
+  private readonly KIPP_RISK = 2;              // E16: der sichtbare Massen-Übertritt hebt das Entdeckungsrisiko (Gegengewicht)
   private readonly KOMPROMAT_MORAL = 12;       // Beschaffung heiklen Materials = moralische Last
   private readonly OP_DEPLOY_MORAL = 7;        // Ausspielen des Kompromats = zusätzliche Last
   private readonly OP_BURN_MORAL = 5;          // verbranntes Asset / öffentlicher Schaden
@@ -4534,8 +4536,41 @@ export class StoryEngineAdapter {
       const wirkung = z.resonanz * wirkungsMultiplikator(this.maschenGedaechtnis, z.id, familieId, phase);
       if (wirkung <= 0) continue;
       const vorher = this.segmentBelief[z.id] ?? 0;
-      this.segmentBelief[z.id] = Math.max(0, Math.min(1, vorher + wirkung * BELIEF_PRO_STOSS));
+      const nachher = Math.max(0, Math.min(1, vorher + wirkung * BELIEF_PRO_STOSS));
+      this.segmentBelief[z.id] = nachher;
+      // E16-Kippen: überschreitet eine Gruppe die Parteifahne, kippt sie EINMALIG zur
+      // radikalen Kraft — das stärkt die Fraktion (größen-gewichtet) und meldet sich in der Welt.
+      if (nachher >= FAHNE_SCHWELLE && vorher < FAHNE_SCHWELLE && !this.gekippteGruppen.has(z.id)) {
+        this.gekippteGruppen.add(z.id);
+        this.kippenBelohnung(z.id);
+      }
     }
+  }
+
+  /**
+   * Eine Gruppe ist gekippt — zweischneidig: die Fraktion wächst (× Größe), aber der laute,
+   * sichtbare Massen-Übertritt hebt das Entdeckungsrisiko. Aggressives Dauer-Kippen beschleunigt
+   * so NICHT gratis den Sieg, sondern erkauft ihn mit Enttarnungs-Nähe. + TV-Meldung.
+   */
+  private kippenBelohnung(segmentId: string): void {
+    const seg = this.audienceSegments.find((s) => s.id === segmentId);
+    if (!seg) return;
+    this.applySocietyDelta({ fraktionsstaerke: seg.size * this.KIPP_FRAKTION });
+    this.storyResources.risk = Math.min(100, this.storyResources.risk + this.KIPP_RISK);
+    const label = seg.label_de;
+    this.newsEvents.unshift({
+      id: `kippen_${segmentId}_${this.storyPhase.number}`,
+      phase: this.storyPhase.number,
+      headline_de: `${label} kippt`,
+      headline_en: `${label} tips over`,
+      description_de: `Eine ganze Gruppe schwenkt offen zur radikalen Kraft — was gestern Gerücht war, ist heute ihre Überzeugung.`,
+      description_en: `A whole group openly swings to the radical force — yesterday's rumor is today's conviction.`,
+      type: 'world_event',
+      severity: 'success',
+      read: false,
+      pinned: false,
+    });
+    storyLogger.log(`[E16] Gruppe gekippt: ${segmentId} → Fraktion +${(seg.size * this.KIPP_FRAKTION).toFixed(1)}`);
   }
 
   private registerMethodFamilyUse(tags: string[]): void {

@@ -51,4 +51,19 @@ describe('E16 belief-Writeback', () => {
     const b = freshEngine('e16-idle').getSegmentVortest(RUMOR)!;
     expect(a.segmente.map((s) => s.stoesseBisFahne)).toEqual(b.segmente.map((s) => s.stoesseBisFahne));
   });
+
+  it('eine gekippte Gruppe stärkt die Fraktion und meldet sich in der Welt (E16-Kippen)', () => {
+    const engine = freshEngine('e16-kippen');
+    const frVorher = engine.getResources().fraktionsstaerke;
+    // Die Masche hart hämmern, bis die stärkste Gruppe über die Parteifahne geht.
+    let gekippt = false;
+    for (let i = 0; i < 40 && !gekippt; i++) {
+      try { engine.executeAction(RUMOR); } catch { /* nicht leistbar */ }
+      engine.advancePhase();
+      gekippt = engine.getNewsEvents().some((n) => n.id.startsWith('kippen_'));
+    }
+    expect(gekippt).toBe(true);
+    // Kippen ist ein echter Sieg-Hebel: die Fraktions-Stärke ist gestiegen.
+    expect(engine.getResources().fraktionsstaerke).toBeGreaterThan(frVorher);
+  });
 });
