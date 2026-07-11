@@ -33,6 +33,8 @@ describe('getNPCDialogueWithVoice — Konventionen', () => {
   it('voiceAssetId-Format bei Level-0-Begrüßung folgt der Studio-Konvention', () => {
     // Direktor startet bei relationshipLevel 1 (initialState), daher testen
     // wir einen NPC, der bei 0 startet (Marina).
+    // Erstbegegnung zuerst konsumieren (Vorstellungsrunde), dann die reguläre Begrüßung prüfen.
+    engine.getNPCDialogueWithVoice('marina', { type: 'greeting', relationshipLevel: 0 });
     const result = engine.getNPCDialogueWithVoice('marina', { type: 'greeting', relationshipLevel: 0 });
 
     // Text muss vorhanden sein
@@ -48,6 +50,7 @@ describe('getNPCDialogueWithVoice — Konventionen', () => {
 
   it('voiceAssetId für alle NPCs bei Level-0-Begrüßung folgt Namenskonvention', () => {
     for (const npcId of NPC_IDS) {
+      engine.getNPCDialogueWithVoice(npcId, { type: 'greeting', relationshipLevel: 0 }); // Erstbegegnung konsumieren
       const result = engine.getNPCDialogueWithVoice(npcId, { type: 'greeting', relationshipLevel: 0 });
       if (result.voiceAssetId !== undefined) {
         expect(result.voiceAssetId).toMatch(/^voice_[a-z]+_greeting_\d$/);
@@ -63,6 +66,7 @@ describe('getNPCDialogueWithVoice — Konventionen', () => {
     // Das stimmt NICHT mit npcs.json "Hmm. Sie verschwenden meine Zeit." überein.
     // Da dialogues.json Daten für alle NPCs hat, erwartet Platinum-Pfad einen Treffer.
     // Wenn Platinum-Pfad liefert → voiceAssetId muss undefined sein.
+    engine.getNPCDialogueWithVoice('direktor', { type: 'greeting', relationshipLevel: 0 }); // Erstbegegnung konsumieren
     const result = engine.getNPCDialogueWithVoice('direktor', { type: 'greeting', relationshipLevel: 0 });
 
     expect(result.text).toBeTruthy();
@@ -172,5 +176,19 @@ describe('getNPCDialogueWithVoice — Konventionen', () => {
     const result = engine.getNPCDialogueWithVoice('npc_does_not_exist', { type: 'greeting' });
     expect(result.text).toBeNull();
     expect(result.voiceAssetId).toBeUndefined();
+  });
+
+  // ====================================================================
+  // 7. Erstbegegnung (Vorstellungsrunde): erstes Gespräch → first_meeting-Zeile
+  // ====================================================================
+  it('erstes Gespräch liefert die vertonte first_meeting-Zeile, danach normale Begrüßung', () => {
+    const first = engine.getNPCDialogueWithVoice('alexei', { type: 'greeting' });
+    expect(first.voiceAssetId).toBe('voice_alexei_first');
+    expect(first.text).toBeTruthy();
+    // Bühnenanweisungen (*…*) sind fürs Voiceover entfernt → Text und Tonspur passen 1:1.
+    expect(first.text).not.toContain('*');
+
+    const second = engine.getNPCDialogueWithVoice('alexei', { type: 'greeting' });
+    expect(second.voiceAssetId).not.toBe('voice_alexei_first');
   });
 });
