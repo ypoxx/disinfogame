@@ -378,7 +378,71 @@ EINE Rekalibrierung · H-02 als Erlebnis-Deliverable (<15 s) · PR-Halde nach Re
 
 ---
 
-## 10. Methodik & Belege
+## 10. Nachtrag (gleiche Session): Bewegtbild-Review mit Gemini
+
+> **Methode:** 12 Video-Clips per Harvest-Harness geerntet (9 bestehende + 3 neu ergänzte:
+> `clip_terminal_toggle`, `clip_board_toggle`, `clip_action_quittung` — jetzt Teil der Harness),
+> in 4 Bündeln an Gemini (`gemini-3.1-pro-preview`) als Motion-Prüfer geschickt, alle Kern-Claims
+> adversarial am Code verifiziert. Reproduzierbar:
+> `node scripts/visual-review/harvest.mjs --no-shots --only clip_…` → `gemini-review.mjs`.
+> 1 Gemini-Abschnitt verworfen (bewertete einen Clip, der dem Bündel nicht beilag);
+> 1 Claim teilweise widerlegt (AUSFÜHREN-Knopf HAT ein Mini-Druck-Feedback, `active:translate-y-0.5`).
+
+**Der rote Faden über alle 12 Clips — und die billigste Einzelverbesserung des Projekts:
+Es gibt fast keine nicht-lineare Zeit.** Zustände wechseln instantan oder in EINEM gleichmäßigen
+Tween; nichts zögert, beschleunigt, rastet ein oder schlägt auf. Genau das trennt „solide" von
+„herausragend" in einem Spiel, dessen Identität eine *Material*-Welt ist — Papier und Stempel haben
+Gewicht, die heutige Motion hat keins. Verifizierte Einzelbefunde:
+
+1. **Wahlabend-Balken ohne Kipp-Moment** *(hoch — verifiziert)*: `WahlabendScene.tsx:130` fährt die
+   Hochrechnung als einen 1,6-s-Tween (`cubic-bezier(0.4,0,0.2,1)`) — identische Kurve für Sieg
+   UND Niederlage. Es gibt keinen Stock-Moment vor der Schwelle, keinen Ruck darüber, kein
+   Verhungern Millimeter davor (timeout wirkt laut Prüfer „wie ein unfertiges Victory — die
+   Niederlage schmerzt nicht"). → Schärft **#2**: Die Balken-Dramaturgie ist KEIN Asset-Problem,
+   sondern ein Timing-Problem — stocken → Gedenksekunde → Ruck (Sieg) bzw. extrem verlangsamtes
+   Kriechen → Stillstand → ein dumpfes rotes Pulsieren (Niederlage).
+2. **GEFÄLSCHT-Stempel ohne Gewicht** *(hoch — verifiziert)*: erscheint bei `step >= 2` ohne eigene
+   Impact-Animation (nur die Textblöcke haben `wa-rise`). → Erster Pflicht-Einsatzort für den
+   **StampSlam (#11)**: Scale 150→100 %, 2 Frames Überschwingen, Mini-Shake.
+3. **Terminal/Tafel öffnen = App-Tab-Wechsel** *(mittel — verifiziert)*: `TerminalView.tsx` enthält
+   null Mount-Transitions (der „RÖHRE AN"-Toggle existiert als Fiktion, aber der Schirm schaltet
+   nie ein); die Tafel öffnet ohne Übergang — dabei existiert die Anheft-Geste (`nb-pin-in 220ms`)
+   bereits als Muster im selben File. → Bestätigt **#21** wörtlich (CRT-Einschalt-Sweep,
+   Brett-Zoom) und zeigt: Das Vokabular ist schon da, es fehlt nur an den View-Wechseln.
+4. **Ergebnis-Quittung poppt als Web-Modal** *(mittel — verifiziert)*: `ActionFeedbackDialog` hat
+   keinerlei Eintritts-Choreografie. → Der Moment, der 40 Tage × ~5-mal täglich stattfindet, ist
+   ungestaltet; zusammen mit dem ausstehenden VOLLZOGEN-Stempel (#11/#13) der häufigste
+   Juice-Berührungspunkt des Spiels.
+5. **Broadcast-Leiste: das TV ist auch in Bewegung stumm** *(mittel — konsistent mit PR-#101-Stand)*:
+   statisches Standbild, regungsloses Publikum, lineares Ausklappen — „die WELT ist genauso leise
+   wie die AGENTUR", das Stil-Gesetz läuft in Bewegung ins Leere. → Verstärkt **#14** um die
+   Motion-Dimension (Ticker-Lauf, Flimmern, Publikums-Idle).
+6. **Tag/Nacht wirkt wie ein Farbfilter-Regler** *(mittel — plausibel, Frames zeigen Banding)*:
+   Der Sweep tönt den Himmel, verändert aber kein Innenlicht. → Deckt sich mit **#18**
+   (Zonen-/Zustandslicht); Dithering gegen Banding als kleiner Zusatz.
+7. **Heimweg/Report: harter Schnitt, tote Sekunden** *(mittel — plausibel)*: kein Licht-aus-Beat,
+   Report steht sofort komplett. → Deckt sich mit **#21** (Tagesende-Choreografie: Licht aus →
+   Skyline → Kalenderblatt).
+8. **Kleinbefunde** *(gering — plausibel, nicht einzeln verifiziert)*: leichtes Foot-Sliding des
+   Avatars (Anm.: die LB-Statisten wurden 2026-07-06 exakt gegen Foot-Sliding gekoppelt — der
+   Spieler-Avatar hat diese Kopplung ggf. nicht; nachmessen), Richtungs-Flip ohne Inbetween,
+   Fahrstuhl-Türen ohne Ease-in, Hover-Feedback als reiner Farb-/Opacity-Wechsel statt
+   Material-Reaktion (Zettel kippt, Reißzwecke wackelt).
+
+**Positiv (explizit geprüft):** saubere Z-Ordnung in Bewegung, keine Ruckler/Flackern, exzellente
+Etagen-Lesbarkeit in der Totalen, verlässlicher Drei-Schritt-Rhythmus der Wahlabend-Szene,
+Anheft-Animation und Faden-Puls an der Tafel bereits vorhanden.
+
+**Konsequenz für die Prioritäten:** Die Befunde erhöhen nichts und widerlegen nichts — sie machen
+**#11 (Stempel-Slam)** und **#21 (materielle Übergänge)** vom „Politur"- zum Fundament-Status: ein
+projektweiter **Easing-Pass** (ein Motion-Vokabular in `theme.ts`: fall/settle/rise/slam mit festen
+Kurven statt Standard-Tweens) ist die günstigste Einzelmaßnahme mit Wirkung auf JEDEN Screen, und
+die Wahlabend-Timing-Dramaturgie (Befund 1) gehört in **#2** als Pflichtteil — sie kostet kein
+einziges Asset.
+
+---
+
+## 11. Methodik & Belege
 
 Alle Ist-Behauptungen wurden adversarial gegengeprüft (Datei:Zeile-Verifikation, greps, eigene
 Läufe); Status-Spalten („beschlossen/geplant/neu") tragen Fundstellen aus DECISIONS/ZIELBILD/PLAN/
@@ -388,3 +452,6 @@ Briefing/Fazit, Beats, Newsroom, Fokusgruppe, Operations-Akte, drei Wahlabend-En
 Kern-Belege der visuellen Urteile: `title.png` (Typo durch Turm, ⬢, Web-Buttons), `board_direct.png`
 (Text auf Kork-Rauschen, Geister-Spuren), `end_victory_wahlabend_s2.png` (~90 % Leerfläche),
 `terminal_vorgaenge.png` (Referenz-Niveau — so gut kann das ganze Spiel aussehen).
+Bewegtbild (§10): 12 Clips unter `runs/visual-review/bewegtbild-2026-07-12/clips/` (gitignored,
+per Harness reproduzierbar), Gemini-Rohberichte in der Session archiviert, Kern-Claims am Code
+verifiziert (Fundstellen in §10).
