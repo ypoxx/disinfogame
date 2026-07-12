@@ -667,6 +667,39 @@ if (DO_CLIPS) {
     await page.evaluate(() => { window.__VQA__.setMinutes(540); window.__VQA__.requestEndDay(); });
   });
 
+  // Bewegtbild-Review 2026-07-12: die drei Übergangs-/Gesten-Momente, die das
+  // Konzept-Review als Juice-Lücken benennt (Welt→Objekt-Schnitt, Stempel).
+  await buildingClip('clip_terminal_toggle', 'Terminal öffnen (Taste A) → scrollen → RÖHRE-Toggle → Esc schließen (Welt→Objekt-Übergang, CRT-Gefühl)', 14000, async (page) => {
+    await page.keyboard.press('a');
+    await sleep(2500);
+    await page.mouse.wheel(0, 400);
+    await sleep(1200);
+    await clickButton(page, /RÖHRE/i).catch(() => {});
+    await sleep(1500);
+    await clickButton(page, /RÖHRE/i).catch(() => {});
+    await sleep(1500);
+    await page.keyboard.press('Escape');
+  });
+
+  await buildingClip('clip_board_toggle', 'Narrativ-Tafel öffnen (Taste T) → Spuren abfahren → Esc (Übergang, Faden-/Reiter-Motion, Leerzustand in Bewegung)', 12000, async (page) => {
+    await page.keyboard.press('t');
+    await sleep(2000);
+    await page.mouse.move(400, 300);
+    await sleep(800);
+    await page.mouse.move(900, 420, { steps: 24 });
+    await sleep(800);
+    await page.mouse.move(640, 560, { steps: 24 });
+    await sleep(1500);
+    await page.keyboard.press('Escape');
+  });
+
+  await buildingClip('clip_action_quittung', 'Terminal → AUSFÜHREN → Ergebnis-Quittung (erscheint der Zustands-Stempel statisch oder mit Geste?)', 16000, async (page) => {
+    await page.keyboard.press('a');
+    await sleep(2200);
+    await clickButton(page, /^AUSFÜHREN$/).catch(() => {});
+    await sleep(4000);
+  });
+
   for (const branch of ['victory', 'timeout', 'exposed']) {
     await recordClip(browser, `clip_wahlabend_${branch}`, {
       bundle: 'ending', desc: `Wahlabend-Szene (${branch}) im Auto-Vorlauf — Balken-Animation, Stempel, Blink-Timing`, durationMs: 14000,
