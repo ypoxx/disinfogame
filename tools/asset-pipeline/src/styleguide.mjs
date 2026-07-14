@@ -59,6 +59,27 @@ export function styleHome() {
   );
 }
 
+/**
+ * Warme Figuren-Anmutung fürs Westunion-Wohnzimmer (Publikums-Sitzfiguren).
+ * Trägt die WÄRME von styleHome (Palette/Licht), aber OHNE den „home interior"-
+ * Satz — ein isolierter Sitz-Sprite darf KEINEN Raum um sich malen (R4-Falle).
+ * Weiche farbige Outlines (selout) wie der Wohnzimmer-Hintergrund, gegen den
+ * früheren harten Schwarz-Outline- und Kalt-Paletten-Bruch (Review 2026-07-06 F2/§3).
+ */
+export function styleHomeFigure() {
+  return (
+    'Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution ' +
+    'pixel art, SNES-to-modern-indie game style), matching a cozy warm living-room scene. ' +
+    'The person is bathed in WARM, SOFT, HOMELY light as if relaxing in a warm living room ' +
+    'at golden hour: warm natural skin tones, a gentle warm rim light from one side, soft ' +
+    'warm highlights and soft shadows. Believable everyday clothing in warm, friendly, ' +
+    'lived-in colors — NEVER cold clinical grey, NEVER desaturated blue-grey corpse tones. ' +
+    'Soft COLORED outlines (selective outlining / selout), no harsh pure-black outline, so ' +
+    'the figure blends into a warm home. No saturated candy colors, no pastel-only look. ' +
+    'No real-world national symbols, no readable text.'
+  );
+}
+
 export function styleCore() {
   return (
     'Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution ' +
