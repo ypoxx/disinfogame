@@ -96,9 +96,16 @@ function ladeMedien(pfade, { tabelle, endungen, maxAnzahl, maxBytes, art, flagge
   });
 }
 
+/**
+ * Obergrenze für die Summe aller Bilder eines Aufrufs. Gemessen am 2026-08-21:
+ * 40 Screenshots (~8 MB roh, ~11 MB als Daten-URL) quittierte die Gegenstelle
+ * mit HTTP 502. Lieber vorher klar abbrechen als nach Minuten ein HTML-Fehler.
+ */
+export const MAX_SUMME_BYTES = Number.parseInt(process.env.MODEL_REVIEW_MAX_BILD_SUMME ?? '', 10) || 6 * 1024 * 1024;
+
 /** Screenshots laden. `maxAnzahl` ist die Bremse — bei Gratis-Modellen darf sie hoch sein. */
-export function ladeBilder(pfade, { maxAnzahl = 40, maxBytes = 8 * 1024 * 1024 } = {}) {
-  return ladeMedien(pfade, {
+export function ladeBilder(pfade, { maxAnzahl = 40, maxBytes = 8 * 1024 * 1024, maxSumme = MAX_SUMME_BYTES } = {}) {
+  const geladen = ladeMedien(pfade, {
     tabelle: MIME,
     endungen: BILD_ENDUNGEN,
     maxAnzahl,
@@ -107,6 +114,16 @@ export function ladeBilder(pfade, { maxAnzahl = 40, maxBytes = 8 * 1024 * 1024 }
     flagge: '--max-bilder',
     rat: 'Screenshot verkleinern (z. B. Viewport 1280×720 statt Vollbild).',
   });
+
+  const summe = geladen.reduce((s, b) => s + b.bytes, 0);
+  if (summe > maxSumme) {
+    throw new BildFehler(
+      `${geladen.length} Bilder ergeben ${(summe / 1024 / 1024).toFixed(1)} MB — die Gegenstelle ` +
+        `antwortet oberhalb von ~${(maxSumme / 1024 / 1024).toFixed(0)} MB mit HTTP 502. ` +
+        'Auf mehrere Läufe aufteilen (bei "serie": --pro-buendel senken).'
+    );
+  }
+  return geladen;
 }
 
 /**

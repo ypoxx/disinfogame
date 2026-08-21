@@ -71,3 +71,14 @@ test('bildTokens skaliert mit der Anzahl und ist per Env einstellbar', () => {
   assert.equal(bildTokens(3, 1000), 3000);
   assert.ok(bildTokens(1) > 0);
 });
+
+// 40 Screenshots (~8 MB) wurden am 2026-08-21 mit HTTP 502 quittiert — die
+// Summe muss VOR dem Aufruf auffallen, nicht als HTML-Fehlerseite danach.
+test('die Gesamtgröße aller Bilder ist gedeckelt, mit Hinweis aufs Aufteilen', () => {
+  const dir = bilderOrdner(['a.png', 'b.png']);
+  assert.throws(
+    () => ladeBilder([dir], { maxSumme: 10 }),
+    (err) => err instanceof BildFehler && /502/.test(err.message) && /aufteilen/i.test(err.message)
+  );
+  assert.doesNotThrow(() => ladeBilder([dir], { maxSumme: 10_000 }));
+});
