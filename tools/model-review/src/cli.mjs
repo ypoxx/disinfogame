@@ -20,6 +20,7 @@ import { ladeBilder, ladeVideos, bildTokens, videoTokens, BildFehler } from './i
 import {
   liesManifest, baueBuendel, buendelFrage, syntheseFrage, parallelBegrenzt, ERNTE_DIR, SerienFehler,
 } from './serie.mjs';
+import { ziehe, FrameFehler } from './frames.mjs';
 import { baueKontext, schaetzeTokens, QuellenFehler } from './pack.mjs';
 import { preise, schaetzeKosten, pruefeBudget, usd, BudgetUeberschritten } from './cost.mjs';
 import {
@@ -69,6 +70,7 @@ function parseArgs(argv) {
       'lens', 'linse', 'model', 'modell', 'max-cost', 'max-tokens', 'max-chars',
       'temperature', 'frage', 'out', 'filter', 'datei', 'bild', 'max-bilder',
       'video', 'max-videos', 'ernte', 'buendel', 'pro-buendel', 'parallel', 'denk-aufwand',
+      'anzahl',
     ];
     if (braucht.includes(name)) {
       const wert = inline !== undefined ? inline : argv[++i];
@@ -103,6 +105,8 @@ BEFEHLE
   review  --lens <id>        Review durchführen (ohne --live nur Trockenlauf)
   serie   [--lens ui]        Ausführlicher Durchgang: ein Aufruf je Bildschirm-Bündel
                              aus der Visual-Review-Ernte + Synthese über alle Berichte
+  frames  [--anzahl 4]       Einzelbilder aus den Clips der Ernte ziehen (ffmpeg),
+                             Ersatz für Video-Eingabe
 
 WICHTIGE OPTIONEN
   --live                     Echten API-Aufruf erlauben (sonst passiert nichts Kostenpflichtiges)
@@ -522,6 +526,39 @@ async function cmdReview(args, cfg) {
   console.log('');
 }
 
+function cmdFrames(args) {
+  const ernteDir = args.ernte ? path.resolve(args.ernte) : ERNTE_DIR;
+  const manifest = liesManifest(ernteDir);
+  const clips = manifest.filter((e) => e.kind === 'clip' && e.file);
+  if (!clips.length) fehler(`Keine Clips im Manifest von ${relToRepo(ernteDir)}.`);
+
+  const anzahl = args.anzahl ? Number.parseInt(args.anzahl, 10) : 4;
+  const ziel = path.join(ernteDir, 'frames');
+  console.log(`\n${clips.length} Clips → je ${anzahl} Einzelbilder nach ${relToRepo(ziel)}\n`);
+
+  let gesamt = 0;
+  for (const clip of clips) {
+    const datei = path.join(ernteDir, clip.file);
+    if (!fs.existsSync(datei)) continue;
+    try {
+      const bilder = ziehe(datei, path.join(ziel, clip.bundle || 'clips'), {
+        anzahl,
+        durationMs: clip.durationMs || 6000,
+      });
+      gesamt += bilder.length;
+      console.log(`  ✓ ${(clip.id || path.basename(datei)).padEnd(28)} ${bilder.length} Bilder`);
+    } catch (err) {
+      console.error(`  ✗ ${clip.id || path.basename(datei)}: ${err.message}`);
+    }
+  }
+
+  console.log(`\n${gesamt} Einzelbilder geschrieben.`);
+  console.log('Weiterverwenden:  node src/cli.mjs review --lens ui --model konto \\');
+  console.log(`                    --bild ${relToRepo(path.join(ziel, clips[0].bundle || 'clips'))} --live`);
+  console.log('\nHinweis für den Bericht: Einzelbilder zeigen, WAS sich bewegt und WO die Dinge');
+  console.log('dabei stehen — nicht, wie flüssig es läuft.\n');
+}
+
 async function cmdSerie(args, cfg) {
   loadEnvFile();
   const linse = findeLinse(args.lens || 'ui');
@@ -583,8 +620,11 @@ async function cmdSerie(args, cfg) {
     zuTun.map((b) => async () => {
     const start = Date.now();
     try {
-      const bilder = b.kind === 'clip' ? [] : bilderFuer(args, b.dateien);
-      const videos = b.kind === 'clip' ? videosFuer(args, b.dateien) : [];
+      // In der Serie bestimmt --pro-buendel die Größe eines Durchgangs; die
+      // allgemeinen Medien-Grenzen dürfen ein Bündel nicht nachträglich kappen.
+      const proDurchgang = { ...args, 'max-bilder': String(b.dateien.length), 'max-videos': String(b.dateien.length) };
+      const bilder = b.kind === 'clip' ? [] : bilderFuer(proDurchgang, b.dateien);
+      const videos = b.kind === 'clip' ? videosFuer(proDurchgang, b.dateien) : [];
       const frage = buendelFrage(linse, b, args);
       const nachricht = nachrichtFuer(frage, kontext, linse.regeln);
 
@@ -592,6 +632,7 @@ async function cmdSerie(args, cfg) {
         apiKey, baseUrl: cfg.baseUrl, model: istKonto(modellWunsch) ? null : modellWunsch,
         system, user: nachricht, bilder, videos, maxTokens, temperature,
         timeoutMs: cfg.timeoutMs, ...aufrufOptionen(args, cfg),
+        onStueck: fortschritt(b.name),
       });
       const dauerMs = Date.now() - start;
       const kosten = antwort.usage?.cost != null ? Number(antwort.usage.cost) : null;
@@ -692,6 +733,9 @@ async function main() {
       return cmdReview(args, cfg);
     case 'serie':
       return cmdSerie(args, cfg);
+    case 'frames':
+    case 'einzelbilder':
+      return cmdFrames(args);
     default:
       fehler(`Unbekannter Befehl "${befehl}".${HILFE}`);
   }
@@ -703,7 +747,8 @@ main().catch((err) => {
     err instanceof BudgetUeberschritten ||
     err instanceof QuellenFehler ||
     err instanceof BildFehler ||
-    err instanceof SerienFehler
+    err instanceof SerienFehler ||
+    err instanceof FrameFehler
   ) {
     fehler(err.message);
   }

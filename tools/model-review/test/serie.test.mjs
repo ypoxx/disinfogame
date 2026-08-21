@@ -130,3 +130,14 @@ test('parallelBegrenzt kommt mit weniger Aufgaben als Plätzen klar', async () =
   assert.deepEqual(await parallelBegrenzt([async () => 'a'], 8), ['a']);
   assert.deepEqual(await parallelBegrenzt([], 3), []);
 });
+
+// "voll, voll, Rest" erzeugt sonst einen Durchgang mit einer einzelnen Aufnahme.
+test('geteilte Bündel werden gleichmäßig gefüllt', () => {
+  const manifest = Array.from({ length: 13 }, (_, i) => ({
+    id: `s${i}`, kind: 'shot', file: `shots/s${i}.png`, bundle: 'panels', desc: `Bild ${i}`,
+  }));
+  const dir = ernte(manifest);
+  const teile = baueBuendel(liesManifest(dir), dir, { maxProBuendel: 12 });
+  assert.deepEqual(teile.map((t) => t.dateien.length), [7, 6]);
+  assert.deepEqual(teile.map((t) => t.name), ['panels-1von2', 'panels-2von2']);
+});

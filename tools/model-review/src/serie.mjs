@@ -61,12 +61,15 @@ export function baueBuendel(manifest, dir = ERNTE_DIR, { nurBuendel = null, maxP
   }
 
   // Zu große Bündel werden GETEILT, nicht beschnitten: ein Durchgang bleibt
-  // konzentriert, aber keine Aufnahme fällt still unter den Tisch.
+  // konzentriert, aber keine Aufnahme fällt still unter den Tisch. Die Teile
+  // werden GLEICHMÄSSIG gefüllt — „voll, voll, Rest" ergäbe sonst einen
+  // Durchgang mit einer einzelnen Aufnahme (13 Stück wären 12 + 1 statt 7 + 6).
   const fertig = [];
   for (const { name, kind, eintraege } of gesammelt.values()) {
     const teile = Math.ceil(eintraege.length / maxProBuendel);
+    const proTeil = Math.ceil(eintraege.length / teile);
     for (let i = 0; i < teile; i++) {
-      const stueck = eintraege.slice(i * maxProBuendel, (i + 1) * maxProBuendel);
+      const stueck = eintraege.slice(i * proTeil, (i + 1) * proTeil);
       fertig.push({
         name: teile > 1 ? `${name}-${i + 1}von${teile}` : name,
         kind,

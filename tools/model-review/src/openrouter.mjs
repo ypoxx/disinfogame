@@ -228,21 +228,44 @@ export async function frageModell({
 
   if (strom) {
     const cfg = defaults();
-    const res = await fetch(`${baseUrl || cfg.baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        ...KOPFZEILEN,
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        Accept: 'text/event-stream',
-      },
-      body: JSON.stringify({ ...body, stream: true }),
-    });
-    if (!res.ok) {
-      const roh = await res.text();
-      throw new ApiFehler(`HTTP ${res.status}: ${roh.slice(0, 400) || res.statusText}`, { status: res.status });
+    // Ein Denk-Modell schweigt vor dem ersten Token minutenlang. In dieser
+    // Stille reißt die Verbindung gelegentlich ab ("terminated") — beobachtet
+    // beim Bündel-Lauf am 2026-08-21. Das ist kein Modell-, sondern ein
+    // Leitungsproblem: einmal neu versuchen, statt das Bündel zu verlieren.
+    let ergebnis;
+    let letzterAbriss;
+    for (let versuch = 1; versuch <= 2; versuch++) {
+      const res = await fetch(`${baseUrl || cfg.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          ...KOPFZEILEN,
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          Accept: 'text/event-stream',
+        },
+        body: JSON.stringify({ ...body, stream: true }),
+      });
+      if (!res.ok) {
+        const roh = await res.text();
+        throw new ApiFehler(`HTTP ${res.status}: ${roh.slice(0, 400) || res.statusText}`, { status: res.status });
+      }
+      try {
+        ergebnis = await liesStrom(res, { onStueck, stilleMs });
+        break;
+      } catch (err) {
+        if (err instanceof ApiFehler) throw err; // echter Fehler im Strom
+        letzterAbriss = err;
+        if (versuch === 2) {
+          throw new ApiFehler(
+            `Strom zweimal abgerissen (${err.message}). Mit --kein-strom holt die CLI die ` +
+              'Antwort am Stück — das übersteht lange Denkpausen besser.'
+          );
+        }
+        onStueck?.(0, 0);
+        await new Promise((r) => setTimeout(r, 3000));
+      }
     }
-    const ergebnis = await liesStrom(res, { onStueck, stilleMs });
+    if (!ergebnis) throw new ApiFehler(`Strom fehlgeschlagen: ${letzterAbriss?.message || 'unbekannt'}`);
     if (!ergebnis.text.trim()) {
       throw new ApiFehler(
         `Modell ${model || '(Kontovorgabe)'} hat keinen Text geliefert ` +
