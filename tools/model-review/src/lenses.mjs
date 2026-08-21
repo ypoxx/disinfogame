@@ -31,6 +31,43 @@ export const AUSGABE_REGELN = `
 - Antworte auf **Deutsch**, sachlich, ohne Höflichkeitsfloskeln und ohne Lob als Einleitung.
 `.trim();
 
+/**
+ * Eigene Antwortform für die UI-Linse: pro Screen, räumlich, umsetzbar.
+ * Ein „Befund + Beleg"-Raster wie bei den Text-Linsen erzeugt hier nur Prosa —
+ * gefragt sind Ortsangaben ("Balken sitzt zu tief", "Abstand verdoppeln").
+ */
+export const AUSGABE_REGELN_UI = `
+## Form deiner Antwort (bitte genau so)
+
+1. **Erster Eindruck** — 4–6 Sätze pro gezeigtem Screenshot, in der Reihenfolge der Dateinamen.
+   Woran bleibt das Auge zuerst hängen? Wohin sollte es zuerst gehen? Ist das dasselbe?
+2. **Konkrete Eingriffe je Screen** — pro Screenshot 3 bis 6 Stück, jeder als eine Zeile:
+   *Element → was ändern → warum.* Sei räumlich und konkret: „Tagesanzeige oben rechts
+   ist zu klein und klebt am Rand → auf ~1.5× vergrößern, 16–24 px Innenabstand,
+   linksbündig zum Panel darunter ausrichten → sie ist die wichtigste Zahl im Bild".
+   Nenne Richtung, Größenverhältnis und Bezugskante, keine Pixelwerte auf gut Glück.
+3. **Grafiken/Assets** — welche Bilder tragen, welche wirken fremd (Stil, Auflösung,
+   Ausschnitt, Zuschnitt, Sättigung, Kantenschärfe)? Was ist falsch skaliert oder
+   falsch beschnitten? Was fehlt an Stelle X ganz und würde am meisten bringen?
+4. **Raster & Rhythmus** — Abstände, Ausrichtung, Gruppierung, Bildschirmaufteilung.
+   Wo entsteht Unruhe, wo fehlt Trennung, wo ist tote Fläche?
+5. **Lesbarkeit** — Schriftgrößen, Kontraste, Textmengen, Zustände (aktiv/gesperrt/neu).
+   Nenne konkrete Stellen, an denen du zweimal hinsehen musstest.
+6. **Die drei wirksamsten Änderungen** — wenn nur drei Dinge gemacht werden, welche?
+   Sortiert nach *Wirkung pro Aufwand*, jeweils mit einem Satz Begründung.
+7. **Blinde Flecken** — was war auf den Bildern nicht zu erkennen (Bewegung, Zustände,
+   Hover, kleine Auflösung), wofür du weitere Screenshots bräuchtest?
+
+## Ehrlichkeitsregeln (wichtig)
+
+- Beziehe dich **immer auf den Dateinamen** des Screenshots (\`05_hud.png\`), damit die
+  Hinweise zuzuordnen sind.
+- Beurteile, was du **siehst**. Der beigelegte Code/Stil-Kontext erklärt die Absicht —
+  wenn Bild und Absicht auseinandergehen, sag genau das.
+- Erfinde keine Elemente, die nicht im Bild sind, und keine Dateien, die nicht im Paket stehen.
+- Antworte auf **Deutsch**, sachlich, ohne Höflichkeitsfloskeln und ohne Lob als Einleitung.
+`.trim();
+
 const ROLLE_BASIS =
   'Du bist ein erfahrener, unbestechlicher Gutachter. Du bekommst Auszüge aus einem in Entwicklung ' +
   'befindlichen, deutschsprachigen narrativen Strategiespiel über Desinformation ("Desinformation ' +
@@ -188,6 +225,59 @@ export const LINSEN = [
         modus: 'projektion',
         arrays: ['actions'],
         felder: ['id', 'phase', 'disarm_ref', 'label_de', 'narrative_de'],
+      },
+    ],
+  },
+  {
+    id: 'ui',
+    titel: 'UX/UI & Bildwirkung',
+    kurz: 'Screenshots ansehen: Was sitzt falsch, was ist zu klein, welche Grafik trägt nicht?',
+    regeln: AUSGABE_REGELN_UI,
+    rolle:
+      `${ROLLE_BASIS} Deine Schule: UI-/Visual-Design für Spiele — Bildaufbau, Raster, Typografie, ` +
+      'Kontrast, Blickführung. Du beurteilst, was auf dem Schirm zu sehen ist, und machst räumlich ' +
+      'konkrete Vorschläge (was wohin, wie groß, welcher Abstand) statt allgemeiner Stilkritik.',
+    auftrag:
+      'Sieh dir die beigefügten Screenshots des laufenden Spiels an und mache einen UX/UI-Durchgang. ' +
+      'Die Optik soll eine Behörden-/Papierwelt sein (Stil-Anker im Kontext, Farbtoken in theme.ts). ' +
+      'Sag mir: Wo führt das Bild den Blick falsch, welche Grafiken sitzen an der falschen Stelle oder ' +
+      'in der falschen Größe, wo stimmen Abstände und Ausrichtung nicht, und welche drei Änderungen ' +
+      'bringen am meisten? Sei so konkret, dass man es direkt umsetzen kann.',
+    quellen: [
+      { pfad: 'sprite-tool/public/context/game-style-guide.md', hinweis: 'Stil-Anker (verbindlich)' },
+      { pfad: 'docs/GESAMTKONZEPT_VISUELL.md' },
+      { pfad: 'docs/story-mode/VISUAL_DESIGN.md' },
+      { pfad: 'docs/PLAN_2026-07-06_UI_LUXUS.md' },
+      { pfad: 'desinformation-network/src/story-mode/theme.ts', hinweis: 'Farbtoken der Oberfläche' },
+      {
+        pfad: 'desinformation-network/src/story-mode/components',
+        modus: 'baum',
+        maxDateien: 60,
+        hinweis: 'welche Oberflächen es gibt',
+      },
+      {
+        pfad: 'desinformation-network/public/assets/assets.json',
+        modus: 'projektion',
+        arrays: ['assets'],
+        felder: ['id', 'type', 'file'],
+        hinweis: 'vorhandene Grafiken/Klänge — ohne Prompts',
+      },
+      { pfad: `${DATA}/building.json`, modus: 'digest', samples: 3, hinweis: 'Raumraster des Gebäudes' },
+      {
+        pfad: 'docs/VISUAL_REVIEW_2026-07-05.md',
+        modus: 'kopf',
+        limit: 10000,
+        hinweis: 'bereits bekannter Stand — bitte NICHT nur wiederholen',
+      },
+      // Erzeugt von scripts/visual-review/harvest.mjs (gitignored): beschreibt jeden
+      // Screenshot. Liegt die Ernte vor, weiß das Modell, WAS es da sieht.
+      {
+        pfad: 'desinformation-network/runs/visual-review/latest/manifest.json',
+        modus: 'projektion',
+        arrays: ['_root'],
+        felder: ['id', 'kind', 'file', 'bundle', 'desc'],
+        optional: true,
+        hinweis: 'Beschreibung der Screenshots aus der Visual-Review-Ernte',
       },
     ],
   },

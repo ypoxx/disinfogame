@@ -27,6 +27,24 @@ gleichförmigen blinden Flecken. Ein fremdes Modell sieht andere Dinge (und übe
 Arbeitsweise: lesen → **am Code/an den Daten gegenprüfen** → Brauchbares in `docs/STATUS.md`
 einordnen. Kanonisch bleibt [`docs/VISION_LOCK.md`](../VISION_LOCK.md) bzw. die Spieldaten.
 
+## UI-Review mit Screenshots
+
+Die Linse `ui` sieht das Spiel wirklich an. Screenshots kommen aus der vorhandenen
+Visual-Review-Ernte (`desinformation-network/scripts/visual-review/harvest.mjs`):
+
+```bash
+cd desinformation-network && npm ci && npm run build
+npm run preview -- --port 4173 &
+node scripts/visual-review/harvest.mjs --no-clips     # → runs/visual-review/latest/shots/
+
+cd ../tools/model-review
+node src/cli.mjs review --lens ui --model konto \
+  --bild ../../desinformation-network/runs/visual-review/latest/shots/title.png --live
+```
+
+Liegt das `manifest.json` der Ernte vor, bekommt das Modell zu jedem Screenshot auch dessen
+Beschreibung. `--model konto` nutzt das bei OpenRouter hinterlegte Standardmodell.
+
 ## Namensschema
 
 `<datum>_<linse>_<modell>.md` — z. B. `2026-08-21_balance_openai-gpt-5.1.md`.

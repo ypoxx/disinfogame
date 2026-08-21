@@ -16,9 +16,12 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { loadEnvFile, getApiKey, defaults, maskKey, KonfigFehler } from './config.mjs';
 import { LINSEN, findeLinse, linsenIds, AUSGABE_REGELN } from './lenses.mjs';
+import { ladeBilder, bildTokens, BildFehler } from './images.mjs';
 import { baueKontext, schaetzeTokens, QuellenFehler } from './pack.mjs';
 import { preise, schaetzeKosten, pruefeBudget, usd, BudgetUeberschritten } from './cost.mjs';
-import { listeModelle, schluesselInfo, frageModell, findeModell, ApiFehler } from './openrouter.mjs';
+import {
+  listeModelle, schluesselInfo, frageModell, findeModell, kannBilder, sehendeModelle, ApiFehler,
+} from './openrouter.mjs';
 import { rendereBericht, schreibeBericht, berichtDateiname } from './report.mjs';
 import { RUNS_DIR, REPORT_DIR, relToRepo } from './paths.mjs';
 
@@ -51,7 +54,7 @@ function ggfMitProxyNeustarten() {
 // ---------- Argumente ----------
 
 function parseArgs(argv) {
-  const args = { _: [], model: [], datei: [] };
+  const args = { _: [], model: [], datei: [], bild: [] };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (!a.startsWith('--')) {
@@ -61,13 +64,14 @@ function parseArgs(argv) {
     const [name, inline] = a.slice(2).split('=');
     const braucht = [
       'lens', 'linse', 'model', 'modell', 'max-cost', 'max-tokens', 'max-chars',
-      'temperature', 'frage', 'out', 'filter', 'datei',
+      'temperature', 'frage', 'out', 'filter', 'datei', 'bild', 'max-bilder',
     ];
     if (braucht.includes(name)) {
       const wert = inline !== undefined ? inline : argv[++i];
       if (wert === undefined) fehler(`--${name} braucht einen Wert.`);
       if (name === 'model' || name === 'modell') args.model.push(wert);
       else if (name === 'datei') args.datei.push(wert);
+      else if (name === 'bild') args.bild.push(wert);
       else args[name] = wert;
     } else {
       args[name] = true;
@@ -95,9 +99,12 @@ BEFEHLE
 WICHTIGE OPTIONEN
   --live                     Echten API-Aufruf erlauben (sonst passiert nichts Kostenpflichtiges)
   --model <slug>             Modell, mehrfach erlaubt (z. B. --model x/y --model a/b)
+                             "konto" = das bei OpenRouter hinterlegte Standardmodell
   --lens <id>                ${linsenIds().join(' | ')}
   --frage "<text>"           Eigene Frage statt der Linsen-Frage
   --datei <pfad>             Zusätzliche Datei ins Paket (mehrfach erlaubt)
+  --bild <pfad>              Screenshot ins Paket; Verzeichnis = alle Bilder darin
+                             (mehrfach erlaubt, Default max. 8 — für die Linse "ui")
   --max-cost <usd>           Kostenbremse pro Modell (Default ${defaults().maxCostUsd})
   --max-tokens <n>           Maximale Antwortlänge (Default ${defaults().maxCompletionTokens})
   --max-chars <n>            Maximale Paketgröße (Default ${defaults().maxContextChars})
@@ -137,16 +144,38 @@ function quellenFuer(linse, args) {
   return [...linse.quellen, ...extra];
 }
 
+const KONTO = 'konto';
+
+/** `--model konto` → Feld weglassen, OpenRouter nimmt die Kontovorgabe. */
+function istKonto(id) {
+  return id === KONTO || id === null;
+}
+
+function bilderFuer(args) {
+  if (!args.bild.length) return [];
+  const maxAnzahl = args['max-bilder'] ? Number.parseInt(args['max-bilder'], 10) : 8;
+  return ladeBilder(args.bild, { maxAnzahl });
+}
+
+function zeigeBilder(bilder) {
+  if (!bilder.length) return;
+  console.log('');
+  for (const b of bilder) {
+    console.log(`  🖼 ${b.rel.padEnd(62)} ${String(Math.round(b.bytes / 1024)).padStart(6)} kB`);
+  }
+  console.log(`  Σ ${bilder.length} Bild(er) ≈ ${bildTokens(bilder.length).toLocaleString('de-DE')} Tokens (grobe Schätzung, modellabhängig)`);
+}
+
 function kontextFuer(linse, args, cfg) {
   const maxChars = args['max-chars'] ? Number.parseInt(args['max-chars'], 10) : cfg.maxContextChars;
   return baueKontext(quellenFuer(linse, args), { maxChars });
 }
 
-function nachrichtFuer(frage, kontext) {
+function nachrichtFuer(frage, kontext, regeln = AUSGABE_REGELN) {
   return [
     frage.trim(),
     '',
-    AUSGABE_REGELN,
+    regeln,
     '',
     '---',
     '',
@@ -198,16 +227,19 @@ function cmdPack(args, cfg) {
   if (!linse) fehler(`Unbekannte Linse "${args.lens || '(fehlt)'}" — verfügbar: ${linsenIds().join(', ')}`);
 
   const kontext = kontextFuer(linse, args, cfg);
+  const bilder = bilderFuer(args);
   const { frage, system } = baueAuftrag(linse, args);
-  const nachricht = nachrichtFuer(frage, kontext);
+  const nachricht = nachrichtFuer(frage, kontext, linse.regeln);
 
   console.log(`\nLinse: ${linse.id} — ${linse.titel}\n`);
   zeigeKontext(kontext);
+  zeigeBilder(bilder);
 
   fs.mkdirSync(RUNS_DIR, { recursive: true });
   const ziel = path.join(RUNS_DIR, `paket-${stempel()}-${linse.id}.md`);
   fs.writeFileSync(ziel, `<!-- SYSTEM -->\n${system}\n\n<!-- USER -->\n${nachricht}`, 'utf8');
-  console.log(`\n  Gesamter Prompt (System + Frage + Paket): ${schaetzeTokens(system + nachricht).toLocaleString('de-DE')} Tokens (geschätzt)`);
+  const gesamt = schaetzeTokens(system + nachricht) + bildTokens(bilder.length);
+  console.log(`\n  Gesamter Prompt (System + Frage + Paket${bilder.length ? ' + Bilder' : ''}): ${gesamt.toLocaleString('de-DE')} Tokens (geschätzt)`);
   console.log(`  Zum Nachlesen geschrieben: ${relToRepo(ziel)}\n`);
 }
 
@@ -263,14 +295,16 @@ async function cmdReview(args, cfg) {
   const outDir = args.out ? path.resolve(args.out) : REPORT_DIR;
 
   const kontext = kontextFuer(linse, args, cfg);
+  const bilder = bilderFuer(args);
   const { frage, system } = baueAuftrag(linse, args);
-  const nachricht = nachrichtFuer(frage, kontext);
-  const promptTokens = schaetzeTokens(system + nachricht);
+  const nachricht = nachrichtFuer(frage, kontext, linse.regeln);
+  const promptTokens = schaetzeTokens(system + nachricht) + bildTokens(bilder.length);
 
   console.log(`\nLinse: ${linse.id} — ${linse.titel}`);
-  console.log(`Modelle: ${modelle.join(', ')}`);
+  console.log(`Modelle: ${modelle.map((m) => (istKonto(m) ? 'Kontovorgabe (OpenRouter-Standardmodell)' : m)).join(', ')}`);
   console.log(`Anbieter-Datensammlung: ${denyDataCollection ? 'ausgeschlossen (deny)' : 'ZUGELASSEN'}\n`);
   zeigeKontext(kontext);
+  zeigeBilder(bilder);
   console.log(`\n  Prompt gesamt: ~${promptTokens.toLocaleString('de-DE')} Tokens · Antwort max. ${maxTokens.toLocaleString('de-DE')} Tokens`);
 
   let apiKey = null;
@@ -290,18 +324,33 @@ async function cmdReview(args, cfg) {
   // Plan je Modell aufstellen (Preis prüfen, bevor irgendetwas gesendet wird).
   const plan = [];
   for (const id of modelle) {
+    if (istKonto(id)) {
+      // Kein Katalog-Eintrag und damit kein Preis: welches Modell das Konto
+      // hinterlegt hat, erfahren wir erst aus der Antwort.
+      plan.push({ id: null, anzeige: 'Kontovorgabe', model: null, pricing: {}, geschaetzt: null, konto: true });
+      continue;
+    }
     const { model, vorschlaege } = katalog.length ? findeModell(katalog, id) : { model: null, vorschlaege: [] };
     if (katalog.length && !model) {
       const hinweis = vorschlaege.length ? `\n  Meintest du: ${vorschlaege.join(', ')}` : '';
       fehler(`Modell "${id}" gibt es bei OpenRouter nicht.${hinweis}\n  Katalog ansehen: node src/cli.mjs models --filter <text>`);
     }
+    if (bilder.length && model && !kannBilder(model)) {
+      fehler(
+        `Modell "${id}" kann keine Bilder lesen (architecture.input_modalities ohne "image") — ` +
+          `${bilder.length} Screenshot(s) wären verschenkt.\n  Sehende Modelle z. B.: ${sehendeModelle(katalog).join(', ')}`
+      );
+    }
     const pricing = model ? preise(model) : { prompt: null, completion: null };
     const geschaetzt = schaetzeKosten({ promptTokens, completionTokens: maxTokens, pricing });
-    plan.push({ id, model, pricing, geschaetzt });
+    plan.push({ id, anzeige: id, model, pricing, geschaetzt });
   }
 
   console.log('\nKostenschätzung (Höchstfall — volle Antwortlänge):');
-  for (const p of plan) console.log(`  ${p.id.padEnd(46)} ${usd(p.geschaetzt).padStart(12)}`);
+  for (const p of plan) console.log(`  ${p.anzeige.padEnd(46)} ${usd(p.geschaetzt).padStart(12)}`);
+  if (plan.some((p) => p.konto)) {
+    console.log('  ⚠ Kontovorgabe: welches Modell (und welcher Preis) das ist, steht erst in der Antwort.');
+  }
   console.log(`  Kostenbremse pro Modell: ${usd(maxCostUsd)}`);
 
   if (!args.live) {
@@ -319,7 +368,7 @@ async function cmdReview(args, cfg) {
       geschaetzt: p.geschaetzt,
       maxCostUsd,
       modelId: p.id,
-      erlaubeUnbekannt: Boolean(args['preis-unbekannt-ok']),
+      erlaubeUnbekannt: Boolean(args['preis-unbekannt-ok']) || Boolean(p.konto),
     });
   }
 
@@ -328,7 +377,7 @@ async function cmdReview(args, cfg) {
   const ergebnisse = [];
 
   for (const p of plan) {
-    console.log(`\n▶ ${p.id} …`);
+    console.log(`\n▶ ${p.anzeige} …`);
     const start = Date.now();
     try {
       const antwort = await frageModell({
@@ -337,6 +386,7 @@ async function cmdReview(args, cfg) {
         model: p.id,
         system,
         user: nachricht,
+        bilder,
         maxTokens,
         temperature,
         timeoutMs: cfg.timeoutMs,
@@ -355,11 +405,12 @@ async function cmdReview(args, cfg) {
 
       const markdown = rendereBericht({
         linse,
-        model: p.id,
+        model: p.anzeige,
         verwendetesModell: antwort.verwendetesModell,
         datum,
         zeitstempel,
         kontext,
+        bilder,
         antwort: antwort.text,
         usage: antwort.usage,
         kosten,
@@ -367,22 +418,34 @@ async function cmdReview(args, cfg) {
         frage,
         denyDataCollection,
       });
-      const ziel = schreibeBericht(markdown, berichtDateiname({ linse: linse.id, model: p.id, datum }), outDir);
+      const ziel = schreibeBericht(
+        markdown,
+        // Bei einem ausdrücklich gewählten Modell zählt der angeforderte Name (sonst
+        // könnten zwei Modelle mit gleicher Rückmeldung einander überschreiben);
+        // nur bei der Kontovorgabe erfahren wir den Namen erst aus der Antwort.
+        berichtDateiname({
+          linse: linse.id,
+          model: p.konto ? antwort.verwendetesModell || 'kontovorgabe' : p.id,
+          datum,
+        }),
+        outDir
+      );
 
       console.log(`  ✓ ${usd(kosten)} · ${(dauerMs / 1000).toFixed(1)} s · ${antwort.text.length.toLocaleString('de-DE')} Zeichen`);
       console.log(`  → ${relToRepo(ziel)}`);
       if (antwort.finishReason === 'length') {
         console.log('  ⚠ Antwort lief ins Token-Limit — mit --max-tokens erhöhen.');
       }
-      ergebnisse.push({ model: p.id, kosten, ziel, ok: true });
+      ergebnisse.push({ model: p.anzeige, kosten, ziel, ok: true });
       protokoll('review', {
-        linse: linse.id, model: p.id, kosten, dauerMs, usage: antwort.usage,
-        bericht: relToRepo(ziel), kontextChars: kontext.chars,
+        linse: linse.id, model: antwort.verwendetesModell || p.anzeige, kosten, dauerMs,
+        usage: antwort.usage, bericht: relToRepo(ziel), kontextChars: kontext.chars,
+        bilder: bilder.length,
       });
     } catch (err) {
       console.error(`  ✗ ${err.message}`);
-      ergebnisse.push({ model: p.id, ok: false, fehler: err.message });
-      protokoll('review', { linse: linse.id, model: p.id, fehler: err.message });
+      ergebnisse.push({ model: p.anzeige, ok: false, fehler: err.message });
+      protokoll('review', { linse: linse.id, model: p.anzeige, fehler: err.message });
     }
   }
 
@@ -430,7 +493,12 @@ async function main() {
 }
 
 main().catch((err) => {
-  if (err instanceof KonfigFehler || err instanceof BudgetUeberschritten || err instanceof QuellenFehler) {
+  if (
+    err instanceof KonfigFehler ||
+    err instanceof BudgetUeberschritten ||
+    err instanceof QuellenFehler ||
+    err instanceof BildFehler
+  ) {
     fehler(err.message);
   }
   if (err instanceof ApiFehler) {

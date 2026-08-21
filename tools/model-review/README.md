@@ -19,7 +19,7 @@ ein Schlüssel, ein Dutzend Anbieter.
 
 ```bash
 cd tools/model-review
-npm test                                    # 60 Unit-/E2E-Tests, kein Netz, keine Kosten
+npm test                                    # 78 Unit-/E2E-Tests, kein Netz, keine Kosten
 
 node src/cli.mjs lenses                     # Welche Linsen gibt es?
 node src/cli.mjs pack --lens konzept        # Was würde gesendet? (schreibt nach runs/)
@@ -64,6 +64,7 @@ Felder — so passen alle 110 Aktionen mit Kosten/Effekten ins Paket, ohne die E
 | `balance` | Dominante Strategien, tote Optionen, Rückkopplungen ohne Gegenkraft | ~25k Tokens |
 | `onboarding` | Erste 10 Minuten: Wann fällt die erste bedeutsame Entscheidung? | ~18k Tokens |
 | `bildung` | Immunisiert das Spiel — oder ist es ein Handbuch? Trägt die Fiktionalisierung? | ~14k Tokens |
+| `ui` | **Mit Screenshots:** Was sitzt falsch, was ist zu klein, welche Grafik trägt nicht? | ~22k Tokens + Bilder |
 | `architektur` | Wo ballt sich Komplexität, welcher Schnitt lohnt zuerst? | ~11k Tokens |
 
 \* Schätzung, `node src/cli.mjs pack --lens <id>` zeigt den echten Stand.
@@ -112,6 +113,53 @@ Eintrag in `src/lenses.mjs` ergänzen (`id`, `titel`, `kurz`, `rolle`, `auftrag`
 Quell-Modi: `voll` · `kopf` (+`limit`) · `digest` (JSON-Struktur + Beispiele) ·
 `projektion` (+`arrays`, `felder`) · `baum` (Datei-Inventar eines Ordners).
 `npm test` prüft danach automatisch, dass alle Pfade existieren und das Paket ins Budget passt.
+
+---
+
+## UI-Review mit Screenshots
+
+Die Linse `ui` ist die einzige, die **Bilder** mitschickt — ohne Pixel kann kein Modell sagen,
+dass eine Grafik zu tief sitzt oder eine Zahl zu klein ist. Die Screenshots liefert die
+vorhandene Visual-Review-Ernte:
+
+```bash
+cd desinformation-network
+npm ci
+npm run build
+npm run preview -- --port 4173 &
+node scripts/visual-review/harvest.mjs --no-clips        # → runs/visual-review/latest/shots/
+
+cd ../tools/model-review
+node src/cli.mjs review --lens ui --model konto \
+  --bild ../../desinformation-network/runs/visual-review/latest/shots/title.png \
+  --bild ../../desinformation-network/runs/visual-review/latest/shots/building_lobby_day.png \
+  --live
+```
+
+- `--bild` nimmt eine Datei **oder ein Verzeichnis** (dann alle Bilder darin, alphabetisch).
+  Grenze: 8 Bilder pro Lauf (`--max-bilder`), 4 MB pro Bild.
+- Jedes Bild wird im Prompt **mit seinem Dateinamen angekündigt**, damit die Antwort sagen kann
+  „in `05_hud.png` klebt die Tagesanzeige am Rand" statt „auf einem der Bilder".
+- Liegt `runs/visual-review/latest/manifest.json` vor, geht die **Beschreibung jedes Screenshots**
+  automatisch mit — das Modell weiß dann, was es sieht.
+- Modelle ohne Bild-Eingabe werden **vor** dem Aufruf abgelehnt (`architecture.input_modalities`),
+  mit Vorschlägen sehender Alternativen. Bilder an ein blindes Modell kosten sonst Geld für nichts.
+- Die `ui`-Linse hat eine **eigene Antwortform**: Eindruck je Screen, konkrete Eingriffe
+  (*Element → was ändern → warum*), Grafiken/Assets, Raster & Rhythmus, Lesbarkeit,
+  die drei wirksamsten Änderungen.
+
+> **Verwandtes im Repo:** `desinformation-network/scripts/visual-review/gemini-review.mjs` schickt
+> dieselben Bilder direkt an die Gemini-API. Der Unterschied: dort ein fester Anbieter und freier
+> Prompt, hier **jedes** OpenRouter-Modell, feste Antwortform, Kostenbremse und ein Bericht mit
+> Quellen-Nachweis in `docs/MODEL_REVIEWS/`.
+
+## Dein bei OpenRouter hinterlegtes Modell
+
+`--model konto` lässt das Feld `model` weg — dann greift laut API-Schema das im Konto
+hinterlegte Standardmodell (*„If `model` is unspecified, uses the user's default"*).
+Weil erst die Antwort verrät, welches Modell das war, ist vorher **keine Kostenschätzung**
+möglich; die Bremse lässt diesen Fall bewusst durch und warnt stattdessen. Der Bericht wird
+nach dem tatsächlich benutzten Modell benannt.
 
 ---
 
@@ -166,7 +214,7 @@ Danach: Befunde am Code/an den Daten gegenprüfen, Brauchbares in `docs/STATUS.m
 ## Tests
 
 ```bash
-npm test     # 60 Tests: Paketbau, Kostenbremse, Bericht, API-Client + CLI end-to-end
+npm test     # 78 Tests: Paketbau, Bilder, Kostenbremse, Bericht, API-Client + CLI end-to-end
 ```
 
 Die API-Tests laufen gegen einen **lokalen Attrappen-Server** (`node:http`) — inklusive eines

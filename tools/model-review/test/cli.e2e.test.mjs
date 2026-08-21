@@ -13,9 +13,37 @@ import { fileURLToPath } from 'node:url';
 const CLI = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'cli.mjs');
 
 const KATALOG = [
-  { id: 'anbieter/gross', context_length: 200_000, pricing: { prompt: '0.000003', completion: '0.000015' } },
-  { id: 'anbieter/teuer', context_length: 200_000, pricing: { prompt: '0.001', completion: '0.002' } },
+  {
+    id: 'anbieter/gross',
+    context_length: 200_000,
+    pricing: { prompt: '0.000003', completion: '0.000015' },
+    architecture: { input_modalities: ['text', 'image'] },
+  },
+  {
+    id: 'anbieter/teuer',
+    context_length: 200_000,
+    pricing: { prompt: '0.001', completion: '0.002' },
+    architecture: { input_modalities: ['text', 'image'] },
+  },
+  {
+    id: 'anbieter/blind',
+    context_length: 200_000,
+    pricing: { prompt: '0.000001', completion: '0.000002' },
+    architecture: { input_modalities: ['text'] },
+  },
 ];
+
+// 1×1-PNG als echter Screenshot-Ersatz.
+const PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+  'base64'
+);
+
+function screenshotOrdner(namen = ['01_title.png', '05_hud.png']) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-shots-'));
+  for (const n of namen) fs.writeFileSync(path.join(dir, n), PNG);
+  return dir;
+}
 
 async function attrappe() {
   const anfragen = [];
@@ -23,13 +51,16 @@ async function attrappe() {
     let roh = '';
     req.on('data', (c) => (roh += c));
     req.on('end', () => {
-      anfragen.push({ url: req.url, body: roh ? JSON.parse(roh) : null });
+      const body = roh ? JSON.parse(roh) : null;
+      anfragen.push({ url: req.url, body });
       res.writeHead(200, { 'Content-Type': 'application/json' });
       if (req.url.endsWith('/models')) return res.end(JSON.stringify({ data: KATALOG }));
       res.end(
         JSON.stringify({
           id: 'gen-1',
-          model: 'anbieter/gross',
+          // OpenRouter spiegelt das angeforderte Modell zurück; ohne `model` im
+          // Rumpf greift die Kontovorgabe — hier ein fester Platzhalter.
+          model: body?.model || 'konto/standardmodell',
           choices: [{ message: { content: '## Kurzfazit\nDie Siegachse ist entkoppelt.' }, finish_reason: 'stop' }],
           usage: { prompt_tokens: 30_000, completion_tokens: 900, cost: 0.1035 },
         })
@@ -169,6 +200,88 @@ test('--frage ersetzt die Linsen-Frage im Prompt', async () => {
     assert.match(aufruf.body.messages[1].content, /^Ist Igor glaubwürdig\?/);
     const md = fs.readFileSync(path.join(out, fs.readdirSync(out)[0]), 'utf8');
     assert.match(md, /Ist Igor glaubwürdig\?/, 'die gestellte Frage gehört in den Bericht');
+  } finally {
+    await s.schliessen();
+  }
+});
+
+test('ui-Linse schickt die Screenshots mit und nennt sie im Bericht', async () => {
+  const s = await attrappe();
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-out-'));
+  const shots = screenshotOrdner();
+  try {
+    const r = await laufe(
+      ['review', '--lens', 'ui', '--model', 'anbieter/gross', '--bild', shots, '--live', '--max-cost', '99'],
+      { OPENROUTER_BASE_URL: s.baseUrl, MODEL_REVIEW_OUT_DIR: out }
+    );
+    assert.equal(r.code, 0, r.stderr);
+
+    const aufruf = s.anfragen.find((a) => a.url.includes('chat/completions'));
+    const inhalt = aufruf.body.messages[1].content;
+    assert.ok(Array.isArray(inhalt), 'mit Bildern muss der user-Inhalt eine ContentPart-Liste sein');
+    assert.equal(inhalt.filter((t) => t.type === 'image_url').length, 2);
+    assert.ok(inhalt.some((t) => t.text === 'Screenshot: 05_hud.png'));
+    assert.match(
+      inhalt[0].text,
+      /Erster Eindruck/,
+      'die ui-Linse muss ihre eigene Antwortform mitschicken, nicht die Text-Form'
+    );
+
+    const md = fs.readFileSync(path.join(out, fs.readdirSync(out)[0]), 'utf8');
+    assert.match(md, /Gezeigte Screenshots \(2\)/);
+    assert.match(md, /`05_hud\.png`/);
+  } finally {
+    await s.schliessen();
+  }
+});
+
+// Bilder an ein blindes Modell zu schicken kostet Geld und bringt nichts.
+test('ein Modell ohne Bild-Eingabe wird vor dem Aufruf abgelehnt', async () => {
+  const s = await attrappe();
+  const shots = screenshotOrdner();
+  try {
+    const r = await laufe(['review', '--lens', 'ui', '--model', 'anbieter/blind', '--bild', shots, '--live'], {
+      OPENROUTER_BASE_URL: s.baseUrl,
+    });
+    assert.equal(r.code, 1);
+    assert.match(r.stderr, /kann keine Bilder lesen/);
+    assert.match(r.stderr, /anbieter\/gross/, 'sehende Alternative fehlt');
+    assert.equal(s.anfragen.filter((a) => a.url.includes('chat/completions')).length, 0);
+  } finally {
+    await s.schliessen();
+  }
+});
+
+test('--model konto lässt das Modellfeld weg und benennt den Bericht nach der Antwort', async () => {
+  const s = await attrappe();
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-out-'));
+  try {
+    const r = await laufe(['review', '--lens', 'ui', '--model', 'konto', '--live'], {
+      OPENROUTER_BASE_URL: s.baseUrl,
+      MODEL_REVIEW_OUT_DIR: out,
+    });
+    assert.equal(r.code, 0, r.stderr);
+    const aufruf = s.anfragen.find((a) => a.url.includes('chat/completions'));
+    assert.ok(!('model' in aufruf.body), 'bei der Kontovorgabe darf kein model gesendet werden');
+    assert.match(r.stdout, /Kontovorgabe/);
+    assert.equal(fs.readdirSync(out)[0], `${new Date().toISOString().slice(0, 10)}_ui_konto-standardmodell.md`);
+  } finally {
+    await s.schliessen();
+  }
+});
+
+test('ohne Bilder bleibt der Aufruf ein reiner Text-Aufruf', async () => {
+  const s = await attrappe();
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-out-'));
+  try {
+    await laufe(['review', '--lens', 'ui', '--model', 'anbieter/gross', '--live', '--max-cost', '99'], {
+      OPENROUTER_BASE_URL: s.baseUrl,
+      MODEL_REVIEW_OUT_DIR: out,
+    });
+    const aufruf = s.anfragen.find((a) => a.url.includes('chat/completions'));
+    assert.equal(typeof aufruf.body.messages[1].content, 'string');
+    const md = fs.readFileSync(path.join(out, fs.readdirSync(out)[0]), 'utf8');
+    assert.ok(!md.includes('Gezeigte Screenshots'), 'ohne Bilder keine Screenshot-Tabelle');
   } finally {
     await s.schliessen();
   }

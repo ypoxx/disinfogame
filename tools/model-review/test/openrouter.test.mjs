@@ -3,11 +3,23 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
-import { listeModelle, schluesselInfo, frageModell, findeModell, ApiFehler } from '../src/openrouter.mjs';
+import {
+  listeModelle, schluesselInfo, frageModell, findeModell, baueNutzerinhalt, kannBilder, sehendeModelle, ApiFehler,
+} from '../src/openrouter.mjs';
 
 const KATALOG = [
-  { id: 'anbieter/gross', context_length: 200_000, pricing: { prompt: '0.000003', completion: '0.000015' } },
-  { id: 'anbieter/klein', context_length: 128_000, pricing: { prompt: '0', completion: '0' } },
+  {
+    id: 'anbieter/gross',
+    context_length: 200_000,
+    pricing: { prompt: '0.000003', completion: '0.000015' },
+    architecture: { input_modalities: ['text', 'image'] },
+  },
+  {
+    id: 'anbieter/klein',
+    context_length: 128_000,
+    pricing: { prompt: '0', completion: '0' },
+    architecture: { input_modalities: ['text'] },
+  },
 ];
 
 /** Attrappe starten; `handler` bekommt (req, res, body). */
@@ -163,4 +175,70 @@ test('findeModell schlägt bei Tippfehlern Ähnliches vor', () => {
   const daneben = findeModell(KATALOG, 'anderer/klein');
   assert.equal(daneben.model, null);
   assert.deepEqual(daneben.vorschlaege, ['anbieter/klein']);
+});
+
+test('baueNutzerinhalt bleibt ohne Bilder ein schlichter String', () => {
+  assert.equal(baueNutzerinhalt('nur Text'), 'nur Text');
+});
+
+// Ohne den Dateinamen im Text kann die Antwort nicht sagen, WELCHER Screen gemeint ist.
+test('baueNutzerinhalt kündigt jedes Bild mit seinem Dateinamen an', () => {
+  const teile = baueNutzerinhalt('Frage', [
+    { name: '01_title.png', dataUrl: 'data:image/png;base64,AAA' },
+    { name: '05_hud.png', dataUrl: 'data:image/png;base64,BBB' },
+  ]);
+  assert.equal(teile[0].text, 'Frage');
+  const namen = teile.filter((t) => t.type === 'text' && t.text.startsWith('Screenshot:')).map((t) => t.text);
+  assert.deepEqual(namen, ['Screenshot: 01_title.png', 'Screenshot: 05_hud.png']);
+  const bilder = teile.filter((t) => t.type === 'image_url');
+  assert.equal(bilder.length, 2);
+  assert.equal(bilder[0].image_url.url, 'data:image/png;base64,AAA');
+});
+
+test('frageModell schickt Bilder als ContentParts im user-Inhalt', async () => {
+  let gesehen = null;
+  const s = await server((req, res, body) => {
+    gesehen = body;
+    json(res, 200, { model: 'anbieter/gross', choices: [{ message: { content: 'gesehen' } }] });
+  });
+  try {
+    await frageModell({
+      apiKey: 'k', baseUrl: s.baseUrl, model: 'anbieter/gross', system: 'sys', user: 'Beurteile die Optik.',
+      bilder: [{ name: '05_hud.png', dataUrl: 'data:image/png;base64,AAA' }], maxTokens: 100, temperature: 0.3,
+    });
+    assert.equal(gesehen.messages[0].role, 'system');
+    assert.equal(typeof gesehen.messages[0].content, 'string', 'Bilder gehören nur in die user-Rolle');
+    assert.ok(Array.isArray(gesehen.messages[1].content));
+    assert.ok(gesehen.messages[1].content.some((t) => t.type === 'image_url'));
+  } finally {
+    await s.schliessen();
+  }
+});
+
+// "Kontovorgabe": ohne model-Feld nimmt OpenRouter das im Konto hinterlegte Modell.
+test('frageModell lässt model weg, wenn keins genannt ist, und meldet das benutzte zurück', async () => {
+  let gesehen = null;
+  const s = await server((req, res, body) => {
+    gesehen = body;
+    json(res, 200, { model: 'konto/standardmodell', choices: [{ message: { content: 'ok' } }] });
+  });
+  try {
+    const a = await frageModell({
+      apiKey: 'k', baseUrl: s.baseUrl, model: null, system: 'sys', user: 'Frage', maxTokens: 100,
+    });
+    assert.ok(!('model' in gesehen), 'model darf gar nicht im Rumpf stehen');
+    assert.equal(a.verwendetesModell, 'konto/standardmodell');
+  } finally {
+    await s.schliessen();
+  }
+});
+
+test('kannBilder liest die Modalitäten aus dem Katalog', () => {
+  assert.equal(kannBilder(KATALOG[0]), true);
+  assert.equal(kannBilder(KATALOG[1]), false);
+  assert.equal(kannBilder(undefined), false);
+});
+
+test('sehendeModelle schlägt nur Modelle mit Bild-Eingabe vor', () => {
+  assert.deepEqual(sehendeModelle(KATALOG), ['anbieter/gross']);
 });

@@ -89,7 +89,29 @@ export async function schluesselInfo({ apiKey, baseUrl } = {}) {
 }
 
 /**
+ * Nutzer-Inhalt bauen. Ohne Bilder ein schlichter String, mit Bildern die
+ * ContentPart-Liste (die laut OpenRouter-Schema nur der Rolle "user" erlaubt
+ * ist). Jedes Bild wird mit seinem Dateinamen angekündigt, damit die Antwort
+ * sich eindeutig darauf beziehen kann.
+ */
+export function baueNutzerinhalt(text, bilder = []) {
+  if (!bilder.length) return text;
+  const teile = [{ type: 'text', text }];
+  teile.push({
+    type: 'text',
+    text: `\n# Screenshots (${bilder.length}) — jeweils mit Dateinamen angekündigt:`,
+  });
+  for (const bild of bilder) {
+    teile.push({ type: 'text', text: `Screenshot: ${bild.name}` });
+    teile.push({ type: 'image_url', image_url: { url: bild.dataUrl } });
+  }
+  return teile;
+}
+
+/**
  * Ein Review-Aufruf. Gibt Text + Nutzung zurück.
+ * `model === null` lässt das Feld weg — OpenRouter nimmt dann das im Konto
+ * hinterlegte Standardmodell ("If \"model\" is unspecified, uses the user's default").
  * `denyDataCollection` schränkt auf Anbieter ein, die Eingaben nicht zum
  * Training sammeln (siehe README §Datenschutz).
  */
@@ -99,21 +121,22 @@ export async function frageModell({
   model,
   system,
   user,
+  bilder = [],
   maxTokens,
   temperature,
   timeoutMs,
   denyDataCollection = true,
 }) {
   const body = {
-    model,
     messages: [
       { role: 'system', content: system },
-      { role: 'user', content: user },
+      { role: 'user', content: baueNutzerinhalt(user, bilder) },
     ],
     max_tokens: maxTokens,
     temperature,
     usage: { include: true },
   };
+  if (model) body.model = model;
   if (denyDataCollection) body.provider = { data_collection: 'deny' };
 
   const json = await anfrage('/chat/completions', { apiKey, baseUrl, method: 'POST', body, timeoutMs });
@@ -121,7 +144,8 @@ export async function frageModell({
   const text = choice?.message?.content ?? '';
   if (!text.trim()) {
     throw new ApiFehler(
-      `Modell ${model} hat keinen Text geliefert (finish_reason: ${choice?.finish_reason || 'unbekannt'}).`,
+      `Modell ${model || '(Kontovorgabe)'} hat keinen Text geliefert ` +
+        `(finish_reason: ${choice?.finish_reason || 'unbekannt'}).`,
       { body: json }
     );
   }
@@ -129,7 +153,7 @@ export async function frageModell({
     text,
     finishReason: choice?.finish_reason || null,
     usage: json?.usage || null,
-    verwendetesModell: json?.model || model,
+    verwendetesModell: json?.model || model || null,
     id: json?.id || null,
   };
 }
@@ -138,6 +162,20 @@ export async function frageModell({
  * Modellkürzel gegen den Katalog prüfen. Liefert bei Tippfehlern Vorschläge,
  * statt den Aufruf ins Leere laufen zu lassen.
  */
+/** Kann das Modell Bilder lesen? (architecture.input_modalities aus dem Katalog) */
+export function kannBilder(model) {
+  return Boolean(model?.architecture?.input_modalities?.includes('image'));
+}
+
+/** Sehende Modelle vorschlagen, wenn das gewählte blind ist. */
+export function sehendeModelle(katalog, grenze = 8) {
+  return katalog
+    .filter((m) => kannBilder(m) && Number.parseFloat(m.pricing?.prompt ?? 'NaN') >= 0)
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .slice(0, grenze)
+    .map((m) => m.id);
+}
+
 export function findeModell(katalog, id) {
   const treffer = katalog.find((m) => m.id === id);
   if (treffer) return { model: treffer, vorschlaege: [] };

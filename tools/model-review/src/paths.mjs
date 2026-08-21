@@ -32,7 +32,12 @@ export const RUNS_DIR = path.join(TOOL_ROOT, 'runs');
 /** Optionale lokale Schlüsseldatei (gitignored, NIEMALS committen). */
 export const ENV_FILE = path.join(TOOL_ROOT, '.env');
 
-/** Pfad relativ zur Repo-Wurzel — für lesbare Ausgaben. */
+/**
+ * Pfad relativ zur Repo-Wurzel — für lesbare Ausgaben. Liegt die Datei außerhalb
+ * des Repos (z. B. Screenshots in /tmp), bleibt der absolute Pfad stehen: eine
+ * Kette aus `../../..` ist schlechter lesbar als das Original.
+ */
 export function relToRepo(p) {
-  return path.relative(REPO_ROOT, p).split(path.sep).join('/');
+  const rel = path.relative(REPO_ROOT, p).split(path.sep).join('/');
+  return rel.startsWith('../') ? p : rel;
 }

@@ -22,6 +22,21 @@ export function berichtDateiname({ linse, model, datum }) {
   return `${datum}_${linse}_${modellSlug(model)}.md`;
 }
 
+/** Welche Screenshots das Modell gesehen hat — sonst ist die Antwort nicht nachvollziehbar. */
+function bilderAbschnitt(bilder) {
+  if (!bilder.length) return '';
+  const zeilen = bilder.map((b) => `| \`${b.name}\` | \`${b.rel}\` | ${Math.round(b.bytes / 1024)} kB |`);
+  return [
+    '',
+    `### Gezeigte Screenshots (${bilder.length})`,
+    '',
+    '| Im Text genannt als | Datei | Größe |',
+    '|---|---|---:|',
+    ...zeilen,
+    '',
+  ].join('\n');
+}
+
 function teileTabelle(teile) {
   const zeilen = teile.map(
     (t) => `| \`${t.rel}\` | ${t.modus} | ${t.chars.toLocaleString('de-DE')} | ${t.status} |`
@@ -36,6 +51,7 @@ export function rendereBericht({
   datum,
   zeitstempel,
   kontext,
+  bilder = [],
   antwort,
   usage,
   kosten,
@@ -73,7 +89,7 @@ ${kontext.chars.toLocaleString('de-DE')} Zeichen ≈ ${kontext.tokens.toLocaleSt
   }${ausgelassen.length ? ` · **${ausgelassen.length} ausgelassen (Budget erschöpft)**` : ''}
 
 ${teileTabelle(kontext.teile)}
-
+${bilderAbschnitt(bilder)}
 ---
 
 ## Antwort des Modells
