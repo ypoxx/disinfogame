@@ -97,11 +97,16 @@ function ladeMedien(pfade, { tabelle, endungen, maxAnzahl, maxBytes, art, flagge
 }
 
 /**
- * Obergrenze für die Summe aller Bilder eines Aufrufs. Gemessen am 2026-08-21:
- * 40 Screenshots (~8 MB roh, ~11 MB als Daten-URL) quittierte die Gegenstelle
- * mit HTTP 502. Lieber vorher klar abbrechen als nach Minuten ein HTML-Fehler.
+ * Obergrenze für die Summe aller Bilder eines Aufrufs.
+ *
+ * Gemessen am 2026-08-21 (Screenshots der Ernte liegen bei ~1 MB je Stück):
+ *   10–12 Bilder ≈ 10–12 MB  → liefen durch (Bündel building, panels, ending)
+ *   40 Bilder    ≈ 40 MB     → HTTP 502 (HTML-Fehlerseite statt Antwort)
+ * Die Grenze liegt also zwischen beiden; 20 MB lässt die belegten Fälle zu und
+ * fängt den belegten Ausfall ab. Lieber vorher klar abbrechen als nach Minuten
+ * eine HTML-Fehlerseite bekommen.
  */
-export const MAX_SUMME_BYTES = Number.parseInt(process.env.MODEL_REVIEW_MAX_BILD_SUMME ?? '', 10) || 6 * 1024 * 1024;
+export const MAX_SUMME_BYTES = Number.parseInt(process.env.MODEL_REVIEW_MAX_BILD_SUMME ?? '', 10) || 20 * 1024 * 1024;
 
 /** Screenshots laden. `maxAnzahl` ist die Bremse — bei Gratis-Modellen darf sie hoch sein. */
 export function ladeBilder(pfade, { maxAnzahl = 40, maxBytes = 8 * 1024 * 1024, maxSumme = MAX_SUMME_BYTES } = {}) {
@@ -118,8 +123,9 @@ export function ladeBilder(pfade, { maxAnzahl = 40, maxBytes = 8 * 1024 * 1024, 
   const summe = geladen.reduce((s, b) => s + b.bytes, 0);
   if (summe > maxSumme) {
     throw new BildFehler(
-      `${geladen.length} Bilder ergeben ${(summe / 1024 / 1024).toFixed(1)} MB — die Gegenstelle ` +
-        `antwortet oberhalb von ~${(maxSumme / 1024 / 1024).toFixed(0)} MB mit HTTP 502. ` +
+      `${geladen.length} Bilder ergeben ${(summe / 1024 / 1024).toFixed(1)} MB — oberhalb von ` +
+        `~${(maxSumme / 1024 / 1024).toFixed(0)} MB antwortet die Gegenstelle mit HTTP 502 (belegt bei 40 MB; ` +
+        '10–12 MB liefen durch). ' +
         'Auf mehrere Läufe aufteilen (bei "serie": --pro-buendel senken).'
     );
   }
