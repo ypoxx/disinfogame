@@ -53,16 +53,37 @@ async function attrappe() {
     req.on('end', () => {
       const body = roh ? JSON.parse(roh) : null;
       anfragen.push({ url: req.url, body });
+
+      if (req.url.endsWith('/models')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ data: KATALOG }));
+      }
+
+      // OpenRouter spiegelt das angeforderte Modell zurück; ohne `model` im
+      // Rumpf greift die Kontovorgabe — hier ein fester Platzhalter.
+      const modell = body?.model || 'konto/standardmodell';
+      const antwort = '## Kurzfazit\nDie Siegachse ist entkoppelt.';
+      const usage = { prompt_tokens: 30_000, completion_tokens: 900, cost: 0.1035 };
+
+      // Strom-Antwort (Standardpfad der CLI): Server-Sent Events wie bei OpenRouter.
+      if (body?.stream) {
+        res.writeHead(200, { 'Content-Type': 'text/event-stream' });
+        const sende = (o) => res.write(`data: ${JSON.stringify(o)}\n\n`);
+        sende({ model: modell, choices: [{ delta: { reasoning: 'kurz nachgedacht' } }] });
+        sende({ model: modell, choices: [{ delta: { content: antwort.slice(0, 12) } }] });
+        sende({ model: modell, choices: [{ delta: { content: antwort.slice(12) }, finish_reason: 'stop' }] });
+        sende({ model: modell, usage, choices: [{ delta: {} }] });
+        res.write('data: [DONE]\n\n');
+        return res.end();
+      }
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      if (req.url.endsWith('/models')) return res.end(JSON.stringify({ data: KATALOG }));
       res.end(
         JSON.stringify({
           id: 'gen-1',
-          // OpenRouter spiegelt das angeforderte Modell zurück; ohne `model` im
-          // Rumpf greift die Kontovorgabe — hier ein fester Platzhalter.
-          model: body?.model || 'konto/standardmodell',
-          choices: [{ message: { content: '## Kurzfazit\nDie Siegachse ist entkoppelt.' }, finish_reason: 'stop' }],
-          usage: { prompt_tokens: 30_000, completion_tokens: 900, cost: 0.1035 },
+          model: modell,
+          choices: [{ message: { content: antwort }, finish_reason: 'stop' }],
+          usage,
         })
       );
     });
@@ -282,6 +303,72 @@ test('ohne Bilder bleibt der Aufruf ein reiner Text-Aufruf', async () => {
     assert.equal(typeof aufruf.body.messages[1].content, 'string');
     const md = fs.readFileSync(path.join(out, fs.readdirSync(out)[0]), 'utf8');
     assert.ok(!md.includes('Anschauungsmaterial'), 'ohne Bilder keine Medien-Tabelle');
+  } finally {
+    await s.schliessen();
+  }
+});
+
+test('der Strom setzt die Antwort aus mehreren Stücken korrekt zusammen', async () => {
+  const s = await attrappe();
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-out-'));
+  try {
+    const r = await laufe(['review', '--lens', 'bildung', '--model', 'anbieter/gross', '--live', '--max-cost', '99'], {
+      OPENROUTER_BASE_URL: s.baseUrl,
+      MODEL_REVIEW_OUT_DIR: out,
+    });
+    assert.equal(r.code, 0, r.stderr);
+    const aufruf = s.anfragen.find((a) => a.url.includes('chat/completions'));
+    assert.equal(aufruf.body.stream, true, 'Strom ist der Standardpfad');
+    const md = fs.readFileSync(path.join(out, fs.readdirSync(out)[0]), 'utf8');
+    assert.match(md, /## Kurzfazit\nDie Siegachse ist entkoppelt\./, 'die Stücke müssen lückenlos zusammengesetzt sein');
+    assert.match(md, /\$0\.10/, 'die Nutzung kommt im letzten Strom-Stück');
+  } finally {
+    await s.schliessen();
+  }
+});
+
+test('--kein-strom holt die Antwort am Stück', async () => {
+  const s = await attrappe();
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-out-'));
+  try {
+    const r = await laufe(
+      ['review', '--lens', 'bildung', '--model', 'anbieter/gross', '--live', '--max-cost', '99', '--kein-strom'],
+      { OPENROUTER_BASE_URL: s.baseUrl, MODEL_REVIEW_OUT_DIR: out }
+    );
+    assert.equal(r.code, 0, r.stderr);
+    const aufruf = s.anfragen.find((a) => a.url.includes('chat/completions'));
+    assert.ok(!aufruf.body.stream, 'ohne Strom darf kein stream-Feld gesetzt sein');
+    assert.match(fs.readFileSync(path.join(out, fs.readdirSync(out)[0]), 'utf8'), /Siegachse/);
+  } finally {
+    await s.schliessen();
+  }
+});
+
+test('--denk-aufwand wird als reasoning.effort mitgeschickt', async () => {
+  const s = await attrappe();
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-out-'));
+  try {
+    await laufe(
+      ['review', '--lens', 'bildung', '--model', 'anbieter/gross', '--live', '--max-cost', '99', '--denk-aufwand', 'high'],
+      { OPENROUTER_BASE_URL: s.baseUrl, MODEL_REVIEW_OUT_DIR: out }
+    );
+    const aufruf = s.anfragen.find((a) => a.url.includes('chat/completions'));
+    assert.deepEqual(aufruf.body.reasoning, { effort: 'high' });
+  } finally {
+    await s.schliessen();
+  }
+});
+
+test('ohne --denk-aufwand bleibt reasoning weg (Modell-Standard gilt)', async () => {
+  const s = await attrappe();
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-out-'));
+  try {
+    await laufe(['review', '--lens', 'bildung', '--model', 'anbieter/gross', '--live', '--max-cost', '99'], {
+      OPENROUTER_BASE_URL: s.baseUrl,
+      MODEL_REVIEW_OUT_DIR: out,
+    });
+    const aufruf = s.anfragen.find((a) => a.url.includes('chat/completions'));
+    assert.equal(aufruf.body.reasoning, undefined);
   } finally {
     await s.schliessen();
   }

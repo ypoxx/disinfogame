@@ -120,3 +120,24 @@ export function syntheseFrage(berichte) {
     ...berichte.map((b) => `\n# Einzel-Gutachten: Bündel „${b.name}"\n\n${b.text}\n`),
   ].join('\n');
 }
+
+/**
+ * Aufgaben mit begrenzter Gleichzeitigkeit abarbeiten — die Bündel-Durchgänge
+ * sind voneinander unabhängig, und ein Denk-Modell braucht je Aufruf Minuten.
+ * Nacheinander wäre die Serie sonst stundenlang unterwegs.
+ * Die Ergebnisse behalten die Eingabereihenfolge.
+ */
+export async function parallelBegrenzt(aufgaben, grenze = 3) {
+  const ergebnisse = new Array(aufgaben.length);
+  let naechste = 0;
+
+  const arbeiter = async () => {
+    while (naechste < aufgaben.length) {
+      const i = naechste++;
+      ergebnisse[i] = await aufgaben[i]();
+    }
+  };
+
+  await Promise.all(Array.from({ length: Math.max(1, Math.min(grenze, aufgaben.length)) }, arbeiter));
+  return ergebnisse;
+}

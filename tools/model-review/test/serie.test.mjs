@@ -107,3 +107,26 @@ test('die Synthese-Frage sucht Muster über die Bündel statt Wiederholung', () 
   assert.match(f, /Bündel „intro"/);
   assert.match(f, /Befund B/);
 });
+
+test('parallelBegrenzt hält die Reihenfolge und die Obergrenze ein', async () => {
+  const { parallelBegrenzt } = await import('../src/serie.mjs');
+  let gleichzeitig = 0;
+  let hoechststand = 0;
+  const aufgaben = Array.from({ length: 9 }, (_, i) => async () => {
+    gleichzeitig++;
+    hoechststand = Math.max(hoechststand, gleichzeitig);
+    await new Promise((r) => setTimeout(r, 10));
+    gleichzeitig--;
+    return i;
+  });
+  const ergebnis = await parallelBegrenzt(aufgaben, 3);
+  assert.deepEqual(ergebnis, [0, 1, 2, 3, 4, 5, 6, 7, 8], 'Reihenfolge muss der Eingabe entsprechen');
+  assert.ok(hoechststand <= 3, `nie mehr als 3 gleichzeitig, war ${hoechststand}`);
+  assert.ok(hoechststand > 1, 'es soll auch wirklich parallel laufen');
+});
+
+test('parallelBegrenzt kommt mit weniger Aufgaben als Plätzen klar', async () => {
+  const { parallelBegrenzt } = await import('../src/serie.mjs');
+  assert.deepEqual(await parallelBegrenzt([async () => 'a'], 8), ['a']);
+  assert.deepEqual(await parallelBegrenzt([], 3), []);
+});

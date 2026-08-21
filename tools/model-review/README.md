@@ -19,7 +19,7 @@ ein Schlüssel, ein Dutzend Anbieter.
 
 ```bash
 cd tools/model-review
-npm test                                    # 86 Unit-/E2E-Tests, kein Netz, keine Kosten
+npm test                                    # 93 Unit-/E2E-Tests, kein Netz, keine Kosten
 
 node src/cli.mjs lenses                     # Welche Linsen gibt es?
 node src/cli.mjs pack --lens konzept        # Was würde gesendet? (schreibt nach runs/)
@@ -64,7 +64,8 @@ Felder — so passen alle 110 Aktionen mit Kosten/Effekten ins Paket, ohne die E
 | `balance` | Dominante Strategien, tote Optionen, Rückkopplungen ohne Gegenkraft | ~25k Tokens |
 | `onboarding` | Erste 10 Minuten: Wann fällt die erste bedeutsame Entscheidung? | ~18k Tokens |
 | `bildung` | Immunisiert das Spiel — oder ist es ein Handbuch? Trägt die Fiktionalisierung? | ~14k Tokens |
-| `ui` | **Mit Screenshots/Clips:** Was sitzt falsch, was ist zu klein, welche Grafik trägt nicht? | ~22k Tokens + Medien |
+| `ui` | **Mit Screenshots/Clips:** Was sitzt falsch, was ist zu klein, welche Grafik trägt nicht? | ~3k Tokens + Medien |
+| `ui-doku` | Ohne Bilder: Halten Stil-Bibel, Farbwelt und Asset-Bestand zusammen? | ~22k Tokens |
 | `architektur` | Wo ballt sich Komplexität, welcher Schnitt lohnt zuerst? | ~11k Tokens |
 
 \* Schätzung, `node src/cli.mjs pack --lens <id>` zeigt den echten Stand.
@@ -183,10 +184,32 @@ node src/cli.mjs review --lens ui --model konto \
 `serie` erkennt Clip-Bündel selbst und überspringt sie, wenn das Modell kein Video liest.
 Grenzen: 8 Clips je Lauf (`--max-videos`), 24 MB je Clip.
 
-> **Denk-Modelle brauchen Luft.** Modelle mit `reasoning.mandatory` (z. B. `stealth/ox-alpha`,
-> Standard-Aufwand `max`) verbrauchen einen Teil des Antwort-Budgets fürs Nachdenken. Ist
-> `--max-tokens` zu klein, kommt eine **leere** Antwort zurück. `serie` setzt deshalb 32.000
-> statt 8.000; die Fehlermeldung nennt diese Ursache ausdrücklich, wenn es doch passiert.
+### Was am 2026-08-21 gegen `stealth/ox-alpha` gemessen wurde
+
+Das Standardmodell des Kontos ist gratis, hat 1.048.576 Token Kontext und liest
+`text+image+video`. Beim ersten echten Lauf zeigte sich trotzdem eine harte Grenze:
+
+| Aufruf | Ergebnis |
+|---|---|
+| 1 Screenshot, kurze Frage | **11 s**, korrekte Bildbeschreibung |
+| 2 Screenshots, `reasoning.effort: low` | **35 s**, brauchbarer Befund |
+| 2 Screenshots, `reasoning.effort: high` | **64 s**, 3.300 Zeichen, deutlich tiefer |
+| 3 Screenshots + **82.000 Zeichen** Textpaket | **hing >40 min**, keine Antwort |
+
+Daraus folgt die Bauweise oben:
+
+- **Die `ui`-Linse ist bewusst schlank** (~9.000 Zeichen: Stil-Anker + Farbtoken + Manifest).
+  Bei einem Bild-Durchgang soll das Modell auf die Pixel schauen. Wer die Design-Dokumente
+  mitschicken will, nimmt `--datei <pfad>` oder die Linse `ui-doku` (die dafür ohne Bilder läuft).
+- **Streaming ist der Standardweg.** Ein Denk-Modell schweigt erst minutenlang und schüttet dann
+  Text aus; ohne Strom sieht das aus wie ein Hänger, und ein reines Gesamt-Zeitlimit schlägt zu,
+  obwohl die Antwort noch fließt. Im Strom zählt die Zeit seit dem **letzten Lebenszeichen**, und
+  die CLI meldet den Fortschritt in Zeichen. Abschaltbar mit `--kein-strom`.
+- **`--denk-aufwand low|high|max`** ist der Zeitregler. `max` ist bei diesem Modell die Vorgabe
+  und am langsamsten; `high` ist der gute Kompromiss für einen Durchgang.
+- **`--max-tokens` großzügig.** Bei `reasoning.mandatory` fließt ein Teil des Budgets ins
+  Nachdenken; ist es zu klein, kommt eine **leere** Antwort. `serie` setzt deshalb 32.000 statt
+  8.000, und die Fehlermeldung nennt genau diese Ursache, wenn es doch passiert.
 
 > **Verwandtes im Repo:** `desinformation-network/scripts/visual-review/gemini-review.mjs` schickt
 > dieselben Bilder direkt an die Gemini-API. Der Unterschied: dort ein fester Anbieter und freier
@@ -254,7 +277,7 @@ Danach: Befunde am Code/an den Daten gegenprüfen, Brauchbares in `docs/STATUS.m
 ## Tests
 
 ```bash
-npm test     # 86 Tests: Paketbau, Bilder/Clips, Serie, Kostenbremse, Bericht, API-Client + CLI end-to-end
+npm test     # 93 Tests: Paketbau, Bilder/Clips, Serie, Strom, Kostenbremse, Bericht, API-Client + CLI end-to-end
 ```
 
 Die API-Tests laufen gegen einen **lokalen Attrappen-Server** (`node:http`) — inklusive eines

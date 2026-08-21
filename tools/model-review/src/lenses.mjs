@@ -239,16 +239,49 @@ export const LINSEN = [
       'konkrete Vorschläge (was wohin, wie groß, welcher Abstand) statt allgemeiner Stilkritik.',
     auftrag:
       'Sieh dir die beigefügten Screenshots des laufenden Spiels an und mache einen UX/UI-Durchgang. ' +
-      'Die Optik soll eine Behörden-/Papierwelt sein (Stil-Anker im Kontext, Farbtoken in theme.ts). ' +
+      'Die Optik soll eine Behörden-/Papierwelt sein (Stil-Anker und Farbtoken liegen bei). ' +
       'Sag mir: Wo führt das Bild den Blick falsch, welche Grafiken sitzen an der falschen Stelle oder ' +
       'in der falschen Größe, wo stimmen Abstände und Ausrichtung nicht, und welche drei Änderungen ' +
       'bringen am meisten? Sei so konkret, dass man es direkt umsetzen kann.',
+    // BEWUSST SCHLANK (~9k Zeichen): Bei einem Bild-Durchgang soll das Modell auf die
+    // Pixel schauen. Ein großes Prosa-Paket verdrängt nicht nur die Aufmerksamkeit —
+    // gemessen am 2026-08-21 wurde derselbe Aufruf mit 82k Zeichen Kontext beim
+    // Standardmodell (stealth/ox-alpha) unbrauchbar langsam, während er mit ~10k in
+    // etwa einer Minute durchlief. Mehr Kontext bei Bedarf per --datei zuschalten.
+    quellen: [
+      { pfad: 'sprite-tool/public/context/game-style-guide.md', hinweis: 'Stil-Anker (verbindlich)' },
+      { pfad: 'desinformation-network/src/story-mode/theme.ts', hinweis: 'Farbtoken der Oberfläche' },
+      // Erzeugt von scripts/visual-review/harvest.mjs (gitignored): beschreibt jeden
+      // Screenshot. Liegt die Ernte vor, weiß das Modell, WAS es da sieht.
+      {
+        pfad: 'desinformation-network/runs/visual-review/latest/manifest.json',
+        modus: 'projektion',
+        arrays: ['_root'],
+        felder: ['id', 'kind', 'bundle', 'desc'],
+        limit: 6000,
+        optional: true,
+        hinweis: 'Beschreibung der Aufnahmen aus der Visual-Review-Ernte',
+      },
+    ],
+  },
+  {
+    id: 'ui-doku',
+    titel: 'UX/UI gegen die Design-Dokumente',
+    kurz: 'Ohne Bilder: Halten Stil-Bibel, Farbwelt und Asset-Bestand zusammen?',
+    rolle:
+      `${ROLLE_BASIS} Deine Schule: UI-/Visual-Design für Spiele. Hier prüfst du die ` +
+      'Selbstbeschreibung des Projekts auf Widersprüche, nicht die Bilder.',
+    auftrag:
+      'Prüfe die visuelle Selbstbeschreibung des Projekts. Widersprechen sich Stil-Anker, ' +
+      'Farbwelt (theme.ts) und die Pläne? Passt der Asset-Bestand zu dem, was die Dokumente ' +
+      'versprechen — was ist da, was fehlt, was ist doppelt? Wo ist der Plan so vage, dass zwei ' +
+      'Leute ihn verschieden umsetzen würden?',
     quellen: [
       { pfad: 'sprite-tool/public/context/game-style-guide.md', hinweis: 'Stil-Anker (verbindlich)' },
       { pfad: 'docs/GESAMTKONZEPT_VISUELL.md' },
       { pfad: 'docs/story-mode/VISUAL_DESIGN.md' },
       { pfad: 'docs/PLAN_2026-07-06_UI_LUXUS.md' },
-      { pfad: 'desinformation-network/src/story-mode/theme.ts', hinweis: 'Farbtoken der Oberfläche' },
+      { pfad: 'desinformation-network/src/story-mode/theme.ts' },
       {
         pfad: 'desinformation-network/src/story-mode/components',
         modus: 'baum',
@@ -268,16 +301,6 @@ export const LINSEN = [
         modus: 'kopf',
         limit: 10000,
         hinweis: 'bereits bekannter Stand — bitte NICHT nur wiederholen',
-      },
-      // Erzeugt von scripts/visual-review/harvest.mjs (gitignored): beschreibt jeden
-      // Screenshot. Liegt die Ernte vor, weiß das Modell, WAS es da sieht.
-      {
-        pfad: 'desinformation-network/runs/visual-review/latest/manifest.json',
-        modus: 'projektion',
-        arrays: ['_root'],
-        felder: ['id', 'kind', 'file', 'bundle', 'desc'],
-        optional: true,
-        hinweis: 'Beschreibung der Screenshots aus der Visual-Review-Ernte',
       },
     ],
   },

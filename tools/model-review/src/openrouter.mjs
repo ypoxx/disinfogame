@@ -127,6 +127,69 @@ export function baueNutzerinhalt(text, bilder = [], videos = []) {
 }
 
 /**
+ * Server-Sent-Events von OpenRouter lesen und Textstücke ausgeben.
+ * Warum überhaupt streamen: Ein Denk-Modell mit großem Bild-Paket braucht
+ * Minuten. Ohne Strom sieht der Nutzer ein stilles Terminal und weiß nicht, ob
+ * noch etwas passiert — und ein reines Gesamt-Zeitlimit schlägt zu, obwohl die
+ * Antwort noch fließt. Mit Strom zählt die Zeit seit dem LETZTEN Lebenszeichen.
+ */
+async function liesStrom(res, { onStueck, stilleMs }) {
+  const leser = res.body.getReader();
+  const dekoder = new TextDecoder();
+  let puffer = '';
+  let text = '';
+  let denken = '';
+  let usage = null;
+  let modell = null;
+  let finishReason = null;
+  let letztes = Date.now();
+
+  const wecker = setInterval(() => {
+    if (Date.now() - letztes > stilleMs) leser.cancel(new Error('Stille')).catch(() => {});
+  }, 5000);
+
+  try {
+    for (;;) {
+      const { done, value } = await leser.read();
+      if (done) break;
+      letztes = Date.now();
+      puffer += dekoder.decode(value, { stream: true });
+
+      const zeilen = puffer.split('\n');
+      puffer = zeilen.pop() ?? '';
+      for (const zeile of zeilen) {
+        if (!zeile.startsWith('data: ')) continue;
+        const nutzlast = zeile.slice(6).trim();
+        if (nutzlast === '[DONE]') continue;
+        let stueck;
+        try {
+          stueck = JSON.parse(nutzlast);
+        } catch {
+          continue; // Kommentar-/Keepalive-Zeile
+        }
+        if (stueck.error) {
+          throw new ApiFehler(`API-Fehler im Strom: ${stueck.error.message || JSON.stringify(stueck.error)}`);
+        }
+        modell = stueck.model || modell;
+        if (stueck.usage) usage = stueck.usage;
+        const delta = stueck.choices?.[0]?.delta;
+        if (delta?.content) {
+          text += delta.content;
+          onStueck?.(delta.content.length, text.length);
+        }
+        if (delta?.reasoning) denken += delta.reasoning;
+        const fr = stueck.choices?.[0]?.finish_reason;
+        if (fr) finishReason = fr;
+      }
+    }
+  } finally {
+    clearInterval(wecker);
+  }
+
+  return { text, reasoning: denken || null, usage, verwendetesModell: modell, finishReason };
+}
+
+/**
  * Ein Review-Aufruf. Gibt Text + Nutzung zurück.
  * `model === null` lässt das Feld weg — OpenRouter nimmt dann das im Konto
  * hinterlegte Standardmodell ("If \"model\" is unspecified, uses the user's default").
@@ -145,6 +208,10 @@ export async function frageModell({
   temperature,
   timeoutMs,
   denyDataCollection = true,
+  denkAufwand = null,
+  strom = false,
+  onStueck = null,
+  stilleMs = 180_000,
 }) {
   const body = {
     messages: [
@@ -157,6 +224,35 @@ export async function frageModell({
   };
   if (model) body.model = model;
   if (denyDataCollection) body.provider = { data_collection: 'deny' };
+  if (denkAufwand) body.reasoning = { effort: denkAufwand };
+
+  if (strom) {
+    const cfg = defaults();
+    const res = await fetch(`${baseUrl || cfg.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        ...KOPFZEILEN,
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        Accept: 'text/event-stream',
+      },
+      body: JSON.stringify({ ...body, stream: true }),
+    });
+    if (!res.ok) {
+      const roh = await res.text();
+      throw new ApiFehler(`HTTP ${res.status}: ${roh.slice(0, 400) || res.statusText}`, { status: res.status });
+    }
+    const ergebnis = await liesStrom(res, { onStueck, stilleMs });
+    if (!ergebnis.text.trim()) {
+      throw new ApiFehler(
+        `Modell ${model || '(Kontovorgabe)'} hat keinen Text geliefert ` +
+          `(finish_reason: ${ergebnis.finishReason || 'unbekannt'}` +
+          `${ergebnis.reasoning ? `, ${ergebnis.reasoning.length} Zeichen Denkschritte` : ''}). ` +
+          'Bei Denk-Modellen hilft ein größeres --max-tokens oder ein kleinerer --denk-aufwand.'
+      );
+    }
+    return { ...ergebnis, verwendetesModell: ergebnis.verwendetesModell || model || null, id: null };
+  }
 
   const json = await anfrage('/chat/completions', { apiKey, baseUrl, method: 'POST', body, timeoutMs });
   const choice = json?.choices?.[0];

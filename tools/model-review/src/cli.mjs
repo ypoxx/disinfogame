@@ -17,7 +17,9 @@ import { fileURLToPath } from 'node:url';
 import { loadEnvFile, getApiKey, defaults, maskKey, KonfigFehler } from './config.mjs';
 import { LINSEN, findeLinse, linsenIds, AUSGABE_REGELN } from './lenses.mjs';
 import { ladeBilder, ladeVideos, bildTokens, videoTokens, BildFehler } from './images.mjs';
-import { liesManifest, baueBuendel, buendelFrage, syntheseFrage, ERNTE_DIR, SerienFehler } from './serie.mjs';
+import {
+  liesManifest, baueBuendel, buendelFrage, syntheseFrage, parallelBegrenzt, ERNTE_DIR, SerienFehler,
+} from './serie.mjs';
 import { baueKontext, schaetzeTokens, QuellenFehler } from './pack.mjs';
 import { preise, schaetzeKosten, pruefeBudget, usd, BudgetUeberschritten } from './cost.mjs';
 import {
@@ -66,7 +68,7 @@ function parseArgs(argv) {
     const braucht = [
       'lens', 'linse', 'model', 'modell', 'max-cost', 'max-tokens', 'max-chars',
       'temperature', 'frage', 'out', 'filter', 'datei', 'bild', 'max-bilder',
-      'video', 'max-videos', 'ernte', 'buendel', 'pro-buendel',
+      'video', 'max-videos', 'ernte', 'buendel', 'pro-buendel', 'parallel', 'denk-aufwand',
     ];
     if (braucht.includes(name)) {
       const wert = inline !== undefined ? inline : argv[++i];
@@ -116,6 +118,9 @@ WICHTIGE OPTIONEN
   --buendel a,b              Nur diese Bündel (serie); ohne Angabe: alle
   --pro-buendel <n>          Aufnahmen je Durchgang (Default 12); größere Bündel
                              werden geteilt, nicht beschnitten
+  --parallel <n>             Gleichzeitige Durchgänge bei "serie" (Default 3)
+  --denk-aufwand <stufe>     low | high | max — bei Denk-Modellen der Zeitregler
+  --kein-strom               Antwort am Stück holen statt zu streamen (Default: Strom)
   --max-cost <usd>           Kostenbremse pro Modell (Default ${defaults().maxCostUsd})
   --max-tokens <n>           Maximale Antwortlänge (Default ${defaults().maxCompletionTokens})
   --max-chars <n>            Maximale Paketgröße (Default ${defaults().maxContextChars})
@@ -156,6 +161,28 @@ function quellenFuer(linse, args) {
 }
 
 const KONTO = 'konto';
+
+/** Optionen, die für jeden Modell-Aufruf gleich sind. */
+function aufrufOptionen(args, cfg) {
+  return {
+    denkAufwand: args['denk-aufwand'] || null,
+    strom: !args['kein-strom'],
+    denyDataCollection: args['erlaube-datensammlung'] ? false : cfg.denyDataCollection,
+  };
+}
+
+/**
+ * Fortschrittsanzeige beim Streamen. Ein Denk-Modell schweigt erst minutenlang
+ * (es denkt) und schüttet dann Text aus — ohne Anzeige sieht das aus wie ein Hänger.
+ */
+function fortschritt(etikett) {
+  let letzte = 0;
+  return (_zuwachs, gesamt) => {
+    if (gesamt - letzte < 2000) return;
+    letzte = gesamt;
+    process.stdout.write(`  … ${etikett}: ${gesamt.toLocaleString('de-DE')} Zeichen\n`);
+  };
+}
 
 /** `--model konto` → Feld weglassen, OpenRouter nimmt die Kontovorgabe. */
 function istKonto(id) {
@@ -423,7 +450,8 @@ async function cmdReview(args, cfg) {
         maxTokens,
         temperature,
         timeoutMs: cfg.timeoutMs,
-        denyDataCollection,
+        ...aufrufOptionen(args, cfg),
+        onStueck: fortschritt(p.anzeige),
       });
       const dauerMs = Date.now() - start;
       const u = antwort.usage || {};
@@ -538,15 +566,21 @@ async function cmdSerie(args, cfg) {
 
   const datum = heute();
   const zeitstempel = new Date().toISOString();
-  const berichte = [];
+  const gleichzeitig = args.parallel ? Number.parseInt(args.parallel, 10) : 3;
   let gesamtkosten = 0;
 
-  for (const b of buendel) {
+  const zuTun = buendel.filter((b) => {
     if (b.kind === 'clip' && !kannClips) {
       console.log(`\n▶ ${b.name} — übersprungen (Modell liest kein Video)`);
-      continue;
+      return false;
     }
-    console.log(`\n▶ ${b.name} (${b.dateien.length} Aufnahmen) …`);
+    return true;
+  });
+
+  console.log(`\nStarte ${zuTun.length} Durchgänge, ${gleichzeitig} gleichzeitig …`);
+
+  const roh = await parallelBegrenzt(
+    zuTun.map((b) => async () => {
     const start = Date.now();
     try {
       const bilder = b.kind === 'clip' ? [] : bilderFuer(args, b.dateien);
@@ -557,7 +591,7 @@ async function cmdSerie(args, cfg) {
       const antwort = await frageModell({
         apiKey, baseUrl: cfg.baseUrl, model: istKonto(modellWunsch) ? null : modellWunsch,
         system, user: nachricht, bilder, videos, maxTokens, temperature,
-        timeoutMs: cfg.timeoutMs, denyDataCollection,
+        timeoutMs: cfg.timeoutMs, ...aufrufOptionen(args, cfg),
       });
       const dauerMs = Date.now() - start;
       const kosten = antwort.usage?.cost != null ? Number(antwort.usage.cost) : null;
@@ -574,18 +608,23 @@ async function cmdSerie(args, cfg) {
         berichtDateiname({ linse: `${linse.id}-${b.name}`, model: antwort.verwendetesModell || 'kontovorgabe', datum }),
         outDir
       );
-      console.log(`  ✓ ${usd(kosten)} · ${(dauerMs / 1000).toFixed(1)} s · ${antwort.text.length.toLocaleString('de-DE')} Zeichen → ${relToRepo(ziel)}`);
-      if (antwort.finishReason === 'length') console.log('  ⚠ Antwort lief ins Token-Limit (--max-tokens erhöhen).');
-      berichte.push({ name: b.name, text: antwort.text });
+      console.log(`  ✓ ${b.name.padEnd(24)} ${usd(kosten)} · ${(dauerMs / 1000).toFixed(0)} s · ${antwort.text.length.toLocaleString('de-DE')} Zeichen → ${relToRepo(ziel)}`);
+      if (antwort.finishReason === 'length') console.log(`  ⚠ ${b.name}: Antwort lief ins Token-Limit (--max-tokens erhöhen).`);
       protokoll('serie', {
         linse: linse.id, buendel: b.name, model: antwort.verwendetesModell, kosten, dauerMs,
         usage: antwort.usage, bericht: relToRepo(ziel), aufnahmen: b.dateien.length,
       });
+      return { name: b.name, text: antwort.text };
     } catch (err) {
-      console.error(`  ✗ ${err.message}`);
+      console.error(`  ✗ ${b.name}: ${err.message}`);
       protokoll('serie', { linse: linse.id, buendel: b.name, fehler: err.message });
+      return null;
     }
-  }
+    }),
+    gleichzeitig
+  );
+
+  const berichte = roh.filter(Boolean);
 
   // Synthese über die Einzelberichte — der eigentliche Mehrwert der Serie.
   if (berichte.length >= 2) {
@@ -595,7 +634,8 @@ async function cmdSerie(args, cfg) {
       const antwort = await frageModell({
         apiKey, baseUrl: cfg.baseUrl, model: istKonto(modellWunsch) ? null : modellWunsch,
         system, user: syntheseFrage(berichte), maxTokens, temperature,
-        timeoutMs: cfg.timeoutMs, denyDataCollection,
+        timeoutMs: cfg.timeoutMs, ...aufrufOptionen(args, cfg),
+        onStueck: fortschritt('Synthese'),
       });
       const dauerMs = Date.now() - start;
       const kosten = antwort.usage?.cost != null ? Number(antwort.usage.cost) : null;
