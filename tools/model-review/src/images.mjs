@@ -1,5 +1,5 @@
 // ===========================================
-// BILDER — Screenshots für die UI-Linse
+// BILDER & CLIPS — Anschauungsmaterial für die UI-Linse
 // ===========================================
 // Ohne Pixel kann kein Modell sagen, dass eine Grafik zu tief sitzt. Bilder
 // gehen als Daten-URL im user-Inhalt mit (OpenRouter: ImageContentPart,
@@ -23,49 +23,67 @@ const MIME = {
 
 export const BILD_ENDUNGEN = Object.keys(MIME);
 
+const VIDEO_MIME = {
+  '.webm': 'video/webm',
+  '.mp4': 'video/mp4',
+  '.mov': 'video/quicktime',
+};
+
+export const VIDEO_ENDUNGEN = Object.keys(VIDEO_MIME);
+
+/**
+ * Grobe Token-Schätzung je Clip. Video ist deutlich teurer als ein Standbild
+ * und stark modellabhängig — nur als Größenordnung für die Vorschau gedacht.
+ */
+export function videoTokens(anzahl, proClip = Number.parseInt(process.env.MODEL_REVIEW_VIDEO_TOKENS ?? '', 10) || 12_000) {
+  return anzahl * proClip;
+}
+
 /** Grobe Token-Schätzung je Bild — modellabhängig, daher bewusst konservativ. */
 export function bildTokens(anzahl, proBild = Number.parseInt(process.env.MODEL_REVIEW_BILD_TOKENS ?? '', 10) || 1600) {
   return anzahl * proBild;
 }
 
-/** Ein Pfad → eine Liste von Bilddateien (Verzeichnis = alle Bilder darin, sortiert). */
-export function sammleBildpfade(pfad) {
+/** Ein Pfad → Dateiliste (Verzeichnis = alle passenden Dateien darin, sortiert). */
+export function sammlePfade(pfad, endungen = BILD_ENDUNGEN) {
   const abs = path.isAbsolute(pfad) ? pfad : path.join(REPO_ROOT, pfad);
-  if (!fs.existsSync(abs)) throw new BildFehler(`Bild/Verzeichnis fehlt: ${pfad}`);
+  if (!fs.existsSync(abs)) throw new BildFehler(`Datei/Verzeichnis fehlt: ${pfad}`);
   if (fs.statSync(abs).isDirectory()) {
     const drin = fs
       .readdirSync(abs)
-      .filter((n) => BILD_ENDUNGEN.includes(path.extname(n).toLowerCase()))
+      .filter((n) => endungen.includes(path.extname(n).toLowerCase()))
       .sort()
       .map((n) => path.join(abs, n));
-    if (drin.length === 0) throw new BildFehler(`Keine Bilder in ${pfad} (erlaubt: ${BILD_ENDUNGEN.join(' ')})`);
+    if (drin.length === 0) throw new BildFehler(`Nichts Passendes in ${pfad} (erlaubt: ${endungen.join(' ')})`);
     return drin;
   }
   return [abs];
 }
 
+/** Rückwärtskompatibler Name — Bilder sind der Regelfall. */
+export const sammleBildpfade = (pfad) => sammlePfade(pfad, BILD_ENDUNGEN);
+
 /**
  * Bilder laden und als Daten-URLs aufbereiten.
  * `maxAnzahl` und `maxBytes` sind Kostenbremsen: Bilder sind im Prompt teuer.
  */
-export function ladeBilder(pfade, { maxAnzahl = 8, maxBytes = 4 * 1024 * 1024 } = {}) {
-  const alle = pfade.flatMap((p) => sammleBildpfade(p));
+function ladeMedien(pfade, { tabelle, endungen, maxAnzahl, maxBytes, art, flagge, rat }) {
+  const alle = pfade.flatMap((p) => sammlePfade(p, endungen));
   if (alle.length > maxAnzahl) {
     throw new BildFehler(
-      `${alle.length} Bilder gefunden, erlaubt sind ${maxAnzahl} pro Lauf. ` +
-        'Weniger auswählen oder --max-bilder erhöhen (Bilder kosten im Prompt am meisten).'
+      `${alle.length} ${art} gefunden, erlaubt sind ${maxAnzahl} pro Lauf. ` +
+        `Weniger auswählen oder ${flagge} erhöhen.`
     );
   }
 
   return alle.map((abs) => {
     const endung = path.extname(abs).toLowerCase();
-    const mime = MIME[endung];
-    if (!mime) throw new BildFehler(`${relToRepo(abs)}: ${endung} wird nicht unterstützt (${BILD_ENDUNGEN.join(' ')}).`);
+    const mime = tabelle[endung];
+    if (!mime) throw new BildFehler(`${relToRepo(abs)}: ${endung} wird nicht unterstützt (${endungen.join(' ')}).`);
     const roh = fs.readFileSync(abs);
     if (roh.length > maxBytes) {
       throw new BildFehler(
-        `${relToRepo(abs)} ist ${(roh.length / 1024 / 1024).toFixed(1)} MB — Grenze ${(maxBytes / 1024 / 1024).toFixed(1)} MB. ` +
-          'Screenshot verkleinern (z. B. Viewport 1280×720 statt Vollbild).'
+        `${relToRepo(abs)} ist ${(roh.length / 1024 / 1024).toFixed(1)} MB — Grenze ${(maxBytes / 1024 / 1024).toFixed(1)} MB. ${rat}`
       );
     }
     return {
@@ -75,5 +93,34 @@ export function ladeBilder(pfade, { maxAnzahl = 8, maxBytes = 4 * 1024 * 1024 } 
       bytes: roh.length,
       dataUrl: `data:${mime};base64,${roh.toString('base64')}`,
     };
+  });
+}
+
+/** Screenshots laden. `maxAnzahl` ist die Bremse — bei Gratis-Modellen darf sie hoch sein. */
+export function ladeBilder(pfade, { maxAnzahl = 40, maxBytes = 8 * 1024 * 1024 } = {}) {
+  return ladeMedien(pfade, {
+    tabelle: MIME,
+    endungen: BILD_ENDUNGEN,
+    maxAnzahl,
+    maxBytes,
+    art: 'Bilder',
+    flagge: '--max-bilder',
+    rat: 'Screenshot verkleinern (z. B. Viewport 1280×720 statt Vollbild).',
+  });
+}
+
+/**
+ * Clips laden. Nur Modelle mit `video` in den input_modalities können damit
+ * etwas anfangen — die CLI prüft das vor dem Aufruf.
+ */
+export function ladeVideos(pfade, { maxAnzahl = 8, maxBytes = 24 * 1024 * 1024 } = {}) {
+  return ladeMedien(pfade, {
+    tabelle: VIDEO_MIME,
+    endungen: VIDEO_ENDUNGEN,
+    maxAnzahl,
+    maxBytes,
+    art: 'Clips',
+    flagge: '--max-videos',
+    rat: 'Clip kürzen oder kleiner aufnehmen.',
   });
 }

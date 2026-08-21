@@ -94,17 +94,35 @@ export async function schluesselInfo({ apiKey, baseUrl } = {}) {
  * ist). Jedes Bild wird mit seinem Dateinamen angekündigt, damit die Antwort
  * sich eindeutig darauf beziehen kann.
  */
-export function baueNutzerinhalt(text, bilder = []) {
-  if (!bilder.length) return text;
+export function baueNutzerinhalt(text, bilder = [], videos = []) {
+  if (!bilder.length && !videos.length) return text;
   const teile = [{ type: 'text', text }];
-  teile.push({
-    type: 'text',
-    text: `\n# Screenshots (${bilder.length}) — jeweils mit Dateinamen angekündigt:`,
-  });
-  for (const bild of bilder) {
-    teile.push({ type: 'text', text: `Screenshot: ${bild.name}` });
-    teile.push({ type: 'image_url', image_url: { url: bild.dataUrl } });
+
+  if (bilder.length) {
+    teile.push({
+      type: 'text',
+      text: `\n# Screenshots (${bilder.length}) — jeweils mit Dateinamen angekündigt:`,
+    });
+    for (const bild of bilder) {
+      teile.push({ type: 'text', text: `Screenshot: ${bild.name}` });
+      teile.push({ type: 'image_url', image_url: { url: bild.dataUrl } });
+    }
   }
+
+  if (videos.length) {
+    teile.push({
+      type: 'text',
+      text:
+        `\n# Clips (${videos.length}) — bewegte Aufnahmen aus dem laufenden Spiel. ` +
+        'Beurteile hier zusätzlich Timing, Übergänge, Ruckeln und ob Bewegung die Aufmerksamkeit ' +
+        'an die richtige Stelle lenkt:',
+    });
+    for (const clip of videos) {
+      teile.push({ type: 'text', text: `Clip: ${clip.name}` });
+      teile.push({ type: 'video_url', video_url: { url: clip.dataUrl } });
+    }
+  }
+
   return teile;
 }
 
@@ -122,6 +140,7 @@ export async function frageModell({
   system,
   user,
   bilder = [],
+  videos = [],
   maxTokens,
   temperature,
   timeoutMs,
@@ -130,7 +149,7 @@ export async function frageModell({
   const body = {
     messages: [
       { role: 'system', content: system },
-      { role: 'user', content: baueNutzerinhalt(user, bilder) },
+      { role: 'user', content: baueNutzerinhalt(user, bilder, videos) },
     ],
     max_tokens: maxTokens,
     temperature,
@@ -143,14 +162,25 @@ export async function frageModell({
   const choice = json?.choices?.[0];
   const text = choice?.message?.content ?? '';
   if (!text.trim()) {
+    // Häufigste Ursache bei Denk-Modellen (reasoning.mandatory): die Antwort lief
+    // ins Token-Limit, BEVOR sichtbarer Text entstand — das Nachdenken hat alles
+    // aufgebraucht. Das ist kein Netzfehler, sondern eine zu kleine Obergrenze.
+    const denkzeichen = (choice?.message?.reasoning || '').length;
+    const grund =
+      choice?.finish_reason === 'length' || denkzeichen > 0
+        ? ' Vermutlich ist das Token-Budget beim Nachdenken aufgebraucht worden' +
+          `${denkzeichen ? ` (${denkzeichen} Zeichen Denkschritte, kein Antworttext)` : ''}` +
+          ' — mit --max-tokens deutlich erhöhen (Denk-Modelle brauchen ein Vielfaches).'
+        : '';
     throw new ApiFehler(
       `Modell ${model || '(Kontovorgabe)'} hat keinen Text geliefert ` +
-        `(finish_reason: ${choice?.finish_reason || 'unbekannt'}).`,
+        `(finish_reason: ${choice?.finish_reason || 'unbekannt'}).${grund}`,
       { body: json }
     );
   }
   return {
     text,
+    reasoning: choice?.message?.reasoning || null,
     finishReason: choice?.finish_reason || null,
     usage: json?.usage || null,
     verwendetesModell: json?.model || model || null,
@@ -165,6 +195,11 @@ export async function frageModell({
 /** Kann das Modell Bilder lesen? (architecture.input_modalities aus dem Katalog) */
 export function kannBilder(model) {
   return Boolean(model?.architecture?.input_modalities?.includes('image'));
+}
+
+/** Kann das Modell Clips lesen? */
+export function kannVideo(model) {
+  return Boolean(model?.architecture?.input_modalities?.includes('video'));
 }
 
 /** Sehende Modelle vorschlagen, wenn das gewählte blind ist. */

@@ -19,7 +19,7 @@ ein Schlüssel, ein Dutzend Anbieter.
 
 ```bash
 cd tools/model-review
-npm test                                    # 78 Unit-/E2E-Tests, kein Netz, keine Kosten
+npm test                                    # 86 Unit-/E2E-Tests, kein Netz, keine Kosten
 
 node src/cli.mjs lenses                     # Welche Linsen gibt es?
 node src/cli.mjs pack --lens konzept        # Was würde gesendet? (schreibt nach runs/)
@@ -64,7 +64,7 @@ Felder — so passen alle 110 Aktionen mit Kosten/Effekten ins Paket, ohne die E
 | `balance` | Dominante Strategien, tote Optionen, Rückkopplungen ohne Gegenkraft | ~25k Tokens |
 | `onboarding` | Erste 10 Minuten: Wann fällt die erste bedeutsame Entscheidung? | ~18k Tokens |
 | `bildung` | Immunisiert das Spiel — oder ist es ein Handbuch? Trägt die Fiktionalisierung? | ~14k Tokens |
-| `ui` | **Mit Screenshots:** Was sitzt falsch, was ist zu klein, welche Grafik trägt nicht? | ~22k Tokens + Bilder |
+| `ui` | **Mit Screenshots/Clips:** Was sitzt falsch, was ist zu klein, welche Grafik trägt nicht? | ~22k Tokens + Medien |
 | `architektur` | Wo ballt sich Komplexität, welcher Schnitt lohnt zuerst? | ~11k Tokens |
 
 \* Schätzung, `node src/cli.mjs pack --lens <id>` zeigt den echten Stand.
@@ -137,7 +137,7 @@ node src/cli.mjs review --lens ui --model konto \
 ```
 
 - `--bild` nimmt eine Datei **oder ein Verzeichnis** (dann alle Bilder darin, alphabetisch).
-  Grenze: 8 Bilder pro Lauf (`--max-bilder`), 4 MB pro Bild.
+  Grenze: 40 Bilder pro Lauf (`--max-bilder`), 8 MB pro Bild.
 - Jedes Bild wird im Prompt **mit seinem Dateinamen angekündigt**, damit die Antwort sagen kann
   „in `05_hud.png` klebt die Tagesanzeige am Rand" statt „auf einem der Bilder".
 - Liegt `runs/visual-review/latest/manifest.json` vor, geht die **Beschreibung jedes Screenshots**
@@ -147,6 +147,46 @@ node src/cli.mjs review --lens ui --model konto \
 - Die `ui`-Linse hat eine **eigene Antwortform**: Eindruck je Screen, konkrete Eingriffe
   (*Element → was ändern → warum*), Grafiken/Assets, Raster & Rhythmus, Lesbarkeit,
   die drei wirksamsten Änderungen.
+
+### Serie — der ausführliche Durchgang
+
+Bei einem **kostenlosen** Modell mit großem Kontext ist die Versuchung groß, alle Screenshots in
+einen einzigen Aufruf zu kippen. Das Ergebnis ist flach: 60 Bilder in einem Prompt bekommen je
+zwei Sätze. `serie` macht es andersherum — **ein konzentrierter Durchgang je Bildschirm-Bündel**
+(intro · building · panels · daynight · clips …), danach ein **Synthese-Aufruf** über alle
+Einzelberichte, der nach *wiederkehrenden* Mustern und Widersprüchen zwischen den Bündeln sucht:
+
+```bash
+node src/cli.mjs serie --model konto                    # Trockenlauf: welche Bündel gibt es?
+node src/cli.mjs serie --model konto --live             # alle Bündel + Synthese
+node src/cli.mjs serie --buendel building,panels --live # nur diese
+node src/cli.mjs serie --pro-buendel 16 --live          # mehr Aufnahmen je Durchgang
+```
+
+Ergebnis in `docs/MODEL_REVIEWS/`: je Bündel ein Bericht plus
+`<datum>_ui-00-SYNTHESE_<modell>.md` — die Synthese sortiert sich durch den `00` nach oben.
+
+Die Bündel kommen aus dem `manifest.json` der Ernte; jeder Durchgang bekommt die Liste
+„das siehst du" mit Dateiname und Beschreibung und die Auflage, **nur** diese Aufnahmen zu
+beurteilen. Manifest-Einträge ohne vorhandene Datei werden übersprungen statt den Lauf abzubrechen.
+
+### Clips (Video-Eingabe)
+
+Modelle mit `video` in den `input_modalities` können die `.webm`-Clips der Ernte direkt lesen —
+dann geht es nicht mehr nur um Anordnung, sondern um **Timing, Übergänge und Ruckeln**:
+
+```bash
+node src/cli.mjs review --lens ui --model konto \
+  --video ../../desinformation-network/runs/visual-review/latest/clips --live
+```
+
+`serie` erkennt Clip-Bündel selbst und überspringt sie, wenn das Modell kein Video liest.
+Grenzen: 8 Clips je Lauf (`--max-videos`), 24 MB je Clip.
+
+> **Denk-Modelle brauchen Luft.** Modelle mit `reasoning.mandatory` (z. B. `stealth/ox-alpha`,
+> Standard-Aufwand `max`) verbrauchen einen Teil des Antwort-Budgets fürs Nachdenken. Ist
+> `--max-tokens` zu klein, kommt eine **leere** Antwort zurück. `serie` setzt deshalb 32.000
+> statt 8.000; die Fehlermeldung nennt diese Ursache ausdrücklich, wenn es doch passiert.
 
 > **Verwandtes im Repo:** `desinformation-network/scripts/visual-review/gemini-review.mjs` schickt
 > dieselben Bilder direkt an die Gemini-API. Der Unterschied: dort ein fester Anbieter und freier
@@ -214,7 +254,7 @@ Danach: Befunde am Code/an den Daten gegenprüfen, Brauchbares in `docs/STATUS.m
 ## Tests
 
 ```bash
-npm test     # 78 Tests: Paketbau, Bilder, Kostenbremse, Bericht, API-Client + CLI end-to-end
+npm test     # 86 Tests: Paketbau, Bilder/Clips, Serie, Kostenbremse, Bericht, API-Client + CLI end-to-end
 ```
 
 Die API-Tests laufen gegen einen **lokalen Attrappen-Server** (`node:http`) — inklusive eines

@@ -23,16 +23,20 @@ export function berichtDateiname({ linse, model, datum }) {
 }
 
 /** Welche Screenshots das Modell gesehen hat — sonst ist die Antwort nicht nachvollziehbar. */
-function bilderAbschnitt(bilder) {
-  if (!bilder.length) return '';
-  const zeilen = bilder.map((b) => `| \`${b.name}\` | \`${b.rel}\` | ${Math.round(b.bytes / 1024)} kB |`);
+function bilderAbschnitt(bilder, videos = []) {
+  if (!bilder.length && !videos.length) return '';
+  const zeile = (m, art) => `| ${art} | \`${m.name}\` | \`${m.rel}\` | ${Math.round(m.bytes / 1024)} kB |`;
+  const teile = [];
+  if (bilder.length) teile.push(`${bilder.length} Screenshot(s)`);
+  if (videos.length) teile.push(`${videos.length} Clip(s)`);
   return [
     '',
-    `### Gezeigte Screenshots (${bilder.length})`,
+    `### Gezeigtes Anschauungsmaterial (${teile.join(' · ')})`,
     '',
-    '| Im Text genannt als | Datei | Größe |',
-    '|---|---|---:|',
-    ...zeilen,
+    '| Art | Im Text genannt als | Datei | Größe |',
+    '|---|---|---|---:|',
+    ...bilder.map((b) => zeile(b, '🖼 Bild')),
+    ...videos.map((v) => zeile(v, '🎬 Clip')),
     '',
   ].join('\n');
 }
@@ -52,6 +56,7 @@ export function rendereBericht({
   zeitstempel,
   kontext,
   bilder = [],
+  videos = [],
   antwort,
   usage,
   kosten,
@@ -88,8 +93,8 @@ ${kontext.chars.toLocaleString('de-DE')} Zeichen ≈ ${kontext.tokens.toLocaleSt
     gekuerzt.length ? ` · ${gekuerzt.length} gekürzt` : ''
   }${ausgelassen.length ? ` · **${ausgelassen.length} ausgelassen (Budget erschöpft)**` : ''}
 
-${teileTabelle(kontext.teile)}
-${bilderAbschnitt(bilder)}
+${kontext.teile.length ? teileTabelle(kontext.teile) : '_(Synthese über Einzelberichte — kein Datei-Paket)_'}
+${bilderAbschnitt(bilder, videos)}
 ---
 
 ## Antwort des Modells

@@ -228,7 +228,7 @@ test('ui-Linse schickt die Screenshots mit und nennt sie im Bericht', async () =
     );
 
     const md = fs.readFileSync(path.join(out, fs.readdirSync(out)[0]), 'utf8');
-    assert.match(md, /Gezeigte Screenshots \(2\)/);
+    assert.match(md, /Gezeigtes Anschauungsmaterial \(2 Screenshot\(s\)\)/);
     assert.match(md, /`05_hud\.png`/);
   } finally {
     await s.schliessen();
@@ -281,7 +281,7 @@ test('ohne Bilder bleibt der Aufruf ein reiner Text-Aufruf', async () => {
     const aufruf = s.anfragen.find((a) => a.url.includes('chat/completions'));
     assert.equal(typeof aufruf.body.messages[1].content, 'string');
     const md = fs.readFileSync(path.join(out, fs.readdirSync(out)[0]), 'utf8');
-    assert.ok(!md.includes('Gezeigte Screenshots'), 'ohne Bilder keine Screenshot-Tabelle');
+    assert.ok(!md.includes('Anschauungsmaterial'), 'ohne Bilder keine Medien-Tabelle');
   } finally {
     await s.schliessen();
   }

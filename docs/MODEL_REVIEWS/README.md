@@ -45,6 +45,25 @@ node src/cli.mjs review --lens ui --model konto \
 Liegt das `manifest.json` der Ernte vor, bekommt das Modell zu jedem Screenshot auch dessen
 Beschreibung. `--model konto` nutzt das bei OpenRouter hinterlegte Standardmodell.
 
+### Der ausführliche Durchgang: `serie`
+
+Statt alle Screenshots in einen Aufruf zu kippen (60 Bilder bekämen je zwei Sätze) läuft die
+Serie **bündelweise** — intro · building · panels · daynight · clips — und fasst am Ende alles
+zusammen:
+
+```bash
+cd tools/model-review
+node src/cli.mjs serie --model konto            # Trockenlauf: welche Bündel gibt es?
+node src/cli.mjs serie --model konto --live     # je Bündel ein Bericht + Synthese
+```
+
+Das ergibt hier je Bündel eine Datei plus `<datum>_ui-00-SYNTHESE_<modell>.md`. Die Synthese
+sucht **wiederkehrende** Muster (was in mehreren Bündeln auftaucht, ist systemisch) und
+Widersprüche zwischen den Bildschirmen, und schließt mit einer Rangliste nach Wirkung/Aufwand.
+
+Clips (`.webm` aus der Ernte) gehen an Modelle mit Video-Eingabe direkt mit — dann geht es
+zusätzlich um Timing, Übergänge und Ruckeln.
+
 ## Namensschema
 
 `<datum>_<linse>_<modell>.md` — z. B. `2026-08-21_balance_openai-gpt-5.1.md`.

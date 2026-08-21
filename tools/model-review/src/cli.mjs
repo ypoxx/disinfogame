@@ -16,11 +16,12 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { loadEnvFile, getApiKey, defaults, maskKey, KonfigFehler } from './config.mjs';
 import { LINSEN, findeLinse, linsenIds, AUSGABE_REGELN } from './lenses.mjs';
-import { ladeBilder, bildTokens, BildFehler } from './images.mjs';
+import { ladeBilder, ladeVideos, bildTokens, videoTokens, BildFehler } from './images.mjs';
+import { liesManifest, baueBuendel, buendelFrage, syntheseFrage, ERNTE_DIR, SerienFehler } from './serie.mjs';
 import { baueKontext, schaetzeTokens, QuellenFehler } from './pack.mjs';
 import { preise, schaetzeKosten, pruefeBudget, usd, BudgetUeberschritten } from './cost.mjs';
 import {
-  listeModelle, schluesselInfo, frageModell, findeModell, kannBilder, sehendeModelle, ApiFehler,
+  listeModelle, schluesselInfo, frageModell, findeModell, kannBilder, kannVideo, sehendeModelle, ApiFehler,
 } from './openrouter.mjs';
 import { rendereBericht, schreibeBericht, berichtDateiname } from './report.mjs';
 import { RUNS_DIR, REPORT_DIR, relToRepo } from './paths.mjs';
@@ -54,7 +55,7 @@ function ggfMitProxyNeustarten() {
 // ---------- Argumente ----------
 
 function parseArgs(argv) {
-  const args = { _: [], model: [], datei: [], bild: [] };
+  const args = { _: [], model: [], datei: [], bild: [], video: [], buendel: [] };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (!a.startsWith('--')) {
@@ -65,6 +66,7 @@ function parseArgs(argv) {
     const braucht = [
       'lens', 'linse', 'model', 'modell', 'max-cost', 'max-tokens', 'max-chars',
       'temperature', 'frage', 'out', 'filter', 'datei', 'bild', 'max-bilder',
+      'video', 'max-videos', 'ernte', 'buendel', 'pro-buendel',
     ];
     if (braucht.includes(name)) {
       const wert = inline !== undefined ? inline : argv[++i];
@@ -72,6 +74,8 @@ function parseArgs(argv) {
       if (name === 'model' || name === 'modell') args.model.push(wert);
       else if (name === 'datei') args.datei.push(wert);
       else if (name === 'bild') args.bild.push(wert);
+      else if (name === 'video') args.video.push(wert);
+      else if (name === 'buendel') args.buendel.push(...wert.split(',').map((x) => x.trim()).filter(Boolean));
       else args[name] = wert;
     } else {
       args[name] = true;
@@ -95,6 +99,8 @@ BEFEHLE
   models  [--filter <text>]  Modell-Katalog von OpenRouter (mit Preisen)
   key                        Schlüssel prüfen (Guthaben/Limit) — verrät den Schlüssel nicht
   review  --lens <id>        Review durchführen (ohne --live nur Trockenlauf)
+  serie   [--lens ui]        Ausführlicher Durchgang: ein Aufruf je Bildschirm-Bündel
+                             aus der Visual-Review-Ernte + Synthese über alle Berichte
 
 WICHTIGE OPTIONEN
   --live                     Echten API-Aufruf erlauben (sonst passiert nichts Kostenpflichtiges)
@@ -104,7 +110,12 @@ WICHTIGE OPTIONEN
   --frage "<text>"           Eigene Frage statt der Linsen-Frage
   --datei <pfad>             Zusätzliche Datei ins Paket (mehrfach erlaubt)
   --bild <pfad>              Screenshot ins Paket; Verzeichnis = alle Bilder darin
-                             (mehrfach erlaubt, Default max. 8 — für die Linse "ui")
+                             (mehrfach erlaubt, Default max. 40 — für die Linse "ui")
+  --video <pfad>             Clip ins Paket (nur Modelle mit Video-Eingabe)
+  --ernte <verzeichnis>      Ernte-Ordner für "serie" (Default runs/visual-review/latest)
+  --buendel a,b              Nur diese Bündel (serie); ohne Angabe: alle
+  --pro-buendel <n>          Aufnahmen je Durchgang (Default 12); größere Bündel
+                             werden geteilt, nicht beschnitten
   --max-cost <usd>           Kostenbremse pro Modell (Default ${defaults().maxCostUsd})
   --max-tokens <n>           Maximale Antwortlänge (Default ${defaults().maxCompletionTokens})
   --max-chars <n>            Maximale Paketgröße (Default ${defaults().maxContextChars})
@@ -151,19 +162,32 @@ function istKonto(id) {
   return id === KONTO || id === null;
 }
 
-function bilderFuer(args) {
-  if (!args.bild.length) return [];
-  const maxAnzahl = args['max-bilder'] ? Number.parseInt(args['max-bilder'], 10) : 8;
-  return ladeBilder(args.bild, { maxAnzahl });
+function bilderFuer(args, pfade = args.bild) {
+  if (!pfade.length) return [];
+  const maxAnzahl = args['max-bilder'] ? Number.parseInt(args['max-bilder'], 10) : 40;
+  return ladeBilder(pfade, { maxAnzahl });
 }
 
-function zeigeBilder(bilder) {
-  if (!bilder.length) return;
+function videosFuer(args, pfade = args.video) {
+  if (!pfade.length) return [];
+  const maxAnzahl = args['max-videos'] ? Number.parseInt(args['max-videos'], 10) : 8;
+  return ladeVideos(pfade, { maxAnzahl });
+}
+
+function zeigeMedien(bilder, videos = []) {
+  if (!bilder.length && !videos.length) return;
   console.log('');
   for (const b of bilder) {
     console.log(`  🖼 ${b.rel.padEnd(62)} ${String(Math.round(b.bytes / 1024)).padStart(6)} kB`);
   }
-  console.log(`  Σ ${bilder.length} Bild(er) ≈ ${bildTokens(bilder.length).toLocaleString('de-DE')} Tokens (grobe Schätzung, modellabhängig)`);
+  for (const v of videos) {
+    console.log(`  🎬 ${v.rel.padEnd(62)} ${String(Math.round(v.bytes / 1024)).padStart(6)} kB`);
+  }
+  const tok = bildTokens(bilder.length) + videoTokens(videos.length);
+  const teile = [];
+  if (bilder.length) teile.push(`${bilder.length} Bild(er)`);
+  if (videos.length) teile.push(`${videos.length} Clip(s)`);
+  console.log(`  Σ ${teile.join(' + ')} ≈ ${tok.toLocaleString('de-DE')} Tokens (grobe Schätzung, modellabhängig)`);
 }
 
 function kontextFuer(linse, args, cfg) {
@@ -228,18 +252,19 @@ function cmdPack(args, cfg) {
 
   const kontext = kontextFuer(linse, args, cfg);
   const bilder = bilderFuer(args);
+  const videos = videosFuer(args);
   const { frage, system } = baueAuftrag(linse, args);
   const nachricht = nachrichtFuer(frage, kontext, linse.regeln);
 
   console.log(`\nLinse: ${linse.id} — ${linse.titel}\n`);
   zeigeKontext(kontext);
-  zeigeBilder(bilder);
+  zeigeMedien(bilder, videos);
 
   fs.mkdirSync(RUNS_DIR, { recursive: true });
   const ziel = path.join(RUNS_DIR, `paket-${stempel()}-${linse.id}.md`);
   fs.writeFileSync(ziel, `<!-- SYSTEM -->\n${system}\n\n<!-- USER -->\n${nachricht}`, 'utf8');
-  const gesamt = schaetzeTokens(system + nachricht) + bildTokens(bilder.length);
-  console.log(`\n  Gesamter Prompt (System + Frage + Paket${bilder.length ? ' + Bilder' : ''}): ${gesamt.toLocaleString('de-DE')} Tokens (geschätzt)`);
+  const gesamt = schaetzeTokens(system + nachricht) + bildTokens(bilder.length) + videoTokens(videos.length);
+  console.log(`\n  Gesamter Prompt (System + Frage + Paket${bilder.length || videos.length ? ' + Medien' : ''}): ${gesamt.toLocaleString('de-DE')} Tokens (geschätzt)`);
   console.log(`  Zum Nachlesen geschrieben: ${relToRepo(ziel)}\n`);
 }
 
@@ -296,15 +321,16 @@ async function cmdReview(args, cfg) {
 
   const kontext = kontextFuer(linse, args, cfg);
   const bilder = bilderFuer(args);
+  const videos = videosFuer(args);
   const { frage, system } = baueAuftrag(linse, args);
   const nachricht = nachrichtFuer(frage, kontext, linse.regeln);
-  const promptTokens = schaetzeTokens(system + nachricht) + bildTokens(bilder.length);
+  const promptTokens = schaetzeTokens(system + nachricht) + bildTokens(bilder.length) + videoTokens(videos.length);
 
   console.log(`\nLinse: ${linse.id} — ${linse.titel}`);
   console.log(`Modelle: ${modelle.map((m) => (istKonto(m) ? 'Kontovorgabe (OpenRouter-Standardmodell)' : m)).join(', ')}`);
   console.log(`Anbieter-Datensammlung: ${denyDataCollection ? 'ausgeschlossen (deny)' : 'ZUGELASSEN'}\n`);
   zeigeKontext(kontext);
-  zeigeBilder(bilder);
+  zeigeMedien(bilder, videos);
   console.log(`\n  Prompt gesamt: ~${promptTokens.toLocaleString('de-DE')} Tokens · Antwort max. ${maxTokens.toLocaleString('de-DE')} Tokens`);
 
   let apiKey = null;
@@ -334,6 +360,12 @@ async function cmdReview(args, cfg) {
     if (katalog.length && !model) {
       const hinweis = vorschlaege.length ? `\n  Meintest du: ${vorschlaege.join(', ')}` : '';
       fehler(`Modell "${id}" gibt es bei OpenRouter nicht.${hinweis}\n  Katalog ansehen: node src/cli.mjs models --filter <text>`);
+    }
+    if (videos.length && model && !kannVideo(model)) {
+      fehler(
+        `Modell "${id}" kann keine Clips lesen (input_modalities ohne "video") — ` +
+          `${videos.length} Clip(s) wären verschenkt.\n  Ohne --video laufen lassen, oder ein Modell mit Video-Eingabe wählen.`
+      );
     }
     if (bilder.length && model && !kannBilder(model)) {
       fehler(
@@ -387,6 +419,7 @@ async function cmdReview(args, cfg) {
         system,
         user: nachricht,
         bilder,
+        videos,
         maxTokens,
         temperature,
         timeoutMs: cfg.timeoutMs,
@@ -411,6 +444,7 @@ async function cmdReview(args, cfg) {
         zeitstempel,
         kontext,
         bilder,
+        videos,
         antwort: antwort.text,
         usage: antwort.usage,
         kosten,
@@ -440,7 +474,8 @@ async function cmdReview(args, cfg) {
       protokoll('review', {
         linse: linse.id, model: antwort.verwendetesModell || p.anzeige, kosten, dauerMs,
         usage: antwort.usage, bericht: relToRepo(ziel), kontextChars: kontext.chars,
-        bilder: bilder.length,
+        bilder: bilder.length, videos: videos.length,
+        denkzeichen: (antwort.reasoning || '').length,
       });
     } catch (err) {
       console.error(`  ✗ ${err.message}`);
@@ -457,6 +492,134 @@ async function cmdReview(args, cfg) {
     process.exitCode = 1;
   }
   console.log('');
+}
+
+async function cmdSerie(args, cfg) {
+  loadEnvFile();
+  const linse = findeLinse(args.lens || 'ui');
+  if (!linse) fehler(`Unbekannte Linse "${args.lens}" — verfügbar: ${linsenIds().join(', ')}`);
+
+  const ernteDir = args.ernte ? path.resolve(args.ernte) : ERNTE_DIR;
+  const manifest = liesManifest(ernteDir);
+  const buendel = baueBuendel(manifest, ernteDir, {
+    nurBuendel: args.buendel.length ? args.buendel : null,
+    maxProBuendel: args['pro-buendel'] ? Number.parseInt(args['pro-buendel'], 10) : 12,
+  });
+  if (!buendel.length) fehler(`Keine passenden Bündel in ${relToRepo(ernteDir)} gefunden.`);
+
+  const modellWunsch = args.model.length ? args.model[0] : cfg.model;
+  const maxTokens = args['max-tokens'] ? Number.parseInt(args['max-tokens'], 10) : 32_000;
+  const temperature = args.temperature ? Number.parseFloat(args.temperature) : cfg.temperature;
+  const denyDataCollection = args['erlaube-datensammlung'] ? false : cfg.denyDataCollection;
+  const outDir = args.out ? path.resolve(args.out) : REPORT_DIR;
+  const kontext = kontextFuer(linse, args, cfg);
+  const { system } = baueAuftrag(linse, args);
+
+  console.log(`\nSerie: Linse "${linse.id}" über ${buendel.length} Bündel aus ${relToRepo(ernteDir)}`);
+  console.log(`Modell: ${istKonto(modellWunsch) ? 'Kontovorgabe (OpenRouter-Standardmodell)' : modellWunsch}`);
+  console.log(`Antwortlänge je Durchgang: max. ${maxTokens.toLocaleString('de-DE')} Tokens\n`);
+  for (const b of buendel) {
+    console.log(`  ${b.kind === 'clip' ? '🎬' : '🖼'} ${b.name.padEnd(24)} ${String(b.dateien.length).padStart(3)} Aufnahmen`);
+  }
+
+  if (!args.live) {
+    console.log(`\n  TROCKENLAUF — nichts gesendet, keine Kosten.`);
+    console.log(`  Wirklich ausführen: denselben Befehl mit --live\n`);
+    return;
+  }
+
+  const apiKey = getApiKey();
+  const { katalog } = await katalogVersuch(apiKey, cfg);
+  const modell = istKonto(modellWunsch) ? null : findeModell(katalog, modellWunsch).model;
+  if (!istKonto(modellWunsch) && katalog.length && !modell) {
+    fehler(`Modell "${modellWunsch}" gibt es bei OpenRouter nicht.`);
+  }
+  const kannClips = modell ? kannVideo(modell) : true; // Kontovorgabe: erst die Antwort weiß es
+
+  const datum = heute();
+  const zeitstempel = new Date().toISOString();
+  const berichte = [];
+  let gesamtkosten = 0;
+
+  for (const b of buendel) {
+    if (b.kind === 'clip' && !kannClips) {
+      console.log(`\n▶ ${b.name} — übersprungen (Modell liest kein Video)`);
+      continue;
+    }
+    console.log(`\n▶ ${b.name} (${b.dateien.length} Aufnahmen) …`);
+    const start = Date.now();
+    try {
+      const bilder = b.kind === 'clip' ? [] : bilderFuer(args, b.dateien);
+      const videos = b.kind === 'clip' ? videosFuer(args, b.dateien) : [];
+      const frage = buendelFrage(linse, b, args);
+      const nachricht = nachrichtFuer(frage, kontext, linse.regeln);
+
+      const antwort = await frageModell({
+        apiKey, baseUrl: cfg.baseUrl, model: istKonto(modellWunsch) ? null : modellWunsch,
+        system, user: nachricht, bilder, videos, maxTokens, temperature,
+        timeoutMs: cfg.timeoutMs, denyDataCollection,
+      });
+      const dauerMs = Date.now() - start;
+      const kosten = antwort.usage?.cost != null ? Number(antwort.usage.cost) : null;
+      if (kosten) gesamtkosten += kosten;
+
+      const markdown = rendereBericht({
+        linse: { ...linse, titel: `${linse.titel} — Bündel „${b.name}"` },
+        model: modellWunsch, verwendetesModell: antwort.verwendetesModell, datum, zeitstempel,
+        kontext, bilder, videos, antwort: antwort.text, usage: antwort.usage, kosten, dauerMs,
+        frage, denyDataCollection,
+      });
+      const ziel = schreibeBericht(
+        markdown,
+        berichtDateiname({ linse: `${linse.id}-${b.name}`, model: antwort.verwendetesModell || 'kontovorgabe', datum }),
+        outDir
+      );
+      console.log(`  ✓ ${usd(kosten)} · ${(dauerMs / 1000).toFixed(1)} s · ${antwort.text.length.toLocaleString('de-DE')} Zeichen → ${relToRepo(ziel)}`);
+      if (antwort.finishReason === 'length') console.log('  ⚠ Antwort lief ins Token-Limit (--max-tokens erhöhen).');
+      berichte.push({ name: b.name, text: antwort.text });
+      protokoll('serie', {
+        linse: linse.id, buendel: b.name, model: antwort.verwendetesModell, kosten, dauerMs,
+        usage: antwort.usage, bericht: relToRepo(ziel), aufnahmen: b.dateien.length,
+      });
+    } catch (err) {
+      console.error(`  ✗ ${err.message}`);
+      protokoll('serie', { linse: linse.id, buendel: b.name, fehler: err.message });
+    }
+  }
+
+  // Synthese über die Einzelberichte — der eigentliche Mehrwert der Serie.
+  if (berichte.length >= 2) {
+    console.log(`\n▶ Synthese über ${berichte.length} Einzelberichte …`);
+    const start = Date.now();
+    try {
+      const antwort = await frageModell({
+        apiKey, baseUrl: cfg.baseUrl, model: istKonto(modellWunsch) ? null : modellWunsch,
+        system, user: syntheseFrage(berichte), maxTokens, temperature,
+        timeoutMs: cfg.timeoutMs, denyDataCollection,
+      });
+      const dauerMs = Date.now() - start;
+      const kosten = antwort.usage?.cost != null ? Number(antwort.usage.cost) : null;
+      if (kosten) gesamtkosten += kosten;
+      const markdown = rendereBericht({
+        linse: { ...linse, titel: `${linse.titel} — SYNTHESE über ${berichte.length} Bündel` },
+        model: modellWunsch, verwendetesModell: antwort.verwendetesModell, datum, zeitstempel,
+        kontext: { chars: 0, tokens: 0, teile: [] }, bilder: [], videos: [],
+        antwort: antwort.text, usage: antwort.usage, kosten, dauerMs,
+        frage: `Zusammenführung der Einzel-Gutachten: ${berichte.map((b) => b.name).join(', ')}`,
+        denyDataCollection,
+      });
+      const ziel = schreibeBericht(
+        markdown,
+        berichtDateiname({ linse: `${linse.id}-00-SYNTHESE`, model: antwort.verwendetesModell || 'kontovorgabe', datum }),
+        outDir
+      );
+      console.log(`  ✓ ${(dauerMs / 1000).toFixed(1)} s → ${relToRepo(ziel)}`);
+    } catch (err) {
+      console.error(`  ✗ Synthese fehlgeschlagen: ${err.message}`);
+    }
+  }
+
+  console.log(`\nFertig: ${berichte.length} Einzelberichte · Gesamtkosten ${usd(gesamtkosten)}\n`);
 }
 
 // ---------- Einstieg ----------
@@ -487,6 +650,8 @@ async function main() {
       return cmdKey(cfg);
     case 'review':
       return cmdReview(args, cfg);
+    case 'serie':
+      return cmdSerie(args, cfg);
     default:
       fehler(`Unbekannter Befehl "${befehl}".${HILFE}`);
   }
@@ -497,7 +662,8 @@ main().catch((err) => {
     err instanceof KonfigFehler ||
     err instanceof BudgetUeberschritten ||
     err instanceof QuellenFehler ||
-    err instanceof BildFehler
+    err instanceof BildFehler ||
+    err instanceof SerienFehler
   ) {
     fehler(err.message);
   }
