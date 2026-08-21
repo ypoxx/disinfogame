@@ -19,7 +19,7 @@ ein Schlüssel, ein Dutzend Anbieter.
 
 ```bash
 cd tools/model-review
-npm test                                    # 93 Unit-/E2E-Tests, kein Netz, keine Kosten
+npm test                                    # 100 Unit-/E2E-Tests, kein Netz, keine Kosten
 
 node src/cli.mjs lenses                     # Welche Linsen gibt es?
 node src/cli.mjs pack --lens konzept        # Was würde gesendet? (schreibt nach runs/)
@@ -171,18 +171,35 @@ Die Bündel kommen aus dem `manifest.json` der Ernte; jeder Durchgang bekommt di
 „das siehst du" mit Dateiname und Beschreibung und die Auflage, **nur** diese Aufnahmen zu
 beurteilen. Manifest-Einträge ohne vorhandene Datei werden übersprungen statt den Lauf abzubrechen.
 
-### Clips (Video-Eingabe)
+### Clips: Video geht nur mit Guthaben — sonst Einzelbilder
 
-Modelle mit `video` in den `input_modalities` können die `.webm`-Clips der Ernte direkt lesen —
-dann geht es nicht mehr nur um Anordnung, sondern um **Timing, Übergänge und Ruckeln**:
+`--video` schickt `.webm`-Clips als `video_url` an Modelle mit `video` in den
+`input_modalities`. **Achtung:** OpenRouter beantwortet solche Aufrufe mit
 
-```bash
-node src/cli.mjs review --lens ui --model konto \
-  --video ../../desinformation-network/runs/visual-review/latest/clips --live
+```
+HTTP 402 · This request requires at least $1.00 in balance for video
 ```
 
+wenn das Konto kein echtes Guthaben hat — auch bei einem **kostenlosen** Modell und auch
+bei einem 0,8-MB-Clip. Ein Ausgabe-*Limit* von $30 ist kein Guthaben. Wer Video will,
+lädt einmalig $1 auf; sonst führt der Weg über Einzelbilder:
+
+```bash
+node src/cli.mjs frames --anzahl 4        # 14 Clips → 56 PNGs unter <ernte>/frames/
+node src/cli.mjs review --lens ui --model konto \
+  --bild ../../desinformation-network/runs/visual-review/latest/frames/animation --live
+```
+
+`frames` nutzt das ffmpeg des Containers und umgeht dabei zwei dort dokumentierte Fallen
+(`scripts/visual-review/README.md`): Der Build ist gestrippt und hat **keinen `fps`-Filter**
+(deshalb `-frames:v 1` je Zeitmarke), und die Clips haben vorn den Spiel-Vorlauf — gesucht
+wird deshalb **vom Ende her** (`-sseof`).
+
+> Einzelbilder zeigen, **was** sich bewegt und **wo** die Dinge dabei stehen — nicht, wie
+> flüssig es läuft. Für Ruckeln und Timing braucht es echtes Video (also Guthaben).
+
 `serie` erkennt Clip-Bündel selbst und überspringt sie, wenn das Modell kein Video liest.
-Grenzen: 8 Clips je Lauf (`--max-videos`), 24 MB je Clip.
+Grenzen für echtes Video: 8 Clips je Lauf (`--max-videos`), 24 MB je Clip.
 
 ### Was am 2026-08-21 gegen `stealth/ox-alpha` gemessen wurde
 
@@ -194,7 +211,10 @@ Das Standardmodell des Kontos ist gratis, hat 1.048.576 Token Kontext und liest
 | 1 Screenshot, kurze Frage | **11 s**, korrekte Bildbeschreibung |
 | 2 Screenshots, `reasoning.effort: low` | **35 s**, brauchbarer Befund |
 | 2 Screenshots, `reasoning.effort: high` | **64 s**, 3.300 Zeichen, deutlich tiefer |
-| 3 Screenshots + **82.000 Zeichen** Textpaket | **hing >40 min**, keine Antwort |
+| 3 Screenshots + 45.000 Zeichen Text | **192 s**, 14.400 Zeichen Antwort |
+| 3 Screenshots + **82.000 Zeichen** Text, `max_tokens: 4000` | 196 s, **0 Zeichen Antwort** — 16.500 Zeichen gingen ins Nachdenken, `finish: length` |
+| 6–12 Screenshots je Bündel (Serie, `effort: high`) | 260–350 s je Durchgang, 12.000–20.000 Zeichen |
+| 1 Clip als Video (0,8 MB) | **HTTP 402** — Video braucht Guthaben |
 
 Daraus folgt die Bauweise oben:
 
@@ -277,7 +297,7 @@ Danach: Befunde am Code/an den Daten gegenprüfen, Brauchbares in `docs/STATUS.m
 ## Tests
 
 ```bash
-npm test     # 93 Tests: Paketbau, Bilder/Clips, Serie, Strom, Kostenbremse, Bericht, API-Client + CLI end-to-end
+npm test     # 100 Tests: Paketbau, Bilder/Clips, Einzelbilder, Serie, Strom, Kostenbremse, Bericht, API-Client + CLI end-to-end
 ```
 
 Die API-Tests laufen gegen einen **lokalen Attrappen-Server** (`node:http`) — inklusive eines
