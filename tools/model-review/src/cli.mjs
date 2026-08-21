@@ -70,7 +70,7 @@ function parseArgs(argv) {
       'lens', 'linse', 'model', 'modell', 'max-cost', 'max-tokens', 'max-chars',
       'temperature', 'frage', 'out', 'filter', 'datei', 'bild', 'max-bilder',
       'video', 'max-videos', 'ernte', 'buendel', 'pro-buendel', 'parallel', 'denk-aufwand',
-      'anzahl',
+      'anzahl', 'name',
     ];
     if (braucht.includes(name)) {
       const wert = inline !== undefined ? inline : argv[++i];
@@ -123,6 +123,8 @@ WICHTIGE OPTIONEN
   --pro-buendel <n>          Aufnahmen je Durchgang (Default 12); größere Bündel
                              werden geteilt, nicht beschnitten
   --parallel <n>             Gleichzeitige Durchgänge bei "serie" (Default 3)
+  --name <kennung>           Kennung im Dateinamen des Berichts (mehrere Läufe
+                             derselben Linse am selben Tag auseinanderhalten)
   --denk-aufwand <stufe>     low | high | max — bei Denk-Modellen der Zeitregler
   --kein-strom               Antwort am Stück holen statt zu streamen (Default: Strom)
   --max-cost <usd>           Kostenbremse pro Modell (Default ${defaults().maxCostUsd})
@@ -493,6 +495,7 @@ async function cmdReview(args, cfg) {
           linse: linse.id,
           model: p.konto ? antwort.verwendetesModell || 'kontovorgabe' : p.id,
           datum,
+          name: args.name || null,
         }),
         outDir
       );
@@ -691,7 +694,14 @@ async function cmdSerie(args, cfg) {
       });
       const ziel = schreibeBericht(
         markdown,
-        berichtDateiname({ linse: `${linse.id}-00-SYNTHESE`, model: antwort.verwendetesModell || 'kontovorgabe', datum }),
+        // Eine Synthese über eine Auswahl (--buendel) ist etwas anderes als die
+        // über den ganzen Lauf und bekommt deshalb einen eigenen Namen.
+        berichtDateiname({
+          linse: `${linse.id}-00-SYNTHESE${args.buendel.length ? '-teil' : ''}`,
+          model: antwort.verwendetesModell || 'kontovorgabe',
+          datum,
+          name: args.name || (args.buendel.length ? args.buendel.join('-') : null),
+        }),
         outDir
       );
       console.log(`  ✓ ${(dauerMs / 1000).toFixed(1)} s → ${relToRepo(ziel)}`);

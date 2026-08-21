@@ -73,3 +73,36 @@ test('Bericht kommt ohne Nutzungsdaten aus', () => {
   assert.match(md, /nicht gemeldet/);
   assert.match(md, /unbekannt/);
 });
+
+// Am 2026-08-21 hat ein Teil-Nachlauf die Synthese des vollen Laufs
+// überschrieben. Ein Gutachten, das Stunden gekostet hat, darf nicht
+// stillschweigend verschwinden.
+test('ein vorhandener Bericht wird nie überschrieben, sondern durchnummeriert', async () => {
+  const fs = await import('node:fs');
+  const os = await import('node:os');
+  const path = await import('node:path');
+  const { schreibeBericht } = await import('../src/report.mjs');
+
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-rep-'));
+  const name = '2026-08-21_ui_modell.md';
+
+  const a = schreibeBericht('erster', name, dir);
+  const b = schreibeBericht('zweiter', name, dir);
+  const c = schreibeBericht('dritter', name, dir);
+
+  assert.equal(path.basename(a), '2026-08-21_ui_modell.md');
+  assert.equal(path.basename(b), '2026-08-21_ui_modell-2.md');
+  assert.equal(path.basename(c), '2026-08-21_ui_modell-3.md');
+  assert.equal(fs.readFileSync(a, 'utf8'), 'erster', 'der erste Bericht muss unangetastet bleiben');
+});
+
+test('--name landet als Kennung im Dateinamen', () => {
+  assert.equal(
+    berichtDateiname({ linse: 'ui', model: 'a/b', datum: '2026-08-21', name: 'clips-ambient' }),
+    '2026-08-21_ui-clips-ambient_a-b.md'
+  );
+  assert.equal(
+    berichtDateiname({ linse: 'ui', model: 'a/b', datum: '2026-08-21' }),
+    '2026-08-21_ui_a-b.md'
+  );
+});

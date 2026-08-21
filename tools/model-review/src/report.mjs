@@ -18,8 +18,9 @@ export function modellSlug(id) {
     .toLowerCase();
 }
 
-export function berichtDateiname({ linse, model, datum }) {
-  return `${datum}_${linse}_${modellSlug(model)}.md`;
+export function berichtDateiname({ linse, model, datum, name = null }) {
+  const kennung = name ? `${linse}-${modellSlug(name)}` : linse;
+  return `${datum}_${kennung}_${modellSlug(model)}.md`;
 }
 
 /** Welche Screenshots das Modell gesehen hat — sonst ist die Antwort nicht nachvollziehbar. */
@@ -108,9 +109,25 @@ ungeprüft. Nächster Schritt: Befunde am Code verifizieren, dann in \`docs/STAT
 `;
 }
 
+/**
+ * Bericht schreiben, ohne je einen vorhandenen zu überschreiben.
+ *
+ * Gelernt am 2026-08-21: Ein Teil-Nachlauf (`serie --buendel intro,rooms`) hat
+ * die Synthese des vollen 12-Bündel-Laufs überschrieben, und drei nacheinander
+ * gestartete `review`-Läufe derselben Linse hätten sich gegenseitig gelöscht —
+ * gleicher Tag, gleiche Linse, gleiches Modell ergeben denselben Dateinamen.
+ * Ein Gutachten, das Stunden Rechenzeit gekostet hat, darf nicht stillschweigend
+ * verschwinden: gibt es den Namen schon, wird angehängt (-2, -3, …).
+ */
 export function schreibeBericht(markdown, dateiname, dir = REPORT_DIR) {
   fs.mkdirSync(dir, { recursive: true });
-  const ziel = path.join(dir, dateiname);
+  const endung = path.extname(dateiname);
+  const stamm = dateiname.slice(0, -endung.length || undefined);
+
+  let ziel = path.join(dir, dateiname);
+  for (let n = 2; fs.existsSync(ziel); n++) {
+    ziel = path.join(dir, `${stamm}-${n}${endung}`);
+  }
   fs.writeFileSync(ziel, markdown, 'utf8');
   return ziel;
 }
