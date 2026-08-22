@@ -9,7 +9,23 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `GESAMTKONZEPT_VISUELL.md` → dieses Dokument für den aktuellen Bau-Stand.
 > Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
-**Stand:** 2026-07-08 (NARRATIV-TAFEL T1–T4 KOMPLETT — PR #106, Branch
+**Stand:** 2026-08-22 (ZWEITER FREMDMODELL-DURCHGANG + PLAN) · Zwei Läufe über dieselben
+19 Bildschirm-Bündel (`stealth/ox-alpha` 21.08., `gpt-5.6-sol` 22.08.), **254 Befunde mit
+Doppelbestätigung**, davon **20 am Code gegengeprüft** (4 bestätigt · 14 teilweise · 2
+widerlegt). Ergebnis: **[`PLAN_2026-08-22_UX_ZWEITMEINUNG.md`](PLAN_2026-08-22_UX_ZWEITMEINUNG.md)**
+(P0–P16 nach Wirkung pro Aufwand) und
+**[`MODEL_REVIEWS/2026-08-22_VERGLEICH.md`](MODEL_REVIEWS/2026-08-22_VERGLEICH.md)**.
+> **P0 ist ein Korrektheitsfehler, kein Design-Punkt:** Die Milieubalken im Tagesbericht
+> bekommen einen 0..1-Wert in eine 0..100-Prozentbreite (`DayReport.tsx:194` via
+> `StoryModeGame.tsx:1470`) und rendern deshalb ~0 % — acht verschiedene
+> Gesellschaftszustände sehen als acht leere Balken aus. Zwei Zeilen; der Test
+> `DayReport.test.tsx:18` hält die falsche Annahme aktuell fest.
+> **Prozess-Lehre:** Drei Fenster (Krisen-Modal, Tagesbericht, anstehender Entscheidungs-Beat)
+> hatten sich über die Ernte gelegt — ein großer Teil der Befunde des ersten Laufs waren
+> Ernte-Artefakte, keine Design-Fehler. Wächter sitzen jetzt in `shot()`; Scrollleisten sind
+> in der Ernte wieder sichtbar (Playwright setzt headless `--hide-scrollbars`).
+
+**Stand zuvor:** 2026-07-08 (NARRATIV-TAFEL T1–T4 KOMPLETT — PR #106, Branch
 `claude/narrative-board-mechanics-bog18k`) · Gate grün (`tsc 0` · `vitest 660` · `build`,
 beide Sim-Gates unverändert).
 > **T2 (L3-Optik, ohne Asset-Budget):** echte rote Fäden vom Karteireiter zu jeder
