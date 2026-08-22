@@ -435,3 +435,36 @@ test('unbekannter Anbieter wird mit Auswahl gemeldet', async () => {
   assert.match(r.stderr, /Unbekannter Anbieter/);
   assert.match(r.stderr, /openrouter, openai/);
 });
+
+// Am 2026-08-22 gegen gpt-5.6-sol gemessen: HTTP 400 "Unsupported value:
+// 'temperature' does not support 0.3 with this model. Only the default (1)".
+// Über OpenRouter wird derselbe Parameter dagegen angenommen.
+test('--anbieter openai schickt kein temperature mit', async () => {
+  const s = await attrappe();
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-out-'));
+  try {
+    await laufe(
+      ['review', '--lens', 'bildung', '--anbieter', 'openai', '--model', 'gpt-5.6-sol', '--live', '--max-tokens', '4000'],
+      { OPENAI_BASE_URL: s.baseUrl, OPENAI_API_KEY: 'sk-openai-test', MODEL_REVIEW_OUT_DIR: out }
+    );
+    const aufruf = s.anfragen.find((a) => a.url.includes('chat/completions'));
+    assert.equal(aufruf.body.temperature, undefined, 'temperature würde die GPT-5-Reihe mit 400 ablehnen');
+  } finally {
+    await s.schliessen();
+  }
+});
+
+test('über OpenRouter geht temperature weiterhin mit', async () => {
+  const s = await attrappe();
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-out-'));
+  try {
+    await laufe(
+      ['review', '--lens', 'bildung', '--model', 'anbieter/gross', '--live', '--max-cost', '99', '--temperature', '0.3'],
+      { OPENROUTER_BASE_URL: s.baseUrl, MODEL_REVIEW_OUT_DIR: out }
+    );
+    const aufruf = s.anfragen.find((a) => a.url.includes('chat/completions'));
+    assert.equal(aufruf.body.temperature, 0.3);
+  } finally {
+    await s.schliessen();
+  }
+});
