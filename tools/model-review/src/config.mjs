@@ -53,6 +53,8 @@ export const ANBIETER = {
     routing: true,
     /** OpenRouter normalisiert `temperature` für jedes Modell. */
     nimmtTemperatur: true,
+    /** Ob Clips überhaupt gehen, entscheidet dort das Modell (input_modalities). */
+    kannVideo: null,
   },
   openai: {
     id: 'openai',
@@ -68,6 +70,11 @@ export const ANBIETER = {
     // Der Default 0.3 der CLI hätte also JEDEN OpenAI-Lauf gekippt. Deshalb
     // geht das Feld hier nur mit, wenn es ausdrücklich verlangt wurde.
     nimmtTemperatur: false,
+    // OpenAIs /chat/completions kennt gar keinen `video_url`-Inhaltsteil — egal
+    // welches Modell. Ohne diese Vorgabe würde `serie` Clip-Bündel an OpenAI
+    // schicken, weil ohne Katalog niemand widerspricht: HTTP 400 statt Bericht.
+    // Der Weg über Einzelbilder (`frames`) bleibt davon unberührt.
+    kannVideo: false,
   },
 };
 

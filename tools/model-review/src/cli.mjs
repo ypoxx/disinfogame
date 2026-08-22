@@ -431,6 +431,15 @@ async function cmdReview(args, cfg) {
       const hinweis = vorschlaege.length ? `\n  Meintest du: ${vorschlaege.join(', ')}` : '';
       fehler(`Modell "${id}" gibt es bei OpenRouter nicht.${hinweis}\n  Katalog ansehen: node src/cli.mjs models --filter <text>`);
     }
+    // Anbieter-Vorgabe schlägt den Katalog: OpenAI kennt gar keinen video_url-Teil,
+    // und ohne Katalog gäbe es dort sonst niemanden, der widerspricht.
+    if (videos.length && anbieter.kannVideo === false) {
+      fehler(
+        `${anbieter.id} nimmt keine Clips entgegen — /chat/completions kennt keinen ` +
+          `"video_url"-Inhaltsteil, unabhängig vom Modell.\n` +
+          `  Weg über Einzelbilder: node src/cli.mjs frames --anzahl 4, dann --bild <ordner>.`
+      );
+    }
     if (videos.length && model && !kannVideo(model)) {
       fehler(
         `Modell "${id}" kann keine Clips lesen (input_modalities ohne "video") — ` +
@@ -641,7 +650,11 @@ async function cmdSerie(args, cfg) {
   if (!istKonto(modellWunsch) && katalog.length && !modell) {
     fehler(`Modell "${modellWunsch}" gibt es bei OpenRouter nicht.`);
   }
-  const kannClips = modell ? kannVideo(modell) : true; // Kontovorgabe: erst die Antwort weiß es
+  // Ob Clips als Video mitgehen können, entscheidet zuerst der Anbieter (OpenAI
+  // kennt gar keinen video_url-Teil), dann das Modell. Nur wenn beides offen
+  // ist, gilt die alte Annahme „Kontovorgabe — erst die Antwort weiß es".
+  const kannClips =
+    anbieter.kannVideo === false ? false : modell ? kannVideo(modell) : true;
 
   const datum = heute();
   const zeitstempel = new Date().toISOString();

@@ -459,6 +459,60 @@ test('OpenRouter behält den Temperatur-Default', async () => {
   }
 });
 
+// OpenAIs /chat/completions kennt keinen "video_url"-Inhaltsteil. Ohne Katalog
+// widerspricht dort niemand — `serie` hätte Clip-Bündel also fröhlich losgeschickt
+// und HTTP 400 statt eines Berichts bekommen.
+test('--anbieter openai lehnt Clips ab, statt sie in ein HTTP 400 zu schicken', async () => {
+  const s = await attrappe();
+  const clips = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-clips-'));
+  fs.writeFileSync(path.join(clips, 'a.webm'), 'x');
+  try {
+    const r = await laufe(
+      ['review', '--lens', 'ui', '--anbieter', 'openai', '--model', 'gpt-5.6-sol',
+       '--video', clips, '--live', '--max-tokens', '4000'],
+      { OPENAI_BASE_URL: s.baseUrl, OPENAI_API_KEY: 'sk-openai-test' }
+    );
+    assert.equal(r.code, 1);
+    assert.match(r.stderr, /keinen\s+"video_url"-Inhaltsteil/);
+    assert.match(r.stderr, /frames/, 'der Weg über Einzelbilder muss dabeistehen');
+  } finally {
+    await s.schliessen();
+  }
+});
+
+test('serie überspringt Clip-Bündel bei --anbieter openai', async () => {
+  const s = await attrappe();
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-out-'));
+  const ernte = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-ernte-'));
+  fs.mkdirSync(path.join(ernte, 'shots'));
+  fs.mkdirSync(path.join(ernte, 'clips'));
+  fs.writeFileSync(path.join(ernte, 'shots', 'a.png'), PNG);
+  fs.writeFileSync(path.join(ernte, 'clips', 'b.webm'), 'x');
+  fs.writeFileSync(
+    path.join(ernte, 'manifest.json'),
+    JSON.stringify([
+      { id: 'a', kind: 'shot', file: 'shots/a.png', bundle: 'intro', desc: 'Titel' },
+      { id: 'b', kind: 'clip', file: 'clips/b.webm', bundle: 'intro', desc: 'Bewegung' },
+    ])
+  );
+  try {
+    const r = await laufe(
+      ['serie', '--anbieter', 'openai', '--model', 'gpt-5.6-sol', '--ernte', ernte,
+       '--live', '--max-tokens', '4000'],
+      { OPENAI_BASE_URL: s.baseUrl, OPENAI_API_KEY: 'sk-openai-test', MODEL_REVIEW_OUT_DIR: out }
+    );
+    assert.equal(r.code, 0, r.stderr);
+    assert.match(r.stdout, /intro_clips — übersprungen/, 'Clip-Bündel muss übersprungen werden');
+    const mitVideo = s.anfragen.filter(
+      (a) => a.url.includes('chat/completions') &&
+        JSON.stringify(a.body?.messages ?? '').includes('video_url')
+    );
+    assert.equal(mitVideo.length, 0, 'kein video_url an OpenAI');
+  } finally {
+    await s.schliessen();
+  }
+});
+
 test('--anbieter openai fragt den Modell-Katalog gar nicht erst ab', async () => {
   const s = await attrappe();
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-out-'));

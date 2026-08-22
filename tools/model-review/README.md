@@ -19,7 +19,7 @@ ein Schlüssel, ein Dutzend Anbieter.
 
 ```bash
 cd tools/model-review
-npm test                                    # 110 Unit-/E2E-Tests, kein Netz, keine Kosten
+npm test                                    # 112 Unit-/E2E-Tests, kein Netz, keine Kosten
 
 node src/cli.mjs lenses                     # Welche Linsen gibt es?
 node src/cli.mjs pack --lens konzept        # Was würde gesendet? (schreibt nach runs/)
@@ -198,7 +198,9 @@ wird deshalb **vom Ende her** (`-sseof`).
 > Einzelbilder zeigen, **was** sich bewegt und **wo** die Dinge dabei stehen — nicht, wie
 > flüssig es läuft. Für Ruckeln und Timing braucht es echtes Video (also Guthaben).
 
-`serie` erkennt Clip-Bündel selbst und überspringt sie, wenn das Modell kein Video liest.
+`serie` erkennt Clip-Bündel selbst und überspringt sie, wenn das Modell kein Video liest —
+bei `--anbieter openai` **immer**, denn OpenAIs `/chat/completions` kennt gar keinen
+`video_url`-Inhaltsteil. Dort führt der Weg also grundsätzlich über `frames`.
 Grenzen für echtes Video: 8 Clips je Lauf (`--max-videos`), 24 MB je Clip.
 
 ### Was am 2026-08-21 gegen `stealth/ox-alpha` gemessen wurde
@@ -259,6 +261,7 @@ und mit Tests festgenagelt:
 | Katalogpreise | ja ⇒ Kostenbremse greift | nein ⇒ keine Vorab-Schätzung |
 | Kopfzeilen | `HTTP-Referer`, `X-Title` | — |
 | Temperatur | Default 0.3 geht mit | **gar nicht** — nur mit `--temperature` |
+| Clips als Video | wenn das Modell es kann | **nie** — kein `video_url` in der API |
 
 Weil OpenAIs `/v1/models` keine Preise nennt, wird der Katalog dort **gar nicht erst abgefragt**
 und die Kostenbremse lässt den Lauf durch. Die Mengenbegrenzung liegt dann allein bei
@@ -343,7 +346,7 @@ Danach: Befunde am Code/an den Daten gegenprüfen, Brauchbares in `docs/STATUS.m
 ## Tests
 
 ```bash
-npm test     # 110 Tests: Paketbau, Bilder/Clips, Einzelbilder, Serie, Strom, beide Anbieter, Kostenbremse, Bericht + CLI end-to-end
+npm test     # 112 Tests: Paketbau, Bilder/Clips, Einzelbilder, Serie, Strom, beide Anbieter, Kostenbremse, Bericht + CLI end-to-end
 ```
 
 Die API-Tests laufen gegen einen **lokalen Attrappen-Server** (`node:http`) — inklusive eines
