@@ -65,3 +65,27 @@ export function summe(werte) {
   if (bekannt.length === 0) return null;
   return bekannt.reduce((s, w) => s + w, 0);
 }
+
+/**
+ * Gesamtkosten einer Serie formatieren.
+ *
+ * Wichtig: Nicht jeder Anbieter meldet Preise. OpenAI liefert im
+ * `usage`-Block gar keine Kosten, OpenRouter nur bei bekanntem Modell.
+ * Ein blindes Aufsummieren ergäbe dann 0 — und 0 wird als „gratis"
+ * angezeigt, obwohl der Lauf auf dem Konto des Nutzers echtes Geld
+ * gekostet hat. Deshalb zählen wir die unbekannten Posten mit und sagen
+ * es offen.
+ *
+ * @param {Array<number|null|undefined>} werte Kosten je Durchgang, `null` = unbekannt.
+ */
+export function usdGesamt(werte) {
+  const liste = Array.isArray(werte) ? werte : [];
+  const bekannt = liste.filter((k) => k != null && Number.isFinite(Number(k)));
+  const unbekannt = liste.length - bekannt.length;
+  const summe = bekannt.reduce((s, k) => s + Number(k), 0);
+
+  if (!liste.length) return usd(0);
+  if (!bekannt.length) return 'unbekannt (Anbieter meldet keine Preise)';
+  if (!unbekannt) return usd(summe);
+  return `mind. ${usd(summe)} (${unbekannt} von ${liste.length} Durchgängen ohne Preisangabe)`;
+}

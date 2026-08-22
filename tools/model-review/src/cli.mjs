@@ -22,7 +22,7 @@ import {
 } from './serie.mjs';
 import { ziehe, FrameFehler } from './frames.mjs';
 import { baueKontext, schaetzeTokens, QuellenFehler } from './pack.mjs';
-import { preise, schaetzeKosten, pruefeBudget, usd, BudgetUeberschritten } from './cost.mjs';
+import { preise, schaetzeKosten, pruefeBudget, usd, usdGesamt, BudgetUeberschritten } from './cost.mjs';
 import {
   listeModelle, schluesselInfo, frageModell, findeModell, kannBilder, kannVideo, sehendeModelle, ApiFehler,
 } from './openrouter.mjs';
@@ -532,9 +532,9 @@ async function cmdReview(args, cfg) {
     }
   }
 
-  const gesamt = ergebnisse.filter((e) => e.ok && e.kosten != null).reduce((s, e) => s + e.kosten, 0);
   const fehlgeschlagen = ergebnisse.filter((e) => !e.ok);
-  console.log(`\nFertig: ${ergebnisse.length - fehlgeschlagen.length}/${ergebnisse.length} Berichte · Gesamtkosten ${usd(gesamt)}`);
+  const gesamt = usdGesamt(ergebnisse.filter((e) => e.ok).map((e) => e.kosten));
+  console.log(`\nFertig: ${ergebnisse.length - fehlgeschlagen.length}/${ergebnisse.length} Berichte · Gesamtkosten ${gesamt}`);
   if (fehlgeschlagen.length) {
     console.log(`Fehlgeschlagen: ${fehlgeschlagen.map((e) => e.model).join(', ')}`);
     process.exitCode = 1;
@@ -622,7 +622,7 @@ async function cmdSerie(args, cfg) {
   const datum = heute();
   const zeitstempel = new Date().toISOString();
   const gleichzeitig = args.parallel ? Number.parseInt(args.parallel, 10) : 3;
-  let gesamtkosten = 0;
+  const kostenListe = [];
 
   const zuTun = buendel.filter((b) => {
     if (b.kind === 'clip' && !kannClips) {
@@ -654,7 +654,7 @@ async function cmdSerie(args, cfg) {
       });
       const dauerMs = Date.now() - start;
       const kosten = antwort.usage?.cost != null ? Number(antwort.usage.cost) : null;
-      if (kosten) gesamtkosten += kosten;
+      kostenListe.push(kosten);
 
       const markdown = rendereBericht({
         linse: { ...linse, titel: `${linse.titel} — Bündel „${b.name}"` },
@@ -698,7 +698,7 @@ async function cmdSerie(args, cfg) {
       });
       const dauerMs = Date.now() - start;
       const kosten = antwort.usage?.cost != null ? Number(antwort.usage.cost) : null;
-      if (kosten) gesamtkosten += kosten;
+      kostenListe.push(kosten);
       const markdown = rendereBericht({
         linse: { ...linse, titel: `${linse.titel} — SYNTHESE über ${berichte.length} Bündel` },
         model: modellWunsch, verwendetesModell: antwort.verwendetesModell, datum, zeitstempel,
@@ -725,7 +725,7 @@ async function cmdSerie(args, cfg) {
     }
   }
 
-  console.log(`\nFertig: ${berichte.length} Einzelberichte · Gesamtkosten ${usd(gesamtkosten)}\n`);
+  console.log(`\nFertig: ${berichte.length} Einzelberichte · Gesamtkosten ${usdGesamt(kostenListe)}\n`);
 }
 
 // ---------- Einstieg ----------
