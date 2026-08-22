@@ -510,6 +510,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       gamePhase: state.gamePhase,
       gameEnd: state.gameEnd,
       hasDialog: !!state.currentDialog,
+      // Ein Krisen-Modal (z-70) legt sich über ALLES und hat die Ernte am
+      // 2026-08-22 vier Aufnahmen gekostet (decision_beat, day_report,
+      // day_report_bottom, morning_briefing zeigten alle dasselbe Krisenfenster).
+      // Die Ernte muss es deshalb erkennen und wegräumen können.
+      hasCrisis: !!state.activeCrisis,
+      dismissCrisis,
       viewMode,
       startGame,
       chooseAuftrag,

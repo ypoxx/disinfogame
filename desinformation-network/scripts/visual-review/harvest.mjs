@@ -112,6 +112,16 @@ async function dismissAll(page, { maxTries = 16 } = {}) {
     if (await clickButton(page, /NÄCHSTER TAG/i, { timeout: 400 })) { await sleep(900); continue; }
     // Morgenbriefing & Co.: expliziter Bestätigungs-Knopf hat Vorrang.
     if (await clickButton(page, /Morgenbriefing weiter|^Verstanden/i, { timeout: 400 })) { await sleep(400); continue; }
+    // Krisen-Modal (z-70) liegt über allem und wartet auf eine Entscheidung.
+    // Am 2026-08-22 hat es vier Aufnahmen gefressen — decision_beat,
+    // day_report, day_report_bottom und morning_briefing zeigten alle dasselbe
+    // Krisenfenster, weil niemand es je weggeräumt hat. Wegdrücken statt
+    // entscheiden: Die Ernte soll den Spielstand nicht verbiegen.
+    if (await vqa(page, () => !!window.__VQA__?.hasCrisis).catch(() => false)) {
+      await vqa(page, () => window.__VQA__.dismissCrisis()).catch(() => {});
+      await sleep(400);
+      continue;
+    }
     const st = await vqa(page, () => ({
       hasDialog: !!window.__VQA__?.hasDialog,
     })).catch(() => ({ hasDialog: false }));
@@ -452,6 +462,9 @@ if (wanted('title')) {
     await sleep(300);
   }
   await ensurePlaying(page);
+  // Bühne frei: ein noch offenes Krisen-/Dialogfenster läge SONST über dem
+  // Beat-Modal — und genau das ist am 2026-08-22 passiert.
+  await dismissAll(page);
   await vqa(page, () => window.__VQA__.directorStore.setState({ pendingDecisionBeatId: 'stadtrat' })).catch(() => {});
   await sleep(900);
   await shot(page, 'decision_beat', { bundle: 'panels', desc: 'Entscheidungs-Beat-Modal (Stadtrat) mit Optionen + Berater-Badge' });
@@ -459,6 +472,7 @@ if (wanted('title')) {
   await sleep(300);
 
   // ── Tagesende: Heimweg → Tagesfazit → nächster Morgen ──
+  await dismissAll(page);
   await vqa(page, () => window.__VQA__.setMinutes(540));
   await vqa(page, () => window.__VQA__.requestEndDay());
   await sleep(11000); // Heimweg-Lauf
