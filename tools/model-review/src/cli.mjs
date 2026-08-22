@@ -590,6 +590,18 @@ async function cmdSerie(args, cfg) {
   });
   if (!buendel.length) fehler(`Keine passenden Bündel in ${relToRepo(ernteDir)} gefunden.`);
 
+  // Anbieter ohne Video-Eingang (OpenAI) beantworten `video_url` mit HTTP 400.
+  // Die Clip-Bündel hier wegzulassen ist ehrlicher als 3 rote Zeilen am Ende:
+  // der Hinweis nennt den Weg, der trotzdem funktioniert.
+  const uebersprungeneClips = anbieter.videoEingang ? [] : buendel.filter((b) => b.kind === 'clip');
+  const zuLaufen = anbieter.videoEingang ? buendel : buendel.filter((b) => b.kind !== 'clip');
+  if (!zuLaufen.length) {
+    fehler(
+      `Nur Clip-Bündel gefunden, aber "${anbieter.id}" nimmt keine Clips entgegen.\n` +
+        `  Schlüsselbilder ziehen und als Bilder prüfen: node src/cli.mjs frames`
+    );
+  }
+
   const modellWunsch = args.model.length ? args.model[0] : cfg.model;
   const maxTokens = args['max-tokens'] ? Number.parseInt(args['max-tokens'], 10) : 32_000;
   const temperature = args.temperature ? Number.parseFloat(args.temperature) : cfg.temperature;
@@ -598,11 +610,19 @@ async function cmdSerie(args, cfg) {
   const kontext = kontextFuer(linse, args, cfg);
   const { system } = baueAuftrag(linse, args);
 
-  console.log(`\nSerie: Linse "${linse.id}" über ${buendel.length} Bündel aus ${relToRepo(ernteDir)}`);
+  console.log(`\nSerie: Linse "${linse.id}" über ${zuLaufen.length} Bündel aus ${relToRepo(ernteDir)}`);
   console.log(`Modell: ${istKonto(modellWunsch) ? 'Kontovorgabe (OpenRouter-Standardmodell)' : modellWunsch}`);
   console.log(`Antwortlänge je Durchgang: max. ${maxTokens.toLocaleString('de-DE')} Tokens\n`);
-  for (const b of buendel) {
+  for (const b of zuLaufen) {
     console.log(`  ${b.kind === 'clip' ? '🎬' : '🖼'} ${b.name.padEnd(24)} ${String(b.dateien.length).padStart(3)} Aufnahmen`);
+  }
+
+  if (uebersprungeneClips.length) {
+    console.log(
+      `\n  ⏭ ${uebersprungeneClips.length} Clip-Bündel ausgelassen — "${anbieter.id}" nimmt kein Video entgegen` +
+        ` (${uebersprungeneClips.map((b) => b.name).join(', ')}).` +
+        `\n     Stattdessen Schlüsselbilder ziehen: node src/cli.mjs frames`
+    );
   }
 
   if (!args.live) {
@@ -617,14 +637,16 @@ async function cmdSerie(args, cfg) {
   if (!istKonto(modellWunsch) && katalog.length && !modell) {
     fehler(`Modell "${modellWunsch}" gibt es bei OpenRouter nicht.`);
   }
-  const kannClips = modell ? kannVideo(modell) : true; // Kontovorgabe: erst die Antwort weiß es
+  // Doppelt geprüft: der Anbieter muss Clips überhaupt annehmen, und das Modell muss sie lesen.
+  // Bei Kontovorgabe kennen wir das Modell vorher nicht — dann entscheidet die Antwort.
+  const kannClips = anbieter.videoEingang && (modell ? kannVideo(modell) : true);
 
   const datum = heute();
   const zeitstempel = new Date().toISOString();
   const gleichzeitig = args.parallel ? Number.parseInt(args.parallel, 10) : 3;
   const kostenListe = [];
 
-  const zuTun = buendel.filter((b) => {
+  const zuTun = zuLaufen.filter((b) => {
     if (b.kind === 'clip' && !kannClips) {
       console.log(`\n▶ ${b.name} — übersprungen (Modell liest kein Video)`);
       return false;

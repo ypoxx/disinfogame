@@ -51,6 +51,8 @@ export const ANBIETER = {
     hatPreise: true,
     /** Nur OpenRouter kennt provider-Routing und usage.include. */
     routing: true,
+    /** Clips als `video_url`-ContentPart — von OpenRouter durchgereicht. */
+    videoEingang: true,
   },
   openai: {
     id: 'openai',
@@ -59,6 +61,11 @@ export const ANBIETER = {
     // OpenAIs /v1/models nennt keine Preise → keine Vorab-Schätzung möglich.
     hatPreise: false,
     routing: false,
+    // Die Chat-Completions-API von OpenAI kennt keinen `video_url`-ContentPart
+    // (erlaubt sind text, image_url, input_audio, refusal, audio, file) und
+    // beantwortet Clips mit HTTP 400. Statt dessen: `frames` — Schlüsselbilder
+    // aus den Clips ziehen und als Bilder schicken.
+    videoEingang: false,
   },
 };
 
