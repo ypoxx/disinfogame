@@ -41,13 +41,43 @@ export function loadEnvFile(file = ENV_FILE, env = process.env) {
 
 export class KonfigFehler extends Error {}
 
-/** API-Schlüssel holen — mit einer Fehlermeldung, die weiterhilft. */
-export function getApiKey(env = process.env) {
-  const key = (env.OPENROUTER_API_KEY || '').trim();
+/** Unterstützte Anbieter. OpenRouter ist der Regelfall; OpenAI der Direktweg. */
+export const ANBIETER = {
+  openrouter: {
+    id: 'openrouter',
+    baseUrl: (env = process.env) => env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
+    schluesselVar: 'OPENROUTER_API_KEY',
+    /** OpenRouter kennt Katalogpreise → Kostenbremse greift. */
+    hatPreise: true,
+    /** Nur OpenRouter kennt provider-Routing und usage.include. */
+    routing: true,
+  },
+  openai: {
+    id: 'openai',
+    baseUrl: (env = process.env) => env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
+    schluesselVar: 'OPENAI_API_KEY',
+    // OpenAIs /v1/models nennt keine Preise → keine Vorab-Schätzung möglich.
+    hatPreise: false,
+    routing: false,
+  },
+};
+
+export function findeAnbieter(name = 'openrouter') {
+  const a = ANBIETER[name];
+  if (!a) {
+    throw new KonfigFehler(`Unbekannter Anbieter "${name}" — möglich: ${Object.keys(ANBIETER).join(', ')}`);
+  }
+  return a;
+}
+
+/** API-Schlüssel des Anbieters holen — mit einer Fehlermeldung, die weiterhilft. */
+export function getApiKey(env = process.env, anbieter = ANBIETER.openrouter) {
+  const name = anbieter.schluesselVar;
+  const key = (env[name] || '').trim();
   if (!key) {
     throw new KonfigFehler(
-      'Kein OPENROUTER_API_KEY gefunden.\n' +
-        '  Entweder:  export OPENROUTER_API_KEY="sk-or-v1-..."\n' +
+      `Kein ${name} gefunden.\n` +
+        `  Entweder:  export ${name}="..."\n` +
         '  oder:      tools/model-review/.env anlegen (Vorlage: .env.example) — die Datei ist gitignored.'
     );
   }

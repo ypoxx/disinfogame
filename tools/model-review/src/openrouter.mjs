@@ -17,9 +17,11 @@ const KOPFZEILEN = {
   'X-Title': 'Disinfogame Model-Review',
 };
 
-async function anfrage(pfad, { apiKey, method = 'GET', body, timeoutMs, baseUrl } = {}) {
+async function anfrage(pfad, { apiKey, method = 'GET', body, timeoutMs, baseUrl, anbieter = 'openrouter' } = {}) {
   const cfg = defaults();
   const url = `${baseUrl || cfg.baseUrl}${pfad}`;
+  // HTTP-Referer/X-Title kennt nur OpenRouter (Herkunfts-Kennzeichnung).
+  const kopf = anbieter === 'openrouter' ? KOPFZEILEN : {};
   const versuche = 3;
   let letzterFehler;
 
@@ -28,7 +30,7 @@ async function anfrage(pfad, { apiKey, method = 'GET', body, timeoutMs, baseUrl 
       const res = await fetch(url, {
         method,
         headers: {
-          ...KOPFZEILEN,
+          ...kopf,
           ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
           ...(body ? { 'Content-Type': 'application/json' } : {}),
         },
@@ -77,8 +79,8 @@ async function anfrage(pfad, { apiKey, method = 'GET', body, timeoutMs, baseUrl 
 }
 
 /** Modell-Katalog inkl. Preisen (öffentlich, Schlüssel optional). */
-export async function listeModelle({ apiKey, baseUrl } = {}) {
-  const json = await anfrage('/models', { apiKey, baseUrl, timeoutMs: 60_000 });
+export async function listeModelle({ apiKey, baseUrl, anbieter = 'openrouter' } = {}) {
+  const json = await anfrage('/models', { apiKey, baseUrl, anbieter, timeoutMs: 60_000 });
   return Array.isArray(json.data) ? json.data : [];
 }
 
@@ -209,22 +211,34 @@ export async function frageModell({
   timeoutMs,
   denyDataCollection = true,
   denkAufwand = null,
+  anbieter = 'openrouter',
   strom = false,
   onStueck = null,
   stilleMs = 180_000,
 }) {
+  // Die beiden Anbieter sprechen fast dieselbe Sprache, aber nicht ganz:
+  //  · OpenRouter: `max_tokens`, `reasoning:{effort}`, `provider:{…}`, `usage:{include}`
+  //  · OpenAI:     `max_completion_tokens`, `reasoning_effort` — und lehnt unbekannte
+  //    Felder mit HTTP 400 ab, deshalb dürfen Routing/usage dort NICHT mitgehen.
+  const direktOpenAi = anbieter === 'openai';
   const body = {
     messages: [
       { role: 'system', content: system },
       { role: 'user', content: baueNutzerinhalt(user, bilder, videos) },
     ],
-    max_tokens: maxTokens,
     temperature,
-    usage: { include: true },
   };
   if (model) body.model = model;
-  if (denyDataCollection) body.provider = { data_collection: 'deny' };
-  if (denkAufwand) body.reasoning = { effort: denkAufwand };
+
+  if (direktOpenAi) {
+    body.max_completion_tokens = maxTokens;
+    if (denkAufwand) body.reasoning_effort = denkAufwand;
+  } else {
+    body.max_tokens = maxTokens;
+    body.usage = { include: true };
+    if (denyDataCollection) body.provider = { data_collection: 'deny' };
+    if (denkAufwand) body.reasoning = { effort: denkAufwand };
+  }
 
   if (strom) {
     const cfg = defaults();
@@ -238,7 +252,7 @@ export async function frageModell({
       const res = await fetch(`${baseUrl || cfg.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
-          ...KOPFZEILEN,
+          ...(direktOpenAi ? {} : KOPFZEILEN),
           Authorization: `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
           Accept: 'text/event-stream',

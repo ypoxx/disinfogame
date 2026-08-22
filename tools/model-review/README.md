@@ -19,7 +19,7 @@ ein Schlüssel, ein Dutzend Anbieter.
 
 ```bash
 cd tools/model-review
-npm test                                    # 100 Unit-/E2E-Tests, kein Netz, keine Kosten
+npm test                                    # 107 Unit-/E2E-Tests, kein Netz, keine Kosten
 
 node src/cli.mjs lenses                     # Welche Linsen gibt es?
 node src/cli.mjs pack --lens konzept        # Was würde gesendet? (schreibt nach runs/)
@@ -236,6 +236,39 @@ Daraus folgt die Bauweise oben:
 > Prompt, hier **jedes** OpenRouter-Modell, feste Antwortform, Kostenbremse und ein Bericht mit
 > Quellen-Nachweis in `docs/MODEL_REVIEWS/`.
 
+## Zwei Anbieter: OpenRouter oder OpenAI direkt
+
+`--anbieter openai` spricht `api.openai.com` direkt an, mit `OPENAI_API_KEY` und **Modellnamen
+ohne `openai/`-Präfix**:
+
+```bash
+export OPENAI_API_KEY="sk-..."
+node src/cli.mjs review --lens ui --anbieter openai --model gpt-5.6-sol \
+  --bild ../../desinformation-network/runs/visual-review/latest/shots/decision_beat.png --live
+```
+
+Die beiden sprechen fast dasselbe Protokoll, aber nicht ganz — das ist im Client abgefangen
+und mit Tests festgenagelt:
+
+| | OpenRouter | OpenAI direkt |
+|---|---|---|
+| Antwortlänge | `max_tokens` | `max_completion_tokens` |
+| Denk-Aufwand | `reasoning: {effort}` | `reasoning_effort` |
+| Anbieter-Sperre | `provider: {data_collection}` | — (unbekanntes Feld ⇒ HTTP 400) |
+| Nutzungsmeldung | `usage: {include: true}` | — (dito) |
+| Katalogpreise | ja ⇒ Kostenbremse greift | nein ⇒ keine Vorab-Schätzung |
+| Kopfzeilen | `HTTP-Referer`, `X-Title` | — |
+
+Weil OpenAIs `/v1/models` keine Preise nennt, wird der Katalog dort **gar nicht erst abgefragt**
+und die Kostenbremse lässt den Lauf durch. Die Mengenbegrenzung liegt dann allein bei
+`--max-tokens` und der Bildzahl.
+
+> **Welches OpenAI-Modell?** Für einen Bild-Durchgang eines mit `modality: text+image→text`
+> (z. B. `gpt-5.6-sol` — Flaggschiff der GPT-5.6-Reihe vom 2026-07-09; `terra` ist die Mitte,
+> `luna` die günstige Linie). **Nicht** `gpt-5-image` & Co.: Die erzeugen Bilder
+> (`→ text+image`), sie beurteilen keine. Fürs *Erzeugen* neuer Assets gibt es im Projekt
+> ohnehin schon `tools/asset-pipeline`.
+
 ## Dein bei OpenRouter hinterlegtes Modell
 
 `--model konto` lässt das Feld `model` weg — dann greift laut API-Schema das im Konto
@@ -297,7 +330,7 @@ Danach: Befunde am Code/an den Daten gegenprüfen, Brauchbares in `docs/STATUS.m
 ## Tests
 
 ```bash
-npm test     # 100 Tests: Paketbau, Bilder/Clips, Einzelbilder, Serie, Strom, Kostenbremse, Bericht, API-Client + CLI end-to-end
+npm test     # 107 Tests: Paketbau, Bilder/Clips, Einzelbilder, Serie, Strom, beide Anbieter, Kostenbremse, Bericht + CLI end-to-end
 ```
 
 Die API-Tests laufen gegen einen **lokalen Attrappen-Server** (`node:http`) — inklusive eines

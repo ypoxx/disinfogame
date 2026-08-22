@@ -14,7 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { loadEnvFile, getApiKey, defaults, maskKey, KonfigFehler } from './config.mjs';
+import { loadEnvFile, getApiKey, defaults, maskKey, findeAnbieter, KonfigFehler } from './config.mjs';
 import { LINSEN, findeLinse, linsenIds, AUSGABE_REGELN } from './lenses.mjs';
 import { ladeBilder, ladeVideos, bildTokens, videoTokens, BildFehler } from './images.mjs';
 import {
@@ -70,7 +70,7 @@ function parseArgs(argv) {
       'lens', 'linse', 'model', 'modell', 'max-cost', 'max-tokens', 'max-chars',
       'temperature', 'frage', 'out', 'filter', 'datei', 'bild', 'max-bilder',
       'video', 'max-videos', 'ernte', 'buendel', 'pro-buendel', 'parallel', 'denk-aufwand',
-      'anzahl', 'name',
+      'anzahl', 'name', 'anbieter',
     ];
     if (braucht.includes(name)) {
       const wert = inline !== undefined ? inline : argv[++i];
@@ -125,6 +125,8 @@ WICHTIGE OPTIONEN
   --parallel <n>             Gleichzeitige Durchgänge bei "serie" (Default 3)
   --name <kennung>           Kennung im Dateinamen des Berichts (mehrere Läufe
                              derselben Linse am selben Tag auseinanderhalten)
+  --anbieter <name>          openrouter (Default) | openai — openai spricht api.openai.com
+                             direkt an (OPENAI_API_KEY, Modellname OHNE "openai/"-Präfix)
   --denk-aufwand <stufe>     low | high | max — bei Denk-Modellen der Zeitregler
   --kein-strom               Antwort am Stück holen statt zu streamen (Default: Strom)
   --max-cost <usd>           Kostenbremse pro Modell (Default ${defaults().maxCostUsd})
@@ -172,9 +174,16 @@ const KONTO = 'konto';
 function aufrufOptionen(args, cfg) {
   return {
     denkAufwand: args['denk-aufwand'] || null,
+    anbieter: findeAnbieter(args.anbieter || 'openrouter').id,
     strom: !args['kein-strom'],
     denyDataCollection: args['erlaube-datensammlung'] ? false : cfg.denyDataCollection,
   };
+}
+
+/** Anbieter + passende Basis-URL + passender Schlüssel in einem Griff. */
+function anbieterKontext(args) {
+  const anbieter = findeAnbieter(args.anbieter || 'openrouter');
+  return { anbieter, baseUrl: anbieter.baseUrl() };
 }
 
 /**
@@ -259,9 +268,12 @@ function zeigeKontext(kontext) {
 }
 
 /** Katalog laden; schlägt das fehl (kein Netz/Schlüssel), geht es ohne Preise weiter. */
-async function katalogVersuch(apiKey, cfg) {
+async function katalogVersuch(apiKey, cfg, anbieter = null, baseUrl = null) {
+  // OpenAIs Katalog nennt keine Preise; die Kostenbremse kann dort nicht greifen
+  // und die Modellprüfung liefe ins Leere. Deshalb dort gar nicht erst abfragen.
+  if (anbieter && !anbieter.hatPreise) return { katalog: [], fehler: null };
   try {
-    return { katalog: await listeModelle({ apiKey, baseUrl: cfg.baseUrl }), fehler: null };
+    return { katalog: await listeModelle({ apiKey, baseUrl: baseUrl || cfg.baseUrl }), fehler: null };
   } catch (err) {
     return { katalog: [], fehler: err };
   }
@@ -352,6 +364,7 @@ async function cmdReview(args, cfg) {
   const denyDataCollection = args['erlaube-datensammlung'] ? false : cfg.denyDataCollection;
   const outDir = args.out ? path.resolve(args.out) : REPORT_DIR;
 
+  const { anbieter, baseUrl } = anbieterKontext(args);
   const kontext = kontextFuer(linse, args, cfg);
   const bilder = bilderFuer(args);
   const videos = videosFuer(args);
@@ -368,13 +381,13 @@ async function cmdReview(args, cfg) {
 
   let apiKey = null;
   try {
-    apiKey = getApiKey();
+    apiKey = getApiKey(process.env, anbieter);
   } catch (err) {
     if (args.live) throw err;
     console.log('\n  (Kein Schlüssel gesetzt — für den Trockenlauf nicht nötig.)');
   }
 
-  const { katalog, fehler: katalogFehler } = await katalogVersuch(apiKey, cfg);
+  const { katalog, fehler: katalogFehler } = await katalogVersuch(apiKey, cfg, anbieter, baseUrl);
   if (katalogFehler) {
     console.log(`\n  ⚠ Modell-Katalog nicht erreichbar (${katalogFehler.message.split('\n')[0]})`);
     if (args.live) throw katalogFehler;
@@ -433,7 +446,7 @@ async function cmdReview(args, cfg) {
       geschaetzt: p.geschaetzt,
       maxCostUsd,
       modelId: p.id,
-      erlaubeUnbekannt: Boolean(args['preis-unbekannt-ok']) || Boolean(p.konto),
+      erlaubeUnbekannt: Boolean(args['preis-unbekannt-ok']) || Boolean(p.konto) || !anbieter.hatPreise,
     });
   }
 
@@ -447,7 +460,7 @@ async function cmdReview(args, cfg) {
     try {
       const antwort = await frageModell({
         apiKey,
-        baseUrl: cfg.baseUrl,
+        baseUrl,
         model: p.id,
         system,
         user: nachricht,
@@ -530,6 +543,7 @@ async function cmdReview(args, cfg) {
 }
 
 function cmdFrames(args) {
+  const { anbieter, baseUrl } = anbieterKontext(args);
   const ernteDir = args.ernte ? path.resolve(args.ernte) : ERNTE_DIR;
   const manifest = liesManifest(ernteDir);
   const clips = manifest.filter((e) => e.kind === 'clip' && e.file);
@@ -567,6 +581,7 @@ async function cmdSerie(args, cfg) {
   const linse = findeLinse(args.lens || 'ui');
   if (!linse) fehler(`Unbekannte Linse "${args.lens}" — verfügbar: ${linsenIds().join(', ')}`);
 
+  const { anbieter, baseUrl } = anbieterKontext(args);
   const ernteDir = args.ernte ? path.resolve(args.ernte) : ERNTE_DIR;
   const manifest = liesManifest(ernteDir);
   const buendel = baueBuendel(manifest, ernteDir, {
@@ -596,8 +611,8 @@ async function cmdSerie(args, cfg) {
     return;
   }
 
-  const apiKey = getApiKey();
-  const { katalog } = await katalogVersuch(apiKey, cfg);
+  const apiKey = getApiKey(process.env, anbieter);
+  const { katalog } = await katalogVersuch(apiKey, cfg, anbieter, baseUrl);
   const modell = istKonto(modellWunsch) ? null : findeModell(katalog, modellWunsch).model;
   if (!istKonto(modellWunsch) && katalog.length && !modell) {
     fehler(`Modell "${modellWunsch}" gibt es bei OpenRouter nicht.`);
@@ -632,7 +647,7 @@ async function cmdSerie(args, cfg) {
       const nachricht = nachrichtFuer(frage, kontext, linse.regeln);
 
       const antwort = await frageModell({
-        apiKey, baseUrl: cfg.baseUrl, model: istKonto(modellWunsch) ? null : modellWunsch,
+        apiKey, baseUrl, model: istKonto(modellWunsch) ? null : modellWunsch,
         system, user: nachricht, bilder, videos, maxTokens, temperature,
         timeoutMs: cfg.timeoutMs, ...aufrufOptionen(args, cfg),
         onStueck: fortschritt(b.name),
@@ -676,7 +691,7 @@ async function cmdSerie(args, cfg) {
     const start = Date.now();
     try {
       const antwort = await frageModell({
-        apiKey, baseUrl: cfg.baseUrl, model: istKonto(modellWunsch) ? null : modellWunsch,
+        apiKey, baseUrl, model: istKonto(modellWunsch) ? null : modellWunsch,
         system, user: syntheseFrage(berichte), maxTokens, temperature,
         timeoutMs: cfg.timeoutMs, ...aufrufOptionen(args, cfg),
         onStueck: fortschritt('Synthese'),

@@ -373,3 +373,65 @@ test('ohne --denk-aufwand bleibt reasoning weg (Modell-Standard gilt)', async ()
     await s.schliessen();
   }
 });
+
+// --- Direkter OpenAI-Weg -----------------------------------------------
+// OpenAI spricht fast dasselbe Protokoll wie OpenRouter, aber nicht ganz:
+// `max_completion_tokens` statt `max_tokens`, `reasoning_effort` statt
+// `reasoning:{effort}` — und unbekannte Felder (provider, usage) quittiert es
+// mit HTTP 400. Diese Unterschiede sind hier festgenagelt.
+test('--anbieter openai sendet den OpenAI-Rumpf, ohne OpenRouter-Felder', async () => {
+  const s = await attrappe();
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-out-'));
+  try {
+    const r = await laufe(
+      ['review', '--lens', 'bildung', '--anbieter', 'openai', '--model', 'gpt-5.6-sol',
+       '--live', '--max-tokens', '4000', '--denk-aufwand', 'high'],
+      { OPENAI_BASE_URL: s.baseUrl, OPENAI_API_KEY: 'sk-openai-test', MODEL_REVIEW_OUT_DIR: out }
+    );
+    assert.equal(r.code, 0, r.stderr);
+
+    const aufruf = s.anfragen.find((a) => a.url.includes('chat/completions'));
+    assert.equal(aufruf.body.model, 'gpt-5.6-sol', 'Modellname ohne "openai/"-Präfix');
+    assert.equal(aufruf.body.max_completion_tokens, 4000, 'OpenAI verlangt max_completion_tokens');
+    assert.equal(aufruf.body.max_tokens, undefined, 'max_tokens würde OpenAI mit 400 ablehnen');
+    assert.equal(aufruf.body.reasoning_effort, 'high');
+    assert.equal(aufruf.body.reasoning, undefined, 'reasoning-Objekt ist OpenRouter-Sprache');
+    assert.equal(aufruf.body.provider, undefined, 'provider-Routing kennt OpenAI nicht');
+    assert.equal(aufruf.body.usage, undefined, 'usage.include kennt OpenAI nicht');
+  } finally {
+    await s.schliessen();
+  }
+});
+
+test('--anbieter openai fragt den Modell-Katalog gar nicht erst ab', async () => {
+  const s = await attrappe();
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-out-'));
+  try {
+    await laufe(
+      ['review', '--lens', 'bildung', '--anbieter', 'openai', '--model', 'gpt-5.6-sol', '--live', '--max-tokens', '4000'],
+      { OPENAI_BASE_URL: s.baseUrl, OPENAI_API_KEY: 'sk-openai-test', MODEL_REVIEW_OUT_DIR: out }
+    );
+    assert.equal(
+      s.anfragen.filter((a) => a.url.endsWith('/models')).length,
+      0,
+      'OpenAIs Katalog nennt keine Preise — die Abfrage brächte nichts'
+    );
+  } finally {
+    await s.schliessen();
+  }
+});
+
+test('--anbieter openai verlangt OPENAI_API_KEY, nicht den OpenRouter-Schlüssel', async () => {
+  const r = await laufe(['review', '--lens', 'bildung', '--anbieter', 'openai', '--model', 'gpt-5.6-sol', '--live'], {
+    OPENAI_API_KEY: '',
+  });
+  assert.equal(r.code, 1);
+  assert.match(r.stderr, /Kein OPENAI_API_KEY gefunden/);
+});
+
+test('unbekannter Anbieter wird mit Auswahl gemeldet', async () => {
+  const r = await laufe(['review', '--lens', 'bildung', '--anbieter', 'quatsch']);
+  assert.equal(r.code, 1);
+  assert.match(r.stderr, /Unbekannter Anbieter/);
+  assert.match(r.stderr, /openrouter, openai/);
+});
