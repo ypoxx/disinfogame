@@ -64,7 +64,24 @@ async function shot(page, id, { bundle, desc, overlay = false, geometry = false 
     await vqa(page, () => window.__VQA__.dismissCrisis()).catch(() => {});
     await sleep(400);
   }
-  // Pre-Shot-Guard 2: das Tag-Briefing erscheint zeitversetzt und würde sonst
+  // Pre-Shot-Guard 2: Der Tagesbericht. Die Uhr läuft in Echtzeit weiter; wer
+  // sie fürs Nacht-Motiv auf 17:58 stellt, überschreitet während der nächsten
+  // Sekunden 18:00 — der Auto-Feierabend öffnet den Bericht, und der bleibt
+  // über allem liegen. Genau so wurden poster_detail und ambient_bubble zu
+  // „LAGEBERICHT – TAG 1". Zumachen statt wegklicken: `setShowDayReport(false)`
+  // schließt nur die Ansicht, „NÄCHSTER TAG" würde den Spielstand weiterdrehen.
+  if (!/briefing|day_report/.test(id)) {
+    await vqa(page, () => window.__VQA__?.ui?.setShowDayReport?.(false)).catch(() => {});
+  }
+  // Pre-Shot-Guard 3: Ein anstehender Entscheidungs-Beat blendet sein Modal
+  // über jeden Screen. Im ersten Fremdmodell-Durchgang hat das die halbe
+  // Panel-Strecke gekostet (panel_news/stats/npcs/mission/events, shortcuts,
+  // hud_on zeigten alle dasselbe Modal „Die reale Vorlage"). Einzige Ausnahme
+  // ist der Shot, der das Modal absichtlich zeigt.
+  if (id !== 'decision_beat') {
+    await vqa(page, () => window.__VQA__?.directorStore?.setState({ pendingDecisionBeatId: null })).catch(() => {});
+  }
+  // Pre-Shot-Guard 4: das Tag-Briefing erscheint zeitversetzt und würde sonst
   // beliebige Screens verdecken — außer wenn der Shot es selbst zeigen soll.
   if (!/briefing|day_report/.test(id)) {
     if (await clickButton(page, /Morgenbriefing weiter|^Verstanden/i, { timeout: 300 })) await sleep(450);
