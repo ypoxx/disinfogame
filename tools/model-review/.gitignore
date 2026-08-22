@@ -1,0 +1,5 @@
+# Schlüssel — NIEMALS committen
+.env
+
+# Laufprotokolle + Kontext-Abzüge (können den kompletten Prompt enthalten)
+runs/
