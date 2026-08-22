@@ -132,7 +132,7 @@ WICHTIGE OPTIONEN
   --max-cost <usd>           Kostenbremse pro Modell (Default ${defaults().maxCostUsd})
   --max-tokens <n>           Maximale Antwortlänge (Default ${defaults().maxCompletionTokens})
   --max-chars <n>            Maximale Paketgröße (Default ${defaults().maxContextChars})
-  --temperature <n>          Default ${defaults().temperature}
+  --temperature <n>          Default ${defaults().temperature} (bei --anbieter openai: Modell-Vorgabe)
   --preis-unbekannt-ok       Auch Modelle ohne Preisangabe erlauben
   --erlaube-datensammlung    Anbieter mit Daten-Sammlung zulassen (Default: ausgeschlossen)
   --out <verzeichnis>        Zielordner der Berichte (Default ${relToRepo(REPORT_DIR)})
@@ -184,6 +184,30 @@ function aufrufOptionen(args, cfg) {
 function anbieterKontext(args) {
   const anbieter = findeAnbieter(args.anbieter || 'openrouter');
   return { anbieter, baseUrl: anbieter.baseUrl() };
+}
+
+/**
+ * Temperatur für diesen Lauf — oder `null`, wenn das Feld gar nicht mitgehen soll.
+ *
+ * Nicht jeder Anbieter nimmt jede Temperatur: OpenAIs Denk-Modelle akzeptieren
+ * ausschließlich ihre eigene Vorgabe und quittieren alles andere mit HTTP 400.
+ * Der CLI-Default (0.3) darf dort also nicht stillschweigend mitfahren — sonst
+ * scheitert jeder Lauf an einer Voreinstellung, die niemand gewählt hat.
+ * Ausdrücklich verlangt (`--temperature`) geht der Wert trotzdem raus: Dann ist
+ * es eine Entscheidung, und die Fehlermeldung des Anbieters ist die Antwort darauf.
+ */
+function temperaturFuer(args, cfg, anbieter) {
+  if (args.temperature) {
+    const wert = Number.parseFloat(args.temperature);
+    if (anbieter && anbieter.nimmtTemperatur === false) {
+      console.warn(
+        `  ⚠ ${anbieter.id} nimmt bei Denk-Modellen nur die eigene Temperatur-Vorgabe — ` +
+          `--temperature ${wert} kann mit HTTP 400 abgelehnt werden.`
+      );
+    }
+    return wert;
+  }
+  return anbieter && anbieter.nimmtTemperatur === false ? null : cfg.temperature;
 }
 
 /**
@@ -360,11 +384,11 @@ async function cmdReview(args, cfg) {
   const modelle = args.model.length ? args.model : [cfg.model];
   const maxCostUsd = args['max-cost'] ? Number.parseFloat(args['max-cost']) : cfg.maxCostUsd;
   const maxTokens = args['max-tokens'] ? Number.parseInt(args['max-tokens'], 10) : cfg.maxCompletionTokens;
-  const temperature = args.temperature ? Number.parseFloat(args.temperature) : cfg.temperature;
   const denyDataCollection = args['erlaube-datensammlung'] ? false : cfg.denyDataCollection;
   const outDir = args.out ? path.resolve(args.out) : REPORT_DIR;
 
   const { anbieter, baseUrl } = anbieterKontext(args);
+  const temperature = temperaturFuer(args, cfg, anbieter);
   const kontext = kontextFuer(linse, args, cfg);
   const bilder = bilderFuer(args);
   const videos = videosFuer(args);
@@ -592,7 +616,7 @@ async function cmdSerie(args, cfg) {
 
   const modellWunsch = args.model.length ? args.model[0] : cfg.model;
   const maxTokens = args['max-tokens'] ? Number.parseInt(args['max-tokens'], 10) : 32_000;
-  const temperature = args.temperature ? Number.parseFloat(args.temperature) : cfg.temperature;
+  const temperature = temperaturFuer(args, cfg, anbieter);
   const denyDataCollection = args['erlaube-datensammlung'] ? false : cfg.denyDataCollection;
   const outDir = args.out ? path.resolve(args.out) : REPORT_DIR;
   const kontext = kontextFuer(linse, args, cfg);

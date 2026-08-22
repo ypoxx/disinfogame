@@ -226,8 +226,11 @@ export async function frageModell({
       { role: 'system', content: system },
       { role: 'user', content: baueNutzerinhalt(user, bilder, videos) },
     ],
-    temperature,
   };
+  // `temperature` ist optional: OpenAIs Denk-Modelle akzeptieren nur ihre eigene
+  // Vorgabe und antworten sonst mit HTTP 400 (siehe ANBIETER.openai in config.mjs).
+  // Wer null/undefined übergibt, lässt dem Modell seine Vorgabe.
+  if (Number.isFinite(temperature)) body.temperature = temperature;
   if (model) body.model = model;
 
   if (direktOpenAi) {

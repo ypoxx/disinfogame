@@ -51,6 +51,8 @@ export const ANBIETER = {
     hatPreise: true,
     /** Nur OpenRouter kennt provider-Routing und usage.include. */
     routing: true,
+    /** OpenRouter normalisiert `temperature` für jedes Modell. */
+    nimmtTemperatur: true,
   },
   openai: {
     id: 'openai',
@@ -59,6 +61,13 @@ export const ANBIETER = {
     // OpenAIs /v1/models nennt keine Preise → keine Vorab-Schätzung möglich.
     hatPreise: false,
     routing: false,
+    // Die Denk-Modelle der GPT-5-Reihe lehnen jedes `temperature` ab, das nicht
+    // der Vorgabe 1 entspricht — gemessen am 2026-08-22 gegen gpt-5.6-sol:
+    //   HTTP 400 · "Unsupported value: 'temperature' does not support 0.3 with
+    //   this model. Only the default (1) value is supported."
+    // Der Default 0.3 der CLI hätte also JEDEN OpenAI-Lauf gekippt. Deshalb
+    // geht das Feld hier nur mit, wenn es ausdrücklich verlangt wurde.
+    nimmtTemperatur: false,
   },
 };
 
