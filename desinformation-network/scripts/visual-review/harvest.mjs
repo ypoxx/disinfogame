@@ -283,7 +283,17 @@ async function recordClip(browser, id, { bundle, desc, durationMs, drive }) {
 }
 
 // ── Hauptlauf ────────────────────────────────────────────────────────────────
-const browser = await chromium.launch({ executablePath: EXE });
+// Playwright hängt im Headless-Modus zwingend `--hide-scrollbars` an. Das
+// Projekt stylet Scrollleisten aber ausdrücklich sichtbar (10 px, Tinten-Daumen
+// auf Papier-Track, src/index.css:506-521) — sie sind hier also KEIN Web-Chrome,
+// sondern die Affordanz, die einen Innen-Scroller als Innen-Scroller ausweist.
+// Ohne sie sieht in der Ernte jede gedeckelte Liste nach „hart abgeschnitten"
+// aus, und Fremdmodell-Reviews melden folgerichtig Scheinbefunde: Beim Durchgang
+// am 2026-08-21 hing daran ein ganzer Befund-Cluster („Beschnitt ohne Affordanz").
+const browser = await chromium.launch({
+  executablePath: EXE,
+  ignoreDefaultArgs: ['--hide-scrollbars'],
+});
 console.log(`Ernte → ${OUT}\nBasis: ${BASE}`);
 
 // 1) Titel (frisch, ohne Save).
