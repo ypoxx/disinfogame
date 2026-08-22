@@ -53,7 +53,18 @@ async function vqa(page, fn, ...args) {
 /** Screenshot + optional Overlay-Variante + optional Geometrie-Dump. */
 async function shot(page, id, { bundle, desc, overlay = false, geometry = false } = {}) {
   if (!wanted(id) || !DO_SHOTS) return;
-  // Pre-Shot-Guard: das Tag-Briefing erscheint zeitversetzt und würde sonst
+  // Pre-Shot-Guard 1: Ein Krisen-Modal (z-70) kann JEDERZEIT aufgehen und legt
+  // sich dann über jeden folgenden Screen, bis es jemand wegräumt. Am
+  // 2026-08-22 hat es so ein ganzes Bündel gekostet: sämtliche dialog_*-
+  // Aufnahmen zeigten statt Porträt und Raum das Fenster „Influencer-Kontakt".
+  // Kein einziger Shot dieser Ernte will je eine Krise zeigen — also gilt der
+  // Wächter ohne Ausnahme, und er gehört hierher statt an einzelne Aufrufe.
+  // Weggedrückt, nicht entschieden: Die Ernte soll den Spielstand nicht verbiegen.
+  if (await vqa(page, () => !!window.__VQA__?.hasCrisis).catch(() => false)) {
+    await vqa(page, () => window.__VQA__.dismissCrisis()).catch(() => {});
+    await sleep(400);
+  }
+  // Pre-Shot-Guard 2: das Tag-Briefing erscheint zeitversetzt und würde sonst
   // beliebige Screens verdecken — außer wenn der Shot es selbst zeigen soll.
   if (!/briefing|day_report/.test(id)) {
     if (await clickButton(page, /Morgenbriefing weiter|^Verstanden/i, { timeout: 300 })) await sleep(450);
