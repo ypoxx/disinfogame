@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
+    <!-- Ohne diesen Verweis fragt der Browser von sich aus /favicon.ico an — die
+         Datei gibt es nicht (das Projekt liefert favicon.svg), und die Ernte
+         meldete den 404 als einzigen Konsolen-Fehler ihres Laufs. index.html hat
+         die Zeile längst; diese Seite war beim Anlegen übersehen worden. -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>VQA-Fixture-Bühne (Visual-Review-Ernte)</title>
   </head>
   <body>
