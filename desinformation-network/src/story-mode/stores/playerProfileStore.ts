@@ -38,7 +38,7 @@ export const PLAYER_PORTRAITS: PlayerPortraitOption[] = [
  * einem Prompt, wo sie nur gewünscht war.
  *
  * Die Werte sind an den PNGs gemessen und am gerenderten Ausschnitt gegengeprüft
- * (zwei Runden), nicht geschätzt. Ziel: Augenlinie auf 40 % des Ausschnitts,
+ * (vier Runden, zuletzt gegen die Ernte selbst), nicht geschätzt. Ziel: Augenlinie auf 40 % des Ausschnitts,
  * Kopfhöhe ~40 % — wo beides nicht gleichzeitig geht (Kopf sitzt zu hoch in der
  * Quelle), gewinnt die Augenlinie: Ein versetzter Blick fällt stärker auf als
  * eine um 5 % abweichende Kopfgröße.
@@ -54,11 +54,11 @@ export interface PortraitRahmen {
 
 const PORTRAIT_RAHMEN: Record<string, PortraitRahmen> = {
   m1: { x: 0.000, y: 0.000, groesse: 1.000 },
-  m2: { x: 0.185, y: 0.118, groesse: 0.430 },
+  m2: { x: 0.131, y: 0.130, groesse: 0.430 },
   m3: { x: 0.145, y: 0.001, groesse: 0.710 },
-  f1: { x: 0.210, y: 0.104, groesse: 0.600 },
+  f1: { x: 0.066, y: 0.122, groesse: 0.600 },
   f2: { x: 0.062, y: 0.043, groesse: 0.875 },
-  f3: { x: 0.070, y: 0.000, groesse: 0.880 },
+  f3: { x: 0.053, y: 0.000, groesse: 0.880 },
 };
 
 /** Ausschnitt eines Porträts; unbekannte IDs bekommen das ganze Bild. */

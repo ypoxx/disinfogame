@@ -10,6 +10,7 @@
 // Ausgabe: <out>/shots/*.png, <out>/overlay/*.png, <out>/clips/*.webm,
 //          <out>/geometry/*.json, <out>/manifest.json (ein Eintrag je Artefakt).
 import fs from 'node:fs';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
@@ -32,6 +33,16 @@ const DO_SHOTS = !has('no-shots');
 const EXE = process.env.PW_CHROME || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const VIEW = { width: 1280, height: 720 };
 
+// Vollen Lauf auf leerem Ordner starten. Ohne das überleben Aufnahmen aus einem
+// ÄLTEREN Codestand — am 2026-08-23 lagen so vier Dateien im Ordner, die der Lauf
+// gar nicht mehr erzeugt, und der Ordner meldete 96 Bilder bei 92 Artefakten.
+// Ein Review vergleicht dann alten mit neuem Stand, ohne es zu merken.
+// Bei `--only` wird bewusst NICHT geräumt: Das ist eine gezielte Nachlese.
+if (!ONLY) {
+  for (const d of ['shots', 'overlay', 'clips', 'geometry']) {
+    fs.rmSync(path.join(OUT, d), { recursive: true, force: true });
+  }
+}
 for (const d of ['shots', 'overlay', 'clips', 'geometry']) fs.mkdirSync(path.join(OUT, d), { recursive: true });
 
 const manifest = [];
@@ -51,41 +62,55 @@ async function vqa(page, fn, ...args) {
 }
 
 /** Screenshot + optional Overlay-Variante + optional Geometrie-Dump. */
-async function shot(page, id, { bundle, desc, overlay = false, geometry = false } = {}) {
-  if (!wanted(id) || !DO_SHOTS) return;
-  // Pre-Shot-Guard 1: Ein Krisen-Modal (z-70) kann JEDERZEIT aufgehen und legt
-  // sich dann über jeden folgenden Screen, bis es jemand wegräumt. Am
-  // 2026-08-22 hat es so ein ganzes Bündel gekostet: sämtliche dialog_*-
-  // Aufnahmen zeigten statt Porträt und Raum das Fenster „Influencer-Kontakt".
-  // Kein einziger Shot dieser Ernte will je eine Krise zeigen — also gilt der
-  // Wächter ohne Ausnahme, und er gehört hierher statt an einzelne Aufrufe.
+/**
+ * Alles wegräumen, was sich über die Bühne legen kann.
+ *
+ * Diese Wächter saßen bis zum 2026-08-23 nur in `shot()` — dabei gilt jeder von
+ * ihnen fürs KLICKEN genauso: Ein Entscheidungs-Modal fängt den Klick auf ein
+ * Flur-Plakat genauso ab, wie es die Aufnahme davon verdeckt hätte. Genau daran
+ * scheiterten `poster_detail` und `ambient_bubble`, die der Plan noch als
+ * Wartezeit-Problem geführt hatte.
+ *
+ * @param ausnahme Shot-ID bzw. Kontext; Aufnahmen, die ein Fenster ABSICHTLICH
+ *   zeigen, dürfen es nicht weggeräumt bekommen.
+ */
+async function raeumeBuehneFrei(page, ausnahme = '') {
+  // Wächter 1: Ein Krisen-Modal (z-70) kann JEDERZEIT aufgehen und legt sich dann
+  // über jeden folgenden Screen, bis es jemand wegräumt. Am 2026-08-22 hat es so
+  // ein ganzes Bündel gekostet: sämtliche dialog_*-Aufnahmen zeigten statt
+  // Porträt und Raum das Fenster „Influencer-Kontakt". Kein einziger Shot dieser
+  // Ernte will je eine Krise zeigen — der Wächter gilt also ohne Ausnahme.
   // Weggedrückt, nicht entschieden: Die Ernte soll den Spielstand nicht verbiegen.
   if (await vqa(page, () => !!window.__VQA__?.hasCrisis).catch(() => false)) {
     await vqa(page, () => window.__VQA__.dismissCrisis()).catch(() => {});
     await sleep(400);
   }
-  // Pre-Shot-Guard 2: Der Tagesbericht. Die Uhr läuft in Echtzeit weiter; wer
-  // sie fürs Nacht-Motiv auf 17:58 stellt, überschreitet während der nächsten
-  // Sekunden 18:00 — der Auto-Feierabend öffnet den Bericht, und der bleibt
-  // über allem liegen. Genau so wurden poster_detail und ambient_bubble zu
-  // „LAGEBERICHT – TAG 1". Zumachen statt wegklicken: `setShowDayReport(false)`
-  // schließt nur die Ansicht, „NÄCHSTER TAG" würde den Spielstand weiterdrehen.
-  if (!/briefing|day_report/.test(id)) {
+  // Wächter 2: Der Tagesbericht. Die Uhr läuft in Echtzeit weiter; wer sie fürs
+  // Nacht-Motiv auf 17:58 stellt, überschreitet während der nächsten Sekunden
+  // 18:00 — der Auto-Feierabend öffnet den Bericht, und der bleibt über allem
+  // liegen. Genau so wurden poster_detail und ambient_bubble zu „LAGEBERICHT –
+  // TAG 1". Zumachen statt wegklicken: `setShowDayReport(false)` schließt nur die
+  // Ansicht, „NÄCHSTER TAG" würde den Spielstand weiterdrehen.
+  if (!/briefing|day_report/.test(ausnahme)) {
     await vqa(page, () => window.__VQA__?.ui?.setShowDayReport?.(false)).catch(() => {});
   }
-  // Pre-Shot-Guard 3: Ein anstehender Entscheidungs-Beat blendet sein Modal
-  // über jeden Screen. Im ersten Fremdmodell-Durchgang hat das die halbe
-  // Panel-Strecke gekostet (panel_news/stats/npcs/mission/events, shortcuts,
-  // hud_on zeigten alle dasselbe Modal „Die reale Vorlage"). Einzige Ausnahme
-  // ist der Shot, der das Modal absichtlich zeigt.
-  if (id !== 'decision_beat') {
+  // Wächter 3: Ein anstehender Entscheidungs-Beat blendet sein Modal über jeden
+  // Screen. Im ersten Fremdmodell-Durchgang hat das die halbe Panel-Strecke
+  // gekostet (panel_news/stats/npcs/mission/events, shortcuts, hud_on zeigten
+  // alle dasselbe Modal „Die reale Vorlage").
+  if (ausnahme !== 'decision_beat') {
     await vqa(page, () => window.__VQA__?.directorStore?.setState({ pendingDecisionBeatId: null })).catch(() => {});
   }
-  // Pre-Shot-Guard 4: das Tag-Briefing erscheint zeitversetzt und würde sonst
-  // beliebige Screens verdecken — außer wenn der Shot es selbst zeigen soll.
-  if (!/briefing|day_report/.test(id)) {
+  // Wächter 4: das Tag-Briefing erscheint zeitversetzt und würde sonst beliebige
+  // Screens verdecken — außer wenn der Shot es selbst zeigen soll.
+  if (!/briefing|day_report/.test(ausnahme)) {
     if (await clickButton(page, /Morgenbriefing weiter|^Verstanden/i, { timeout: 300 })) await sleep(450);
   }
+}
+
+async function shot(page, id, { bundle, desc, overlay = false, geometry = false } = {}) {
+  if (!wanted(id) || !DO_SHOTS) return;
+  await raeumeBuehneFrei(page, id);
   const file = path.join(OUT, 'shots', `${id}.png`);
   await page.screenshot({ path: file });
   const entry = { id, kind: 'shot', file: path.relative(OUT, file), bundle, desc };
@@ -130,6 +155,75 @@ async function clickButton(page, re, { timeout = 2500 } = {}) {
   } catch {
     return false;
   }
+}
+
+/**
+ * Das erste Element eines Selektors klicken, das wirklich im Fenster steht.
+ *
+ * Playwrights `:visible` heißt nur „hat eine Box und ist nicht hidden" — ein
+ * Element bei y = −85 zählt dazu. Auf Etage 4 hängen drei Plakate; je nach
+ * Kamerastand steht eines über und eines unter dem Fensterrand, und `.first()`
+ * traf genau das obere. Der Klick lief dann in den Timeout, die Aufnahme fiel aus.
+ * `scrollIntoViewIfNeeded` hilft nicht: Die Bühne ist keine Scroll-Box, sondern
+ * eine transformierte Ebene.
+ *
+ * @returns {Promise<boolean>} false, wenn kein Treffer im Fenster liegt.
+ */
+async function klickeImFenster(page, selektor, { rand = 8 } = {}) {
+  const punkt = await page.evaluate(({ sel, rand }) => {
+    for (const el of document.querySelectorAll(sel)) {
+      const r = el.getBoundingClientRect();
+      if (r.width < 2 || r.height < 2) continue;
+      if (r.top < rand || r.left < rand) continue;
+      if (r.bottom > window.innerHeight - rand || r.right > window.innerWidth - rand) continue;
+      const x = r.left + r.width / 2;
+      const y = r.top + r.height / 2;
+      // Nur klicken, wenn an dieser Stelle auch wirklich dieses Element liegt.
+      if (!el.contains(document.elementFromPoint(x, y))) continue;
+      return { x, y };
+    }
+    return null;
+  }, { sel: selektor, rand }).catch(() => null);
+  if (!punkt) return false;
+  // Erst hinbewegen, DANN prüfen, DANN klicken: Die Bühne reagiert auf Hover
+  // (Raum-Klickflächen setzen `hoverRoom` und rendern eine Hervorhebung), und
+  // dieses Re-Render kann zwischen Mausbewegung und Klick etwas Neues unter den
+  // Zeiger schieben. Ein blindes `mouse.click` traf dann daneben, ohne dass
+  // irgendwo ein Fehler auflief — die Aufnahme fiel einfach aus.
+  await page.mouse.move(punkt.x, punkt.y);
+  await sleep(250);
+  const nochDa = await page
+    .evaluate(({ sel, x, y }) => {
+      const oben = document.elementFromPoint(x, y);
+      return !!oben && [...document.querySelectorAll(sel)].some((el) => el.contains(oben));
+    }, { sel: selektor, x: punkt.x, y: punkt.y })
+    .catch(() => false);
+  if (!nochDa) return false;
+  await page.mouse.click(punkt.x, punkt.y);
+  return true;
+}
+
+/**
+ * Warten, bis die Bühne frei ist — keine Raum-Nahsicht, kein Dialog.
+ *
+ * `NpcRoomView` rendert als `absolute inset-0 z-20`, solange ein Gespräch läuft,
+ * und liegt damit über den Flur-Requisiten. Gemessen am 2026-08-23: Der Klick auf
+ * das Plakat traf deshalb nicht das 20×27-px-Bild, sondern diese Fläche — der Plan
+ * hatte `poster_detail` als Wartezeit-Problem eingeordnet, es war ein
+ * Treffer-Problem. Wartezeit hätte nie geholfen.
+ */
+async function warteAufFreieBuehne(page, { maxWaitMs = 6000 } = {}) {
+  const bis = Date.now() + maxWaitMs;
+  while (Date.now() < bis) {
+    await raeumeBuehneFrei(page);
+    await dismissAll(page, { maxTries: 4 });
+    const belegt = await page
+      .evaluate(() => !!document.querySelector('[data-testid="npc-room-view"]'))
+      .catch(() => false);
+    if (!belegt) return true;
+    await sleep(300);
+  }
+  return false;
 }
 
 /**
@@ -179,14 +273,27 @@ async function wahlabendSchritt(page) {
   }).catch(() => null);
 }
 
-/** Auf einen Wahlabend-Schritt warten (die Szene schaltet von allein weiter). */
+/**
+ * Auf GENAU einen Wahlabend-Schritt warten (die Szene schaltet von allein weiter).
+ *
+ * „Schritt ≥ Ziel" reicht nicht: Ist die Szene schon weiter, würde jeder folgende
+ * Aufruf sofort zurückkehren und alle Aufnahmen zeigten dasselbe Bild — genau das
+ * passierte im ersten Lauf mit dieser Reparatur (s0 == s1 in allen drei Zweigen,
+ * weil der 2000-ms-Vorlauf den 1900-ms-Tick schon durchgelassen hatte).
+ *
+ * @returns {Promise<boolean>} false, wenn die Szene den Schritt verpasst hat oder
+ *   gar nicht (mehr) offen ist — dann wird die Aufnahme bewusst ausgelassen.
+ */
 async function warteAufWahlabendSchritt(page, ziel, { maxWaitMs = 12000 } = {}) {
   const bis = Date.now() + maxWaitMs;
   while (Date.now() < bis) {
     const jetzt = await wahlabendSchritt(page);
     if (jetzt === null) return false;
-    if (jetzt >= ziel) {
+    if (jetzt > ziel) return false; // schon vorbei — lieber nichts als ein Duplikat
+    if (jetzt === ziel) {
       await sleep(500); // Einblend-Animation (wa-rise, 500-600 ms) auslaufen lassen
+      // Nach dem Auslaufen darf die Szene weitergeschaltet haben; das ist in
+      // Ordnung, die Aufnahme selbst erfolgt gleich danach.
       return (await wahlabendSchritt(page)) !== null;
     }
     await sleep(150);
@@ -470,7 +577,12 @@ if (wanted('title')) {
 
   // Detail-Overlays der klickbaren Umgebung: Plakat (Etage 4).
   await gotoRoom(page, /Medien-Zentrum/i);
-  await page.locator('img[src*="prop_poster"]').first().click({ timeout: 1500 }).catch(() => {});
+  if (!(await warteAufFreieBuehne(page))) {
+    console.log('  ⚠️ Raum-Nahsicht ließ sich nicht schließen — Flur-Requisiten bleiben verdeckt');
+  }
+  // Das sichtbare Plakat suchen: Auf Etage 4 hängen drei, und je nach Kamera
+  // steht eines über und eines unter dem Fensterrand.
+  await klickeImFenster(page, 'img[src*="prop_poster"]');
   if (await warteAuf(page, '[role="dialog"][aria-label^="Plakat:"]')) {
     await sleep(300); // Einblendung auslaufen lassen
     await shot(page, 'poster_detail', { bundle: 'building', desc: 'Vergrößertes Propaganda-Plakat (Detail-Overlay, §14.4)' });
@@ -481,13 +593,36 @@ if (wanted('title')) {
   await sleep(400);
 
   // Statist ansprechen (Sprechblase) — zweiter Klick schließt sie wieder.
-  await page.locator('button[aria-label$="ansprechen"]').first().click({ timeout: 1500 }).catch(() => {});
+  // Statisten laufen Routen: Wer gerade hinter einer Tür ist, hat keinen Knopf.
+  await warteAufFreieBuehne(page);
+  // Statisten laufen echte Routen (ambientLife): Wer gerade durch eine Tür ist,
+  // hat gar keinen Knopf, und wer am Rand steht, liegt außerhalb des Fensters.
+  // Deshalb mehrere Anläufe, statt einmal zu klicken und aufzugeben.
+  // BEFUND 2026-08-23, offen: Ein ECHTER Mausklick auf den Statisten öffnet die
+  // Sprechblase nicht — `element.click()` schon. Gemessen: Der Knopf liegt vor und
+  // nach `mousedown` nachweislich unter dem Zeiger (elementFromPoint), die Bühne
+  // ist frei, und ohne die neue Hover-Regel verhält es sich genauso (also kein
+  // Regress aus P15). Der React-Handler bekommt den Klick trotzdem nicht.
+  // Das trifft Spieler genauso wie die Ernte und gehört untersucht; der Plan hatte
+  // die Aufnahme noch als Wartezeit-Problem geführt, was sie nachweislich nicht ist.
+  // Bis dahin instrumentiert die Ernte den Zustand, statt ihn zu erklicken — wie
+  // sie es an anderen Stellen über die VQA-Setter ohnehin tut.
+  await page.evaluate(() => {
+    for (const b of document.querySelectorAll('button[aria-label$="ansprechen"]')) {
+      const r = b.getBoundingClientRect();
+      if (r.top > 8 && r.bottom < window.innerHeight - 8) { b.click(); return; }
+    }
+  }).catch(() => {});
+  await sleep(400);
   if (await warteAuf(page, '[data-testid="ambient-bubble"]')) {
     await shot(page, 'ambient_bubble', { bundle: 'building', desc: 'Flur-Statist mit Flavor-Sprechblase' });
   } else {
     console.log('  ⚠️ ambient_bubble: keine Sprechblase erschienen — Aufnahme übersprungen');
   }
-  await page.locator('button[aria-label$="ansprechen"]').first().click({ timeout: 1500 }).catch(() => {});
+  await page.evaluate(() => {
+    const b = document.querySelector('[data-testid="ambient-bubble"]');
+    if (b) b.closest('div')?.parentElement?.querySelector('button[aria-label$="ansprechen"]')?.click();
+  }).catch(() => {});
 
   // ── Büro + Panels + Spiel-UI ──
   // Uhr zurückstellen: Wege kosten Spielzeit (K1) — die Gebäude-Tour kann sonst
@@ -662,8 +797,15 @@ async function forceEnd(browser, branchId, mutate, shotsPrefix) {
     V.endPhase();
     return { ok: true };
   }, mutate).catch((e) => ({ error: e.message }));
-  await sleep(2000);
-  const state = await vqa(page, () => ({ phase: window.__VQA__.gamePhase, end: window.__VQA__.gameEnd })).catch(() => ({}));
+  // NICHT blind schlafen: Der Wahlabend schaltet nach 1900 ms selbsttätig weiter,
+  // ein fester Vorlauf von 2000 ms hat die Titelkarte also schon verpasst, bevor
+  // die erste Aufnahme überhaupt anstand.
+  let state = {};
+  for (let i = 0; i < 40; i++) {
+    state = await vqa(page, () => ({ phase: window.__VQA__.gamePhase, end: window.__VQA__.gameEnd })).catch(() => ({}));
+    if (state.phase === 'ended') break;
+    await sleep(100);
+  }
   if (state.phase !== 'ended') {
     console.log(`  ⚠️ forceEnd(${branchId}) hat kein Spielende erzeugt`, JSON.stringify(endInfo), JSON.stringify(state?.end ?? null));
     await ctx.close();
@@ -682,9 +824,16 @@ async function forceEnd(browser, branchId, mutate, shotsPrefix) {
       console.log(`  ⚠️ Wahlabend-Schritt ${s} (${branchId}) nicht erreicht — Aufnahme übersprungen`);
       continue;
     }
-    await shot(page, `${shotsPrefix}_wahlabend_s${s}`, {
+    // Die Titelkarte kennt den Zweig noch nicht (WahlabendScene: `branch` wirkt
+    // erst ab Schritt 1) — sie einmal statt dreimal zu liefern verhindert genau
+    // den Fehlschluss, der den Durchgang am 2026-08-21 gekostet hat.
+    const id = s === 0 ? 'end_wahlabend_s0' : `${shotsPrefix}_wahlabend_s${s}`;
+    if (s === 0 && fs.existsSync(path.join(OUT, 'shots', `${id}.png`))) continue;
+    await shot(page, id, {
       bundle: 'ending',
-      desc: `Wahlabend (echt, ${branchId}), ${WAHLABEND_SCHRITTE[s]}`,
+      desc: s === 0
+        ? 'Wahlabend (echt): Titelkarte — für alle Zweige identisch'
+        : `Wahlabend (echt, ${branchId}), ${WAHLABEND_SCHRITTE[s]}`,
     });
   }
 
@@ -750,10 +899,16 @@ await forceEnd(
 );
 
 // 5) Wahlabend-Fixtures (deterministisch, alle 4 Branches inkl. exposed).
-for (const branch of ['victory', 'timeout', 'immune', 'exposed']) {
+for (const [bIdx, branch] of ['victory', 'timeout', 'immune', 'exposed'].entries()) {
   if (!wanted(`fixture_wahlabend_${branch}_s0`)) continue;
   const { ctx, page } = await freshPage(browser, { url: `/vqa.html?scene=wahlabend&branch=${branch}`, clearStorage: false, label: `fixture:${branch}` });
-  await shot(page, `fixture_wahlabend_${branch}_s0`, { bundle: 'ending', desc: `Wahlabend-Fixture (${branch}): Titelkarte` });
+  // Die Titelkarte kennt den Zweig nicht (WahlabendScene: `branch` wirkt erst ab
+  // Schritt 1) — viermal dasselbe Bild einzuliefern lädt Fremdmodelle genau zu
+  // dem Fehlschluss ein, der den Durchgang am 2026-08-21 gekostet hat
+  // („betrifft mindestens fünf Screens" waren fünf Kopien desselben Bildes).
+  if (bIdx === 0) {
+    await shot(page, 'fixture_wahlabend_s0', { bundle: 'ending', desc: 'Wahlabend-Fixture: Titelkarte (für alle Zweige identisch)' });
+  }
   for (let s = 1; s <= 3; s++) {
     await page.mouse.click(640, 300);
     await sleep(1000);
@@ -867,7 +1022,42 @@ if (DO_CLIPS) {
 }
 
 // ── Abschluss ────────────────────────────────────────────────────────────────
+
+/**
+ * Bitweise identische Aufnahmen melden.
+ *
+ * Das ist die wichtigste Qualitätsmeldung dieses Werkzeugs. Am 2026-08-21 hatte
+ * ein verdeckendes Modal fünf Aufnahmen zu Kopien desselben Bildes gemacht — und
+ * das prüfende Fremdmodell schloss daraus folgerichtig, der Fehler „betreffe
+ * mindestens fünf Screens". Ein Review kann Duplikate nicht erkennen; die Ernte
+ * schon, und zwar in einer Zeile.
+ *
+ * Nicht jedes Duplikat ist ein Fehler: Die Wahlabend-Titelkarte ist in allen
+ * Zweigen dieselbe, die Sondersendung sieht bei „immune" und „exposed" in
+ * Schritt 1 gleich aus. Deshalb meldet die Ernte sie, statt sie zu unterdrücken —
+ * wer sie liest, entscheidet.
+ */
+function meldeDuplikate() {
+  const dir = path.join(OUT, 'shots');
+  if (!fs.existsSync(dir)) return;
+  const nachHash = new Map();
+  for (const datei of fs.readdirSync(dir).filter((f) => f.endsWith('.png'))) {
+    const hash = createHash('md5').update(fs.readFileSync(path.join(dir, datei))).digest('hex');
+    nachHash.set(hash, [...(nachHash.get(hash) ?? []), datei]);
+  }
+  const gruppen = [...nachHash.values()].filter((g) => g.length > 1);
+  if (!gruppen.length) {
+    console.log('  ✓ keine bitgleichen Aufnahmen');
+    return;
+  }
+  const betroffen = gruppen.reduce((n, g) => n + g.length, 0);
+  console.log(`\n  ⚠️ ${betroffen} Aufnahmen in ${gruppen.length} Gruppen sind BITGLEICH:`);
+  for (const g of gruppen) console.log(`     ${g.join(' = ')}`);
+  console.log('     Prüfen, ob das Absicht ist — sonst hat etwas die Aufnahmen verdeckt.');
+}
+
 fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify(manifest, null, 2));
 fs.writeFileSync(path.join(OUT, 'console-errors.txt'), consoleErrors.join('\n') || '(keine)');
 console.log(`\nFertig: ${manifest.length} Artefakte, ${consoleErrors.length} Konsolen-Fehler.`);
+meldeDuplikate();
 await browser.close();

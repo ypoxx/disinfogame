@@ -77,8 +77,8 @@ function WorldAnchor({ x, y, scale, z, children }: { x: number; y: number; scale
  * Kein Asset: eine gequetschte radiale Ellipse auf der Standlinie, `screen`-frei
  * und ohne Weichzeichner, damit die Pixel-Kante der Welt nicht aufweicht.
  */
-function Bodenschatten({ x, y, breite, staerke = 0.4 }: { x: number; y: number; breite: number; staerke?: number }) {
-  const h = Math.max(4, Math.round(breite * 0.22));
+function Bodenschatten({ x, y, breite, staerke = 0.55 }: { x: number; y: number; breite: number; staerke?: number }) {
+  const h = Math.max(5, Math.round(breite * 0.26));
   return (
     <div
       aria-hidden
@@ -88,7 +88,10 @@ function Bodenschatten({ x, y, breite, staerke = 0.4 }: { x: number; y: number; 
         top: y - h / 2,
         width: breite,
         height: h,
-        background: `radial-gradient(ellipse at center, rgba(18,14,9,${staerke}) 0%, rgba(18,14,9,${staerke * 0.55}) 55%, rgba(18,14,9,0) 78%)`,
+        // Bis 62 % voll tragen, dann ausfransen: Bei einem früher einsetzenden
+        // Verlauf blieb auf dem ohnehin dunklen Bodenstreifen zu wenig übrig, um
+        // den Bodenkontakt überhaupt zu zeigen — gemessen an der Ernte 2026-08-23.
+        background: `radial-gradient(ellipse at center, rgba(12,9,5,${staerke}) 0%, rgba(12,9,5,${staerke * 0.72}) 62%, rgba(12,9,5,0) 88%)`,
         pointerEvents: 'none',
         zIndex: 3,
       }}
@@ -174,6 +177,8 @@ function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
 function AmbientPerson({ a, left, top, height, viewScale }: { a: AmbientFigure; left: number; top: number; height: number; viewScale: number }) {
   const [open, setOpen] = useState(false);
   return (
+    <>
+    <Bodenschatten x={left} y={top + height} breite={(height / 96) * 44} staerke={0.45} />
     <div style={{ position: 'absolute', left, top, transform: 'translateX(-50%)', zIndex: 5 }}>
       {open && (
         // Sprechblase welt-verankert über der Figurenmitte, aber nativ gerastert (B1/E35).
@@ -202,6 +207,7 @@ function AmbientPerson({ a, left, top, height, viewScale }: { a: AmbientFigure; 
         <PixelSprite sheetId={a.figure} animation="idle" fallback="" scale={height / 96} title={a.who} />
       </button>
     </div>
+    </>
   );
 }
 
@@ -312,7 +318,7 @@ function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]
         if (!floor || !assets.imageUrl(f.sheet)) return null;
         return (
           <Fragment key={f.id}>
-          <Bodenschatten x={f.x} y={wallFootY(floor)} breite={(AMBIENT_HEIGHT / 96) * 40} staerke={0.3} />
+          <Bodenschatten x={f.x} y={wallFootY(floor)} breite={(AMBIENT_HEIGHT / 96) * 44} staerke={0.45} />
           <div
             data-bs-walker={f.id}
             aria-hidden
@@ -1004,7 +1010,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             nicht ein bunteres Sprite. */}
         {!nav.avatarInCabin && (
           <>
-          <Bodenschatten x={nav.pos.x} y={avatarY + STAGE.avatarSize} breite={STAGE.avatarSize * 0.42} />
+          <Bodenschatten x={nav.pos.x} y={avatarY + STAGE.avatarSize} breite={STAGE.avatarSize * 0.46} />
           <WorldAnchor x={nav.pos.x} y={avatarY} scale={view.scale} z={7}>
             <div
               aria-hidden

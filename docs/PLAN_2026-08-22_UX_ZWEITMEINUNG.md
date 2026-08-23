@@ -19,23 +19,23 @@ Vergleich: [`MODEL_REVIEWS/2026-08-22_VERGLEICH.md`](MODEL_REVIEWS/2026-08-22_VE
 
 | # | Was | Aufwand | Warum hier | Status |
 |---|---|---|---|---|
-| **P0** | Einheiten-Bug im Tagesbericht | **winzig** | Kernkennzahl zeigt seit jeher 0 | ✅ geprüft |
-| **P1** | Trägerflächen der Narrativ-Tafel | **winzig** | Kontrast 1,0:1 → Text unsichtbar | ✅ geprüft |
-| **P2** | Entscheidungs-Modal einfassen | **klein** | einziges 100vh-Modal im Projekt | ✅ geprüft |
-| **P3** | 9 rote Knöpfe → `stampCtaStyle` **+ Wache** | klein–mittel | Regel steht im Code und wird gebrochen | ✅ geprüft |
-| **P4** | Schrift-Skala + Lesebreite als Token | klein | 19 Einigkeits-Befunde hängen daran | ✅ geprüft |
-| **P5** | Spieler-Marker + Bodenschatten | klein | einziger Funktionsverlust im Gebäude | ✅ geprüft |
-| **P6** | Lesebreite der DialogBox | winzig | höchste Frequenz im Spiel | ✅ geprüft |
-| **P7** | Ernte: Wahlabend-Timing | klein | 10 von 13 unbrauchbaren Aufnahmen | ✅ geprüft |
-| **P8** | Lagebericht-Knopf: Z-Ordnung | winzig | funktionslos genau wenn sichtbar | ✅ geprüft |
-| **P9** | Leerzustände als Komponente | klein | 7 von 8 Stellen sind nackter Text | ✅ geprüft |
-| **P10** | Porträt-Normierung | klein | größter Bruch im ersten Screen | ✅ geprüft |
-| **P11** | Wertspalte im Entscheidungs-Modal | klein | die Entscheidung selbst | ✅ geprüft |
-| **P12** | Gebäude-Beschriftung: eine Bezugskante | klein | Einheiten-Mix, zoom-instabil | ✅ geprüft |
-| **P13** | Tageslicht-Kurve | mittel | betrifft jeden Welt-Screen | ✅ geprüft |
-| **P14** | Scrim-Token + Modalhülle durchsetzen | mittel | 20 Scrims, 8 Schwarzwerte | ✅ geprüft |
-| **P15** | Hover-Lücke der v3-Akten-Ansichten | mittel | 37 von 100 Knöpfen ohne Rückmeldung | ✅ geprüft |
-| **P16** | Restliche Ernte-Timings | klein | 3 Aufnahmen | ✅ geprüft |
+| **P0** | Einheiten-Bug im Tagesbericht | **winzig** | Kernkennzahl zeigt seit jeher 0 | ✅ **umgesetzt** |
+| **P1** | Trägerflächen der Narrativ-Tafel | **winzig** | Kontrast 1,0:1 → Text unsichtbar | ✅ **umgesetzt** |
+| **P2** | Entscheidungs-Modal einfassen | **klein** | einziges 100vh-Modal im Projekt | ✅ **umgesetzt** |
+| **P3** | 9 rote Knöpfe → `stampCtaStyle` **+ Wache** | klein–mittel | Regel steht im Code und wird gebrochen | ✅ **umgesetzt** |
+| **P4** | Schrift-Skala + Lesebreite als Token | klein | 19 Einigkeits-Befunde hängen daran | ✅ **umgesetzt** |
+| **P5** | Spieler-Marker + Bodenschatten | klein | einziger Funktionsverlust im Gebäude | ✅ **umgesetzt** |
+| **P6** | Lesebreite der DialogBox | winzig | höchste Frequenz im Spiel | ✅ **umgesetzt** |
+| **P7** | Ernte: Wahlabend-Timing | klein | 10 von 13 unbrauchbaren Aufnahmen | ✅ **umgesetzt** |
+| **P8** | Lagebericht-Knopf: Z-Ordnung | winzig | funktionslos genau wenn sichtbar | ✅ **umgesetzt** |
+| **P9** | Leerzustände als Komponente | klein | 7 von 8 Stellen sind nackter Text | ✅ **umgesetzt** |
+| **P10** | Porträt-Normierung | klein | größter Bruch im ersten Screen | ✅ **umgesetzt** |
+| **P11** | Wertspalte im Entscheidungs-Modal | klein | die Entscheidung selbst | ✅ **umgesetzt** |
+| **P12** | Gebäude-Beschriftung: eine Bezugskante | klein | Einheiten-Mix, zoom-instabil | ✅ **umgesetzt** |
+| **P13** | Tageslicht-Kurve | mittel | betrifft jeden Welt-Screen | ✅ **umgesetzt** |
+| **P14** | Scrim-Token + Modalhülle durchsetzen | mittel | 20 Scrims, 8 Schwarzwerte | ✅ **umgesetzt** |
+| **P15** | Hover-Lücke der v3-Akten-Ansichten | mittel | 37 von 100 Knöpfen ohne Rückmeldung | ✅ **umgesetzt** |
+| **P16** | Restliche Ernte-Timings | klein | 3 Aufnahmen | ✅ **umgesetzt** |
 | — | **Entscheidungen, die niemand außer dem Eigentümer treffen kann** | — | 107 Widersprüche | ⚖ offen |
 
 ---
@@ -437,6 +437,76 @@ Linie in einer grellen Farbe ist gleichzeitig zu schwach und zu laut.
 Diese Fragen laufen alle auf **eine** Grundsatzentscheidung hinaus, die `VISION_LOCK`
 bislang nicht trifft: *Wie viel Bildschirm-/Terminal-Welt darf neben der Papier-Welt stehen?*
 Solange die offen ist, produziert jeder weitere Review dieselben Widersprüche.
+
+---
+
+## ✅ Was daraus wurde (2026-08-23)
+
+**Alle 17 Punkte sind umgesetzt**, in vier Commits entlang der vorgeschlagenen Reihenfolge.
+Offen bleibt allein der ⚖-Block: Das sind Entscheidungen, keine Fehler.
+
+Gegengeprüft wurde nicht am Code, sondern **an einer neuen Ernte** — jeder Punkt unten ist im
+Bild nachgesehen, nicht nur im Test:
+
+| | Vorher (gemessen) | Nachher (in der Ernte gesehen) |
+|---|---|---|
+| P0 | acht identische Balken bei 0,35 % Breite | acht verschiedene Balken (13 % … 57 %) |
+| P1 | Kontrast bis 1,02:1 | Trägerfläche bei 6,3:1, „DRITTE SPUR" lesbar |
+| P2 | Rahmen 720 von 720 px, kein Rand | 90vh, Rand sichtbar, „▼ MEHR" steht da |
+| P5 | Avatar 6–8 px größer als Statisten | „SIE"-Marker + Bodenschatten unter allen Figuren |
+| P6 | Box 1244 px, 69 % leer | 736 px, der Raum bleibt beidseitig sichtbar |
+| P8 | Knopf auf 15 % Helligkeit, nicht klickbar | im Fußbereich des Endbildschirms, volle Breite |
+| P9 | Satz klebt oben, Panel darunter leer | zentriert, mit Icon und Unterzeile |
+| P10 | Kopfhöhe 19 % … 40 % (Faktor 2,1) | alle ~40 %, Augenlinien auf einer Höhe |
+| P11 | Kosten auf drei x-Positionen | eine Linie, rechtsbündig, keine Umbrüche |
+| P13 | volle Nacht um 17:17 | Helligkeit 90 → 104 (mittags) → 54 (18:00) |
+
+**Zu P13 die wichtigste Einzelheit:** Der Plan sah drei Schritte vor — Geometrie, Rampen,
+Palette. Nach Schritt 1 und 2 ist **Schritt 3 nicht mehr nötig**: Die Verlaufs-Geometrie
+allein hat den sichtbaren Himmel von „fast schwarz" auf Tageshelligkeit gehoben. Genau
+deshalb stand „Geometrie vor Palette" im Plan; wer mit der Palette angefangen hätte, hätte
+Pixel geändert und dann trotzdem die Geometrie anfassen müssen.
+
+### Vier Wachen, damit nichts zurückwächst
+
+Die vier System-Punkte (P3, P4, P14, P15) hatten dieselbe Ursache: eine Regel ohne
+Durchsetzung. `stampCtaStyle` gab es seit v3, gebrochen wurde sie trotzdem — 4 Knöpfe am
+2026-08-21, 9 am 2026-08-22. Eine reine Aufräumung hätte in drei Monaten denselben Befund
+erzeugt. Deshalb steht zu jedem eine Prüfung:
+
+| Wache | Hält fest |
+|---|---|
+| `typeGuard.test.ts` | Jede Schriftgröße liegt auf der Leiter (11 Sprossen statt 23 Größen) |
+| `stampCtaGuard.test.ts` | Kein `<button>` flutet Ministeriums-Rot (Kopfbänder/Balken dürfen) |
+| `scrimGuard.test.ts` | Vollbild-Abdunklung nur über die drei Stufen |
+| `PortraitRahmen.test.ts` | Jedes Porträt hat einen Rahmen, keiner läuft aus dem Bild |
+| `index.css` (global) | Hover gilt für jeden Knopf, auch für künftige |
+
+### Zwei neue Befunde aus der Sichtprüfung
+
+1. **Ein echter Mausklick auf einen Flur-Statisten öffnet dessen Sprechblase nicht.**
+   `element.click()` schon. Gemessen: Der Knopf liegt vor und nach `mousedown` nachweislich
+   unter dem Zeiger, die Bühne ist frei, und ohne die neue Hover-Regel verhält es sich
+   genauso (also kein Regress aus P15). Der React-Handler bekommt den Klick trotzdem nicht.
+   **Das trifft Spieler genauso wie die Ernte** und ist noch nicht erklärt. Der Plan hatte
+   diese Aufnahme als Wartezeit-Problem geführt (P16) — sie ist nachweislich keines.
+2. `vqa.html?scene=wahlabend&branch=victory` lädt eine Ressource, die 404 gibt — der einzige
+   Konsolen-Fehler der Ernte. Betrifft nur die Fixture-Seite, nicht das Spiel.
+
+### Die Ernte selbst
+
+Von 13 unbrauchbaren Aufnahmen sind **alle 13 behoben**; die Ernte liefert 90 Artefakte und
+meldet jetzt **selbst**, wenn zwei Bilder bitgleich sind. Das ist die wichtigste Änderung am
+Werkzeug: Am 2026-08-21 hatte ein verdeckendes Modal fünf Aufnahmen zu Kopien desselben
+Bildes gemacht, und das prüfende Modell schloss folgerichtig, der Fehler „betreffe mindestens
+fünf Screens". Ein Review kann Duplikate nicht erkennen — die Ernte schon.
+Übrig bleibt **eine** gemeldete Gruppe, und die ist Absicht: Die Sondersendung sieht bei
+„immune" und „exposed" in Schritt 1 gleich aus.
+
+Drei weitere Werkzeug-Fehler kamen dabei ans Licht und sind behoben: Der Lauf räumte seinen
+Ordner nicht (Aufnahmen aus einem älteren Codestand überlebten und wurden stillschweigend
+mitverglichen), die Wahlabend-Schritte waren um einen versetzt, und Klicks trafen Elemente
+außerhalb des Fensters, weil Playwrights `:visible` nur „hat eine Box" bedeutet.
 
 ---
 

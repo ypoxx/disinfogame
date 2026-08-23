@@ -9,7 +9,35 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `GESAMTKONZEPT_VISUELL.md` → dieses Dokument für den aktuellen Bau-Stand.
 > Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
-**Stand:** 2026-08-22 (ZWEITER FREMDMODELL-DURCHGANG + PLAN) · Zwei Läufe über dieselben
+**Stand:** 2026-08-23 (PLAN P0–P16 KOMPLETT UMGESETZT) · Alle 17 Punkte aus
+[`PLAN_2026-08-22_UX_ZWEITMEINUNG.md`](PLAN_2026-08-22_UX_ZWEITMEINUNG.md) sind gebaut und
+**an einer neuen Ernte im Bild gegengeprüft** — nicht nur im Test. Gate grün
+(`tsc 0` · `vitest 748` · `build`). Offen bleibt allein der ⚖-Block des Plans: fünf
+gegenläufige Empfehlungen, die dem Eigentümer gehören und auf EINE Grundsatzfrage
+hinauslaufen, die `VISION_LOCK` nicht trifft: *Wie viel Bildschirm-/Terminal-Welt darf neben
+der Papier-Welt stehen?*
+> **P0 war ein Korrektheitsfehler, kein Design-Punkt** — und ist behoben: Die Milieubalken
+> im Tagesbericht bekamen einen 0..1-Wert in eine 0..100-Prozentbreite und rendern seither
+> ~0 %. Statt am Aufrufer zu multiplizieren nimmt `DayReport` jetzt die Einheit an, die der
+> Rest des Codes führt, und rechnet an genau einer Stelle um; drei Regressionstests halten
+> das fest. In der Ernte: acht verschiedene Balken (13 % … 57 %) statt acht leerer.
+> **Vier Wachen statt vier Aufräumaktionen:** P3, P4, P14 und P15 hatten dieselbe Ursache —
+> eine Regel ohne Durchsetzung. `stampCtaStyle` gab es seit v3, gebrochen wurde sie trotzdem
+> (4 Knöpfe am 21.08., 9 am 22.08.). Deshalb prüfen jetzt `typeGuard`, `stampCtaGuard`,
+> `scrimGuard` und `PortraitRahmen` die Regeln nach, und Hover gilt global in `index.css`.
+> **Geometrie vor Palette (P13):** Der naheliegende Griff „Mittag aufhellen" wäre unsichtbar
+> geblieben — der helle Gradient-Stop saß auf der Fensterunterkante, verdeckt von Skyline und
+> Straße. Nach der Geometrie-Korrektur war Schritt 3 (Palette) gar nicht mehr nötig.
+> **Zwei neue Befunde aus der Sichtprüfung** stehen im Plan (§ „Was daraus wurde"): Ein
+> echter Mausklick auf einen Flur-Statisten öffnet dessen Sprechblase nicht (ein
+> programmatischer schon) — das trifft Spieler, nicht nur die Ernte, und ist noch nicht
+> erklärt. Dazu ein 404 auf der Wahlabend-Fixture-Seite.
+> **Ernte:** alle 13 unbrauchbaren Aufnahmen behoben (90 Artefakte). Sie meldet jetzt selbst,
+> wenn zwei Bilder bitgleich sind — am 21.08. hatte ein verdeckendes Modal fünf Aufnahmen zu
+> Kopien gemacht, woraufhin das prüfende Modell folgerichtig auf „betrifft mindestens fünf
+> Screens" schloss. Ein Review kann Duplikate nicht erkennen, die Ernte schon.
+
+**Stand zuvor:** 2026-08-22 (ZWEITER FREMDMODELL-DURCHGANG + PLAN) · Zwei Läufe über dieselben
 19 Bildschirm-Bündel (`stealth/ox-alpha` 21.08., `gpt-5.6-sol` 22.08.), **254 Befunde mit
 Doppelbestätigung**, davon **20 am Code gegengeprüft** (4 bestätigt · 14 teilweise · 2
 widerlegt). Ergebnis: **[`PLAN_2026-08-22_UX_ZWEITMEINUNG.md`](PLAN_2026-08-22_UX_ZWEITMEINUNG.md)**
