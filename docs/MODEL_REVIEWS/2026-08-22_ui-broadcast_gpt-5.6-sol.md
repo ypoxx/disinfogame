@@ -1,7 +1,7 @@
 # 🛰️ Fremdmodell-Review — UX/UI & Bildwirkung — Bündel „broadcast"
 
 **Modell:** `gpt-5.6-sol` (via OpenRouter) · **Linse:** `ui` · **Datum:** 2026-08-22
-**Erzeugt von:** `tools/model-review` · **Lauf:** 2026-08-22T17:19:07.670Z · **Dauer:** 142.7 s
+**Erzeugt von:** `tools/model-review` · **Lauf:** 2026-08-22T17:09:26.285Z · **Dauer:** 85.3 s
 **Nutzung:** nicht gemeldet · **Kosten:** unbekannt · **Anbieter-Datensammlung:** ausgeschlossen (deny)
 
 > ⚠️ **Wie das zu lesen ist:** Ein *fremdes* Modell hat einen **kuratierten Ausschnitt**
@@ -36,7 +36,7 @@ eigenen Durchgängen dran — verweise nicht auf Dinge, die du hier nicht siehst
 
 | Art | Im Text genannt als | Datei | Größe |
 |---|---|---|---:|
-| 🖼 Bild | `broadcast_expanded.png` | `desinformation-network/runs/visual-review/latest/shots/broadcast_expanded.png` | 376 kB |
+| 🖼 Bild | `broadcast_expanded.png` | `desinformation-network/runs/visual-review/latest/shots/broadcast_expanded.png` | 837 kB |
 
 ---
 
@@ -45,68 +45,75 @@ eigenen Durchgängen dran — verweise nicht auf Dinge, die du hier nicht siehst
 ## 1. **Erster Eindruck**
 
 ### `broadcast_expanded.png`
-Der Blick fällt zuerst auf das rote Kopfband „Die reale Vorlage“ und danach auf Option A. Für einen aktiven Entscheidungsdialog wäre das richtig; für den angekündigten Zustand „Sendung + Publikums-Wohnzimmer“ ist es falsch, weil Fernseher und Milieus fast vollständig zu dunkler Kulisse werden. Die beabsichtigte Blickfolge müsste **Sendung links → Reaktion des Publikums rechts → Entscheidung** lauten, tatsächlich entsteht **Dialogtitel → A → B → abgeschnittenes C**. Die Papierfläche und das rote Akten-Kopfband treffen die Behördenwelt, aber die fast randhohe, mittige Form wirkt eher wie ein überfülltes Web-Modal als wie eine kontrolliert aufgelegte Akte. Dass das Blatt oben beinahe den Bildschirmrand berührt und unten vom festen Hinweisstreifen abgeschlossen wird, lässt den Zustand zusätzlich versehentlich beschnitten erscheinen.
+Das Auge landet zuerst auf dem stark leuchtenden, schrägen Cyan-Monitor links oben, danach auf dem rot-cyanfarbenen Plakat rechts. Für einen ausgeklappten Broadcast müsste dagegen die laufende Sendung beziehungsweise das Publikum die primäre Blickstation sein; beides ist im sichtbaren Bereich nicht erkennbar. Der schmale beige Streifen rechts und der am unteren Rand abgeschnittene „PUBLIKUM“-Knopf deuten darauf hin, dass der eigentliche Inhalt außerhalb des Viewports liegt oder von einer Ebene verdeckt wird. Anschließend zieht der vollflächig rote „FEIERABEND“-Knopf unverhältnismäßig viel Aufmerksamkeit auf eine Tagesabschluss-Aktion. Dadurch liest sich der Screen weiterhin als Büroansicht mit HUD, nicht als ausgeklappte Broadcast-Ansicht.
 
 ## 2. **Konkrete Eingriffe je Screen**
 
 ### `broadcast_expanded.png`
-
-- *Abdunklung hinter der Entscheidungsakte → Stärke gegenüber dem jetzigen Zustand um ungefähr ein Drittel reduzieren; TV-Bild, Köpfe und Sofa müssen an den beiden Seiten noch ohne Anstrengung erkennbar bleiben → sonst verschwindet genau die Ursache-Wirkungs-Beziehung zwischen Sendung und Milieus.*
-- *Entscheidungsakte → oben und unten jeweils mindestens eine Textzeile Außenabstand lassen und die Akte innerhalb dieser Grenzen scrollen, statt sie von fast Bildschirmkante zu Bildschirmkante zu spannen → der Dialog wirkt dann bewusst platziert und nicht vom Viewport abgeschnitten.*
-- *Fester Hinweisstreifen „Keine Option ist überall die beste …“ → direkt unter „IHRE ENTSCHEIDUNG“ als schmale Aktennotiz setzen und aus dem unteren Overlay entfernen → aktuell verdeckt der Streifen Option C und konkurriert mit dem eigentlichen Ende der Liste.*
-- *Kopfzeilen der Optionskarten → jede Karte in eine feste linke Titelspalte von etwa drei Fünfteln und einen rechten Wirkungsblock von etwa zwei Fünfteln teilen; beide Wirkungsspalten an denselben Vertikalen ausrichten → derzeit wrappt der Titel, während die kleinen Werte scheinbar frei daneben schweben.*
-- *Wirkungswerte → nur „Risiko“ in Gefahr-Rot setzen, „Aufmerksamkeit“ in Tintenblau oder Anthrazit; Zahlen jeweils größer und mindestens annähernd auf Höhe des Beschreibungstextes bringen → die aktuelle rote Kleinschrift ist schwer scanbar und codiert zwei unterschiedliche Größen identisch.*
-- *Optionskarten als Interaktion → links neben A/B/C eine klar begrenzte Auswahlmarke vorsehen und für den gewählten Zustand einen roten Stempelring oder eine innere Kontur verwenden; die Grundkarten neutral lassen → im Standbild sehen alle Kästen wie reine Information aus, nicht wie anklickbare Entscheidungen.*
+- **Ausgeklappter Broadcast-Bereich → vollständig innerhalb des Viewports anordnen und ihm rechts etwa ein Drittel bis zwei Fünftel der Breite reservieren; die Büroansicht entsprechend auf den linken Rest beschneiden oder skalieren → derzeit sind weder Sendung noch Publikums-Wohnzimmer sichtbar, obwohl sie der Zweck dieses Zustands sind.**
+- **„PUBLIKUM“-Knopf unten rechts → aus der abgeschnittenen Randlage lösen, vollständig in das Broadcast-Panel setzen und an dessen linker und rechter Innenkante mit mindestens einer normalen Bedienelement-Breite Abstand ausrichten → aktuell wirkt er wie ein horizontal überlaufendes Element und ist kaum als Steuerung nutzbar.**
+- **Cyan-Monitor links oben → visuell um ungefähr ein Viertel verkleinern und Leuchtkraft sowie Cyan-Sättigung deutlich reduzieren; Oberkante näher an die des Korkbretts führen → er ist momentan das stärkste Signal im gesamten Bild, obwohl er nur Teil der Bürokulisse ist.**
+- **„FEIERABEND“-Knopf → Breite um etwa ein Fünftel reduzieren, vom rechten Rand um denselben Innenabstand wie die übrigen HUD-Elemente abrücken und als Papier-Stempel statt als vollrote Fläche ausführen → die sekundäre Tagesabschluss-Aktion konkurriert derzeit mit dem Broadcast-Hauptinhalt.**
+- **Unterer Sendungsstreifen → Status, Sender und Meldung zu einem klaren Block zusammenziehen, dessen Text etwa 1,25–1,4-mal so groß ist; links an der Mitarbeiterkarte ausrichten und rechts vor dem Broadcast-Panel enden lassen → die drei Informationsarten zerfallen momentan in winzige Textsplitter über fast die gesamte Breite.**
+- **Rechte Tastenleiste und obere HUD-Gruppe → entweder im ausgeklappten Zustand hinter dem Broadcast-Panel ausblenden oder als durchgehende, gleich breite Werkzeugspalte ausbilden; Uhr, Menü und HUD an gemeinsamer Oberkante und gemeinsamer rechter Bezugskante ausrichten → die schmale beige Restfläche und die isolierten Buchstabentasten erzeugen derzeit den Eindruck eines Layoutfehlers.**
 
 ## 3. **Grafiken/Assets**
 
 ### `broadcast_expanded.png`
+Die Büro-Hintergrundgrafik trägt grundsätzlich: Beton, Glas, Skyline, Tisch und Stuhl bilden eine zusammenhängende, scharf gepixelte Szene. Auch die Material- und Lichtführung ist konsistent genug, um als Weltgrafik zu funktionieren. Problematisch ist nicht die Auflösung, sondern die visuelle Gewichtung einzelner Assets.
 
-- **Tragend:** Der CRT-Fernseher links und die Figurengruppe auf dem Sofa rechts bilden grundsätzlich eine verständliche Sender-Empfänger-Komposition. Die Pixelkanten wirken im sichtbaren Bereich scharf und nicht weich hochskaliert. Auch das cremefarbene Blatt mit rotem Kopfband entspricht der Papierlogik aus `desinformation-network/src/story-mode/theme.ts`; Rot wird hier am Kopfband sinnvoll eingesetzt.
-- **Zu schwach sichtbar:** Die Personen rechts verschmelzen durch die Abdunklung zu einer einzigen dunklen Masse. Mindestens Gesichter, Oberkörper und Sofakante sollten jeweils eine Tonstufe heller als die Rückwand bleiben; dafür eher das lokale Raumlicht anheben als die Figuren stärker sättigen.
-- **Falsch gewichtet:** Der sichtbare Fernseher ist gegenüber der Publikumsgruppe und vor allem gegenüber der Akte zu klein. Den TV mitsamt Gehäuse auf ungefähr das 1,25-Fache vergrößern und innerhalb der linken Bildschirmhälfte etwas näher zur Akte rücken, ohne deren Kante zu berühren.
-- **Unklarer Ausschnitt:** Auf dem TV ist keine konkrete laufende Sendung zu erkennen; die Bildschirmfläche liest sich eher als dunkles Raster oder Standbild. Ein deutlich helleres, stilisiertes Broadcast-Standbild innerhalb der Röhre würde stärker vermitteln, dass gerade etwas ausgestrahlt wird.
-- **Fremdwirkung:** Die Optionskästen sind gleichförmige, dick umrandete Rechtecke und wirken dadurch mehr wie Formular-Widgets als wie einzelne Aktenblätter. Die Grundkontur optisch auf die Stärke der übrigen Aktenlinien reduzieren und die stärkere Doppelkontur nur für Auswahl oder Fokus verwenden.
-- **Größte fehlende Grafik:** Zwischen TV links und Publikum rechts fehlt im sichtbaren Zustand ein eindeutiger visueller Übertragungsimpuls. Ein schmaler, heller Sendungsstreifen im unteren Mittelfeld – nicht als Neon-Effekt, sondern als bedrucktes Label oder Kanalband – könnte die Leserichtung **TV → Publikum** herstellen.
+Der schräge Cyan-Monitor ist zu groß, zu hell und zu gesättigt. Seine schwarze Kontur und die helle Leuchtfläche machen ihn fast zu einem Logo; er hebt sich stärker ab als sämtliche Bedienoberflächen. Das Korkbrett darunter ist dagegen klein und detailreich, sodass seine Karten und Verbindungslinien bei dieser Darstellungsgröße eher als Texturrauschen erscheinen.
+
+Das konstruktivistische Plakat rechts ist stilistisch zulässig, wirkt aber durch die großen, reinen Cyan- und Rotflächen glatter und plakativ-vektorieller als die übrige Pixelwelt. Sättigung und Kontrast sollten um etwa ein Fünftel sinken; alternativ kann eine leichte Papierkörnung beziehungsweise Wandalterung darübergelegt werden. Seine Größe ist für die freie Betonwand plausibel, aber im aktuellen Bildaufbau bildet es zusammen mit dem Cyan-Monitor eine starke diagonale Konkurrenzachse über den eigentlichen Broadcast hinweg.
+
+Die Oberfläche selbst verfehlt teilweise die verbindliche Papierwelt aus `desinformation-network/src/story-mode/theme.ts`: Der fast schwarze untere Balken mit leuchtend roter Trennlinie liest sich als digitales HUD, nicht als Behördenakte. Auch der vollrote „FEIERABEND“-Knopf widerspricht der dort formulierten Vorgabe, Ministeriums-Rot nur für Stempel, Kopfbänder und Alarm einzusetzen. Eine dunkle Kraftpapier-Trägerfläche mit aufgelegtem hellem Meldungszettel und rotem Stempel würde Absicht und sichtbares Ergebnis wieder zusammenführen.
+
+Am meisten fehlt die namensgebende Broadcast-Grafik: Im sichtbaren Bereich gibt es weder eine Sendungsdarstellung noch die angekündigten Publikums-Wohnzimmer beziehungsweise Milieus. Das ist kein Detailproblem, sondern die zentrale visuelle Leerstelle von `broadcast_expanded.png`.
 
 ## 4. **Raster & Rhythmus**
 
 ### `broadcast_expanded.png`
+Die horizontale Aufteilung ist faktisch etwa „fast vollständige Büroansicht plus sehr schmaler rechter Reststreifen“. Für einen ausgeklappten Informationszustand ist dieses Verhältnis falsch: Das zusätzliche Panel erhält keinen nutzbaren Raum. Sinnvoll wäre ein klares Zweispaltenraster mit ungefähr 60–65 % Weltansicht links und 35–40 % Broadcast-Akte rechts.
 
-- Die Akte ist horizontal sauber zentriert; Titel, Einleitung, Entscheidungszeile und Karten teilen weitgehend dieselbe linke Bezugskante. Diese Grundausrichtung sollte erhalten bleiben.
-- Vertikal fehlt dagegen ein belastbares Raster: Kopfband, Einleitung und Entscheidungszeile verbrauchen zusammen bereits so viel Höhe, dass bei der gezeigten Bildschirmgröße nicht einmal drei Optionen sichtbar werden können. Die Lösung ist internes Scrollen, nicht noch kleinere Schrift oder zusammengepresste Karten.
-- Der obere Außenabstand ist praktisch null, während seitlich viel dunkle Fläche bleibt. Ein gleichmäßiger Rahmen von etwa einer Textzeile oben und unten würde die Akte als eigenständiges Objekt lesbar machen.
-- Die beiden vollständigen Karten besitzen ähnliche Höhe, aber ihre Wirkungsspalten orientieren sich nicht sichtbar an einem gemeinsamen Raster. Zahlen und Beschriftungen sollten in allen Karten exakt untereinander stehen, unabhängig davon, ob der Titel ein- oder zweizeilig ist.
-- Die kräftigen Rahmen, die engen Zwischenräume und der feste untere Streifen erzeugen eine visuelle „Leiter“ aus horizontalen Balken. Zwischen den Karten sollte ungefähr eine normale Textzeile Luft liegen; dafür kann die Grundkontur schwächer werden.
-- Außerhalb der Akte entsteht oben links und rund um die Wohnzimmerszene tote, fast schwarze Fläche. Das widerspricht dem Stilanker in `sprite-tool/public/context/game-style-guide.md`, der gepflegte, belebt wirkende und ausdrücklich nicht dunkel-leere Räume verlangt – auch wenn ein Modal aktiv ist.
+Die obere rechte HUD-Gruppe hat keine durchgehende Ordnung. Uhr, Menü und HUD-Kürzel besitzen ähnliche Höhen, stehen aber mit unterschiedlichen Zwischenräumen und ohne gemeinsame Blockkante nebeneinander. Alle drei sollten in einer Zeile mit identischer Höhe, einem einheitlichen kleinen Zwischenraum und derselben rechten Kante wie das Panel darunter sitzen.
+
+Unten entstehen drei konkurrierende horizontale Ebenen: Mitarbeiterkarte, breite dunkle Leiste mit „FEIERABEND“ und darunter der sehr flache Statusstreifen. Die Inhalte gehören funktional zusammen, folgen aber weder gemeinsamen linken Kanten noch einem konsistenten Höhenrhythmus. Die Mitarbeiterkarte beginnt weiter innen als der Status, während „FEIERABEND“ hart an die rechte Begrenzung gedrückt ist.
+
+Die rechte Tastenleiste erzeugt viel tote beige Fläche bei sehr geringer Informationsdichte. Die fünf kleinen Tasten schweben im oberen Abschnitt, während der Großteil der Spalte leer bleibt. Im ausgeklappten Zustand sollte diese Fläche dem Broadcast gehören; bleibt die Leiste sichtbar, benötigt sie eine erkennbare Gruppierung und deutlich mehr Breite.
+
+Die freie Bodenfläche in der unteren Bildmitte ist als Bühnentiefe der Raumgrafik schlüssig, wird im Broadcast-Zustand aber zur unproduktiven Fläche. Das spricht zusätzlich dafür, die Weltansicht zu beschneiden statt das Panel außerhalb des Bildes anzuhängen.
 
 ## 5. **Lesbarkeit**
 
 ### `broadcast_expanded.png`
+Zweimal hinsehen musste ich bei der Meldung „Noch keine Maßnahme ausgespielt …“: Die Pixelschrift ist für die Textlänge zu klein, die Laufweite eng und der Kontrast auf dem dunklen Streifen zwar nominell vorhanden, praktisch aber durch die feinen Zeichen schwach. Der Satz sollte entweder größer und zweizeilig auf einem hellen Papierfeld stehen oder deutlich gekürzt werden.
 
-- Zweimal hinsehen musste ich bei der kleinen Unterzeile im roten Kopfband. Sie ist in Versalien gesetzt, sehr schmal und deutlich kleiner als alle entscheidungsrelevanten Texte; auf ungefähr drei Viertel der Einleitungsschrift vergrößern und die Laufweite leicht reduzieren.
-- Die roten Werte „+4 % Risiko“ und „+4 % Aufmerksamkeit“ sind zu klein und durch die Pixelstruktur unruhig. Zahlen sollten die stärkste Zeile im Wirkungsblock sein, die Begriffe darunter eine Stufe kleiner.
-- „IHRE ENTSCHEIDUNG (abgewogen gegen: Authentizität / Widerlegbarkeit)“ ist typografisch zu gleichförmig. „IHRE ENTSCHEIDUNG“ als Hauptzeile stehen lassen und den Klammerzusatz darunter in normaler Textstärke setzen.
-- Die Zeilen „Technik: Dekontextualisierung“ beziehungsweise „Technik: Amplifikation“ sind kleiner und kontrastärmer als der übrige Kartentext. Sie benötigen entweder mehr Größe oder einen festen Labelblock; momentan wirken sie wie Fußnoten, obwohl sie für die Lernwirkung zentral sind.
-- Die kleinen Kästen „Zynismus ▲“ und „Polarisierung ▲“ sind semantisch unklar: Das Dreieck kann sowohl „Zunahme“ als auch „Dropdown“ bedeuten. Einen eindeutigen Aufwärtspfeil verwenden und den Zustand sprachlich ergänzen, sofern es tatsächlich eine Wirkung und keine Bedienfläche ist.
-- Option C ist nicht bloß weniger prominent, sondern sichtbar abgeschnitten. Außerdem fehlt ein Scrollbalken oder anderer Hinweis, dass weitere Inhalte erreichbar sind.
-- Der gesamte Broadcast-Hintergrund einschließlich Uhrzeit, TV-Inhalt und Milieu-Gesichtern ist durch die Abdunklung kaum lesbar. Für einen reinen Modalzustand wäre das akzeptabel, für den beschriebenen Broadcast-Zustand jedoch nicht.
+Auch „STANDBY“ und „MINISTERIUM SENDET“ sind zu klein, um als Zustandsanzeige schnell erfasst zu werden. Zudem wird der Zustand vor allem über Grün vermittelt; ein zusätzliches Wort- oder Formsignal sollte erhalten bleiben, falls Farbe nicht sicher unterschieden wird.
+
+Der „PUBLIKUM“-Knopf ist rechts abgeschnitten. Dadurch musste ich erst rekonstruieren, ob es sich um einen Tab, einen Button oder eine Überschrift handelt. Ein interaktives Element darf in keinem Zustand unter einer Seitenfläche verschwinden.
+
+Bei den rechten Tasten ist nicht erkennbar, wofür „K / M / A / K / I“ stehen. Das amberfarbene „A“ könnte aktiv, fokussiert oder nur anders kategorisiert sein; die bloße Änderung der Randfarbe reicht als Zustand nicht. Aktiv sollte zusätzlich durch gefüllten Hintergrund, seitlichen Marker oder herausstehende Lasche angezeigt werden.
+
+Die gelben Eckmarkierungen an Monitor, Korkbrett und Schreibtisch sind auf hellen Beton- und Tischflächen teilweise zu schwach. Außerdem ist nicht eindeutig, ob sie dauerhaft interaktiv, aktuell fokussiert oder neu sind. Diese Zustände brauchen unterschiedliche Formen statt lediglich ähnlich farbiger Ecken.
+
+„FEIERABEND“ ist dagegen sehr gut lesbar, erhält aber gerade dadurch eine zu hohe Hierarchiestufe. Die Lesbarkeit ist hier nicht das Problem, sondern die Dominanz.
 
 ## 6. **Die drei wirksamsten Änderungen**
 
-1. **Abdunklung deutlich reduzieren beziehungsweise die Entscheidung erst nach der sichtbaren Sendungs-/Publikumsphase öffnen.** Das ist ein kleiner Zustands- oder Opacity-Eingriff und stellt sofort die zentrale Erzählrichtung des Screens wieder her.
-2. **Den unteren Hinweisstreifen aus dem Overlay entfernen und die Optionsliste innerhalb einer Akte mit klar erkennbarem Scrollbereich führen.** Dadurch wird Option C zugänglich, ohne Schrift und Karten auf problematische Größen zu schrumpfen.
-3. **Jede Optionskarte auf ein festes Titel-/Wirkungsraster umstellen und Risiko von Aufmerksamkeit farblich trennen.** Das verbessert den Vergleich aller Entscheidungen stärker als zusätzliche Dekoration oder Textkürzungen.
+1. **`broadcast_expanded.png`: Den ausgeklappten Broadcast vollständig in ein sichtbares rechtes Panel von etwa 35–40 % Bildschirmbreite holen.** Das behebt mit einer Layoutkorrektur den zentralen Funktions- und Hierarchiefehler des gesamten Screens.
+2. **`broadcast_expanded.png`: Cyan-Monitor abdunkeln/verkleinern und „FEIERABEND“ vom roten Vollflächen-CTA zum kleineren Papier-Stempel zurückstufen.** Zwei vergleichsweise kleine Stiländerungen verlagern den Blick sofort von Kulisse und Tagesende zurück auf den Broadcast.
+3. **`broadcast_expanded.png`: Die beiden unteren HUD-Zeilen zu einer lesbaren Papierleiste mit größerem Text, klaren Gruppen und vollständig sichtbarem „PUBLIKUM“-Element zusammenführen.** Das verbessert Informationsaufnahme, Behördenästhetik und räumliche Ordnung gleichzeitig.
 
 ## 7. **Blinde Flecken**
 
 ### `broadcast_expanded.png`
+Nicht erkennbar ist, ob das fehlende Broadcast-Panel nur im Screenshot außerhalb des Viewports liegt, während einer Animation hereinfährt oder durch einen Z-Index-/Overflow-Fehler verdeckt wird. Dafür wäre eine Aufnahme unmittelbar nach Abschluss der Aufklappanimation nötig, weiterhin in derselben Auflösung.
 
-- Nicht erkennbar ist, ob Option C durch Mausrad, Tastatur oder Dragging erreichbar ist und ob beim Scrollen ein Indikator erscheint.
-- Hover-, Fokus-, Auswahl-, gesperrte und bereits verwendete Zustände der Optionskarten sind im Screenshot nicht zu beurteilen.
-- Für die eigentliche Broadcast-Gestaltung wäre eine Aufnahme desselben ausgeklappten Zustands **ohne** die Entscheidungsakte nötig; Fernseher, Sendungsinhalt, Milieu-Beschriftungen und Raumlicht sind hier größtenteils verdeckt oder abgedunkelt.
-- Bewegung der TV-Sendung, Reaktionen der Zuschauer und Übergang in den Entscheidungsdialog lassen sich aus einem Einzelbild nicht bewerten.
-- Das Verhalten bei geringerer Höhe oder größerer UI-Skalierung ist offen; bereits in der gezeigten Auflösung reicht die Höhe nicht für alle Optionen.
+Nicht beurteilen lassen sich Hover-, Fokus- und Tastaturzustände der rechten Buchstabentasten, der Hotspot-Ecken und des „PUBLIKUM“-Elements. Benötigt würden Zustandsaufnahmen mit jeweils einem fokussierten und einem aktivierten Element.
+
+Ebenso fehlt ein befüllter Broadcast-Zustand: Die Aufnahme zeigt laut Text noch keine ausgespielte Maßnahme. Für die Beurteilung von Sendung, Milieu-Karten, Textmengen und Reaktionsanzeigen wäre ein Screenshot dieses Screens mit aktiver Sendung und sichtbarem Publikum erforderlich.
+
+Unklar bleibt außerdem das Verhalten bei kleineren Viewports beziehungsweise UI-Skalierung. Gerade der abgeschnittene rechte Bereich sollte mindestens in der Zielauflösung und einer kleineren unterstützten Auflösung geprüft werden.
 
 ---
 

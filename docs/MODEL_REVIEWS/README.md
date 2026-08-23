@@ -15,10 +15,11 @@ node src/cli.mjs review --lens konzept --model openai/gpt-5.1 --live
 
 | Datei | Was drinsteht |
 |---|---|
-| [`2026-08-22_VERGLEICH_UND_PLAN.md`](2026-08-22_VERGLEICH_UND_PLAN.md) | **Hier anfangen.** Beide Modell-Läufe zusammengeführt, am Code geprüft, mit Plan in fünf Stufen. |
+| [`2026-08-22_VERGLEICH.md`](2026-08-22_VERGLEICH.md) | **Hier anfangen.** Beide Läufe gegeneinandergestellt: wo sie sich einig sind, wo sie sich widersprechen, was nur einer sah. |
+| [`../PLAN_2026-08-22_UX_ZWEITMEINUNG.md`](../PLAN_2026-08-22_UX_ZWEITMEINUNG.md) | Der Plan, der daraus folgt — P0–P16 nach Wirkung pro Aufwand, jeder Punkt am Code belegt. |
 | [`2026-08-21_VERIFIKATION.md`](2026-08-21_VERIFIKATION.md) | Die drei Top-Befunde der ersten Runde, Zeile für Zeile nachgeprüft. |
 | `2026-08-21_ui-*_stealth-ox-alpha.md` | Erste Runde: 12 Bündel + Synthesen (OpenRouter, gratis, mit Clips). |
-| `2026-08-22_ui-*_gpt-5.6-sol.md` | Zweitmeinung: 14 Bündel (OpenAI direkt, ohne Clips, ohne Synthese). |
+| `2026-08-22_ui-*_gpt-5.6-sol.md` | Zweitmeinung: 14 Bündel + 5 Clip-Gruppen als Einzelbilder + Synthese (OpenAI direkt). |
 
 ## Warum es diesen Ordner gibt
 
@@ -89,7 +90,8 @@ node src/cli.mjs serie --anbieter openai --model gpt-5.6-sol --denk-aufwand high
 Zwei Modelle über dieselbe Ernte laufen zu lassen lohnt sich — aber nicht, weil
 Übereinstimmung Wahrheit bedeutet. Sie bedeutet nur, dass **dieselbe Sache zwei
 unabhängigen Betrachtern aufgefallen** ist. Die Erklärung dahinter kann trotzdem bei
-beiden falsch sein; ein Beispiel dafür steht in §4.1 des Vergleichs.
+beiden falsch sein — und ein guter Teil dessen, was beide sahen, war am Ende gar kein
+Design-Fehler, sondern ein Fehler der Ernte. Wie das ausging, steht in §2 des Vergleichs.
 
 ## Namensschema
 

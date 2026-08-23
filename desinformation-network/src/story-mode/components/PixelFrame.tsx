@@ -8,7 +8,7 @@
  * „liegt auf"). Drei Gewichte: light (Karteikarte) / standard (Mappe) /
  * alarm (rot gestempelter Rand). Jedes Material hat einen CSS-Fallback.
  */
-import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
+import { forwardRef, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
 import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
 
@@ -27,7 +27,12 @@ export interface PixelFrameProps extends HTMLAttributes<HTMLDivElement> {
   style?: CSSProperties;
 }
 
-export function PixelFrame({ children, variant = 'standard', className, style, ...rest }: PixelFrameProps): JSX.Element {
+// forwardRef, damit PixelModal den Rahmen fokussieren und den Fokusfang darauf
+// aufsetzen kann (React 18 reicht `ref` bei Funktionskomponenten nicht durch).
+export const PixelFrame = forwardRef<HTMLDivElement, PixelFrameProps>(function PixelFrame(
+  { children, variant = 'standard', className, style, ...rest },
+  ref,
+) {
   const v = VARIANT[variant];
   const assets = useAssets();
   // Papier-Textur (ui_panel_paper) unter dem Inhalt — sehr kontrastarm, Text bleibt
@@ -38,6 +43,7 @@ export function PixelFrame({ children, variant = 'standard', className, style, .
   const hasBgOverride = style && 'backgroundColor' in style;
   return (
     <div
+      ref={ref}
       className={className}
       style={{
         backgroundColor: v.bg,
@@ -60,6 +66,6 @@ export function PixelFrame({ children, variant = 'standard', className, style, .
       {children}
     </div>
   );
-}
+});
 
 export default PixelFrame;

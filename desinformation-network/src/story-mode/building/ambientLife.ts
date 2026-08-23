@@ -70,6 +70,12 @@ export const AMBIENT_AGENTS: AmbientAgentDef[] = [
   { id: 'bote_e4', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [4], firstAppearanceMs: 10000 },
   { id: 'bote_e3', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [3], firstAppearanceMs: 17000 },
   { id: 'bote_e2', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [2], firstAppearanceMs: 26000 },
+  // Owner-Entscheidung 2026-08-23 („leere Etagen beleben"): Etage 1 hatte als
+  // einzige Publikums-Etage keinen eigenen Boten — dort lief nur die Reinigung
+  // vorbei, die sich auf fünf Stockwerke verteilt. Ausgerechnet die Zentrale wirkte
+  // damit am ausgestorbensten. Der Keller bleibt bewusst ohne Boten: Er IST der
+  // stille Flur, dafür steht dort jetzt dauerhaft der Hausmeister.
+  { id: 'bote_e1', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [1], firstAppearanceMs: 33000 },
 ];
 
 /** Türen, die Statisten NIE benutzen: die Lobby hat keine Tür, und aus dem

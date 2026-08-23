@@ -9,11 +9,11 @@
  */
 import { useState, useCallback, useRef } from 'react';
 import { Icon } from './Icon';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, stampCtaStyle, stampCtaClass } from '../theme';
 import { useAssets } from '../assets/useAssets';
 import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
 import { playSound } from '../utils/SoundSystem';
-import { usePlayerProfile, playerPortraitAssetId } from '../stores/playerProfileStore';
+import { usePlayerProfile, playerPortraitAssetId, playerPortraitImgStyle } from '../stores/playerProfileStore';
 import {
   OFFICE_HOTSPOTS,
   OFFICE_IMG,
@@ -450,7 +450,7 @@ export function PlayerOfficeView({
                 color: '#e8e4d8',
                 border: `1px solid #F0B429`,
                 padding: '1px 5px',
-                fontSize: 9,
+                fontSize: 10,
                 fontFamily: "'VT323', monospace",
                 fontWeight: 700,
                 whiteSpace: 'nowrap',
@@ -540,10 +540,9 @@ export function PlayerOfficeView({
         {/* Feierabend: Tag beenden (diegetischer Heimweg-Auslöser) */}
         <button
           onClick={onEndPhase}
+          className={stampCtaClass}
           style={{
-            backgroundColor: StoryModeColors.ministryRed,
-            border: `2px solid ${StoryModeColors.darkRed}`,
-            color: '#fff',
+            ...stampCtaStyle,
             padding: '6px 20px',
             fontSize: 13,
             fontFamily: "'VT323', monospace",
@@ -592,14 +591,14 @@ function Dienstausweis(): React.JSX.Element {
         }}
       >
         {url ? (
-          <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'pixelated' }} />
+          <img src={url} alt="" style={playerPortraitImgStyle(portraitId)} />
         ) : (
           <Icon name="npcs" size={16} />
         )}
       </span>
       <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
         {/* v3: dunkler Ausweis-Grund → helle Papier-Töne statt Tinten-Token. */}
-        <span style={{ fontSize: 9, color: StoryModeColors.lightConcrete, letterSpacing: 1 }}>SONDEROPERATIONEN</span>
+        <span style={{ fontSize: 10, color: StoryModeColors.lightConcrete, letterSpacing: 1 }}>SONDEROPERATIONEN</span>
         <span style={{ fontSize: 12, fontWeight: 700, color: StoryModeColors.document, fontFamily: "'VT323', monospace" }}>{name}</span>
       </span>
     </div>

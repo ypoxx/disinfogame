@@ -12,7 +12,7 @@
  * docs/STRANG34_P2_VERBREITER_PLATTFORM_KONZEPT.md (§4 Trade-off, §5 Kette, §6 Schema).
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, stampCtaStyle, stampCtaClass } from '../theme';
 import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
 import { APPEAL_LABEL } from '../audience/kampagnenSchmiede';
 import type { MessageAppeal } from '../audience/fokusgruppeModel';
@@ -119,7 +119,7 @@ const dossierBtnStyle: React.CSSProperties = {
   alignSelf: 'flex-start',
   marginLeft: 19,
   padding: '2px 8px',
-  fontSize: 9,
+  fontSize: 10,
   fontFamily: "'VT323', monospace",
   fontWeight: 700,
   letterSpacing: 0.5,
@@ -164,7 +164,7 @@ function StepHeader({ num, title, hint }: { num: string; title: string; hint?: s
         {num}
       </span>
       <span style={{ fontSize: 12, fontWeight: 900, letterSpacing: 1, color: '#1a1a1a' }}>{title}</span>
-      {hint && <span style={{ fontSize: 9, color: '#5a5040', fontStyle: 'italic' }}>{hint}</span>}
+      {hint && <span style={{ fontSize: 10, color: '#5a5040', fontStyle: 'italic' }}>{hint}</span>}
     </div>
   );
 }
@@ -173,7 +173,7 @@ function StepHeader({ num, title, hint }: { num: string; title: string; hint?: s
 function MiniStat({ label, value, invert }: { label: string; value: number; invert?: boolean }): React.JSX.Element {
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }} title={`${label}: ${formatPct(value)}`}>
-      <span style={{ fontSize: 8, color: '#6a5f4a', letterSpacing: 0.5 }}>{label}</span>
+      <span style={{ fontSize: 10, color: '#6a5f4a', letterSpacing: 0.5 }}>{label}</span>
       <span style={{ position: 'relative', width: 26, height: 5, backgroundColor: '#c4b48e', border: '1px solid #8a7c5a' }}>
         <span
           style={{
@@ -238,7 +238,7 @@ function OptionRow({
         <span style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {title}
         </span>
-        <span style={{ display: 'block', fontSize: 9, color: '#5a5040', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <span style={{ display: 'block', fontSize: 10, color: '#5a5040', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {subtitle}
         </span>
       </span>
@@ -426,12 +426,12 @@ export function OperationsAkteView({
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             {/* v3: Kopfband bleibt dunkel → helle Papier-Töne statt Tinten-Token. */}
             <span style={{ fontSize: 14, fontWeight: 900, letterSpacing: 3, color: StoryModeColors.document }}>OPERATIONS-AKTE</span>
-            <span style={{ fontSize: 9, letterSpacing: 1, color: StoryModeColors.lightConcrete }}>
+            <span style={{ fontSize: 10, letterSpacing: 1, color: StoryModeColors.lightConcrete }}>
               AZ WU-{String(targets.length)}{String(carriers.length)}/{String(platforms.length)} · SONDEROPERATIONEN
             </span>
             <span
               style={{
-                fontSize: 9,
+                fontSize: 10,
                 fontWeight: 900,
                 letterSpacing: 1,
                 color: StoryModeColors.ministryRed,
@@ -451,7 +451,7 @@ export function OperationsAkteView({
               background: 'none',
               border: `2px solid ${StoryModeColors.ministryRed}`,
               color: StoryModeColors.document,
-              fontSize: 15,
+              fontSize: 16,
               fontWeight: 900,
               width: 28,
               height: 28,
@@ -670,7 +670,7 @@ export function OperationsAkteView({
                   lineHeight: 1.45,
                 }}
               >
-                <div style={{ fontSize: 8, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 3 }}>FOLGEN</div>
+                <div style={{ fontSize: 10, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 3 }}>FOLGEN</div>
                 <div style={{ color: StoryModeColors.success }}>
                   ▼ Wirkung senkt das Institutionen-Vertrauen (Ihr Sieg-Ziel).
                 </div>
@@ -693,7 +693,7 @@ export function OperationsAkteView({
                 minHeight: 46,
               }}
             >
-              <div style={{ fontSize: 8, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 3 }}>VORSCHAU — AUSSPIELUNG</div>
+              <div style={{ fontSize: 10, letterSpacing: 1, color: StoryModeColors.textMuted, marginBottom: 3 }}>VORSCHAU — AUSSPIELUNG</div>
               <div data-testid="oa-headline" style={{ fontSize: 11, color: result ? (economyHint ? StoryModeColors.danger : StoryModeColors.warning) : StoryModeColors.textMuted, lineHeight: 1.4 }}>
                 {economyHint ? economyHint : result ? result.headline_de : `Es fehlt noch: ${missing.join(', ')}.`}
               </div>
@@ -706,23 +706,26 @@ export function OperationsAkteView({
               data-testid="oa-ausspielen"
               disabled={!complete}
               onClick={ausspielen}
+              className={stampCtaClass}
               style={{
+                // Scharf: der volle Stempel. Unvollständig: dieselbe Fläche ohne
+                // Stempel-Tinte — der Knopf verspricht dann nichts, was er nicht hält.
+                ...stampCtaStyle,
                 marginTop: 12,
                 width: '100%',
                 padding: '9px 0',
-                backgroundColor: complete ? StoryModeColors.ministryRed : StoryModeColors.surfaceLight,
-                border: `2px solid ${complete ? StoryModeColors.darkRed : StoryModeColors.border}`,
-                color: complete ? '#fff' : StoryModeColors.textMuted,
+                border: `2px solid ${complete ? StoryModeColors.ministryRed : StoryModeColors.border}`,
+                boxShadow: complete ? stampCtaStyle.boxShadow : 'none',
+                color: complete ? StoryModeColors.ministryRed : StoryModeColors.textMuted,
                 fontSize: 13,
                 fontFamily: "'VT323', monospace",
-                fontWeight: 900,
                 letterSpacing: 2,
                 cursor: complete ? 'pointer' : 'not-allowed',
               }}
             >
               AUSSPIELEN ▸
             </button>
-            <div style={{ marginTop: 6, textAlign: 'center', fontSize: 8, letterSpacing: 1, color: StoryModeColors.textMuted }}>
+            <div style={{ marginTop: 6, textAlign: 'center', fontSize: 10, letterSpacing: 1, color: StoryModeColors.textMuted }}>
               REIN BEWERTEND · ESC ZUM SCHLIESSEN
             </div>
           </aside>

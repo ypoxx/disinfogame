@@ -59,6 +59,99 @@ export const StoryModeFonts = {
   label: "'Silkscreen', ui-monospace, monospace",
 } as const;
 
+/**
+ * Schrift-Leiter (P4, Fremdmodell-Durchgang 2026-08-22).
+ *
+ * Vorher: 23 verschiedene Schriftgrößen, darunter krumme rem-Werte, die auf
+ * 10,88 / 11,52 / 12,8 / 13,6 / 14,4 / 15,2 px hinausliefen — jede Komponente
+ * erfand ihre eigene. 19 der Einigkeits-Befunde beider Modelle hingen daran.
+ *
+ * Diese Leiter ist keine Erfindung am grünen Tisch: Sie ist die tatsächliche
+ * Nutzung, entdoppelt und von Bruchteilen befreit. Sub-10-px-Werte sind auf den
+ * Boden gehoben (VT323 mit `size-adjust: 132 %` ergibt bei 10 px 7,4 px
+ * Versalhöhe — darunter wird Pixelschrift unleserlich).
+ *
+ * `typeGuard.test.ts` hält die Leiter geschlossen: Neue Größen daneben fallen auf.
+ */
+export const StoryModeType = {
+  /** 10 — Mindestgröße. Badges, Einheiten, Mini-Labels. */
+  micro: 10,
+  /** 11 — Tabellenzellen, Sekundär-Labels. */
+  mini: 11,
+  /** 12 — Sekundärtext. */
+  small: 12,
+  /** 13 — dichter Fließtext (Listen, Karten). */
+  compact: 13,
+  /** 14 — Fließtext. */
+  body: 14,
+  /** 16 — hervorgehobener Text, Knopfschrift. */
+  lead: 16,
+  /** 20 — Abschnitts-Titel. */
+  title: 20,
+  /** 24 — Karten-/Modal-Überschrift. */
+  display: 24,
+  /** 32 — Bildschirm-Überschrift. */
+  hero: 32,
+  /** 40 — Wahlabend-Schlagzeile. */
+  banner: 40,
+  /** 64 — Titelbildschirm. */
+  mega: 64,
+} as const;
+
+/**
+ * Lesebreiten. Fließtext ohne Deckel lief bisher über die volle Fensterbreite —
+ * bei der DialogBox waren das 1244 px für Zeilen von im Median 71 Zeichen (P6).
+ */
+export const StoryModeMeasure = {
+  /** ~84 Zeichen — Dialog, Briefing, Report-Fließtext. */
+  text: '46rem',
+  /** ~58 Zeichen — Randnotizen, Hinweise, Leerzustände. */
+  narrow: '32rem',
+} as const;
+
+/**
+ * Trägerflächen — deckende Unterlagen für Text auf gemusterten Untergründen.
+ *
+ * Die Korkkachel der Narrativ-Tafel liegt als `backgroundImage` HINTER allen
+ * Kindern und hat keinen Deckkraft-Regler. Wo ein helles Korkkorn hinter einen
+ * Buchstaben rutscht, sank der Kontrast auf bis zu 1,02:1 — Text also physikalisch
+ * unsichtbar (gemessen 2026-08-22). Die Papier-Notizen auf derselben Textur sind
+ * mit ~10:1 gestochen scharf, weil sie eine deckende Fläche mitbringen. Genau die
+ * ist das hier: kein neues Asset, keine geänderte Textfarbe.
+ */
+export const StoryModeSurfaces = {
+  /** Auf Kork (#7a5a36): hebt #bfa988 auf 6,3:1, die helleren Labels darüber. */
+  corkCarrier: 'rgba(44,31,18,0.86)',
+} as const;
+
+/**
+ * Abdunklungen hinter Overlays (P14, Fremdmodell-Durchgang 2026-08-22).
+ *
+ * Vorher: 21 Vollbild-Scrims mit ACHT verschiedenen Schwarzwerten (0,75 · 0,78 ·
+ * 0,82 · 0,85 · 0,90 · 0,92 · 0,95 · 0,97). Die Cluster sahen nicht nach Absicht
+ * aus, sondern nach „ungefähr so dunkel wie das Nachbar-Modal" — Folge einer
+ * halbfertigen Migration: PixelModal wurde gebaut, aber nur ein Teil der
+ * Aufrufstellen zog nach, der Rest behielt sein Literal daneben.
+ *
+ * Drei Stufen, nach ABSICHT benannt statt nach Zahl. Wer eine vierte braucht,
+ * muss erklären wofür — `scrimGuard.test.ts` fragt danach.
+ */
+export const StoryModeScrims = {
+  /** 0,78 — die Ebene darunter soll lesbar bleiben: Verzeichnis, Tafel, Vortest. */
+  leicht: 0.78,
+  /** 0,85 — Standard-Modal: die Welt tritt zurück, bleibt aber da. */
+  normal: 0.85,
+  /** 0,94 — Erzähl-Übernahme: Krise, Verrat, Tagesbericht, Wahlabend, Aktenwahl. */
+  schwer: 0.94,
+} as const;
+
+export type ScrimStufe = keyof typeof StoryModeScrims;
+
+/** Fertige CSS-Farbe für eine Scrim-Stufe. */
+export function scrim(stufe: ScrimStufe): string {
+  return `rgba(0,0,0,${StoryModeScrims[stufe]})`;
+}
+
 // v2: ohne harten Brutalismus-Schlagschatten (Verbotsliste) — klare Pixel-Kante,
 // dezenter Press-Effekt bleibt über active:translate.
 export const createBrutalistButton = (baseColor: string) => ({
@@ -80,3 +173,34 @@ export const stampCtaStyle = {
   textTransform: 'uppercase',
   cursor: 'pointer',
 } as const;
+
+/**
+ * Interaktions-Klassen für Stempel-CTAs.
+ *
+ * `stampCtaStyle` war bisher eine reine Opt-in-Konstante ohne jede Durchsetzung
+ * und ohne Zustände — jede Fundstelle schrieb ihre eigene hover-Klasse dazu, mit
+ * unterschiedlichen Werten. Papier wird beim Überfahren DUNKLER: `brightness-110`
+ * tut auf der fast weißen Stempelfläche nichts Sichtbares.
+ */
+export const stampCtaClass =
+  'transition-all hover:brightness-95 active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed';
+
+/**
+ * Sekundär-Knopf: Papierfläche mit Tinten-Rand.
+ *
+ * Für alles, was WEGGEHT statt zu handeln — „SCHLIESSEN", „VERSTANDEN",
+ * „ABBRECHEN". Diese Knöpfe trugen bisher Ministeriums-Rot als Fläche und waren
+ * damit doppelt falsch: weder Stempel (§4.7) noch Primäraktion. Ein Stempel wäre
+ * hier keine Reparatur, sondern dieselbe Verwechslung in anderer Farbe.
+ */
+export const paperButtonStyle = {
+  backgroundColor: StoryModeColors.concrete,
+  border: `2px solid ${StoryModeColors.borderLight}`,
+  color: StoryModeColors.textPrimary,
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
+  fontWeight: 700,
+  cursor: 'pointer',
+} as const;
+
+export const paperButtonClass =
+  'transition-all hover:brightness-110 active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed';

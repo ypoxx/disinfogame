@@ -1,7 +1,7 @@
 # 🛰️ Fremdmodell-Review — UX/UI & Bildwirkung — Bündel „ending-2von4"
 
 **Modell:** `gpt-5.6-sol` (via OpenRouter) · **Linse:** `ui` · **Datum:** 2026-08-22
-**Erzeugt von:** `tools/model-review` · **Lauf:** 2026-08-22T17:19:07.670Z · **Dauer:** 183.0 s
+**Erzeugt von:** `tools/model-review` · **Lauf:** 2026-08-22T17:09:26.285Z · **Dauer:** 187.0 s
 **Nutzung:** nicht gemeldet · **Kosten:** unbekannt · **Anbieter-Datensammlung:** ausgeschlossen (deny)
 
 > ⚠️ **Wie das zu lesen ist:** Ein *fremdes* Modell hat einen **kuratierten Ausschnitt**
@@ -52,7 +52,7 @@ eigenen Durchgängen dran — verweise nicht auf Dinge, die du hier nicht siehst
 | 🖼 Bild | `end_immune_endreport_mid.png` | `desinformation-network/runs/visual-review/latest/shots/end_immune_endreport_mid.png` | 99 kB |
 | 🖼 Bild | `end_immune_endreport_bottom.png` | `desinformation-network/runs/visual-review/latest/shots/end_immune_endreport_bottom.png` | 99 kB |
 | 🖼 Bild | `end_victory_wahlabend_s0.png` | `desinformation-network/runs/visual-review/latest/shots/end_victory_wahlabend_s0.png` | 127 kB |
-| 🖼 Bild | `end_victory_wahlabend_s1.png` | `desinformation-network/runs/visual-review/latest/shots/end_victory_wahlabend_s1.png` | 128 kB |
+| 🖼 Bild | `end_victory_wahlabend_s1.png` | `desinformation-network/runs/visual-review/latest/shots/end_victory_wahlabend_s1.png` | 127 kB |
 | 🖼 Bild | `end_victory_wahlabend_s2.png` | `desinformation-network/runs/visual-review/latest/shots/end_victory_wahlabend_s2.png` | 158 kB |
 | 🖼 Bild | `end_victory_wahlabend_s3.png` | `desinformation-network/runs/visual-review/latest/shots/end_victory_wahlabend_s3.png` | 66 kB |
 
@@ -62,169 +62,178 @@ eigenen Durchgängen dran — verweise nicht auf Dinge, die du hier nicht siehst
 
 ## 1. **Erster Eindruck**
 
-### `end_immune_wahlabend_s2.png`
-Als Erstes zieht der große rote Stempel „GEFÄLSCHT“ den Blick an; er ist deutlich dominanter als die eigentliche Aussage „Ihre Schlagzeilen – geprüft“. Eigentlich sollte zuerst die Enttarnung der Kampagne lesbar sein und der Stempel diese Aussage nur bestätigen. Der Nachrichtenschirm stößt oben an den Bildrand, während innerhalb des Schirms sehr viel ungenutzte Fläche bleibt. Unterhalb konkurrieren Fließtext, sechs kleine Milieu-Zustände und der vollrote Weiter-Button auf engem Raum miteinander.
+**`end_immune_wahlabend_s2.png`**  
+Das Auge landet sofort auf dem schrägen roten Stempel „GEFÄLSCHT“. Das ist grundsätzlich der richtige Zielpunkt, aber die dazugehörige Aussage „Ihre Schlagzeilen – geprüft“ ist so klein und weit links abgesetzt, dass Ursache und Ergebnis nicht als Einheit gelesen werden. Der fast vollständig leere rote Fernsehbereich beansprucht den größten Teil des Bildes, ohne zusätzliche Information zu liefern. Unterhalb des Fernsehers konkurrieren Fließtext, sechs Milieu-Chips und der rote Weiter-Button auf sehr engem Raum. Der Button sitzt direkt an der unteren Bildkante und wirkt angeschnitten statt bewusst platziert.
 
-### `end_immune_wahlabend_s3.png`
-Der Blick landet korrekt auf „Das Land hält stand“, danach fehlen jedoch klar priorisierte Kennzahlen als zweiter Anker. Der große helle Berichtskörper wirkt wie eine Akte, aber die langen Absätze bilden eine gleichförmige Textwand. „Vertrauensverlauf“ erscheint erst am unteren Rand, die eigentliche Grafik ist fast vollständig abgeschnitten. Der rechts hinter der Akte sichtbare Schriftzug „Vollständiger Lagebericht“ erzeugt den Eindruck eines versehentlich überdeckten Bedienelements.
+**`end_immune_wahlabend_s3.png`**  
+Zuerst fällt die Überschrift „Das Land hält stand“ auf; das ist der richtige Einstieg. Danach sollte der Blick zu den drei Abschlusskennzahlen gehen, diese verschwinden jedoch als kleine Textzeile im Kopfband. Die Spielstil-Tags sehen eher wie inaktive Filter aus als wie eine Bewertung. Der lange Erzählblock nimmt viel Höhe ein und schiebt den angekündigten Vertrauensverlauf fast vollständig unter den sichtbaren Rand. Rechts hinter dem Bericht bleibt außerdem der Hintergrund-Button „Vollständiger Lagebericht“ sichtbar und erzeugt eine falsche zweite Interaktionsebene.
 
-### `end_immune_gameend.png`
-`end_immune_gameend.png` ist visuell nicht von `end_immune_wahlabend_s3.png` zu unterscheiden. Dadurch ist nicht erkennbar, dass ein neuer Zustand oder ein eigentlicher Endbildschirm erreicht wurde. Wieder führt der Titel korrekt, danach zerfällt die Hierarchie in viele ähnlich gewichtete Absätze. Der abgeschnittene Graph und das halb verdeckte Element rechts lassen den Bildschirm eher wie ein geöffnetes Zwischenmodal als wie einen endgültigen Abschluss wirken.
+**`end_immune_gameend.png`**  
+Visuell ist dieser Screen von `end_immune_wahlabend_s3.png` nicht unterscheidbar. Das Auge folgt erneut sauber zur Überschrift, bekommt aber keinen Hinweis darauf, dass nun ein anderer Zustand oder eine andere Ebene erreicht wurde. Ein Game-End-Screen sollte als kompakte Abschlussentscheidung lesbar sein; hier wirkt er bereits wie der Anfang eines langen Berichts. Die wichtigste nächste Aktion ist im sichtbaren Ausschnitt nicht vorhanden. Der hinter dem Papier sichtbare Button rechts verstärkt die Unklarheit, welcher Layer gerade aktiv ist.
 
-### `end_immune_endreport_top.png`
-Auch `end_immune_endreport_top.png` zeigt praktisch denselben Ausschnitt wie die beiden vorherigen Aufnahmen. Für den Anfang eines Lageberichts sollte nach Titel und Kurzfazit unmittelbar „Das Rennen“ beziehungsweise die erste vollständige Auswertung sichtbar werden; stattdessen beansprucht die Rückschau fast den gesamten ersten Viewport. Der Blick bleibt deshalb in der Prosa hängen, bevor irgendeine analytische Grafik lesbar wird. Die dahinter sichtbare Oberfläche rechts schwächt erneut die Vorstellung eines eigenständigen Dokuments.
+**`end_immune_endreport_top.png`**  
+Die Überschrift im dunklen Aktenkopf führt den Blick richtig, danach zerfällt die Hierarchie in Tags, fünf ähnlich gewichtete Absätze und eine nur angeschnittene Diagrammfläche. Für eine Aufnahme, die den Anfang der „Das Rennen“-Kurven zeigen soll, erscheint die eigentliche Grafik zu spät und nur als unterer Fragmentrand. Die Abschlusskennzahlen stehen zu klein und ungruppiert im Kopf. Der breite Erzähltext fühlt sich stärker wie ein Epilog als wie ein auswertbarer Bericht an. Auch hier bleibt der dahinterliegende Button rechts sichtbar und beschädigt den Eindruck eines geschlossenen Dokuments.
 
-### `end_immune_endreport_mid.png`
-Der Blick fällt zuerst auf das regelmäßige Kartenraster „Mögliche Spielenden“, nicht auf das tatsächlich erreichte Ende. „Enthüllung (erreicht)“ ist nur durch einen dünnen, wenig auffälligen Rahmen markiert und lässt sich im Raster leicht übersehen. Am oberen Rand steht ein abgeschnittener Rest des vorigen Abschnitts, wodurch der Ausschnitt nicht an einer sauberen Abschnittskante beginnt. Der sichtbare Inhalt zeigt weder einen deutlich erkennbaren Methoden-Atlas noch eine Bilanz, sondern vor allem mögliche Enden und die Einordnung.
+**`end_immune_endreport_mid.png`**  
+Das Auge landet auf „Mögliche Spielenden“ und dem dichten Kartenraster, nicht auf einem Methoden-Atlas oder einer Bilanz. Damit stimmt der sichtbare Inhalt nicht mit der angekündigten Mitte des End-Reports überein. Die erreichte Variante „Enthüllung“ unterscheidet sich nur durch einen kleinen Haken und eine schwach veränderte Kontur; im Raster ist das kein ausreichend eindeutiger Status. Der oben abgeschnittene Rest einer vorherigen Box lässt den Scrollstand zufällig wirken. Der bereits sichtbare Abschlussbutton signalisiert zudem das Ende des Berichts, obwohl die Aufnahme als Berichtsmittelpunkt bezeichnet ist.
 
-### `end_immune_endreport_bottom.png`
-`end_immune_endreport_bottom.png` ist visuell identisch mit `end_immune_endreport_mid.png`; ein weiterer Scrollfortschritt ist nicht erkennbar. Der Blick geht vom Kartenraster zur Einordnung und schließlich zum mittigen Schließen-Button, was als Abschlussfolge grundsätzlich nachvollziehbar ist. Die kleine Zwecknotiz über dem Button ist jedoch so schwach, dass sie eher wie Kleingedrucktes als wie ein Debriefing-Abschluss wirkt. Gegenmaßnahmen oder ein eigener Debrief-Block sind in diesem Ausschnitt nicht sichtbar.
+**`end_immune_endreport_bottom.png`**  
+Diese Aufnahme ist pixelgleich oder nahezu pixelgleich mit `end_immune_endreport_mid.png`. Sichtbar sind erneut mögliche Spielenden und eine allgemeine Einordnung, nicht die angekündigten Gegenmaßnahmen beziehungsweise ein eigenständiges Debrief. Der Blick geht zuerst ins Kartenraster, obwohl am Berichtsende die Einordnung oder der Lerntransfer den stärksten Abschluss bilden sollte. Der kleine mittig gesetzte Satz über dem Button ist dafür visuell viel zu schwach. Der Button ist gut auffindbar, aber seine neutrale Kastenform vermittelt weder Abschlussstempel noch klare Primäraktion.
 
-### `end_victory_wahlabend_s0.png`
-Der Blick landet auf dem Balken und der Zahl „27,0 %“, nicht auf einer Titelkarte; die angekündigte Titelkartenfunktion ist im Bild nicht erkennbar. Der Fernsehausschnitt besteht überwiegend aus leerer dunkelblauer Fläche, während die relevante Hochrechnung relativ klein und tief sitzt. Zudem wirkt die Balkenfüllung optisch deutlich größer als 27 %, was die Zahl und die Grafik gegeneinander arbeiten lässt. „Klicken zum Fortfahren“ ist zu schwach, um als nächster Schritt sicher erkannt zu werden.
+**`end_victory_wahlabend_s0.png`**  
+Das Auge sucht zunächst im großen leeren Fernsehfeld und findet erst danach den kleinen Balken mit „27,0 %“. Eigentlich sollte die erste Hochrechnung mitsamt Verhältnis zur Schwelle sofort verständlich sein. Die Balkengrafik sitzt isoliert in der Mitte und nutzt nur einen kleinen Teil der verfügbaren Fläche. „LIVE“ und „Klicken zum Fortfahren“ sind so kontrastarm und klein, dass beide wie Dekoration wirken. Trotz der Bezeichnung Titelkarte fehlt ein sichtbarer, dominanter Titel für den Wahlabend.
 
-### `end_victory_wahlabend_s1.png`
-Der rote Balken wird nun zum stärksten Element, wodurch der Zustandswechsel gegenüber `end_victory_wahlabend_s0.png` immerhin sichtbar wird. Die eigentliche Konsequenz „die Regierung ist abgewählt“ steht aber nur im schmalen Nachrichtenticker und bekommt nicht das visuelle Gewicht des Balkens. Der große leere obere Teil des TV-Bildes bleibt erneut ungenutzt. Die Schwellenmarke, der Prozentwert und die Füllung sind zu weit auseinander verteilt, um als eine kompakte Aussage gelesen zu werden.
+**`end_victory_wahlabend_s1.png`**  
+Der rote Balken ist nun der klare Blickfang, aber der Zustandswechsel gegenüber `end_victory_wahlabend_s0.png` besteht visuell fast nur aus dem Farbwechsel. Die entscheidende Nachricht „die Regierung ist abgewählt“ bleibt in der schmalen Tickerzeile am unteren Fernsehrahmen. Die Darstellung von 27,0 %, Balkenfüllung und Schwellenposition wirkt geometrisch nicht plausibel: Der Balken reicht deutlich weiter als die Zahl erwarten lässt. Dadurch muss man die Grafik interpretieren, statt sie unmittelbar zu verstehen. Der Fortfahren-Hinweis bleibt weiterhin zu schwach.
 
-### `end_victory_wahlabend_s2.png`
-Der Blick springt zwischen rotem Balken und vollrotem Weiter-Button; die narrative Zeile dazwischen verliert dabei. Der TV-Rahmen liegt ohne oberen Außenabstand am Viewport und wirkt gegenüber `end_victory_wahlabend_s0.png` und `end_victory_wahlabend_s1.png` nach oben verschoben beziehungsweise beschnitten. Die sechs Milieu-Zustände sind klein und bilden eine unruhige Folge unterschiedlich breiter Kästen. Eigentlich sollte der Ablauf klar „Wahlergebnis → Reaktion des Kurators → gesellschaftliche Folgen → Weiter“ lesen.
+**`end_victory_wahlabend_s2.png`**  
+Zwei rote Anker konkurrieren um Aufmerksamkeit: der Balken in der Bildschirmmitte und der massive Weiter-Button unten. Die narrative Konsequenz zwischen beiden ist dagegen klein gesetzt und verliert sich. Wie bei `end_immune_wahlabend_s2.png` wurde der Fernseher nach oben verschoben und angeschnitten, wodurch die Sequenz sichtbar springt. Die sechs Milieu-Chips bilden eine unruhige, unterschiedlich breite Zickzackgruppe. Der untere Bereich ist so dicht gepackt, dass die große Leere im Fernseher und die Enge darunter wie zwei getrennte Layouts wirken.
 
-### `end_victory_wahlabend_s3.png`
-Der Titel „Die Mehrheit, gemacht“ ist der richtige erste Blickpunkt und besitzt genügend Gewicht. Danach konkurrieren Kurzbeschreibung, drei Kennzahlen, Spielstil-Tags und vier Absätze ohne starken Zwischenanker. Der Vertrauensgraph wird zwar früher sichtbar als in den Immunitätsvarianten, ist am unteren Rand aber erneut abgeschnitten. Ganz oben hinter dem Bericht bleibt zudem eine kaum lesbare englische Zeile sichtbar, die wie ein technischer Rest oder eine zweite Überschrift wirkt.
+**`end_victory_wahlabend_s3.png`**  
+Die Überschrift „Die Mehrheit, gemacht“ ist der stärkste und richtige Einstieg. Direkt danach fehlen jedoch klar hervorgehobene Ergebniskennzahlen; sie stehen wieder als kleine Zeile im Kopfband. Die Tags „Triumph“ und „Triumphal“ sehen wie unselektierte Schalter aus und tragen dadurch weniger als beabsichtigt. Das Diagramm ist im ersten sichtbaren Bereich nur teilweise vorhanden, während vier ähnlich gesetzte Absätze viel Raum verbrauchen. Oberhalb und rechts hinter dem Bericht scheinen fremde Hintergrundtexte beziehungsweise der Button des vorherigen Layers durch.
 
 ---
 
 ## 2. **Konkrete Eingriffe je Screen**
 
 ### `end_immune_wahlabend_s2.png`
-- Stempel „GEFÄLSCHT“ → auf etwa drei Viertel seiner jetzigen Größe reduzieren und näher an das durchgestrichene „Ihre Kampagne“ setzen → er bestätigt dann den Befund, statt ihn vollständig zu überdecken.
-- TV-/Nachrichtenrahmen → insgesamt etwa ein Zehntel niedriger skalieren und oben einen Außenabstand in Höhe des unteren Tickerbands lassen → der Rahmen stößt nicht mehr an den Viewport und schafft Platz für den Abschlussbereich.
-- Befundgruppe im TV → „Ihre Schlagzeilen – geprüft“ und die durchgestrichene Kampagne gemeinsam um etwa ein Viertel vergrößern und als linksbündigen Block im mittleren Drittel positionieren → die inhaltliche Aussage wird vor dem Stempel lesbar.
-- Milieu-Zustände → in ein gleich breites Drei-Spalten-Raster mit zwei Zeilen setzen und horizontale wie vertikale Abstände vereinheitlichen → die sechs Folgen lassen sich schneller scannen.
-- Weiter-Button → vollrote Fläche durch die in `desinformation-network/src/story-mode/theme.ts` definierte helle Papierfläche mit rotem Doppelring ersetzen → Rot bleibt Stempel-/Alarmtinte und der Button wirkt wie Teil der Behördenakte.
+
+- **Fernsehrahmen → um etwa ein Sechstel niedriger skalieren und vollständig mit einem kleinen oberen Außenabstand im Viewport halten → der untere Erzähl- und Bedienbereich erhält Luft, ohne dass der Rahmen angeschnitten wird.**
+- **„Ihre Schlagzeilen – geprüft“ und „GEFÄLSCHT“ → als gemeinsame Ergebnisgruppe im mittleren Drittel anordnen; Überschrift etwa 1,4-mal größer und direkt oberhalb beziehungsweise linksbündig zum Stempel → Aussage und Urteil werden in einem Blick erfasst.**
+- **Leere rote Bildschirmfläche → Ergebnisgruppe vertikal ins optische Zentrum ziehen und deren Gesamtfläche ungefähr verdoppeln → die größte Fläche des Bildes trägt dann auch die wichtigste Information.**
+- **Milieu-Chips → in ein gleichmäßiges Drei-mal-zwei-Raster mit identischen Breiten setzen, Außenkanten an der Textbreite darüber ausrichten → die gegenwärtige Zickzackkontur verschwindet.**
+- **Weiter-Button → mindestens eine Buttonhöhe Abstand zur unteren Bildkante geben und gemäß `desinformation-network/src/story-mode/theme.ts` als heller Papierknopf mit rotem Doppelring statt als vollrote Fläche ausführen → keine Beschneidung und bessere Bindung an die Behörden-Aktenwelt.**
 
 ### `end_immune_wahlabend_s3.png`
-- Berichtsbogen → von derzeit gut der halben auf etwa zwei Drittel der Viewportbreite erweitern, den Prosa-Satzspiegel aber auf ungefähr 70–75 Zeichen begrenzen → mehr Raum für Grafiken, ohne unlesbar lange Textzeilen zu erzeugen.
-- Kopfbereich → vertikal um etwa ein Fünftel komprimieren und die drei Angaben „Tage“, „Aktionen“, „Vertrauen“ als gleich breite Kennzahlengruppe unter den Vorspann setzen → die Kerndaten werden zum klaren zweiten Blickpunkt.
-- Spielstil-Tags → um etwa ein Fünftel vergrößern und direkt unter der Abschnittsüberschrift mit einheitlicher Höhe ausrichten → „ENTTARNUNG“ und „HOFFNUNGSVOLL“ sind derzeit zu kleinteilig.
-- Fließtext → auf drei kompaktere Absätze kürzen oder den vollständigen Text in den scrollbaren Bericht verlagern → mindestens die obere Hälfte des Vertrauensgraphs sollte im ersten Ausschnitt sichtbar sein.
-- Hintergrundelement rechts → bei geöffnetem Bericht vollständig abdunkeln oder ausblenden → „Vollständiger Lagebericht“ darf nicht halb hinter dem Dokument stehen.
+
+- **Berichtslayer → auf höchstens etwa 92 % der Viewporthöhe begrenzen, vollständig einrücken und nur den Papierinhalt intern scrollen → keine zufällige Beschneidung an der unteren Kante.**
+- **Hintergrund hinter dem Bericht → vollständig abdunkeln oder opak abdecken und den rechts sichtbaren Button entfernen → es bleibt nur eine aktive Interaktionsebene.**
+- **Kennzahlenzeile im Kopfband → in drei gleich breite Felder unter dem Einleitungssatz aufteilen, Werte deutlich größer als die Labels setzen → Dauer, Aktionen und Vertrauen werden als Abschlussdaten erkennbar.**
+- **Spielstil-Tags → direkt hinter „Spielstil-Bewertung“ setzen und den Bewertungswert durch gefüllte Tintenfläche oder Stempelkontur von gewöhnlichen Chips unterscheiden → sie lesen sich nicht länger als deaktivierte Filter.**
+- **Absatzblock vor „Vertrauensverlauf“ → vertikale Abstände um etwa ein Drittel reduzieren oder auf einen kürzeren Epilog begrenzen → Diagrammüberschrift und ein substanzieller Teil der Grafik passen gemeinsam in den ersten Sichtbereich.**
 
 ### `end_immune_gameend.png`
-- Zustandskopf → einen eindeutigen Endzustandsmarker innerhalb des Dokuments ergänzen beziehungsweise sichtbar machen, getrennt von „Abschluss-Bericht“ → `end_immune_gameend.png` muss auf den ersten Blick von `end_immune_wahlabend_s3.png` unterscheidbar sein.
-- Sichtbarer CTA rechts → vollständig in den Dokumentfuß verschieben und an der rechten Innenkante des Satzspiegels ausrichten → ein abgeschnittenes Bedienelement außerhalb der Akte wirkt wie ein Ebenenfehler.
-- Berichtskörper → oben stärker zusammenfassen und den Vertrauensgraph um etwa ein Drittel einer Bildschirmhöhe nach oben holen → ein Endscreen sollte Resultat und Beleg gleichzeitig zeigen.
-- Dokumenthintergrund → außerhalb der Akte durch eine gleichmäßig deckende dunkle Maske ersetzen → keine dahinterliegenden Panels oder Titel dürfen mit dem Abschluss konkurrieren.
+
+- **Gesamter Screen → als einseitige Abschlusskarte statt als angeschnittener Langbericht aufbauen: Kopf, zwei bis drei Ergebniskennzahlen, kurzer Epilog und sichtbare Primäraktion → der Zustand unterscheidet sich klar von `end_immune_endreport_top.png`.**
+- **Nächste Aktion → unterhalb des Epilogs innerhalb des sichtbaren Papierbogens platzieren, mit mindestens derselben optischen Breite wie die Spielstil-Tags zusammen → der Spieler sieht ohne Scrollen, wie es weitergeht.**
+- **Vertrauensdiagramm → auf diesem Game-End-Screen entweder vollständig zeigen oder in den ausführlichen Bericht verschieben; nicht nur den oberen Rand anschneiden → ein Fragment erzeugt einen unfertigen Eindruck.**
+- **Hintergrund-Button rechts → ausblenden, solange das Abschlussdokument aktiv ist → keine konkurrierende Navigation durch den Modal-Layer.**
+- **Kopfband → gegenüber dem ausführlichen Bericht mit einem klaren Abschlussstempel oder einer kompakten Statuszeile differenzieren → `end_immune_gameend.png` erhält eine eigene visuelle Funktion.**
 
 ### `end_immune_endreport_top.png`
-- Einleitung → nach Titel und Zwei-Zeilen-Fazit auf eine kurze Zusammenfassung begrenzen → „Vertrauensverlauf“ beziehungsweise „Das Rennen“ muss spätestens in der oberen Bildschirmhälfte beginnen.
-- Kennzahlenzeile → in drei deutlich getrennte Felder mit großem Zahlenwert und kleiner Beschriftung zerlegen → die derzeitige durchlaufende Textzeile ist zu leicht zu überlesen.
-- Graphrahmen → vollständig oberhalb der unteren Viewportkante positionieren oder mit einem klaren Scrollhinweis anschneiden → der aktuelle zufällige Anschnitt signalisiert weder Inhalt noch Interaktion.
-- Berichtsebene → über die gesamte Fläche hinter dem Papier eine deckende Maske legen → das rechts sichtbare Hintergrund-CTA lenkt von der Dokumentnavigation ab.
+
+- **Berichtsblatt → für die datenreiche Ansicht etwa 10–15 % breiter machen, die äußeren Ränder aber symmetrisch halten → Diagramme und Beschriftungen erhalten mehr Nutzbreite.**
+- **Kopfkennzahlen → aus der laufenden Textzeile lösen und direkt unter dem Titel als kompakte Dreiergruppe ausrichten → die Zusammenfassung ist vor dem Fließtext erfassbar.**
+- **Erzählabsätze → Zeilenlänge auf ungefähr zwei Drittel der Blattbreite begrenzen oder in einen schmaleren Textblock setzen → die langen Zeilen werden leichter verfolgt.**
+- **„Vertrauensverlauf“ und Diagramm → als untrennbaren Block behandeln; beim Einstieg entweder Überschrift plus mindestens die obere Hälfte der Grafik zeigen oder den Block vollständig unter den Falz schieben → kein verwaistes Diagrammfragment.**
+- **Modalhintergrund → vollständig opak machen und die darunterliegende Aktion rechts entfernen → das Blatt wirkt wie ein eigenständiger Bericht, nicht wie ein Overlay mit Leckstellen.**
 
 ### `end_immune_endreport_mid.png`
-- Scrollposition → den Abschnitt „Mögliche Spielenden“ mit mindestens einer Überschriftenhöhe Abstand zur oberen Dokumentkante beginnen lassen → der abgeschnittene Satzrest darüber wirkt wie ein Capture- oder Scrollfehler.
-- Karte „Enthüllung (erreicht)“ → zusätzlich zum Rahmen mit einem blauen oder roten Aktenstempel „ERREICHT“ und stärkerem linken Rand markieren → der aktive Zustand ist derzeit nur nach genauem Hinsehen erkennbar.
-- Kartenraster → Titel, Statussymbol und Erklärung in allen acht Karten an denselben horizontalen Bezugskanten ausrichten → die unterschiedlich umbrechenden Erklärungen erzeugen unruhige Textanfänge.
-- Abstand vor „Einordnung“ → auf ungefähr das Anderthalbfache des inneren Kartenabstands erhöhen → Enden-Katalog und Debriefing werden als zwei eigenständige Abschnitte lesbar.
-- Einordnungsblöcke → beide blauen Linien gleich lang und exakt an der Überschriftkante ausrichten → die aktuelle Markierung wirkt eher wie zwei zufällige Textzitate als wie ein systematischer Debrief.
+
+- **Scrollposition → am Beginn einer vollständigen Sektion einrasten; den oben abgeschnittenen Rest der vorherigen Box entfernen → der Ausschnitt beginnt mit einer klaren Abschnittskante.**
+- **Abschnittsinhalt → prüfen und an den vorgesehenen Methoden-/Bilanzabschnitt koppeln; sichtbar ist derzeit „Mögliche Spielenden“ → Navigation, Scrollanker oder Aufnahmezustand passen nicht zur bezeichneten Berichtsstelle.**
+- **Kartenraster → Spaltengasse auf mindestens die jeweilige Karten-Innenpolsterung vergrößern und alle Karten einer Zeile auf identische Höhe bringen → die acht Kästen wirken weniger gedrängt.**
+- **Erreichte Karte „Enthüllung“ → mit deutlich sichtbarem Erfolgsstempel im oberen rechten Kartenviertel und einer getönten Papierfläche markieren → der Status ist nicht mehr nur am kleinen Haken erkennbar.**
+- **„Bericht schließen“ → in einer als Mitte bezeichneten Ansicht nicht bereits als dominanten Abschluss zeigen; stattdessen erst am echten Dokumentende einblenden oder als festen, deutlich zurückgenommenen Footer behandeln → die Scrolltiefe bleibt verständlich.**
 
 ### `end_immune_endreport_bottom.png`
-- Unterer Berichtsausschnitt → so scrollen beziehungsweise erfassen, dass ein gegenüber `end_immune_endreport_mid.png` tatsächlich anderer Abschnitt beginnt → aktuell sind Mitte und Ende visuell identisch.
-- Abschlussnotiz → Schrift um etwa ein Fünftel vergrößern und näher an den Debrief-Text als an den Button setzen → sie soll als inhaltlicher Abschluss und nicht als juristisches Kleingedrucktes wirken.
-- „Bericht schließen“ → Papier-Stempelstil statt flacher graubrauner Taste verwenden und die Breite an den Text plus großzügige Seitenränder anpassen → die finale Aktion wird klarer und entspricht `desinformation-network/src/story-mode/theme.ts`.
-- Fußbereich → oberhalb und unterhalb des Buttons symmetrische Abstände verwenden → der Button sitzt derzeit näher am unteren Dokumentrand als an der Abschlussnotiz.
-- Verdeckte Hintergrundoberfläche → vollständig ausblenden → der Bericht sollte am Ende nicht wie ein Modal über einem weiterhin aktiven Screen wirken.
+
+- **Inhalt des unteren Berichtsteils → die angekündigten Gegenmaßnahmen beziehungsweise das Debrief vor dem Schlussbereich sichtbar machen → die Aufnahme zeigt derzeit denselben Inhalt wie `end_immune_endreport_mid.png`.**
+- **„Einordnung“ → als eigentlichen Abschlussblock stärker fassen: breitere linke Tintenlinie, etwas größere Kernaussage und klarer Abstand zum Kartenraster → der Lerntransfer wird zum Zielpunkt des unteren Abschnitts.**
+- **Hinweissatz „Dieses Spiel dient …“ → linksbündig zur Einordnung setzen und etwa auf normale Fließtextgröße anheben → der wichtigste Meta-Hinweis wirkt derzeit wie kleingedrucktes Copyright.**
+- **Schlussbereich → oberhalb und unterhalb des Buttons jeweils ungefähr eine halbe Buttonhöhe Abstand vorsehen → Footer, Hinweis und Aktion kleben weniger zusammen.**
+- **„Bericht schließen“ → als Stempel-CTA gemäß `stampCtaStyle` in `desinformation-network/src/story-mode/theme.ts` gestalten → die Abschlussaktion spricht dieselbe Material- und Aktensprache wie das restliche Interface.**
 
 ### `end_victory_wahlabend_s0.png`
-- Titelkarteninhalt → im oberen Drittel des TV-Bildes eine klare Überschrift wie die sichtbare Tickerbotschaft „Erste Hochrechnung“ platzieren → derzeit ist keine Titelkarte erkennbar und die obere Hälfte bleibt leer.
-- Balkengrafik → Fülllänge numerisch an „27,0 %“ koppeln oder die verwendete Skala direkt beschriften → die aktuelle Füllung wirkt eher wie drei Viertel als wie 27 %.
-- Schwellenmarke → Prozentwert der Schwelle unmittelbar unter „SCHWELLE“ anzeigen und die Linie über die volle Balkenhöhe hinausführen → Bedeutung und Größenverhältnis werden ohne Raten verständlich.
-- Hochrechnungsgruppe → um etwa ein Viertel vergrößern und leicht oberhalb der vertikalen Bildschirmmitte setzen → sie ist das einzige Hauptmotiv und derzeit zu klein für die verfügbare Fläche.
-- Fortfahren-Hinweis → deutlich heller, etwa ein Fünftel größer und näher an die Unterkante des TV-Rahmens rücken → die Interaktion gehört sichtbar zum Broadcast und nicht in die schwarze Restfläche.
+
+- **Balkenskala → Zahl, Füllstand und Schwellenmarker auf dieselbe lineare Skala bringen; den Wert direkt am Ende der Füllung platzieren → 27,0 % ist geometrisch nachvollziehbar.**
+- **Erste Hochrechnung → als deutliche Überschrift oberhalb des Balkens innerhalb des Fernsehbilds setzen, ungefähr doppelt so groß wie das aktuelle Senderlabel → die Titelkarte erhält einen klaren Einstieg.**
+- **Fernsehinhalt → Balkengruppe insgesamt um etwa ein Drittel vergrößern und den leeren oberen Bereich deutlich reduzieren → die Informationsgrafik trägt die verfügbare Fläche.**
+- **„LIVE“ → Kontrast und Größe erhöhen und mit gleichmäßigem Innenabstand zum oberen und rechten Bildschirmrand setzen → der Sendestatus ist erkennbar statt fast unsichtbar.**
+- **„Klicken zum Fortfahren“ → mindestens auf die Größe des TickertTexts anheben und näher an die Unterkante des Fernsehrahmens rücken → Aufforderung und zugehörige Interaktionsfläche werden zusammen gelesen.**
 
 ### `end_victory_wahlabend_s1.png`
-- Ergebnisaussage → „Regierung abgewählt“ zusätzlich als große Zeile oberhalb des Balkens setzen → die politische Konsequenz darf nicht nur im Ticker stehen.
-- Balken, Wert und Schwelle → als kompakte Einheit gruppieren, wobei „27,0 %“ direkt am Füllende und die Schwelle direkt an ihrer Linie sitzt → die aktuelle horizontale Streuung verlangsamt das Lesen.
-- Leere TV-Fläche → durch ein zurückhaltendes, feinpixeliges Hochrechnungsraster oder eine abstrakte Wahlkarte im oberen Drittel nutzen → der Schirm wirkt sonst unfertig und nicht wie eine Sondersendung.
-- Fortfahren-Hinweis → denselben Kontrast und dieselbe Position wie in `end_victory_wahlabend_s0.png` erhalten, aber mit einem kleinen Interaktionssymbol ergänzen → der Hinweis bleibt momentan zu leicht übersehbar.
+
+- **Tickerbotschaft „Regierung ist abgewählt“ → oberhalb des Balkens als Ergebniszeile hochstufen; im Ticker kann sie verkürzt wiederholt werden → die entscheidende Wendung hängt nicht am kleinsten Textbereich.**
+- **Balken → Füllende exakt an den numerischen Wert koppeln und Schwelle zusätzlich numerisch beschriften → die aktuell widersprüchliche Geometrie verschwindet.**
+- **Zustandswechsel zu `end_victory_wahlabend_s0.png` → neben dem Farbwechsel eine klare Ergebnisüberschrift oder einen Stempel innerhalb des Bildschirms verwenden → der neue Schritt ist auch ohne Animation verständlich.**
+- **Tickerleiste → Sendername und Meldung auf einer gemeinsamen Grundlinie ausrichten und zwischen beiden ungefähr eine Zeichenhöhe Abstand lassen → die Zeile wirkt nicht wie zwei zusammengeschobene Textstile.**
+- **Fortfahren-Hinweis → Kontrast auf das Niveau der weißen Prozentzahl anheben → der einzige Bedienhinweis bleibt nicht hinter dem Inhalt zurück.**
 
 ### `end_victory_wahlabend_s2.png`
-- TV-Rahmen → auf die Größe und vertikale Position von `end_victory_wahlabend_s0.png` und `end_victory_wahlabend_s1.png` zurückführen → der Sprung an den oberen Viewportrand wirkt wie ein Layoutbruch.
-- Narrative Zeile → in einen maximal etwa drei Fünftel breiten, linksbündigen Textblock direkt unter dem TV setzen → der zentrierte Zweizeiler konkurriert mit den vielen Kästen darunter.
-- Milieu-Zustände → gleich breite Drei-Spalten-Matrix mit zwei Zeilen und identischen Innenabständen verwenden → die derzeit wechselnden Breiten erzeugen eine gezackte Kontur.
-- Weiter-Button → näher an die Zustandsmatrix rücken, aber durch mindestens eine halbe Buttonhöhe Abstand als eigene Aktion trennen → aktuell hängt er optisch am unteren Bildschirmrand.
-- Weiter-Button-Farbe → vollrote Fläche durch Papierfläche mit rotem Stempelring ersetzen → der stärkste Rotblock sollte nicht die Folgen des Wahlergebnisses überstrahlen.
+
+- **Fernsehrahmen → dieselbe Position und Größe wie in `end_victory_wahlabend_s0.png` und `end_victory_wahlabend_s1.png` beibehalten oder den Übergang sichtbar animieren → der Layoutsprung zwischen den Schritten entfällt.**
+- **Narrativer Satz unter dem Fernseher → in eine klare Papier- oder Untertitelzeile mit derselben Breite wie die Milieu-Gruppe setzen und den Zeilenumbruch kontrollieren → er wirkt als eigenständiger Story-Beat.**
+- **Milieu-Chips → auf zwei Reihen mit je drei gleich breiten Feldern normieren und an einer gemeinsamen linken und rechten Kante ausrichten → die unruhige Silhouette wird zu einer lesbaren Auswertung.**
+- **Weiter-Button → von der unteren Bildkante lösen und vom vollroten Block zum roten Stempelknopf auf Papier wechseln → weniger Konkurrenz zum roten Ergebnisbalken und Einhaltung der UI-Tokens.**
+- **Ergebnis im Fernseher → die Meldung über die abgewählte Regierung stärker als den Balken gewichten, etwa durch eine größere Zeile direkt darüber → der Blick geht zuerst zur Konsequenz, nicht erneut zur bereits bekannten Messung.**
 
 ### `end_victory_wahlabend_s3.png`
-- Hintergrundzeile „A Manufactured Majority“ → bei geöffnetem Bericht vollständig verbergen → die kaum lesbare englische Zeile über der Akte wirkt wie ein technisches Artefakt.
-- Kopfkennzahlen → „2 Tage“, „0 Aktionen“ und „58 % Vertrauen“ als drei gleich breite Felder unter dem Ergebnistext ausgeben → der Widerspruch zwischen großem Sieg und „0 Aktionen“ wird so wenigstens sichtbar statt in einer Kleinzeile versteckt.
-- Spielstil-Tags → größer und mit klarerem Abstand zur folgenden Prosa setzen → „TRIUMPH“ und „TRIUMPHAL“ sind momentan klein und semantisch kaum unterscheidbar.
-- Fließtextblock → Absatzabstände um etwa ein Viertel reduzieren und die letzte wiederholte Grenzüberschreitungs-Passage in einen hervorgehobenen Schlusskasten setzen → der Graph kann höher beginnen und der Text erhält einen Endpunkt.
-- Vertrauensgraph → Achsentitel und 40-%-Schwelle vergrößern sowie die Kurve vollständig in den ersten Viewport holen → die Daten sind der Beleg des Endes und dürfen nicht abgeschnitten werden.
+
+- **Hintergrundreste oberhalb und rechts → vollständig maskieren, solange der Abschlussbericht geöffnet ist → „A Manufactured Majority“ und der alte Button bilden keine Geisterebene mehr.**
+- **Kopfkennzahlen → als drei separate Felder unter dem Titel anlegen, Werte deutlich größer und fett setzen → die Bilanz ist vor dem Epilog erfassbar.**
+- **„Triumph“/„Triumphal“ → als beschriftete Bewertung ausgeben, beispielsweise „Ergebnis: Triumph“ und „Spielstil: triumphal“, statt als zwei gleichartige Outline-Chips → Funktion und Zustand sind sofort klar.**
+- **Absatzrhythmus → Abstände zwischen den vier Absätzen um ungefähr ein Drittel reduzieren, Zeilenabstand leicht erhöhen → weniger vertikale Streckung bei besserer Lesbarkeit.**
+- **Vertrauensdiagramm → weiter nach oben ziehen oder den Bericht beim Einstieg direkt auf eine vollständige Diagrammsektion scrollen → Kurve, Achsen und Schwelle erscheinen nicht nur teilweise.**
 
 ---
 
 ## 3. **Grafiken/Assets**
 
-- `end_immune_wahlabend_s2.png`: Der „GEFÄLSCHT“-Stempel trägt die Behördenidee am stärksten, ist aber überdimensioniert und zu sauber-geometrisch. Eine leicht ungleichmäßige Tintenkante würde stärker nach realem Aktenstempel aussehen; die Schrift selbst sollte scharf bleiben.
-- `end_victory_wahlabend_s0.png`, `end_victory_wahlabend_s1.png` und `end_victory_wahlabend_s2.png`: Scanlines, dunkles Blau und der schmale Nachrichtenticker bilden eine nachvollziehbare diegetische Fernsehebene. Die Grafik wirkt jedoch unfertig, weil außer einem einzelnen Balken kein Sendungsbild vorhanden ist und mehr als die Hälfte der Fläche leer bleibt.
-- `end_victory_wahlabend_s0.png`: Der Balken ist die problematischste Grafik des Bündels, weil seine wahrgenommene Fülllänge nicht zur Beschriftung „27,0 %“ passt. Unabhängig von der zugrunde liegenden Spielrechnung muss eine Achse, ein Startwert oder eine zweite Vergleichsgröße sichtbar werden.
-- `end_immune_wahlabend_s3.png`, `end_immune_gameend.png`, `end_immune_endreport_top.png` und `end_victory_wahlabend_s3.png`: Die Aktenflächen tragen die Papierwelt, wirken aber als vollkommen gleichmäßige Beige-Flächen etwas synthetisch. Eine sehr schwache Papierfaser oder leichte Tonwertvariation würde Materialität herstellen, ohne die Schrift zu stören.
-- `end_immune_endreport_mid.png` und `end_immune_endreport_bottom.png`: Das Kartenraster funktioniert als Aktenübersicht, aber die aktive Karte braucht ein eigenständiges Asset beziehungsweise einen Stempelzustand. Ein dünner ockerfarbener Rahmen genügt nicht als „erreicht“-Signal.
-- `end_immune_wahlabend_s3.png` und `end_victory_wahlabend_s3.png`: Die Graphen sind funktional, aber zu dünn und zu nah an einer generischen Web-Datenvisualisierung. Kräftigere Tintenlinien, kleine Aktenmarkierungen an Start und Ende sowie klarere Schwellenbeschriftungen würden sie in die Behördenwelt integrieren.
-- `end_victory_wahlabend_s0.png` bis `end_victory_wahlabend_s2.png`: Am meisten fehlt im oberen TV-Drittel eine zurückhaltende, feinpixelige Wahlgrafik — etwa eine abstrakte Karte, Wahlbezirksmatrix oder Hochrechnungs-Tabelle ohne reale Staatssymbole. Das würde die tote Fläche nutzen und dem Balken einen glaubwürdigen Sendungskontext geben.
-- Die vollroten Weiter-Buttons in `end_immune_wahlabend_s2.png` und `end_victory_wahlabend_s2.png` wirken wie fremde Standard-Game-CTAs. Sie widersprechen der Festlegung in `desinformation-network/src/story-mode/theme.ts`, nach der Primäraktionen als gestempelte Papierknöpfe statt als rot geflutete Flächen erscheinen sollen.
-- Die dunklen, fast leeren Wahlabendflächen in allen gezeigten Wahlabend-Screens entfernen sich von `sprite-tool/public/context/game-style-guide.md`, das dunkle, leere Räume ausdrücklich vermeiden will. Als TV-Inhalt ist Dunkelheit plausibel; die Leere innerhalb des TV-Bildes braucht aber grafischen Sendungsinhalt.
+- **Die Fernsehrahmen in `end_victory_wahlabend_s0.png` bis `end_victory_wahlabend_s2.png` tragen die Broadcast-Idee**, weil Rahmen, Scanlines und Ticker als zusammengehöriges In-World-Display lesbar sind. Sie sind scharf genug und zeigen keine sichtbaren Skalierungsartefakte. Falsch skaliert ist nicht der Rahmen selbst, sondern sein Verhältnis zum Inhalt: Rund zwei Drittel der inneren Fläche bleiben visuell ungenutzt.
+- **Der „GEFÄLSCHT“-Stempel in `end_immune_wahlabend_s2.png` ist das stärkste Einzelasset des Bündels.** Seine Größe ist für ein Endurteil angemessen, aber er schwebt ohne ausreichend großes Beleg- oder Schlagzeilenmaterial im Raum. Eine kleine Aktenmontage aus zwei bis drei gestrichenen Schlagzeilen oder Prüfvermerken direkt hinter beziehungsweise unter dem Stempel würde die Fläche sinnvoll füllen, ohne eine neue Bildwelt einzuführen.
+- **Die Papierblätter in `end_immune_wahlabend_s3.png`, `end_immune_gameend.png`, `end_immune_endreport_top.png`, `end_immune_endreport_mid.png`, `end_immune_endreport_bottom.png` und `end_victory_wahlabend_s3.png` entsprechen der Behörden-Aktenabsicht.** Cremefläche, dunkles Kraftpapier-Kopfband und dünne Tintenlinien passen zu den Tokens in `desinformation-network/src/story-mode/theme.ts`. Die Blätter wirken allerdings zu digital-rechteckig, weil Layerkanten, Scrollzustand und darunterliegende Buttons sichtbar bleiben.
+- **Die vollroten Weiter-Buttons in `end_immune_wahlabend_s2.png` und `end_victory_wahlabend_s2.png` wirken fremd.** `desinformation-network/src/story-mode/theme.ts` reserviert Rot für Stempel und Kopfbänder und definiert ausdrücklich einen hellen Stempel-CTA mit rotem Doppelring. Die derzeitige große Rotfläche zieht mehr Aufmerksamkeit als das eigentliche Ergebnis.
+- **Die Balkengrafik in `end_victory_wahlabend_s0.png` bis `end_victory_wahlabend_s2.png` ist stilistisch zu generisch.** Sie sieht eher wie ein Debug-/HUD-Balken als wie eine Wahlgrafik eines Senders aus. Am meisten bringen würde hier eine kompakte, papierinspirierte Hochrechnungstafel mit klarer Skala, Schwellenzahl und einem großen Ergebniswert; keine zusätzliche Illustration, sondern eine präzisere Informationsgrafik.
+- **In `end_immune_endreport_mid.png` und `end_immune_endreport_bottom.png` fehlt ein eigenständiges visuelles Asset für Methoden, Gegenmaßnahmen oder Debrief.** Sichtbar sind ausschließlich Textkarten. Kleine einfarbige Aktenzeichen, Stempel oder Verbindungslinien könnten die Kategorien unterscheiden, wichtiger ist jedoch zunächst, dass überhaupt die vorgesehenen Abschnitte dargestellt werden.
+- **Fotografische oder gerenderte Bildassets sind in diesen zehn Aufnahmen nicht sichtbar.** Deshalb lassen sich Auflösung, Sättigung und Zuschnitt solcher Assets hier nicht beurteilen; die sichtbaren Pixelkanten von Rahmen, Schrift und Diagrammen sind überwiegend scharf.
 
 ---
 
 ## 4. **Raster & Rhythmus**
 
-- `end_immune_wahlabend_s2.png` und `end_victory_wahlabend_s2.png` verwenden faktisch drei übereinandergestapelte Raster: TV, Erzähltext und Milieu-Kästen. Diese Raster besitzen keine gemeinsame linke Kante; TV und Ticker sind breit, der Erzähltext ist zentriert und die Kästen bilden eine wechselnde Kontur. Eine gemeinsame Inhaltsbreite von ungefähr drei Fünfteln des TV-Rahmens sollte Text, Zustandsmatrix und CTA zusammenhalten.
-- Die TV-Rahmen springen zwischen `end_victory_wahlabend_s0.png`/`end_victory_wahlabend_s1.png` und `end_immune_wahlabend_s2.png`/`end_victory_wahlabend_s2.png` deutlich in Höhe und Position. Statt den Rahmen bei zusätzlichem Untertext nach oben zu schieben, sollte er proportional verkleinert werden und stets denselben oberen Sicherheitsabstand behalten.
-- `end_victory_wahlabend_s0.png` und `end_victory_wahlabend_s1.png` haben extreme tote Fläche im oberen TV-Bereich. Der einzige Datenblock sitzt ungefähr im unteren Mittelfeld, obwohl er zusammen mit einer Überschrift und einer Wahlgrafik das zentrale Drittel füllen könnte.
-- `end_immune_wahlabend_s3.png`, `end_immune_gameend.png`, `end_immune_endreport_top.png` und `end_victory_wahlabend_s3.png` nutzen einen etwa 56 % breiten Dokumentbogen. Eine Erweiterung auf ungefähr zwei Drittel des Viewports würde den seitlichen schwarzen Leerraum reduzieren; Prosa und Diagramme sollten dabei unterschiedliche maximale Satzbreiten erhalten.
-- In den Report-Screens ist die Abschnittsfolge zu vertikal: großer Kopf, Tags, mehrere Absätze, dann Graph. Das erzeugt einen ersten Viewport ohne vollständige Datenvisualisierung. Kopf und Prosa müssen zusammen um ungefähr ein Viertel kürzer werden oder der Graph braucht einen früheren Einstieg.
-- `end_immune_endreport_mid.png` und `end_immune_endreport_bottom.png` besitzen ein grundsätzlich stabiles Zwei-Spalten-Raster, beginnen aber oberhalb von „Mögliche Spielenden“ mit einem abgeschnittenen Textrest. Jeder Scrollzielpunkt sollte auf einer Überschrift oder der Oberkante eines vollständigen Moduls einrasten.
-- Die Abstände innerhalb der Endenkarten sind kleiner als die Abstände zwischen Kartenraster, „Einordnung“, Abschlussnotiz und Button. Das ist richtig angelegt, aber die Hierarchie ist zu schwach; Abschnittsabstände sollten klar mindestens das Anderthalbfache der Kartenabstände betragen.
-- Die Report-Overlays trennen sich nicht sauber vom Hintergrund. In `end_immune_wahlabend_s3.png`, `end_immune_gameend.png`, `end_immune_endreport_top.png` und `end_victory_wahlabend_s3.png` bleiben hinter der rechten Dokumentkante Texte oder Panels sichtbar, wodurch Vorder- und Hintergrundebene ineinanderlaufen.
+- Die zentrale Breite von ungefähr 720 Bildpunkten beziehungsweise etwas mehr als der halben Viewportbreite ist über die Screens hinweg grundsätzlich konsistent. Problematisch ist der Wechsel der vertikalen Geometrie: In `end_victory_wahlabend_s0.png` und `end_victory_wahlabend_s1.png` steht der Fernseher eingerückt, in `end_victory_wahlabend_s2.png` und `end_immune_wahlabend_s2.png` klebt er oben am Rand. Ein einziges festes Sequenzraster sollte den Fernseher, den Story-Beat und die Aktion über alle Wahlabend-Schritte an denselben Bezugskanten halten.
+- Für die Wahlabend-Screens bietet sich eine feste Dreiteilung an: etwa zwei Drittel Höhe für den Fernseher, knapp ein Viertel für Text und Milieus, der Rest als sicherer Aktions- und Außenabstand. Derzeit werden große tote Flächen im Fernseher mit einem gequetschten unteren Drittel kombiniert.
+- Die Milieu-Chips in `end_immune_wahlabend_s2.png` und `end_victory_wahlabend_s2.png` sind zwar zentriert, aber nicht gerastert. Unterschiedliche Breiten und wechselnde Startkanten erzeugen eine dekorative Wolke, obwohl es sich um eine systematische Liste handelt. Gleich breite Spalten und konstante Zeilenabstände würden den Behördencharakter deutlich stärken.
+- Die Berichte besitzen innen eine brauchbare gemeinsame linke Kante für Überschriften, Regeln und Fließtext. In `end_immune_endreport_mid.png` und `end_immune_endreport_bottom.png` ist die Gasse zwischen den beiden Kartenspalten jedoch deutlich enger als Außenabstand und Kartenpolsterung. Diese drei Abstände sollten aus demselben Rastermaß abgeleitet werden.
+- Die Berichtsabschnitte verwenden zu viele gleich starke horizontale Linien. In `end_immune_endreport_top.png` konkurrieren Abschnittsregel, Diagrammrahmen und Blattkante; in den unteren Aufnahmen kommen acht Kartenrahmen hinzu. Außenrahmen kräftig, Abschnittstrenner mittel und Kartenrahmen deutlich heller zu setzen würde drei Ebenen erzeugen.
+- Tote Fläche entsteht vor allem in den Fernsehbildern. Unruhe entsteht dagegen unterhalb der Fernseher sowie am unteren Berichtsende. Fläche sollte von oben nach unten umverteilt werden, nicht durch zusätzliche Elemente insgesamt vergrößert werden.
+- Der abgeschnittene Inhalt am oberen Rand von `end_immune_endreport_mid.png` und `end_immune_endreport_bottom.png` braucht einen Scrollanker. Eine Sektion sollte entweder vollständig unter einer festen Kopfzone beginnen oder sichtbar als fortgesetzter Inhalt markiert werden; die aktuelle halbe Box erfüllt keines von beidem.
 
 ---
 
 ## 5. **Lesbarkeit**
 
-- In `end_immune_wahlabend_s2.png` musste ich bei den sechs Milieu-Zuständen zweimal hinsehen; Schrift, Kreisindikator und Rahmen sind zu fein für ihre Bedeutung. Diese Labels brauchen etwa 1,2-fache Schriftgröße, mehr Innenabstand und einen kontrastreicheren Zustandsmarker.
-- In `end_victory_wahlabend_s0.png` und `end_victory_wahlabend_s1.png` sind „SCHWELLE“, „LIVE“ und „Klicken zum Fortfahren“ zu dunkel beziehungsweise zu klein. Besonders „LIVE“ verschwindet fast vollständig auf dem dunkelblauen Scanline-Hintergrund.
-- Der rote Text in `end_immune_wahlabend_s2.png` liegt auf einem sehr dunklen Rotbraun und besitzt trotz Farbkontrast zu wenig Helligkeitskontrast. Überschrift und Stempel sollten heller oder der Hintergrund deutlich neutraler werden; mehr Rot allein löst das Problem nicht.
-- Die Kennzahlenzeilen in `end_immune_wahlabend_s3.png`, `end_immune_gameend.png`, `end_immune_endreport_top.png` und `end_victory_wahlabend_s3.png` sind zu klein, obwohl sie das Spielergebnis zusammenfassen. Zahlen sollten etwa 1,3-fach größer als ihre Labels erscheinen und nicht in einem einzigen Satz stehen.
-- Die Report-Prosa ist in allen Report-Screens für eine Pixel-Monospace-Schrift zu klein und zu dicht. Eine Vergrößerung um etwa 15 %, eine Zeilenhöhe von ungefähr 1,4 und etwas kürzere Zeilen würden die langen Rückblicke deutlich entlasten.
-- In `end_immune_endreport_mid.png` und `end_immune_endreport_bottom.png` musste ich den erreichten Zustand suchen. „Enthüllung (erreicht)“ braucht neben stärkerer Kontur ein explizites Statuszeichen; die übrigen Enden sollten zugleich sichtbar inaktiv bleiben.
-- Die beiden Tags „TRIUMPH“ und „TRIUMPHAL“ in `end_victory_wahlabend_s3.png` sehen fast gleich aus und liefern ohne zusätzliche Beschriftung kaum unterschiedliche Information. Falls einer Spielstil und einer Tonalität bezeichnet, sollten diese Kategorien als kleine Oberlabels sichtbar werden.
-- Achsentitel und Prozentwerte in `end_victory_wahlabend_s3.png` sind zu klein und teilweise zu nah am Rand des Graphen. Die rote „40 %“-Beschriftung ist zwar farblich hervorgehoben, steht aber isoliert rechts und wird nicht sofort der gestrichelten Linie zugeordnet.
-- Die Zwecknotiz „Dieses Spiel dient dem Verständnis …“ in `end_immune_endreport_mid.png` und `end_immune_endreport_bottom.png` ist deutlich schwächer als der umgebende Text. Wenn sie Teil der Immunisierungsfunktion ist, darf sie nicht wie ein rechtlicher Footer behandelt werden.
+- In `end_victory_wahlabend_s0.png` und `end_victory_wahlabend_s1.png` musste ich bei „LIVE“, „SCHWELLE“ und „Klicken zum Fortfahren“ zweimal hinsehen. Alle drei Texte sind zu klein und zu kontrastarm gegenüber dem dunkelblauen Hintergrund.
+- In `end_immune_wahlabend_s2.png` ist „SONDERSENDUNG“ oben rechts praktisch unsichtbar. Auch „Ihre Schlagzeilen – geprüft“ ist gegenüber dem großen Stempel um mehrere Hierarchiestufen zu klein.
+- Die Milieu-Chips in `end_immune_wahlabend_s2.png` und `end_victory_wahlabend_s2.png` liegen an der unteren Grenze sinnvoller Lesbarkeit. Etwa 15–20 % mehr Schriftgröße, etwas mehr Innenhöhe und ein heller Papiergrund statt bloßer dunkler Konturen würden helfen.
+- Die Fließtexte der Berichte sind kontrastreich genug, aber sehr weit gesetzt. Besonders in `end_immune_wahlabend_s3.png` und `end_immune_endreport_top.png` erschweren lange Zeilen und die Pixel-Monospace-Schrift den Zeilensprung. Eine geringere Textbreite bei leicht größerem Zeilenabstand wäre wirksamer als nur eine größere Schrift.
+- Die Kennzahlen „Kampagne“, „Aktionen gesamt“ und „Finales Vertrauen“ sind in allen Berichtsköpfen zu klein für ihre Bedeutung. Ihre Labels dürfen klein bleiben, die eigentlichen Werte sollten ungefähr auf Unterüberschriftenniveau stehen.
+- Die Zustände der Spielstil-Tags in `end_immune_wahlabend_s3.png`, `end_immune_gameend.png`, `end_immune_endreport_top.png` und `end_victory_wahlabend_s3.png` sind unklar. Outline-Rechtecke signalisieren im übrigen UI-Vokabular eher auswählbar oder inaktiv, nicht „festgestellte Bewertung“.
+- In `end_immune_endreport_mid.png` und `end_immune_endreport_bottom.png` musste ich gezielt suchen, welche Endung erreicht wurde. Der kleine Haken bei „Enthüllung“ reicht innerhalb von acht ähnlich aussehenden Karten nicht.
+- Die Diagrammbeschriftungen in `end_victory_wahlabend_s3.png` sind klein, aber noch erkennbar; die rote „40 %“-Marke sitzt allerdings sehr dicht am rechten Plotrand. Sie sollte außerhalb des Datenfeldes eine eigene Beschriftungsspalte erhalten.
+- Der halb sichtbare Text „Vollständiger Lagebericht“ hinter mehreren Berichtsscreens ist nicht nur schlecht lesbar, sondern sollte in diesem Zustand überhaupt nicht sichtbar sein.
 
 ---
 
 ## 6. **Die drei wirksamsten Änderungen**
 
-1. **Alle Wahlabend- und Report-Container auf ein konsistentes responsives Höhenraster setzen und Hintergrundelemente bei geöffnetem Bericht vollständig maskieren.** Das beseitigt abgeschnittene Rahmen, halb sichtbare Graphen und verdeckte CTAs gleichzeitig in fast allen zehn Screens.
+1. **Alle Wahlabend-Schritte auf ein festes Layout setzen und den Fernseher um etwa 15–20 % verkleinern.** Dadurch verschwinden obere Beschneidung, Layoutsprünge, tote Bildschirmfläche und die Enge um Text, Milieus und Weiter-Button in einem Eingriff.
 
-2. **Die Informationshierarchie über eine größere Kennzahlenstufe, lesbarere Pixel-Schrift und deutlichere Aktiv-/Erreicht-Zustände schärfen.** Diese Änderung betrifft überwiegend Typografie und CSS, verbessert aber Balken, Tags, Karten, Diagramme und Abschlussberichte unmittelbar.
+2. **Berichtslayer vollständig vom Hintergrund isolieren und Game-End-Karte, Report-Anfang, -Mitte und -Ende visuell wie inhaltlich trennen.** Das beseitigt die durchscheinenden Buttons und Texte sowie die derzeit identischen beziehungsweise falsch verankerten Aufnahmen mit vergleichsweise wenig CSS- und Zustandsarbeit.
 
-3. **Die leeren TV-Flächen mit einer klaren Ergebnisaussage plus zurückhaltender Wahlgrafik füllen und die Prozentbalken semantisch korrekt skalieren.** Damit werden die Wahlabend-Screens von leeren Zwischenzuständen zu verständlichen, glaubwürdigen Sendungsbildern.
+3. **Ergebnisse als klare Statuskomponenten neu hierarchisieren: große Kennzahlen, konsistente Balkenskala, eindeutiger „ERREICHT“-Stempel und Stempel-CTAs.** Damit werden sowohl die Wahlgrafik als auch die Berichte unmittelbar verständlicher und die Oberfläche folgt zugleich den Vorgaben aus `desinformation-network/src/story-mode/theme.ts`.
 
 ---
 
 ## 7. **Blinde Flecken**
 
-- `end_immune_wahlabend_s3.png`, `end_immune_gameend.png` und `end_immune_endreport_top.png` sind visuell nahezu identisch. Für eine Zustandsprüfung werden getrennte Aufnahmen unmittelbar vor und nach dem jeweiligen Übergang benötigt.
-- `end_immune_endreport_mid.png` und `end_immune_endreport_bottom.png` zeigen denselben Ausschnitt. Für Methoden-Atlas, Bilanz, Gegenmaßnahmen und Debrief wären Screenshots nötig, bei denen jeder dieser Abschnitte mit seiner Überschrift an der oberen Dokumentkante beginnt.
-- Nicht erkennbar ist, ob die Balken in `end_victory_wahlabend_s0.png` bis `end_victory_wahlabend_s2.png` animiert wachsen. Dafür wären Start-, Zwischen- und Endframe oder eine kurze Aufnahme nötig.
-- Hover-, Fokus-, Tastatur- und gedrückte Zustände der Weiter- und Schließen-Buttons sind in keinem Screenshot sichtbar. Insbesondere der Kontrast des gestempelten Fokuszustands lässt sich daher nicht beurteilen.
-- Nicht sichtbar ist, ob die Reports einen Scrollbalken, Scrollhinweis oder automatisches Abschnitts-Snapping besitzen. Ein Screenshot mit sichtbarem Scrollzustand und einer Aufnahme während des Scrollens wäre nötig.
-- Die Skalierung auf kleineren und größeren Viewports ist nicht beurteilbar. Benötigt werden dieselben Wahlabend- und Report-Zustände mindestens einmal in einem niedrigeren 16:9-Viewport und einmal in einer größeren Desktopauflösung.
-- Kantenschärfe und Pixel-Skalierung der TV-Scanlines lassen sich nur eingeschränkt bewerten, weil keine Vergrößerung vorliegt. Ein nativer 100-%-Ausschnitt von Balken, Ticker, Stempel und Reporttext würde zeigen, ob Pixelkanten sauber auf dem Raster liegen.
+- Aus `end_victory_wahlabend_s0.png` und `end_victory_wahlabend_s1.png` ist nicht erkennbar, ob die Balkenfüllung animiert wird und ob der scheinbare Maßstabsfehler nur ein Zwischenframe ist. Dafür wären Anfangs-, Mittel- und Endframe derselben Animation nötig.
+- Die Screenshots zeigen keine Hover-, Fokus-, Tastatur- oder gedrückten Zustände der Weiter- und Schließen-Aktionen. Dafür werden Aufnahmen der Buttons in allen Interaktionszuständen benötigt.
+- Es ist nicht sichtbar, ob die Berichte per Mausrad, Dragging, Tastatur oder eigenem Scrollbalken navigiert werden. Eine Aufnahme mit sichtbarem Scrollindikator und eine während des Scrollens wären erforderlich.
+- `end_immune_wahlabend_s3.png`, `end_immune_gameend.png` und `end_immune_endreport_top.png` erscheinen identisch. Ohne Aufnahme direkt vor und nach dem jeweiligen Zustandswechsel lässt sich nicht beurteilen, ob dies ein Capture-Fehler oder die tatsächliche UX ist.
+- `end_immune_endreport_mid.png` und `end_immune_endreport_bottom.png` erscheinen ebenfalls identisch und zeigen weder Methoden-Atlas noch Gegenmaßnahmen. Für diese Abschnitte werden korrigierte Screenshots an den tatsächlichen Scrollankern benötigt.
+- Alle Aufnahmen liegen bei 1280 × 720 vor. Nicht beurteilbar sind kleinere Fenster, breitere Seitenverhältnisse, UI-Skalierung und mögliche Überläufe bei vergrößerter Schrift.
 
 ---
 

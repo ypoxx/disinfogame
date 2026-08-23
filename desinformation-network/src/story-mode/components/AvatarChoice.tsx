@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { StoryModeColors, stampCtaStyle } from '../theme';
 import { useAssets } from '../assets/useAssets';
 import { Icon } from './Icon';
-import { PLAYER_PORTRAITS, playerPortraitAssetId, usePlayerProfile } from '../stores/playerProfileStore';
+import { PLAYER_PORTRAITS, playerPortraitAssetId, playerPortraitImgStyle, usePlayerProfile } from '../stores/playerProfileStore';
 import { PixelModal } from './PixelModal';
 
 export interface AvatarChoiceProps {
@@ -40,7 +40,7 @@ export function AvatarChoice({ onConfirm }: AvatarChoiceProps): React.JSX.Elemen
       open
       variant="alarm"
       maxWidthClass="max-w-lg"
-      backdrop={0.97}
+      backdrop="schwer"
     >
       {/* Eigener farbiger Kopf */}
       <div
@@ -77,7 +77,10 @@ export function AvatarChoice({ onConfirm }: AvatarChoiceProps): React.JSX.Elemen
                 }}
               >
                 {url ? (
-                  <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'pixelated' }} />
+                  // P10: normierter Ausschnitt statt objectFit cover — die sechs
+                  // Quellbilder sind unterschiedlich weit aufgenommen (Kopfhöhe
+                  // 19 % bis 40 % der Bildhöhe), und hier stehen sie nebeneinander.
+                  <img src={url} alt="" style={playerPortraitImgStyle(opt.id)} />
                 ) : (
                   <Icon name="npcs" size={32} />
                 )}

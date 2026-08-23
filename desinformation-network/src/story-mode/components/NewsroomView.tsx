@@ -277,7 +277,7 @@ function PostCard({ post, isFirst = false }: PostCardProps): React.JSX.Element {
           {post.isOurs && (
             <span
               style={{
-                fontSize: 9,
+                fontSize: 10,
                 color: StoryModeColors.ministryRed,
                 lineHeight: 1,
                 flexShrink: 0,
@@ -416,7 +416,7 @@ function TrendingRow({ item, maxVolume }: TrendingRowProps): React.JSX.Element {
       {/* Volumen-Zahl */}
       <div
         style={{
-          fontSize: 9,
+          fontSize: 10,
           color: StoryModeColors.lightConcrete,
           fontFamily: "'VT323', monospace",
           marginTop: 2,
@@ -665,7 +665,7 @@ export function NewsroomView({
                   <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: '#3a7acc' }}>
                     GEGENSEITE — {gegenseite.format_de.toUpperCase()}
                   </span>
-                  <span style={{ fontSize: 9, color: StoryModeColors.lightConcrete }} title="Stand der Aufklärung">
+                  <span style={{ fontSize: 10, color: StoryModeColors.lightConcrete }} title="Stand der Aufklärung">
                     Aufklärung {Math.round(gegenseite.awareness * 100)}%
                   </span>
                 </div>

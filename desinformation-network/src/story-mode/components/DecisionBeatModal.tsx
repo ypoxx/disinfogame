@@ -1,5 +1,6 @@
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, scrim } from '../theme';
 import { PixelFrame } from './PixelFrame';
+import { useScrollHint, ScrollHint } from './ScrollHint';
 import { SOCIETY_VALUE_META, type SocietyValueKey, type DecisionBeatResult } from '../../game-logic/StoryEngineAdapter';
 import type { DecisionBeat, WerteDelta } from '../engine/DecisionBeats';
 
@@ -53,20 +54,36 @@ function KostenChips({ kosten }: { kosten: { risk?: number; attention?: number; 
   if (kosten.moralWeight) items.push(`${kosten.moralWeight > 0 ? '+' : ''}${kosten.moralWeight} Moral`);
   if (items.length === 0) return null;
   return (
-    <div className="flex gap-2 text-xs" style={{ color: StoryModeColors.danger }}>
+    // P11 (Fremdmodell-Durchgang 2026-08-22): Die Wirkungswerte standen auf drei
+    // x-Positionen. Es gibt nur EINEN Codepfad — die scheinbare „Spalte" war ein
+    // Umbruch INNERHALB jedes Chips: Ohne `shrink-0` schrumpfte die Kosten-Zeile
+    // proportional zum Titel, ohne `whitespace-nowrap` brach jeder Chip zwischen
+    // Zahl und Label um. Option A (kurzer Titel) blieb einzeilig, B und C nicht.
+    // Genau diese Werte vergleicht der Spieler, wenn er sich entscheidet.
+    <div className="flex gap-2 text-xs shrink-0 whitespace-nowrap" style={{ color: StoryModeColors.danger }}>
       {items.map((t) => <span key={t}>{t}</span>)}
     </div>
   );
 }
 
 export function DecisionBeatModal({ isVisible, beat, result, recommendedOptionId, onChoose, onClose }: DecisionBeatModalProps) {
+  const optionenHint = useScrollHint([isVisible, beat?.id, result]);
   if (!isVisible || !beat) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(0,0,0,0.9)' }}>
+    <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: scrim('schwer') }}>
       {/* B24: nie höher als der Bildschirm — Kopf/Fuß bleiben fix, der Mittelteil
-          (Optionen) scrollt innen; sonst wurde Option D unterhalb der Kante gekappt. */}
-      <PixelFrame variant="standard" className="w-full max-w-xl mx-4 max-h-[100vh] flex flex-col min-h-0">
+          (Optionen) scrollt innen; sonst wurde Option D unterhalb der Kante gekappt.
+
+          P2 (Fremdmodell-Durchgang 2026-08-22): 100vh war der Ausreißer — JEDES
+          andere Modal deckelt bei 80–94vh (PixelModal 90, CrisisModal 90,
+          BetrayalEventModal 90, NpcPanel/MissionPanel/EventsPanel 85,
+          NarrativeBoard 94). Bei 1280×720 fiel die Papierkante des PixelFrame
+          damit exakt mit der Bildschirmkante zusammen: 720 von 720 px, Rand null,
+          kein sichtbarer Fensterabschluss. Beide Modelle lasen das als
+          „abgeschnitten" — und schlugen einen Fußleisten-Umbau vor, der wirkungslos
+          geblieben wäre: Kopf, Scrollbereich und Fuß sind längst drei Geschwister. */}
+      <PixelFrame variant="standard" className="w-full max-w-xl mx-4 max-h-[90vh] flex flex-col min-h-0">
         {/* Header */}
         <div
           className="px-6 py-4 border-b-4 shrink-0"
@@ -127,7 +144,12 @@ export function DecisionBeatModal({ isVisible, beat, result, recommendedOptionId
           </div>
         ) : (
           /* === Auswahl-Ansicht === */
-          <div className="p-6 space-y-4 flex-1 min-h-0 overflow-y-auto">
+          <div className="relative flex-1 min-h-0 flex flex-col">
+          <div
+            ref={optionenHint.ref}
+            onScroll={optionenHint.onScroll}
+            className="p-6 space-y-4 flex-1 min-h-0 overflow-y-auto"
+          >
             <p className="text-sm" style={{ color: StoryModeColors.textSecondary }}>{beat.anlass_de}</p>
             <h4 className="font-bold text-sm" style={{ color: StoryModeColors.textSecondary }}>
               IHRE ENTSCHEIDUNG (abgewogen gegen: {beat.kostenAchse_de}):
@@ -146,7 +168,7 @@ export function DecisionBeatModal({ isVisible, beat, result, recommendedOptionId
                   }}
                 >
                   <div className="flex justify-between items-start mb-1 gap-3">
-                    <span className="font-bold" style={{ color: StoryModeColors.textPrimary }}>
+                    <span className="font-bold min-w-0" style={{ color: StoryModeColors.textPrimary }}>
                       {opt.id} · {opt.label_de}
                       {recommendedOptionId === opt.id && (
                         <span
@@ -167,6 +189,11 @@ export function DecisionBeatModal({ isVisible, beat, result, recommendedOptionId
                 </button>
               ))}
             </div>
+          </div>
+          {/* Aus B24 hatte dieses Modal nur die Höhen-Deckelung übernommen, nicht
+              die Affordanz — der Beat „stadtrat" hat vier Optionen, sichtbar waren
+              A, B und der Kopf von C. */}
+          <ScrollHint sichtbar={optionenHint.sichtbar} />
           </div>
         )}
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { StoryModeColors, stampCtaStyle } from './theme';
+import { StoryModeColors, stampCtaStyle, scrim } from './theme';
 import { GAME_VERSION } from './version';
 import { DialogBox } from './components/DialogBox';
 import { StoryHUD } from './components/StoryHUD';
@@ -113,7 +113,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
+      style={{ backgroundColor: scrim('normal') }}
     >
       {/* PIXEL-Regler „Dienstplan-Tafel" (Plan L1, §4.7): eckiger Tinten-Schieber auf
           segmentierter Leiste. Die repeating-linear-gradient-Stopps sind HARTE Kanten
@@ -510,6 +510,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       gamePhase: state.gamePhase,
       gameEnd: state.gameEnd,
       hasDialog: !!state.currentDialog,
+      // Ein Krisen-Modal (z-70) legt sich über ALLES und hat die Ernte am
+      // 2026-08-22 vier Aufnahmen gekostet (decision_beat, day_report,
+      // day_report_bottom, morning_briefing zeigten alle dasselbe Krisenfenster).
+      // Die Ernte muss es deshalb erkennen und wegräumen können.
+      hasCrisis: !!state.activeCrisis,
+      dismissCrisis,
       viewMode,
       startGame,
       chooseAuftrag,
@@ -912,21 +918,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           }}
           onRestart={() => { resetUI(); resetGame(); }}
           onMainMenu={() => { resetUI(); onExit(); }}
+          onShowFullReport={() => setShowEndReport(true)}
         />
-        {/* K8: Zugang zum vollständigen End-Report — „der größte edukative Teil" */}
-        <button
-          onClick={() => setShowEndReport(true)}
-          className="fixed bottom-4 right-4 z-50 px-4 py-3 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
-          style={{
-            // v3 §4.7: Kraftband-Knopf mit heller Schrift (warning war Tinte auf Blau).
-            backgroundColor: StoryModeColors.darkConcrete,
-            borderColor: StoryModeColors.border,
-            color: StoryModeColors.document,
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-          }}
-        >
-          VOLLSTÄNDIGER LAGEBERICHT ▸
-        </button>
         {showEndReport && (() => {
           // Vollständiger Katalog (auch bereits gespielte Aktionen) → korrekte
           // Legalitäts-Bilanz UND der Bildungs-Kern: reale Methoden hinter den Mechaniken.
@@ -1570,7 +1563,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       {showShortcuts && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
+          style={{ backgroundColor: scrim('normal') }}
           onClick={() => setShowShortcuts(false)}
           role="button"
           aria-label="Tastenkürzel schließen"

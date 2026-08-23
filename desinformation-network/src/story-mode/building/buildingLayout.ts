@@ -54,6 +54,20 @@ export interface FloorLayout extends FloorDef {
   walkY: number;
 }
 
+/**
+ * Wand-Fuß-Linie einer Etage: die Standlinie, auf der Türen, Deko, Statisten und
+ * der Avatar aufsetzen (Oberkante des Boden-Streifens, NICHT die vordere
+ * Bodenkante).
+ *
+ * Der Ausdruck stand bisher an sechs Stellen in `BuildingStage.tsx` ausgeschrieben.
+ * Für die Bodenschatten (P5) braucht es dieselbe Zahl noch einmal — und ein
+ * siebtes Vorkommen wäre eines zu viel: Verschiebt jemand `floorStrip`, muss die
+ * Standlinie an EINER Stelle nachziehen.
+ */
+export function wallFootY(floor: { y: number }): number {
+  return floor.y + STAGE.floorHeight - STAGE.floorStrip;
+}
+
 export interface RoomLayout extends RoomDef {
   x: number;
   y: number;

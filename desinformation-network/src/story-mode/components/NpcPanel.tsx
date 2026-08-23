@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, scrim } from '../theme';
 import { Icon } from './Icon';
 import { PixelFrame } from './PixelFrame';
 import type { NPCState } from '../../game-logic/StoryEngineAdapter';
+import { Leerzustand } from './Leerzustand';
 
 interface NpcPanelProps {
   isVisible: boolean;
@@ -107,12 +108,11 @@ export function NpcPanel({
       style={variant === 'modal' ? { borderColor: StoryModeColors.border } : undefined}
     >
       {npcs.length === 0 ? (
-        <div
-          className="text-center py-8"
-          style={{ color: StoryModeColors.textMuted }}
-        >
-          Keine Kontakte verfugbar.
-        </div>
+        <Leerzustand
+          icon="npcs"
+          titel="Keine Kontakte"
+          hinweis="Ihr Team steht in den Büros des Hauses — sprechen Sie es dort an."
+        />
       ) : (
         npcs.map(npc => (
           <div
@@ -146,7 +146,7 @@ export function NpcPanel({
                   border: `2px solid ${getRelationshipColor(npc.relationshipLevel)}`,
                   backgroundColor: StoryModeColors.document,
                   fontWeight: 'bold',
-                  fontSize: '1.25rem',
+                  fontSize: 20,
                   color: StoryModeColors.textPrimary,
                   flexShrink: 0,
                 }}
@@ -242,7 +242,7 @@ export function NpcPanel({
                 border: `3px solid ${getRelationshipColor(selectedNpc.relationshipLevel)}`,
                 backgroundColor: StoryModeColors.document,
                 fontWeight: 'bold',
-                fontSize: '1.875rem',
+                fontSize: 32,
                 color: StoryModeColors.textPrimary,
               }}
             >
@@ -522,7 +522,7 @@ export function NpcPanel({
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
+      style={{ backgroundColor: scrim('normal') }}
       onClick={onClose}
     >
       <PixelFrame

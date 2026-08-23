@@ -1,4 +1,4 @@
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, scrim } from '../theme';
 import type { CrisisMoment, CrisisChoice } from '../engine/CrisisMomentSystem';
 import { Icon } from './Icon';
 import { PixelFrame } from './PixelFrame';
@@ -73,7 +73,7 @@ export function CrisisModal({
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-[70]"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.95)' }}
+      style={{ backgroundColor: scrim('schwer') }}
       onClick={onDismiss}
     >
       <PixelFrame

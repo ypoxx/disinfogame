@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { StoryModeColors, stampCtaStyle } from '../theme';
+import { StoryModeColors, stampCtaStyle, scrim } from '../theme';
 import { MOOD_LABEL_DE, type Mood } from '../audience/audienceModel';
 import type { NightReport } from '../engine/ImmuneSystem';
 import type { TrancheResult } from '../engine/Finanzen';
@@ -14,8 +14,15 @@ import type { TrancheResult } from '../engine/Finanzen';
 
 interface AudienceSegment {
   label: string;
-  belief: number; // 0–100
+  /** 0..1 — dieselbe Einheit, die `audienceModel.ts` führt. NICHT Prozent.
+   *  Die Umrechnung passiert erst beim Rendern (wie BroadcastBar.tsx). */
+  belief: number;
   mood: string;
+}
+
+/** Anteil 0..1 → Prozentbreite fürs CSS. Einzige Stelle, an der umgerechnet wird. */
+function anteilProzent(v: number): number {
+  return Math.max(0, Math.min(100, v * 100));
 }
 
 interface DayReportProps {
@@ -25,7 +32,8 @@ interface DayReportProps {
   audienceSegments: AudienceSegment[];
   counterHeadlines: string[];
   resources: { risk: number; budget: number; attention: number };
-  trustProgress: number; // 0–100 (Ministerium Institutionen)
+  /** 0..1 — Fortschritt Richtung Destabilisierungs-Ziel, wie in MorningBriefing. */
+  trustProgress: number;
   /** T1 (KONZEPT 2026-07-07 §4.1): Stand der Brett-Stränge — schließt den Tages-Loop. */
   straenge?: { id: string; titel: string; done: number; total: number }[];
   /** Etappe 3 Paket D: Nacht-Transparenz — null an Tag 1 (keine Nacht vergangen). */
@@ -117,12 +125,12 @@ export function DayReport({
     return () => window.removeEventListener('keydown', onKey);
   }, [onNextDay]);
 
-  const trust = Math.max(0, Math.min(100, trustProgress));
+  const trust = anteilProzent(trustProgress);
 
   return (
     <div
       className="fixed inset-0 z-[60] flex flex-col"
-      style={{ backgroundColor: '#0a0a0aF2' }}
+      style={{ backgroundColor: scrim('schwer') }}
     >
       {/* Letterbox-Balken oben */}
       <div className="h-[6vh] w-full" style={{ backgroundColor: '#000' }} />
@@ -191,7 +199,7 @@ export function DayReport({
                         <div
                           className="h-full transition-all duration-500"
                           style={{
-                            width: `${Math.max(0, Math.min(100, seg.belief))}%`,
+                            width: `${anteilProzent(seg.belief)}%`,
                             backgroundColor: StoryModeColors.ministryRed,
                           }}
                         />

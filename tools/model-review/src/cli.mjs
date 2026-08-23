@@ -132,7 +132,7 @@ WICHTIGE OPTIONEN
   --max-cost <usd>           Kostenbremse pro Modell (Default ${defaults().maxCostUsd})
   --max-tokens <n>           Maximale Antwortlänge (Default ${defaults().maxCompletionTokens})
   --max-chars <n>            Maximale Paketgröße (Default ${defaults().maxContextChars})
-  --temperature <n>          Default ${defaults().temperature}
+  --temperature <n>          Default ${defaults().temperature} (bei --anbieter openai: Modell-Vorgabe)
   --preis-unbekannt-ok       Auch Modelle ohne Preisangabe erlauben
   --erlaube-datensammlung    Anbieter mit Daten-Sammlung zulassen (Default: ausgeschlossen)
   --out <verzeichnis>        Zielordner der Berichte (Default ${relToRepo(REPORT_DIR)})
@@ -184,6 +184,30 @@ function aufrufOptionen(args, cfg) {
 function anbieterKontext(args) {
   const anbieter = findeAnbieter(args.anbieter || 'openrouter');
   return { anbieter, baseUrl: anbieter.baseUrl() };
+}
+
+/**
+ * Temperatur für diesen Lauf — oder `null`, wenn das Feld gar nicht mitgehen soll.
+ *
+ * Nicht jeder Anbieter nimmt jede Temperatur: OpenAIs Denk-Modelle akzeptieren
+ * ausschließlich ihre eigene Vorgabe und quittieren alles andere mit HTTP 400.
+ * Der CLI-Default (0.3) darf dort also nicht stillschweigend mitfahren — sonst
+ * scheitert jeder Lauf an einer Voreinstellung, die niemand gewählt hat.
+ * Ausdrücklich verlangt (`--temperature`) geht der Wert trotzdem raus: Dann ist
+ * es eine Entscheidung, und die Fehlermeldung des Anbieters ist die Antwort darauf.
+ */
+function temperaturFuer(args, cfg, anbieter) {
+  if (args.temperature) {
+    const wert = Number.parseFloat(args.temperature);
+    if (anbieter && anbieter.nimmtTemperatur === false) {
+      console.warn(
+        `  ⚠ ${anbieter.id} nimmt bei Denk-Modellen nur die eigene Temperatur-Vorgabe — ` +
+          `--temperature ${wert} kann mit HTTP 400 abgelehnt werden.`
+      );
+    }
+    return wert;
+  }
+  return anbieter && anbieter.nimmtTemperatur === false ? null : cfg.temperature;
 }
 
 /**
@@ -360,11 +384,11 @@ async function cmdReview(args, cfg) {
   const modelle = args.model.length ? args.model : [cfg.model];
   const maxCostUsd = args['max-cost'] ? Number.parseFloat(args['max-cost']) : cfg.maxCostUsd;
   const maxTokens = args['max-tokens'] ? Number.parseInt(args['max-tokens'], 10) : cfg.maxCompletionTokens;
-  const temperature = args.temperature ? Number.parseFloat(args.temperature) : cfg.temperature;
   const denyDataCollection = args['erlaube-datensammlung'] ? false : cfg.denyDataCollection;
   const outDir = args.out ? path.resolve(args.out) : REPORT_DIR;
 
   const { anbieter, baseUrl } = anbieterKontext(args);
+  const temperature = temperaturFuer(args, cfg, anbieter);
   const kontext = kontextFuer(linse, args, cfg);
   const bilder = bilderFuer(args);
   const videos = videosFuer(args);
@@ -406,6 +430,15 @@ async function cmdReview(args, cfg) {
     if (katalog.length && !model) {
       const hinweis = vorschlaege.length ? `\n  Meintest du: ${vorschlaege.join(', ')}` : '';
       fehler(`Modell "${id}" gibt es bei OpenRouter nicht.${hinweis}\n  Katalog ansehen: node src/cli.mjs models --filter <text>`);
+    }
+    // Anbieter-Vorgabe schlägt den Katalog: OpenAI kennt gar keinen video_url-Teil,
+    // und ohne Katalog gäbe es dort sonst niemanden, der widerspricht.
+    if (videos.length && anbieter.kannVideo === false) {
+      fehler(
+        `${anbieter.id} nimmt keine Clips entgegen — /chat/completions kennt keinen ` +
+          `"video_url"-Inhaltsteil, unabhängig vom Modell.\n` +
+          `  Weg über Einzelbilder: node src/cli.mjs frames --anzahl 4, dann --bild <ordner>.`
+      );
     }
     if (videos.length && model && !kannVideo(model)) {
       fehler(
@@ -591,10 +624,12 @@ async function cmdSerie(args, cfg) {
   if (!buendel.length) fehler(`Keine passenden Bündel in ${relToRepo(ernteDir)} gefunden.`);
 
   // Anbieter ohne Video-Eingang (OpenAI) beantworten `video_url` mit HTTP 400.
-  // Die Clip-Bündel hier wegzulassen ist ehrlicher als 3 rote Zeilen am Ende:
-  // der Hinweis nennt den Weg, der trotzdem funktioniert.
-  const uebersprungeneClips = anbieter.videoEingang ? [] : buendel.filter((b) => b.kind === 'clip');
-  const zuLaufen = anbieter.videoEingang ? buendel : buendel.filter((b) => b.kind !== 'clip');
+  // Am 2026-08-22 kostete das im echten Lauf drei fehlgeschlagene Bündel. Die
+  // Clip-Bündel hier wegzulassen ist ehrlicher als rote Zeilen am Ende — und es
+  // muss VOR dem Plan passieren, damit auch der Trockenlauf die Wahrheit zeigt.
+  const ohneVideo = anbieter.kannVideo === false;
+  const uebersprungeneClips = ohneVideo ? buendel.filter((b) => b.kind === 'clip') : [];
+  const zuLaufen = ohneVideo ? buendel.filter((b) => b.kind !== 'clip') : buendel;
   if (!zuLaufen.length) {
     fehler(
       `Nur Clip-Bündel gefunden, aber "${anbieter.id}" nimmt keine Clips entgegen.\n` +
@@ -604,7 +639,7 @@ async function cmdSerie(args, cfg) {
 
   const modellWunsch = args.model.length ? args.model[0] : cfg.model;
   const maxTokens = args['max-tokens'] ? Number.parseInt(args['max-tokens'], 10) : 32_000;
-  const temperature = args.temperature ? Number.parseFloat(args.temperature) : cfg.temperature;
+  const temperature = temperaturFuer(args, cfg, anbieter);
   const denyDataCollection = args['erlaube-datensammlung'] ? false : cfg.denyDataCollection;
   const outDir = args.out ? path.resolve(args.out) : REPORT_DIR;
   const kontext = kontextFuer(linse, args, cfg);
@@ -637,9 +672,11 @@ async function cmdSerie(args, cfg) {
   if (!istKonto(modellWunsch) && katalog.length && !modell) {
     fehler(`Modell "${modellWunsch}" gibt es bei OpenRouter nicht.`);
   }
-  // Doppelt geprüft: der Anbieter muss Clips überhaupt annehmen, und das Modell muss sie lesen.
-  // Bei Kontovorgabe kennen wir das Modell vorher nicht — dann entscheidet die Antwort.
-  const kannClips = anbieter.videoEingang && (modell ? kannVideo(modell) : true);
+  // Ob Clips als Video mitgehen können, entscheidet zuerst der Anbieter (OpenAI
+  // kennt gar keinen video_url-Teil), dann das Modell. Nur wenn beides offen
+  // ist, gilt die alte Annahme „Kontovorgabe — erst die Antwort weiß es".
+  const kannClips =
+    anbieter.kannVideo === false ? false : modell ? kannVideo(modell) : true;
 
   const datum = heute();
   const zeitstempel = new Date().toISOString();

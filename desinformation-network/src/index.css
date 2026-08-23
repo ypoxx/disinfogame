@@ -176,6 +176,36 @@
     outline: 2px solid #F0B429;
     outline-offset: 1px;
   }
+
+  /* P15 (Fremdmodell-Durchgang 2026-08-22): Hover war NICHT durchgehend gelöst —
+     37 von 99 Knöpfen hatten keinen. Sie sitzen in den inline-gestylten
+     „v3-Akte"-Ansichten (MaschenVortest, OperationsAkte, Terminal, BroadcastBar):
+     Dort greift ein Tailwind-`hover:` nicht, CSS-in-JS-`:hover` gibt es im ganzen
+     Story-Mode nicht, `onMouseEnter` auch nicht.
+
+     Statt an 37 Stellen eine Klasse nachzutragen steht die Regel hier — in
+     derselben Form wie der Fokus darüber, der genau deshalb lückenlos ist. Wer
+     einen Knopf hinzufügt, bekommt den Zustand geschenkt statt ihn zu vergessen.
+
+     `filter` und nicht `box-shadow`/`background`: Die betroffenen Knöpfe tragen
+     ihre Flächen als Inline-Style, und Inline schlägt jede Klassenregel. `filter`
+     setzt dort niemand. Die 62 Knöpfe mit eigenem `hover:`-Utility behalten ihres
+     (Tailwind-Utilities liegen in einer späteren Layer als diese Basis-Regel).
+
+     Helligkeit UND Kontrast: Auf der fast weißen Stempelfläche (#E6DCC3) läuft
+     reine Aufhellung ins Weiß und ist unsichtbar — der Kontrast-Anteil trägt sie. */
+  button {
+    transition: filter 120ms ease, transform 120ms ease;
+  }
+  button:hover:not(:disabled) {
+    filter: brightness(1.07) contrast(1.05);
+  }
+  button:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
 }
 
 /* P1-11: Legacy-Web-Klassen (.btn-primary/.btn-secondary/.card/.input — rounded-lg/2xl,
