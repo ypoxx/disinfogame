@@ -93,7 +93,7 @@ function Bodenschatten({ x, y, breite, staerke = 0.55 }: { x: number; y: number;
         // den Bodenkontakt überhaupt zu zeigen — gemessen an der Ernte 2026-08-23.
         background: `radial-gradient(ellipse at center, rgba(12,9,5,${staerke}) 0%, rgba(12,9,5,${staerke * 0.72}) 62%, rgba(12,9,5,0) 88%)`,
         pointerEvents: 'none',
-        zIndex: 3,
+        zIndex: EBENE.boden,
       }}
     />
   );
@@ -132,6 +132,42 @@ export interface BuildingStageProps {
 
 const layout = getBuildingLayout();
 
+/**
+ * Stapel-Ebenen der Bühne (2026-08-23).
+ *
+ * Vorher standen zwölf nackte `zIndex`-Zahlen verstreut im File, und eine davon
+ * war falsch: Die Klickfläche der Tür lag auf 6 — über den Flur-Statisten (5).
+ * Sie ist mit 144 × 184 Welt-px bewusst großzügiger als das Türblatt, als RAND,
+ * nicht als Vorrang. Wer neben einer Tür stand, war deshalb nicht mehr
+ * anklickbar; sein Klick landete auf „<Raum> betreten" (gemessen an „KOLLEGE
+ * ansprechen", Etage 3).
+ *
+ * Die Regel, die das verhindert: **Man klickt, was man SIEHT.** Die großzügige
+ * Türfläche ist ein Auffangnetz und gehört deshalb ganz nach unten — unter alles
+ * Sichtbare, das eine eigene Bedeutung hat. Ihr Hover-Rahmen bleibt trotzdem
+ * sichtbar, weil er auf drei Seiten AUSSERHALB des Türblatts liegt.
+ *
+ * `buildingLayers.test.ts` hält die Reihenfolge fest.
+ */
+export const EBENE = {
+  /** Flurwand und Boden. */
+  hintergrund: 1,
+  /** Auffangnetz um die Tür — transparent, nur der Hover-Rahmen ist zu sehen. */
+  tuerKlickflaeche: 1,
+  /** Plakate, Requisiten — anklickbar, also über dem Auffangnetz. */
+  deko: 2,
+  /** Bodenschatten und Vordergrund-Elemente. */
+  boden: 3,
+  /** Türblatt. */
+  tuer: 4,
+  /** Figuren: Statisten, Pförtner. Dazu Etagenlampe und Schacht-Klickfläche. */
+  figuren: 5,
+  /** Der Spieler — immer obenauf. */
+  avatar: 6,
+  /** Sprechblasen über der jeweiligen Figur. */
+  blase: 7,
+} as const;
+
 /** Globale Keyframes der Bühne (einmalig, Präfix bs-).
  *  LB: Die früheren Statisten-Keyframes (bs-walk-move/-flip, bs-door-traffic)
  *  sind entfallen — Bewegung kommt jetzt aus ambientLife (echte Routen). */
@@ -155,7 +191,7 @@ function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
     width: STAGE.doorWidth,
     height: STAGE.doorHeight,
     pointerEvents: 'none',
-    zIndex: 4,
+    zIndex: EBENE.tuer,
   };
   if (closedUrl && openUrl) {
     const img = (url: string, vis: boolean): CSSProperties => ({
@@ -179,10 +215,16 @@ function AmbientPerson({ a, left, top, height, viewScale }: { a: AmbientFigure; 
   return (
     <>
     <Bodenschatten x={left} y={top + height} breite={(height / 96) * 44} staerke={0.45} />
-    <div style={{ position: 'absolute', left, top, transform: 'translateX(-50%)', zIndex: 5 }}>
+    {/* Solange die Blase offen ist, hebt sich die GANZE Figur auf Blasen-Ebene.
+        Ein zIndex am Anker allein reicht nicht: Der Wrapper ist positioniert und
+        eröffnet damit einen eigenen Stapelkontext — die Blase konkurriert innen
+        auf 7, nach außen zählt nur die 5 des Wrappers. Die Türschilder liegen
+        ebenfalls auf 5 und stehen später im DOM, malten also über den
+        Blasentext (gesehen in der Ernte 2026-08-23). */}
+    <div style={{ position: 'absolute', left, top, transform: 'translateX(-50%)', zIndex: open ? EBENE.blase : EBENE.figuren }}>
       {open && (
         // Sprechblase welt-verankert über der Figurenmitte, aber nativ gerastert (B1/E35).
-        <WorldAnchor x={(height / 96) * 48 / 2} y={0} scale={viewScale} z={7}>
+        <WorldAnchor x={(height / 96) * 48 / 2} y={0} scale={viewScale} z={EBENE.blase}>
           <div
             style={{
               position: 'absolute', bottom: 8, left: 0, transform: 'translateX(-50%)',
@@ -329,7 +371,7 @@ function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]
               width: (AMBIENT_HEIGHT / 96) * 48,
               height: AMBIENT_HEIGHT,
               transform: 'translateX(-50%)',
-              zIndex: 5, // vor der Tür (4), hinter dem Avatar (6): tritt sichtbar aus dem Türrahmen
+              zIndex: EBENE.figuren, // vor der Tür, hinter dem Avatar: tritt sichtbar aus dem Türrahmen
               pointerEvents: 'none',
               display: 'flex',
               alignItems: 'flex-end',
@@ -641,7 +683,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                         imageRendering: 'pixelated',
                       }
                     : { borderBottom: '2px solid #2c2d35' }),
-                  zIndex: 1,
+                  zIndex: EBENE.hintergrund,
                 }}
               />
               {/* Frei platzierte Flur-Deko (R4): Bodensteher auf der Bodenlinie,
@@ -704,7 +746,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                       imageRendering: 'pixelated',
                       pointerEvents: clickable ? 'auto' : 'none',
                       cursor: clickable ? 'pointer' : undefined,
-                      zIndex: 2,
+                      zIndex: EBENE.deko,
                     }}
                   />
                 );
@@ -733,7 +775,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                         imageRendering: 'pixelated',
                       }
                     : {}),
-                  zIndex: 3,
+                  zIndex: EBENE.boden,
                 }}
               />
               {/* Etagen-Schild — welt-verankert, nativ gerastert (B1/E35).
@@ -745,7 +787,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                   Zwei Ebenen, zwei Maßeinheiten: Bei 1280 px sah das zufällig fast
                   richtig aus, bei jedem anderen Zoom liefen die Schilder auseinander.
                   4 CSS-px ≙ dem bisherigen Welt-Offset bei Bühnen-Scale ½. */}
-              <WorldAnchor x={STAGE.pillarWidth + 8} y={floor.y} scale={view.scale} z={5}>
+              <WorldAnchor x={STAGE.pillarWidth + 8} y={floor.y} scale={view.scale} z={EBENE.figuren}>
                 <div
                   style={{
                     position: 'absolute',
@@ -786,7 +828,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               {/* Türschild über der Tür — welt-verankert, nativ gerastert (B1/E35).
                   Sitzt in der DECKEN-Band-Spur (bottom 20), damit es nicht mit dem
                   Etagen-Schild kollidiert — native Rasterung braucht 2× Welt-Platz. */}
-              <WorldAnchor x={room.doorX} y={wallFootY(room) - STAGE.doorHeight} scale={view.scale} z={5}>
+              <WorldAnchor x={room.doorX} y={wallFootY(room) - STAGE.doorHeight} scale={view.scale} z={EBENE.figuren}>
                 <span
                   style={{
                     position: 'absolute',
@@ -819,7 +861,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                   borderRadius: 10,
                   backgroundColor: lampColor,
                   animation: npc?.inCrisis ? 'bs-blink 0.9s ease-in-out infinite' : 'bs-glow 3s ease-in-out infinite',
-                  zIndex: 5,
+                  zIndex: EBENE.figuren,
                   pointerEvents: 'none',
                 }}
                 title={npc?.inCrisis ? 'KRISE' : undefined}
@@ -841,7 +883,10 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                   background: 'transparent',
                   border: hovered ? `2px solid ${WORLD_AMBER}` : '2px solid transparent',
                   cursor: clickable ? 'pointer' : 'default',
-                  zIndex: 6,
+                  // Ganz unten (war 6) — siehe EBENE: das Auffangnetz darf nichts
+                  // Sichtbares überdecken. Steht im DOM nach der Flurwand, malt den
+                  // Hover-Rahmen also trotzdem sichtbar darüber.
+                  zIndex: EBENE.tuerKlickflaeche,
                 }}
               />
             </div>
@@ -856,10 +901,10 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           const px = STAGE.pillarWidth + 0.13 * (layout.shaft.x - STAGE.pillarWidth);
           const pBottom = wallFootY(lobby);
           return (
-            <div style={{ position: 'absolute', left: px, top: pBottom - pH, transform: 'translateX(-50%)', zIndex: 5 }}>
+            <div style={{ position: 'absolute', left: px, top: pBottom - pH, transform: 'translateX(-50%)', zIndex: pfoertnerOpen ? EBENE.blase : EBENE.figuren }}>
               {pfoertnerOpen && pfoertnerLine && (
                 // Sprechblase welt-verankert über der Figurenmitte, nativ gerastert (B1/E35).
-                <WorldAnchor x={(48 * 1.2) / 2} y={0} scale={view.scale} z={7}>
+                <WorldAnchor x={(48 * 1.2) / 2} y={0} scale={view.scale} z={EBENE.blase}>
                   <div
                     style={{
                       // Öffnet nach UNTEN-rechts in die leere Hallenfläche — nach oben
@@ -963,7 +1008,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               background: hoverShaft ? 'rgba(240,180,41,0.06)' : 'transparent',
               border: `2px solid ${hoverShaft ? WORLD_AMBER : 'transparent'}`,
               cursor: 'pointer',
-              zIndex: 5,
+              zIndex: EBENE.figuren,
             }}
           >
             {/* Ruf-Plakette am Schachtkopf (über der Traufe) — welt-verankert, nativ
@@ -1011,7 +1056,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
         {!nav.avatarInCabin && (
           <>
           <Bodenschatten x={nav.pos.x} y={avatarY + STAGE.avatarSize} breite={STAGE.avatarSize * 0.46} />
-          <WorldAnchor x={nav.pos.x} y={avatarY} scale={view.scale} z={7}>
+          <WorldAnchor x={nav.pos.x} y={avatarY} scale={view.scale} z={EBENE.blase}>
             <div
               aria-hidden
               style={{
@@ -1063,7 +1108,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               display: 'flex',
               alignItems: 'flex-end',
               justifyContent: 'center',
-              zIndex: 6,
+              zIndex: EBENE.avatar,
               pointerEvents: 'none',
             }}
             data-testid="building-avatar"

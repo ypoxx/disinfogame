@@ -598,31 +598,26 @@ if (wanted('title')) {
   // Statisten laufen echte Routen (ambientLife): Wer gerade durch eine Tür ist,
   // hat gar keinen Knopf, und wer am Rand steht, liegt außerhalb des Fensters.
   // Deshalb mehrere Anläufe, statt einmal zu klicken und aufzugeben.
-  // BEFUND 2026-08-23, offen: Ein ECHTER Mausklick auf den Statisten öffnet die
-  // Sprechblase nicht — `element.click()` schon. Gemessen: Der Knopf liegt vor und
-  // nach `mousedown` nachweislich unter dem Zeiger (elementFromPoint), die Bühne
-  // ist frei, und ohne die neue Hover-Regel verhält es sich genauso (also kein
-  // Regress aus P15). Der React-Handler bekommt den Klick trotzdem nicht.
-  // Das trifft Spieler genauso wie die Ernte und gehört untersucht; der Plan hatte
-  // die Aufnahme noch als Wartezeit-Problem geführt, was sie nachweislich nicht ist.
-  // Bis dahin instrumentiert die Ernte den Zustand, statt ihn zu erklicken — wie
-  // sie es an anderen Stellen über die VQA-Setter ohnehin tut.
-  await page.evaluate(() => {
-    for (const b of document.querySelectorAll('button[aria-label$="ansprechen"]')) {
-      const r = b.getBoundingClientRect();
-      if (r.top > 8 && r.bottom < window.innerHeight - 8) { b.click(); return; }
+  // Echter Mausklick, kein `element.click()`: Genau hier hat die Ernte am
+  // 2026-08-23 einen Spielfehler aufgedeckt. Die Klickfläche der Tür lag über den
+  // Statisten und schluckte den Klick — programmatisch ging es, mit der Maus nicht,
+  // also auch für Spieler nicht. Behoben über die Ebenen-Tabelle EBENE in
+  // BuildingStage. Die Ernte klickt deshalb weiter wie ein Mensch: Nur so fällt
+  // ein solcher Fehler beim nächsten Mal wieder auf.
+  // Statisten laufen Routen — wer gerade hinter einer Tür ist, hat keinen Knopf.
+  for (let versuch = 0; versuch < 6; versuch++) {
+    await warteAuf(page, 'button[aria-label$="ansprechen"]', { maxWaitMs: 3000 });
+    if (await klickeImFenster(page, 'button[aria-label$="ansprechen"]')) {
+      if (await warteAuf(page, '[data-testid="ambient-bubble"]', { maxWaitMs: 1500 })) break;
     }
-  }).catch(() => {});
-  await sleep(400);
+    await sleep(900); // die Route ein Stück weiterlaufen lassen
+  }
   if (await warteAuf(page, '[data-testid="ambient-bubble"]')) {
     await shot(page, 'ambient_bubble', { bundle: 'building', desc: 'Flur-Statist mit Flavor-Sprechblase' });
   } else {
     console.log('  ⚠️ ambient_bubble: keine Sprechblase erschienen — Aufnahme übersprungen');
   }
-  await page.evaluate(() => {
-    const b = document.querySelector('[data-testid="ambient-bubble"]');
-    if (b) b.closest('div')?.parentElement?.querySelector('button[aria-label$="ansprechen"]')?.click();
-  }).catch(() => {});
+  await klickeImFenster(page, 'button[aria-label$="ansprechen"]');
 
   // ── Büro + Panels + Spiel-UI ──
   // Uhr zurückstellen: Wege kosten Spielzeit (K1) — die Gebäude-Tour kann sonst
