@@ -11,8 +11,8 @@
  * - Kamera folgt der Etage des Avatars (vertikal, weich).
  * Jedes Bild hat einen CSS-Fallback — ohne Manifest bleibt die Bühne funktional.
  */
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
+import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { getBuildingLayout, STAGE, wallFootY, type RoomLayout } from './buildingLayout';
 import { snapPixelScale, snapToDevicePixel } from './pixelScale';
 import { useDpr } from '../hooks/usePixelFit';
 import { NAV_SPEED } from './BuildingNavigator';
@@ -66,6 +66,36 @@ function WorldAnchor({ x, y, scale, z, children }: { x: number; y: number; scale
   );
 }
 
+/**
+ * Bodenschatten unter einer stehenden Figur (P5, Fremdmodell-Durchgang 2026-08-22).
+ *
+ * Die Figuren standen bereits mit gap = 0 EXAKT auf der Wand-Fuß-Linie
+ * (nachgemessen in allen acht geometry/building_*.json) — der „freigestellt"-
+ * Eindruck kam also nicht aus einem Platzierungsfehler, sondern rein daraus, dass
+ * nichts den Bodenkontakt zeigte. Deshalb ergänzt, nicht verschoben.
+ *
+ * Kein Asset: eine gequetschte radiale Ellipse auf der Standlinie, `screen`-frei
+ * und ohne Weichzeichner, damit die Pixel-Kante der Welt nicht aufweicht.
+ */
+function Bodenschatten({ x, y, breite, staerke = 0.4 }: { x: number; y: number; breite: number; staerke?: number }) {
+  const h = Math.max(4, Math.round(breite * 0.22));
+  return (
+    <div
+      aria-hidden
+      style={{
+        position: 'absolute',
+        left: x - breite / 2,
+        top: y - h / 2,
+        width: breite,
+        height: h,
+        background: `radial-gradient(ellipse at center, rgba(18,14,9,${staerke}) 0%, rgba(18,14,9,${staerke * 0.55}) 55%, rgba(18,14,9,0) 78%)`,
+        pointerEvents: 'none',
+        zIndex: 3,
+      }}
+    />
+  );
+}
+
 export interface StageNpc {
   id: string;
   name: string;
@@ -105,6 +135,9 @@ const layout = getBuildingLayout();
 const STAGE_KEYFRAMES = `
   @keyframes bs-blink { 0%,100%{opacity:1} 50%{opacity:.15} }
   @keyframes bs-glow { 0%,100%{box-shadow:0 0 6px 2px rgba(255,200,80,.25)} 50%{box-shadow:0 0 10px 3px rgba(255,200,80,.5)} }
+  /* P5: Der Spieler-Marker atmet um GANZE Pixel — ein Sub-Pixel-Schweben würde
+     die Pixel-Kante genau da aufweichen, wo sie am meisten auffällt. */
+  @keyframes bs-marker-schweben { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-2px)} }
 `;
 
 /** Tür eines Raums — sanftes Überblenden zwischen Zu/Auf (R2: kein harter Bild-Tausch). */
@@ -115,7 +148,7 @@ function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
   const base: CSSProperties = {
     position: 'absolute',
     left: room.doorX - STAGE.doorWidth / 2,
-    top: room.y + room.h - STAGE.doorHeight - STAGE.floorStrip,
+    top: wallFootY(room) - STAGE.doorHeight,
     width: STAGE.doorWidth,
     height: STAGE.doorHeight,
     pointerEvents: 'none',
@@ -148,7 +181,7 @@ function AmbientPerson({ a, left, top, height, viewScale }: { a: AmbientFigure; 
           <div
             style={{
               position: 'absolute', bottom: 8, left: 0, transform: 'translateX(-50%)',
-              width: 170, backgroundColor: scrim('leicht'), border: `1px solid ${StoryModeColors.borderLight}`,
+              width: 170, backgroundColor: 'rgba(12,12,16,0.94)', border: `1px solid ${StoryModeColors.borderLight}`,
               color: '#e8e4d8', fontFamily: "'VT323', monospace", fontSize: 12, lineHeight: 1.4, padding: '6px 8px',
             }}
             data-testid="ambient-bubble"
@@ -278,14 +311,15 @@ function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]
         const floor = layout.floors.find((fl) => fl.level === f.floorLevel);
         if (!floor || !assets.imageUrl(f.sheet)) return null;
         return (
+          <Fragment key={f.id}>
+          <Bodenschatten x={f.x} y={wallFootY(floor)} breite={(AMBIENT_HEIGHT / 96) * 40} staerke={0.3} />
           <div
-            key={f.id}
             data-bs-walker={f.id}
             aria-hidden
             style={{
               position: 'absolute',
               left: f.x,
-              top: floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT, // Füße auf die Wand-Fuß-Linie (B6)
+              top: wallFootY(floor) - AMBIENT_HEIGHT, // Füße auf die Wand-Fuß-Linie (B6)
               width: (AMBIENT_HEIGHT / 96) * 48,
               height: AMBIENT_HEIGHT,
               transform: 'translateX(-50%)',
@@ -307,6 +341,7 @@ function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]
               title=""
             />
           </div>
+          </Fragment>
         );
       })}
     </>
@@ -397,7 +432,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   const avatarFloorLayout = layout.floors.find((f) => f.level === nav.pos.floorLevel) ?? avatarFloor;
   const avatarY = nav.avatarInCabin
     ? cabinTopY + STAGE.floorHeight - STAGE.avatarSize - 10
-    : (avatarFloorLayout?.walkY ?? 0) - STAGE.floorStrip; // Füße auf der Wand-Fuß-Linie
+    : (avatarFloorLayout ? wallFootY(avatarFloorLayout) - STAGE.avatarSize : 0); // Füße auf der Wand-Fuß-Linie
 
   // Stadt-Geometrie (im Container-Maß, hinter der skalierten Bühne).
   const groundScreenY = snapToDevicePixel((layout.height - STAGE.groundHeight) * view.scale - cameraY);
@@ -406,11 +441,19 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   const lowestFloorY = layout.floors.length > 0 ? layout.floors[layout.floors.length - 1].y : layout.height - STAGE.floorHeight;
   const undergroundTopY = snapToDevicePixel((lowestFloorY - STAGE.slabHeight) * view.scale - cameraY);
 
+  // P13: Wo hört der freie Himmel auf? Das Skyline-Band beginnt an der Bodenlinie
+  // und ist CITY_BAND_NATIVE_H hoch; seine obersten 38 % sind wegmaskiert
+  // (`mask: linear-gradient(to top, #000 62%, transparent)`), dort scheint der
+  // Himmel also noch durch. Ab da deckt die Stadt. Genau dieser Anteil geht in den
+  // Verlauf — sonst landet der helle Horizont-Stützpunkt hinter der Skyline.
+  const himmelBisY = groundScreenY - CITY_BAND_NATIVE_H * view.scale * 0.62;
+  const sichtbarerHimmel = view.h > 0 ? himmelBisY / view.h : 1;
+
   return (
     <div
       ref={containerRef}
       className="relative h-full w-full overflow-hidden"
-      style={{ background: skyGradientForMinutes(skyMinutes), transition: 'background 800ms linear' }}
+      style={{ background: skyGradientForMinutes(skyMinutes, 540, sichtbarerHimmel), transition: 'background 800ms linear' }}
       data-testid="building-stage"
     >
       <style>{STAGE_KEYFRAMES}</style>
@@ -605,7 +648,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 const h = DECOR_HEIGHT[d.id] ?? 48;
                 const playableW = layout.shaft.x - STAGE.pillarWidth;
                 const cx = STAGE.pillarWidth + d.xFrac * playableW;
-                const baseline = floor.y + STAGE.floorHeight - STAGE.floorStrip; // Wand-Fuß-Linie
+                const baseline = wallFootY(floor); // Wand-Fuß-Linie
                 const top = d.mount === 'floor'
                   ? baseline - h
                   // Wand-Objekte oberes Drittel; yOffset = per-Objekt-Korrektur
@@ -664,7 +707,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               {!isLobby && (FLOOR_AMBIENT[floor.id] ?? []).map((a, i) => {
                 if (!assets.imageUrl(a.figure)) return null;
                 const cx = STAGE.pillarWidth + a.xFrac * (layout.shaft.x - STAGE.pillarWidth);
-                const top = floor.y + STAGE.floorHeight - STAGE.floorStrip - AMBIENT_HEIGHT;
+                const top = wallFootY(floor) - AMBIENT_HEIGHT;
                 return <AmbientPerson key={`${floor.id}-amb-${i}`} a={a} left={cx} top={top} height={AMBIENT_HEIGHT} viewScale={view.scale} />;
               })}
               {/* Decken-Platte über der Etage */}
@@ -687,13 +730,21 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                   zIndex: 3,
                 }}
               />
-              {/* Etagen-Schild — welt-verankert, nativ gerastert (B1/E35) */}
-              <WorldAnchor x={STAGE.pillarWidth + 8} y={floor.y + 8} scale={view.scale} z={5}>
+              {/* Etagen-Schild — welt-verankert, nativ gerastert (B1/E35).
+
+                  P12 (Fremdmodell-Durchgang 2026-08-22): Der Anker sitzt jetzt auf
+                  `floor.y`, der Abstand steht in CSS-px. Vorher war das +8 ein
+                  WELT-Offset — WorldAnchor kehrt die Bühnen-Skalierung für seine
+                  Kinder aber um, das Türschild darunter rechnete also in CSS-px.
+                  Zwei Ebenen, zwei Maßeinheiten: Bei 1280 px sah das zufällig fast
+                  richtig aus, bei jedem anderen Zoom liefen die Schilder auseinander.
+                  4 CSS-px ≙ dem bisherigen Welt-Offset bei Bühnen-Scale ½. */}
+              <WorldAnchor x={STAGE.pillarWidth + 8} y={floor.y} scale={view.scale} z={5}>
                 <div
                   style={{
                     position: 'absolute',
                     left: 0,
-                    top: 0,
+                    top: 4,
                     whiteSpace: 'nowrap',
                     padding: '2px 6px',
                     fontSize: 10,
@@ -729,7 +780,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               {/* Türschild über der Tür — welt-verankert, nativ gerastert (B1/E35).
                   Sitzt in der DECKEN-Band-Spur (bottom 20), damit es nicht mit dem
                   Etagen-Schild kollidiert — native Rasterung braucht 2× Welt-Platz. */}
-              <WorldAnchor x={room.doorX} y={room.y + room.h - STAGE.doorHeight - STAGE.floorStrip} scale={view.scale} z={5}>
+              <WorldAnchor x={room.doorX} y={wallFootY(room) - STAGE.doorHeight} scale={view.scale} z={5}>
                 <span
                   style={{
                     position: 'absolute',
@@ -756,7 +807,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 style={{
                   position: 'absolute',
                   left: room.doorX + STAGE.doorWidth / 2 + 8,
-                  top: room.y + room.h - STAGE.doorHeight - STAGE.floorStrip + 10,
+                  top: wallFootY(room) - STAGE.doorHeight + 10,
                   width: 10,
                   height: 10,
                   borderRadius: 10,
@@ -778,7 +829,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 style={{
                   position: 'absolute',
                   left: room.doorX - STAGE.doorWidth / 2 - 24,
-                  top: room.y + room.h - STAGE.doorHeight - STAGE.floorStrip - 40,
+                  top: wallFootY(room) - STAGE.doorHeight - 40,
                   width: STAGE.doorWidth + 48,
                   height: STAGE.doorHeight + 40,
                   background: 'transparent',
@@ -797,7 +848,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           if (!lobby || !assets.imageUrl('figure_pfoertner')) return null;
           const pH = 116; // Pförtner etwas kleiner als der Avatar (älterer Mann)
           const px = STAGE.pillarWidth + 0.13 * (layout.shaft.x - STAGE.pillarWidth);
-          const pBottom = lobby.y + STAGE.floorHeight - STAGE.floorStrip;
+          const pBottom = wallFootY(lobby);
           return (
             <div style={{ position: 'absolute', left: px, top: pBottom - pH, transform: 'translateX(-50%)', zIndex: 5 }}>
               {pfoertnerOpen && pfoertnerLine && (
@@ -808,7 +859,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                       // Öffnet nach UNTEN-rechts in die leere Hallenfläche — nach oben
                       // verdeckte die Blase das EG-Etagen-Schild (Vision-Review Etappe 1).
                       position: 'absolute', top: -4, left: 36,
-                      width: 230, backgroundColor: scrim('leicht'),
+                      width: 230, backgroundColor: 'rgba(12,12,16,0.94)',
                       border: `1px solid ${StoryModeColors.borderLight}`, color: '#e8e4d8',
                       fontFamily: "'VT323', monospace", fontSize: 12, lineHeight: 1.4, padding: '6px 8px',
                     }}
@@ -942,8 +993,60 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
         {/* LB: Routen-Statisten (erscheinen/verschwinden durch Türen, ambientLife) */}
         <AmbientLifeLayer onDoorsChange={setAmbientDoors} />
 
-        {/* Avatar (läuft/steht) */}
+        {/* Avatar (läuft/steht) + Bodenschatten + Spieler-Marker.
+
+            P5: Die einzige eingebaute Unterscheidung zwischen Avatar und Statisten
+            war ein Höhen-Delta (128 gegen 112/116 px) — das drückt der Bühnen-Scale ½
+            auf 6–8 Bildschirm-Pixel zusammen, bei identischer Blaugrau-Palette.
+            Der Stil-Guide VERBIETET der Spielfigur auffällige Merkmale
+            (game-style-guide.md:55-58), die Unterscheidung muss also aus dem
+            Renderer kommen und nicht aus dem Sprite. Deshalb ein Marker darüber,
+            nicht ein bunteres Sprite. */}
         {!nav.avatarInCabin && (
+          <>
+          <Bodenschatten x={nav.pos.x} y={avatarY + STAGE.avatarSize} breite={STAGE.avatarSize * 0.42} />
+          <WorldAnchor x={nav.pos.x} y={avatarY} scale={view.scale} z={7}>
+            <div
+              aria-hidden
+              style={{
+                position: 'absolute',
+                left: 0,
+                // Über dem Kopf: der Anker sitzt an der Sprite-Oberkante, der
+                // Marker eine Zeile darüber. CSS-px, damit er bei jedem Zoom
+                // gleich groß bleibt (der Anker kehrt die Bühnen-Skalierung um).
+                bottom: 4,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                lineHeight: 1,
+                animation: 'bs-marker-schweben 2.4s ease-in-out infinite',
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "'Silkscreen', ui-monospace, monospace",
+                  fontSize: 10,
+                  letterSpacing: 1,
+                  color: StoryModeColors.document,
+                  backgroundColor: 'rgba(24,20,14,0.82)',
+                  border: `1px solid ${StoryModeColors.borderLight}`,
+                  padding: '1px 4px',
+                }}
+              >
+                SIE
+              </span>
+              {/* Pixel-Dreieck, das auf den Kopf zeigt — harte Kante, kein Glow. */}
+              <span
+                style={{
+                  width: 0,
+                  height: 0,
+                  borderLeft: '4px solid transparent',
+                  borderRight: '4px solid transparent',
+                  borderTop: `5px solid ${StoryModeColors.borderLight}`,
+                }}
+              />
+            </div>
+          </WorldAnchor>
           <span
             style={{
               position: 'absolute',
@@ -970,6 +1073,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               onFrame={nav.mode === 'walk' ? handleWalkFrame : undefined}
             />
           </span>
+          </>
         )}
       </div>
       </div>

@@ -49,10 +49,35 @@ export function skyStopsForMinutes(minutes: number, dayLengthMin = 540): SkyStop
   };
 }
 
-/** CSS-`linear-gradient` für den Himmel zur gegebenen Tagesuhr-Minute. */
-export function skyGradientForMinutes(minutes: number, dayLengthMin = 540): string {
+/**
+ * CSS-`linear-gradient` für den Himmel zur gegebenen Tagesuhr-Minute.
+ *
+ * P13 (Fremdmodell-Durchgang 2026-08-22) — GEOMETRIE VOR PALETTE:
+ * Der Verlauf wird als Hintergrund des VIEWPORT-Containers gemalt, seine Stops
+ * lagen aber fest auf 0 % / 58 % / 100 %. 100 % ist die Fensterunterkante — die
+ * liegt weit unter der Bodenlinie und ist von Skyline, Straße und Untergrund
+ * vollständig verdeckt. Gemessen an sky_0900.png: freier Himmel nur bis y≈320
+ * von 720. Sichtbar war also IMMER nur das dunkelste obere Drittel des Verlaufs,
+ * und der helle Horizont-Stützpunkt hat den Bildschirm nie erreicht.
+ *
+ * Beide Modelle schlugen „den Mittag aufhellen" vor. Das wäre größtenteils
+ * unsichtbar geblieben: Wer nur die Palette anfasst, ändert Pixel hinter der
+ * Skyline. Deshalb bekommt der Verlauf jetzt gesagt, wo der Himmel tatsächlich
+ * aufhört — die drei Stützpunkte verteilen sich über die SICHTBARE Zone, der
+ * Horizont-Ton hält von dort bis zum Fensterrand.
+ *
+ * @param sichtbarerAnteil 0..1 — wo die Skyline den Himmel deckt (1 = alter Stand).
+ */
+export function skyGradientForMinutes(minutes: number, dayLengthMin = 540, sichtbarerAnteil = 1): string {
   const s = skyStopsForMinutes(minutes, dayLengthMin);
-  return `linear-gradient(${s.top} 0%, ${s.mid} 58%, ${s.horizon} 100%)`;
+  // Unter ~15 % Resthimmel lohnt die Stauchung nicht mehr und der Verlauf würde
+  // zu einer harten Kante zusammenfallen.
+  const v = Math.max(0.15, Math.min(1, sichtbarerAnteil));
+  const mid = Math.round(58 * v);
+  const horizont = Math.round(100 * v);
+  return horizont >= 100
+    ? `linear-gradient(${s.top} 0%, ${s.mid} ${mid}%, ${s.horizon} 100%)`
+    : `linear-gradient(${s.top} 0%, ${s.mid} ${mid}%, ${s.horizon} ${horizont}%, ${s.horizon} 100%)`;
 }
 
 export interface SkylineLayers {
@@ -73,8 +98,13 @@ const ramp = (x: number, a: number, b: number) => clamp01((x - a) / (b - a || 1)
  */
 export function skylineLayersForMinutes(minutes: number, dayLengthMin = 540): SkylineLayers {
   const t = clamp01(minutes / dayLengthMin);
-  // Dämmerung blendet am Nachmittag ein und zur Nacht wieder aus; Nacht legt sich darüber.
-  const dusk = ramp(t, 0.5, 0.62) * (1 - ramp(t, 0.82, 0.9));
-  const night = ramp(t, 0.82, 0.92);
+  // P13: Die Rampen lagen VIEL zu früh. Gemessen an der 09:00–18:00-Uhr blendete
+  // die Dämmerung ab t=0,5 ein — 13:30 — und stand um 14:25 bei 85 %; die Nacht
+  // war bei t=0,92 = 17:17 voll, also 43 Minuten VOR Feierabend. Der Spieler
+  // arbeitete den halben Tag im Dunkeln.
+  // Jetzt: Dämmerung ab 14:56 (t=0,66), voll um 16:12; Nacht ab 16:55 (t=0,88),
+  // voll erst zum Redaktionsschluss um 18:00 (t=1,0).
+  const dusk = ramp(t, 0.66, 0.8) * (1 - ramp(t, 0.88, 0.98));
+  const night = ramp(t, 0.88, 1.0);
   return { dusk, night };
 }
