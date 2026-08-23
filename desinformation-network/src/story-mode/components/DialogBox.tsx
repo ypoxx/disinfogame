@@ -3,6 +3,7 @@ import { StoryModeColors } from '../theme';
 import { useAssets } from '../assets/useAssets';
 import { Icon } from './Icon';
 import { playVoiceLine, stopVoiceLine, playSound } from '../utils/SoundSystem';
+import { useScrollHint, ScrollHint } from './ScrollHint';
 
 // ============================================
 // TYPES
@@ -191,17 +192,6 @@ function useTypewriter(text: string, speed: number = 30, enabled: boolean = true
 export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }: DialogBoxProps) {
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
 
-  // B24: Scroll-Hinweis für die gedeckelte Options-Liste — ohne ihn wirkte die
-  // letzte Option „halb abgeschnitten", weil nichts anzeigte, dass unten mehr liegt.
-  const choicesRef = useRef<HTMLDivElement>(null);
-  const [choicesScrollHint, setChoicesScrollHint] = useState(false);
-  const updateChoicesScrollHint = () => {
-    const el = choicesRef.current;
-    if (!el) return;
-    // Toleranz gegen Subpixel-Rundung; am Listenende verschwindet der Hinweis.
-    setChoicesScrollHint(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
-  };
-
   const { displayedText, isComplete, skipToEnd } = useTypewriter(
     message?.text || '',
     45, // Slowed down from 25ms to 45ms per character for better readability
@@ -236,13 +226,8 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
 
   // B24: Hinweis neu messen, sobald die Options-Liste (nach dem Tippen) erscheint
   // oder die Nachricht wechselt — erst dann existiert die Scroll-Box im DOM.
-  // Auch bei Viewport-Änderung (maxHeight ist vh-abhängig, Review Etappe 1).
   const choicesCount = message?.choices?.length ?? 0;
-  useEffect(() => {
-    updateChoicesScrollHint();
-    window.addEventListener('resize', updateChoicesScrollHint);
-    return () => window.removeEventListener('resize', updateChoicesScrollHint);
-  }, [isComplete, choicesCount, message?.text]);
+  const choicesHint = useScrollHint([isComplete, choicesCount, message?.text]);
 
   if (!isVisible || !message) return null;
 
@@ -384,8 +369,8 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
               style={{ borderColor: StoryModeColors.borderLight }}
             >
             <div
-              ref={choicesRef}
-              onScroll={updateChoicesScrollHint}
+              ref={choicesHint.ref}
+              onScroll={choicesHint.onScroll}
               className="space-y-2 overflow-y-auto pb-2"
               style={{ maxHeight: '40vh' }}
             >
@@ -442,24 +427,7 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
                 </button>
               ))}
             </div>
-            {/* B24: statischer Pixel-Marker, solange unten weitere Optionen liegen
-                (§4.6: kein Web-Verlauf, kein Blinken — „gestempelt statt geblinkt");
-                pointer-events-none, damit Klicks die Optionen darunter erreichen. */}
-            {choicesScrollHint && (
-              <div className="pointer-events-none absolute bottom-0 left-0 right-0 flex items-end justify-center">
-                <span
-                  className="text-xs font-bold"
-                  style={{
-                    color: StoryModeColors.warning,
-                    backgroundColor: 'rgba(10,10,14,0.92)',
-                    border: `1px solid ${StoryModeColors.borderLight}`,
-                    padding: '1px 8px',
-                  }}
-                >
-                  ▼ MEHR
-                </span>
-              </div>
-            )}
+            <ScrollHint sichtbar={choicesHint.sichtbar} />
             </div>
           )}
 

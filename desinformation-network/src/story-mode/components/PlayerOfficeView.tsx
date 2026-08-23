@@ -13,7 +13,7 @@ import { StoryModeColors, stampCtaStyle, stampCtaClass } from '../theme';
 import { useAssets } from '../assets/useAssets';
 import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
 import { playSound } from '../utils/SoundSystem';
-import { usePlayerProfile, playerPortraitAssetId } from '../stores/playerProfileStore';
+import { usePlayerProfile, playerPortraitAssetId, playerPortraitImgStyle } from '../stores/playerProfileStore';
 import {
   OFFICE_HOTSPOTS,
   OFFICE_IMG,
@@ -591,7 +591,7 @@ function Dienstausweis(): React.JSX.Element {
         }}
       >
         {url ? (
-          <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'pixelated' }} />
+          <img src={url} alt="" style={playerPortraitImgStyle(portraitId)} />
         ) : (
           <Icon name="npcs" size={16} />
         )}

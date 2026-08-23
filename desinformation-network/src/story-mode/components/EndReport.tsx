@@ -9,6 +9,7 @@ import { StoryModeColors } from '../theme';
 import type { TrustHistoryPoint } from '../../components/TrustEvolutionChart';
 import type { EndingCategory } from '../engine/EndingSystem';
 import type { MethodInsight } from '../engine/DisinfoMethodAtlas';
+import { Leerzustand } from './Leerzustand';
 
 // ============================================
 // TYPEN
@@ -1187,9 +1188,11 @@ export function EndReport({
           {/* ── 4. WENDEPUNKTE ── */}
           <SectionHeading>Schlüsselmomente</SectionHeading>
           {pivots.length === 0 ? (
-            <p style={{ color: StoryModeColors.textSecondary, fontSize: '12px' }}>
-              Keine signifikanten Vertrauenssprünge erkannt.
-            </p>
+            <Leerzustand
+              variant="inline"
+              titel="Keine signifikanten Vertrauenssprünge"
+              hinweis="Ihre Kampagne wirkte gleichmäßig statt in Ausschlägen."
+            />
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {pivots.map((p, i) => (

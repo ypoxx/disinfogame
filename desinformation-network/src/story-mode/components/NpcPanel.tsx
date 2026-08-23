@@ -3,6 +3,7 @@ import { StoryModeColors, scrim } from '../theme';
 import { Icon } from './Icon';
 import { PixelFrame } from './PixelFrame';
 import type { NPCState } from '../../game-logic/StoryEngineAdapter';
+import { Leerzustand } from './Leerzustand';
 
 interface NpcPanelProps {
   isVisible: boolean;
@@ -107,12 +108,11 @@ export function NpcPanel({
       style={variant === 'modal' ? { borderColor: StoryModeColors.border } : undefined}
     >
       {npcs.length === 0 ? (
-        <div
-          className="text-center py-8"
-          style={{ color: StoryModeColors.textMuted }}
-        >
-          Keine Kontakte verfugbar.
-        </div>
+        <Leerzustand
+          icon="npcs"
+          titel="Keine Kontakte"
+          hinweis="Ihr Team steht in den Büros des Hauses — sprechen Sie es dort an."
+        />
       ) : (
         npcs.map(npc => (
           <div

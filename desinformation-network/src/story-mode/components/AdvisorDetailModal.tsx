@@ -11,6 +11,7 @@ import { getPriorityColor } from '../engine/AdvisorRecommendation';
 import type { NPC } from './AdvisorPanel';
 import { Icon } from './Icon';
 import { PixelModal } from './PixelModal';
+import { Leerzustand } from './Leerzustand';
 
 // ============================================
 // TYPES
@@ -145,16 +146,11 @@ export function AdvisorDetailModal({
         {/* Recommendations List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {sortedRecommendations.length === 0 ? (
-            <div
-              className="text-center py-12"
-              style={{ color: StoryModeColors.textSecondary }}
-            >
-              <div className="text-4xl mb-4" style={{ color: StoryModeColors.textSecondary }}>–</div>
-              <p className="text-lg">Keine Empfehlungen verfügbar</p>
-              <p className="text-sm mt-2">
-                {npc.name} hat aktuell keine Hinweise für Sie.
-              </p>
-            </div>
+            <Leerzustand
+              icon="npcs"
+              titel="Keine Empfehlungen"
+              hinweis={`${npc.name} hat für die aktuelle Lage nichts zu raten. Das ändert sich, sobald sich Risiko, Kasse oder Stimmung bewegen.`}
+            />
           ) : (
             sortedRecommendations.map((rec, index) => (
               <div

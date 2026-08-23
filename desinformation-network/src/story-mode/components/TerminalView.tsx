@@ -21,6 +21,7 @@ import { ActionCard, type MaschenVorschau, type StoryAction } from './ActionCard
 import { kuratiereVorgaenge, istLeistbar } from './terminalCuration';
 import { playSound } from '../utils/SoundSystem';
 import { useAssets } from '../assets/useAssets';
+import { Leerzustand } from './Leerzustand';
 
 // Phosphor-Palette des Schirms (Welt-Objekt, bewusst NICHT die Papier-Tinten —
 // wie die dunkel-diegetischen Newsroom-CRTs, Etappe-2-Review bestätigt).
@@ -379,8 +380,11 @@ export function TerminalView({
           {/* Vorgangs-Liste: Papier-Blätter, die der Schirm „aufgerufen" hat */}
           <div className="flex-1 min-h-0 overflow-y-auto p-3">
             {liste.length === 0 ? (
-              <div className="text-center py-10 text-sm" style={{ color: CRT.textDim }}>
-                KEIN VORGANG FÜR DIESE ABFRAGE.
+              <div className="h-full min-h-[9rem] flex flex-col items-center justify-center text-center py-10" style={{ color: CRT.textDim }}>
+                {/* P9: Der Terminal bleibt bewusst bei seiner eigenen CRT-Palette —
+                    aber zentriert wie alle anderen Leerzustände auch. */}
+                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6 }}>KEIN VORGANG FÜR DIESE ABFRAGE</div>
+                <div style={{ fontSize: 12 }}>Andere Abteilung wählen oder Filter zurücksetzen.</div>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

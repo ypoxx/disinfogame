@@ -2,6 +2,7 @@ import { StoryModeColors, scrim } from '../theme';
 import { Icon } from './Icon';
 import { PixelFrame } from './PixelFrame';
 import type { NewsEvent } from '../../game-logic/StoryEngineAdapter';
+import { Leerzustand } from './Leerzustand';
 
 interface EventsPanelProps {
   isVisible: boolean;
@@ -91,18 +92,11 @@ export function EventsPanel({
   const content = (
     <div className={`flex-1 overflow-y-auto ${variant === 'sidebar' ? 'p-3' : 'p-4'}`}>
       {sortedEvents.length === 0 ? (
-        <div
-          className="text-center py-12"
-          style={{ color: StoryModeColors.textMuted }}
-        >
-          <div className="mb-4 flex justify-center">
-            <Icon name="events" size={40} title="Keine Ereignisse" fallback="E" />
-          </div>
-          <div className="font-bold mb-2">Keine Weltereignisse</div>
-          <div className="text-sm">
-            Die Welt ist ruhig... vorerst.
-          </div>
-        </div>
+        <Leerzustand
+          icon="events"
+          titel="Keine Weltereignisse"
+          hinweis="Die Welt ist ruhig — vorerst. Was Sie ausspielen, erscheint hier als Reaktion."
+        />
       ) : (
         <div className="space-y-6">
           {orderedCategories.map(category => (

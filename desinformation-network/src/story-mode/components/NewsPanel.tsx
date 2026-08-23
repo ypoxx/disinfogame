@@ -1,6 +1,7 @@
 import { StoryModeColors, scrim } from '../theme';
 import { Icon } from './Icon';
 import type { NewsEvent } from '../../game-logic/StoryEngineAdapter';
+import { Leerzustand } from './Leerzustand';
 
 interface NewsPanelProps {
   isVisible: boolean;
@@ -51,12 +52,11 @@ export function NewsPanel({
   const newsListContent = (
     <div className="flex-1 overflow-y-auto p-3 space-y-2">
           {sortedNews.length === 0 ? (
-            <div
-              className="text-center py-8"
-              style={{ color: StoryModeColors.textMuted }}
-            >
-              Keine Nachrichten vorhanden.
-            </div>
+            <Leerzustand
+              icon="news"
+              titel="Keine Nachrichten"
+              hinweis="Was Sie senden und was die Gegenseite antwortet, läuft hier ein."
+            />
           ) : (
             sortedNews.map(news => {
               const isDefensiveAI = news.id.startsWith('defensive_');
