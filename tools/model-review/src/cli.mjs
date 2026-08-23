@@ -22,7 +22,7 @@ import {
 } from './serie.mjs';
 import { ziehe, FrameFehler } from './frames.mjs';
 import { baueKontext, schaetzeTokens, QuellenFehler } from './pack.mjs';
-import { preise, schaetzeKosten, pruefeBudget, usd, BudgetUeberschritten } from './cost.mjs';
+import { preise, schaetzeKosten, pruefeBudget, usd, usdGesamt, BudgetUeberschritten } from './cost.mjs';
 import {
   listeModelle, schluesselInfo, frageModell, findeModell, kannBilder, kannVideo, sehendeModelle, ApiFehler,
 } from './openrouter.mjs';
@@ -565,9 +565,9 @@ async function cmdReview(args, cfg) {
     }
   }
 
-  const gesamt = ergebnisse.filter((e) => e.ok && e.kosten != null).reduce((s, e) => s + e.kosten, 0);
   const fehlgeschlagen = ergebnisse.filter((e) => !e.ok);
-  console.log(`\nFertig: ${ergebnisse.length - fehlgeschlagen.length}/${ergebnisse.length} Berichte · Gesamtkosten ${usd(gesamt)}`);
+  const gesamt = usdGesamt(ergebnisse.filter((e) => e.ok).map((e) => e.kosten));
+  console.log(`\nFertig: ${ergebnisse.length - fehlgeschlagen.length}/${ergebnisse.length} Berichte · Gesamtkosten ${gesamt}`);
   if (fehlgeschlagen.length) {
     console.log(`Fehlgeschlagen: ${fehlgeschlagen.map((e) => e.model).join(', ')}`);
     process.exitCode = 1;
@@ -623,6 +623,20 @@ async function cmdSerie(args, cfg) {
   });
   if (!buendel.length) fehler(`Keine passenden Bündel in ${relToRepo(ernteDir)} gefunden.`);
 
+  // Anbieter ohne Video-Eingang (OpenAI) beantworten `video_url` mit HTTP 400.
+  // Am 2026-08-22 kostete das im echten Lauf drei fehlgeschlagene Bündel. Die
+  // Clip-Bündel hier wegzulassen ist ehrlicher als rote Zeilen am Ende — und es
+  // muss VOR dem Plan passieren, damit auch der Trockenlauf die Wahrheit zeigt.
+  const ohneVideo = anbieter.kannVideo === false;
+  const uebersprungeneClips = ohneVideo ? buendel.filter((b) => b.kind === 'clip') : [];
+  const zuLaufen = ohneVideo ? buendel.filter((b) => b.kind !== 'clip') : buendel;
+  if (!zuLaufen.length) {
+    fehler(
+      `Nur Clip-Bündel gefunden, aber "${anbieter.id}" nimmt keine Clips entgegen.\n` +
+        `  Schlüsselbilder ziehen und als Bilder prüfen: node src/cli.mjs frames`
+    );
+  }
+
   const modellWunsch = args.model.length ? args.model[0] : cfg.model;
   const maxTokens = args['max-tokens'] ? Number.parseInt(args['max-tokens'], 10) : 32_000;
   const temperature = temperaturFuer(args, cfg, anbieter);
@@ -631,11 +645,19 @@ async function cmdSerie(args, cfg) {
   const kontext = kontextFuer(linse, args, cfg);
   const { system } = baueAuftrag(linse, args);
 
-  console.log(`\nSerie: Linse "${linse.id}" über ${buendel.length} Bündel aus ${relToRepo(ernteDir)}`);
+  console.log(`\nSerie: Linse "${linse.id}" über ${zuLaufen.length} Bündel aus ${relToRepo(ernteDir)}`);
   console.log(`Modell: ${istKonto(modellWunsch) ? 'Kontovorgabe (OpenRouter-Standardmodell)' : modellWunsch}`);
   console.log(`Antwortlänge je Durchgang: max. ${maxTokens.toLocaleString('de-DE')} Tokens\n`);
-  for (const b of buendel) {
+  for (const b of zuLaufen) {
     console.log(`  ${b.kind === 'clip' ? '🎬' : '🖼'} ${b.name.padEnd(24)} ${String(b.dateien.length).padStart(3)} Aufnahmen`);
+  }
+
+  if (uebersprungeneClips.length) {
+    console.log(
+      `\n  ⏭ ${uebersprungeneClips.length} Clip-Bündel ausgelassen — "${anbieter.id}" nimmt kein Video entgegen` +
+        ` (${uebersprungeneClips.map((b) => b.name).join(', ')}).` +
+        `\n     Stattdessen Schlüsselbilder ziehen: node src/cli.mjs frames`
+    );
   }
 
   if (!args.live) {
@@ -659,9 +681,9 @@ async function cmdSerie(args, cfg) {
   const datum = heute();
   const zeitstempel = new Date().toISOString();
   const gleichzeitig = args.parallel ? Number.parseInt(args.parallel, 10) : 3;
-  let gesamtkosten = 0;
+  const kostenListe = [];
 
-  const zuTun = buendel.filter((b) => {
+  const zuTun = zuLaufen.filter((b) => {
     if (b.kind === 'clip' && !kannClips) {
       console.log(`\n▶ ${b.name} — übersprungen (Modell liest kein Video)`);
       return false;
@@ -691,7 +713,7 @@ async function cmdSerie(args, cfg) {
       });
       const dauerMs = Date.now() - start;
       const kosten = antwort.usage?.cost != null ? Number(antwort.usage.cost) : null;
-      if (kosten) gesamtkosten += kosten;
+      kostenListe.push(kosten);
 
       const markdown = rendereBericht({
         linse: { ...linse, titel: `${linse.titel} — Bündel „${b.name}"` },
@@ -735,7 +757,7 @@ async function cmdSerie(args, cfg) {
       });
       const dauerMs = Date.now() - start;
       const kosten = antwort.usage?.cost != null ? Number(antwort.usage.cost) : null;
-      if (kosten) gesamtkosten += kosten;
+      kostenListe.push(kosten);
       const markdown = rendereBericht({
         linse: { ...linse, titel: `${linse.titel} — SYNTHESE über ${berichte.length} Bündel` },
         model: modellWunsch, verwendetesModell: antwort.verwendetesModell, datum, zeitstempel,
@@ -762,7 +784,7 @@ async function cmdSerie(args, cfg) {
     }
   }
 
-  console.log(`\nFertig: ${berichte.length} Einzelberichte · Gesamtkosten ${usd(gesamtkosten)}\n`);
+  console.log(`\nFertig: ${berichte.length} Einzelberichte · Gesamtkosten ${usdGesamt(kostenListe)}\n`);
 }
 
 // ---------- Einstieg ----------

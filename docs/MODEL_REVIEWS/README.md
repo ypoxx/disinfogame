@@ -11,6 +11,16 @@ node src/cli.mjs review --lens konzept --model openai/gpt-5.1   # Trockenlauf
 node src/cli.mjs review --lens konzept --model openai/gpt-5.1 --live
 ```
 
+## Was hier schon liegt
+
+| Datei | Was drinsteht |
+|---|---|
+| [`2026-08-22_VERGLEICH.md`](2026-08-22_VERGLEICH.md) | **Hier anfangen.** Beide Läufe gegeneinandergestellt: wo sie sich einig sind, wo sie sich widersprechen, was nur einer sah. |
+| [`../PLAN_2026-08-22_UX_ZWEITMEINUNG.md`](../PLAN_2026-08-22_UX_ZWEITMEINUNG.md) | Der Plan, der daraus folgt — P0–P16 nach Wirkung pro Aufwand, jeder Punkt am Code belegt. |
+| [`2026-08-21_VERIFIKATION.md`](2026-08-21_VERIFIKATION.md) | Die drei Top-Befunde der ersten Runde, Zeile für Zeile nachgeprüft. |
+| `2026-08-21_ui-*_stealth-ox-alpha.md` | Erste Runde: 12 Bündel + Synthesen (OpenRouter, gratis, mit Clips). |
+| `2026-08-22_ui-*_gpt-5.6-sol.md` | Zweitmeinung: 14 Bündel + 5 Clip-Gruppen als Einzelbilder + Synthese (OpenAI direkt). |
+
 ## Warum es diesen Ordner gibt
 
 Die bisherigen Tiefen-Reviews (`docs/EXPERT_REVIEWS_2026-06-20/`, `docs/REVIEW_*.md`) stammen
@@ -62,7 +72,26 @@ sucht **wiederkehrende** Muster (was in mehreren Bündeln auftaucht, ist systemi
 Widersprüche zwischen den Bildschirmen, und schließt mit einer Rangliste nach Wirkung/Aufwand.
 
 Clips (`.webm` aus der Ernte) gehen an Modelle mit Video-Eingabe direkt mit — dann geht es
-zusätzlich um Timing, Übergänge und Ruckeln.
+zusätzlich um Timing, Übergänge und Ruckeln. **OpenAI nimmt kein Video entgegen**; dort
+lässt die Serie die Clip-Bündel weg und nennt sie beim Namen. Der Weg dorthin führt über
+Schlüsselbilder:
+
+```bash
+node src/cli.mjs frames                          # Standbilder aus den Clips ziehen
+node src/cli.mjs review --lens ui --bild <ordner> --anbieter openai --model <id> --live
+```
+
+### Zweitmeinung von einem anderen Anbieter
+
+```bash
+node src/cli.mjs serie --anbieter openai --model gpt-5.6-sol --denk-aufwand high --live
+```
+
+Zwei Modelle über dieselbe Ernte laufen zu lassen lohnt sich — aber nicht, weil
+Übereinstimmung Wahrheit bedeutet. Sie bedeutet nur, dass **dieselbe Sache zwei
+unabhängigen Betrachtern aufgefallen** ist. Die Erklärung dahinter kann trotzdem bei
+beiden falsch sein — und ein guter Teil dessen, was beide sahen, war am Ende gar kein
+Design-Fehler, sondern ein Fehler der Ernte. Wie das ausging, steht in §2 des Vergleichs.
 
 ## Namensschema
 

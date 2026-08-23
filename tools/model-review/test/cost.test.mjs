@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { preise, schaetzeKosten, pruefeBudget, usd, summe, BudgetUeberschritten } from '../src/cost.mjs';
+import { preise, schaetzeKosten, pruefeBudget, usd, usdGesamt, summe, BudgetUeberschritten } from '../src/cost.mjs';
 
 const MODELL = { id: 'x/y', pricing: { prompt: '0.000003', completion: '0.000015' } };
 
@@ -59,4 +59,24 @@ test('usd bleibt bei Cent-Beträgen lesbar', () => {
 test('summe ignoriert Unbekanntes, liefert null wenn alles unbekannt ist', () => {
   assert.equal(summe([0.1, null, 0.2]), 0.30000000000000004);
   assert.equal(summe([null, null]), null);
+});
+
+test('usdGesamt: alle Kosten unbekannt → nicht als gratis ausgeben', () => {
+  assert.equal(usdGesamt([null, null, null]), 'unbekannt (Anbieter meldet keine Preise)');
+});
+
+test('usdGesamt: alle Kosten bekannt → normale Summe', () => {
+  assert.equal(usdGesamt([0.01, 0.02]), usd(0.03));
+});
+
+test('usdGesamt: gemischt → Untergrenze mit Hinweis', () => {
+  assert.equal(usdGesamt([0.02, null]), `mind. ${usd(0.02)} (1 von 2 Durchgängen ohne Preisangabe)`);
+});
+
+test('usdGesamt: gar keine Durchgänge → gratis bleibt korrekt', () => {
+  assert.equal(usdGesamt([]), '$0.00 (gratis)');
+});
+
+test('usdGesamt: echte Null zählt als bekannt (Gratis-Modell)', () => {
+  assert.equal(usdGesamt([0, 0]), '$0.00 (gratis)');
 });

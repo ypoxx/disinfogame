@@ -502,7 +502,8 @@ test('serie überspringt Clip-Bündel bei --anbieter openai', async () => {
       { OPENAI_BASE_URL: s.baseUrl, OPENAI_API_KEY: 'sk-openai-test', MODEL_REVIEW_OUT_DIR: out }
     );
     assert.equal(r.code, 0, r.stderr);
-    assert.match(r.stdout, /intro_clips — übersprungen/, 'Clip-Bündel muss übersprungen werden');
+    assert.match(r.stdout, /1 Clip-Bündel ausgelassen/, 'Clip-Bündel muss übersprungen werden');
+    assert.match(r.stdout, /intro_clips/);
     const mitVideo = s.anfragen.filter(
       (a) => a.url.includes('chat/completions') &&
         JSON.stringify(a.body?.messages ?? '').includes('video_url')
@@ -544,4 +545,92 @@ test('unbekannter Anbieter wird mit Auswahl gemeldet', async () => {
   assert.equal(r.code, 1);
   assert.match(r.stderr, /Unbekannter Anbieter/);
   assert.match(r.stderr, /openrouter, openai/);
+});
+
+// Am 2026-08-22 gegen gpt-5.6-sol gemessen: HTTP 400 "Unsupported value:
+// 'temperature' does not support 0.3 with this model. Only the default (1)".
+// Über OpenRouter wird derselbe Parameter dagegen angenommen.
+test('--anbieter openai schickt kein temperature mit', async () => {
+  const s = await attrappe();
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-out-'));
+  try {
+    await laufe(
+      ['review', '--lens', 'bildung', '--anbieter', 'openai', '--model', 'gpt-5.6-sol', '--live', '--max-tokens', '4000'],
+      { OPENAI_BASE_URL: s.baseUrl, OPENAI_API_KEY: 'sk-openai-test', MODEL_REVIEW_OUT_DIR: out }
+    );
+    const aufruf = s.anfragen.find((a) => a.url.includes('chat/completions'));
+    assert.equal(aufruf.body.temperature, undefined, 'temperature würde die GPT-5-Reihe mit 400 ablehnen');
+  } finally {
+    await s.schliessen();
+  }
+});
+
+test('über OpenRouter geht temperature weiterhin mit', async () => {
+  const s = await attrappe();
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-out-'));
+  try {
+    await laufe(
+      ['review', '--lens', 'bildung', '--model', 'anbieter/gross', '--live', '--max-cost', '99', '--temperature', '0.3'],
+      { OPENROUTER_BASE_URL: s.baseUrl, MODEL_REVIEW_OUT_DIR: out }
+    );
+    const aufruf = s.anfragen.find((a) => a.url.includes('chat/completions'));
+    assert.equal(aufruf.body.temperature, 0.3);
+  } finally {
+    await s.schliessen();
+  }
+});
+
+// --- Clips gegen einen Anbieter ohne Video-Eingang -------------------------
+// OpenAIs Chat-Completions-API kennt keinen `video_url`-ContentPart und
+// beantwortet Clips mit HTTP 400. Am 2026-08-22 kostete das im echten Lauf
+// drei fehlgeschlagene Bündel; die CLI lässt sie jetzt vorher weg.
+
+/** Ernte-Ordner mit je einem Bild- und einem Clip-Bündel. */
+function ernteMitClip() {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-ernte-'));
+  fs.mkdirSync(path.join(dir, 'shots'));
+  fs.mkdirSync(path.join(dir, 'clips'));
+  fs.writeFileSync(path.join(dir, 'shots', 'title.png'), PNG);
+  fs.writeFileSync(path.join(dir, 'clips', 'walk.webm'), PNG);
+  fs.writeFileSync(
+    path.join(dir, 'manifest.json'),
+    JSON.stringify([
+      { id: 'title', kind: 'shot', file: 'shots/title.png', bundle: 'intro', desc: 'Titelbildschirm' },
+      { id: 'walk', kind: 'clip', file: 'clips/walk.webm', bundle: 'bewegung', desc: 'Laufzyklus' },
+    ])
+  );
+  return dir;
+}
+
+test('serie über OpenAI lässt Clip-Bündel weg und sagt es', async () => {
+  const dir = ernteMitClip();
+  const r = await laufe(
+    ['serie', '--linse', 'ui', '--anbieter', 'openai', '--model', 'gpt-test', '--ernte', dir],
+    { OPENAI_API_KEY: 'sk-oa' }
+  );
+  assert.equal(r.code, 0);
+  assert.match(r.stdout, /1 Clip-Bündel ausgelassen/);
+  assert.match(r.stdout, /bewegung_clips/);
+  assert.match(r.stdout, /cli\.mjs frames/);
+  // Das Bild-Bündel bleibt drin.
+  assert.match(r.stdout, /🖼 intro/);
+  assert.doesNotMatch(r.stdout, /🎬 bewegung_clips/);
+});
+
+test('serie über OpenRouter behält die Clip-Bündel', async () => {
+  const dir = ernteMitClip();
+  const r = await laufe(['serie', '--linse', 'ui', '--model', 'anbieter/gross', '--ernte', dir]);
+  assert.equal(r.code, 0);
+  assert.match(r.stdout, /🎬 bewegung_clips/);
+  assert.doesNotMatch(r.stdout, /ausgelassen/);
+});
+
+test('nur Clip-Bündel gegen OpenAI: klarer Abbruch statt HTTP 400', async () => {
+  const dir = ernteMitClip();
+  const r = await laufe(
+    ['serie', '--linse', 'ui', '--anbieter', 'openai', '--model', 'gpt-test', '--ernte', dir, '--buendel', 'bewegung_clips'],
+    { OPENAI_API_KEY: 'sk-oa' }
+  );
+  assert.notEqual(r.code, 0);
+  assert.match(r.stderr + r.stdout, /nimmt keine Clips entgegen/);
 });

@@ -236,6 +236,12 @@ export async function frageModell({
   if (direktOpenAi) {
     body.max_completion_tokens = maxTokens;
     if (denkAufwand) body.reasoning_effort = denkAufwand;
+    // Zur Temperatur siehe oben: Die Denk-Modelle der GPT-5-Reihe lehnen jeden
+    // anderen Wert als 1 mit HTTP 400 ab ("Unsupported value: 'temperature'
+    // does not support 0.3 with this model") — am 2026-08-22 gegen gpt-5.6-sol
+    // gemessen. Deshalb schickt die CLI hier von sich aus keine mit; wer eine
+    // ausdrücklich verlangt, bekommt die Antwort des Anbieters darauf.
+    // Über OpenRouter wird derselbe Parameter dagegen angenommen.
   } else {
     body.max_tokens = maxTokens;
     body.usage = { include: true };
