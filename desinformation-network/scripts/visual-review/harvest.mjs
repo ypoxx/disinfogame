@@ -132,6 +132,102 @@ async function clickButton(page, re, { timeout = 2500 } = {}) {
   }
 }
 
+/**
+ * Auf ein sichtbares Element warten, statt blind zu schlafen.
+ *
+ * Drei Aufnahmen des Durchgangs 2026-08-22 waren reine Wartezeit-Fehler:
+ * `poster_detail` (Overlay noch nicht offen), `ambient_bubble` (Blase noch nicht
+ * da oder schon abgelaufen), `broadcast_expanded` (im zugeklappten Zustand).
+ * Ein festes sleep() rät; das hier prüft nach.
+ *
+ * @returns {Promise<boolean>} false, wenn die Frist ohne Treffer verstreicht.
+ */
+async function warteAuf(page, selektor, { maxWaitMs = 4000 } = {}) {
+  try {
+    await page.locator(selektor).first().waitFor({ state: 'visible', timeout: maxWaitMs });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Sprechende Namen der vier Wahlabend-Schritte (WahlabendScene: 0..LAST_STEP). */
+const WAHLABEND_SCHRITTE = ['Titelkarte', 'Hochrechnung/Sondersendung', 'Ergebnis', 'Wohnzimmer'];
+
+/**
+ * Welchen Schritt zeigt der Wahlabend gerade? Aus dem DOM abgelesen, NICHT aus
+ * einer Kopie der Delay-Tabelle — sonst müsste die Ernte jede dramaturgische
+ * Pause der Szene nachpflegen und liefe bei der nächsten Änderung wieder schief.
+ *
+ *   0  Titelkarte („DIE HOCHRECHNUNG", noch kein TV-Set)
+ *   1  TV-Set läuft, Ergebnis noch offen
+ *   2  Ergebnis steht (Ansage gewechselt bzw. Schlagzeilen durchgestrichen)
+ *   3  Wohnzimmer-Schnitt mit „WEITER ▸"
+ *
+ * @returns {Promise<number|null>} null, wenn die Szene gar nicht (mehr) offen ist.
+ */
+async function wahlabendSchritt(page) {
+  return page.evaluate(() => {
+    const szene = document.querySelector('[role="dialog"][aria-label="Wahlabend"]');
+    if (!szene) return null;
+    const text = szene.textContent || '';
+    if (Array.from(szene.querySelectorAll('button')).some((b) => /WEITER/i.test(b.textContent || ''))) return 3;
+    if (/DIE HOCHRECHNUNG/.test(text)) return 0;
+    // Schritt 2 wechselt die Ansage des Sprechers bzw. streicht die Schlagzeilen durch.
+    const offen = /Erste Hochrechnung aus den Wahllokalen|Wir unterbrechen das Programm/.test(text);
+    return offen ? 1 : 2;
+  }).catch(() => null);
+}
+
+/** Auf einen Wahlabend-Schritt warten (die Szene schaltet von allein weiter). */
+async function warteAufWahlabendSchritt(page, ziel, { maxWaitMs = 12000 } = {}) {
+  const bis = Date.now() + maxWaitMs;
+  while (Date.now() < bis) {
+    const jetzt = await wahlabendSchritt(page);
+    if (jetzt === null) return false;
+    if (jetzt >= ziel) {
+      await sleep(500); // Einblend-Animation (wa-rise, 500-600 ms) auslaufen lassen
+      return (await wahlabendSchritt(page)) !== null;
+    }
+    await sleep(150);
+  }
+  return false;
+}
+
+/** Das am weitesten scrollbare Element der Seite finden (Overlays scrollen innen). */
+async function scrollerInfo(page) {
+  return page.evaluate(() => {
+    for (const alt of document.querySelectorAll('[data-vqa-scroller]')) alt.removeAttribute('data-vqa-scroller');
+    let best = { strecke: 0, el: null };
+    for (const el of document.querySelectorAll('*')) {
+      const strecke = el.scrollHeight - el.clientHeight;
+      if (strecke > best.strecke && el.clientHeight > 200) best = { strecke, el };
+    }
+    if (best.el) best.el.setAttribute('data-vqa-scroller', '1');
+    const doc = document.scrollingElement;
+    const docStrecke = doc ? doc.scrollHeight - doc.clientHeight : 0;
+    return { strecke: Math.max(best.strecke, docStrecke), innen: best.strecke >= docStrecke };
+  }).catch(() => ({ strecke: 0, innen: false }));
+}
+
+/** Wie viele Pixel lassen sich hier überhaupt scrollen? */
+async function scrollbareStrecke(page) {
+  return (await scrollerInfo(page)).strecke;
+}
+
+/** Auf einen Anteil (0..1) der scrollbaren Strecke fahren — statt fester Pixel. */
+async function scrolleAufAnteil(page, anteil) {
+  await page.evaluate((a) => {
+    const innen = document.querySelector('[data-vqa-scroller="1"]');
+    const doc = document.scrollingElement;
+    const ziel = innen && innen.scrollHeight - innen.clientHeight > (doc ? doc.scrollHeight - doc.clientHeight : 0)
+      ? innen
+      : doc;
+    if (!ziel) return;
+    ziel.scrollTop = (ziel.scrollHeight - ziel.clientHeight) * a;
+  }, anteil).catch(() => {});
+}
+
 /** Offene Dialoge/Views/Briefings schließen, bis die Bühne frei ist. */
 async function dismissAll(page, { maxTries = 16 } = {}) {
   for (let i = 0; i < maxTries; i++) {
@@ -375,15 +471,22 @@ if (wanted('title')) {
   // Detail-Overlays der klickbaren Umgebung: Plakat (Etage 4).
   await gotoRoom(page, /Medien-Zentrum/i);
   await page.locator('img[src*="prop_poster"]').first().click({ timeout: 1500 }).catch(() => {});
-  await sleep(500);
-  await shot(page, 'poster_detail', { bundle: 'building', desc: 'Vergrößertes Propaganda-Plakat (Detail-Overlay, §14.4)' });
+  if (await warteAuf(page, '[role="dialog"][aria-label^="Plakat:"]')) {
+    await sleep(300); // Einblendung auslaufen lassen
+    await shot(page, 'poster_detail', { bundle: 'building', desc: 'Vergrößertes Propaganda-Plakat (Detail-Overlay, §14.4)' });
+  } else {
+    console.log('  ⚠️ poster_detail: Plakat-Overlay ging nicht auf — Aufnahme übersprungen');
+  }
   await page.mouse.click(640, 690);
   await sleep(400);
 
   // Statist ansprechen (Sprechblase) — zweiter Klick schließt sie wieder.
   await page.locator('button[aria-label$="ansprechen"]').first().click({ timeout: 1500 }).catch(() => {});
-  await sleep(400);
-  await shot(page, 'ambient_bubble', { bundle: 'building', desc: 'Flur-Statist mit Flavor-Sprechblase' });
+  if (await warteAuf(page, '[data-testid="ambient-bubble"]')) {
+    await shot(page, 'ambient_bubble', { bundle: 'building', desc: 'Flur-Statist mit Flavor-Sprechblase' });
+  } else {
+    console.log('  ⚠️ ambient_bubble: keine Sprechblase erschienen — Aufnahme übersprungen');
+  }
   await page.locator('button[aria-label$="ansprechen"]').first().click({ timeout: 1500 }).catch(() => {});
 
   // ── Büro + Panels + Spiel-UI ──
@@ -428,10 +531,12 @@ if (wanted('title')) {
   await sleep(600);
   await shot(page, 'hud_on', { bundle: 'panels', desc: 'HUD eingeblendet (Sonntagsfrage · Abwehr · Kasse · Tag)' });
   await page.keyboard.press('h');
-  await page.keyboard.press('b');
+  // Nicht über die Taste: `b` schaltet UM, die Aufnahme traf deshalb schon den
+  // zugeklappten Zustand. Der VQA-Setter sagt, was er meint.
+  await vqa(page, () => window.__VQA__.ui.setBroadcastExpanded(true)).catch(() => {});
   await sleep(1000);
   await shot(page, 'broadcast_expanded', { bundle: 'broadcast', desc: 'Broadcast ausgeklappt: Sendung + Publikums-Wohnzimmer (Milieus)' });
-  await page.keyboard.press('b');
+  await vqa(page, () => window.__VQA__.ui.setBroadcastExpanded(false)).catch(() => {});
   await page.keyboard.press('i');
   await sleep(900);
   await shot(page, 'encyclopedia', { bundle: 'panels', desc: 'Nachschlagewerk/Enzyklopädie (Taste I)' });
@@ -565,25 +670,57 @@ async function forceEnd(browser, branchId, mutate, shotsPrefix) {
     return false;
   }
   console.log(`  🏁 forceEnd(${branchId}) → branch=${state.end?.branch ?? '?'} type=${state.end?.type ?? '?'}`);
-  await shot(page, `${shotsPrefix}_wahlabend_s0`, { bundle: 'ending', desc: `Wahlabend (echt, ${branchId}), Titelkarte` });
-  for (let s = 1; s <= 3; s++) {
-    await page.mouse.click(640, 300);
-    await sleep(1000);
-    await shot(page, `${shotsPrefix}_wahlabend_s${s}`, { bundle: 'ending', desc: `Wahlabend (echt, ${branchId}), Schritt ${s}` });
+
+  // Die Szene schaltet PER TIMER weiter (WahlabendScene delays [1900, 2600, 3000]).
+  // Die alte Ernte schlief blind 2000 ms und klickte dann dreimal — der 1900-ms-Tick
+  // war da längst durch, „s0" zeigte also Schritt 1, die ganze Reihe war um einen
+  // Schritt versetzt, und der dritte Klick fiel hinter LAST_STEP auf onComplete().
+  // Deshalb wird jetzt auf den ZUSTAND gewartet statt auf die Uhr, und gar nicht
+  // mehr geklickt: Die Szene läuft von allein, wir fotografieren nur mit.
+  for (let s = 0; s <= 3; s++) {
+    if (!(await warteAufWahlabendSchritt(page, s))) {
+      console.log(`  ⚠️ Wahlabend-Schritt ${s} (${branchId}) nicht erreicht — Aufnahme übersprungen`);
+      continue;
+    }
+    await shot(page, `${shotsPrefix}_wahlabend_s${s}`, {
+      bundle: 'ending',
+      desc: `Wahlabend (echt, ${branchId}), ${WAHLABEND_SCHRITTE[s]}`,
+    });
   }
+
+  // Ab hier klicken wir bewusst: Schritt 3 wartet auf „WEITER ▸".
   await clickButton(page, /WEITER/i);
   await sleep(1800);
+  // Nach dem Wahlabend öffnet der End-Report VON SELBST (StoryModeGame.tsx:392-401,
+  // „End-Report IST der Lernmoment"). Ohne dieses Zuklappen zeigte `_gameend` also nie
+  // den GameEndScreen, sondern immer schon den Report.
+  await vqa(page, () => window.__VQA__.ui.setShowEndReport(false)).catch(() => {});
+  await sleep(700);
   await shot(page, `${shotsPrefix}_gameend`, { bundle: 'ending', desc: `GameEndScreen (${branchId})` });
+
   await vqa(page, () => window.__VQA__.ui.setShowEndReport(true)).catch(() => {});
   await sleep(1400);
   await shot(page, `${shotsPrefix}_endreport_top`, { bundle: 'ending', desc: `End-Report (${branchId}), Anfang: „Das Rennen"-Kurven` });
   await page.mouse.move(640, 400);
-  await page.mouse.wheel(0, 1400);
-  await sleep(600);
-  await shot(page, `${shotsPrefix}_endreport_mid`, { bundle: 'ending', desc: `End-Report (${branchId}), Mitte: Methoden-Atlas/Bilanz` });
-  await page.mouse.wheel(0, 2600);
-  await sleep(600);
-  await shot(page, `${shotsPrefix}_endreport_bottom`, { bundle: 'ending', desc: `End-Report (${branchId}), Ende: Gegenmaßnahmen/Debrief` });
+  // Anteilig statt in festen Pixeln scrollen: Der Report eines erzwungenen Endes ist
+  // kürzer als die früher fest verdrahteten 1400 px — `mid` und `bottom` liefen dann
+  // beide in denselben Anschlag und lieferten zweimal dasselbe Bild.
+  const strecke = await scrollbareStrecke(page);
+  if (strecke > 400) {
+    await scrolleAufAnteil(page, 0.5);
+    await sleep(600);
+    await shot(page, `${shotsPrefix}_endreport_mid`, { bundle: 'ending', desc: `End-Report (${branchId}), Mitte: Methoden-Atlas/Bilanz` });
+    await scrolleAufAnteil(page, 1);
+    await sleep(600);
+    await shot(page, `${shotsPrefix}_endreport_bottom`, { bundle: 'ending', desc: `End-Report (${branchId}), Ende: Gegenmaßnahmen/Debrief` });
+  } else {
+    console.log(`  ↔ End-Report (${branchId}) ist nur ${Math.round(strecke)} px scrollbar — eine Aufnahme genügt`);
+    if (strecke > 40) {
+      await scrolleAufAnteil(page, 1);
+      await sleep(600);
+      await shot(page, `${shotsPrefix}_endreport_bottom`, { bundle: 'ending', desc: `End-Report (${branchId}), Ende: Gegenmaßnahmen/Debrief` });
+    }
+  }
   await ctx.close();
   return true;
 }

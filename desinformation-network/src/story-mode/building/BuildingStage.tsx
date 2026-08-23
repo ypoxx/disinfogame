@@ -151,6 +151,7 @@ function AmbientPerson({ a, left, top, height, viewScale }: { a: AmbientFigure; 
               width: 170, backgroundColor: 'rgba(12,12,16,0.94)', border: `1px solid ${StoryModeColors.borderLight}`,
               color: '#e8e4d8', fontFamily: "'VT323', monospace", fontSize: 12, lineHeight: 1.4, padding: '6px 8px',
             }}
+            data-testid="ambient-bubble"
           >
             <span style={{ display: 'block', fontSize: 9, letterSpacing: 1, color: '#a89f8c', marginBottom: 2 }}>{a.who}</span>
             {a.line}
