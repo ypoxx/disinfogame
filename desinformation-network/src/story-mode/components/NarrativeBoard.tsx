@@ -15,7 +15,7 @@
  * Esc schließt (E33, Capture + Stop — Muster PixelModal).
  */
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, StoryModeSurfaces } from '../theme';
 import { Icon } from './Icon';
 import { playSound } from '../utils/SoundSystem';
 import { isQueueBudgetFeasible, istPlanLeistbar } from '../utils/queueAffordability';
@@ -370,7 +370,7 @@ export function NarrativeBoard({
               <div
                 key={`frei-${i}`}
                 className="px-2 py-2 min-h-[48px] flex items-center gap-2"
-                style={{ border: '2px dashed rgba(0,0,0,0.35)', backgroundColor: 'rgba(0,0,0,0.08)' }}
+                style={{ border: '2px dashed rgba(0,0,0,0.35)', backgroundColor: StoryModeSurfaces.corkCarrier }}
                 data-testid="lane-frei"
               >
                 <span className="text-[10px] font-bold tracking-widest w-28 shrink-0" style={{ color: '#bfa988' }}>
@@ -384,11 +384,15 @@ export function NarrativeBoard({
               </div>
             ))}
             {/* F-B: Die dritte Spur ist keine Gebäude-Mechanik mehr, sondern hängt
-                diegetisch am Endspurt der Kampagne. */}
+                diegetisch am Endspurt der Kampagne.
+                P1: Zurückgenommen wird die Zeile über den blasseren Rand, NICHT über
+                Deckkraft — der Text erklärt ja, WARUM die Spur gesperrt ist; wer ihn
+                wegdimmt, nimmt der Sperre die Begründung (vorher: opacity 0.55 ohne
+                Trägerfläche, gemessene 1,02:1). */}
             {slots < 3 && (
               <div
                 className="px-2 py-1.5 flex items-center gap-2"
-                style={{ border: '2px dashed rgba(0,0,0,0.2)', opacity: 0.55 }}
+                style={{ border: '2px dashed rgba(0,0,0,0.2)', backgroundColor: StoryModeSurfaces.corkCarrier }}
                 data-testid="lane-gesperrt"
               >
                 <span className="text-[10px] font-bold tracking-widest w-28 shrink-0" style={{ color: '#bfa988' }}>
@@ -405,7 +409,7 @@ export function NarrativeBoard({
               className="px-2 py-2 min-h-[64px] flex items-center gap-2 flex-wrap"
               style={{
                 border: '2px dashed rgba(0,0,0,0.35)',
-                backgroundColor: 'rgba(0,0,0,0.12)',
+                backgroundColor: StoryModeSurfaces.corkCarrier,
               }}
               data-testid="lane-tagesgeschaeft"
             >
@@ -537,7 +541,7 @@ function StrandLane({
       className="relative px-2 py-2 flex flex-col gap-2"
       style={{
         border: `2px dashed ${StoryModeColors.ministryRed}`,
-        backgroundColor: 'rgba(0,0,0,0.12)',
+        backgroundColor: StoryModeSurfaces.corkCarrier,
       }}
       data-testid={`lane-strand-${strand.id}`}
     >

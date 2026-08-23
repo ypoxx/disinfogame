@@ -15,7 +15,7 @@ const baseProps = {
   audienceSegments: [],
   counterHeadlines: [],
   resources: { risk: 10, budget: 40, attention: 5 },
-  trustProgress: 50,
+  trustProgress: 0.5, // 0..1 — dieselbe Einheit wie audienceModel/MorningBriefing
   onNextDay: vi.fn(),
 };
 
@@ -56,5 +56,44 @@ describe('DayReport — Nacht-Transparenz', () => {
   it('lässt die Zeile auch weg, wenn die Prop ganz fehlt', () => {
     render(<DayReport {...baseProps} />);
     expect(screen.queryByTestId('night-report-row')).not.toBeInTheDocument();
+  });
+});
+
+/**
+ * Regression: Die Milieubalken und der Vertrauensbalken bekommen Anteile
+ * (0..1) und rechneten sie früher ungerechnet als Prozent aus — ein Milieu mit
+ * belief 0,35 rendert dann 0,35 % Breite, also acht optisch leere Balken.
+ * Gefunden im Fremdmodell-Durchgang 2026-08-22 (P0), Gegenprobe: BroadcastBar.
+ */
+describe('DayReport — Anteile werden als Prozent gerendert', () => {
+  const segmente = [
+    { label: 'Stadt', belief: 0.35, mood: 'skeptical' },
+    { label: 'Land', belief: 0.8, mood: 'trusting' },
+  ];
+
+  it('rechnet belief 0..1 in Prozentbreite um', () => {
+    const { container } = render(<DayReport {...baseProps} audienceSegments={segmente} />);
+    const breiten = Array.from(container.querySelectorAll<HTMLElement>('[style*="width"]'))
+      .map((el) => el.style.width)
+      .filter((w) => w.endsWith('%'));
+    expect(breiten).toContain('35%');
+    expect(breiten).toContain('80%');
+  });
+
+  it('rechnet trustProgress 0..1 in Prozentbreite um', () => {
+    const { container } = render(<DayReport {...baseProps} trustProgress={0.72} />);
+    const breiten = Array.from(container.querySelectorAll<HTMLElement>('[style*="width"]'))
+      .map((el) => el.style.width);
+    expect(breiten).toContain('72%');
+  });
+
+  it('deckelt Ausreisser statt sie ueber den Balken hinauslaufen zu lassen', () => {
+    const { container } = render(
+      <DayReport {...baseProps} trustProgress={1.4} audienceSegments={[{ label: 'X', belief: -0.2, mood: 'skeptical' }]} />,
+    );
+    const breiten = Array.from(container.querySelectorAll<HTMLElement>('[style*="width"]'))
+      .map((el) => el.style.width);
+    expect(breiten).toContain('100%');
+    expect(breiten).toContain('0%');
   });
 });

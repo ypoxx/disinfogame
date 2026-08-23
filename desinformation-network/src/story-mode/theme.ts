@@ -59,6 +59,21 @@ export const StoryModeFonts = {
   label: "'Silkscreen', ui-monospace, monospace",
 } as const;
 
+/**
+ * Trägerflächen — deckende Unterlagen für Text auf gemusterten Untergründen.
+ *
+ * Die Korkkachel der Narrativ-Tafel liegt als `backgroundImage` HINTER allen
+ * Kindern und hat keinen Deckkraft-Regler. Wo ein helles Korkkorn hinter einen
+ * Buchstaben rutscht, sank der Kontrast auf bis zu 1,02:1 — Text also physikalisch
+ * unsichtbar (gemessen 2026-08-22). Die Papier-Notizen auf derselben Textur sind
+ * mit ~10:1 gestochen scharf, weil sie eine deckende Fläche mitbringen. Genau die
+ * ist das hier: kein neues Asset, keine geänderte Textfarbe.
+ */
+export const StoryModeSurfaces = {
+  /** Auf Kork (#7a5a36): hebt #bfa988 auf 6,3:1, die helleren Labels darüber. */
+  corkCarrier: 'rgba(44,31,18,0.86)',
+} as const;
+
 // v2: ohne harten Brutalismus-Schlagschatten (Verbotsliste) — klare Pixel-Kante,
 // dezenter Press-Effekt bleibt über active:translate.
 export const createBrutalistButton = (baseColor: string) => ({

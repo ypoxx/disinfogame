@@ -273,8 +273,14 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
         paddingTop: '60px',
       }}
     >
+      {/* P6 (Fremdmodell-Durchgang 2026-08-22): Lesebreite. Ohne Deckel lief die
+          Box über die volle Fensterbreite (1244 px bei 1280) und bot ~138 Zeichen
+          je Zeile an — alle 294 `text_de` in dialogues.json sind aber ≤113 Zeichen,
+          Median 71. Kein Dialog des Spiels konnte je auf eine zweite Zeile umbrechen,
+          die Box war zu 69 % leer. 46rem ≈ 84 Zeichen: der Median füllt die Zeile,
+          die längsten brechen einmal um. */}
       <div
-        className="mx-4 mb-4 cursor-pointer"
+        className="mx-auto mb-4 w-[calc(100%-2rem)] max-w-[46rem] cursor-pointer"
         style={{
           backgroundColor: StoryModeColors.surface,
           border: `2px solid ${StoryModeColors.borderLight}`,

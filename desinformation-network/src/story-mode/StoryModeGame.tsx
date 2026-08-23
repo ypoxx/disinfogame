@@ -918,21 +918,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           }}
           onRestart={() => { resetUI(); resetGame(); }}
           onMainMenu={() => { resetUI(); onExit(); }}
+          onShowFullReport={() => setShowEndReport(true)}
         />
-        {/* K8: Zugang zum vollständigen End-Report — „der größte edukative Teil" */}
-        <button
-          onClick={() => setShowEndReport(true)}
-          className="fixed bottom-4 right-4 z-50 px-4 py-3 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
-          style={{
-            // v3 §4.7: Kraftband-Knopf mit heller Schrift (warning war Tinte auf Blau).
-            backgroundColor: StoryModeColors.darkConcrete,
-            borderColor: StoryModeColors.border,
-            color: StoryModeColors.document,
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-          }}
-        >
-          VOLLSTÄNDIGER LAGEBERICHT ▸
-        </button>
         {showEndReport && (() => {
           // Vollständiger Katalog (auch bereits gespielte Aktionen) → korrekte
           // Legalitäts-Bilanz UND der Bildungs-Kern: reale Methoden hinter den Mechaniken.
