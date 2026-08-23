@@ -619,9 +619,9 @@ V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
 
 ## 🪲 Bekannte Bugs / Altlasten
 
-- **Avatar läuft NICHT mit der Avatar-Wahl mit** (neu 2026-06-14): die Lauf-/Idle-Figur ist ein
-  einziges festes Sheet (`player_walk`/`player_idle`, `BuildingStage.tsx:543`); die Avatar-Wahl
-  ändert nur das **Porträt** (`portrait_player_<id>`). Entscheidung nötig (Porträt-only vs. m/w-Lauf).
+- ~~**Avatar läuft NICHT mit der Avatar-Wahl mit**~~ — **✅ behoben** (nachgeprüft 2026-08-23):
+  `playerWalkSheetId()` / `playerIdleSheetId()` in `playerProfileStore.ts` leiten die Sheets aus
+  der Porträt-Wahl ab, `BuildingStage` nutzt beide. Der Eintrag stand nur noch als Altlast hier.
 - **Avatar zu pixelig** (Owner 2026-06-14) — 32 px nativ ×4; Neu-Generierung höher aufgelöst (Asset).
 - ~~**Avatar-Beine starr** (V7)~~ — **✅ behoben** (Sheet referenz-stabil memoisiert, Strang-1-Bug);
   Schweben weg. (Frühere Doppel-Listung korrigiert.)
@@ -636,7 +636,11 @@ V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
   katja=Feld · igor=Finanz · direktor=Strategie/Politik). **Rest:** Verteilung schief (marina 49 / igor 3)
   → in P1c-Content rebalancieren (Igor/Finanz-Aktionen ergänzen, Marina entlasten).
 - **`npm run lint` defekt** — keine ESLint-Config im Repo; Gate stützt sich auf tsc/build/vitest.
-- **Pixel-Font** blockiert (Netz-Policy) — `font-mono`-Reste bis lizenzfreie Datei vorliegt.
+- ~~**Pixel-Font blockiert (Netz-Policy)**~~ — **✅ erledigt** (nachgeprüft 2026-08-23): VT323,
+  Press Start 2P und Silkscreen liegen selbst gehostet in `public/fonts/` (SIL OFL), via
+  `@font-face` in `index.css`. `font-mono` ist dabei KEIN Rest, sondern die Zuordnung selbst —
+  `tailwind.config` bildet `mono` (wie auch `sans`) auf VT323 ab, damit es im Spiel nur EIN
+  Schriftsystem gibt (§4.5).
 - **Grafik-Ladezeit / Asset-Dateigröße** (Hinweis 2026-07-06, PR #97):
   Bilder wurden bisher erst beim Mounten der Komponente geladen → sichtbares „Reinploppen"
   beim Betreten eines Raums. **✅ behoben:** gestufter Hintergrund-Preloader
