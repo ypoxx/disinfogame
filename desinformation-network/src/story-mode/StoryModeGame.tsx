@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { StoryModeColors, stampCtaStyle } from './theme';
+import { StoryModeColors, stampCtaStyle, scrim } from './theme';
 import { GAME_VERSION } from './version';
 import { DialogBox } from './components/DialogBox';
 import { StoryHUD } from './components/StoryHUD';
@@ -113,7 +113,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
+      style={{ backgroundColor: scrim('normal') }}
     >
       {/* PIXEL-Regler „Dienstplan-Tafel" (Plan L1, §4.7): eckiger Tinten-Schieber auf
           segmentierter Leiste. Die repeating-linear-gradient-Stopps sind HARTE Kanten
@@ -1563,7 +1563,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       {showShortcuts && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
+          style={{ backgroundColor: scrim('normal') }}
           onClick={() => setShowShortcuts(false)}
           role="button"
           aria-label="Tastenkürzel schließen"

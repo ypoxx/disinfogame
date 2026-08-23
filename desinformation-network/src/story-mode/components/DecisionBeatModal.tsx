@@ -1,4 +1,4 @@
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, scrim } from '../theme';
 import { PixelFrame } from './PixelFrame';
 import { SOCIETY_VALUE_META, type SocietyValueKey, type DecisionBeatResult } from '../../game-logic/StoryEngineAdapter';
 import type { DecisionBeat, WerteDelta } from '../engine/DecisionBeats';
@@ -63,7 +63,7 @@ export function DecisionBeatModal({ isVisible, beat, result, recommendedOptionId
   if (!isVisible || !beat) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(0,0,0,0.9)' }}>
+    <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: scrim('schwer') }}>
       {/* B24: nie höher als der Bildschirm — Kopf/Fuß bleiben fix, der Mittelteil
           (Optionen) scrollt innen; sonst wurde Option D unterhalb der Kante gekappt. */}
       <PixelFrame variant="standard" className="w-full max-w-xl mx-4 max-h-[100vh] flex flex-col min-h-0">

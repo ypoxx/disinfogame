@@ -274,7 +274,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: 900,
             fontFamily: "'VT323', monospace",
             color: '#fff',
@@ -319,7 +319,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
             style={{
               display: 'inline-block',
               marginTop: 2,
-              fontSize: 9,
+              fontSize: 10,
               fontFamily: "'VT323', monospace",
               fontWeight: 700,
               letterSpacing: 1,
@@ -360,7 +360,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
         {/* Anführungszeichen-Dekoration */}
         <span
           style={{
-            fontSize: 22,
+            fontSize: 24,
             lineHeight: 1,
             color: borderColor,
             opacity: 0.7,
@@ -685,7 +685,7 @@ export function FokusgruppeView({
         <div
           style={{
             textAlign: 'center',
-            fontSize: 9,
+            fontSize: 10,
             fontFamily: "'VT323', monospace",
             color: StoryModeColors.lightConcrete,
             letterSpacing: 1,

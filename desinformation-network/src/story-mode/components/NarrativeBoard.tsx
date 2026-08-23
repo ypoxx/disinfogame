@@ -15,7 +15,7 @@
  * Esc schließt (E33, Capture + Stop — Muster PixelModal).
  */
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { StoryModeColors, StoryModeSurfaces } from '../theme';
+import { StoryModeColors, StoryModeSurfaces, scrim } from '../theme';
 import { Icon } from './Icon';
 import { playSound } from '../utils/SoundSystem';
 import { isQueueBudgetFeasible, istPlanLeistbar } from '../utils/queueAffordability';
@@ -198,7 +198,7 @@ export function NarrativeBoard({
   return (
     <div
       className="fixed inset-0 flex items-center justify-center p-3"
-      style={{ backgroundColor: 'rgba(0,0,0,0.82)', zIndex: 80 }}
+      style={{ backgroundColor: scrim('leicht'), zIndex: 80 }}
       onClick={onClose}
       data-testid="narrative-board"
     >
@@ -656,7 +656,7 @@ function PinnedCard({ q, onUnpin }: { q: QueuedAction; onUnpin: () => void }): R
         {/* Einzelkosten je Karte — beim Trimmen eines überzogenen Plans muss
             ablesbar sein, WELCHE Karte teuer ist (das konnte das alte Widget). */}
         {(!!q.costs.budget || !!q.costs.actionPoints || !!q.costs.capacity) && (
-          <div className="flex gap-1.5 text-[9px]" style={{ color: '#5a3a12' }}>
+          <div className="flex gap-1.5 text-[10px]" style={{ color: '#5a3a12' }}>
             {!!q.costs.budget && <span>{q.costs.budget}K</span>}
             {!!q.costs.actionPoints && <span>{q.costs.actionPoints} AP</span>}
             {!!q.costs.capacity && <span>{q.costs.capacity} Kap.</span>}

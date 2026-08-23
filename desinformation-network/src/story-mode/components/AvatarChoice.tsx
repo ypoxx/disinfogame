@@ -40,7 +40,7 @@ export function AvatarChoice({ onConfirm }: AvatarChoiceProps): React.JSX.Elemen
       open
       variant="alarm"
       maxWidthClass="max-w-lg"
-      backdrop={0.97}
+      backdrop="schwer"
     >
       {/* Eigener farbiger Kopf */}
       <div

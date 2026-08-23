@@ -317,7 +317,7 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
                     position: 'absolute',
                     top: -6,
                     right: -2,
-                    fontSize: 9,
+                    fontSize: 10,
                     fontWeight: 700,
                     letterSpacing: 0.5,
                     padding: '1px 3px',

@@ -14,7 +14,7 @@
  * schaltet per onComplete weiter; ein „Weiter"-Klick überspringt jederzeit.
  */
 import { useEffect, useState } from 'react';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, stampCtaStyle, stampCtaClass } from '../theme';
 
 export type WahlabendBranch = 'victory' | 'timeout' | 'immune' | 'exposed';
 
@@ -89,7 +89,7 @@ function TvSet({
         <div style={{
           position: 'absolute', top: '38%', left: '50%', transform: 'translate(-50%,-50%) rotate(-11deg)',
           border: `4px solid ${StoryModeColors.danger}`, color: StoryModeColors.danger,
-          padding: '4px 16px', fontSize: 30, fontWeight: 900, letterSpacing: 4, opacity: 0.92,
+          padding: '4px 16px', fontSize: 32, fontWeight: 900, letterSpacing: 4, opacity: 0.92,
           textTransform: 'uppercase', background: 'rgba(20,7,7,0.25)',
         }}>
           {stamp}
@@ -100,7 +100,7 @@ function TvSet({
       <div style={{
         position: 'absolute', left: 0, right: 0, bottom: 0, padding: '8px 14px',
         background: 'rgba(5,7,12,0.82)', borderTop: `2px solid ${StoryModeColors.border}`,
-        fontFamily: "'VT323', monospace", fontSize: 15, minHeight: 44, display: 'flex', alignItems: 'center', gap: 10,
+        fontFamily: "'VT323', monospace", fontSize: 16, minHeight: 44, display: 'flex', alignItems: 'center', gap: 10,
       }}>
         <span style={{ fontSize: 10, letterSpacing: 1, color: StoryModeColors.warning, fontWeight: 900 }}>WESTUNION TV</span>
         <span>{anchorLine}</span>
@@ -131,7 +131,7 @@ function HochrechnungBar({
         }} />
         {/* Machtwechsel-Schwelle */}
         <div style={{ position: 'absolute', top: -4, bottom: -4, left: `${linePct}%`, width: 2, background: StoryModeColors.warning }} />
-        <div style={{ position: 'absolute', top: -18, left: `calc(${linePct}% - 30px)`, fontSize: 9, letterSpacing: 1, color: StoryModeColors.warning }}>
+        <div style={{ position: 'absolute', top: -18, left: `calc(${linePct}% - 30px)`, fontSize: 10, letterSpacing: 1, color: StoryModeColors.warning }}>
           SCHWELLE
         </div>
       </div>
@@ -250,11 +250,8 @@ export function WahlabendScene({
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); onComplete(); }}
-            style={{
-              marginTop: 14, padding: '10px 22px', cursor: 'pointer',
-              background: StoryModeColors.ministryRed, border: `3px solid ${StoryModeColors.darkRed}`,
-              color: '#fff', fontWeight: 900, letterSpacing: 2, fontSize: 14,
-            }}
+            className={stampCtaClass}
+            style={{ ...stampCtaStyle, marginTop: 14, padding: '10px 22px', fontSize: 14 }}
           >
             WEITER ▸
           </button>

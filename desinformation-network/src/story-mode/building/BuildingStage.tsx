@@ -22,7 +22,7 @@ import { skyGradientForMinutes, skylineLayersForMinutes } from './skyTime';
 import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, POSTER_SLOGANS, shredderLine, coffeeLine, volksbrauseLine, employeeOfMonth, plantAsset, plantLine, type AmbientFigure } from './corridorDecor';
 import { createAmbientLife, tickAmbientLife, sampleAmbient, nudgeAmbient, ambientWalkFrameTimeMs, AMBIENT_AGENTS, type AmbientFigureSnapshot } from './ambientLife';
 import type { NavigatorState } from './useNavigator';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, scrim } from '../theme';
 import { useAssets } from '../assets/useAssets';
 import { PixelSprite } from '../assets/PixelSprite';
 import { playSound } from '../utils/SoundSystem';
@@ -148,12 +148,12 @@ function AmbientPerson({ a, left, top, height, viewScale }: { a: AmbientFigure; 
           <div
             style={{
               position: 'absolute', bottom: 8, left: 0, transform: 'translateX(-50%)',
-              width: 170, backgroundColor: 'rgba(12,12,16,0.94)', border: `1px solid ${StoryModeColors.borderLight}`,
+              width: 170, backgroundColor: scrim('leicht'), border: `1px solid ${StoryModeColors.borderLight}`,
               color: '#e8e4d8', fontFamily: "'VT323', monospace", fontSize: 12, lineHeight: 1.4, padding: '6px 8px',
             }}
             data-testid="ambient-bubble"
           >
-            <span style={{ display: 'block', fontSize: 9, letterSpacing: 1, color: '#a89f8c', marginBottom: 2 }}>{a.who}</span>
+            <span style={{ display: 'block', fontSize: 10, letterSpacing: 1, color: '#a89f8c', marginBottom: 2 }}>{a.who}</span>
             {a.line}
           </div>
         </WorldAnchor>
@@ -808,12 +808,12 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                       // Öffnet nach UNTEN-rechts in die leere Hallenfläche — nach oben
                       // verdeckte die Blase das EG-Etagen-Schild (Vision-Review Etappe 1).
                       position: 'absolute', top: -4, left: 36,
-                      width: 230, backgroundColor: 'rgba(12,12,16,0.94)',
+                      width: 230, backgroundColor: scrim('leicht'),
                       border: `1px solid ${StoryModeColors.borderLight}`, color: '#e8e4d8',
                       fontFamily: "'VT323', monospace", fontSize: 12, lineHeight: 1.4, padding: '6px 8px',
                     }}
                   >
-                    <span style={{ display: 'block', fontSize: 9, letterSpacing: 1, color: '#a89f8c', marginBottom: 2 }}>PFÖRTNER</span>
+                    <span style={{ display: 'block', fontSize: 10, letterSpacing: 1, color: '#a89f8c', marginBottom: 2 }}>PFÖRTNER</span>
                     {pfoertnerLine}
                   </div>
                 </WorldAnchor>
@@ -989,7 +989,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           style={{
             position: 'fixed', inset: 0, zIndex: 1200,
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14,
-            background: 'rgba(0,0,0,0.82)', cursor: 'pointer', padding: 24,
+            background: scrim('leicht'), cursor: 'pointer', padding: 24,
           }}
         >
           <img

@@ -5,7 +5,7 @@
  * reasoning, and suggested actions.
  */
 
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, paperButtonStyle, paperButtonClass } from '../theme';
 import type { AdvisorRecommendation } from '../engine/AdvisorRecommendation';
 import { getPriorityColor } from '../engine/AdvisorRecommendation';
 import type { NPC } from './AdvisorPanel';
@@ -89,12 +89,8 @@ export function AdvisorDetailModal({
           </div>
           <button
             onClick={onClose}
-            className="px-4 py-2 border-2 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
-            style={{
-              backgroundColor: StoryModeColors.ministryRed,
-              borderColor: StoryModeColors.darkRed,
-              color: '#fff',
-            }}
+            className={`px-4 py-2 border-2 font-bold ${paperButtonClass}`}
+            style={paperButtonStyle}
           >
             SCHLIESSEN
           </button>

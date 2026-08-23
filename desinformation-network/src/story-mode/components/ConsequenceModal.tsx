@@ -1,4 +1,4 @@
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, scrim } from '../theme';
 import type { ActiveConsequence } from '../../game-logic/StoryEngineAdapter';
 import { PixelFrame } from './PixelFrame';
 import { Icon } from './Icon';
@@ -61,7 +61,7 @@ export function ConsequenceModal({
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.9)' }}
+      style={{ backgroundColor: scrim('schwer') }}
     >
       <PixelFrame
         variant="alarm"

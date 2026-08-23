@@ -421,7 +421,7 @@ function MethodsSection({ methods, operationsSummary }: MethodsSectionProps) {
               </span>
               <span
                 style={{
-                  fontSize: '9px',
+                  fontSize: '10px',
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
                   color: severityColor(m.severity),
@@ -964,7 +964,7 @@ export function EndReport({
           </div>
           <h1
             style={{
-              fontSize: '22px',
+              fontSize: '24px',
               fontWeight: 'bold',
               color: StoryModeColors.surfaceLight,
               margin: '0 0 6px',

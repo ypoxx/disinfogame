@@ -1,4 +1,4 @@
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, scrim } from '../theme';
 import { Icon } from './Icon';
 import { PixelFrame } from './PixelFrame';
 import { SOCIETY_VALUE_META, type StoryPhase, type Objective, type SocietyValueKey } from '../../game-logic/StoryEngineAdapter';
@@ -363,7 +363,7 @@ export function MissionPanel({
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
+      style={{ backgroundColor: scrim('normal') }}
       onClick={onClose}
     >
       <PixelFrame

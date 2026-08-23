@@ -1,4 +1,4 @@
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, scrim } from '../theme';
 import { Icon } from './Icon';
 import type { NewsEvent } from '../../game-logic/StoryEngineAdapter';
 
@@ -209,7 +209,7 @@ export function NewsPanel({
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
+      style={{ backgroundColor: scrim('normal') }}
       onClick={onClose}
     >
       <div

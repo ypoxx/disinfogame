@@ -100,13 +100,13 @@ export function ConsequenceTimeline({ pendingConsequences, currentPhase }: Conse
               >
                 <div className="text-sm leading-none">{getTypeIcon(consequence.type)}</div>
                 <div
-                  className="text-[9px] font-bold mt-0.5 truncate"
+                  className="text-[10px] font-bold mt-0.5 truncate"
                   style={{ color: severityColor, maxWidth: '75px' }}
                 >
                   {consequence.severity.toUpperCase()}
                 </div>
                 <div
-                  className="text-[9px] mt-0.5"
+                  className="text-[10px] mt-0.5"
                   style={{ color: isImminent ? StoryModeColors.danger : StoryModeColors.textMuted }}
                 >
                   {phasesUntil <= 0 ? 'JETZT!' : `${phasesUntil} Ph.`}

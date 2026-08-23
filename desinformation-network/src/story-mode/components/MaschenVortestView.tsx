@@ -12,7 +12,7 @@
  */
 import { useMemo, useState } from 'react';
 import { useAssets } from '../assets/useAssets';
-import { StoryModeColors, StoryModeFonts } from '../theme';
+import { StoryModeColors, StoryModeFonts, stampCtaStyle, stampCtaClass } from '../theme';
 import { repraesentativeStimmen, type MascheKarte, type MaschenVortestResult, type PersonaLite, type SegmentVortest, type Stimme } from '../audience/maschenVortest';
 import type { MaschenStempel } from '../engine/MaschenGedaechtnis';
 import type { Channel } from '../audience/audienceModel';
@@ -207,9 +207,11 @@ export function MaschenVortestView({
               onClick={commission}
               disabled={!canCommission}
               data-testid="mv-commission"
+              className={stampCtaClass}
               style={{
-                alignSelf: 'flex-start', padding: '10px 20px', fontSize: 15, fontWeight: 700, cursor: canCommission ? 'pointer' : 'not-allowed',
-                border: `3px solid ${StoryModeColors.darkRed}`, background: StoryModeColors.ministryRed, color: '#fff', opacity: canCommission ? 1 : 0.5,
+                ...stampCtaStyle,
+                alignSelf: 'flex-start', padding: '10px 20px', fontSize: 16,
+                cursor: canCommission ? 'pointer' : 'not-allowed', opacity: canCommission ? 1 : 0.5,
               }}
             >
               BEFRAGUNG BEAUFTRAGEN ▸ <span style={{ fontWeight: 400, fontSize: 12 }}>(kostet {cost} Budget + eine Phase)</span>
@@ -282,7 +284,7 @@ function MascheCard({ masche, selected, onSelect }: { masche: MascheKarte; selec
     >
       <div style={{ fontWeight: 700, fontSize: 13 }}>{masche.label_de}</div>
       <div style={{ fontSize: 11, fontStyle: 'italic', color: '#d8cba8', lineHeight: 1.4 }}>»{masche.botschaft_de}«</div>
-      <div style={{ fontSize: 9, color: StoryModeColors.lightConcrete, letterSpacing: 0.3 }}>
+      <div style={{ fontSize: 10, color: StoryModeColors.lightConcrete, letterSpacing: 0.3 }}>
         {masche.familieLabel ? `${masche.familieLabel.toUpperCase()} · ` : ''}
         trifft: {masche.themen.slice(0, 2).map(themaLabel).join(', ')} · Kanal: {KANAL_LABEL[masche.kanal]}
       </div>
@@ -364,7 +366,8 @@ function VortestResultView({
           type="button"
           data-testid="mv-launch"
           onClick={onLaunch}
-          style={{ padding: '9px 18px', fontSize: 14, fontWeight: 700, cursor: 'pointer', color: '#fff', border: `3px solid ${StoryModeColors.darkRed}`, background: StoryModeColors.ministryRed }}
+          className={stampCtaClass}
+          style={{ ...stampCtaStyle, padding: '9px 18px', fontSize: 14 }}
         >
           MASCHE STARTEN ▸
         </button>
@@ -387,7 +390,7 @@ function SegmentRow({ s }: { s: SegmentVortest }): React.JSX.Element {
     >
       <span style={{ flex: '0 0 150px', fontSize: 11, color: StoryModeColors.document, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.label_de}</span>
       {/* Stempel (kein Zahlwert) */}
-      <span data-testid={`mv-stempel-${s.segmentId}`} style={{ flex: '0 0 76px', fontSize: 9, fontWeight: 700, letterSpacing: 0.5, color: st.color }}>
+      <span data-testid={`mv-stempel-${s.segmentId}`} style={{ flex: '0 0 76px', fontSize: 10, fontWeight: 700, letterSpacing: 0.5, color: st.color }}>
         {s.reached ? st.label : '— nicht erreicht'}
       </span>
       {/* Wirkungs-Balken (Glyph, kein Prozent) */}
@@ -395,7 +398,7 @@ function SegmentRow({ s }: { s: SegmentVortest }): React.JSX.Element {
         <span style={{ position: 'absolute', inset: 0, width: `${Math.round(s.wirkung * 100)}%`, background: st.color, opacity: 0.8 }} />
       </span>
       {/* Badges */}
-      <span style={{ flex: '0 0 auto', display: 'flex', gap: 5, fontSize: 9 }}>
+      <span style={{ flex: '0 0 auto', display: 'flex', gap: 5, fontSize: 10 }}>
         {s.geimpft && <span style={{ color: '#6a8acc' }} title="Faktencheck-Zeitung auf dem Tisch">✚ geimpft</span>}
         {!s.geimpft && s.wittert && <span style={{ color: '#c8960c' }}>◔ wittert</span>}
         {s.kippNah && !s.geimpft && (

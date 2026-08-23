@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, paperButtonStyle, paperButtonClass } from '../theme';
 import type { ActionResult } from '../../game-logic/StoryEngineAdapter';
 import { SOCIETY_VALUE_META, type SocietyValueKey } from '../../game-logic/StoryEngineAdapter';
 import { COMBO_COLORS } from '../../utils/colors';
@@ -239,13 +239,8 @@ export function ActionFeedbackDialog({
           <div className="flex justify-end">
             <button
               onClick={onClose}
-              className="px-6 py-2 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
-              style={{
-                backgroundColor: StoryModeColors.ministryRed,
-                borderColor: StoryModeColors.darkRed,
-                color: '#fff',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-              }}
+              className={`px-6 py-2 border-4 font-bold ${paperButtonClass}`}
+              style={paperButtonStyle}
             >
               VERSTANDEN
             </button>
@@ -547,13 +542,8 @@ export function ActionFeedbackDialog({
         <div className="flex justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-2 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
-            style={{
-              backgroundColor: StoryModeColors.ministryRed,
-              borderColor: StoryModeColors.darkRed,
-              color: '#fff',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-            }}
+            className={`px-6 py-2 border-4 font-bold ${paperButtonClass}`}
+            style={paperButtonStyle}
           >
             VERSTANDEN
           </button>

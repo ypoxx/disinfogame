@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { StoryModeColors, stampCtaStyle } from '../theme';
+import { StoryModeColors, stampCtaStyle, scrim } from '../theme';
 import { MOOD_LABEL_DE, type Mood } from '../audience/audienceModel';
 import type { NightReport } from '../engine/ImmuneSystem';
 import type { TrancheResult } from '../engine/Finanzen';
@@ -130,7 +130,7 @@ export function DayReport({
   return (
     <div
       className="fixed inset-0 z-[60] flex flex-col"
-      style={{ backgroundColor: '#0a0a0aF2' }}
+      style={{ backgroundColor: scrim('schwer') }}
     >
       {/* Letterbox-Balken oben */}
       <div className="h-[6vh] w-full" style={{ backgroundColor: '#000' }} />

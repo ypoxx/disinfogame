@@ -202,7 +202,7 @@ function AbwehrBar({ value, stageInfo }: AbwehrBarProps) {
     <div className="flex items-center gap-2" data-testid="abwehr-bar">
       <Icon name="risk" size={20} title="ABWEHR — die Gegenseite holt auf" fallback="A" />
       <div className="flex-1" style={pulseStyle}>
-        <div className="flex justify-between mb-0.5" style={{ fontSize: '0.8rem' }}>
+        <div className="flex justify-between mb-0.5" style={{ fontSize: 13 }}>
           <span
             style={{
               color: StoryModeColors.textSecondary,
@@ -212,7 +212,7 @@ function AbwehrBar({ value, stageInfo }: AbwehrBarProps) {
           >
             ABWEHR
           </span>
-          <span style={{ color: StoryModeColors.danger, fontWeight: 800, fontSize: '0.85rem' }}>
+          <span style={{ color: StoryModeColors.danger, fontWeight: 800, fontSize: 14 }}>
             {Math.round(pct)}
           </span>
         </div>
@@ -270,11 +270,11 @@ function SonntagsfrageBar({ info }: { info: SonntagsfrageInfo }) {
     <div className="flex items-center gap-2" data-testid="sonntagsfrage-bar">
       <Icon name="mission" size={20} title="SONNTAGSFRAGE — Ihr Umfragewert" fallback="S" />
       <div className="flex-1" style={{ minWidth: 96 }}>
-        <div className="flex justify-between mb-0.5" style={{ fontSize: '0.8rem' }}>
+        <div className="flex justify-between mb-0.5" style={{ fontSize: 13 }}>
           <span style={{ color: StoryModeColors.textSecondary, fontWeight: 700, letterSpacing: '0.05em' }}>
             SONNTAGSFRAGE
           </span>
-          <span style={{ color: StoryModeColors.warning, fontWeight: 800, fontSize: '0.85rem' }}>
+          <span style={{ color: StoryModeColors.warning, fontWeight: 800, fontSize: 14 }}>
             {formatPollPct(info.pollPct)}
           </span>
         </div>
@@ -415,7 +415,7 @@ export function StoryHUD({
                   borderColor: StoryModeColors.danger,
                   color: StoryModeColors.danger,
                   fontWeight: 900,
-                  fontSize: '0.75rem',
+                  fontSize: 12,
                   letterSpacing: '0.05em',
                   animation: 'hud-risk-pulse 1.2s ease-in-out infinite',
                 }}
