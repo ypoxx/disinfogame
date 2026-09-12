@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { zahlDe } from '../zahlen';
 import { StoryModeColors, stampCtaStyle, scrim } from '../theme';
 import { MOOD_LABEL_DE, type Mood } from '../audience/audienceModel';
 import type { NightReport } from '../engine/ImmuneSystem';
@@ -47,9 +48,7 @@ interface DayReportProps {
 }
 
 /** Rundet auf eine Nachkommastelle, deutsches Komma statt Punkt (Stempel-Ästhetik). */
-function formatDe(n: number): string {
-  return n.toFixed(1).replace('.', ',');
-}
+const formatDe = zahlDe;
 
 /** Spalten-Block mit Brutalist-Rahmen + Stagger-Index für die Einblendung. */
 function ReportColumn({

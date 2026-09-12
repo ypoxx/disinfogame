@@ -31,6 +31,7 @@
  * Lauf: npx vitest run src/story-mode/tests/winnable-and-losable.test.ts
  */
 import { describe, it, expect } from 'vitest';
+import { globalRandom } from '@/services/globalRandom';
 import { createStoryEngine } from '../../game-logic/StoryEngineAdapter';
 import { resetStoryActorAI } from '../engine/StoryActorAI';
 import { resetStoryComboSystem } from '../engine/StoryComboSystem';
@@ -130,6 +131,14 @@ function resetAllSingletons(): void {
 }
 
 function runOne(strategy: Strategy, seed: string, maxPhases: number): SimResult {
+  // Die letzte offene Nichtdeterminismus-Quelle: `services/globalRandom.ts`
+  // seedet sich beim ERSTEN Zugriff selbst aus Math.random(). Der Engine-Kern
+  // zieht daraus — deshalb lieferten zwei Läufe desselben Standes 9 und 10
+  // Immun-Niederlagen, und das Gate flackerte gegen seinen eigenen Boden. Die
+  // Kopfnotiz nannte das „inhärente Verrauschung ±2–3"; sie war behebbar.
+  // Ein flackernder Test ist schlimmer als keiner: Er trainiert darauf, rote
+  // Läufe als „Flake" abzutun.
+  globalRandom.reset(`wl-${seed}`);
   resetAllSingletons();
   const engine = createStoryEngine(seed);
   const rng = mulberry32(hashSeed(seed));
@@ -181,22 +190,36 @@ function runOne(strategy: Strategy, seed: string, maxPhases: number): SimResult 
 //   random   ~92–100 % (moderates, uninformiertes Spiel gelingt meist — SOUL §6 „Spaß zuerst")
 //   low_risk ~17–42 %  (reine Passivität wird bestraft — Zielbild §3d: „Abwarten verliert")
 // Kalibriert auf die /24-Stichprobe (72 Partien). Beobachtete Bänder über viele Läufe:
-//   greedy   ~7–12 / 24  (29–50 %, Median ~42 % → Zielbild-Korridor 30–60 %)
-//   random   ~23–24 / 24 (96–100 %)
-//   low_risk ~7–15 / 24  (29–63 %; seed-abhängige Verteidiger-Spawns streuen breit)
-// Die Floors haben Luft für die inhärente `globalRandom`-Verrauschung des Engine-Kerns.
+//
+// NACHTRAG 2026-09-12 — die „inhärente Verrauschung" war ein Fehler, kein Naturgesetz.
+// `services/globalRandom.ts` seedete sich beim ersten Zugriff selbst aus Math.random();
+// seit `runOne` ihn pro Partie setzt, liefert der Lauf JEDES MAL dieselbe Verteilung.
+// Was die Streuung verdeckt hatte:
+//   · `immunePathMin: 10` war nie erfüllt — der wahre Wert ist 8/72. Grün war der Test
+//     nur, wenn das Rauschen ihn zufällig über die Schwelle hob. Am Stand VOR dieser
+//     Sitzung (bf709d6, eigener Arbeitsbaum, gleiche Saat) steht ebenfalls 8: eine
+//     Fehlkalibrierung, keine Regression.
+//   · Die Notiz unten, der Immun-Weg dominiere mit ~94 % und die Enttarnung feuere nur
+//     dünn, stimmt nicht. Gemessen: Enttarnung 8, „Das Land hält stand" 8 — halbe/halbe.
+// Gemessene Verteilung (72 Partien, deterministisch):
+//   gesamt   56 Sieg / 16 Niederlage / 0 Timeout
+//   greedy   15/24 Sieg (Ursachen: Enttarnung 8, Immunsystem 1)
+//   random   23/24 Sieg (Immunsystem 1)
+//   low_risk 18/24 Sieg (Immunsystem 6)
+// Die Floors liegen bewusst UNTER den gemessenen Werten: Sie sollen anschlagen, wenn ein
+// Weg stirbt — nicht bei jeder Verschiebung um eine Partie.
 const TARGET_BANDS = {
   greedyWinsMin: 5,          // greedy nie chancenlos (Rambo wird gebändigt, nicht ausgelöscht)
   greedyWinsMax: 17,         // … und nie unbesiegbar → Median im 30–60 %-Korridor
   lowRiskLossesMin: 5,       // reine Vorsicht ist KEIN sicherer Weg (Immunsystem holt auf)
   lowRiskWinsMax: 22,        // … und ist zugleich nicht chancenlos-verboten (kein 0/100)
-  immunePathMin: 10,         // der NEUE Verlustweg „Das Land hält stand" feuert robust
+  immunePathMin: 5,          // der Verlustweg „Das Land hält stand" feuert robust (ist: 8)
+  exposedPathMin: 5,         // … und die Enttarnung ebenso (ist: 8)
   aggregateWinsMin: 15,      // gewinnbar
   aggregateLossesMin: 15,    // verlierbar
-  // NOCH NICHT tragfähig (Carry-forward Etappe 5): „jeder Verlustweg ≥ 15 %". Der
-  // Immun-Weg dominiert (~94 %), Enttarnung feuert nur dünn (0–7 %), weil der Sim-
-  // Rambo schon vorher an der Abwehr scheitert. Die Aktions-Kuratierung (Etappe 5)
-  // formt den Aktions-Draw um und wird die Enttarnung wieder in den Vordergrund holen.
+  // Carry-forward Etappe 5 („jeder Verlustweg ≥ 15 % der Niederlagen") ist damit
+  // ERFÜLLT: 8 und 8 von 16 Niederlagen, also je 50 %. Die alte Notiz sprach von
+  // einem dominierenden Immun-Weg (~94 %) — das war das Rauschen, nicht die Mechanik.
 };
 
 /** Zählt Niederlagen nach Ende-Titel über eine Strategie-Teilmenge. */
@@ -252,6 +275,7 @@ describe('GEWINNBAR-UND-VERLIERBAR-Gate (Etappe 0)', () => {
   const greedyWins = byStrategy('greedy').filter(r => r.outcome === 'victory').length;
   const lowRiskLosses = byStrategy('low_risk').filter(r => r.outcome === 'defeat').length;
   const immuneLosses = defeats.filter(d => d.endTitle === 'The Country Holds').length;
+  const exposedLosses = defeats.filter(d => d.endTitle === 'Exposed').length;
 
   it('ist GEWINNBAR (genug Siege im Aggregat)', () => {
     expect(wins.length).toBeGreaterThanOrEqual(TARGET_BANDS.aggregateWinsMin);
@@ -278,10 +302,13 @@ describe('GEWINNBAR-UND-VERLIERBAR-Gate (Etappe 0)', () => {
     expect(lowRiskWins).toBeLessThanOrEqual(TARGET_BANDS.lowRiskWinsMax);
   });
 
-  it('übt den NEUEN Verlustweg „Das Land hält stand" (Immunsystem) aus', () => {
+  it('übt BEIDE Verlustwege aus — Immunsystem und Enttarnung', () => {
     // Der Etappe-3-Kern: die ABWEHR erreicht 100 vor dem Wahltag — der zweite Rennläufer
     // gewinnt das Rennen. Vor Etappe 3 gab es diesen Verlustweg gar nicht.
-    expect(immuneLosses).toBeGreaterThanOrEqual(TARGET_BANDS.immunePathMin);
+    // Die Enttarnung kommt dazu: Solange die Partien verrauscht liefen, sah sie aus wie
+    // ein toter Ast (0–7 %); deterministisch gemessen feuert sie genauso oft.
+    expect(immuneLosses, 'Verlustweg „Das Land hält stand"').toBeGreaterThanOrEqual(TARGET_BANDS.immunePathMin);
+    expect(exposedLosses, 'Verlustweg „Enttarnt"').toBeGreaterThanOrEqual(TARGET_BANDS.exposedPathMin);
   });
 
   it('ist im OUTCOME deterministisch reproduzierbar (gleiche Seed → gleicher Ausgang)', () => {

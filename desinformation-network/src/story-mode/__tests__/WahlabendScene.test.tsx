@@ -38,6 +38,20 @@ describe('WahlabendScene', () => {
     expect(screen.getByText('GEFÄLSCHT')).toBeInTheDocument();
   });
 
+  it('trennt Enttarnung und Immunisierung schon im ersten Schritt', () => {
+    // Vorher war Schritt 1 für beide Zweige wortgleich — die Ernte meldete zwei
+    // BITGLEICHE Aufnahmen, und der Spieler erfuhr erst im letzten Bild, ob man
+    // seine Inhalte widerlegt oder ihn selbst gefunden hat.
+    const texte = (branch: 'immune' | 'exposed') => {
+      const { unmount } = render(<WahlabendScene {...baseProps} branch={branch} />);
+      fireEvent.click(screen.getByRole('dialog'));   // 0 → 1
+      const t = screen.getByRole('dialog').textContent ?? '';
+      unmount();
+      return t;
+    };
+    expect(texte('exposed')).not.toBe(texte('immune'));
+  });
+
   it('ein Klick am Ende ruft onComplete', () => {
     const onComplete = vi.fn();
     render(<WahlabendScene {...baseProps} branch="timeout" onComplete={onComplete} />);
