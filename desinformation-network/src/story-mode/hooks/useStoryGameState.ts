@@ -1715,6 +1715,10 @@ export function useStoryGameState(seed?: string) {
       setActiveConsequence(engine.getActiveConsequence());
       setActiveEpisodes(engine.getActiveEpisodes());
       setEpisodeAbschluesse([]); // ephemer — gehört nicht zum geladenen Stand
+      // Ohne diese Zeile blieb die Liste leer: Ein Erzählstrang, von dem vor dem
+      // Speichern schon eine Einklink-Aktion gespielt war, ließ sich nach dem
+      // Fortsetzen nie mehr abschließen (Zähler 0/N, Aktion aber verbraucht).
+      setCompletedActions(engine.getCompletedActionIds());
       refreshAvailableActions();
       setGamePhase('playing');
 

@@ -708,7 +708,7 @@ export interface GameEndState {
  *        Tranchen-Zustand (Mahnstufe/Bezugspunkt) + Läufer-Historie. Altstände erben
  *        Defaults (Mahnstufe 0, Bezugspunkt = aktueller Fortschritt).
  */
-export const SAVE_FORMAT_VERSION = '2.3.0';
+export const SAVE_FORMAT_VERSION = '2.4.0';
 
 // Datenintegritäts-Check (P0/R3): nur EINMAL über die Lebenszeit des Moduls laufen
 // lassen — die Daten sind statisch importiert, und die Balance-Sim erzeugt Dutzende
@@ -5193,6 +5193,26 @@ export class StoryEngineAdapter {
   getCarrierState(carrierId: string): CarrierState {
     return this.carrierStates.get(carrierId) ?? 'verfügbar';
   }
+  /**
+   * Die IDs der erfolgreich gespielten regulären Aktionen.
+   *
+   * Der Hook führt `completedActions` als eigene Liste und setzte sie beim
+   * Laden nicht zurück — der Zähler eines Erzählstrangs stand danach wieder bei
+   * 0/N, während die Engine die Aktion längst als verbraucht führte und aus dem
+   * Terminal filterte. Der Strang war damit **nicht mehr abschließbar** und
+   * blockierte dauerhaft einen Brett-Slot.
+   *
+   * Die Liste wird aus der ohnehin gespeicherten `actionHistory` rekonstruiert.
+   * `op_`-Einträge sind synthetische Operations-Buchungen (siehe playOperation)
+   * und zählen nicht als gespielte Aktion.
+   */
+  getCompletedActionIds(): string[] {
+    const ids = this.actionHistory
+      .filter((h) => h.result?.success && !h.actionId.startsWith('op_'))
+      .map((h) => h.actionId);
+    return Array.from(new Set(ids));
+  }
+
   getCarrierStates(): Record<string, CarrierState> {
     const out: Record<string, CarrierState> = {};
     for (const c of loadCarriers()) out[c.id] = this.getCarrierState(c.id);
@@ -6957,6 +6977,31 @@ export class StoryEngineAdapter {
       // Engine state
       actionLoaderState: this.actionLoader.exportState(),
       consequenceSystemState: this.consequenceSystem.exportState(),
+
+      // === Ab 2.4.0: was bisher beim Fortsetzen verloren ging ===
+      // Der Abgleich aller Zustandsfelder gegen diese Liste fand neun Lücken.
+      // Am teuersten war das Schlachtfeld: Gekaufte Verbreiter und beschafftes
+      // Kompromat fielen auf „verfügbar" zurück, während die Abbuchung von
+      // Budget, Kapazität und Risiko gespeichert blieb — der Spieler zahlte
+      // dieselbe Ware zweimal. `saveGuard.test.ts` hält die Liste fest.
+      carrierStates: Array.from(this.carrierStates.entries()),
+      acquiredKompromat: Array.from(this.acquiredKompromat),
+      operationsPlayed: this.operationsPlayed,
+      carriersUsed: Array.from(this.carriersUsed),
+      platformsUsed: Array.from(this.platformsUsed),
+      // Siegzähler: checkGameEnd verlangt REQUIRED_HOLD_PHASES gehaltene Phasen.
+      // Ohne dieses Feld begann das Halten nach jedem Laden wieder bei null.
+      trustTargetHeldPhases: this.trustTargetHeldPhases,
+      // Eine Konsequenz, die auf eine Entscheidung wartet, verschwand beim
+      // Laden samt Frist — die Wahl wurde dem Spieler stillschweigend abgenommen.
+      activeConsequence: this.activeConsequence,
+      allTriggeredEvents: Array.from(this.allTriggeredEvents.entries()),
+      // Vier Subsysteme führen eigenen Zustand und boten ihn über exportState
+      // an — abgerufen hat ihn niemand.
+      betrayalSystemState: this.betrayalSystem.exportState(),
+      countermeasureSystemState: this.countermeasureSystem.exportState(),
+      dialogLoaderState: this.dialogLoader.exportState(),
+      extendedActorLoaderState: this.extendedActorLoader.exportState(),
     };
 
     return JSON.stringify(state);
@@ -7083,6 +7128,32 @@ export class StoryEngineAdapter {
     }
     if (state.consequenceSystemState) {
       this.consequenceSystem.importState(state.consequenceSystemState);
+    }
+
+    // === Ab 2.4.0 (Gegenstück zu saveState) ===
+    // Alle Felder mit Defaults: Ein Spielstand < 2.4.0 hat sie nicht und lädt
+    // trotzdem. Er startet dann ohne gekaufte Verbreiter — das lässt sich
+    // nachträglich nicht rekonstruieren, und erfinden wäre schlimmer als der
+    // ehrliche Nullstand.
+    this.carrierStates = new Map(state.carrierStates ?? []);
+    this.acquiredKompromat = new Set(state.acquiredKompromat ?? []);
+    this.operationsPlayed = state.operationsPlayed ?? 0;
+    this.carriersUsed = new Set(state.carriersUsed ?? []);
+    this.platformsUsed = new Set(state.platformsUsed ?? []);
+    this.trustTargetHeldPhases = state.trustTargetHeldPhases ?? 0;
+    this.activeConsequence = state.activeConsequence ?? null;
+    this.allTriggeredEvents = new Map(state.allTriggeredEvents ?? []);
+    if (state.betrayalSystemState) {
+      this.betrayalSystem.importState(state.betrayalSystemState);
+    }
+    if (state.countermeasureSystemState) {
+      this.countermeasureSystem.importState(state.countermeasureSystemState);
+    }
+    if (state.dialogLoaderState) {
+      this.dialogLoader.importState(state.dialogLoaderState);
+    }
+    if (state.extendedActorLoaderState) {
+      this.extendedActorLoader.importState(state.extendedActorLoaderState);
     }
   }
 
