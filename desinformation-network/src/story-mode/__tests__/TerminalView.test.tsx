@@ -138,13 +138,20 @@ describe('TerminalView (L2)', () => {
     expect(container.textContent).toContain('Plakatkampagne');
   });
 
-  it('Memo §2.6: Scanline-Layer ist separat, pointer-events-frei und abschaltbar', () => {
+  it('Memo §2.6: Scanline-Layer ist separat, pointer-events-frei und zuschaltbar', () => {
+    // Seit der Umstellung auf Papier ist der Layer standardmäßig AUS — ein
+    // Vordruck hat kein Zeilenraster. Die Zusicherung bleibt dieselbe: Er liegt
+    // separat, fängt keine Klicks und lässt sich schalten. Nur die Richtung
+    // des Schalters hat sich gedreht.
+    localStorage.removeItem('storyMode_terminalRoehre');
     const { container, getByTitle } = renderTerminal();
+    expect(container.querySelector('[data-testid="terminal-scanlines"]')).toBeNull();
+
+    fireEvent.click(getByTitle(/Scanline-Layer/));
     const layer = container.querySelector('[data-testid="terminal-scanlines"]') as HTMLElement;
     expect(layer).toBeTruthy();
     expect(layer.style.pointerEvents).toBe('none');
-    fireEvent.click(getByTitle(/Scanline-Layer/));
-    expect(container.querySelector('[data-testid="terminal-scanlines"]')).toBeNull();
+    localStorage.removeItem('storyMode_terminalRoehre');
   });
 
   it('Escape schließt das Terminal', () => {
@@ -238,13 +245,14 @@ describe('TerminalView (L2)', () => {
   it('RÖHRE-Schalter persistiert die Wahl über localStorage', () => {
     localStorage.removeItem('storyMode_terminalRoehre');
     const { getByTitle, unmount, container } = renderTerminal();
-    expect(container.querySelector('[data-testid="terminal-scanlines"]')).toBeTruthy();
+    // Standard ist Papier ohne Raster.
+    expect(container.querySelector('[data-testid="terminal-scanlines"]')).toBeNull();
     fireEvent.click(getByTitle(/Scanline-Layer/));
-    expect(localStorage.getItem('storyMode_terminalRoehre')).toBe('aus');
+    expect(localStorage.getItem('storyMode_terminalRoehre')).toBe('an');
     unmount();
-    // Frisch gemountet: Röhre bleibt aus.
+    // Frisch gemountet: Die Wahl hält — wer die Röhre will, behält sie.
     const again = renderTerminal();
-    expect(again.container.querySelector('[data-testid="terminal-scanlines"]')).toBeNull();
+    expect(again.container.querySelector('[data-testid="terminal-scanlines"]')).toBeTruthy();
     localStorage.removeItem('storyMode_terminalRoehre');
   });
 });

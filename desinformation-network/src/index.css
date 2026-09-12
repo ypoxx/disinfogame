@@ -43,6 +43,12 @@
    Use these CSS variables instead of hardcoded values.
    ============================================ */
 :root {
+  /* Welt-Signalgelb als CSS-Variable: CSS kann den TypeScript-Token nicht
+     importieren, aber ein zweites Literal wäre genau der Wildwuchs, den
+     `weltfarbenGuard.test.ts` verhindern soll. Die Wache prüft, dass dieser
+     Wert mit StoryModeWorld.amber übereinstimmt. */
+  --welt-amber: #F0B429;
+
   /* ============================================
      Layer Hierarchy (ascending)
      ============================================ */
@@ -173,7 +179,7 @@
     @apply focus:outline-none;
   }
   button:focus-visible {
-    outline: 2px solid #F0B429;
+    outline: 2px solid var(--welt-amber);
     outline-offset: 1px;
   }
 

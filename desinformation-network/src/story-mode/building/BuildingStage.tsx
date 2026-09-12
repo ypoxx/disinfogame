@@ -22,7 +22,7 @@ import { skyGradientForMinutes, skylineLayersForMinutes } from './skyTime';
 import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, POSTER_SLOGANS, shredderLine, coffeeLine, volksbrauseLine, employeeOfMonth, plantAsset, plantLine, type AmbientFigure } from './corridorDecor';
 import { createAmbientLife, tickAmbientLife, sampleAmbient, nudgeAmbient, ambientWalkFrameTimeMs, AMBIENT_AGENTS, type AmbientFigureSnapshot } from './ambientLife';
 import type { NavigatorState } from './useNavigator';
-import { StoryModeColors, scrim } from '../theme';
+import { StoryModeColors, scrim, StoryModeWorld } from '../theme';
 import { useAssets } from '../assets/useAssets';
 import { PixelSprite } from '../assets/PixelSprite';
 import { playSound } from '../utils/SoundSystem';
@@ -37,8 +37,8 @@ const WALK_FRAME_TIME_MS = Math.round((WALK_CYCLE_STRIDE_PX / NAV_SPEED.walkPxPe
 
 // Welt-Ebene: Signal-/Hover-Farben bleiben HELL (die Welt ist dunkel; die
 // v3.1-Papier-Tinten sind dafür zu dunkel — §4.7 gilt der Bedienung, nicht der Welt).
-const WORLD_AMBER = '#F0B429';
-const WORLD_RED = '#E5484D';
+const WORLD_AMBER = StoryModeWorld.amber;
+const WORLD_RED = StoryModeWorld.red;
 
 /** Wie viel breiter als das Gebäude der Bildausschnitt ist (Stadt links/rechts). */
 const CITY_MARGIN_FACTOR = 1.45;

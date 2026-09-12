@@ -12,7 +12,7 @@
 import type { CSSProperties } from 'react';
 import { useAssets } from '../assets/useAssets';
 import { PixelSprite } from '../assets/PixelSprite';
-import { StoryModeColors, StoryModeFonts } from '../theme';
+import { StoryModeColors, StoryModeFonts, StoryModeWorld } from '../theme';
 import { FIGURE_BY_SEGMENT, wohnzimmerBadgeFor, type BroadcastTier, type WohnzimmerBadge } from './broadcastMapping';
 import type { AudienceBroadcastState } from './useAudienceBroadcast';
 import type { Mood } from '../audience/audienceModel';
@@ -40,7 +40,7 @@ const BADGE_COLOR: Record<WohnzimmerBadge, string> = {
   fahne: '#3a7acc',
   zeitung: StoryModeColors.lightConcrete,
   abwinken: StoryModeColors.warning,
-  streit: '#E5484D',
+  streit: StoryModeWorld.red,
   einsam: StoryModeColors.concrete,
 };
 
@@ -78,7 +78,7 @@ const TIER_LABEL: Record<BroadcastTier, string> = {
 const TIER_COLOR: Record<BroadcastTier, string> = {
   klein: '#8a8a7a',
   mittel: StoryModeColors.warning,
-  gross: '#E5484D',
+  gross: StoryModeWorld.red,
 };
 
 /**
@@ -141,7 +141,7 @@ function CollapsedStrip({ audience, onToggle }: { audience: AudienceBroadcastSta
           fontWeight: 700,
           letterSpacing: 1,
           // v3: danger ist Tinte — ON-AIR-Licht bleibt helles v2-Rot (diegetisch).
-          color: item ? '#E5484D' : '#6a7',
+          color: item ? StoryModeWorld.red : '#6a7',
           animation: item ? 'bb-blink 1.4s ease-in-out infinite' : undefined,
           flexShrink: 0,
         }}
@@ -251,7 +251,7 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
           fontSize: 10,
           fontWeight: 700,
           // v3: danger ist Tinte — ON-AIR-Licht bleibt helles v2-Rot (diegetisch).
-          color: '#E5484D',
+          color: StoryModeWorld.red,
           animation: item ? 'bb-blink 1.4s ease-in-out infinite' : undefined,
           zIndex: 3,
         }}
@@ -370,7 +370,7 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
                     width: `${Math.round(seg.belief * 100)}%`,
                     height: '100%',
                     // v3: danger ist Tinte — auf dem dunklen Sockel das helle v2-Rot.
-                    backgroundColor: seg.belief > 0.6 ? '#E5484D' : seg.belief > 0.4 ? StoryModeColors.warning : '#6a8a6a',
+                    backgroundColor: seg.belief > 0.6 ? StoryModeWorld.red : seg.belief > 0.4 ? StoryModeColors.warning : '#6a8a6a',
                     transition: 'width 600ms ease',
                   }}
                 />
@@ -449,7 +449,7 @@ export function BroadcastBar({ audience, expanded, onToggle, wohnzimmerAlphabet 
           ) : (
             audience.history.slice(0, 3).map((h) => (
               // v3: danger ist Tinte — Gegenreaktion auf der dunklen Leiste in hellem v2-Rot.
-              <div key={h.id} style={{ fontSize: 11, color: h.kind === 'gegenreaktion' ? '#E5484D' : '#9aa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div key={h.id} style={{ fontSize: 11, color: h.kind === 'gegenreaktion' ? StoryModeWorld.red : '#9aa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {h.kind === 'gegenreaktion' ? '' : '●'} [{h.tier.toUpperCase()}] {h.headline}
               </div>
             ))

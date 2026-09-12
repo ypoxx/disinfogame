@@ -6,7 +6,7 @@
  * vor der Ankunfts-Sequenz.
  */
 import { useState } from 'react';
-import { StoryModeColors, stampCtaStyle } from '../theme';
+import { StoryModeColors, stampCtaStyle, StoryModeWorld } from '../theme';
 import { useAssets } from '../assets/useAssets';
 import { Icon } from './Icon';
 import { PLAYER_PORTRAITS, playerPortraitAssetId, playerPortraitImgStyle, usePlayerProfile } from '../stores/playerProfileStore';
@@ -87,7 +87,7 @@ export function AvatarChoice({ onConfirm }: AvatarChoiceProps): React.JSX.Elemen
                 <span
                   className="absolute bottom-0 inset-x-0 text-[10px] py-0.5 text-center"
                   // v3: warning ist Tinte — auf dem dunklen Namensband helles v2-Amber.
-                  style={{ backgroundColor: 'rgba(10,10,14,0.78)', color: selected ? '#F0B429' : '#c8c8b8' }}
+                  style={{ backgroundColor: 'rgba(10,10,14,0.78)', color: selected ? StoryModeWorld.amber : '#c8c8b8' }}
                 >
                   {opt.label}
                 </span>

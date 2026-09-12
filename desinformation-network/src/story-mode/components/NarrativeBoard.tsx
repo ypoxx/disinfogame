@@ -15,7 +15,7 @@
  * Esc schließt (E33, Capture + Stop — Muster PixelModal).
  */
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { StoryModeColors, StoryModeSurfaces, scrim } from '../theme';
+import { StoryModeColors, StoryModeSurfaces, scrim, StoryModeWorld } from '../theme';
 import { Icon } from './Icon';
 import { playSound } from '../utils/SoundSystem';
 import { isQueueBudgetFeasible, istPlanLeistbar } from '../utils/queueAffordability';
@@ -444,14 +444,14 @@ export function NarrativeBoard({
           </span>
           {/* v3: danger ist Tinte — Überzieh-Warnung auf dunkler Fußleiste in hellem v2-Rot. */}
           <span className="text-[11px] flex items-center gap-2" style={{ color: StoryModeColors.document }}>
-            <span style={{ color: budgetOk ? '#d9c6a3' : '#E5484D' }}>
+            <span style={{ color: budgetOk ? '#d9c6a3' : StoryModeWorld.red }}>
               <Icon name="budget" size={12} title="Budget" /> {planCost.budget}K/{resources.budget}K
             </span>
-            <span style={{ color: planCost.actionPoints > resources.actionPoints ? '#E5484D' : '#d9c6a3' }}>
+            <span style={{ color: planCost.actionPoints > resources.actionPoints ? StoryModeWorld.red : '#d9c6a3' }}>
               <Icon name="mission" size={12} title="AP" /> {planCost.actionPoints}/{resources.actionPoints} AP
             </span>
             {planCost.capacity > 0 && (
-              <span style={{ color: planCost.capacity > resources.capacity ? '#E5484D' : '#d9c6a3' }}>
+              <span style={{ color: planCost.capacity > resources.capacity ? StoryModeWorld.red : '#d9c6a3' }}>
                 <Icon name="capacity" size={12} title="Kapazität" /> {planCost.capacity}/{resources.capacity}
               </span>
             )}

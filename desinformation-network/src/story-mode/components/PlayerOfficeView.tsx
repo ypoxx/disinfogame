@@ -9,7 +9,7 @@
  */
 import { useState, useCallback, useRef } from 'react';
 import { Icon } from './Icon';
-import { StoryModeColors, stampCtaStyle, stampCtaClass } from '../theme';
+import { StoryModeColors, stampCtaStyle, stampCtaClass, StoryModeWorld } from '../theme';
 import { useAssets } from '../assets/useAssets';
 import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
 import { playSound } from '../utils/SoundSystem';
@@ -327,7 +327,7 @@ export function PlayerOfficeView({
                     }
                   }}
                   fill={isHovered ? 'rgba(255,255,255,0.08)' : 'transparent'}
-                  stroke={isHovered ? '#F0B429' : 'none'}
+                  stroke={isHovered ? StoryModeWorld.amber : 'none'}
                   strokeWidth={2}
                   vectorEffect="non-scaling-stroke"
                   style={{ cursor: 'pointer', outline: 'none', pointerEvents: 'all' }}
@@ -437,7 +437,7 @@ export function PlayerOfficeView({
             <span
               style={{
                 fontSize: 20,
-                color: '#F0B429',
+                color: StoryModeWorld.amber,
                 textShadow: '0 0 6px #000, 1px 1px 0 #000',
                 fontWeight: 900,
               }}
@@ -448,7 +448,7 @@ export function PlayerOfficeView({
               style={{
                 backgroundColor: 'rgba(0,0,0,0.82)',
                 color: '#e8e4d8',
-                border: `1px solid #F0B429`,
+                border: `1px solid ${StoryModeWorld.amber}`,
                 padding: '1px 5px',
                 fontSize: 10,
                 fontFamily: "'VT323', monospace",

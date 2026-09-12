@@ -8,7 +8,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAssets } from '../assets/useAssets';
 import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
-import { StoryModeColors, StoryModeFonts } from '../theme';
+import { StoryModeColors, StoryModeFonts, StoryModeWorld } from '../theme';
 import { isSoundEnabled, setSoundEnabled, playMusic } from '../utils/SoundSystem';
 import { GAME_VERSION, BUILD_STAMP, CHANGELOG } from '../version';
 
@@ -320,7 +320,7 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
         <h1
           style={{
             // v3: warning ist Marker-Tinte — Titel über dem Nachtbild bleibt helles v2-Amber (diegetisch).
-            color: '#F0B429',
+            color: StoryModeWorld.amber,
             // Press Start 2P (Headlines-Set): läuft deutlich breiter → kleinere clamp + engeres Tracking,
             // damit „OPERATION: WESTUNION" auf schmalen Schirmen nicht überläuft (Preview gegenprüfen).
             fontFamily: StoryModeFonts.display,
@@ -332,7 +332,7 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
             marginBottom: 8,
             textAlign: 'center',
             animation: 'ts-flicker 3.5s ease-in-out 0.8s both, ts-fade-slide .6s ease .3s both',
-            textShadow: `0 0 18px #F0B42966`,
+            textShadow: `0 0 18px ${StoryModeWorld.amber}66`,
           }}
         >
           OPERATION: WESTUNION
@@ -443,8 +443,8 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
             marginTop: 16,
             padding: '6px 12px',
             // v3: warning ist Marker-Tinte — über dem Nachtbild helles v2-Amber (diegetisch).
-            border: `1px solid #F0B429`,
-            color: '#F0B429',
+            border: `1px solid ${StoryModeWorld.amber}`,
+            color: StoryModeWorld.amber,
             fontSize: 11,
             letterSpacing: '0.04em',
             textAlign: 'center',

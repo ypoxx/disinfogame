@@ -11,6 +11,7 @@
  * Lauf: npx vitest run src/story-mode/tests/balance-sim-p2.test.ts
  */
 import { describe, it, expect } from 'vitest';
+import { globalRandom } from '@/services/globalRandom';
 import { createStoryEngine, type StoryEngineAdapter } from '../../game-logic/StoryEngineAdapter';
 import { loadTargets, loadCarriers, loadPlatforms, type OperationParams } from '../battlefield/BattlefieldChain';
 import { resetStoryActorAI } from '../engine/StoryActorAI';
@@ -84,6 +85,13 @@ function tryOperation(engine: StoryEngineAdapter, op: OperationParams): void {
 }
 
 function runOne(profile: Profile, seed: string, maxPhases: number): SimResult {
+  // Der globale PRNG seedet sich beim ersten Zugriff SELBST aus Math.random()
+  // (services/globalRandom.ts). StoryActorAI zieht daraus — die Partien liefen
+  // deshalb trotz Engine-Seed jedes Mal anders: drei Läufe desselben Standes
+  // ergaben 2, 2 und 1 Siege, und genau an dieser Schwankung flackerte das Gate.
+  // Ein flackernder Test ist schlimmer als keiner: Er trainiert darauf, rote
+  // Läufe als „Flake" abzutun.
+  globalRandom.reset(`p2-${seed}`);
   resetStoryActorAI();
   resetStoryComboSystem();
   resetCrisisMomentSystem();

@@ -125,6 +125,30 @@ export const StoryModeSurfaces = {
 } as const;
 
 /**
+ * Signalfarben der WELT — Gebäude, Sendeleiste, Newsroom, Büro.
+ *
+ * Die Papier-Tinten oben gelten der Bedienung (§4.7). Die Welt ist dunkel;
+ * dort wären sie unsichtbar. Diese beiden Töne sind deshalb bewusst hell — und
+ * bewusst die einzigen: Sie standen bislang als Literale in neun Dateien, mit
+ * genau dem Muster, das `stampCtaStyle` und die Scrims schon zweimal gezeigt
+ * haben — eine Regel ohne Durchsetzung wächst zurück. `weltfarbenGuard.test.ts`
+ * hält sie jetzt an dieser einen Stelle fest.
+ *
+ * Zur Eigentümer-Frage „gelbes Ziel-Tag entsättigen oder behalten": behalten.
+ * Auf der dunklen Bühne ist es das einzige Signal, das „hier lang" sagt, und
+ * ein gedämpfter Ocker verlöre genau die Funktion, für die es da ist. Der
+ * Türrahmen-Befund („1 px geht unter") war beim Nachmessen bereits überholt:
+ * Er ist 2 px stark und erscheint ausschließlich bei Hover — also weder zu
+ * schwach noch dauerhaft zu laut.
+ */
+export const StoryModeWorld = {
+  /** Wegweiser und Hover: „hier lang", „das ist anklickbar". */
+  amber: '#F0B429',
+  /** Alarm in der Welt: Krise, Gegenreaktion, steigende Empörung. */
+  red: '#E5484D',
+} as const;
+
+/**
  * Abdunklungen hinter Overlays (P14, Fremdmodell-Durchgang 2026-08-22).
  *
  * Vorher: 21 Vollbild-Scrims mit ACHT verschiedenen Schwarzwerten (0,75 · 0,78 ·
