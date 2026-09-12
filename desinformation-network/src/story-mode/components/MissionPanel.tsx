@@ -2,7 +2,7 @@ import { StoryModeColors, scrim } from '../theme';
 import { Icon } from './Icon';
 import { PixelFrame } from './PixelFrame';
 import { SOCIETY_VALUE_META, type StoryPhase, type Objective, type SocietyValueKey } from '../../game-logic/StoryEngineAdapter';
-import type { Auftrag } from '../engine/Auftraege';
+import { achsenStaende, AUFTRAG_SIEG_SCHWELLE, type Auftrag } from '../engine/Auftraege';
 
 interface MissionPanelProps {
   isVisible: boolean;
@@ -29,6 +29,12 @@ export function MissionPanel({
   variant = 'modal',
 }: MissionPanelProps) {
   if (!isVisible) return null;
+
+  // Eine Ableitung für Engine und Akte: `achsenStaende` rechnet mit derselben
+  // Formel wie `auftragProgress` und derselben Schwelle wie der Siegcheck.
+  const staende = auftrag
+    ? achsenStaende(auftrag, { ...(societyValues ?? {}), ...(typeof vertrauen === 'number' ? { vertrauen } : {}) })
+    : [];
 
   const primaryObjectives = objectives.filter(o => o.type === 'primary');
   const secondaryObjectives = objectives.filter(o => o.type === 'secondary');
@@ -151,15 +157,10 @@ export function MissionPanel({
             {auftrag.instrument_de} — diese Werte sollst du bewegen:
           </div>
           <div className="space-y-3">
-            {auftrag.signatur.map((s) => {
-              const cur = s.wert === 'vertrauen' ? vertrauen ?? s.start : societyValues?.[s.wert] ?? s.start;
+            {staende.map((s) => {
               const label = s.wert === 'vertrauen' ? 'Vertrauen' : SOCIETY_VALUE_META[s.wert].label_de;
-              const reached = s.richtung === 'hoch' ? cur >= s.ziel : cur <= s.ziel;
-              const prog =
-                s.richtung === 'hoch'
-                  ? (cur - s.start) / Math.max(1, s.ziel - s.start)
-                  : (s.start - cur) / Math.max(1, s.start - s.ziel);
-              const pct = Math.max(0, Math.min(1, prog)) * 100;
+              const pct = s.fortschritt * 100;
+              const markePct = AUFTRAG_SIEG_SCHWELLE * 100;
               return (
                 <div key={s.wert}>
                   <div className="flex justify-between text-sm mb-1">
@@ -169,21 +170,43 @@ export function MissionPanel({
                         {' '}
                         — {s.richtung === 'hoch' ? 'hochtreiben' : 'drücken'}
                       </span>
+                      {/* Die Min-Regel entscheidet den Sieg. Ohne diesen Hinweis
+                          sieht der Spieler drei Balken und nicht, welcher ihn hält. */}
+                      {s.klemmt && (
+                        <span style={{ color: StoryModeColors.warning }}> · hält den Auftrag auf</span>
+                      )}
                     </span>
-                    <span style={{ color: reached ? StoryModeColors.success : StoryModeColors.textSecondary }}>
-                      {reached ? '✓ ' : ''}
-                      jetzt {Math.round(cur)} · Ziel {s.ziel}
+                    <span style={{ color: s.erfuellt ? StoryModeColors.success : StoryModeColors.textSecondary }}>
+                      {s.erfuellt ? '✓ ' : ''}
+                      jetzt {Math.round(s.ist)} · reicht ab {Math.round(s.siegWert)}
                     </span>
                   </div>
-                  <div className="h-2 w-full" style={{ backgroundColor: StoryModeColors.lightConcrete }}>
+                  <div className="h-2 w-full relative" style={{ backgroundColor: StoryModeColors.lightConcrete }}>
                     <div
                       className="h-full transition-all"
-                      style={{ width: `${pct}%`, backgroundColor: reached ? StoryModeColors.success : StoryModeColors.warning }}
+                      style={{ width: `${pct}%`, backgroundColor: s.erfuellt ? StoryModeColors.success : StoryModeColors.warning }}
+                    />
+                    {/* Siegmarke: Hier ist die Achse erfüllt. Vorher maß der Balken
+                        gegen den vollen Zielwert — im Moment des Sieges stand er
+                        bei 60 % und trug kein Häkchen. */}
+                    <div
+                      className="absolute top-0 h-full"
+                      style={{
+                        left: `${markePct}%`,
+                        width: 2,
+                        backgroundColor: StoryModeColors.textPrimary,
+                        opacity: 0.7,
+                      }}
+                      title={`Ab hier gilt die Achse als erfüllt (Zielwert ${s.ziel} wäre darüber hinaus)`}
                     />
                   </div>
                 </div>
               );
             })}
+          </div>
+          <div className="text-xs mt-3" style={{ color: StoryModeColors.textMuted }}>
+            Die Marke zeigt, ab wann eine Achse zählt. Gewonnen ist der Auftrag,
+            wenn <em>jede</em> Achse ihre Marke erreicht — die schwächste entscheidet.
           </div>
         </div>
       )}

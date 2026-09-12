@@ -211,6 +211,7 @@ import {
   AUFTRAEGE,
   auftragProgress,
   auftragMissionVerdict,
+  AUFTRAG_SIEG_SCHWELLE,
   PARTEI_NAME_DE,
   type Auftrag,
   type AuftragId,
@@ -710,6 +711,18 @@ export interface GameEndState {
  */
 export const SAVE_FORMAT_VERSION = '2.4.0';
 
+/**
+ * Startwerte, auf die sich Anzeigen und Berater beziehen dürfen.
+ *
+ * Der Berater rechnete mit erfundenen Maxima (`maxBudget: 1000`,
+ * `maxCapacity: 100`), während das Spiel mit 150 bzw. 10 arbeitet. Er meldete
+ * deshalb ab dem ersten Zug „Budget kritisch: 15 %" — bei voller Kasse. Eine
+ * Warnung, die immer an ist, trägt keine Information; der Spieler lernt, die
+ * Berater-Prioritäten zu ignorieren.
+ */
+export const START_BUDGET = 150;
+export const MAX_CAPACITY = 10;
+
 // Datenintegritäts-Check (P0/R3): nur EINMAL über die Lebenszeit des Moduls laufen
 // lassen — die Daten sind statisch importiert, und die Balance-Sim erzeugt Dutzende
 // Engines. Das Ergebnis wird zwischengespeichert (auch für Tests abrufbar).
@@ -752,7 +765,9 @@ export class StoryEngineAdapter {
   // Etappe 3 (Paket E): 0.5 → 0.6 — mit dem Immunsystem (Regeneration + Dämpfung) darf die
   // Latte höher liegen; passives Drift-Spiel erreicht das Plateau (~0.53) nicht mehr.
   // Der Rest des Wegs Richtung 1.0 folgt mit der Aktions-Kuratierung (Etappe 5).
-  private readonly WIN_THRESHOLD = 0.6;
+  // Die Zahl selbst wohnt jetzt bei der Fortschrittsrechnung (Auftraege.ts),
+  // damit die Akte nicht gegen einen anderen Wert rechnet als der Siegcheck.
+  private readonly WIN_THRESHOLD = AUFTRAG_SIEG_SCHWELLE;
   // P2-7: Track world event cooldowns (eventId -> last triggered phase)
   private worldEventCooldowns: Map<string, number> = new Map();
   private readonly WORLD_EVENT_COOLDOWN = 6;   // Etappe 2: 6 Tage Cooldown (vorher 12 Phasen = „1 Jahr")
@@ -947,8 +962,8 @@ export class StoryEngineAdapter {
 
   private createInitialResources(): StoryResources {
     return {
-      budget: 150,            // P1-5 Fix: Increased from 100 to 150
-      capacity: 5,            // Volle Kapazität
+      budget: START_BUDGET,   // P1-5 Fix: Increased from 100 to 150
+      capacity: 5,            // Volle Kapazität (Obergrenze: MAX_CAPACITY)
       risk: 0,
       attention: 0,
       moralWeight: 0,
@@ -1102,7 +1117,7 @@ export class StoryEngineAdapter {
     const resourceChanges: Partial<StoryResources> = {
       capacity: Math.min(
         this.storyResources.capacity + this.CAPACITY_REGEN_PER_PHASE,
-        10 // Max Capacity
+        MAX_CAPACITY
       ),
       actionPointsRemaining: this.ACTION_POINTS_PER_PHASE,
       // Etappe 5 (E18): KEIN passiver Budget-Regen mehr — die Zentrale zahlt in Tranchen
@@ -3534,7 +3549,11 @@ export class StoryEngineAdapter {
       tags: loaded.tags,
       legality: loaded.legality,
       costs: {
-        budget: loaded.costs.budget,
+        // Der NPC-Rabatt greift HIER, ein einziges Mal. Alles, was danach mit
+        // `costs.budget` rechnet — Karte, Terminal, Warteschlange, Tafel und
+        // das Abbuchen — sieht dieselbe Zahl. Vorher wurde erst beim Abbuchen
+        // rabattiert, sodass die Anzeige durchweg den Listenpreis nannte.
+        budget: this.rabattierterBudgetpreis(loaded),
         capacity: loaded.costs.capacity,
         risk: loaded.costs.risk,
         attention: loaded.costs.attention,
@@ -3868,7 +3887,8 @@ export class StoryEngineAdapter {
     // (analog deductActionCosts).
     const resourceChanges: Partial<StoryResources> = { ...action.costs };
     if (resourceChanges.budget) {
-      resourceChanges.budget = -Math.ceil(resourceChanges.budget * (1 - this.calculateNPCDiscount(action) / 100));
+      // Bereits der Effektivpreis — nur noch das Vorzeichen drehen.
+      resourceChanges.budget = -resourceChanges.budget;
     }
     if (resourceChanges.capacity) resourceChanges.capacity = -resourceChanges.capacity;
 
@@ -5448,15 +5468,13 @@ export class StoryEngineAdapter {
     return this.convertToStoryAction(loaded);
   }
 
+
   private canAffordAction(action: StoryAction): boolean {
     const costs = action.costs;
 
-    // Calculate discounted budget cost based on NPC affinity
-    if (costs.budget) {
-      const discountPercent = this.calculateNPCDiscount(action);
-      const actualCost = Math.ceil(costs.budget * (1 - discountPercent / 100));
-      if (this.storyResources.budget < actualCost) return false;
-    }
+    // `costs.budget` ist bereits der Effektivpreis — die angezeigte Zahl ist
+    // genau die, gegen die hier geprüft wird.
+    if (costs.budget && this.storyResources.budget < costs.budget) return false;
 
     if (costs.capacity && this.storyResources.capacity < costs.capacity) return false;
     if (this.storyResources.actionPointsRemaining <= 0) return false;
@@ -5469,10 +5487,27 @@ export class StoryEngineAdapter {
    * Returns discount percentage (0-50)
    */
   private calculateNPCDiscount(action: StoryAction): number {
+    return this.npcRabattProzent(action.npcAffinity);
+  }
+
+  /**
+   * Der Budgetpreis nach NPC-Rabatt — die Zahl, die der Spieler sieht UND zahlt.
+   *
+   * Wird während der Umwandlung gebraucht, wenn die StoryAction noch nicht
+   * existiert; arbeitet deshalb direkt auf den Affinitäts-IDs der Rohdaten.
+   */
+  private rabattierterBudgetpreis(loaded: { costs: { budget?: number }; npc_affinity?: string[] }): number | undefined {
+    const roh = loaded.costs.budget;
+    if (!roh) return roh;
+    const rabatt = this.npcRabattProzent(loaded.npc_affinity ?? []);
+    return Math.ceil(roh * (1 - rabatt / 100));
+  }
+
+  private npcRabattProzent(npcAffinity: readonly string[]): number {
     let totalDiscount = 0;
 
     // Check all NPCs with affinity to this action
-    for (const npcId of action.npcAffinity) {
+    for (const npcId of npcAffinity) {
       const npc = this.npcStates.get(npcId);
       if (!npc) continue;
 
@@ -5498,20 +5533,11 @@ export class StoryEngineAdapter {
   private deductActionCosts(action: StoryAction, npcAssist?: string): void {
     const costs = action.costs;
 
-    // Calculate NPC discount (applies to budget costs)
-    const discountPercent = this.calculateNPCDiscount(action);
-    const costMultiplier = 1 - (discountPercent / 100);
-
-    // Log discount if significant
-    if (discountPercent > 0 && costs.budget) {
-      const originalCost = costs.budget;
-      const discountedCost = Math.ceil(originalCost * costMultiplier);
-      const saved = originalCost - discountedCost;
-      storyLogger.log(`💸 Cost Reduction: ${originalCost} → ${discountedCost} (saved ${saved}, -${discountPercent.toFixed(1)}%)`);
-    }
-
+    // `costs.budget` trägt bereits den NPC-Rabatt (convertToStoryAction).
+    // Hier ein zweites Mal zu rabattieren hieße: der Spieler zahlt weniger als
+    // angezeigt — derselbe Bruch wie vorher, nur in die andere Richtung.
     if (costs.budget) {
-      this.storyResources.budget -= Math.ceil(costs.budget * costMultiplier);
+      this.storyResources.budget -= costs.budget;
     }
     if (costs.capacity) {
       this.storyResources.capacity -= costs.capacity;

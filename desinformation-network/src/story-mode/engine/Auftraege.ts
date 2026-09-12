@@ -139,6 +139,86 @@ export function auftragMissionVerdict(progress: number, titel: string): { de: st
  *   überdrehte Achse keine zwei vernachlässigten trägt: gewonnen wird erst, wenn JEDE
  *   Signatur-Achse ihr Ziel erreicht.
  */
+/**
+ * Anteil des Weges, den JEDE Signatur-Achse zurückgelegt haben muss, damit der
+ * Auftrag als erfüllt gilt.
+ *
+ * Die Zahl lag als private Konstante im Adapter, während die Akte gegen den
+ * VOLLEN Zielwert rechnete. Folge: Im Moment des Sieges standen alle Balken bei
+ * 60 % und trugen kein Häkchen — der Spieler konnte seinen Sieg nicht kommen
+ * sehen. Sie steht jetzt bei der Fortschrittsrechnung, damit Engine und Anzeige
+ * dieselbe Quelle haben.
+ *
+ * 0.6 ist eine dokumentierte Zwischenkalibrierung mit Carry-forward auf 1.0
+ * (ZIELBILD §4, STATUS.md).
+ */
+export const AUFTRAG_SIEG_SCHWELLE = 0.6;
+
+/** Stand einer einzelnen Signatur-Achse — gemeinsame Grundlage für Engine und Akte. */
+export interface AchsenStand {
+  wert: SocietyValueKey | 'vertrauen';
+  richtung: 'hoch' | 'runter';
+  /** Ist-Wert; `start`, solange nichts vorliegt. */
+  ist: number;
+  start: number;
+  /** Der volle Zielwert aus der Auftrags-Signatur. */
+  ziel: number;
+  /** Der Wert, ab dem diese Achse als erfüllt gilt (Siegmarke). */
+  siegWert: number;
+  /** Zurückgelegter Anteil 0..1 zum VOLLEN Ziel. */
+  fortschritt: number;
+  /** Siegmarke erreicht? Das ist die Bedingung, die der Siegcheck prüft. */
+  erfuellt: boolean;
+  /** Volles Ziel erreicht — darüber hinaus, nicht nötig für den Sieg. */
+  uebererfuellt: boolean;
+  /** Die schwächste Achse: Sie allein hält den Sieg auf (Min-Regel). */
+  klemmt: boolean;
+}
+
+/**
+ * Der Stand aller Signatur-Achsen, inklusive Siegmarke und klemmender Achse.
+ *
+ * Wer diese Funktion nutzt, kann den Siegcheck nicht mehr verfehlen: Sie
+ * rechnet mit derselben Formel wie `auftragProgress` und derselben Schwelle
+ * wie `checkGameEnd`.
+ */
+export function achsenStaende(
+  auftrag: Auftrag,
+  values: Partial<Record<SocietyValueKey | 'vertrauen', number>>,
+  schwelle: number = AUFTRAG_SIEG_SCHWELLE,
+): AchsenStand[] {
+  const staende: AchsenStand[] = auftrag.signatur.map((sig) => {
+    const ist = typeof values[sig.wert] === 'number' ? (values[sig.wert] as number) : sig.start;
+    const span = Math.abs(sig.ziel - sig.start) || 1;
+    const roh = sig.richtung === 'hoch' ? (ist - sig.start) / span : (sig.start - ist) / span;
+    const fortschritt = Math.max(0, Math.min(1, roh));
+    // Die Siegmarke liegt auf demselben Weg, nur bei `schwelle` statt bei 1.
+    const siegWert = sig.richtung === 'hoch'
+      ? sig.start + span * schwelle
+      : sig.start - span * schwelle;
+    return {
+      wert: sig.wert,
+      richtung: sig.richtung,
+      ist,
+      start: sig.start,
+      ziel: sig.ziel,
+      siegWert,
+      fortschritt,
+      erfuellt: fortschritt >= schwelle,
+      uebererfuellt: sig.richtung === 'hoch' ? ist >= sig.ziel : ist <= sig.ziel,
+      klemmt: false,
+    };
+  });
+
+  // Min-Regel: Die schwächste Achse entscheidet. Bei Gleichstand klemmt die erste.
+  if (staende.length > 0) {
+    const min = Math.min(...staende.map((s) => s.fortschritt));
+    const idx = staende.findIndex((s) => s.fortschritt === min);
+    if (idx >= 0 && !staende[idx].erfuellt) staende[idx].klemmt = true;
+  }
+  return staende;
+}
+
 export function auftragProgress(
   auftrag: Auftrag,
   values: Partial<Record<SocietyValueKey | 'vertrauen', number>>,

@@ -20,6 +20,8 @@ import type {
   StageCountermeasureChoice,
   StageCountermeasureResolution,
 } from '../../game-logic/StoryEngineAdapter';
+
+import { START_BUDGET, MAX_CAPACITY } from '../../game-logic/StoryEngineAdapter';
 import type { OperationParams } from '../battlefield/BattlefieldChain';
 import { getEpisode, type Episode } from '../engine/EpisodeLoader';
 import type { AuftragId } from '../engine/Auftraege';
@@ -522,9 +524,12 @@ export function useStoryGameState(seed?: string) {
           },
           resources: {
             budget: currentResources.budget,
-            maxBudget: 1000, // Fixed max budget for analysis
+            // Bezugsgrößen aus dem Spiel statt erfundener Maxima: Mit 1000/100
+            // sah der Berater dauerhaft 15 % Budget und 5 % Kapazität und rief
+            // ab dem ersten Zug „kritisch" — bei voller Kasse.
+            maxBudget: START_BUDGET,
             capacity: currentResources.capacity,
-            maxCapacity: 100, // Fixed max capacity for analysis
+            maxCapacity: MAX_CAPACITY,
             risk: currentResources.risk,
             attention: currentResources.attention,
             moralWeight: currentResources.moralWeight,
