@@ -26,7 +26,10 @@ import {
   resetConsequenceSystem,
   type ActiveConsequence as EngineActiveConsequence,
   type ConsequenceEffects,
+  type ConsequenceSeverity,
 } from '../story-mode/engine/ConsequenceSystem';
+
+import { ausgangText } from '../story-mode/engine/consequenceOutcome';
 
 import {
   DialogLoader,
@@ -526,18 +529,20 @@ export interface PendingConsequence {
 
   // Info
   label_de: string;
-  label_en: string;
-  severity: 'minor' | 'moderate' | 'severe' | 'critical';
+  /** In den Daten nicht gepflegt — das Spiel ist deutsch (VISION_LOCK). */
+  label_en?: string;
+  severity: ConsequenceSeverity;
   type: 'exposure' | 'blowback' | 'escalation' | 'internal' | 'collateral' | 'opportunity';
 
   // Spieler-Optionen (wenn aktiviert)
   choices?: {
     id: string;
     label_de: string;
-    label_en: string;
+    label_en?: string;
     cost?: Partial<StoryResources>;
-    outcome_de: string;
-    outcome_en: string;
+    /** Lesbarer Ausgang, abgeleitet aus dem `outcome`-Bezeichner der Daten. */
+    outcome_de?: string;
+    outcome_en?: string;
   }[];
 }
 
@@ -599,11 +604,13 @@ export interface NewsEvent {
   id: string;
   phase: number;
 
-  // Inhalt
+  // Inhalt. Die englischen Felder sind optional: Das Spiel ist deutsch
+  // (VISION_LOCK), und ein Teil der Spieldaten pflegt sie gar nicht erst.
+  // Als Pflichtfelder erzwangen sie bisher `undefined`-Zuweisungen.
   headline_de: string;
-  headline_en: string;
+  headline_en?: string;
   description_de: string;
-  description_en: string;
+  description_en?: string;
 
   // Typ
   type: 'action_result' | 'consequence' | 'world_event' | 'npc_event' | 'npc_reaction';
@@ -1426,22 +1433,29 @@ export class StoryEngineAdapter {
         triggeredAtPhase: currentPhase - 2, // Approximate
         activatesAtPhase: currentPhase,
         label_de: engineActive.consequence.label_de,
-        label_en: engineActive.consequence.label_en,
         severity: engineActive.consequence.severity,
         type: engineActive.consequence.type,
         requiresChoice: engineActive.choices.length > 0,
         deadline: engineActive.deadline,
         effects: engineActive.consequence.effects,
+        // Die Wahl-Kosten heißen in `consequences.json` `cost` (Einzahl) und
+        // tragen snake_case-Schlüssel. Hier stand früher `c.costs` — ein Feld,
+        // das es nie gab. Ergebnis: `cost` war IMMER undefined, und das
+        // Konsequenz-Modal zeigte bei keiner einzigen der 36 kostenpflichtigen
+        // Wahlen an, was sie kostet. Häufigste Kostenart ist `capacity` (23×),
+        // die hier obendrein gar nicht abgebildet war.
         choices: engineActive.choices.map(c => ({
           id: c.id,
           label_de: c.label_de,
-          label_en: c.label_en,
-          cost: c.costs ? {
-            budget: c.costs.budget,
-            moralWeight: c.costs.moral_weight,
+          cost: c.cost ? {
+            budget: c.cost.budget,
+            capacity: c.cost.capacity,
+            risk: c.cost.risk,
+            moralWeight: c.cost.moral_weight,
           } : undefined,
-          outcome_de: c.outcome_de,
-          outcome_en: c.outcome_en,
+          // `outcome` ist in den Daten ein Bezeichner, kein Text. Die lesbare
+          // Fassung steht in consequenceOutcome.ts.
+          outcome_de: ausgangText(c.outcome),
         })),
       };
 
@@ -2509,16 +2523,13 @@ export class StoryEngineAdapter {
 
     // Add to news - get description from consequence definition
     const definition = this.consequenceSystem.getDefinition(consequence.consequenceId);
-    const description_de = definition?.description_de || 'Eine Konsequenz Ihrer Aktionen...';
-    const description_en = definition?.description_en || 'A consequence of your actions...';
+    const description_de = definition?.narrative_de || 'Eine Konsequenz Ihrer Aktionen...';
 
     this.newsEvents.unshift({
       id: `news_${Date.now()}`,
       phase: this.storyPhase.number,
       headline_de: consequence.label_de,
-      headline_en: consequence.label_en,
       description_de,
-      description_en,
       type: 'consequence',
       severity: consequence.severity === 'critical' ? 'danger' :
                 consequence.severity === 'severe' ? 'warning' : 'info',
@@ -2566,9 +2577,7 @@ export class StoryEngineAdapter {
       id: `news_ignored_${Date.now()}`,
       phase: currentPhase,
       headline_de: `${consequence.label_de} - Ignoriert!`,
-      headline_en: `${consequence.label_en} - Ignored!`,
       description_de: `Sie haben nicht rechtzeitig reagiert. Die Situation eskaliert.`,
-      description_en: `You failed to respond in time. The situation escalates.`,
       type: 'consequence',
       severity: 'danger',
       sourceConsequenceId: consequence.id,
@@ -5742,19 +5751,18 @@ export class StoryEngineAdapter {
           triggeredAtPhase: pending.triggeredAtPhase,
           activatesAtPhase: pending.activatesAtPhase,
           label_de: def.label_de,
-          label_en: def.label_en,
           severity: def.severity,
           type: def.type,
           choices: def.player_choices.map(c => ({
             id: c.id,
             label_de: c.label_de,
-            label_en: c.label_en,
-            cost: c.costs ? {
-              budget: c.costs.budget,
-              moralWeight: c.costs.moral_weight,
+            cost: c.cost ? {
+              budget: c.cost.budget,
+              capacity: c.cost.capacity,
+              risk: c.cost.risk,
+              moralWeight: c.cost.moral_weight,
             } : undefined,
-            outcome_de: c.outcome_de,
-            outcome_en: c.outcome_en,
+            outcome_de: ausgangText(c.outcome),
           })),
         });
 
@@ -6254,35 +6262,22 @@ export class StoryEngineAdapter {
       return { success: false };
     }
 
-    // Apply costs from the choice
+    // Kosten der Wahl anwenden. `risk` (5 Wahlen, bis +15) und das
+    // Moralgewicht auf Wahl-Ebene (4 Wahlen) wurden bisher verschluckt: der
+    // Block kannte nur budget/capacity/moralWeight, und der anschließende
+    // Effekt-Block hing an einem Feld `effects`, das es in den Daten nie gab.
     if (choice.cost) {
       if (choice.cost.budget) this.storyResources.budget -= choice.cost.budget;
       if (choice.cost.capacity) this.storyResources.capacity -= choice.cost.capacity;
+      if (choice.cost.risk) {
+        this.storyResources.risk = Math.min(100, this.storyResources.risk + choice.cost.risk);
+      }
       if (choice.cost.moralWeight) this.storyResources.moralWeight += choice.cost.moralWeight;
     }
-
-    // Apply effects from the system
-    if (result.effects) {
-      if (result.effects.risk_change) {
-        this.storyResources.risk += result.effects.risk_change;
-      }
-      if (result.effects.attention_change) {
-        this.storyResources.attention += result.effects.attention_change;
-      }
-      if (result.effects.npc_relationship) {
-        const npc = this.npcStates.get(result.effects.npc_relationship.npc);
-        if (npc) {
-          npc.relationshipProgress += result.effects.npc_relationship.change * 10;
-          // Check for level up/down
-          if (npc.relationshipProgress >= 100 && npc.relationshipLevel < 3) {
-            npc.relationshipLevel++;
-            npc.relationshipProgress = 0;
-          } else if (npc.relationshipProgress < 0 && npc.relationshipLevel > 0) {
-            npc.relationshipLevel--;
-            npc.relationshipProgress = 50;
-          }
-        }
-      }
+    // Manche Wahlen tragen ihr Moralgewicht direkt, nicht unter `cost`.
+    const rohWahl = result.choice;
+    if (rohWahl?.moral_weight) {
+      this.storyResources.moralWeight += rohWahl.moral_weight;
     }
 
     // Add news event
@@ -6290,9 +6285,7 @@ export class StoryEngineAdapter {
       id: `news_consequence_${Date.now()}`,
       phase: this.storyPhase.number,
       headline_de: this.activeConsequence.label_de,
-      headline_en: this.activeConsequence.label_en,
-      description_de: choice.outcome_de,
-      description_en: choice.outcome_en,
+      description_de: choice.outcome_de ?? 'Die Entscheidung ist getroffen.',
       type: 'consequence',
       severity: this.activeConsequence.severity === 'critical' ? 'danger' :
                 this.activeConsequence.severity === 'severe' ? 'warning' : 'info',

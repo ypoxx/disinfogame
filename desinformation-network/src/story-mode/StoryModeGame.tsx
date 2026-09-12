@@ -27,6 +27,7 @@ import { StageCountermeasureModal } from './components/StageCountermeasureModal'
 import { CrisisModal } from './components/CrisisModal';
 import { BetrayalIndicators } from './components/BetrayalIndicators';
 import { ConsequenceTimeline } from './components/ConsequenceTimeline';
+import { Fehlergrenze } from './components/Fehlergrenze';
 import { useStoryGameState } from './hooks/useStoryGameState';
 import type { ActionResult } from '../game-logic/StoryEngineAdapter';
 import { PlayerOfficeView } from './components/PlayerOfficeView';
@@ -1027,15 +1028,22 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               borderBottom: `2px solid ${StoryModeColors.border}`,
             }}
           >
-            <BetrayalIndicators
-              npcs={state.npcs}
-              betrayalStates={state.betrayalStates}
-            />
-            <div className="flex-1">
-              <ConsequenceTimeline
-                pendingConsequences={state.engine.getPendingConsequences()}
-                currentPhase={state.storyPhase.number}
+            {/* Engere Grenze um die Leiste: Hier stürzte das Spiel ab, und der
+                Fehler nahm den gesamten Baum mit. Jetzt fällt höchstens diese
+                Zeile aus, das Spiel bleibt bedienbar. */}
+            <Fehlergrenze bereich="Verrats-Anzeige">
+              <BetrayalIndicators
+                npcs={state.npcs}
+                betrayalStates={state.betrayalStates}
               />
+            </Fehlergrenze>
+            <div className="flex-1">
+              <Fehlergrenze bereich="Konsequenz-Leiste">
+                <ConsequenceTimeline
+                  pendingConsequences={state.engine.getPendingConsequences()}
+                  currentPhase={state.storyPhase.number}
+                />
+              </Fehlergrenze>
             </div>
           </div>
         )}

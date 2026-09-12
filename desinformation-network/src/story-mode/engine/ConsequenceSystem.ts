@@ -10,23 +10,38 @@ import { storyLogger } from '../../utils/logger';
 // TYPES
 // ============================================
 
+/**
+ * Kosten einer Konsequenz-Wahl. Die Schlüssel stehen hier in derselben
+ * Schreibweise wie in `consequences.json` — snake_case, nicht camelCase.
+ * `capacity` ist mit Abstand die häufigste Kostenart (23 von 36 Angaben);
+ * sie fehlte hier früher und wurde deshalb im Modal nie angezeigt.
+ */
+export interface ConsequenceChoiceCost {
+  budget?: number;
+  capacity?: number;
+  risk?: number;
+  moral_weight?: number;
+  political_influence?: number;
+}
+
 export interface ConsequenceChoice {
   id: string;
   label_de: string;
-  label_en: string;
-  costs?: {
-    budget?: number;
-    risk?: number;
-    moral_weight?: number;
-  };
-  effects?: {
-    risk_change?: number;
-    attention_change?: number;
-    npc_relationship?: { npc: string; change: number };
-    chain_break?: boolean;
-  };
-  outcome_de: string;
-  outcome_en: string;
+  /** Feldname wie in den Daten: `cost`, nicht `costs`. */
+  cost?: ConsequenceChoiceCost;
+  /** Bezeichner des Ausgangs (z. B. 'restores_capability'), kein Anzeigetext. */
+  outcome?: string;
+  /** Verweis auf eine Aktion, die diese Wahl anstößt. */
+  action_ref?: string;
+  /** Freitext-Vorbehalt, z. B. 'may_fail'. */
+  risk?: string;
+  requires?: string;
+  delay?: number;
+  probability_success?: number;
+  effect?: string;
+  moral_weight?: number;
+  npc_reaction?: string;
+  skill_check?: string;
 }
 
 export interface ConsequenceEffects {
@@ -89,10 +104,40 @@ export interface ConsequenceEffects {
   narrative_effectiveness_in_religious_communities_reduced?: number;
 }
 
+/**
+ * Schwere einer Konsequenz — die Stufe, die der Spieler in der Zeitleiste liest.
+ * `chance` ist keine Bedrohung, sondern der Gegenpol: Konsequenzen vom Typ
+ * `opportunity` sind ausdrücklich positive Entwicklungen und dürfen nicht in
+ * derselben Skala wie eine drohende Enttarnung erscheinen.
+ */
+export type ConsequenceSeverity = 'chance' | 'minor' | 'moderate' | 'severe' | 'critical';
+
+export const CONSEQUENCE_SEVERITIES: readonly ConsequenceSeverity[] = [
+  'chance', 'minor', 'moderate', 'severe', 'critical',
+] as const;
+
+/**
+ * Beschreibt `consequences.json` so, wie die Datei tatsächlich aussieht.
+ *
+ * Der frühere Typ beschrieb ein Wunschschema, das es nie gab: Er verlangte
+ * `severity`, `label_en`, `description_de/en`, `costs` und `probability.max` —
+ * keines davon stand in den Daten, dafür fehlten ihm `narrative_de`,
+ * `can_trigger`, `npc_specific_reactions` und die beiden Multiplikatoren.
+ * Sichtbar wurde die Lücke nicht, weil `loadDefinitions()` die Daten per
+ * `as any` an der Typprüfung vorbeischob — `tsc` blieb grün, während
+ * `severity.toUpperCase()` im UI auf `undefined` lief und das Spiel abstürzte.
+ *
+ * Wer hier ein Feld ergänzt, ergänzt es auch in den Daten: `consequenceData.test.ts`
+ * prüft beide Seiten gegeneinander.
+ */
 export interface ConsequenceDefinition {
   id: string;
   type: 'exposure' | 'blowback' | 'escalation' | 'internal' | 'collateral' | 'opportunity';
   triggered_by: string[];  // Action IDs
+  severity: ConsequenceSeverity;
+  label_de: string;
+  /** Der Erzähltext der Konsequenz. Heißt in den Daten `narrative_de`. */
+  narrative_de: string;
   delay: {
     min_phases: number;
     max_phases: number;
@@ -100,19 +145,53 @@ export interface ConsequenceDefinition {
   probability: {
     base: number;
     per_use_increase: number;
-    max: number;
+    /** Nicht in den Daten gepflegt — `checkTriggers` fällt auf 1.0 zurück. */
+    max?: number;
+    risk_multiplier?: number;
+    attention_multiplier?: number;
   };
-  severity: 'minor' | 'moderate' | 'severe' | 'critical';
-  label_de: string;
-  label_en: string;
-  description_de: string;
-  description_en: string;
   effects?: ConsequenceEffects;
   player_choices: ConsequenceChoice[];
-  effects_if_ignored?: {
-    risk_increase?: number;
-    attention_increase?: number;
-    chain_trigger?: string;
+  /** Folgekonsequenzen, die diese hier nach sich ziehen kann. */
+  can_trigger?: string[];
+  /** Reaktionstexte je NPC, Schlüssel ist die NPC-Kennung. */
+  npc_specific_reactions?: Record<string, string>;
+}
+
+/**
+ * Was es kostet, eine Konsequenz auszusitzen statt zu entscheiden.
+ *
+ * Der Code las früher ein Feld `effects_if_ignored`, das in keiner der 24
+ * Definitionen steht — Ignorieren war damit **folgenlos**, während die Meldung
+ * dem Spieler „Die Situation eskaliert" versprach. Statt das Feld nun 24-mal
+ * von Hand nachzutragen (und es beim nächsten Datenzuwachs wieder zu
+ * vergessen), leitet sich die Strafe aus der Schwere ab: eine Regel, die für
+ * jede künftige Konsequenz automatisch gilt.
+ *
+ * Die Folgekette greift **nur** beim Ignorieren. Genau das macht rechtzeitiges
+ * Handeln wertvoll: Wer entscheidet, bricht die Eskalation ab.
+ */
+export interface IgnorierFolgen {
+  risk_increase: number;
+  attention_increase: number;
+  /** Folgekonsequenz aus `can_trigger` — die angelegten Ketten greifen hier. */
+  chain_trigger?: string;
+}
+
+const IGNORIER_STRAFE: Record<ConsequenceSeverity, { risk: number; attention: number }> = {
+  chance: { risk: 0, attention: 0 },   // Eine verpasste Gelegenheit straft sich selbst.
+  minor: { risk: 2, attention: 1 },
+  moderate: { risk: 5, attention: 3 },
+  severe: { risk: 10, attention: 6 },
+  critical: { risk: 15, attention: 10 },
+};
+
+export function ignorierFolgen(def: ConsequenceDefinition): IgnorierFolgen {
+  const strafe = IGNORIER_STRAFE[def.severity] ?? IGNORIER_STRAFE.moderate;
+  return {
+    risk_increase: strafe.risk,
+    attention_increase: strafe.attention,
+    chain_trigger: def.can_trigger?.[0],
   };
 }
 
@@ -154,10 +233,21 @@ export class ConsequenceSystem {
    * Load consequence definitions from JSON
    */
   private loadDefinitions(): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data = consequencesData as any;
+    const data = consequencesData as { consequences: ConsequenceDefinition[] };
 
-    for (const def of data.consequences) {
+    for (const roh of data.consequences) {
+      // Riegel statt Vertrauen: Eine Definition ohne gültige Schwere hat das
+      // Spiel schon einmal zum Absturz gebracht (severity.toUpperCase() auf
+      // undefined). Sie wird jetzt auf eine Stufe gesetzt und gemeldet, statt
+      // still als kaputtes Objekt weiterzulaufen.
+      const def = roh as ConsequenceDefinition;
+      if (!CONSEQUENCE_SEVERITIES.includes(def.severity)) {
+        storyLogger.warn(
+          `ConsequenceSystem: "${def.id}" hat keine gültige severity ` +
+          `(${String(def.severity)}) — wird als "moderate" geführt.`
+        );
+        def.severity = 'moderate';
+      }
       this.definitions.set(def.id, def);
 
       // Index by trigger actions
@@ -340,7 +430,6 @@ export class ConsequenceSystem {
   resolveConsequence(choiceId: string): {
     success: boolean;
     choice?: ConsequenceChoice;
-    effects?: ConsequenceChoice['effects'];
   } {
     if (!this.activeConsequence) {
       return { success: false };
@@ -359,11 +448,9 @@ export class ConsequenceSystem {
       p => p.id !== this.activeConsequence!.id
     );
 
-    const result = {
-      success: true,
-      choice,
-      effects: choice.effects,
-    };
+    // Die Wahl trägt ihre Wirkung in `cost` und `moral_weight`; ein Feld
+    // `effects` gab es in den Daten nie. Der Aufrufer wendet beides an.
+    const result = { success: true, choice };
 
     // Clear active
     this.activeConsequence = null;
@@ -377,14 +464,14 @@ export class ConsequenceSystem {
    */
   ignoreConsequence(): {
     consequence: ConsequenceDefinition;
-    effects?: ConsequenceDefinition['effects_if_ignored'];
+    effects: IgnorierFolgen;
   } | null {
     if (!this.activeConsequence) {
       return null;
     }
 
     const consequence = this.activeConsequence.consequence;
-    const effects = consequence.effects_if_ignored;
+    const effects = ignorierFolgen(consequence);
 
     // Mark as resolved (ignored)
     this.resolvedConsequences.push(this.activeConsequence.id);

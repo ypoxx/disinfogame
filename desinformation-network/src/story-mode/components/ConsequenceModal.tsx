@@ -148,19 +148,26 @@ export function ConsequenceModal({
                     >
                       {choice.label_de}
                     </span>
+                    {/* Kapazität ist die häufigste Kostenart (23 der 36 Angaben)
+                        und fehlte hier ganz — der Spieler entschied blind. */}
                     {choice.cost && (
                       <div className="flex gap-2 text-xs">
-                        {choice.cost.budget && (
+                        {!!choice.cost.budget && (
                           <span style={{ color: StoryModeColors.warning }}>
                             -{choice.cost.budget}K
                           </span>
                         )}
-                        {choice.cost.risk && (
+                        {!!choice.cost.capacity && (
+                          <span style={{ color: StoryModeColors.warning }}>
+                            -{choice.cost.capacity} Kapazität
+                          </span>
+                        )}
+                        {!!choice.cost.risk && (
                           <span style={{ color: StoryModeColors.danger }}>
                             +{choice.cost.risk}% Risiko
                           </span>
                         )}
-                        {choice.cost.moralWeight && (
+                        {!!choice.cost.moralWeight && (
                           <span style={{ color: StoryModeColors.ministryRed }}>
                             +{choice.cost.moralWeight} Moral
                           </span>

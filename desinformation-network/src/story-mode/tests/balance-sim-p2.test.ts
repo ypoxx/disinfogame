@@ -121,8 +121,20 @@ function runOne(profile: Profile, seed: string, maxPhases: number): SimResult {
       acted++;
     }
 
+    // 3) Konsequenz entscheiden — profilgerecht.
+    // Vorher nahm JEDES Profil blind `choices[0]`. Das modellierte nichts: Bei
+    // „Wahlmanipulation geht nach hinten los" steht dort `escalate` (+8 Risiko,
+    // „Noch mehr Ressourcen einsetzen") — auch der `operator_safe` eskalierte
+    // also stur. Sichtbar wurde das erst, als die Risikokosten der Wahlen
+    // überhaupt zu wirken begannen; zuvor las der Adapter sie aus einem Feld,
+    // das es in den Daten nie gab, und verschluckte sie.
     const ac = engine.getActiveConsequence();
-    if (ac?.choices?.length) { try { engine.handleConsequenceChoice(ac.choices[0].id); } catch { /* ignore */ } }
+    if (ac?.choices?.length) {
+      const wahl = profile === 'operator_safe'
+        ? [...ac.choices].sort((a, b) => (a.cost?.risk ?? 0) - (b.cost?.risk ?? 0))[0]
+        : ac.choices[0];
+      try { engine.handleConsequenceChoice(wahl.id); } catch { /* ignore */ }
+    }
     engine.advancePhase();
     maxRisk = Math.max(maxRisk, engine.getResources().risk);
     endPhase = engine.getCurrentPhase().number;
