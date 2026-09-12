@@ -1,0 +1,18 @@
+{
+  "name": "model-review",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Fremdmodell-Review über openrouter.ai: kuratierte Ausschnitte des Spiels an ein Nicht-Claude-Modell schicken und den Bericht nach docs/MODEL_REVIEWS/ schreiben.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "lenses": "node src/cli.mjs lenses",
+    "pack": "node src/cli.mjs pack",
+    "models": "node src/cli.mjs models",
+    "key": "node src/cli.mjs key",
+    "review": "node src/cli.mjs review",
+    "test": "node --test"
+  }
+}
