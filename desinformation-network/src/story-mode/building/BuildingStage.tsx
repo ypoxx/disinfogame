@@ -210,8 +210,26 @@ function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
 }
 
 /** Strang 5: anklickbarer Flur-Statist mit Flavor-Sprechblase (Mini-Dialog, D13). */
-function AmbientPerson({ a, left, top, height, viewScale }: { a: AmbientFigure; left: number; top: number; height: number; viewScale: number }) {
-  const [open, setOpen] = useState(false);
+function AmbientPerson({ a, left, top, height, viewScale, offen, aufSprechen }: {
+  a: AmbientFigure; left: number; top: number; height: number; viewScale: number;
+  /** Nur EINE Figur spricht — sonst pflastern die Blasen die Etagen zu. */
+  offen: boolean; aufSprechen: () => void;
+}) {
+  const open = offen;
+  const setOpen = aufSprechen;
+  const [beruehrt, setBeruehrt] = useState(false);
+  // Über der obersten Etage ist kein Platz: Die Blase des TECHNIKERS stand bei
+  // y = −18, sein Name lag außerhalb des Fensters. Statt einer Stage-Schwelle
+  // (die bei Zoom und Scroll wieder falsch wäre) misst die Blase sich selbst
+  // und klappt nach unten, wenn sie oben anstößt.
+  const blaseRef = useRef<HTMLDivElement | null>(null);
+  const [nachUnten, setNachUnten] = useState(false);
+  useLayoutEffect(() => {
+    if (!open) { setNachUnten(false); return; }
+    const el = blaseRef.current;
+    if (!el) return;
+    if (el.getBoundingClientRect().top < 4) setNachUnten(true);
+  }, [open]);
   return (
     <>
     <Bodenschatten x={left} y={top + height} breite={(height / 96) * 44} staerke={0.45} />
@@ -226,8 +244,10 @@ function AmbientPerson({ a, left, top, height, viewScale }: { a: AmbientFigure; 
         // Sprechblase welt-verankert über der Figurenmitte, aber nativ gerastert (B1/E35).
         <WorldAnchor x={(height / 96) * 48 / 2} y={0} scale={viewScale} z={EBENE.blase}>
           <div
+            ref={blaseRef}
             style={{
-              position: 'absolute', bottom: 8, left: 0, transform: 'translateX(-50%)',
+              position: 'absolute', left: 0, transform: 'translateX(-50%)',
+              ...(nachUnten ? { top: height * viewScale + 8 } : { bottom: 8 }),
               width: 170, backgroundColor: 'rgba(12,12,16,0.94)', border: `1px solid ${StoryModeColors.borderLight}`,
               color: '#e8e4d8', fontFamily: "'VT323', monospace", fontSize: 12, lineHeight: 1.4, padding: '6px 8px',
             }}
@@ -238,8 +258,31 @@ function AmbientPerson({ a, left, top, height, viewScale }: { a: AmbientFigure; 
           </div>
         </WorldAnchor>
       )}
+      {/* Ohne Zeichen sahen die Statisten aus wie Kulisse: Der Owner hielt sie für
+          gar nicht umgesetzt, obwohl jeder eine Zeile hat. Beim Überfahren nennt
+          sich die Figur — dieselbe Sprache wie die Türschilder und die
+          Fahrstuhl-Plakette (Welt-Gelb bei Berührung). */}
+      {beruehrt && !open && (
+        <WorldAnchor x={(height / 96) * 48 / 2} y={0} scale={viewScale} z={EBENE.blase}>
+          <div
+            style={{
+              position: 'absolute', bottom: 4, left: 0, transform: 'translateX(-50%)',
+              whiteSpace: 'nowrap', fontFamily: "'VT323', monospace", fontSize: 10, letterSpacing: 1,
+              padding: '1px 5px', color: '#0d0d0d', backgroundColor: WORLD_AMBER,
+              border: `1px solid ${StoryModeColors.borderLight}`, pointerEvents: 'none',
+            }}
+            data-testid="ambient-schild"
+          >
+            {a.who} ▸
+          </div>
+        </WorldAnchor>
+      )}
       <button
-        onClick={() => setOpen((o) => !o)}
+        onClick={setOpen}
+        onMouseEnter={() => setBeruehrt(true)}
+        onMouseLeave={() => setBeruehrt(false)}
+        onFocus={() => setBeruehrt(true)}
+        onBlur={() => setBeruehrt(false)}
         aria-label={`${a.who} ansprechen`}
         title={`${a.who} ansprechen`}
         // flex-end: Sprite-Unterkante = Container-Unterkante = Wand-Fuß-Linie
@@ -403,6 +446,9 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   const [view, setView] = useState({ scale: 1, h: 600, w: 800 });
   const [hoverRoom, setHoverRoom] = useState<string | null>(null);
   const [hoverShaft, setHoverShaft] = useState(false);
+  // Nur EINE Flur-Figur spricht zugleich; sonst blieben nach ein paar Klicks
+  // drei, vier Blasen offen und deckten Etagenschilder und Türen zu.
+  const [sprechenderStatist, setSprechenderStatist] = useState<string | null>(null);
   const [pfoertnerOpen, setPfoertnerOpen] = useState(false); // Strang 5: Pförtner-Sprechblase
   // LB: Türen, die gerade von Ambient-Statisten benutzt werden (RoomDoor-Blende).
   const [ambientDoors, setAmbientDoors] = useState<string[]>([]);
@@ -756,7 +802,19 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 if (!assets.imageUrl(a.figure)) return null;
                 const cx = STAGE.pillarWidth + a.xFrac * (layout.shaft.x - STAGE.pillarWidth);
                 const top = wallFootY(floor) - AMBIENT_HEIGHT;
-                return <AmbientPerson key={`${floor.id}-amb-${i}`} a={a} left={cx} top={top} height={AMBIENT_HEIGHT} viewScale={view.scale} />;
+                const id = `${floor.id}-amb-${i}`;
+                return (
+                  <AmbientPerson
+                    key={id}
+                    a={a}
+                    left={cx}
+                    top={top}
+                    height={AMBIENT_HEIGHT}
+                    viewScale={view.scale}
+                    offen={sprechenderStatist === id}
+                    aufSprechen={() => setSprechenderStatist((v) => (v === id ? null : id))}
+                  />
+                );
               })}
               {/* Decken-Platte über der Etage */}
               <div
