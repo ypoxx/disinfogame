@@ -36,6 +36,16 @@ export interface EndReportProps {
   phasesPlayed: number;
   /** IDs aller ausgeführten Aktionen (können mehrfach auftauchen) */
   completedActionIds: string[];
+  /**
+   * Die Gesamtzahl aus der Engine (`actionsExecuted`). Sie zählt ALLES:
+   * Operationen, Fehlschläge und Wiederholungen. `completedActionIds` ist
+   * dagegen die gefilterte, entdoppelte Liste für die Auswertung — auf ihr
+   * rechnen Legalitäts-Aufschlüsselung und Fließtext weiter, denn Operationen
+   * stehen nicht im Aktions-Katalog und würden dort pauschal als „Grauzone"
+   * landen. Nur die Kopfzeile („Aktionen gesamt") nimmt die Engine-Zahl —
+   * sonst nennt der Endscreen eine andere Zahl als der Bericht daneben.
+   */
+  aktionenGesamt?: number;
   /** Katalog aller bekannten Aktionen – für Legality-Aufschlüsselung */
   actionsCatalog: ActionCatalogEntry[];
   /** Vertrauensverlauf (je Phase ein Punkt) */
@@ -894,6 +904,7 @@ export function EndReport({
   endNarrative,
   phasesPlayed,
   completedActionIds,
+  aktionenGesamt,
   actionsCatalog,
   trustHistory,
   laeuferHistorie,
@@ -1006,8 +1017,8 @@ export function EndReport({
             </span>
             {' · '}
             Aktionen gesamt:{' '}
-            <span style={{ color: StoryModeColors.surfaceLight }}>
-              {completedActionIds.length}
+            <span style={{ color: StoryModeColors.surfaceLight }} data-testid="aktionen-gesamt">
+              {aktionenGesamt ?? completedActionIds.length}
             </span>
             {finalTrustPct !== null && (
               <>

@@ -950,6 +950,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               endNarrative={state.gameEnd.description_de}
               phasesPlayed={state.storyPhase.number}
               completedActionIds={state.completedActions}
+              // Dieselbe Zahl wie die Kachel „Aktionen" im Endscreen daneben:
+              // Eine gespielte Operation ließ beide sonst um 1 auseinanderlaufen.
+              aktionenGesamt={state.gameEnd.stats?.actionsExecuted}
               actionsCatalog={actionCatalog}
               trustHistory={state.trustHistory}
               laeuferHistorie={state.engine.getLaeuferHistorie()}

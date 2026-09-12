@@ -26,8 +26,7 @@ import {
   resetConsequenceSystem,
   type ActiveConsequence as EngineActiveConsequence,
   type ConsequenceEffects,
-  type ConsequenceSeverity,
-} from '../story-mode/engine/ConsequenceSystem';
+  type ConsequenceSeverity, type ConsequenceChoiceCost } from '../story-mode/engine/ConsequenceSystem';
 
 import { ausgangText } from '../story-mode/engine/consequenceOutcome';
 
@@ -540,7 +539,14 @@ export interface PendingConsequence {
     id: string;
     label_de: string;
     label_en?: string;
-    cost?: Partial<StoryResources>;
+    /**
+     * Die Form der DATEN, nicht die der Ressourcen. `Partial<StoryResources>`
+     * stand hier und kannte deshalb nur `moralWeight` — die Daten schreiben
+     * aber `moral_weight` (3 Wahlen) und `political_influence` (1). Beide
+     * wurden von Adapter und Modal stillschweigend übergangen: Der Preis war
+     * im Text versprochen und wurde nie gezogen.
+     */
+    cost?: ConsequenceChoiceCost;
     /** Lesbarer Ausgang, abgeleitet aus dem `outcome`-Bezeichner der Daten. */
     outcome_de?: string;
     outcome_en?: string;
@@ -1466,7 +1472,7 @@ export class StoryEngineAdapter {
             budget: c.cost.budget,
             capacity: c.cost.capacity,
             risk: c.cost.risk,
-            moralWeight: c.cost.moral_weight,
+            moral_weight: c.cost.moral_weight,
           } : undefined,
           // `outcome` ist in den Daten ein Bezeichner, kein Text. Die lesbare
           // Fassung steht in consequenceOutcome.ts.
@@ -5807,7 +5813,7 @@ export class StoryEngineAdapter {
               budget: c.cost.budget,
               capacity: c.cost.capacity,
               risk: c.cost.risk,
-              moralWeight: c.cost.moral_weight,
+              moral_weight: c.cost.moral_weight,
             } : undefined,
             outcome_de: ausgangText(c.outcome),
           })),
@@ -6319,7 +6325,14 @@ export class StoryEngineAdapter {
       if (choice.cost.risk) {
         this.storyResources.risk = Math.min(100, this.storyResources.risk + choice.cost.risk);
       }
-      if (choice.cost.moralWeight) this.storyResources.moralWeight += choice.cost.moralWeight;
+      // EINE Schreibweise auf dem ganzen Weg: `moral_weight`, wie in den Daten.
+      // Vorher benannten die beiden Abbildungsstellen das Feld unterwegs in
+      // `moralWeight` um; Adapter und Modal lasen die umbenannte Fassung. Das
+      // funktionierte — aber jede der drei Stellen musste die Umbenennung
+      // kennen, und `cost` war als `Partial<StoryResources>` getippt, also
+      // gegen eine Form, die die Daten gar nicht haben. Jetzt trägt `cost` den
+      // Datenvertrag (ConsequenceChoiceCost) und `tsc` hält die Kette zusammen.
+      if (choice.cost.moral_weight) this.storyResources.moralWeight += choice.cost.moral_weight;
     }
     // Manche Wahlen tragen ihr Moralgewicht direkt, nicht unter `cost`.
     const rohWahl = result.choice;

@@ -147,6 +147,24 @@ describe('EndReport Komponente', () => {
     expect(onClose).toHaveBeenCalledOnce();
   });
 
+  it('Kopfzeile nennt die Engine-Gesamtzahl, nicht die gefilterte Liste', () => {
+    // Der Endscreen daneben zeigt `actionsExecuted` aus der Engine: Operationen,
+    // Fehlschläge und Wiederholungen inklusive. Der Bericht zeigte die
+    // entdoppelte, gefilterte Liste — eine einzige gespielte Operation ließ die
+    // beiden Zahlen auf aufeinanderfolgenden Bildschirmen auseinanderlaufen.
+    const { container, rerender } = render(
+      <EndReport {...defaultProps} aktionenGesamt={41} />
+    );
+    expect(container.querySelector('[data-testid="aktionen-gesamt"]')!.textContent).toBe('41');
+    // 5 IDs, davon a2 doppelt → die gefilterte Liste käme auf etwas anderes.
+    expect(defaultProps.completedActionIds.length).not.toBe(41);
+
+    // Ohne die Engine-Zahl (z. B. Altstand) bleibt der bisherige Weg.
+    rerender(<EndReport {...defaultProps} />);
+    expect(container.querySelector('[data-testid="aktionen-gesamt"]')!.textContent)
+      .toBe(String(defaultProps.completedActionIds.length));
+  });
+
   it('Rennen-Diagramm: die Legende trägt die Farbe ihrer Linie', () => {
     // Die ABWEHR-Legende stand in `danger`-Rot, ihre Linie aber in `tech`-Petrol.
     // Wer die Legende las, hielt die steigende Petrol-Kurve für die eigene

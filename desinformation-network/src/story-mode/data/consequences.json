@@ -222,7 +222,7 @@
         {
           "id": "distance",
           "label_de": "Distanz aufbauen",
-          "cost": {"political_influence": -0.3},
+          "cost": {"capacity": 2, "political_influence": -0.3},
           "outcome": "plausible_deniability"
         },
         {
@@ -349,6 +349,7 @@
         {
           "id": "go_dark",
           "label_de": "Operationen pausieren",
+          "cost": {"capacity": 4},
           "effect": "all_actions_paused_2_phases",
           "outcome": "heat_reduction"
         },
@@ -438,6 +439,7 @@
         {
           "id": "pause_operations",
           "label_de": "Angriffs-Operationen pausieren",
+          "cost": {"capacity": 3},
           "effect": "targeting_paused_3_phases",
           "outcome": "temporary_restraint"
         },
@@ -496,12 +498,14 @@
         {
           "id": "reduce_role",
           "label_de": "Von dunklen Ops fernhalten",
+          "cost": {"capacity": 2},
           "effect": "npc_restricted_actions",
           "outcome": "preserved_asset"
         },
         {
           "id": "let_go",
           "label_de": "Gehen lassen",
+          "cost": {"capacity": 3},
           "effect": "lose_npc",
           "risk": "potential_whistleblower"
         }
@@ -583,6 +587,7 @@
         {
           "id": "withdraw",
           "label_de": "Sich zurückziehen",
+          "cost": {"capacity": 3},
           "effect": "lose_election_influence",
           "outcome": "cut_losses"
         }
@@ -897,6 +902,7 @@
         {
           "id": "big_win",
           "label_de": "Großen Erfolg erzielen",
+          "cost": {"risk": 5},
           "effect": "increases_risk_taking",
           "outcome": "redemption_arc"
         },
@@ -981,6 +987,7 @@
         {
           "id": "retreat",
           "label_de": "Operationen auf Kerngebiet beschränken",
+          "cost": {"capacity": 4},
           "effect": "reduced_scope",
           "outcome": "survival_mode"
         },

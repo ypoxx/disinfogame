@@ -167,9 +167,11 @@ export function ConsequenceModal({
                             +{choice.cost.risk}% Risiko
                           </span>
                         )}
-                        {!!choice.cost.moralWeight && (
+                        {/* `moral_weight` wie in den Daten — die Umbenennung
+                            nach `moralWeight` auf halbem Weg ist entfallen. */}
+                        {!!choice.cost.moral_weight && (
                           <span style={{ color: StoryModeColors.ministryRed }}>
-                            +{choice.cost.moralWeight} Moral
+                            +{choice.cost.moral_weight} Moral
                           </span>
                         )}
                       </div>

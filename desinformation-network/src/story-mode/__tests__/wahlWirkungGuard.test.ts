@@ -78,22 +78,81 @@ describe('Wirkung der Konsequenz-Wahlen', () => {
     expect(Object.entries(OHNE_WIRKUNG).filter(([, t]) => !t.trim()).map(([id]) => id)).toEqual([]);
   });
 
-  it('hält fest, dass genau diese Wahlen derzeit nichts kosten', () => {
-    // Der eigentliche Schaden: Es ist jedes Mal die EINZIGE kostenlose Wahl
-    // ihrer Konsequenz. Ändert jemand das (Preis dran oder Wirkung gebaut),
-    // schlägt dieser Test an — und dann ist die Freikarte weg, was gut ist.
+  it('keine Wahl ist gleichzeitig kostenlos und wirkungslos', () => {
+    // Der eigentliche Schaden war nicht die fehlende Mechanik, sondern die
+    // Freikarte: In allen sechs betroffenen Konsequenzen war ausgerechnet die
+    // Wahl mit der toten Wirkung die EINZIGE ohne Budget, Kapazität, Risiko und
+    // Moralgewicht — bei „cons_international_coalition" (kritisch) kostenlos
+    // gegen 20–40 Budget der Geschwister. Wer sie immer nahm, zahlte für sechs
+    // Konsequenzen nichts. Seit 2026-09-12 trägt jede einen Preis.
     const gratisUndWirkungslos = alleWahlen()
       .filter(({ w }) => w.effect && w.effect in OHNE_WIRKUNG)
       .filter(({ w }) => !w.cost && !w.moral_weight)
       .map(({ k, w }) => `${k.id}/${w.id}`);
-    expect(gratisUndWirkungslos.sort()).toEqual([
-      'cons_election_backfire/withdraw',
-      'cons_internal_power_struggle/big_win',
-      'cons_international_coalition/retreat',
-      'cons_investigation/go_dark',
-      'cons_npc_moral_crisis/let_go',
-      'cons_npc_moral_crisis/reduce_role',
-      'cons_victim_suicide/pause_operations',
-    ]);
+    expect(
+      gratisUndWirkungslos.sort(),
+      'Diese Wahlen kosten nichts UND wirken nichts — sie sind eine Freikarte:\n  ' +
+        gratisUndWirkungslos.join('\n  ')
+    ).toEqual([]);
+  });
+
+  it('die Preise liegen auf der Skala der übrigen Wahlen', () => {
+    // Kein Ausreißer nach oben oder unten: Die vorhandenen Wahlen kosten
+    // Budget 15–40, Kapazität 1–4, Risiko 8–15. Die neuen Preise bleiben darin.
+    const GRENZEN: Record<string, [number, number]> = {
+      budget: [5, 50],      // Obergrenze: cons_whistleblower/negotiate (Schweigegeld)
+      capacity: [1, 4],
+      risk: [3, 15],
+      moral_weight: [1, 5],
+      political_influence: [-1, 1],  // Anteil, kein Punktwert
+    };
+    const ausreisser: string[] = [];
+    for (const { k, w } of alleWahlen()) {
+      for (const [feld, wert] of Object.entries(w.cost ?? {})) {
+        const grenze = GRENZEN[feld];
+        if (!grenze) { ausreisser.push(`${k.id}/${w.id}: unbekanntes Kostenfeld ${feld}`); continue; }
+        if (wert < grenze[0] || wert > grenze[1]) {
+          ausreisser.push(`${k.id}/${w.id}: ${feld}=${wert} außerhalb ${grenze[0]}–${grenze[1]}`);
+        }
+      }
+    }
+    expect(ausreisser).toEqual([]);
+  });
+
+  /**
+   * Felder, die absichtlich nur in den Daten stehen — mit Grund. Ein Preis,
+   * den niemand abbucht, ist sonst auch nur ein Text: `cost.risk` wurde so
+   * verschluckt, und `cost.moral_weight` ebenso, weil Adapter und Modal auf
+   * `moralWeight` lasen — einen Schlüssel, den es in den Daten nie gab.
+   */
+  const NUR_DATEN: Record<string, string> = {
+    political_influence:
+      'Diese Ressource gibt es im Spiel nicht; die Wahl trägt daneben einen wirksamen Preis. Bleibt als Absichtserklärung für die Mechanik (offener Punkt 1b).',
+  };
+
+  it('die Engine wendet jedes wirksame Kostenfeld an', () => {
+    const felder = new Set<string>();
+    for (const { w } of alleWahlen()) for (const f of Object.keys(w.cost ?? {})) felder.add(f);
+    const nichtGezogen = [...felder]
+      .filter((f) => !(f in NUR_DATEN))
+      .filter((f) => !adapterQuelle.includes(`choice.cost.${f}`));
+    expect(
+      nichtGezogen,
+      'Kostenfeld steht in den Daten, wird aber nirgends abgebucht:\n  ' + nichtGezogen.join('\n  ')
+    ).toEqual([]);
+  });
+
+  it('jede Wahl mit einem Nur-Daten-Feld trägt daneben einen wirksamen Preis', () => {
+    // Sonst ist die Wahl trotz gefüllter `cost` faktisch gratis.
+    const WIRKSAM = ['budget', 'capacity', 'risk', 'moral_weight'];
+    const scheinPreis = alleWahlen()
+      .filter(({ w }) => w.cost && Object.keys(w.cost).some((f) => f in NUR_DATEN))
+      .filter(({ w }) => !WIRKSAM.some((f) => w.cost?.[f]))
+      .map(({ k, w }) => `${k.id}/${w.id}`);
+    expect(scheinPreis, 'trägt nur ein Feld, das die Engine nicht kennt').toEqual([]);
+  });
+
+  it('benennt zu jedem Nur-Daten-Feld einen Grund', () => {
+    expect(Object.entries(NUR_DATEN).filter(([, g]) => !g.trim()).map(([f]) => f)).toEqual([]);
   });
 });
