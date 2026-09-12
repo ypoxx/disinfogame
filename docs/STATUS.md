@@ -9,7 +9,8 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `GESAMTKONZEPT_VISUELL.md` → dieses Dokument für den aktuellen Bau-Stand.
 > Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
-**Stand:** 2026-08-23 (PLAN P0–P16 KOMPLETT UMGESETZT) · Alle 17 Punkte aus
+**Stand:** 2026-09-12 (UX-Zweitdurchgang + Bild-Prüfung; Owner-Entscheidungen 1a/2c/3a/4a/5c/6b
+umgesetzt — s. „Offene Punkte aus der Sitzung 2026-09-12"). Davor: 2026-08-23 (PLAN P0–P16 KOMPLETT UMGESETZT) · Alle 17 Punkte aus
 [`PLAN_2026-08-22_UX_ZWEITMEINUNG.md`](PLAN_2026-08-22_UX_ZWEITMEINUNG.md) sind gebaut und
 **an einer neuen Ernte im Bild gegengeprüft** — nicht nur im Test. Gate grün
 (`tsc 0` · `vitest 748` · `build`). Offen bleibt allein der ⚖-Block des Plans: fünf
@@ -635,7 +636,10 @@ V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
   „Rollen wie Stimme" gelockt; alle 110 Affinitäten umgemappt (marina=Medien&Aufklärung · alexei=Technik ·
   katja=Feld · igor=Finanz · direktor=Strategie/Politik). **Rest:** Verteilung schief (marina 49 / igor 3)
   → in P1c-Content rebalancieren (Igor/Finanz-Aktionen ergänzen, Marina entlasten).
-- **`npm run lint` defekt** — keine ESLint-Config im Repo; Gate stützt sich auf tsc/build/vitest.
+- ~~**`npm run lint` defekt**~~ — **✅ behoben** (2026-09-12): `.eslintrc.cjs` angelegt, CI-Gate
+  (`.github/workflows/gate.yml`) führt tsc · vitest · lint · build. `no-explicit-any` und
+  `react-hooks/exhaustive-deps` blockieren seit dem `any`-Durchgang (Owner-Entscheidung 5c);
+  offen bleiben 110 kosmetische Warnungen (ungenutzte Variablen).
 - ~~**Pixel-Font blockiert (Netz-Policy)**~~ — **✅ erledigt** (nachgeprüft 2026-08-23): VT323,
   Press Start 2P und Silkscreen liegen selbst gehostet in `public/fonts/` (SIL OFL), via
   `@font-face` in `index.css`. `font-mono` ist dabei KEIN Rest, sondern die Zuordnung selbst —
@@ -651,6 +655,62 @@ V3/V6 (Stil-Audit) → V7 (Asset-Arbeit, Budget-Ansage) → V8 (Strang 5).
   sind ~1,5–2 MB groß (Assets gesamt ~195 MB). Eine Konvertierung nach **WebP/AVIF** würde
   Preload und Erstladen zusätzlich deutlich beschleunigen und die Gesamtgröße spürbar senken —
   sinnvoller nächster Performance-Schritt, wenn die Ladezeiten weiter gedrückt werden sollen.
+
+## 📌 Offene Punkte aus der Sitzung 2026-09-12 (Owner-entschieden)
+
+Aus dem UX/UI-Zweitdurchgang und dem vollen Browser-Durchgang. Der Owner hat
+1a/2c/3a/4a/5c/6b entschieden und umgesetzt bekommen; was hier steht, ist der
+bewusst zurückgestellte Rest.
+
+### 1b — Die sieben Konsequenz-Wirkungen als Mechanik bauen *(zurückgestellt)*
+Sieben `effect`-Kennungen auf Konsequenz-Wahlen stehen nur in den Daten; keine
+kommt im TypeScript vor. Entschieden wurde **1a**: Jede Wahl trägt jetzt einen
+Preis auf der vorhandenen Skala, damit die Freikarte weg ist. Die Mechanik
+selbst bleibt offen — sie ist der eigentliche Spaß-Gewinn:
+
+| Kennung | Wahl | gemeinte Wirkung |
+|---|---|---|
+| `all_actions_paused_2_phases` | cons_investigation/go_dark | zwei Phasen ohne Maßnahmen |
+| `targeting_paused_3_phases` | cons_victim_suicide/pause_operations | drei Phasen ohne Angriffs-Operationen |
+| `npc_restricted_actions` | cons_npc_moral_crisis/reduce_role | dieser Berater trägt keine dunklen Ops mehr |
+| `lose_npc` | cons_npc_moral_crisis/let_go | der Berater ist weg |
+| `lose_election_influence` | cons_election_backfire/withdraw | der Wahl-Hebel fällt dauerhaft |
+| `reduced_scope` | cons_international_coalition/retreat | Operationen nur noch im Kerngebiet |
+| `increases_risk_taking` | cons_internal_power_struggle/big_win | künftige Züge werden riskanter |
+
+Wache: `src/story-mode/__tests__/wahlWirkungGuard.test.ts` — sie schlägt an,
+wenn eine achte tote Kennung dazukommt oder eine der sieben eingebaut wird,
+ohne aus der Liste zu wandern. Dazu gehört `cost.political_influence`
+(cons_politician_scandal/distance): eine Ressource, die es im Spiel nicht gibt.
+
+### Weitere 21 kostenlose Konsequenz-Wahlen *(nicht entschieden)*
+Neben den sieben gibt es 21 Wahlen, die nie einen Preis in den Daten hatten.
+Ein Teil ist offenkundig Absicht („Nur beobachten", „Vorsichtig bleiben",
+„Enthüllung akzeptieren"). Auffällig sind dagegen die zynischsten Antworten des
+Spiels, die nichts kosten — weder Risiko noch Moralgewicht:
+`cons_whistleblower/neutralize` (kritisch), `cons_investigation/intimidate`
+(severe), `cons_religious_backlash/discredit_leader`. Für ein Lernspiel über die
+Kosten von Desinformation ist das eine Owner-Frage, keine Umsetzungsfrage.
+
+### Alexei warnt nie vor Gegenmaßnahmen *(Befund, nicht behoben)*
+`analyzeCountermeasures` filterte auf `NewsEvent.type === 'countermeasure'` —
+einen Wert, den die Union nicht kennt. Der Filter war IMMER leer; die
+Empfehlung hat nie gefeuert. Gegenmaßnahmen laufen in einem eigenen System
+(`getActiveCountermeasures()`) und werden nie zu News-Einträgen. Der Zweig ist
+jetzt ehrlich leer statt scheinbar aktiv. Ihn an die richtige Quelle zu hängen,
+heißt eine Berater-Empfehlung einzuführen, die es faktisch nie gab —
+Owner-Entscheidung.
+
+### Schwierigkeit — Messlatte für die ersten Testspieler *(2c)*
+Deterministisch gemessen (72 Partien, seed-fest): **56 Siege / 16 Niederlagen**.
+Nach Spielweise: rücksichtslos 15/24, vorsichtig 18/24, **zufällig 23/24**. Die
+letzte Zahl ist die Messlatte: Wer ohne Plan würfelt, gewinnt fast immer. Der
+Owner entscheidet nach der ersten echten Testrunde; bleibt die Zahl so hoch,
+ist das der Beleg für „zu leicht". Beide Verlustwege feuern gleich oft (8/8).
+
+### 110 kosmetische Lint-Warnungen *(bewusst stehengelassen, 5c)*
+Ausschließlich ungenutzte Variablen und zwei ts-comments. Die gefährlichen
+Sorten (`any`, Hook-Abhängigkeiten) sind abgearbeitet und blockieren jetzt.
 
 ## 🛠️ Werkzeuge
 
