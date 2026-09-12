@@ -327,7 +327,7 @@ function tryCustomConnectionRules(
 
   // Check if a2 matches any of the connection rules
   let shouldConnect = false;
-  let connectionStrength = rules.strength || 0.6;
+  const connectionStrength = rules.strength || 0.6;
 
   // Check category matches
   if (rules.categories && rules.categories.length > 0) {

@@ -1,0 +1,68 @@
+# Das Gate, das die Projektregel bisher nur auf Zuruf hatte.
+#
+# `.claude/CLAUDE.md` verlangt vor jedem Push build + tsc + vitest. Durchgesetzt
+# hat das niemand: Es gab keine CI. Die einzigen Checks am Pull Request waren
+# Netlify-Deploy-Previews, und die melden `neutral` — ein roter Test wäre nie
+# aufgefallen.
+name: Gate
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+# Ein laufendes Gate wird abgebrochen, wenn derselbe Branch erneut gepusht wird.
+concurrency:
+  group: gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  spiel:
+    name: Spiel (desinformation-network)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: desinformation-network
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: desinformation-network/package-lock.json
+
+      - run: npm ci
+
+      # Reihenfolge wie in der Projektregel: Typen, Tests, Build.
+      - name: Typprüfung
+        run: npx tsc --noEmit
+
+      - name: Tests
+        run: npx vitest run
+
+      # Blockiert bei Fehlern; die Warnungen des Bestands bleiben sichtbar,
+      # ohne das Gate dauerhaft rot zu halten (`lint:strict` verlangt null).
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+  werkzeug:
+    name: Werkzeug (tools/model-review)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools/model-review
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Ohne Abhängigkeiten, ohne Netz, ohne Schlüssel — läuft gegen einen
+      # lokalen Attrappen-Server.
+      - name: Tests
+        run: npm test

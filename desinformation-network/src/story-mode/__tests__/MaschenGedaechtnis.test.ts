@@ -73,7 +73,7 @@ describe('MaschenGedaechtnis — Abstumpfung (1,0 → 0,6 → 0,3)', () => {
   });
 
   it('Familien-Einsatzzähler zählt Events (Patch-Trigger-Grundlage)', () => {
-    let s = leeresMaschenGedaechtnis();
+    const s = leeresMaschenGedaechtnis();
     const r1 = registriereEinsatz(s, FAMILIE, [MILIEU, 'wu_zorniger'], 1);
     expect(r1.einsatzNr).toBe(1); // EIN Event, auch wenn zwei Milieus getroffen werden
     const r2 = registriereEinsatz(r1.state, FAMILIE, [MILIEU], 2);

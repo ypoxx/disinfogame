@@ -178,23 +178,25 @@ function selectAction(
         return riskA - riskB;
       })[0];
 
-    case 'high_impact':
+    case 'high_impact': {
       // Prefer actions with unlocks (high impact)
       const withUnlocks = affordable.filter(a => a.unlocks && a.unlocks.length > 0);
       if (withUnlocks.length > 0) {
         return withUnlocks.sort((a, b) => (b.unlocks?.length || 0) - (a.unlocks?.length || 0))[0];
       }
       return affordable[0];
+    }
 
-    case 'npc_focused':
+    case 'npc_focused': {
       // Prefer actions with NPC affinity
       const withAffinity = affordable.filter(a => a.npcAffinity);
       if (withAffinity.length > 0) {
         return withAffinity[Math.floor(Math.random() * withAffinity.length)];
       }
       return affordable[0];
+    }
 
-    case 'chain_focused':
+    case 'chain_focused': {
       // Prefer actions not yet executed that unlock others
       const notExecuted = affordable.filter(a => !executedActions.has(a.id));
       const chainingActions = notExecuted.filter(a => a.unlocks && a.unlocks.length > 0);
@@ -202,8 +204,9 @@ function selectAction(
         return chainingActions[0];
       }
       return notExecuted.length > 0 ? notExecuted[0] : affordable[0];
+    }
 
-    case 'phase_balanced':
+    case 'phase_balanced': {
       // Distribute actions across TA phases
       const phases = ['ta01', 'ta02', 'ta03', 'ta04', 'ta05', 'ta06', 'ta07'];
       const targetPhase = phases[currentPhase % phases.length];
@@ -212,6 +215,7 @@ function selectAction(
         return phaseActions[0];
       }
       return affordable[0];
+    }
 
     case 'aggressive':
       // High cost, high risk, high reward

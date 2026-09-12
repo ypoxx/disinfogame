@@ -17,7 +17,6 @@ import dialoguesData from '../data/dialogues.json';
 
 // Alle autorisierten Reaktions-Texte einer Figur (über alle Kategorien)
 function authoredReactionTexts(npcId: string): Set<string> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const reactions = (dialoguesData as any).npcs?.[npcId]?.reactions ?? {};
   const texts = new Set<string>();
   for (const category of Object.values(reactions)) {

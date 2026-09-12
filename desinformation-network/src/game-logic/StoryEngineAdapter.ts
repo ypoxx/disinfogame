@@ -1567,8 +1567,8 @@ export class StoryEngineAdapter {
       const marina = this.npcStates.get('marina');
       if (marina) {
         let moraleChange = -8;
-        let headline_de = 'Marina: Sicherheitsbedenken';
-        let headline_en = 'Marina: Security Concerns';
+        const headline_de = 'Marina: Sicherheitsbedenken';
+        const headline_en = 'Marina: Security Concerns';
         let reaction_de = '*blättert durch Berichte* Wenn sie unsere Bots erkannt haben, könnten sie den Geldfluss zurückverfolgen.';
         let reaction_en = '*flips through reports* If they detected our bots, they might trace the money flow.';
 
@@ -1645,9 +1645,9 @@ export class StoryEngineAdapter {
       // KATJA - Empathetic, feels the human cost
       const katja = this.npcStates.get('katja');
       if (katja) {
-        let moraleChange = -12;
-        let headline_de = 'Katja: Menschliche Kosten';
-        let headline_en = 'Katja: Human Cost';
+        const moraleChange = -12;
+        const headline_de = 'Katja: Menschliche Kosten';
+        const headline_en = 'Katja: Human Cost';
         let reaction_de = '*leise* Wir vergessen manchmal, dass echte Menschen unsere Worte schreiben. Sie leiden darunter.';
         let reaction_en = '*quietly* We sometimes forget that real people write our words. They suffer from it.';
 
@@ -1799,9 +1799,9 @@ export class StoryEngineAdapter {
       // KATJA - Moral reckoning
       const katja = this.npcStates.get('katja');
       if (katja) {
-        let moraleChange = -14;
-        let headline_de = 'Katja: Moralische Rechnung';
-        let headline_en = 'Katja: Moral Reckoning';
+        const moraleChange = -14;
+        const headline_de = 'Katja: Moralische Rechnung';
+        const headline_en = 'Katja: Moral Reckoning';
         let reaction_de = '*ruhig aber blass* Vielleicht... vielleicht ist das die Konsequenz, die wir verdienen.';
         let reaction_en = '*calm but pale* Perhaps... perhaps this is the consequence we deserve.';
 
@@ -3131,13 +3131,14 @@ export class StoryEngineAdapter {
         }
         return false;
 
-      case 'objective_progress':
+      case 'objective_progress': {
         // Trigger based on objective progress
         const objective = this.objectives.find(o => o.category === trigger.conditions.objective);
         if (objective && objective.currentValue >= (trigger.conditions.progressAbove || 50)) {
           return eventRandom < (trigger.conditions.probability || 0.3);
         }
         return false;
+      }
 
       case 'relationship_threshold':
         // Trigger when any NPC relationship exceeds threshold

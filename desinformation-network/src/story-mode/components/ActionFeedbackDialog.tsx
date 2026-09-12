@@ -24,12 +24,17 @@ export function ActionFeedbackDialog({
   audienceSegments,
   onClose,
 }: ActionFeedbackDialogProps) {
+  // Hooks IMMER vor dem Early Return: Stand `useState` darunter, änderte sich
+  // die Hook-Anzahl in dem Moment, in dem der Dialog sichtbar wurde — React
+  // quittiert das mit „Rendered more hooks than during the previous render"
+  // und reißt (ohne Fehlergrenze) den ganzen Baum mit.
+  const [expandedIndex, setExpandedIndex] = useState<number>(0);
+
   if (!isVisible || !result) return null;
 
   // Handle both single and multiple results
   const results = Array.isArray(result) ? result : [result];
   const isBatchMode = Array.isArray(result) && result.length > 1;
-  const [expandedIndex, setExpandedIndex] = useState<number>(0);
 
   // T3.6 (Option C): NPC-Reaktion mit Gesicht direkt im Modal rendern (eine Anzeige
   // statt zusätzlicher Pop-up-Box). Mood/Label/Farbe aus dem Reaktions-Typ ableiten.

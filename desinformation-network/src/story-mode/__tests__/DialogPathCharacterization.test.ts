@@ -33,7 +33,6 @@ const baseContext: DialogueContext = {
 };
 
 function authoredReactionTags(npcId: string): Set<string> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const reactions = (dialoguesData as any).npcs?.[npcId]?.reactions ?? {};
   const tags = new Set<string>();
   for (const category of Object.values(reactions)) {

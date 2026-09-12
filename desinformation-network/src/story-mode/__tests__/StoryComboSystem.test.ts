@@ -89,7 +89,7 @@ describe('StoryComboSystem', () => {
 
     it('should return completed combos with bonus information', () => {
       // Process enough actions to potentially complete a combo
-      let completedCombos: unknown[] = [];
+      const completedCombos: unknown[] = [];
 
       const result1 = comboSystem.processAction('3.4', ['fake_news'], 1);
       completedCombos.push(...result1.completedCombos);

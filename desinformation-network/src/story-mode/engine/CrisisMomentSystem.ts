@@ -112,7 +112,6 @@ export class CrisisMomentSystem {
   }
 
   private loadCrisisDefinitions(): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rawData = eventChainsData as RawEventChain[];
 
     for (const raw of rawData) {
@@ -377,8 +376,6 @@ export class CrisisMomentSystem {
     lowTrustActors: number;
   }): CrisisMoment[] {
     const triggered: CrisisMoment[] = [];
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rawData = eventChainsData as RawEventChain[];
 
     for (const raw of rawData) {
@@ -447,7 +444,7 @@ export class CrisisMomentSystem {
     // Format: "detectionRisk > 0.6 && round > 8"
     try {
       // Convert condition to evaluable form
-      let expr = condition
+      const expr = condition
         .replace(/detectionRisk/g, String(state.risk / 100))
         .replace(/round/g, String(state.phase))
         .replace(/lowTrustCount/g, String(state.lowTrustActors));
