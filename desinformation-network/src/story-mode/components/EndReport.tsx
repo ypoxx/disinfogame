@@ -479,6 +479,17 @@ function MethodsSection({ methods, operationsSummary }: MethodsSectionProps) {
  * Richtung Machtwechsel-Schwelle) und die ABWEHR (der Gegner, holt auf). Wer die eigene
  * Linie zuerst über die Schwelle bringt, bevor die Abwehr 100 erreicht, gewinnt das Rennen.
  */
+/**
+ * Die Farben der beiden Läufer stehen an EINER Stelle. Vorher trug die Legende
+ * für die ABWEHR das `danger`-Rot, gezeichnet wurde die Linie aber in `tech`-
+ * Petrol — wer die Legende las, hielt die steigende Petrol-Kurve für die eigene
+ * Sonntagsfrage und las damit den ganzen Abschlussbericht verkehrt herum.
+ */
+export const RENNEN_FARBEN = {
+  sonntagsfrage: StoryModeColors.ministryRed,
+  abwehr: StoryModeColors.tech,
+} as const;
+
 function RennenChart({
   historie, winThreshold,
 }: { historie: { day: number; fortschritt: number; abwehr: number }[]; winThreshold: number }) {
@@ -511,20 +522,21 @@ function RennenChart({
       {/* Schwelle (Sieglinie der Sonntagsfrage) */}
       <line x1={PAD.left} y1={schwelleY} x2={PAD.left + cW} y2={schwelleY} stroke={StoryModeColors.success} strokeWidth={1.2} strokeDasharray="6 3" />
       <text x={PAD.left + cW + 2} y={schwelleY + 4} fontSize={9} fill={StoryModeColors.success}>Ziel</text>
-      {/* Abwehr-100-Linie (Verlustlinie) = oben (frac 1.0) */}
-      <text x={PAD.left + cW + 2} y={toY(1) + 4} fontSize={9} fill={StoryModeColors.danger}>100</text>
+      {/* Abwehr-100-Linie (Verlustlinie) = oben (frac 1.0). Die Marke gehört der
+          ABWEHR, trug aber das Rot der Sonntagsfrage-Familie. */}
+      <text x={PAD.left + cW + 2} y={toY(1) + 4} fontSize={9} fill={RENNEN_FARBEN.abwehr} data-testid="rennen-decke">100</text>
       {/* ABWEHR (Gegner) */}
-      <path d={abPath} fill="none" stroke={StoryModeColors.tech} strokeWidth={2} strokeLinejoin="round" />
+      <path d={abPath} fill="none" stroke={RENNEN_FARBEN.abwehr} strokeWidth={2} strokeLinejoin="round" data-testid="rennen-abwehr" />
       {/* SONNTAGSFRAGE (wir) */}
-      <path d={sfPath} fill="none" stroke={StoryModeColors.ministryRed} strokeWidth={2.4} strokeLinejoin="round" />
+      <path d={sfPath} fill="none" stroke={RENNEN_FARBEN.sonntagsfrage} strokeWidth={2.4} strokeLinejoin="round" data-testid="rennen-sonntagsfrage" />
       {/* X-Achse */}
       <line x1={PAD.left} y1={PAD.top + cH} x2={PAD.left + cW} y2={PAD.top + cH} stroke={StoryModeColors.borderLight} strokeWidth={1} />
       {dayLabels.map((d) => (
         <text key={d} x={toX(d)} y={PAD.top + cH + 14} textAnchor="middle" fontSize={10} fill={StoryModeColors.textMuted}>T{d}</text>
       ))}
       {/* Legende */}
-      <text x={PAD.left} y={PAD.top + 2} fontSize={10} fill={StoryModeColors.ministryRed}>■ Sonntagsfrage</text>
-      <text x={PAD.left + 120} y={PAD.top + 2} fontSize={10} fill={StoryModeColors.danger}>■ Abwehr</text>
+      <text x={PAD.left} y={PAD.top + 2} fontSize={10} fill={RENNEN_FARBEN.sonntagsfrage} data-testid="legende-sonntagsfrage">■ Sonntagsfrage</text>
+      <text x={PAD.left + 120} y={PAD.top + 2} fontSize={10} fill={RENNEN_FARBEN.abwehr} data-testid="legende-abwehr">■ Abwehr</text>
     </svg>
   );
 }

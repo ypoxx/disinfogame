@@ -8,6 +8,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   EndReport,
+  RENNEN_FARBEN,
   findTrustPivots,
   countByLegality,
   topTags,
@@ -144,6 +145,41 @@ describe('EndReport Komponente', () => {
     const btn = screen.getByText('BERICHT SCHLIESSEN');
     await userEvent.click(btn);
     expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it('Rennen-Diagramm: die Legende trägt die Farbe ihrer Linie', () => {
+    // Die ABWEHR-Legende stand in `danger`-Rot, ihre Linie aber in `tech`-Petrol.
+    // Wer die Legende las, hielt die steigende Petrol-Kurve für die eigene
+    // Sonntagsfrage — und las den Abschlussbericht damit verkehrt herum.
+    const { container } = render(
+      <EndReport
+        {...defaultProps}
+        laeuferHistorie={[
+          { day: 1, fortschritt: 0.1, abwehr: 5 },
+          { day: 10, fortschritt: 0.3, abwehr: 40 },
+          { day: 20, fortschritt: 0.5, abwehr: 90 },
+        ]}
+        winThreshold={0.6}
+      />
+    );
+    const paare: [string, string, string][] = [
+      ['sonntagsfrage', RENNEN_FARBEN.sonntagsfrage, 'Sonntagsfrage'],
+      ['abwehr', RENNEN_FARBEN.abwehr, 'Abwehr'],
+    ];
+    for (const [schluessel, farbe, name] of paare) {
+      const linie = container.querySelector(`[data-testid="rennen-${schluessel}"]`);
+      const legende = container.querySelector(`[data-testid="legende-${schluessel}"]`);
+      expect(linie, `${name}-Linie fehlt`).toBeTruthy();
+      expect(legende, `${name}-Legende fehlt`).toBeTruthy();
+      expect(linie!.getAttribute('stroke')).toBe(farbe);
+      expect(legende!.getAttribute('fill'), `${name}: Legende und Linie laufen auseinander`).toBe(farbe);
+    }
+    // Die 100er-Marke ist die Decke der ABWEHR und trägt deren Farbe.
+    expect(
+      container.querySelector('[data-testid="rennen-decke"]')!.getAttribute('fill')
+    ).toBe(RENNEN_FARBEN.abwehr);
+    // Und die beiden Läufer sind unterscheidbar.
+    expect(RENNEN_FARBEN.sonntagsfrage).not.toBe(RENNEN_FARBEN.abwehr);
   });
 
   it('markiert das erreichte Ende in der Ending-Liste', () => {
