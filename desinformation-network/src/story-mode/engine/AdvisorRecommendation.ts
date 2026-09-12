@@ -8,7 +8,7 @@
  */
 
 import type { StoryGameState } from '../hooks/useStoryGameState';
-import type { NPCState, StoryAction } from '../../game-logic/StoryEngineAdapter';
+import type { NPCState, StoryAction, NewsEvent } from '../../game-logic/StoryEngineAdapter';
 
 // ============================================
 // RECOMMENDATION TYPES
@@ -211,7 +211,7 @@ export interface StoryGameStateSnapshot {
   completedActions: string[]; // Action IDs
 
   // Events
-  newsEvents: any[]; // NewsEvent type
+  newsEvents: NewsEvent[];
   worldEvents: WorldEventSnapshot[];
 
   // Objectives

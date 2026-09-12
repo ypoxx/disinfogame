@@ -36,6 +36,9 @@ interface GameEndScreenProps {
   endData: GameEndData;
   onRestart: () => void;
   onMainMenu: () => void;
+  /** P8: Zugang zum vollständigen Lagebericht — gehört in den Fußbereich, nicht
+   *  frei an den Viewport-Rand (dort lag er unter dem Report-Overlay). */
+  onShowFullReport?: () => void;
 }
 
 // ============================================
@@ -190,7 +193,7 @@ function StatsGrid({ stats }: { stats: GameEndData['stats'] }) {
 // MAIN COMPONENT
 // ============================================
 
-export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenProps) {
+export function GameEndScreen({ endData, onRestart, onMainMenu, onShowFullReport }: GameEndScreenProps) {
   const [showEducation, setShowEducation] = useState(false);
   const [showTrustChart, setShowTrustChart] = useState(false);
   const config = ENDING_CONFIGS[endData.type];
@@ -348,8 +351,27 @@ export function GameEndScreen({ endData, onRestart, onMainMenu }: GameEndScreenP
             </div>
           )}
 
+          {/* K8/P8: Der vollständige Lagebericht ist „der größte edukative Teil" und
+              stand vorher als `fixed`-Knopf mit z-50 unter dem EndReport-Overlay
+              (zIndex 200) — sichtbar nur auf 15 % Helligkeit und nicht anklickbar.
+              Hier liegt er im selben Stapelkontext wie die übrigen Aktionen. */}
+          {onShowFullReport && (
+            <button
+              onClick={onShowFullReport}
+              className="w-full mt-8 py-4 border-4 font-bold text-lg transition-all hover:brightness-110 active:translate-y-1"
+              style={{
+                backgroundColor: StoryModeColors.darkConcrete,
+                borderColor: StoryModeColors.border,
+                color: StoryModeColors.document,
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
+              }}
+            >
+              VOLLSTÄNDIGER LAGEBERICHT ▸
+            </button>
+          )}
+
           {/* Action Buttons */}
-          <div className="flex gap-4 mt-8">
+          <div className="flex gap-4 mt-4">
             <button
               onClick={onRestart}
               className="flex-1 py-4 font-bold text-lg transition-all hover:brightness-95 active:translate-y-1"

@@ -15,7 +15,7 @@
  * Esc schließt (E33, Capture + Stop — Muster PixelModal).
  */
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, StoryModeSurfaces, scrim, StoryModeWorld } from '../theme';
 import { Icon } from './Icon';
 import { playSound } from '../utils/SoundSystem';
 import { isQueueBudgetFeasible, istPlanLeistbar } from '../utils/queueAffordability';
@@ -198,7 +198,7 @@ export function NarrativeBoard({
   return (
     <div
       className="fixed inset-0 flex items-center justify-center p-3"
-      style={{ backgroundColor: 'rgba(0,0,0,0.82)', zIndex: 80 }}
+      style={{ backgroundColor: scrim('leicht'), zIndex: 80 }}
       onClick={onClose}
       data-testid="narrative-board"
     >
@@ -370,7 +370,7 @@ export function NarrativeBoard({
               <div
                 key={`frei-${i}`}
                 className="px-2 py-2 min-h-[48px] flex items-center gap-2"
-                style={{ border: '2px dashed rgba(0,0,0,0.35)', backgroundColor: 'rgba(0,0,0,0.08)' }}
+                style={{ border: '2px dashed rgba(0,0,0,0.35)', backgroundColor: StoryModeSurfaces.corkCarrier }}
                 data-testid="lane-frei"
               >
                 <span className="text-[10px] font-bold tracking-widest w-28 shrink-0" style={{ color: '#bfa988' }}>
@@ -384,11 +384,15 @@ export function NarrativeBoard({
               </div>
             ))}
             {/* F-B: Die dritte Spur ist keine Gebäude-Mechanik mehr, sondern hängt
-                diegetisch am Endspurt der Kampagne. */}
+                diegetisch am Endspurt der Kampagne.
+                P1: Zurückgenommen wird die Zeile über den blasseren Rand, NICHT über
+                Deckkraft — der Text erklärt ja, WARUM die Spur gesperrt ist; wer ihn
+                wegdimmt, nimmt der Sperre die Begründung (vorher: opacity 0.55 ohne
+                Trägerfläche, gemessene 1,02:1). */}
             {slots < 3 && (
               <div
                 className="px-2 py-1.5 flex items-center gap-2"
-                style={{ border: '2px dashed rgba(0,0,0,0.2)', opacity: 0.55 }}
+                style={{ border: '2px dashed rgba(0,0,0,0.2)', backgroundColor: StoryModeSurfaces.corkCarrier }}
                 data-testid="lane-gesperrt"
               >
                 <span className="text-[10px] font-bold tracking-widest w-28 shrink-0" style={{ color: '#bfa988' }}>
@@ -405,7 +409,7 @@ export function NarrativeBoard({
               className="px-2 py-2 min-h-[64px] flex items-center gap-2 flex-wrap"
               style={{
                 border: '2px dashed rgba(0,0,0,0.35)',
-                backgroundColor: 'rgba(0,0,0,0.12)',
+                backgroundColor: StoryModeSurfaces.corkCarrier,
               }}
               data-testid="lane-tagesgeschaeft"
             >
@@ -440,14 +444,14 @@ export function NarrativeBoard({
           </span>
           {/* v3: danger ist Tinte — Überzieh-Warnung auf dunkler Fußleiste in hellem v2-Rot. */}
           <span className="text-[11px] flex items-center gap-2" style={{ color: StoryModeColors.document }}>
-            <span style={{ color: budgetOk ? '#d9c6a3' : '#E5484D' }}>
+            <span style={{ color: budgetOk ? '#d9c6a3' : StoryModeWorld.red }}>
               <Icon name="budget" size={12} title="Budget" /> {planCost.budget}K/{resources.budget}K
             </span>
-            <span style={{ color: planCost.actionPoints > resources.actionPoints ? '#E5484D' : '#d9c6a3' }}>
+            <span style={{ color: planCost.actionPoints > resources.actionPoints ? StoryModeWorld.red : '#d9c6a3' }}>
               <Icon name="mission" size={12} title="AP" /> {planCost.actionPoints}/{resources.actionPoints} AP
             </span>
             {planCost.capacity > 0 && (
-              <span style={{ color: planCost.capacity > resources.capacity ? '#E5484D' : '#d9c6a3' }}>
+              <span style={{ color: planCost.capacity > resources.capacity ? StoryModeWorld.red : '#d9c6a3' }}>
                 <Icon name="capacity" size={12} title="Kapazität" /> {planCost.capacity}/{resources.capacity}
               </span>
             )}
@@ -537,7 +541,7 @@ function StrandLane({
       className="relative px-2 py-2 flex flex-col gap-2"
       style={{
         border: `2px dashed ${StoryModeColors.ministryRed}`,
-        backgroundColor: 'rgba(0,0,0,0.12)',
+        backgroundColor: StoryModeSurfaces.corkCarrier,
       }}
       data-testid={`lane-strand-${strand.id}`}
     >
@@ -652,7 +656,7 @@ function PinnedCard({ q, onUnpin }: { q: QueuedAction; onUnpin: () => void }): R
         {/* Einzelkosten je Karte — beim Trimmen eines überzogenen Plans muss
             ablesbar sein, WELCHE Karte teuer ist (das konnte das alte Widget). */}
         {(!!q.costs.budget || !!q.costs.actionPoints || !!q.costs.capacity) && (
-          <div className="flex gap-1.5 text-[9px]" style={{ color: '#5a3a12' }}>
+          <div className="flex gap-1.5 text-[10px]" style={{ color: '#5a3a12' }}>
             {!!q.costs.budget && <span>{q.costs.budget}K</span>}
             {!!q.costs.actionPoints && <span>{q.costs.actionPoints} AP</span>}
             {!!q.costs.capacity && <span>{q.costs.capacity} Kap.</span>}

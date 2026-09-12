@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, scrim } from '../theme';
 import { PixelFrame } from './PixelFrame';
 import type {
   StageCountermeasureOffer,
@@ -34,7 +34,7 @@ export function StageCountermeasureModal({ offer, onResolve, onClose }: StageCou
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-[60]"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.92)' }}
+      style={{ backgroundColor: scrim('schwer') }}
     >
       <PixelFrame
         variant="alarm"

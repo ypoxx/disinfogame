@@ -425,7 +425,7 @@ export class StoryActorAI {
           news_en: `${actor.name_en}: Fact-check debunks viral misinformation`,
         };
 
-      case 'platform_moderator':
+      case 'platform_moderator': {
         // May disable certain actions temporarily
         const targetAction = gameState.recentActions[0];
         if (targetAction && globalRandom.random() < strength * 0.5) {
@@ -445,6 +445,7 @@ export class StoryActorAI {
           };
         }
         return null;
+      }
 
       case 'researcher':
         return {

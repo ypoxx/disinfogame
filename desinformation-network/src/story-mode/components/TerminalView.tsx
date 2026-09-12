@@ -8,10 +8,12 @@
  * M1: Jede Karte (ActionCard, „Vorgangsblatt") trägt Wirkung + Preis +
  * FRISCH/BEKANNT/VERBRANNT-Stempel VOR dem Klick.
  *
- * CRT-Diegese (Memo §2.6, Stil-Bibel §4.7-Ausnahme Welt-Objekt): dunkler
- * Phosphor-Schirm mit VOLLTON-Text; Scanlines liegen als SEPARATER,
- * abschaltbarer Layer über dem Schirm (nie in den Text gebacken). Die
- * Vorgangsblätter selbst bleiben Papier — Dokumente, die das System aufruft.
+ * Seit 2026-09-12 ist der Arbeitsplatz eine AKTE statt eines Röhrenschirms
+ * (Eigentümer-Entscheidung „Terminal-Grün auf Papier"): Papiergrund, Tinte,
+ * Petrol-Tinte für die technischen Marken. Die Röhren-Optik liegt weiterhin als
+ * abschaltbarer Layer bereit, jetzt standardmäßig aus. Die Fernseher in
+ * Newsroom, Fokusgruppe, Sendeleiste und am Wahlabend bleiben Bildschirme —
+ * die Linie verläuft zwischen Bedienen (Papier) und Anschauen (Schirm).
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StoryModeColors } from '../theme';
@@ -21,21 +23,52 @@ import { ActionCard, type MaschenVorschau, type StoryAction } from './ActionCard
 import { kuratiereVorgaenge, istLeistbar } from './terminalCuration';
 import { playSound } from '../utils/SoundSystem';
 import { useAssets } from '../assets/useAssets';
+import { Leerzustand } from './Leerzustand';
 
-// Phosphor-Palette des Schirms (Welt-Objekt, bewusst NICHT die Papier-Tinten —
-// wie die dunkel-diegetischen Newsroom-CRTs, Etappe-2-Review bestätigt).
-const CRT = {
-  bezel: '#241e18', // Gehäuse: dunkles Bakelit
-  bezelEdge: '#3a3128',
-  screen: '#0a120d', // Schirm-Grund
-  green: '#8CF2B0', // Volltontext
-  // Sekundär-TEXT heller als die Rahmen: #4E8F68 lag bei ~4,9:1 — für die
-  // 10-px-Pixelfont zu schwach (Vision-Review L2); #6FBF8F ≈ 8,7:1.
-  textDim: '#6FBF8F',
-  greenDim: '#4E8F68', // Rahmen/Trenner (kein Fließtext)
-  grid: '#16241b', // Trennlinien auf dem Schirm
-  amber: '#F0B429',
+/**
+ * Die Vorgangsliste als AKTE, nicht als Schirm (Eigentümer-Entscheidung
+ * 2026-09-12: „Terminal-Grün auf Papier").
+ *
+ * Die frühere Phosphor-Palette war eine bewusste Setzung — ein Welt-Objekt neben
+ * der Papier-Welt, wie die diegetischen Newsroom-Röhren. Diese Setzung ist
+ * revidiert. Die Linie verläuft jetzt anders, und zwar entlang dessen, was der
+ * Spieler tut:
+ *
+ *   Was er BEDIENT, ist Papier.   Was er ANSCHAUT, bleibt Bildschirm.
+ *
+ * Das Terminal ist eine Arbeitsfläche — er liest hier Vorgänge und wählt aus.
+ * Die Fernseher in Newsroom, Fokusgruppe, Sendeleiste und am Wahlabend bleiben
+ * unangetastet: Sie sind Möbel, keine Werkzeuge.
+ *
+ * `tech` ist kein neuer Wert, sondern der Token, den `theme.ts` seit jeher für
+ * „Bildschirme/Tech" vorsieht — Petrol-Tinte auf Papier. Er trägt hier die
+ * technischen Marken (Kopfzeile, aktive Reiter), damit die Akte nicht ihre
+ * Herkunft als Terminal verliert.
+ */
+const AKTE = {
+  /** Mappe/Einband — der Rand um das Papier. */
+  bezel: StoryModeColors.border,
+  bezelEdge: StoryModeColors.borderLight,
+  /** Das Blatt selbst. */
+  screen: StoryModeColors.document,
+  /** Volltontext = Tinte. */
+  green: StoryModeColors.textPrimary,
+  /** Sekundärtext, weiterhin sicher über 4,5:1 auf `document`. */
+  textDim: StoryModeColors.textSecondary,
+  /** Rahmen und Trenner (kein Fließtext). */
+  greenDim: StoryModeColors.borderLight,
+  /** Linien auf dem Blatt — wie ein Vordruck. */
+  grid: StoryModeColors.borderLight,
+  /** Marker-Ocker für Warnungen; ersetzt das alte Bernstein-Gelb. */
+  amber: StoryModeColors.warning,
+  /** Petrol-Tinte: die technische Marke der Akte. */
+  tech: StoryModeColors.tech,
 } as const;
+
+// Namensbrücke: Die Bezeichner stammen aus der Röhren-Zeit. Sie umzubenennen
+// wäre ein Diff über 29 Stellen ohne inhaltlichen Gewinn — die Palette oben
+// sagt, was sie heute bedeuten.
+const CRT = AKTE;
 
 type FilterTab = 'all' | 'legal' | 'grey' | 'illegal' | 'unlocked';
 const FILTER_TABS: { id: FilterTab; label: string }[] = [
@@ -111,13 +144,18 @@ export function TerminalView({
     return [...ids].sort();
   }, [actions]);
   // Memo §2.6: Scanlines als separater, ABSCHALTBARER Layer (nie im Text).
-  // Die Wahl wird persistiert — wer die Röhre abschaltet (Flimmer-Empfindlichkeit),
-  // soll sie nicht bei jedem Öffnen erneut abschalten müssen (Review E4).
+  // Die Wahl wird persistiert — wer die Röhre umschaltet, soll das nicht bei
+  // jedem Öffnen erneut tun müssen (Review E4).
+  //
+  // Seit der Umstellung auf Papier ist der Standard AUS: Ein Vordruck hat kein
+  // Zeilenraster. Der Schalter bleibt als Nostalgie-Option — wer die Röhre
+  // vermisst, bekommt sie zurück, und wer flimmerempfindlich ist, sieht sie
+  // gar nicht erst.
   const [roehre, setRoehre] = useState<boolean>(() => {
     try {
-      return window.localStorage.getItem('storyMode_terminalRoehre') !== 'aus';
+      return window.localStorage.getItem('storyMode_terminalRoehre') === 'an';
     } catch {
-      return true;
+      return false;
     }
   });
   const toggleRoehre = () => {
@@ -243,8 +281,10 @@ export function TerminalView({
           className="relative flex flex-col flex-1 min-h-0"
           style={{ backgroundColor: CRT.screen, border: `2px solid ${CRT.grid}` }}
         >
-          {/* Placeholder in Phosphor-Ton: Browser-Default-Grau wäre Fremdfarbe (Review E4). */}
-          <style>{`.crt-suchfeld::placeholder { color: ${CRT.greenDim}; opacity: 1; }`}</style>
+          {/* Placeholder in Papier-Tinte: Browser-Default-Grau wäre Fremdfarbe
+              (Review E4). `greenDim` wäre auf Papier mit 2,55:1 zu schwach —
+              das ist eine Rahmenfarbe, kein Text. */}
+          <style>{`.crt-suchfeld::placeholder { color: ${StoryModeColors.textMuted}; opacity: 1; }`}</style>
 
           {/* Kopfzeile */}
           <div
@@ -252,7 +292,9 @@ export function TerminalView({
             style={{ borderColor: CRT.grid }}
           >
             <div className="min-w-0">
-              <div className="font-bold text-sm truncate" style={{ color: CRT.green }}>
+              {/* Petrol-Tinte: Die Akte behält ihre Herkunft als Terminal,
+                  ohne dass der Schirm zurückkehrt. */}
+              <div className="font-bold text-sm truncate" style={{ color: CRT.tech }}>
                 VORGANGS-TERMINAL · ABT. SONDEROPERATIONEN
               </div>
               <div className="text-[10px]" style={{ color: CRT.textDim }}>
@@ -379,8 +421,11 @@ export function TerminalView({
           {/* Vorgangs-Liste: Papier-Blätter, die der Schirm „aufgerufen" hat */}
           <div className="flex-1 min-h-0 overflow-y-auto p-3">
             {liste.length === 0 ? (
-              <div className="text-center py-10 text-sm" style={{ color: CRT.textDim }}>
-                KEIN VORGANG FÜR DIESE ABFRAGE.
+              <div className="h-full min-h-[9rem] flex flex-col items-center justify-center text-center py-10" style={{ color: CRT.textDim }}>
+                {/* P9: Der Terminal bleibt bewusst bei seiner eigenen CRT-Palette —
+                    aber zentriert wie alle anderen Leerzustände auch. */}
+                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6 }}>KEIN VORGANG FÜR DIESE ABFRAGE</div>
+                <div style={{ fontSize: 12 }}>Andere Abteilung wählen oder Filter zurücksetzen.</div>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -454,8 +499,10 @@ export function TerminalView({
               className="absolute inset-0"
               style={{
                 pointerEvents: 'none',
+                // Auf Papier eine feine Vordruck-Linie statt der dunklen
+                // Phosphor-Zeile — dieselbe Geometrie, anderes Material.
                 backgroundImage:
-                  'repeating-linear-gradient(0deg, rgba(4, 10, 6, 0.28) 0px, rgba(4, 10, 6, 0.28) 1px, transparent 1px, transparent 3px)',
+                  'repeating-linear-gradient(0deg, rgba(85, 72, 54, 0.16) 0px, rgba(85, 72, 54, 0.16) 1px, transparent 1px, transparent 3px)',
               }}
             />
           )}

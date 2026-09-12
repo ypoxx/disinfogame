@@ -1,6 +1,6 @@
 # 🗺️ Roadmap (kanonisch)
 
-> **Status:** Aktiv · **Aktualisiert:** 2026-06-14 · **Scope:** Story Mode
+> **Status:** Aktiv · **Aktualisiert:** 2026-09-12 · **Scope:** Story Mode
 > **Live-Bau-Stand (erledigt/offen/TODO) = [`docs/STATUS.md`](docs/STATUS.md)** — diese Roadmap gibt
 > die Grobrichtung, STATUS die aktuelle Detail-Lage. Projektwahrheit: [`docs/VISION_LOCK.md`](docs/VISION_LOCK.md).
 > Wie wir arbeiten: [`docs/SOUL.md`](docs/SOUL.md).
@@ -32,6 +32,13 @@ Gebäude-Wachstum (`unlocksRoom`/`unlocksNpc`) + 100–500-Pfade-Sim, **Topic-Te
 **Strang 5** (Dummy-Figuren, Pförtner mit Stimmungs-Hinweisen, lebendige Flure, Tür-Animationen):
 jetzt als Feinplan `docs/STRANG5_FEINPLAN_ATMOSPHAERE.md`. **Sound-Erweiterung** (adaptive Musik,
 Ducking, Topic-Vertonung): Plan in `docs/VISUAL_AUDIO_BACKLOG_2026-06-14.md` §6.
+
+## Track B2 — Konsequenzen mit Zähnen *(offen, Owner-entschieden zurückgestellt)*
+Die Konsequenzen sind das Lehrstück des Spiels („Jede Aktion hat Konsequenzen"), aber sieben
+Wahl-Wirkungen stehen bis heute nur in den Daten: zwei Phasen Stillstand, ein verlorener Berater,
+ein gekappter Wirkungskreis. Umgesetzt ist seit 2026-09-12 nur der **Preis** (Entscheidung 1a), damit
+keine Wahl mehr gratis ist; die **Mechanik** ist der eigentliche Spaß-Gewinn und steht aus.
+Details, Tabelle und Wache: `docs/STATUS.md` → „Offene Punkte aus der Sitzung 2026-09-12".
 
 ## Track D — Engine-Hygiene *(sekundär, nur nach Bedarf)*
 Große Dateien (`StoryEngineAdapter.ts`, `useStoryGameState.ts`, `DialogLoader.ts`) **nicht** als

@@ -1,7 +1,7 @@
 # 🛰️ Fremdmodell-Review — UX/UI & Bildwirkung — Bündel „dialog"
 
 **Modell:** `gpt-5.6-sol` (via OpenRouter) · **Linse:** `ui` · **Datum:** 2026-08-22
-**Erzeugt von:** `tools/model-review` · **Lauf:** 2026-08-22T17:15:12.406Z · **Dauer:** 204.5 s
+**Erzeugt von:** `tools/model-review` · **Lauf:** 2026-08-22T17:09:26.285Z · **Dauer:** 211.2 s
 **Nutzung:** nicht gemeldet · **Kosten:** unbekannt · **Anbieter-Datensammlung:** ausgeschlossen (deny)
 
 > ⚠️ **Wie das zu lesen ist:** Ein *fremdes* Modell hat einen **kuratierten Ausschnitt**
@@ -42,11 +42,11 @@ eigenen Durchgängen dran — verweise nicht auf Dinge, die du hier nicht siehst
 | Art | Im Text genannt als | Datei | Größe |
 |---|---|---|---:|
 | 🖼 Bild | `direktor_intro.png` | `desinformation-network/runs/visual-review/latest/shots/direktor_intro.png` | 846 kB |
-| 🖼 Bild | `dialog_alexei.png` | `desinformation-network/runs/visual-review/latest/shots/dialog_alexei.png` | 818 kB |
-| 🖼 Bild | `dialog_marina.png` | `desinformation-network/runs/visual-review/latest/shots/dialog_marina.png` | 816 kB |
-| 🖼 Bild | `dialog_katja.png` | `desinformation-network/runs/visual-review/latest/shots/dialog_katja.png` | 828 kB |
-| 🖼 Bild | `dialog_direktor.png` | `desinformation-network/runs/visual-review/latest/shots/dialog_direktor.png` | 843 kB |
-| 🖼 Bild | `dialog_igor.png` | `desinformation-network/runs/visual-review/latest/shots/dialog_igor.png` | 729 kB |
+| 🖼 Bild | `dialog_alexei.png` | `desinformation-network/runs/visual-review/latest/shots/dialog_alexei.png` | 779 kB |
+| 🖼 Bild | `dialog_marina.png` | `desinformation-network/runs/visual-review/latest/shots/dialog_marina.png` | 783 kB |
+| 🖼 Bild | `dialog_katja.png` | `desinformation-network/runs/visual-review/latest/shots/dialog_katja.png` | 715 kB |
+| 🖼 Bild | `dialog_direktor.png` | `desinformation-network/runs/visual-review/latest/shots/dialog_direktor.png` | 760 kB |
+| 🖼 Bild | `dialog_igor.png` | `desinformation-network/runs/visual-review/latest/shots/dialog_igor.png` | 689 kB |
 
 ---
 
@@ -55,151 +55,112 @@ eigenen Durchgängen dran — verweise nicht auf Dinge, die du hier nicht siehst
 ## 1. **Erster Eindruck**
 
 ### `direktor_intro.png`
-Zuerst zieht die große, leuchtende Weltkarte in der Bildmitte den Blick an, unmittelbar danach das breite rote Kopfband der DialogBox. Eigentlich sollte die Reihenfolge Porträt → Sprechername → Dialogtext sein; das Porträt Volkovs erscheint jedoch erst an dritter Stelle. Seine Figur ist gegenüber Karte, Schreibtisch und DialogBox zu klein und wird an der Schulter hart vom Panel abgeschnitten. Die helle Uhr oben rechts bildet zusätzlich einen konkurrierenden Blickpunkt außerhalb der Dialogachse. Der Raum vermittelt den modernen Behördenkontext aus `sprite-tool/public/context/game-style-guide.md`, die DialogBox selbst wirkt aber eher wie ein flacher HUD-Balken als wie eine aufgelegte Akte.
+Das Auge springt zuerst auf die leuchtende Cyan-Weltkarte und danach auf das breite rote Kopfband der DialogBox. Zuerst erfassen sollte man Volkovs Gesicht, anschließend Sprechername und Dialogtext. Das gelingt nicht, weil Volkov ungewöhnlich tief und klein sitzt; sichtbar ist nur ein schmaler Oberkörper unmittelbar über der DialogBox. Gegenüber `dialog_direktor.png` wirkt dieselbe Figur dadurch wie falsch verankert statt bewusst inszeniert. Die cremefarbene Textfläche vermittelt Papier, das glatte vollflächige Rot dagegen eher Alarmleiste als Behördenakte.
 
 ### `dialog_alexei.png`
-Das Auge landet zuerst auf den hellen Monitorgruppen links und in der Mitte, weil sie groß, kontrastreich und mehrfach wiederholt sind. Alexeis Gesicht sollte zuerst wahrgenommen werden, ist aber klein, weit unten rechts und gegen die technische Kulisse nicht deutlich genug isoliert. Die großen weißen Augen und der violett-dunkle Rand des Porträts ziehen anschließend Aufmerksamkeit auf sich, wirken jedoch stilistisch schärfer und animehafter als der Raum. Das olivfarbene Kopfband ist weniger dominant als bei Volkov, bleibt aber eine breite, flache Digitalfläche. Die symmetrisch angeschnittenen Arbeitsplätze an beiden Seiten lenken den Blick horizontal aus dem Bild, statt ihn zurück zum Sprecher und Text zu führen.
+Zuerst fallen die sechs hellen Monitore links und in der Mitte auf, erst danach Alexeis große Augen und sein Gesicht. Eigentlich sollte die Reihenfolge Gesicht → Name → gesprochener Text sein. Die Mimik ist deutlich, muss aber gegen drei ähnlich gewichtete Monitorgruppen und die Cyan-Beleuchtung kämpfen. Das breite olivfarbene Sprecherband wird zur dritten großen Farbfläche, obwohl es nur Metadaten enthält. Der fast schwarze Verlauf über dem Boden beruhigt das Bild nicht, sondern erzeugt zwischen Raum und DialogBox eine breite tote Zone.
 
 ### `dialog_marina.png`
-Der erste Blick geht auf die helle Wand und das stark gesättigte geometrische Bild in der oberen Mitte. Marinas Gesicht sollte der primäre Fokus sein, wird aber durch Sofa, Pflanze und Fensterrahmen hinter ihrem Kopf räumlich unruhig eingefasst. Ihr Porträt ist besser vom Hintergrund abgesetzt als Alexeis, bleibt im Verhältnis zur Raumfläche dennoch zu klein. Das blaue Kopfband wird nach dem Wandbild wahrgenommen, erst danach folgt der eigentliche Dialogtext. Die wärmere Raumbeleuchtung trägt die Medien-Zone, aber die Mitte ist so hell und sauber komponiert, dass sie dem Dialog die Bühne nimmt.
+Das Auge landet zunächst auf der hellen Wand- und Sofazone in der Bildmitte, dann auf Marinas Gesicht und dem geometrischen Poster. Marina ist besser freigestellt als Alexei, dennoch konkurrieren Poster, Monitore und Pflanzen mit ihrer Silhouette. Der große blaue Sprecherbalken zieht danach stärker als der eigentliche Dialogtext. Die warme, gepflegte Raumstimmung passt zur Medienzone, wirkt aber deutlich glatter und weniger pixelpräzise als die strengeren Räume. Die Figur steht zudem dicht vor mehreren Pflanzenkonturen, wodurch ihr rechter Umriss unruhig wird.
 
 ### `dialog_katja.png`
-Hier dominieren zuerst die großen cyanfarbenen Monitore und der zentrale Arbeitstisch. Katja sollte vor diesen technischen Details liegen, ihr Porträt sitzt jedoch klein am unteren rechten Rand und endet genau an der DialogBox. Am problematischsten ist das cremefarbene Kopfband: Weißer Name, weiße Rolle und weißes Schließen-X verlieren sich auf der hellen Fläche. Dadurch fehlt zwischen Sprecherinformation und Textkörper die Hierarchie, die in den anderen Screens zumindest farblich vorhanden ist. Der oben angeschnittene Großmonitor lässt den Hintergrund außerdem wie einen zufälligen Kameraausschnitt statt wie eine bewusst komponierte Nahsicht wirken.
+Zuerst zieht die dichte Geräte- und Tischlandschaft im oberen Bilddrittel den Blick an, danach Katjas Gesicht. Die Sprecherkennung sollte anschließend sofort funktionieren, scheitert aber am weißen Text auf dem sehr hellen beigen Kopfband. Auch das weiße Schließen-„X“ ist dort fast unsichtbar. Die große dunkle Bodenfläche zwischen Arbeitstischen und DialogBox wirkt wie ungenutzter Leerraum, nicht wie räumliche Tiefe. Zusätzlich widerspricht die sichtbare stehende Pose dem Text „*lehnt am Tisch*“, weil Katja weit rechts und klar vom Tisch getrennt steht.
 
 ### `dialog_direktor.png`
-Wie in `direktor_intro.png` zieht die cyanleuchtende Weltkarte zuerst den Blick an. Danach entsteht aus rotem Vorhang rechts und rotem Dialogkopf unten eine dominante L-Form, die Volkovs Gesicht einklemmt. Gewünscht wäre Gesicht → Name → Aussage; tatsächlich lautet die Reihenfolge Karte → Rotflächen → Gesicht → Text. Das Porträt ist zu klein, um gegen die Karte und den massiven Schreibtisch zu bestehen. Die Uhr und die beiden oberen Bedienelemente öffnen zusätzlich eine zweite UI-Zone, obwohl die Szene visuell bereits stark geteilt ist.
+Die Cyan-Weltkarte und das rote Kopfband sind die beiden stärksten Flächen; Volkovs Gesicht kommt erst danach. Anders als in `direktor_intro.png` besitzt die Figur hier die richtige Bühnenpräsenz und eine nachvollziehbare Größe. Sie sitzt jedoch eng zwischen rotem Vorhang, HUD und rechtem Rand, wodurch dort ein überladenes vertikales Band entsteht. Das Rot darf als Ministeriums-Kopfband auftreten, nimmt in dieser Höhe aber mehr Gewicht ein als Sprechername und Dialog benötigen. Der dunkle Bodenverlauf trennt die Figur zwar vom Raum, verschluckt zugleich aber einen großen Teil der räumlichen Information.
 
 ### `dialog_igor.png`
-Zuerst fällt die zentral platzierte Tresortür auf, danach die cyanleuchtende Lampe darüber. Igors Gesicht sollte der Einstiegspunkt sein, sitzt aber klein und tief rechts vor mehreren senkrechten Fensterstreben. Das Porträt hat genügend Hautkontrast, wird durch die harte Panelkante an der Schulter dennoch wie abgeschnitten. Das dunkelblaue Kopfband ist lesbarer als Katjas Variante, wirkt aber ebenso flach und digital statt materiell. Im Text ist die Regieanweisung optisch nicht von der gesprochenen Aussage getrennt, weshalb man den Satzbeginn zweimal lesen muss.
-
----
+Zuerst fällt Igors helles Gesicht auf, unmittelbar danach die zentrale Tresortür und der cyan leuchtende Monitor. Diese Reihenfolge ist näher am gewünschten Dialogfokus als bei Alexei oder Katja. Die breite blaue Sprecherleiste übernimmt anschließend jedoch zu viel Gewicht und wirkt eher wie eine digitale Statusleiste als ein Aktenreiter. Igors Außenkontur ist schärfer und dunkler als die Kanten des Raums, wodurch er leicht aufgeklebt erscheint. Die Aktenschränke, Zählmaschine und Tresortür vermitteln den Finanzkontext gut, werden im unteren Bereich aber unnötig von der starken Abdunklung abgeschnitten.
 
 ## 2. **Konkrete Eingriffe je Screen**
 
 ### `direktor_intro.png`
-
-- Weltkarten-Hintergrund → im Dialogzustand um etwa ein Fünftel abdunkeln und leicht entsättigen, Porträt und DialogBox davon ausnehmen → die Karte bleibt als Ortsinformation sichtbar, verliert aber den ersten Blick.
-- Volkov-Porträt → auf etwa 1,25× vergrößern, von der rechten Kante aus nach links und oben wachsen lassen und die Schulter eine halbe Kopfbandhöhe hinter dem Panel verschwinden lassen → Gesicht und Mimik erhalten eine klare Hierarchiestufe vor der Raumgrafik.
-- Rotes Kopfband → Höhe um etwa ein Sechstel reduzieren und Rot auf eine schmalere Aktenlasche beziehungsweise obere Kennlinie konzentrieren → die zulässige Ministeriumsfarbe bleibt erhalten, ohne ein Viertel der unteren Bildwirkung zu übernehmen.
-- Dialogtext → linke Textkante unter der Namenskante statt unter dem äußeren Panelrand beginnen lassen und die Zeilenbreite auf ungefähr zwei Drittel des Panels begrenzen → Sprecherblock und Text bilden eine gemeinsame Lesespalte.
-- Schließen-X → auf mindestens die Höhe der Rollenbezeichnung vergrößern, mit einer klaren quadratischen Trefferfläche versehen und an der oberen sowie rechten Innenkante gleich weit absetzen → das derzeitige einzelne Zeichen ist als Bedienfläche kaum erkennbar.
-- Uhr/HUD oben rechts → während des Dialogs gemeinsam abdunkeln oder bis auf ein einziges Menü-Symbol ausblenden → die helle Uhr konkurriert unnötig mit Sprecher und Text.
+- Volkov-Figur → um etwa zwei Kopfhöhen nach oben setzen und auf dieselbe Kopfgröße wie in `dialog_direktor.png` bringen; die Unterkante darf hinter der DialogBox verschwinden → beseitigt den auffälligen Maßstabs- und Verankerungsfehler.
+- Cyan-Weltkarte → Leuchtdichte und Sättigung um etwa ein Fünftel reduzieren, besonders in den Kartenlinien → verhindert, dass der Hintergrund vor Gesicht und Text gelesen wird.
+- Rotes Sprecherkopfband → ungefähr ein Fünftel niedriger machen und Name, Funktion sowie ID-Porträt vertikal enger gruppieren → Rot bleibt als Ministeriums-Kopfband erhalten, dominiert aber nicht das gesamte untere Bilddrittel.
+- Textblock → linke Kante unter „Kurator Volkov“ statt unter dem ID-Porträt beginnen lassen und die Zeilenbreite auf ungefähr zwei Drittel der DialogBox begrenzen → schafft eine klare Textachse und besser lesbare Zeilen.
+- HUD oben rechts → während des Dialogs deutlich abdunkeln oder auf etwa halbe Deckkraft setzen → Uhr, Menü und Alarmleuchte konkurrieren sonst mit Volkovs Gesicht.
 
 ### `dialog_alexei.png`
-
-- Monitorgruppen → im Dialogzustand Luminanz und Cyanintensität zurücknehmen, besonders bei den sechs Bildschirmen links und den fünf mittleren → die mehrfachen hellen Rechtecke ziehen derzeit stärker als Alexeis Gesicht.
-- Alexei-Porträt → etwa 1,3× vergrößern und um ungefähr ein Viertel seiner aktuellen Breite nach links versetzen → das Gesicht kommt aus der Randzone und erhält Abstand zur rechten Arbeitsplatzgruppe.
-- Porträtkontur → violett-blauen Saum durch das gleiche kühle Anthrazit beziehungsweise Petrol ersetzen, das in Raum und UI vorkommt → die Figur wirkt dann weniger wie ein Asset aus einer anderen Illustrationsfamilie.
-- Oliv-Kopfband → als Kraftpapierstreifen mit dunkler Tinte und kleiner oliver Aktenmarkierung statt als vollflächiger Farbbalken ausführen → das bringt die in `desinformation-network/src/story-mode/theme.ts` beschriebene Behörden-Akte sichtbar in die Komponente.
-- Rollenbezeichnung „Technischer Leiter“ → um etwa ein Viertel vergrößern und enger unter dem Namen platzieren → sie ist momentan nur mit bewusstem Hinsehen lesbar.
-- Seitliche Raumanschnitte → Nahsicht geringfügig nach links oder rechts staffeln, sodass nicht beide äußeren Arbeitsplatzgruppen gleich hart am Bildrand enden → die aktuelle Symmetrie wirkt wie eine wiederholte Hintergrundkachel und zieht den Blick auseinander.
+- Monitorflächen im Hintergrund → sämtliche Cyan-/Weißwerte um etwa ein Viertel abdunkeln, die mittlere Monitorgruppe etwas stärker als die äußeren → Alexeis Gesicht wird zum ersten Blickziel.
+- Alexei-Figur → um ungefähr eine halbe Schulterbreite nach links versetzen → löst ihn vom rechten HUD-Block und nutzt seine nach links gerichtete Mimik besser.
+- Unterer Raumverlauf → die fast schwarze Fläche zurücknehmen und stattdessen den gesamten Raum gleichmäßig leicht abdunkeln; nur hinter Alexei eine lokale Vignette belassen → reduziert tote Fläche, ohne die Figur wieder im Raum zu verlieren.
+- Olivfarbenes Sprecherband → auf Kraftpapier wechseln und Oliv nur als schmalen Aktenreiter beziehungsweise Stempel neben dem Namen verwenden → entspricht der in `desinformation-network/src/story-mode/theme.ts` definierten Rolle von Oliv als Tinte statt Vollfläche.
+- Regieanweisung im Text → „*blickt vom Terminal auf*“ in einer eigenen, sekundär gefärbten Zeile vor der wörtlichen Rede setzen → Handlung und Gesprochenes sind aktuell nur durch Sternchen unterscheidbar.
 
 ### `dialog_marina.png`
-
-- Wandbild → während des Dialogs Helligkeit und Sättigung deutlich unter die des Porträts setzen, insbesondere Cyan und Rot → es ist aktuell der stärkste Farbakzent und übernimmt fälschlich die Hauptrolle.
-- Marina-Porträt → etwa 1,2× vergrößern und um ungefähr ein Drittel seiner Breite nach links verschieben → Haar, rechte Pflanze und Fensterkante bilden dann keine enge Tangente mehr.
-- Porträthintergrund → direkt hinter Kopf und Schultern eine sehr zurückhaltende, dunkle Tinten-Vignette in etwa Porträtbreite einsetzen → die Figur löst sich vom Sofa und den Pflanzen, ohne als separate Karte zu wirken.
-- Blaues Kopfband → auf eine schmalere Aktenlasche reduzieren und den restlichen Kopfbereich in Kraftpapier beziehungsweise dunklerem Manila halten → der Screen liest sich stärker als Papierwelt und weniger als farbcodiertes Softwarefenster.
-- Regieanweisung „*tippt weiter, ohne aufzusehen*“ → in gedämpfter Sekundärtinte, mit seitlichem Einzug oder einer eigenen kurzen Regiezeile setzen → Handlung und gesprochener Text müssen auf den ersten Blick unterscheidbar sein.
-- Kleine ID-Abbildung links → entweder um rund ein Fünftel vergrößern und wie ein angeheftetes Passfoto rahmen oder entfernen → in der jetzigen Größe dupliziert sie das Hauptporträt, ohne zusätzliche Mimik zu vermitteln.
+- Marina-Figur → um etwa eine halbe Figurenbreite nach links rücken → trennt ihre Schulter- und Armkontur von den Pflanzen am rechten Rand.
+- Pflanzen hinter Marina → die kleinere Pflanze hinter ihrem Oberkörper weiter nach rechts oder tiefer setzen, sodass keine Blätter in ihre Silhouette laufen → verbessert die Figur-Grund-Trennung.
+- Poster und Monitore → Türkis und Rot um ungefähr ein Fünftel entsättigen; die helle Wand darf erhalten bleiben → der Medienraum bleibt warm, ohne drei konkurrierende Akzentzentren zu bilden.
+- Blaues Sprecherband → Papiergrund verwenden und Blau auf einen schmalen linken Reiter mit ID-Foto, Name und Funktion begrenzen → lässt die DialogBox wie eine Akte statt wie ein digitales Dashboard erscheinen.
+- Marina-Asset → Pixelkanten und Schattierungsstufen an Katja beziehungsweise Volkov angleichen, insbesondere im Gesicht und an den Haaren → die derzeit weichere Illustration wirkt gegenüber dem Raum anders gerendert.
 
 ### `dialog_katja.png`
-
-- Helles Kopfband → Namen und Schließen-X auf dunkle Tinte umstellen oder einen dunklen Oliv-/Kraftpapierstreifen hinterlegen → Weiß auf Creme ist hier der deutlichste Lesbarkeitsfehler des Bündels.
-- Rollenbezeichnung „Feld-Operateurin“ → dunkler, etwa ein Viertel größer und mit weniger Laufweite setzen → die Funktion ist aktuell fast nicht lesbar.
-- Katja-Porträt → etwa 1,25× vergrößern und nach links oben wachsen lassen, während die rechte Schulter innerhalb derselben rechten Porträtspalte bleibt → die Figur kann gegen Monitore und zentralen Arbeitstisch bestehen.
-- Großmonitor am oberen Rand → Hintergrundausschnitt so weit nach unten verschieben, bis der obere Rahmen des zentralen Displays vollständig sichtbar ist → der jetzige Anschnitt wirkt unbeabsichtigt.
-- Cyan-Monitore → im Dialogzustand um etwa ein Fünftel abdunkeln, die roten Linien zusätzlich entsättigen → der technische Hintergrund bleibt lesbar, ohne den Sprecher zu überstrahlen.
-- Kopfband und Textkörper → durch einen schmaleren Doppelstrich oder eine sichtbare Papierüberlappung trennen statt durch die einzelne schwere dunkle Linie → die aktuelle Linie wirkt wie eine Tabellenkante, nicht wie zwei Aktenlagen.
+- Name, Funktion und Schließen-„X“ → auf dem hellen Kopfband von Weiß auf dunkle Tinte, vorzugsweise `#2B2620`, wechseln → diese drei Elemente sind im aktuellen Zustand kontrastarm.
+- Katja-Figur und Pose → um etwa eine Figurenbreite nach links an die rechte Kante des Mitteltischs setzen und eine tatsächliche Anlehnpose verwenden; alternativ die Regieanweisung ändern → Bild und Text widersprechen sich derzeit sichtbar.
+- Gerätezone oben → hellste Displays und Cyan-Akzente um etwa ein Fünftel dimmen → die kleinteilige Techniklandschaft zieht den Blick vor Katjas Gesicht.
+- Bodenverlauf → Abdunklung später beginnen lassen und weniger stark auslaufen lassen → erhält die Bodenlinien als Blickführung zum Tisch, statt die untere Raumhälfte zu einer grauschwarzen Leere zu machen.
+- Textblock → an der linken Kante des Namens ausrichten und mit einer festen, kürzeren Lesespalte versehen → beendet die konkurrierenden Achsen von ID-Porträt, Name und Fließtext.
 
 ### `dialog_direktor.png`
-
-- Weltkarte → dieselbe Dialog-Abdunklung wie in `direktor_intro.png` anwenden und das besonders helle Kartenzentrum hinter dem Stuhl reduzieren → der Blick startet dann nicht mehr in der Raummitte.
-- Volkov-Porträt → auf etwa 1,25× skalieren und mit dem Gesicht etwas weiter links positionieren → die Mimik wird gegenüber Karte, Schreibtisch und Vorhang konkurrenzfähig.
-- Roter Vorhang und rotes Kopfband → Vorhang im Dialogzustand entsättigen, Kopfband verkleinern, aber nicht beide Rotflächen gleichzeitig auf voller Intensität belassen → die rote L-Form am rechten und unteren Rand verliert ihre visuelle Klammer.
-- Sprecherblock → Name, Rolle und Körpertext auf einer gemeinsamen linken Inhaltskante organisieren; das Passfoto darf als vorgelagerte Aktenmarke herausstehen → momentan springen die Lesekanten zwischen Foto, Name und Text.
-- Textspalte → nicht über fast die gesamte Bildschirmbreite laufen lassen, sondern nach ungefähr zwei Dritteln des Panels umbrechen → spätere längere Aussagen bleiben lesbar und wirken wie Aktennotizen statt wie Konsolenausgabe.
-- Obere Bedienelemente → Uhr, Menü und HUD-Schalter im Dialog auf eine gemeinsame reduzierte Deckkraft setzen → sie bilden derzeit eine unnötige zweite Bedienhierarchie.
+- Volkov-Figur → um etwa eine halbe Schulterbreite nach links rücken → schafft Abstand zum roten Vorhang und entlastet die bereits mit HUD belegte rechte Spalte.
+- Weltkarte → Cyan-Leuchtkraft um ungefähr ein Fünftel reduzieren und den hellsten Bereich hinter Volkov vermeiden → die Karte soll Kontext liefern, nicht das Gesicht überstrahlen.
+- Rotes Kopfband → Höhe um etwa ein Fünftel reduzieren, während das Ministeriums-Rot unverändert bleibt → bewahrt die Hierarchie des Direktors, verringert aber die Alarmwirkung.
+- Unterer Raumverlauf → weniger Schwarz verwenden und die Schreibtisch- sowie Bodenstruktur bis näher an die DialogBox sichtbar lassen → beseitigt die breite, funktionslose Dunkelzone.
+- HUD → im Dialogzustand abdunkeln und seine rechte Außenkante exakt an die rechte Außenkante der DialogBox koppeln → erzeugt eine gemeinsame Randachse und weniger Konkurrenz.
 
 ### `dialog_igor.png`
-
-- Tresortür und Lampe → während des Dialogs abdunkeln, wobei die Lampe stärker als die Tür reduziert werden sollte → beide zentralen Formen ziehen den Blick vor Igors Gesicht.
-- Igor-Porträt → etwa 1,2× vergrößern und um ungefähr ein Viertel Porträtbreite nach links setzen → das Gesicht löst sich von den rechten Fensterstreben und sitzt weniger randnah.
-- Porträtunterkante → Schulter nicht exakt an der Oberkante der DialogBox abschneiden, sondern sichtbar eine halbe Kopfbandhöhe hinter die Papierlage führen → so entsteht Überlagerung statt eines harten Asset-Schnitts.
-- Regieanweisung „*runzelt die Stirn*“ → auf eine eigene, eingerückte Zeile in `textSecondary` setzen; „Suboptimal.“ als reguläre Rede beginnen → der Wechsel zwischen Handlung und Aussage ist derzeit nur über Sternchen kodiert.
-- Rollenbezeichnung „Finanz-Analyst“ → größer und mit stärkerem Kontrast zum blauen Band setzen → sie ist trotz dunklem Hintergrund zu klein für ihre Informationsfunktion.
-- Schließen-X → als klar begrenzte Schaltfläche innerhalb des Kopfbandrasters ausführen und vertikal zur Namenszeile ausrichten → das lose Zeichen wirkt momentan wie ein Druckfehler.
-
----
+- Tresortür → Kontrast an Rahmen, Nieten und Tastenfeld leicht reduzieren → die zentrale Tür ist derzeit beinahe so präsent wie Igors Gesicht.
+- Igor-Figur → um ungefähr eine halbe Schulterbreite nach links setzen → bindet ihn stärker an Schreibtisch und Tresor, statt ihn isoliert am rechten Rand stehen zu lassen.
+- Figurenkontur → schwarze Außenkante etwas dünner beziehungsweise weniger kontrastreich ausführen und die Pixelstufung an den Raum angleichen → Igor wirkt momentan wie eine separate Illustrationsschicht.
+- Blaues Sprecherband → auf Papierfläche umstellen und Blau nur für Aktenreiter, Namensunterstreichung oder Stempel einsetzen → setzt die Farbrolle aus `desinformation-network/src/story-mode/theme.ts` konsistenter um.
+- ID-Porträt → statt der stark verkleinerten Ganzfigur einen festen Kopf-Schulter-Ausschnitt verwenden → Gesicht und Brille bleiben auch in der kleinen Sprecherkennung lesbar.
 
 ## 3. **Grafiken/Assets**
 
-Die Raumhintergründe tragen den Stil des Bündels am stärksten. `direktor_intro.png` und `dialog_direktor.png` vermitteln Beton, Glas, gepflegte Technik und den dosierten roten Behördenakzent; `dialog_marina.png` erzeugt nachvollziehbar eine wärmere, hellere Zone; `dialog_alexei.png` und `dialog_katja.png` liefern dichte technische Arbeitsräume. Das entspricht der modernen Ministeriumsrichtung in `sprite-tool/public/context/game-style-guide.md` deutlich besser als einer braunen Retrobehörde.
-
-Die Hintergründe sind aber fast überall als eigenständige Key-Art komponiert und nicht als Bühne für Dialoge. Die Weltkarte in `direktor_intro.png` und `dialog_direktor.png`, das Wandbild in `dialog_marina.png`, die Großmonitore in `dialog_katja.png` sowie Tresortür und Lampe in `dialog_igor.png` liegen jeweils im hellsten oder geometrisch stärksten Bildbereich. Ohne einen eigenen Dialog-Fokuszustand bleiben sie Hauptmotiv.
-
-Die Hauptporträts wirken nicht vollständig aus einer Assetfamilie. Alexei in `dialog_alexei.png` hat überzeichnet helle Augen, einen violetten Kontursaum und eine stärkere Anime-Anmutung; Marina in `dialog_marina.png` ist glatter und weniger hart gepixelt; Volkov in `direktor_intro.png` und `dialog_direktor.png` sowie Igor in `dialog_igor.png` sind kontrastreicher und stärker karikiert. Katja in `dialog_katja.png` liegt stilistisch dazwischen. Pixelgröße, Konturfarbe, Hautkontrast und Grad der Gesichtsschattierung sollten auf ein gemeinsames Porträt-Spec gebracht werden.
-
-Die Porträts sind durchgehend zu klein skaliert. Ihre Köpfe besetzen nur einen kleinen Teil der sichtbaren Raumhöhe, obwohl Mimik laut Manifest ein Kern der Aufnahmen ist. Eine gemeinsame Skalierung um ungefähr 20–30 Prozent und eine feste Gesichtslinie würden mehr bringen als zusätzliche Raumdetails.
-
-Die kleinen Kopfbildchen links im Sprecherblock sind bei allen sechs Screens zu klein, um Mimik zu transportieren, und duplizieren das große Porträt. Als bewusst gerahmte Passfotos könnten sie die Aktenästhetik unterstützen; dafür brauchen sie ein sichtbares Papierfeld, eine einheitliche Ausschnittshöhe und etwas mehr Fläche. Andernfalls sollten sie entfallen.
-
-Der DialogBox fehlen materielle Merkmale der in `desinformation-network/src/story-mode/theme.ts` beschriebenen „Behörden-Akte“. Cremefarbe allein reicht nicht: Eine dezente Faserstruktur, eine leicht unregelmäßige Papierkante, eine Aktenlasche hinter dem Sprecherfoto und eine sehr flache Überlagerungskante zwischen Kopf und Textkörper würden den Stil unmittelbar verständlich machen. Nicht nötig sind zusätzliche Flecken, Kaffeeringe oder starke Schlagschatten.
-
-Am meisten fehlt unten rechts im Textkörper ein klarer Abschlusszustand. Nach Ende des Schreibens sollte dort ein kleiner, zurückhaltender Weiter-Stempel oder Seitenknick erscheinen; während des Tippens bleibt er unsichtbar. Das würde den derzeit einzigen Zustandsindikator – den Schreibcursor – sinnvoll ergänzen.
-
----
+- Die Raumhintergründe in `direktor_intro.png`, `dialog_alexei.png`, `dialog_katja.png`, `dialog_direktor.png` und `dialog_igor.png` tragen durch klare Funktionsobjekte: Weltkarte und roter Vorhang, Monitorcluster, Einsatztisch, Tresortür, Aktenschränke und Zählmaschine. Die Räume lassen sich dadurch ohne Beschriftung unterscheiden.
+- `dialog_marina.png` trägt vor allem durch die Kombination aus Medienmonitoren, Sofa, Pflanzen und wärmerem Licht. Das passt zur vorgesehenen Zonenbeleuchtung, ist aber weicher, heller und flächiger gerendert als die anderen Hintergründe.
+- Die Charakterassets besitzen keine vollständig gemeinsame Bildsprache. Alexei in `dialog_alexei.png` wirkt durch große Anime-Augen, violett-cyanfarbene Konturen und starke Gesichtskontraste fremder; Marina in `dialog_marina.png` ist glatter und weniger sichtbar verpixelt; Katja und Volkov liegen näher an der feinen, scharfen Pixel-Art aus `sprite-tool/public/context/game-style-guide.md`.
+- Igor in `dialog_igor.png` und Alexei in `dialog_alexei.png` besitzen auffällig harte Außenlinien, während die Raumobjekte feinere und weniger schwarze Kanten haben. Die Figuren sollten dieselbe Konturstärke und dieselbe Zahl an Schattierungsstufen wie die Hintergründe verwenden.
+- Der auffälligste Skalierungsfehler liegt in `direktor_intro.png`: Volkovs Kopf sitzt ungefähr zwei Kopfhöhen tiefer als in `dialog_direktor.png`, obwohl es derselbe Sprecher im selben Raum ist.
+- Die Miniaturporträts in allen sechs DialogBoxen sind zu stark verkleinerte Ganz- oder Halbfiguren. Es fehlen dedizierte, identisch zugeschnittene Kopf-Schulter-ID-Fotos mit gleicher Augenhöhe, gleichem Hintergrund und gleicher Rahmengröße.
+- In `dialog_marina.png` ist die Pflanzenkontur unmittelbar hinter der Figur falsch platziert; in `dialog_katja.png` fehlt für die sichtbare Regieanweisung eine passende Anlehnpose.
+- Den Papierflächen fehlt eine sehr zurückhaltende Materialebene: leichte Faserung, minimal dunklere Schnittkanten und ein klarer Aktenreiter würden mehr Behörden-/Papierwirkung erzeugen als zusätzliche Dekoration. Die Textur darf nur im Nahbereich sichtbar sein und die Pixelschrift nicht verrauschen.
 
 ## 4. **Raster & Rhythmus**
 
-Alle sechs Screens verwenden dieselbe grobe Aufteilung: ungefähr die oberen sieben Zehntel für den Raum und das untere Viertel für die DialogBox. Diese Stabilität ist brauchbar, die Box sitzt jedoch mit sehr kleinen Seitenabständen fast direkt am Viewportrand. Eine zentrierte Breite von etwa 92–94 Prozent der Ansicht würde mehr wie ein aufgelegtes Blatt wirken und an den Seiten Luft für den Raum lassen.
-
-Innerhalb der DialogBox existieren zwei konkurrierende linke Kanten. Der Name beginnt rechts vom kleinen Foto, der Körpertext dagegen nahe am äußeren Panelrand. Entweder muss der Körpertext ebenfalls unter dem Namen beginnen, oder das Sprecherfoto muss als herausstehende Lasche außerhalb der Textspalte behandelt werden. Derzeit wirkt die Verschiebung zufällig.
-
-Der Sprecherkopf ist im Verhältnis zum Textkörper zu hoch, insbesondere weil Name und Rolle zusammen nur ungefähr die Hälfte seiner Höhe nutzen. Kopfband um rund 15 Prozent reduzieren, Rolle näher an den Namen ziehen und den gewonnenen Raum dem Textkörper nicht einfach zuschlagen, sondern die gesamte Box etwas kompakter machen.
-
-Die Porträts folgen zwar alle der rechten unteren Zone, ihre Gesichter haben aber keine präzise gemeinsame Linie. Alexei und Marina beginnen etwas höher, Igor tiefer, während die Schulteranschnitte unterschiedlich breit sind. Eine feste Porträtvorlage sollte Gesichtsmittelpunkt, maximale Kopfbreite, rechte Bezugskante und Überdeckung hinter dem Dialogpapier definieren.
-
-Die Raumkompositionen besitzen fast alle ein starkes Zentrum, während der Sprecher rechts steht. Dadurch wandert der Blick Zentrum → rechts → unten links zum Text. Besser wäre rechts → Sprecherblock links → Textzeile. Ein lokaler Scrim hinter dem Raumzentrum und ein etwas weiter links sitzendes Porträt verkürzen diesen Blickweg.
-
-Oben rechts ist das HUD nicht rhythmisch gruppiert: Zwischen Uhr und Menü besteht deutlich mehr Abstand als zwischen Menü und HUD-Schalter. Entweder alle drei Elemente als gemeinsame Leiste mit gleichen Zwischenräumen setzen oder während des Dialogs auf ein einzelnes, zurückgenommenes Bedienelement reduzieren.
-
-Die große freie Fläche im Textkörper ist auf diesen Bildern auffällig, aber wegen des laufenden Schreibzustands nicht abschließend beurteilbar. Falls fertige Dialogseiten regelmäßig nur ein oder zwei Zeilen enthalten, sollte die Boxhöhe auf drei Textzeilen plus Innenabstände begrenzt werden. Falls längere Texte folgen, ist die feste Höhe vertretbar.
-
----
+- Die DialogBoxen in allen sechs Screens sind nahezu bildschirmbreit und besitzen nur einen sehr schmalen Außenrand. Für die Wirkung eines aufgelegten Dokuments sollte die Box auf ungefähr 93–95 % der Bildschirmbreite begrenzt und horizontal zentriert werden; Seiten- und unterer Abstand sollten gleich groß erscheinen.
+- Die Aufteilung Raum zu DialogBox ist grundsätzlich stabil, aber `direktor_intro.png` bricht das Figurenraster deutlich. Für alle Charaktere sollte eine gemeinsame Bühnenzone gelten: Kopf im oberen bis mittleren Drittel der sichtbaren Raumfläche, Körperunterkante hinter der Oberkante des Dokuments.
+- In `dialog_alexei.png`, `dialog_marina.png`, `dialog_katja.png`, `dialog_direktor.png` und `dialog_igor.png` liegt eine dünne rote Linie oberhalb der eigentlichen DialogBox, getrennt durch einen dunklen Zwischenraum. Diese Linie wirkt wie ein übrig gebliebener globaler Separator; entweder direkt an die Papierkante anschließen oder entfernen.
+- Innerhalb der Box existieren zwei linke Achsen: Sprechername beginnt rechts vom ID-Porträt, der Dialogtext springt dagegen zurück zur linken Kante des Porträts. Der Text sollte in allen sechs Screens unter dem Namen beginnen; das ID-Foto bildet dann eine klar getrennte Metadatenspalte.
+- Das Sprecherkopfband beansprucht ungefähr ein Drittel der gesamten Dokumenthöhe. Das ist zu viel für Foto, Name und Funktion; eine Reduktion um etwa ein Fünftel würde dem eigentlichen Dialog mehr Hierarchie geben.
+- Der untere Teil der Raumansichten ist in `dialog_alexei.png`, `dialog_marina.png`, `dialog_katja.png`, `dialog_direktor.png` und `dialog_igor.png` stark abgedunkelt, während oben viele kleine Objekte konkurrieren. Dadurch entsteht der unruhige Rhythmus „Detailteppich oben, leere Dunkelfläche unten“. Besser ist eine schwächere, gleichmäßigere Raumabdunklung mit lokaler Aufhellung am Gesicht.
+- Der HUD-Block ist konsequent oben rechts, wird aber nicht als Teil des modalen Dialogzustands behandelt. Weil Figuren ebenfalls rechts stehen, sollten Uhr und Bedienelemente während eines Dialogs visuell zurücktreten.
 
 ## 5. **Lesbarkeit**
 
-Der eigentliche Dialogtext ist in allen sechs Screens groß genug und besitzt auf dem cremefarbenen Papier guten Kontrast. Problematisch ist weniger die Zeichenhöhe als die potenzielle Zeilenlänge: Über nahezu die gesamte Bildschirmbreite geführte Sätze werden bei längeren Texten schwer zu verfolgen. Eine Textspalte von ungefähr 60–70 Prozent der Panelbreite ist sinnvoller.
-
-In `dialog_katja.png` musste ich bei „Katja Orlova“, „Feld-Operateurin“ und dem Schließen-X zweimal hinsehen. Weiß auf hellem Creme erzeugt praktisch keine belastbare Hierarchie. Das ist kein Feintuning, sondern ein klarer Kontrastfehler.
-
-In `dialog_alexei.png`, `dialog_marina.png` und `dialog_igor.png` sind die Rollenbezeichnungen ebenfalls zu klein. Der Kontrast reicht teilweise aus, aber die Kombination aus Mini-Pixelschrift, geringer Höhe und großzügiger Laufweite erschwert die schnelle Erfassung. Die Rolle sollte mindestens ungefähr drei Viertel der sichtbaren Namenshöhe erreichen.
-
-In `dialog_marina.png` und `dialog_igor.png` musste ich den Textanfang erneut lesen, um Regieanweisung und Rede zu trennen. Sternchen allein sind bei gleicher Schrift, Farbe und Grundlinie kein ausreichend schneller visueller Code. Sekundärfarbe, Einzug und eigene Zeile sind hier die einfachste Lösung.
-
-Der kleine Schreibcursor zeigt, dass der Text noch läuft, aber ein Zustand „Text vollständig, Eingabe möglich“ ist auf keinem Bild erkennbar. Ebenso ist nicht ersichtlich, ob das X aktiv, fokussiert oder nur dekorativ ist. Eine klarere Abschlussmarke und sichtbare Fokuszustände sind erforderlich.
-
-Die oberen HUD-Beschriftungen, insbesondere „HUD · H“, sind klein und kontrastarm. Im Dialog sind sie nicht nur schwer lesbar, sondern zugleich störend genug, um als Bedienzone wahrgenommen zu werden. Das ist die ungünstigste Kombination: visuell präsent, funktional schlecht erfassbar.
-
----
+- In `dialog_katja.png` musste ich bei „Katja Orlova“, „Feld-Operateurin“ und dem Schließen-„X“ zweimal hinsehen: Weiß auf hellem Beige ist klar zu kontrastarm. Dunkle Tinte ist dort zwingend.
+- Die Funktionszeilen in allen sechs Screens sind gegenüber den Namen sehr klein und durch die Pixelschrift zusätzlich kleinteilig. Sie sollten ungefähr ein Viertel größer werden oder mindestens dieselbe sichtbare Strichstärke wie der Fließtext erhalten.
+- Der Fließtext auf Creme ist kontrastreich genug, besitzt aber eine potenziell viel zu lange Zeile. Eine feste Lesespalte von etwa 65–75 Zeichen verhindert, dass vollständige Dialoge später über fast die gesamte Bildschirmbreite laufen.
+- In `dialog_alexei.png`, `dialog_marina.png`, `dialog_katja.png` und `dialog_igor.png` stehen Regieanweisung und wörtliche Rede in derselben Schrift, Farbe und Zeile. Die Sternchen reichen als Unterscheidung nicht; Regieanweisungen sollten eine eigene Zeile, Sekundärtinte und etwas mehr Abstand zur Rede erhalten.
+- Der Typewriter-Cursor direkt hinter Wortfragmenten sieht in allen Screens wie ein zusätzliches Zeichen oder ein Darstellungsfehler aus. Er sollte schmaler sein, blinken und nach Abschluss der Zeile verschwinden beziehungsweise durch einen eindeutigen Weiter-Indikator ersetzt werden.
+- Das „X“ ist in allen DialogBoxen klein, weit vom Text entfernt und ohne sichtbaren Buttonrahmen. Seine grafische Zielgröße sollte mindestens der Höhe des ID-Porträts entsprechen, auch wenn das eigentliche X kleiner bleibt.
+- `› HUD · H` oben rechts ist auf allen sechs Screens sehr klein und kryptisch. Im Dialogzustand ist es weder wichtig noch gut lesbar und sollte deshalb stärker zurückgenommen werden.
 
 ## 6. **Die drei wirksamsten Änderungen**
 
-1. **Dialogmodus-Scrim für Raum und oberes HUD einführen** — eine globale Abdunklung beziehungsweise Entsättigung ist technisch vergleichsweise billig und korrigiert auf allen sechs Screens sofort die falsche Blickführung durch Karten, Monitore, Bild, Lampe und Uhr.
-2. **DialogBox als einheitliche Papierkomponente neu rastern** — dunkler lesbarer Sprecherkopf, gemeinsame linke Textkante, größere Rollenbezeichnung und materieller Aktenrand beheben besonders `dialog_katja.png` und bringen die sichtbare UI in Einklang mit `desinformation-network/src/story-mode/theme.ts`.
-3. **Alle Hauptporträts um 20–30 Prozent vergrößern und auf eine feste Gesichtslinie setzen** — diese reine Skalierungs- und Positionierungsänderung macht Mimik endlich zum Hauptmotiv, ohne die Raumassets neu bauen zu müssen.
-
----
+1. **Raum und HUD im Dialogzustand einheitlich abdunkeln, statt nur den Boden schwarz auslaufen zu lassen** — eine gemeinsame Overlay-/Vignettenregel ist technisch günstig und lenkt in allen sechs Screens sofort auf Gesicht und Text.
+2. **DialogBox auf ein echtes Papier-/Aktenraster umstellen: Text unter dem Namen, kürzere Lesespalte, dunkle Katja-Tinte und Farbflächen nur als Reiter/Kopfband** — behebt mit einer Komponentenänderung Hierarchie, Lesbarkeit und den Behördenstil zugleich.
+3. **Ein gemeinsames Charakter-Framing festlegen und zuerst Volkov in `direktor_intro.png` korrigieren** — gleiche Kopfgröße, Augenhöhe, Konturstärke und rechte Einrückung beseitigen den größten sichtbaren Produktionsbruch zwischen den Screens.
 
 ## 7. **Blinde Flecken**
 
-- In `direktor_intro.png`, `dialog_alexei.png`, `dialog_marina.png`, `dialog_katja.png`, `dialog_direktor.png` und `dialog_igor.png` läuft der Text noch. Deshalb sind endgültiger Umbruch, maximale Textmenge, Pagination und der Zustand nach Abschluss des Tippens nicht beurteilbar.
-- Es ist nicht erkennbar, ob Porträts während des Sprechens blinzeln, die Mimik wechseln oder weich ein- und ausgeblendet werden. Dafür wären Bildfolgen derselben Dialogzeile nötig.
-- Hover-, Tastaturfokus-, Gamepad-Fokus- und gedrückte Zustände des Schließen-X sowie der oberen HUD-Elemente fehlen.
-- Nicht sichtbar ist, ob der Dialog die Zeit anhält und ob Uhr beziehungsweise HUD währenddessen bedienrelevant bleiben. Davon hängt ab, ob sie ausgeblendet oder nur gedämpft werden sollten.
-- Alle Aufnahmen liegen in derselben Bildschirmgröße vor. Für die Beurteilung von Textskalierung, Porträtbeschnitt und Seitenabständen fehlen kleinere 16:9-Auflösungen sowie eine höhere Auflösung mit UI-Skalierung.
-- Für die Assetkonsistenz wären mehrere Mimiken jedes Charakters nötig; aus je einem Zustand lässt sich nicht erkennen, ob Konturfarbe, Kopfgröße und Pixelraster innerhalb der jeweiligen Porträtserie stabil bleiben.
+- Die Screens zeigen laufende Typewriter-Zustände, aber keinen vollständig gesetzten Dialog mit drei oder mehr Zeilen. Dafür wäre je ein Screenshot nach Abschluss der Textanimation nötig, um Umbruch, maximale Textmenge und Dokumenthöhe belastbar zu beurteilen.
+- Nicht erkennbar ist, ob das „X“ Hover-, Fokus- oder Tastaturzustände besitzt und wie groß seine tatsächliche Klickfläche ist. Dafür werden Maus-Hover-, Tastaturfokus- und gedrückte Zustände benötigt.
+- Es ist kein eindeutiger Weiter-/Bestätigungszustand sichtbar. Ein Screenshot vor und nach vollständiger Textausgabe würde zeigen, ob Cursor, Weiter-Symbol und Eingabeaufforderung unterscheidbar sind.
+- Die angekündigte Mimik ist nur als Einzelbild zu sehen. Für Alexei, Marina, Katja, Volkov und Igor wären jeweils mindestens zwei Emotionszustände in identischer Szene nötig, um Sprünge bei Größe, Position und Kontur zu prüfen.
+- Nicht beurteilbar sind Figuren-Idle, Lippenbewegung, Ein-/Ausblenden der DialogBox und die Wirkung der Hintergrundabdunklung in Bewegung.
+- Für kleine Auflösungen fehlen Aufnahmen mit vollständig gefülltem Text, vergrößerter UI-Skalierung und schmalerem Seitenverhältnis. Erst dort zeigt sich, ob Sprecherkopf, Textspalte, HUD und Schließen-Schaltfläche kollidieren.
 
 ---
 

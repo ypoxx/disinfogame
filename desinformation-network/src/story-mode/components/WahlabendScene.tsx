@@ -14,7 +14,8 @@
  * schaltet per onComplete weiter; ein „Weiter"-Klick überspringt jederzeit.
  */
 import { useEffect, useState } from 'react';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, stampCtaStyle, stampCtaClass } from '../theme';
+import { zahlDe, deltaDe } from '../zahlen';
 
 export type WahlabendBranch = 'victory' | 'timeout' | 'immune' | 'exposed';
 
@@ -46,11 +47,14 @@ function TvSet({
   anchorLine,
   children,
   stamp,
+  reservierterRandPx = 110,
 }: {
   studio: 'wahlstudio' | 'sondersendung';
   anchorLine: string;
   children?: React.ReactNode;
   stamp?: string;
+  /** Platz, den der Rest der Szene unter dem Gerät braucht. */
+  reservierterRandPx?: number;
 }): React.JSX.Element {
   const bg = studio === 'sondersendung'
     ? 'linear-gradient(180deg, #2a0d0d 0%, #140707 100%)'
@@ -58,7 +62,12 @@ function TvSet({
   return (
     <div
       style={{
-        position: 'relative', width: 'min(92vw, 720px)', aspectRatio: '4 / 3',
+        position: 'relative',
+        // Das Gerät ist 4:3 — im letzten Schritt kommen Nachsatz, Wohnzimmer und
+        // Knopf darunter. Ohne Deckel lief die Szene über 720 px Fensterhöhe
+        // hinaus und schnitt dem Fernseher die Oberkante ab.
+        width: `min(92vw, 720px, calc((100vh - ${reservierterRandPx}px) * 4 / 3))`,
+        aspectRatio: '4 / 3',
         background: bg, border: `4px solid ${StoryModeColors.border}`,
         boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.05), inset 0 -3px 0 rgba(0,0,0,0.5), 0 0 0 6px #050507',
         imageRendering: 'pixelated', overflow: 'hidden', color: '#fff',
@@ -70,6 +79,15 @@ function TvSet({
         position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.14,
         backgroundImage: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.6) 0 1px, transparent 1px 3px)',
       }} />
+      {/* Sender-Kennung links oben — das Gegenstück zum LIVE-Punkt. Ohne sie
+          stand die obere Hälfte des Schirms komplett leer. */}
+      <div style={{
+        position: 'absolute', top: 10, left: 14, fontSize: 10, letterSpacing: 2,
+        color: studio === 'sondersendung' ? '#C89A9A' : '#A89878',
+      }}>
+        WAHLABEND · WESTUNION
+      </div>
+
       {/* ON AIR */}
       <div style={{
         position: 'absolute', top: 10, right: 12, fontSize: 10, letterSpacing: 2, fontWeight: 900,
@@ -87,9 +105,10 @@ function TvSet({
       {/* GEFÄLSCHT-Stempel (Faktencheck-Ebene) */}
       {stamp && (
         <div style={{
-          position: 'absolute', top: '38%', left: '50%', transform: 'translate(-50%,-50%) rotate(-11deg)',
+          // Auf 38 % lag der Stempel über der Überschrift statt über den Belegen.
+          position: 'absolute', top: '54%', left: '50%', transform: 'translate(-50%,-50%) rotate(-11deg)',
           border: `4px solid ${StoryModeColors.danger}`, color: StoryModeColors.danger,
-          padding: '4px 16px', fontSize: 30, fontWeight: 900, letterSpacing: 4, opacity: 0.92,
+          padding: '4px 16px', fontSize: 32, fontWeight: 900, letterSpacing: 4, opacity: 0.92,
           textTransform: 'uppercase', background: 'rgba(20,7,7,0.25)',
         }}>
           {stamp}
@@ -100,7 +119,7 @@ function TvSet({
       <div style={{
         position: 'absolute', left: 0, right: 0, bottom: 0, padding: '8px 14px',
         background: 'rgba(5,7,12,0.82)', borderTop: `2px solid ${StoryModeColors.border}`,
-        fontFamily: "'VT323', monospace", fontSize: 15, minHeight: 44, display: 'flex', alignItems: 'center', gap: 10,
+        fontFamily: "'VT323', monospace", fontSize: 16, minHeight: 44, display: 'flex', alignItems: 'center', gap: 10,
       }}>
         <span style={{ fontSize: 10, letterSpacing: 1, color: StoryModeColors.warning, fontWeight: 900 }}>WESTUNION TV</span>
         <span>{anchorLine}</span>
@@ -111,9 +130,13 @@ function TvSet({
 
 /** Umfrage-/Hochrechnungs-Balken: die Sonntagsfrage kippt (oder nicht) über die Schwelle. */
 function HochrechnungBar({
-  partyName, pct, thresholdPct, crosses,
-}: { partyName: string; pct: number; thresholdPct: number; crosses: boolean }): React.JSX.Element {
+  partyName, pct, startPct, thresholdPct, crosses, zeigeUrteil,
+}: {
+  partyName: string; pct: number; startPct: number;
+  thresholdPct: number; crosses: boolean; zeigeUrteil: boolean;
+}): React.JSX.Element {
   // Skala bis knapp über die relevante Marke, damit die Schwelle nicht am Rand klebt.
+  const delta = pct - startPct;
   const scaleMax = Math.max(pct, thresholdPct) + 8;
   const barPct = Math.min(100, (pct / scaleMax) * 100);
   const linePct = Math.min(100, (thresholdPct / scaleMax) * 100);
@@ -121,7 +144,7 @@ function HochrechnungBar({
     <div style={{ width: '100%', maxWidth: 480, margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
         <span style={{ fontWeight: 900, color: StoryModeColors.ministryRed }}>{partyName}</span>
-        <span style={{ fontFamily: "'VT323', monospace" }}>{pct.toFixed(1)} %</span>
+        <span style={{ fontFamily: "'VT323', monospace" }}>{zahlDe(pct)} %</span>
       </div>
       <div style={{ position: 'relative', height: 26, background: 'rgba(255,255,255,0.08)', border: `2px solid ${StoryModeColors.border}` }}>
         <div style={{
@@ -131,10 +154,34 @@ function HochrechnungBar({
         }} />
         {/* Machtwechsel-Schwelle */}
         <div style={{ position: 'absolute', top: -4, bottom: -4, left: `${linePct}%`, width: 2, background: StoryModeColors.warning }} />
-        <div style={{ position: 'absolute', top: -18, left: `calc(${linePct}% - 30px)`, fontSize: 9, letterSpacing: 1, color: StoryModeColors.warning }}>
+        <div style={{ position: 'absolute', top: -18, left: `calc(${linePct}% - 30px)`, fontSize: 10, letterSpacing: 1, color: StoryModeColors.warning }}>
           SCHWELLE
         </div>
       </div>
+
+      {/* Die Zahlen, die der Spieler sich erarbeitet hat. Vorher stand auf dem
+          Schirm nur EIN Prozentwert — der Abend zeigte nicht, was die Kampagne
+          bewegt hat, und die Schwelle war eine namenlose Linie. */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginTop: 14, fontSize: 12, color: '#C8BC9E' }}>
+        <span>
+          vorher {zahlDe(startPct)} % · jetzt {zahlDe(pct)} %
+          <span style={{ color: delta >= 0 ? StoryModeColors.ministryRed : '#8fa07a', fontWeight: 900 }}>
+            {' '}({deltaDe(delta)})
+          </span>
+        </span>
+        <span style={{ color: '#A89878' }}>Machtwechsel ab {zahlDe(thresholdPct)} %</span>
+      </div>
+
+      {zeigeUrteil && (
+        <div style={{
+          marginTop: 16, textAlign: 'center', fontSize: 16, fontWeight: 900, letterSpacing: 2,
+          color: crosses ? StoryModeColors.ministryRed : '#8fa07a',
+          border: `2px solid ${crosses ? StoryModeColors.ministryRed : '#8fa07a'}`,
+          padding: '6px 0', animation: 'wa-rise 600ms ease-out',
+        }}>
+          {crosses ? 'ÜBER DER SCHWELLE' : 'UNTER DER SCHWELLE'}
+        </div>
+      )}
     </div>
   );
 }
@@ -191,6 +238,7 @@ export function WahlabendScene({
         </div>
       ) : (
         <TvSet
+          reservierterRandPx={step >= LAST_STEP ? 330 : 110}
           studio={sondersendung ? 'sondersendung' : 'wahlstudio'}
           stamp={sondersendung && step >= 2 ? 'GEFÄLSCHT' : undefined}
           anchorLine={
@@ -199,7 +247,12 @@ export function WahlabendScene({
                   ? (branch === 'exposed'
                       ? 'Die Ermittler haben das Netzwerk aufgedeckt — wir zeigen die Belege.'
                       : 'Faktenchecker erklären die Kampagne — Masche für Masche.')
-                  : 'Wir unterbrechen das Programm für eine Sondersendung.')
+                  // Schritt 1 war für beide Zweige wortgleich: Die Ernte lieferte
+                  // zwei BITGLEICHE Aufnahmen, und der Spieler erfuhr erst im
+                  // letzten Bild, ob man SEINE Inhalte oder IHN gefunden hat.
+                  : (branch === 'exposed'
+                      ? 'Wir unterbrechen das Programm — die Ermittler melden einen Zugriff.'
+                      : 'Wir unterbrechen das Programm für eine Sondersendung.'))
               : (step >= 2
                   ? (won
                       ? 'Damit ist klar — die Regierung ist abgewählt.'
@@ -210,7 +263,7 @@ export function WahlabendScene({
           {sondersendung ? (
             <div style={{ animation: 'wa-rise 500ms ease-out' }}>
               <div style={{ fontSize: 12, letterSpacing: 2, color: StoryModeColors.danger, marginBottom: 10, fontWeight: 900 }}>
-                IHRE SCHLAGZEILEN — GEPRÜFT
+                {branch === 'exposed' ? 'IHRE SCHLAGZEILEN — ZURÜCKVERFOLGT' : 'IHRE SCHLAGZEILEN — GEPRÜFT'}
               </div>
               {(playerHeadlines.length ? playerHeadlines : ['Ihre Kampagne']).slice(0, 4).map((h, i) => (
                 <div key={i} style={{
@@ -223,7 +276,14 @@ export function WahlabendScene({
               ))}
             </div>
           ) : (
-            <HochrechnungBar partyName={partyName} pct={shownPct} thresholdPct={thresholdPct} crosses={won && step >= 2} />
+            <HochrechnungBar
+              partyName={partyName}
+              pct={shownPct}
+              startPct={startPollPct}
+              thresholdPct={thresholdPct}
+              crosses={won && step >= 2}
+              zeigeUrteil={step >= 2}
+            />
           )}
         </TvSet>
       )}
@@ -250,11 +310,8 @@ export function WahlabendScene({
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); onComplete(); }}
-            style={{
-              marginTop: 14, padding: '10px 22px', cursor: 'pointer',
-              background: StoryModeColors.ministryRed, border: `3px solid ${StoryModeColors.darkRed}`,
-              color: '#fff', fontWeight: 900, letterSpacing: 2, fontSize: 14,
-            }}
+            className={stampCtaClass}
+            style={{ ...stampCtaStyle, marginTop: 14, padding: '10px 22px', fontSize: 14 }}
           >
             WEITER ▸
           </button>

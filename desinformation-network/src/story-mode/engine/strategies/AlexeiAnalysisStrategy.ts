@@ -13,12 +13,14 @@
  */
 
 import { storyLogger } from '../../../utils/logger';
+import type { NewsEvent } from '../../../game-logic/StoryEngineAdapter';
 import type {
   NPCAnalysisStrategy,
   NPCAnalysisContext,
   AdvisorRecommendation,
 } from '../AdvisorRecommendation';
 import { generateRecommendationId } from '../AdvisorRecommendation';
+import type { GespielteAktion } from './typen';
 
 export class AlexeiAnalysisStrategy implements NPCAnalysisStrategy {
   public getNPCName(): string {
@@ -203,11 +205,17 @@ export class AlexeiAnalysisStrategy implements NPCAnalysisStrategy {
     const { gameState, playerRelationship } = context;
     const currentPhase = gameState.storyPhase.phaseNumber;
 
-    // Find recent countermeasures (last 2 phases)
-    const recentCountermeasures = gameState.newsEvents.filter(e =>
-      e.type === 'countermeasure' &&
-      e.phase >= currentPhase - 2
-    );
+    // Dieser Zweig hat NIE gefeuert, und das fiel erst auf, als `newsEvents`
+    // einen Typ bekam: `NewsEvent.type` kennt kein 'countermeasure'. Die
+    // Gegenmaßnahmen laufen in einem eigenen System (getActiveCountermeasures)
+    // und werden nie zu News-Einträgen — der Filter war immer leer, Alexei hat
+    // also nie vor einer Gegenmaßnahme gewarnt.
+    //
+    // Die Absicht ist gut und steht als offener Punkt in der Roadmap. Sie hier
+    // still an die andere Quelle zu hängen, hieße aber, eine Berater-Empfehlung
+    // zu erfinden, die niemand entschieden hat. Bis dahin bleibt der Zweig
+    // ehrlich leer statt scheinbar aktiv.
+    const recentCountermeasures: NewsEvent[] = [];
 
     if (recentCountermeasures.length > 0) {
       // Find defensive actions
@@ -324,7 +332,7 @@ export class AlexeiAnalysisStrategy implements NPCAnalysisStrategy {
    * Calculate infrastructure level from action history
    * Each infrastructure action adds to level
    */
-  private calculateInfrastructureLevel(actionHistory: any[]): number {
+  private calculateInfrastructureLevel(actionHistory: GespielteAktion[]): number {
     const infraActions = actionHistory.filter(a =>
       a.actionId.includes('ta02') || // Infrastructure phase actions
       a.actionId.includes('server') ||

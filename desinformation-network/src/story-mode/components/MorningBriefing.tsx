@@ -29,6 +29,8 @@ interface MorningBriefingProps {
   spurHinweis?: string;
   /** Maschen im Sendeplan, aber die Zielgruppen-Analyse wurde diese Sitzung nie geöffnet. */
   pendingUntested?: boolean;
+  /** Breite der offenen Seitenspalte — der Streifen endet an ihrer Kante. */
+  rechtsVersatzPx?: number;
   onDone: () => void;
 }
 
@@ -145,7 +147,7 @@ export function deriveBriefingHint(s: BriefingState): BriefingHint {
   };
 }
 
-export function MorningBriefing({ phase, risk, trustProgress, budget, attention, auftragTitel, beatHook, spurHinweis, pendingUntested, onDone }: MorningBriefingProps) {
+export function MorningBriefing({ phase, risk, trustProgress, budget, attention, auftragTitel, beatHook, spurHinweis, pendingUntested, rechtsVersatzPx = 0, onDone }: MorningBriefingProps) {
   const assets = useAssets();
   // T2/#7: Tag 1 bekommt eine eigene, gerichtete Eröffnung (statt der laufenden
   // Lage-Logik): sie erklärt die Kern-Schleife und verweist auf EINE klare Anlaufstelle.
@@ -184,8 +186,11 @@ export function MorningBriefing({ phase, risk, trustProgress, budget, attention,
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-50 animate-slide-up cursor-pointer"
+      className="fixed bottom-0 left-0 z-50 animate-slide-up cursor-pointer"
       style={{
+        // Nicht `right-0`: Der Streifen lief sonst unter der offenen Seitenspalte
+        // durch und schnitt ihr die letzte Zeile ab.
+        right: rechtsVersatzPx,
         background: `linear-gradient(to top, ${StoryModeColors.background}f0, transparent)`,
         paddingTop: '40px',
       }}

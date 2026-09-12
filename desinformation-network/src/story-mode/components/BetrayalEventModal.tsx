@@ -1,4 +1,4 @@
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, scrim } from '../theme';
 import type { BetrayalEvent } from '../engine/BetrayalSystem';
 import { PixelFrame } from './PixelFrame';
 import { Icon } from './Icon';
@@ -65,7 +65,7 @@ export function BetrayalEventModal({
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-[60]"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.95)' }}
+      style={{ backgroundColor: scrim('schwer') }}
     >
       <PixelFrame
         variant="alarm"

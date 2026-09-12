@@ -1,7 +1,7 @@
 # 🛰️ Fremdmodell-Review — UX/UI & Bildwirkung — Bündel „panels-1von2"
 
 **Modell:** `gpt-5.6-sol` (via OpenRouter) · **Linse:** `ui` · **Datum:** 2026-08-22
-**Erzeugt von:** `tools/model-review` · **Lauf:** 2026-08-22T17:19:07.670Z · **Dauer:** 141.0 s
+**Erzeugt von:** `tools/model-review` · **Lauf:** 2026-08-22T17:09:26.285Z · **Dauer:** 245.0 s
 **Nutzung:** nicht gemeldet · **Kosten:** unbekannt · **Anbieter-Datensammlung:** ausgeschlossen (deny)
 
 > ⚠️ **Wie das zu lesen ist:** Ein *fremdes* Modell hat einen **kuratierten Ausschnitt**
@@ -45,10 +45,10 @@ eigenen Durchgängen dran — verweise nicht auf Dinge, die du hier nicht siehst
 | 🖼 Bild | `floor_directory.png` | `desinformation-network/runs/visual-review/latest/shots/floor_directory.png` | 516 kB |
 | 🖼 Bild | `terminal_vorgaenge.png` | `desinformation-network/runs/visual-review/latest/shots/terminal_vorgaenge.png` | 185 kB |
 | 🖼 Bild | `terminal_archiv.png` | `desinformation-network/runs/visual-review/latest/shots/terminal_archiv.png` | 192 kB |
-| 🖼 Bild | `panel_news.png` | `desinformation-network/runs/visual-review/latest/shots/panel_news.png` | 319 kB |
-| 🖼 Bild | `panel_stats.png` | `desinformation-network/runs/visual-review/latest/shots/panel_stats.png` | 334 kB |
-| 🖼 Bild | `panel_npcs.png` | `desinformation-network/runs/visual-review/latest/shots/panel_npcs.png` | 331 kB |
-| 🖼 Bild | `panel_mission.png` | `desinformation-network/runs/visual-review/latest/shots/panel_mission.png` | 354 kB |
+| 🖼 Bild | `panel_news.png` | `desinformation-network/runs/visual-review/latest/shots/panel_news.png` | 634 kB |
+| 🖼 Bild | `panel_stats.png` | `desinformation-network/runs/visual-review/latest/shots/panel_stats.png` | 661 kB |
+| 🖼 Bild | `panel_npcs.png` | `desinformation-network/runs/visual-review/latest/shots/panel_npcs.png` | 659 kB |
+| 🖼 Bild | `panel_mission.png` | `desinformation-network/runs/visual-review/latest/shots/panel_mission.png` | 694 kB |
 
 ---
 
@@ -57,25 +57,25 @@ eigenen Durchgängen dran — verweise nicht auf Dinge, die du hier nicht siehst
 ## 1. **Erster Eindruck**
 
 ### `floor_directory.png`
-Zuerst fällt die große helle Papierfläche auf, danach der Titel „GEBÄUDE – ETAGEN“; die aktuell ausgewählte Etage wird erst deutlich später erkannt. Der Blick sollte nach dem Titel unmittelbar auf den aktuellen Standort und die verfügbaren Ziele gehen. Das gelingt nicht, weil Zeile 7 nur durch einen blassen Flächenton und einen schmalen roten Strich markiert ist. Die Etagenüberschriften sind typografisch kaum stärker als Hilfs- und Metatext, obwohl sie die Liste strukturieren sollen. Der abgedunkelte Gebäudehintergrund funktioniert als Kontext, konkurriert aber rechts noch mit den sichtbaren Tastenkacheln und oben mit der Uhr.
+Der Blick landet zuerst auf dem breiten Kopfband „GEBÄUDE – ETAGEN“, danach auf der hell hinterlegten Zeile 7. Eigentlich sollte zuerst die aktuell gewählte Zielzeile auffallen; dafür ist deren graue Fläche zu ähnlich zum restlichen Papier und der rote Rand zu schmal. Die oben rechts außerhalb des Fensters sichtbare Uhr bleibt trotz Abdunklung überraschend präsent und konkurriert mit dem Tableau. Die Gliederung nach Etagen ist verständlich, aber die kleinen Etagenüberschriften gehen zwischen den größeren Zielzeilen unter. Am unteren Ende wirkt „KELLER – GEHEIMOPERATIONEN“ verwaist, weil darunter kein Eintrag mehr sichtbar ist.
 
 ### `terminal_vorgaenge.png`
-Das Auge landet zuerst auf den grellgelben Kartenrahmen und der horizontalen Linienstruktur, nicht auf Vorgangstiteln oder Kosten. Die eigentliche Entscheidung sollte von Vorgangstitel über Wirkung und Preis zu „AUSFÜHREN“ geführt werden. Stattdessen erzeugen gleich starke Rahmen, Texturen, Unterkästen und Buttons ein beinahe gleichförmiges Raster ohne klaren Schwerpunkt. Der grüne CRT-Rahmen wirkt wie eine andere Oberfläche als die angekündigte Behörden-/Papierwelt. Die unten angeschnittene zweite Kartenreihe signalisiert zwar Scrollinhalt, sieht ohne Scrollleiste oder Verlauf aber eher wie ein Layoutfehler aus.
+Das Auge trifft zuerst auf die gelben Kartenrahmen und das horizontale Linienmuster, nicht auf Titel, Kosten oder Wirkung der Vorgänge. Für eine Auswahlansicht müssten Vorgangstitel, Konsequenz und Preis in dieser Reihenfolge erfassbar sein; derzeit werden alle Informationen durch nahezu gleich starke Kästen nivelliert. „HEUTE RELEVANT“ ist als kuratorische Leitinformation zu klein und zu weit vom Karteninhalt entfernt. Die beiden sichtbaren Karten sind sehr hoch, obwohl ein großer Teil ihrer Fläche aus Rahmen, Trennlinien und wiederholten Statuszeilen besteht. Die angeschnittene nächste Kartenreihe signalisiert Scrollbarkeit, aber weder Scrollleiste noch Positionsanzeige machen das eindeutig.
 
 ### `terminal_archiv.png`
-Der Blick springt zwischen dem hell markierten Tab „ARCHIV (88)“, den vielen Filterknöpfen, der Porträtzeile und den gelben Kartenrahmen. Sinnvoll wäre eine klare Folge aus Archivstatus, Suche, Filtern und anschließend Ergebnissen. Die beiden Filterzeilen sind dafür zu ähnlich gewichtet und visuell nicht als ein zusammenhängender Werkzeugbereich gefasst. Die Porträts tragen Identität, sind jedoch so klein und dunkel, dass Gesichter kaum schneller erfassbar sind als Namen. Auch hier dominieren Linienraster und gelbe Außenkanten stärker als Inhalt und Auswahlzustand.
+Auch hier dominieren die gelben Rahmen und die Linienstruktur, obwohl in einer Archivansicht zuerst Filter, Suche und Trefferzustand auffallen müssten. Die obere Bedienzone enthält zwei Register, vier Kategorien, ein Suchfeld und fünf Porträtfilter auf engem Raum, ohne klare Rangordnung zwischen diesen Ebenen. Der aktive Zustand von „ARCHIV“ und „ALLE“ ist zwar heller, wird aber durch dieselbe Streifenstruktur wie die Karten optisch verunreinigt. Die großen Detailkarten eignen sich schlecht zum Durchmustern eines Katalogs mit 88 Einträgen. Die angeschnittene Kartenreihe unten wirkt erneut wie ein Layoutabbruch statt wie kontrolliertes Scrollen.
 
 ### `panel_news.png`
-Zuerst zieht das rote Kopfband „Die reale Vorlage“ den Blick an, danach Option A; das eigentliche Nachrichten-Panel bleibt nur als dunkler Streifen rechts sichtbar. Für einen Screenshot des Nachrichten-Panels müsste der Blick zuerst auf „NACHRICHTEN-FEED“ und dessen Inhalt beziehungsweise Leerzustand fallen. Das ist nicht dasselbe: Der Entscheidungsdialog verdeckt den größten Teil der relevanten Oberfläche und dimmt den Rest nahezu bis zur Unlesbarkeit. Zusätzlich reicht der Dialog bis an den unteren Bildschirmrand, wo die dritte Option abgeschnitten wird. Der sichtbare Leerzustand „Keine Nachrichten vorhanden“ besitzt hinter der Abdunklung weder ausreichendes Gewicht noch eine erkennbare Handlungsrichtung.
+Zuerst fällt das rote Kopfband „NACHRICHTEN-FEED“ auf, anschließend wandert der Blick wegen der fast leeren Fläche wieder in die deutlich reichere Büroszene links. Der eigentliche Zustand „Keine Nachrichten vorhanden“ müsste der visuelle Schwerpunkt des geöffneten Panels sein, sitzt aber klein und zu weit oben. Die große leere Papierfläche vermittelt nicht „leerer Posteingang“, sondern unfertigen Inhalt. Der Zähler am unteren Rand ist räumlich vom Leerzustand abgetrennt und so klein, dass er wie eine technische Fußnote wirkt. Die schmale Buchstabenleiste links vom Panel konkurriert zusätzlich mit dem Panel, ohne ihre Funktion visuell zu erklären.
 
 ### `panel_stats.png`
-Das rote Dialogkopfband und die großen Entscheidungsoptionen dominieren vollständig; die Kampagnenstatistik ist nur rechts hinter der Abdunklung zu erahnen. Erwartet wäre als erster Anker der aktuelle Status mit Tag, verbleibender Zeit und AP. Diese Kennzahlen sind zwar sichtbar, aber durch Überlagerung und Dimmung nicht seriös auf Hierarchie oder Kontrast prüfbar. Im Dialog selbst stehen die roten Prozentwerte weit rechts und wirken von den jeweiligen Optionstiteln abgekoppelt. Die abgeschnittene dritte Option am unteren Rand erzeugt zusätzlich den Eindruck, dass eine entscheidungsrelevante Information fehlt.
+Der Blick springt direkt zu „AKTUELLER STATUS“ und den großen Zahlen, weil der eigentliche Paneltitel im dunklen Kopfband kaum lesbar ist. Innerhalb des Statuskastens stehen Tag, Resttage und AP in einer lockeren Dreiecksform; dadurch fehlt eine eindeutige Leserichtung. Der massive Budgetbalken wird danach zum stärksten Element, obwohl nicht erkennbar ist, ob seine volle Länge tatsächlich „voll“ bedeutet. Die strategisch wichtigeren „HAUPTZIELE“ beginnen erst am unteren Bildrand und sind bereits abgeschnitten. Damit führt die Ansicht von Metadaten zu Ressourcen und versteckt das eigentliche Ziel.
 
 ### `panel_npcs.png`
-Der Blick bleibt erneut am roten Dialogkopf und anschließend an den Optionen A und B hängen. Das Kontakte-Panel sollte dagegen zuerst den ausgewählten Kontakt, dessen Beziehung und Rolle zeigen. Die sichtbare NPC-Liste rechts ist zu stark abgedunkelt und besitzt weder einen erkennbaren Auswahlzustand noch ausreichend deutliche Zeilentrennung. Namen, Beziehungsstatus und Balken liegen weit auseinander, sodass sie nicht als gemeinsame Datensätze gelesen werden. Auch dieser Screenshot zeigt damit primär den blockierenden Dialog und nicht die angekündigte Kontakte-Oberfläche.
+Das Auge landet auf „Kurator Volkov“, nicht auf dem beinahe unsichtbaren Titel „KONTAKTE & NETZWERK“. Die großen Buchstabenkacheln wirken wie Platzhalter und sind schwächer als echte Porträts, obwohl Beziehungen hier das Thema sind. Namen sind gut auffindbar, aber Beziehungsstatus und Balken sitzen weit auseinander und sind zu blass, um gemeinsam gelesen zu werden. Die Büroszene links besitzt durch Cyan-Monitor und rotes Plakat mehr visuelles Gewicht als die beige Kontaktliste. Unter den fünf Zeilen bleibt fast die halbe Panelhöhe ungenutzt.
 
 ### `panel_mission.png`
-Der Entscheidungsdialog zieht den Blick vollständig auf sich; das „MISSION BRIEFING“ bleibt nur als dunkle Unterlage rechts stehen. Bei einem Auftrags-Panel müsste zuerst die Operation, dann die aktuelle Phase und anschließend das Ziel lesbar sein. Diese Hierarchie ist im sichtbaren Rest grundsätzlich angelegt, kann wegen der Abdunklung aber nicht belastbar beurteilt werden. Der Dialog stößt rechts genau an die Kante des Seiten-Panels, wodurch beide Flächen wie eine unbeabsichtigte geteilte Oberfläche wirken. Unten werden erneut Option C und damit ein Teil der Entscheidung verdeckt.
+Der Blick landet korrekt auf „OPERATION: WESTUNION“, danach konkurrieren jedoch drei ähnlich kräftig umrandete Dokumentblöcke miteinander. Der schwarze Hexagon-Platzhalter oberhalb des Titels wirkt wie ein fehlendes Emblem und nicht wie ein bewusstes Behördenzeichen. Der Bereich „AKTUELLE PHASE“ ist wichtig, aber seine blaue Kopfzeile zerfällt in zwei unterschiedlich behandelte Hälften. Die Direktive ist lesbar, erscheint durch Schriftgröße, Zeilenlänge und Volltextblock jedoch schwerer als nötig. Der angeschnittene nächste Rahmen am unteren Rand zeigt, dass wesentliche Inhalte außerhalb des sichtbaren Bereichs liegen, ohne Scrollzustand zu kommunizieren.
 
 ---
 
@@ -83,109 +83,125 @@ Der Entscheidungsdialog zieht den Blick vollständig auf sich; das „MISSION BR
 
 ### `floor_directory.png`
 
-- **Aktuelle Zeile 7 in `floor_directory.png` → Hintergrundkontrast etwa verdoppeln, roten linken Marker auf die volle Zeilenhöhe bringen und „HIER“ als rechtsbündigen Stempel innerhalb der Zeile platzieren → der aktuelle Standort muss nach dem Titel der stärkste Anker sein.**
-- **Etagenüberschriften in `floor_directory.png` → auf etwa 1,15× der jetzigen Größe setzen, semibold auszeichnen und vor jeder Überschrift ungefähr eine halbe Zeilenhöhe mehr Abstand als danach geben → die neun Ziele werden dadurch in fünf klar erkennbare Gruppen gegliedert.**
-- **Nummernkästen in `floor_directory.png` → alle auf identische Breite und Höhe bringen, vertikal mittig zum Zieltext ausrichten und den Abstand zum Text auf ungefähr eine halbe Kastenbreite vereinheitlichen → derzeit wirken Zahl und Ziel teilweise wie getrennte Spalten.**
-- **Verwaiste Kellerüberschrift in `floor_directory.png` → entweder die zugehörige Zielzeile direkt darunter sichtbar machen oder die Überschrift aus dem aktuellen Ausschnitt entfernen → eine Gruppenüberschrift unmittelbar vor der Fußleiste suggeriert abgeschnittenen Inhalt.**
-- **Fußzeile in `floor_directory.png` → Schrift um etwa ein Viertel vergrößern, einzelne Tasten als kompakte Keycaps setzen und links an der Inhaltskante der Liste ausrichten → die Bedienhilfe ist derzeit zu klein und zu gleichförmig für schnelles Erfassen.**
+- Aktuelle Zielzeile in `floor_directory.png` → roten Strich auf etwa die doppelte Stärke erhöhen, die gesamte Zeile leicht heller machen und rechts einen kompakten „AKTUELL“-Stempel setzen → der momentane Ort beziehungsweise die Wahl wird vor dem Kopfband erfasst.
+- Auswahl und aktueller Ort in `floor_directory.png` → zwei getrennte Zustände verwenden: Rotstempel für „hier“, tintenblaue Kontur oder Pfeil für die Tastaturauswahl → bei bewegter Auswahl dürfen Standort und Cursor nicht gleich aussehen.
+- Etagenüberschriften in `floor_directory.png` → Kontrast erhöhen, jeweils enger an den ersten zugehörigen Eintrag rücken und den Abstand zur vorherigen Gruppe auf ungefähr das Doppelte des inneren Zeilenabstands setzen → die Gruppen werden als Einheiten statt als lose Zwischenzeilen gelesen.
+- Unteres Listenende in `floor_directory.png` → vertikale Leerabstände um etwa ein Sechstel reduzieren oder den Inhaltsbereich geringfügig verlängern, bis unter „KELLER – GEHEIMOPERATIONEN“ mindestens der zugehörige Zustand sichtbar ist → die verwaiste Überschrift wirkt derzeit abgeschnitten.
+- Hinweisleiste in `floor_directory.png` → Schrift um etwa ein Viertel vergrößern, Tastennamen als kleine umrandete Tasten darstellen und links mit den Zieltexten darüber ausrichten → die Bedienhilfe ist momentan nur nach konzentriertem Hinsehen lesbar.
+- Hintergrundabdunklung in `floor_directory.png` → Uhr, rechte Leiste und unteres HUD ebenso stark dimmen wie das Gebäude → das Tableau soll als modaler Fokus ohne helle Restinseln funktionieren.
 
 ### `terminal_vorgaenge.png`
 
-- **Terminalrahmen in `terminal_vorgaenge.png` → grünes Phosphor auf dunkles Kraftpapier mit `agencyBlue` beziehungsweise `tech` als Tintenakzent umstellen; Grün nur noch für einen bestätigten Systemzustand verwenden → die Aufnahme widerspricht der verbindlichen Papierwelt aus `desinformation-network/src/story-mode/theme.ts`.**
-- **Gelbe Kartenrahmen in `terminal_vorgaenge.png` → durch den braunen `border`-Ton ersetzen und Warn-Gelb nur an Risiko- oder Frischehinweisen einsetzen → momentan ist jede Karte permanent als Warnung markiert und überstrahlt ihre Inhalte.**
-- **Linienstruktur auf den Vorgangsblättern in `terminal_vorgaenge.png` → Deckkraft stark reduzieren oder nur in freien Papierbereichen zeigen, nicht direkt hinter Fließtext und Buttons → die eng stehenden Linien schneiden durch Buchstaben und verlangsamen das Lesen.**
-- **Kartenkopf in `terminal_vorgaenge.png` → Titel über die volle Breite, Rechtsstatus direkt darunter und Kosten/Wirkung in einer einzigen rechtsbündigen Kennzahlenzeile anordnen → Titel, Legalität und Werte konkurrieren derzeit auf mehreren horizontalen Ebenen.**
-- **Wirkungsblock in `terminal_vorgaenge.png` → auf die obere Kartenhälfte verkürzen, Frische-Stempel als einheitliche Chips in maximal zwei Zeilen setzen und Risiko/NPC-Bonus darunter auf eine gemeinsame Basislinie stellen → der wichtigste Vergleichsbereich ist momentan zu zerfasert.**
-- **Unterer Anschnitt in `terminal_vorgaenge.png` → entweder eine komplette Kartenreihe zeigen und die nächste mit einem klaren Papierregister beziehungsweise Scrollindikator ankündigen oder die Kartenhöhe so reduzieren, dass zwei Reihen vollständig sichtbar sind → die abgeschnittenen Titel wirken aktuell wie ein Renderingfehler.**
+- Papierflächen in `terminal_vorgaenge.png` → horizontales Linienmuster vollständig aus den Kartenkörpern entfernen und höchstens sehr schwach im dunklen Terminalrahmen belassen → das Muster schneidet durch Buchstaben und ist der größte Lesbarkeitsfehler.
+- Kartenrahmen in `terminal_vorgaenge.png` → grelles Gelb durch den dunklen Papier-Randton aus `desinformation-network/src/story-mode/theme.ts` ersetzen; Gelb nur an tatsächlichen Warnungen verwenden → aktuell sieht jeder Vorgang wie ein Alarmzustand aus.
+- Kartenkopf in `terminal_vorgaenge.png` → Titel links oben um etwa ein Drittel vergrößern, Legalitätsstatus direkt rechts daneben als Stempel setzen und Kostenchips auf eine gemeinsame rechte Kante bringen → Titel, Risiko und Preis werden in einem Blick erfassbar.
+- Wirkungsblock in `terminal_vorgaenge.png` → verschachtelten Innenrahmen entfernen und Wirkung, Wäsche sowie betroffene Gruppen als drei klar getrennte Zeilen mit jeweils einer Einrückung darstellen → die mehrfachen Kästen erzeugen administrative Unruhe statt Aktenhierarchie.
+- Aktionsleiste in `terminal_vorgaenge.png` → Primäraktion als Papierknopf mit rotem Stempelring gemäß `stampCtaStyle` ausführen, „Anheften“ als kleinere Sekundäraktion daneben setzen → der große grüne Balken widerspricht der Behörden-/Papierwelt und übergewichtet die Aktion.
+- Scrollzustand in `terminal_vorgaenge.png` → an der rechten Innenkante eine sichtbare, schmale Positionsleiste ergänzen und zwischen erster und zweiter Kartenreihe einen vollständigen Gruppenspalt zeigen → die angeschnittenen Karten wirken sonst wie ein Renderingfehler.
 
 ### `terminal_archiv.png`
 
-- **Werkzeugbereich in `terminal_archiv.png` → Tabzeile, Statusfilter und Suche in eine gemeinsame obere Zeile setzen; die Suche auf ungefähr die Hälfte der verfügbaren Breite legen und rechts an der Kartenkante ausrichten → aktuell verteilen sich gleich wichtige Bedienelemente ohne klare Reihenfolge über zwei Ebenen.**
-- **Zuträgerfilter in `terminal_archiv.png` → als zweite, optisch eingerückte Filterzeile unter „ALLE/LEGAL/GRAUZONE/ILLEGAL/NEU“ setzen und links exakt mit dem ersten Filter beginnen → das Label „ZUTRÄGER“ und die Chips bilden momentan kein sauberes Unterraster.**
-- **Porträtchips in `terminal_archiv.png` → Bildflächen auf etwa 1,5× vergrößern, Gesichter enger zuschneiden und Namen in gleich breiten Chips ausrichten → die Porträts sind derzeit zu klein und dunkel, um als visuelle Filter zu funktionieren.**
-- **Aktiver Archiv-Tab in `terminal_archiv.png` → statt der hellgrünen Vollfläche eine helle Papierlasche mit dunkler Tinte und farbiger Unterkante verwenden → der Auswahlzustand bleibt klar, ohne zum hellsten Element der gesamten Oberfläche zu werden.**
-- **Ergebniskarten in `terminal_archiv.png` → gelbe Rahmen und Scanlines wie in `terminal_vorgaenge.png` zurücknehmen; Karten durch Papierabstand und eine einfache braune Kontur trennen → das Archiv soll wie ein Katalog, nicht wie vier gleichzeitig aktive Alarme wirken.**
-- **Unterer Ergebnisanschnitt in `terminal_archiv.png` → eine sichtbare Scrollleiste oder einen klaren unteren Verlauf innerhalb des Ergebnisbereichs ergänzen und mindestens den nächsten Kartentitel vollständig zeigen → der schmale Papierstreifen am unteren Rand vermittelt keine brauchbare Scrollposition.**
+- Filterzone in `terminal_archiv.png` → Register, Kategorien und Suche auf drei klar getrennte Zeilen verteilen: Register oben, Kategorien plus Trefferzahl darunter, Suche über die volle Restbreite rechts → die Bedienebenen sind derzeit zu eng ineinandergeschoben.
+- Aktive Filter in `terminal_archiv.png` → aktive Zustände als vollflächige Papierlasche mit dunkler Tinte darstellen, inaktive nur umrandet; keine Schraffur verwenden → „ARCHIV“ und „ALLE“ müssen ohne Textvergleich erkennbar sein.
+- Porträtfilter in `terminal_archiv.png` → Porträts auf etwa die anderthalbfache Kantenlänge bringen, nur in ganzzahligen Pixelstufen skalieren und aktive Personen mit blauem Aktenrand markieren → Gesichter sind derzeit zu klein und weich, um als schnelle Filter zu funktionieren.
+- Archivkarten in `terminal_archiv.png` → Standardansicht um rund ein Drittel verdichten: Titel, Legalität, Kosten, eine Wirkungszeile und Frische anzeigen; Detailblock erst für die gewählte Karte öffnen → 88 Vorgänge lassen sich mit den aktuellen Vollakten nicht effizient durchsuchen.
+- Suchfeld in `terminal_archiv.png` → Suchsymbol beziehungsweise klare Anfangskante ergänzen, Eingabetext stärker vom Platzhalter abheben und Feldhöhe an die Kategorienknöpfe angleichen → das Feld wirkt momentan wie eine weitere dunkle Trennlinie.
+- Trefferbereich in `terminal_archiv.png` → Trefferzahl direkt über den Karten links und sichtbare Scrollposition rechts platzieren → der Zusammenhang zwischen Filtern und Katalog fehlt.
 
 ### `panel_news.png`
 
-- **Überlagerungszustand in `panel_news.png` → Nachrichten-Panel und blockierenden Entscheidungsdialog gegenseitig ausschließen oder den Panel-Aufruf während des Dialogs deaktivieren → die Aufnahme zeigt zwei aktive Ebenen, von denen nur die falsche lesbar ist.**
-- **Entscheidungsdialog in `panel_news.png` → auf höchstens etwa neun Zehntel der Bildschirmhöhe begrenzen, oben und unten gleiche Außenabstände lassen sowie den Optionsbereich intern scrollbar machen → Option C wird durch die feste Fußzeile abgeschnitten.**
-- **Leerzustand im sichtbaren Nachrichtenbereich von `panel_news.png` → Meldung mittig im verfügbaren Panelbereich platzieren, mit einer kleinen Akten-/Meldungsmarke versehen und deutlich unter dem Paneltitel gruppieren → der einzelne Satz wirkt momentan verloren und wie nicht geladener Inhalt.**
+- Leerzustand in `panel_news.png` → als zusammenhängenden Block ungefähr bei zwei Fünfteln der Panelhöhe platzieren, mit Akten-/Zeitungs-Piktogramm über einer größeren Überschrift und einer kleineren Erklärung darunter → der geöffnete Bereich erhält einen klaren Fokus.
+- Leere Papierfläche in `panel_news.png` → eine sehr zurückhaltende Aktenstruktur ergänzen, etwa eine obere Ablagelinie oder ein blasses „EINGANG“-Stempelfeld, nicht flächige Dekoration → die Fläche wirkt dann absichtlich leer statt ungebaut.
+- Fußzeile in `panel_news.png` → Zähler direkt unter den Leerzustand ziehen oder als kleine Statusmarke rechts im Kopfband platzieren → die jetzige Position am äußersten unteren Rand trennt zusammengehörige Informationen.
+- Kopfband in `panel_news.png` → Icon und Titel auf dieselbe vertikale Mitte setzen und links denselben Innenabstand wie der Inhaltsblock verwenden → das Icon sitzt derzeit optisch etwas höher und näher am Rand.
+- Buchstabenleiste in `panel_news.png` → auf einen eigenen dunkleren Träger setzen, gleiche Außenabstände ober- und unterhalb der Tasten verwenden und den gewählten Zustand vollflächig statt nur über eine dünne Kontur zeigen → die Leiste wirkt momentan wie ein fremder Zwischenstreifen.
 
 ### `panel_stats.png`
 
-- **Überlagerungszustand in `panel_stats.png` → Statistik-Panel entweder oberhalb des Dialogs öffnen oder bis zum Abschluss der Entscheidung gesperrt lassen; nicht gleichzeitig sichtbar und abgedunkelt halten → derzeit ist weder Vergleich noch Interaktion mit den Statistiken möglich.**
-- **Statuskopf im sichtbaren Teil von `panel_stats.png` → Tag, Wahltage und AP als drei gleich breite Kennzahlenblöcke auf einer gemeinsamen Grundlinie ausrichten → die Zahlen sitzen in unterschiedlichen Höhen und wirken nicht als zusammengehörige Übersicht.**
-- **Ressourcenzeilen in `panel_stats.png` → Bezeichnungen links, aktuelle Werte rechts und Balken immer darunter mit identischer Breite ausrichten → die sichtbaren Werte und Balken besitzen keine schnell erfassbare gemeinsame Messkante.**
-- **Entscheidungsdialog in `panel_stats.png` → rote Risiko- und Aufmerksamkeitswerte direkt untereinander in einem festen rechten Kennzahlenblock ausrichten, dessen Abstand zum Titel in allen Optionen identisch ist → die Werte schweben derzeit optisch neben dem Text.**
+- Paneltitel in `panel_stats.png` → Text im dunklen Kopfband auf helles Papierweiß umstellen und Icon sowie Titel auf die gleiche Baseline wie in `panel_news.png` bringen → „KAMPAGNEN-STATISTIK“ ist derzeit fast unsichtbar.
+- Statuskasten in `panel_stats.png` → Tag, Tage bis zur Wahl und AP als drei gleich breite Spalten in einer einzigen Zeile anordnen; Höhe des Kastens um etwa ein Drittel reduzieren → die Dreiecksverteilung verschwendet Fläche und erzeugt keine Leserichtung.
+- Hauptziele in `panel_stats.png` → direkt unter den Statuskasten verschieben, Ressourcen danach anzeigen → die strategische Aufgabe darf nicht unterhalb der Falz verschwinden.
+- Ressourcen in `panel_stats.png` → absolute Werte wie Budget als Zahl beziehungsweise Geldstapel behandeln und nur Werte mit erkennbarem Minimum/Maximum als Balken darstellen → der volle Budgetbalken behauptet eine Skala, die im Bild nicht erklärt wird.
+- Ressourcenzeilen in `panel_stats.png` → alle Zahlen an derselben rechten Kante ausrichten, Balken auf identische Länge bringen und Bezeichnungen oberhalb statt links neben sehr langen Balken setzen → die Zeilen erhalten einen stabilen vertikalen Rhythmus.
+- Scrollbereich in `panel_stats.png` → sichtbare Scrollleiste oder unteren Verlaufsindikator an der rechten Innenkante ergänzen → der angeschnittene Zielkasten wirkt derzeit wie verlorener Inhalt.
 
 ### `panel_npcs.png`
 
-- **Überlagerungszustand in `panel_npcs.png` → Kontakte-Panel nicht hinter einem blockierenden Dialog geöffnet lassen → der Spieler sieht Kontaktinformationen, kann sie aber weder sicher lesen noch sinnvoll als Entscheidungshilfe verwenden.**
-- **Kontaktzeilen im sichtbaren Bereich von `panel_npcs.png` → jede Zeile durch eine leichte horizontale Regel trennen und Name, Status sowie Rollenbezeichnung an drei konstanten Achsen ausrichten → die Datensätze fließen aktuell optisch ineinander.**
-- **Beziehungsbalken in `panel_npcs.png` → alle rechtsbündig mit identischer Breite setzen und den Status unmittelbar links davon platzieren → die kleinen Balken sind zu weit vom jeweiligen Namen entfernt.**
-- **Fehlender visueller Kontaktanker in `panel_npcs.png` → links jeder sichtbaren Kontaktzeile ein quadratisches, eng beschnittenes Porträt in ungefähr doppelter Zeilenhöhe vorsehen → die Liste lässt sich sonst nur seriell über Namen durchsuchen.**
+- Paneltitel in `panel_npcs.png` → helle Schrift auf dem dunklen Kopfband und stärkeren Abstand zur ersten Kontaktzeile verwenden → Titel und Liste laufen optisch ineinander.
+- Buchstabenkacheln in `panel_npcs.png` → durch die bereits in `terminal_archiv.png` sichtbaren Porträts ersetzen, auf eine quadratische Größe von ungefähr zwei Textzeilen skalieren → Beziehungen brauchen Gesichter; Initialen wirken wie unfertige Assets.
+- Kontaktzeilen in `panel_npcs.png` → Name oben, Rolle darunter und Beziehungsstatus mit Balken in einer dritten, gemeinsamen Zeile anordnen → „Neutral“ und der Balken sind derzeit räumlich voneinander getrennt.
+- Beziehungsbalken in `panel_npcs.png` → auf etwa die doppelte aktuelle Breite bringen, Kontrast des Leertrakts erhöhen und einen Mittelpunkt für „Neutral“ markieren → die aktuelle Miniaturanzeige lässt Richtung und Ausmaß kaum erkennen.
+- Gewählter Kontakt in `panel_npcs.png` → vollständige Zeile leicht heller setzen, links einen roten Aktenreiter und um das Porträt eine blaue Kontur verwenden → die alleinige blaue Kante an der Initialenkachel reicht nicht als Auswahlzustand.
+- Untere Leerfläche in `panel_npcs.png` → als kompakten Detailbereich des gewählten Kontakts nutzen, beginnend direkt nach der fünften Zeile und durch eine horizontale Aktenkante getrennt → fast die halbe Panelhöhe bleibt derzeit funktional und visuell tot.
 
 ### `panel_mission.png`
 
-- **Überlagerungszustand in `panel_mission.png` → Auftrag und Entscheidungsdialog nicht gleichzeitig als aktive Schichten zeigen; bei blockierender Entscheidung den Panelaufruf sperren oder den Auftrag bewusst in den Dialog integrieren → die aktuelle Überlagerung wirkt zufällig statt funktional.**
-- **Briefingkarten im sichtbaren Teil von `panel_mission.png` → linke Innenkante von Operation, Phase und Direktive vereinheitlichen und zwischen den Karten einen Abstand von ungefähr einer halben Titelzeile halten → die sichtbaren Kästen wirken derzeit unabhängig voneinander statt wie eine Akte.**
-- **Phasenzeile in `panel_mission.png` → „AKTUELLE PHASE“ links und „TAG 2 / WAHL IN 38 TAGEN“ rechts auf derselben Basislinie setzen, mit einem klaren vertikalen Trenner zwischen beiden → Status und Zeitbezug sind momentan nur schwach gekoppelt.**
-- **Entscheidungsdialog in `panel_mission.png` → unteren Inhalt scrollbar machen und die Fußnote außerhalb der Optionsfläche halten → Option C darf nicht unter einer festen Abschlussleiste verschwinden.**
+- Schwarzes Hexagon in `panel_mission.png` → durch einen abstrakten, fiktiven Aktenstempel in Ministeriumsrot ersetzen oder ganz entfernen → das Hexagon sieht nach Platzhalter aus und trägt keine erkennbare Bedeutung.
+- Missionskopf in `panel_mission.png` → Klassifizierungszeile und Titel enger gruppieren, vertikalen Leerraum ober- und unterhalb des Symbols halbieren und den Gesamtblock um etwa ein Viertel kürzen → zu viel Höhe geht für eine reine Titelseite verloren.
+- Phasenband in `panel_mission.png` → „AKTUELLE PHASE“ links und Zeitstatus rechts als zwei gleich hohe Felder mit gemeinsamer Grundlinie behandeln → die aktuelle Mischung aus Papier- und Blaufläche wirkt zusammengesetzt.
+- Direktive in `panel_mission.png` → ersten Absatz als kurze Auftragsaussage hervorheben, Konsequenzhinweis darunter durch Linie oder Stempel absetzen und Zeilenabstand leicht erhöhen → der durchgehende Textblock erschwert das Querlesen.
+- Rahmenhierarchie in `panel_mission.png` → nur den Missionskopf rot, die aktuelle Phase blau und normale Textblöcke mit einfachem braunem Rand versehen; Randstärken reduzieren → drei gleich dominante Kästen konkurrieren miteinander.
+- Unterer Inhaltsrand in `panel_mission.png` → sichtbare Scrollleiste und einen vollständigen Abstand vor dem nächsten Dokumentblock zeigen → der angeschnittene Rahmen liest sich als Layoutfehler.
 
 ---
 
 ## 3. **Grafiken/Assets**
 
-- **`floor_directory.png`:** Die Papierfläche und die leicht unregelmäßige Materialtönung tragen die Behördenakte. Es fehlen keine großen Illustrationen; weitere Dekoration würde die Navigation eher schwächen. Die sichtbaren Weltelemente hinter dem Modal sind ausreichend gedimmt, nur die rechten Tastenkacheln bleiben als scharfe Fremdkörper zu präsent.
-- **`terminal_vorgaenge.png`:** Die Vorgangsblätter als Papierkarten tragen die inhaltliche Metapher. Fremd wirken der grüne CRT-Rahmen, die Neonbeschriftung und die grellgelben Außenkanten: Sie passen weder zum Papier-Lock in `desinformation-network/src/story-mode/theme.ts` noch zum Tech-Cyan statt Neon-Grün aus `sprite-tool/public/context/game-style-guide.md`. Die horizontale Textur ist zu kantenscharf und zu hochfrequent; sie liest sich als Bildschirmstörung statt Papierfaser.
-- **`terminal_archiv.png`:** Die kleinen Personenporträts sind das nützlichste Bildmaterial, verlieren aber durch geringe Größe, dunklen Tonwert und lockeren Ausschnitt ihre Funktion. Gesichter sollten enger auf Kopf und Schulter beschnitten, innerhalb identischer Rahmen skaliert und leicht aufgehellt werden. Ein Aktenreiter oder Schubladenetikett am aktiven Archiv-Tab würde die Papiermetapher stärker tragen als die aktuelle grüne Vollfläche.
-- **`panel_news.png`:** Vom Nachrichten-Panel ist außer Text kein belastbar beurteilbares Asset sichtbar. Im sichtbaren Leerzustand fehlt ein kleiner, einfacher Akten- oder Meldungsstempel als visueller Anker; kein großes Illustrationsbild.
-- **`panel_stats.png`:** Die Grafiken und Balken liegen unter der Abdunklung und können nicht auf Kantenschärfe oder Sättigung geprüft werden. Sichtbar ist nur, dass sie wegen des modalen Zustands praktisch verschwinden.
-- **`panel_npcs.png`:** Im sichtbaren Listenausschnitt fehlen Porträts als schnelle Identifikatoren. Wenn die Liste bewusst textuell bleiben soll, braucht sie zumindest deutlichere Zeilenmarken; visuell wäre ein einheitlich zugeschnittenes quadratisches Porträt pro Kontakt wirksamer.
-- **`panel_mission.png`:** Das sichtbare Briefing arbeitet fast nur mit Rahmen und Text. Eine kleine abstrakte Dienststellenmarke im Operationskopf könnte tragen, solange sie fiktiv bleibt; das schwarze sechseckige Zeichen wirkt in der Aufnahme dagegen isoliert und semantisch unbestimmt.
+- `floor_directory.png`: Das abgedunkelte Gebäude trägt als Kontext, weil noch erkennbar bleibt, wo das Tableau geöffnet wurde. Die Papierfläche und das Kraftpapier-Kopfband passen zu `desinformation-network/src/story-mode/theme.ts`; es fehlt kein großes Bildmotiv. Störend sind eher die hell bleibenden HUD-Inseln außerhalb des Modals als ein Asset selbst.
+- `terminal_vorgaenge.png` und `terminal_archiv.png`: Das dunkle Terminalgehäuse kann als physischer Technikrahmen funktionieren, aber Neon-Grün, grelles Gelb und flächige Scanlines ziehen die Oberfläche zurück in ein altes CRT-Klischee. Das widerspricht sowohl der Papierwelt aus `desinformation-network/src/story-mode/theme.ts` als auch dem zurückhaltenden Tech-Cyan/Petrol aus `sprite-tool/public/context/game-style-guide.md`. Den dunklen Rahmen behalten, Bedienfarbe auf `tech` beziehungsweise `agencyBlue` umstellen und Papierkarten ohne Bildschirmraster darstellen.
+- `terminal_archiv.png`: Die Porträts tragen grundsätzlich, sind aber so klein skaliert, dass Frisuren und Gesichter zu Flecken werden. Sie sollten in einer festen nativen Pixelstufe gerendert und nicht zwischen zwei Größen interpoliert werden.
+- `panel_news.png`: Büro- und Publikumsszene links sind scharf, detailliert und stilistisch geschlossen; gerade deshalb entlarven sie die leere rechte Fläche. Am meisten fehlt dort ein einziges, zurückhaltendes Leerzustands-Asset: eine leere Eingangsschale, gefaltete Zeitung oder gestempelte Leermeldung in derselben feinen Pixelauflösung.
+- `panel_stats.png`: Die winzigen Ressourcenicons sind nicht einheitlich gut erkennbar; insbesondere Risiko, Aufmerksamkeit und moralische Last lassen sich erst über den Text unterscheiden. Entweder auf etwa die anderthalbfache Größe bringen oder durch klarere einfarbige Tintenpiktogramme ersetzen.
+- `panel_npcs.png`: Die Initialenkacheln sind der deutlichste Asset-Mangel des Bündels. Da `terminal_archiv.png` bereits passende Porträts zeigt, sollten dieselben Bildausschnitte hier groß und konsistent verwendet werden.
+- `panel_mission.png`: Das schwarze Hexagon ist stilistisch zu generisch und kantig sauber gegenüber der Pixel-/Druckwelt. Ein leicht unregelmäßiger abstrakter Stempel wäre passender; kein reales Hoheitszeichen verwenden.
+- `panel_news.png`, `panel_stats.png`, `panel_npcs.png` und `panel_mission.png`: Die Weltbilder links bleiben bei geöffnetem Panel vollständig kontrastreich. Eine sehr leichte, neutrale Abdunklung nur über der linken Spielfläche würde besonders bei leeren oder textlastigen Panels verhindern, dass Cyan-Monitor, rotes Poster und Publikumsszene den Panelinhalt überstimmen.
 
 ---
 
 ## 4. **Raster & Rhythmus**
 
-- **`floor_directory.png`** besitzt ein grundsätzlich stabiles einspaltiges Raster, aber zu wenig Unterschied zwischen Gruppenabstand und Zeilenabstand. Vor einer neuen Etagenüberschrift sollte deutlich mehr Luft stehen als zwischen Überschrift und erster Zielzeile. Der Kellerkopf am Ende bricht den Rhythmus, weil ihm keine sichtbare Zeile folgt. Titel, Inhaltskante und Fußzeile sollten dieselbe linke Achse verwenden.
-- **`terminal_vorgaenge.png`** teilt die Fläche sauber in zwei gleich breite Spalten, überlädt aber jede Karte mit mehreren ineinanderliegenden Rahmen. Außenrahmen, Wirkungsrahmen, Stempelrahmen und Buttonrahmen konkurrieren. Eine Karte sollte nur eine Außenkante, eine klare Kopfzone, einen ungerahmten Hauptbereich und eine Aktionsleiste besitzen. Zwischen den beiden Spalten reicht der Abstand; innerhalb der Karten fehlt dagegen vertikaler Atem.
-- **`terminal_archiv.png`** hat oben drei konkurrierende Raster: Tabs, Statusfilter/Suche und Zuträgerchips. Diese sollten auf dieselbe linke Kartenkante und dieselben Kontrollhöhen gebracht werden. Die Suchleiste ist zwar breit genug, wirkt aber durch ihre Position hinter mehreren kleinen Knöpfen wie ein Restfeld. Unterhalb der Werkzeuge fehlt ein stärkerer Abstand vor den Ergebniskarten.
-- **`panel_news.png`, `panel_stats.png`, `panel_npcs.png` und `panel_mission.png`** zeigen denselben problematischen Bildaufbau: Der Dialog endet exakt dort, wo das Seiten-Panel beginnt. Dadurch entsteht eine harte vertikale Teilung, obwohl das Seiten-Panel nur Hintergrund ist. Entweder muss der Dialog als alleinige aktive Ebene zentriert sein oder das Seiten-Panel vollständig übernehmen; die derzeitige Halb-und-halb-Komposition ist visuell uneindeutig.
-- Der wiederholte Entscheidungsdialog nutzt seine Höhe schlecht: große Karten, viel Innenraum, aber keine vollständige dritte Option. Die feste Fußnote nimmt unten Platz weg, ohne als Aktion zu dienen. Eine kompaktere Optionenhöhe oder ein klarer Scrollbereich würde den vertikalen Rhythmus reparieren.
+- `panel_news.png`, `panel_stats.png`, `panel_npcs.png` und `panel_mission.png` verwenden zwar dieselbe Panelbreite, aber keinen einheitlichen Innenrhythmus. Ein gemeinsames Raster sollte einen Außenabstand von ungefähr vier Prozent der Panelbreite, einen Gruppenspalt von einer Textzeilenhöhe und einen Abschnittsabstand von zwei Textzeilenhöhen festlegen.
+- Die Kopfbandhöhe sollte in `panel_news.png`, `panel_stats.png`, `panel_npcs.png` und `panel_mission.png` identisch bleiben; Icon und Titel benötigen überall dieselbe linke Bezugskante. Aktuell sind die roten Header überzeugender ausgerichtet als die dunklen Header.
+- Die Buchstabenleiste sitzt in allen vier Panelaufnahmen zwischen Szene und Panel, beginnt aber unterhalb des Kopfbandes und endet frei im Raum. Sie braucht einen durchgehenden Träger vom unteren Rand des Kopfbandes bis zum Bildschirmende oder muss vollständig in den Panelkörper integriert werden.
+- Die vier Panels verteilen Raum widersprüchlich: `panel_news.png` und `panel_npcs.png` besitzen massive tote Flächen, während `panel_stats.png` und `panel_mission.png` wichtige Inhalte abschneiden. Ein einheitlicher scrollbarer Inhaltskörper mit kompaktem festem Kopf würde beide Probleme entschärfen.
+- `terminal_vorgaenge.png` und `terminal_archiv.png` besitzen ein grundsätzlich stabiles Zweispaltenraster, aber Außenrand, Spalt zwischen Karten und Innenrahmen sind zu ähnlich stark. Der Kartenspalt sollte mindestens doppelt so breit erscheinen wie eine innere Trennlinie, damit Karten als getrennte Akten lesbar werden.
+- Innerhalb der Karten von `terminal_vorgaenge.png` und `terminal_archiv.png` gibt es zu viele gleichartige horizontale Grenzen. Ein Rhythmus aus Kartenkopf, Metadatenzeile, Wirkungsblock und Aktionsleiste reicht; zusätzliche Kästen innerhalb des Wirkungsblocks sollten entfallen.
+- `floor_directory.png` ist sauber zentriert, leidet aber am unteren vertikalen Abschluss. Entweder muss der Inhaltsblock vollständig aufgehen oder sichtbar scrollbar sein; eine allein stehende Gruppenüberschrift direkt über der Fußzeile ist kein stabiler Abschluss.
 
 ---
 
 ## 5. **Lesbarkeit**
 
-- In **`floor_directory.png`** musste ich bei „ETAGE 1 – ZENTRALE ← HIER“ zweimal hinsehen, weil „HIER“ klein in der Gruppenüberschrift steht, während die eigentliche Auswahl nur blass markiert ist. Auch die Bedienzeile am unteren Rand ist für ihre Funktion zu klein. Die Zielnamen selbst sind ausreichend lesbar, benötigen aber einen stärkeren aktiven Zustand.
-- In **`terminal_vorgaenge.png`** sind besonders „RISIKO“, „KONSEQUENZ WAHRSCHEINLICH“ und die Frische-Stempel durch Linienstruktur, geringe Schriftgröße und mehrere Tintenfarben mühsam. Die Kennzahlen direkt unter den Beschreibungen sehen teilweise wie kleine Stempel oder Icons ohne eindeutige Beschriftung aus. Grün als Standardtext, Rot als Risiko, Gelb als Rahmen und Beige als Papier erzeugen zu viele gleichzeitige Kontrastsignale.
-- In **`terminal_archiv.png`** musste ich die Namen der Zuträgerchips und mehrere Legalitätsfilter zweimal lesen. Die Porträts helfen dabei kaum. Die aktive Auswahl ist zwar sehr deutlich, aber so hell, dass inaktive Filter wie deaktivierte Zustände wirken.
-- In **`panel_news.png`** ist der eigentliche Nachrichteninhalt wegen der Abdunklung nicht lesbar. Im Dialog sind die Optionstitel klar, die Technikzeile dagegen deutlich kleiner und schwächer. Option C ist nicht vollständig sichtbar.
-- In **`panel_stats.png`** sind Tag, Wahltage und AP nur mit Anstrengung zu erkennen; das liegt überwiegend am modalen Dimmer, nicht belastbar an den Grundfarben des Panels. Die roten Prozentwerte im Dialog sind klein und räumlich weit von ihren erklärenden Texten entfernt.
-- In **`panel_npcs.png`** sind Rollenbezeichnungen, Statuswörter und Beziehungsbalken hinter der Abdunklung kaum zuzuordnen. Ein ausgewählter, neuer oder gesperrter Kontakt ist im sichtbaren Zustand nicht erkennbar.
-- In **`panel_mission.png`** sind Operationstitel und Phasenzeile noch zu erahnen, die längere Direktive jedoch nicht sinnvoll lesbar. Im Dialog fehlen ein klar sichtbarer Fokuszustand und die vollständige dritte Option.
-- Für **aktiv/gesperrt/neu** ist in den Aufnahmen insgesamt nur das Archiv-Tab eindeutig. `floor_directory.png` besitzt einen zu schwachen Aktivzustand; bei den vier Seiten-Panels sind Zustände wegen der Überlagerung nicht bewertbar.
+- In `floor_directory.png` musste ich bei „ETAGE 1 – ZENTRALE ← HIER“ und bei der Bedienhilfe unten zweimal hinsehen. Die Gruppenüberschriften brauchen mehr Kontrast, die Fußzeile mindestens eine größere typografische Stufe.
+- In `terminal_vorgaenge.png` und `terminal_archiv.png` erschweren die horizontalen Linien praktisch jede kleinere Textzeile, besonders Beschreibung, NPC-Vorteil, Frischegruppen und Risikohinweis. Das Problem ist nicht nur die Schriftgröße, sondern die Frequenz des Musters direkt durch die Glyphen.
+- In `terminal_archiv.png` sind die Porträtnamen und die Zustände der Filter nur durch genaues Vergleichen erkennbar. Aktiv, inaktiv und möglicherweise gewählt brauchen unterschiedliche Fläche, Rand und Tintenfarbe, nicht nur unterschiedliche Schraffur.
+- In `panel_news.png` ist „Keine Nachrichten vorhanden“ problemlos lesbar, der Zähler „0 ungelesene Nachrichten“ hingegen zu klein und zu weit entfernt. Inhalt und Status sollten als eine Leerzustandsgruppe gelesen werden können.
+- In `panel_stats.png` musste ich den Paneltitel im dunklen Kopfband suchen. Außerdem ist bei Budget und Kapazität nicht unmittelbar klar, was die Balkenlänge bedeutet; Werte ohne sichtbare Skala dürfen nicht wie Prozentanzeigen aussehen.
+- In `panel_npcs.png` sind „Bekannt“ beziehungsweise „Neutral“, die Rollenbezeichnungen und insbesondere die Beziehungsbalken zu klein oder zu kontrastarm. Der offenbar ausgewählte Kontakt ist nur durch eine dünne blaue Kante erkennbar.
+- In `panel_mission.png` ist die Klassifizierungszeile klein und sehr breit gesperrt, während die Direktive durch viele ähnlich lange Zeilen langsam wird. Eine hervorgehobene Kernaussage und ein getrenntes Konsequenzfeld wären schneller erfassbar.
+- In `panel_stats.png` und `panel_mission.png` ist der Zustand „weiterer Inhalt vorhanden“ nicht lesbar: Es gibt angeschnittene Rahmen, aber keine Scrollleiste, keinen Pfeil und keinen unteren Verlauf. Das ist ein Zustandsproblem, nicht nur ein Abstandsproblem.
+- Die wiederholten Buchstaben „K, M, A, K, I“ sind in `panel_news.png`, `panel_stats.png`, `panel_npcs.png` und `panel_mission.png` ohne Porträt, Beschriftung oder Tooltip nicht selbsterklärend; die beiden „K“ sind visuell ununterscheidbar.
 
 ---
 
 ## 6. **Die drei wirksamsten Änderungen**
 
-1. **Die Überlagerung in `panel_news.png`, `panel_stats.png`, `panel_npcs.png` und `panel_mission.png` beseitigen** — vier von sieben Aufnahmen zeigen nicht den angekündigten Screen, sondern denselben blockierenden Dialog; eine saubere Zustands- oder Capture-Trennung bringt mit geringem Aufwand den größten Erkenntnis- und UX-Gewinn.
-2. **In `terminal_vorgaenge.png` und `terminal_archiv.png` Scanlines, Neongrün und gelbe Vollrahmen auf Papier-, Braun- und Tintenrollen reduzieren** — dadurch werden Stiltreue und Lesbarkeit gleichzeitig verbessert, ohne die Kartenstruktur neu bauen zu müssen.
-3. **Den Entscheidungsdialog auf eine begrenzte Höhe mit internem Scrollbereich und vollständig sichtbarer Option C umbauen** — die aktuelle Abschneidung betrifft vier Aufnahmen und kann eine spielentscheidende Auswahl verbergen.
+1. **Scanlines und gelbe Alarmrahmen aus `terminal_vorgaenge.png` und `terminal_archiv.png` entfernen** — eine vergleichsweise kleine CSS-/Token-Änderung verbessert sofort Lesbarkeit, Papierwirkung und visuelle Hierarchie auf den beiden dichtesten Screens.
+2. **Gemeinsame Panelhülle für `panel_news.png`, `panel_stats.png`, `panel_npcs.png` und `panel_mission.png` festziehen** — helle Titel auf dunklen Kopfbändern, einheitliche Innenkanten, eindeutigere Buchstabenleiste und sichtbarer Scrollzustand beseitigen mehrere wiederkehrende Fehler mit einer zentralen Komponente.
+3. **Vertikale Dichte neu verteilen: `panel_stats.png` und `panel_mission.png` oben komprimieren, `panel_news.png` und `panel_npcs.png` unten sinnvoll belegen** — dadurch verschwinden abgeschnittene Kerninformationen auf der einen und unfertig wirkende Leerflächen auf der anderen Seite.
 
 ---
 
 ## 7. **Blinde Flecken**
 
-- Bei **`panel_news.png`, `panel_stats.png`, `panel_npcs.png` und `panel_mission.png`** ist nicht erkennbar, ob der Entscheidungsdialog absichtlich blockiert, durch einen fehlerhaften Capture-Zustand stehen geblieben ist oder gleichzeitig mit Seiten-Panels bedienbar sein soll. Benötigt werden dieselben vier Screens ohne Dialog und ohne Abdunklung.
-- Für **`terminal_vorgaenge.png`** und **`terminal_archiv.png`** fehlen Screenshots nach Scrollen sowie mit Hover, Tastaturfokus, ausgewähltem Filter und deaktiviertem „AUSFÜHREN“-Zustand.
-- In **`floor_directory.png`** ist nicht sichtbar, ob Zeilen bei Hover oder Tastaturnavigation deutlicher hervorgehoben werden und ob der Keller über Scrollen oder eine andere Taste erreichbar ist.
-- Nicht beurteilbar sind Öffnungs-/Schließanimationen, Fokuswechsel, Scrollgeschwindigkeit, akustisches Feedback und die Reihenfolge beim Tabben.
-- Für kleine Auflösungen fehlen Aufnahmen, insbesondere dafür, ob der Entscheidungsdialog weiter überläuft, die Terminalkarten in eine Spalte wechseln und die Fußleisten Text verlieren.
+- In `floor_directory.png` ist nicht erkennbar, wie Auswahl und aktueller Standort aussehen, sobald der Cursor auf einer anderen Zeile steht. Dafür werden Aufnahmen mit bewegter Auswahl, gesperrtem Ziel und sichtbarem Kellerzustand benötigt.
+- In `terminal_vorgaenge.png` und `terminal_archiv.png` fehlen Hover-, Fokus-, Ausgewählt-, Gesperrt- und „neu“-Zustände. Ebenso ist nicht sichtbar, ob Scanlines animiert flimmern oder nur statisch sind.
+- In `terminal_archiv.png` ist nicht erkennbar, wie aktive Personenfilter, mehrere kombinierte Filter, Suchtreffer ohne Ergebnis und lange Suchbegriffe dargestellt werden.
+- In `panel_news.png` fehlt ein befüllter Zustand mit einer, mehreren und ungelesenen Nachrichten. Ohne diese Varianten lässt sich Kartenhöhe, Zeitstempelrhythmus und Priorisierung nicht beurteilen.
+- In `panel_stats.png` und `panel_mission.png` ist nicht sichtbar, ob tatsächlich gescrollt werden kann, ob die Kopfzeile feststeht und wie weit der Inhalt nach unten reicht.
+- In `panel_npcs.png` fehlt ein Zustand mit veränderter Beziehung, gesperrtem Kontakt, ausgewähltem Kontakt und eventuell längeren Namen oder Rollen.
+- Für alle sieben Screens fehlen Aufnahmen bei kleinerer Fensterhöhe und höherer UI-Skalierung. Besonders `floor_directory.png`, `terminal_archiv.png`, `panel_stats.png` und `panel_mission.png` zeigen bereits bei 1280 × 720 vertikale Engpässe.
+- Mauszeiger, Tastaturfokus, Übergangsanimationen und Öffnungs-/Schließbewegung sind in keiner Aufnahme beurteilbar; dafür wären kurze Sequenzen oder Zustandsserien nötig.
 
 ---
 

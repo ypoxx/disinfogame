@@ -19,7 +19,6 @@ type RawA = { id: string; label_de: string; headline_de?: string };
 function allRawActions(): RawA[] {
   const out = [...(actionsData.actions as RawA[])];
   for (const src of [actionsContinued, actionsP1c]) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const c = src as any;
     for (const key of Object.keys(c)) {
       if (Array.isArray(c[key])) out.push(...c[key]);

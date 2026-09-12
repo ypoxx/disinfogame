@@ -1,4 +1,5 @@
 import { StoryModeGame } from '@/story-mode/StoryModeGame';
+import { Fehlergrenze } from '@/story-mode/components/Fehlergrenze';
 
 /**
  * App entry — Story-Mode-only.
@@ -10,7 +11,13 @@ import { StoryModeGame } from '@/story-mode/StoryModeGame';
  * Rückwärtsgang. Pro-Mode: `archive/pro-mode/` (VISION_LOCK.md §6).
  */
 function App() {
-  return <StoryModeGame onExit={() => window.location.reload()} />;
+  // Letzte Instanz: Ohne diese Grenze nimmt ein einzelner Renderfehler den
+  // kompletten Baum mit und hinterlässt eine weiße Seite.
+  return (
+    <Fehlergrenze variante="ganz" bereich="Spiel">
+      <StoryModeGame onExit={() => window.location.reload()} />
+    </Fehlergrenze>
+  );
 }
 
 export default App;

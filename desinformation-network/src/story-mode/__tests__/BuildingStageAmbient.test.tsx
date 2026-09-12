@@ -5,10 +5,11 @@
  * über den echten AmbientLifeLayer/RoomDoor-Pfad (sampleAmbient gemockt).
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, waitFor, cleanup } from '@testing-library/react';
+import { render, waitFor, cleanup, fireEvent, screen } from '@testing-library/react';
 import { BuildingStage } from '../building/BuildingStage';
 import { __resetAssetRegistryForTests } from '../assets/AssetRegistry';
 import type { NavigatorState } from '../building/useNavigator';
+import type { AssetsManifest } from '../assets/types';
 
 // ambientLife mocken: fester Schnappschuss statt rAF-Uhr — getestet wird die
 // RENDER-Schicht (Figur-Container, Tür-Blende), nicht die (pur getestete) Logik.
@@ -42,12 +43,18 @@ const NAV_IDLE: NavigatorState = {
 };
 
 // Minimal-Manifest: Tür-Bilder (RoomDoor-Blende) + das Walk-Sheet der Figur.
-const MANIFEST = {
+const MANIFEST: AssetsManifest = {
   assets: [
-    { id: 'bld_door_closed', type: 'image' as const, file: 'images/bld_door_closed.png', chosen: true },
-    { id: 'bld_door_open', type: 'image' as const, file: 'images/bld_door_open.png', chosen: true },
+    { id: 'bld_door_closed', type: 'image', file: 'images/bld_door_closed.png', chosen: true },
+    { id: 'bld_door_open', type: 'image', file: 'images/bld_door_open.png', chosen: true },
+    // Alle Flur-Statisten (FLOOR_AMBIENT) benutzen dieses Blatt.
     {
-      id: 'figure_cleaner_walk', type: 'sheet' as const, file: 'sheets/figure_cleaner_walk.png', chosen: true,
+      id: 'figure_clerk', type: 'sheet', file: 'sheets/figure_clerk.png', chosen: true,
+      frameWidth: 48, frameHeight: 96,
+      animations: { idle: { row: 0, frames: 4, frameTime: 200, loop: true } },
+    },
+    {
+      id: 'figure_cleaner_walk', type: 'sheet', file: 'sheets/figure_cleaner_walk.png', chosen: true,
       frameWidth: 48, frameHeight: 96,
       animations: { walk: { row: 0, frames: 8, frameTime: 100, loop: true } },
     },
@@ -112,5 +119,39 @@ describe('BuildingStage — Ambient-Render-Schicht (LB)', () => {
     for (const d of doors.filter((x) => !openOnes.includes(x))) {
       expect(d.style.opacity).toBe('0');
     }
+  });
+
+  /**
+   * Die Flur-Statisten haben seit Strang 5 je eine Zeile — der Owner hielt sie
+   * trotzdem für nicht umgesetzt. Zu Recht: Sie sahen aus wie Kulisse, und wer
+   * doch mehrere traf, hatte danach vier Blasen über den Etagenschildern.
+   */
+  it('Flur-Statist: nennt sich bei Berührung und es spricht immer nur einer', async () => {
+    render(<BuildingStage npcs={[]} nav={NAV_IDLE} />);
+
+    const knoepfe = await waitFor(() => {
+      const els = screen.getAllByRole('button', { name: /ansprechen/i });
+      expect(els.length).toBeGreaterThanOrEqual(2);
+      return els;
+    });
+
+    // Kein Zeichen, solange niemand hinzeigt.
+    expect(screen.queryAllByTestId('ambient-schild')).toHaveLength(0);
+    fireEvent.mouseEnter(knoepfe[0]);
+    expect(screen.getAllByTestId('ambient-schild')).toHaveLength(1);
+    fireEvent.mouseLeave(knoepfe[0]);
+    expect(screen.queryAllByTestId('ambient-schild')).toHaveLength(0);
+
+    // Erster Klick: genau eine Blase.
+    fireEvent.click(knoepfe[0]);
+    expect(screen.getAllByTestId('ambient-bubble')).toHaveLength(1);
+
+    // Zweiter Statist: weiterhin genau eine — die erste schließt sich.
+    fireEvent.click(knoepfe[1]);
+    expect(screen.getAllByTestId('ambient-bubble')).toHaveLength(1);
+
+    // Erneuter Klick auf dieselbe Figur schließt sie.
+    fireEvent.click(knoepfe[1]);
+    expect(screen.queryAllByTestId('ambient-bubble')).toHaveLength(0);
   });
 });

@@ -12,7 +12,7 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { useAssets } from '../assets/useAssets';
 import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, StoryModeWorld } from '../theme';
 import type { Mood } from '../audience/audienceModel';
 
 // ─── Öffentliche Props ────────────────────────────────────────────────────────
@@ -57,7 +57,7 @@ const MOOD_COLOR: Record<Mood, string> = {
 const MOOD_BORDER: Record<Mood, string> = {
   ruhig: '#4a8a4a',
   verunsichert: '#c8960c',
-  wuetend: '#E5484D',
+  wuetend: StoryModeWorld.red,
   misstrauisch: '#3a7acc',
 };
 
@@ -274,7 +274,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: 900,
             fontFamily: "'VT323', monospace",
             color: '#fff',
@@ -319,7 +319,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
             style={{
               display: 'inline-block',
               marginTop: 2,
-              fontSize: 9,
+              fontSize: 10,
               fontFamily: "'VT323', monospace",
               fontWeight: 700,
               letterSpacing: 1,
@@ -360,7 +360,7 @@ function PersonaTile({ persona, mood, comment, delay }: PersonaTileProps): React
         {/* Anführungszeichen-Dekoration */}
         <span
           style={{
-            fontSize: 22,
+            fontSize: 24,
             lineHeight: 1,
             color: borderColor,
             opacity: 0.7,
@@ -517,7 +517,7 @@ export function FokusgruppeView({
               fontWeight: 900,
               fontFamily: "'VT323', monospace",
               // v3: danger ist Tinte — REC-Licht bleibt helles v2-Rot (diegetisch).
-              color: '#E5484D',
+              color: StoryModeWorld.red,
               letterSpacing: 1,
               animation: 'fg-rec-blink 1.2s ease-in-out infinite',
               opacity: recVisible ? 1 : 0.15,
@@ -555,9 +555,9 @@ export function FokusgruppeView({
                 fontSize: 10,
                 fontFamily: "'VT323', monospace",
                 // v3: warning ist Marker-Tinte — auf dem dunklen Kopfband helles v2-Amber.
-                color: '#F0B429',
+                color: StoryModeWorld.amber,
                 backgroundColor: 'rgba(40,30,5,0.7)',
-                border: `1px solid #F0B429`,
+                border: `1px solid ${StoryModeWorld.amber}`,
                 padding: '1px 8px',
                 letterSpacing: 0.5,
                 maxWidth: 320,
@@ -685,7 +685,7 @@ export function FokusgruppeView({
         <div
           style={{
             textAlign: 'center',
-            fontSize: 9,
+            fontSize: 10,
             fontFamily: "'VT323', monospace",
             color: StoryModeColors.lightConcrete,
             letterSpacing: 1,

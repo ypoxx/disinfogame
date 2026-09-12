@@ -6,7 +6,7 @@
  * keil/zweifel bleiben als Daten erhalten (Akt-Dramaturgie / Wiederspiel-Kampagnen),
  * aber die Auswahl-UI entfällt (Zielbild §8/§12.3). Prop-getrieben, isoliert testbar.
  */
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, stampCtaStyle, stampCtaClass, scrim } from '../theme';
 import { AUFTRAEGE, PARTEI_NAME_DE, type AuftragId } from '../engine/Auftraege';
 
 export interface AuftragSelectProps {
@@ -26,7 +26,7 @@ export function AuftragSelect({ onChoose }: AuftragSelectProps): React.JSX.Eleme
       style={{
         position: 'fixed', inset: 0, zIndex: 1100,
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        gap: 18, padding: 24, background: 'rgba(8,8,10,0.94)', fontFamily: "'VT323', monospace",
+        gap: 18, padding: 24, background: scrim('schwer'), fontFamily: "'VT323', monospace",
       }}
     >
       <div style={{ textAlign: 'center', maxWidth: 560 }}>
@@ -49,8 +49,8 @@ export function AuftragSelect({ onChoose }: AuftragSelectProps): React.JSX.Eleme
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <span style={{ fontSize: 9, letterSpacing: 2, color: StoryModeColors.ministryRed, fontWeight: 900 }}>STRENG GEHEIM</span>
-          <span style={{ fontSize: 9, letterSpacing: 1, color: '#6b5b45' }}>AKTE · DIE WAHL</span>
+          <span style={{ fontSize: 10, letterSpacing: 2, color: StoryModeColors.ministryRed, fontWeight: 900 }}>STRENG GEHEIM</span>
+          <span style={{ fontSize: 10, letterSpacing: 1, color: '#6b5b45' }}>AKTE · DIE WAHL</span>
         </div>
         <div style={{ fontSize: 20, fontWeight: 900, letterSpacing: 1, color: '#241d15', marginTop: 8 }}>
           {wahl.titel_de}
@@ -77,11 +77,10 @@ export function AuftragSelect({ onChoose }: AuftragSelectProps): React.JSX.Eleme
 
       <button
         onClick={() => onChoose('wahl')}
+        className={stampCtaClass}
         style={{
-          marginTop: 4, padding: '11px 26px', cursor: 'pointer',
-          background: StoryModeColors.ministryRed, border: `3px solid ${StoryModeColors.darkRed}`,
-          color: '#fff', fontWeight: 900, letterSpacing: 2, fontSize: 15,
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -2px 0 rgba(0,0,0,0.4)',
+          ...stampCtaStyle,
+          marginTop: 4, padding: '11px 26px', fontSize: 16,
         }}
       >
         AKTE ÜBERNEHMEN ▸

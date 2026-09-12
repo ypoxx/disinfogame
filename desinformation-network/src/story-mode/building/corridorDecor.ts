@@ -144,10 +144,63 @@ export interface AmbientFigure {
   /** Kurzer Rollen-Name über der Sprechblase. */
   who: string;
 }
+/**
+ * Stehende Flur-Statisten je Etage.
+ *
+ * Owner-Entscheidung 2026-08-23 („leere Etagen beleben"): Bis dahin stand HIER
+ * NUR auf etage1 jemand. Die Laufagenten (ambientLife) sind pro Etage höchstens
+ * einer und zwischen zwei Durchgängen ist der Flur menschenleer — beide
+ * Fremdmodelle lasen das als Fehler, nicht als Stimmung. Ein dauerhaft
+ * anwesender Statist je Etage macht daraus einen Zustand.
+ *
+ * Ohne neue Assets: Es gibt genau zwei neutrale Figuren (`figure_clerk`,
+ * `figure_cleaner`) — die NPC-Sprites gehören ihren Räumen und wären im Flur
+ * eine falsche Erzählung. Dieselbe Figur zweimal ist in einem Ministeriumsflur
+ * kein Bruch; unterschieden werden die Leute über `who` und `line`.
+ *
+ * Alle stehenden Statisten sind Büropersonal (`figure_clerk`). Die Reinigung ist
+ * bewusst EINE Person im ganzen Haus — der wandernde Agent in `ambientLife`. Ein
+ * erster Versuch stellte auch Statisten mit Reinigungs-Sprite auf; im Keller
+ * standen dann zwei identische Reinigungskräfte Schulter an Schulter, was nach
+ * doppelt gerendertem Sprite aussah statt nach Belegschaft (Ernte 2026-08-23).
+ *
+ * Die Sätze tragen die Etage: Wer hier steht, sagt beiläufig, was auf diesem
+ * Stockwerk passiert — billigste Form von Weltbau, und der Spieler erfährt
+ * nebenbei, wo er ist.
+ *
+ * Die `xFrac` liegen außerhalb der Tür-Klickzonen (`ambientPlacement.test.ts`
+ * rechnet sie aus building.json nach). Ein erster Wurf setzte den Archivar auf
+ * 0,62 — mitten in die Tresor-Tür, wo ihn der Avatar restlos verdeckte.
+ */
 export const FLOOR_AMBIENT: Record<string, AmbientFigure[]> = {
+  // Spezial-Operationen: Cyber-Lab, Operationszentrale, Medien-Zentrum.
+  etage4: [{
+    figure: 'figure_clerk', xFrac: 0.45, who: 'TECHNIKER',
+    line: 'Ich halte die Schirme am Laufen. Was drauf steht, lese ich nicht — steht so in der Hausordnung, und ich halte mich dran.',
+  }],
+  // Analyse & Medien: Zielgruppen-Analyse, Newsroom.
+  etage3: [{
+    figure: 'figure_clerk', xFrac: 0.15, who: 'ANALYSTIN',
+    line: 'Wir messen, was die Leute glauben. Ob sie es glauben SOLLEN, entscheidet eine Etage tiefer.',
+  }],
+  // Feld-Operationen.
+  etage2: [{
+    figure: 'figure_clerk', xFrac: 0.45, who: 'DISPONENT',
+    line: 'Feld meldet sich zweimal am Tag. Wenn es dreimal ist, war was.',
+  }],
   etage1: [{
-    figure: 'figure_clerk', xFrac: 0.33, who: 'KOLLEGE',
+    // 0,33 lag genau auf der rechten Kante der Zentrale-Tür — der Kollege stand
+    // IM Türrahmen und wurde vom Avatar verdeckt, sobald jemand dort hinlief.
+    // Die Fehlplatzierung ist älter als dieser Durchgang; aufgefallen ist sie erst,
+    // als `ambientPlacement.test.ts` die Zonen nachrechnete statt sie zu schätzen.
+    figure: 'figure_clerk', xFrac: 0.42, who: 'KOLLEGE',
     line: 'Viel los heute oben. Ich bring nur die Akten rum, von dem anderen halt ich mich fern.',
+  }],
+  // Geheimoperationen: bewusst der stillste Flur des Hauses — aber nicht leer,
+  // sonst liest er sich als kaputt statt als abgeschottet.
+  keller: [{
+    figure: 'figure_clerk', xFrac: 0.42, who: 'ARCHIVAR',
+    line: 'Hier unten ist es ruhig. Muss es auch — die Lüftung trägt jedes Wort bis nach oben.',
   }],
 };
 /**

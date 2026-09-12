@@ -1,4 +1,4 @@
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, scrim } from '../theme';
 import type { ActiveConsequence } from '../../game-logic/StoryEngineAdapter';
 import { PixelFrame } from './PixelFrame';
 import { Icon } from './Icon';
@@ -61,7 +61,7 @@ export function ConsequenceModal({
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.9)' }}
+      style={{ backgroundColor: scrim('schwer') }}
     >
       <PixelFrame
         variant="alarm"
@@ -148,21 +148,30 @@ export function ConsequenceModal({
                     >
                       {choice.label_de}
                     </span>
+                    {/* Kapazität ist die häufigste Kostenart (23 der 36 Angaben)
+                        und fehlte hier ganz — der Spieler entschied blind. */}
                     {choice.cost && (
                       <div className="flex gap-2 text-xs">
-                        {choice.cost.budget && (
+                        {!!choice.cost.budget && (
                           <span style={{ color: StoryModeColors.warning }}>
                             -{choice.cost.budget}K
                           </span>
                         )}
-                        {choice.cost.risk && (
+                        {!!choice.cost.capacity && (
+                          <span style={{ color: StoryModeColors.warning }}>
+                            -{choice.cost.capacity} Kapazität
+                          </span>
+                        )}
+                        {!!choice.cost.risk && (
                           <span style={{ color: StoryModeColors.danger }}>
                             +{choice.cost.risk}% Risiko
                           </span>
                         )}
-                        {choice.cost.moralWeight && (
+                        {/* `moral_weight` wie in den Daten — die Umbenennung
+                            nach `moralWeight` auf halbem Weg ist entfallen. */}
+                        {!!choice.cost.moral_weight && (
                           <span style={{ color: StoryModeColors.ministryRed }}>
-                            +{choice.cost.moralWeight} Moral
+                            +{choice.cost.moral_weight} Moral
                           </span>
                         )}
                       </div>

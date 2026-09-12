@@ -21,7 +21,22 @@ import orgsInfrastructure from './organizations-infrastructure.json';
  * Enhance core actors with tier information
  * Core actors from v2 become Tier 1 (most important)
  */
-function enhanceCoreActors(actors: any[]): ActorDefinition[] {
+/**
+ * Rohform der v2-Akteure aus der JSON: teils alte Feldnamen (`subtype` statt
+ * `subcategory`), Verbindungen als Stärke-Wort statt als Objekt. Stand hier als
+ * `any[]` — damit sah `tsc` weder, welche Felder gemeint sind, noch ob die
+ * Datei sie noch hat.
+ */
+type RohAkteur = Omit<Partial<ActorDefinition>, 'connections'> & {
+  id: string;
+  category: string;
+  /** v2-Feldname für `subcategory`. */
+  subtype?: string;
+  /** v2 schrieb ein Stärke-Wort („high"), heute ein Objekt. */
+  connections?: unknown;
+};
+
+function enhanceCoreActors(actors: RohAkteur[]): ActorDefinition[] {
   return actors.map(actor => ({
     ...actor,
     // Map old 'subtype' field to new 'subcategory'
@@ -54,10 +69,13 @@ function getDefaultIcon(category: string): string {
 /**
  * Normalize old connections format to new format
  */
-function normalizeConnections(oldConnections: any, category: string): any {
+function normalizeConnections(
+  oldConnections: unknown,
+  category: string,
+): ActorDefinition['connections'] {
   // If already in new format, return as-is
-  if (oldConnections && typeof oldConnections === 'object' && oldConnections.categories) {
-    return oldConnections;
+  if (oldConnections && typeof oldConnections === 'object' && 'categories' in oldConnections) {
+    return oldConnections as ActorDefinition['connections'];
   }
 
   // Convert old string format ("high", "medium", etc.) to new format
@@ -85,7 +103,7 @@ function normalizeConnections(oldConnections: any, category: string): any {
  * Combine all actor definitions
  */
 function combineActorDefinitions(): ActorDefinition[] {
-  const coreActors = enhanceCoreActors(coreActorsV2 as any[]);
+  const coreActors = enhanceCoreActors(coreActorsV2 as unknown as RohAkteur[]);
 
   // Cast extended actors (already have tier info)
   const allActors = [

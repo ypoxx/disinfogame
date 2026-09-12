@@ -11,7 +11,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAssets } from '../assets/useAssets';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, StoryModeWorld } from '../theme';
 import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
 
 // ─── Öffentliche Typen ─────────────────────────────────────────────────────────
@@ -277,7 +277,7 @@ function PostCard({ post, isFirst = false }: PostCardProps): React.JSX.Element {
           {post.isOurs && (
             <span
               style={{
-                fontSize: 9,
+                fontSize: 10,
                 color: StoryModeColors.ministryRed,
                 lineHeight: 1,
                 flexShrink: 0,
@@ -379,7 +379,7 @@ function TrendingRow({ item, maxVolume }: TrendingRowProps): React.JSX.Element {
         <span
           style={{
             fontSize: 12,
-            color: item.rising ? '#E5484D' : StoryModeColors.lightConcrete,
+            color: item.rising ? StoryModeWorld.red : StoryModeColors.lightConcrete,
             fontFamily: "'VT323', monospace",
             flexShrink: 0,
           }}
@@ -405,7 +405,7 @@ function TrendingRow({ item, maxVolume }: TrendingRowProps): React.JSX.Element {
               width: barWidthPct,
               '--nr-bar-w': barWidthPct,
               backgroundColor: item.rising
-                ? '#E5484D'
+                ? StoryModeWorld.red
                 : StoryModeColors.concrete,
               animation: 'nr-bar-grow 0.6s ease-out both',
             } as React.CSSProperties
@@ -416,7 +416,7 @@ function TrendingRow({ item, maxVolume }: TrendingRowProps): React.JSX.Element {
       {/* Volumen-Zahl */}
       <div
         style={{
-          fontSize: 9,
+          fontSize: 10,
           color: StoryModeColors.lightConcrete,
           fontFamily: "'VT323', monospace",
           marginTop: 2,
@@ -665,7 +665,7 @@ export function NewsroomView({
                   <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: '#3a7acc' }}>
                     GEGENSEITE — {gegenseite.format_de.toUpperCase()}
                   </span>
-                  <span style={{ fontSize: 9, color: StoryModeColors.lightConcrete }} title="Stand der Aufklärung">
+                  <span style={{ fontSize: 10, color: StoryModeColors.lightConcrete }} title="Stand der Aufklärung">
                     Aufklärung {Math.round(gegenseite.awareness * 100)}%
                   </span>
                 </div>
@@ -785,7 +785,7 @@ export function NewsroomView({
                 fontWeight: 700,
                 letterSpacing: 2,
                 // v3: danger ist Tinte — auf dem dunklen Monitor helles v2-Rot (diegetisch).
-                color: '#E5484D',
+                color: StoryModeWorld.red,
                 flexShrink: 0,
               }}
             >

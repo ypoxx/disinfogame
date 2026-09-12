@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { StoryModeColors, stampCtaStyle } from './theme';
+import { StoryModeColors, stampCtaStyle, scrim } from './theme';
 import { GAME_VERSION } from './version';
 import { DialogBox } from './components/DialogBox';
 import { StoryHUD } from './components/StoryHUD';
@@ -27,6 +27,7 @@ import { StageCountermeasureModal } from './components/StageCountermeasureModal'
 import { CrisisModal } from './components/CrisisModal';
 import { BetrayalIndicators } from './components/BetrayalIndicators';
 import { ConsequenceTimeline } from './components/ConsequenceTimeline';
+import { Fehlergrenze } from './components/Fehlergrenze';
 import { useStoryGameState } from './hooks/useStoryGameState';
 import type { ActionResult } from '../game-logic/StoryEngineAdapter';
 import { PlayerOfficeView } from './components/PlayerOfficeView';
@@ -58,7 +59,7 @@ import { useDayClockStore, TIME_COST } from './stores/dayClockStore';
 import { installVqaBase, publishVqa } from './harness/vqaHook';
 import { usePanelStore } from './stores/panelStore';
 import { useDirectorStore } from './stores/directorStore';
-import { SidePanel } from './components/SidePanel';
+import { SidePanel, SEITENPANEL_BREITE_PX } from './components/SidePanel';
 import { LagebildView } from './components/LagebildView';
 import { NarrativeBoard } from './components/NarrativeBoard';
 import { initAssetRegistry, useAssets, warmImageCache } from './assets';
@@ -113,7 +114,7 @@ function PauseMenu({ onResume, onSave, onExit }: {
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
+      style={{ backgroundColor: scrim('normal') }}
     >
       {/* PIXEL-Regler „Dienstplan-Tafel" (Plan L1, §4.7): eckiger Tinten-Schieber auf
           segmentierter Leiste. Die repeating-linear-gradient-Stopps sind HARTE Kanten
@@ -503,6 +504,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
   // VQA-Ernte (nur mit ?vqa=1 aktiv, sonst no-op): Engine + Steuer-Callbacks für
   // die Playwright-Screenshot-Ernte exponieren (scripts/visual-review/).
+  //
+  // Bewusst OHNE Abhängigkeitsliste: Die Ernte braucht bei jedem Rendern den
+  // frischen Stand, sonst greift sie auf eine veraltete Engine zu. Die Setter
+  // werden hier nur WEITERGEREICHT, nicht aufgerufen — die Regel erkennt das
+  // nicht und warnt vor einer Aktualisierungs-Schleife, die es nicht gibt.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     installVqaBase();
     publishVqa({
@@ -510,6 +517,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       gamePhase: state.gamePhase,
       gameEnd: state.gameEnd,
       hasDialog: !!state.currentDialog,
+      // Ein Krisen-Modal (z-70) legt sich über ALLES und hat die Ernte am
+      // 2026-08-22 vier Aufnahmen gekostet (decision_beat, day_report,
+      // day_report_bottom, morning_briefing zeigten alle dasselbe Krisenfenster).
+      // Die Ernte muss es deshalb erkennen und wegräumen können.
+      hasCrisis: !!state.activeCrisis,
+      dismissCrisis,
       viewMode,
       startGame,
       chooseAuftrag,
@@ -640,6 +653,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   // Hotkeys (A/T) und der Angeheftet-Chip teilen es, damit Tafel/Terminal nie
   // unsichtbar UNTER einem Overlay mounten (Terminal/Tafel selbst sind ausgenommen,
   // ihre Fälle behandelt der Handler explizit).
+  // Die Unterkanten-Streifen enden an der Seitenspalte, statt unter ihr
+  // durchzulaufen (sie schnitten dem Panel sonst die letzte Zeile ab).
+  const seitenVersatzPx = activePanel ? SEITENPANEL_BREITE_PX : 0;
+
   const vollbildOverlayOffen =
     showNewsroom || showLagebild || showOperationsAkte || showFokusgruppe ||
     showPreTest || showEncyclopedia || showShortcuts || showDayReport ||
@@ -912,21 +929,8 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           }}
           onRestart={() => { resetUI(); resetGame(); }}
           onMainMenu={() => { resetUI(); onExit(); }}
+          onShowFullReport={() => setShowEndReport(true)}
         />
-        {/* K8: Zugang zum vollständigen End-Report — „der größte edukative Teil" */}
-        <button
-          onClick={() => setShowEndReport(true)}
-          className="fixed bottom-4 right-4 z-50 px-4 py-3 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
-          style={{
-            // v3 §4.7: Kraftband-Knopf mit heller Schrift (warning war Tinte auf Blau).
-            backgroundColor: StoryModeColors.darkConcrete,
-            borderColor: StoryModeColors.border,
-            color: StoryModeColors.document,
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-          }}
-        >
-          VOLLSTÄNDIGER LAGEBERICHT ▸
-        </button>
         {showEndReport && (() => {
           // Vollständiger Katalog (auch bereits gespielte Aktionen) → korrekte
           // Legalitäts-Bilanz UND der Bildungs-Kern: reale Methoden hinter den Mechaniken.
@@ -952,6 +956,9 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               endNarrative={state.gameEnd.description_de}
               phasesPlayed={state.storyPhase.number}
               completedActionIds={state.completedActions}
+              // Dieselbe Zahl wie die Kachel „Aktionen" im Endscreen daneben:
+              // Eine gespielte Operation ließ beide sonst um 1 auseinanderlaufen.
+              aktionenGesamt={state.gameEnd.stats?.actionsExecuted}
               actionsCatalog={actionCatalog}
               trustHistory={state.trustHistory}
               laeuferHistorie={state.engine.getLaeuferHistorie()}
@@ -1034,15 +1041,22 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
               borderBottom: `2px solid ${StoryModeColors.border}`,
             }}
           >
-            <BetrayalIndicators
-              npcs={state.npcs}
-              betrayalStates={state.betrayalStates}
-            />
-            <div className="flex-1">
-              <ConsequenceTimeline
-                pendingConsequences={state.engine.getPendingConsequences()}
-                currentPhase={state.storyPhase.number}
+            {/* Engere Grenze um die Leiste: Hier stürzte das Spiel ab, und der
+                Fehler nahm den gesamten Baum mit. Jetzt fällt höchstens diese
+                Zeile aus, das Spiel bleibt bedienbar. */}
+            <Fehlergrenze bereich="Verrats-Anzeige">
+              <BetrayalIndicators
+                npcs={state.npcs}
+                betrayalStates={state.betrayalStates}
               />
+            </Fehlergrenze>
+            <div className="flex-1">
+              <Fehlergrenze bereich="Konsequenz-Leiste">
+                <ConsequenceTimeline
+                  pendingConsequences={state.engine.getPendingConsequences()}
+                  currentPhase={state.storyPhase.number}
+                />
+              </Fehlergrenze>
             </div>
           </div>
         )}
@@ -1503,9 +1517,15 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
         {/* Morgenbriefing beim Direktor (K1) — einmal je Tag. T2/#7: auch an Tag 1,
             aber erst NACH der Auftragswahl (gerichtete Eröffnung der Kern-Schleife). */}
+        {/* E4-Muster, andere Richtung: Das Briefing liegt auf z-50 und deckte das
+            Terminal (z-40) zur Hälfte zu — ausgerechnet an Tag 1, wo sein eigener
+            Tageshinweis „Öffnen Sie das Terminal (Taste A)" lautet. Es greift
+            außerdem Leertaste/Enter global ab. Solange ein Vollbild offen ist,
+            tritt es zurück; unbestätigt kehrt es beim Schließen zurück. */}
         {state.gamePhase === 'playing' &&
-          !showDayReport &&
-          !walkHome &&
+          !vollbildOverlayOffen &&
+          !showTerminal &&
+          !showBoard &&
           !state.currentDialog &&
           (state.storyPhase.number > 1 || !showAuftrag) &&
           briefedPhase !== state.storyPhase.number && (
@@ -1522,6 +1542,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 : undefined}
               // Nudge (main): Maschen im Sendeplan, aber die Zielgruppen-Analyse nie geöffnet.
               pendingUntested={state.actionQueue.length > 0 && !analyseVisited}
+              rechtsVersatzPx={seitenVersatzPx}
               onDone={() => setBriefedPhase(state.storyPhase.number)}
             />
           )}
@@ -1530,6 +1551,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       {state.currentDialog && (
         <DialogBox
           isVisible={true}
+          rechtsVersatzPx={seitenVersatzPx}
           message={{
             speaker: state.currentDialog.speaker,
             speakerTitle: state.currentDialog.speakerTitle,
@@ -1570,7 +1592,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       {showShortcuts && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
+          style={{ backgroundColor: scrim('normal') }}
           onClick={() => setShowShortcuts(false)}
           role="button"
           aria-label="Tastenkürzel schließen"
@@ -1711,7 +1733,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           daneben (Review-Befund B6: Empfehlungen blieben sonst unsichtbar). */}
       {chromeVisible && !state.currentDialog && (
         <AdvisorPanel
-          rightOffsetPx={activePanel ? 420 : 0}
+          rightOffsetPx={seitenVersatzPx}
           npcs={state.npcs.map(npc => ({
             id: npc.id,
             name: npc.name,

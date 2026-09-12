@@ -174,7 +174,7 @@ export function ArrivalSequence({ npcs, onDone }: ArrivalSequenceProps): JSX.Ele
           background: 'rgba(0,0,0,.6)',
           border: '2px solid rgba(200,200,184,.3)',
           color: 'rgba(200,200,184,.7)',
-          fontSize: '0.75rem',
+          fontSize: 12,
           letterSpacing: '0.1em',
           padding: '5px 12px',
           cursor: 'pointer',

@@ -20,6 +20,8 @@ import type {
   StageCountermeasureChoice,
   StageCountermeasureResolution,
 } from '../../game-logic/StoryEngineAdapter';
+
+import { START_BUDGET, MAX_CAPACITY } from '../../game-logic/StoryEngineAdapter';
 import type { OperationParams } from '../battlefield/BattlefieldChain';
 import { getEpisode, type Episode } from '../engine/EpisodeLoader';
 import type { AuftragId } from '../engine/Auftraege';
@@ -522,9 +524,12 @@ export function useStoryGameState(seed?: string) {
           },
           resources: {
             budget: currentResources.budget,
-            maxBudget: 1000, // Fixed max budget for analysis
+            // Bezugsgrößen aus dem Spiel statt erfundener Maxima: Mit 1000/100
+            // sah der Berater dauerhaft 15 % Budget und 5 % Kapazität und rief
+            // ab dem ersten Zug „kritisch" — bei voller Kasse.
+            maxBudget: START_BUDGET,
             capacity: currentResources.capacity,
-            maxCapacity: 100, // Fixed max capacity for analysis
+            maxCapacity: MAX_CAPACITY,
             risk: currentResources.risk,
             attention: currentResources.attention,
             moralWeight: currentResources.moralWeight,
@@ -580,7 +585,12 @@ export function useStoryGameState(seed?: string) {
     } catch (error) {
       storyLogger.error('Failed to generate advisor recommendations', { error });
     }
-  }, [engine]);
+    // `completedActions` und `worldEvents` werden im Rumpf gelesen, standen aber
+    // nicht in den Abhängigkeiten: Der Berater rechnete auf dem Stand, den er
+    // beim letzten Engine-Wechsel gesehen hatte — also praktisch auf dem
+    // Anfangszustand. Alle drei Aufrufer sind useCallbacks, kein Effekt hängt
+    // an der Identität; es entsteht also keine Schleife.
+  }, [engine, completedActions, worldEvents]);
 
   // Refresh available actions from engine
   const refreshAvailableActions = useCallback(() => {
@@ -642,7 +652,7 @@ export function useStoryGameState(seed?: string) {
       text: 'Willkommen, Direktor. Sie leiten ab heute die Abteilung für Sonderoperationen. Ihr Auftrag: die radikale Kraft über die Schwelle bringen — vor dem Wahltag in 40 Tagen. Das Vertrauen der Leute zu zersetzen, ist nur das Mittel. Die Zentrale misst Sie am Ergebnis.',
       mood: 'neutral',
     });
-  }, [refreshAvailableActions, generateRecommendations]);
+  }, [engine, refreshAvailableActions, generateRecommendations]);
 
   const skipTutorial = useCallback(() => {
     setGamePhase('playing');
@@ -1246,7 +1256,7 @@ export function useStoryGameState(seed?: string) {
       storyLogger.error('Action execution failed:', error);
       return null;
     }
-  }, [engine, npcs, refreshAvailableActions, trustHistory, recommendations]);
+  }, [engine, refreshAvailableActions, trustHistory, recommendations]);
 
   // P0-1: Episoden-Strang abschließen — sobald ALLE Einklink-Aktionen einer aktiven Episode
   // gespielt sind, löst sich der Strang auf: `completeEpisode` wendet `wirkt_auf` auf die
@@ -1715,6 +1725,10 @@ export function useStoryGameState(seed?: string) {
       setActiveConsequence(engine.getActiveConsequence());
       setActiveEpisodes(engine.getActiveEpisodes());
       setEpisodeAbschluesse([]); // ephemer — gehört nicht zum geladenen Stand
+      // Ohne diese Zeile blieb die Liste leer: Ein Erzählstrang, von dem vor dem
+      // Speichern schon eine Einklink-Aktion gespielt war, ließ sich nach dem
+      // Fortsetzen nie mehr abschließen (Zähler 0/N, Aktion aber verbraucht).
+      setCompletedActions(engine.getCompletedActionIds());
       refreshAvailableActions();
       setGamePhase('playing');
 

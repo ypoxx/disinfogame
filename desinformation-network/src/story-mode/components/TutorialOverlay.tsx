@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, scrim } from '../theme';
 
 // ============================================
 // TYPES
@@ -261,7 +261,7 @@ export function TutorialOverlay({
   return (
     <div
       className="fixed inset-0 z-[100]"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}
+      style={{ backgroundColor: scrim('leicht') }}
     >
       {/* Highlight overlay */}
       {step.highlight && (

@@ -41,6 +41,7 @@
     {
       "id": "cons_bot_exposed",
       "type": "exposure",
+      "severity": "moderate",
       "triggered_by": ["2.1", "2.2", "5.1"],
       "label_de": "Bot-Netzwerk enttarnt",
       "narrative_de": "Forscher der Uni Westunion haben unser Bot-Netzwerk identifiziert. Tausende Accounts werden gesperrt.",
@@ -85,6 +86,7 @@
     {
       "id": "cons_troll_burnout",
       "type": "internal",
+      "severity": "minor",
       "triggered_by": ["2.3", "5.3"],
       "label_de": "Troll-Mitarbeiter erschöpft",
       "narrative_de": "Die ständige Online-Aggression fordert ihren Tribut. Mehrere Mitarbeiter kündigen oder brauchen Pausen.",
@@ -124,6 +126,7 @@
     {
       "id": "cons_fake_account_purge",
       "type": "exposure",
+      "severity": "moderate",
       "triggered_by": ["2.4", "5.4", "5.9"],
       "label_de": "Plattform-Säuberung",
       "narrative_de": "Die Plattform hat eine Säuberungsaktion durchgeführt. Hunderte unserer Fake-Accounts wurden gelöscht.",
@@ -158,6 +161,7 @@
     {
       "id": "cons_journalist_double",
       "type": "blowback",
+      "severity": "severe",
       "triggered_by": ["2.17"],
       "label_de": "Journalist wird Double Agent",
       "narrative_de": "Der rekrutierte Journalist hat uns verraten. Er arbeitet jetzt mit Investigativ-Reportern zusammen.",
@@ -199,6 +203,7 @@
     {
       "id": "cons_politician_scandal",
       "type": "blowback",
+      "severity": "moderate",
       "triggered_by": ["2.12", "2.18", "6.7"],
       "label_de": "Politiker-Skandal",
       "narrative_de": "Ein Politiker, den wir unterstützt haben, ist in einen Skandal verwickelt. Die Verbindung zu uns könnte auffliegen.",
@@ -217,7 +222,7 @@
         {
           "id": "distance",
           "label_de": "Distanz aufbauen",
-          "cost": {"political_influence": -0.3},
+          "cost": {"capacity": 2, "political_influence": -0.3},
           "outcome": "plausible_deniability"
         },
         {
@@ -237,6 +242,7 @@
     {
       "id": "cons_deepfake_detected",
       "type": "exposure",
+      "severity": "moderate",
       "triggered_by": ["3.5", "3.6"],
       "label_de": "Deepfake als Fälschung erkannt",
       "narrative_de": "Forensische Analyse hat unseren Deepfake als Fälschung entlarvt. Das Video geht viral - als Beispiel für Manipulation.",
@@ -276,6 +282,7 @@
     {
       "id": "cons_forged_doc_traced",
       "type": "exposure",
+      "severity": "moderate",
       "triggered_by": ["3.8", "8.13"],
       "label_de": "Gefälschte Dokumente zurückverfolgt",
       "narrative_de": "Experten haben unsere gefälschten Dokumente analysiert. Metadaten und Stilanalyse führen zu uns.",
@@ -309,6 +316,7 @@
     {
       "id": "cons_investigation",
       "type": "escalation",
+      "severity": "severe",
       "triggered_by": ["cons_bot_exposed", "cons_journalist_double", "cons_forged_doc_traced"],
       "label_de": "Investigative Recherche gestartet",
       "narrative_de": "Ein Team von Investigativ-Journalisten hat begonnen, unsere Operationen zu recherchieren.",
@@ -341,6 +349,7 @@
         {
           "id": "go_dark",
           "label_de": "Operationen pausieren",
+          "cost": {"capacity": 4},
           "effect": "all_actions_paused_2_phases",
           "outcome": "heat_reduction"
         },
@@ -356,6 +365,7 @@
     {
       "id": "cons_exposure_imminent",
       "type": "escalation",
+      "severity": "critical",
       "triggered_by": ["cons_investigation"],
       "label_de": "Enthüllung steht bevor",
       "narrative_de": "Die Recherche ist fast abgeschlossen. In wenigen Tagen wird alles öffentlich.",
@@ -400,6 +410,7 @@
     {
       "id": "cons_victim_suicide",
       "type": "collateral",
+      "severity": "severe",
       "triggered_by": ["8.1", "8.2", "5.3"],
       "label_de": "Opfer nimmt sich das Leben",
       "narrative_de": "Eine Person, die wir attackiert haben, hat sich das Leben genommen. Die Medien berichten über den Zusammenhang.",
@@ -428,6 +439,7 @@
         {
           "id": "pause_operations",
           "label_de": "Angriffs-Operationen pausieren",
+          "cost": {"capacity": 3},
           "effect": "targeting_paused_3_phases",
           "outcome": "temporary_restraint"
         },
@@ -452,6 +464,7 @@
     {
       "id": "cons_npc_moral_crisis",
       "type": "internal",
+      "severity": "moderate",
       "triggered_by": ["cons_victim_suicide", "8.7", "8.9"],
       "label_de": "Mitarbeiter in moralischer Krise",
       "narrative_de": "Marina kommt in Ihr Büro. 'Ich kann so nicht weitermachen. Wir zerstören Leben.'",
@@ -485,12 +498,14 @@
         {
           "id": "reduce_role",
           "label_de": "Von dunklen Ops fernhalten",
+          "cost": {"capacity": 2},
           "effect": "npc_restricted_actions",
           "outcome": "preserved_asset"
         },
         {
           "id": "let_go",
           "label_de": "Gehen lassen",
+          "cost": {"capacity": 3},
           "effect": "lose_npc",
           "risk": "potential_whistleblower"
         }
@@ -500,6 +515,7 @@
     {
       "id": "cons_whistleblower",
       "type": "escalation",
+      "severity": "critical",
       "triggered_by": ["cons_npc_moral_crisis"],
       "label_de": "Whistleblower geht an die Presse",
       "narrative_de": "Ein ehemaliger Mitarbeiter hat sich an Journalisten gewandt. Er hat Dokumente und ist bereit auszusagen.",
@@ -545,6 +561,7 @@
     {
       "id": "cons_election_backfire",
       "type": "blowback",
+      "severity": "moderate",
       "triggered_by": ["6.1", "6.2"],
       "label_de": "Wahlmanipulation geht nach hinten los",
       "narrative_de": "Unsere Einmischung wurde bemerkt. Die Gegenkandidaten nutzen es als Wahlkampfthema.",
@@ -570,6 +587,7 @@
         {
           "id": "withdraw",
           "label_de": "Sich zurückziehen",
+          "cost": {"capacity": 3},
           "effect": "lose_election_influence",
           "outcome": "cut_losses"
         }
@@ -578,6 +596,7 @@
     {
       "id": "cons_hack_traced",
       "type": "exposure",
+      "severity": "severe",
       "triggered_by": ["8.5", "8.6", "8.11"],
       "label_de": "Hack zurückverfolgt",
       "narrative_de": "Cybersecurity-Experten haben den Angriff bis zu Servern in Ostland zurückverfolgt.",
@@ -618,6 +637,7 @@
     {
       "id": "cons_sanctions",
       "type": "escalation",
+      "severity": "severe",
       "triggered_by": ["cons_hack_traced", "cons_exposure_imminent"],
       "label_de": "Sanktionen verhängt",
       "narrative_de": "Westunion hat Sanktionen gegen Personen und Organisationen mit Verbindung zu unseren Operationen verhängt.",
@@ -652,6 +672,7 @@
     {
       "id": "cons_think_tank_exposed",
       "type": "exposure",
+      "severity": "severe",
       "triggered_by": ["2.10", "3.15"],
       "label_de": "Think-Tank als Propaganda-Arm entlarvt",
       "narrative_de": "Investigative Recherchen haben die Verbindungen unseres Think-Tanks zu Ostland aufgedeckt.",
@@ -685,6 +706,7 @@
     {
       "id": "cons_community_turns",
       "type": "blowback",
+      "severity": "moderate",
       "triggered_by": ["5.4", "6.9", "7.1"],
       "label_de": "Community wendet sich gegen uns",
       "narrative_de": "Die Zielgruppe hat unsere Manipulation durchschaut. Unsere Accounts werden blockiert und gemeldet.",
@@ -719,6 +741,7 @@
     {
       "id": "cons_religious_backlash",
       "type": "blowback",
+      "severity": "moderate",
       "triggered_by": ["7.1", "7.3"],
       "label_de": "Religiöse Führung distanziert sich",
       "narrative_de": "Ein prominenter Religionsführer hat unsere Narrative öffentlich verurteilt.",
@@ -751,6 +774,7 @@
     {
       "id": "cons_unexpected_ally",
       "type": "opportunity",
+      "severity": "chance",
       "triggered_by": ["3.9", "3.10", "7.5"],
       "label_de": "Unerwarteter Verbündeter",
       "narrative_de": "Eine prominente Persönlichkeit hat unsere Narrative aufgegriffen - ohne dass wir sie kontaktiert haben.",
@@ -789,6 +813,7 @@
     {
       "id": "cons_viral_success",
       "type": "opportunity",
+      "severity": "chance",
       "triggered_by": ["3.2", "3.3", "5.2"],
       "label_de": "Viraler Erfolg übertrifft Erwartungen",
       "narrative_de": "Eines unserer Inhalte ist viral gegangen. Die Reichweite ist enorm - aber auch die Aufmerksamkeit.",
@@ -823,6 +848,7 @@
     {
       "id": "cons_fact_check_surge",
       "type": "escalation",
+      "severity": "moderate",
       "triggered_by": ["cons_viral_success"],
       "label_de": "Fact-Checker-Offensive",
       "narrative_de": "Der virale Erfolg hat die Aufmerksamkeit von Fact-Checkern auf sich gezogen. Mehrere Artikel werden gleichzeitig veröffentlicht.",
@@ -856,6 +882,7 @@
     {
       "id": "cons_internal_power_struggle",
       "type": "internal",
+      "severity": "minor",
       "triggered_by": ["budget_stress", "multiple_failures"],
       "label_de": "Interner Machtkampf",
       "narrative_de": "Der Direktor ist unter Druck von der Zentrale. Es gibt Gerüchte über Ihre Position.",
@@ -875,6 +902,7 @@
         {
           "id": "big_win",
           "label_de": "Großen Erfolg erzielen",
+          "cost": {"risk": 5},
           "effect": "increases_risk_taking",
           "outcome": "redemption_arc"
         },
@@ -896,6 +924,7 @@
     {
       "id": "cons_ai_content_backfire",
       "type": "blowback",
+      "severity": "moderate",
       "triggered_by": ["3.4", "3.5", "3.6"],
       "label_de": "AI-Content erzeugt unbeabsichtigtes Narrativ",
       "narrative_de": "Unser AI-generierter Content hat ein Eigenleben entwickelt. Die Algorithmen haben Muster erkannt und ein Narrativ verstärkt, das nicht in unserem Interesse ist.",
@@ -936,6 +965,7 @@
     {
       "id": "cons_international_coalition",
       "type": "escalation",
+      "severity": "critical",
       "triggered_by": ["cons_hack_traced", "cons_sanctions"],
       "label_de": "Internationale Koalition formiert sich",
       "narrative_de": "Mehrere Westunion-Staaten und internationale Partner haben eine gemeinsame Front gegen unsere Operationen gebildet. Die Schlinge zieht sich zu.",
@@ -957,6 +987,7 @@
         {
           "id": "retreat",
           "label_de": "Operationen auf Kerngebiet beschränken",
+          "cost": {"capacity": 4},
           "effect": "reduced_scope",
           "outcome": "survival_mode"
         },

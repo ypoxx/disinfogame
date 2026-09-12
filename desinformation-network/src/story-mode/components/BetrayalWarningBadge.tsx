@@ -1,4 +1,4 @@
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, StoryModeWorld } from '../theme';
 import { Icon } from './Icon';
 import type { BetrayalWarningLevel } from '../engine/BetrayalSystem';
 
@@ -26,11 +26,11 @@ export function BetrayalWarningBadge({
 
   const getWarningColor = () => {
     switch (warningLevel) {
-      case 1: return '#F0B429';  // hell — Badge liegt auf dunklem Chip
+      case 1: return StoryModeWorld.amber;  // hell — Badge liegt auf dunklem Chip
       case 2: return '#FF8C00';                 // Orange - mid warning
       case 3: return '#FF4500';                 // Red-orange - critical
       case 4: return StoryModeColors.danger;   // Red - imminent
-      default: return '#F0B429';
+      default: return StoryModeWorld.amber;
     }
   };
 

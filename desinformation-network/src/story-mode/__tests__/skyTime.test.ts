@@ -45,9 +45,8 @@ describe('skyTime', () => {
     expect(day.dusk).toBe(0);
     expect(day.night).toBe(0);
 
-    const dusk = skylineLayersForMinutes(0.7 * 540); // goldene Stunde (t≈0.7)
+    const dusk = skylineLayersForMinutes(450); // 16:30 — Dämmerung steht
     expect(dusk.dusk).toBeGreaterThan(0.5);
-    expect(dusk.night).toBe(0);
 
     const night = skylineLayersForMinutes(540); // Nacht (t=1)
     expect(night.night).toBe(1);
@@ -61,5 +60,57 @@ describe('skyTime', () => {
         expect(v).toBeLessThanOrEqual(1);
       }
     }
+  });
+
+  /**
+   * P13 (Fremdmodell-Durchgang 2026-08-22): Die Rampen lagen so früh, dass der
+   * Arbeitstag im Dunkeln endete — Dämmerung ab 13:30, volle Nacht um 17:17, also
+   * 43 Minuten VOR dem Feierabend um 18:00. Das ist die eigentliche Zusicherung,
+   * nicht die konkrete Rampen-Zahl.
+   */
+  describe('Tageslicht hält bis zum Feierabend', () => {
+    it('ist mittags noch tageshell — keine Dämmerung vor 14:30', () => {
+      for (const min of [0, 90, 180, 270, 330]) {
+        expect(skylineLayersForMinutes(min).dusk, `${min} min nach 09:00`).toBe(0);
+        expect(skylineLayersForMinutes(min).night).toBe(0);
+      }
+    });
+
+    it('erreicht die volle Nacht frühestens zum Redaktionsschluss', () => {
+      expect(skylineLayersForMinutes(539).night).toBeLessThan(1);
+      expect(skylineLayersForMinutes(540).night).toBe(1);
+    });
+
+    it('lässt den Nachmittag nicht abrupt kippen', () => {
+      // Zwischen 15:00 und 18:00 wächst die Nacht monoton, ohne Sprung > 0,2.
+      let vorher = skylineLayersForMinutes(360).night;
+      for (let min = 366; min <= 540; min += 6) {
+        const jetzt = skylineLayersForMinutes(min).night;
+        expect(jetzt).toBeGreaterThanOrEqual(vorher);
+        expect(jetzt - vorher).toBeLessThan(0.2);
+        vorher = jetzt;
+      }
+    });
+  });
+
+  /** Der Verlauf muss dort enden, wo der Himmel aufhört — nicht am Fensterrand. */
+  describe('Verlaufs-Geometrie folgt der sichtbaren Himmelszone', () => {
+    it('staucht die Stützpunkte auf den sichtbaren Anteil', () => {
+      const g = skyGradientForMinutes(300, 540, 0.44);
+      expect(g).toContain('44%');
+      expect(g).toContain('26%'); // 58 % von 44 %
+    });
+
+    it('hält den Horizont-Ton von dort bis zum Fensterrand', () => {
+      const g = skyGradientForMinutes(300, 540, 0.44);
+      const horizont = skyStopsForMinutes(300).horizon;
+      expect(g).toContain(`${horizont} 44%`);
+      expect(g).toContain(`${horizont} 100%`);
+    });
+
+    it('bleibt ohne Angabe beim alten Vollfenster-Verlauf', () => {
+      expect(skyGradientForMinutes(300)).toBe(skyGradientForMinutes(300, 540, 1));
+      expect(skyGradientForMinutes(300)).toContain('58%');
+    });
   });
 });

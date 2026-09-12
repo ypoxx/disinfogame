@@ -19,6 +19,7 @@ import type {
   AdvisorRecommendation,
 } from '../AdvisorRecommendation';
 import { generateRecommendationId } from '../AdvisorRecommendation';
+import type { BewerteterAkteur } from './typen';
 
 export class KatjaAnalysisStrategy implements NPCAnalysisStrategy {
   public getNPCName(): string {
@@ -312,7 +313,7 @@ export class KatjaAnalysisStrategy implements NPCAnalysisStrategy {
   /**
    * Check if actor is suitable recruitment target
    */
-  private isRecruitmentTarget(actor: any): boolean {
+  private isRecruitmentTarget(actor: BewerteterAkteur): boolean {
     return (
       actor.trust < 0.4 && // Vulnerable
       actor.influence > 0.6 && // Valuable
@@ -324,7 +325,7 @@ export class KatjaAnalysisStrategy implements NPCAnalysisStrategy {
   /**
    * Calculate recruitment difficulty based on actor properties
    */
-  private calculateRecruitmentDifficulty(actor: any): number {
+  private calculateRecruitmentDifficulty(actor: BewerteterAkteur): number {
     let difficulty = 0.5; // Base difficulty
 
     // Lower trust = easier recruitment

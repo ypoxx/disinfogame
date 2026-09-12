@@ -8,7 +8,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAssets } from '../assets/useAssets';
 import { useElementSize, useNaturalSize, usePixelCover } from '../hooks/usePixelFit';
-import { StoryModeColors, StoryModeFonts } from '../theme';
+import { StoryModeColors, StoryModeFonts, StoryModeWorld } from '../theme';
 import { isSoundEnabled, setSoundEnabled, playMusic } from '../utils/SoundSystem';
 import { GAME_VERSION, BUILD_STAMP, CHANGELOG } from '../version';
 
@@ -70,7 +70,7 @@ function ChangelogOverlay({ onClose }: { onClose: () => void }): JSX.Element {
               color: StoryModeColors.surfaceLight,
               fontWeight: 700,
               letterSpacing: '0.1em',
-              fontSize: '0.9rem',
+              fontSize: 14,
             }}
           >
             CHANGELOG
@@ -84,7 +84,7 @@ function ChangelogOverlay({ onClose }: { onClose: () => void }): JSX.Element {
               color: StoryModeColors.surfaceLight,
               cursor: 'pointer',
               fontFamily: "'VT323', monospace",
-              fontSize: '1rem',
+              fontSize: 16,
               lineHeight: 1,
               padding: '2px 8px',
               transition: 'color 120ms, border-color 120ms',
@@ -107,10 +107,10 @@ function ChangelogOverlay({ onClose }: { onClose: () => void }): JSX.Element {
           {CHANGELOG.map((entry) => (
             <div key={entry.version}>
               <div style={{ display: 'flex', gap: 12, alignItems: 'baseline', marginBottom: 6 }}>
-                <span style={{ color: StoryModeColors.warning, fontWeight: 700, fontSize: '0.85rem' }}>
+                <span style={{ color: StoryModeColors.warning, fontWeight: 700, fontSize: 14 }}>
                   v{entry.version}
                 </span>
-                <span style={{ color: StoryModeColors.textMuted, fontSize: '0.75rem' }}>
+                <span style={{ color: StoryModeColors.textMuted, fontSize: 12 }}>
                   {entry.date}
                 </span>
               </div>
@@ -118,7 +118,7 @@ function ChangelogOverlay({ onClose }: { onClose: () => void }): JSX.Element {
                 {entry.points.map((point, i) => (
                   <li
                     key={i}
-                    style={{ color: StoryModeColors.textPrimary, fontSize: '0.8rem', lineHeight: 1.6 }}
+                    style={{ color: StoryModeColors.textPrimary, fontSize: 13, lineHeight: 1.6 }}
                   >
                     {point}
                   </li>
@@ -219,7 +219,6 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasSave, onContinue, onNewGame]);
 
   // Hintergrund-Stil: Pixel-Art-Bild oder dunkler Verlauf.
@@ -321,7 +320,7 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
         <h1
           style={{
             // v3: warning ist Marker-Tinte — Titel über dem Nachtbild bleibt helles v2-Amber (diegetisch).
-            color: '#F0B429',
+            color: StoryModeWorld.amber,
             // Press Start 2P (Headlines-Set): läuft deutlich breiter → kleinere clamp + engeres Tracking,
             // damit „OPERATION: WESTUNION" auf schmalen Schirmen nicht überläuft (Preview gegenprüfen).
             fontFamily: StoryModeFonts.display,
@@ -333,7 +332,7 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
             marginBottom: 8,
             textAlign: 'center',
             animation: 'ts-flicker 3.5s ease-in-out 0.8s both, ts-fade-slide .6s ease .3s both',
-            textShadow: `0 0 18px #F0B42966`,
+            textShadow: `0 0 18px ${StoryModeWorld.amber}66`,
           }}
         >
           OPERATION: WESTUNION
@@ -344,7 +343,7 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
           style={{
             // v3: dunkles Nachtbild → heller Papier-Ton statt Tinten-Token.
             color: StoryModeColors.lightConcrete,
-            fontSize: '0.95rem',
+            fontSize: 16,
             letterSpacing: '0.08em',
             margin: 0,
             marginBottom: 40,
@@ -409,7 +408,7 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
               border: `2px solid ${StoryModeColors.borderLight}`,
               // v3: dunkles Nachtbild → helle Papier-Töne statt Tinten-Token.
               color: StoryModeColors.lightConcrete,
-              fontSize: '0.8rem',
+              fontSize: 13,
               letterSpacing: '0.06em',
               padding: '5px 12px',
               cursor: 'pointer',
@@ -430,7 +429,7 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
           <span
             style={{
               color: StoryModeColors.lightConcrete,
-              fontSize: '0.72rem',
+              fontSize: 11,
               letterSpacing: '0.04em',
             }}
           >
@@ -444,9 +443,9 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
             marginTop: 16,
             padding: '6px 12px',
             // v3: warning ist Marker-Tinte — über dem Nachtbild helles v2-Amber (diegetisch).
-            border: `1px solid #F0B429`,
-            color: '#F0B429',
-            fontSize: '0.68rem',
+            border: `1px solid ${StoryModeWorld.amber}`,
+            color: StoryModeWorld.amber,
+            fontSize: 11,
             letterSpacing: '0.04em',
             textAlign: 'center',
             maxWidth: 480,
@@ -465,7 +464,7 @@ export function TitleScreen({ onNewGame, onContinue, hasSave }: TitleScreenProps
             border: 'none',
             // v3: dunkles Nachtbild → heller Papier-Ton statt Tinten-Token.
             color: StoryModeColors.lightConcrete,
-            fontSize: '0.68rem',
+            fontSize: 11,
             letterSpacing: '0.06em',
             textAlign: 'center',
             cursor: 'pointer',
@@ -524,7 +523,7 @@ function MenuButton({ label, onClick, delay, ariaLabel, accent }: MenuButtonProp
         width: '100%',
         maxWidth: 340,
         padding: '14px 32px',
-        fontSize: '1rem',
+        fontSize: 16,
         fontWeight: 700,
         letterSpacing: '0.1em',
         textTransform: 'uppercase',

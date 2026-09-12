@@ -51,8 +51,10 @@ export const ANBIETER = {
     hatPreise: true,
     /** Nur OpenRouter kennt provider-Routing und usage.include. */
     routing: true,
-    /** Clips als `video_url`-ContentPart — von OpenRouter durchgereicht. */
-    videoEingang: true,
+    /** OpenRouter normalisiert `temperature` für jedes Modell. */
+    nimmtTemperatur: true,
+    /** Ob Clips überhaupt gehen, entscheidet dort das Modell (input_modalities). */
+    kannVideo: null,
   },
   openai: {
     id: 'openai',
@@ -61,11 +63,18 @@ export const ANBIETER = {
     // OpenAIs /v1/models nennt keine Preise → keine Vorab-Schätzung möglich.
     hatPreise: false,
     routing: false,
-    // Die Chat-Completions-API von OpenAI kennt keinen `video_url`-ContentPart
-    // (erlaubt sind text, image_url, input_audio, refusal, audio, file) und
-    // beantwortet Clips mit HTTP 400. Statt dessen: `frames` — Schlüsselbilder
-    // aus den Clips ziehen und als Bilder schicken.
-    videoEingang: false,
+    // Die Denk-Modelle der GPT-5-Reihe lehnen jedes `temperature` ab, das nicht
+    // der Vorgabe 1 entspricht — gemessen am 2026-08-22 gegen gpt-5.6-sol:
+    //   HTTP 400 · "Unsupported value: 'temperature' does not support 0.3 with
+    //   this model. Only the default (1) value is supported."
+    // Der Default 0.3 der CLI hätte also JEDEN OpenAI-Lauf gekippt. Deshalb
+    // geht das Feld hier nur mit, wenn es ausdrücklich verlangt wurde.
+    nimmtTemperatur: false,
+    // OpenAIs /chat/completions kennt gar keinen `video_url`-Inhaltsteil — egal
+    // welches Modell. Ohne diese Vorgabe würde `serie` Clip-Bündel an OpenAI
+    // schicken, weil ohne Katalog niemand widerspricht: HTTP 400 statt Bericht.
+    // Der Weg über Einzelbilder (`frames`) bleibt davon unberührt.
+    kannVideo: false,
   },
 };
 

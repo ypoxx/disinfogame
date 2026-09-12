@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StoryModeColors } from '../theme';
+import { StoryModeColors, paperButtonStyle, paperButtonClass } from '../theme';
 import type { ActionResult } from '../../game-logic/StoryEngineAdapter';
 import { SOCIETY_VALUE_META, type SocietyValueKey } from '../../game-logic/StoryEngineAdapter';
 import { COMBO_COLORS } from '../../utils/colors';
@@ -24,12 +24,17 @@ export function ActionFeedbackDialog({
   audienceSegments,
   onClose,
 }: ActionFeedbackDialogProps) {
+  // Hooks IMMER vor dem Early Return: Stand `useState` darunter, änderte sich
+  // die Hook-Anzahl in dem Moment, in dem der Dialog sichtbar wurde — React
+  // quittiert das mit „Rendered more hooks than during the previous render"
+  // und reißt (ohne Fehlergrenze) den ganzen Baum mit.
+  const [expandedIndex, setExpandedIndex] = useState<number>(0);
+
   if (!isVisible || !result) return null;
 
   // Handle both single and multiple results
   const results = Array.isArray(result) ? result : [result];
   const isBatchMode = Array.isArray(result) && result.length > 1;
-  const [expandedIndex, setExpandedIndex] = useState<number>(0);
 
   // T3.6 (Option C): NPC-Reaktion mit Gesicht direkt im Modal rendern (eine Anzeige
   // statt zusätzlicher Pop-up-Box). Mood/Label/Farbe aus dem Reaktions-Typ ableiten.
@@ -239,13 +244,8 @@ export function ActionFeedbackDialog({
           <div className="flex justify-end">
             <button
               onClick={onClose}
-              className="px-6 py-2 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
-              style={{
-                backgroundColor: StoryModeColors.ministryRed,
-                borderColor: StoryModeColors.darkRed,
-                color: '#fff',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-              }}
+              className={`px-6 py-2 border-4 font-bold ${paperButtonClass}`}
+              style={paperButtonStyle}
             >
               VERSTANDEN
             </button>
@@ -547,13 +547,8 @@ export function ActionFeedbackDialog({
         <div className="flex justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-2 border-4 font-bold transition-all hover:brightness-110 active:translate-y-0.5"
-            style={{
-              backgroundColor: StoryModeColors.ministryRed,
-              borderColor: StoryModeColors.darkRed,
-              color: '#fff',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.35)',
-            }}
+            className={`px-6 py-2 border-4 font-bold ${paperButtonClass}`}
+            style={paperButtonStyle}
           >
             VERSTANDEN
           </button>

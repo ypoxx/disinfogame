@@ -26,7 +26,9 @@ import {
   resetConsequenceSystem,
   type ActiveConsequence as EngineActiveConsequence,
   type ConsequenceEffects,
-} from '../story-mode/engine/ConsequenceSystem';
+  type ConsequenceSeverity, type ConsequenceChoiceCost } from '../story-mode/engine/ConsequenceSystem';
+
+import { ausgangText } from '../story-mode/engine/consequenceOutcome';
 
 import {
   DialogLoader,
@@ -208,6 +210,7 @@ import {
   AUFTRAEGE,
   auftragProgress,
   auftragMissionVerdict,
+  AUFTRAG_SIEG_SCHWELLE,
   PARTEI_NAME_DE,
   type Auftrag,
   type AuftragId,
@@ -526,18 +529,27 @@ export interface PendingConsequence {
 
   // Info
   label_de: string;
-  label_en: string;
-  severity: 'minor' | 'moderate' | 'severe' | 'critical';
+  /** In den Daten nicht gepflegt — das Spiel ist deutsch (VISION_LOCK). */
+  label_en?: string;
+  severity: ConsequenceSeverity;
   type: 'exposure' | 'blowback' | 'escalation' | 'internal' | 'collateral' | 'opportunity';
 
   // Spieler-Optionen (wenn aktiviert)
   choices?: {
     id: string;
     label_de: string;
-    label_en: string;
-    cost?: Partial<StoryResources>;
-    outcome_de: string;
-    outcome_en: string;
+    label_en?: string;
+    /**
+     * Die Form der DATEN, nicht die der Ressourcen. `Partial<StoryResources>`
+     * stand hier und kannte deshalb nur `moralWeight` — die Daten schreiben
+     * aber `moral_weight` (3 Wahlen) und `political_influence` (1). Beide
+     * wurden von Adapter und Modal stillschweigend übergangen: Der Preis war
+     * im Text versprochen und wurde nie gezogen.
+     */
+    cost?: ConsequenceChoiceCost;
+    /** Lesbarer Ausgang, abgeleitet aus dem `outcome`-Bezeichner der Daten. */
+    outcome_de?: string;
+    outcome_en?: string;
   }[];
 }
 
@@ -599,11 +611,13 @@ export interface NewsEvent {
   id: string;
   phase: number;
 
-  // Inhalt
+  // Inhalt. Die englischen Felder sind optional: Das Spiel ist deutsch
+  // (VISION_LOCK), und ein Teil der Spieldaten pflegt sie gar nicht erst.
+  // Als Pflichtfelder erzwangen sie bisher `undefined`-Zuweisungen.
   headline_de: string;
-  headline_en: string;
+  headline_en?: string;
   description_de: string;
-  description_en: string;
+  description_en?: string;
 
   // Typ
   type: 'action_result' | 'consequence' | 'world_event' | 'npc_event' | 'npc_reaction';
@@ -701,7 +715,19 @@ export interface GameEndState {
  *        Tranchen-Zustand (Mahnstufe/Bezugspunkt) + Läufer-Historie. Altstände erben
  *        Defaults (Mahnstufe 0, Bezugspunkt = aktueller Fortschritt).
  */
-export const SAVE_FORMAT_VERSION = '2.3.0';
+export const SAVE_FORMAT_VERSION = '2.4.0';
+
+/**
+ * Startwerte, auf die sich Anzeigen und Berater beziehen dürfen.
+ *
+ * Der Berater rechnete mit erfundenen Maxima (`maxBudget: 1000`,
+ * `maxCapacity: 100`), während das Spiel mit 150 bzw. 10 arbeitet. Er meldete
+ * deshalb ab dem ersten Zug „Budget kritisch: 15 %" — bei voller Kasse. Eine
+ * Warnung, die immer an ist, trägt keine Information; der Spieler lernt, die
+ * Berater-Prioritäten zu ignorieren.
+ */
+export const START_BUDGET = 150;
+export const MAX_CAPACITY = 10;
 
 // Datenintegritäts-Check (P0/R3): nur EINMAL über die Lebenszeit des Moduls laufen
 // lassen — die Daten sind statisch importiert, und die Balance-Sim erzeugt Dutzende
@@ -745,7 +771,9 @@ export class StoryEngineAdapter {
   // Etappe 3 (Paket E): 0.5 → 0.6 — mit dem Immunsystem (Regeneration + Dämpfung) darf die
   // Latte höher liegen; passives Drift-Spiel erreicht das Plateau (~0.53) nicht mehr.
   // Der Rest des Wegs Richtung 1.0 folgt mit der Aktions-Kuratierung (Etappe 5).
-  private readonly WIN_THRESHOLD = 0.6;
+  // Die Zahl selbst wohnt jetzt bei der Fortschrittsrechnung (Auftraege.ts),
+  // damit die Akte nicht gegen einen anderen Wert rechnet als der Siegcheck.
+  private readonly WIN_THRESHOLD = AUFTRAG_SIEG_SCHWELLE;
   // P2-7: Track world event cooldowns (eventId -> last triggered phase)
   private worldEventCooldowns: Map<string, number> = new Map();
   private readonly WORLD_EVENT_COOLDOWN = 6;   // Etappe 2: 6 Tage Cooldown (vorher 12 Phasen = „1 Jahr")
@@ -940,8 +968,8 @@ export class StoryEngineAdapter {
 
   private createInitialResources(): StoryResources {
     return {
-      budget: 150,            // P1-5 Fix: Increased from 100 to 150
-      capacity: 5,            // Volle Kapazität
+      budget: START_BUDGET,   // P1-5 Fix: Increased from 100 to 150
+      capacity: 5,            // Volle Kapazität (Obergrenze: MAX_CAPACITY)
       risk: 0,
       attention: 0,
       moralWeight: 0,
@@ -1095,7 +1123,7 @@ export class StoryEngineAdapter {
     const resourceChanges: Partial<StoryResources> = {
       capacity: Math.min(
         this.storyResources.capacity + this.CAPACITY_REGEN_PER_PHASE,
-        10 // Max Capacity
+        MAX_CAPACITY
       ),
       actionPointsRemaining: this.ACTION_POINTS_PER_PHASE,
       // Etappe 5 (E18): KEIN passiver Budget-Regen mehr — die Zentrale zahlt in Tranchen
@@ -1426,22 +1454,29 @@ export class StoryEngineAdapter {
         triggeredAtPhase: currentPhase - 2, // Approximate
         activatesAtPhase: currentPhase,
         label_de: engineActive.consequence.label_de,
-        label_en: engineActive.consequence.label_en,
         severity: engineActive.consequence.severity,
         type: engineActive.consequence.type,
         requiresChoice: engineActive.choices.length > 0,
         deadline: engineActive.deadline,
         effects: engineActive.consequence.effects,
+        // Die Wahl-Kosten heißen in `consequences.json` `cost` (Einzahl) und
+        // tragen snake_case-Schlüssel. Hier stand früher `c.costs` — ein Feld,
+        // das es nie gab. Ergebnis: `cost` war IMMER undefined, und das
+        // Konsequenz-Modal zeigte bei keiner einzigen der 36 kostenpflichtigen
+        // Wahlen an, was sie kostet. Häufigste Kostenart ist `capacity` (23×),
+        // die hier obendrein gar nicht abgebildet war.
         choices: engineActive.choices.map(c => ({
           id: c.id,
           label_de: c.label_de,
-          label_en: c.label_en,
-          cost: c.costs ? {
-            budget: c.costs.budget,
-            moralWeight: c.costs.moral_weight,
+          cost: c.cost ? {
+            budget: c.cost.budget,
+            capacity: c.cost.capacity,
+            risk: c.cost.risk,
+            moral_weight: c.cost.moral_weight,
           } : undefined,
-          outcome_de: c.outcome_de,
-          outcome_en: c.outcome_en,
+          // `outcome` ist in den Daten ein Bezeichner, kein Text. Die lesbare
+          // Fassung steht in consequenceOutcome.ts.
+          outcome_de: ausgangText(c.outcome),
         })),
       };
 
@@ -1538,8 +1573,8 @@ export class StoryEngineAdapter {
       const marina = this.npcStates.get('marina');
       if (marina) {
         let moraleChange = -8;
-        let headline_de = 'Marina: Sicherheitsbedenken';
-        let headline_en = 'Marina: Security Concerns';
+        const headline_de = 'Marina: Sicherheitsbedenken';
+        const headline_en = 'Marina: Security Concerns';
         let reaction_de = '*blättert durch Berichte* Wenn sie unsere Bots erkannt haben, könnten sie den Geldfluss zurückverfolgen.';
         let reaction_en = '*flips through reports* If they detected our bots, they might trace the money flow.';
 
@@ -1616,9 +1651,9 @@ export class StoryEngineAdapter {
       // KATJA - Empathetic, feels the human cost
       const katja = this.npcStates.get('katja');
       if (katja) {
-        let moraleChange = -12;
-        let headline_de = 'Katja: Menschliche Kosten';
-        let headline_en = 'Katja: Human Cost';
+        const moraleChange = -12;
+        const headline_de = 'Katja: Menschliche Kosten';
+        const headline_en = 'Katja: Human Cost';
         let reaction_de = '*leise* Wir vergessen manchmal, dass echte Menschen unsere Worte schreiben. Sie leiden darunter.';
         let reaction_en = '*quietly* We sometimes forget that real people write our words. They suffer from it.';
 
@@ -1770,9 +1805,9 @@ export class StoryEngineAdapter {
       // KATJA - Moral reckoning
       const katja = this.npcStates.get('katja');
       if (katja) {
-        let moraleChange = -14;
-        let headline_de = 'Katja: Moralische Rechnung';
-        let headline_en = 'Katja: Moral Reckoning';
+        const moraleChange = -14;
+        const headline_de = 'Katja: Moralische Rechnung';
+        const headline_en = 'Katja: Moral Reckoning';
         let reaction_de = '*ruhig aber blass* Vielleicht... vielleicht ist das die Konsequenz, die wir verdienen.';
         let reaction_en = '*calm but pale* Perhaps... perhaps this is the consequence we deserve.';
 
@@ -2509,16 +2544,13 @@ export class StoryEngineAdapter {
 
     // Add to news - get description from consequence definition
     const definition = this.consequenceSystem.getDefinition(consequence.consequenceId);
-    const description_de = definition?.description_de || 'Eine Konsequenz Ihrer Aktionen...';
-    const description_en = definition?.description_en || 'A consequence of your actions...';
+    const description_de = definition?.narrative_de || 'Eine Konsequenz Ihrer Aktionen...';
 
     this.newsEvents.unshift({
       id: `news_${Date.now()}`,
       phase: this.storyPhase.number,
       headline_de: consequence.label_de,
-      headline_en: consequence.label_en,
       description_de,
-      description_en,
       type: 'consequence',
       severity: consequence.severity === 'critical' ? 'danger' :
                 consequence.severity === 'severe' ? 'warning' : 'info',
@@ -2566,9 +2598,7 @@ export class StoryEngineAdapter {
       id: `news_ignored_${Date.now()}`,
       phase: currentPhase,
       headline_de: `${consequence.label_de} - Ignoriert!`,
-      headline_en: `${consequence.label_en} - Ignored!`,
       description_de: `Sie haben nicht rechtzeitig reagiert. Die Situation eskaliert.`,
-      description_en: `You failed to respond in time. The situation escalates.`,
       type: 'consequence',
       severity: 'danger',
       sourceConsequenceId: consequence.id,
@@ -3107,13 +3137,14 @@ export class StoryEngineAdapter {
         }
         return false;
 
-      case 'objective_progress':
+      case 'objective_progress': {
         // Trigger based on objective progress
         const objective = this.objectives.find(o => o.category === trigger.conditions.objective);
         if (objective && objective.currentValue >= (trigger.conditions.progressAbove || 50)) {
           return eventRandom < (trigger.conditions.probability || 0.3);
         }
         return false;
+      }
 
       case 'relationship_threshold':
         // Trigger when any NPC relationship exceeds threshold
@@ -3525,7 +3556,11 @@ export class StoryEngineAdapter {
       tags: loaded.tags,
       legality: loaded.legality,
       costs: {
-        budget: loaded.costs.budget,
+        // Der NPC-Rabatt greift HIER, ein einziges Mal. Alles, was danach mit
+        // `costs.budget` rechnet — Karte, Terminal, Warteschlange, Tafel und
+        // das Abbuchen — sieht dieselbe Zahl. Vorher wurde erst beim Abbuchen
+        // rabattiert, sodass die Anzeige durchweg den Listenpreis nannte.
+        budget: this.rabattierterBudgetpreis(loaded),
         capacity: loaded.costs.capacity,
         risk: loaded.costs.risk,
         attention: loaded.costs.attention,
@@ -3859,7 +3894,8 @@ export class StoryEngineAdapter {
     // (analog deductActionCosts).
     const resourceChanges: Partial<StoryResources> = { ...action.costs };
     if (resourceChanges.budget) {
-      resourceChanges.budget = -Math.ceil(resourceChanges.budget * (1 - this.calculateNPCDiscount(action) / 100));
+      // Bereits der Effektivpreis — nur noch das Vorzeichen drehen.
+      resourceChanges.budget = -resourceChanges.budget;
     }
     if (resourceChanges.capacity) resourceChanges.capacity = -resourceChanges.capacity;
 
@@ -5184,6 +5220,26 @@ export class StoryEngineAdapter {
   getCarrierState(carrierId: string): CarrierState {
     return this.carrierStates.get(carrierId) ?? 'verfügbar';
   }
+  /**
+   * Die IDs der erfolgreich gespielten regulären Aktionen.
+   *
+   * Der Hook führt `completedActions` als eigene Liste und setzte sie beim
+   * Laden nicht zurück — der Zähler eines Erzählstrangs stand danach wieder bei
+   * 0/N, während die Engine die Aktion längst als verbraucht führte und aus dem
+   * Terminal filterte. Der Strang war damit **nicht mehr abschließbar** und
+   * blockierte dauerhaft einen Brett-Slot.
+   *
+   * Die Liste wird aus der ohnehin gespeicherten `actionHistory` rekonstruiert.
+   * `op_`-Einträge sind synthetische Operations-Buchungen (siehe playOperation)
+   * und zählen nicht als gespielte Aktion.
+   */
+  getCompletedActionIds(): string[] {
+    const ids = this.actionHistory
+      .filter((h) => h.result?.success && !h.actionId.startsWith('op_'))
+      .map((h) => h.actionId);
+    return Array.from(new Set(ids));
+  }
+
   getCarrierStates(): Record<string, CarrierState> {
     const out: Record<string, CarrierState> = {};
     for (const c of loadCarriers()) out[c.id] = this.getCarrierState(c.id);
@@ -5419,15 +5475,13 @@ export class StoryEngineAdapter {
     return this.convertToStoryAction(loaded);
   }
 
+
   private canAffordAction(action: StoryAction): boolean {
     const costs = action.costs;
 
-    // Calculate discounted budget cost based on NPC affinity
-    if (costs.budget) {
-      const discountPercent = this.calculateNPCDiscount(action);
-      const actualCost = Math.ceil(costs.budget * (1 - discountPercent / 100));
-      if (this.storyResources.budget < actualCost) return false;
-    }
+    // `costs.budget` ist bereits der Effektivpreis — die angezeigte Zahl ist
+    // genau die, gegen die hier geprüft wird.
+    if (costs.budget && this.storyResources.budget < costs.budget) return false;
 
     if (costs.capacity && this.storyResources.capacity < costs.capacity) return false;
     if (this.storyResources.actionPointsRemaining <= 0) return false;
@@ -5440,10 +5494,27 @@ export class StoryEngineAdapter {
    * Returns discount percentage (0-50)
    */
   private calculateNPCDiscount(action: StoryAction): number {
+    return this.npcRabattProzent(action.npcAffinity);
+  }
+
+  /**
+   * Der Budgetpreis nach NPC-Rabatt — die Zahl, die der Spieler sieht UND zahlt.
+   *
+   * Wird während der Umwandlung gebraucht, wenn die StoryAction noch nicht
+   * existiert; arbeitet deshalb direkt auf den Affinitäts-IDs der Rohdaten.
+   */
+  private rabattierterBudgetpreis(loaded: { costs: { budget?: number }; npc_affinity?: string[] }): number | undefined {
+    const roh = loaded.costs.budget;
+    if (!roh) return roh;
+    const rabatt = this.npcRabattProzent(loaded.npc_affinity ?? []);
+    return Math.ceil(roh * (1 - rabatt / 100));
+  }
+
+  private npcRabattProzent(npcAffinity: readonly string[]): number {
     let totalDiscount = 0;
 
     // Check all NPCs with affinity to this action
-    for (const npcId of action.npcAffinity) {
+    for (const npcId of npcAffinity) {
       const npc = this.npcStates.get(npcId);
       if (!npc) continue;
 
@@ -5469,20 +5540,11 @@ export class StoryEngineAdapter {
   private deductActionCosts(action: StoryAction, npcAssist?: string): void {
     const costs = action.costs;
 
-    // Calculate NPC discount (applies to budget costs)
-    const discountPercent = this.calculateNPCDiscount(action);
-    const costMultiplier = 1 - (discountPercent / 100);
-
-    // Log discount if significant
-    if (discountPercent > 0 && costs.budget) {
-      const originalCost = costs.budget;
-      const discountedCost = Math.ceil(originalCost * costMultiplier);
-      const saved = originalCost - discountedCost;
-      storyLogger.log(`💸 Cost Reduction: ${originalCost} → ${discountedCost} (saved ${saved}, -${discountPercent.toFixed(1)}%)`);
-    }
-
+    // `costs.budget` trägt bereits den NPC-Rabatt (convertToStoryAction).
+    // Hier ein zweites Mal zu rabattieren hieße: der Spieler zahlt weniger als
+    // angezeigt — derselbe Bruch wie vorher, nur in die andere Richtung.
     if (costs.budget) {
-      this.storyResources.budget -= Math.ceil(costs.budget * costMultiplier);
+      this.storyResources.budget -= costs.budget;
     }
     if (costs.capacity) {
       this.storyResources.capacity -= costs.capacity;
@@ -5742,19 +5804,18 @@ export class StoryEngineAdapter {
           triggeredAtPhase: pending.triggeredAtPhase,
           activatesAtPhase: pending.activatesAtPhase,
           label_de: def.label_de,
-          label_en: def.label_en,
           severity: def.severity,
           type: def.type,
           choices: def.player_choices.map(c => ({
             id: c.id,
             label_de: c.label_de,
-            label_en: c.label_en,
-            cost: c.costs ? {
-              budget: c.costs.budget,
-              moralWeight: c.costs.moral_weight,
+            cost: c.cost ? {
+              budget: c.cost.budget,
+              capacity: c.cost.capacity,
+              risk: c.cost.risk,
+              moral_weight: c.cost.moral_weight,
             } : undefined,
-            outcome_de: c.outcome_de,
-            outcome_en: c.outcome_en,
+            outcome_de: ausgangText(c.outcome),
           })),
         });
 
@@ -6254,35 +6315,29 @@ export class StoryEngineAdapter {
       return { success: false };
     }
 
-    // Apply costs from the choice
+    // Kosten der Wahl anwenden. `risk` (5 Wahlen, bis +15) und das
+    // Moralgewicht auf Wahl-Ebene (4 Wahlen) wurden bisher verschluckt: der
+    // Block kannte nur budget/capacity/moralWeight, und der anschließende
+    // Effekt-Block hing an einem Feld `effects`, das es in den Daten nie gab.
     if (choice.cost) {
       if (choice.cost.budget) this.storyResources.budget -= choice.cost.budget;
       if (choice.cost.capacity) this.storyResources.capacity -= choice.cost.capacity;
-      if (choice.cost.moralWeight) this.storyResources.moralWeight += choice.cost.moralWeight;
+      if (choice.cost.risk) {
+        this.storyResources.risk = Math.min(100, this.storyResources.risk + choice.cost.risk);
+      }
+      // EINE Schreibweise auf dem ganzen Weg: `moral_weight`, wie in den Daten.
+      // Vorher benannten die beiden Abbildungsstellen das Feld unterwegs in
+      // `moralWeight` um; Adapter und Modal lasen die umbenannte Fassung. Das
+      // funktionierte — aber jede der drei Stellen musste die Umbenennung
+      // kennen, und `cost` war als `Partial<StoryResources>` getippt, also
+      // gegen eine Form, die die Daten gar nicht haben. Jetzt trägt `cost` den
+      // Datenvertrag (ConsequenceChoiceCost) und `tsc` hält die Kette zusammen.
+      if (choice.cost.moral_weight) this.storyResources.moralWeight += choice.cost.moral_weight;
     }
-
-    // Apply effects from the system
-    if (result.effects) {
-      if (result.effects.risk_change) {
-        this.storyResources.risk += result.effects.risk_change;
-      }
-      if (result.effects.attention_change) {
-        this.storyResources.attention += result.effects.attention_change;
-      }
-      if (result.effects.npc_relationship) {
-        const npc = this.npcStates.get(result.effects.npc_relationship.npc);
-        if (npc) {
-          npc.relationshipProgress += result.effects.npc_relationship.change * 10;
-          // Check for level up/down
-          if (npc.relationshipProgress >= 100 && npc.relationshipLevel < 3) {
-            npc.relationshipLevel++;
-            npc.relationshipProgress = 0;
-          } else if (npc.relationshipProgress < 0 && npc.relationshipLevel > 0) {
-            npc.relationshipLevel--;
-            npc.relationshipProgress = 50;
-          }
-        }
-      }
+    // Manche Wahlen tragen ihr Moralgewicht direkt, nicht unter `cost`.
+    const rohWahl = result.choice;
+    if (rohWahl?.moral_weight) {
+      this.storyResources.moralWeight += rohWahl.moral_weight;
     }
 
     // Add news event
@@ -6290,9 +6345,7 @@ export class StoryEngineAdapter {
       id: `news_consequence_${Date.now()}`,
       phase: this.storyPhase.number,
       headline_de: this.activeConsequence.label_de,
-      headline_en: this.activeConsequence.label_en,
-      description_de: choice.outcome_de,
-      description_en: choice.outcome_en,
+      description_de: choice.outcome_de ?? 'Die Entscheidung ist getroffen.',
       type: 'consequence',
       severity: this.activeConsequence.severity === 'critical' ? 'danger' :
                 this.activeConsequence.severity === 'severe' ? 'warning' : 'info',
@@ -6964,6 +7017,31 @@ export class StoryEngineAdapter {
       // Engine state
       actionLoaderState: this.actionLoader.exportState(),
       consequenceSystemState: this.consequenceSystem.exportState(),
+
+      // === Ab 2.4.0: was bisher beim Fortsetzen verloren ging ===
+      // Der Abgleich aller Zustandsfelder gegen diese Liste fand neun Lücken.
+      // Am teuersten war das Schlachtfeld: Gekaufte Verbreiter und beschafftes
+      // Kompromat fielen auf „verfügbar" zurück, während die Abbuchung von
+      // Budget, Kapazität und Risiko gespeichert blieb — der Spieler zahlte
+      // dieselbe Ware zweimal. `saveGuard.test.ts` hält die Liste fest.
+      carrierStates: Array.from(this.carrierStates.entries()),
+      acquiredKompromat: Array.from(this.acquiredKompromat),
+      operationsPlayed: this.operationsPlayed,
+      carriersUsed: Array.from(this.carriersUsed),
+      platformsUsed: Array.from(this.platformsUsed),
+      // Siegzähler: checkGameEnd verlangt REQUIRED_HOLD_PHASES gehaltene Phasen.
+      // Ohne dieses Feld begann das Halten nach jedem Laden wieder bei null.
+      trustTargetHeldPhases: this.trustTargetHeldPhases,
+      // Eine Konsequenz, die auf eine Entscheidung wartet, verschwand beim
+      // Laden samt Frist — die Wahl wurde dem Spieler stillschweigend abgenommen.
+      activeConsequence: this.activeConsequence,
+      allTriggeredEvents: Array.from(this.allTriggeredEvents.entries()),
+      // Vier Subsysteme führen eigenen Zustand und boten ihn über exportState
+      // an — abgerufen hat ihn niemand.
+      betrayalSystemState: this.betrayalSystem.exportState(),
+      countermeasureSystemState: this.countermeasureSystem.exportState(),
+      dialogLoaderState: this.dialogLoader.exportState(),
+      extendedActorLoaderState: this.extendedActorLoader.exportState(),
     };
 
     return JSON.stringify(state);
@@ -7090,6 +7168,32 @@ export class StoryEngineAdapter {
     }
     if (state.consequenceSystemState) {
       this.consequenceSystem.importState(state.consequenceSystemState);
+    }
+
+    // === Ab 2.4.0 (Gegenstück zu saveState) ===
+    // Alle Felder mit Defaults: Ein Spielstand < 2.4.0 hat sie nicht und lädt
+    // trotzdem. Er startet dann ohne gekaufte Verbreiter — das lässt sich
+    // nachträglich nicht rekonstruieren, und erfinden wäre schlimmer als der
+    // ehrliche Nullstand.
+    this.carrierStates = new Map(state.carrierStates ?? []);
+    this.acquiredKompromat = new Set(state.acquiredKompromat ?? []);
+    this.operationsPlayed = state.operationsPlayed ?? 0;
+    this.carriersUsed = new Set(state.carriersUsed ?? []);
+    this.platformsUsed = new Set(state.platformsUsed ?? []);
+    this.trustTargetHeldPhases = state.trustTargetHeldPhases ?? 0;
+    this.activeConsequence = state.activeConsequence ?? null;
+    this.allTriggeredEvents = new Map(state.allTriggeredEvents ?? []);
+    if (state.betrayalSystemState) {
+      this.betrayalSystem.importState(state.betrayalSystemState);
+    }
+    if (state.countermeasureSystemState) {
+      this.countermeasureSystem.importState(state.countermeasureSystemState);
+    }
+    if (state.dialogLoaderState) {
+      this.dialogLoader.importState(state.dialogLoaderState);
+    }
+    if (state.extendedActorLoaderState) {
+      this.extendedActorLoader.importState(state.extendedActorLoaderState);
     }
   }
 
