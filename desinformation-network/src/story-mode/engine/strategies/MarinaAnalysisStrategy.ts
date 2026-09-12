@@ -19,6 +19,7 @@ import type {
   AdvisorRecommendation,
 } from '../AdvisorRecommendation';
 import { generateRecommendationId } from '../AdvisorRecommendation';
+import type { RelevantesEreignis, WaehlbareAktion } from './typen';
 
 export class MarinaAnalysisStrategy implements NPCAnalysisStrategy {
   public getNPCName(): string {
@@ -285,7 +286,7 @@ export class MarinaAnalysisStrategy implements NPCAnalysisStrategy {
    * Find actions relevant to a world event
    * Matches event tags with action tags
    */
-  private findEventRelevantActions(event: any, availableActions: any[]): any[] {
+  private findEventRelevantActions(event: RelevantesEreignis, availableActions: WaehlbareAktion[]): WaehlbareAktion[] {
     const eventTags = event.tags || [];
 
     return availableActions.filter(action => {
@@ -306,7 +307,7 @@ export class MarinaAnalysisStrategy implements NPCAnalysisStrategy {
    * Craft message based on player relationship level
    * Higher relationship = more personal, detailed messages
    */
-  private craftEventOpportunityMessage(event: any, relationshipLevel: number): string {
+  private craftEventOpportunityMessage(event: RelevantesEreignis, relationshipLevel: number): string {
     const eventName = event.name || 'Event';
 
     switch (relationshipLevel) {

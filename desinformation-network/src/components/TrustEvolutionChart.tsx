@@ -25,16 +25,19 @@ interface TrustEvolutionChartProps {
   showAnnotations?: boolean;
 }
 
+// Die Maße sind fest. Als Objekt-Literal IM Bauteil wurde `padding` bei jedem
+// Rendern neu erzeugt — die useMemo-Abhängigkeiten darauf waren damit nie
+// stabil, und React warnte zu Recht. Als Modul-Konstante ist die Referenz fix.
+const width = 800;
+const height = 400;
+const padding = { top: 40, right: 160, bottom: 60, left: 60 } as const;
+
 export function TrustEvolutionChart({
   history,
   actors,
   selectedActorId,
   showAnnotations = true
 }: TrustEvolutionChartProps) {
-  // Calculate chart dimensions
-  const width = 800;
-  const height = 400;
-  const padding = { top: 40, right: 160, bottom: 60, left: 60 };
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
 

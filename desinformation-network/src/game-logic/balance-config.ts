@@ -179,10 +179,10 @@ export function getBalanceConfig(difficulty: DifficultyLevel): BalanceConfig {
 /**
  * Filter actors by enabled tiers based on config
  */
-export function filterActorsByTiers(
-  actors: any[],
+export function filterActorsByTiers<T extends { tier?: number }>(
+  actors: T[],
   config: BalanceConfig
-): any[] {
+): T[] {
   return actors.filter(actor => {
     const tier = actor.tier || 1;
 

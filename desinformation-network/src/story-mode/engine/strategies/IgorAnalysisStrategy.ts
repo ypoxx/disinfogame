@@ -20,6 +20,7 @@ import type {
   ROIAnalysis,
 } from '../AdvisorRecommendation';
 import { generateRecommendationId } from '../AdvisorRecommendation';
+import type { GespielteAktion, WaehlbareAktion } from './typen';
 
 export class IgorAnalysisStrategy implements NPCAnalysisStrategy {
   public getNPCName(): string {
@@ -321,7 +322,7 @@ export class IgorAnalysisStrategy implements NPCAnalysisStrategy {
   /**
    * Get cheap actions (budget cost < 30k)
    */
-  private getCheapActions(availableActions: any[]): any[] {
+  private getCheapActions(availableActions: WaehlbareAktion[]): WaehlbareAktion[] {
     return availableActions
       .filter(a => (a.costs.budget || 0) < 30)
       .sort((a, b) => (a.costs.budget || 0) - (b.costs.budget || 0));
@@ -330,8 +331,8 @@ export class IgorAnalysisStrategy implements NPCAnalysisStrategy {
   /**
    * Calculate ROI for a single action
    */
-  private calculateROI(action: any): ROIAnalysis {
-    const cost = action.costs.budget || 1; // Avoid division by zero
+  private calculateROI(action: GespielteAktion): ROIAnalysis {
+    const cost = action.costs?.budget || 1; // Avoid division by zero
     const impact = Math.abs(action.effects?.trustImpact || 0);
     const roi = impact / (cost / 10); // Impact per 10k budget
 
@@ -347,7 +348,7 @@ export class IgorAnalysisStrategy implements NPCAnalysisStrategy {
   /**
    * Estimate ROI for an available action (before execution)
    */
-  private estimateActionROI(action: any): number {
+  private estimateActionROI(action: WaehlbareAktion): number {
     const cost = action.costs.budget || 1;
     const estimatedImpact = action.effects?.trust_impact || 0.1;
     return Math.abs(estimatedImpact) / (cost / 10);
@@ -365,7 +366,7 @@ export class IgorAnalysisStrategy implements NPCAnalysisStrategy {
   /**
    * Calculate average cost of actions
    */
-  private calculateAverageCost(actions: any[]): number {
+  private calculateAverageCost(actions: WaehlbareAktion[]): number {
     if (actions.length === 0) return 50; // Default
 
     const costs = actions.map(a => a.costs.budget || 0);
@@ -377,13 +378,13 @@ export class IgorAnalysisStrategy implements NPCAnalysisStrategy {
    * Calculate potential savings from front companies
    */
   private calculateFrontCompanySavings(
-    actionHistory: any[],
-    gameState: any
+    actionHistory: GespielteAktion[],
+    gameState: unknown
   ): number {
     // Estimate based on past spending
     const recentSpending = actionHistory
       .slice(-10)
-      .reduce((sum, a) => sum + (a.costs.budget || 0), 0);
+      .reduce((sum, a) => sum + (a.costs?.budget ?? 0), 0);
 
     const avgSpendingPerPhase = recentSpending / Math.min(10, actionHistory.length);
 

@@ -615,12 +615,18 @@ export type TaxonomyEdge = {
   strength: number;
 };
 
+/**
+ * Hinweis: Dieser Typ wird derzeit nirgends verwendet — der Lader arbeitet mit
+ * eigenen Typen (story-mode/engine/TaxonomyLoader.ts). Die drei losen Felder
+ * standen als `any` da; `unknown` hält sie offen, zwingt aber jeden künftigen
+ * Nutzer, sie vor dem Zugriff einzugrenzen.
+ */
 export type PersuasionTaxonomy = {
   nodes: PersuasionTechnique[];
   edges: TaxonomyEdge[];
-  phases: any[];
-  countermeasureInteractions: any[];
-  populationDifferences: any;
+  phases: unknown[];
+  countermeasureInteractions: unknown[];
+  populationDifferences: unknown;
 };
 
 // ============================================

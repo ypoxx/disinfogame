@@ -504,6 +504,12 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
   // VQA-Ernte (nur mit ?vqa=1 aktiv, sonst no-op): Engine + Steuer-Callbacks für
   // die Playwright-Screenshot-Ernte exponieren (scripts/visual-review/).
+  //
+  // Bewusst OHNE Abhängigkeitsliste: Die Ernte braucht bei jedem Rendern den
+  // frischen Stand, sonst greift sie auf eine veraltete Engine zu. Die Setter
+  // werden hier nur WEITERGEREICHT, nicht aufgerufen — die Regel erkennt das
+  // nicht und warnt vor einer Aktualisierungs-Schleife, die es nicht gibt.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     installVqaBase();
     publishVqa({

@@ -37,16 +37,20 @@ module.exports = {
     'react-hooks/rules-of-hooks': 'error',
     'no-constant-condition': ['error', { checkLoops: false }],
 
-    // Hook-Abhängigkeiten: im Bestand vielfach bewusst unvollständig
-    // (Engine ist eine mutable Klasse im State). Sichtbar, aber nicht blockierend.
-    'react-hooks/exhaustive-deps': 'warn',
+    // Hook-Abhängigkeiten: seit 2026-09-12 sauber (Owner-Entscheidung 5c).
+    // Von den sechs Meldungen waren fünf echte Fehler — die schwerste ließ den
+    // Berater dauerhaft auf dem Anfangszustand rechnen. Die sechste ist ein
+    // bewusst abhängigkeitsloser Effekt und trägt jetzt eine begründete
+    // Ausnahme im Code. Ab hier blockierend, sonst wächst es nach.
+    'react-hooks/exhaustive-deps': 'error',
     'react-refresh/only-export-components': 'off',
 
-    // `any` ist im Bestand verbreitet (Spieldaten-Grenzen). Der Typfehler, der
-    // das Spiel zum Absturz brachte, saß nicht an einem `any`, sondern an einem
-    // `as any`, das eine echte Schema-Abweichung verdeckte — dagegen hilft der
-    // Datentest, nicht diese Regel.
-    '@typescript-eslint/no-explicit-any': 'warn',
+    // Seit 2026-09-12 ist der Bestand frei von `any` (42 Stellen typisiert,
+    // Owner-Entscheidung 5c) — deshalb blockiert die Regel jetzt. Eine Regel
+    // ohne Durchsetzung wächst in diesem Projekt zuverlässig nach: Der Absturz
+    // B1 saß an einem `as any`, das eine echte Schema-Abweichung verdeckte.
+    // Tests sind unten ausgenommen, die dürfen weiter tricksen.
+    '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/no-unused-vars': ['warn', {
       argsIgnorePattern: '^_',
       varsIgnorePattern: '^_',

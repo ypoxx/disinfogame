@@ -77,6 +77,26 @@ export interface CrisisResolution {
 // CRISIS DEFINITIONS (from event-chains.json)
 // ============================================
 
+/** Die Kosten in der Rohform: `money`, nicht `budget` wie im Spielmodell. */
+interface RawChoiceCost {
+  money?: number;
+  attention?: number;
+  risk?: number;
+}
+
+interface RawPlayerChoice {
+  text: string;
+  cost?: RawChoiceCost;
+  effects?: CrisisEffect[];
+  consequence: string;
+}
+
+/**
+ * Rohform aus `event-chains.json`. `effects` und `cost` standen hier als `any`
+ * — dabei gibt es für die Wirkungen längst einen Typ (CrisisEffect), und die
+ * Kosten heißen in den Daten `money`, im Spielmodell aber `budget`. Genau so
+ * eine Umbenennung ohne Typ hat schon einmal einen Preis verschwinden lassen.
+ */
 interface RawEventChain {
   id: string;
   name: string;
@@ -85,15 +105,10 @@ interface RawEventChain {
   condition?: string;
   probability?: number;
   triggerRound?: number;
-  effects: any[];
+  effects: CrisisEffect[];
   newsTickerText: string;
   iconType: string;
-  playerChoice?: {
-    text: string;
-    cost: any;
-    effects: any[];
-    consequence: string;
-  }[];
+  playerChoice?: RawPlayerChoice[];
   chainTo?: string;
 }
 
@@ -138,7 +153,7 @@ export class CrisisMomentSystem {
     storyLogger.log(`[CrisisMomentSystem] Loaded ${this.crisisDefinitions.size} crisis definitions`);
   }
 
-  private convertChoice(choice: any, index: number): CrisisChoice {
+  private convertChoice(choice: RawPlayerChoice, index: number): CrisisChoice {
     return {
       id: `choice_${index}`,
       text_de: this.translateChoiceText(choice.text),
@@ -162,7 +177,7 @@ export class CrisisMomentSystem {
     return 'low';
   }
 
-  private isRiskyChoice(choice: any): boolean {
+  private isRiskyChoice(choice: Pick<RawPlayerChoice, 'text'>): boolean {
     const text = choice.text.toLowerCase();
     return text.includes('attack') ||
            text.includes('double down') ||

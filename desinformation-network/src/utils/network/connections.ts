@@ -8,7 +8,7 @@
  * This replaces the simple distance-based algorithm in utils/index.ts
  */
 
-import type { Actor, Connection, ConnectionType, ActorCategory } from '@/game-logic/types';
+import type { Actor, Connection, ConnectionType, ActorCategory, ActorDefinition } from '@/game-logic/types';
 import { euclideanDistance, clamp } from '@/utils';
 import { globalRandom } from '@/services/globalRandom';
 
@@ -320,7 +320,8 @@ function tryCustomConnectionRules(
   allActors: Actor[]
 ): Connection | null {
   // Check if a1 has custom connection rules
-  const def1 = a1 as any; // ActorDefinition fields might be present
+  // Nicht `as any`: Nur DIESES Feld kann zusätzlich vorhanden sein.
+  const def1 = a1 as Actor & Pick<ActorDefinition, 'connections'>;
   if (!def1.connections) return null;
 
   const rules = def1.connections;

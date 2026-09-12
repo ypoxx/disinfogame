@@ -19,6 +19,16 @@ import { globalRandom } from '@/services/globalRandom';
 // FORCE SIMULATION
 // ============================================
 
+/**
+ * Ein Knoten während der Simulation: Position, Geschwindigkeit, ggf. gepinnt.
+ * Stand siebenmal als `any[]` da — `node.velocity` und `node.position` waren
+ * damit ungeprüft, obwohl beide Pflichtfelder der Rechnung sind.
+ */
+interface SimulationsKnoten extends Actor {
+  velocity: Position;
+  pinned: boolean;
+}
+
 export interface ForceSimulationConfig {
   width: number;
   height: number;
@@ -176,7 +186,7 @@ export function* animatedForceLayout(
  * Uses inverse square law: F = k / distance²
  */
 function applyRepulsionForce(
-  nodes: any[],
+  nodes: SimulationsKnoten[],
   strength: number
 ): void {
   for (let i = 0; i < nodes.length; i++) {
@@ -211,7 +221,7 @@ function applyRepulsionForce(
  * Uses Hooke's law: F = k * distance
  */
 function applyAttractionForce(
-  nodes: any[],
+  nodes: SimulationsKnoten[],
   connections: Connection[],
   strength: number
 ): void {
@@ -247,7 +257,7 @@ function applyAttractionForce(
  * Prevents network from drifting off-screen
  */
 function applyCenteringForce(
-  nodes: any[],
+  nodes: SimulationsKnoten[],
   centerX: number,
   centerY: number,
   strength: number
@@ -268,7 +278,7 @@ function applyCenteringForce(
  * Creates visual grouping by actor type
  */
 function applyCategoryClusteringForce(
-  nodes: any[],
+  nodes: SimulationsKnoten[],
   strength: number
 ): void {
   // Group nodes by category
@@ -298,12 +308,12 @@ function applyCategoryClusteringForce(
  * Update positions based on velocities
  */
 function updatePositions(
-  nodes: any[],
+  nodes: SimulationsKnoten[],
   damping: number,
   width: number,
   height: number,
   padding: number
-): any[] {
+): SimulationsKnoten[] {
   return nodes.map(node => {
     if (node.pinned) return node;
 
@@ -335,7 +345,7 @@ function updatePositions(
  * Calculate total kinetic energy of system
  * Lower energy = more stable layout
  */
-function calculateKineticEnergy(nodes: any[]): number {
+function calculateKineticEnergy(nodes: SimulationsKnoten[]): number {
   return nodes.reduce((sum, node) => {
     const speed = Math.sqrt(
       node.velocity.x * node.velocity.x +

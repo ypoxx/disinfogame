@@ -585,7 +585,12 @@ export function useStoryGameState(seed?: string) {
     } catch (error) {
       storyLogger.error('Failed to generate advisor recommendations', { error });
     }
-  }, [engine]);
+    // `completedActions` und `worldEvents` werden im Rumpf gelesen, standen aber
+    // nicht in den Abhängigkeiten: Der Berater rechnete auf dem Stand, den er
+    // beim letzten Engine-Wechsel gesehen hatte — also praktisch auf dem
+    // Anfangszustand. Alle drei Aufrufer sind useCallbacks, kein Effekt hängt
+    // an der Identität; es entsteht also keine Schleife.
+  }, [engine, completedActions, worldEvents]);
 
   // Refresh available actions from engine
   const refreshAvailableActions = useCallback(() => {
@@ -647,7 +652,7 @@ export function useStoryGameState(seed?: string) {
       text: 'Willkommen, Direktor. Sie leiten ab heute die Abteilung für Sonderoperationen. Ihr Auftrag: die radikale Kraft über die Schwelle bringen — vor dem Wahltag in 40 Tagen. Das Vertrauen der Leute zu zersetzen, ist nur das Mittel. Die Zentrale misst Sie am Ergebnis.',
       mood: 'neutral',
     });
-  }, [refreshAvailableActions, generateRecommendations]);
+  }, [engine, refreshAvailableActions, generateRecommendations]);
 
   const skipTutorial = useCallback(() => {
     setGamePhase('playing');
@@ -1251,7 +1256,7 @@ export function useStoryGameState(seed?: string) {
       storyLogger.error('Action execution failed:', error);
       return null;
     }
-  }, [engine, npcs, refreshAvailableActions, trustHistory, recommendations]);
+  }, [engine, refreshAvailableActions, trustHistory, recommendations]);
 
   // P0-1: Episoden-Strang abschließen — sobald ALLE Einklink-Aktionen einer aktiven Episode
   // gespielt sind, löst sich der Strang auf: `completeEpisode` wendet `wirkt_auf` auf die

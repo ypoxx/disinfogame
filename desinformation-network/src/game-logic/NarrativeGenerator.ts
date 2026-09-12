@@ -139,6 +139,17 @@ const EVENT_NARRATIVES: Record<string, {
 // NARRATIVE GENERATOR
 // ============================================
 
+/**
+ * Der Ausschnitt des Netz-Zustands, den der Erzähler wirklich liest. Stand
+ * zweimal als `any` da; so sah `tsc` nicht, dass es genau diese drei Werte
+ * sind — und ein Tippfehler im Feldnamen wäre still durchgegangen.
+ */
+export interface NetzLage {
+  averageTrust: number;
+  polarization: number;
+  lowTrustCount: number;
+}
+
 export class NarrativeGenerator {
   /**
    * Generate headline for an action
@@ -246,8 +257,8 @@ export class NarrativeGenerator {
    */
   static generateRoundNarrative(
     actions: ActionRecord[],
-    networkBefore: any,
-    networkAfter: any
+    networkBefore: NetzLage,
+    networkAfter: NetzLage
   ): string {
     const trustDrop = networkBefore.averageTrust - networkAfter.averageTrust;
     const polarizationRise = networkAfter.polarization - networkBefore.polarization;
@@ -296,8 +307,8 @@ export class NarrativeGenerator {
    * Generate consequences for the round
    */
   static generateConsequences(
-    networkBefore: any,
-    networkAfter: any,
+    networkBefore: NetzLage,
+    networkAfter: NetzLage,
     actions: ActionRecord[]
   ): string[] {
     const consequences: string[] = [];
