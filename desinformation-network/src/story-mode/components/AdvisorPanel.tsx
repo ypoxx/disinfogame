@@ -12,6 +12,18 @@ import { getPriorityLabel, getPriorityColor } from '../engine/AdvisorRecommendat
 import type { BetrayalState } from '../engine/BetrayalSystem';
 import { BetrayalWarningBadge } from './BetrayalWarningBadge';
 
+/**
+ * Kürzel für die eingeklappte Leiste: erster Buchstabe des Vor- und des
+ * Nachnamens. Eine Initiale allein war mehrdeutig — „Kurator Volkov" und
+ * „Katja Orlova" standen beide als K untereinander, ohne Unterschied.
+ */
+export function initialen(name: string): string {
+  const teile = name.trim().split(/\s+/).filter(Boolean);
+  if (teile.length === 0) return '?';
+  if (teile.length === 1) return teile[0].slice(0, 2).toUpperCase();
+  return (teile[0][0] + teile[teile.length - 1][0]).toUpperCase();
+}
+
 // ============================================
 // TYPES
 // ============================================
@@ -95,13 +107,18 @@ export function AdvisorPanel({
           zIndex: 40,
         }}
       >
+        {/* Ein Emoji-Durchlauf (cd18212) nahm das ◀ mit — seither war dieser Knopf
+            leer: ein unsichtbarer Griff an der Leiste, den niemand finden konnte.
+            Geometrische Zeichen sind keine farbigen Emojis, sie dürfen bleiben. */}
         <button
           onClick={onToggleCollapse}
           className="p-2 hover:brightness-110 transition-all text-xl"
           style={{ color: StoryModeColors.warning }}
+          aria-label="Berater öffnen"
           title="Berater öffnen"
         >
-                  </button>
+          ◀
+        </button>
 
         {/* Mini NPC indicators */}
         {npcs.filter(npc => npc.available).map(npc => {
@@ -122,8 +139,10 @@ export function AdvisorPanel({
               }}
               title={topRec ? `${npc.name} — ${getPriorityLabel(topRec.priority)}` : npc.name}
             >
-              {/* P0-8: Initiale identifiziert den Berater; der Rand trägt die Priorität (Farbe). */}
-              {npc.name.charAt(0)}
+              {/* P0-8: Initialen identifizieren den Berater; der Rand trägt die Priorität.
+                  EINE Initiale reichte nicht: „Kurator Volkov" und „Katja Orlova"
+                  standen beide als K in der Leiste. */}
+              {initialen(npc.name)}
             </button>
           );
         })}
@@ -170,9 +189,11 @@ export function AdvisorPanel({
             onClick={onToggleCollapse}
             className="p-1 hover:brightness-110 transition-all"
             style={{ color: StoryModeColors.surfaceLight }}
+            aria-label="Berater einklappen"
             title="Einklappen"
           >
-                      </button>
+            ▶
+          </button>
         )}
       </div>
 

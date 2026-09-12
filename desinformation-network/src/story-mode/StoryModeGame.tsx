@@ -59,7 +59,7 @@ import { useDayClockStore, TIME_COST } from './stores/dayClockStore';
 import { installVqaBase, publishVqa } from './harness/vqaHook';
 import { usePanelStore } from './stores/panelStore';
 import { useDirectorStore } from './stores/directorStore';
-import { SidePanel } from './components/SidePanel';
+import { SidePanel, SEITENPANEL_BREITE_PX } from './components/SidePanel';
 import { LagebildView } from './components/LagebildView';
 import { NarrativeBoard } from './components/NarrativeBoard';
 import { initAssetRegistry, useAssets, warmImageCache } from './assets';
@@ -647,6 +647,10 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   // Hotkeys (A/T) und der Angeheftet-Chip teilen es, damit Tafel/Terminal nie
   // unsichtbar UNTER einem Overlay mounten (Terminal/Tafel selbst sind ausgenommen,
   // ihre Fälle behandelt der Handler explizit).
+  // Die Unterkanten-Streifen enden an der Seitenspalte, statt unter ihr
+  // durchzulaufen (sie schnitten dem Panel sonst die letzte Zeile ab).
+  const seitenVersatzPx = activePanel ? SEITENPANEL_BREITE_PX : 0;
+
   const vollbildOverlayOffen =
     showNewsroom || showLagebild || showOperationsAkte || showFokusgruppe ||
     showPreTest || showEncyclopedia || showShortcuts || showDayReport ||
@@ -1504,9 +1508,15 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
 
         {/* Morgenbriefing beim Direktor (K1) — einmal je Tag. T2/#7: auch an Tag 1,
             aber erst NACH der Auftragswahl (gerichtete Eröffnung der Kern-Schleife). */}
+        {/* E4-Muster, andere Richtung: Das Briefing liegt auf z-50 und deckte das
+            Terminal (z-40) zur Hälfte zu — ausgerechnet an Tag 1, wo sein eigener
+            Tageshinweis „Öffnen Sie das Terminal (Taste A)" lautet. Es greift
+            außerdem Leertaste/Enter global ab. Solange ein Vollbild offen ist,
+            tritt es zurück; unbestätigt kehrt es beim Schließen zurück. */}
         {state.gamePhase === 'playing' &&
-          !showDayReport &&
-          !walkHome &&
+          !vollbildOverlayOffen &&
+          !showTerminal &&
+          !showBoard &&
           !state.currentDialog &&
           (state.storyPhase.number > 1 || !showAuftrag) &&
           briefedPhase !== state.storyPhase.number && (
@@ -1523,6 +1533,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
                 : undefined}
               // Nudge (main): Maschen im Sendeplan, aber die Zielgruppen-Analyse nie geöffnet.
               pendingUntested={state.actionQueue.length > 0 && !analyseVisited}
+              rechtsVersatzPx={seitenVersatzPx}
               onDone={() => setBriefedPhase(state.storyPhase.number)}
             />
           )}
@@ -1531,6 +1542,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
       {state.currentDialog && (
         <DialogBox
           isVisible={true}
+          rechtsVersatzPx={seitenVersatzPx}
           message={{
             speaker: state.currentDialog.speaker,
             speakerTitle: state.currentDialog.speakerTitle,
@@ -1712,7 +1724,7 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
           daneben (Review-Befund B6: Empfehlungen blieben sonst unsichtbar). */}
       {chromeVisible && !state.currentDialog && (
         <AdvisorPanel
-          rightOffsetPx={activePanel ? 420 : 0}
+          rightOffsetPx={seitenVersatzPx}
           npcs={state.npcs.map(npc => ({
             id: npc.id,
             name: npc.name,

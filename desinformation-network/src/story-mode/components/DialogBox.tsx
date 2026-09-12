@@ -38,6 +38,8 @@ interface DialogBoxProps {
   onContinue?: () => void;
   onClose?: () => void;
   isVisible: boolean;
+  /** Breite der offenen Seitenspalte — der Streifen endet an ihrer Kante. */
+  rechtsVersatzPx?: number;
 }
 
 // ============================================
@@ -189,7 +191,7 @@ function useTypewriter(text: string, speed: number = 30, enabled: boolean = true
 // DIALOG BOX COMPONENT
 // ============================================
 
-export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }: DialogBoxProps) {
+export function DialogBox({ message, onChoice, onContinue, onClose, isVisible, rechtsVersatzPx = 0 }: DialogBoxProps) {
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
 
   const { displayedText, isComplete, skipToEnd } = useTypewriter(
@@ -252,8 +254,11 @@ export function DialogBox({ message, onChoice, onContinue, onClose, isVisible }:
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-50 animate-slide-up"
+      className="fixed bottom-0 left-0 z-50 animate-slide-up"
       style={{
+        // Nicht `right-0`: sonst läuft der Streifen unter der offenen
+        // Seitenspalte durch und schneidet ihr die letzte Zeile ab.
+        right: rechtsVersatzPx,
         background: `linear-gradient(to top, ${StoryModeColors.background}f0, transparent)`,
         paddingTop: '60px',
       }}

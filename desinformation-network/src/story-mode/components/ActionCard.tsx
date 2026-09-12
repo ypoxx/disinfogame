@@ -238,9 +238,12 @@ export function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecomm
         </div>
       )}
 
+      {/* Costs — `{zahl && <JSX/>}` rendert bei 0 die NULL selbst: Im Terminal
+          stand hinter „Zielgruppe analysieren“ eine nackte 0 neben den Chips.
+          Deshalb überall erst vergleichen, dann rendern. */}
       {/* Costs */}
       <div className="flex flex-wrap gap-2 mb-2">
-        {action.costs.budget && action.costs.budget > 0 && (
+        {(action.costs.budget ?? 0) > 0 && (
           <span
             className="text-xs px-2 py-0.5 border whitespace-nowrap"
             style={{
@@ -253,7 +256,7 @@ export function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecomm
             <Icon name="budget" size={14} title="Budget" /> {action.costs.budget}K
           </span>
         )}
-        {action.costs.capacity && action.costs.capacity > 0 && (
+        {(action.costs.capacity ?? 0) > 0 && (
           <span
             className="text-xs px-2 py-0.5 border"
             style={{
@@ -265,7 +268,7 @@ export function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecomm
             <Icon name="capacity" size={14} title="Kapazität" /> {action.costs.capacity}
           </span>
         )}
-        {action.costs.risk && action.costs.risk > 0 && (
+        {(action.costs.risk ?? 0) > 0 && (
           <span
             className="text-xs px-2 py-0.5 border"
             style={{
@@ -277,7 +280,7 @@ export function ActionCard({ action, canAfford, onSelect, onAddToQueue, isRecomm
             <Icon name="risk" size={14} title="Risiko" /> +{action.costs.risk}%
           </span>
         )}
-        {action.costs.moral_weight && action.costs.moral_weight > 0 && (
+        {(action.costs.moral_weight ?? 0) > 0 && (
           <span
             className="text-xs px-2 py-0.5 border"
             style={{

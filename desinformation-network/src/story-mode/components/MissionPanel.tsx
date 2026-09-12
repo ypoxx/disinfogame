@@ -163,24 +163,32 @@ export function MissionPanel({
               const markePct = AUFTRAG_SIEG_SCHWELLE * 100;
               return (
                 <div key={s.wert}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span style={{ color: StoryModeColors.textPrimary }}>
-                      {s.richtung === 'hoch' ? '▲' : '▼'} {label}
-                      <span style={{ color: StoryModeColors.textMuted }}>
-                        {' '}
-                        — {s.richtung === 'hoch' ? 'hochtreiben' : 'drücken'}
-                      </span>
-                      {/* Die Min-Regel entscheidet den Sieg. Ohne diesen Hinweis
-                          sieht der Spieler drei Balken und nicht, welcher ihn hält. */}
-                      {s.klemmt && (
-                        <span style={{ color: StoryModeColors.warning }}> · hält den Auftrag auf</span>
-                      )}
-                    </span>
-                    <span style={{ color: s.erfuellt ? StoryModeColors.success : StoryModeColors.textSecondary }}>
-                      {s.erfuellt ? '✓ ' : ''}
-                      jetzt {Math.round(s.ist)} · reicht ab {Math.round(s.siegWert)}
+                  {/* Name und Zahlen stehen untereinander, nicht nebeneinander:
+                      In der 420-px-Spalte brach „Fraktions-Stärke — hochtreiben"
+                      gegen „jetzt 25 · reicht ab 43" beidseitig um, und je nach
+                      Wortlänge traf es mal die eine, mal die andere Achse. */}
+                  <div className="text-sm" style={{ color: StoryModeColors.textPrimary }}>
+                    {s.richtung === 'hoch' ? '▲' : '▼'} {label}
+                    <span style={{ color: StoryModeColors.textMuted }}>
+                      {' '}
+                      — {s.richtung === 'hoch' ? 'hochtreiben' : 'drücken'}
                     </span>
                   </div>
+                  <div
+                    className="text-sm mb-1"
+                    style={{ color: s.erfuellt ? StoryModeColors.success : StoryModeColors.textSecondary }}
+                  >
+                    {s.erfuellt ? '✓ ' : ''}
+                    jetzt {Math.round(s.ist)} · reicht ab {Math.round(s.siegWert)}
+                  </div>
+                  {/* Die Min-Regel entscheidet den Sieg. Ohne diesen Hinweis sieht der
+                      Spieler drei Balken und nicht, welcher ihn hält. Eigene Zeile:
+                      inline brach der Satz um und das Trennzeichen begann die Zeile. */}
+                  {s.klemmt && (
+                    <div className="text-xs mb-1" style={{ color: StoryModeColors.warning }}>
+                      hält den Auftrag auf
+                    </div>
+                  )}
                   <div className="h-2 w-full relative" style={{ backgroundColor: StoryModeColors.lightConcrete }}>
                     <div
                       className="h-full transition-all"

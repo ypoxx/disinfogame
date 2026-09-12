@@ -10,6 +10,14 @@ import { usePanelStore } from '../stores/panelStore';
 // SIDE PANEL CONTAINER
 // ============================================
 
+/**
+ * Breite der Seitenspalte. Stand vorher dreimal als nackte Zahl im Code — einmal
+ * hier, einmal als Versatz der Berater-Leiste, und nirgends für die
+ * Unterkanten-Streifen (Morgenbriefing, Dialogbox), die deshalb UNTER dem
+ * geöffneten Panel durchliefen und ihm den Fuß abschnitten.
+ */
+export const SEITENPANEL_BREITE_PX = 420;
+
 interface SidePanelProps {
   children: React.ReactNode;
 }
@@ -23,8 +31,8 @@ export function SidePanel({ children }: SidePanelProps) {
     <div
       className="h-full flex flex-col border-l-4 animate-slide-in-right"
       style={{
-        width: '420px',
-        minWidth: '420px',
+        width: `${SEITENPANEL_BREITE_PX}px`,
+        minWidth: `${SEITENPANEL_BREITE_PX}px`,
         backgroundColor: StoryModeColors.surface,
         borderColor: StoryModeColors.border,
       }}

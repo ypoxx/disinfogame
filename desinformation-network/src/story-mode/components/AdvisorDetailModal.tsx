@@ -267,7 +267,7 @@ export function AdvisorDetailModal({
                   }}
                 >
                   <span>Phase: {rec.phase}</span>
-                  {rec.expiresPhase && (
+                  {rec.expiresPhase != null && rec.expiresPhase > 0 && (
                     <span className="font-bold flex items-center gap-1" style={{ color: StoryModeColors.warning }}>
                       <Icon name="clock" size={14} title="Läuft ab" fallback="Uhr" /> Läuft ab: Phase {rec.expiresPhase}
                     </span>
