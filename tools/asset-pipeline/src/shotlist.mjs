@@ -13,7 +13,7 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import { BUILDING_JSON, NPCS_JSON } from './paths.mjs';
-import { styleCore, styleObject, styleHome } from './styleguide.mjs';
+import { styleCore, styleObject, styleHome, stylePaper } from './styleguide.mjs';
 import { CHROMA_PROMPT } from './transparency.mjs';
 
 /** Deterministischer Seed je Shot-id (reproduzierbare Läufe). */
@@ -850,12 +850,7 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
   // Die gesamte Bedienung ist aus Papier/Akte gemacht: Manila-Mappen, Karteikarten,
   // Stempel. §4.7-Pflichten: no real-world logos, no emblems, almost no text;
   // Text bleibt Engine-Ebene (E35) — nur Platzhalter-Striche.
-  const PAPER_STYLE =
-    'Muted bureaucratic file-folder palette: warm manila beige and cream paper surfaces, ' +
-    'kraft-paper brown backing, dark anthracite ink accents, a single ministry-red accent ' +
-    'ONLY where explicitly asked. Crisp clean high-resolution pixel art, flat frontal view, ' +
-    'no gradients, no drop shadows, no real-world logos, no emblems, almost no text ' +
-    '(placeholder dashes only where asked).';
+  const PAPER_STYLE = stylePaper(); // steht bei den übrigen Stil-Kernen (styleguide.mjs)
   const UI_KIT = [
     ['ui_frame_light', '1:1', { w: 256, h: 256 }, false,
       'a SINGLE empty square frame for a game UI, drawn as a thin manila paper card border: ' +

@@ -742,6 +742,32 @@ Umgebung ist die Key-**ID** aus dem Dashboard, nicht der Schlüssel (`sk_…`).
 ElevenLabs antwortet darauf mit 400. Mit echtem Schlüssel sind es drei Kommandos
 (README dort). Nach dem Neu-Vertonen ist **keine** Code-Änderung nötig.
 
+### Nachtrag: Das Gate der Asset-Pipeline ist wieder grün
+
+Zwei Tests in `tools/asset-pipeline` waren länger rot und haben nichts mit Audio zu
+tun — sie verdeckten aber jede echte Regression. Beide Erwartungen waren veraltet,
+nicht der Code:
+
+- **Frame-Raster:** Der Test forderte 32 px je Frame, die Spielfigur läuft seit
+  `9c45bf4` auf 64 px. Die Realität bestätigt 64 dreifach — `player_walk.png` ist
+  512×64, das Manifest führt 64, und `STAGE.avatarSize = 128` ist im Spiel als
+  „64px-Frames ×2" dokumentiert. Der Test prüft jetzt zusätzlich, dass
+  `cols × frameWidth` und `rows × frameHeight` zur Blattgröße passen.
+- **Stil-Kern:** Der Test verlangte den Marker „brutalist" in *jedem* Bild-Prompt.
+  Das war nie die Regel: 37 von 230 Shots lassen den Ministeriums-Satz **mit
+  Absicht** weg — freigestellte Props (R4: mit Setting-Satz malte das Modell eine
+  Mini-Szene drumherum), das warme Westunion-Wohnzimmer, das Papier-UI-Kit und das
+  randlose TV-Testbild. Statt einer falschen Regel prüfen jetzt drei: Pixel-Art-Marker
+  + Symbol-/Text-Verbot in **jedem** Prompt (Projektregel, `SYMBOLS_AUDIT.md`), jeder
+  Shot hängt an einem der **vier definierten Stil-Kerne** statt frei nachzudichten,
+  und „brutalist" gilt genau im Ministerium — freigestellte Motive dürfen ihn *nicht*
+  tragen. Dafür zog `PAPER_STYLE` aus `shotlist.mjs` als `stylePaper()` zu den
+  anderen Kernen in `styleguide.mjs`; Prompts und Seeds sind bitgleich geblieben.
+
+Gegengeprüft per Mutationstest: vier eingebaute Verstöße (Prop mit Raum-Stil, Shot
+ohne Kern, Frame-Größe zurück auf 32, fehlendes Symbol-Verbot) werden alle rot.
+`npm test` dort: 38/38.
+
 ## 🛠️ Werkzeuge
 
 - **Browser-Smoke:** `npm run smoke` (baut nicht; setzt laufenden `vite preview --port 4173` voraus)
