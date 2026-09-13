@@ -10,6 +10,7 @@
  *     einen [data-vqa-done]-Marker, auf den der Harvester warten kann.
  *   /vqa.html?scene=broadcast
  *     Finales Nachrichten-TV und gemischte Publikums-Mimiken.
+ *     audienceSet=secondary → zweite Vierergruppe derselben Laufzeitdarstellung.
  *   /vqa.html?scene=sprites
  *     Kontaktbogen aller finalisierten Mood- und Geh-Sheets.
  */
@@ -75,6 +76,7 @@ function WahlabendFixture(): React.JSX.Element {
 
 function BroadcastFixture(): React.JSX.Element {
   const [assetsReady, setAssetsReady] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   useEffect(() => {
     void initAssetRegistry().then(() => setAssetsReady(true));
   }, []);
@@ -92,9 +94,14 @@ function BroadcastFixture(): React.JSX.Element {
   };
   const reaction = reactToEffect(source, item);
   const moods: Mood[] = ['verunsichert', 'ruhig', 'misstrauisch', 'wuetend'];
+  const audienceStart = params.get('audienceSet') === 'secondary' ? 4 : 0;
+  const orderedSegments = [
+    ...source.segments.slice(audienceStart),
+    ...source.segments.slice(0, audienceStart),
+  ];
   const country = {
     ...source,
-    segments: source.segments.map((segment, index) => ({
+    segments: orderedSegments.map((segment, index) => ({
       ...segment,
       mood: moods[index] ?? segment.mood,
       belief: [0.46, 0.31, 0.58, 0.72][index] ?? segment.belief,
@@ -103,7 +110,7 @@ function BroadcastFixture(): React.JSX.Element {
   const audience: AudienceBroadcastState = { country, lastItem: item, lastReaction: reaction, history: [item] };
   return (
     <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'flex-end', background: '#10141d' }}>
-      <BroadcastBar audience={audience} expanded onToggle={() => {}} />
+      <BroadcastBar audience={audience} expanded={expanded} onToggle={() => setExpanded((value) => !value)} />
     </div>
   );
 }
@@ -119,7 +126,7 @@ const AUDIENCE_SHEETS = [
   'audience_liberale',
 ];
 
-const WALK_SHEETS = ['player_walk', 'player_walk_f', 'figure_clerk_walk', 'figure_cleaner_walk'];
+const WALK_SHEETS = ['player_profiles_walk', 'player_profiles_idle', 'figure_clerk_walk', 'figure_cleaner_walk'];
 
 function SpriteSheetFixture(): React.JSX.Element {
   const card = (id: string, width?: number) => (
@@ -128,7 +135,7 @@ function SpriteSheetFixture(): React.JSX.Element {
       <img
         src={`/assets/sheets/${id}.png`}
         alt={id}
-        style={{ display: 'block', width: width ?? 192, maxWidth: '100%', height: 'auto', imageRendering: 'pixelated' }}
+        style={{ display: 'block', width: width ?? 384, maxWidth: '100%', height: 'auto', imageRendering: 'pixelated' }}
       />
     </figure>
   );

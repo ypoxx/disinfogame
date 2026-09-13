@@ -12,12 +12,18 @@
  * Jedes Bild hat einen CSS-Fallback — ohne Manifest bleibt die Bühne funktional.
  */
 import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { floorDoorFootY, getBuildingLayout, STAGE, wallFootY, type RoomLayout } from './buildingLayout';
+import { floorDoorFootY, floorWalkFootY, getBuildingLayout, STAGE, type RoomLayout } from './buildingLayout';
 import { snapPixelScale, snapToDevicePixel } from './pixelScale';
 import { useDpr } from '../hooks/usePixelFit';
 import { NAV_SPEED } from './BuildingNavigator';
 import { useDayClockStore } from '../stores/dayClockStore';
-import { usePlayerProfile, playerWalkSheetId, playerIdleSheetId } from '../stores/playerProfileStore';
+import {
+  usePlayerProfile,
+  playerWalkSheetId,
+  playerIdleSheetId,
+  playerWalkAnimationId,
+  playerIdleAnimationId,
+} from '../stores/playerProfileStore';
 import { skyGradientForMinutes, skylineLayersForMinutes } from './skyTime';
 import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, POSTER_SLOGANS, shredderLine, coffeeLine, volksbrauseLine, employeeOfMonth, plantAsset, plantLine, type AmbientFigure } from './corridorDecor';
 import { createAmbientLife, tickAmbientLife, sampleAmbient, nudgeAmbient, ambientWalkFrameTimeMs, AMBIENT_AGENTS, type AmbientFigureSnapshot } from './ambientLife';
@@ -34,6 +40,8 @@ import { publishVqa } from '../harness/vqaHook';
  */
 const WALK_CYCLE_STRIDE_PX = 192;
 const WALK_FRAME_TIME_MS = Math.round((WALK_CYCLE_STRIDE_PX / NAV_SPEED.walkPxPerSecond) * 1000 / 8);
+const PLAYER_FRAME_SIZE = 96;
+const PLAYER_SPRITE_SCALE = STAGE.avatarSize / PLAYER_FRAME_SIZE;
 
 /** Maßgeschneiderte 6:1-Panoramen statt gekachelter Universalflure. */
 export const FLOOR_BACKGROUND_BY_LEVEL: Readonly<Record<number, string>> = {
@@ -191,8 +199,8 @@ const STAGE_KEYFRAMES = `
   /* P5: Der Spieler-Marker atmet um GANZE Pixel — ein Sub-Pixel-Schweben würde
      die Pixel-Kante genau da aufweichen, wo sie am meisten auffällt. */
   @keyframes bs-marker-schweben { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-2px)} }
-  @keyframes bs-elevator-enter { from{transform:translateX(-50%) translateY(9px) scale(1.07);filter:brightness(1.08)} to{transform:translateX(-50%) translateY(0) scale(1);filter:brightness(1)} }
-  @keyframes bs-elevator-exit { from{transform:translateX(-50%) translateY(0) scale(1);filter:brightness(1)} to{transform:translateX(-50%) translateY(9px) scale(1.07);filter:brightness(1.08)} }
+  @keyframes bs-elevator-enter { from{transform:translateX(-50%) translateY(8px)} to{transform:translateX(-50%) translateY(0)} }
+  @keyframes bs-elevator-exit { from{transform:translateX(-50%) translateY(0)} to{transform:translateX(-50%) translateY(8px)} }
 `;
 
 /** Tür eines Raums — das Türblatt dreht räumlich um die linke Angel. */
@@ -442,18 +450,18 @@ function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]
         const depthScale = 0.86 + threshold * 0.14;
         // Der erste/letzte Schwellenframe sitzt in der echten Tür-Wandebene.
         // Auf Etagen ohne Sonderperspektive bleibt der bewährte 8-px-Tiefenschritt.
-        const thresholdDepthY = Math.min(-8, floorDoorFootY(floor) - wallFootY(floor));
+        const thresholdDepthY = Math.min(-8, floorDoorFootY(floor) - floorWalkFootY(floor));
         const depthY = Math.round((1 - threshold) * thresholdDepthY);
         return (
           <Fragment key={f.id}>
-          {threshold > 0.45 && <Bodenschatten x={f.x} y={wallFootY(floor)} breite={(AMBIENT_HEIGHT / 96) * 44} staerke={0.45 * threshold} />}
+          {threshold > 0.45 && <Bodenschatten x={f.x} y={floorWalkFootY(floor)} breite={(AMBIENT_HEIGHT / 96) * 44} staerke={0.45 * threshold} />}
           <div
             data-bs-walker={f.id}
             aria-hidden
             style={{
               position: 'absolute',
               left: f.x,
-              top: wallFootY(floor) - AMBIENT_HEIGHT, // Füße auf die Wand-Fuß-Linie (B6)
+              top: floorWalkFootY(floor) - AMBIENT_HEIGHT,
               width: (AMBIENT_HEIGHT / 96) * 48,
               height: AMBIENT_HEIGHT,
               transform: `translateX(-50%) translateY(${depthY}px) scale(${depthScale})`,
@@ -571,6 +579,8 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   const portraitId = usePlayerProfile((s) => s.portraitId);
   const avatarWalkSheet = playerWalkSheetId(portraitId);
   const avatarIdleSheet = playerIdleSheetId(portraitId);
+  const avatarWalkAnimation = playerWalkAnimationId(portraitId);
+  const avatarIdleAnimation = playerIdleAnimationId(portraitId);
   const cabinClosedUrl = assets.imageUrl('elevator_cabin_closed');
   const cabinOpenUrl = assets.imageUrl('elevator_cabin_open');
 
@@ -582,7 +592,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   const avatarFloorLayout = layout.floors.find((f) => f.level === nav.pos.floorLevel) ?? avatarFloor;
   const avatarY = nav.avatarInCabin
     ? cabinTopY + STAGE.floorHeight - STAGE.avatarSize - 10
-    : (avatarFloorLayout ? wallFootY(avatarFloorLayout) - STAGE.avatarSize : 0); // Füße auf der Wand-Fuß-Linie
+    : (avatarFloorLayout ? floorWalkFootY(avatarFloorLayout) - STAGE.avatarSize : 0);
 
   // Stadt-Geometrie (im Container-Maß, hinter der skalierten Bühne).
   const groundScreenY = snapToDevicePixel((layout.height - STAGE.groundHeight) * view.scale - cameraY);
@@ -678,7 +688,10 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           width: layout.width * view.scale,
           height: layout.height * view.scale,
           transform: `translateY(${-cameraY}px)`,
-          transition: nav.mode === 'ride' ? 'transform 90ms linear' : 'transform 700ms ease-in-out',
+          // Die Kabinenposition kommt während der Fahrt bereits pro rAF-Frame.
+          // Eine zusätzliche CSS-Interpolation lief ihr 90 ms hinterher und
+          // erzeugte zwischen Etage 2–4 das sichtbare Doppelbild.
+          transition: nav.mode === 'ride' ? 'none' : 'transform 700ms ease-in-out',
         }}
       >
       <div
@@ -772,6 +785,9 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               <div
                 data-floor-background={panoramaUrl ? panoramaId ?? undefined : 'fallback'}
                 data-floor-id={floor.id}
+                data-wall-foot-y={floor.y + STAGE.floorHeight - STAGE.floorStrip}
+                data-walk-foot-y={floorWalkFootY(floor)}
+                data-door-foot-y={floorDoorFootY(floor)}
                 style={{
                   position: 'absolute',
                   left: STAGE.pillarWidth,
@@ -803,7 +819,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 const h = DECOR_HEIGHT[d.id] ?? 48;
                 const playableW = layout.shaft.x - STAGE.pillarWidth;
                 const cx = STAGE.pillarWidth + d.xFrac * playableW;
-                const baseline = wallFootY(floor); // Wand-Fuß-Linie
+                const baseline = floorWalkFootY(floor);
                 const top = d.mount === 'floor'
                   ? baseline - h
                   // Wand-Objekte oberes Drittel; yOffset = per-Objekt-Korrektur
@@ -864,7 +880,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               {!isLobby && (FLOOR_AMBIENT[floor.id] ?? []).map((a, i) => {
                 if (!assets.imageUrl(a.figure)) return null;
                 const cx = STAGE.pillarWidth + a.xFrac * (layout.shaft.x - STAGE.pillarWidth);
-                const top = wallFootY(floor) - AMBIENT_HEIGHT;
+                const top = floorWalkFootY(floor) - AMBIENT_HEIGHT;
                 const id = `${floor.id}-amb-${i}`;
                 return (
                   <AmbientPerson
@@ -1021,7 +1037,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           if (!lobby || !assets.imageUrl('figure_pfoertner')) return null;
           const pH = 116; // Pförtner etwas kleiner als der Avatar (älterer Mann)
           const px = STAGE.pillarWidth + 0.13 * (layout.shaft.x - STAGE.pillarWidth);
-          const pBottom = wallFootY(lobby);
+          const pBottom = floorWalkFootY(lobby);
           return (
             <div style={{ position: 'absolute', left: px, top: pBottom - pH, transform: 'translateX(-50%)', zIndex: pfoertnerOpen ? EBENE.blase : EBENE.figuren }}>
               {pfoertnerOpen && pfoertnerLine && (
@@ -1096,6 +1112,9 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               {nav.avatarInCabin && (
                 <span
                   data-cabin-transfer={nav.cabinTransfer ?? 'still'}
+                  data-player-portrait-id={portraitId}
+                  data-player-sheet={avatarIdleSheet}
+                  data-player-animation={avatarIdleAnimation}
                   style={{
                     position: 'absolute', left: '50%', bottom: 22, transform: 'translateX(-50%)', zIndex: 2,
                     transformOrigin: 'bottom center',
@@ -1106,7 +1125,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                         : undefined,
                   }}
                 >
-                  <PixelSprite sheetId={avatarIdleSheet} animation="idle" fallback="•" scale={2} title="Sie" />
+                  <PixelSprite sheetId={avatarIdleSheet} animation={avatarIdleAnimation} fallback="•" scale={PLAYER_SPRITE_SCALE} title="Sie" />
                 </span>
               )}
               {(['left', 'right'] as const).map((side) => {
@@ -1135,8 +1154,14 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             <>
               <div style={{ width: '100%', height: '100%', backgroundColor: '#2a2b33', border: '3px solid #44454d', boxSizing: 'border-box' }} />
               {nav.avatarInCabin && (
-                <span style={{ position: 'absolute', left: '50%', bottom: 22, transform: 'translateX(-50%)', zIndex: 2 }}>
-                  <PixelSprite sheetId={avatarIdleSheet} animation="idle" fallback="•" scale={2} title="Sie" />
+                <span
+                  data-cabin-transfer={nav.cabinTransfer ?? 'still'}
+                  data-player-portrait-id={portraitId}
+                  data-player-sheet={avatarIdleSheet}
+                  data-player-animation={avatarIdleAnimation}
+                  style={{ position: 'absolute', left: '50%', bottom: 22, transform: 'translateX(-50%)', zIndex: 2 }}
+                >
+                  <PixelSprite sheetId={avatarIdleSheet} animation={avatarIdleAnimation} fallback="•" scale={PLAYER_SPRITE_SCALE} title="Sie" />
                 </span>
               )}
             </>
@@ -1264,13 +1289,16 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               pointerEvents: 'none',
             }}
             data-testid="building-avatar"
+            data-player-portrait-id={portraitId}
+            data-player-sheet={nav.mode === 'walk' ? avatarWalkSheet : avatarIdleSheet}
+            data-player-animation={nav.mode === 'walk' ? avatarWalkAnimation : avatarIdleAnimation}
           >
             <PixelSprite
               sheetId={nav.mode === 'walk' ? avatarWalkSheet : avatarIdleSheet}
-              animation={nav.mode === 'walk' ? 'walkRight' : 'idle'}
+              animation={nav.mode === 'walk' ? avatarWalkAnimation : avatarIdleAnimation}
               fallback="•"
               flip={nav.facing === -1}
-              scale={2}
+              scale={PLAYER_SPRITE_SCALE}
               title="Sie"
               frameTimeMs={nav.mode === 'walk' ? WALK_FRAME_TIME_MS : undefined}
               onFrame={nav.mode === 'walk' ? handleWalkFrame : undefined}

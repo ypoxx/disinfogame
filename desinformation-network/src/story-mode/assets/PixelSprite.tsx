@@ -2,7 +2,7 @@
  * PixelSprite — animiertes Sheet-Sprite (×skaliert, pixelig) mit Emoji-Fallback.
  * Gemeinsamer Baustein für BuildingStage (Figuren) und BroadcastBar (Publikum).
  */
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, type CSSProperties, type ReactNode } from 'react';
 import { useAssets } from './useAssets';
 import { useSprite } from './useSprite';
 
@@ -15,6 +15,7 @@ export function PixelSprite({
   title,
   frameTimeMs,
   frameOffset = 0,
+  imageRendering = 'pixelated',
   onFrame,
 }: {
   sheetId: string;
@@ -27,6 +28,8 @@ export function PixelSprite({
   frameTimeMs?: number;
   /** Deterministischer Startversatz, damit Gruppen nicht synchron loopen. */
   frameOffset?: number;
+  /** Publikum darf moderat geglättet werden; Welt-Sprites bleiben standardmäßig pixelgenau. */
+  imageRendering?: CSSProperties['imageRendering'];
   /** Frame-Event (z. B. Schritt-Sound auf Kontakt-Frames, Godot-Prinzip). */
   onFrame?: (frame: number) => void;
 }) {
@@ -47,7 +50,7 @@ export function PixelSprite({
     <span
       style={{
         ...sprite.style,
-        imageRendering: 'pixelated',
+        imageRendering,
         transform: `scale(${scale}) ${flip ? 'scaleX(-1)' : ''}`,
         transformOrigin: 'bottom center',
       }}

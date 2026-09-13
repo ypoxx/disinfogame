@@ -17,6 +17,12 @@ export interface FloorDef {
    * Negative Werte setzen die Tür in die hintere Wandebene des Panoramas.
    */
   doorFootOffsetY?: number;
+  /**
+   * Vertikaler Versatz der begehbaren Bodenlinie relativ zur generischen
+   * Panorama-Linie. Einige der finalen Etagenbilder zeigen mehr Bodentiefe;
+   * Figuren stehen dort sichtbar weiter unten als Tür-/Wandobjekte.
+   */
+  walkFootOffsetY?: number;
 }
 
 export interface RoomDef {
@@ -52,7 +58,7 @@ export const STAGE = {
   groundHeight: 96,
   doorWidth: 96,
   doorHeight: 144,
-  avatarSize: 128, // 64px-Frames ×2 (Proportionsregel; bei Bühnen-Scale ½ ⇒ 1:1 nativ)
+  avatarSize: 112, // 96px-Profilframes ×7/6; gleiche Körperhöhe wie das übrige Personal
   /** Höhe des Boden-Streifens unten im Flur: Deko/Avatar stehen auf der
    *  LAUF-Linie. Panoramen mit tieferer Perspektive dürfen Türen per
    *  `doorFootOffsetY` dahinter in die Wandebene setzen. */
@@ -78,6 +84,11 @@ export interface FloorLayout extends FloorDef {
  */
 export function wallFootY(floor: { y: number }): number {
   return floor.y + STAGE.floorHeight - STAGE.floorStrip;
+}
+
+/** Sichtbare Lauf-/Standlinie des konkreten Etagenpanoramas. */
+export function floorWalkFootY(floor: { y: number; walkFootOffsetY?: number }): number {
+  return wallFootY(floor) + (floor.walkFootOffsetY ?? 0);
 }
 
 /** Türschwelle des konkreten Etagenpanoramas, getrennt vom Laufweg. */
@@ -126,7 +137,8 @@ function computeLayout(): BuildingLayout {
     const y = roofHeight + idx * (floorHeight + slabHeight);
     // Avatar-Unterkante exakt auf der Wand-Fuß-Linie — der frühere −6-Offset
     // ließ ihn als einzige Klasse über der Linie stehen (Review B8).
-    return { ...f, y, walkY: wallFootY({ y }) - avatarSize };
+    const floor = { ...f, y };
+    return { ...floor, walkY: floorWalkFootY(floor) - avatarSize };
   });
   const height = roofHeight + floors.length * (floorHeight + slabHeight) + groundHeight;
 

@@ -2,7 +2,18 @@
  * Tests für den Spieler-Profil-Store (K10): Default, Setzen, Asset-id, Trim/Clamp.
  */
 import { describe, it, expect, beforeEach } from 'vitest';
-import { usePlayerProfile, playerPortraitAssetId, playerWalkSheetId, playerIdleSheetId, isFemaleProfile, PLAYER_PORTRAITS } from '../stores/playerProfileStore';
+import manifest from '../../../public/assets/assets.json';
+import {
+  usePlayerProfile,
+  playerPortraitAssetId,
+  playerWalkSheetId,
+  playerIdleSheetId,
+  playerWalkAnimationId,
+  playerIdleAnimationId,
+  normalizedPlayerPortraitId,
+  isFemaleProfile,
+  PLAYER_PORTRAITS,
+} from '../stores/playerProfileStore';
 
 describe('playerProfileStore', () => {
   beforeEach(() => {
@@ -39,19 +50,34 @@ describe('playerProfileStore', () => {
 
   it('playerPortraitAssetId bildet die Asset-Konvention ab', () => {
     expect(playerPortraitAssetId('f3')).toBe('portrait_player_f3');
+    expect(playerPortraitAssetId('kaputte-alt-id')).toBe('portrait_player_m2');
   });
 
-  it('Avatar-Sheets folgen der Geschlechter-Wahl (m→Basis, f→_f-Variante)', () => {
+  it('jede Auswahl behält eine eigene Atlas-Zeile bis in die Spielfigur', () => {
     expect(isFemaleProfile('m2')).toBe(false);
     expect(isFemaleProfile('f1')).toBe(true);
-    expect(playerWalkSheetId('m2')).toBe('player_walk');
-    expect(playerIdleSheetId('m2')).toBe('player_idle');
-    expect(playerWalkSheetId('f1')).toBe('player_walk_f');
-    expect(playerIdleSheetId('f3')).toBe('player_idle_f');
-    // Jede angebotene Porträt-Option liefert ein gültiges Sheet-Paar.
+    expect(playerWalkSheetId('m2')).toBe('player_profiles_walk');
+    expect(playerIdleSheetId('f1')).toBe('player_profiles_idle');
     for (const opt of PLAYER_PORTRAITS) {
-      expect(playerWalkSheetId(opt.id)).toMatch(/^player_walk(_f)?$/);
-      expect(playerIdleSheetId(opt.id)).toMatch(/^player_idle(_f)?$/);
+      expect(playerWalkAnimationId(opt.id)).toBe(`walk_${opt.id}`);
+      expect(playerIdleAnimationId(opt.id)).toBe(`idle_${opt.id}`);
+    }
+    expect(normalizedPlayerPortraitId('altwert')).toBe('m2');
+    expect(playerWalkAnimationId('altwert')).toBe('walk_m2');
+    usePlayerProfile.getState().setProfile('Altbestand', 'altwert');
+    expect(usePlayerProfile.getState().portraitId).toBe('m2');
+  });
+
+  it('Manifest hält beide Profil-Atlanten bei 96 px und in derselben Zeilenfolge', () => {
+    const walk = manifest.assets.find((asset) => asset.id === 'player_profiles_walk');
+    const idle = manifest.assets.find((asset) => asset.id === 'player_profiles_idle');
+    expect(walk).toMatchObject({ frameWidth: 96, frameHeight: 96, chosen: true });
+    expect(idle).toMatchObject({ frameWidth: 96, frameHeight: 96, chosen: true });
+    const walkAnimations = walk?.animations as Record<string, { row?: number }> | undefined;
+    const idleAnimations = idle?.animations as Record<string, { row?: number }> | undefined;
+    for (const [row, profile] of PLAYER_PORTRAITS.entries()) {
+      expect(walkAnimations?.[`walk_${profile.id}`]?.row).toBe(row);
+      expect(idleAnimations?.[`idle_${profile.id}`]?.row).toBe(row);
     }
   });
 });

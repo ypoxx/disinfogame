@@ -21,7 +21,7 @@ const arg = (name, dflt) => {
 const RUN = path.resolve(GAME, arg('run', 'runs/visual-review/latest'));
 
 const AVATAR_M = 1.75; // Referenz-Maßstab (Owner-Vorgabe dieser Prüfung)
-const AVATAR_PX = 128; // STAGE.avatarSize
+const AVATAR_PX = 112; // STAGE.avatarSize
 const PX_PER_M = AVATAR_PX / AVATAR_M;
 
 // Soll-Bereiche je Objektklasse in Metern (aus der Referenz 1,75 m abgeleitet;
@@ -93,7 +93,7 @@ for (const f of files) {
     // Wandebene; Figuren und Boden-Requisiten bleiben auf der Laufebene.
     const referenceFootLine = isDoor
       ? (floor.doorFootLine ?? floor.wallFootLine)
-      : floor.wallFootLine;
+      : (floor.walkFootLine ?? floor.wallFootLine);
     const engineGap = referenceFootLine - el.stage.bottom; // >0: Box endet ÜBER der Soll-Linie
     const visualGap = padBottomDisplay != null ? engineGap + padBottomDisplay : null;
 
@@ -108,6 +108,7 @@ for (const f of files) {
       assetId: el.assetId, kind: el.kind, context: el.context ?? null, class: cls,
       floor: floor.id,
       boxBottom: round2(el.stage.bottom), wallFootLine: floor.wallFootLine,
+      walkFootLine: floor.walkFootLine ?? floor.wallFootLine,
       doorFootLine: floor.doorFootLine ?? floor.wallFootLine,
       referenceFootLine,
       engineGapPx: round2(engineGap),

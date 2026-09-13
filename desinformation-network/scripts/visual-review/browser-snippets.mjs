@@ -75,6 +75,7 @@ export function measureStageGeometry() {
       y: f.y,
       walkY: f.walkY,
       wallFootLine: f.y + V.STAGE.floorHeight - V.STAGE.floorStrip,
+      walkFootLine: f.y + V.STAGE.floorHeight - V.STAGE.floorStrip + (f.walkFootOffsetY ?? 0),
       doorFootLine: f.y + V.STAGE.floorHeight - V.STAGE.floorStrip + (f.doorFootOffsetY ?? 0),
       frontEdge: f.y + V.STAGE.floorHeight,
     })),
@@ -93,8 +94,8 @@ export function measureStageGeometry() {
 
 /**
  * Boden-Linien-Overlay in die Bühne zeichnen (für die Wahrnehmungs-Prüfung):
- * Magenta = Lauf-/Wand-Fuß-Linie, Gelb = abweichende Tür-Wandebene,
- * Cyan gestrichelt = vordere Bodenkante. Entfernbar über
+ * Magenta = generische Wand-Fuß-Linie, Grün = sichtbare Laufebene,
+ * Gelb = Tür-Wandebene, Cyan gestrichelt = vordere Bodenkante. Entfernbar über
  * removeFloorLineOverlay().
  */
 export function drawFloorLineOverlay() {
@@ -130,9 +131,11 @@ export function drawFloorLineOverlay() {
   };
   for (const f of layout.floors) {
     const wallFoot = f.y + V.STAGE.floorHeight - V.STAGE.floorStrip;
+    const walkFoot = wallFoot + (f.walkFootOffsetY ?? 0);
     const doorFoot = wallFoot + (f.doorFootOffsetY ?? 0);
-    mk(wallFoot, '#ff00cc', false, `LAUF-LINIE ${f.label_de ?? f.id}`);
-    if (doorFoot !== wallFoot) mk(doorFoot, '#ffe14a', true, 'TÜR-WANDEBENE');
+    mk(wallFoot, '#ff00cc', true, `WAND-FUSS ${f.label_de ?? f.id}`);
+    mk(walkFoot, '#63ff7b', false, 'LAUFEBENE');
+    if (doorFoot !== walkFoot) mk(doorFoot, '#ffe14a', true, 'TÜR-WANDEBENE');
     mk(f.y + V.STAGE.floorHeight, '#00e5ff', true, null);
   }
   return true;

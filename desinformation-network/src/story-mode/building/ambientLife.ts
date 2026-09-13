@@ -5,7 +5,7 @@
  * sich öffnenden Türen und verschwinden wieder in ihnen — KEIN Ein-/Ausfaden,
  * keine CSS-Pendel-Keyframes mehr. Die Routen kommen aus dem vorhandenen
  * BuildingNavigator (planRoute): Ambient-Figuren sind Navigator-Instanzen mit
- * ruhigem Tempo (Memo §3: ~44 px/s ± 22 % je Figur statt 300 px/s Spieler).
+ * ruhigem Tempo (Memo §3: ~58 px/s ± 22 % je Figur statt 300 px/s Spieler).
  *
  * Pure TS + deterministischer Zufall (mulberry32): testbar ohne React/DOM.
  * Der React-Teil (AmbientLifeLayer in BuildingStage) ist nur ein Abspielkopf,
@@ -17,15 +17,15 @@ import { getBuildingLayout, STAGE, type BuildingLayout, type RoomLayout } from '
 /** Rhythmus-Konstanten (Memo §3: Tür-Beat 0,5–1 s, Kontext-Idle 2–4 s, Ruhe > Unruhe). */
 export const AMBIENT_TIMING = {
   /** Ruhiges Grundtempo in Stage-px/s (Spieler: 300). */
-  baseSpeedPxS: 44,
+  baseSpeedPxS: 58,
   /** ± Tempo-Streuung je Figur (Memo §3: 15–25 %). */
   speedJitter: 0.22,
   /** Kontext-Idle unterwegs (steht kurz, schaut). */
-  idleMinMs: 2000,
-  idleMaxMs: 4000,
+  idleMinMs: 900,
+  idleMaxMs: 1800,
   /** Verborgen zwischen zwei Auftritten (Frequenz ruhig, SOUL §3.4). */
-  pauseMinMs: 9000,
-  pauseMaxMs: 20000,
+  pauseMinMs: 4500,
+  pauseMaxMs: 9000,
   /** Tür-Beat = Navigator-Türzeit (650 ms, im 0,5–1-s-Fenster). */
   doorBeatMs: NAV_SPEED.doorMs,
   /** Tür bleibt nach dem Heraustreten kurz offen (schließt hinter der Figur). */
@@ -64,16 +64,16 @@ export interface AmbientAgentDef {
  * Tür-Dummies auf Etage 4/3 durch echte Tür-zu-Tür-Routen.
  */
 export const AMBIENT_AGENTS: AmbientAgentDef[] = [
-  { id: 'reinigung', walkSheet: 'figure_cleaner_walk', idleSheet: 'figure_cleaner', floorLevels: [3, 1, 4, -1, 2], firstAppearanceMs: 4000 },
-  { id: 'bote_e4', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [4], firstAppearanceMs: 10000 },
-  { id: 'bote_e3', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [3], firstAppearanceMs: 17000 },
-  { id: 'bote_e2', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [2], firstAppearanceMs: 26000 },
+  { id: 'reinigung', walkSheet: 'figure_cleaner_walk', idleSheet: 'figure_cleaner', floorLevels: [3, 1, 4, -1, 2], firstAppearanceMs: 1200 },
+  { id: 'bote_e4', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [4], firstAppearanceMs: 3200 },
+  { id: 'bote_e3', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [3], firstAppearanceMs: 5200 },
+  { id: 'bote_e2', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [2], firstAppearanceMs: 7000 },
   // Owner-Entscheidung 2026-08-23 („leere Etagen beleben"): Etage 1 hatte als
   // einzige Publikums-Etage keinen eigenen Boten — dort lief nur die Reinigung
   // vorbei, die sich auf fünf Stockwerke verteilt. Ausgerechnet die Zentrale wirkte
   // damit am ausgestorbensten. Der Keller bleibt bewusst ohne Boten: Er IST der
   // stille Flur, dafür steht dort jetzt dauerhaft der Hausmeister.
-  { id: 'bote_e1', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [1], firstAppearanceMs: 33000 },
+  { id: 'bote_e1', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [1], firstAppearanceMs: 9000 },
 ];
 
 /** Türen, die Statisten NIE benutzen: die Lobby hat keine Tür, und aus dem

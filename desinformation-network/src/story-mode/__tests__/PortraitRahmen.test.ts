@@ -37,12 +37,10 @@ describe('Porträt-Rahmen', () => {
   });
 
   it('rechnet den Ausschnitt korrekt in Bild-Styles um', () => {
-    // m2 ist der engste Ausschnitt: 43 % der Quelle → Bild auf 232,6 % aufziehen.
     const s = playerPortraitImgStyle('m2');
-    expect(s.width).toBe(`${100 / 0.43}%`);
-    expect(s.marginLeft).toBe(`${-(0.131 / 0.43) * 100}%`);
-    expect(s.imageRendering).toBe('pixelated');
-    // Der Vollbild-Fall darf nichts verschieben.
-    expect(playerPortraitImgStyle('m1')).toMatchObject({ width: '100%', marginLeft: '0%', marginTop: '0%' });
+    expect(s).toMatchObject({ width: '100%', height: '100%', marginLeft: '0%', marginTop: '0%' });
+    // Die hochauflösenden Porträts werden verkleinert und deshalb bewusst
+    // geglättet; `pixelated` erzeugte die beanstandeten groben Gesichter.
+    expect(s.imageRendering).toBe('auto');
   });
 });

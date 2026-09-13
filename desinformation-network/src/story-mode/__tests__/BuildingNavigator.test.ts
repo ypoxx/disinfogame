@@ -2,7 +2,7 @@
  * Tests für buildingLayout + BuildingNavigator (pure TS, ohne React).
  */
 import { describe, it, expect } from 'vitest';
-import { floorDoorFootY, getBuildingLayout, roomById, STAGE, wallFootY } from '../building/buildingLayout';
+import { floorDoorFootY, floorWalkFootY, getBuildingLayout, roomById, STAGE, wallFootY } from '../building/buildingLayout';
 import {
   planRoute,
   routeDurationMs,
@@ -88,6 +88,14 @@ describe('buildingLayout', () => {
     expect(roomById('zentrale')!.doorFootY).toBe(floorDoorFootY(floor1));
     expect(roomById('spieler_buero')!.doorFootY).toBe(floorDoorFootY(floor1));
     expect(roomById('finanzen')!.doorFootY).toBe(floorDoorFootY(basement));
+  });
+
+  it('legt die sichtbaren Laufebenen von Etage 2–4 tiefer ins Panorama', () => {
+    const floors = getBuildingLayout().floors;
+    expect(floorWalkFootY(floors.find((f) => f.level === 4)!)).toBe(wallFootY(floors.find((f) => f.level === 4)!) + 18);
+    expect(floorWalkFootY(floors.find((f) => f.level === 3)!)).toBe(wallFootY(floors.find((f) => f.level === 3)!) + 16);
+    expect(floorWalkFootY(floors.find((f) => f.level === 2)!)).toBe(wallFootY(floors.find((f) => f.level === 2)!) + 16);
+    expect(floorDoorFootY(floors.find((f) => f.level === 4)!)).toBe(floorWalkFootY(floors.find((f) => f.level === 4)!));
   });
 });
 

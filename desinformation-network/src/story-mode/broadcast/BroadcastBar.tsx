@@ -73,6 +73,10 @@ const TIER_COLOR: Record<BroadcastTier, string> = {
   gross: StoryModeWorld.red,
 };
 
+/** Native 96px audience frames are reduced only slightly in the broadcast set.
+ *  This keeps facial acting legible without making four seated people feel crowded. */
+const AUDIENCE_SPRITE_SCALE = 1.08;
+
 /** Inhaltliche Bildauswahl für den linken Fernseher; stabil und ohne Zufall. */
 export function newsSceneIndex(item: Pick<BroadcastItem, 'channel' | 'themes'>): number {
   if (item.channel === 'social') return 3;
@@ -347,17 +351,17 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
         border: '3px solid #2c2d35',
         backgroundColor: '#15161c',
         ...(roomUrl
-          ? { backgroundImage: `url(${roomUrl})`, backgroundSize: 'cover', backgroundPosition: 'center 65%', imageRendering: 'pixelated' }
+          ? { backgroundImage: `url(${roomUrl})`, backgroundSize: 'cover', backgroundPosition: 'center 65%', imageRendering: 'auto' }
           : {}),
       }}
       title="Publikum: Westunion"
     >
-      <span style={{ position: 'absolute', top: 4, left: 8, fontFamily: StoryModeFonts.label, fontSize: 10, fontWeight: 700, letterSpacing: 1, color: '#c8c8b8', backgroundColor: 'rgba(10,10,14,0.7)', padding: '1px 6px', zIndex: 3 }}>
+      <span style={{ position: 'absolute', top: 4, left: 8, fontFamily: StoryModeFonts.label, fontSize: 10, fontWeight: 700, letterSpacing: 1, color: '#c8c8b8', backgroundColor: 'rgba(10,10,14,0.7)', padding: '1px 6px', zIndex: 5 }}>
         PUBLIKUM — WESTUNION
       </span>
       {/* Repräsentative Teilmenge (das Sofa fasst nicht alle 8 — Owner: nicht alle sitzen);
-          mittig, Rand-Polster, kleinere Skala → Köpfe werden oben NICHT abgeschnitten. */}
-      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 14, display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 12, padding: '0 16px', zIndex: 2 }}>
+          native 96px, gemeinsame Sitzlinie: Hüften auf dem Polster, Füße davor am Boden. */}
+      <div data-testid="audience-seat-line" style={{ position: 'absolute', left: 42, right: -42, bottom: 8, display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 8, padding: '0 16px' }}>
         {visibleSegments.map((seg) => {
           const figure = FIGURE_BY_SEGMENT[seg.id] ?? 'audience_besorgte_mitte';
           const reaction = reactionBySegment.get(seg.id);
@@ -374,7 +378,8 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
           return (
             <div
               key={seg.id}
-              style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+              data-audience-sheet={figure}
+              style={{ position: 'relative', width: 82, display: 'flex', flexDirection: 'column', alignItems: 'center' }}
               title={`${seg.label_de} — ${MOOD_LABEL[seg.mood]}, Überzeugung ${(seg.belief * 100).toFixed(0)}%`}
             >
               {badgeResult.badge && (
@@ -435,7 +440,8 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
                   sheetId={figure}
                   animation={seg.mood}
                   fallback=""
-                  scale={2.2}
+                  scale={AUDIENCE_SPRITE_SCALE}
+                  imageRendering="auto"
                   title={seg.label_de}
                   frameOffset={audienceFrameOffset(seg.id)}
                 />
@@ -447,7 +453,7 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-label={`${seg.label_de}: Überzeugung ${Math.round(seg.belief * 100)}%, Stimmung ${MOOD_LABEL[seg.mood]}`}
-                style={{ width: 40, height: 4, marginTop: 2, backgroundColor: 'rgba(0,0,0,0.55)' }}
+                style={{ position: 'relative', zIndex: 5, width: 40, height: 4, marginTop: 2, backgroundColor: 'rgba(0,0,0,0.55)' }}
               >
                 <span
                   style={{

@@ -9,7 +9,7 @@
 //   room_<roomId>            Raum-Hintergrund (image)
 //   portrait_<npcId>[_<mood>] NPC-Porträt (image)
 //   figure_<npcId>           kleine Figur im Gebäude (sheet)
-//   player_walk / player_idle Spielfigur (sheet)
+//   player_profiles_walk / player_profiles_idle Spielfigur (sheet)
 //   sfx_<name> / music_<name> Audio
 //   voice_<npcId>_<lineKey>  NPC-Sprachzeile, z. B. voice_marina_greeting_2
 

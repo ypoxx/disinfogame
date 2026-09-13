@@ -1,9 +1,9 @@
 {
   "_comment": "Agentur-Gebäude als Daten (Quelle für BuildingStage + Asset-Shotliste). 6 Ebenen (K6.2), Räume ohne npcId sind begehbare Orte. Kein Röntgenblick: Der Querschnitt zeigt Flure mit Türen, Räume öffnen sich erst beim Betreten (GESAMTKONZEPT_VISUELL.md §4.3). Zelle = <Spalte><Etage>; colSpan überspannt Spalten.",
   "floors": [
-    { "id": "etage4", "level": 4, "label_de": "Etage 4 — Spezial-Operationen", "label_en": "Floor 4 — Special Operations" },
-    { "id": "etage3", "level": 3, "label_de": "Etage 3 — Analyse & Medien", "label_en": "Floor 3 — Analysis & Media" },
-    { "id": "etage2", "level": 2, "label_de": "Etage 2 — Feld-Operationen", "label_en": "Floor 2 — Field Operations" },
+    { "id": "etage4", "level": 4, "doorFootOffsetY": 18, "walkFootOffsetY": 18, "label_de": "Etage 4 — Spezial-Operationen", "label_en": "Floor 4 — Special Operations" },
+    { "id": "etage3", "level": 3, "walkFootOffsetY": 16, "label_de": "Etage 3 — Analyse & Medien", "label_en": "Floor 3 — Analysis & Media" },
+    { "id": "etage2", "level": 2, "walkFootOffsetY": 16, "label_de": "Etage 2 — Feld-Operationen", "label_en": "Floor 2 — Field Operations" },
     { "id": "etage1", "level": 1, "doorFootOffsetY": -10, "label_de": "Etage 1 — Zentrale", "label_en": "Floor 1 — HQ" },
     { "id": "erdgeschoss", "level": 0, "label_de": "Erdgeschoss — Empfang", "label_en": "Ground Floor — Lobby" },
     { "id": "keller", "level": -1, "doorFootOffsetY": -12, "label_de": "Keller — Geheimoperationen", "label_en": "Basement — Covert Ops" }

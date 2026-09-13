@@ -18,8 +18,8 @@ describe('finale Publikums-Sprites', () => {
     for (const id of AUDIENCE_IDS) {
       const asset = manifest.assets.find((candidate) => candidate.id === id);
       expect(asset, id).toBeTruthy();
-      expect(asset?.frameWidth).toBe(48);
-      expect(asset?.frameHeight).toBe(48);
+      expect(asset?.frameWidth).toBe(96);
+      expect(asset?.frameHeight).toBe(96);
       const animations = asset?.animations as Record<string, { row?: number; frames: number; frameTimes?: number[] }> | undefined;
       for (const [row, mood] of ['ruhig', 'verunsichert', 'wuetend', 'misstrauisch'].entries()) {
         const animation = animations?.[mood];

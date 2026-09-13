@@ -64,6 +64,7 @@ export function AvatarChoice({ onConfirm }: AvatarChoiceProps): React.JSX.Elemen
             return (
               <button
                 key={opt.id}
+                data-player-portrait-option={opt.id}
                 onClick={() => setPortraitId(opt.id)}
                 aria-pressed={selected}
                 aria-label={`Porträt ${opt.label} (${opt.id.startsWith('f') ? 'weiblich' : 'männlich'})`}
@@ -77,10 +78,7 @@ export function AvatarChoice({ onConfirm }: AvatarChoiceProps): React.JSX.Elemen
                 }}
               >
                 {url ? (
-                  // P10: normierter Ausschnitt statt objectFit cover — die sechs
-                  // Quellbilder sind unterschiedlich weit aufgenommen (Kopfhöhe
-                  // 19 % bis 40 % der Bildhöhe), und hier stehen sie nebeneinander.
-                  <img src={url} alt="" style={playerPortraitImgStyle(opt.id)} />
+                  <img src={url} alt="" data-player-portrait-image={opt.id} style={playerPortraitImgStyle(opt.id)} />
                 ) : (
                   <Icon name="npcs" size={32} />
                 )}

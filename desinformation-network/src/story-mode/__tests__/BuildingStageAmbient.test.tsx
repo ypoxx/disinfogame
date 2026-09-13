@@ -143,7 +143,10 @@ describe('BuildingStage — Ambient-Render-Schicht (LB)', () => {
     const transfer = container.querySelector('[data-cabin-transfer="entering"]') as HTMLElement;
     expect(transfer).toBeTruthy();
     expect(transfer.style.animation).toContain('bs-elevator-enter');
-    expect(screen.getByTestId('building-camera').style.transition).toBe('transform 90ms linear');
+    expect(screen.getByTestId('building-camera').style.transition).toBe('none');
+    const keyframes = container.querySelector('style')?.textContent ?? '';
+    expect(keyframes).not.toContain('scale(1.07)');
+    expect(keyframes).not.toContain('filter:brightness');
   });
 
   it('verschiebt Tür, Schild/Lampe und Klickfläche gemeinsam in die Wandebene', async () => {
@@ -162,6 +165,10 @@ describe('BuildingStage — Ambient-Render-Schicht (LB)', () => {
     expect(finanzenCapture.style.top).toBe(`${finanzen.doorFootY - STAGE.doorHeight - 40}px`);
     expect(zentraleDoor.dataset.doorFootY).toBe(String(zentrale.doorFootY));
     expect(finanzenDoor.dataset.doorFootY).toBe(String(finanzen.doorFootY));
+
+    const floor4 = container.querySelector('[data-floor-id="etage4"]') as HTMLElement;
+    expect(Number(floor4.dataset.walkFootY)).toBe(Number(floor4.dataset.doorFootY));
+    expect(Number(floor4.dataset.walkFootY)).toBeGreaterThan(Number(floor4.dataset.wallFootY));
   });
 
   /**
