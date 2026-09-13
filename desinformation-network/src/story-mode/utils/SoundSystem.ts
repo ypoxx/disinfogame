@@ -201,6 +201,8 @@ class SoundSystem {
   private musicElement: HTMLAudioElement | null = null;
   private musicAssetId: string | null = null;
   private voiceElement: HTMLAudioElement | null = null;
+  // Gemessene Längen der Sprachzeilen (Asset-id → ms) für audio-genaues Pacing.
+  private voiceDurationCache: Map<string, number> = new Map();
   // F36: Raum-Klangkulisse als zweiter Loop (leiser als Musik), läuft auf dem sfx-Kanal.
   private ambienceElement: HTMLAudioElement | null = null;
   private ambienceAssetId: string | null = null;
@@ -498,6 +500,51 @@ class SoundSystem {
     return true;
   }
 
+  /**
+   * Dauer einer Sprachzeile in ms (aus den Audio-Metadaten), `null` wenn
+   * unbekannt. Die Ankunfts-Sequenz braucht die echte Länge, um dem Erzähler
+   * genügend Standzeit zu geben — eine fest verdrahtete Tabelle würde beim
+   * nächsten Neu-Vertonen still veralten.
+   *
+   * Bricht nach `timeoutMs` ab (nie auf Audio warten lassen) und merkt sich nur
+   * erfolgreiche Messungen.
+   */
+  async voiceLineDurationMs(assetId: string, timeoutMs: number = 800): Promise<number | null> {
+    const cached = this.voiceDurationCache.get(assetId);
+    if (cached !== undefined) return cached;
+    const url = getAssetRegistry().soundUrl(assetId);
+    if (!url) return null;
+    const element = this.createAudio(url);
+    if (!element) return null;
+    const ms = await new Promise<number | null>((resolve) => {
+      let settled = false;
+      const finish = (value: number | null): void => {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(timer);
+        resolve(value);
+      };
+      const timer = window.setTimeout(() => finish(null), timeoutMs);
+      element.addEventListener(
+        'loadedmetadata',
+        () => {
+          const d = element.duration;
+          finish(Number.isFinite(d) && d > 0 ? Math.round(d * 1000) : null);
+        },
+        { once: true }
+      );
+      element.addEventListener('error', () => finish(null), { once: true });
+      try {
+        element.preload = 'metadata';
+        element.load();
+      } catch {
+        finish(null);
+      }
+    });
+    if (ms !== null) this.voiceDurationCache.set(assetId, ms);
+    return ms;
+  }
+
   stopVoice(): void {
     if (this.voiceElement) {
       try {
@@ -658,4 +705,9 @@ export function playVoiceLine(assetId: string): boolean {
 
 export function stopVoiceLine(): void {
   getSoundSystem().stopVoice();
+}
+
+/** Länge einer Sprachzeile in ms (Metadaten) — `null`, wenn nicht messbar. */
+export function voiceLineDurationMs(assetId: string, timeoutMs?: number): Promise<number | null> {
+  return getSoundSystem().voiceLineDurationMs(assetId, timeoutMs);
 }

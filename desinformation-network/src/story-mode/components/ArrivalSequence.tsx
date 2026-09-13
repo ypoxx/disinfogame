@@ -1,15 +1,20 @@
 /**
- * ArrivalSequence — überspringbare Ankunfts-Sequenz (~15 s).
+ * ArrivalSequence — überspringbare Ankunfts-Sequenz.
  *
  * Avatar betritt die Lobby, fährt mit dem Fahrstuhl zur Etage 1, läuft zur
  * Tür der Zentrale. Danach feuert `onDone` (einmalig, auch bei Skip).
  * Kino-Look: Letterbox-Balken + wechselnde Schreibmaschinen-Caption.
+ *
+ * Pacing: Die Sequenz richtet sich nach dem Erzähler, nicht umgekehrt — vor
+ * jedem Abschnitt wartet der Avatar so lange, dass die Zeile ausgesprochen ist
+ * (siehe `arrivalPacing.ts`). Ohne Ton bleibt es beim alten, knappen Takt.
  */
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BuildingStage, type StageNpc } from '../building/BuildingStage';
 import { useNavigator, resetAvatarPosition } from '../building/useNavigator';
-import { entryPosition } from '../building/BuildingNavigator';
-import { playVoiceLine, stopVoiceLine } from '../utils/SoundSystem';
+import { entryPosition, planRoute, type NavStep } from '../building/BuildingNavigator';
+import { isSoundEnabled, playVoiceLine, stopVoiceLine, voiceLineDurationMs } from '../utils/SoundSystem';
+import { beatForStep, planArrivalHolds, type ArrivalBeat, type ArrivalHold } from './arrivalPacing';
 
 export interface ArrivalSequenceProps {
   npcs: StageNpc[];
@@ -49,15 +54,38 @@ export function ArrivalSequence({ npcs, onDone }: ArrivalSequenceProps): JSX.Ele
     onDone();
   };
 
-  // Route starten: kurze Verzögerung, damit der Spieler die Lobby sieht.
+  // Caption + Erzähler-Zeile hängen am Routen-Schritt (eine Uhr, kein Drift).
+  const [beat, setBeat] = useState<ArrivalBeat>('lobby');
+
+  // Standzeiten aus den echten Audio-Längen; null = noch nicht vermessen.
+  const [holds, setHolds] = useState<ArrivalHold[] | null>(null);
+
   useEffect(() => {
-    const id = window.setTimeout(() => {
-      nav.goTo('zentrale', () => fireDone());
-    }, 1400); // Lobby erst als Bild wirken lassen (Review-Befund B3)
-    return () => window.clearTimeout(id);
+    let cancelled = false;
+    const steps = arrivalRoute();
+    void measureNarration().then((narrationMs) => {
+      if (cancelled) return;
+      setHolds(planArrivalHolds(steps, narrationMs));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Route starten, sobald das Pacing steht (Messung lokaler Dateien: wenige ms).
+  useEffect(() => {
+    if (!holds) return;
+    nav.goTo('zentrale', () => fireDone(), {
+      holdBeforeStepMs: holds.map((h) => h.holdMs),
+      onStepEnter: (_index: number, step: NavStep): void => {
+        const next = beatForStep(step);
+        setBeat(next);
+        playVoiceLine(`voice_narrator_${next}`);
+      },
+    });
   // nav.goTo ist stabil (useCallback in useNavigator); onDone über fireDone gekapselt.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [holds]);
 
   // Skip: Tastatur (Escape, Enter, Leertaste) + Klick auf die Bühne.
   const handleSkip = (): void => {
@@ -79,15 +107,8 @@ export function ArrivalSequence({ npcs, onDone }: ArrivalSequenceProps): JSX.Ele
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Caption-Text + Erzähler-Zeile: wechseln je nach Navigations-Modus und Etage.
-  const capKey = captionKey(nav.mode, nav.pos.floorLevel);
-  const caption = NARRATION[capKey];
+  const caption = NARRATION[beat];
 
-  // Erzähler-Voiceover (Daniel): zu jeder Caption die passende Zeile; eine
-  // laufende wird beim Wechsel gestoppt (playVoiceLine ist single-channel).
-  useEffect(() => {
-    playVoiceLine(`voice_narrator_${capKey}`);
-  }, [capKey]);
   // Beim Verlassen der Sequenz verstummt der Erzähler.
   useEffect(() => () => stopVoiceLine(), []);
 
@@ -200,21 +221,31 @@ export function ArrivalSequence({ npcs, onDone }: ArrivalSequenceProps): JSX.Ele
 // Caption-Auflösung (mode + Etage → Schreibmaschinen-Text + Erzähler-Zeile)
 // ---------------------------------------------------------------------------
 
-/** Abschnitte der Ankunft; jeder trägt Caption UND Erzähler-Asset (voice_narrator_<key>). */
-type CaptionKey = 'lobby' | 'ride' | 'floor' | 'door';
-
-const NARRATION: Record<CaptionKey, string> = {
+const NARRATION: Record<ArrivalBeat, string> = {
   lobby: 'Ihr erster Arbeitstag. Der Pförtner sieht nicht auf — Ihr Name steht bereits auf der Liste.',
   ride: 'Der Aufzug ächzt. Irgendwo über Ihnen rattert ein Fernschreiber.',
   floor: 'Etage 1 — Abteilung für Sonderoperationen. Der Flur riecht nach kaltem Kaffee.',
   door: 'Zimmer 1-01. Der Direktor erwartet Sie.',
 };
 
-function captionKey(mode: string, floorLevel: number): CaptionKey {
-  if (mode === 'ride') return 'ride';
-  if (mode === 'door') return 'door';
-  if (Math.round(floorLevel) === 0) return 'lobby'; // idle/walk auf Etage 0
-  return 'floor'; // höhere Etagen nach dem Fahrstuhl
+/** Route der Ankunft — dieselbe, die `goTo('zentrale')` intern plant. */
+function arrivalRoute(): NavStep[] {
+  try {
+    return planRoute(entryPosition(), 'zentrale');
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Länge jeder Erzähler-Zeile messen. Ohne Ton (oder ohne messbare Datei) bleibt
+ * es beim Grund-Takt — die Sequenz wartet dann nicht auf Stille.
+ */
+async function measureNarration(): Promise<Partial<Record<ArrivalBeat, number | null>>> {
+  const beats: ArrivalBeat[] = ['lobby', 'ride', 'floor', 'door'];
+  if (!isSoundEnabled()) return {};
+  const measured = await Promise.all(beats.map((b) => voiceLineDurationMs(`voice_narrator_${b}`)));
+  return Object.fromEntries(beats.map((b, i) => [b, measured[i]]));
 }
 
 export default ArrivalSequence;

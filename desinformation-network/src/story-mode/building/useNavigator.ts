@@ -47,11 +47,27 @@ interface RunHandle {
   intervals: number[];
 }
 
+/** Kino-Pacing einer Route — nur die Ankunfts-Sequenz nutzt das. */
+export interface GoToOptions {
+  /**
+   * Standzeit (ms) VOR dem Schritt mit diesem Index: Der Avatar wartet sichtbar
+   * (mode 'idle'), bevor er losläuft, einsteigt oder die Tür öffnet. So bekommt
+   * der Erzähler die Zeit, seine Zeile zu Ende zu sprechen.
+   */
+  holdBeforeStepMs?: readonly number[];
+  /**
+   * Feuert, sobald ein Schritt beginnt — VOR seiner Standzeit. Damit hängen
+   * Caption und Sprachzeile an derselben Uhr wie die Animation (kein Drift
+   * durch parallel laufende Timer).
+   */
+  onStepEnter?: (index: number, step: NavStep) => void;
+}
+
 export interface UseNavigatorResult extends NavigatorState {
   /** Läuft gerade eine Route? */
   busy: boolean;
   /** Avatar zur Tür von `roomId` schicken; `onArrive` feuert bei offener Tür. */
-  goTo: (roomId: string, onArrive?: (roomId: string) => void) => void;
+  goTo: (roomId: string, onArrive?: (roomId: string) => void, options?: GoToOptions) => void;
   /** Aktuelle Route sofort beenden (Ziel + Callback werden ausgeführt). */
   skip: () => void;
 }
@@ -108,7 +124,7 @@ export function useNavigator(initial?: AvatarPosition): UseNavigatorResult {
   }, []);
 
   const goTo = useCallback(
-    (roomId: string, onArrive?: (roomId: string) => void) => {
+    (roomId: string, onArrive?: (roomId: string) => void, options?: GoToOptions) => {
       cancelRun();
       const from = lastPosition ?? state.pos;
       let steps: NavStep[];
@@ -132,6 +148,7 @@ export function useNavigator(initial?: AvatarPosition): UseNavigatorResult {
         run.timeouts.push(window.setTimeout(() => !run.cancelled && fn(), ms));
       };
 
+      // Schritt betreten: erst melden, dann (optional) warten, dann abspielen.
       const runStep = (index: number) => {
         if (run.cancelled) return;
         const step = steps[index];
@@ -142,6 +159,18 @@ export function useNavigator(initial?: AvatarPosition): UseNavigatorResult {
           if (arrive?.cb) arrive.cb(arrive.roomId);
           return;
         }
+        options?.onStepEnter?.(index, step);
+        const holdMs = options?.holdBeforeStepMs?.[index] ?? 0;
+        if (holdMs > 0) {
+          setState((s) => ({ ...s, mode: 'idle' }));
+          later(holdMs, () => playStep(index, step));
+          return;
+        }
+        playStep(index, step);
+      };
+
+      const playStep = (index: number, step: NavStep) => {
+        if (run.cancelled) return;
 
         if (step.kind === 'walk') {
           const facing: 1 | -1 = step.toX >= step.fromX ? 1 : -1;

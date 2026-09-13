@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildShotlist, INTRO_VOICE_LINE, npcLines, seedFor } from '../src/shotlist.mjs';
+import { buildShotlist, INTRO_VOICE_LINE, NARRATOR_VOICE_LINES, npcLines, seedFor } from '../src/shotlist.mjs';
 import { ID_PATTERN } from '../src/manifest.mjs';
 
 const shots = buildShotlist();
@@ -63,13 +63,18 @@ test('Stimmen: verdrahtete Intro-Zeile als MUSS + alle npcs.json-Zeilen als Kür
   assert.equal(intro.voice.text, INTRO_VOICE_LINE.text);
   assert.ok(intro.voice.text.startsWith('Willkommen in der Abteilung'));
 
-  // 5 NPCs × (4 Begrüßungen + 3 Reaktionen + 3 Themen) + Intro = 51
+  // 51 Zeilen aus npcs.json + Intro + 4 Erzähler-Zeilen der Ankunfts-Sequenz.
   const voices = shots.filter((s) => s.type === 'voice');
-  assert.equal(voices.length, 51);
+  const narrator = voices.filter((s) => s.voice.npcId === 'narrator');
+  assert.equal(voices.length - narrator.length, 52);
+  assert.equal(narrator.length, NARRATOR_VOICE_LINES.length);
+  // Der Erzähler ist verdrahtet (ArrivalSequence) — also Muss, nicht Kür.
+  assert.ok(narrator.every((s) => s.priority === 'must'));
   const ids = new Set(voices.map((s) => s.id));
   assert.ok(ids.has('voice_marina_greeting_2'));
   assert.ok(ids.has('voice_igor_reaction_crisis'));
   assert.ok(ids.has('voice_alexei_topic_security'));
+  assert.ok(ids.has('voice_narrator_lobby'));
 });
 
 test('npcLines folgt der Studio-Konvention (concept.ts)', () => {

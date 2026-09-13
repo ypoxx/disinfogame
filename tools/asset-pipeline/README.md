@@ -37,12 +37,37 @@ node src/cli.mjs voices --live           # Stimmen wählen → config/voices.jso
 node src/cli.mjs generate --audio --kind voice --only voice_direktor_intro --live
 ```
 
+### Eigene Stimme entwerfen (Voice Design)
+
+Die ElevenLabs-**Bibliotheks**-Stimmen (Daniel & Co.) hört man in jedem zweiten
+Projekt. `design-voice` erzeugt stattdessen eine **synthetische Stimme aus einer
+Beschreibung** — sie gehört danach zum Konto und klingt nirgends sonst so.
+Beschreibungen und Probetext stehen in `config/voice-design.json`.
+
+```bash
+# 1. Kandidaten erzeugen (landen als MP3 in runs/voice-design/ — anhören!)
+node src/cli.mjs design-voice --role narrator --live
+node src/cli.mjs design-voice --role narrator --design dienstfunk --live   # Alternative
+
+# 2. Gewinner anlegen + voice_id nach config/voices.json schreiben
+node src/cli.mjs design-voice --role narrator --pick 2 --save --live
+
+# 3. Die vier Erzähler-Zeilen mit der neuen Stimme neu vertonen
+node src/cli.mjs generate --audio --kind voice \
+  --only voice_narrator_lobby,voice_narrator_ride,voice_narrator_floor,voice_narrator_door \
+  --live --force
+```
+
+Die Ankunfts-Sequenz misst die Länge der neuen Dateien selbst und pacet sich
+danach (`arrivalPacing.ts` im Spiel) — ein anderes Sprechtempo braucht **keine**
+Code-Änderung.
+
 ### Voraussetzungen (Claude-Code-Umgebung)
 
 | Was | Wert |
 |---|---|
 | Env-Variable | `GOOGLE_AI_API_KEY` (Bilder) |
-| Env-Variable | `ELEVENLABS_API_KEY` (Audio) |
+| Env-Variable | `ELEVENLABS_API_KEY` (Audio) — der **echte** Schlüssel (`sk_…`), nicht die Key-**ID** aus dem Dashboard |
 | Netz-Allowlist | `generativelanguage.googleapis.com`, `api.elevenlabs.io` |
 
 Optional: `GEMINI_IMAGE_MODEL` (Default `gemini-3-pro-image`),
@@ -74,7 +99,8 @@ Optional: `GEMINI_IMAGE_MODEL` (Default `gemini-3-pro-image`),
 | Props (klein) | `prop_<name>` | 8 | Kür |
 | SFX | `sfx_<name>` (alle SoundTypes des Spiels, snake_case) | 17 | 8 Muss |
 | Musik | `music_theme_main`, `music_tense`, … | 4 | 1 Muss |
-| Stimmen | `voice_<npcId>_<lineKey>` | 51 | 1 Muss (Intro) |
+| Stimmen | `voice_<npcId>_<lineKey>` | 52 | 1 Muss (Intro) |
+| Erzähler (Ankunft) | `voice_narrator_<abschnitt>` | 4 | Muss |
 
 Quellen: `building.json` + `npcs.json` (neue Räume/NPCs erscheinen automatisch),
 Stil-Kern aus `sprite-tool/public/context/game-style-guide.md`.

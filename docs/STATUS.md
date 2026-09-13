@@ -712,6 +712,36 @@ ist das der Beleg für „zu leicht". Beide Verlustwege feuern gleich oft (8/8).
 Ausschließlich ungenutzte Variablen und zwei ts-comments. Die gefährlichen
 Sorten (`any`, Hook-Abhängigkeiten) sind abgearbeitet und blockieren jetzt.
 
+## 🎙️ Erzähler der Ankunfts-Sequenz (Sitzung 2026-09-13)
+
+**Befund des Owners:** „Das Test-Audio am Anfang wird unterbrochen, der Sprecher hat
+beim Szenenwechsel gar nicht genügend Zeit." Stimmte messbar: Die vier Zeilen sind
+3,2–6,5 s lang, ihre Abschnitte in der Sequenz waren 0,8–4,7 s kurz — und weil
+`playVoiceLine` einkanalig ist, kappte der nächste Abschnitt **jede** Zeile mitten
+im Satz. Die Tür-Zeile („Der Direktor erwartet Sie") hörte man 0,8 von 3,2 s.
+
+**Behoben:** Die Sequenz richtet sich jetzt nach dem Erzähler, nicht umgekehrt. Vor
+jedem Abschnitt wartet der Avatar genau so lange, wie die Zeile noch braucht — und
+zwar dort, wo Warten ohnehin natürlich ist (im Eingang, vor dem Fahrstuhl, aus der
+Kabine getreten, vor der Tür). Die Längen kommen aus den **Audio-Metadaten**, nicht
+aus einer Tabelle: eine neue Vertonung pacet sich von selbst.
+
+- `components/arrivalPacing.ts` (pure, getestet) rechnet Standzeit = Zeile + 250 ms − Bewegung.
+- `useNavigator.goTo` nimmt dafür `holdBeforeStepMs` + `onStepEnter` — Caption, Stimme
+  und Animation hängen damit an **einer** Uhr (vorher: Caption aus `nav.mode` abgeleitet).
+- Ohne Ton bleibt es beim alten, knappen Takt (1400 ms Lobby-Pause, sonst keine).
+- Im Browser gegengeprüft: 6,9 / 4,9 / 5,9 / 3,5 s sichtbar gegen 6,4 / 4,7 / 5,7 / 3,2 s
+  Zeile. Sequenz 12,8 s → 21,3 s; Überspringen greift weiter sofort (13 ms).
+
+**Offen (braucht den Owner):** Die Stimme selbst. Bisher läuft der Erzähler auf der
+ElevenLabs-**Bibliotheks**-Stimme „Daniel" — gut, aber in zu vielen Projekten zu hören.
+Das Werkzeug für eine **eigene, synthetische** Stimme steht
+(`tools/asset-pipeline`: `design-voice`, drei Beschreibungen in
+`config/voice-design.json`), der Lauf fehlt: Der `ELEVENLABS_API_KEY` der
+Umgebung ist die Key-**ID** aus dem Dashboard, nicht der Schlüssel (`sk_…`).
+ElevenLabs antwortet darauf mit 400. Mit echtem Schlüssel sind es drei Kommandos
+(README dort). Nach dem Neu-Vertonen ist **keine** Code-Änderung nötig.
+
 ## 🛠️ Werkzeuge
 
 - **Browser-Smoke:** `npm run smoke` (baut nicht; setzt laufenden `vite preview --port 4173` voraus)

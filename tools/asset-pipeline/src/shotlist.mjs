@@ -33,6 +33,30 @@ export const INTRO_VOICE_LINE = {
     'Landschaft von Westunion zu destabilisieren. Sie haben 10 Jahre Zeit. Nutzen Sie sie weise.',
 };
 
+/**
+ * Erzähler-Zeilen der Ankunfts-Sequenz — exakt die Texte aus
+ * `ArrivalSequence.tsx` (NARRATION). Kein NPC, sondern die Rolle „narrator";
+ * die zugehörige Stimme entsteht per `design-voice` (config/voice-design.json).
+ * Ein Test hält die Texte mit der Komponente deckungsgleich.
+ */
+export const NARRATOR_VOICE_LINES = [
+  {
+    lineKey: 'lobby',
+    text: 'Ihr erster Arbeitstag. Der Pförtner sieht nicht auf — Ihr Name steht bereits auf der Liste.',
+  },
+  { lineKey: 'ride', text: 'Der Aufzug ächzt. Irgendwo über Ihnen rattert ein Fernschreiber.' },
+  {
+    lineKey: 'floor',
+    text: 'Etage 1 — Abteilung für Sonderoperationen. Der Flur riecht nach kaltem Kaffee.',
+  },
+  { lineKey: 'door', text: 'Zimmer 1-01. Der Direktor erwartet Sie.' },
+];
+
+/** Asset-ids der Erzähler-Zeilen (für `generate --only …`). */
+export function narratorShotIds() {
+  return NARRATOR_VOICE_LINES.map((line) => `voice_narrator_${line.lineKey}`);
+}
+
 // Englische Bild-Beschreibungen je Raum/NPC (Inhalts-Hinweise aus dem Style-Guide
 // bzw. BUILDING_CONCEPT.md; Räume/NPCs ohne Eintrag bekommen einen generischen Text).
 // v2 (modern 2026): jede Zeile endet mit dem Zonen-Licht (E16). CRT→Flachbild,
@@ -1137,6 +1161,16 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
     priority: 'must',
     voice: { ...INTRO_VOICE_LINE },
   });
+  // Erzähler der Ankunfts-Sequenz: verdrahtet, also Muss.
+  for (const line of NARRATOR_VOICE_LINES) {
+    shots.push({
+      id: `voice_narrator_${line.lineKey}`,
+      type: 'voice',
+      kind: 'voice',
+      priority: 'must',
+      voice: { npcId: 'narrator', lineKey: line.lineKey, text: line.text },
+    });
+  }
   for (const npc of npcs) {
     for (const line of npcLines(npc)) {
       shots.push({
