@@ -11,7 +11,7 @@
  * abgeschriebenen Zahlenliste, die beim nächsten Umbau still falsch wird.
  */
 import { describe, it, expect } from 'vitest';
-import { FLOOR_AMBIENT } from '../building/corridorDecor';
+import { FLOOR_AMBIENT, FLOOR_DECOR } from '../building/corridorDecor';
 import { getBuildingLayout, STAGE } from '../building/buildingLayout';
 
 const layout = getBuildingLayout();
@@ -68,5 +68,30 @@ describe('Standorte der Flur-Statisten', () => {
     // wie ein Render-Fehler — genau so gesehen im Keller (Ernte 2026-08-23).
     const stehendeReinigung = Object.values(FLOOR_AMBIENT).flat().filter((f) => f.figure.includes('cleaner'));
     expect(stehendeReinigung, 'Reinigung ist der wandernde Agent, kein Statist').toEqual([]);
+  });
+});
+
+describe('Freizonen für anklickbare Flur-Deko', () => {
+  it('hält jede Requisite samt Sicherheitsabstand aus Tür und Klickfläche heraus', () => {
+    const konflikte: string[] = [];
+    // Die Tür-Klickfläche reicht 72 Welt-px ab Mitte. Weitere 36 px bilden
+    // eine konservative halbe Requisitenbreite plus sichtbaren Luftspalt ab.
+    const mindestAbstand = (STAGE.doorWidth / 2 + 24 + 36) / spielflaeche;
+    for (const [floorId, objekte] of Object.entries(FLOOR_DECOR)) {
+      const doorCenters = layout.rooms
+        .filter((r) => r.floor === floorId && r.id !== 'lobby')
+        .map((r) => ({ raum: r.id, frac: (r.doorX - STAGE.pillarWidth) / spielflaeche }));
+      for (const objekt of objekte) {
+        for (const door of doorCenters) {
+          const abstand = Math.abs(objekt.xFrac - door.frac);
+          if (abstand < mindestAbstand) {
+            konflikte.push(
+              `${floorId}: ${objekt.id} (${objekt.xFrac.toFixed(3)}) zu nah an ${door.raum} (${door.frac.toFixed(3)})`,
+            );
+          }
+        }
+      }
+    }
+    expect(konflikte, konflikte.join('\n  ')).toEqual([]);
   });
 });

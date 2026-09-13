@@ -1,10 +1,11 @@
 /**
  * corridorDecor — frei platzierte Flur-Deko (R4-Entkachelung).
  *
- * Die Basis-Korridore sind jetzt LEER (keine gebackenen, sich wiederholenden
- * Elemente). Stattdessen werden Deko-Objekte hier **datengetrieben** je Etage
- * platziert: `xFrac` = Anteil der Flur-Spielfläche (bewusst in Tür-Lücken),
- * `mount` = ob das Objekt auf der Bodenlinie steht oder an der Wand hängt.
+ * Die alten Fallback-Korridore bleiben leer und kachelbar. Die finalen
+ * Etagenpanoramen tragen zwar feste Architektur und nicht-interaktive Möbel,
+ * alle zustandsabhängigen/reagierenden Requisiten werden aber weiterhin hier
+ * **datengetrieben** platziert: `xFrac` = Anteil der Flur-Spielfläche (bewusst
+ * in Tür-Lücken), `mount` = Bodenlinie oder Wand.
  *
  * Größen in `DECOR_HEIGHT` folgen realen Proportionen (Avatar ≈ 1,7 m ≈ 128 px
  * ⇒ ~75 px/Meter), damit Mobiliar glaubwürdig zum Avatar passt.
@@ -230,14 +231,18 @@ export const POSTER_SLOGANS: Record<string, { titel_de: string; slogan_de: strin
 export const FLOOR_DECOR: Record<string, DecorPlacement[]> = {
   etage4: [
     { id: 'prop_plant_tall', xFrac: 0.04, mount: 'floor' },
-    { id: 'prop_poster_a', xFrac: 0.33, mount: 'wall' },
+    // Die Panorama-Türbucht des Cyber-Labs liegt bei 0,332. Das Plakat hängt
+    // deshalb bewusst im linken Glasfeld statt hinter Türblatt/Klickfläche.
+    { id: 'prop_poster_a', xFrac: 0.2, mount: 'wall' },
     // Review B11: Bei xFrac 0,63 (cx 895) stand der Shredder fast deckungsgleich
     // HINTER der Operationszentrale-Tür (Box 824–920, z-Index über der Deko) —
     // sichtbar blieb nur ein ~11-px-Sliver am Türrahmen, der wie ein kaputtes
     // Sprite-Fragment las. 0,78 ⇒ cx 1096, mittig in der Tür-Lücke zur
     // Medien-Zentrum-Tür (je ~140 px Luft); OPSEC-Humor bleibt an der Zentrale.
     { id: 'prop_shredder', xFrac: 0.78, mount: 'floor' },
-    { id: 'prop_trashcan', xFrac: 0.965, mount: 'floor' },
+    // 0,965 lag in der rechten Medien-Türbucht (0,948). Rechts neben dem
+    // Shredder bleibt bei 0,86 eine eigene, sicht- und anklickbare Standfläche.
+    { id: 'prop_trashcan', xFrac: 0.86, mount: 'floor' },
   ],
   etage3: [
     { id: 'prop_plant_small', xFrac: 0.04, mount: 'floor' },
@@ -259,7 +264,9 @@ export const FLOOR_DECOR: Record<string, DecorPlacement[]> = {
   ],
   etage1: [
     { id: 'prop_plant_small', xFrac: 0.04, mount: 'floor' },
-    { id: 'prop_employee_wall', xFrac: 0.33, mount: 'wall' }, // „Mitarbeiter des Monats" — gleiches Gesicht (§14.4 #8)
+    // 0,33 kollidierte mit der neuen Zentrale-Türbucht (0,32). In der Mitte
+    // zwischen Zentrale und Spielerbüro bleibt die Wandtafel vollständig frei.
+    { id: 'prop_employee_wall', xFrac: 0.45, mount: 'wall' }, // „Mitarbeiter des Monats" — gleiches Gesicht (§14.4 #8)
     { id: 'prop_noticeboard', xFrac: 0.8, mount: 'wall' },
     { id: 'prop_chairs', xFrac: 0.88, mount: 'floor' },
   ],

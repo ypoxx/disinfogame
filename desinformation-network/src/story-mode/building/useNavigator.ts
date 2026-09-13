@@ -22,6 +22,8 @@ export interface NavigatorState {
   cabinLevel: number;
   cabinDoorsOpen: boolean;
   avatarInCabin: boolean;
+  /** Sichtbarer Tiefenschritt durch die offene Fahrstuhlschwelle. */
+  cabinTransfer?: 'entering' | 'exiting' | null;
   openDoorRoomId: string | null;
   targetRoomId: string | null;
 }
@@ -64,6 +66,7 @@ export function useNavigator(initial?: AvatarPosition): UseNavigatorResult {
       cabinLevel: pos.floorLevel,
       cabinDoorsOpen: false,
       avatarInCabin: false,
+      cabinTransfer: null,
       openDoorRoomId: null,
       targetRoomId: null,
     };
@@ -98,6 +101,7 @@ export function useNavigator(initial?: AvatarPosition): UseNavigatorResult {
       cabinLevel: pos.floorLevel,
       cabinDoorsOpen: false,
       avatarInCabin: false,
+      cabinTransfer: null,
       openDoorRoomId: null,
       targetRoomId: null,
     }));
@@ -119,7 +123,7 @@ export function useNavigator(initial?: AvatarPosition): UseNavigatorResult {
       // Transienten Fahrstuhl-Zustand normalisieren: cancelRun() löscht nur Timer —
       // ein goTo() mitten im Tür-Beat würde sonst avatarInCabin=true stranden
       // (Avatar liefe unsichtbar los, Review Etappe 1).
-      setState((s) => ({ ...s, targetRoomId: roomId, avatarInCabin: false, cabinDoorsOpen: false, openDoorRoomId: null }));
+      setState((s) => ({ ...s, targetRoomId: roomId, avatarInCabin: false, cabinTransfer: null, cabinDoorsOpen: false, openDoorRoomId: null }));
       // K1: Wege kosten Spielzeit — die Route bucht ihre Minuten auf die Tagesuhr
       // (auch bei Skip korrekt, da vorab gebucht).
       useDayClockStore.getState().advance(routeTimeCostMin(steps));
@@ -164,13 +168,18 @@ export function useNavigator(initial?: AvatarPosition): UseNavigatorResult {
 
         if (step.kind === 'elevator') {
           const travelMs = step.durationMs - 2 * NAV_SPEED.elevatorDoorMs;
+          const transferStartMs = Math.round(NAV_SPEED.elevatorDoorMs * 0.42);
+          const transferEndMs = Math.round(NAV_SPEED.elevatorDoorMs * 0.78);
           playSound('elevator');
           // B9-Choreografie (Memo §3.5 „Tür-Beat"): Einsteigen passiert SICHTBAR
           // bei offener Tür — nicht im selben Tick wie das Schließen (Plopp).
           // Phase 1: Türen öffnen; Avatar steigt ein, WÄHREND sie offen sind.
           setState((s) => ({ ...s, mode: 'ride', cabinLevel: step.fromLevel, cabinDoorsOpen: true }));
-          later(Math.round(NAV_SPEED.elevatorDoorMs * 0.55), () => {
-            setState((s) => ({ ...s, avatarInCabin: true }));
+          later(transferStartMs, () => {
+            setState((s) => ({ ...s, avatarInCabin: true, cabinTransfer: 'entering' }));
+          });
+          later(transferEndMs, () => {
+            setState((s) => ({ ...s, cabinTransfer: null }));
           });
           later(NAV_SPEED.elevatorDoorMs, () => {
             // Phase 2: Türen zu (Avatar ist schon drin), Kabine fährt.
@@ -187,10 +196,14 @@ export function useNavigator(initial?: AvatarPosition): UseNavigatorResult {
                 // Phase 3: Türen auf — Avatar bleibt erst sichtbar in der Kabine
                 // stehen und tritt dann heraus (Tür-Beat statt Plopp).
                 setState((s) => ({ ...s, cabinLevel: step.toLevel, cabinDoorsOpen: true }));
-                later(Math.round(NAV_SPEED.elevatorDoorMs * 0.55), () => {
+                later(transferStartMs, () => {
+                  setState((s) => ({ ...s, cabinTransfer: 'exiting' }));
+                });
+                later(transferEndMs, () => {
                   setState((s) => ({
                     ...s,
                     avatarInCabin: false,
+                    cabinTransfer: null,
                     pos: { floorLevel: step.toLevel, x: step.x },
                   }));
                 });

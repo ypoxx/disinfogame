@@ -89,7 +89,12 @@ for (const f of files) {
       }
     }
 
-    const engineGap = floor.wallFootLine - el.stage.bottom; // >0: Box endet ÜBER der Linie
+    // Die Türschwelle liegt bei perspektivisch tiefen Fluren in der hinteren
+    // Wandebene; Figuren und Boden-Requisiten bleiben auf der Laufebene.
+    const referenceFootLine = isDoor
+      ? (floor.doorFootLine ?? floor.wallFootLine)
+      : floor.wallFootLine;
+    const engineGap = referenceFootLine - el.stage.bottom; // >0: Box endet ÜBER der Soll-Linie
     const visualGap = padBottomDisplay != null ? engineGap + padBottomDisplay : null;
 
     // Maßstab: sichtbare Inhalts-Höhe in Metern.
@@ -103,6 +108,8 @@ for (const f of files) {
       assetId: el.assetId, kind: el.kind, context: el.context ?? null, class: cls,
       floor: floor.id,
       boxBottom: round2(el.stage.bottom), wallFootLine: floor.wallFootLine,
+      doorFootLine: floor.doorFootLine ?? floor.wallFootLine,
+      referenceFootLine,
       engineGapPx: round2(engineGap),
       bakedPadBottomDisplayPx: padBottomDisplay != null ? round2(padBottomDisplay) : null,
       visualGapPx: visualGap != null ? round2(visualGap) : null,
@@ -125,7 +132,7 @@ for (const f of files) {
         type: 'schwebt',
         shot: f.replace('.json', ''),
         assetId: r.assetId, class: r.class, floor: r.floor,
-        messwert: `Unterkante ${gap.toFixed(1)} Stage-px über der Wand-Fuß-Linie (Engine ${r.engineGapPx}px, eingebacktes Padding ${r.bakedPadBottomDisplayPx ?? '?'}px)`,
+        messwert: `Unterkante ${gap.toFixed(1)} Stage-px über der ${r.class === 'door' ? 'Tür-Wandebene' : 'Lauf-/Wand-Fuß-Linie'} (Engine ${r.engineGapPx}px, eingebacktes Padding ${r.bakedPadBottomDisplayPx ?? '?'}px)`,
       });
     } else if (gap < -4) {
       findings.push({
@@ -133,7 +140,7 @@ for (const f of files) {
         type: 'versinkt',
         shot: f.replace('.json', ''),
         assetId: r.assetId, class: r.class, floor: r.floor,
-        messwert: `Unterkante ${(-gap).toFixed(1)} Stage-px unter der Wand-Fuß-Linie`,
+        messwert: `Unterkante ${(-gap).toFixed(1)} Stage-px unter der ${r.class === 'door' ? 'Tür-Wandebene' : 'Lauf-/Wand-Fuß-Linie'}`,
       });
     }
   }

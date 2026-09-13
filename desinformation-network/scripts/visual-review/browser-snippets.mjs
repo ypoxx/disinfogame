@@ -7,7 +7,8 @@
  * jedes standlinien-relevante Element (Türen, Deko, Statisten, Pförtner, Avatar,
  * Fahrstuhl-Kabine) und rechnet die Screen-Boxen zurück in Stage-Pixel.
  * Ergebnis: { stage:{...}, floors:[...], elements:[...] } — Vergleich gegen die
- * Wand-Fuß-Linie passiert in Node (analyze-geometry.mjs).
+ * jeweiligen Referenzlinie passiert in Node (Türen: Wandebene, Figuren/Props:
+ * Laufebene; analyze-geometry.mjs).
  */
 export function measureStageGeometry() {
   const V = window.__VQA__;
@@ -74,9 +75,17 @@ export function measureStageGeometry() {
       y: f.y,
       walkY: f.walkY,
       wallFootLine: f.y + V.STAGE.floorHeight - V.STAGE.floorStrip,
+      doorFootLine: f.y + V.STAGE.floorHeight - V.STAGE.floorStrip + (f.doorFootOffsetY ?? 0),
       frontEdge: f.y + V.STAGE.floorHeight,
     })),
-    rooms: layout.rooms.map((r) => ({ id: r.id, floor: r.floor, doorX: r.doorX, x: r.x, w: r.w })),
+    rooms: layout.rooms.map((r) => ({
+      id: r.id,
+      floor: r.floor,
+      doorX: r.doorX,
+      doorFootY: r.doorFootY,
+      x: r.x,
+      w: r.w,
+    })),
     minutes: V.getMinutes ? V.getMinutes() : null,
     elements: els,
   };
@@ -84,8 +93,9 @@ export function measureStageGeometry() {
 
 /**
  * Boden-Linien-Overlay in die Bühne zeichnen (für die Wahrnehmungs-Prüfung):
- * Magenta = Wand-Fuß-Linie (Soll-Standlinie), Cyan gestrichelt = vordere
- * Bodenkante. Entfernbar über removeFloorLineOverlay().
+ * Magenta = Lauf-/Wand-Fuß-Linie, Gelb = abweichende Tür-Wandebene,
+ * Cyan gestrichelt = vordere Bodenkante. Entfernbar über
+ * removeFloorLineOverlay().
  */
 export function drawFloorLineOverlay() {
   const V = window.__VQA__;
@@ -120,7 +130,9 @@ export function drawFloorLineOverlay() {
   };
   for (const f of layout.floors) {
     const wallFoot = f.y + V.STAGE.floorHeight - V.STAGE.floorStrip;
-    mk(wallFoot, '#ff00cc', false, `BODEN-LINIE ${f.label_de ?? f.id}`);
+    const doorFoot = wallFoot + (f.doorFootOffsetY ?? 0);
+    mk(wallFoot, '#ff00cc', false, `LAUF-LINIE ${f.label_de ?? f.id}`);
+    if (doorFoot !== wallFoot) mk(doorFoot, '#ffe14a', true, 'TÜR-WANDEBENE');
     mk(f.y + V.STAGE.floorHeight, '#00e5ff', true, null);
   }
   return true;

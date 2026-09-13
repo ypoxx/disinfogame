@@ -22,8 +22,9 @@ export type NavStep =
 export const NAV_SPEED = {
   walkPxPerSecond: 300,
   elevatorMsPerFloor: 1100,
-  elevatorDoorMs: 500,
-  doorMs: 650,
+  /** Öffnen + sichtbarer Schwellen-Schritt + Schließen brauchen Luft. */
+  elevatorDoorMs: 760,
+  doorMs: 760,
 } as const;
 
 function walkStep(floorLevel: number, fromX: number, toX: number): NavStep {

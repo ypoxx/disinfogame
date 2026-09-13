@@ -32,10 +32,8 @@ export const AMBIENT_TIMING = {
   doorTailMs: 300,
   /** Tür öffnet, BEVOR die Figur sie erreicht (kein Warten vor verschlossener Tür). */
   doorLeadMs: 250,
-  /** Anteil des Tür-Beats, ab dem die heraustretende Figur sichtbar ist (Blende offen). */
-  emergeFrac: 0.45,
-  /** Anteil des Tür-Beats, ab dem die eintretende Figur drinnen (unsichtbar) ist. */
-  vanishFrac: 0.75,
+  /** Ab hier tritt die Figur sichtbar aus dem bereits geöffneten Türrahmen. */
+  emergeFrac: 0.42,
 } as const;
 
 /**
@@ -123,6 +121,8 @@ export interface AmbientFigureSnapshot {
   anim: 'walk' | 'idle';
   sheet: string;
   speedPxS: number;
+  /** 0 = im dunklen Raum, 1 = vollständig auf dem Flur. */
+  thresholdProgress?: number;
 }
 
 export interface AmbientSnapshot {
@@ -307,11 +307,14 @@ export function sampleAmbient(state: AmbientLifeState, now: number): AmbientSnap
     if (!seg) continue;
 
     if (seg.kind === 'doorOut') {
-      // Sichtbar erst, wenn die Tür-Blende offen ist — die Figur tritt HERAUS.
+      // Sichtbar erst, wenn das Türblatt weit genug geöffnet ist. Danach läuft
+      // sie als Tiefenschritt vom dunklen Raum auf die Flur-Bodenlinie.
       if (now < seg.t0 + T.doorBeatMs * T.emergeFrac) continue;
       const next = journey.find((s) => s.kind === 'walk' && s.t0 >= seg.t1);
       const facing: 1 | -1 = next && next.toX < next.fromX ? -1 : 1;
-      figures.push({ id: agent.def.id, floorLevel: seg.floorLevel, x: seg.fromX, facing, anim: 'idle', sheet: agent.def.idleSheet, speedPxS: agent.speedPxS });
+      const local = (now - seg.t0) / T.doorBeatMs;
+      const thresholdProgress = Math.min(1, Math.max(0, (local - T.emergeFrac) / (1 - T.emergeFrac)));
+      figures.push({ id: agent.def.id, floorLevel: seg.floorLevel, x: seg.fromX, facing, anim: 'walk', sheet: agent.def.walkSheet, speedPxS: agent.speedPxS, thresholdProgress });
     } else if (seg.kind === 'walk') {
       const t = (now - seg.t0) / (seg.t1 - seg.t0);
       const x = seg.fromX + (seg.toX - seg.fromX) * t;
@@ -320,9 +323,10 @@ export function sampleAmbient(state: AmbientLifeState, now: number): AmbientSnap
     } else if (seg.kind === 'idle') {
       figures.push({ id: agent.def.id, floorLevel: seg.floorLevel, x: seg.fromX, facing: 1, anim: 'idle', sheet: agent.def.idleSheet, speedPxS: agent.speedPxS });
     } else if (seg.kind === 'doorIn') {
-      // Sichtbar bis die Figur „drinnen" ist — sie verschwindet IN der Tür.
-      if (now >= seg.t0 + T.doorBeatMs * T.vanishFrac) continue;
-      figures.push({ id: agent.def.id, floorLevel: seg.floorLevel, x: seg.fromX, facing: 1, anim: 'idle', sheet: agent.def.idleSheet, speedPxS: agent.speedPxS });
+      // Umgekehrter Tiefenschritt: auf der Schwelle kleiner/dunkler werden und
+      // erst am Segmentende hinter dem Türblatt verschwinden.
+      const thresholdProgress = 1 - Math.min(1, Math.max(0, (now - seg.t0) / T.doorBeatMs));
+      figures.push({ id: agent.def.id, floorLevel: seg.floorLevel, x: seg.fromX, facing: 1, anim: 'walk', sheet: agent.def.walkSheet, speedPxS: agent.speedPxS, thresholdProgress });
     }
   }
 

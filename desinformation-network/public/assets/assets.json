@@ -81,6 +81,72 @@
       "styleVersion": "v1"
     },
     {
+      "id": "bld_floor_special_ops",
+      "type": "image",
+      "file": "images/bld_floor_special_ops.png",
+      "chosen": true,
+      "provider": "openai-gpt-image-2",
+      "prompt": "Collision-safe Row 1: straight-on Special Operations corridor with technical conduits, secure glass and three unobstructed dark door bays at 33.2%, 58.6% and 94.8%; no furniture, monitor, art or prop may cross a door bay.",
+      "styleVersion": "v4-collision-safe-floor-panorama",
+      "sourceAtlas": "floor-panorama-atlas-collision-safe-2026-09-13",
+      "sourceRow": 0
+    },
+    {
+      "id": "bld_floor_analysis_media",
+      "type": "image",
+      "file": "images/bld_floor_analysis_media.png",
+      "chosen": true,
+      "provider": "openai-gpt-image-2",
+      "prompt": "Collision-safe Row 2: straight-on Analysis and Media corridor with glass analysis office, archive alcove and exactly two unobstructed dark door bays at 32.4% and 95%; no object may cross a bay.",
+      "styleVersion": "v4-collision-safe-floor-panorama",
+      "sourceAtlas": "floor-panorama-atlas-collision-safe-2026-09-13",
+      "sourceRow": 1
+    },
+    {
+      "id": "bld_floor_field_ops",
+      "type": "image",
+      "file": "images/bld_floor_field_ops.png",
+      "chosen": true,
+      "provider": "openai-gpt-image-2",
+      "prompt": "Collision-safe Row 3: straight-on Field Operations corridor with lockers, route map, equipment cage and exactly one unobstructed dark door bay at 59.5%; equipment remains outside the bay.",
+      "styleVersion": "v4-collision-safe-floor-panorama",
+      "sourceAtlas": "floor-panorama-atlas-collision-safe-2026-09-13",
+      "sourceRow": 2
+    },
+    {
+      "id": "bld_floor_headquarters",
+      "type": "image",
+      "file": "images/bld_floor_headquarters.png",
+      "chosen": true,
+      "provider": "openai-gpt-image-2",
+      "prompt": "Collision-safe Row 4: straight-on Executive Headquarters corridor with portraits and waiting furniture plus two unobstructed dark door bays at 32% and 59.6%; furniture and art remain outside both bays.",
+      "styleVersion": "v4-collision-safe-floor-panorama",
+      "sourceAtlas": "floor-panorama-atlas-collision-safe-2026-09-13",
+      "sourceRow": 3
+    },
+    {
+      "id": "bld_floor_lobby",
+      "type": "image",
+      "file": "images/bld_floor_lobby.png",
+      "chosen": true,
+      "provider": "openai-gpt-image-2",
+      "prompt": "Row 5 of a six-strip production atlas: ultra-wide, straight-on ministry entrance lobby with reception desk, seating, low table, large plants, illuminated abstract art and a glass revolving entrance; no people, UI or readable text.",
+      "styleVersion": "v4-collision-safe-floor-panorama",
+      "sourceAtlas": "floor-panorama-atlas-collision-safe-2026-09-13",
+      "sourceRow": 4
+    },
+    {
+      "id": "bld_floor_basement",
+      "type": "image",
+      "file": "images/bld_floor_basement.png",
+      "chosen": true,
+      "provider": "openai-gpt-image-2",
+      "prompt": "Collision-safe Row 6: straight-on covert-operations basement with exposed pipes, secure storage and exactly one unobstructed dark door bay at 62.8%; vault and equipment remain separate from the bay.",
+      "styleVersion": "v4-collision-safe-floor-panorama",
+      "sourceAtlas": "floor-panorama-atlas-collision-safe-2026-09-13",
+      "sourceRow": 5
+    },
+    {
       "id": "bld_door_closed",
       "type": "image",
       "file": "images/bld_door_closed.png",
@@ -219,6 +285,15 @@
       "prompt": "A classic retro television TEST CARD / test pattern that FILLS the whole image edge to edge (full-frame flat graphic — NO tv set, NO frame, NO room, NO border, ONLY the test pattern itself). Composition: a row of vertical colour bars across the top and another across the bottom, a large central circle containing a fine grid and a thin crosshair, a horizontal greyscale step-wedge, small square convergence/resolution patches in the four corners. Slightly muted, slightly desaturated retro CRT colours (clearly distinct hues but NOT neon, NOT candy) fitting a cool desaturated palette. Perfectly flat, frontal, orthographic, symmetric. Crisp clean 16-bit pixel art, hard geometric edges, subtle grain. ABSOLUTELY NO letters, NO numbers, NO words, NO station name, NO clock, NO readable text of any kind anywhere. No real-world national symbols, no logos, no emblems.",
       "seed": 813995,
       "styleVersion": "v1"
+    },
+    {
+      "id": "hud_tv_news_scenes",
+      "type": "image",
+      "file": "images/hud_tv_news_scenes.png",
+      "chosen": true,
+      "provider": "openai-gpt-image-2",
+      "prompt": "A single horizontal four-panel pixel-art sheet for a small retro CRT news picture area: anonymous government press podium; industrial infrastructure incident with water tower and pipes; tense nonviolent street crowd behind barriers; digital misinformation network with phone, servers and connected nodes. Four equal 4:3 panels, contemporary restrained brutalism, cool desaturated greys, cyan monitor light and sparing dark red accents. No presenters, flags, logos, emblems or readable text.",
+      "styleVersion": "v2-final-news"
     },
     {
       "id": "icon_actions",
@@ -2435,17 +2510,47 @@
       "type": "sheet",
       "file": "sheets/audience_besorgte_mitte.png",
       "chosen": true,
-      "provider": "gemini-3-pro-image",
+      "provider": "openai-gpt-image-2",
       "prompt": "A 2-frame pixel art sprite sheet of a woman around 55 in a polo shirt with a tablet on her lap, reading glasses, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 74014,
-      "styleVersion": "v1",
+      "styleVersion": "v2-final-moods",
+      "finalizationPrompt": "Final 4x4 mood-specific pixel-art sprite sheet derived from the original seated archetype. Rows: ruhig, verunsichert, wuetend, misstrauisch; four subtle loop frames per row (hold, blink/reaction, peak, settle). Identity, outfit, props, seat position and baseline remain consistent. Flat #FF00FF chroma background, no furniture, scenery, labels or text.",
       "frameWidth": 48,
       "frameHeight": 48,
       "animations": {
         "idle": {
           "row": 0,
-          "frames": 2,
-          "frameTime": 600,
+          "frames": 4,
+          "frameTime": 1200,
+          "frameTimes": [1800, 120, 750, 1450],
+          "loop": true
+        },
+        "ruhig": {
+          "row": 0,
+          "frames": 4,
+          "frameTime": 1200,
+          "frameTimes": [1800, 120, 750, 1450],
+          "loop": true
+        },
+        "verunsichert": {
+          "row": 1,
+          "frames": 4,
+          "frameTime": 850,
+          "frameTimes": [1100, 160, 760, 1250],
+          "loop": true
+        },
+        "wuetend": {
+          "row": 2,
+          "frames": 4,
+          "frameTime": 680,
+          "frameTimes": [800, 180, 680, 1050],
+          "loop": true
+        },
+        "misstrauisch": {
+          "row": 3,
+          "frames": 4,
+          "frameTime": 900,
+          "frameTimes": [1250, 150, 700, 1350],
           "loop": true
         }
       }
@@ -2455,17 +2560,47 @@
       "type": "sheet",
       "file": "sheets/audience_bohemien.png",
       "chosen": true,
-      "provider": "gemini-3-pro-image",
+      "provider": "openai-gpt-image-2",
       "prompt": "A 2-frame pixel art sprite sheet of a young creative with tousled hair and round glasses, an unzipped hoodie worn open with the HOOD DOWN (head bare and fully visible), headphones resting on the shoulders, sitting back relaxed and watching the TV, head upright, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. The FULL head sits upright on the shoulders and is clearly visible and unobstructed — NOT bowed down, NOT hidden by a hood/hair, NOT cropped at the top edge; leave a little empty margin above the head. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 808892,
-      "styleVersion": "v1",
+      "styleVersion": "v2-final-moods",
+      "finalizationPrompt": "Final 4x4 mood-specific pixel-art sprite sheet derived from the original seated archetype. Rows: ruhig, verunsichert, wuetend, misstrauisch; four subtle loop frames per row (hold, blink/reaction, peak, settle). Identity, outfit, props, seat position and baseline remain consistent. Flat #FF00FF chroma background, no furniture, scenery, labels or text.",
       "frameWidth": 48,
       "frameHeight": 48,
       "animations": {
         "idle": {
           "row": 0,
-          "frames": 2,
-          "frameTime": 600,
+          "frames": 4,
+          "frameTime": 1200,
+          "frameTimes": [1800, 120, 750, 1450],
+          "loop": true
+        },
+        "ruhig": {
+          "row": 0,
+          "frames": 4,
+          "frameTime": 1200,
+          "frameTimes": [1800, 120, 750, 1450],
+          "loop": true
+        },
+        "verunsichert": {
+          "row": 1,
+          "frames": 4,
+          "frameTime": 850,
+          "frameTimes": [1100, 160, 760, 1250],
+          "loop": true
+        },
+        "wuetend": {
+          "row": 2,
+          "frames": 4,
+          "frameTime": 680,
+          "frameTimes": [800, 180, 680, 1050],
+          "loop": true
+        },
+        "misstrauisch": {
+          "row": 3,
+          "frames": 4,
+          "frameTime": 900,
+          "frameTimes": [1250, 150, 700, 1350],
           "loop": true
         }
       }
@@ -2475,17 +2610,47 @@
       "type": "sheet",
       "file": "sheets/audience_eigenheimer.png",
       "chosen": true,
-      "provider": "gemini-3-pro-image",
+      "provider": "openai-gpt-image-2",
       "prompt": "A 2-frame pixel art sprite sheet of a retired man in a knitted cardigan with a cat on his lap and a tablet, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 53128,
-      "styleVersion": "v1",
+      "styleVersion": "v2-final-moods",
+      "finalizationPrompt": "Final 4x4 mood-specific pixel-art sprite sheet derived from the original seated archetype. Rows: ruhig, verunsichert, wuetend, misstrauisch; four subtle loop frames per row (hold, blink/reaction, peak, settle). Identity, outfit, props, seat position and baseline remain consistent. Flat #FF00FF chroma background, no furniture, scenery, labels or text.",
       "frameWidth": 48,
       "frameHeight": 48,
       "animations": {
         "idle": {
           "row": 0,
-          "frames": 2,
-          "frameTime": 600,
+          "frames": 4,
+          "frameTime": 1200,
+          "frameTimes": [1800, 120, 750, 1450],
+          "loop": true
+        },
+        "ruhig": {
+          "row": 0,
+          "frames": 4,
+          "frameTime": 1200,
+          "frameTimes": [1800, 120, 750, 1450],
+          "loop": true
+        },
+        "verunsichert": {
+          "row": 1,
+          "frames": 4,
+          "frameTime": 850,
+          "frameTimes": [1100, 160, 760, 1250],
+          "loop": true
+        },
+        "wuetend": {
+          "row": 2,
+          "frames": 4,
+          "frameTime": 680,
+          "frameTimes": [800, 180, 680, 1050],
+          "loop": true
+        },
+        "misstrauisch": {
+          "row": 3,
+          "frames": 4,
+          "frameTime": 900,
+          "frameTimes": [1250, 150, 700, 1350],
           "loop": true
         }
       }
@@ -2495,17 +2660,47 @@
       "type": "sheet",
       "file": "sheets/audience_idealistin.png",
       "chosen": true,
-      "provider": "gemini-3-pro-image",
+      "provider": "openai-gpt-image-2",
       "prompt": "A 2-frame pixel art sprite sheet of a woman in her mid 30s in a linen shirt with a tote bag leaning against the sofa, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 832249,
-      "styleVersion": "v1",
+      "styleVersion": "v2-final-moods",
+      "finalizationPrompt": "Final 4x4 mood-specific pixel-art sprite sheet derived from the original seated archetype. Rows: ruhig, verunsichert, wuetend, misstrauisch; four subtle loop frames per row (hold, blink/reaction, peak, settle). Identity, outfit, props, seat position and baseline remain consistent. Flat #FF00FF chroma background, no furniture, scenery, labels or text.",
       "frameWidth": 48,
       "frameHeight": 48,
       "animations": {
         "idle": {
           "row": 0,
-          "frames": 2,
-          "frameTime": 600,
+          "frames": 4,
+          "frameTime": 1200,
+          "frameTimes": [1800, 120, 750, 1450],
+          "loop": true
+        },
+        "ruhig": {
+          "row": 0,
+          "frames": 4,
+          "frameTime": 1200,
+          "frameTimes": [1800, 120, 750, 1450],
+          "loop": true
+        },
+        "verunsichert": {
+          "row": 1,
+          "frames": 4,
+          "frameTime": 850,
+          "frameTimes": [1100, 160, 760, 1250],
+          "loop": true
+        },
+        "wuetend": {
+          "row": 2,
+          "frames": 4,
+          "frameTime": 680,
+          "frameTimes": [800, 180, 680, 1050],
+          "loop": true
+        },
+        "misstrauisch": {
+          "row": 3,
+          "frames": 4,
+          "frameTime": 900,
+          "frameTimes": [1250, 150, 700, 1350],
           "loop": true
         }
       }
@@ -2515,17 +2710,47 @@
       "type": "sheet",
       "file": "sheets/audience_liberale.png",
       "chosen": true,
-      "provider": "gemini-3-pro-image",
+      "provider": "openai-gpt-image-2",
       "prompt": "A 2-frame pixel art sprite sheet of a woman around 60 with round glasses, folded quality newspaper, podcast earphones around the neck, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 275642,
-      "styleVersion": "v1",
+      "styleVersion": "v2-final-moods",
+      "finalizationPrompt": "Final 4x4 mood-specific pixel-art sprite sheet derived from the original seated archetype. Rows: ruhig, verunsichert, wuetend, misstrauisch; four subtle loop frames per row (hold, blink/reaction, peak, settle). Identity, outfit, props, seat position and baseline remain consistent. Flat #FF00FF chroma background, no furniture, scenery, labels or text.",
       "frameWidth": 48,
       "frameHeight": 48,
       "animations": {
         "idle": {
           "row": 0,
-          "frames": 2,
-          "frameTime": 600,
+          "frames": 4,
+          "frameTime": 1200,
+          "frameTimes": [1800, 120, 750, 1450],
+          "loop": true
+        },
+        "ruhig": {
+          "row": 0,
+          "frames": 4,
+          "frameTime": 1200,
+          "frameTimes": [1800, 120, 750, 1450],
+          "loop": true
+        },
+        "verunsichert": {
+          "row": 1,
+          "frames": 4,
+          "frameTime": 850,
+          "frameTimes": [1100, 160, 760, 1250],
+          "loop": true
+        },
+        "wuetend": {
+          "row": 2,
+          "frames": 4,
+          "frameTime": 680,
+          "frameTimes": [800, 180, 680, 1050],
+          "loop": true
+        },
+        "misstrauisch": {
+          "row": 3,
+          "frames": 4,
+          "frameTime": 900,
+          "frameTimes": [1250, 150, 700, 1350],
           "loop": true
         }
       }
@@ -2535,17 +2760,47 @@
       "type": "sheet",
       "file": "sheets/audience_macher.png",
       "chosen": true,
-      "provider": "gemini-3-pro-image",
+      "provider": "openai-gpt-image-2",
       "prompt": "A 2-frame pixel art sprite sheet of a hands-on tradesman in his mid 40s in a fleece jacket and jeans, beer bottle on his knee, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 260936,
-      "styleVersion": "v1",
+      "styleVersion": "v2-final-moods",
+      "finalizationPrompt": "Final 4x4 mood-specific pixel-art sprite sheet derived from the original seated archetype. Rows: ruhig, verunsichert, wuetend, misstrauisch; four subtle loop frames per row (hold, blink/reaction, peak, settle). Identity, outfit, props, seat position and baseline remain consistent. Flat #FF00FF chroma background, no furniture, scenery, labels or text.",
       "frameWidth": 48,
       "frameHeight": 48,
       "animations": {
         "idle": {
           "row": 0,
-          "frames": 2,
-          "frameTime": 600,
+          "frames": 4,
+          "frameTime": 1200,
+          "frameTimes": [1800, 120, 750, 1450],
+          "loop": true
+        },
+        "ruhig": {
+          "row": 0,
+          "frames": 4,
+          "frameTime": 1200,
+          "frameTimes": [1800, 120, 750, 1450],
+          "loop": true
+        },
+        "verunsichert": {
+          "row": 1,
+          "frames": 4,
+          "frameTime": 850,
+          "frameTimes": [1100, 160, 760, 1250],
+          "loop": true
+        },
+        "wuetend": {
+          "row": 2,
+          "frames": 4,
+          "frameTime": 680,
+          "frameTimes": [800, 180, 680, 1050],
+          "loop": true
+        },
+        "misstrauisch": {
+          "row": 3,
+          "frames": 4,
+          "frameTime": 900,
+          "frameTimes": [1250, 150, 700, 1350],
           "loop": true
         }
       }
@@ -2555,17 +2810,47 @@
       "type": "sheet",
       "file": "sheets/audience_optimiererin.png",
       "chosen": true,
-      "provider": "gemini-3-pro-image",
+      "provider": "openai-gpt-image-2",
       "prompt": "A 2-frame pixel art sprite sheet of a career woman in her mid 30s in a white blazer, holding a smoothie cup, sitting upright, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 350343,
-      "styleVersion": "v1",
+      "styleVersion": "v2-final-moods",
+      "finalizationPrompt": "Final 4x4 mood-specific pixel-art sprite sheet derived from the original seated archetype. Rows: ruhig, verunsichert, wuetend, misstrauisch; four subtle loop frames per row (hold, blink/reaction, peak, settle). Identity, outfit, props, seat position and baseline remain consistent. Flat #FF00FF chroma background, no furniture, scenery, labels or text.",
       "frameWidth": 48,
       "frameHeight": 48,
       "animations": {
         "idle": {
           "row": 0,
-          "frames": 2,
-          "frameTime": 600,
+          "frames": 4,
+          "frameTime": 1200,
+          "frameTimes": [1800, 120, 750, 1450],
+          "loop": true
+        },
+        "ruhig": {
+          "row": 0,
+          "frames": 4,
+          "frameTime": 1200,
+          "frameTimes": [1800, 120, 750, 1450],
+          "loop": true
+        },
+        "verunsichert": {
+          "row": 1,
+          "frames": 4,
+          "frameTime": 850,
+          "frameTimes": [1100, 160, 760, 1250],
+          "loop": true
+        },
+        "wuetend": {
+          "row": 2,
+          "frames": 4,
+          "frameTime": 680,
+          "frameTimes": [800, 180, 680, 1050],
+          "loop": true
+        },
+        "misstrauisch": {
+          "row": 3,
+          "frames": 4,
+          "frameTime": 900,
+          "frameTimes": [1250, 150, 700, 1350],
           "loop": true
         }
       }
@@ -2575,17 +2860,47 @@
       "type": "sheet",
       "file": "sheets/audience_zorniger.png",
       "chosen": true,
-      "provider": "gemini-3-pro-image",
+      "provider": "openai-gpt-image-2",
       "prompt": "A 2-frame pixel art sprite sheet of a frustrated man in a faded t-shirt, arms crossed, cigarette behind the ear, drawn in a CLEARLY SEATED pose as if relaxing on a sofa watching TV: the body sits low, the thighs are horizontal with the knees bent forward, the lower legs drop down to the feet, the back is slightly reclined and the hands rest on the lap. Draw NO chair, NO seat, NO sofa, NO furniture and NO background — ONLY the seated person, centered, feet near the bottom edge of the frame. Horizontal layout, exactly 2 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, only a subtle idle motion changes (blink, small head turn, slight breathing). The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 179953,
-      "styleVersion": "v1",
+      "styleVersion": "v2-final-moods",
+      "finalizationPrompt": "Final 4x4 mood-specific pixel-art sprite sheet derived from the original seated archetype. Rows: ruhig, verunsichert, wuetend, misstrauisch; four subtle loop frames per row (hold, blink/reaction, peak, settle). Identity, outfit, props, seat position and baseline remain consistent. Flat #FF00FF chroma background, no furniture, scenery, labels or text.",
       "frameWidth": 48,
       "frameHeight": 48,
       "animations": {
         "idle": {
           "row": 0,
-          "frames": 2,
-          "frameTime": 600,
+          "frames": 4,
+          "frameTime": 1200,
+          "frameTimes": [1800, 120, 750, 1450],
+          "loop": true
+        },
+        "ruhig": {
+          "row": 0,
+          "frames": 4,
+          "frameTime": 1200,
+          "frameTimes": [1800, 120, 750, 1450],
+          "loop": true
+        },
+        "verunsichert": {
+          "row": 1,
+          "frames": 4,
+          "frameTime": 850,
+          "frameTimes": [1100, 160, 760, 1250],
+          "loop": true
+        },
+        "wuetend": {
+          "row": 2,
+          "frames": 4,
+          "frameTime": 680,
+          "frameTimes": [800, 180, 680, 1050],
+          "loop": true
+        },
+        "misstrauisch": {
+          "row": 3,
+          "frames": 4,
+          "frameTime": 900,
+          "frameTimes": [1250, 150, 700, 1350],
           "loop": true
         }
       }
@@ -2635,10 +2950,10 @@
       "type": "sheet",
       "file": "sheets/figure_cleaner_walk.png",
       "chosen": true,
-      "provider": "gemini-3-pro-image",
+      "provider": "openai-gpt-image-2",
       "prompt": "An 8-frame pixel art sprite sheet of a middle-aged cleaner in a plain work tabard over casual clothes, holding a cloth, walking to the right, strict side view, full body from head to feet. Horizontal layout, exactly 8 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, forming one full walk cycle with clearly DIFFERENT leg poses (heel strike, weight sink, swing-through, reach — for both legs), arms swinging opposite to the legs, head bobbing about 2 pixels. Adjacent frames MUST differ visibly, especially the legs. CRITICAL: EVERY frame on the SAME flat solid magenta (#FF00FF) fill — NO background, NO floor, NO scenery, ONLY the walking cleaner. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
       "seed": 674718,
-      "styleVersion": "v1",
+      "styleVersion": "v2-final-walk",
       "frameWidth": 48,
       "frameHeight": 96,
       "animations": {
@@ -2675,10 +2990,10 @@
       "type": "sheet",
       "file": "sheets/figure_clerk_walk.png",
       "chosen": true,
-      "provider": "gemini-3-pro-image",
+      "provider": "openai-gpt-image-2",
       "prompt": "An 8-frame pixel art sprite sheet of the SAME young MALE office clerk as in the reference image — a young MAN with short dark hair, grey shirt, dark trousers (NO skirt, NOT a woman), a beige folder under one arm, identical colors as the reference — walking to the right, strict side view, full body from head to feet. Horizontal layout, exactly 8 evenly spaced frames in one row, the SAME character with identical outfit and colors in every frame, forming one full walk cycle with clearly DIFFERENT leg poses (heel strike, weight sink, swing-through, reach — for both legs), the free arm swinging opposite to the legs, head bobbing about 2 pixels. Adjacent frames MUST differ visibly, especially the legs. CRITICAL: EVERY frame on the SAME flat solid magenta (#FF00FF) fill — NO background, NO floor, NO scenery, ONLY the walking clerk. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. No real-world national symbols, no readable text.",
       "seed": 41577,
-      "styleVersion": "v1",
+      "styleVersion": "v2-final-walk",
       "frameWidth": 48,
       "frameHeight": 96,
       "animations": {
@@ -2835,10 +3150,10 @@
       "type": "sheet",
       "file": "sheets/player_walk.png",
       "chosen": true,
-      "provider": "gemini-3-pro-image",
+      "provider": "openai-gpt-image-2",
       "prompt": "An 8-frame pixel art sprite sheet of a middle-aged government official in a modern grey suit with a briefcase in his left hand, walking to the right, strict side view. Horizontal layout, exactly 8 evenly spaced frames in one row, SAME character with identical suit and colors in every frame. The frames form one full walk cycle with DRAMATIC, clearly different leg poses: frame 1 right heel strikes the ground in front, legs wide apart, body at its lowest; frame 2 weight sinks onto the bent right leg; frame 3 body rises, left leg swings past the standing right leg; frame 4 body at its highest, left foot reaching forward, only right toes touch ground; frame 5 left heel strikes the ground in front, legs wide apart, body at its lowest; frame 6 weight sinks onto the bent left leg; frame 7 body rises, right leg swings past the standing left leg; frame 8 body at its highest, right foot reaching forward, only left toes touch ground. The head moves up and down by 2 pixels across the cycle (lowest in frames 1 and 5, highest in frames 4 and 8); the free right arm swings opposite to the legs. Adjacent frames MUST differ visibly, especially the legs. CRITICAL: in EVERY one of the 8 frames the figure walks on the spot against the SAME single flat solid magenta (#FF00FF) fill — absolutely NO corridor, NO office, NO room, NO doors, NO windows, NO floor line, NO shadow, NO scenery of any kind behind or under the figure; only the walking man floating on pure uniform magenta. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 782795,
-      "styleVersion": "v1",
+      "styleVersion": "v2-final-walk",
       "frameWidth": 64,
       "frameHeight": 64,
       "animations": {
@@ -2855,10 +3170,10 @@
       "type": "sheet",
       "file": "sheets/player_walk_f.png",
       "chosen": true,
-      "provider": "gemini-3-pro-image",
+      "provider": "openai-gpt-image-2",
       "prompt": "An 8-frame pixel art sprite sheet of a middle-aged government official woman in a modern grey trouser-suit with a slim briefcase in her left hand, walking to the right, strict side view. Horizontal layout, exactly 8 evenly spaced frames in one row, SAME character with identical suit and colors in every frame. The frames form one full walk cycle with DRAMATIC, clearly different leg poses: frame 1 right heel strikes the ground in front, legs wide apart, body at its lowest; frame 2 weight sinks onto the bent right leg; frame 3 body rises, left leg swings past the standing right leg; frame 4 body at its highest, left foot reaching forward, only right toes touch ground; frame 5 left heel strikes the ground in front, legs wide apart, body at its lowest; frame 6 weight sinks onto the bent left leg; frame 7 body rises, right leg swings past the standing left leg; frame 8 body at its highest, right foot reaching forward, only left toes touch ground. The head moves up and down by 2 pixels across the cycle (lowest in frames 1 and 5, highest in frames 4 and 8); the free right arm swings opposite to the legs. Adjacent frames MUST differ visibly, especially the legs. CRITICAL: in EVERY one of the 8 frames the figure walks on the spot against the SAME single flat solid magenta (#FF00FF) fill — absolutely NO corridor, NO office, NO room, NO doors, NO windows, NO floor line, NO shadow, NO scenery of any kind behind or under the figure; only the walking woman floating on pure uniform magenta. The background is one single flat uniform solid magenta color (#FF00FF) everywhere outside the subject — no checkerboard pattern, no scene, no gradient, no shadows on the background. Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution pixel art, not coarse, not a 1990s look), SNES-to-modern-indie game style. Setting: a CONTEMPORARY (2020s) state ministry / intelligence agency interior with restrained brutalist geometry — concrete, glass and steel, maintained and lived-in, NOT 1970s brown, NOT dark and empty. Cool, clean, slightly desaturated modern palette: cool greys (#262A31, #3A3F47, #9AA1AC, #E7EAEF), with dosed dark-red (#C2253B) and cyan tech (#34C6D8) accents and soft context lighting. Hard geometric edges, subtle grain. No saturated candy colors, no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, no hammer and sickle, no real flags, no state emblems or insignia of any actual country, no readable text.",
       "seed": 467749,
-      "styleVersion": "v1",
+      "styleVersion": "v2-final-walk",
       "frameWidth": 64,
       "frameHeight": 64,
       "animations": {

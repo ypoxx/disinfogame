@@ -129,9 +129,11 @@ describe('ambientLife (LB)', () => {
         const prev = samples[i - 1].figures.get(id);
         if (!prev) continue;
         const dx = Math.abs(f.x - prev.x);
-        // Segmentgrenzen können in ein Sample-Fenster fallen — geprüft werden
-        // nur Paare, die VOLL im selben Zustand liegen (walk/walk bzw. idle/idle).
-        if (prev.anim === 'walk' && f.anim === 'walk') {
+        // Auf der Türschwelle läuft die Figur in die Tiefe: x bleibt gleich,
+        // dafür muss thresholdProgress sichtbar fortschreiten.
+        if (prev.thresholdProgress !== undefined && f.thresholdProgress !== undefined) {
+          expect(f.thresholdProgress, `${id}: Tiefenschritt steht bei t=${samples[i].t}`).not.toBe(prev.thresholdProgress);
+        } else if (prev.anim === 'walk' && f.anim === 'walk') {
           expect(dx, `${id} gleitet nicht: Walk-Animation ohne Bewegung bei t=${samples[i].t}`).toBeGreaterThan(0);
         } else if (prev.anim === 'idle' && f.anim === 'idle') {
           expect(dx, `${id} rutscht im Stehen bei t=${samples[i].t}`).toBeLessThanOrEqual(0.01);
@@ -221,20 +223,17 @@ describe('ambientLife (LB)', () => {
     }
   });
 
-  it('Blenden-Timing-Invarianten: Tür ist sichtbar offen, wenn Figuren sie nutzen', () => {
+  it('Tür-Timing-Invarianten: Tür ist offen, während die Figur die Schwelle durchläuft', () => {
     const T = AMBIENT_TIMING;
     // Tür-Beat im ruhigen Memo-§3-Fenster (0,5–1 s).
     expect(T.doorBeatMs).toBeGreaterThanOrEqual(500);
     expect(T.doorBeatMs).toBeLessThanOrEqual(1000);
-    // RoomDoor blendet in 240 ms — die Figur darf erst NACH offener Blende
-    // erscheinen, die Tür muss VOR Ankunft offen sein und nach dem
-    // Heraustreten kurz offen bleiben (sonst wirkt es wie Teleport/Fade).
-    expect(T.emergeFrac * T.doorBeatMs).toBeGreaterThanOrEqual(240);
+    // RoomDoor dreht 360 ms. Die Figur beginnt erst kurz davor im dunklen
+    // Rahmen und braucht danach mehr als 400 ms bis auf den Flur.
+    expect(T.emergeFrac * T.doorBeatMs).toBeGreaterThanOrEqual(300);
+    expect((1 - T.emergeFrac) * T.doorBeatMs).toBeGreaterThanOrEqual(400);
     expect(T.doorLeadMs).toBeGreaterThanOrEqual(240);
     expect(T.doorTailMs).toBeGreaterThan(0);
-    // Die Figur verschwindet, BEVOR die Tür wieder schließt.
-    expect(T.vanishFrac).toBeGreaterThan(0.5);
-    expect(T.vanishFrac).toBeLessThan(1);
   });
 
   it('verpasste Termine werden neu gestaffelt (kein Massen-Auftritt nach Uhr-Sprung)', () => {

@@ -12,6 +12,11 @@ export interface FloorDef {
   level: number;
   label_de: string;
   label_en?: string;
+  /**
+   * Vertikaler Versatz der Türschwelle relativ zur Lauf-/Figurenlinie.
+   * Negative Werte setzen die Tür in die hintere Wandebene des Panoramas.
+   */
+  doorFootOffsetY?: number;
 }
 
 export interface RoomDef {
@@ -23,6 +28,12 @@ export interface RoomDef {
   label_en?: string;
   col?: number;
   colSpan?: number;
+  /**
+   * Türmitte als Anteil der gesamten bespielbaren Flurbreite. Die finalen
+   * Panoramen sind bewusst nicht gekachelt; ihre architektonischen Türbuchten
+   * sitzen daher nicht zwangsläufig am rechten Rand einer Rasterspalte.
+   */
+  doorXFrac?: number;
 }
 
 /**
@@ -42,8 +53,9 @@ export const STAGE = {
   doorWidth: 96,
   doorHeight: 144,
   avatarSize: 128, // 64px-Frames ×2 (Proportionsregel; bei Bühnen-Scale ½ ⇒ 1:1 nativ)
-  /** Höhe des Boden-Streifens unten im Flur: Türen/Deko/Avatar stehen auf der
-   *  WAND-FUSS-Linie (Oberkante dieses Streifens), nicht auf der vorderen Bodenkante. */
+  /** Höhe des Boden-Streifens unten im Flur: Deko/Avatar stehen auf der
+   *  LAUF-Linie. Panoramen mit tieferer Perspektive dürfen Türen per
+   *  `doorFootOffsetY` dahinter in die Wandebene setzen. */
   floorStrip: 40,
 } as const;
 
@@ -55,9 +67,9 @@ export interface FloorLayout extends FloorDef {
 }
 
 /**
- * Wand-Fuß-Linie einer Etage: die Standlinie, auf der Türen, Deko, Statisten und
- * der Avatar aufsetzen (Oberkante des Boden-Streifens, NICHT die vordere
- * Bodenkante).
+ * Wand-Fuß-/Lauflinie einer Etage: Deko, Statisten und Avatar setzen hier auf.
+ * Türen verwenden `floorDoorFootY`, weil einzelne Panoramen eine sichtbar
+ * tiefere Bodenperspektive besitzen.
  *
  * Der Ausdruck stand bisher an sechs Stellen in `BuildingStage.tsx` ausgeschrieben.
  * Für die Bodenschatten (P5) braucht es dieselbe Zahl noch einmal — und ein
@@ -68,6 +80,11 @@ export function wallFootY(floor: { y: number }): number {
   return floor.y + STAGE.floorHeight - STAGE.floorStrip;
 }
 
+/** Türschwelle des konkreten Etagenpanoramas, getrennt vom Laufweg. */
+export function floorDoorFootY(floor: FloorLayout): number {
+  return wallFootY(floor) + (floor.doorFootOffsetY ?? 0);
+}
+
 export interface RoomLayout extends RoomDef {
   x: number;
   y: number;
@@ -75,6 +92,8 @@ export interface RoomLayout extends RoomDef {
   h: number;
   /** x-Mitte der Tür (Lauf-Ziel). */
   doorX: number;
+  /** y der Türschwelle in der hinteren Wandebene. */
+  doorFootY: number;
   floorLevel: number;
 }
 
@@ -107,7 +126,7 @@ function computeLayout(): BuildingLayout {
     const y = roofHeight + idx * (floorHeight + slabHeight);
     // Avatar-Unterkante exakt auf der Wand-Fuß-Linie — der frühere −6-Offset
     // ließ ihn als einzige Klasse über der Linie stehen (Review B8).
-    return { ...f, y, walkY: y + floorHeight - avatarSize };
+    return { ...f, y, walkY: wallFootY({ y }) - avatarSize };
   });
   const height = roofHeight + floors.length * (floorHeight + slabHeight) + groundHeight;
 
@@ -119,13 +138,20 @@ function computeLayout(): BuildingLayout {
     const span = r.colSpan ?? 1;
     const x = pillarWidth + (col - 1) * colWidth;
     const w = span * colWidth;
+    if (r.doorXFrac !== undefined && (r.doorXFrac <= 0 || r.doorXFrac >= 1)) {
+      throw new Error(`building.json: doorXFrac von Raum "${r.id}" muss zwischen 0 und 1 liegen`);
+    }
+    const doorX = r.doorXFrac === undefined
+      ? x + w - STAGE.doorWidth - 24 + STAGE.doorWidth / 2
+      : pillarWidth + r.doorXFrac * colCount * colWidth;
     return {
       ...r,
       x,
       y: floor.y,
       w,
       h: floorHeight,
-      doorX: x + w - STAGE.doorWidth - 24 + STAGE.doorWidth / 2,
+      doorX,
+      doorFootY: floorDoorFootY(floor),
       floorLevel: floor.level,
     };
   });

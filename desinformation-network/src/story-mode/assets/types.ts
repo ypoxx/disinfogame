@@ -14,6 +14,8 @@ export interface SheetAnimationMeta {
   row?: number;
   frames: number;
   frameTime: number; // ms pro Frame
+  /** Optionale Dauer je Einzelbild, z. B. kurzer Blink in ruhigem Idle. */
+  frameTimes?: number[];
   loop: boolean;
 }
 

@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, waitFor, cleanup, fireEvent, screen } from '@testing-library/react';
 import { BuildingStage } from '../building/BuildingStage';
+import { roomById, STAGE } from '../building/buildingLayout';
 import { __resetAssetRegistryForTests } from '../assets/AssetRegistry';
 import type { NavigatorState } from '../building/useNavigator';
 import type { AssetsManifest } from '../assets/types';
@@ -47,6 +48,8 @@ const MANIFEST: AssetsManifest = {
   assets: [
     { id: 'bld_door_closed', type: 'image', file: 'images/bld_door_closed.png', chosen: true },
     { id: 'bld_door_open', type: 'image', file: 'images/bld_door_open.png', chosen: true },
+    { id: 'elevator_cabin_closed', type: 'image', file: 'images/elevator_cabin_closed.png', chosen: true },
+    { id: 'elevator_cabin_open', type: 'image', file: 'images/elevator_cabin_open.png', chosen: true },
     // Alle Flur-Statisten (FLOOR_AMBIENT) benutzen dieses Blatt.
     {
       id: 'figure_clerk', type: 'sheet', file: 'sheets/figure_clerk.png', chosen: true,
@@ -110,15 +113,55 @@ describe('BuildingStage — Ambient-Render-Schicht (LB)', () => {
     // Füße auf der Wand-Fuß-Linie: flex-end im Container (B6-Muster).
     expect(walker.style.alignItems).toBe('flex-end');
 
-    // RoomDoor: die von der Ambient-Figur benutzte Tür (analyse) blendet auf …
-    const doors = [...container.querySelectorAll('img[src*="bld_door_open"]')] as HTMLImageElement[];
-    expect(doors.length).toBeGreaterThan(0);
-    const openOnes = doors.filter((d) => d.style.opacity === '1');
-    expect(openOnes).toHaveLength(1);
-    // … alle anderen offenen Türblätter bleiben ausgeblendet.
-    for (const d of doors.filter((x) => !openOnes.includes(x))) {
-      expect(d.style.opacity).toBe('0');
-    }
+    // RoomDoor: exakt die Ambient-Tür dreht ihr Blatt räumlich auf; alle
+    // anderen bleiben bei rotateY(0deg). Keine Opazitätsblende mehr.
+    const openDoors = [...container.querySelectorAll('[data-door-state="open"]')];
+    expect(openDoors).toHaveLength(1);
+    const openLeaf = openDoors[0].querySelector('[data-door-leaf]') as HTMLElement;
+    expect(openLeaf.style.transform).toContain('rotateY(-82deg)');
+    const closedLeaves = [...container.querySelectorAll('[data-door-state="closed"] [data-door-leaf]')] as HTMLElement[];
+    expect(closedLeaves.length).toBeGreaterThan(0);
+    expect(closedLeaves.every((leaf) => leaf.style.transform === 'rotateY(0deg)')).toBe(true);
+  });
+
+  it('Fahrstuhl öffnet zwei Schiebepaneele und markiert den sichtbaren Tiefenschritt', async () => {
+    const nav: NavigatorState = {
+      ...NAV_IDLE,
+      mode: 'ride',
+      cabinDoorsOpen: true,
+      avatarInCabin: true,
+      cabinTransfer: 'entering',
+    };
+    const { container } = render(<BuildingStage npcs={[]} nav={nav} />);
+    const panels = await waitFor(() => {
+      const found = [...container.querySelectorAll('[data-elevator-panel]')] as HTMLElement[];
+      expect(found).toHaveLength(2);
+      return found;
+    });
+    expect(panels[0].style.transform).toBe('translateX(-100%)');
+    expect(panels[1].style.transform).toBe('translateX(100%)');
+    const transfer = container.querySelector('[data-cabin-transfer="entering"]') as HTMLElement;
+    expect(transfer).toBeTruthy();
+    expect(transfer.style.animation).toContain('bs-elevator-enter');
+    expect(screen.getByTestId('building-camera').style.transition).toBe('transform 90ms linear');
+  });
+
+  it('verschiebt Tür, Schild/Lampe und Klickfläche gemeinsam in die Wandebene', async () => {
+    const { container } = render(<BuildingStage npcs={[]} nav={NAV_IDLE} />);
+    const zentrale = roomById('zentrale')!;
+    const finanzen = roomById('finanzen')!;
+
+    const zentraleDoor = await waitFor(() => container.querySelector('[data-room-door="zentrale"]') as HTMLElement);
+    const finanzenDoor = container.querySelector('[data-room-door="finanzen"]') as HTMLElement;
+    const zentraleCapture = container.querySelector('[data-door-capture="zentrale"]') as HTMLElement;
+    const finanzenCapture = container.querySelector('[data-door-capture="finanzen"]') as HTMLElement;
+
+    expect(zentraleDoor.style.top).toBe(`${zentrale.doorFootY - STAGE.doorHeight}px`);
+    expect(finanzenDoor.style.top).toBe(`${finanzen.doorFootY - STAGE.doorHeight}px`);
+    expect(zentraleCapture.style.top).toBe(`${zentrale.doorFootY - STAGE.doorHeight - 40}px`);
+    expect(finanzenCapture.style.top).toBe(`${finanzen.doorFootY - STAGE.doorHeight - 40}px`);
+    expect(zentraleDoor.dataset.doorFootY).toBe(String(zentrale.doorFootY));
+    expect(finanzenDoor.dataset.doorFootY).toBe(String(finanzen.doorFootY));
   });
 
   /**

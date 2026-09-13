@@ -2,7 +2,7 @@
  * Tests für buildingLayout + BuildingNavigator (pure TS, ohne React).
  */
 import { describe, it, expect } from 'vitest';
-import { getBuildingLayout, roomById, STAGE } from '../building/buildingLayout';
+import { floorDoorFootY, getBuildingLayout, roomById, STAGE, wallFootY } from '../building/buildingLayout';
 import {
   planRoute,
   routeDurationMs,
@@ -56,6 +56,38 @@ describe('buildingLayout', () => {
       expect(room.doorX).toBeGreaterThan(room.x);
       expect(room.doorX).toBeLessThan(room.x + room.w);
     }
+  });
+
+  it('richtet die Türen an den festen Buchten der finalen Etagenpanoramen aus', () => {
+    const expected: Record<string, number> = {
+      cyber_lab: 0.332,
+      operations: 0.586,
+      medien_zentrum: 0.948,
+      analyse: 0.324,
+      newsroom: 0.95,
+      feld_ops: 0.595,
+      zentrale: 0.32,
+      spieler_buero: 0.596,
+      finanzen: 0.628,
+    };
+    const layout = getBuildingLayout();
+    const playableWidth = layout.colCount * STAGE.colWidth;
+    for (const [roomId, fraction] of Object.entries(expected)) {
+      const room = roomById(roomId)!;
+      expect(room.doorX).toBeCloseTo(STAGE.pillarWidth + fraction * playableWidth, 5);
+    }
+  });
+
+  it('setzt die Türen von Etage 1 und Keller hinter den Laufweg', () => {
+    const layout = getBuildingLayout();
+    const floor1 = layout.floors.find((f) => f.level === 1)!;
+    const basement = layout.floors.find((f) => f.level === -1)!;
+
+    expect(floorDoorFootY(floor1)).toBe(wallFootY(floor1) - 10);
+    expect(floorDoorFootY(basement)).toBe(wallFootY(basement) - 12);
+    expect(roomById('zentrale')!.doorFootY).toBe(floorDoorFootY(floor1));
+    expect(roomById('spieler_buero')!.doorFootY).toBe(floorDoorFootY(floor1));
+    expect(roomById('finanzen')!.doorFootY).toBe(floorDoorFootY(basement));
   });
 });
 

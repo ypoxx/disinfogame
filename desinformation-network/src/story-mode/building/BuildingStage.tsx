@@ -12,7 +12,7 @@
  * Jedes Bild hat einen CSS-Fallback — ohne Manifest bleibt die Bühne funktional.
  */
 import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { getBuildingLayout, STAGE, wallFootY, type RoomLayout } from './buildingLayout';
+import { floorDoorFootY, getBuildingLayout, STAGE, wallFootY, type RoomLayout } from './buildingLayout';
 import { snapPixelScale, snapToDevicePixel } from './pixelScale';
 import { useDpr } from '../hooks/usePixelFit';
 import { NAV_SPEED } from './BuildingNavigator';
@@ -34,6 +34,20 @@ import { publishVqa } from '../harness/vqaHook';
  */
 const WALK_CYCLE_STRIDE_PX = 192;
 const WALK_FRAME_TIME_MS = Math.round((WALK_CYCLE_STRIDE_PX / NAV_SPEED.walkPxPerSecond) * 1000 / 8);
+
+/** Maßgeschneiderte 6:1-Panoramen statt gekachelter Universalflure. */
+export const FLOOR_BACKGROUND_BY_LEVEL: Readonly<Record<number, string>> = {
+  4: 'bld_floor_special_ops',
+  3: 'bld_floor_analysis_media',
+  2: 'bld_floor_field_ops',
+  1: 'bld_floor_headquarters',
+  0: 'bld_floor_lobby',
+  [-1]: 'bld_floor_basement',
+};
+
+export function floorBackgroundAssetId(level: number): string | null {
+  return FLOOR_BACKGROUND_BY_LEVEL[level] ?? null;
+}
 
 // Welt-Ebene: Signal-/Hover-Farben bleiben HELL (die Welt ist dunkel; die
 // v3.1-Papier-Tinten sind dafür zu dunkel — §4.7 gilt der Bedienung, nicht der Welt).
@@ -177,9 +191,11 @@ const STAGE_KEYFRAMES = `
   /* P5: Der Spieler-Marker atmet um GANZE Pixel — ein Sub-Pixel-Schweben würde
      die Pixel-Kante genau da aufweichen, wo sie am meisten auffällt. */
   @keyframes bs-marker-schweben { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-2px)} }
+  @keyframes bs-elevator-enter { from{transform:translateX(-50%) translateY(9px) scale(1.07);filter:brightness(1.08)} to{transform:translateX(-50%) translateY(0) scale(1);filter:brightness(1)} }
+  @keyframes bs-elevator-exit { from{transform:translateX(-50%) translateY(0) scale(1);filter:brightness(1)} to{transform:translateX(-50%) translateY(9px) scale(1.07);filter:brightness(1.08)} }
 `;
 
-/** Tür eines Raums — sanftes Überblenden zwischen Zu/Auf (R2: kein harter Bild-Tausch). */
+/** Tür eines Raums — das Türblatt dreht räumlich um die linke Angel. */
 function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
   const assets = useAssets();
   const closedUrl = assets.imageUrl('bld_door_closed');
@@ -187,25 +203,46 @@ function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
   const base: CSSProperties = {
     position: 'absolute',
     left: room.doorX - STAGE.doorWidth / 2,
-    top: wallFootY(room) - STAGE.doorHeight,
+    top: room.doorFootY - STAGE.doorHeight,
     width: STAGE.doorWidth,
     height: STAGE.doorHeight,
     pointerEvents: 'none',
     zIndex: EBENE.tuer,
   };
   if (closedUrl && openUrl) {
-    const img = (url: string, vis: boolean): CSSProperties => ({
-      ...base, imageRendering: 'pixelated', objectFit: 'fill', opacity: vis ? 1 : 0, transition: 'opacity 240ms ease',
-    });
     return (
-      <>
-        <img src={closedUrl} alt="" style={img(closedUrl, !open)} />
-        <img src={openUrl} alt="" style={img(openUrl, open)} />
-      </>
+      <div
+        style={{ ...base, perspective: 280 }}
+        data-room-door={room.id}
+        data-door-foot-y={room.doorFootY}
+        data-door-state={open ? 'open' : 'closed'}
+      >
+        {/* Offener Rahmen/Innenraum bleibt fest; nur das geschlossene Blatt
+            darüber rotiert. Dadurch wandert weder Zarge noch Namensschild. */}
+        <img src={openUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', imageRendering: 'pixelated' }} />
+        <img
+          src={closedUrl}
+          alt=""
+          data-door-leaf
+          style={{
+            position: 'absolute', inset: 0, width: '100%', height: '100%',
+            imageRendering: 'pixelated', backfaceVisibility: 'hidden',
+            clipPath: 'inset(3px 4px 3px 4px)',
+            transformOrigin: '6px 50%',
+            transform: open ? 'rotateY(-82deg)' : 'rotateY(0deg)',
+            transition: 'transform 360ms cubic-bezier(.22,.78,.24,1)',
+          }}
+        />
+      </div>
     );
   }
   return (
-    <div style={{ ...base, backgroundColor: open ? '#3b2a17' : '#241a0f', border: '4px solid #111', boxSizing: 'border-box' }} />
+    <div
+      data-room-door={room.id}
+      data-door-foot-y={room.doorFootY}
+      data-door-state={open ? 'open' : 'closed'}
+      style={{ ...base, backgroundColor: open ? '#3b2a17' : '#241a0f', border: '4px solid #111', boxSizing: 'border-box' }}
+    />
   );
 }
 
@@ -319,7 +356,7 @@ function usePrefersReducedMotion(): boolean {
 
 const figuresEqual = (a: AmbientFigureSnapshot[], b: AmbientFigureSnapshot[]) =>
   a.length === b.length &&
-  a.every((f, i) => f.id === b[i].id && f.x === b[i].x && f.floorLevel === b[i].floorLevel && f.anim === b[i].anim && f.facing === b[i].facing);
+  a.every((f, i) => f.id === b[i].id && f.x === b[i].x && f.floorLevel === b[i].floorLevel && f.anim === b[i].anim && f.facing === b[i].facing && f.sheet === b[i].sheet && f.thresholdProgress === b[i].thresholdProgress);
 
 /**
  * LB „Lebendiges Gebäude" (Plan §3b c): Abspielkopf der ambientLife-Routen.
@@ -401,9 +438,15 @@ function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]
       {figures.map((f) => {
         const floor = layout.floors.find((fl) => fl.level === f.floorLevel);
         if (!floor || !assets.imageUrl(f.sheet)) return null;
+        const threshold = f.thresholdProgress ?? 1;
+        const depthScale = 0.86 + threshold * 0.14;
+        // Der erste/letzte Schwellenframe sitzt in der echten Tür-Wandebene.
+        // Auf Etagen ohne Sonderperspektive bleibt der bewährte 8-px-Tiefenschritt.
+        const thresholdDepthY = Math.min(-8, floorDoorFootY(floor) - wallFootY(floor));
+        const depthY = Math.round((1 - threshold) * thresholdDepthY);
         return (
           <Fragment key={f.id}>
-          <Bodenschatten x={f.x} y={wallFootY(floor)} breite={(AMBIENT_HEIGHT / 96) * 44} staerke={0.45} />
+          {threshold > 0.45 && <Bodenschatten x={f.x} y={wallFootY(floor)} breite={(AMBIENT_HEIGHT / 96) * 44} staerke={0.45 * threshold} />}
           <div
             data-bs-walker={f.id}
             aria-hidden
@@ -413,8 +456,10 @@ function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]
               top: wallFootY(floor) - AMBIENT_HEIGHT, // Füße auf die Wand-Fuß-Linie (B6)
               width: (AMBIENT_HEIGHT / 96) * 48,
               height: AMBIENT_HEIGHT,
-              transform: 'translateX(-50%)',
-              zIndex: EBENE.figuren, // vor der Tür, hinter dem Avatar: tritt sichtbar aus dem Türrahmen
+              transform: `translateX(-50%) translateY(${depthY}px) scale(${depthScale})`,
+              transformOrigin: 'bottom center',
+              filter: threshold < 0.5 ? `brightness(${0.68 + threshold * 0.64})` : undefined,
+              zIndex: threshold < 0.4 ? EBENE.tuer - 1 : EBENE.figuren,
               pointerEvents: 'none',
               display: 'flex',
               alignItems: 'flex-end',
@@ -484,9 +529,17 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   }, [dpr]);
 
   // Kamera: Etage des Avatars vertikal zentrieren (geklemmt auf Gebäudegrenzen).
+  // Während der Fahrt folgt sie der kontinuierlichen Kabinenposition statt der
+  // gerundeten Etage — so springt der Bildausschnitt nicht stockwerkweise.
   // Offsets auf ganze Geräte-Pixel gerundet, damit das Sampling-Raster stabil liegt.
+  const topFloor = layout.floors[0];
   const avatarFloor = layout.floors.find((f) => f.level === Math.round(nav.pos.floorLevel));
-  const focusY = (avatarFloor ? avatarFloor.y + STAGE.floorHeight / 2 : layout.height / 2) * view.scale;
+  const rideFocusY = topFloor
+    ? topFloor.y + (topFloor.level - nav.cabinLevel) * (STAGE.floorHeight + STAGE.slabHeight) + STAGE.floorHeight / 2
+    : layout.height / 2;
+  const focusY = (nav.mode === 'ride'
+    ? rideFocusY
+    : avatarFloor ? avatarFloor.y + STAGE.floorHeight / 2 : layout.height / 2) * view.scale;
   const stageH = layout.height * view.scale;
   const cameraY = snapToDevicePixel(Math.max(0, Math.min(Math.max(0, stageH - view.h), focusY - view.h / 2)));
   const stageLeft = snapToDevicePixel((view.w - layout.width * view.scale) / 2);
@@ -501,6 +554,10 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   const corridorUrlFor = (level: number) =>
     assets.imageUrl(level === -1 ? 'bld_corridor_keller' : corridorIds[(((level % 3) + 3) % 3)]) ?? corridorUrl;
   const lobbyUrl = assets.imageUrl('room_lobby');
+  const floorPanoramaUrlFor = (level: number) => {
+    const id = floorBackgroundAssetId(level);
+    return id ? assets.imageUrl(id) : null;
+  };
   const cityUrl = assets.imageUrl('bld_city_far');
   // Tageszeit-Skylines (Dämmerung/Nacht) blenden über die Basis ein — siehe skylineLayersForMinutes.
   const cityDuskUrl = assets.imageUrl('bld_city_far_dusk');
@@ -520,7 +577,6 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   // Kabinen-Geometrie: füllt den Schacht (R5: keine „Briefmarke"); Höhe = Etagenhöhe.
   const cabinH = STAGE.floorHeight;
   const cabinW = 170;
-  const topFloor = layout.floors[0];
   const cabinTopY = topFloor.y + (topFloor.level - nav.cabinLevel) * (STAGE.floorHeight + STAGE.slabHeight);
 
   const avatarFloorLayout = layout.floors.find((f) => f.level === nav.pos.floorLevel) ?? avatarFloor;
@@ -614,6 +670,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           innen NUR die statische Skalierung — so interpoliert die Transition
           nie den Scale (Zwischenwerte = Matsch) und Offsets bleiben ganzzahlig. */}
       <div
+        data-testid="building-camera"
         style={{
           position: 'absolute',
           left: stageLeft,
@@ -621,7 +678,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           width: layout.width * view.scale,
           height: layout.height * view.scale,
           transform: `translateY(${-cameraY}px)`,
-          transition: 'transform 700ms ease-in-out',
+          transition: nav.mode === 'ride' ? 'transform 90ms linear' : 'transform 700ms ease-in-out',
         }}
       >
       <div
@@ -706,11 +763,15 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
         {/* Etagen: Flure (kein Röntgenblick) — EG zeigt die Lobby als Eingangshalle */}
         {layout.floors.map((floor) => {
           const isLobby = floor.level === layout.entryFloorLevel;
-          const bgUrl = isLobby ? lobbyUrl : corridorUrlFor(floor.level);
+          const panoramaId = floorBackgroundAssetId(floor.level);
+          const panoramaUrl = floorPanoramaUrlFor(floor.level);
+          const bgUrl = panoramaUrl ?? (isLobby ? lobbyUrl : corridorUrlFor(floor.level));
           return (
             <div key={floor.id}>
               {/* Flur-Hintergrund über die volle Etagen-Breite */}
               <div
+                data-floor-background={panoramaUrl ? panoramaId ?? undefined : 'fallback'}
+                data-floor-id={floor.id}
                 style={{
                   position: 'absolute',
                   left: STAGE.pillarWidth,
@@ -721,11 +782,11 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                   ...(bgUrl
                     ? {
                         backgroundImage: `linear-gradient(rgba(8,8,12,0.12), rgba(8,8,12,0.22)), url(${bgUrl})`,
-                        // EG/Lobby = EINE durchgehende Eingangshalle (kein Kacheln, sah aus wie ein Bug);
-                        // Flure dürfen weiter horizontal kacheln (3 Varianten je Etage).
-                        backgroundRepeat: isLobby ? 'no-repeat' : 'repeat-x',
-                        backgroundSize: isLobby ? 'cover' : 'auto 100%',
-                        backgroundPosition: isLobby ? 'center bottom' : 'left bottom',
+                        // Die neuen Assets passen exakt auf 1344 × 224 Welt-px. Der
+                        // alte Fallback bleibt für unvollständige Manifeste erhalten.
+                        backgroundRepeat: panoramaUrl || isLobby ? 'no-repeat' : 'repeat-x',
+                        backgroundSize: panoramaUrl ? '100% 100%' : isLobby ? 'cover' : 'auto 100%',
+                        backgroundPosition: panoramaUrl ? 'left top' : isLobby ? 'center bottom' : 'left bottom',
                         imageRendering: 'pixelated',
                       }
                     : { borderBottom: '2px solid #2c2d35' }),
@@ -777,6 +838,8 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 return (
                   <img
                     key={`${floor.id}-decor-${i}`}
+                    data-decor-id={d.id}
+                    data-floor-id={floor.id}
                     src={url}
                     alt={detail ? detail.titel_de : ''}
                     aria-hidden={detail ? undefined : true}
@@ -886,7 +949,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               {/* Türschild über der Tür — welt-verankert, nativ gerastert (B1/E35).
                   Sitzt in der DECKEN-Band-Spur (bottom 20), damit es nicht mit dem
                   Etagen-Schild kollidiert — native Rasterung braucht 2× Welt-Platz. */}
-              <WorldAnchor x={room.doorX} y={wallFootY(room) - STAGE.doorHeight} scale={view.scale} z={EBENE.figuren}>
+              <WorldAnchor x={room.doorX} y={room.doorFootY - STAGE.doorHeight} scale={view.scale} z={EBENE.figuren}>
                 <span
                   style={{
                     position: 'absolute',
@@ -913,7 +976,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 style={{
                   position: 'absolute',
                   left: room.doorX + STAGE.doorWidth / 2 + 8,
-                  top: wallFootY(room) - STAGE.doorHeight + 10,
+                  top: room.doorFootY - STAGE.doorHeight + 10,
                   width: 10,
                   height: 10,
                   borderRadius: 10,
@@ -926,6 +989,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
               />
               {/* Klickfläche rund um die Tür */}
               <button
+                data-door-capture={room.id}
                 onClick={() => clickable && onRoomClick?.(room.id)}
                 onMouseEnter={() => setHoverRoom(room.id)}
                 onMouseLeave={() => setHoverRoom((h) => (h === room.id ? null : h))}
@@ -935,7 +999,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 style={{
                   position: 'absolute',
                   left: room.doorX - STAGE.doorWidth / 2 - 24,
-                  top: wallFootY(room) - STAGE.doorHeight - 40,
+                  top: room.doorFootY - STAGE.doorHeight - 40,
                   width: STAGE.doorWidth + 48,
                   height: STAGE.doorHeight + 40,
                   background: 'transparent',
@@ -1025,17 +1089,47 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
         >
           {cabinClosedUrl && cabinOpenUrl ? (
             <>
-              {/* R5: sanftes Überblenden Türen auf/zu statt hartem Bild-Tausch.
-                  B9-Z-Ordnung: offenes Kabinenbild UNTER dem Avatar, geschlossene
-                  Türen DARÜBER — so verdecken zugefahrene Türen die Figur, statt
-                  dass die Türnaht durch sie hindurchläuft. */}
-              <img src={cabinOpenUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill', imageRendering: 'pixelated', opacity: nav.cabinDoorsOpen ? 1 : 0, transition: 'opacity 300ms ease', zIndex: 1 }} />
+              {/* Die Kabine bleibt stehen; zwei echte Metallpaneele gleiten
+                  auseinander. Der Avatar liegt dazwischen und wird bei ZU
+                  vollständig von den Paneelen verdeckt. */}
+              <img src={cabinOpenUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill', imageRendering: 'pixelated', zIndex: 1 }} />
               {nav.avatarInCabin && (
-                <span style={{ position: 'absolute', left: '50%', bottom: 22, transform: 'translateX(-50%)', zIndex: 2 }}>
+                <span
+                  data-cabin-transfer={nav.cabinTransfer ?? 'still'}
+                  style={{
+                    position: 'absolute', left: '50%', bottom: 22, transform: 'translateX(-50%)', zIndex: 2,
+                    transformOrigin: 'bottom center',
+                    animation: nav.cabinTransfer === 'entering'
+                      ? 'bs-elevator-enter 274ms steps(3,end) both'
+                      : nav.cabinTransfer === 'exiting'
+                        ? 'bs-elevator-exit 274ms steps(3,end) both'
+                        : undefined,
+                  }}
+                >
                   <PixelSprite sheetId={avatarIdleSheet} animation="idle" fallback="•" scale={2} title="Sie" />
                 </span>
               )}
-              <img src={cabinClosedUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill', imageRendering: 'pixelated', opacity: nav.cabinDoorsOpen ? 0 : 1, transition: 'opacity 300ms ease', zIndex: 3 }} />
+              {(['left', 'right'] as const).map((side) => {
+                const left = side === 'left' ? 18 : 85;
+                return (
+                  <span
+                    key={side}
+                    data-elevator-panel={side}
+                    style={{
+                      position: 'absolute', left, top: 34, width: 67, height: 180,
+                      backgroundImage: `url(${cabinClosedUrl})`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: `${cabinW}px ${cabinH}px`,
+                      backgroundPosition: `${-left}px -34px`,
+                      imageRendering: 'pixelated', zIndex: 3,
+                      transform: nav.cabinDoorsOpen
+                        ? `translateX(${side === 'left' ? '-100%' : '100%'})`
+                        : 'translateX(0)',
+                      transition: 'transform 360ms cubic-bezier(.22,.78,.24,1)',
+                    }}
+                  />
+                );
+              })}
             </>
           ) : (
             <>

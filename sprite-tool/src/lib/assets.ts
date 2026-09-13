@@ -12,6 +12,7 @@ export interface SheetAnimation {
   row?: number;
   frames: number;
   frameTime: number; // ms pro Frame
+  frameTimes?: number[];
   loop: boolean;
 }
 
@@ -67,7 +68,7 @@ export interface ManifestEntry {
   chosen: boolean;
   frameWidth?: number;
   frameHeight?: number;
-  animations?: Record<string, { row?: number; frames: number; frameTime: number; loop: boolean }>;
+  animations?: Record<string, { row?: number; frames: number; frameTime: number; frameTimes?: number[]; loop: boolean }>;
   regions?: AssetRegion[];
 }
 
@@ -111,11 +112,11 @@ export function filePathFor(asset: LibraryAsset): string {
 
 function animationsToRecord(
   animations?: SheetAnimation[]
-): Record<string, { row?: number; frames: number; frameTime: number; loop: boolean }> | undefined {
+): Record<string, { row?: number; frames: number; frameTime: number; frameTimes?: number[]; loop: boolean }> | undefined {
   if (!animations || animations.length === 0) return undefined;
-  const out: Record<string, { row?: number; frames: number; frameTime: number; loop: boolean }> = {};
+  const out: Record<string, { row?: number; frames: number; frameTime: number; frameTimes?: number[]; loop: boolean }> = {};
   for (const a of animations) {
-    out[a.name] = { row: a.row, frames: a.frames, frameTime: a.frameTime, loop: a.loop };
+    out[a.name] = { row: a.row, frames: a.frames, frameTime: a.frameTime, frameTimes: a.frameTimes, loop: a.loop };
   }
   return out;
 }

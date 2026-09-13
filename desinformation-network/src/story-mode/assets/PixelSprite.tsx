@@ -14,6 +14,7 @@ export function PixelSprite({
   scale = 2,
   title,
   frameTimeMs,
+  frameOffset = 0,
   onFrame,
 }: {
   sheetId: string;
@@ -24,11 +25,13 @@ export function PixelSprite({
   title?: string;
   /** Abspielgeschwindigkeit an Bewegung koppeln (verhindert „Foot Sliding"). */
   frameTimeMs?: number;
+  /** Deterministischer Startversatz, damit Gruppen nicht synchron loopen. */
+  frameOffset?: number;
   /** Frame-Event (z. B. Schritt-Sound auf Kontakt-Frames, Godot-Prinzip). */
   onFrame?: (frame: number) => void;
 }) {
   const assets = useAssets();
-  const sprite = useSprite(assets.sheet(sheetId), animation, frameTimeMs);
+  const sprite = useSprite(assets.sheet(sheetId), animation, frameTimeMs, frameOffset);
   const frame = sprite?.frame;
   useEffect(() => {
     if (frame !== undefined && onFrame) onFrame(frame);

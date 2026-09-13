@@ -8,12 +8,21 @@
  *     hold=1 → Auto-Vorlauf via onComplete-Marker beobachtbar; die Szene selbst
  *     steuert ihre Schritte (Klick überspringt). Nach onComplete zeigt die Seite
  *     einen [data-vqa-done]-Marker, auf den der Harvester warten kann.
+ *   /vqa.html?scene=broadcast
+ *     Finales Nachrichten-TV und gemischte Publikums-Mimiken.
+ *   /vqa.html?scene=sprites
+ *     Kontaktbogen aller finalisierten Mood- und Geh-Sheets.
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import { WahlabendScene, type WahlabendBranch } from './story-mode/components/WahlabendScene';
 import { PARTEI_NAME_DE } from './story-mode/engine/Auftraege';
+import { BroadcastBar } from './story-mode/broadcast/BroadcastBar';
+import type { AudienceBroadcastState } from './story-mode/broadcast/useAudienceBroadcast';
+import type { BroadcastItem } from './story-mode/broadcast/broadcastMapping';
+import { getCountry, reactToEffect, type Mood } from './story-mode/audience/audienceModel';
+import { initAssetRegistry } from './story-mode/assets';
 
 const params = new URLSearchParams(window.location.search);
 const scene = params.get('scene') ?? 'wahlabend';
@@ -64,8 +73,85 @@ function WahlabendFixture(): React.JSX.Element {
   );
 }
 
+function BroadcastFixture(): React.JSX.Element {
+  const [assetsReady, setAssetsReady] = useState(false);
+  useEffect(() => {
+    void initAssetRegistry().then(() => setAssetsReady(true));
+  }, []);
+  const source = getCountry('westunion');
+  if (!source) return <div data-vqa-done>audience fixture fehlt</div>;
+  if (!assetsReady) return <div style={{ color: '#888', padding: 20 }}>Assets werden geladen…</div>;
+  const item: BroadcastItem = {
+    id: 'vqa_infrastruktur',
+    channel: 'tv',
+    themes: ['energie_angst', 'sicherheits_beduerfnis'],
+    intensity: 0.82,
+    headline: 'Versorgungslage: Behörden widersprechen sich nach Zwischenfall',
+    tier: 'gross',
+    kind: 'eigen',
+  };
+  const reaction = reactToEffect(source, item);
+  const moods: Mood[] = ['verunsichert', 'ruhig', 'misstrauisch', 'wuetend'];
+  const country = {
+    ...source,
+    segments: source.segments.map((segment, index) => ({
+      ...segment,
+      mood: moods[index] ?? segment.mood,
+      belief: [0.46, 0.31, 0.58, 0.72][index] ?? segment.belief,
+    })),
+  };
+  const audience: AudienceBroadcastState = { country, lastItem: item, lastReaction: reaction, history: [item] };
+  return (
+    <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'flex-end', background: '#10141d' }}>
+      <BroadcastBar audience={audience} expanded onToggle={() => {}} />
+    </div>
+  );
+}
+
+const AUDIENCE_SHEETS = [
+  'audience_optimiererin',
+  'audience_macher',
+  'audience_bohemien',
+  'audience_besorgte_mitte',
+  'audience_zorniger',
+  'audience_idealistin',
+  'audience_eigenheimer',
+  'audience_liberale',
+];
+
+const WALK_SHEETS = ['player_walk', 'player_walk_f', 'figure_clerk_walk', 'figure_cleaner_walk'];
+
+function SpriteSheetFixture(): React.JSX.Element {
+  const card = (id: string, width?: number) => (
+    <figure key={id} style={{ margin: 0, padding: 10, border: '1px solid #3b4655', background: '#18202b' }}>
+      <figcaption style={{ marginBottom: 7, color: '#d8dee8', font: '18px monospace' }}>{id}</figcaption>
+      <img
+        src={`/assets/sheets/${id}.png`}
+        alt={id}
+        style={{ display: 'block', width: width ?? 192, maxWidth: '100%', height: 'auto', imageRendering: 'pixelated' }}
+      />
+    </figure>
+  );
+  return (
+    <main style={{ minHeight: '100vh', padding: 20, background: '#0e131b', color: '#fff' }}>
+      <h1 style={{ margin: '0 0 6px', font: 'bold 24px monospace' }}>FINALE SPRITE-SHEETS</h1>
+      <p style={{ margin: '0 0 14px', color: '#9ba8b7', font: '14px monospace' }}>
+        Publikum: ruhig · verunsichert · wütend · misstrauisch / Gehfiguren: acht Phasen
+      </p>
+      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+        {AUDIENCE_SHEETS.map((id) => card(id))}
+      </section>
+      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, marginTop: 14 }}>
+        {WALK_SHEETS.map((id) => card(id, id.startsWith('player_') ? 512 : 384))}
+      </section>
+    </main>
+  );
+}
+
 function VqaApp(): React.JSX.Element {
   if (scene === 'wahlabend') return <WahlabendFixture />;
+  if (scene === 'broadcast') return <BroadcastFixture />;
+  if (scene === 'sprites') return <SpriteSheetFixture />;
   return <div style={{ color: '#f66', fontFamily: 'monospace', padding: 20 }}>Unbekannte Szene: {scene}</div>;
 }
 

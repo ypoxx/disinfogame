@@ -4,7 +4,7 @@
  * Links: „Was läuft" — Röhren-TV (hud_tv_frame) bzw. Zeitung (hud_paper_frame)
  * mit der letzten Maßnahme. Mitte: Wirkung (Klein/Mittel/Groß, Quote, Verlauf).
  * Rechts: das Wohnzimmer — Publikums-Segmente als sitzende Pixel-Figuren,
- * Stimmung als Färbung, Reaktions-Bubbles bei deutlicher Wirkung.
+ * Stimmung als echte Mimik-/Haltungsanimation, Reaktions-Bubbles bei Wirkung.
  *
  * Reine Anzeige-Schicht (useAudienceBroadcast); das inhaltlich breitere
  * „Ministerium sendet"-Konzept ist offen: docs/story-mode/MINISTRY_BROADCAST_CONCEPT.md.
@@ -13,7 +13,7 @@ import type { CSSProperties } from 'react';
 import { useAssets } from '../assets/useAssets';
 import { PixelSprite } from '../assets/PixelSprite';
 import { StoryModeColors, StoryModeFonts, StoryModeWorld } from '../theme';
-import { FIGURE_BY_SEGMENT, wohnzimmerBadgeFor, type BroadcastTier, type WohnzimmerBadge } from './broadcastMapping';
+import { FIGURE_BY_SEGMENT, wohnzimmerBadgeFor, type BroadcastItem, type BroadcastTier, type WohnzimmerBadge } from './broadcastMapping';
 import type { AudienceBroadcastState } from './useAudienceBroadcast';
 import type { Mood } from '../audience/audienceModel';
 
@@ -52,14 +52,6 @@ const KEYFRAMES = `
   @keyframes bb-blink { 0%,100% { opacity: 1 } 50% { opacity: .25 } }
 `;
 
-/** Stimmung → Bildfilter der Figur (ruhig = neutral). */
-const MOOD_FILTER: Record<Mood, string> = {
-  ruhig: 'none',
-  verunsichert: 'grayscale(0.45) brightness(0.85)',
-  wuetend: 'sepia(0.6) hue-rotate(-28deg) saturate(2.4)',
-  misstrauisch: 'hue-rotate(165deg) saturate(0.55) brightness(0.8)',
-};
-
 const MOOD_LABEL: Record<Mood, string> = {
   ruhig: 'ruhig',
   verunsichert: 'verunsichert',
@@ -81,6 +73,14 @@ const TIER_COLOR: Record<BroadcastTier, string> = {
   gross: StoryModeWorld.red,
 };
 
+/** Inhaltliche Bildauswahl für den linken Fernseher; stabil und ohne Zufall. */
+export function newsSceneIndex(item: Pick<BroadcastItem, 'channel' | 'themes'>): number {
+  if (item.channel === 'social') return 3;
+  if (item.themes.some((theme) => theme === 'energie_angst' || theme === 'sicherheits_beduerfnis')) return 1;
+  if (item.themes.some((theme) => theme === 'anti_establishment' || theme === 'soziale_gerechtigkeit')) return 2;
+  return 0;
+}
+
 /**
  * Betroffenen-Zitate je Stimmung: macht den menschlichen Preis der eigenen
  * „Effizienz" sichtbar (Empathie-Korrektiv, Psychologie-Gutachten C2).
@@ -98,6 +98,28 @@ function quoteFor(segmentId: string, mood: Mood): string {
   let h = 0;
   for (const ch of segmentId) h = (h * 31 + ch.charCodeAt(0)) % 997;
   return list[h % list.length];
+}
+
+/** Stabile Gegenphase je Milieu: vier Menschen blinzeln nicht gleichzeitig. */
+export function audienceFrameOffset(segmentId: string): number {
+  let hash = 0;
+  for (const ch of segmentId) hash = (hash * 33 + ch.charCodeAt(0)) >>> 0;
+  return hash % 4;
+}
+
+/** Eine einzelne, stärkste sichtbare Reaktion verhindert überlappende Textblasen. */
+export function audienceBubbleSegmentId(
+  visibleSegmentIds: string[],
+  reactions: ReadonlyArray<{ segmentId: string; beliefDelta: number }>,
+): string | null {
+  const visibleIds = new Set(visibleSegmentIds);
+  let winner: { segmentId: string; strength: number } | null = null;
+  for (const reaction of reactions) {
+    const strength = Math.abs(reaction.beliefDelta);
+    if (!visibleIds.has(reaction.segmentId) || strength < 0.04) continue;
+    if (!winner || strength > winner.strength) winner = { segmentId: reaction.segmentId, strength };
+  }
+  return winner?.segmentId ?? null;
 }
 
 interface BroadcastBarProps {
@@ -172,6 +194,7 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
   const item = audience.lastItem;
   const isPrint = item?.channel === 'print';
   const frameUrl = assets.imageUrl(isPrint ? 'hud_paper_frame' : 'hud_tv_frame');
+  const newsScenesUrl = assets.imageUrl('hud_tv_news_scenes');
   // Sendepause-Testbild fürs Röhren-TV (nur im Standby, kein Print): füllt die
   // Bildröhre statt eines toten „KEIN SIGNAL"-Textes.
   const testcardUrl = !item && !isPrint ? assets.imageUrl('hud_tv_testcard') : null;
@@ -205,20 +228,58 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
         }}
       >
         {item ? (
-          <span
-            style={{
-              whiteSpace: 'nowrap',
-              fontSize: 11,
-              fontWeight: 700,
-              fontFamily: "'VT323', monospace",
-              color: isPrint ? '#26221a' : '#9be89b',
-              animation: 'bb-ticker 9s linear infinite',
-              paddingLeft: 4,
-            }}
-          >
-            {item.kind === 'gegenreaktion' ? 'GEGENWIND: ' : '● '}
-            {item.headline}
-          </span>
+          <>
+            {newsScenesUrl && (
+              <div
+                data-testid="broadcast-news-scene"
+                data-news-scene={newsSceneIndex(item)}
+                aria-hidden
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  backgroundImage: `url(${newsScenesUrl})`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundSize: '400% 100%',
+                  backgroundPosition: `${(newsSceneIndex(item) / 3) * 100}% center`,
+                  imageRendering: 'pixelated',
+                  filter: isPrint ? 'grayscale(.7) sepia(.35) contrast(1.08)' : undefined,
+                }}
+              />
+            )}
+            <div
+              aria-hidden
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: isPrint
+                  ? 'linear-gradient(to top, rgba(224,211,170,.88), transparent 72%)'
+                  : 'linear-gradient(to top, rgba(4,7,10,.96), rgba(4,7,10,.04) 72%)',
+              }}
+            />
+            <span
+              style={{
+                position: 'absolute',
+                left: 3,
+                right: 3,
+                bottom: 2,
+                display: '-webkit-box',
+                WebkitBoxOrient: 'vertical',
+                WebkitLineClamp: 2,
+                overflow: 'hidden',
+                fontSize: 10,
+                lineHeight: 0.9,
+                fontWeight: 700,
+                fontFamily: "'VT323', monospace",
+                color: isPrint ? '#26221a' : '#e7eaef',
+                textShadow: isPrint ? undefined : '0 1px #000',
+                borderLeft: `2px solid ${item.kind === 'gegenreaktion' ? StoryModeWorld.red : '#34c6d8'}`,
+                paddingLeft: 3,
+              }}
+            >
+              {item.kind === 'gegenreaktion' ? 'GEGENWIND · ' : 'MELDUNG · '}
+              {item.headline}
+            </span>
+          </>
         ) : testcardUrl ? (
           // Sendepause: klassisches Testbild füllt die Röhre (Scanlines liegen darüber).
           <img
@@ -262,12 +323,19 @@ function BroadcastScreen({ audience }: { audience: AudienceBroadcastState }) {
   );
 }
 
-/** Wohnzimmer mit Publikums-Figuren (Stimmung = Färbung, Größe des Segments = Sockelbreite). */
+/** Wohnzimmer mit Publikums-Figuren (Stimmung = Mimikzeile, Überzeugung = Sockel). */
 function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroadcastState; wohnzimmerAlphabet?: WohnzimmerAlphabetEntry[] }) {
   const assets = useAssets();
   const roomUrl = assets.imageUrl('audience_room');
   const reactionBySegment = new Map(audience.lastReaction?.reactions.map((r) => [r.segmentId, r]) ?? []);
   const alphabetByMilieu = new Map((wohnzimmerAlphabet ?? []).map((a) => [a.milieuId, a]));
+  const visibleSegments = audience.country.segments.slice(0, 4);
+  // Nur EINE lesbare Reaktionsblase: die stärkste sichtbare Reaktion gewinnt.
+  // Mehrere gleichzeitige Texte lagen vorher quer über allen Gesichtern.
+  const bubbleSegmentId = audienceBubbleSegmentId(
+    visibleSegments.map((segment) => segment.id),
+    audience.lastReaction?.reactions ?? [],
+  );
 
   return (
     <div
@@ -290,10 +358,10 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
       {/* Repräsentative Teilmenge (das Sofa fasst nicht alle 8 — Owner: nicht alle sitzen);
           mittig, Rand-Polster, kleinere Skala → Köpfe werden oben NICHT abgeschnitten. */}
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 14, display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 12, padding: '0 16px', zIndex: 2 }}>
-        {audience.country.segments.slice(0, 4).map((seg) => {
+        {visibleSegments.map((seg) => {
           const figure = FIGURE_BY_SEGMENT[seg.id] ?? 'audience_besorgte_mitte';
           const reaction = reactionBySegment.get(seg.id);
-          const showBubble = reaction && Math.abs(reaction.beliefDelta) >= 0.04;
+          const showBubble = reaction && seg.id === bubbleSegmentId;
           // Wohnzimmer-Alphabet (Zielbild §6): feste Bildsprache, ein Badge bedeutet
           // IMMER dasselbe — Priorität fahne > zeitung > abwinken > streit > einsam.
           const alphabetEntry = alphabetByMilieu.get(seg.id);
@@ -333,27 +401,44 @@ function AudienceRoom({ audience, wohnzimmerAlphabet }: { audience: AudienceBroa
               )}
               {showBubble && (
                 <span
+                  data-testid="audience-reaction-bubble"
                   style={{
                     position: 'absolute',
-                    top: -30,
-                    fontSize: 10,
-                    lineHeight: 1.25,
-                    maxWidth: 120,
-                    whiteSpace: 'nowrap',
-                    color: '#ddd',
-                    backgroundColor: 'rgba(10,10,14,0.88)',
-                    border: '1px solid #3a3b43',
-                    padding: '1px 5px',
-                    animation: 'bb-bubble 3.4s ease-out forwards',
+                    top: -38,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
                     zIndex: 4,
+                    pointerEvents: 'none',
                   }}
                 >
-                  {seg.mood === 'wuetend' ? '' : seg.mood === 'misstrauisch' ? '' : ''}
-                  {quoteFor(seg.id, seg.mood)}
+                  <span
+                    style={{
+                      display: 'block',
+                      width: 132,
+                      fontSize: 10,
+                      lineHeight: 1.15,
+                      whiteSpace: 'normal',
+                      textAlign: 'center',
+                      color: '#ddd',
+                      backgroundColor: 'rgba(10,10,14,0.92)',
+                      border: '1px solid #3a3b43',
+                      padding: '2px 5px',
+                      animation: 'bb-bubble 3.4s ease-out forwards',
+                    }}
+                  >
+                    {quoteFor(seg.id, seg.mood)}
+                  </span>
                 </span>
               )}
-              <span style={{ filter: MOOD_FILTER[seg.mood], transition: 'filter 600ms ease' }}>
-                <PixelSprite sheetId={figure} animation="idle" fallback="" scale={2.2} title={seg.label_de} />
+              <span data-audience-mood={seg.mood}>
+                <PixelSprite
+                  sheetId={figure}
+                  animation={seg.mood}
+                  fallback=""
+                  scale={2.2}
+                  title={seg.label_de}
+                  frameOffset={audienceFrameOffset(seg.id)}
+                />
               </span>
               {/* Überzeugungs-Sockel: füllt sich mit der Wirkung der Desinformation */}
               <span

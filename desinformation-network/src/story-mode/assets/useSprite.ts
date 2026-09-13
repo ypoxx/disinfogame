@@ -27,24 +27,33 @@ export interface SpriteRender {
 export function useSprite(
   sheet: SheetInfo | null,
   animationName: string,
-  frameTimeMsOverride?: number
+  frameTimeMsOverride?: number,
+  frameOffset = 0,
 ): SpriteRender | null {
   const animation = sheet?.animations[animationName] ?? null;
   const [frame, setFrame] = useState(0);
-  const frameTime = frameTimeMsOverride ?? animation?.frameTime ?? 120;
+  const startFrame = animation ? ((frameOffset % animation.frames) + animation.frames) % animation.frames : 0;
 
   useEffect(() => {
-    setFrame(0);
+    setFrame(startFrame);
+  }, [sheet, animationName, startFrame]);
+
+  useEffect(() => {
     if (!sheet || !animation || animation.frames <= 1) return;
-    const interval = setInterval(() => {
-      setFrame((f) => {
-        const next = f + 1;
+    if (!animation.loop && frame >= animation.frames - 1) return;
+    // Gehzyklen bleiben über den Override mit der realen Strecke gekoppelt.
+    // Idle-/Mimik-Sheets dürfen dagegen einen kurzen Blink zwischen langen
+    // Haltephasen besitzen, statt gleichförmig zu flackern.
+    const frameTime = frameTimeMsOverride ?? animation.frameTimes?.[frame] ?? animation.frameTime;
+    const timeout = window.setTimeout(() => {
+      setFrame((current) => {
+        const next = current + 1;
         if (next < animation.frames) return next;
-        return animation.loop ? 0 : f;
+        return animation.loop ? 0 : current;
       });
     }, Math.max(30, frameTime));
-    return () => clearInterval(interval);
-  }, [sheet, animation, animationName, frameTime]);
+    return () => window.clearTimeout(timeout);
+  }, [sheet, animation, frame, frameTimeMsOverride]);
 
   return useMemo(() => {
     if (!sheet || !animation) return null;
