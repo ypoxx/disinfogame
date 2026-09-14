@@ -13,7 +13,7 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import { BUILDING_JSON, NPCS_JSON } from './paths.mjs';
-import { styleCore, styleObject, styleHome } from './styleguide.mjs';
+import { styleCore, styleObject, styleHome, stylePaper } from './styleguide.mjs';
 import { CHROMA_PROMPT } from './transparency.mjs';
 
 /** Deterministischer Seed je Shot-id (reproduzierbare Läufe). */
@@ -32,6 +32,30 @@ export const INTRO_VOICE_LINE = {
     'Willkommen in der Abteilung für Sonderoperationen. Ihre Mission: die politische ' +
     'Landschaft von Westunion zu destabilisieren. Sie haben 10 Jahre Zeit. Nutzen Sie sie weise.',
 };
+
+/**
+ * Erzähler-Zeilen der Ankunfts-Sequenz — exakt die Texte aus
+ * `ArrivalSequence.tsx` (NARRATION). Kein NPC, sondern die Rolle „narrator";
+ * die zugehörige Stimme entsteht per `design-voice` (config/voice-design.json).
+ * Ein Test hält die Texte mit der Komponente deckungsgleich.
+ */
+export const NARRATOR_VOICE_LINES = [
+  {
+    lineKey: 'lobby',
+    text: 'Ihr erster Arbeitstag. Der Pförtner sieht nicht auf — Ihr Name steht bereits auf der Liste.',
+  },
+  { lineKey: 'ride', text: 'Der Aufzug ächzt. Irgendwo über Ihnen rattert ein Fernschreiber.' },
+  {
+    lineKey: 'floor',
+    text: 'Etage 1 — Abteilung für Sonderoperationen. Der Flur riecht nach kaltem Kaffee.',
+  },
+  { lineKey: 'door', text: 'Zimmer 1-01. Der Direktor erwartet Sie.' },
+];
+
+/** Asset-ids der Erzähler-Zeilen (für `generate --only …`). */
+export function narratorShotIds() {
+  return NARRATOR_VOICE_LINES.map((line) => `voice_narrator_${line.lineKey}`);
+}
 
 // Englische Bild-Beschreibungen je Raum/NPC (Inhalts-Hinweise aus dem Style-Guide
 // bzw. BUILDING_CONCEPT.md; Räume/NPCs ohne Eintrag bekommen einen generischen Text).
@@ -826,12 +850,7 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
   // Die gesamte Bedienung ist aus Papier/Akte gemacht: Manila-Mappen, Karteikarten,
   // Stempel. §4.7-Pflichten: no real-world logos, no emblems, almost no text;
   // Text bleibt Engine-Ebene (E35) — nur Platzhalter-Striche.
-  const PAPER_STYLE =
-    'Muted bureaucratic file-folder palette: warm manila beige and cream paper surfaces, ' +
-    'kraft-paper brown backing, dark anthracite ink accents, a single ministry-red accent ' +
-    'ONLY where explicitly asked. Crisp clean high-resolution pixel art, flat frontal view, ' +
-    'no gradients, no drop shadows, no real-world logos, no emblems, almost no text ' +
-    '(placeholder dashes only where asked).';
+  const PAPER_STYLE = stylePaper(); // steht bei den übrigen Stil-Kernen (styleguide.mjs)
   const UI_KIT = [
     ['ui_frame_light', '1:1', { w: 256, h: 256 }, false,
       'a SINGLE empty square frame for a game UI, drawn as a thin manila paper card border: ' +
@@ -1137,6 +1156,16 @@ export function buildShotlist({ buildingFile = BUILDING_JSON, npcsFile = NPCS_JS
     priority: 'must',
     voice: { ...INTRO_VOICE_LINE },
   });
+  // Erzähler der Ankunfts-Sequenz: verdrahtet, also Muss.
+  for (const line of NARRATOR_VOICE_LINES) {
+    shots.push({
+      id: `voice_narrator_${line.lineKey}`,
+      type: 'voice',
+      kind: 'voice',
+      priority: 'must',
+      voice: { npcId: 'narrator', lineKey: line.lineKey, text: line.text },
+    });
+  }
   for (const npc of npcs) {
     for (const line of npcLines(npc)) {
       shots.push({

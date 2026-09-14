@@ -33,5 +33,10 @@ export const VOICES_JSON =
   process.env.PIPELINE_VOICES_JSON ||
   path.join(REPO_ROOT, 'tools', 'asset-pipeline', 'config', 'voices.json');
 
+/** Voice-Design-Beschreibungen (Rolle → synthetische Stimme). */
+export const VOICE_DESIGN_JSON =
+  process.env.PIPELINE_VOICE_DESIGN_JSON ||
+  path.join(REPO_ROOT, 'tools', 'asset-pipeline', 'config', 'voice-design.json');
+
 /** Laufprotokolle (gitignored). */
 export const RUNS_DIR = path.join(REPO_ROOT, 'tools', 'asset-pipeline', 'runs');

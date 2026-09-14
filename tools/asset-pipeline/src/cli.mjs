@@ -9,6 +9,7 @@
 //   generate      KI-Erzeugung (Standard: Dry-Run; echte Aufrufe nur mit --live)
 //   validate      assets.json + Dateien prüfen (Exit-Code ≠ 0 bei Fehlern)
 //   voices        ElevenLabs-Stimmen auflisten (für config/voices.json)
+//   design-voice  EIGENE synthetische Stimme entwerfen (ElevenLabs Voice Design)
 //
 // Sicherheitsmodell: Dry-Run als Default, harte Budgets pro Lauf (budget.mjs),
 // idempotent (vorhandene Dateien werden ohne --force übersprungen), JSONL-Log.
@@ -17,7 +18,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
 import { OUT_DIR, RUNS_DIR, VOICES_JSON } from './paths.mjs';
-import { buildShotlist } from './shotlist.mjs';
+import { buildShotlist, narratorShotIds } from './shotlist.mjs';
+import {
+  DESIGN_RUN_DIR,
+  pickCandidate,
+  previewFileName,
+  readDesignRun,
+  readVoiceDesign,
+  resolveDesign,
+  saveCasting,
+  writeDesignRun,
+} from './voiceDesign.mjs';
 import {
   buildEntry,
   filePathFor,
@@ -42,7 +53,7 @@ function parseArgs(argv) {
     }
     const key = a.slice(2);
     const next = argv[i + 1];
-    if (['only', 'limit', 'kind', 'priority', 'out'].includes(key) && next && !next.startsWith('--')) {
+    if (['only', 'limit', 'kind', 'priority', 'out', 'role', 'design', 'pick'].includes(key) && next && !next.startsWith('--')) {
       args.values[key] = next;
       i++;
     } else {
@@ -370,6 +381,70 @@ async function cmdVoices(args) {
   return 0;
 }
 
+async function cmdDesignVoice(args) {
+  const role = args.values.role || 'narrator';
+  const config = readVoiceDesign();
+  const design = resolveDesign(config, role, args.values.design);
+
+  // Phase 2: Gewinner eines früheren Laufs anlegen (braucht kein neues Design).
+  if (args.values.pick) {
+    const run = readDesignRun(role, design.designKey);
+    const candidate = pickCandidate(run, args.values.pick);
+    console.log(`Kandidat ${args.values.pick} aus ${run.designKey}: ${candidate.file}`);
+    if (!args.flags.has('live')) {
+      console.log('DRY-RUN: --live anhängen, um die Stimme anzulegen (+ --save für config/voices.json).');
+      return 0;
+    }
+    const { createVoiceFromPreview } = await import('./elevenlabs.mjs');
+    const voice = await createVoiceFromPreview({
+      name: run.name,
+      description: run.description,
+      generatedVoiceId: candidate.generatedVoiceId,
+    });
+    console.log(`✔ Stimme angelegt: ${voice.voice_id}  (${voice.name ?? run.name})`);
+    if (args.flags.has('save')) {
+      const { file, previous } = saveCasting(role, voice.voice_id, VOICES_JSON);
+      console.log(`✔ ${file}: ${role} = ${voice.voice_id}${previous ? ` (vorher ${previous})` : ''}`);
+    } else {
+      console.log(`Eintragen: "${role}": "${voice.voice_id}" in config/voices.json (oder --save).`);
+    }
+    console.log(
+      `\nNeu vertonen:\n` +
+        `   node src/cli.mjs generate --audio --kind voice --only ${narratorShotIds().join(',')} --live --force`
+    );
+    return 0;
+  }
+
+  // Phase 1: Kandidaten erzeugen und zum Anhören ablegen.
+  console.log(`Rolle: ${role} — Design „${design.designKey}" (${design.name})`);
+  console.log(`Beschreibung:\n${design.description}\n`);
+  console.log(`Probetext (${design.previewText.length} Zeichen):\n${design.previewText}\n`);
+  if (!args.flags.has('live')) {
+    console.log('DRY-RUN (Standard). Echte Kandidaten: --live anhängen.');
+    console.log('Andere Variante: --design dienstfunk | protokollantin (siehe config/voice-design.json).');
+    return 0;
+  }
+
+  const { designVoice } = await import('./elevenlabs.mjs');
+  const log = new RunLog('design-voice');
+  const t0 = Date.now();
+  const { previews } = await designVoice({ description: design.description, text: design.previewText });
+  fs.mkdirSync(DESIGN_RUN_DIR, { recursive: true });
+  const candidates = previews.map((preview, i) => {
+    const name = previewFileName(role, design.designKey, i);
+    const file = path.join(DESIGN_RUN_DIR, name);
+    fs.writeFileSync(file, Buffer.from(preview.audio_base_64, 'base64'));
+    console.log(`   ${i + 1}. ${file}${preview.duration_secs ? `  (${preview.duration_secs.toFixed(1)} s)` : ''}`);
+    return { index: i + 1, file, generatedVoiceId: preview.generated_voice_id };
+  });
+  const runFile = writeDesignRun({ ...design, createdAt: new Date().toISOString(), candidates });
+  log.write({ shot: `voice-design:${role}`, action: 'design-voice', ok: true, ms: Date.now() - t0, count: candidates.length });
+
+  console.log(`\n${candidates.length} Kandidaten (Merkzettel: ${runFile}).`);
+  console.log(`Anhören, dann Gewinner festschreiben:\n   node src/cli.mjs design-voice --role ${role} --pick 1 --save --live`);
+  return 0;
+}
+
 async function cmdStylelock(args) {
   // Phase 1: N Varianten EINES Shots in runs/stylelock/ erzeugen — bewusst
   // OHNE Manifest/Spielordner. Mensch (oder Agent mit Vision) wählt; der
@@ -428,6 +503,8 @@ function help() {
                             [--priority must|all] [--limit N] [--force] [--live] [--out DIR]
   node src/cli.mjs validate [--out DIR]
   node src/cli.mjs voices --live
+  node src/cli.mjs design-voice [--role narrator] [--design aktenleser|dienstfunk|protokollantin]
+                               [--pick N] [--save] [--live]
 
 Ohne --live ist generate ein Dry-Run. Details: README.md`);
   return 0;
@@ -444,6 +521,7 @@ const commands = {
   generate: cmdGenerate,
   stylelock: cmdStylelock,
   voices: cmdVoices,
+  'design-voice': cmdDesignVoice,
 };
 
 try {

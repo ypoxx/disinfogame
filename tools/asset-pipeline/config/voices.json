@@ -1,5 +1,5 @@
 {
-  "_comment": "Stimmen-Besetzung: npcId → ElevenLabs voice_id (stabil je NPC, siehe docs/ASSET_STUDIO_SPEC.md M5). Kandidaten anzeigen: npm run voices (braucht ELEVENLABS_API_KEY). Modell eleven_multilingual_v2 spricht Deutsch mit allen Stimmen. Casting 2026-06-12 nach npcs.json-Profilen.",
+  "_comment": "Stimmen-Besetzung: npcId (bzw. Rolle) → ElevenLabs voice_id (stabil je Sprecher, siehe docs/ASSET_STUDIO_SPEC.md M5). Kandidaten anzeigen: npm run voices (braucht ELEVENLABS_API_KEY). Modell eleven_multilingual_v2 spricht Deutsch mit allen Stimmen. Casting 2026-06-12 nach npcs.json-Profilen. Der Erzähler der Ankunfts-Sequenz (Rolle \"narrator\") bekommt eine EIGENE, synthetische Stimme: node src/cli.mjs design-voice --role narrator --live (config/voice-design.json) — er lief bisher auf der Bibliotheks-Stimme \"Daniel\", die in zu vielen Projekten zu hören ist.",
   "direktor": "MHOybJN5BsVS5H8m3mru",
   "marina": "pFZP5JQG7iQjIQuC4Bku",
   "alexei": "bIHbv24MWmeRgasZH58o",

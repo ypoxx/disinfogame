@@ -1,0 +1,25 @@
+{
+  "_comment": "Voice Design (ElevenLabs Text-to-Voice): Beschreibungen für EIGENE, synthetische Stimmen. Anlegen: node src/cli.mjs design-voice --role narrator --live → Kandidaten anhören → --pick <n> --save schreibt die voice_id nach config/voices.json. Beschreibungen bewusst auf Englisch (das Modell ist darauf trainiert); gesprochen wird trotzdem Deutsch (eleven_multilingual_v2 bei der TTS-Erzeugung).",
+  "roles": {
+    "narrator": {
+      "name": "Operation Westunion — Erzähler",
+      "_note": "Erzähler der Ankunfts-Sequenz (voice_narrator_*). Ablöse für die Bibliotheks-Stimme „Daniel\", die in zu vielen Projekten läuft. Kandidat wählen: alle drei designs hören, den passenden per --design festlegen.",
+      "design": "aktenleser",
+      "designs": {
+        "aktenleser": {
+          "_note": "Erste Wahl: liest ein Dossier vor, nicht einen Trailer. Trocken, dienstlich, leise ironisch.",
+          "description": "A male narrator in his early fifties with a calm, dry, slightly weary voice. Low-mid pitch, smooth and controlled, unhurried — the measured delivery of a ministry official reading a personnel dossier aloud to an empty room. Factual and deadpan, faintly ironic, never theatrical, no salesmanship, no trailer energy. Neutral European accent, clear crisp consonants, a cool but human timbre with a little gravel in the low notes. Close-miked studio recording, quiet and intimate, no reverb, no background noise."
+        },
+        "dienstfunk": {
+          "_note": "Alternative: staatlicher Nachrichtensprecher — glatter, offizieller, eine Spur wärmer.",
+          "description": "A male state-radio announcer in his forties with a warm, even baritone. Mid-low pitch, polished and steady, the practiced calm of a nightly news reader delivering an official bulletin. Composed and authoritative but not cold, articulate, measured pacing with clean pauses at the end of sentences. Neutral European accent, precise articulation, a smooth broadcast timbre. Studio-clean recording, close microphone, no reverb, no music, no background noise."
+        },
+        "protokollantin": {
+          "_note": "Alternative: weibliche Protokollstimme — kühl, präzise, beobachtend statt erzählend.",
+          "description": "A female narrator in her mid-thirties with a cool, precise, low-set voice. Mid-low pitch, clear and quiet, the controlled tone of a clerk reading back the minutes of a meeting she does not entirely approve of. Observational rather than dramatic, understated, a trace of dry amusement under the professionalism, never breathy, never bright or perky. Neutral European accent, crisp consonants, even pacing. Close-miked studio recording, dry and intimate, no reverb, no background noise."
+        }
+      },
+      "previewText": "Ihr erster Arbeitstag. Der Pförtner sieht nicht auf — Ihr Name steht bereits auf der Liste. Der Aufzug ächzt. Irgendwo über Ihnen rattert ein Fernschreiber. Etage 1 — Abteilung für Sonderoperationen. Der Flur riecht nach kaltem Kaffee. Zimmer 1-01. Der Direktor erwartet Sie."
+    }
+  }
+}

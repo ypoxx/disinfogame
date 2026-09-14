@@ -21,10 +21,6 @@ export function loadPalette(styleGuidePath = STYLE_GUIDE_MD) {
   }
 }
 
-/** Englischer Stil-Kern (v2 — modern 2026 statt 70er-Klischee, E16/E17).
- * Enthält bewusst die Marker „16-bit pixel art" und „brutalist" (Stil-Lock +
- * Pipeline-Tests). Feine Pixel statt grob; kühl-cleaner Neutral-Kern + dosierte
- * Akzente; Zonen-Licht kommt je Shot aus dem konkreten Prompt. */
 /**
  * Objekt-Stil (für freistehende Props/Deko): WIE styleCore, aber OHNE den
  * „Setting: … interior"-Satz — der verleitet das Modell sonst dazu, ein ganzes
@@ -59,6 +55,13 @@ export function styleHome() {
   );
 }
 
+/**
+ * Ministeriums-Stil (v2 — modern 2026 statt 70er-Klischee, E16/E17): Räume,
+ * Porträts und die NPC-Figuren des Hauses. Trägt als einziger Kern den Satz
+ * „Setting: … restrained brutalist geometry …" — daher der Marker „brutalist",
+ * auf den die Pipeline-Tests prüfen. Feine Pixel statt grob; kühl-cleaner
+ * Neutral-Kern + dosierte Akzente; Zonen-Licht kommt je Shot aus dem Prompt.
+ */
 export function styleCore() {
   return (
     'Fine, detailed 16-bit pixel art with crisp clean pixels (modern high-resolution ' +
@@ -72,5 +75,21 @@ export function styleCore() {
     'no pastel tones. Fictional eastern-bloc-inspired state: no real-world national symbols, ' +
     'no hammer and sickle, no real flags, no state emblems or insignia of any actual country, ' +
     'no readable text.'
+  );
+}
+
+/**
+ * Akten-Stil (UI-Material-Kit „Behörden-Akte", Stil-Bibel §4.7): Die Bedienung
+ * ist aus Papier gemacht — Mappen, Karteikarten, Stempel. Bewusst OHNE den
+ * Ministeriums-Satz und ohne die kühle Grau-Palette: UI-Chrome ist Papier, kein
+ * Raum. Text bleibt Engine-Ebene (E35), im Bild nur Platzhalter-Striche.
+ */
+export function stylePaper() {
+  return (
+    'Muted bureaucratic file-folder palette: warm manila beige and cream paper surfaces, ' +
+    'kraft-paper brown backing, dark anthracite ink accents, a single ministry-red accent ' +
+    'ONLY where explicitly asked. Crisp clean high-resolution pixel art, flat frontal view, ' +
+    'no gradients, no drop shadows, no real-world logos, no emblems, almost no text ' +
+    '(placeholder dashes only where asked).'
   );
 }
