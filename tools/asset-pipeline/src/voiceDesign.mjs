@@ -54,21 +54,29 @@ export function previewFileName(role, designKey, index) {
   return `${role}_${designKey}_${String(index + 1).padStart(2, '0')}.mp3`;
 }
 
-/** Merkzettel eines Kandidaten-Laufs (generated_voice_ids überleben den Prozess). */
-export function runFileName(role) {
-  return path.join(DESIGN_RUN_DIR, `${role}.json`);
+/**
+ * Merkzettel eines Kandidaten-Laufs (generated_voice_ids überleben den Prozess).
+ * Je Rolle UND Design eine Datei — wer nacheinander mehrere Varianten hört,
+ * darf die ids der früheren nicht verlieren, sonst legt `--pick` die falsche
+ * Stimme an (die MP3s bleiben liegen, die ids wären weg).
+ */
+export function runFileName(role, designKey) {
+  return path.join(DESIGN_RUN_DIR, `${role}_${designKey}.json`);
 }
 
 export function writeDesignRun(run) {
   fs.mkdirSync(DESIGN_RUN_DIR, { recursive: true });
-  fs.writeFileSync(runFileName(run.role), `${JSON.stringify(run, null, 2)}\n`, 'utf8');
-  return runFileName(run.role);
+  const file = runFileName(run.role, run.designKey);
+  fs.writeFileSync(file, `${JSON.stringify(run, null, 2)}\n`, 'utf8');
+  return file;
 }
 
-export function readDesignRun(role) {
-  const file = runFileName(role);
+export function readDesignRun(role, designKey) {
+  const file = runFileName(role, designKey);
   if (!fs.existsSync(file)) {
-    throw new Error(`Kein Kandidaten-Lauf für „${role}". Erst: design-voice --role ${role} --live`);
+    throw new Error(
+      `Kein Kandidaten-Lauf für „${role}" / „${designKey}". Erst: design-voice --role ${role} --design ${designKey} --live`
+    );
   }
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }

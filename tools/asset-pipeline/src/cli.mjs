@@ -388,7 +388,7 @@ async function cmdDesignVoice(args) {
 
   // Phase 2: Gewinner eines früheren Laufs anlegen (braucht kein neues Design).
   if (args.values.pick) {
-    const run = readDesignRun(role);
+    const run = readDesignRun(role, design.designKey);
     const candidate = pickCandidate(run, args.values.pick);
     console.log(`Kandidat ${args.values.pick} aus ${run.designKey}: ${candidate.file}`);
     if (!args.flags.has('live')) {

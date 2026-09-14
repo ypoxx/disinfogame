@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { readVoiceDesign, resolveDesign, previewFileName, pickCandidate, saveCasting } from '../src/voiceDesign.mjs';
+import { readVoiceDesign, resolveDesign, previewFileName, pickCandidate, saveCasting, runFileName, readDesignRun } from '../src/voiceDesign.mjs';
 import { NARRATOR_VOICE_LINES, narratorShotIds } from '../src/shotlist.mjs';
 import { REPO_ROOT } from '../src/paths.mjs';
 
@@ -62,6 +62,20 @@ test('narratorShotIds folgt der Asset-Konvention', () => {
     'voice_narrator_floor',
     'voice_narrator_door',
   ]);
+});
+
+test('Merkzettel liegt je Rolle UND Design — Varianten überschreiben sich nicht', () => {
+  // Regression: ein Lauf pro Rolle überschrieb die generated_voice_ids der
+  // vorigen Variante; --pick hätte dann die falsche Stimme angelegt.
+  assert.notEqual(runFileName('narrator', 'aktenleser'), runFileName('narrator', 'dienstfunk'));
+  assert.match(runFileName('narrator', 'aktenleser'), /narrator_aktenleser\.json$/);
+});
+
+test('readDesignRun nennt Rolle UND Design, wenn nichts vorliegt', () => {
+  assert.throws(
+    () => readDesignRun('narrator', 'gibtsnicht'),
+    /Kein Kandidaten-Lauf für „narrator" \/ „gibtsnicht"/
+  );
 });
 
 test('previewFileName ist sprechend und sortierbar', () => {
