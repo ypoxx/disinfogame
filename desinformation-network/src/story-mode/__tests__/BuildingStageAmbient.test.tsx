@@ -8,6 +8,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, waitFor, cleanup, fireEvent, screen } from '@testing-library/react';
 import { BuildingStage } from '../building/BuildingStage';
 import { roomById, STAGE } from '../building/buildingLayout';
+import { sampleAmbient } from '../building/ambientLife';
 import { __resetAssetRegistryForTests } from '../assets/AssetRegistry';
 import type { NavigatorState } from '../building/useNavigator';
 import type { AssetsManifest } from '../assets/types';
@@ -22,12 +23,7 @@ vi.mock('../building/ambientLife', async (importOriginal) => {
     AMBIENT_AGENTS: [],
     createAmbientLife: vi.fn(() => ({ agents: [], layout: null as never })),
     tickAmbientLife: vi.fn(),
-    sampleAmbient: vi.fn(() => ({
-      figures: [
-        { id: 'reinigung', floorLevel: 3, x: 500, facing: -1 as const, anim: 'walk' as const, sheet: 'figure_cleaner_walk', speedPxS: 44 },
-      ],
-      openDoorRoomIds: ['analyse'],
-    })),
+    sampleAmbient: vi.fn(),
     nudgeAmbient: vi.fn(() => true),
   };
 });
@@ -61,12 +57,26 @@ const MANIFEST: AssetsManifest = {
       frameWidth: 48, frameHeight: 96,
       animations: { walk: { row: 0, frames: 8, frameTime: 100, loop: true } },
     },
+    {
+      id: 'player_profiles_idle', type: 'sheet', file: 'sheets/player_profiles_idle.png', chosen: true,
+      frameWidth: 96, frameHeight: 96,
+      animations: Object.fromEntries(
+        ['m1', 'm2', 'm3', 'f1', 'f2', 'f3'].map((id, row) => [`idle_${id}`, { row, frames: 4, frameTime: 500, loop: true }]),
+      ),
+    },
   ],
 };
 
 describe('BuildingStage — Ambient-Render-Schicht (LB)', () => {
   beforeEach(() => {
     __resetAssetRegistryForTests(MANIFEST);
+    vi.mocked(sampleAmbient).mockReturnValue({
+      figures: [
+        { id: 'reinigung', floorLevel: 3, x: 500, facing: -1 as const, anim: 'walk' as const, sheet: 'figure_cleaner_walk', speedPxS: 44 },
+      ],
+      openDoorRoomIds: ['analyse'],
+      elevator: null,
+    });
     // jsdom kennt weder ResizeObserver (Bühnen-Maße) noch matchMedia (dpr/
     // reduced-motion) — Minimal-Stubs, beide Pfade sind nicht Testgegenstand.
     vi.stubGlobal(
@@ -143,10 +153,58 @@ describe('BuildingStage — Ambient-Render-Schicht (LB)', () => {
     const transfer = container.querySelector('[data-cabin-transfer="entering"]') as HTMLElement;
     expect(transfer).toBeTruthy();
     expect(transfer.style.animation).toContain('bs-elevator-enter');
+    const cabinSprite = transfer.querySelector('[aria-label="Sie"]') as HTMLElement;
+    expect(cabinSprite.style.transform).toBe('scale(1.25)');
     expect(screen.getByTestId('building-camera').style.transition).toBe('none');
     const keyframes = container.querySelector('style')?.textContent ?? '';
     expect(keyframes).not.toContain('scale(1.07)');
     expect(keyframes).not.toContain('filter:brightness');
+  });
+
+  it('gibt dem Spieler Vorrang vor einer laufenden Ambient-Fahrstuhlfahrt', async () => {
+    vi.mocked(sampleAmbient).mockReturnValue({
+      figures: [],
+      openDoorRoomIds: [],
+      elevator: {
+        agentId: 'reinigung',
+        phase: 'ride',
+        cabinLevel: 2.5,
+        fromLevel: 3,
+        toLevel: 2,
+        doorsOpen: false,
+        idleSheet: 'figure_clerk',
+      },
+    });
+
+    const { container, rerender } = render(<BuildingStage npcs={[]} nav={NAV_IDLE} />);
+    const ambientCabin = await waitFor(() => {
+      const el = container.querySelector('[data-bs-ambient-elevator]') as HTMLElement | null;
+      expect(el).toBeTruthy();
+      return el!;
+    });
+    expect(ambientCabin.dataset.elevatorPhase).toBe('ride');
+    expect((container.querySelector('[data-player-elevator-cabin]') as HTMLElement).style.visibility).toBe('hidden');
+
+    const playerWalking: NavigatorState = { ...NAV_IDLE, mode: 'walk', targetRoomId: 'newsroom' };
+    rerender(<BuildingStage npcs={[]} nav={playerWalking} />);
+
+    await waitFor(() => {
+      expect(container.querySelector('[data-bs-ambient-elevator]')).toBeNull();
+      expect((container.querySelector('[data-player-elevator-cabin]') as HTMLElement).style.visibility).toBe('visible');
+    });
+  });
+
+  it('rendert den Spieler leicht höher, aber ohne horizontale Sprite-Verzerrung', async () => {
+    const { container } = render(<BuildingStage npcs={[]} nav={NAV_IDLE} />);
+    const player = await waitFor(() => screen.getByTestId('building-avatar'));
+    const sprite = player.querySelector('[aria-label="Sie"]') as HTMLElement;
+
+    expect(player.style.width).toBe('120px');
+    expect(player.style.height).toBe('120px');
+    expect(sprite.style.transform).toBe('scale(1.25)');
+    expect(sprite.style.transform).not.toContain('scaleX');
+    const staffButton = container.querySelector('[data-bs-staff]:not([data-bs-staff="pfoertner"]) button') as HTMLElement;
+    expect(staffButton.style.height).toBe('112px');
   });
 
   it('verschiebt Tür, Schild/Lampe und Klickfläche gemeinsam in die Wandebene', async () => {

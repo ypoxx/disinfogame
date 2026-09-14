@@ -58,7 +58,9 @@ export const STAGE = {
   groundHeight: 96,
   doorWidth: 96,
   doorHeight: 144,
-  avatarSize: 112, // 96px-Profilframes ×7/6; gleiche Körperhöhe wie das übrige Personal
+  // Spieler leicht größer als die 112-px-Mitarbeiter. Die neuen 96-px-Profile
+  // tragen bereits dieselben erwachsenen Proportionen; keine CSS-Stauchung nötig.
+  avatarSize: 120,
   /** Höhe des Boden-Streifens unten im Flur: Deko/Avatar stehen auf der
    *  LAUF-Linie. Panoramen mit tieferer Perspektive dürfen Türen per
    *  `doorFootOffsetY` dahinter in die Wandebene setzen. */

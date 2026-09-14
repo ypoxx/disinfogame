@@ -3106,13 +3106,32 @@
       }
     },
     {
+      "id": "figure_pfoertner_walk",
+      "type": "sheet",
+      "file": "sheets/figure_pfoertner_walk.png",
+      "chosen": true,
+      "provider": "openai-gpt-image-2",
+      "prompt": "Eight-frame right-facing walk cycle of the existing older reception porter, arranged as a production sprite sheet with consistent identity, charcoal uniform, red tie, scale, baseline and distinct leg contacts; generated from the approved idle-sheet identity reference on flat magenta and normalized to 48 × 96 px frames.",
+      "styleVersion": "v2-moving-porter",
+      "frameWidth": 48,
+      "frameHeight": 96,
+      "animations": {
+        "walk": {
+          "row": 0,
+          "frames": 8,
+          "frameTime": 150,
+          "loop": true
+        }
+      }
+    },
+    {
       "id": "player_profiles_idle",
       "type": "sheet",
       "file": "sheets/player_profiles_idle.png",
       "chosen": true,
       "provider": "openai-gpt-image-2",
-      "prompt": "Six-row character-consistent pixel-art idle atlas on solid magenta: m1 young brown-haired man, m2 middle-aged dark-haired man, m3 older silver-haired man, f1 young brown-haired woman, f2 middle-aged black-bob woman, f3 older silver-haired woman. Four front-view idle/blink frames per row, identical tailored charcoal ministry suit and 96px production frame geometry.",
-      "styleVersion": "v3-six-profile-final",
+      "prompt": "Six-profile adult-proportioned front-view pixel-art atlas generated from the existing m1/m2/m3/f1/f2/f3 identities and the in-world clerk scale: heads approximately one fifth of body height, slimmer torsos, longer legs, matched foot baselines, charcoal ministry suits and four idle/blink frames per 96px row.",
+      "styleVersion": "v4-adult-proportions",
       "frameWidth": 96,
       "frameHeight": 96,
       "animations": {
@@ -3130,8 +3149,8 @@
       "file": "sheets/player_profiles_walk.png",
       "chosen": true,
       "provider": "openai-gpt-image-2",
-      "prompt": "Six-row character-consistent pixel-art walk atlas on solid magenta matching the six normalized selection portraits. Eight strict right-facing walk-cycle frames per row with distinct leg contacts, charcoal ministry suits, briefcases, consistent feet and 96px production frame geometry.",
-      "styleVersion": "v3-six-profile-final",
+      "prompt": "Six identity-preserving adult-proportioned right-facing pixel-art walk cycles generated from the normalized m1/m2/m3/f1/f2/f3 references: heads approximately one fifth of body height, slim torsos, long legs, charcoal ministry suits, briefcases, eight gait frames and consistent 96px foot baselines.",
+      "styleVersion": "v4-adult-proportions",
       "frameWidth": 96,
       "frameHeight": 96,
       "animations": {

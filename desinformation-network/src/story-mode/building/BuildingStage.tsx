@@ -26,7 +26,18 @@ import {
 } from '../stores/playerProfileStore';
 import { skyGradientForMinutes, skylineLayersForMinutes } from './skyTime';
 import { FLOOR_DECOR, DECOR_HEIGHT, FLOOR_AMBIENT, AMBIENT_HEIGHT, POSTER_SLOGANS, shredderLine, coffeeLine, volksbrauseLine, employeeOfMonth, plantAsset, plantLine, type AmbientFigure } from './corridorDecor';
-import { createAmbientLife, tickAmbientLife, sampleAmbient, nudgeAmbient, ambientWalkFrameTimeMs, AMBIENT_AGENTS, type AmbientFigureSnapshot } from './ambientLife';
+import {
+  createAmbientLife,
+  tickAmbientLife,
+  sampleAmbient,
+  nudgeAmbient,
+  ambientWalkFrameTimeMs,
+  mulberry32,
+  AMBIENT_AGENTS,
+  MAX_ACTIVE_AMBIENT,
+  type AmbientElevatorSnapshot,
+  type AmbientFigureSnapshot,
+} from './ambientLife';
 import type { NavigatorState } from './useNavigator';
 import { StoryModeColors, scrim, StoryModeWorld } from '../theme';
 import { useAssets } from '../assets/useAssets';
@@ -254,15 +265,88 @@ function RoomDoor({ room, open }: { room: RoomLayout; open: boolean }) {
   );
 }
 
-/** Strang 5: anklickbarer Flur-Statist mit Flavor-Sprechblase (Mini-Dialog, D13). */
-function AmbientPerson({ a, left, top, height, viewScale, offen, aufSprechen }: {
+interface PatrolMotion {
+  offset: number;
+  facing: 1 | -1;
+  moving: boolean;
+}
+
+/** Kleine lokale Patrouille mit langen Ruhefenstern. Eigener Hook pro Figur:
+ * häufige Positionsupdates rendern nur den kleinen Actor, nie die ganze Bühne. */
+function usePatrolMotion({ seed, span, paused, reduced, speed = 34 }: {
+  seed: number; span: number; paused: boolean; reduced: boolean; speed?: number;
+}): PatrolMotion {
+  const [motion, setMotion] = useState<PatrolMotion>({ offset: 0, facing: 1, moving: false });
+  const motionRef = useRef(motion);
+  useEffect(() => { motionRef.current = motion; }, [motion]);
+
+  useEffect(() => {
+    let cancelled = false;
+    let timer = 0;
+    let raf = 0;
+    const rng = mulberry32(seed);
+    const effectiveSpan = reduced ? Math.max(12, span * 0.45) : span;
+    const effectiveSpeed = reduced ? Math.max(16, speed * 0.58) : speed;
+
+    const update = (next: PatrolMotion) => {
+      motionRef.current = next;
+      setMotion((prev) => (
+        prev.offset === next.offset && prev.facing === next.facing && prev.moving === next.moving ? prev : next
+      ));
+    };
+    const schedule = (first = false) => {
+      if (cancelled) return;
+      const lo = first ? 700 + (seed % 5) * 420 : reduced ? 5200 : 2600;
+      const hi = first ? lo + 800 : reduced ? 9000 : 6100;
+      timer = window.setTimeout(startWalk, lo + rng() * (hi - lo));
+    };
+    const startWalk = () => {
+      if (cancelled) return;
+      const from = motionRef.current.offset;
+      let to = Math.round((rng() * 2 - 1) * effectiveSpan);
+      if (Math.abs(to - from) < 14) to = from > 0 ? -Math.round(effectiveSpan) : Math.round(effectiveSpan);
+      const facing: 1 | -1 = to >= from ? 1 : -1;
+      const duration = Math.max(700, (Math.abs(to - from) / effectiveSpeed) * 1000);
+      const t0 = performance.now();
+      update({ offset: from, facing, moving: true });
+      const frame = (now: number) => {
+        if (cancelled) return;
+        const t = Math.min(1, (now - t0) / duration);
+        // Ganze Stage-px halten die Pixelkante stabil und begrenzen Re-Renders.
+        const offset = Math.round(from + (to - from) * t);
+        update({ offset, facing, moving: t < 1 });
+        if (t < 1) raf = window.requestAnimationFrame(frame);
+        else schedule();
+      };
+      raf = window.requestAnimationFrame(frame);
+    };
+
+    if (paused) update({ ...motionRef.current, moving: false });
+    else schedule(true);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+      window.cancelAnimationFrame(raf);
+    };
+  }, [paused, reduced, seed, span, speed]);
+
+  return motion;
+}
+
+/** Strang 5: anklickbarer, patrouillierender Mitarbeiter mit Flavor-Sprechblase. */
+function AmbientPerson({ a, id, left, top, height, viewScale, reduced, offen, aufSprechen }: {
   a: AmbientFigure; left: number; top: number; height: number; viewScale: number;
+  id: string; reduced: boolean;
   /** Nur EINE Figur spricht — sonst pflastern die Blasen die Etagen zu. */
   offen: boolean; aufSprechen: () => void;
 }) {
   const open = offen;
   const setOpen = aufSprechen;
   const [beruehrt, setBeruehrt] = useState(false);
+  const seed = [...id].reduce((sum, char) => Math.imul(sum ^ char.charCodeAt(0), 16777619), 2166136261) >>> 0;
+  const patrol = usePatrolMotion({ seed, span: a.patrolSpan, paused: open, reduced });
+  const actorLeft = left + patrol.offset;
+  const walkSheet = a.figure === 'figure_cleaner' ? 'figure_cleaner_walk' : 'figure_clerk_walk';
   // Über der obersten Etage ist kein Platz: Die Blase des TECHNIKERS stand bei
   // y = −18, sein Name lag außerhalb des Fensters. Statt einer Stage-Schwelle
   // (die bei Zoom und Scroll wieder falsch wäre) misst die Blase sich selbst
@@ -277,14 +361,18 @@ function AmbientPerson({ a, left, top, height, viewScale, offen, aufSprechen }: 
   }, [open]);
   return (
     <>
-    <Bodenschatten x={left} y={top + height} breite={(height / 96) * 44} staerke={0.45} />
+    <Bodenschatten x={actorLeft} y={top + height} breite={(height / 96) * 44} staerke={0.45} />
     {/* Solange die Blase offen ist, hebt sich die GANZE Figur auf Blasen-Ebene.
         Ein zIndex am Anker allein reicht nicht: Der Wrapper ist positioniert und
         eröffnet damit einen eigenen Stapelkontext — die Blase konkurriert innen
         auf 7, nach außen zählt nur die 5 des Wrappers. Die Türschilder liegen
         ebenfalls auf 5 und stehen später im DOM, malten also über den
         Blasentext (gesehen in der Ernte 2026-08-23). */}
-    <div style={{ position: 'absolute', left, top, transform: 'translateX(-50%)', zIndex: open ? EBENE.blase : EBENE.figuren }}>
+    <div
+      data-bs-staff={id}
+      data-motion={patrol.moving ? 'walk' : 'idle'}
+      style={{ position: 'absolute', left: actorLeft, top, transform: 'translateX(-50%)', zIndex: open ? EBENE.blase : EBENE.figuren }}
+    >
       {open && (
         // Sprechblase welt-verankert über der Figurenmitte, aber nativ gerastert (B1/E35).
         <WorldAnchor x={(height / 96) * 48 / 2} y={0} scale={viewScale} z={EBENE.blase}>
@@ -332,9 +420,21 @@ function AmbientPerson({ a, left, top, height, viewScale, offen, aufSprechen }: 
         title={`${a.who} ansprechen`}
         // flex-end: Sprite-Unterkante = Container-Unterkante = Wand-Fuß-Linie
         // (sonst steht die Figur um die Skalierungs-Differenz zu hoch — Review B6).
-        style={{ width: (height / 96) * 48, height, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+        style={{
+          width: (height / 96) * 48, height, background: 'transparent', border: 'none',
+          cursor: patrol.moving ? 'default' : 'pointer', pointerEvents: patrol.moving ? 'none' : 'auto',
+          padding: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+        }}
       >
-        <PixelSprite sheetId={a.figure} animation="idle" fallback="" scale={height / 96} title={a.who} />
+        <PixelSprite
+          sheetId={patrol.moving ? walkSheet : a.figure}
+          animation={patrol.moving ? 'walk' : 'idle'}
+          fallback=""
+          flip={patrol.facing === -1}
+          scale={height / 96}
+          frameTimeMs={patrol.moving ? ambientWalkFrameTimeMs(reduced ? 20 : 34, height) : undefined}
+          title={a.who}
+        />
       </button>
     </div>
     </>
@@ -366,28 +466,32 @@ const figuresEqual = (a: AmbientFigureSnapshot[], b: AmbientFigureSnapshot[]) =>
   a.length === b.length &&
   a.every((f, i) => f.id === b[i].id && f.x === b[i].x && f.floorLevel === b[i].floorLevel && f.anim === b[i].anim && f.facing === b[i].facing && f.sheet === b[i].sheet && f.thresholdProgress === b[i].thresholdProgress);
 
+const elevatorsEqual = (a: AmbientElevatorSnapshot | null, b: AmbientElevatorSnapshot | null) =>
+  a === b || (!!a && !!b && a.agentId === b.agentId && a.phase === b.phase && a.cabinLevel === b.cabinLevel && a.doorsOpen === b.doorsOpen);
+
 /**
  * LB „Lebendiges Gebäude" (Plan §3b c): Abspielkopf der ambientLife-Routen.
  * Eigene Komponente, damit der 60-Hz-Takt NUR diesen kleinen Teilbaum rendert;
  * die Bühne selbst erfährt nur die (seltenen) Tür-Fenster über onDoorsChange.
  * Figuren erscheinen/verschwinden ausschließlich durch Türen — kein Fade.
  */
-function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]) => void }) {
+function AmbientLifeLayer({ onDoorsChange, onElevatorActiveChange, reduced, playerBusy }: {
+  onDoorsChange: (roomIds: string[]) => void;
+  onElevatorActiveChange: (active: boolean) => void;
+  reduced: boolean;
+  playerBusy: boolean;
+}) {
   const assets = useAssets();
   const [figures, setFigures] = useState<AmbientFigureSnapshot[]>([]);
+  const [elevator, setElevator] = useState<AmbientElevatorSnapshot | null>(null);
   const doorsKeyRef = useRef('');
-  const reduced = usePrefersReducedMotion();
+  const elevatorActiveRef = useRef(false);
+  const reducedRef = useRef(reduced);
+  const playerBusyRef = useRef(playerBusy);
+  useEffect(() => { reducedRef.current = reduced; }, [reduced]);
+  useEffect(() => { playerBusyRef.current = playerBusy; }, [playerBusy]);
 
   useEffect(() => {
-    if (reduced) {
-      // Ruhe-Modus: keine laufenden Statisten (stehende bleiben — statisch, klickbar).
-      setFigures([]);
-      if (doorsKeyRef.current !== '') {
-        doorsKeyRef.current = '';
-        onDoorsChange([]);
-      }
-      return;
-    }
     // Saat je Mount ableiten: Büro↔Gebäude remountet die Bühne — mit fester
     // Saat wiederholte sich exakt dieselbe Choreographie bei jeder Rückkehr
     // (Review [hoch]). Identische Interaktions-Folge (Ernte) bleibt deterministisch.
@@ -402,13 +506,22 @@ function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]
     let cancelled = false;
     const loop = (rafNow: number) => {
       const now = rafNow - epoch;
-      tickAmbientLife(state, now);
+      tickAmbientLife(state, now, {
+        allowStarts: !playerBusyRef.current,
+        maxActive: reducedRef.current ? 1 : MAX_ACTIVE_AMBIENT,
+      });
       const snap = sampleAmbient(state, now);
       setFigures((prev) => (figuresEqual(prev, snap.figures) ? prev : snap.figures));
+      setElevator((prev) => (elevatorsEqual(prev, snap.elevator) ? prev : snap.elevator));
       const key = snap.openDoorRoomIds.join('|');
       if (key !== doorsKeyRef.current) {
         doorsKeyRef.current = key;
         onDoorsChange(snap.openDoorRoomIds);
+      }
+      const elevatorActive = !!snap.elevator && !playerBusyRef.current;
+      if (elevatorActive !== elevatorActiveRef.current) {
+        elevatorActiveRef.current = elevatorActive;
+        onElevatorActiveChange(elevatorActive);
       }
       raf = window.requestAnimationFrame(loop);
     };
@@ -438,8 +551,17 @@ function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]
     return () => {
       cancelled = true;
       window.cancelAnimationFrame(raf);
+      onElevatorActiveChange(false);
     };
-  }, [reduced, onDoorsChange, assets]);
+  }, [onDoorsChange, onElevatorActiveChange, assets]);
+
+  const ambientCabinClosed = assets.imageUrl('elevator_cabin_closed');
+  const ambientCabinOpen = assets.imageUrl('elevator_cabin_open');
+  const topFloor = layout.floors[0];
+  const ambientCabinW = 170;
+  const ambientCabinTop = elevator && topFloor
+    ? topFloor.y + (topFloor.level - elevator.cabinLevel) * (STAGE.floorHeight + STAGE.slabHeight)
+    : 0;
 
   return (
     <>
@@ -488,6 +610,33 @@ function AmbientLifeLayer({ onDoorsChange }: { onDoorsChange: (roomIds: string[]
           </Fragment>
         );
       })}
+      {elevator && !playerBusy && ambientCabinClosed && ambientCabinOpen && (
+        <div
+          data-bs-ambient-elevator
+          data-elevator-agent={elevator.agentId}
+          data-elevator-phase={elevator.phase}
+          style={{
+            position: 'absolute',
+            left: layout.shaft.x + (layout.shaft.w - ambientCabinW) / 2,
+            top: ambientCabinTop,
+            width: ambientCabinW,
+            height: STAGE.floorHeight,
+            zIndex: EBENE.figuren,
+            pointerEvents: 'none',
+          }}
+        >
+          <img
+            src={elevator.doorsOpen ? ambientCabinOpen : ambientCabinClosed}
+            alt=""
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill', imageRendering: 'pixelated' }}
+          />
+          {elevator.phase === 'ride' && (
+            <span style={{ position: 'absolute', left: '50%', bottom: 22, transform: 'translateX(-50%)', zIndex: 2 }}>
+              <PixelSprite sheetId={elevator.idleSheet} animation="idle" fallback="" scale={AMBIENT_HEIGHT / 96} title="" />
+            </span>
+          )}
+        </div>
+      )}
     </>
   );
 }
@@ -505,6 +654,15 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
   const [pfoertnerOpen, setPfoertnerOpen] = useState(false); // Strang 5: Pförtner-Sprechblase
   // LB: Türen, die gerade von Ambient-Statisten benutzt werden (RoomDoor-Blende).
   const [ambientDoors, setAmbientDoors] = useState<string[]>([]);
+  const [ambientElevatorActive, setAmbientElevatorActive] = useState(false);
+  const reducedMotion = usePrefersReducedMotion();
+  const pfoertnerPatrol = usePatrolMotion({
+    seed: 0x50f0e7,
+    span: 46,
+    paused: pfoertnerOpen,
+    reduced: reducedMotion,
+    speed: 24,
+  });
   // P7/§14.4: angeklicktes Detail-Objekt (Plakat/Reißwolf/Kaffeeküche/Automat/…): Vergrößerung + Spruch.
   const [poster, setPoster] = useState<{ url: string; titel_de: string; slogan_de: string } | null>(null);
   // P7/§14.4 (#8): bei jedem Klick auf die „Mitarbeiter des Monats"-Wand wechselt der Deckname.
@@ -876,7 +1034,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                   />
                 );
               })}
-              {/* Strang 5: stehende Flavor-Statisten (Reinigung/Kollege) — Lebendigkeit. */}
+              {/* Strang 5: ansprechbare Mitarbeiter mit sicheren lokalen Patrouillen. */}
               {!isLobby && (FLOOR_AMBIENT[floor.id] ?? []).map((a, i) => {
                 if (!assets.imageUrl(a.figure)) return null;
                 const cx = STAGE.pillarWidth + a.xFrac * (layout.shaft.x - STAGE.pillarWidth);
@@ -885,11 +1043,13 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 return (
                   <AmbientPerson
                     key={id}
+                    id={id}
                     a={a}
                     left={cx}
                     top={top}
                     height={AMBIENT_HEIGHT}
                     viewScale={view.scale}
+                    reduced={reducedMotion}
                     offen={sprechenderStatist === id}
                     aufSprechen={() => setSprechenderStatist((v) => (v === id ? null : id))}
                   />
@@ -1031,15 +1191,19 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           );
         })}
 
-        {/* Strang 5: Pförtner in der Lobby — „Stimme des eigenen Landes", klickbar. */}
+        {/* Strang 5: patrouillierender Pförtner — „Stimme des eigenen Landes", klickbar. */}
         {(() => {
           const lobby = layout.floors.find((f) => f.level === layout.entryFloorLevel);
           if (!lobby || !assets.imageUrl('figure_pfoertner')) return null;
           const pH = 116; // Pförtner etwas kleiner als der Avatar (älterer Mann)
-          const px = STAGE.pillarWidth + 0.13 * (layout.shaft.x - STAGE.pillarWidth);
+          const px = STAGE.pillarWidth + 0.13 * (layout.shaft.x - STAGE.pillarWidth) + pfoertnerPatrol.offset;
           const pBottom = floorWalkFootY(lobby);
           return (
-            <div style={{ position: 'absolute', left: px, top: pBottom - pH, transform: 'translateX(-50%)', zIndex: pfoertnerOpen ? EBENE.blase : EBENE.figuren }}>
+            <div
+              data-bs-staff="pfoertner"
+              data-motion={pfoertnerPatrol.moving ? 'walk' : 'idle'}
+              style={{ position: 'absolute', left: px, top: pBottom - pH, transform: 'translateX(-50%)', zIndex: pfoertnerOpen ? EBENE.blase : EBENE.figuren }}
+            >
               {pfoertnerOpen && pfoertnerLine && (
                 // Sprechblase welt-verankert über der Figurenmitte, nativ gerastert (B1/E35).
                 <WorldAnchor x={(48 * 1.2) / 2} y={0} scale={view.scale} z={EBENE.blase}>
@@ -1064,7 +1228,15 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
                 title="Pförtner ansprechen"
                 style={{ width: 48 * 1.2, height: pH, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
               >
-                <PixelSprite sheetId="figure_pfoertner" animation="idle" fallback="" scale={1.2} title="Pförtner" />
+                <PixelSprite
+                  sheetId={pfoertnerPatrol.moving ? 'figure_pfoertner_walk' : 'figure_pfoertner'}
+                  animation={pfoertnerPatrol.moving ? 'walk' : 'idle'}
+                  fallback=""
+                  flip={pfoertnerPatrol.facing === -1}
+                  scale={1.2}
+                  frameTimeMs={pfoertnerPatrol.moving ? ambientWalkFrameTimeMs(reducedMotion ? 16 : 24, pH) : undefined}
+                  title="Pförtner"
+                />
               </button>
             </div>
           );
@@ -1072,6 +1244,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
 
         {/* Fahrstuhl-Schacht + Kabine */}
         <div
+          data-player-elevator-shaft
           style={{
             position: 'absolute',
             left: layout.shaft.x,
@@ -1094,6 +1267,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
           }}
         />
         <div
+          data-player-elevator-cabin
           style={{
             position: 'absolute',
             left: layout.shaft.x + (layout.shaft.w - cabinW) / 2,
@@ -1101,6 +1275,7 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
             width: cabinW,
             height: cabinH,
             zIndex: 3,
+            visibility: ambientElevatorActive && nav.mode !== 'ride' ? 'hidden' : 'visible',
           }}
         >
           {cabinClosedUrl && cabinOpenUrl ? (
@@ -1219,12 +1394,17 @@ export function BuildingStage({ npcs, nav, onRoomClick, onOpenDirectory, interac
         )}
 
         {/* LB: Routen-Statisten (erscheinen/verschwinden durch Türen, ambientLife) */}
-        <AmbientLifeLayer onDoorsChange={setAmbientDoors} />
+        <AmbientLifeLayer
+          onDoorsChange={setAmbientDoors}
+          onElevatorActiveChange={setAmbientElevatorActive}
+          reduced={reducedMotion}
+          playerBusy={nav.mode !== 'idle'}
+        />
 
         {/* Avatar (läuft/steht) + Bodenschatten + Spieler-Marker.
 
             P5: Die einzige eingebaute Unterscheidung zwischen Avatar und Statisten
-            war ein Höhen-Delta (128 gegen 112/116 px) — das drückt der Bühnen-Scale ½
+            war ein Höhen-Delta (120 gegen 112/116 px) — das drückt der Bühnen-Scale ½
             auf 6–8 Bildschirm-Pixel zusammen, bei identischer Blaugrau-Palette.
             Der Stil-Guide VERBIETET der Spielfigur auffällige Merkmale
             (game-style-guide.md:55-58), die Unterscheidung muss also aus dem

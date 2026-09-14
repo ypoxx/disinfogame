@@ -43,13 +43,15 @@ describe('Standorte der Flur-Statisten', () => {
     }
   });
 
-  it('stellt niemanden in eine Tür-Klickzone', () => {
+  it('hält die vollständige Patrouille aus allen Tür-Klickzonen heraus', () => {
     const konflikte: string[] = [];
     for (const [floorId, figuren] of Object.entries(FLOOR_AMBIENT)) {
       for (const f of figuren) {
         for (const z of tuerzonen(floorId)) {
-          if (f.xFrac > z.von && f.xFrac < z.bis) {
-            konflikte.push(`${floorId}: ${f.who} auf ${f.xFrac} liegt in der Tür „${z.raum}" (${z.von.toFixed(2)}–${z.bis.toFixed(2)})`);
+          const von = f.xFrac - f.patrolSpan / spielflaeche;
+          const bis = f.xFrac + f.patrolSpan / spielflaeche;
+          if (bis > z.von && von < z.bis) {
+            konflikte.push(`${floorId}: ${f.who}-Patrouille ${von.toFixed(2)}–${bis.toFixed(2)} berührt Tür „${z.raum}" (${z.von.toFixed(2)}–${z.bis.toFixed(2)})`);
           }
         }
       }
@@ -61,6 +63,12 @@ describe('Standorte der Flur-Statisten', () => {
     const saetze = Object.values(FLOOR_AMBIENT).flat();
     expect(new Set(saetze.map((f) => f.line)).size, 'zwei Statisten sagen dasselbe').toBe(saetze.length);
     expect(new Set(saetze.map((f) => f.who)).size, 'zwei Statisten haben dieselbe Rolle').toBe(saetze.length);
+  });
+
+  it('gibt jedem ansprechbaren Mitarbeiter einen echten Bewegungsradius', () => {
+    for (const figur of Object.values(FLOOR_AMBIENT).flat()) {
+      expect(figur.patrolSpan, figur.who).toBeGreaterThanOrEqual(24);
+    }
   });
 
   it('hält die Reinigung als EINE Person im Haus', () => {

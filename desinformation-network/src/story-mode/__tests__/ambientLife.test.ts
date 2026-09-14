@@ -13,6 +13,8 @@ import {
   ambientWalkFrameTimeMs,
   AMBIENT_AGENTS,
   AMBIENT_TIMING,
+  MAX_ACTIVE_AMBIENT,
+  type AmbientElevatorSnapshot,
   type AmbientFigureSnapshot,
 } from '../building/ambientLife';
 import { getBuildingLayout, STAGE } from '../building/buildingLayout';
@@ -24,6 +26,7 @@ interface Sample {
   t: number;
   figures: Map<string, AmbientFigureSnapshot>;
   openDoors: Set<string>;
+  elevator: AmbientElevatorSnapshot | null;
 }
 
 function simulate(seed: number, untilMs: number, stepMs = STEP_MS): Sample[] {
@@ -36,19 +39,18 @@ function simulate(seed: number, untilMs: number, stepMs = STEP_MS): Sample[] {
       t,
       figures: new Map(snap.figures.map((f) => [f.id, f])),
       openDoors: new Set(snap.openDoorRoomIds),
+      elevator: snap.elevator,
     });
   }
   return samples;
 }
-
-const doorXsForLevel = (level: number) => layout.rooms.filter((r) => r.floorLevel === level).map((r) => r.doorX);
 
 describe('ambientLife (LB)', () => {
   it('ist deterministisch: gleiche Saat ⇒ identischer Ablauf', () => {
     const a = simulate(1234, 90_000);
     const b = simulate(1234, 90_000);
     const ser = (s: Sample[]) =>
-      JSON.stringify(s.map((x) => [[...x.figures.values()], [...x.openDoors].sort()]));
+      JSON.stringify(s.map((x) => [[...x.figures.values()], [...x.openDoors].sort(), x.elevator]));
     expect(ser(a)).toBe(ser(b));
   });
 
@@ -91,6 +93,8 @@ describe('ambientLife (LB)', () => {
         const doors = layout.rooms.filter(
           (r) => r.floorLevel === f.floorLevel && Math.abs(r.doorX - f.x) < 1,
         );
+        const atElevator = Math.abs(layout.shaftEntryX - f.x) < 1 && sample.elevator?.agentId === id;
+        if (atElevator) continue;
         expect(doors.length, `${id} bei t=${cur.t}: (ent)steht abseits jeder Tür (x=${f.x})`).toBeGreaterThan(0);
         expect(
           doors.some((d) => sample.openDoors.has(d.id)),
@@ -147,7 +151,7 @@ describe('ambientLife (LB)', () => {
     for (const s of samples) {
       for (const f of s.figures.values()) {
         expect(f.x).toBeGreaterThanOrEqual(STAGE.pillarWidth);
-        expect(f.x).toBeLessThanOrEqual(layout.shaft.x);
+        expect(f.x).toBeLessThanOrEqual(layout.shaftEntryX);
       }
     }
   });
@@ -175,7 +179,7 @@ describe('ambientLife (LB)', () => {
     const state = createAmbientLife(3);
     // Alle Agenten zwingen, sofort zu planen.
     for (const a of state.agents) a.nextJourneyAt = 0;
-    tickAmbientLife(state, 0);
+    tickAmbientLife(state, 0, { maxActive: Number.POSITIVE_INFINITY });
     for (const a of state.agents) {
       expect(a.journey.length).toBeGreaterThanOrEqual(3); // doorOut … doorIn
       expect(a.journey[0].kind).toBe('doorOut');
@@ -200,6 +204,29 @@ describe('ambientLife (LB)', () => {
     tickAmbientLife(state, 1000);
     const active = state.agents.find((a) => a.journey.length > 0 && a.journey[0].floorLevel === 2);
     expect(active).toBeTruthy();
+  });
+
+  it('nutzt den Fahrstuhl sichtbar und bewegt nur eine Ambient-Kabine zugleich', () => {
+    const samples = simulate(42, 600_000);
+    const elevatorSamples = samples.filter((sample) => sample.elevator);
+    expect(elevatorSamples.length).toBeGreaterThan(0);
+    expect(new Set(elevatorSamples.map((sample) => sample.elevator!.phase))).toEqual(
+      new Set(['entering', 'ride', 'exiting']),
+    );
+    expect(elevatorSamples.some((sample) => {
+      const lift = sample.elevator!;
+      return lift.phase === 'ride' && !Number.isInteger(lift.cabinLevel);
+    })).toBe(true);
+  });
+
+  it('begrenzt komplexe Nebenrouten und startet während Spielerwegen nichts Neues', () => {
+    const samples = simulate(77, 240_000);
+    expect(Math.max(...samples.map((sample) => sample.figures.size))).toBeLessThanOrEqual(MAX_ACTIVE_AMBIENT);
+
+    const paused = createAmbientLife(77);
+    for (const agent of paused.agents) agent.nextJourneyAt = 0;
+    tickAmbientLife(paused, 0, { allowStarts: false });
+    expect(paused.agents.every((agent) => agent.journey.length === 0)).toBe(true);
   });
 
   it('ambientDoorsForLevel schließt Lobby/Spieler-Büro aus', () => {

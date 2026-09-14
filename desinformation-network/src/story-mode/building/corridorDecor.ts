@@ -7,7 +7,7 @@
  * **datengetrieben** platziert: `xFrac` = Anteil der Flur-Spielfläche (bewusst
  * in Tür-Lücken), `mount` = Bodenlinie oder Wand.
  *
- * Größen in `DECOR_HEIGHT` folgen realen Proportionen (Avatar ≈ 1,7 m ≈ 128 px
+ * Größen in `DECOR_HEIGHT` folgen realen Proportionen (Avatar ≈ 1,7 m ≈ 120 px
  * ⇒ ~75 px/Meter), damit Mobiliar glaubwürdig zum Avatar passt.
  */
 
@@ -134,21 +134,23 @@ export function plantLine(moralWeight: number): string {
  * über den Lücken. Jede Etage bekommt eine andere Mischung → kein Einheitsbrei.
  * Lobby (Eingangshalle) bleibt bewusst leer (eigenes Raumbild).
  */
-/** Strang 5: stehende Flavor-Statisten je Etage (Reinigung/Kollege) — populieren das
- *  Gebäude. 2-Frame-Idle (subtile Bewegung), stehen in Tür-/Deko-Lücken auf der
- *  Wand-Fuß-Linie. Bewusst KEINE Mechanik, reine Lebendigkeit. */
+/** Strang 5: ansprechbare Flavor-Mitarbeiter je Etage. Sie patrouillieren in
+ * einer sicheren Zone um ihren Stammplatz, pausieren dort und bleiben damit
+ * lebendig, ohne Tür-Klickflächen oder den Spielerweg zu blockieren. */
 export interface AmbientFigure {
   figure: string;
   xFrac: number;
+  /** Maximale Abweichung in Stage-px um den sicheren Stammplatz. */
+  patrolSpan: number;
   /** Flavor-Satz beim Anklicken (Mini-Dialog, D13). */
   line: string;
   /** Kurzer Rollen-Name über der Sprechblase. */
   who: string;
 }
 /**
- * Stehende Flur-Statisten je Etage.
+ * Ansprechbare Flur-Mitarbeiter je Etage.
  *
- * Owner-Entscheidung 2026-08-23 („leere Etagen beleben"): Bis dahin stand HIER
+ * Owner-Entscheidung 2026-08-23 („leere Etagen beleben"): Bis dahin war HIER
  * NUR auf etage1 jemand. Die Laufagenten (ambientLife) sind pro Etage höchstens
  * einer und zwischen zwei Durchgängen ist der Flur menschenleer — beide
  * Fremdmodelle lasen das als Fehler, nicht als Stimmung. Ein dauerhaft
@@ -159,7 +161,7 @@ export interface AmbientFigure {
  * eine falsche Erzählung. Dieselbe Figur zweimal ist in einem Ministeriumsflur
  * kein Bruch; unterschieden werden die Leute über `who` und `line`.
  *
- * Alle stehenden Statisten sind Büropersonal (`figure_clerk`). Die Reinigung ist
+ * Alle ansprechbaren Patrouillen sind Büropersonal (`figure_clerk`). Die Reinigung ist
  * bewusst EINE Person im ganzen Haus — der wandernde Agent in `ambientLife`. Ein
  * erster Versuch stellte auch Statisten mit Reinigungs-Sprite auf; im Keller
  * standen dann zwei identische Reinigungskräfte Schulter an Schulter, was nach
@@ -176,17 +178,17 @@ export interface AmbientFigure {
 export const FLOOR_AMBIENT: Record<string, AmbientFigure[]> = {
   // Spezial-Operationen: Cyber-Lab, Operationszentrale, Medien-Zentrum.
   etage4: [{
-    figure: 'figure_clerk', xFrac: 0.45, who: 'TECHNIKER',
+    figure: 'figure_clerk', xFrac: 0.45, patrolSpan: 30, who: 'TECHNIKER',
     line: 'Ich halte die Schirme am Laufen. Was drauf steht, lese ich nicht — steht so in der Hausordnung, und ich halte mich dran.',
   }],
   // Analyse & Medien: Zielgruppen-Analyse, Newsroom.
   etage3: [{
-    figure: 'figure_clerk', xFrac: 0.15, who: 'ANALYSTIN',
+    figure: 'figure_clerk', xFrac: 0.15, patrolSpan: 42, who: 'ANALYSTIN',
     line: 'Wir messen, was die Leute glauben. Ob sie es glauben SOLLEN, entscheidet eine Etage tiefer.',
   }],
   // Feld-Operationen.
   etage2: [{
-    figure: 'figure_clerk', xFrac: 0.45, who: 'DISPONENT',
+    figure: 'figure_clerk', xFrac: 0.45, patrolSpan: 52, who: 'DISPONENT',
     line: 'Feld meldet sich zweimal am Tag. Wenn es dreimal ist, war was.',
   }],
   etage1: [{
@@ -194,20 +196,20 @@ export const FLOOR_AMBIENT: Record<string, AmbientFigure[]> = {
     // IM Türrahmen und wurde vom Avatar verdeckt, sobald jemand dort hinlief.
     // Die Fehlplatzierung ist älter als dieser Durchgang; aufgefallen ist sie erst,
     // als `ambientPlacement.test.ts` die Zonen nachrechnete statt sie zu schätzen.
-    figure: 'figure_clerk', xFrac: 0.42, who: 'KOLLEGE',
+    figure: 'figure_clerk', xFrac: 0.42, patrolSpan: 34, who: 'KOLLEGE',
     line: 'Viel los heute oben. Ich bring nur die Akten rum, von dem anderen halt ich mich fern.',
   }],
   // Geheimoperationen: bewusst der stillste Flur des Hauses — aber nicht leer,
   // sonst liest er sich als kaputt statt als abgeschottet.
   keller: [{
-    figure: 'figure_clerk', xFrac: 0.42, who: 'ARCHIVAR',
+    figure: 'figure_clerk', xFrac: 0.42, patrolSpan: 66, who: 'ARCHIVAR',
     line: 'Hier unten ist es ruhig. Muss es auch — die Lüftung trägt jedes Wort bis nach oben.',
   }],
 };
 /**
  * Anzeigehöhe der Statisten (px): 112 px ≈ 1,53 m — bewusst etwas kleiner als
- * der Avatar (128 px = 1,75 m), damit der Spieler heraussticht. WICHTIG (Review
- * B12d): EINE Konstante für ALLE Statisten (stehende FLOOR_AMBIENT wie laufende
+ * der Avatar (120 px = 1,75 m), damit der Spieler heraussticht. WICHTIG (Review
+ * B12d): EINE Konstante für ALLE Statisten (lokale FLOOR_AMBIENT wie laufende
  * ambientLife-Agenten) — keine Figur bekommt eine eigene Höhe, sonst wirken
  * nebeneinanderstehende Statisten wie falsch skaliert.
  *

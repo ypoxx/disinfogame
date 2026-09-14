@@ -1,11 +1,11 @@
 /**
  * ambientLife — LB „Lebendiges Gebäude" (Plan §3b c).
  *
- * Statisten laufen ECHTE Routen über ihre Etage (Ziele = Türen), erscheinen aus
- * sich öffnenden Türen und verschwinden wieder in ihnen — KEIN Ein-/Ausfaden,
- * keine CSS-Pendel-Keyframes mehr. Die Routen kommen aus dem vorhandenen
- * BuildingNavigator (planRoute): Ambient-Figuren sind Navigator-Instanzen mit
- * ruhigem Tempo (Memo §3: ~58 px/s ± 22 % je Figur statt 300 px/s Spieler).
+ * Statisten laufen ECHTE, teils etagenübergreifende Routen (Ziele = Türen),
+ * erscheinen aus sich öffnenden Türen und benutzen bei einem Etagenwechsel den
+ * sichtbaren Fahrstuhl — KEIN Ein-/Ausfaden, keine CSS-Pendel-Keyframes. Die
+ * Geometrie kommt aus dem vorhandenen BuildingNavigator; das Tempo bleibt mit
+ * ~58 px/s ± 22 % deutlich ruhiger als beim Spieler (300 px/s).
  *
  * Pure TS + deterministischer Zufall (mulberry32): testbar ohne React/DOM.
  * Der React-Teil (AmbientLifeLayer in BuildingStage) ist nur ein Abspielkopf,
@@ -34,7 +34,16 @@ export const AMBIENT_TIMING = {
   doorLeadMs: 250,
   /** Ab hier tritt die Figur sichtbar aus dem bereits geöffneten Türrahmen. */
   emergeFrac: 0.42,
+  /** Ein-/Aussteigen der Statisten; bewusst etwas ruhiger als die Spielfigur. */
+  elevatorTransferMs: 820,
+  /** Fahrzeit pro Etage (die Kabine wird im Renderer kontinuierlich bewegt). */
+  elevatorMsPerFloor: 980,
 } as const;
+
+/** Mehr als zwei komplexe Routen zugleich machen den Querschnitt unruhig und
+ * erschweren die Zielführung des Spielers. Lokale Mitarbeiter-Patrouillen sind
+ * davon getrennt und verbringen den Großteil ihrer Zeit im Idle. */
+export const MAX_ACTIVE_AMBIENT = 2;
 
 /**
  * Verpasster-Termin-Schwelle: Liegt ein geplanter Auftritt weiter als dies in
@@ -54,33 +63,36 @@ export interface AmbientAgentDef {
   floorLevels: number[];
   /** Erster Auftritt (ms nach Start) — staffelt die Figuren gegeneinander. */
   firstAppearanceMs: number;
+  /** Wahrscheinlichkeit, dass die nächste Route eine andere Etage ansteuert. */
+  crossFloorChance?: number;
 }
 
 /**
- * Besetzung: Reinigung wandert alle Flur-Etagen ab (Fahrstuhl-Nutzung ist lt.
- * Plan optionale Ausbaustufe — zwischen den Etagen nimmt sie unsichtbar die
- * Diensttreppe, d. h. sie verschwindet durch eine Tür und taucht später auf der
- * nächsten Etage aus einer Tür auf). Die Akten-Boten ersetzen die alten
- * Tür-Dummies auf Etage 4/3 durch echte Tür-zu-Tür-Routen.
+ * Besetzung: Reinigung und Akten-Boten dürfen mehrere Etagen besuchen. Der
+ * Scheduler lässt höchstens zwei gleichzeitig sichtbar reisen und reserviert
+ * den Fahrstuhl exklusiv für eine Ambient-Figur; der Spieler selbst behält im
+ * Renderer immer Vorrang.
  */
 export const AMBIENT_AGENTS: AmbientAgentDef[] = [
-  { id: 'reinigung', walkSheet: 'figure_cleaner_walk', idleSheet: 'figure_cleaner', floorLevels: [3, 1, 4, -1, 2], firstAppearanceMs: 1200 },
-  { id: 'bote_e4', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [4], firstAppearanceMs: 3200 },
-  { id: 'bote_e3', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [3], firstAppearanceMs: 5200 },
-  { id: 'bote_e2', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [2], firstAppearanceMs: 7000 },
-  // Owner-Entscheidung 2026-08-23 („leere Etagen beleben"): Etage 1 hatte als
-  // einzige Publikums-Etage keinen eigenen Boten — dort lief nur die Reinigung
-  // vorbei, die sich auf fünf Stockwerke verteilt. Ausgerechnet die Zentrale wirkte
-  // damit am ausgestorbensten. Der Keller bleibt bewusst ohne Boten: Er IST der
-  // stille Flur, dafür steht dort jetzt dauerhaft der Hausmeister.
-  { id: 'bote_e1', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [1], firstAppearanceMs: 9000 },
+  { id: 'reinigung', walkSheet: 'figure_cleaner_walk', idleSheet: 'figure_cleaner', floorLevels: [3, 1, 4, -1, 2], firstAppearanceMs: 1200, crossFloorChance: 0.52 },
+  { id: 'bote_e4', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [4, 3, 2, 1], firstAppearanceMs: 3200, crossFloorChance: 0.42 },
+  { id: 'bote_e3', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [3, 2, 4, 1], firstAppearanceMs: 5200, crossFloorChance: 0.38 },
+  { id: 'bote_e2', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [2, 1, 3, -1], firstAppearanceMs: 7000, crossFloorChance: 0.4 },
+  { id: 'bote_e1', walkSheet: 'figure_clerk_walk', idleSheet: 'figure_clerk', floorLevels: [1, 2, 3, 4], firstAppearanceMs: 9000, crossFloorChance: 0.36 },
 ];
 
 /** Türen, die Statisten NIE benutzen: die Lobby hat keine Tür, und aus dem
  *  Büro des SPIELERS darf niemand Fremdes treten (falsche Erzählung). */
 const FORBIDDEN_ROOMS = new Set(['lobby', 'spieler_buero']);
 
-export type AmbientSegmentKind = 'doorOut' | 'walk' | 'idle' | 'doorIn';
+export type AmbientSegmentKind =
+  | 'doorOut'
+  | 'walk'
+  | 'idle'
+  | 'elevatorIn'
+  | 'elevatorRide'
+  | 'elevatorOut'
+  | 'doorIn';
 
 export interface AmbientSegment {
   kind: AmbientSegmentKind;
@@ -91,6 +103,8 @@ export interface AmbientSegment {
   toX: number;
   /** Nur doorOut/doorIn: Raum, dessen Tür benutzt wird. */
   doorRoomId?: string;
+  /** Nur Fahrstuhlsegmente: Ziel-Etage. */
+  toFloorLevel?: number;
 }
 
 export interface AmbientAgentState {
@@ -100,6 +114,8 @@ export interface AmbientAgentState {
   rng: () => number;
   /** Index in floorLevels für den NÄCHSTEN Auftritt. */
   floorIdx: number;
+  /** Ziel-Etage der aktuell geplanten Reise. */
+  destinationFloorIdx?: number;
   /** Aktuelle Reise (leer = verborgen). */
   journey: AmbientSegment[];
   /** Wann die nächste Reise geplant wird (verborgen bis dahin). */
@@ -111,6 +127,8 @@ export interface AmbientAgentState {
 export interface AmbientLifeState {
   agents: AmbientAgentState[];
   layout: BuildingLayout;
+  /** Bis wann eine geplante Ambient-Fahrt den Fahrstuhl reserviert. */
+  elevatorReservedUntil: number;
 }
 
 export interface AmbientFigureSnapshot {
@@ -129,6 +147,24 @@ export interface AmbientSnapshot {
   figures: AmbientFigureSnapshot[];
   /** Räume, deren Tür gerade von einer Ambient-Figur offen gehalten wird (sortiert). */
   openDoorRoomIds: string[];
+  elevator: AmbientElevatorSnapshot | null;
+}
+
+export interface AmbientElevatorSnapshot {
+  agentId: string;
+  phase: 'entering' | 'ride' | 'exiting';
+  cabinLevel: number;
+  fromLevel: number;
+  toLevel: number;
+  doorsOpen: boolean;
+  idleSheet: string;
+}
+
+export interface AmbientTickOptions {
+  /** Während der Spieler navigiert, beginnen keine neuen Statisten-Routen. */
+  allowStarts?: boolean;
+  /** Dichte-Limit; Reduced Motion nutzt 1, normal MAX_ACTIVE_AMBIENT. */
+  maxActive?: number;
 }
 
 /** Deterministischer PRNG (mulberry32) — gleiche Saat ⇒ gleicher Tagesablauf. */
@@ -168,7 +204,7 @@ export function createAmbientLife(
       nextJourneyAt: def.firstAppearanceMs + rng() * 2000,
     };
   });
-  return { agents, layout };
+  return { agents, layout, elevatorReservedUntil: 0 };
 }
 
 /** Zwischenhalt-Position im Flur: frei zwischen den Pfeilern, mit Abstand zu den Türen. */
@@ -193,14 +229,24 @@ function walkSegment(level: number, fromX: number, toX: number, speedPxS: number
  * Die Geometrie (fromX/toX/doorX) kommt aus planRoute; nur die Lauf-DAUER wird
  * vom Spieler-Tempo aufs Figuren-Tempo umgerechnet.
  */
-function planJourney(agent: AmbientAgentState, layout: BuildingLayout, now: number): AmbientSegment[] {
+function planJourney(agent: AmbientAgentState, state: AmbientLifeState, now: number): AmbientSegment[] {
+  const { layout } = state;
   const level = agent.def.floorLevels[agent.floorIdx];
   const doors = ambientDoorsForLevel(layout, level);
   if (doors.length === 0) return [];
   const { rng, speedPxS } = agent;
   const exit = pick(rng, doors);
-  const others = doors.filter((d) => d.id !== exit.id);
-  const target = others.length > 0 ? pick(rng, others) : exit;
+  const otherFloorIndices = agent.def.floorLevels
+    .map((_, index) => index)
+    .filter((index) => index !== agent.floorIdx && ambientDoorsForLevel(layout, agent.def.floorLevels[index]).length > 0);
+  const canUseElevator = otherFloorIndices.length > 0 && now >= state.elevatorReservedUntil;
+  const useElevator = canUseElevator && rng() < (agent.def.crossFloorChance ?? 0);
+  const destinationFloorIdx = useElevator ? pick(rng, otherFloorIndices) : agent.floorIdx;
+  const destinationLevel = agent.def.floorLevels[destinationFloorIdx];
+  const targetDoors = ambientDoorsForLevel(layout, destinationLevel);
+  const localOthers = targetDoors.filter((d) => d.id !== exit.id);
+  const target = localOthers.length > 0 ? pick(rng, localOthers) : targetDoors[0] ?? exit;
+  agent.destinationFloorIdx = destinationFloorIdx;
 
   const T = AMBIENT_TIMING;
   const segs: AmbientSegment[] = [];
@@ -210,10 +256,9 @@ function planJourney(agent: AmbientAgentState, layout: BuildingLayout, now: numb
   segs.push({ kind: 'doorOut', t0: t, t1: t + T.doorBeatMs, floorLevel: level, fromX: x, toX: x, doorRoomId: exit.id });
   t += T.doorBeatMs;
 
-  // Zwischenhalt: bei Selbe-Tür-Routen immer (sonst gäbe es keinen Weg),
-  // ansonsten meistens — die Figur „arbeitet" kurz im Flur (Kontext-Idle).
-  if (target.id === exit.id || rng() < 0.75) {
-    const wp = waypointX(layout, level, rng, [exit.doorX, target.doorX]);
+  // Zwischenhalt: lokale Wege fast immer, vor dem Fahrstuhl gelegentlich.
+  if ((!useElevator && target.id === exit.id) || rng() < (useElevator ? 0.45 : 0.75)) {
+    const wp = waypointX(layout, level, rng, [exit.doorX, useElevator ? layout.shaftEntryX : target.doorX]);
     const w = walkSegment(level, x, wp, speedPxS, t);
     segs.push(w);
     t = w.t1;
@@ -221,6 +266,41 @@ function planJourney(agent: AmbientAgentState, layout: BuildingLayout, now: numb
     const idleMs = between(rng, T.idleMinMs, T.idleMaxMs);
     segs.push({ kind: 'idle', t0: t, t1: t + idleMs, floorLevel: level, fromX: x, toX: x });
     t += idleMs;
+  }
+
+  if (useElevator) {
+    const toLift = walkSegment(level, x, layout.shaftEntryX, speedPxS, t);
+    segs.push(toLift);
+    t = toLift.t1;
+    x = layout.shaftEntryX;
+
+    segs.push({
+      kind: 'elevatorIn', t0: t, t1: t + T.elevatorTransferMs,
+      floorLevel: level, toFloorLevel: destinationLevel, fromX: x, toX: x,
+    });
+    t += T.elevatorTransferMs;
+    const rideMs = Math.max(T.elevatorMsPerFloor, Math.abs(destinationLevel - level) * T.elevatorMsPerFloor);
+    segs.push({
+      kind: 'elevatorRide', t0: t, t1: t + rideMs,
+      floorLevel: level, toFloorLevel: destinationLevel, fromX: x, toX: x,
+    });
+    t += rideMs;
+    segs.push({
+      kind: 'elevatorOut', t0: t, t1: t + T.elevatorTransferMs,
+      floorLevel: destinationLevel, toFloorLevel: destinationLevel, fromX: x, toX: x,
+    });
+    t += T.elevatorTransferMs;
+    state.elevatorReservedUntil = t;
+
+    const fromLift = walkSegment(destinationLevel, x, target.doorX, speedPxS, t);
+    segs.push(fromLift);
+    t = fromLift.t1;
+    x = target.doorX;
+    segs.push({
+      kind: 'doorIn', t0: t, t1: t + T.doorBeatMs,
+      floorLevel: destinationLevel, fromX: x, toX: x, doorRoomId: target.id,
+    });
+    return segs;
   }
 
   // Rest-Route über den BuildingNavigator (gleiches Stockwerk ⇒ walk? + door).
@@ -243,17 +323,27 @@ function planJourney(agent: AmbientAgentState, layout: BuildingLayout, now: numb
  * Zustand fortschreiben: beendete Reisen abräumen (Pause + nächste Etage
  * würfeln), fällige neue Reisen planen. Idempotent bei gleichem `now`.
  */
-export function tickAmbientLife(state: AmbientLifeState, now: number): void {
+export function tickAmbientLife(state: AmbientLifeState, now: number, options: AmbientTickOptions = {}): void {
+  const allowStarts = options.allowStarts ?? true;
+  const maxActive = options.maxActive ?? MAX_ACTIVE_AMBIENT;
+  let activeCount = state.agents.filter((agent) => agent.journey.length > 0).length;
   for (const agent of state.agents) {
     if (agent.journey.length > 0) {
       const end = agent.journey[agent.journey.length - 1].t1;
       if (now >= end) {
         agent.journey = [];
-        agent.floorIdx = (agent.floorIdx + 1) % agent.def.floorLevels.length;
+        activeCount = Math.max(0, activeCount - 1);
+        agent.floorIdx = agent.destinationFloorIdx ?? agent.floorIdx;
+        agent.destinationFloorIdx = undefined;
         agent.nextJourneyAt = end + between(agent.rng, AMBIENT_TIMING.pauseMinMs, AMBIENT_TIMING.pauseMaxMs);
       }
     }
     if (agent.journey.length === 0 && now >= agent.nextJourneyAt) {
+      if (!allowStarts || activeCount >= maxActive) {
+        // Kurzer deterministischer Retry statt stetig wachsender Überfälligkeit.
+        agent.nextJourneyAt = now + between(agent.rng, 700, 1700);
+        continue;
+      }
       if (!agent.nudged && now - agent.nextJourneyAt > STALE_APPOINTMENT_MS) {
         // Termin weit verpasst (Uhr sprang, z. B. Hintergrund-Tab): frisch
         // staffeln statt alle fälligen Agenten im selben Frame auftreten zu lassen.
@@ -261,11 +351,13 @@ export function tickAmbientLife(state: AmbientLifeState, now: number): void {
         continue;
       }
       agent.nudged = false;
-      agent.journey = planJourney(agent, state.layout, now);
+      agent.journey = planJourney(agent, state, now);
       if (agent.journey.length === 0) {
         // Etage ohne benutzbare Tür (sollte es nicht geben): Etage überspringen.
         agent.floorIdx = (agent.floorIdx + 1) % agent.def.floorLevels.length;
         agent.nextJourneyAt = now + AMBIENT_TIMING.pauseMinMs;
+      } else {
+        activeCount++;
       }
     }
   }
@@ -288,6 +380,7 @@ export function sampleAmbient(state: AmbientLifeState, now: number): AmbientSnap
   const T = AMBIENT_TIMING;
   const figures: AmbientFigureSnapshot[] = [];
   const openDoors = new Set<string>();
+  let elevator: AmbientElevatorSnapshot | null = null;
 
   for (const agent of state.agents) {
     const journey = agent.journey;
@@ -322,6 +415,41 @@ export function sampleAmbient(state: AmbientLifeState, now: number): AmbientSnap
       figures.push({ id: agent.def.id, floorLevel: seg.floorLevel, x, facing, anim: 'walk', sheet: agent.def.walkSheet, speedPxS: agent.speedPxS });
     } else if (seg.kind === 'idle') {
       figures.push({ id: agent.def.id, floorLevel: seg.floorLevel, x: seg.fromX, facing: 1, anim: 'idle', sheet: agent.def.idleSheet, speedPxS: agent.speedPxS });
+    } else if (seg.kind === 'elevatorIn') {
+      const progress = Math.min(1, Math.max(0, (now - seg.t0) / (seg.t1 - seg.t0)));
+      figures.push({
+        id: agent.def.id, floorLevel: seg.floorLevel, x: seg.fromX, facing: 1,
+        anim: 'walk', sheet: agent.def.walkSheet, speedPxS: agent.speedPxS,
+        thresholdProgress: 1 - progress,
+      });
+      elevator = {
+        agentId: agent.def.id, phase: 'entering', cabinLevel: seg.floorLevel,
+        fromLevel: seg.floorLevel, toLevel: seg.toFloorLevel ?? seg.floorLevel,
+        doorsOpen: true, idleSheet: agent.def.idleSheet,
+      };
+    } else if (seg.kind === 'elevatorRide') {
+      const progress = Math.min(1, Math.max(0, (now - seg.t0) / (seg.t1 - seg.t0)));
+      const toLevel = seg.toFloorLevel ?? seg.floorLevel;
+      elevator = {
+        agentId: agent.def.id, phase: 'ride',
+        cabinLevel: seg.floorLevel + (toLevel - seg.floorLevel) * progress,
+        fromLevel: seg.floorLevel, toLevel, doorsOpen: false,
+        idleSheet: agent.def.idleSheet,
+      };
+    } else if (seg.kind === 'elevatorOut') {
+      const progress = Math.min(1, Math.max(0, (now - seg.t0) / (seg.t1 - seg.t0)));
+      const next = journey.find((s) => s.kind === 'walk' && s.t0 >= seg.t1);
+      const facing: 1 | -1 = next && next.toX < next.fromX ? -1 : 1;
+      figures.push({
+        id: agent.def.id, floorLevel: seg.floorLevel, x: seg.fromX, facing,
+        anim: 'walk', sheet: agent.def.walkSheet, speedPxS: agent.speedPxS,
+        thresholdProgress: progress,
+      });
+      elevator = {
+        agentId: agent.def.id, phase: 'exiting', cabinLevel: seg.floorLevel,
+        fromLevel: seg.floorLevel, toLevel: seg.floorLevel,
+        doorsOpen: true, idleSheet: agent.def.idleSheet,
+      };
     } else if (seg.kind === 'doorIn') {
       // Umgekehrter Tiefenschritt: auf der Schwelle kleiner/dunkler werden und
       // erst am Segmentende hinter dem Türblatt verschwinden.
@@ -330,7 +458,7 @@ export function sampleAmbient(state: AmbientLifeState, now: number): AmbientSnap
     }
   }
 
-  return { figures, openDoorRoomIds: [...openDoors].sort() };
+  return { figures, openDoorRoomIds: [...openDoors].sort(), elevator };
 }
 
 /**
