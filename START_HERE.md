@@ -27,6 +27,7 @@ npx vitest run src/story-mode/__tests__
 | Zweck | Pfad |
 |---|---|
 | **Verbindliche Wahrheit** (Figuren, Zahlen, Stil, Entscheidungen) | `docs/VISION_LOCK.md` |
+| 🎯 **NPC-Berater-Regie „voller Wurf"** (Owner-Auftrag 2026-07-06, Prinzipien) | `docs/AUFTRAG_2026-07-06_NPC_REGIE_VOLLER_WURF.md` |
 | Reihenfolge & Schwerpunkte | `ROADMAP.md` |
 | Komplettes Datei-Inventar (behalten/archiviert) | `docs/INVENTORY.md` |
 | Karte „was liegt wo" | `docs/CODEBASE_MAP.md` |

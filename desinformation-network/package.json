@@ -12,6 +12,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "lint:strict": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "smoke": "node scripts/app-smoke.mjs",
+    "dialogue-review": "node scripts/dialogue-review/lint.mjs",
     "test": "vitest",
     "test:coverage": "vitest --coverage"
   },

@@ -45,8 +45,8 @@
       "conditions": [
         {
           "condition": { "var": "risk", "op": ">=", "value": 85 },
-          "text_de": "kritisch hoch - wir stehen kurz vor der Entdeckung",
-          "text_en": "critically high - we're close to exposure"
+          "text_de": "kritisch hoch, wir stehen kurz vor der Entdeckung",
+          "text_en": "critically high, we're close to exposure"
         },
         {
           "condition": { "var": "risk", "op": ">=", "value": 70 },
@@ -121,8 +121,8 @@
         },
         {
           "condition": { "var": "attention", "op": ">=", "value": 60 },
-          "text_de": "hoch - die Medien sind aufmerksam",
-          "text_en": "high - media is paying attention"
+          "text_de": "hoch, die Medien sind aufmerksam",
+          "text_en": "high, media is paying attention"
         },
         {
           "condition": { "var": "attention", "op": ">=", "value": 40 },
@@ -131,8 +131,8 @@
         },
         {
           "condition": { "var": "attention", "op": "<", "value": 40 },
-          "text_de": "niedrig - wir fliegen unter dem Radar",
-          "text_en": "low - we're flying under the radar"
+          "text_de": "niedrig, wir fliegen unter dem Radar",
+          "text_en": "low, we're flying under the radar"
         }
       ],
       "default": {

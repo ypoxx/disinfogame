@@ -28,6 +28,13 @@ verlierbar (Strang 3+4 #79/#80). **P2 Kommunikations-Schlachtfeld** Erststufe ge
 #81). **Als Nächstes (s. STATUS):** P2 abrunden (Verbreiter-Aufbau/Budget + Kompromat), **P3**
 Gebäude-Wachstum (`unlocksRoom`/`unlocksNpc`) + 100–500-Pfade-Sim, **Topic-Texte in Stimme**.
 
+> 🎯 **NEU (Owner-Entscheid 2026-07-06, bindend): NPC-Berater-Regie „voller Wurf".** Die Dialoge werden
+> von einem flachen Aktions-Menü zu einem **NPC-Berater-Wettstreit** umgebaut — erzählerische
+> Aktionsangebote (3-Takt), konkurrierende NPC-Körbe, reaktive Figuren, didaktischer Kern *„überzeugend
+> ≠ richtig"*; KI nur zur Autoren-Zeit. Etappen R0–R6 (R6 = Dialog-Luxus-Review als Abnahme-Gate).
+> Prinzipien-Wahrheit: [`docs/AUFTRAG_2026-07-06_NPC_REGIE_VOLLER_WURF.md`](docs/AUFTRAG_2026-07-06_NPC_REGIE_VOLLER_WURF.md).
+> Baut auf [`docs/BAUPLAN_STORY_DIRECTOR_SPINE.md`](docs/BAUPLAN_STORY_DIRECTOR_SPINE.md).
+
 ## Track C — Atmosphäre & Feinheiten *(neu ausgeplant)*
 **Strang 5** (Dummy-Figuren, Pförtner mit Stimmungs-Hinweisen, lebendige Flure, Tür-Animationen):
 jetzt als Feinplan `docs/STRANG5_FEINPLAN_ATMOSPHAERE.md`. **Sound-Erweiterung** (adaptive Musik,
