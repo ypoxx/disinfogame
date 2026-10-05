@@ -42,11 +42,11 @@ Dieses Spiel ist eine Simulation zu Bildungszwecken. Es zeigt, wie Desinformatio
   {
     id: 'time',
     title: 'Zeitmanagement',
-    content: `Das Spiel läuft über 10 Jahre (120 Phasen).
+    content: `Die Kampagne läuft über 40 Tage bis zum Wahltag.
 
-Jede Phase entspricht etwa einem Monat. Sie haben pro Phase eine begrenzte Anzahl an Aktionspunkten (AP), die Sie für verschiedene Operationen einsetzen können.
+Jeder Tag ist eine Phase. Sie haben pro Tag eine begrenzte Anzahl an Aktionspunkten (AP), die Sie für verschiedene Operationen einsetzen können.
 
-Oben links sehen Sie das aktuelle Jahr und den Monat.`,
+Oben links sehen Sie den aktuellen Tag und die Zeit bis zur Wahl.`,
     position: 'top',
     highlight: 'hud',
   },
