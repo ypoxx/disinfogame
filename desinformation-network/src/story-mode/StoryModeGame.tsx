@@ -657,14 +657,15 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
   // durchzulaufen (sie schnitten dem Panel sonst die letzte Zeile ab).
   const seitenVersatzPx = activePanel ? SEITENPANEL_BREITE_PX : 0;
 
-  const vollbildOverlayOffen =
+  const vollbildOhneBeat =
     showNewsroom || showLagebild || showOperationsAkte || showFokusgruppe ||
     showPreTest || showEncyclopedia || showShortcuts || showDayReport ||
     walkHome || showActionFeedback ||
     // Codex-Review #106: Pflicht-Modals zählen mit — Krise (z-70), Verrat und
     // anstehender Entscheidungs-Beat laufen in gamePhase 'playing'; T/A dürfen
     // die Tafel/das Terminal nicht darüber mounten (z-80 verdeckte die Wahl).
-    !!state.activeCrisis || !!state.activeBetrayalEvent || !!pendingDecisionBeatId;
+    !!state.activeCrisis || !!state.activeBetrayalEvent;
+  const vollbildOverlayOffen = vollbildOhneBeat || !!pendingDecisionBeatId;
 
   // §4.1-Sprung: Tafel (plant) → Terminal (wählt) — Taste A und Tafel-Knopf
   // müssen sich identisch verhalten, darum EIN Handler.
@@ -1522,8 +1523,11 @@ export function StoryModeGame({ onExit }: StoryModeGameProps) {
             Tageshinweis „Öffnen Sie das Terminal (Taste A)" lautet. Es greift
             außerdem Leertaste/Enter global ab. Solange ein Vollbild offen ist,
             tritt es zurück; unbestätigt kehrt es beim Schließen zurück. */}
+        {/* Der anstehende Beat darf das Briefing NICHT sperren: Das Beat-Modal
+            wartet seinerseits auf das bestätigte Briefing (briefedPhase) — beide
+            blieben sonst unsichtbar, und A/T wären den ganzen Tag gesperrt. */}
         {state.gamePhase === 'playing' &&
-          !vollbildOverlayOffen &&
+          !vollbildOhneBeat &&
           !showTerminal &&
           !showBoard &&
           !state.currentDialog &&
