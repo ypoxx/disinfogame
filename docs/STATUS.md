@@ -9,6 +9,12 @@ sondern verlinkt sie. **Jede Session aktualisiert dieses Dokument.**
 > `GESAMTKONZEPT_VISUELL.md` → dieses Dokument für den aktuellen Bau-Stand.
 > Lessons Learned: `ORCHESTRATION_FEEDBACK.md`.
 
+**Neu 2026-10-11 — Erstspieler-Durchgang:** [`REVIEW_2026-10-11_ERSTSPIEL_SPASS.md`](REVIEW_2026-10-11_ERSTSPIEL_SPASS.md).
+Kernbefund: Zufälliges Klicken gewinnt 12/12 Partien, im Schnitt an Tag 14 von 40 (Sieg greift vor
+dem Wahltag, `VictorySystem.ts:77`). Das Rennen ist unsichtbar (HUD standardmäßig aus, Karten
+und Berichte zeigen die Sonntagsfrage nicht). Empfehlung: Stufe 1 „Rennen sichtbar machen",
+dann Stufe 2 „Ein Tag = eine Runde". Owner-Fragen F1–F6 offen.
+
 **Stand:** 2026-09-12 (UX-Zweitdurchgang + Bild-Prüfung; Owner-Entscheidungen 1a/2c/3a/4a/5c/6b
 umgesetzt — s. „Offene Punkte aus der Sitzung 2026-09-12"). Davor: 2026-08-23 (PLAN P0–P16 KOMPLETT UMGESETZT) · Alle 17 Punkte aus
 [`PLAN_2026-08-22_UX_ZWEITMEINUNG.md`](PLAN_2026-08-22_UX_ZWEITMEINUNG.md) sind gebaut und
