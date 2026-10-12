@@ -200,3 +200,80 @@ und das ist der Grund, warum sie nie zu Ende gespielt wurde. Wenn 40 Tage zu lan
 (temporäre Testdatei, nicht eingecheckt; Logik identisch mit `winnable-and-losable.test.ts` + Tages-Ausgabe),
 `Auftraege.ts` (Signatur, `AUFTRAG_SIEG_SCHWELLE`), `StoryEngineAdapter.ts` (`getWahlabendData`, 9 + p·18),
 `BuildingNavigator.ts` (Wegkosten), `DialogBox.tsx` (45 ms/Zeichen), `docs/STATUS.md` (72-Partien-Messung).*
+
+---
+
+## 7. Nachtrag 2026-10-12 — Was sonst noch auffällt
+
+Zweite Runde Sonden (drei zufällige 40-Tage-Partien mit Episoden-Annahme, Code-Lektüre der Uhr und der
+Drama-Systeme). Nach Gewicht sortiert.
+
+### 7.1 Vier Budgets, von denen der Spieler nur eines sieht
+Aktionspunkte (5), **Kapazität** (5, Karten kosten 1–2), **Kasse** und die **Uhr** (09:00–18:00; Flur 10 min,
+Etage 5 min, Tür 2 min; ein Besuch beim Kurator vom Empfang aus kostet 81 Spielminuten). Um 18:00 schickt das
+Spiel den Avatar automatisch heim und öffnet den Tagesbericht — **auch mit 5 unverbrauchten AP**. Wer am ersten
+Tag das schöne Gebäude erkundet, verliert den Tag, ohne einen Zug gemacht zu haben. Und die „acts=1"-Tage der
+Sonde kommen nicht von den AP, sondern von der Kapazität. MadTV hat ein Budget und eine Uhr. Empfehlung:
+**Kasse + AP, sonst nichts.** Kapazität in die Kasse falten, Uhr = AP (jede Aktion rückt die Uhr, Wege nicht).
+
+### 7.2 Die Geschichte findet nicht statt
+13 geschriebene Episoden, 24 Konsequenzen, ein 932-Zeilen-Verratssystem. In drei Partien:
+
+| | angeboten | aktiviert | abgeschlossen |
+|---|---:|---:|---:|
+| Episoden | 10–13 | 2 (Brett-Cap ab Tag 2) | **0** |
+| Konsequenzen (von 24) | | | 0–1 |
+| Verrats-Ereignisse | | | 0 |
+| Krisen | | | 4–6 ✓ |
+| Stufen-Gegenmaßnahmen | | | 2 ✓ |
+
+Die Tafel ist ab Tag 2 voll, die Angebote stapeln sich (11 offene Angebote an Tag 14), und keine Episode wird
+je zu Ende erzählt, weil die Partie an Tag 14–16 endet. Der Spieler sieht von der Erzählung nur Anfänge.
+Empfehlung: Episoden sind der **Wochenrhythmus** (eine pro Sonntagsfrage, mit Abschluss-Szene), nicht ein
+Pool mit Cap. Konsequenzen an die Maschen-Wiederholung koppeln (die n-te gleiche Masche löst sie aus), damit
+das Lehrstück „jede Aktion hat Folgen" auch stattfindet. Verrat entweder an einen Moral-Schwellenwert hängen,
+der in 40 Tagen erreichbar ist, oder streichen.
+
+### 7.3 Der erste Tag schickt in die Illegalität
+Die drei ★-Empfehlungen an Tag 1 sind ILLEGAL (Bot-Netz, Troll-Fabrik, Fake-Account-Farm) mit dem Chip
+„Konsequenz wahrscheinlich"; die legale Zielgruppen-Analyse (3K, kein Risiko) trägt keinen Stern. *Papers Please*
+beginnt harmlos und wird Tag für Tag schmutziger — das ist der Sog. Hier ist es umgekehrt. Empfehlung: Akt 1
+legal/grau (Analyse, Themen setzen, Frontmedium), Akt 2 grau/illegal, Akt 3 Kompromat. Die Eskalation ist die
+Dramaturgie **und** der Lernmoment.
+
+### 7.4 Vier Wege zum selben Ziel
+Terminal erreicht man per Hotkey A, Büro-Hotspot ①, Tafel-Knopf, Menü. NPCs per Raum-Klick, Reiter rechts
+(KV/MP/AP/KO/IS), Berater-Panel P. Jede Schicht kam in einer Session dazu, keine ging weg. Jede Redundanz
+ist für den neuen Spieler eine Frage („ist das dasselbe?"). Empfehlung: **Raum = Ort, Hotkey = Abkürzung**,
+sonst nichts. Reiter rechts und Büro-Hotspots fallen, das Büro wird ein Raum wie jeder andere.
+
+### 7.5 Wörter, die sich beißen
+- **Anrede:** Kurator und Dialoge sagen „Sie", Mission-Panel und Tafel sagen „du" („diese Werte sollst du
+  bewegen", „wählst du am Terminal"). Zwei Stellen gegen 27 — schnell gefixt, aber es fällt sofort auf.
+- **„ARCHIV (88)"** für gesperrte Aktionen: Archiv klingt nach Vergangenheit. „GESPERRT" oder „SPÄTER".
+- **Drei Risikobegriffe:** Karte „Risiko +5 %", HUD „Abwehr 8", Bericht „Risiko 0 % / Aufmerksamkeit 0 %". Das
+  Zielbild wollte eine Gegner-Zahl; Risiko und Aufmerksamkeit gehören aus jeder Anzeige.
+- **Zwei Fünfen:** Kapazität 5 und AP 5 stehen nebeneinander, die Karte zeigt „2" — der Spieler liest AP.
+- **Drei Namen:** „Operation: Westunion" (Titel), „Desinformation Network" (README/Paket), „Das Rennen um
+  Westunion" (Zielbild). Vorschlag zum Nachdenken: **„Sonntagsfrage"** — ein Wort, jeder im Land versteht die
+  Prämisse, und der Wahlbalken ist das Logo.
+
+### 7.6 Der Bildungszweck ist ein Disclaimer, kein Hook
+Die gelbe Box auf dem Titel liest sich wie Kleingedrucktes. Dabei ist die Prämisse der Hook: **„Du spielst die
+Gegenseite. Danach erkennst du sie."** Als Untertitel statt als Warnung. Das Methoden-Dossier (18 reale Fälle)
+wird dann zur Belohnung: Ein Eintrag schaltet sich frei, wenn man die Masche benutzt hat — nicht als Lexikon
+von Tag 1.
+
+### 7.7 Das Projekt dokumentiert mehr, als es spielt
+STATUS.md hat 53 KB, es gibt Dutzende Pläne, Fremdmodell-Jurys, Doppel-Review-Kontrakte und 843 Tests — und
+keine einzige zu Ende gespielte Partie. Jede Session hat ein Dokument und eine Wache hinterlassen, nie das
+Gefühl des Spielers. Das ist keine Kritik an der Sorgfalt, sondern eine Erklärung, warum das Spiel trotz allem
+nicht spaßig ist: **Spaß wird nicht getestet, nur gemessen.** Empfehlung für die nächsten Etappen:
+- Jede Session endet mit **zehn Minuten Spielen durch dich**, nicht mit einem Statusdokument.
+- Die Headless-Sonde (2 Sekunden Laufzeit) wird die Dauer-Messlatte für Tempo, Leerlauf und Erzähl-Reichweite.
+- Doku-Freeze bis E2: nur dieses Dokument und STATUS werden fortgeschrieben.
+
+### 7.8 Technik-Randnotiz
+Alles landet in drei Dateien: `StoryEngineAdapter.ts` (7.884 Zeilen), `useStoryGameState.ts` (1.927),
+`StoryModeGame.tsx` (1.853). Für E1–E4 sind die Änderungen klein, sitzen aber genau dort. Das ist beherrschbar,
+weil die Tests greifen — es heißt nur: pro Etappe ein PR, nicht pro Idee.
