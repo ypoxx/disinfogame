@@ -277,3 +277,134 @@ nicht spaßig ist: **Spaß wird nicht getestet, nur gemessen.** Empfehlung für 
 Alles landet in drei Dateien: `StoryEngineAdapter.ts` (7.884 Zeilen), `useStoryGameState.ts` (1.927),
 `StoryModeGame.tsx` (1.853). Für E1–E4 sind die Änderungen klein, sitzen aber genau dort. Das ist beherrschbar,
 weil die Tests greifen — es heißt nur: pro Etappe ein PR, nicht pro Idee.
+
+---
+
+## 8. Nachtrag 2026-10-12 — Raum für Raum
+
+Alle zehn Räume des Gebäudes besucht (über das Etagen-Verzeichnis), jeden NPC angesprochen, die erste Option
+gewählt, den Weg NPC → Anheften → Narrativ-Tafel → Ausspielen zu Ende gespielt. Zuerst die Gesamtschau, damit
+die Einzelvorschläge sich nicht widersprechen; dann die Räume.
+
+### 8.1 Gesamtschau — die Regel, nach der alles sortiert ist
+
+**Jeder Raum hat genau ein Verb, und jedes Verb gibt es genau einmal.** Heute verkaufen vier NPCs dieselben
+Terminal-Aktionen noch einmal (als Dialog-Option), Marina hat zwei Räume, die Analyse-Abteilung wiederholt, was
+der Frische-Stempel auf der Karte längst zeigt, das Büro ist ein Hub mit fünf Türen zu Dingen, die es auch per
+Taste gibt. Das ist die Quelle der „vier Wege zum selben Ziel" (§7.4).
+
+Zweite Regel: **Es gibt nur EIN Ausführungsmodell.** Heute führt das Terminal sofort aus („AUSFÜHREN"), NPCs
+heften an („liegt jetzt auf dem Sendeplan"), die Tafel spielt angeheftete Karten aus. Dreimal dieselbe Sache,
+zweimal mit Umweg. Vorschlag: **Sofort ausspielen, überall** — das passt zu H1 (Stempelzeile pro Aktion) und zur
+Sucht-Schleife (Klick → Antwort). Die Tafel wird dadurch vom Warteschlangen-Werkzeug zum **Story-Brett**: Sie
+zeigt die laufenden Stränge und deren offene Schritte (die Antwort auf „was mache ich JETZT?"), nicht eine Queue.
+„Anheften" und „Tagesgeschäft" entfallen.
+
+Dritte Regel: **Räume ziehen, sie warten nicht.** Eine Tür leuchtet, wenn dahinter etwas Neues liegt (Marina hat
+eine Episode, Igor eine Tranche, der Kurator eine Mahnung). Ohne das Signal sind zehn Räume zehn Fragen; mit
+dem Signal sind sie ein Postfach.
+
+So sieht das Gebäude danach aus (Hotkeys = Abkürzungen zu Räumen, nicht eigene Welt; das ergänzt §3/H7 um
+**N** für den Newsroom, also vier Buchstaben plus Esc):
+
+| Raum | Das eine Verb | Was dorthin wandert | Was wegfällt | Taste |
+|---|---|---|---|---|
+| Ihr Büro | **Maßnahmen ausspielen** (Terminal) | — | Hotspots Tafel/Lagebild/Welt-Ereignisse | A |
+| Kurator / Zentrale | **Auftrag & Geld** (Akte, Tranchen, Nachspielzeit, Akt-Wechsel) | Mission-Panel | seine 3 Verkaufs-Aktionen | M |
+| Medien-Zentrum · Marina | **Themen & Episoden** (Wochenstrang, Themen im Aufwind) | Narrativ-Tafel als Story-Brett, „Themen im Aufwind" | ihre Analyse-Aktionen | T |
+| Zielgruppen-Analyse | **Das Publikum** (acht Wohnzimmer groß, Fokusgruppe) | Broadcast-Wohnzimmer, Fokusgruppe | Marinas Vortrag, der Vortest als eigener Screen | B |
+| Newsroom | **Die Welt** (TV, Gegenseite, Sonntagsfrage-Archiv, Weltereignisse) | Panels N und E | „Themen im Aufwind" (→ Marina) | N |
+| Cyber-Lab · Alexei | **Ausbau Technik** (einmalige Infrastruktur) | Ausbau-Karten aus dem Terminal | seine Lore-Fragen als Liste | — |
+| Feld-Operationen · Katja | **Ausbau Menschen** (Verbreiter, Kontakte, Kompromat beschaffen) | Verbreiter + Kompromat aus der Operations-Akte | ihre 3 Terminal-Aktionen | — |
+| Finanzen · Igor | **Kasse** (Tranchen, Tarnfirmen, Einnahmen, Rabatte) | Kapazität (geht in die Kasse auf) | seine Terminal-Aktionen als Dialog | — |
+| Operationszentrale | **Die große Operation** (Ziel × Schwäche → Ausspielen) | — | Verbreiter/Plattform-Schritte (→ Katja/Ausbau); **bis Akt 3 versiegelt** | — |
+| Lobby | **Ankunft & Stimmung** (Pförtner, Morgenzeitung) | Morgenbriefing | eigener „Raum"-Status | — |
+
+Geprüft gegen §3, §5 und §7: H1/H2 (Stempelzeile, bewegliche Zahl) gelten unverändert; H4 (Ausbau vs.
+Maßnahme) bekommt hier seine Orte (Alexei, Katja, Igor = Ausbau; Büro = Maßnahmen); H5 (Publikum als Bühne)
+bekommt einen Raum; H6 (Sonntagsfrage als Sendung) läuft im Newsroom; 7.1 (Kasse + AP) macht Igors Kapazität
+überflüssig; 7.3 (Eskalation) versiegelt die Operationszentrale bis Akt 3; 7.4 (vier Wege) ist mit „ein Verb pro
+Raum" erledigt. Kein Vorschlag unten widerspricht dem.
+
+### 8.2 Die Räume
+
+**Gebäude & Wege (gilt für alle).** Der Weg vom Empfang zum Kurator dauert ~7 s real und 81 Spielminuten;
+ins Cyber-Lab noch länger. Das Etagen-Verzeichnis (F, oder Klick auf den Fahrstuhl) ist heute die beste
+Navigation und sollte die Hauptnavigation sein: Klick auf ein Türschild oder einen Eintrag, Avatar läuft
+maximal 1,2 s, zweiter Klick = sofort da, **keine Spielzeit**. Die NPC-Reiter rechts (KV/MP/AP/KO/IS) öffnen
+heute das Berater-Panel mit „Keine Empfehlungen" — sie fallen weg (Raum = Ort). Türen bekommen ein
+Neu-Signal (Licht, Stern am Schild) — s. dritte Regel.
+
+**Dialog-Box (gilt für alle NPC-Räume).** Die Box liegt über der Figur: Von Marina und Katja sieht man nur
+Haare und ein Auge. Box nach links (60 % Breite), Figur rechts frei. Jeder NPC hat 5–6 „Über …"-Fragen, die
+immer dieselben Erklärtexte liefern — in ein „Fragen ▸"-Untermenü, und einmal gelesen = abgehakt. Die
+Schreibmaschine läuft mit 45 ms/Zeichen; **Leertaste während des Tippens schließt den Dialog samt Optionen,
+statt den Text zu vollenden** (in vier von fünf Räumen reproduziert) — das ist ein Bug, kein Stilmittel.
+
+**1 · Lobby / Empfang.** Der Pförtner reagiert auf keinen Klick (bekannter offener Befund in STATUS). Er ist
+die beste Figur für den Tagesbeginn: Statt des Morgenbriefing-Modals reicht er die Zeitung (Sonntagsfrage,
+ein Gerücht aus den Wohnzimmern, ein Satz vom Kurator). Der Fahrstuhl-Klick öffnet das Verzeichnis — das ist
+richtig und bleibt. Als „Raum" im Verzeichnis braucht die Lobby keinen Eintrag.
+
+**2 · Direktor / Zentrale (Kurator).** Heute begrüßt er und bietet drei Aktionen an (Kampagnenziele, Tarnverein,
+Schein-NGO) — derselbe Katalog wie im Terminal, nur ohne Masche, Milieu und Frische-Stempel. Der Kurator ist
+der Boss, kein Verkäufer: Sein Raum ist die Akte an der Wand (Stand je Achse, Tranchen-Stand, nächste
+Mahnung, Nachspielzeit) und die Akt-Wechsel-Szenen. Das Mission-Panel (M) wird die Abkürzung hierher und
+verliert die alten Hauptziele („destabilisieren 100 → 40").
+
+**3 · Ihr Büro.** Fünf Hotspots (Aktionen, Tafel, Lagebild, Welt-Ereignisse, Feierabend). Lagebild wiederholt
+das HUD plus Team-Moral, Welt-Ereignisse ist an Tag 1 leer und sonst der Newsroom. Das Büro behält zwei Objekte:
+das **Terminal** (das Spiel-Verb) und den **Fernseher** (Sprung in Publikum/Newsroom), dazu die Tür und
+Feierabend. Das Terminal öffnet an Tag 1 nach dem Briefing von selbst (§3 H7).
+
+**4 · Operationszentrale (Operations-Akte).** Der ambitionierteste Screen: Ziel (9 Archetypen) → Schwäche →
+Verbreiter (8) → Plattform (5) → Ausspielen, mit Wirkungs-Vorschau. Für Tag 1 zu viel und zu früh: „Es fehlt
+noch: Schwäche, Verbreiter, Plattform" nach dem ersten Klick. Vorschlag: Der Raum ist **bis Akt 3 versiegelt**
+(Siegel auf der Tür, der Kurator bricht es: „Die Zentrale genehmigt Operationen gegen Personen.") — das ist die
+Eskalation aus §7.3 als Ort. Verbreiter-Aufbau und Kompromat-Beschaffung wandern zu Katja (Ausbau, Akt 1–2),
+so dass die Akte in Akt 3 nur noch **Ziel × Schwäche × Kanal → Ausspielen** ist: drei Klicks. Die Kürzel
+RW/GLB/RISK werden Wörter (Reichweite, Glaubwürdigkeit, Risiko).
+
+**5 · Cyber-Lab (Alexei).** Bietet die drei illegalen Tag-1-Empfehlungen (Bot-Netz, Troll-Fabrik, Fake-Profile)
+plus Lore. Alexei wird der **Ausbau-Raum Technik**: alle einmaligen Infrastruktur-Karten (Bots, Trolle, Konten,
+Hosting, Opsec) liegen nur hier, als Werkstatt-Tafel mit Stufen („Bot-Netz: Stufe 0 → 1, 12K"), nicht als
+Dialog-Option. Seine Warnung „Infrastruktur-Defizit: 5 Level" wird damit zum sichtbaren leeren Regal statt
+zu einem Berater-Satz. Reihenfolge-Lehre: Erst Ausbau, dann wirkt die Maßnahme stärker — das erklärt sich
+selbst, wenn die Maßnahmen-Karte „ohne Verstärker: Wirkung ×0,5" zeigt.
+
+**6 · Medien-Zentrum (Marina).** Der stärkste NPC-Moment des Spiels: „★ Die Brücke, die zweimal steht" —
+eine Episode mit Frage („der leise Keil oder der laute Graben?"), drei Schritten, Korkbrett-Faden. Das ist
+genau der Wochenrhythmus aus §7.2 und sollte **ihr einziges Angebot** sein: pro Sonntagsfrage eine Episode,
+mit Abschluss-Szene bei ihr. Ihre Analyse-Aktionen (Zielgruppe, Stimmung, Bilanz) fallen weg oder werden
+Episoden-Schritte. „Themen im Aufwind" (heute im Newsroom) gehört zu ihr — Themen sind Produktion, nicht Welt.
+
+**7 · Zielgruppen-Analyse (Maschen-Vortest).** Drei Absätze Marina-Monolog hinter „Verstanden", dann ein
+Vortest für acht Milieus — Marina also in zwei Räumen, und der Vortest wiederholt, was die Terminal-Karte mit
+FRISCH/BEKANNT/VERBRANNT je Milieu schon zeigt. Vorschlag: Der Raum wird **das Publikum** (§3 H5): die acht
+Wohnzimmer groß, jedes mit seinem Bild (Küchenstreit, Abwinken, Parteifahne), dazu die Fokusgruppe als
+Klick ins Wohnzimmer. Taste B springt hierher; die Broadcast-Leiste unten zeigt weiterhin das Mini-Bild.
+
+**8 · Newsroom.** An Tag 1 dunkel: „Aufklärung 0 %", „0 Beiträge", fünf Milieu-Balken. Der richtige Raum für
+**die Welt**: der laufende Sender (Zielbild: „die WELT darf laut sein"), die Gegenseite mit ihren Stufen
+(Prebunking, Faktencheck, Task-Force — das Immunsystem bekommt hier sein Gesicht als Sendung), das
+Sonntagsfrage-Archiv als Kurve, die Weltereignisse. Die Panels N (Nachrichten) und E (Ereignisse) gehen darin
+auf. Leerzustand an Tag 1: Testbild plus „Sendebeginn mit Ihrer ersten Maßnahme" — und der erste Beitrag
+sollte noch am selben Tag laufen.
+
+**9 · Feld-Operationen (Katja).** Bietet Dossier, Beobachtung, Akademiker-Anwerbung plus Lore. Katja wird der
+**Ausbau-Raum Menschen**: Verbreiter aufbauen (Influencer, Ex-Politiker, Rand-Akademiker, Schein-NGO,
+Frontmedium — heute in der Operations-Akte vergraben) und Kompromat beschaffen (Akt 2). Ihr Raum zeigt das
+„Netz" als Liste mit Aufbaustand („Frontmedium: Tag 2 von 2"). Sie ist damit die Frau fürs Grobe, wie ihr Text
+es verspricht.
+
+**10 · Finanzen / Tresor (Igor).** Bietet Tarnfirma, Parteifinanzierung, Krypto-Spenden („-22K" — ein
+negativer Preis als Einnahme, das versteht niemand: „+22K Einnahme"). Igor wird die **Kasse**: Tranchen der
+Zentrale (E18, mit Fortschritts-Anzeige „nächste Tranche bei 14 %"), Tarnfirmen als Ausbau (Rabatte),
+Einnahme-Züge mit Risiko, und die Pleite-Mahnung als Szene bei ihm statt als Zahl. Kapazität verschwindet
+(§7.1), dann ist er der einzige Ort, an dem Geld erklärt wird.
+
+### 8.3 Drei Sätze zur Reihenfolge
+Nichts davon braucht neue Grafik; jeder Raum hat sein Bild. Die Reihenfolge folgt den Etappen aus §5: In **E1**
+fallen Reiter, Hotspots und Verkaufs-Dialoge (Subtraktion, ein Ausführungsmodell); in **E3** bekommen Alexei,
+Katja und Igor ihre Ausbau-Tafeln und die Operationszentrale ihr Siegel; in **E4** werden Zielgruppen-Analyse
+das Publikum und der Newsroom die Welt. Marinas Episode läuft ab E2 im Wochenrhythmus.
