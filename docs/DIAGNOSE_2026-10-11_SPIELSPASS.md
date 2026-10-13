@@ -408,3 +408,71 @@ Nichts davon braucht neue Grafik; jeder Raum hat sein Bild. Die Reihenfolge folg
 fallen Reiter, Hotspots und Verkaufs-Dialoge (Subtraktion, ein Ausführungsmodell); in **E3** bekommen Alexei,
 Katja und Igor ihre Ausbau-Tafeln und die Operationszentrale ihr Siegel; in **E4** werden Zielgruppen-Analyse
 das Publikum und der Newsroom die Welt. Marinas Episode läuft ab E2 im Wochenrhythmus.
+
+---
+
+## 9. Nachtrag 2026-10-13 — Die Hebel auf einen Blick, mit Optionen
+
+Antwort auf die Owner-Frage „Was sind jetzt also die grundlegenden Hebel?" — plus drei Owner-Gedanken, die
+hier eingearbeitet sind: *ein Ort pro Funktion*, *Freischalten durch Erfolge statt alles ab Tag 1*, und *der
+Hoax als Eröffnung*. Zwei Fakten vorweg, die die Antwort prägen:
+
+- **Der Hoax-Testballon existiert nur im Zielbild, nicht im Code.** Kein Treffer für „hoax", „Testballon" oder
+  „Sandbox" in `src/story-mode`. Er muss gebaut werden — und er ist der beste Einstieg, den das Spiel haben kann.
+- **„Narrative" sind Kampagnen.** `episodes.json` enthält 13 Einträge mit Schauplatz, Lage, Beteiligten,
+  Auslöser, 2–3 Einklink-Schritten, einer Wendung, Wirkung und Lernmoment („Die Brücke, die zweimal steht",
+  „Frau Ferro hat Feierabend gemacht", „Die gestohlene Wahl"). Das ist genau das, was ein Spieler unter einer
+  Kampagne versteht. Das Wort „Narrativ-Tafel" ist das Problem, nicht die Sache. Ab hier heißt es **Kampagne**.
+
+### 9.1 Der Satz, an dem alles hängt
+
+> **Ein Ort pro Funktion, ein Verb pro Tag, eine Zahl, die auf jeden Klick antwortet, ein Rennen, das am
+> Wahltag endet — und ein Spiel, das sich mit jedem Erfolg ein Stück weiter öffnet.**
+
+### 9.2 Die zehn Hebel
+
+| # | Hebel | Problem heute | Empfehlung | Alternativen | Etappe |
+|---|---|---|---|---|---|
+| 1 | **Jeder Klick bekommt eine Antwort** | Ergebnis-Modal mit 20 Zahlen, die Zielzahl bewegt sich nicht | Stempelzeile am HUD („VOLLZOGEN · Sonntagsfrage +0,3 · Abwehr +1"), Details auf Klick | *B* Modal behalten, auf 5 Zeilen kürzen · *C* gar kein Sofort-Feedback, nur die Abendsendung zeigt Wirkung (dramatischer, lernt langsamer) | E1 |
+| 2 | **Eine Zahl** | Drei versteckte Achsen, Min-Regel; vorsichtiges Spiel sieht 8 Tage lang 9,0 % | **Mutig:** nur EINE Achse ist die Sonntagsfrage (Fraktionsstärke); Vertrauen und Zynismus werden Multiplikatoren, die bestimmen, wie stark eine Masche wirkt (Plague Inc.: eine Zahl, viele Modifikatoren) | *Sicher:* Anzeige = gewichtete Summe, Sieg-Check bleibt Min, drei Teilbalken zeigen die klemmende Achse | E1 |
+| 3 | **Das Rennen endet am Wahltag** | Sieg feuert bei Schwelle, aggressiv Tag 13 von 40; Wahlabend findet nicht statt | Kein Sieg vor Tag 40; Schwelle erreicht = Endspurt (Land wacht auf, Abwehr ×2, Zentrale hebt die Marke); Wahlabend läuft immer | *B* 20-Tage-Blitzkampagne mit frühem Sieg · *C* zwei Kampagnen: Kommunalwahl 20 Tage als Lehrstück, Westunion 40 Tage als Hauptspiel | E2 |
+| 4 | **Der Hoax eröffnet** | Existiert nicht; Tag 1 beginnt mit 143 Aktionen im Terminal und drei illegalen Empfehlungen | **Tag 1 IST der Hoax:** Marina: „Probieren wir was." Eine erfundene Meldung, ein Milieu, das Wohnzimmer reagiert, Ferro checkt die Fakten → erster Abwehr-Tick. Dann erst schiebt der Kurator die Akte über den Tisch: „Sie haben es verstanden. Jetzt im Großen." Drei Minuten, keine Gefahr, beide Balken einmal gesehen | *B* Tag 0 als folgenlose Sandbox vor dem Spiel (Zielbild §10) · *C* Cold Open: der Hoax läuft vor dem Titelbild | E2 |
+| 5 | **Freischalten durch Erfolg** | Alles ab Tag 1 offen: 10 Räume, 14 Tasten, 8 Vorgänge + 88 im Archiv | **Das Gebäude wächst.** Start: Büro, Kurator, Marina. Jede Sonntagsfrage-Marke (12 % · 15 % · 18 % · 21 %) öffnet eine Tür, einen NPC und eine Maschen-Familie — mit Szene (Schlüsselübergabe, Licht geht an). Die ROADMAP hat das als `unlocksRoom`/`unlocksNpc` (P3) schon vorgesehen | *B* alle Räume sichtbar, aber nach Akt versiegelt (zeitgesteuert) · *C* Freischaltung über Tranchen der Zentrale (geldgesteuert) | E3 |
+| 6 | **Ein Ort pro Funktion** | Vier NPCs verkaufen den Terminal-Katalog, Marina hat zwei Räume, Büro ist ein Hub mit fünf Türen | Raum = Verb (Tabelle §8.1). **Dazu, neu:** NPCs mit Neuigkeiten **kommen ins Büro** (Türklopfen, Marina mit der Kampagne, Igor mit der Tranche); man geht nur für Ausbau zu ihnen. Das Gebäude bleibt die schöne Bühne, das Laufen hört auf, Pflicht zu sein | *B* radikal: kein Laufen, Gebäude nur Übersichtskarte, alles vom Schreibtisch (MadTV) · *C* alles wie heute, nur Reiter und Hotspots weg | E1 (Subtraktion) + E3 (Besuche) |
+| 7 | **Jeden Tag etwas zu tun** | 143 Einmal-Aktionen, Deck läuft leer, an über der Hälfte der Tage nur 1 Zug | Zwei Kartensorten: **Ausbau** (einmalig, bei Alexei/Katja/Igor) und **Maßnahme** (wiederholbar: Masche × Milieu × Thema, 18 Familien, Frische-Stempel als Kern-Entscheidung) | *B* 143 Aktionen behalten, mit Abklingzeit wiederholbar · *C* nur Kampagnen-Schritte, kein freies Terminal (sehr geführt, wenig Freiheit) | E3 |
+| 8 | **Kampagnen statt „Narrative"** | 13 Episoden, Brett-Cap 2, 0 abgeschlossen; Owner versteht die Tafel nicht | **Kampagne = Woche = Freischaltung.** Marina bringt pro Sonntagsfrage eine Kampagne (Lage, 2–3 Schritte, Wendung); abgeschlossen → nächste Tür/Familie geht auf (verschmilzt mit Hebel 5). Die Tafel wird „Die Woche": eine Karte, ein Ziel, drei Schritte | *B* freies Brett wie heute (abgelehnt) · *C* Kampagnen nur als Akt-Dramaturgie ohne Freischalt-Funktion | E3 |
+| 9 | **Das Land als Bühne** | Acht Milieus als Balken, Wohnzimmer als Mini-Leiste | **Der Wohnblock gegenüber:** Im Gebäude-Querschnitt steht auf der anderen Straßenseite ein Mietshaus mit acht beleuchteten Fenstern — ein Fenster pro Milieu. Küchenstreit, Abwinken, Parteifahne, dunkles Fenster: man sieht das Land kippen, ohne einen Balken zu lesen. Zwei Querschnitte: die Agentur und die Leute | *B* eigener Raum (Zielgruppen-Analyse wird Publikum, §8) · *C* Broadcast-Leiste vergrößern | E4 (B als Zwischenschritt in E3) |
+| 10 | **Ton & Lernen** | „✓ AKTION ERFOLGREICH" grün; Bildungszweck als Disclaimer; Dossier als Lexikon ab Tag 1 | Kühler Stempel statt Feier; Untertitel „Du spielst die Gegenseite. Danach erkennst du sie."; Dossier-Einträge schalten sich frei, wenn man die Masche benutzt hat; Niederlage = Sondersendung mit den eigenen Schlagzeilen | *B* didaktische Einschübe (abgelehnt, Zielbild E10) | E1–E4 laufend |
+
+Dazu, unterhalb der Hebel, drei **Aufräum-Entscheidungen**, die keine Optionen brauchen: Kasse + AP als einzige
+Budgets (Kapazität weg, Uhr kostet nichts); Hotkeys A · B · M · N + Esc; Mission- und Statistik-Panel ohne
+Alt-Ziele. Und eine **Prozess-Entscheidung**: Jede Session endet mit zehn Minuten Spielen.
+
+### 9.3 Wie die Hebel zusammenhängen (damit nichts kollidiert)
+
+```
+Hoax (4)  ──►  Akte  ──►  Woche 1: Kampagne (8)  ──►  Sonntagsfrage-Marke  ──►  Tür geht auf (5)
+                              │                              ▲
+                              ▼                              │
+                     Maßnahmen Masche×Milieu (7) ─── Stempelzeile (1) ─── EINE Zahl (2)
+                              │
+                              ▼
+                   Wohnblock gegenüber zeigt die Wirkung (9)   ...   Tag 40: Wahlabend (3)
+```
+
+Hebel 4, 5 und 8 sind eigentlich **ein** Hebel: Das Spiel ist eine Leiter aus Erfolgen, und jede Sprosse
+öffnet ein Stück Gebäude. Hebel 1, 2 und 7 sind der **Takt** darunter: jeden Tag drei bis fünf Züge, jeder
+mit Antwort. Hebel 3 und 9 sind das **Drama**: ein Land, das man kippen sieht, und ein Abend, an dem es
+zählt. Hebel 6 und 10 sind **Aufräumen und Ton**. In dieser Reihenfolge gebaut, widerspricht sich nichts;
+§8 (Räume) und §5 (Etappen) bleiben gültig, §5 bekommt in E2 den Hoax und in E3 das wachsende Gebäude dazu.
+
+### 9.4 Was das Spiel dann ist — in drei Minuten erzählt
+
+Tag 1. Marina schiebt dir eine erfundene Meldung zu: „Probieren wir was." Du wählst ein Viertel, die Meldung
+geht raus, im Fenster gegenüber geht ein Streit los — und eine Zeitung landet auf dem Tisch: Faktencheck.
+Der zweite Balken zuckt. Dann die Akte: 9 %, Zielstrich, Wahltag in 40 Tagen. Woche für Woche bringt Marina
+eine Kampagne, du spielst Maschen auf Milieus, die Fenster gegenüber verändern sich, alle fünf Tage läuft
+die Sonntagsfrage im Fernsehen, und mit jeder Marke geht im Haus ein Licht an: Alexeis Lab, Katjas Netz,
+Igors Tresor, zuletzt die Operationszentrale mit dem Siegel. Das Land wacht auf, die Abwehr steigt, der
+Kurator wird kühler. Am Abend des 40. Tages sitzt du im dunklen Büro vor dem Fernseher und siehst, ob der
+Balken kippt — und der Pförtner sagt beim Rausgehen den einen Satz, der weh tut.
