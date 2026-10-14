@@ -229,6 +229,9 @@ Sonde kommen nicht von den AP, sondern von der Kapazität. MadTV hat ein Budget 
 
 Die Tafel ist ab Tag 2 voll, die Angebote stapeln sich (11 offene Angebote an Tag 14), und keine Episode wird
 je zu Ende erzählt, weil die Partie an Tag 14–16 endet. Der Spieler sieht von der Erzählung nur Anfänge.
+
+> **Korrektur 2026-10-14 (§10):** Die „0 abgeschlossen" gelten nur für eine Simulation, die Kampagnen-Schritte
+> nicht gezielt spielt. Ein Spieler, der Kampagnen verfolgt, schließt in einer Partie **4** ab — siehe §10.
 Empfehlung: Episoden sind der **Wochenrhythmus** (eine pro Sonntagsfrage, mit Abschluss-Szene), nicht ein
 Pool mit Cap. Konsequenzen an die Maschen-Wiederholung koppeln (die n-te gleiche Masche löst sie aus), damit
 das Lehrstück „jede Aktion hat Folgen" auch stattfindet. Verrat entweder an einen Moral-Schwellenwert hängen,
@@ -476,3 +479,39 @@ die Sonntagsfrage im Fernsehen, und mit jeder Marke geht im Haus ein Licht an: A
 Igors Tresor, zuletzt die Operationszentrale mit dem Siegel. Das Land wacht auf, die Abwehr steigt, der
 Kurator wird kühler. Am Abend des 40. Tages sitzt du im dunklen Büro vor dem Fernseher und siehst, ob der
 Balken kippt — und der Pförtner sagt beim Rausgehen den einen Satz, der weh tut.
+
+---
+
+## 10. Nachtrag 2026-10-14 — Die Kampagnen als Fluss (und eine Korrektur)
+
+Visualisiert im Atlas, Kapitel 5. Grundlage: Engine-Lektüre (`getOfferableEpisodes`, `activateEpisode`,
+`abandonEpisode`, `completeEpisode`; Abschluss-Effekt in `useStoryGameState.ts`) und sechs simulierte Partien
+mit einem Spieler, der jede angebotene Kampagne annimmt und ihre Schritte zuerst spielt.
+
+**Korrektur zu §7.2:** Eine Kampagne schließt ab, sobald alle ihre 2–3 Schritt-Karten gespielt sind. Wer sie
+verfolgt, schließt **4 von 13** ab (Brücke Tag 1, Veen Tag 3, Aktivist Tag 4–5, Denkmal Tag 8). Die „0" aus §7.2
+stammte aus einer Simulation, die die Schritte nie gezielt spielte. Der Befund dahinter bleibt: Die Partie endet
+an Tag 11–20, die Hälfte der Kampagnen kommt nie zum Zug.
+
+**Der Lebenslauf:** Pool → Auslöser (immer · Weltereignis · Wert-Schwelle) → Angebot im Dialog des anbietenden
+NPC → Brett frei? (2 Plätze, ab Akt 3: 3; sonst Tausch, der alte verfällt ohne Wirkung) → aktiv, Schritte
+werden geheftet → alle Schritte gespielt → Wirkung auf die Gesellschaft, Lernmoment, Nachricht „ausgespielt".
+
+**Vier Bruchstellen:**
+
+| | Bruch | Folge |
+|---|---|---|
+| A | Angebot nur im Raum des richtigen Beraters, ohne Hinweis, wer gerade etwas hat | Kampagnen werden zufällig gefunden |
+| B | Die Wendung („der leise Keil oder der laute Graben?") ist nur Text, keine Wahl | Die interessanteste Frage jeder Kampagne bleibt unbeantwortet |
+| C | 4 Kampagnen haben einen gesperrten Schritt, bei 3 schaltet ihn eine Karte außerhalb frei | Sie bleiben hängen und belegen einen Brett-Platz |
+| D | 7 Karten gehören zu zwei Kampagnen | Eine Kampagne kann ohne einen einzigen eigenen Zug fertig werden |
+
+Auffällig: Die vier Kampagnen mit Auftrag „wahl" (Kanal, Kasse, Zuhause bleiben, Fleck) sind genau die mit
+gesperrten oder geteilten Schritten. Gleichzeitig tragen die Daten die Akt-Struktur schon in sich: Feld
+`auftrag` = Keil (3) · Zweifel/Stillstand (6) · Wahl (4) passt auf Akt 1 · 2 · 3.
+
+**Vorschlag (verfeinert Hebel 8):** Eine Kampagne ist eine Woche. Marina klopft im Büro an (kein Suchen),
+die Wendung wird zur ersten Wahl der Woche (A/B mit unterschiedlichen Schritten, Risiko und Wirkung), die
+Schritte sind wiederholbare Maschen-Karten auf genannte Milieus, der Abschluss fällt mit der Sonntagsfrage-
+Sendung an Tag 5 zusammen, danach geht eine Tür auf. Drei Datenregeln: kein gesperrter Schritt, keine geteilte
+Karte, jede Kampagne gehört zu einem Akt.
