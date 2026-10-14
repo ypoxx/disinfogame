@@ -515,3 +515,36 @@ die Wendung wird zur ersten Wahl der Woche (A/B mit unterschiedlichen Schritten,
 Schritte sind wiederholbare Maschen-Karten auf genannte Milieus, der Abschluss fällt mit der Sonntagsfrage-
 Sendung an Tag 5 zusammen, danach geht eine Tür auf. Drei Datenregeln: kein gesperrter Schritt, keine geteilte
 Karte, jede Kampagne gehört zu einem Akt.
+
+## 11. Nachtrag 2026-10-14 — Enden als Storyboard, Menschen, zwei Code-Funde
+
+Der Atlas hat acht neue Kapitel bekommen: Kreislauf (Quellen, Speicher, Schleifen R1/B1–B3),
+Gedächtnis (die 8 × 18-Tabelle einer echten Partie zum Abspielen), Spannungskurve (heute gemessen gegen
+Zielbild), Menschen (Milieus und Berater), Storyboard der Enden, Zielscreens, Lernlandkarte, Fahrplan.
+Zwei Funde daraus gehören hierher, weil sie Code betreffen.
+
+**11.1 Alle Berater haben dieselben roten Linien.** Der Verrat ist fertig gebaut
+(`story-mode/engine/BetrayalSystem.ts`), kann aber nie aus dem Charakter einer Figur entstehen:
+
+- `StoryEngineAdapter.ts` bildet `npc.archetype || npc.role` auf einen Archetyp ab. Die NPC-Daten tragen
+  keinen der Schlüssel aus `archetypeMap`, also landet jeder Berater bei `'ideologue'`.
+- Danach ruft `useStoryGameState.ts` `betrayalSystem.initializeNPC(npc.id, npc.name, npc.morale)` auf,
+  mit dem **Namen** als Archetyp. Der Name ist kein Schlüssel in `ARCHETYPE_RED_LINES`, also gilt für alle
+  der Rückfall `['violence', 'children']`. Dieser zweite Aufruf überschreibt den ersten.
+
+Vorschlag: ein eigenes Feld `rote_linien` je NPC in `data/npcs.json`, der zweite Aufruf entfällt. Aus den
+Charakteren abgeleitet: Marina „Journalisten attackiert", Alexei „Whistleblower angegriffen", Katja
+„Kollegen geopfert", Igor „Gewalt gegen Unschuldige", der Kurator keine eigene (er verrät nicht, er lässt
+fallen). Das ist zugleich die Grundlage für das Ende „Enttarnt" (Verrat als Leck, +15 Abwehr).
+
+**11.2 Was den Enden fehlt.** Die Texte aller vier Enden stehen in `WahlabendScene` (Sieg, verloren, Land
+hält stand, enttarnt). Es fehlen die Bilder und der Rückbezug auf die eigene Partie:
+
+| Ende | fehlt |
+|---|---|
+| Sieg | Wahlstudio-Bild, Jubel-Pose der Milieu-Figuren, der Pförtner-Satz mit einer echten Schlagzeile des Spielers, der Splitscreen im Endreport („Kein einziger Schuss") |
+| Verloren | Wahlparty-Bild, Schredder-Szene (Grafik existiert) |
+| Land hält stand | Erklärung Masche für Masche durch die Faktencheckerin, „Das Land winkt ab"-Bild (Pose existiert) |
+| Enttarnt | Organigramm in der Sondersendung (alle Porträts existieren), „Wer hat geredet?" — feuert heute nie, siehe 11.1 |
+
+Voraussetzung für alle vier: Die Partie muss den Wahlabend erreichen (Hebel 3); heute endet sie meist um Tag 12–18.
